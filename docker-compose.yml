@@ -1,9 +1,9 @@
 # Local development stack. Secrets come from .env (never committed);
 # run  python scripts/bootstrap_env.py  to generate one.
 #
-# Postgres is pinned to 16 to match the Jelastic production node, not to the
-# newest release - a local/production version gap is a bug waiting to surface
-# only in production.
+# Postgres: production and CI run 18; this local stack is still on 16 until
+# its volume is migrated (see the db service). CI is what closes the gap - the
+# full suite runs against 18 before anything ships.
 services:
   web:
     build: .
@@ -77,6 +77,10 @@ services:
         condition: service_healthy
 
   db:
+    # Production and CI run PostgreSQL 18. This stays on 16 until the local
+    # volume is moved over: a major upgrade needs a dump and restore (an 18
+    # server refuses a 16 data directory), and the official 18 image also
+    # moved its data path. Nothing here uses a feature 16 lacks.
     image: postgres:16-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB}

@@ -13,8 +13,15 @@ COPY billing ./billing
 COPY goldfishlab ./goldfishlab
 RUN tailwindcss -i assets/css/input.css -o static/css/main.css --minify
 
-# Stage 2: the Django application image
-FROM python:3.13-slim
+# Stage 2: the Django application image.
+#
+# Debian 12 (bookworm), named explicitly. The bare `python:3.13-slim` tag moved
+# to Debian 13, and Jelastic refuses a custom container on a distribution it
+# does not support ("unsupported OS template" - the wiemeinsch.ch import hit it
+# on 2026-09-27 with an official Debian 13 image). Supported include Debian 12,
+# Alpine 3, AlmaLinux 9 and Ubuntu 18.04-24.04, amd64 only.
+# tests/test_deploy.py fails if a FROM line leaves that list.
+FROM python:3.13-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -46,9 +53,9 @@ RUN DJANGO_SETTINGS_MODULE=goldfishlab.settings.prod \
 RUN useradd --create-home appuser && chown -R appuser:appuser /app
 USER appuser
 
-# 8080, NOT 8000. Jelastic routes the environment URL to
-# JELASTIC_PRIORITY_PORTS=8080; serving anywhere else gives "connection
-# refused" on the public URL with no other symptom.
+# 8080, NOT 8000: the port the Cloudflare Tunnel's route points at
+# (<cp internal IP>:8080). No node is reachable through Jelastic's shared load
+# balancer; the tunnel is the only way in.
 EXPOSE 8080
 
 CMD ["./start.sh"]

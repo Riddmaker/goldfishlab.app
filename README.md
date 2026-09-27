@@ -31,8 +31,7 @@ larger than the real one, and a combo that needs *any creature with persist* get
 in words and no percentage at all.
 
 The coverage score every result carries is **two numbers, not one**: how much of the deck the engine could *read*, which is this application's limit to fix, and how much of it somebody has *decided*, which only the deck's author can answer. They were one number until they were measured, and three quarters of every gap turned out to be the second kind.
-See [docs/phases/RESUME.md](docs/phases/RESUME.md) for current state and next steps, and
-[docs/phases/](docs/phases/README.md) for the full roadmap.
+See [docs/phases/](docs/phases/README.md) for how it was built, phase by phase.
 
 **Phase 8's local half landed on 2026-09-22**: a Content-Security-Policy on every response, rate limits that are counted somewhere shared rather than per worker, an upload row ceiling, `pip-audit` in CI, env-gated Sentry, JSON logging in production, terms and a privacy policy, a data export and an account deletion that both actually work, and an [`/about/methodology`](docs/phases/phase-8-launch.md) page saying plainly what is simulated and what is not.
 
@@ -319,23 +318,19 @@ mentioned an opponent would be making your judgement for you and hiding it insid
 
 ## Deployment
 
-Production is Infomaniak Jelastic. `jelastic.jps.example` recreates the whole environment:
-web node, Celery worker node, PostgreSQL 16, persistent storage, Redis.
-
-Three things are easy to get wrong and are all documented in the manifest:
-
-1. **The app serves on port 8080**, not 8000. Jelastic routes the environment URL to
-   `JELASTIC_PRIORITY_PORTS`; anything else gives "connection refused" with no other symptom.
-2. **The GHCR package must be Public.** Jelastic cannot pull a private image without registry
-   credentials, and the only symptom is a node that never comes up. (The code is public anyway -
-   see "Licence" below.)
-3. **The worker runs on its own node.** One cloudlet is 128 MiB; Django and gunicorn alone take
-   250–350 MiB of the web node's ceiling, so a worker sharing it would be OOM-killed under load.
+Production runs on Infomaniak's Jelastic Cloud in Switzerland: a web node, two Celery worker
+nodes (long and short runs), PostgreSQL and Redis, with a Cloudflare Tunnel as the only way in -
+no node is reachable from the internet directly. Every node runs a supported base system
+(Debian 12 or Alpine 3); Jelastic refuses others as custom containers.
 
 Work happens on `dev`; `checks.yml` runs lint, the dependency audit and the full test suite on
 every push there and on every pull request into `main`, which only merges green and approved.
-A push to `main` runs the same checks again, builds the image, pushes it to GHCR and triggers
-the Jelastic redeploy webhook. Every merge to `main` is a production deploy.
+A merge to `main` runs the same checks again, builds the image, pushes it to GHCR tagged with the
+commit, signs it, and redeploys through the Jelastic API - a deploy is always an immutable commit
+tag, and a rollback is the same path pointed at an older one.
+
+The operator's runbook, the production manifest and the restore procedure are kept outside this
+repository on purpose.
 
 ## Feedback and security
 

@@ -126,7 +126,7 @@ def start_checkout(user, plan: Plan, *, success_url: str, cancel_url: str,
     With `STRIPE_MANAGED_PAYMENTS` on, Stripe ("Sold through Link") sells the
     plan as merchant of record and deals with the VAT. The subscription and
     its invoices still live in our Stripe account, so the webhook handling
-    below does not change - GO-LIVE step 10 proves that in test mode.
+    below does not change - the launch runbook proves that in test mode.
     """
     if not stripe_api.is_configured() or not plan.stripe_price_id:
         raise BillingNotConfigured(
@@ -154,7 +154,7 @@ def start_checkout(user, plan: Plan, *, success_url: str, cancel_url: str,
         # The order is concluded on Stripe's page, so that is where the terms
         # have to be accepted and the button has to say what it does. The
         # checkbox needs a terms URL in Stripe's Dashboard (Settings -> Public
-        # details); without one the API refuses the session - GO-LIVE step 10.
+        # details); without one the API refuses the session (launch runbook).
         "submit_type": "subscribe",
         "consent_collection": {"terms_of_service": "required"},
         "custom_text": {"terms_of_service_acceptance": {"message": (

@@ -338,7 +338,7 @@ def test_the_privacy_policy_names_what_is_stored(client):
 def test_the_privacy_policy_names_every_service_that_sees_data(client):
     """DSG Art. 19: the recipients, and the countries abroad."""
     content = client.get(reverse("privacy")).content.decode()
-    for recipient in ("Infomaniak", "Stripe", "Scryfall", "Commander Spellbook"):
+    for recipient in ("Infomaniak", "Cloudflare", "Stripe", "Scryfall", "Commander Spellbook"):
         assert recipient in content
     for country in ("Switzerland", "Ireland", "USA"):
         assert country in content

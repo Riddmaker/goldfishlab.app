@@ -1,0 +1,74 @@
+# Keep dependencies current.
+#
+# Version pull requests go to `dev`, not `main`: main takes only reviewed PRs
+# from dev, and every merge there is a production deploy. GitHub opens security
+# updates against the default branch regardless - those are urgent.
+# Every PR runs the checks (checks.yml).
+version: 2
+updates:
+  # Python, requirements.txt and requirements-dev.txt. Pins are exact; a PR
+  # moves one pin and the full suite, statistics included, decides.
+  - package-ecosystem: pip
+    directory: "/"
+    target-branch: dev
+    schedule:
+      interval: weekly
+      day: monday
+    # Freshly published versions are proposed only after a few days - a
+    # compromised release is usually found and pulled within that time.
+    cooldown:
+      default-days: 7
+    groups:
+      # Minor and patch updates together; majors come one at a time, because
+      # they deserve their own attention (Django above all).
+      minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps"
+
+  # The actions are pinned exactly in the workflows; pins age without care.
+  - package-ecosystem: github-actions
+    directory: "/"
+    target-branch: dev
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: "ci"
+
+  # The application's base images. A major (Python 3.14, Debian 13) is a
+  # deliberate decision - Debian 13 is not yet a base Jelastic accepts - so
+  # majors are ignored here.
+  - package-ecosystem: docker
+    directory: "/"
+    target-branch: dev
+    schedule:
+      interval: monthly
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    commit-message:
+      prefix: "docker"
+
+  # The tunnel image: cloudflared and its Alpine base, both pinned by digest.
+  # Majors are NOT ignored - cloudflared versions by calendar, so every new
+  # year would look like one. After the merge tunnel-image.yml builds; the
+  # node is switched by hand.
+  - package-ecosystem: docker
+    directory: "/tunnel"
+    target-branch: dev
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      tunnel:
+        patterns: ["*"]
+    commit-message:
+      prefix: "docker"

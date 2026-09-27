@@ -1,0 +1,34 @@
+# Rollback: switch production back to an image built earlier - no rebuild, no
+# revert commit, no pull request.
+#
+# Its own workflow because deploy-prod.yml's "Run workflow" always builds the
+# branch as it is now; it cannot pick an older commit. A revert on main needs
+# a PR and the full pipeline. The images of earlier commits are in GHCR,
+# signed; this verifies the chosen one exactly as a deploy would
+# (redeploy.yml) and points the environment at it.
+#
+# Limit: the database schema is NOT rolled back. That works only because
+# migrations are additive - an older release must run on a newer schema. A
+# migration that drops or renames goes out in two releases: add first, remove
+# later.
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Full commit SHA (40 characters) of an image built on main
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  redeploy:
+    name: Roll back to a signed image
+    uses: ./.github/workflows/redeploy.yml
+    with:
+      # redeploy.yml checks the format and the signature (deploy-prod.yml on
+      # main) before anything reaches the platform.
+      tag: ${{ inputs.sha }}

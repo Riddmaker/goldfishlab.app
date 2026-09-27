@@ -35,7 +35,7 @@ urlpatterns = [
     path("healthz/", healthz, name="healthz"),
     # The methodology page is a competitive asset rather than boilerplate:
     # saying plainly what is simulated and what is not is the thing no
-    # "AI power level: 7.3" competitor can write. See phase-8-launch.md.
+    # "AI power level: 7.3" competitor can write. (Phase 8.)
     path("about/methodology/", MethodologyView.as_view(), name="methodology"),
     path("terms/", TermsView.as_view(), name="terms"),
     path("privacy/", PrivacyView.as_view(), name="privacy"),

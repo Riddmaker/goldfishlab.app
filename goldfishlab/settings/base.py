@@ -119,7 +119,7 @@ STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY", default="")
 # subscription would otherwise owe from the first sale. Off until Stripe's
 # eligibility review has approved the account - Checkout refuses the parameter
 # before that. The terms, the privacy policy and the plans page read this too,
-# because who sells the plan changes with it. docs/phases/vat-managed-payments.md
+# because who sells the plan changes with it (the operator's VAT notes have the steps).
 STRIPE_MANAGED_PAYMENTS = env.bool("STRIPE_MANAGED_PAYMENTS", default=False)
 
 # --- The operator, for the legal pages ---------------------------------------
@@ -304,7 +304,7 @@ CONTENT_SECURITY_POLICY = {
 
 # --- Rate limiting ----------------------------------------------------------
 # django-ratelimit reads the client address out of REMOTE_ADDR by default.
-# Behind Infomaniak's reverse proxy REMOTE_ADDR is the PROXY, so every visitor
+# Behind the Cloudflare Tunnel REMOTE_ADDR is the TUNNEL NODE, so every visitor
 # on earth would share one bucket and the first few would spend it for
 # everybody. `core.ratelimit.client_ip` takes the right-hand end of
 # X-Forwarded-For instead - see the long comment there about why the right-hand

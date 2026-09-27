@@ -28,6 +28,18 @@ htmlcov/
 # kept on disk - a re-ingest for fresh prices should not mean a fresh download.
 /.data/
 
-# The filled-in manifest. It names the real GitHub account, and GO-LIVE.md
-# promises it is never committed; the .example stays the committed one.
+# The operator's documents stay on the operator's machine (decided 2026-09-27,
+# after the wiemeinsch.ch go-live did the same): the runbook, the restore path,
+# the production manifest and the working notes. None holds a secret, but a
+# public list of what is not hardened yet is a checklist for an attacker, and
+# nobody outside gains anything from them. They were also removed from the
+# history.
 /jelastic.jps
+/infra/
+/DEPLOYMENT.md
+/RESTORE.md
+/docs/phases/GO-LIVE.md
+/docs/phases/RESUME.md
+/docs/phases/phase-8-launch.md
+/docs/phases/pre-launch-review.md
+/docs/phases/vat-managed-payments.md

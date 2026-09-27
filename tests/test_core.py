@@ -17,7 +17,7 @@ def test_home_renders(client):
 def test_home_carries_the_fan_content_disclaimer(client):
     """Required by the WotC Fan Content Policy, in the wording it prescribes.
 
-    See docs/phases/phase-8-launch.md.
+    (Phase 8.)
     """
     response = client.get(reverse("home"))
     assert b"Goldfish Lab is unofficial Fan Content permitted under the" in response.content

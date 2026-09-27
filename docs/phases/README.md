@@ -11,8 +11,8 @@ The German summary and all product decisions live in `../../instructions.md`, se
 **"Teil 2: Die Applikation"**. That file stays the source of truth for decisions;
 these files describe execution.
 
-> **Picking this up in a fresh session? Read [RESUME.md](RESUME.md) first.**
-> It carries the current state, the next concrete steps and the settled decisions.
+> The operator's working notes, the launch runbook and the pre-launch review are kept outside
+> the public repository (2026-09-27); this folder holds how the application was built.
 
 ## Status
 
@@ -29,10 +29,7 @@ these files describe execution.
 | 5b | [phase-5b-effects.md](phase-5b-effects.md) | **Complete** (2026-09-18); the coverage score split in two, and 442 tutors that used to do nothing |
 | 6 | [phase-6-billing.md](phase-6-billing.md) | **Complete** (2026-09-20): collection, printing catalogue and prices, Stripe, and §2 closed by replacing seven planned parsers with one generic CSV importer — [importers.md](importers.md) |
 | 7 | [phase-7-combos.md](phase-7-combos.md) | **§1 and §2 complete** (2026-09-21): combos looked up per deck and cached, **no bulk mirror** — 656.8 MB, no gzip, 70% image URLs; then **turns-to-assemble** for both the combos a deck holds and the ones it is one card short of, the second measured on the deck **plus** that card. §3 and §4 need an API key nobody has |
-| 8 | [phase-8-launch.md](phase-8-launch.md) | **Local half complete (2026-09-22)**; the go-live itself is not run — **the only phase that touches production** |
-| — | [pre-launch-review.md](pre-launch-review.md) | **Complete (2026-09-25).** A full code review before the go-live: twenty-one findings (the last from the screenshot pass), two of which would have broken the launch outright. The checklist of fixes, in five batches |
-| — | [vat-managed-payments.md](vat-managed-payments.md) | **Built 2026-09-25, off by default.** EU/UK VAT is owed from the first sale; Stripe Managed Payments (Stripe as merchant of record, +3.5%) takes it over. Switched on at GO-LIVE step 10 (2e) once Stripe approves the account; one GDPR point open for the user |
-| — | [GO-LIVE.md](GO-LIVE.md) | **The launch runbook.** Open this to do the go-live *with* the user: every step says who does it, how to verify it, and what its failure looks like |
+| 8 | phase-8-launch.md (operator-only) | **Local half complete (2026-09-22)**; the go-live itself is not run — **the only phase that touches production** |
 
 **Update the status column when a phase starts and when it finishes.** Phases 0–4 are detailed
 and each ends with a "What actually happened" account of where the plan met reality; phases

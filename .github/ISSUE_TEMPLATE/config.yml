@@ -1,0 +1,8 @@
+# Every report goes through a form, so each one arrives with what it takes to
+# act on it. Security problems never go here: SECURITY.md sends them to the
+# private vulnerability report instead.
+blank_issues_enabled: false
+contact_links:
+  - name: A security problem
+    url: https://docs.github.com/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability
+    about: Please report it privately (Security tab → "Report a vulnerability"), never as a public issue.

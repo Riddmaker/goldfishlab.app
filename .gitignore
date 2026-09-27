@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Secrets - never commit
+.env
+
+# Build artifacts
+/staticfiles/
+/static/css/main.css
+/.bin/
+/media/
+
+# Test / tooling
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# Screenshots from Playwright verification belong in the scratchpad,
+# never in the repository.
+/screenshots/
+
+# Local cache of the Scryfall bulk files. `default_cards` alone is 78.8 MB and
+# is re-downloadable in one command, so it is kept out of the repository and
+# kept on disk - a re-ingest for fresh prices should not mean a fresh download.
+/.data/
+
+# The filled-in manifest. It names the real GitHub account, and GO-LIVE.md
+# promises it is never committed; the .example stays the committed one.
+/jelastic.jps

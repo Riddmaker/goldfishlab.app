@@ -1,0 +1,273 @@
+---
+# Jelastic Packaging System manifest - Goldfish Lab
+#
+# Recreates the full production environment from scratch:
+#   - cp      : Django web node (Docker, GHCR image), serves on 8080
+#   - worker  : the SAME image with ROLE=worker, draining the sim_long queue
+#   - worker-short : the same again, pinned to sim_short and never blocked
+#   - sqldb   : PostgreSQL 16 (managed node; keeps its own data directory)
+#   - cache   : Redis (Celery broker)
+#
+# There is deliberately NO storage node and NO NFS mount under PostgreSQL. An
+# earlier draft mounted one over /var/lib/pgsql/data in onInstall, which runs
+# AFTER the database node has been created and has initialised its cluster - so
+# the mount would have hidden the initialised directory behind an empty one. A
+# managed PostgreSQL node keeps its data directory across restarts on its own,
+# and a database on NFS is a durability risk in its own right. Backups are the
+# answer to "what if the node is lost", and GO-LIVE.md makes them the first
+# thing done after launch.
+#
+# Usage:
+#   1. cp jelastic.jps.example jelastic.jps
+#   2. Replace YOUR_GITHUB_USERNAME below
+#   3. Jelastic console -> Import -> upload jelastic.jps
+#
+# Secrets are entered interactively at import time - never hardcoded here.
+#
+# WHY THE WORKER IS A SEPARATE NODE GROUP:
+# one cloudlet is 128 MiB. The app node's 1+4 cloudlets is a 640 MiB ceiling,
+# and Django + gunicorn(2) alone occupies roughly 250-350 MiB of that. A
+# Celery worker sharing the node OOMs under load, so simulations get their own
+# node with more headroom.
+
+type: install
+name: Goldfish Lab
+id: goldfish-lab
+version: "1.0"
+baseUrl: https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/goldfishlab.app/main
+
+settings:
+  fields:
+    - name: django_secret_key
+      caption: Django SECRET_KEY (50+ random characters)
+      type: string
+      inputType: password
+      required: true
+    - name: pg_password
+      caption: PostgreSQL Password
+      type: string
+      inputType: password
+      required: true
+    - name: allowed_hosts
+      caption: Allowed hosts (comma separated, no scheme)
+      type: string
+      required: true
+      default: ""
+    - name: csrf_origins
+      caption: CSRF trusted origins (comma separated, WITH https://)
+      type: string
+      required: true
+      default: ""
+
+    # -- Email. REQUIRED, and the container refuses to boot without it. -------
+    # ACCOUNT_EMAIL_VERIFICATION is "mandatory", so allauth sends a
+    # confirmation during signup; with no mail host Django dials localhost:25
+    # and the signup form answers HTTP 500. core/checks.py turns that into a
+    # failure to start instead. See trap 43.
+    - name: email_host
+      caption: SMTP host (e.g. mail.infomaniak.com)
+      type: string
+      required: true
+      default: mail.infomaniak.com
+    - name: email_user
+      caption: SMTP username - a real mailbox on the sending domain
+      type: string
+      required: true
+    - name: email_password
+      caption: SMTP password
+      type: string
+      inputType: password
+      required: true
+    - name: from_email
+      caption: "From address, e.g. Goldfish Lab <noreply@example.ch>"
+      type: string
+      required: true
+
+    # -- The operator. REQUIRED: the container refuses to boot without all ---
+    # three (core.E003), because the terms, privacy policy and legal notice
+    # name the person responsible (Swiss DSG Art. 19, UWG Art. 3 lit. s).
+    - name: legal_name
+      caption: "Operator's full name, as shown on the legal notice"
+      type: string
+      required: true
+    - name: legal_address
+      caption: "Operator's postal address, comma separated (e.g. Musterstrasse 1, 8000 Zurich, Switzerland)"
+      type: string
+      required: true
+    - name: legal_email
+      caption: "Contact address that reaches the operator (the Infomaniak mailbox)"
+      type: string
+      required: true
+
+    # -- Optional. Blank is a supported state for all three. -------------------
+    # The application asks `is_configured()` before offering anybody a payment,
+    # so a blank Stripe key means the plans page says "not configured yet"
+    # rather than showing a broken button.
+    - name: stripe_secret_key
+      caption: "Stripe secret key (optional - blank disables paid plans)"
+      type: string
+      inputType: password
+      required: false
+      default: ""
+    - name: stripe_webhook_secret
+      caption: "Stripe webhook signing secret (per endpoint, not per account)"
+      type: string
+      inputType: password
+      required: false
+      default: ""
+    - name: stripe_managed_payments
+      caption: "Stripe Managed Payments: true only after Stripe approved the account (VAT)"
+      type: string
+      required: false
+      default: "false"
+    - name: sentry_dsn
+      caption: "Sentry DSN (leave blank at launch - the privacy policy names no error reporter)"
+      type: string
+      required: false
+      default: ""
+
+globals:
+  # Shared by the web and worker nodes so the two never drift apart.
+  DJANGO_SETTINGS_MODULE: goldfishlab.settings.prod
+  DJANGO_DEBUG: "False"
+
+nodes:
+  # -- Web -------------------------------------------------------------------
+  - nodeGroup: cp
+    nodeType: docker
+    displayName: Goldfish Lab web
+    dockerName: ghcr.io/YOUR_GITHUB_USERNAME/goldfishlab.app
+    tag: latest
+    fixedCloudlets: 1
+    flexibleCloudlets: 4
+    env:
+      ROLE: web
+      # 8080, NOT 8000. Jelastic routes the environment URL to
+      # JELASTIC_PRIORITY_PORTS; serving anywhere else gives "connection
+      # refused" on the public URL with no other symptom.
+      JELASTIC_PRIORITY_PORTS: "8080"
+      DJANGO_SETTINGS_MODULE: ${globals.DJANGO_SETTINGS_MODULE}
+      DJANGO_DEBUG: ${globals.DJANGO_DEBUG}
+      DJANGO_SECRET_KEY: ${settings.django_secret_key}
+      DJANGO_ALLOWED_HOSTS: ${settings.allowed_hosts}
+      DJANGO_CSRF_TRUSTED_ORIGINS: ${settings.csrf_origins}
+      DATABASE_URL: postgres://webadmin:${settings.pg_password}@${nodes.sqldb[0].intIP}:5432/postgres
+      REDIS_URL: redis://${nodes.cache[0].intIP}:6379/0
+      GUNICORN_WORKERS: "2"
+      # Mail is web-only: nothing a Celery task does sends a message, so the
+      # credentials are not copied onto the worker nodes.
+      DJANGO_EMAIL_HOST: ${settings.email_host}
+      DJANGO_EMAIL_HOST_USER: ${settings.email_user}
+      DJANGO_EMAIL_HOST_PASSWORD: ${settings.email_password}
+      DJANGO_DEFAULT_FROM_EMAIL: ${settings.from_email}
+      # Web-only for the same reason: only the pages and `manage.py check` on
+      # this node read them.
+      LEGAL_OPERATOR_NAME: ${settings.legal_name}
+      LEGAL_OPERATOR_ADDRESS: ${settings.legal_address}
+      LEGAL_CONTACT_EMAIL: ${settings.legal_email}
+      # The footer's "Source code" and "Report a problem" links (AGPL-3.0).
+      SOURCE_CODE_URL: https://github.com/YOUR_GITHUB_USERNAME/goldfishlab.app
+      STRIPE_SECRET_KEY: ${settings.stripe_secret_key}
+      STRIPE_WEBHOOK_SECRET: ${settings.stripe_webhook_secret}
+      STRIPE_MANAGED_PAYMENTS: ${settings.stripe_managed_payments}
+      SENTRY_DSN: ${settings.sentry_dsn}
+
+  # -- Celery worker ---------------------------------------------------------
+  - nodeGroup: worker
+    nodeType: docker
+    displayName: Goldfish Lab worker
+    dockerName: ghcr.io/YOUR_GITHUB_USERNAME/goldfishlab.app
+    tag: latest
+    fixedCloudlets: 1
+    flexibleCloudlets: 8
+    env:
+      ROLE: worker
+      DJANGO_SETTINGS_MODULE: ${globals.DJANGO_SETTINGS_MODULE}
+      DJANGO_DEBUG: ${globals.DJANGO_DEBUG}
+      DJANGO_SECRET_KEY: ${settings.django_secret_key}
+      DJANGO_ALLOWED_HOSTS: ${settings.allowed_hosts}
+      DATABASE_URL: postgres://webadmin:${settings.pg_password}@${nodes.sqldb[0].intIP}:5432/postgres
+      REDIS_URL: redis://${nodes.cache[0].intIP}:6379/0
+      # Long runs only. The short queue has a node of its own below - one
+      # worker draining both queues would spend ten minutes on a 100,000-game
+      # run while every 1,000-game run waited behind it, and no quota system
+      # fixes that.
+      # The CeleryIntegration reports a failed chunk from the node it failed
+      # on, which is the only node that knows. Blank is still fine.
+      SENTRY_DSN: ${settings.sentry_dsn}
+      CELERY_QUEUES: sim_long
+      CELERY_CONCURRENCY: "2"
+
+  # -- Celery worker, short queue -------------------------------------------
+  # Deliberately small and deliberately single-threaded: its whole job is to be
+  # free when someone presses Run. Concurrency 1 because two short runs in
+  # parallel on one cloudlet are slower than two in sequence.
+  - nodeGroup: worker-short
+    nodeType: docker
+    displayName: Goldfish Lab worker (short runs)
+    dockerName: ghcr.io/YOUR_GITHUB_USERNAME/goldfishlab.app
+    tag: latest
+    fixedCloudlets: 1
+    flexibleCloudlets: 4
+    env:
+      ROLE: worker
+      DJANGO_SETTINGS_MODULE: ${globals.DJANGO_SETTINGS_MODULE}
+      DJANGO_DEBUG: ${globals.DJANGO_DEBUG}
+      DJANGO_SECRET_KEY: ${settings.django_secret_key}
+      DJANGO_ALLOWED_HOSTS: ${settings.allowed_hosts}
+      DATABASE_URL: postgres://webadmin:${settings.pg_password}@${nodes.sqldb[0].intIP}:5432/postgres
+      REDIS_URL: redis://${nodes.cache[0].intIP}:6379/0
+      SENTRY_DSN: ${settings.sentry_dsn}
+      CELERY_QUEUES: sim_short
+      CELERY_CONCURRENCY: "1"
+      # The one node that runs beat, for Celery's daily result cleanup. Never
+      # set this on a node group with more than one node.
+      CELERY_BEAT: "1"
+
+  # -- PostgreSQL ------------------------------------------------------------
+  # `password` is what makes `settings.pg_password` the password of the
+  # `webadmin` user every DATABASE_URL above connects as. Without it the platform
+  # generates a password of its own and emails it, the URLs above carry a
+  # different one, and `start.sh` waits for the database for ever - an
+  # environment that never finishes starting, with nothing in any log but a
+  # retry loop. Same shape as the community GlitchTip-Jelastic manifest.
+  - nodeGroup: sqldb
+    nodeType: postgresql
+    tag: "16"
+    displayName: PostgreSQL
+    fixedCloudlets: 1
+    flexibleCloudlets: 6
+    password: ${settings.pg_password}
+
+  # -- Redis (Celery broker) -------------------------------------------------
+  # REDIS_URL above carries no password. If `/healthz/` reports
+  # `"redis": "error"` after install, the node is password-protected: take the
+  # password from the platform's email and set
+  # `REDIS_URL=redis://:<password>@<ip>:6379/0` on all three app nodes. The
+  # cache URL in base.py is derived from it and keeps the credentials.
+  - nodeGroup: cache
+    nodeType: redis
+    displayName: Redis
+    fixedCloudlets: 1
+    flexibleCloudlets: 2
+
+onInstall:
+  # The web node applies migrations on boot (start.sh, ROLE=web); the workers
+  # wait for the schema before they start consuming. Restarting them in this
+  # order after everything exists means none of them started against a
+  # database that was still coming up.
+  - environment.control.RestartNodes:
+      nodeGroup: cp
+  - environment.control.RestartNodes:
+      nodeGroup: worker
+  - environment.control.RestartNodes:
+      nodeGroup: worker-short
+
+success: |
+  Goldfish Lab is installed.
+
+  Next steps, both manual and both required:
+    1. Make the GHCR package PUBLIC, or Jelastic cannot pull the image.
+    2. Add the GitHub secret JELASTIC_WEBHOOK_PROD so pushes to main redeploy.
+
+  Check ${env.url}healthz/ - it reports the database and Redis separately.

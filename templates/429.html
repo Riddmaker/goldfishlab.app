@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Too many requests — Goldfish Lab{% endblock %}
+{% block description %}This account or address has made too many requests in a short time.{% endblock %}
+{% block content %}
+  {% comment %}
+    Reached from BOTH limiters: allauth renders this file by name, and
+    core.ratelimit.permission_denied routes django-ratelimit's Ratelimited
+    here. The wording therefore has to be true of a signup attempt and of a
+    simulation enqueue at the same time, which is why it names neither.
+
+    It says that waiting works. A refusal a person cannot act on is the same
+    mistake billing/blocked.html exists to avoid.
+  {% endcomment %}
+  <h1 class="font-display text-3xl text-parchment-100">One moment</h1>
+
+  <section class="surface-parchment mt-6 p-6">
+    <p class="text-ink-900">
+      That came through faster than this site accepts. Nothing was lost and
+      nothing was charged — wait about a minute and try again.
+    </p>
+    <p class="mt-3 text-sm text-ink-700">
+      The limits exist because importing a collection and running a simulation
+      both cost real work, and because an unlimited sign-up form is an open
+      invitation. If you keep seeing this while doing something ordinary, that
+      is a bug worth reporting rather than a limit worth respecting.
+    </p>
+    <p class="mt-4">
+      <a href="{% url 'home' %}" class="underline hover:text-ink-700">Back to the start</a>
+    </p>
+  </section>
+{% endblock %}

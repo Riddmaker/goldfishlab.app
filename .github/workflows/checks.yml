@@ -1,0 +1,79 @@
+name: Checks
+
+# The gate every change passes: lint, dependency audit, CSS build and the FULL
+# test suite. It runs on every push to dev and on every pull request into main
+# - the branch protection on main requires it green - and deploy-prod.yml runs
+# it once more on main before an image may ship.
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [main]
+  workflow_call:
+
+# A newer push to the same branch makes an older run pointless.
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # "test" is the status check the ruleset on main requires (GO-LIVE step 1).
+  # Renaming the job silently drops that requirement.
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: goldfishlab
+          POSTGRES_USER: goldfishlab
+          POSTGRES_PASSWORD: ci-only-not-a-secret
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 3s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s
+          --health-timeout 3s --health-retries 10
+    env:
+      DJANGO_SETTINGS_MODULE: goldfishlab.settings.dev
+      DJANGO_SECRET_KEY: ci-only-not-a-secret
+      DJANGO_DEBUG: "True"
+      DATABASE_URL: postgres://goldfishlab:ci-only-not-a-secret@localhost:5432/goldfishlab
+      REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - name: Lint
+        run: |
+          ruff check .
+          djlint templates/ --lint
+      - name: Audit dependencies
+        # Audits requirements.txt - what actually ships - rather than the
+        # environment, which also holds pytest, scipy and playwright and would
+        # fail this build over a test-only advisory that reaches no user.
+        #
+        # This DOES block the deploy, and that is the intended trade: a newly
+        # published advisory against a pinned production dependency is a thing
+        # to look at before shipping, not after. When one lands during an
+        # unrelated hotfix, the escape hatch is `--ignore-vuln GHSA-xxxx` with
+        # the reason in the diff - never deleting the step.
+        run: pip-audit -r requirements.txt --progress-spinner off
+      - name: Build CSS (templates must compile against real tokens)
+        run: |
+          python scripts/get_tailwind.py
+          .bin/tailwindcss -i assets/css/input.css -o static/css/main.css --minify
+      - name: Tests
+        # Includes the slow statistical validation: Monte Carlo against the
+        # exact hypergeometric distribution. Skipped locally, never in CI.
+        run: pytest -q

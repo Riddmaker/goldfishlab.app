@@ -1,0 +1,26 @@
+name: Something is broken
+description: An error page, a button that does nothing, an import that fails.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Issues are public:** leave out your email address and anything about a payment (the
+        site's Legal notice has our email). Problems with your account or a payment: write to us.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you saw instead.
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The address of the page, if you have it.
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: Firefox on Windows, Safari on iPhone, ...

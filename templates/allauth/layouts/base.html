@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% comment %}
+  Override of allauth/layouts/base.html.
+
+  NOTE: {% extends %} must be the very first tag in the file - a leading
+  {% comment %} block raises TemplateSyntaxError.
+
+  allauth's own layout is a bare, unstyled HTML document with its own <html>,
+  <body> and navigation. Without this override every account page renders as
+  raw browser defaults on a white background while still returning HTTP 200 -
+  which no view test notices. A Playwright screenshot caught it.
+
+  allauth's inheritance chain:
+    account/login.html
+      -> account/base_entrance.html
+        -> allauth/layouts/entrance.html
+          -> allauth/layouts/base.html   <- this file
+
+  This overrides `main`, NOT `content`: allauth's own templates fill
+  `content`, so a wrapper placed inside `content` would simply be replaced by
+  the child. `main` is the outer slot base.html provides for exactly this.
+
+  No allauth template is overridden for presentation - the form styling is
+  scoped to .auth-form in assets/css/input.css - so upgrading allauth cannot
+  silently break the look.
+{% endcomment %}
+{% block title %}
+{% block head_title %}Account{% endblock %} — Goldfish Lab
+{% endblock %}
+{% block main %}
+<div class="mx-auto max-w-md">
+<div class="surface-parchment auth-form p-6">
+{% block content %}{% endblock %}
+</div>
+</div>
+{% endblock %}

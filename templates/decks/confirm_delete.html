@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Delete {{ deck.name }} — Goldfish Lab{% endblock %}
+{% block description %}Confirm deleting this deck.{% endblock %}
+{% block content %}
+  <h1 class="font-display text-3xl text-parchment-100">Delete {{ deck.name }}?</h1>
+  <div class="surface-parchment mt-8 max-w-xl p-6">
+    <p class="text-ink-900">
+      This removes the deck and its {{ deck.card_count }} cards, along with its import history.
+      The card catalogue is untouched. This cannot be undone.
+    </p>
+    <form method="post" class="mt-6 flex items-center gap-4">
+      {% csrf_token %}
+      <button type="submit"
+              class="border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
+        Delete permanently
+      </button>
+      <a href="{{ deck.get_absolute_url }}" class="text-ink-900 underline">Keep it</a>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,242 @@
+{% load humanize %}
+{% comment %}
+  The report. Every chart here is server-rendered from the run's own numbers:
+  a bar is a div with a width, which needs no charting library, no JavaScript,
+  and works in a browser with both switched off.
+{% endcomment %}
+<section class="surface-parchment mt-6 p-6">
+  <h2 class="font-display text-2xl text-ink-900">Opening hands</h2>
+  <p class="mt-1 text-sm text-ink-700">
+    Lands in the first seven cards across {{ report.iterations }} games, beside the
+    exact hypergeometric probability for a {{ report.library_size }}-card deck with
+    {{ report.lands_total }} lands. The two columns are computed in completely
+    different ways — one by shuffling and dealing thousands of times, the other by
+    counting combinations — so where they agree, the simulation is demonstrably
+    doing what it claims.
+  </p>
+  <table class="mt-5 w-full text-left text-sm">
+    <thead>
+      <tr class="border-b border-parchment-600 text-ink-700">
+        <th scope="col" class="py-1.5 pr-3">Lands</th>
+        <th scope="col" class="py-1.5 pr-3">Simulated</th>
+        <th scope="col" class="py-1.5 pr-3">Exact</th>
+        <th scope="col" class="py-1.5">Simulated share</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in report.opening_lands %}
+        <tr class="border-b border-parchment-300">
+          <th scope="row" class="tabular py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
+          <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.share|floatformat:"1" }}%</td>
+          <td class="tabular py-1.5 pr-3 text-ink-700">{{ row.exact|floatformat:"1" }}%</td>
+          <td class="py-1.5">
+            <span class="inline-block h-3 bg-ink-800 align-middle"
+                  style="width: {% widthratio row.share 100 100 %}%"
+                  role="presentation"></span>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <h3 class="font-display mt-6 text-lg text-ink-900">…and what was kept</h3>
+  <p class="mt-1 text-sm text-ink-700">
+    The same hands after the mulligan rule has had its say. There is no exact
+    column here and there should not be: this distribution is the product of the
+    keep heuristic, not of arithmetic, which is why the hands with no lands and
+    the hands with six have largely gone.
+  </p>
+  <table class="mt-4 w-full text-left text-sm">
+    <thead>
+      <tr class="border-b border-parchment-600 text-ink-700">
+        <th scope="col" class="py-1.5 pr-3">Lands</th>
+        <th scope="col" class="py-1.5 pr-3">Share</th>
+        <th scope="col" class="py-1.5">Games</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in report.kept_lands %}
+        <tr class="border-b border-parchment-300">
+          <th scope="row" class="tabular py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
+          <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.share|floatformat:"1" }}%</td>
+          <td class="tabular py-1.5 text-ink-700">{{ row.count }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+<section class="surface-parchment mt-6 p-6">
+  <h2 class="font-display text-2xl text-ink-900">Mulligans</h2>
+  <table class="mt-4 w-full text-left text-sm">
+    <thead>
+      <tr class="border-b border-parchment-600 text-ink-700">
+        <th scope="col" class="py-1.5 pr-3">Opening hand</th>
+        <th scope="col" class="py-1.5 pr-3">Share</th>
+        <th scope="col" class="py-1.5">Games</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in report.mulligans %}
+        <tr class="border-b border-parchment-300">
+          <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
+          <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.share|floatformat:"1" }}%</td>
+          <td class="tabular py-1.5 text-ink-700">{{ row.count }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+<section class="surface-parchment mt-6 p-6">
+  <h2 class="font-display text-2xl text-ink-900">Mana and lands, turn by turn</h2>
+  <p class="mt-1 text-sm text-ink-700">
+    The median is what usually happens. The tenth percentile is the game that
+    goes wrong — which is the one a deck gets rebuilt for, and the one an
+    average hides completely.
+  </p>
+  <table class="mt-5 w-full text-left text-sm">
+    <thead>
+      <tr class="border-b border-parchment-600 text-ink-700">
+        <th scope="col" class="py-1.5 pr-3">Turn</th>
+        <th scope="col" class="py-1.5 pr-3">Mana (mean)</th>
+        {% for p in report.percentiles %}
+          <th scope="col" class="py-1.5 pr-3">Mana p{{ p }}</th>
+        {% endfor %}
+        <th scope="col" class="py-1.5">Lands (mean)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in report.turn_rows %}
+        <tr class="border-b border-parchment-300">
+          <th scope="row" class="tabular py-1.5 pr-3 font-normal text-ink-900">{{ row.turn }}</th>
+          <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.mana_mean|floatformat:"2" }}</td>
+          {% for value in row.mana_percentiles %}
+            <td class="tabular py-1.5 pr-3 text-ink-700">{{ value }}</td>
+          {% endfor %}
+          <td class="tabular py-1.5 text-ink-700">{{ row.lands_mean|floatformat:"2" }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% if report.color_rows %}
+  <section class="surface-parchment mt-6 p-6">
+    <h2 class="font-display text-2xl text-ink-900">What the mana was made of</h2>
+    <p class="mt-1 text-sm text-ink-700">
+      The same mana as the table above, split by colour. This is the column that
+      says whether a mana base works: five mana on turn three is a good turn, and
+      five mana of which four is the wrong colour is a turn spent doing nothing.
+    </p>
+    <table class="mt-5 w-full text-left text-sm">
+      <thead>
+        <tr class="border-b border-parchment-600 text-ink-700">
+          <th scope="col" class="py-1.5 pr-3">Turn</th>
+          {% for letter, label in report.color_columns %}
+            <th scope="col" class="py-1.5 pr-3">{{ label }}</th>
+          {% endfor %}
+          <th scope="col" class="py-1.5">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in report.color_rows %}
+          <tr class="border-b border-parchment-300">
+            <th scope="row" class="tabular py-1.5 pr-3 font-normal text-ink-900">{{ row.turn }}</th>
+            {% for amount in row.amounts %}
+              <td class="tabular py-1.5 pr-3 text-ink-900">{{ amount|floatformat:"2" }}</td>
+            {% endfor %}
+            <td class="tabular py-1.5 text-ink-700">{{ row.total|floatformat:"2" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="mt-4 text-xs text-ink-700">
+      Means, and only means — the engine's pool counts mana rather than holding
+      the sources that made it, so a card that could have made one of several
+      colours was read as making one fixed colour. Every card that happened to
+      is listed as a gap under “What was actually modelled”.
+    </p>
+  </section>
+{% endif %}
+{% if report.milestones %}
+  <section class="surface-parchment mt-6 p-6">
+    <h2 class="font-display text-2xl text-ink-900">Milestones</h2>
+    <p class="mt-1 text-sm text-ink-700">
+      The share of games in which each of these was true by the end of that turn.
+      They are read from the cards' own role tags, so a deck built differently
+      gets the same table without anything here changing.
+    </p>
+    <table class="mt-5 w-full text-left text-sm">
+      <thead>
+        <tr class="border-b border-parchment-600 text-ink-700">
+          <th scope="col" class="py-1.5 pr-3">By end of turn</th>
+          {% for row in report.turn_rows %}
+            <th scope="col" class="tabular py-1.5 pr-3">{{ row.turn }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for milestone in report.milestones %}
+          <tr class="border-b border-parchment-300">
+            <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ milestone.label }}</th>
+            {% for share in milestone.shares %}
+              <td class="tabular py-1.5 pr-3 text-ink-700">{{ share|floatformat:"0" }}%</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% endif %}
+
+{% if report.combos %}
+  {% comment %}
+    The differentiator, on the page where the numbers are. Everyone can list a
+    combo; this table says how long it takes, and - for the ones the deck is a
+    card short of - what buying that card would be worth.
+
+    The hypothetical is named in the row rather than in a footnote. A
+    percentage measured on a deck that is one card larger than the real one is
+    a percentage nobody should read without knowing that.
+  {% endcomment %}
+  <section id="combo-timings" class="surface-parchment mt-6 p-6">
+    <h2 class="font-display text-2xl text-ink-900">Combos, and how long they take</h2>
+    <p class="mt-2 text-sm text-ink-700">
+      From Commander Spellbook's curated list, measured by this run. A combo counts as
+      together only when every card is in the zone it has to be in — on the battlefield, in
+      the graveyard, in hand — not merely drawn.
+    </p>
+    <table class="mt-4 w-full text-left text-sm">
+      <thead>
+        <tr class="border-b border-parchment-600 text-ink-700">
+          <th scope="col" class="py-1.5 pr-3">Combo</th>
+          <th scope="col" class="py-1.5 pr-3">Add</th>
+          <th scope="col" class="py-1.5 pr-3">By turn {{ report.turns }}</th>
+          <th scope="col" class="py-1.5 pr-3">Half by</th>
+          <th scope="col" class="py-1.5 pr-3">Games</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for measurement in report.combos %}
+          <tr class="border-b border-parchment-300">
+            <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">
+              {% for card in measurement.combo.cards.all %}{{ card.name }}{% if not forloop.last %} + {% endif %}{% endfor %}
+            </th>
+            <td class="py-1.5 pr-3 text-ink-700">
+              {% if measurement.hypothetical %}{{ measurement.added_name }}{% else %}—{% endif %}
+            </td>
+            <td class="tabular py-1.5 pr-3 text-ink-900">
+              {{ measurement.share_label }}
+            </td>
+            <td class="tabular py-1.5 pr-3 text-ink-700">
+              {% if measurement.median_turn %}turn {{ measurement.median_turn }}{% else %}—{% endif %}
+            </td>
+            <td class="tabular py-1.5 pr-3 text-ink-700">{{ measurement.games|intcomma }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="mt-3 text-xs text-ink-700">
+      A row with a card in the <strong>Add</strong> column was measured on this deck
+      <em>plus</em> that card — one card larger, with nothing cut to make room. Which card a
+      deck can spare is not a judgement this application makes.
+    </p>
+  </section>
+{% endif %}

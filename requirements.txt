@@ -1,0 +1,19 @@
+# Production dependencies - pinned (verified on PyPI 2026-09-17)
+Django==5.2.17
+psycopg[binary]==3.3.5
+gunicorn==26.2.0
+whitenoise==6.12.0
+django-environ==0.14.0
+django-allauth==65.19.4
+celery==5.6.3
+redis==8.1.0
+django-celery-results==2.6.0
+stripe==15.6.1
+# Content-Security-Policy. Django ships no CSP support of its own, and the
+# policy this application needs is not the trivial one - see base.py.
+django-csp==4.0
+# Rate limiting on the expensive and abusable endpoints (Phase 8).
+django-ratelimit==4.1.0
+# Error reporting. Inert unless SENTRY_DSN is set, which it is not in
+# development, in CI or in the test suite.
+sentry-sdk==2.70.0

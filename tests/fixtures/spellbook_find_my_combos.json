@@ -1,0 +1,842 @@
+{
+ "results": {
+  "identity": "B",
+  "included": [
+   {
+    "id": "690-3966",
+    "of": [
+     {
+      "id": 539
+     }
+    ],
+    "uses": [
+     {
+      "card": {
+       "id": 690,
+       "name": "Sanguine Bond",
+       "faces": 1,
+       "spoiler": false,
+       "oracleId": "73089a39-a2f6-4aa2-a058-e6551475153d",
+       "typeLine": "Enchantment",
+       "imageUriBackPng": null,
+       "imageUriFrontPng": "https://cards.scryfall.io/png/front/a/d/ad4de9f1-7a39-45af-828e-c59234d9e9b9.png?1783927550",
+       "imageUriBackLarge": null,
+       "imageUriBackSmall": null,
+       "imageUriBackNormal": null,
+       "imageUriFrontLarge": "https://cards.scryfall.io/large/front/a/d/ad4de9f1-7a39-45af-828e-c59234d9e9b9.jpg?1783927550",
+       "imageUriFrontSmall": "https://cards.scryfall.io/small/front/a/d/ad4de9f1-7a39-45af-828e-c59234d9e9b9.jpg?1783927550",
+       "layoutRotationFront": null,
+       "imageUriFrontNormal": "https://cards.scryfall.io/normal/front/a/d/ad4de9f1-7a39-45af-828e-c59234d9e9b9.jpg?1783927550",
+       "imageUriBackArtCrop": null,
+       "imageUriFrontArtCrop": "https://cards.scryfall.io/art_crop/front/a/d/ad4de9f1-7a39-45af-828e-c59234d9e9b9.jpg?1783927550"
+      },
+      "quantity": 1,
+      "usedFace": null,
+      "zoneLocations": [
+       "B"
+      ],
+      "exileCardState": "",
+      "mustBeCommander": false,
+      "libraryCardState": "",
+      "graveyardCardState": "",
+      "battlefieldCardState": ""
+     },
+     {
+      "card": {
+       "id": 3966,
+       "name": "Exquisite Blood",
+       "faces": 1,
+       "spoiler": false,
+       "oracleId": "8f933fae-6c0c-42d7-a817-14760d8285cd",
+       "typeLine": "Enchantment",
+       "imageUriBackPng": null,
+       "imageUriFrontPng": "https://cards.scryfall.io/png/front/0/e/0e8ccfa7-4178-476a-a155-0ca1c98556c9.png?1783913874",
+       "imageUriBackLarge": null,
+       "imageUriBackSmall": null,
+       "imageUriBackNormal": null,
+       "imageUriFrontLarge": "https://cards.scryfall.io/large/front/0/e/0e8ccfa7-4178-476a-a155-0ca1c98556c9.jpg?1783913874",
+       "imageUriFrontSmall": "https://cards.scryfall.io/small/front/0/e/0e8ccfa7-4178-476a-a155-0ca1c98556c9.jpg?1783913874",
+       "layoutRotationFront": null,
+       "imageUriFrontNormal": "https://cards.scryfall.io/normal/front/0/e/0e8ccfa7-4178-476a-a155-0ca1c98556c9.jpg?1783913874",
+       "imageUriBackArtCrop": null,
+       "imageUriFrontArtCrop": "https://cards.scryfall.io/art_crop/front/0/e/0e8ccfa7-4178-476a-a155-0ca1c98556c9.jpg?1783913874"
+      },
+      "quantity": 1,
+      "usedFace": null,
+      "zoneLocations": [
+       "B"
+      ],
+      "exileCardState": "",
+      "mustBeCommander": false,
+      "libraryCardState": "",
+      "graveyardCardState": "",
+      "battlefieldCardState": ""
+     }
+    ],
+    "notes": "",
+    "prices": {
+     "tcgplayer": "43.17",
+     "cardmarket": "30.61",
+     "cardkingdom": "50.48"
+    },
+    "status": "OK",
+    "spoiler": false,
+    "identity": "B",
+    "includes": [
+     {
+      "id": 539
+     }
+    ],
+    "produces": [
+     {
+      "feature": {
+       "id": 14,
+       "name": "Infinite lifegain triggers",
+       "status": "C",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 26,
+       "name": "Infinite lifeloss",
+       "status": "S",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 15,
+       "name": "Infinite lifegain",
+       "status": "S",
+       "uncountable": true
+      },
+      "quantity": 1
+     }
+    ],
+    "requires": [],
+    "legalities": {
+     "brawl": true,
+     "predh": false,
+     "legacy": true,
+     "modern": true,
+     "pauper": false,
+     "alchemy": false,
+     "pioneer": false,
+     "vintage": true,
+     "standard": false,
+     "commander": true,
+     "premodern": false,
+     "oathbreaker": true,
+     "standardBrawl": false,
+     "pauperCommander": false,
+     "competitiveBrawl": true,
+     "pauperCommanderMain": false
+    },
+    "popularity": 147040,
+    "bracketTag": "S",
+    "description": "Gain life.\nSanguine Bond triggers, causing an opponent to lose 1 life.\nExquisite Blood triggers, causing you to gain 1 life.\nRepeat from step 2.",
+    "manaNeeded": "",
+    "variantCount": 24,
+    "manaValueNeeded": 0,
+    "easyPrerequisites": "",
+    "notablePrerequisites": "You have a way to gain life."
+   }
+  ],
+  "includedByChangingCommanders": [],
+  "almostIncluded": [
+   {
+    "id": "628-2438--5",
+    "of": [
+     {
+      "id": 12951
+     }
+    ],
+    "uses": [
+     {
+      "card": {
+       "id": 628,
+       "name": "Mikaeus, the Unhallowed",
+       "faces": 1,
+       "spoiler": false,
+       "oracleId": "5d27c63e-d1ef-48af-b51d-01ebc6daeac9",
+       "typeLine": "Legendary Creature — Zombie Cleric",
+       "imageUriBackPng": null,
+       "imageUriFrontPng": "https://cards.scryfall.io/png/front/b/c/bc1f42a2-fe11-45da-9552-069803b4068a.png?1783915670",
+       "imageUriBackLarge": null,
+       "imageUriBackSmall": null,
+       "imageUriBackNormal": null,
+       "imageUriFrontLarge": "https://cards.scryfall.io/large/front/b/c/bc1f42a2-fe11-45da-9552-069803b4068a.jpg?1783915670",
+       "imageUriFrontSmall": "https://cards.scryfall.io/small/front/b/c/bc1f42a2-fe11-45da-9552-069803b4068a.jpg?1783915670",
+       "layoutRotationFront": null,
+       "imageUriFrontNormal": "https://cards.scryfall.io/normal/front/b/c/bc1f42a2-fe11-45da-9552-069803b4068a.jpg?1783915670",
+       "imageUriBackArtCrop": null,
+       "imageUriFrontArtCrop": "https://cards.scryfall.io/art_crop/front/b/c/bc1f42a2-fe11-45da-9552-069803b4068a.jpg?1783915670"
+      },
+      "quantity": 1,
+      "usedFace": null,
+      "zoneLocations": [
+       "B"
+      ],
+      "exileCardState": "",
+      "mustBeCommander": false,
+      "libraryCardState": "",
+      "graveyardCardState": "",
+      "battlefieldCardState": ""
+     },
+     {
+      "card": {
+       "id": 2438,
+       "name": "Carrion Feeder",
+       "faces": 1,
+       "spoiler": false,
+       "oracleId": "a1cc5e37-b09a-4b7f-afd5-77c1c35aa425",
+       "typeLine": "Creature — Zombie",
+       "imageUriBackPng": null,
+       "imageUriFrontPng": "https://cards.scryfall.io/png/front/0/a/0a19da90-880e-4eca-8cf7-6d7baf090d53.png?1783933131",
+       "imageUriBackLarge": null,
+       "imageUriBackSmall": null,
+       "imageUriBackNormal": null,
+       "imageUriFrontLarge": "https://cards.scryfall.io/large/front/0/a/0a19da90-880e-4eca-8cf7-6d7baf090d53.jpg?1783933131",
+       "imageUriFrontSmall": "https://cards.scryfall.io/small/front/0/a/0a19da90-880e-4eca-8cf7-6d7baf090d53.jpg?1783933131",
+       "layoutRotationFront": null,
+       "imageUriFrontNormal": "https://cards.scryfall.io/normal/front/0/a/0a19da90-880e-4eca-8cf7-6d7baf090d53.jpg?1783933131",
+       "imageUriBackArtCrop": null,
+       "imageUriFrontArtCrop": "https://cards.scryfall.io/art_crop/front/0/a/0a19da90-880e-4eca-8cf7-6d7baf090d53.jpg?1783933131"
+      },
+      "quantity": 1,
+      "usedFace": null,
+      "zoneLocations": [
+       "B"
+      ],
+      "exileCardState": "",
+      "mustBeCommander": false,
+      "libraryCardState": "",
+      "graveyardCardState": "",
+      "battlefieldCardState": ""
+     }
+    ],
+    "notes": "",
+    "prices": {
+     "tcgplayer": "25.76",
+     "cardmarket": "24.26",
+     "cardkingdom": "33.98"
+    },
+    "status": "OK",
+    "spoiler": false,
+    "identity": "B",
+    "includes": [
+     {
+      "id": 26313
+     },
+     {
+      "id": 12951
+     }
+    ],
+    "produces": [
+     {
+      "feature": {
+       "id": 2244,
+       "name": "Infinite +1/+1 counters on a creature",
+       "status": "C",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 4,
+       "name": "Infinite creature ETB",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 3,
+       "name": "Infinite creature LTB",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 6,
+       "name": "Infinite creature sacrifice triggers",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 7,
+       "name": "Infinite death triggers",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     }
+    ],
+    "requires": [
+     {
+      "quantity": 1,
+      "template": {
+       "id": 5,
+       "name": "Persist Creature",
+       "scryfallApi": "https://api.scryfall.com/cards/search?q=%28keyword%3Apersist+t%3Acreature%29+legal%3Acommander",
+       "scryfallQuery": "keyword:persist t:creature"
+      },
+      "zoneLocations": [
+       "B"
+      ],
+      "exileCardState": "",
+      "mustBeCommander": false,
+      "libraryCardState": "",
+      "graveyardCardState": "",
+      "battlefieldCardState": ""
+     }
+    ],
+    "legalities": {
+     "brawl": false,
+     "predh": false,
+     "legacy": true,
+     "modern": true,
+     "pauper": false,
+     "alchemy": false,
+     "pioneer": false,
+     "vintage": true,
+     "standard": false,
+     "commander": true,
+     "premodern": false,
+     "oathbreaker": true,
+     "standardBrawl": false,
+     "pauperCommander": false,
+     "competitiveBrawl": false,
+     "pauperCommanderMain": false
+    },
+    "popularity": 39232,
+    "bracketTag": "O",
+    "description": "Activate Carrion Feeder by sacrificing the creature with persist.\nWhen that creature dies, its persist ability triggers, returning it from your graveyard to the battlefield with a -1/-1 counter on it.\nResolve the Carrion Feeder ability.\nActivate Carrion Feeder by sacrificing the persist creature.\nWhen the persist creature dies, its undying ability triggers, returning it from your graveyard to the battlefield with a +1/+1 counter on it.\nResolve the Carrion Feeder ability.\nRepeat.",
+    "manaNeeded": "",
+    "variantCount": 20,
+    "manaValueNeeded": 0,
+    "easyPrerequisites": "",
+    "notablePrerequisites": ""
+   },
+   {
+    "id": "2577-4050",
+    "of": [
+     {
+      "id": 695
+     }
+    ],
+    "uses": [
+     {
+      "card": {
+       "id": 2577,
+       "name": "Gravecrawler",
+       "faces": 1,
+       "spoiler": false,
+       "oracleId": "09ff28b1-b6c9-48e6-b12e-2f0e644f709f",
+       "typeLine": "Creature — Zombie",
+       "imageUriBackPng": null,
+       "imageUriFrontPng": "https://cards.scryfall.io/png/front/6/9/6987d609-ba0f-42bf-9b61-bdfb943c03b5.png?1783907138",
+       "imageUriBackLarge": null,
+       "imageUriBackSmall": null,
+       "imageUriBackNormal": null,
+       "imageUriFrontLarge": "https://cards.scryfall.io/large/front/6/9/6987d609-ba0f-42bf-9b61-bdfb943c03b5.jpg?1783907138",
+       "imageUriFrontSmall": "https://cards.scryfall.io/small/front/6/9/6987d609-ba0f-42bf-9b61-bdfb943c03b5.jpg?1783907138",
+       "layoutRotationFront": null,
+       "imageUriFrontNormal": "https://cards.scryfall.io/normal/front/6/9/6987d609-ba0f-42bf-9b61-bdfb943c03b5.jpg?1783907138",
+       "imageUriBackArtCrop": null,
+       "imageUriFrontArtCrop": "https://cards.scryfall.io/art_crop/front/6/9/6987d609-ba0f-42bf-9b61-bdfb943c03b5.jpg?1783907138"
+      },
+      "quantity": 1,
+      "usedFace": null,
+      "zoneLocations": [
+       "B"
+      ],
+      "exileCardState": "",
+      "mustBeCommander": false,
+      "libraryCardState": "",
+      "graveyardCardState": "",
+      "battlefieldCardState": ""
+     },
+     {
+      "card": {
+       "id": 4050,
+       "name": "Phyrexian Altar",
+       "faces": 1,
+       "spoiler": false,
+       "oracleId": "8d02b297-97c4-4379-9862-0a462400f66f",
+       "typeLine": "Artifact",
+       "imageUriBackPng": null,
+       "imageUriFrontPng": "https://cards.scryfall.io/png/front/9/5/95d9f93c-50a8-41a9-be98-d1900bf1c12f.png?1783921789",
+       "imageUriBackLarge": null,
+       "imageUriBackSmall": null,
+       "imageUriBackNormal": null,
+       "imageUriFrontLarge": "https://cards.scryfall.io/large/front/9/5/95d9f93c-50a8-41a9-be98-d1900bf1c12f.jpg?1783921789",
+       "imageUriFrontSmall": "https://cards.scryfall.io/small/front/9/5/95d9f93c-50a8-41a9-be98-d1900bf1c12f.jpg?1783921789",
+       "layoutRotationFront": null,
+       "imageUriFrontNormal": "https://cards.scryfall.io/normal/front/9/5/95d9f93c-50a8-41a9-be98-d1900bf1c12f.jpg?1783921789",
+       "imageUriBackArtCrop": null,
+       "imageUriFrontArtCrop": "https://cards.scryfall.io/art_crop/front/9/5/95d9f93c-50a8-41a9-be98-d1900bf1c12f.jpg?1783921789"
+      },
+      "quantity": 1,
+      "usedFace": null,
+      "zoneLocations": [
+       "B"
+      ],
+      "exileCardState": "",
+      "mustBeCommander": false,
+      "libraryCardState": "",
+      "graveyardCardState": "",
+      "battlefieldCardState": ""
+     }
+    ],
+    "notes": "",
+    "prices": {
+     "tcgplayer": "57.00",
+     "cardmarket": "35.18",
+     "cardkingdom": "67.28"
+    },
+    "status": "OK",
+    "spoiler": false,
+    "identity": "B",
+    "includes": [
+     {
+      "id": 695
+     }
+    ],
+    "produces": [
+     {
+      "feature": {
+       "id": 7,
+       "name": "Infinite death triggers",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 4,
+       "name": "Infinite creature ETB",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 3,
+       "name": "Infinite creature LTB",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 6,
+       "name": "Infinite creature sacrifice triggers",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 17,
+       "name": "Infinite storm count",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     }
+    ],
+    "requires": [],
+    "legalities": {
+     "brawl": false,
+     "predh": false,
+     "legacy": true,
+     "modern": false,
+     "pauper": false,
+     "alchemy": false,
+     "pioneer": false,
+     "vintage": true,
+     "standard": false,
+     "commander": true,
+     "premodern": false,
+     "oathbreaker": true,
+     "standardBrawl": false,
+     "pauperCommander": false,
+     "competitiveBrawl": false,
+     "pauperCommanderMain": false
+    },
+    "popularity": 75001,
+    "bracketTag": "E",
+    "description": "Activate Phyrexian Altar by sacrificing Gravecrawler, adding {B}.\nCast Gravecrawler from your graveyard by paying {B}.\nRepeat.",
+    "manaNeeded": "",
+    "variantCount": 1,
+    "manaValueNeeded": 0,
+    "easyPrerequisites": "",
+    "notablePrerequisites": "You control an additional Zombie."
+   },
+   {
+    "id": "1580-2034-4871",
+    "of": [
+     {
+      "id": 30204
+     }
+    ],
+    "uses": [
+     {
+      "card": {
+       "id": 4871,
+       "name": "Pitiless Plunderer",
+       "faces": 1,
+       "spoiler": false,
+       "oracleId": "a784481f-eccb-4112-bb38-04a659319660",
+       "typeLine": "Creature — Human Pirate",
+       "imageUriBackPng": null,
+       "imageUriFrontPng": "https://cards.scryfall.io/png/front/5/b/5b5cd187-857a-44dd-8595-a52857a0b753.png?1783913869",
+       "imageUriBackLarge": null,
+       "imageUriBackSmall": null,
+       "imageUriBackNormal": null,
+       "imageUriFrontLarge": "https://cards.scryfall.io/large/front/5/b/5b5cd187-857a-44dd-8595-a52857a0b753.jpg?1783913869",
+       "imageUriFrontSmall": "https://cards.scryfall.io/small/front/5/b/5b5cd187-857a-44dd-8595-a52857a0b753.jpg?1783913869",
+       "layoutRotationFront": null,
+       "imageUriFrontNormal": "https://cards.scryfall.io/normal/front/5/b/5b5cd187-857a-44dd-8595-a52857a0b753.jpg?1783913869",
+       "imageUriBackArtCrop": null,
+       "imageUriFrontArtCrop": "https://cards.scryfall.io/art_crop/front/5/b/5b5cd187-857a-44dd-8595-a52857a0b753.jpg?1783913869"
+      },
+      "quantity": 1,
+      "usedFace": null,
+      "zoneLocations": [
+       "B"
+      ],
+      "exileCardState": "",
+      "mustBeCommander": false,
+      "libraryCardState": "",
+      "graveyardCardState": "",
+      "battlefieldCardState": ""
+     },
+     {
+      "card": {
+       "id": 2034,
+       "name": "Ashnod's Altar",
+       "faces": 1,
+       "spoiler": false,
+       "oracleId": "4d18bcba-a346-445e-a182-6cc30b7e066d",
+       "typeLine": "Artifact",
+       "imageUriBackPng": null,
+       "imageUriFrontPng": "https://cards.scryfall.io/png/front/3/c/3c0f7157-a375-499c-92c7-d47d2e95dbad.png?1783915605",
+       "imageUriBackLarge": null,
+       "imageUriBackSmall": null,
+       "imageUriBackNormal": null,
+       "imageUriFrontLarge": "https://cards.scryfall.io/large/front/3/c/3c0f7157-a375-499c-92c7-d47d2e95dbad.jpg?1783915605",
+       "imageUriFrontSmall": "https://cards.scryfall.io/small/front/3/c/3c0f7157-a375-499c-92c7-d47d2e95dbad.jpg?1783915605",
+       "layoutRotationFront": null,
+       "imageUriFrontNormal": "https://cards.scryfall.io/normal/front/3/c/3c0f7157-a375-499c-92c7-d47d2e95dbad.jpg?1783915605",
+       "imageUriBackArtCrop": null,
+       "imageUriFrontArtCrop": "https://cards.scryfall.io/art_crop/front/3/c/3c0f7157-a375-499c-92c7-d47d2e95dbad.jpg?1783915605"
+      },
+      "quantity": 1,
+      "usedFace": null,
+      "zoneLocations": [
+       "B"
+      ],
+      "exileCardState": "",
+      "mustBeCommander": false,
+      "libraryCardState": "",
+      "graveyardCardState": "",
+      "battlefieldCardState": ""
+     },
+     {
+      "card": {
+       "id": 1580,
+       "name": "Reassembling Skeleton",
+       "faces": 1,
+       "spoiler": false,
+       "oracleId": "9dbc3530-b278-4c8d-b2cc-a09dfac9d5e5",
+       "typeLine": "Creature — Skeleton Warrior",
+       "imageUriBackPng": null,
+       "imageUriFrontPng": "https://cards.scryfall.io/png/front/4/d/4d431445-d7db-4ce1-b422-41494d9be1b4.png?1783907080",
+       "imageUriBackLarge": null,
+       "imageUriBackSmall": null,
+       "imageUriBackNormal": null,
+       "imageUriFrontLarge": "https://cards.scryfall.io/large/front/4/d/4d431445-d7db-4ce1-b422-41494d9be1b4.jpg?1783907080",
+       "imageUriFrontSmall": "https://cards.scryfall.io/small/front/4/d/4d431445-d7db-4ce1-b422-41494d9be1b4.jpg?1783907080",
+       "layoutRotationFront": null,
+       "imageUriFrontNormal": "https://cards.scryfall.io/normal/front/4/d/4d431445-d7db-4ce1-b422-41494d9be1b4.jpg?1783907080",
+       "imageUriBackArtCrop": null,
+       "imageUriFrontArtCrop": "https://cards.scryfall.io/art_crop/front/4/d/4d431445-d7db-4ce1-b422-41494d9be1b4.jpg?1783907080"
+      },
+      "quantity": 1,
+      "usedFace": null,
+      "zoneLocations": [
+       "G"
+      ],
+      "exileCardState": "",
+      "mustBeCommander": false,
+      "libraryCardState": "",
+      "graveyardCardState": "",
+      "battlefieldCardState": ""
+     }
+    ],
+    "notes": "",
+    "prices": {
+     "tcgplayer": "18.57",
+     "cardmarket": "13.45",
+     "cardkingdom": "23.33"
+    },
+    "status": "OK",
+    "spoiler": false,
+    "identity": "B",
+    "includes": [
+     {
+      "id": 26870
+     },
+     {
+      "id": 30204
+     }
+    ],
+    "produces": [
+     {
+      "feature": {
+       "id": 11,
+       "name": "Infinite colorless mana",
+       "status": "S",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 7,
+       "name": "Infinite death triggers",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 4,
+       "name": "Infinite creature ETB",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 3,
+       "name": "Infinite creature LTB",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 6,
+       "name": "Infinite creature sacrifice triggers",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     }
+    ],
+    "requires": [],
+    "legalities": {
+     "brawl": true,
+     "predh": false,
+     "legacy": true,
+     "modern": false,
+     "pauper": false,
+     "alchemy": false,
+     "pioneer": false,
+     "vintage": true,
+     "standard": false,
+     "commander": true,
+     "premodern": false,
+     "oathbreaker": true,
+     "standardBrawl": false,
+     "pauperCommander": false,
+     "competitiveBrawl": true,
+     "pauperCommanderMain": false
+    },
+    "popularity": 63063,
+    "bracketTag": "E",
+    "description": "Activate Ashnod's Altar by sacrificing Reassembling Skeleton, adding {C}{C}.\nWhen Reassembling Skeleton dies, Pitiless Plunderer triggers, creating a Treasure token.\nActivate the Treasure token by tapping and sacrificing it, adding {B}.\nActivate Reassembling Skeleton by paying {1}{B}, returning it from your graveyard to the battlefield tapped.\nRepeat.",
+    "manaNeeded": "",
+    "variantCount": 9,
+    "manaValueNeeded": 0,
+    "easyPrerequisites": "",
+    "notablePrerequisites": ""
+   }
+  ],
+  "almostIncludedByAddingColors": [
+   {
+    "id": "513-5034--46",
+    "of": [
+     {
+      "id": 26516
+     }
+    ],
+    "uses": [
+     {
+      "card": {
+       "id": 513,
+       "name": "Hullbreaker Horror",
+       "faces": 1,
+       "spoiler": false,
+       "oracleId": "d4a84e78-d9b9-4c67-8a4b-4329e65f0f15",
+       "typeLine": "Creature — Kraken Horror",
+       "imageUriBackPng": null,
+       "imageUriFrontPng": "https://cards.scryfall.io/png/front/1/3/137acb70-a1fd-4ea9-a5d9-f4b438eb5e82.png?1783908162",
+       "imageUriBackLarge": null,
+       "imageUriBackSmall": null,
+       "imageUriBackNormal": null,
+       "imageUriFrontLarge": "https://cards.scryfall.io/large/front/1/3/137acb70-a1fd-4ea9-a5d9-f4b438eb5e82.jpg?1783908162",
+       "imageUriFrontSmall": "https://cards.scryfall.io/small/front/1/3/137acb70-a1fd-4ea9-a5d9-f4b438eb5e82.jpg?1783908162",
+       "layoutRotationFront": null,
+       "imageUriFrontNormal": "https://cards.scryfall.io/normal/front/1/3/137acb70-a1fd-4ea9-a5d9-f4b438eb5e82.jpg?1783908162",
+       "imageUriBackArtCrop": null,
+       "imageUriFrontArtCrop": "https://cards.scryfall.io/art_crop/front/1/3/137acb70-a1fd-4ea9-a5d9-f4b438eb5e82.jpg?1783908162"
+      },
+      "quantity": 1,
+      "usedFace": null,
+      "zoneLocations": [
+       "B"
+      ],
+      "exileCardState": "",
+      "mustBeCommander": false,
+      "libraryCardState": "",
+      "graveyardCardState": "",
+      "battlefieldCardState": ""
+     },
+     {
+      "card": {
+       "id": 5034,
+       "name": "Sol Ring",
+       "faces": 1,
+       "spoiler": false,
+       "oracleId": "6ad8011d-3471-4369-9d68-b264cc027487",
+       "typeLine": "Artifact",
+       "imageUriBackPng": null,
+       "imageUriFrontPng": "https://cards.scryfall.io/png/front/8/e/8ee443cc-e17a-493b-9c93-1f9e141a30e4.png?1789644446",
+       "imageUriBackLarge": null,
+       "imageUriBackSmall": null,
+       "imageUriBackNormal": null,
+       "imageUriFrontLarge": "https://cards.scryfall.io/large/front/8/e/8ee443cc-e17a-493b-9c93-1f9e141a30e4.jpg?1789644446",
+       "imageUriFrontSmall": "https://cards.scryfall.io/small/front/8/e/8ee443cc-e17a-493b-9c93-1f9e141a30e4.jpg?1789644446",
+       "layoutRotationFront": null,
+       "imageUriFrontNormal": "https://cards.scryfall.io/normal/front/8/e/8ee443cc-e17a-493b-9c93-1f9e141a30e4.jpg?1789644446",
+       "imageUriBackArtCrop": null,
+       "imageUriFrontArtCrop": "https://cards.scryfall.io/art_crop/front/8/e/8ee443cc-e17a-493b-9c93-1f9e141a30e4.jpg?1789644446"
+      },
+      "quantity": 1,
+      "usedFace": null,
+      "zoneLocations": [
+       "B"
+      ],
+      "exileCardState": "",
+      "mustBeCommander": false,
+      "libraryCardState": "",
+      "graveyardCardState": "",
+      "battlefieldCardState": ""
+     }
+    ],
+    "notes": "",
+    "prices": {
+     "tcgplayer": "6.76",
+     "cardmarket": "4.79",
+     "cardkingdom": "11.98"
+    },
+    "status": "OK",
+    "spoiler": false,
+    "identity": "U",
+    "includes": [
+     {
+      "id": 26516
+     }
+    ],
+    "produces": [
+     {
+      "feature": {
+       "id": 11,
+       "name": "Infinite colorless mana",
+       "status": "S",
+       "uncountable": true
+      },
+      "quantity": 1
+     },
+     {
+      "feature": {
+       "id": 17,
+       "name": "Infinite storm count",
+       "status": "H",
+       "uncountable": true
+      },
+      "quantity": 1
+     }
+    ],
+    "requires": [
+     {
+      "quantity": 1,
+      "template": {
+       "id": 46,
+       "name": "Permanent Castable for {C}",
+       "scryfallApi": "https://api.scryfall.com/cards/search?q=%28mv%3C%3D1+%28mana%3D%7B0%7D+or+mana%3D%7B1%7D+or+mana%3D%7BC%7D%29+is%3Apermanent%29+legal%3Acommander",
+       "scryfallQuery": "mv<=1 (mana={0} or mana={1} or mana={C}) is:permanent"
+      },
+      "zoneLocations": [
+       "H"
+      ],
+      "exileCardState": "",
+      "mustBeCommander": false,
+      "libraryCardState": "",
+      "graveyardCardState": "",
+      "battlefieldCardState": ""
+     }
+    ],
+    "legalities": {
+     "brawl": false,
+     "predh": false,
+     "legacy": false,
+     "modern": false,
+     "pauper": false,
+     "alchemy": false,
+     "pioneer": false,
+     "vintage": true,
+     "standard": false,
+     "commander": true,
+     "premodern": false,
+     "oathbreaker": false,
+     "standardBrawl": false,
+     "pauperCommander": false,
+     "competitiveBrawl": false,
+     "pauperCommanderMain": false
+    },
+    "popularity": 351354,
+    "bracketTag": "E",
+    "description": "Activate Sol Ring by tapping it, adding {C} {C}.\nCast the permanent that can be cast using {C} by paying its mana cost.\nHullbreaker Horror triggers, returning Sol Ring from the battlefield to your hand.\nCast Sol Ring by paying {1}. \nHullbreaker Horror triggers, returning the permanent cast in step 2 from the battlefield to your hand.\nRepeat.\nIf the permanent can be cast by paying {0}, this combo nets infinite colorless mana.",
+    "manaNeeded": "",
+    "variantCount": 1,
+    "manaValueNeeded": 0,
+    "easyPrerequisites": "",
+    "notablePrerequisites": ""
+   }
+  ],
+  "almostIncludedByChangingCommanders": [],
+  "almostIncludedByAddingColorsAndChangingCommanders": []
+ }
+}

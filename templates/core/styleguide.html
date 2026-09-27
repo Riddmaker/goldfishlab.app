@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Styleguide — Goldfish Lab{% endblock %}
+{% block content %}
+  <h1 class="font-display text-3xl text-parchment-100">Styleguide</h1>
+  <p class="mt-3 max-w-3xl text-ink-300">
+    Live rendering of every design token. The source of truth is
+    <code class="font-mono text-parchment-300">assets/css/input.css</code>;
+    <code class="font-mono text-parchment-300">tests/test_design_tokens.py</code>
+    enforces WCAG AA on every role pairing shown here.
+  </p>
+  {% for family in families %}
+    <section class="mt-10">
+      <h2 class="font-display text-2xl text-parchment-100">{{ family.name|title }}</h2>
+      <p class="mt-1 text-sm text-ink-400">{{ family.note }}</p>
+      <div class="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6 lg:grid-cols-11">
+        {% for step in family.steps %}
+          <div>
+            <div class="h-14 border border-ink-700"
+                 style="background-color: {{ step.value }}"></div>
+            <div class="mt-1 font-mono text-[11px] text-ink-400">{{ step.step }}</div>
+            <div class="font-mono text-[11px] text-ink-500">{{ step.value }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endfor %}
+  <section class="mt-12">
+    <h2 class="font-display text-2xl text-parchment-100">Surfaces</h2>
+    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+      <div class="surface-parchment p-5">
+        <h3 class="font-display text-xl text-ink-900">Parchment surface</h3>
+        <p class="mt-2 text-ink-900">Body text on parchment. This is the card, report panel and playtest table.</p>
+        <p class="mt-2 text-sm text-ink-700">Muted text on parchment.</p>
+        <p class="mt-2">
+          <a href="#" class="text-blood-700 underline">A link on parchment</a>
+        </p>
+      </div>
+      <div class="border border-ink-800 bg-ink-900 p-5">
+        <h3 class="font-display text-xl text-parchment-100">Raised dark panel</h3>
+        <p class="mt-2 text-parchment-100">Body text on a raised dark panel.</p>
+        <p class="mt-2 text-sm text-ink-300">Muted text on dark.</p>
+        <p class="mt-2 text-blood-300">Accent text on dark.</p>
+      </div>
+    </div>
+  </section>
+  <section class="mt-12">
+    <h2 class="font-display text-2xl text-parchment-100">Buttons</h2>
+    <div class="mt-4 flex flex-wrap gap-3">
+      <button type="button"
+              class="border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
+        Primary
+      </button>
+      <button type="button"
+              class="border border-parchment-600 bg-parchment-300 px-4 py-2 font-display text-ink-900 hover:bg-parchment-400">
+        Secondary
+      </button>
+      <button type="button"
+              class="border border-verdigris-800 bg-verdigris-700 px-4 py-2 font-display text-parchment-100 hover:bg-verdigris-800">
+        Success
+      </button>
+    </div>
+  </section>
+  <section class="mt-12">
+    <h2 class="font-display text-2xl text-parchment-100">Badges</h2>
+    <div class="mt-4 flex flex-wrap gap-3 text-sm">
+      <span class="bg-verdigris-100 px-2 py-1 text-verdigris-800">Modelled</span>
+      <span class="bg-ink-200 px-2 py-1 text-ink-800">Vanilla</span>
+      <span class="bg-blood-100 px-2 py-1 text-blood-800">Needs review</span>
+    </div>
+  </section>
+  <section class="mt-12">
+    <h2 class="font-display text-2xl text-parchment-100">Typography</h2>
+    <div class="mt-4 surface-parchment p-5">
+      <p class="font-display text-4xl text-ink-900">Display 4xl</p>
+      <p class="font-display text-2xl text-ink-900">Display 2xl</p>
+      <p class="mt-3 text-ink-900">
+        Body text. Display and body share one serif stack, resolved from system fonts -
+        no third-party font request.
+      </p>
+      <p class="mt-2 font-mono text-sm text-ink-700">Monospace, for card counts and seeds.</p>
+    </div>
+  </section>
+{% endblock %}

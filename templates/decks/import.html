@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Import a deck — Goldfish Lab{% endblock %}
+{% block description %}Import an Archidekt CSV export or a plain text deck list.{% endblock %}
+{% block content %}
+  <h1 class="font-display text-3xl text-parchment-100">Import a deck</h1>
+  <div class="surface-parchment mt-8 max-w-2xl p-6">
+    <form method="post" enctype="multipart/form-data" class="auth-form">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <ul class="errorlist">
+          {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+      {% for field in form %}
+        <div class="form-group">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<p class="text-sm text-ink-700">{{ field.help_text }}</p>{% endif %}
+          {% if field.errors %}
+            <ul class="errorlist">
+              {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit">Import</button>
+    </form>
+  </div>
+  <div class="mt-8 max-w-2xl border-l-2 border-parchment-600 pl-5">
+    <h2 class="font-display text-xl text-parchment-100">What is supported</h2>
+    <p class="mt-3 text-parchment-200">
+      <strong class="text-parchment-100">Any CSV or TSV export.</strong> Moxfield, Deckbox,
+      ManaBox, Delver Lens, Dragon Shield, Archidekt — and tools nobody here has heard of.
+      Columns are read by what they mean rather than by which site wrote them, and where
+      that is not enough you are shown the columns and asked. It takes about thirty seconds
+      and it only happens once per file.
+    </p>
+    <p class="mt-3 text-parchment-200">
+      <strong class="text-parchment-100">Plain text</strong> — one card per line, with or
+      without a leading quantity. <span class="tabular">1x Sol Ring</span> and
+      <span class="tabular">31 Swamp</span> both work.
+    </p>
+    <p class="mt-4 text-sm text-ink-300">
+      <strong class="text-ink-100">Spreadsheets are deliberately not accepted.</strong> An
+      .xlsx file is a zip archive and an .xls file can carry macros; reading either would
+      mean running a large parser over a stranger's upload for no benefit you would notice.
+      Every tool that exports a spreadsheet also exports a CSV.
+    </p>
+  </div>
+{% endblock %}

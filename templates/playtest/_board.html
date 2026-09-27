@@ -1,0 +1,227 @@
+{% comment %}
+  The board. Rendered inside the page and swapped on its own by htmx, so the
+  two can never show different games.
+
+  Every button is a real submit inside a real form. `hx-post` is an enhancement
+  on top: with JavaScript off the same POST goes through, the view redirects to
+  the board, and the page re-renders. Nothing here is reachable only by script.
+{% endcomment %}
+<div id="board" class="space-y-6">
+
+  {% comment %}
+    Only the reading half belongs on a board. "Nobody has said how early to
+    cast it" is advice to a simulation, and there is no agent here to take it -
+    the player decides what to cast by clicking on it. Saying it anyway made
+    the warning longer and less true, which is how a warning becomes furniture.
+  {% endcomment %}
+  {% if session.cards_unreadable %}
+    <p class="border border-parchment-600 bg-ink-900 px-4 py-3 text-sm text-parchment-100">
+      The engine could not read
+      <strong>{{ session.cards_unreadable }}</strong> of
+      <strong>{{ session.cards_total }}</strong> cards in this deck
+      ({{ session.readable_pct }}% read). Those cards still move, but what
+      they <em>do</em> is up to you —
+      <a href="{% url 'simulations:tune' deck.id %}" class="underline">tell the engine what they mean</a>.
+    </p>
+  {% endif %}
+
+  <section class="surface-parchment p-5">
+    <div class="flex flex-wrap items-baseline gap-x-6 gap-y-2">
+      <span class="font-display text-2xl text-ink-900">Turn {{ game.turn }}</span>
+      <span class="tabular text-ink-700">Life {{ game.life }}</span>
+      <span class="tabular text-ink-700">Hand {{ hand|length }}</span>
+      <span class="tabular text-ink-700">Library {{ game.library|length }}</span>
+      {% if game.mulligans %}<span class="tabular text-ink-700">Mulligans {{ game.mulligans }}</span>{% endif %}
+      <span class="ml-auto flex items-baseline gap-2 text-sm">
+        {% for phase in phases %}
+          <span class="{% if phase == game.phase %}border border-ink-800 px-2 py-0.5 text-ink-900{% else %}text-ink-500{% endif %}">{{ phase }}</span>
+        {% endfor %}
+      </span>
+    </div>
+
+    {% if game.pool.by_color %}
+      <p class="mt-3 tabular text-sm text-ink-700">
+        Floating:
+        {% for color, amount in game.pool.by_color.items %}{{ amount }}{{ color }}{% if not forloop.last %} · {% endif %}{% empty %}nothing{% endfor %}
+      </p>
+    {% endif %}
+
+    <div class="mt-4 flex flex-wrap gap-2">
+      <form method="post" action="{% url 'playtest:act' session.id %}"
+            hx-post="{% url 'playtest:act' session.id %}"
+            hx-target="#board" hx-swap="outerHTML">
+        {% csrf_token %}
+        <input type="hidden" name="kind" value="advance_phase">
+        <button type="submit"
+                class="border border-ink-800 px-3 py-1.5 text-ink-900 hover:bg-parchment-300">
+          Next phase
+        </button>
+      </form>
+
+      <form method="post" action="{% url 'playtest:act' session.id %}"
+            hx-post="{% url 'playtest:act' session.id %}"
+            hx-target="#board" hx-swap="outerHTML">
+        {% csrf_token %}
+        <input type="hidden" name="kind" value="draw">
+        <input type="hidden" name="count" value="1">
+        <button type="submit"
+                class="border border-ink-800 px-3 py-1.5 text-ink-900 hover:bg-parchment-300">
+          Draw a card
+        </button>
+      </form>
+
+      <form method="post" action="{% url 'playtest:undo' session.id %}"
+            hx-post="{% url 'playtest:undo' session.id %}"
+            hx-target="#board" hx-swap="outerHTML">
+        {% csrf_token %}
+        <button type="submit" {% if not can_undo %}disabled{% endif %}
+                class="border border-ink-800 px-3 py-1.5 text-ink-900 hover:bg-parchment-300 disabled:border-parchment-600 disabled:text-ink-500">
+          Undo
+        </button>
+      </form>
+
+      <form method="post" action="{% url 'playtest:redo' session.id %}"
+            hx-post="{% url 'playtest:redo' session.id %}"
+            hx-target="#board" hx-swap="outerHTML">
+        {% csrf_token %}
+        <button type="submit" {% if not can_redo %}disabled{% endif %}
+                class="border border-ink-800 px-3 py-1.5 text-ink-900 hover:bg-parchment-300 disabled:border-parchment-600 disabled:text-ink-500">
+          Redo
+        </button>
+      </form>
+    </div>
+  </section>
+
+  {% if commander %}
+    <section class="surface-parchment p-5">
+      <h2 class="font-display text-xl text-ink-900">Command zone</h2>
+      <div class="mt-3 flex flex-wrap items-start gap-3">
+        <div class="w-40">
+          {% if commander.image_uri %}
+            <img src="{{ commander.image_uri }}" alt="{{ commander.front_name }}"
+                 loading="lazy" class="w-full border border-ink-800">
+          {% endif %}
+          <p class="mt-1 text-sm text-ink-900">{{ commander.front_name }}</p>
+        </div>
+        {% if commander_castable %}
+          <form method="post" action="{% url 'playtest:act' session.id %}"
+                hx-post="{% url 'playtest:act' session.id %}"
+                hx-target="#board" hx-swap="outerHTML">
+            {% csrf_token %}
+            <input type="hidden" name="kind" value="cast_commander">
+            <button type="submit"
+                    class="border border-ink-800 bg-ink-900 px-3 py-1.5 text-parchment-100 hover:bg-ink-800">
+              Cast commander
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  <section class="surface-parchment p-5">
+    <h2 class="font-display text-xl text-ink-900">Hand</h2>
+    <p class="mt-1 text-sm text-ink-700">
+      A highlighted card is one the floating mana can pay for. Nothing is
+      blocked — you are the judge, exactly as on a kitchen table.
+    </p>
+    <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+      {% for tile in hand %}
+        {% comment %}
+          A flex column with the form pushed to the bottom: the tiles are
+          different heights now that printed keywords are shown, and a row of
+          Cast buttons at four different heights reads as broken even though
+          every one of them works.
+        {% endcomment %}
+        <li class="flex flex-col {% if tile.castable or tile.playable %}border-2 border-ink-900{% else %}border border-parchment-600{% endif %} p-2">
+          {% if tile.image %}
+            <img src="{{ tile.image }}" alt="{{ tile.card.name }}" loading="lazy"
+                 class="w-full">
+          {% endif %}
+          <p class="mt-1 text-sm text-ink-900">{{ tile.card.name }}</p>
+          <p class="tabular text-xs text-ink-700">{{ tile.card.kind }} · {{ tile.card.mv }}</p>
+          {% if tile.keywords %}
+            {% comment %}
+              Printed on the card and worth nothing to the simulation: a
+              goldfish has no opponent, so nothing blocks and nothing attacks.
+              Here because the person holding the card reads them.
+            {% endcomment %}
+            <p class="text-xs text-ink-500">{{ tile.keywords|join:" · " }}</p>
+          {% endif %}
+          <form method="post" action="{% url 'playtest:act' session.id %}"
+                hx-post="{% url 'playtest:act' session.id %}"
+                hx-target="#board" hx-swap="outerHTML" class="mt-auto pt-2">
+            {% csrf_token %}
+            <input type="hidden" name="index" value="{{ tile.index }}">
+            {% if tile.card.is_land %}
+              <input type="hidden" name="kind" value="play_land">
+              <button type="submit"
+                      class="w-full border border-ink-800 px-2 py-1 text-xs text-ink-900 hover:bg-parchment-300">
+                Play land
+              </button>
+            {% else %}
+              <input type="hidden" name="kind" value="cast_spell">
+              <button type="submit"
+                      class="w-full border border-ink-800 px-2 py-1 text-xs text-ink-900 hover:bg-parchment-300">
+                Cast
+              </button>
+            {% endif %}
+          </form>
+        </li>
+      {% empty %}
+        <li class="col-span-full text-ink-700">Nothing in hand.</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  {% for zone in board %}
+    {% if zone.tiles %}
+      <section class="surface-parchment p-5">
+        <h2 class="font-display text-xl text-ink-900">
+          {{ zone.label }} <span class="tabular text-base text-ink-700">{{ zone.tiles|length }}</span>
+        </h2>
+        <ul class="mt-3 flex flex-wrap gap-2">
+          {% for tile in zone.tiles %}
+            <li class="border border-parchment-600 px-2 py-1 text-sm text-ink-900">
+              {{ tile.card.name }}
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+  {% endfor %}
+
+  <section class="surface-parchment p-5">
+    <h2 class="font-display text-xl text-ink-900">What happened</h2>
+    <ol class="mt-3 space-y-1 text-sm text-ink-700">
+      {% for line in game.log %}
+        <li class="tabular">{{ line }}</li>
+      {% empty %}
+        <li>Nothing yet.</li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  {% if history %}
+    <section class="surface-parchment p-5">
+      <h2 class="font-display text-xl text-ink-900">Branch from here</h2>
+      <p class="mt-1 text-sm text-ink-700">
+        A fork keeps this game exactly as it is and plays on from the action you
+        pick — the honest way to ask "what if I had kept the land instead".
+      </p>
+      <form method="post" action="{% url 'playtest:fork' session.id %}" class="mt-3 flex flex-wrap items-center gap-2">
+        {% csrf_token %}
+        <label for="fork-seq" class="text-sm text-ink-900">Replay up to action</label>
+        <select id="fork-seq" name="seq" class="border border-ink-800 bg-parchment-100 px-2 py-1 text-sm text-ink-900">
+          {% for row in history %}
+            <option value="{{ row.seq }}">{{ row.seq }}. {{ row.kind }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit"
+                class="border border-ink-800 px-3 py-1.5 text-sm text-ink-900 hover:bg-parchment-300">
+          Branch
+        </button>
+      </form>
+    </section>
+  {% endif %}
+</div>

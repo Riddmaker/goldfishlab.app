@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block title %}Methodology — Goldfish Lab{% endblock %}
+{% block description %}Exactly what Goldfish Lab simulates, what it does not, and how the numbers were checked.{% endblock %}
+{% block content %}
+  {% comment %}
+    This page is a competitive asset, not boilerplate. Every honest sentence on
+    it is one a "your deck is a 7.3" competitor cannot write, because saying
+    what a simulation does not cover is only cheap when the simulation covers
+    something.
+
+    Nothing here may drift from the engine. Each claim below is pinned by a
+    test, and the test is named next to it in a comment so the next person can
+    check rather than trust.
+  {% endcomment %}
+  <section class="max-w-3xl">
+    <h1 class="font-display text-4xl leading-tight text-parchment-100">How this works</h1>
+    <p class="mt-6 text-lg leading-relaxed text-parchment-200">
+      Goldfish Lab does not score your deck. It plays it — shuffles, mulligans,
+      makes land drops and casts spells, thousands of times — and reports what
+      happened. This page says exactly what that means, and just as importantly
+      what it leaves out.
+    </p>
+
+    <h2 class="mt-12 font-display text-2xl text-parchment-100">What a goldfish is</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">
+        A <em>goldfish</em> is a game against nobody. There is no opponent, so
+        there is no removal, no counterspell, no blocker and no clock. That is a
+        limitation and it is also the point: it isolates the one question your
+        deck can answer on its own — <strong>how reliably does it do the thing
+        it is built to do, and by which turn?</strong>
+      </p>
+      <p class="mt-4 text-ink-900">Concretely, the engine does not model:</p>
+      <ul class="mt-3 space-y-2 text-ink-900">
+        <li>• <strong>Opponents and interaction.</strong> Nothing is countered, killed or discarded.</li>
+        <li>• <strong>Combat.</strong> Nothing attacks or blocks, so nobody takes combat damage and no
+          creature dies. Your own life still moves: Necropotence, Dark Confidant and Phyrexian mana
+          are paid for.</li>
+        <li>• <strong>Printed keywords.</strong> Flying, deathtouch and trample are shown on a card because a
+          person reads them. They change no number here, and we never count them as if they did.</li>
+        <li>• <strong>Politics and table dynamics</strong>, which are most of what a Commander game is.</li>
+      </ul>
+      <p class="mt-4 text-sm text-ink-700">
+        So a deck that goldfishes beautifully can still lose every game. What
+        this tells you is whether the deck's own plan is reliable — not whether
+        the plan is good.
+      </p>
+    </div>
+
+    <h2 class="mt-12 font-display text-2xl text-parchment-100">The opening hand, and how we know it is right</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">
+        A Monte Carlo simulation is only worth reading if it agrees with
+        mathematics wherever mathematics has an answer. For the first seven
+        cards it does: the number of lands in an opening seven follows the
+        <strong>hypergeometric distribution</strong>, which has a closed form.
+      </p>
+      <p class="mt-4 text-ink-900">
+        Every report puts the simulated distribution next to the exact one,
+        computed with <code>math.comb</code>, so you can see them agree. The
+        test suite draws <strong>200,000</strong> opening hands on every run and
+        fails if they diverge beyond sampling error.
+        {% comment %} tests/test_statistics.py, the `slow` marker. {% endcomment %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        The <em>kept</em> hand is shown separately and has <strong>no exact
+        column</strong>, because no closed form describes it — the mulligan rule
+        throws the tails back and reshapes the distribution. Printing a
+        closed-form number beside it would be inventing one.
+      </p>
+    </div>
+
+    <h2 class="mt-12 font-display text-2xl text-parchment-100">The mulligan rule</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">
+        <strong>London mulligan</strong>: draw a fresh seven, then put cards on
+        the bottom. In multiplayer Commander the <strong>first mulligan is
+        free</strong>, so the first one bottoms nothing.
+        {% comment %} simulation/game.py: cards_to_bottom() is max(0, mulligans - 1). {% endcomment %}
+      </p>
+      <p class="mt-4 text-ink-900">A hand is kept when:</p>
+      <ul class="mt-3 space-y-2 text-ink-900">
+        <li>• it has <strong>2 to 5 lands</strong>; or</li>
+        <li>• it has <strong>exactly 1 land</strong> and at least two cheap accelerants.</li>
+      </ul>
+      <p class="mt-3 text-ink-900">
+        A hand with <strong>0 or 6 or more lands</strong> goes back. We stop
+        after three mulligans, at five cards.
+      </p>
+      <p class="mt-4 text-sm text-ink-700">
+        This heuristic decides every number that follows it, which is why it is
+        written here in full rather than described as "a sensible keep rule".
+        It is deliberately simpler than a good player: it cannot read your
+        hand's plan, only its shape. One consequence is worth knowing —
+        <strong>a land-heavy deck mulligans more, not less</strong>, because
+        forty-five lands flood into the 6+ rule far more often than twenty
+        lands miss into the 0 rule.
+      </p>
+    </div>
+
+    <h2 class="mt-12 font-display text-2xl text-parchment-100">The first draw, and how a turn makes mana</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">
+        <strong>In multiplayer Commander nobody skips the draw on their first turn</strong>
+        (Comprehensive Rules 103.8c), so that is the default. Skipping it is the two-player
+        rule, and it is there as an option for a 1-v-1 game.
+      </p>
+      <p class="mt-4 text-ink-900">
+        Every mana source is tapped once, at the start of the main phase: lands, mana rocks and
+        creatures that tap for mana. A creature cast this turn is not in that pool yet, which is
+        also what summoning sickness says - and so is a rock cast this turn, which in a real game
+        could often be tapped at once. That second part makes the early turns read slightly
+        lower than they play.
+      </p>
+      <p class="mt-4 text-ink-900">
+        A source's cost is paid: a Signet turns one mana into its two colours, so it nets one.
+        A card that does not untap (Mana Vault) makes its mana once. One that sacrifices itself
+        (Lotus Petal) is used once, when it lets something be cast that otherwise could not.
+        Phyrexian mana is paid with 2 life only when the mana is needed elsewhere, and never
+        below 25 life.
+      </p>
+    </div>
+
+    <h2 class="mt-12 font-display text-2xl text-parchment-100">What the engine could not read</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">
+        Every result carries a <strong>coverage score, and it is two numbers</strong>,
+        because one number was answering two different questions:
+      </p>
+      <ul class="mt-4 space-y-3 text-ink-900">
+        <li>
+          <strong>Read.</strong> How much of the deck the engine could understand
+          from the card itself. A gap here is <em>ours</em> — a card whose text we
+          could not turn into behaviour.
+        </li>
+        <li>
+          <strong>Judged.</strong> How much of the deck carries the judgements only
+          its author can make: what counts as a priority, what counts as
+          acceleration. A gap here is not a defect. It is a question we are not
+          willing to answer on your behalf.
+        </li>
+      </ul>
+      <p class="mt-4 text-ink-900">
+        Splitting them was not cosmetic. On the deck we measured,
+        <strong>161 of 217 gaps were judgement</strong> — so a single score was
+        mostly reporting how much hand-annotation a deck had received.
+      </p>
+      <p class="mt-4 text-ink-900">
+        Wherever nothing could be established, the answer is a stated gap rather
+        than a guess. A deriver that defaults a missing number is right often
+        enough to look correct and silent when it is not.
+      </p>
+    </div>
+
+    <h2 class="mt-12 font-display text-2xl text-parchment-100">Combos</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">
+        Combos come from <strong>Commander Spellbook</strong>, looked up for your
+        actual deck. We never guess a combo by reading card text.
+      </p>
+      <p class="mt-4 text-ink-900">
+        What the simulator adds is the part nobody else can: <strong>how often a
+        combo actually comes together, and by which turn</strong>. A combo counts
+        as assembled only when every card is in the zone the combo needs it in —
+        on the battlefield, in the graveyard, in hand. Not "drawn", and not
+        "seen". Measuring drawn cards would be easier and would inflate every
+        number on the page.
+      </p>
+      <p class="mt-4 text-ink-900">
+        For a combo your deck is <em>one card short of</em>, the question is
+        hypothetical, so we say so and measure it honestly: on a second deck
+        that is yours <strong>plus that card</strong>, nothing cut, and the page
+        names the card. Choosing which card your deck can spare is not a
+        judgement this application makes.
+      </p>
+      <p class="mt-4 text-sm text-ink-700">
+        Expect small numbers, and read them carefully. Two specific cards in a
+        99-card singleton deck is about 1.6% before anything has to be cast. A
+        result under one percent is printed as "under 1%" rather than rounded to
+        "0%", because 0% reads as <em>never</em> next to a combo that did come
+        together.
+      </p>
+    </div>
+
+    <h2 class="mt-12 font-display text-2xl text-parchment-100">How many games is enough</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">
+        Ten thousand games gives roughly <strong>±0.5 percentage points at 95%
+        confidence</strong>. Past that you are buying decimal places that do not
+        change a decision, which is why this application meters
+        <strong>turns simulated</strong> rather than selling you iteration counts.
+      </p>
+      <p class="mt-4 text-sm text-ink-700">
+        A run is split into chunks across background workers. A chunked run is
+        deliberately not bit-identical to a single run of the same seed; it
+        replays exactly and agrees with one within sampling error, and both
+        halves of that are asserted by tests.
+      </p>
+    </div>
+
+    <h2 class="mt-12 font-display text-2xl text-parchment-100">Where this comes from</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <ul class="space-y-3 text-ink-900">
+        <li>
+          <strong>Frank Karsten</strong> — the standard reference for Magic manabase
+          mathematics, and the source of the hypergeometric "cast on curve at ~90%
+          consistency" approach this engine is checked against.
+        </li>
+        <li>
+          <a class="underline hover:text-ink-700"
+             href="https://edhrec.com/articles/simultaing-available-mana-beyond-the-hypergeometric-distribution">EDHREC:
+          Simulating Available Mana (Beyond the Hypergeometric Distribution)</a> —
+          why counting lands in an opening hand is not the same question as
+          counting <em>mana available on turn four</em>.
+        </li>
+        <li>
+          <a class="underline hover:text-ink-700"
+             href="https://www.quietspeculation.com/2022/09/fundamentals-when-to-playtest-vs-goldfish/">Quiet
+          Speculation: When to Playtest vs Goldfish</a> — on what goldfishing
+          answers and what it cannot.
+        </li>
+        <li>
+          Card data from <a class="underline hover:text-ink-700" href="https://scryfall.com">Scryfall</a>;
+          combos from <a class="underline hover:text-ink-700" href="https://commanderspellbook.com">Commander Spellbook</a>.
+          Card images are linked from Scryfall and never rehosted.
+        </li>
+      </ul>
+    </div>
+
+    <p class="mt-10 text-sm text-ink-300">
+      If a number on this site ever disagrees with this page, the page is the
+      bug. Say so and it gets fixed.
+    </p>
+  </section>
+{% endblock %}

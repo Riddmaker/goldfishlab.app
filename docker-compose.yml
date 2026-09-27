@@ -1,0 +1,108 @@
+# Local development stack. Secrets come from .env (never committed);
+# run  python scripts/bootstrap_env.py  to generate one.
+#
+# Postgres is pinned to 16 to match the Jelastic production node, not to the
+# newest release - a local/production version gap is a bug waiting to surface
+# only in production.
+services:
+  web:
+    build: .
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn goldfishlab.wsgi:application --bind 0.0.0.0:8080 --reload"
+    environment:
+      DJANGO_SETTINGS_MODULE: goldfishlab.settings.dev
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: "True"
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - .:/app
+    ports:
+      # Host 8000 -> container 8080. The container port matches production so
+      # the Jelastic routing rule is never accidentally "fixed" away locally.
+      - "8000:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Two workers, not one with two queues. This is the fairness mechanism, and
+  # it is the only thing that works: a single worker draining both queues will
+  # happily spend ten minutes on one 100,000-game run while every 1,000-game
+  # run waits behind it. No quota system fixes that - the quota is spent
+  # either way, the user just waits. So the short queue gets a worker that
+  # never touches long work.
+  worker:
+    build: .
+    command: celery -A goldfishlab worker --loglevel=info --queues=sim_long --concurrency=2
+    environment:
+      DJANGO_SETTINGS_MODULE: goldfishlab.settings.dev
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: "True"
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - .:/app
+    depends_on:
+      web:
+        condition: service_started
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker_short:
+    build: .
+    # --beat as in production's worker-short (start.sh, CELERY_BEAT=1): the
+    # one scheduler, for Celery's own daily result cleanup.
+    command: >
+      celery -A goldfishlab worker --loglevel=info --queues=sim_short
+      --concurrency=1 --beat --schedule /tmp/celerybeat-schedule
+    environment:
+      DJANGO_SETTINGS_MODULE: goldfishlab.settings.dev
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: "True"
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - .:/app
+    depends_on:
+      web:
+        condition: service_started
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      # Loopback only, so the venv (pytest, manage.py) reaches Postgres
+      # without exposing it to the network.
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

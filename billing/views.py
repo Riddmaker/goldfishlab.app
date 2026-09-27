@@ -1,0 +1,196 @@
+"""Billing screens, and the one endpoint Stripe talks to.
+
+Four of these are ordinary signed-in pages scoped to `request.user`. The fifth
+is the webhook, and it is the only view in this application that is
+**unauthenticated, CSRF-exempt and POST-only** - which is exactly why the
+signature check is the first thing it does and why it never trusts a single
+field until `construct_event` has returned.
+
+The success redirect grants nothing. A person can type that URL. All it does is
+say "thank you, it may take a moment", and the page reflects whatever the
+webhook has already written.
+"""
+
+import logging
+
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import TemplateView, View
+
+from billing import quotas, services, stripe_api
+from billing.models import Plan
+
+logger = logging.getLogger(__name__)
+
+
+class PlansView(LoginRequiredMixin, TemplateView):
+    """What each tier costs and what it buys.
+
+    The table is read from the database rather than written in the template,
+    because the limits live there - changing what the free plan allows is a
+    data edit, and a page that restated the numbers would start lying on the
+    first such edit.
+    """
+
+    template_name = "billing/plans.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        subscription = services.subscription_for(self.request.user)
+        context["subscription"] = subscription
+        context["plans"] = Plan.objects.filter(is_active=True).order_by("price_chf_cents")
+        context["purchasable"] = {plan.pk for plan in services.purchasable_plans()}
+        context["can_pay"] = stripe_api.is_configured()
+        context["usage"] = _usage_rows(self.request.user)
+        return context
+
+
+def _usage_rows(user) -> list[dict]:
+    """This month's consumption against the plan, for the page.
+
+    Read through `quotas.check` with `raise_on_fail=False` so the page and the
+    enforcement cannot disagree: if this said "3 of 20" while the enqueue path
+    refused, the number on screen would be the wrong one.
+    """
+    from billing.models import UsageRecord
+
+    rows = []
+    for metric, label, period in (
+        (UsageRecord.Metric.RUNS_STARTED, "Simulations started", "this month"),
+        # Decks you have, not decks made this month: deleting one frees a slot.
+        (quotas.DECKS_OWNED, "Decks", "right now"),
+    ):
+        decision = quotas.check(user, metric, amount=0, raise_on_fail=False)
+        rows.append({"label": label, "period": period, "used": decision.used,
+                     "limit": decision.limit, "unlimited": decision.unlimited})
+    return rows
+
+
+class StartCheckoutView(LoginRequiredMixin, View):
+    """Hand the person to Stripe's hosted Checkout."""
+
+    def post(self, request, slug):
+        plan = Plan.objects.filter(slug=slug, is_active=True).first()
+        if plan is None or plan.is_default:
+            return HttpResponseBadRequest("No such plan.")
+
+        base = request.build_absolute_uri
+        try:
+            url = services.start_checkout(
+                request.user, plan,
+                success_url=base(reverse("billing:done")),
+                cancel_url=base(reverse("billing:plans")),
+                terms_url=base(reverse("terms")),
+            )
+        except services.BillingNotConfigured as exc:
+            messages.error(request, str(exc))
+            return redirect("billing:plans")
+        except services.AlreadySubscribed as exc:
+            messages.info(request, str(exc))
+            return redirect("billing:plans")
+        except stripe_api.StripeError:
+            # The message is deliberately not Stripe's. Its text can name a
+            # price id or an account, and this page is shown to a stranger.
+            logger.exception("stripe checkout failed for user %s", request.user.pk)
+            messages.error(request, "Stripe could not start a checkout just now. "
+                                    "Nothing was charged. Please try again.")
+            return redirect("billing:plans")
+
+        return redirect(url)
+
+
+class PortalView(LoginRequiredMixin, View):
+    """Hand the person to Stripe's hosted Customer Portal.
+
+    Cancelling, changing a card and downloading an invoice all happen there.
+    This application has no cancel button of its own on purpose: a second place
+    that can end a subscription is a second place that can disagree with
+    Stripe about whether it ended.
+    """
+
+    def post(self, request):
+        try:
+            url = services.start_portal(
+                request.user,
+                return_url=request.build_absolute_uri(reverse("billing:plans")),
+            )
+        except services.BillingNotConfigured as exc:
+            messages.error(request, str(exc))
+            return redirect("billing:plans")
+        except stripe_api.StripeError:
+            logger.exception("stripe portal failed for user %s", request.user.pk)
+            messages.error(request, "Stripe could not open the billing portal just now.")
+            return redirect("billing:plans")
+
+        return redirect(url)
+
+
+class CheckoutDoneView(LoginRequiredMixin, TemplateView):
+    """Where Stripe sends somebody after they pay.
+
+    **This page grants nothing.** It is reachable by typing the URL, it arrives
+    before the webhook sometimes, and believing it would mean believing the
+    browser about money. So it shows whatever the webhook has already written
+    and says plainly that the rest is on its way.
+    """
+
+    template_name = "billing/done.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["subscription"] = services.subscription_for(self.request.user)
+        return context
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class WebhookView(View):
+    """The only thing in this application that believes a statement about money.
+
+    Unauthenticated and CSRF-exempt because Stripe is not a browser and has no
+    session; safe because `construct_event` verifies an HMAC over the raw body
+    with the endpoint's own secret, inside a 300-second replay window.
+
+    **Answering 200 is the goal, not the courtesy.** Stripe retries anything
+    else with backoff for days, so a 500 on an event we simply have no use for
+    would turn one unhandled type into a retry storm. The event is recorded
+    first and the work is idempotent, so a retry we *do* get changes nothing.
+    """
+
+    def post(self, request):
+        if not stripe_api.is_configured():
+            # Refusing rather than accepting: an installation with no keys
+            # cannot have a webhook secret either, so anything arriving here is
+            # misdirected and silently swallowing it would hide that.
+            return HttpResponseBadRequest("Billing is not configured.")
+
+        try:
+            event = stripe_api.construct_event(
+                request.body, request.headers.get("Stripe-Signature")
+            )
+        except stripe_api.SignatureError:
+            logger.warning("rejected a webhook with a bad signature")
+            return HttpResponseBadRequest("Bad signature.")
+        except ValueError:
+            return HttpResponseBadRequest("Unparseable payload.")
+
+        outcome = services.apply_event(event)
+        logger.info("stripe %s: %s", event["type"], outcome)
+        return HttpResponse(outcome, content_type="text/plain")
+
+
+def upgrade_prompt(request, message: str):
+    """A quota refusal, pointed at the page that can fix it.
+
+    Imported by the deck and simulation views so that "you have used all twenty
+    runs" is one sentence away from the tier that has three hundred, rather
+    than a dead end with an apology.
+    """
+    return render(request, "billing/blocked.html", {
+        "message": message,
+        "subscription": services.subscription_for(request.user),
+    }, status=402)

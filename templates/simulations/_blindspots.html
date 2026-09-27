@@ -1,0 +1,47 @@
+{% comment %}
+  The named blind spots. Expects `blindspots` and `deck` in the context.
+
+  This panel is the whole product's case for being trusted, so it is not a
+  footnote and it is not behind a tab. Each entry names the limitation, says
+  what it costs, lists the cards it applies to, and links to the one field
+  that answers it - because a warning with no way to act on it is just a
+  disclaimer, and people learn to skip disclaimers.
+{% endcomment %}
+{% if blindspots %}
+  <section class="mt-6 border-l-2 border-blood-600 pl-5">
+    <h2 class="font-display text-2xl text-parchment-100">What this simulation does not model</h2>
+    <p class="mt-2 text-parchment-200">
+      These are not bugs and they are not going to be fixed by more games. They
+      are the difference between a goldfish game and a real one, and the only
+      honest thing to do with them is say which of your cards they touch.
+    </p>
+    {% if asof %}<p class="mt-2 text-sm text-parchment-200">{{ asof }}</p>{% endif %}
+    {% for spot in blindspots %}
+      <div class="mt-6">
+        <h3 class="font-display text-lg text-parchment-100">
+          {{ spot.heading }} —
+          <span class="tabular">{{ spot.count }}</span>
+          card{{ spot.count|pluralize }}
+        </h3>
+        <p class="mt-1 text-sm text-parchment-200">{{ spot.detail }}</p>
+        <p class="mt-2 text-sm text-parchment-200">
+          Answered by the <strong class="text-parchment-100">“{{ spot.fix }}”</strong> field
+          on each card.
+        </p>
+        <ul class="mt-3 space-y-1 text-sm text-parchment-200">
+          {% for suspect in spot.suspects %}
+            <li>
+              <a href="{% url 'simulations:annotate' deck.id suspect.oracle_id %}"
+                 class="text-parchment-100 underline">{{ suspect.name }}</a>
+              — {{ suspect.reason }}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+    <p class="mt-6 text-sm text-parchment-200">
+      <a href="{% url 'simulations:tune' deck.id %}"
+         class="text-parchment-100 underline">See what the engine read off every card</a>
+    </p>
+  </section>
+{% endif %}

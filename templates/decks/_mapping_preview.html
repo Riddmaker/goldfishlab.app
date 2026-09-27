@@ -1,0 +1,44 @@
+{% comment %}
+  The rows as the current mapping reads them. Re-rendered by htmx on every
+  change of a dropdown, and rendered server-side on the way in, so the page
+  works identically with htmx switched off.
+
+  `preview_problem` is not an error state. Before somebody has answered, the
+  honest content of this panel is the sentence explaining what is still
+  missing - which is also the thing that tells them what to do next.
+{% endcomment %}
+{% if preview_problem %}
+  <p class="text-sm text-ink-700">{{ preview_problem|capfirst }}</p>
+{% elif preview_rows %}
+  <table class="mt-1 w-full text-left text-sm text-ink-900">
+    <thead>
+      <tr class="border-b border-parchment-600">
+        <th scope="col" class="py-1.5 pr-4 font-display font-normal">Qty</th>
+        <th scope="col" class="py-1.5 pr-4 font-display font-normal">Card</th>
+        <th scope="col" class="py-1.5 pr-4 font-display font-normal">Printing</th>
+        <th scope="col" class="py-1.5 font-display font-normal">Finish</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in preview_rows %}
+        <tr class="border-b border-parchment-300">
+          <td class="tabular py-1.5 pr-4">{{ row.quantity }}</td>
+          <td class="py-1.5 pr-4">
+            {{ row.name }}
+            {% if row.is_commander %}<span class="text-ink-700">— commander</span>{% endif %}
+          </td>
+          <td class="tabular py-1.5 pr-4">
+            {% if row.set_code %}
+              {{ row.set_code|upper }} {{ row.collector_number|default:"" }}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td class="py-1.5">{{ row.extra.finish|default:"—" }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p class="text-sm text-ink-700">No card rows could be read with this mapping.</p>
+{% endif %}

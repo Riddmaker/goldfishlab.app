@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Goldfish Lab — it actually plays your deck{% endblock %}
+{% block content %}
+  <section class="max-w-3xl">
+    <h1 class="font-display text-4xl leading-tight text-parchment-100 sm:text-5xl">It actually plays your deck.</h1>
+    <p class="mt-6 text-lg leading-relaxed text-parchment-200">
+      Most deck tools look at your list and guess. Goldfish Lab shuffles it, keeps or mulligans
+      a real opening hand, plays land drops, casts spells in a sensible order and does it again
+      thousands of times — then tells you what actually happened.
+    </p>
+    <div class="mt-10 surface-parchment p-6">
+      <h2 class="font-display text-2xl text-ink-900">What that gets you</h2>
+      <ul class="mt-4 space-y-3 text-ink-900">
+        <li>
+          <strong>Real keep rates.</strong> Not "your curve looks fine" — the actual share of
+          opening hands worth keeping, with the free first mulligan Commander gives you.
+        </li>
+        <li>
+          <strong>When your deck comes online.</strong> The turn your commander lands, your
+          engine assembles, your payoff arrives — as a probability, per turn.
+        </li>
+        <li>
+          <strong>Honest limits.</strong> Every result says how much of your deck the engine
+          could actually model, and names the cards it could not.
+        </li>
+      </ul>
+    </div>
+    <p class="mt-8 text-sm text-ink-300">
+      Verified against the exact hypergeometric distribution, so the numbers agree with
+      closed-form mathematics wherever closed-form mathematics applies.
+    </p>
+    {% if not user.is_authenticated %}
+      <p class="mt-8">
+        <a href="{% url 'account_signup' %}"
+           class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
+          Create an account
+        </a>
+      </p>
+    {% endif %}
+  </section>
+{% endblock %}

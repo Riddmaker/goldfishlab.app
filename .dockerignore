@@ -1,0 +1,34 @@
+# The virtualenv is host-specific and enormous. Copying it in makes the
+# image hundreds of MB bigger and the chown step minutes slower - which
+# matters on a 128 MiB-per-cloudlet host.
+.venv/
+.bin/
+
+# Secrets must never enter the build context.
+.env
+
+# Python noise
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Version control and tooling caches
+.git/
+.github/
+.pytest_cache/
+.ruff_cache/
+.claude/
+
+# The local Scryfall bulk cache (78.8 MB and more). CI builds from a fresh
+# checkout that never has it; this keeps a local `docker build` just as lean.
+.data/
+
+# Dev-only files
+requirements-dev.txt
+docker-compose*.yml
+screenshots/
+staticfiles/
+docs/
+
+# Build output that stage 1 regenerates
+static/css/main.css

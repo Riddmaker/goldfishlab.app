@@ -1,0 +1,48 @@
+{% load humanize %}
+{% comment %}
+  What the simulator found out about one combo, or why it found out nothing.
+
+  The sentence this whole application is for. Everyone can tell you that your
+  deck contains a combo; this is the line only a simulator can write.
+
+  Three states, and all three are real answers:
+
+  * measured, and it happens - the percentage, with the sample under it;
+  * measured, and it never happened - said plainly, not left blank;
+  * not measured - with the reason, because a gap without one reads as a bug.
+
+  The hypothetical is never hidden. Where a card had to be added to the deck to
+  make the measurement possible, the line says so and says which card: the
+  simulated deck was one card **larger** than the real one, and reading the
+  number without knowing that would be reading it wrongly.
+{% endcomment %}
+{% with m=entry.measurement %}
+  {% if m %}
+    {% if m.never %}
+      <p class="mt-1 text-sm text-ink-700">
+        {% if m.hypothetical %}
+          Even with {{ m.added_name }} in the deck, it never
+        {% else %}
+          It never
+        {% endif %}
+        came together within {{ m.turns }} turns, across {{ m.games|intcomma }} games.
+      </p>
+    {% else %}
+      <p class="mt-1 text-sm text-ink-900">
+        {% if m.hypothetical %}
+          Add <strong>{{ m.added_name }}</strong> and it comes together
+        {% else %}
+          Comes together
+        {% endif %}
+        by turn {{ m.turns }} in <strong class="tabular">{{ m.share_label }}</strong> of games{% if m.median_turn and m.median_turn < m.turns %}, half of those by turn {{ m.median_turn }}{% endif %}.
+      </p>
+      <p class="text-xs text-ink-700">
+        Measured over {{ m.games|intcomma }} game{{ m.games|pluralize }}{% if m.hypothetical %} of this deck with that one card added — nothing was cut to make room{% endif %}.
+      </p>
+    {% endif %}
+  {% elif entry.no_number %}
+    {# A gap with a reason is an honest limit. A gap without one is a bug   #}
+    {# report the user has to write for us.                                #}
+    <p class="mt-1 text-xs text-ink-700">No timing for this one: it {{ entry.no_number }}.</p>
+  {% endif %}
+{% endwith %}

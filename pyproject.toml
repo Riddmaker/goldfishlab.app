@@ -1,0 +1,62 @@
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = ["**/migrations/*"]
+
+[tool.ruff.lint]
+# E/W pycodestyle, F pyflakes, I isort, B bugbear, UP pyupgrade,
+# DJ flake8-django, S bandit (security)
+select = ["E", "F", "W", "I", "B", "UP", "DJ", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests legitimately use assert and hardcoded dummy passwords. S311 joins them
+# for the same reason it is exempt under simulation/: a test that drives the
+# engine has to hand it a seeded `random.Random`, and a cryptographic generator
+# would destroy the reproducibility the tests exist to assert.
+"tests/**" = ["S101", "S105", "S106", "S311"]
+
+# S311 flags `random` as not cryptographically secure. For a Monte Carlo
+# simulator that is a false positive by definition: the engine REQUIRES a
+# reproducible seeded PRNG, and tests/test_statistics.py asserts that
+# reproducibility against the exact hypergeometric distribution.
+"simulation/**" = ["S311"]
+
+# Same false positive, one module further out: replaying a playtest means
+# rebuilding `random.Random(session.seed)` exactly, and a cryptographic
+# generator would make a stored game unreplayable. The seed itself is chosen
+# with `secrets`, and nothing here guards anything - a goldfish has no
+# opponent to hide a shuffle from.
+"playtest/services.py" = ["S311"]
+
+# The four engine test modules are vendored from the magic-project repository
+# and must stay BYTE-IDENTICAL to their originals - that equality is the whole
+# safety net for the Phase 2 generalization ("all 65 tests still green" means
+# nothing once the files start drifting). So their import order and typing
+# style are exempt rather than reformatted.
+# See tests/conftest.py and docs/phases/phase-2-engine.md.
+"tests/test_cards.py" = ["S101", "S105", "S106", "S311", "I001"]
+"tests/test_mana.py" = ["S101", "S105", "S106", "S311", "I001"]
+"tests/test_game.py" = ["S101", "S105", "S106", "S311", "I001"]
+"tests/test_statistics.py" = ["S101", "S105", "S106", "S311", "I001"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "goldfishlab.settings.dev"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+markers = [
+    # test_statistics.py draws 200_000 samples in setUpClass. It is the most
+    # important test in the repo (Monte Carlo vs. the exact hypergeometric
+    # distribution) but must not sit in the inner development loop.
+    "slow: statistical validation; run in CI, skip with -m 'not slow'",
+]
+
+[tool.djlint]
+profile = "django"
+indent = 2
+# H031 (meta keywords) is obsolete SEO practice
+# H021 (inline styles) is unavoidable here and deliberate: every chart in this
+# application is a server-rendered div whose WIDTH is the datum, and the
+# settled "no hand-written JavaScript" rule leaves no other way to carry a
+# per-row percentage into the page. Tailwind emits only classes it has
+# scanned, so a computed width can never be a class. Four hits, all charts.
+ignore = "H031,H021"

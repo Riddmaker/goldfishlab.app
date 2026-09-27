@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Which column is which? — Goldfish Lab{% endblock %}
+{% block description %}Confirm what each column of your export means before anything is imported.{% endblock %}
+{% block content %}
+  <h1 class="font-display text-3xl text-parchment-100">Which column is which?</h1>
+  <p class="mt-3 max-w-2xl text-parchment-200">
+    {{ pending.filename|default:"Your file" }} — {{ headers|length }} column{{ headers|length|pluralize }},
+    separated by {{ table.delimiter_label }}s{% if table.skip %}, with {{ table.skip }} line{{ table.skip|pluralize }} skipped above the header{% endif %}.
+    Nothing has been imported yet.
+  </p>
+
+  <section class="surface-parchment mt-8 p-6">
+    <h2 class="font-display text-2xl text-ink-900">The first rows of your file</h2>
+    <p class="mt-2 text-sm text-ink-700">Exactly as they are, so you can see what you are choosing between.</p>
+    <div class="mt-4 overflow-x-auto">
+      <table class="w-full text-left text-sm text-ink-900">
+        <thead>
+          <tr class="border-b border-parchment-600">
+            {% for header in headers %}
+              <th scope="col" class="py-1.5 pr-4 font-display font-normal">{{ header|default:"—" }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in sample %}
+            <tr class="border-b border-parchment-300">
+              {% for cell in row %}<td class="py-1.5 pr-4">{{ cell|default:"—" }}</td>{% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <form method="post" class="auth-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <ul class="errorlist">
+        {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+
+    {# htmx sits on the wrapper, not on the form: a div has no submit of its   #}
+    {# own to intercept, so the Import button stays an ordinary form post and  #}
+    {# the page behaves the same with scripting switched off.                  #}
+    <section class="surface-parchment mt-8 p-6"
+             hx-post="{% url 'decks:map-preview' pending.id %}"
+             hx-trigger="change"
+             hx-include="closest form"
+             hx-target="#mapping-preview"
+             hx-swap="innerHTML">
+      <h2 class="font-display text-2xl text-ink-900">What each column means</h2>
+      <p class="mt-2 text-sm text-ink-700">
+        Only the card name is required. Anything set to “not in this file” is simply not read —
+        a missing set code costs you an exact printing match, nothing more.
+      </p>
+      <div class="mt-5 grid gap-x-4 gap-y-4 sm:grid-cols-2">
+        {% for field in form %}
+          <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+              <ul class="errorlist">
+                {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="surface-parchment mt-8 p-6">
+      <h2 class="font-display text-2xl text-ink-900">How your rows will be read</h2>
+      <p class="mt-2 text-sm text-ink-700">This updates as you choose. Check the quantities before importing.</p>
+      <div id="mapping-preview" class="mt-4">
+        {% include "decks/_mapping_preview.html" %}
+      </div>
+    </section>
+
+    <button type="submit" class="mt-8">Import with this mapping</button>
+  </form>
+
+  <div class="mt-8 max-w-2xl border-l-2 border-parchment-600 pl-5">
+    <h2 class="font-display text-xl text-parchment-100">Why you are being asked</h2>
+    <p class="mt-3 text-parchment-200">
+      Most exports let you choose which columns to include, so the same site produces a
+      different file for every person. Reading this one by guessing would not fail loudly —
+      it would import the wrong cards and say nothing.
+    </p>
+    <p class="mt-3 text-parchment-200">
+      The case that proved it: an export with the quantity column left out once imported a
+      28-Swamp deck as a 28-card deck with <strong class="text-parchment-100">one</strong>
+      Swamp in it. Every test passed. That is why this screen will not let you past a
+      quantity column it cannot find without you saying what to do about it.
+    </p>
+  </div>
+{% endblock %}

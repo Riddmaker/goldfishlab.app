@@ -1,0 +1,150 @@
+{% comment %}
+  Combos, from Commander Spellbook's curated database.
+
+  This panel renders from cache and never fetches - the button is the only
+  thing that does. It is swapped in place by htmx and rendered server-side on
+  the deck page, so it works identically with scripting off.
+
+  The state that matters most is the empty one. The reference deck this whole
+  project was built around contains **zero** Spellbook combos, and an empty
+  list would read as a broken page rather than as an answer.
+{% endcomment %}
+{% load humanize %}
+<section id="combo-panel" class="surface-parchment mt-8 p-6">
+  <h2 class="font-display text-2xl text-ink-900">Combos</h2>
+
+  {% if not combos.asked %}
+    <p class="mt-2 text-ink-700">
+      Commander Spellbook keeps a human-curated list of card combinations that win games or
+      go infinite. Nothing has been looked up for this deck yet.
+    </p>
+  {% elif combos.failed %}
+    <p class="mt-2 text-ink-700">
+      Commander Spellbook could not be reached{% if combos.lookup.message %} — {{ combos.lookup.message }}{% endif %}.
+      Anything below is what was found last time.
+    </p>
+  {% elif combos.nothing_found %}
+    <p class="mt-2 text-ink-900">
+      <strong>No known combos in this deck.</strong>
+    </p>
+    <p class="mt-2 text-sm text-ink-700">
+      That is a normal result and not a fault. Spellbook lists combinations that go infinite
+      or win outright; a deck built to grind rather than to combo off contains none of them,
+      and the reference deck this application was built around is one such deck.
+    </p>
+  {% endif %}
+
+  {% if refusal %}
+    <p class="mt-3 text-sm text-ink-700">{{ refusal }}</p>
+  {% endif %}
+
+  {% if combos.included %}
+    <h3 class="mt-5 font-display text-xl text-ink-900">
+      {{ combos.included|length }} combo{{ combos.included|length|pluralize }} in this deck
+    </h3>
+    <ul class="mt-3 space-y-4">
+      {% for entry in combos.included %}
+        <li class="border-l-2 border-parchment-600 pl-4">
+          <p class="font-display text-lg text-ink-900">
+            {% for card in entry.combo.cards.all %}{{ card.name }}{% if not forloop.last %} + {% endif %}{% endfor %}
+          </p>
+          <p class="mt-1 text-sm text-ink-700">
+            {% for feature in entry.combo.produces %}{{ feature }}{% if not forloop.last %} · {% endif %}{% endfor %}
+          </p>
+          {% if entry.combo.notable_prerequisites %}
+            <p class="mt-1 text-sm text-ink-700">Needs: {{ entry.combo.notable_prerequisites }}</p>
+          {% endif %}
+          {% include "combos/_measurement.html" %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if combos.one_away %}
+    <h3 class="mt-6 font-display text-xl text-ink-900">
+      {{ combos.one_away|length }} one card away
+    </h3>
+    <p class="mt-1 text-sm text-ink-700">
+      Within your commander's colour identity, most-played first. The card you are missing
+      is named — and where a simulation has priced it, so is what adding it would be worth.
+    </p>
+    <ul class="mt-3 space-y-3">
+      {% for entry in combos.one_away_top %}
+        {% include "combos/_one_away.html" %}
+      {% endfor %}
+    </ul>
+    {% if combos.one_away_rest %}
+      {% comment %}
+        Folded away rather than cut. The demo deck returns 125 of these and
+        rendering them flat makes a deck page taller than the collection page
+        was when it pushed its own answers off the screen - but a list somebody
+        might act on is not ours to truncate silently.
+      {% endcomment %}
+      <details class="mt-3">
+        <summary class="cursor-pointer text-sm text-ink-700">
+          {{ combos.one_away_rest|length }} more, less commonly played
+        </summary>
+        <ul class="mt-3 space-y-3">
+          {% for entry in combos.one_away_rest %}
+            {% include "combos/_one_away.html" %}
+          {% endfor %}
+        </ul>
+      </details>
+    {% endif %}
+  {% endif %}
+
+  {% if combos.needs_a_run %}
+    {# The one place this panel asks for something. A list of combos is what #}
+    {# every site has; how long they take is what this one is for, and that  #}
+    {# needs games somebody has to ask for.                                  #}
+    <p class="mt-5 border-l-2 border-parchment-600 pl-4 text-sm text-ink-700">
+      <strong class="text-ink-900">Nothing has timed these yet.</strong>
+      Simulate this deck and every combo it holds gets a number — how often it is together by
+      the last turn — while the most-played few you are one card short of get measured on this
+      deck with that card added, so you can see what buying it would be worth.
+      A run of {{ combos.min_measurable|intcomma }} games or more is enough to price one.
+    </p>
+  {% elif combos.measured %}
+    <p class="mt-5 text-sm text-ink-700">
+      Timings from the run of {{ combos.measured_run.created_at|date:"j M Y" }}
+      — {{ combos.measured_run.games_total|intcomma }} games, {{ combos.measured_run.turns }} turns.
+      {# Said once here rather than on every row it is true of. A list of 125  #}
+      {# with the same sentence under a hundred of them is noise where the eye #}
+      {# is looking for a number.                                             #}
+      It timed {{ combos.measured_count }} of the combos above — every one this deck holds,
+      and the most-played of the ones it is a card short of, since each of those has to be
+      simulated as a deck of its own.
+      Magic has enormous variance: differences below about one percentage point are noise.
+    </p>
+  {% endif %}
+
+  {% if combos.lookup.out_of_identity %}
+    <p class="mt-5 text-sm text-ink-700">
+      {{ combos.lookup.out_of_identity }} further combo{{ combos.lookup.out_of_identity|pluralize }}
+      would need colours outside your commander's identity. They are counted and not listed:
+      they are advice about a different deck.
+    </p>
+  {% endif %}
+
+  <form method="post" action="{% url 'combos:refresh' deck.id %}"
+        class="mt-6"
+        hx-post="{% url 'combos:refresh' deck.id %}"
+        hx-target="#combo-panel"
+        hx-swap="outerHTML">
+    {% csrf_token %}
+    {# The secondary button style, as the playtest form uses: this is a thing #}
+    {# you can do to the page, not the thing the page is for.                 #}
+    <button type="submit"
+            class="border border-ink-800 px-4 py-2 font-display text-ink-900 hover:bg-parchment-300">
+      {% if combos.asked %}Check again{% else %}Find combos{% endif %}
+    </button>
+    {% if combos.lookup.fetched_at %}
+      {# A cached answer that does not say when it was true is a claim about #}
+      {# the present that nobody checked. Same rule as the collection's      #}
+      {# prices, and the same reason.                                        #}
+      <p class="mt-2 text-sm text-ink-700">
+        Looked up {{ combos.lookup.fetched_at|date:"j M Y" }}{% if combos.stale %} — your deck has changed, or this is more than a fortnight old{% endif %}.
+      </p>
+    {% endif %}
+  </form>
+</section>

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}What the engine reads — {{ deck.name }} — Goldfish Lab{% endblock %}
+{% block description %}
+  Every card in {{ deck.name }}, as the simulation engine reads it, with the source of each value.
+{% endblock %}
+{% block content %}
+  <div class="flex flex-wrap items-baseline gap-4">
+    <h1 class="font-display text-3xl text-parchment-100">What the engine reads</h1>
+    <span class="tabular text-parchment-200">
+      {{ cards_unreadable }} of {{ cards_total }} the engine could not read ·
+      {{ cards_unjudged }} waiting on a call only you can make
+    </span>
+    <a href="{{ deck.get_absolute_url }}"
+       class="ml-auto text-sm text-parchment-200 underline">Back to {{ deck.name }}</a>
+  </div>
+  <p class="mt-3 max-w-3xl text-parchment-200">
+    One row per card, in the engine's own words. Nothing here is recomputed for
+    display: these are the values a simulation of this deck will actually use, so
+    if a row is wrong, every number built on it is wrong too — and the card's own
+    page is where you say so.
+  </p>
+  <section class="surface-parchment mt-6 p-6">
+    <h2 class="font-display text-2xl text-ink-900">Where a value can come from</h2>
+    <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+      {% for key, pair in sources.items %}
+        <div>
+          <dt class="text-ink-900">{{ pair.0 }}</dt>
+          <dd class="text-sm text-ink-700">
+            {{ pair.1 }}
+          </dd>
+        </div>
+      {% endfor %}
+    </dl>
+  </section>
+  {% include "simulations/_blindspots.html" %}
+  <section class="surface-parchment mt-6 p-6">
+    <h2 class="font-display text-2xl text-ink-900">The cards</h2>
+    <p class="mt-1 text-sm text-ink-700">
+      Cards the engine could not read come first, then the ones waiting on a
+      call only you can make, then the rest. That ordering is deliberate: a
+      list sorted by name buries them among thirty Swamps.
+    </p>
+    {% comment %}
+      One row per card, not one table per card. The first version of this page
+      rendered the whole provenance table for every card, which on a 183-card
+      deck came to a hundred thousand pixels of stacked tables on a phone —
+      correct, tested, and unusable. The per-field detail lives one click away,
+      on the card's own page, which is also the only place it can be acted on.
+    {% endcomment %}
+    <table class="mt-5 w-full text-left text-sm">
+      <thead>
+        <tr class="border-b border-parchment-600 text-ink-700">
+          <th scope="col" class="py-1.5 pr-3">Card</th>
+          <th scope="col" class="py-1.5 pr-3">Treated as</th>
+          <th scope="col" class="py-1.5 pr-3">Taps for</th>
+          <th scope="col" class="py-1.5">Reading</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in entries %}
+          <tr class="border-b border-parchment-300 align-top">
+            <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">
+              <a href="{% url 'simulations:annotate' deck.id entry.oracle_card.pk %}"
+                 class="underline">{{ entry.name }}</a>
+              {% if entry.reading.is_commander %}
+                <span class="ml-1 border border-parchment-600 px-1 text-xs text-ink-700">commander</span>
+              {% endif %}
+            </th>
+            <td class="py-1.5 pr-3 text-ink-700">{{ entry.reading.card.kind }} · {{ entry.reading.cost }}</td>
+            <td class="py-1.5 pr-3 text-ink-700">{{ entry.reading.taps_for }}</td>
+            <td class="py-1.5 text-ink-700">
+              {% if entry.has_gaps %}
+                {% comment %}
+                  Truncated: a reason runs to a full sentence, and at phone
+                  width an untruncated one turns every gap row into a
+                  paragraph. The whole text is on the card's own page.
+                {% endcomment %}
+                <span class="block text-blood-700">! {{ entry.gaps|length }} unresolved — {{ entry.gaps.0.reason|truncatechars:60 }}</span>
+              {% endif %}
+              {% if entry.yours %}
+                <span class="block text-verdigris-800">
+                  ✓ {{ entry.yours|length }} value{{ entry.yours|length|pluralize }} you set
+                </span>
+              {% endif %}
+              {% if entry.weak %}{{ entry.weak|length }} unconfirmed{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  <p class="mt-8">
+    <a href="{% url 'simulations:priority' deck.id %}"
+       class="text-parchment-200 underline">Set the casting order for this deck</a>
+  </p>
+{% endblock %}

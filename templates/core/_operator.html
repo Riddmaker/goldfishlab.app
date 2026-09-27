@@ -1,0 +1,18 @@
+{% comment %}
+  The operator's name, postal address and email, from settings (see
+  core.context_processors.operator). Production refuses to boot while any part
+  is blank (core.E003), so the warning below only ever renders in development.
+{% endcomment %}
+{% if operator.name and operator.address and operator.email %}
+  <address class="not-italic text-ink-900">
+    {{ operator.name }}<br>
+    {% for line in operator.address %}{{ line }}<br>{% endfor %}
+    <a href="mailto:{{ operator.email }}" class="underline hover:text-ink-700">{{ operator.email }}</a>
+  </address>
+{% else %}
+  <p class="text-blood-800">
+    <strong>Not configured in this installation:</strong> LEGAL_OPERATOR_NAME,
+    LEGAL_OPERATOR_ADDRESS and LEGAL_CONTACT_EMAIL. Production does not start
+    without them.
+  </p>
+{% endif %}

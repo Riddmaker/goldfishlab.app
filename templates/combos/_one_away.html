@@ -1,0 +1,19 @@
+{% comment %}
+  One "you have all but one card of this" row. Extracted because the list is
+  rendered twice - the most-played few inline, the rest behind a `<details>` -
+  and two copies of it would be two places for the missing card to be named
+  differently.
+{% endcomment %}
+<li class="text-sm text-ink-900">
+  {% for card in entry.combo.cards.all %}{{ card.name }}{% if not forloop.last %} + {% endif %}{% endfor %}
+  {% if entry.missing %}
+    — you do not have
+    <strong>{% for name in entry.missing %}{{ name }}{% if not forloop.last %}, {% endif %}{% endfor %}</strong>
+  {% endif %}
+  {% for template in entry.combo.templates.all %}
+    {# A category, not a card. A combo whose template is unmet is one this #}
+    {# deck does not have, however many named cards it holds.              #}
+    <span class="text-ink-700">and any {{ template.name|lower }}</span>
+  {% endfor %}
+  {% include "combos/_measurement.html" %}
+</li>

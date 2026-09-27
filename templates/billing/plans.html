@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Your plan — Goldfish Lab{% endblock %}
+{% block description %}What each Goldfish Lab tier costs, what it allows, and what you have used this month.{% endblock %}
+{% block content %}
+  <div class="flex flex-wrap items-baseline gap-4">
+    <h1 class="font-display text-3xl text-parchment-100">Your plan</h1>
+    <span class="tabular text-parchment-200">
+      Currently on <strong>{{ subscription.plan.name }}</strong>
+    </span>
+  </div>
+
+  {% comment %}
+    The banner a failed card gets. `past_due` deliberately keeps the plan -
+    Stripe retries for about two weeks and nobody has cancelled anything - so
+    the one thing that must not happen is for that to be silent.
+  {% endcomment %}
+  {% if subscription.needs_attention %}
+    <p class="mt-6 border-l-2 border-blood-600 bg-ink-900 px-4 py-3 text-parchment-100">
+      <strong>A payment did not go through.</strong> Your plan is still active
+      while the card is retried. Update it in the billing portal below, or the
+      subscription will end and the account will return to Free.
+    </p>
+  {% elif subscription.ends_soon %}
+    <p class="mt-6 border-l-2 border-parchment-600 bg-ink-900 px-4 py-3 text-parchment-100">
+      <strong>This plan ends on {{ subscription.current_period_end|date:"j F Y" }}.</strong>
+      You keep everything until then, and the account returns to Free afterwards.
+    </p>
+  {% endif %}
+
+  <section class="surface-parchment mt-6 p-6">
+    <h2 class="font-display text-2xl text-ink-900">What you have used</h2>
+    <p class="mt-1 text-sm text-ink-700">
+      Simulations are counted from the first of the month; decks are the ones you
+      have now, so deleting one frees a slot. These are the same numbers the
+      application checks before it starts work — not a second tally that could
+      disagree with it.
+    </p>
+    <dl class="mt-4 grid gap-4 sm:grid-cols-2">
+      {% for row in usage %}
+        <div class="border-l-2 border-parchment-600 pl-4">
+          <dt class="text-ink-900">{{ row.label }} <span class="text-sm text-ink-700">({{ row.period }})</span></dt>
+          <dd class="tabular mt-1 text-ink-700">
+            {{ row.used }}
+            {% if row.unlimited %}used — no limit{% else %}of {{ row.limit }}{% endif %}
+          </dd>
+        </div>
+      {% endfor %}
+    </dl>
+  </section>
+
+  {% if not can_pay %}
+    <p class="mt-6 border border-parchment-600 bg-ink-900 px-4 py-3 text-sm text-parchment-100">
+      <strong>Payments are not switched on in this installation.</strong> The
+      tiers below are real and the limits are enforced; there is simply nothing
+      here to charge a card with yet. Everyone is on Free.
+    </p>
+  {% endif %}
+
+  <section class="surface-parchment mt-6 p-6">
+    <h2 class="font-display text-2xl text-ink-900">The tiers</h2>
+    <p class="mt-1 text-sm text-ink-700">
+      The honest lever is <strong>turns simulated</strong>, not games per run.
+      Ten thousand games already pins a percentage to about half a point, so
+      selling more of them would be selling a number that does not improve the
+      answer. Simulating to turn fifteen instead of turn six costs real time and
+      genuinely changes what you learn.
+    </p>
+
+    <div class="mt-5 grid gap-5 lg:grid-cols-3">
+      {% for plan in plans %}
+        <div class="flex flex-col border {% if plan == subscription.plan %}border-2 border-ink-900{% else %}border-parchment-600{% endif %} p-4">
+          <h3 class="font-display text-xl text-ink-900">{{ plan.name }}</h3>
+          <p class="tabular mt-1 text-ink-700">
+            {% if plan.price_chf_cents %}
+              CHF {{ plan.price_chf|floatformat:"2" }} / {{ plan.interval }}
+            {% else %}
+              Free
+            {% endif %}
+          </p>
+          <ul class="mt-3 space-y-1 text-sm text-ink-700">
+            <li class="tabular">Turns simulated: <strong>{{ plan.max_turns }}</strong></li>
+            <li class="tabular">
+              Games per run: <strong>{{ plan.max_games_per_run|intcomma }}</strong>
+            </li>
+            <li class="tabular">
+              Runs a month:
+              <strong>{% if plan.max_runs_per_month %}{{ plan.max_runs_per_month }}{% else %}no limit{% endif %}</strong>
+            </li>
+            <li class="tabular">
+              Decks:
+              <strong>{% if plan.max_decks %}{{ plan.max_decks }}{% else %}no limit{% endif %}</strong>
+            </li>
+            <li class="tabular">At once: <strong>{{ plan.max_concurrent_runs }}</strong></li>
+          </ul>
+
+          <div class="mt-auto pt-4">
+            {% if plan == subscription.plan %}
+              <p class="text-sm text-ink-900">This is your plan.</p>
+            {% elif plan.pk in purchasable and subscription.is_live_paid %}
+              {% comment %}
+                Not a checkout button. Stripe's hosted Checkout always starts a
+                NEW subscription, so a paying customer pressing it would be
+                billed for two plans at once. Switching lives in the portal.
+              {% endcomment %}
+              <p class="text-sm text-ink-700">Switch to it in the billing portal below.</p>
+            {% elif plan.pk in purchasable %}
+              <form method="post" action="{% url 'billing:checkout' plan.slug %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="w-full border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
+                  Choose {{ plan.name }}
+                </button>
+              </form>
+            {% elif plan.is_default %}
+              <p class="text-sm text-ink-700">Where every account starts.</p>
+            {% else %}
+              <p class="text-sm text-ink-700">Not available yet.</p>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    {% if sold_through_link and purchasable %}
+      <p class="mt-5 text-sm text-ink-700">
+        Paid plans are <strong>sold through Link</strong>, Stripe's reseller
+        service: Link takes the payment, handles the VAT and sends the receipts,
+        and your statement shows <em>LINK.COM*</em>. Checkout may show the price
+        in your own currency. The details are in the
+        <a href="{% url 'terms' %}" class="underline hover:text-ink-900">terms</a>.
+      </p>
+    {% endif %}
+  </section>
+
+  {% if subscription.stripe_customer_id %}
+    <section class="surface-parchment mt-6 p-6">
+      <h2 class="font-display text-2xl text-ink-900">Card, invoices and cancelling</h2>
+      <p class="mt-1 text-sm text-ink-700">
+        {% if sold_through_link %}
+          All three live in Stripe's own portal, and your orders at
+          <a href="https://link.com" class="underline hover:text-ink-900" rel="noopener">link.com</a>
+          can cancel too. No card number ever reaches this application, and
+          whichever you use, Stripe tells this site, so the plan here follows.
+        {% else %}
+          All three live in Stripe's own portal. That is deliberate: no card
+          number ever reaches this application, and there is exactly one place
+          that can end a subscription, so nothing here can disagree with your
+          bank about whether it ended.
+        {% endif %}
+      </p>
+      <form method="post" action="{% url 'billing:portal' %}" class="mt-4">
+        {% csrf_token %}
+        <button type="submit"
+                class="border border-ink-800 px-4 py-2 text-ink-900 hover:bg-parchment-300">
+          Open the billing portal
+        </button>
+      </form>
+    </section>
+  {% endif %}
+{% endblock %}

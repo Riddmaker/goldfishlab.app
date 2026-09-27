@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Simulation — {{ run.deck.name }} — Goldfish Lab{% endblock %}
+{% block description %}
+  What happened when Goldfish Lab played {{ run.deck.name }} {{ run.games_total }} times.
+{% endblock %}
+{% block content %}
+  <div class="flex flex-wrap items-baseline gap-4">
+    <h1 class="font-display text-3xl text-parchment-100">{{ run.deck.name }}</h1>
+    <span class="tabular text-parchment-200">
+      {{ run.games_total }} games · {{ run.turns }} turns ·
+      {% if run.on_the_play %}1-v-1, first draw skipped{% else %}multiplayer draw rule{% endif %}
+    </span>
+    <a href="{{ run.deck.get_absolute_url }}"
+       class="ml-auto text-sm text-parchment-200 underline">Back to the deck</a>
+  </div>
+  {% include "simulations/_progress.html" %}
+  {% if report %}
+    {% include "simulations/_report.html" %}
+    {% comment %}
+      The coverage panel is not a footnote. A result that implied the engine
+      modelled more of the deck than it did would be worse than no result.
+    {% endcomment %}
+    <section class="surface-parchment mt-6 p-6">
+      <h2 class="font-display text-2xl text-ink-900">What was actually modelled</h2>
+      <p class="mt-2 text-ink-700">
+        <strong class="tabular">{{ run.cards_modelled }}</strong>
+        of {{ run.cards_total }} distinct cards were described in full —
+        <strong class="tabular">{{ run.coverage_pct|floatformat:"1" }}%</strong> coverage.
+        The rest were played with whatever the engine could read off them.
+      </p>
+      {% comment %}
+        One number was hiding two very different problems. Measured over every
+        deck in development, three quarters of all gaps were "nobody has said
+        how early to cast it" — so a deck of cards the engine read perfectly
+        scored the same as one it could barely read at all. Split, because the
+        two have different people responsible for them.
+      {% endcomment %}
+      <dl class="mt-4 grid gap-4 sm:grid-cols-2">
+        <div class="border-l-2 border-parchment-600 pl-4">
+          <dt class="text-ink-900">The engine read it</dt>
+          <dd class="mt-1 text-sm text-ink-700">
+            <strong class="tabular">{{ run.cards_read }}</strong> of
+            {{ run.cards_total }} cards —
+            <strong class="tabular">{{ run.readable_pct|floatformat:"1" }}%</strong>.
+            Where it could not, the limit is this application's, not yours.
+          </dd>
+        </div>
+        <div class="border-l-2 border-parchment-600 pl-4">
+          <dt class="text-ink-900">Somebody had decided</dt>
+          <dd class="mt-1 text-sm text-ink-700">
+            <strong class="tabular">{{ run.cards_judged }}</strong> of
+            {{ run.cards_total }} cards —
+            <strong class="tabular">{{ run.judged_pct|floatformat:"1" }}%</strong>
+            — had the calls made that no card text can supply: how early to cast
+            it, whether it makes a one-land hand keepable. The rest used the
+            engine's default rule.
+          </dd>
+        </div>
+      </dl>
+      {% if run.reading_gaps %}
+        <details class="mt-4">
+          <summary class="cursor-pointer text-ink-900 underline">
+            The {{ run.reading_gaps|length }} thing{{ run.reading_gaps|length|pluralize }} the engine could not read
+          </summary>
+          {% include "simulations/_gap_table.html" with rows=run.reading_gaps %}
+        </details>
+      {% endif %}
+      {% if run.judgement_gaps %}
+        <details class="mt-3">
+          <summary class="cursor-pointer text-ink-900 underline">
+            The {{ run.judgement_gaps|length }} call{{ run.judgement_gaps|length|pluralize }} nobody has made
+          </summary>
+          {% include "simulations/_gap_table.html" with rows=run.judgement_gaps %}
+        </details>
+      {% endif %}
+      <p class="mt-4 text-sm text-ink-700">
+        <a href="{% url 'simulations:tune' run.deck.id %}"
+           class="text-ink-900 underline">See what the engine read off every card</a>
+        — and say so where it read one wrongly.
+      </p>
+      {% if report.annotations_changed %}
+        <p class="mt-3 border-l-2 border-blood-600 pl-4 text-sm text-ink-700">
+          <strong class="text-ink-900">Something has changed since this run.</strong>
+          A judgement about one of these cards was recorded after these numbers were
+          computed. The numbers are not recalculated to match — they are a record of
+          what the engine actually saw — so run the deck again to see the difference.
+        </p>
+      {% endif %}
+      <p class="mt-4 text-xs text-ink-700">
+        Computed with engine v{{ run.engine_version }}, seed {{ run.seed }}.
+        Magic has enormous variance: differences below about one percentage point
+        are noise, whatever the number of games.
+      </p>
+    </section>
+    {% include "simulations/_blindspots.html" with deck=run.deck asof="Read from the deck as it stands now, rather than from the run: these are properties of the cards, not measurements this simulation made." %}
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Playtest · {{ deck.name }} · Goldfish Lab{% endblock %}
+{% block description %}Play one game of {{ deck.name }} by hand, take it back, and branch it.{% endblock %}
+
+{% block content %}
+  <div class="flex flex-wrap items-baseline gap-4">
+    <h1 class="font-display text-3xl text-parchment-100">Playtest</h1>
+    <span class="tabular text-parchment-200">{{ deck.name }}</span>
+    <a href="{{ deck.get_absolute_url }}"
+       class="ml-auto text-sm text-parchment-200 underline">Back to {{ deck.name }}</a>
+  </div>
+
+  <p class="mt-3 max-w-3xl text-parchment-200">
+    One game, played by hand, against nobody. The simulation runs this deck
+    thousands of times to tell you what usually happens; this page is for the
+    turn you want to look at yourself. Take moves back, and branch the game to
+    play the same draw two different ways.
+  </p>
+
+  {% if session.forked_from_id %}
+    <p class="mt-3 text-sm text-parchment-200">
+      Branched from
+      <a href="{% url 'playtest:detail' session.forked_from_id %}" class="underline">an earlier game</a>
+      at action {{ session.forked_at_seq }}.
+    </p>
+  {% endif %}
+
+  <div class="mt-6">
+    {% include "playtest/_board.html" %}
+  </div>
+{% endblock %}

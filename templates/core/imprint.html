@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Legal notice — Goldfish Lab{% endblock %}
+{% block description %}Who runs Goldfish Lab and how to reach them.{% endblock %}
+{% block content %}
+  {% comment %}
+    The identity and contact address the Swiss UWG (Art. 3 para. 1 lit. s)
+    requires of anyone offering services online: name, a postal address that
+    delivers, and an email address. Read from settings; see _operator.html.
+  {% endcomment %}
+  <section class="max-w-3xl">
+    <h1 class="font-display text-4xl leading-tight text-parchment-100">Legal notice</h1>
+
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">Who runs this site</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">
+        Goldfish Lab is run by a private individual in Switzerland, who is
+        responsible for its content:
+      </p>
+      <div class="mt-4">{% include "core/_operator.html" %}</div>
+      <p class="mt-4 text-sm text-ink-700">
+        The email address reaches that person directly - for questions,
+        refunds, data requests and anything else. It is not a sales address.
+      </p>
+    </div>
+
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">The rest of it</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <ul class="space-y-2 text-ink-900">
+        <li>• <a href="{% url 'terms' %}" class="underline hover:text-ink-700">Terms of service</a> - plans, cancelling, refunds.</li>
+        <li>• <a href="{% url 'privacy' %}" class="underline hover:text-ink-700">Privacy policy</a> - what is stored, where, for how long.</li>
+        <li>• Hosted by Infomaniak Network SA, Geneva, Switzerland.</li>
+      </ul>
+      <p class="mt-4 text-sm text-ink-700">
+        Goldfish Lab is unofficial Fan Content permitted under the Fan Content
+        Policy. Not approved/endorsed by Wizards. Portions of the materials
+        used are property of Wizards of the Coast. ©Wizards of the Coast LLC.
+      </p>
+    </div>
+  </section>
+{% endblock %}

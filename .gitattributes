@@ -1,0 +1,13 @@
+# Normalise line endings. Shell scripts MUST be LF: they run in Linux
+# containers and CRLF breaks the shebang with a confusing error.
+* text=auto eol=lf
+*.sh text eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary

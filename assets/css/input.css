@@ -1,0 +1,360 @@
+/* Goldfish Lab design system - SOURCE OF TRUTH for design tokens (Phase 0).
+ *
+ * Built with the Tailwind v4 standalone CLI:
+ *   .bin/tailwindcss -i assets/css/input.css -o static/css/main.css --watch
+ *
+ * Aesthetic: old-school dark fantasy. The reference is the tan "scroll"
+ * textbox of a pre-2003 Magic card on a near-black leather ground - the same
+ * look the deck project selects printings for.
+ *
+ * Three families:
+ *   ink        warm near-black through warm greys. Page ground and text.
+ *   parchment  the aged-paper tan. Surfaces and light-on-dark text.
+ *   blood      desaturated crimson. Accent, danger, emphasis. Never body text.
+ *
+ * tests/test_design_tokens.py parses THIS FILE and enforces WCAG AA on every
+ * role pairing declared below, so a palette edit that breaks accessibility
+ * fails CI immediately.
+ */
+
+@import "tailwindcss";
+
+@source "../../templates";
+@source "../../core";
+@source "../../accounts";
+@source "../../billing";
+
+/* `static` = emit every token even before a utility uses it: the styleguide
+   swatches read them as plain CSS variables. */
+@theme static {
+  /* The stock Tailwind palette is disabled so every colour on the site is a
+     deliberate choice. */
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Ink - warm near-black (anchor #12100d @ 950). Page ground, body text. */
+  --color-ink-50: #faf8f5;
+  --color-ink-100: #f0ece4;
+  --color-ink-200: #ded8cc;
+  --color-ink-300: #c2baa9;
+  --color-ink-400: #9c9382;
+  --color-ink-500: #7a7263;
+  --color-ink-600: #5d564a;
+  --color-ink-700: #464036;
+  --color-ink-800: #2f2b24;
+  --color-ink-900: #1c1a15;
+  --color-ink-950: #12100d;
+
+  /* Parchment - aged paper (anchor #f5ecd7 @ 100, the old-frame textbox). */
+  --color-parchment-50: #fdfaf3;
+  --color-parchment-100: #f5ecd7;
+  --color-parchment-200: #ebdcbd;
+  --color-parchment-300: #dcc79b;
+  --color-parchment-400: #c9ab76;
+  --color-parchment-500: #b5904f;
+  --color-parchment-600: #9a7739;
+  --color-parchment-700: #7c5e2c;
+  --color-parchment-800: #5c4522;
+  --color-parchment-900: #3d2e18;
+
+  /* Blood - desaturated crimson (anchor #c43d33 @ 500). Accent and danger. */
+  --color-blood-50: #fdf3f2;
+  --color-blood-100: #fae0de;
+  --color-blood-200: #f3c0bd;
+  --color-blood-300: #e8938e;
+  --color-blood-400: #d96259;
+  --color-blood-500: #c43d33;
+  --color-blood-600: #a52c24;
+  --color-blood-700: #86231d;
+  --color-blood-800: #6a1c17;
+  --color-blood-900: #4a1410;
+
+  /* Verdigris - aged copper. Success, "modelled" states. */
+  --color-verdigris-50: #f1f8f5;
+  --color-verdigris-100: #d9ece2;
+  --color-verdigris-200: #b0d6c4;
+  --color-verdigris-300: #7bb89e;
+  --color-verdigris-400: #4f9779;
+  --color-verdigris-500: #357a5f;
+  --color-verdigris-600: #29624c;
+  --color-verdigris-700: #224f3e;
+  --color-verdigris-800: #1a3d30;
+  --color-verdigris-900: #132c23;
+
+  /* Typography. EB Garamond (SIL Open Font License), a Garamond revival -
+     the closest widely-available match to the type on a pre-2003 Magic card.
+     SELF-HOSTED from static/fonts (see the @font-face block below): the
+     browser never contacts Google, which keeps visitor IPs out of a third
+     party's logs and lets the dev container work offline.
+     Georgia is the fallback while the woff2 loads, and on the rare browser
+     that rejects variable fonts. */
+  --font-display: "EB Garamond", Georgia, "Times New Roman", serif;
+  --font-body: "EB Garamond", Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Menlo, monospace;
+}
+
+/* EB Garamond, self-hosted. One VARIABLE font file per style covers the
+   whole 400-700 weight range, which is why font-weight is a range rather
+   than a single value - declaring 400 and 600 separately would download the
+   identical file twice.
+   unicode-range splits latin from latin-ext so the 114 KB extended file is
+   only fetched when a page actually contains an accented glyph - which for
+   this product means card names like "Lim-Dul the Necromancer". */
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/static/fonts/eb-garamond-var-normal-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/static/fonts/eb-garamond-var-normal-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/static/fonts/eb-garamond-var-italic-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/static/fonts/eb-garamond-var-italic-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7,
+    U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+/* Numbers. A simulation report is a wall of percentages; proportional digits
+   make the columns ragged and hard to compare down a row. */
+.tabular,
+table td,
+table th {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Page ground. The gradient is the "aged leather" texture - a CSS gradient,
+   deliberately not an image asset, so there is nothing extra to load. */
+body {
+  background-color: var(--color-ink-950);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, #1e1b16 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 100%, #191610 0%, transparent 55%);
+  background-attachment: fixed;
+  color: var(--color-parchment-100);
+  font-family: var(--font-body);
+}
+
+/* A parchment surface: the card-like panel this whole design rests on. */
+.surface-parchment {
+  background-color: var(--color-parchment-100);
+  background-image:
+    radial-gradient(ellipse at 15% 10%, #fdfaf3 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 90%, #ebdcbd 0%, transparent 60%);
+  color: var(--color-ink-900);
+  border: 1px solid var(--color-parchment-600);
+  border-radius: 2px;
+  box-shadow: 0 1px 0 var(--color-parchment-50) inset, 0 8px 24px rgb(0 0 0 / 45%);
+}
+
+/* Account forms.
+ *
+ * allauth renders plain Django form HTML (label + input + errorlist), with no
+ * classes to hook onto. Rather than fork every allauth template, scope the
+ * styling to .auth-form on the wrapper - see
+ * templates/allauth/layouts/base.html. Upgrading allauth then cannot break
+ * the look, because no allauth template is overridden for presentation. */
+.auth-form h1,
+.auth-form h2 {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+}
+
+.auth-form p {
+  margin-bottom: 0.75rem;
+}
+
+.auth-form a {
+  color: var(--color-blood-700);
+  text-decoration: underline;
+}
+
+.auth-form form > p,
+.auth-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.auth-form label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink-800);
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="email"],
+.auth-form input[type="password"] {
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  background-color: var(--color-parchment-50);
+  border: 1px solid var(--color-parchment-600);
+  border-radius: 2px;
+  color: var(--color-ink-900);
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+
+.auth-form input:focus-visible {
+  outline: 2px solid var(--color-blood-700);
+  outline-offset: 1px;
+}
+
+/* Password-strength hints and other helper lists. */
+.auth-form ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  font-size: 0.8125rem;
+  color: var(--color-ink-700);
+}
+
+.auth-form .errorlist {
+  list-style: none;
+  padding-left: 0;
+  color: var(--color-blood-700);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.auth-form button,
+.auth-form input[type="submit"] {
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  padding: 0.625rem 1.25rem;
+  background-color: var(--color-blood-700);
+  border: 1px solid var(--color-blood-800);
+  border-radius: 2px;
+  color: var(--color-parchment-100);
+  cursor: pointer;
+}
+
+.auth-form button:hover,
+.auth-form input[type="submit"]:hover {
+  background-color: var(--color-blood-800);
+}
+
+
+/* Application forms.
+ *
+ * The same control styling `STYLEGUIDE.html` shows under "Form fields", made
+ * available to the forms this application renders itself rather than only to
+ * the allauth ones above. It exists because a Django text or number input with
+ * no styling is not merely plain, it is **invisible**: no border, and a white
+ * background on a parchment surface. A screenshot pass found the annotation
+ * editor showing a label, a sentence of help text and then nothing at all
+ * where the box should be. Every view test passed.
+ *
+ * Applied by putting `form-field` on the wrapper around one label-and-control
+ * group, so nothing has to be threaded through Django's widget attrs. */
+.form-field input[type="text"],
+.form-field input[type="number"],
+.form-field input[type="email"],
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  max-width: 28rem;
+  padding: 0.5rem 0.625rem;
+  background-color: var(--color-parchment-50);
+  border: 1px solid var(--color-parchment-600);
+  border-radius: 2px;
+  color: var(--color-ink-900);
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+
+/* A multiple select is a list of choices, and at the default four rows it
+ * reads as unstyled running text rather than as a control. Eight rows shows
+ * the whole land-type vocabulary and most of the roles without scrolling. */
+.form-field select[multiple] {
+  min-height: 9rem;
+}
+
+/* Narrow controls where the value is a couple of characters: a priority box
+ * as wide as the panel invites an essay. */
+.form-field input[type="number"] {
+  max-width: 7rem;
+}
+
+.form-field :is(input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-blood-700);
+  outline-offset: 1px;
+}
+
+/* The casting-order screen puts one control in a table cell, where a full
+ * width box would push the table sideways on a phone. */
+.form-cell input[type="number"] {
+  width: 5rem;
+  padding: 0.25rem 0.375rem;
+  background-color: var(--color-parchment-50);
+  border: 1px solid var(--color-parchment-600);
+  border-radius: 2px;
+  color: var(--color-ink-900);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+}
+
+.form-cell input:focus-visible {
+  outline: 2px solid var(--color-blood-700);
+  outline-offset: 1px;
+}
+
+/* htmx's loading indicator, owned here rather than injected.
+ *
+ * htmx normally writes these two rules into a <style> element at load. Our
+ * Content-Security-Policy refuses an inline <style>, so base.html turns the
+ * injection off with `{"includeIndicatorStyles": false}` and the rules live
+ * here instead - which means no page carries an inline style element at all,
+ * and there is no hash to update when htmx is upgraded.
+ *
+ * Copied from htmx 2.0.10's own defaults so that `class="htmx-indicator"`
+ * keeps behaving exactly as htmx documents it. Nothing uses the class today;
+ * these exist so that the first thing that does is not silently broken.
+ */
+.htmx-indicator {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 200ms ease-in;
+}

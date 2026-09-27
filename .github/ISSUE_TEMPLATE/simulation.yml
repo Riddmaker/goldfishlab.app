@@ -1,0 +1,31 @@
+name: A simulation result looks wrong
+description: The numbers, the mana, or what the goldfish did does not match how the deck plays.
+labels: ["simulation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you - this is the most useful report there is. **Issues are public:** leave out
+        your email address and anything about a payment (the site's Legal notice has our email).
+  - type: input
+    id: engine
+    attributes:
+      label: Engine version and seed
+      description: 'Under the results: "Computed with engine vN, seed S".'
+      placeholder: engine v3, seed 123456789
+    validations:
+      required: true
+  - type: textarea
+    id: deck
+    attributes:
+      label: The deck
+      description: A public link (Archidekt, Moxfield, ...) or the list itself.
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What looks wrong
+      description: Which number or which turn, and what you expected instead - with the card if one card seems misread.
+    validations:
+      required: true

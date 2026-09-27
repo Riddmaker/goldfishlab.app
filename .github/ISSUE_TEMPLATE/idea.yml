@@ -1,0 +1,14 @@
+name: An idea
+description: Something Goldfish Lab should do, or do differently.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: "**Issues are public:** leave out your email address and anything about a payment."
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What you would like, and the deck or situation where you missed it.
+    validations:
+      required: true

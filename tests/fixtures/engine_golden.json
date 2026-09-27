@@ -1,0 +1,399 @@
+[
+ {
+  "scenario": {
+   "iterations": 1500,
+   "on_the_play": true,
+   "seed": 20260917,
+   "turns": 3
+  },
+  "summary": {
+   "iterations": 1500,
+   "mulligans": {
+    "0": 1155,
+    "1": 274,
+    "2": 54,
+    "3": 17
+   },
+   "on_the_play": true,
+   "opening_lands": {
+    "1": 17,
+    "2": 579,
+    "3": 550,
+    "4": 287,
+    "5": 67
+   },
+   "turn_stats": [
+    {
+     "black": {
+      "count": 1500,
+      "mean": 0.996666667,
+      "total": 1495
+     },
+     "commander": 0,
+     "drain": 3,
+     "draw_engine": 13,
+     "engine_online": 0,
+     "lands": {
+      "count": 1500,
+      "mean": 1.0,
+      "total": 1500
+     },
+     "mana": {
+      "count": 1500,
+      "mean": 0.999333333,
+      "total": 1499
+     },
+     "necropotence": 4,
+     "ramp_engine": 0,
+     "recursive": 72,
+     "sac_outlet": 91,
+     "sol_ring": 115
+    },
+    {
+     "black": {
+      "count": 1500,
+      "mean": 1.965333333,
+      "total": 2948
+     },
+     "commander": 0,
+     "drain": 124,
+     "draw_engine": 118,
+     "engine_online": 22,
+     "lands": {
+      "count": 1500,
+      "mean": 1.994666667,
+      "total": 2992
+     },
+     "mana": {
+      "count": 1500,
+      "mean": 2.135333333,
+      "total": 3203
+     },
+     "necropotence": 6,
+     "ramp_engine": 9,
+     "recursive": 265,
+     "sac_outlet": 156,
+     "sol_ring": 134
+    },
+    {
+     "black": {
+      "count": 1500,
+      "mean": 2.888,
+      "total": 4332
+     },
+     "commander": 90,
+     "drain": 218,
+     "draw_engine": 463,
+     "engine_online": 65,
+     "lands": {
+      "count": 1500,
+      "mean": 2.848,
+      "total": 4272
+     },
+     "mana": {
+      "count": 1500,
+      "mean": 3.170666667,
+      "total": 4756
+     },
+     "necropotence": 95,
+     "ramp_engine": 14,
+     "recursive": 374,
+     "sac_outlet": 282,
+     "sol_ring": 265
+    }
+   ],
+   "turns": 3
+  }
+ },
+ {
+  "scenario": {
+   "iterations": 1500,
+   "on_the_play": false,
+   "seed": 424242,
+   "turns": 3
+  },
+  "summary": {
+   "iterations": 1500,
+   "mulligans": {
+    "0": 1171,
+    "1": 258,
+    "2": 47,
+    "3": 24
+   },
+   "on_the_play": false,
+   "opening_lands": {
+    "0": 1,
+    "1": 23,
+    "2": 567,
+    "3": 535,
+    "4": 298,
+    "5": 76
+   },
+   "turn_stats": [
+    {
+     "black": {
+      "count": 1500,
+      "mean": 1.0,
+      "total": 1500
+     },
+     "commander": 0,
+     "drain": 7,
+     "draw_engine": 16,
+     "engine_online": 0,
+     "lands": {
+      "count": 1500,
+      "mean": 1.0,
+      "total": 1500
+     },
+     "mana": {
+      "count": 1500,
+      "mean": 1.0,
+      "total": 1500
+     },
+     "necropotence": 5,
+     "ramp_engine": 0,
+     "recursive": 95,
+     "sac_outlet": 132,
+     "sol_ring": 95
+    },
+    {
+     "black": {
+      "count": 1500,
+      "mean": 1.967333333,
+      "total": 2951
+     },
+     "commander": 0,
+     "drain": 128,
+     "draw_engine": 133,
+     "engine_online": 31,
+     "lands": {
+      "count": 1500,
+      "mean": 1.994666667,
+      "total": 2992
+     },
+     "mana": {
+      "count": 1500,
+      "mean": 2.108666667,
+      "total": 3163
+     },
+     "necropotence": 11,
+     "ramp_engine": 13,
+     "recursive": 286,
+     "sac_outlet": 205,
+     "sol_ring": 114
+    },
+    {
+     "black": {
+      "count": 1500,
+      "mean": 2.950666667,
+      "total": 4426
+     },
+     "commander": 65,
+     "drain": 206,
+     "draw_engine": 500,
+     "engine_online": 75,
+     "lands": {
+      "count": 1500,
+      "mean": 2.890666667,
+      "total": 4336
+     },
+     "mana": {
+      "count": 1500,
+      "mean": 3.192,
+      "total": 4788
+     },
+     "necropotence": 139,
+     "ramp_engine": 17,
+     "recursive": 375,
+     "sac_outlet": 343,
+     "sol_ring": 291
+    }
+   ],
+   "turns": 3
+  }
+ },
+ {
+  "scenario": {
+   "iterations": 600,
+   "on_the_play": true,
+   "seed": 99,
+   "turns": 6
+  },
+  "summary": {
+   "iterations": 600,
+   "mulligans": {
+    "0": 447,
+    "1": 118,
+    "2": 25,
+    "3": 10
+   },
+   "on_the_play": true,
+   "opening_lands": {
+    "1": 4,
+    "2": 241,
+    "3": 203,
+    "4": 118,
+    "5": 34
+   },
+   "turn_stats": [
+    {
+     "black": {
+      "count": 600,
+      "mean": 1.0,
+      "total": 600
+     },
+     "commander": 0,
+     "drain": 0,
+     "draw_engine": 5,
+     "engine_online": 0,
+     "lands": {
+      "count": 600,
+      "mean": 1.0,
+      "total": 600
+     },
+     "mana": {
+      "count": 600,
+      "mean": 1.0,
+      "total": 600
+     },
+     "necropotence": 4,
+     "ramp_engine": 0,
+     "recursive": 25,
+     "sac_outlet": 30,
+     "sol_ring": 48
+    },
+    {
+     "black": {
+      "count": 600,
+      "mean": 1.946666667,
+      "total": 1168
+     },
+     "commander": 1,
+     "drain": 45,
+     "draw_engine": 43,
+     "engine_online": 8,
+     "lands": {
+      "count": 600,
+      "mean": 1.996666667,
+      "total": 1198
+     },
+     "mana": {
+      "count": 600,
+      "mean": 2.138333333,
+      "total": 1283
+     },
+     "necropotence": 5,
+     "ramp_engine": 6,
+     "recursive": 87,
+     "sac_outlet": 69,
+     "sol_ring": 52
+    },
+    {
+     "black": {
+      "count": 600,
+      "mean": 2.88,
+      "total": 1728
+     },
+     "commander": 32,
+     "drain": 79,
+     "draw_engine": 180,
+     "engine_online": 25,
+     "lands": {
+      "count": 600,
+      "mean": 2.845,
+      "total": 1707
+     },
+     "mana": {
+      "count": 600,
+      "mean": 3.178333333,
+      "total": 1907
+     },
+     "necropotence": 39,
+     "ramp_engine": 8,
+     "recursive": 122,
+     "sac_outlet": 120,
+     "sol_ring": 114
+    },
+    {
+     "black": {
+      "count": 600,
+      "mean": 3.728333333,
+      "total": 2237
+     },
+     "commander": 168,
+     "drain": 115,
+     "draw_engine": 248,
+     "engine_online": 38,
+     "lands": {
+      "count": 600,
+      "mean": 3.603333333,
+      "total": 2162
+     },
+     "mana": {
+      "count": 600,
+      "mean": 4.26,
+      "total": 2556
+     },
+     "necropotence": 56,
+     "ramp_engine": 14,
+     "recursive": 150,
+     "sac_outlet": 163,
+     "sol_ring": 157
+    },
+    {
+     "black": {
+      "count": 600,
+      "mean": 4.731666667,
+      "total": 2839
+     },
+     "commander": 376,
+     "drain": 166,
+     "draw_engine": 288,
+     "engine_online": 61,
+     "lands": {
+      "count": 600,
+      "mean": 4.236666667,
+      "total": 2542
+     },
+     "mana": {
+      "count": 600,
+      "mean": 5.406666667,
+      "total": 3244
+     },
+     "necropotence": 75,
+     "ramp_engine": 21,
+     "recursive": 182,
+     "sac_outlet": 201,
+     "sol_ring": 182
+    },
+    {
+     "black": {
+      "count": 600,
+      "mean": 5.608333333,
+      "total": 3365
+     },
+     "commander": 479,
+     "drain": 225,
+     "draw_engine": 332,
+     "engine_online": 86,
+     "lands": {
+      "count": 600,
+      "mean": 4.828333333,
+      "total": 2897
+     },
+     "mana": {
+      "count": 600,
+      "mean": 6.38,
+      "total": 3828
+     },
+     "necropotence": 92,
+     "ramp_engine": 30,
+     "recursive": 220,
+     "sac_outlet": 254,
+     "sol_ring": 204
+    }
+   ],
+   "turns": 6
+  }
+ }
+]

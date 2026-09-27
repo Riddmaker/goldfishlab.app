@@ -17,6 +17,13 @@ DEBUG = False
 # (core.E003) rather than serving a privacy policy with no controller in it.
 LEGAL_DETAILS_REQUIRED = True
 
+# Cloudflare sets X-Forwarded-Proto to the scheme the visitor used and
+# overwrites any value the visitor sent; the tunnel is the only way in, so the
+# header cannot come from anywhere else. VERIFY at the first deploy that it
+# survives the tunnel (cloudflared#1245 once reported it missing): if every
+# page answers with a redirect to itself, it did not, and a Cloudflare request
+# header transform rule setting it to "https" is the fix - not switching the
+# redirect off.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)  # noqa: F405
 SESSION_COOKIE_SECURE = True

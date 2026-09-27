@@ -15,13 +15,14 @@
   {% endcomment %}
   <section class="max-w-3xl">
     <h1 class="font-display text-4xl leading-tight text-parchment-100">Privacy policy</h1>
-    <p class="mt-4 text-sm text-ink-300">Last updated 25 September 2026.</p>
+    <p class="mt-4 text-sm text-ink-300">Last updated 27 September 2026.</p>
 
     <h2 class="mt-10 font-display text-2xl text-parchment-100">The short version</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
         We store your email address, the decks and collection you upload, and
-        the results of the simulations you run - on servers in Switzerland. We
+        the results of the simulations you run - on servers in Switzerland.
+        Connections reach those servers through Cloudflare's network. We
         do not sell any of it, we do not advertise, and there are no analytics
         or third-party trackers on this site. You can download everything we
         hold at any time, and you can delete your account yourself. Both of
@@ -115,7 +116,7 @@
               <td class="py-2 align-top">Minutes: each counter expires with the window it counts, at most 5 minutes</td>
             </tr>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">Technical logs: time, page requested, response, browser type, and your IP address at the hosting provider's front door</td>
+              <td class="py-2 pr-4 align-top">Technical logs: time, page requested, response, browser type, and your IP address, in the hosting provider's logs</td>
               <td class="py-2 pr-4 align-top">Security, abuse prevention and diagnosing faults (legitimate interest). Our own application logs name accounts by number, never by email</td>
               <td class="py-2 align-top">At most 30 days, then overwritten</td>
             </tr>
@@ -156,6 +157,19 @@
           the application, its database and its email. Everything above is
           stored in Infomaniak's data centres in Switzerland. Infomaniak
           processes it only on our behalf, under a data processing agreement.
+        </li>
+        <li>
+          • <strong>Cloudflare, Inc.</strong>, USA - every connection to this
+          site passes through Cloudflare's network, which encrypts it and
+          shields the servers: they have no address of their own on the
+          internet. So Cloudflare processes <strong>your IP address, the
+          address of the page you ask for and your browser details</strong>,
+          only to deliver the page and to defend it against attacks, on our
+          behalf under its data processing addendum. It keeps no copy of your
+          account data, decks or collection. Cloudflare transfers data to the
+          USA under the EU-/Swiss-U.S. Data Privacy Framework and standard
+          contractual clauses.
+          <a href="https://www.cloudflare.com/privacypolicy/" class="underline hover:text-ink-700" rel="noopener">Cloudflare's privacy policy</a>.
         </li>
         <li>
           • <strong>Stripe</strong> (Stripe Payments Europe, Ltd., Ireland, and
@@ -250,8 +264,9 @@
         only as salted hashes. Every account sees only its own data - that is
         checked on every request, not only in the menus. Sign-in, sign-up and
         password reset are rate-limited, and the pages carry a strict content
-        security policy. Database backups stay with Infomaniak in Switzerland
-        and are kept for at most 30 days.
+        security policy. Database backups are encrypted before they leave the
+        database server, stay with Infomaniak in Switzerland and are kept for
+        at most 30 days.
       </p>
     </div>
 

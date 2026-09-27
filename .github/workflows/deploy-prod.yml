@@ -1,76 +1,146 @@
 name: Deploy to Production (main)
 
-# Every merge to main is a production deploy.
+# Every merge to main is a production deploy:
+#   checks -> build, push, sign, attest -> verify the signature and redeploy
+#   through the Jelastic API (redeploy.yml, shared with rollback.yml).
+# A red stage stops everything after it: no image is published from red
+# checks, and nothing is deployed that cannot be verified.
+#
+# Modelled on the pipeline of the sibling project wiemeinsch.ch, which runs on
+# the same Infomaniak Jelastic platform. Action versions are pinned exactly, as
+# there; Dependabot (.github/dependabot.yml) keeps them current.
 on:
   push:
     branches: [main]
     paths-ignore:
       - "**.md"
-      - "**.example"
       - "LICENSE"
       - ".gitignore"
+  # Redeploys the current main without an empty commit. Started from another
+  # branch it only runs the checks: build and push are bound to main.
   workflow_dispatch:
 
-# Serialize deploys: a newer push cancels an in-flight build so rapid merges
-# do not race to overwrite the :latest tag.
+# Two deploys of one environment would race for the redeploy; the second
+# waits instead of overtaking the first. (Not cancel-in-progress: a cancelled
+# run can leave a pushed-but-undeployed image, which is harmless, or a
+# half-finished redeploy, which is not.)
 concurrency:
-  group: deploy-prod
-  cancel-in-progress: true
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
-  packages: write
+
+env:
+  # Lowercase: OCI references allow no capitals, and github.repository is
+  # "Riddmaker/goldfishlab.app".
+  IMAGE: ghcr.io/riddmaker/goldfishlab.app
 
 jobs:
-  # The reference project deploys without a test gate. This one does not:
-  # the whole product claim rests on the simulation being correct, so the
-  # statistical validation must pass before an image can ship. The job itself
-  # lives in checks.yml, which also gates dev and every pull request.
+  # The whole product claim rests on the simulation being correct, so the
+  # statistical validation must pass before an image can ship. The job lives
+  # in checks.yml, which also gates dev and every pull request.
   test:
     uses: ./.github/workflows/checks.yml
 
-  build-and-deploy:
+  build-push:
+    name: Build, push and sign the image
     needs: test
+    # Only main builds and pushes. Otherwise a manual run on dev would put an
+    # unreviewed image under `latest` - which a fresh manifest import pulls.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write # GHCR push
+      id-token: write # OIDC token for keyless cosign and the attestation
+      attestations: write # build provenance
+    outputs:
+      digest: ${{ steps.push.outputs.digest }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7.0.1
+
+      # Required for the gha build cache: the default "docker" driver cannot
+      # export a cache, and the first deploy failed on exactly that
+      # ("Cache export is not supported for the docker driver", 2026-09-27).
+      - uses: docker/setup-buildx-action@v4.3.0
 
       - name: Log in to GHCR
-        uses: docker/login-action@v4
+        uses: docker/login-action@v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Compute image name
-        id: image
-        # GHCR paths must be lowercase, and a leading dash in the repo name
-        # breaks the path. Same normalisation as the reference project.
-        run: |
-          IMAGE=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]' | sed 's|/-|/|')
-          echo "name=ghcr.io/${IMAGE}" >> "$GITHUB_OUTPUT"
+      - name: Tags and labels
+        id: meta
+        uses: docker/metadata-action@v6.2.0
+        with:
+          images: ${{ env.IMAGE }}
+          # The full commit SHA is the immutable tag, and the only one ever
+          # deployed. `latest` exists for the first manifest import alone.
+          tags: |
+            type=sha,format=long,prefix=
+            type=raw,value=latest
 
       - name: Build and push
-        uses: docker/build-push-action@v7
+        id: push
+        uses: docker/build-push-action@v7.3.0
         with:
           context: .
           push: true
-          tags: |
-            ${{ steps.image.outputs.name }}:latest
-            ${{ steps.image.outputs.name }}:${{ github.sha }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Trigger Jelastic redeploy
-        # NOTE: the GHCR package must be set to Public once, by hand, after
-        # the first push (GO-LIVE step 3). Jelastic cannot pull a private
-        # image without registry credentials, and the only symptom is a node
-        # that never comes up.
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v4.1.2
+        with:
+          # Pinned: cosign 3 changed the signature defaults (protobuf bundle,
+          # OCI 1.1 referrers). Signing here and verifying in redeploy.yml must
+          # run the same version - raise both together.
+          cosign-release: v3.0.6
+
+      - name: Sign the image (keyless, GitHub OIDC)
+        # The digest is signed, not a tag: tags move, the digest is the content.
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: cosign sign --yes "${IMAGE}@${DIGEST}"
+
+      - name: Verify the signature at once
+        # A red run beats an unverifiable image in the registry. redeploy.yml
+        # verifies again right before the API call, through the tag Jelastic
+        # is about to pull.
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+          IDENTITY: ${{ github.server_url }}/${{ github.repository }}/.github/workflows/deploy-prod.yml@${{ github.ref }}
         run: |
-          if [ -z "${{ secrets.JELASTIC_WEBHOOK_PROD }}" ]; then
-            echo "::warning::JELASTIC_WEBHOOK_PROD is not set; skipping redeploy."
-            exit 0
-          fi
-          # --fail-with-body: without it an HTTP error from Jelastic exits 0,
-          # and a redeploy that never happened reads as green.
-          curl -sS --fail-with-body -X GET "${{ secrets.JELASTIC_WEBHOOK_PROD }}"
+          cosign verify "${IMAGE}@${DIGEST}" \
+            --certificate-identity "${IDENTITY}" \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            > /dev/null
+          echo "Signature valid for ${IDENTITY}"
+
+      - name: Attest build provenance
+        uses: actions/attest@v4.2.2
+        with:
+          subject-name: ${{ env.IMAGE }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+          # Storage records exist only for organisation repositories; this
+          # one belongs to a user account.
+          create-storage-record: false
+
+  deploy:
+    name: Verify and redeploy
+    needs: build-push
+    # The same steps as a rollback, plus the freshly built digest as the
+    # expectation: the tag must point at exactly the image just built.
+    uses: ./.github/workflows/redeploy.yml
+    with:
+      tag: ${{ github.sha }}
+      expected-digest: ${{ needs.build-push.outputs.digest }}
+    # No `secrets: inherit`: the redeploy job reads its token from the
+    # `production` environment, and needs nothing else.

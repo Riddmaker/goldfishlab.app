@@ -92,4 +92,4 @@ def test_the_checks_gate_dev_pull_requests_and_the_deploy():
     deploy = _yaml(".github", "workflows", "deploy-prod.yml")
     assert deploy[True]["push"]["branches"] == ["main"]
     assert deploy["jobs"]["test"]["uses"] == "./.github/workflows/checks.yml"
-    assert deploy["jobs"]["build-and-deploy"]["needs"] == "test"
+    assert deploy["jobs"]["build-push"]["needs"] == "test"

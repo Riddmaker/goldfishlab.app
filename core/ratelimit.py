@@ -24,7 +24,7 @@ def client_ip(request):
     """The address to count a request against, behind one reverse proxy.
 
     Wired in as `RATELIMIT_IP_META_KEY`. django-ratelimit's own default is
-    `REMOTE_ADDR`, which in production is Infomaniak's proxy and therefore the
+    `REMOTE_ADDR`, which in production is the Cloudflare Tunnel and therefore the
     same value for every visitor on earth: the first few people through the
     door would spend the whole limit for everybody, and the symptom would be a
     site that refuses strangers at random.
@@ -38,9 +38,13 @@ def client_ip(request):
     added, and a proxy writes the address that actually connected to it.
 
     More precisely, the entry `settings.TRUSTED_PROXY_COUNT` places from the
-    right: one for the Jelastic topology, which is what `SECURE_PROXY_SSL_HEADER`
-    in prod.py already assumes. If a CDN is ever put in front, that number
-    goes up by one - deliberately, with the hops written down, never by
+    right: one in production. The only way in is the Cloudflare Tunnel
+    (Jelastic's shared load balancer is switched off for every node), and
+    Cloudflare *appends* the visitor's address to whatever X-Forwarded-For the
+    visitor sent; cloudflared passes the header on unchanged (cloudflare/
+    cloudflared#1426 documents the append). So the right-hand end is the
+    address that reached Cloudflare. Another proxy in front would raise the
+    number by one - deliberately, with the hops written down, never by
     trusting the whole list. allauth reads the **same** setting for its own
     limits (`ALLAUTH_TRUSTED_PROXY_COUNT`, see base.py and trap 47), so the two
     limiters cannot disagree about who the client is.
@@ -87,4 +91,3 @@ def permission_denied(request, exception=None):
     if isinstance(exception, Ratelimited):
         return too_many_requests(request, exception)
     return render(request, "403.html", status=403)
-

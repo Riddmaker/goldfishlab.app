@@ -1,6 +1,7 @@
 """Core pages, the health probe and the design-token reader."""
 
 import pytest
+from django.contrib.staticfiles import finders
 from django.urls import reverse
 
 from core.tokens import color_families
@@ -32,11 +33,48 @@ def test_every_page_credits_the_data_sources(client):
     assert b'href="https://scryfall.com"' in response.content
 
 
-def test_styleguide_renders_every_family(client):
+def test_styleguide_renders_every_family(client, settings):
+    settings.DEBUG = True
     response = client.get(reverse("styleguide"))
     assert response.status_code == 200
     for family in ("ink", "parchment", "blood", "verdigris"):
         assert family.encode() in response.content
+
+
+def test_styleguide_is_a_development_tool(client, settings):
+    """Production neither serves the styleguide nor links it from the footer."""
+    settings.DEBUG = False
+    assert client.get(reverse("styleguide")).status_code == 404
+    assert b"/styleguide/" not in client.get(reverse("home")).content
+
+    settings.DEBUG = True
+    assert b"/styleguide/" in client.get(reverse("home")).content
+
+
+def test_every_page_has_a_tab_icon(client):
+    """A tab with no icon looked shady on the first live visit (phase 9 A)."""
+    body = client.get(reverse("home")).content.decode()
+    assert '<link rel="icon"' in body
+    assert "img/favicon" in body
+    assert finders.find("img/favicon.svg"), "the icon the pages link to exists"
+
+
+def test_the_old_favicon_address_points_at_the_icon(client):
+    """For whatever asks /favicon.ico directly, such as the admin."""
+    response = client.get("/favicon.ico")
+    assert response.status_code == 302
+    assert "img/favicon" in response["Location"]
+
+
+def test_the_header_is_about_decks(client, django_user_model):
+    """Decks and Import in the header; the collection is not the product."""
+    user = django_user_model.objects.create_user(email="h@example.com", password="pw-x-1234")
+    client.force_login(user)
+    body = client.get(reverse("home")).content.decode()
+
+    assert f'href="{reverse("decks:list")}"' in body
+    assert f'href="{reverse("decks:import")}"' in body
+    assert ">Collection<" not in body
 
 
 def test_healthz_reports_ok(client):

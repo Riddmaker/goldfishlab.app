@@ -11,6 +11,7 @@ Two things these tests are really for:
    A view test cannot see styling, but it can see a template that raises.
 """
 
+import re
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -333,6 +334,90 @@ def test_a_card_outside_the_deck_cannot_be_made_its_commander(signed_in, catalog
 
     outcome.deck.refresh_from_db()
     assert outcome.deck.commander is None
+
+
+# --- the paste tab ----------------------------------------------------------
+#
+# Phase 9 A: a pasted list is the fastest way in for a beginner. It must reach
+# the importer through the same door as a file - the same decode and the same
+# ceilings - and the tab the person chose decides which input counts.
+
+
+def test_a_pasted_list_imports_like_a_file(signed_in, catalogue):
+    text = "// Commander\n1 Chainer, Dementia Master\n// Deck\n1 Sol Ring\n"
+    response = signed_in.post(
+        reverse("decks:import"), {"source": "paste", "text": text}, follow=True
+    )
+
+    assert response.status_code == 200
+    deck = Deck.objects.get()
+    assert deck.commander.front_name == "Chainer, Dementia Master"
+    assert DeckCard.objects.filter(deck=deck, oracle_card__front_name="Sol Ring").exists()
+
+
+def test_the_chosen_tab_decides_which_input_counts(signed_in, catalogue):
+    """Text left behind in the other tab is not imported by accident."""
+    upload = _upload("deck.txt", b"1 Sol Ring\n")
+    signed_in.post(
+        reverse("decks:import"),
+        {"source": "file", "file": upload, "text": "1 Necropotence\n"},
+    )
+
+    assert DeckCard.objects.filter(oracle_card__front_name="Sol Ring").exists()
+    assert not DeckCard.objects.filter(oracle_card__front_name="Necropotence").exists()
+
+
+@pytest.mark.parametrize(
+    ("data", "message"),
+    [
+        ({"source": "paste", "text": "   "}, "Paste your deck list first."),
+        ({"source": "file"}, "Choose a file first"),
+        ({}, "Choose a file first"),
+    ],
+)
+def test_an_empty_import_says_what_is_missing(signed_in, catalogue, data, message):
+    response = signed_in.post(reverse("decks:import"), data)
+
+    assert response.status_code == 200
+    assert message in response.content.decode()
+    assert not Deck.objects.exists()
+
+
+def test_a_pasted_list_has_the_same_size_ceiling_as_a_file(signed_in, catalogue):
+    text = "1 Sol Ring\n" * (services.MAX_UPLOAD_BYTES // 11 + 1)
+    response = signed_in.post(reverse("decks:import"), {"source": "paste", "text": text})
+
+    body = response.content.decode()
+    assert "The limit is" in body
+    assert not Deck.objects.exists()
+
+
+def test_a_refused_paste_comes_back_on_the_paste_tab(signed_in, catalogue):
+    """An error under a tab nobody can see is an error nobody reads."""
+    response = signed_in.post(reverse("decks:import"), {"source": "paste", "text": ""})
+
+    body = response.content.decode()
+    assert re.search(r'id="source-paste"\s+checked', body)
+    assert not re.search(r'id="source-file"\s+checked', body)
+
+
+def test_an_unrecognised_list_opens_the_options_it_points_to(signed_in, catalogue):
+    """The "not recognised" help names the format picker, so it must be visible."""
+    response = signed_in.post(
+        reverse("decks:import"), {"source": "paste", "text": "col_a,col_b\n1,Sol Ring\n"}
+    )
+
+    body = response.content.decode()
+    assert "not recognised" in body
+    assert re.search(r"<details[^>]*\sopen>", body)
+
+
+def test_the_import_page_offers_both_ways_in(signed_in):
+    body = signed_in.get(reverse("decks:import")).content.decode()
+
+    assert "Drop your deck file here" in body
+    assert "Paste a list" in body
+    assert "Any CSV works." in body
 
 
 def test_deleting_a_deck_leaves_the_catalogue_alone(signed_in, deck):

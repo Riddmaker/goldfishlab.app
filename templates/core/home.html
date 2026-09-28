@@ -3,39 +3,42 @@
 {% block content %}
   <section class="max-w-3xl">
     <h1 class="font-display text-4xl leading-tight text-parchment-100 sm:text-5xl">It actually plays your deck.</h1>
-    <p class="mt-6 text-lg leading-relaxed text-parchment-200">
-      Most deck tools look at your list and guess. Goldfish Lab shuffles it, keeps or mulligans
-      a real opening hand, plays land drops, casts spells in a sensible order and does it again
-      thousands of times — then tells you what actually happened.
+    <p class="mt-5 text-lg leading-relaxed text-parchment-200">
+      Upload your Commander deck. Goldfish Lab plays it thousands of times and shows you what happens.
     </p>
-    <div class="mt-10 surface-parchment p-6">
-      <h2 class="font-display text-2xl text-ink-900">What that gets you</h2>
-      <ul class="mt-4 space-y-3 text-ink-900">
-        <li>
-          <strong>Real keep rates.</strong> Not "your curve looks fine" — the actual share of
-          opening hands worth keeping, with the free first mulligan Commander gives you.
-        </li>
-        <li>
-          <strong>When your deck comes online.</strong> The turn your commander lands, your
-          engine assembles, your payoff arrives — as a probability, per turn.
-        </li>
-        <li>
-          <strong>Honest limits.</strong> Every result says how much of your deck the engine
-          could actually model, and names the cards it could not.
-        </li>
-      </ul>
-    </div>
-    <p class="mt-8 text-sm text-ink-300">
-      Verified against the exact hypergeometric distribution, so the numbers agree with
-      closed-form mathematics wherever closed-form mathematics applies.
-    </p>
-    {% if not user.is_authenticated %}
-      <p class="mt-8">
+    <p class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+      {% if user.is_authenticated %}
+        <a href="{% url 'decks:import' %}"
+           class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
+          Import a deck
+        </a>
+        <a href="{% url 'decks:list' %}"
+           class="text-parchment-200 underline hover:text-parchment-50">Your decks</a>
+      {% else %}
         <a href="{% url 'account_signup' %}"
            class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
-          Create an account
+          Create a free account
         </a>
-      </p>
-    {% endif %}
+        <a href="{% url 'account_login' %}"
+           class="text-parchment-200 underline hover:text-parchment-50">Sign in</a>
+      {% endif %}
+    </p>
   </section>
+  <ul class="mt-12 grid gap-4 sm:grid-cols-3">
+    <li class="surface-parchment p-5 text-ink-900">
+      <p class="font-display text-xl">Keep or mulligan?</p>
+      <p class="mt-1 text-sm text-ink-700">How often your opening hand is worth keeping.</p>
+    </li>
+    <li class="surface-parchment p-5 text-ink-900">
+      <p class="font-display text-xl">When does it come online?</p>
+      <p class="mt-1 text-sm text-ink-700">The turn your commander and your key cards arrive.</p>
+    </li>
+    <li class="surface-parchment p-5 text-ink-900">
+      <p class="font-display text-xl">No guessing</p>
+      <p class="mt-1 text-sm text-ink-700">Every result names the cards the engine could not read.</p>
+    </li>
+  </ul>
+  <p class="mt-8 text-sm text-ink-400">
+    <a href="{% url 'methodology' %}" class="underline hover:text-ink-300">How it works</a>
+  </p>
 {% endblock %}

@@ -75,6 +75,7 @@ TEMPLATES = [
                 "core.context_processors.operator",
                 "core.context_processors.payments",
                 "core.context_processors.source_code",
+                "core.context_processors.dev_tools",
             ],
         },
     },

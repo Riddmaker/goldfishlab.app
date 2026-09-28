@@ -1,0 +1,387 @@
+# Phase 9 — UX overhaul: fewer words, more pictures, decks only
+
+**Status: IN PROGRESS (plan approved 2026-09-28, all build decisions made the same day - see
+"Decisions").** Batch A is built (see "A - what was built"); next is A2. Compaction-safe: this
+file plus `RESUME.md` is everything needed to continue.
+
+## Why
+
+The first look at the live site (2026-09-28, right after go-live step 8), in the user's words:
+no tab icon ("wirkt shady"); on the import page you cannot tell where to click, neither for the
+file nor for the format; the Collection is somebody else's job; far too much text. The direction:
+
+> viel weniger Text, mehr Grafiken, und im Falle der Draw-Hand-Variante sogar so schön wie bei
+> Hearthstone - muss nicht zu aufwändig sein, aber clean, schöne Karten. Es muss
+> anfängerfreundlicher und übersichtlicher werden. Die Collections will ich raus haben, das ist
+> Arbeit von anderen Webseiten, ich will nur die Decks haben.
+
+The product is then one loop, and every page serves it:
+
+```
+import a deck  ->  answer the cards the engine could not read  ->  simulate  |  draw a hand
+                   (red marker on the deck until done - optional)
+```
+
+## Principles (apply to every batch)
+
+1. **One sentence per page, at most, above the fold.** Explanations move behind a small
+   "Why?" (`<details>`) or to the methodology page, which keeps the full honesty story. Nothing is
+   deleted from the methodology; it is moved there.
+2. **A number that can be a picture is a picture.** Server-rendered, as today (divs and inline
+   SVG, no charting library, no JavaScript needed, CSP unchanged).
+3. **Card images wherever a card is named in a place that matters** (hand, review, deck grid).
+   Source: the `image_uri` we already store (Scryfall's image CDN, `cards.scryfall.io` - already
+   allowed by the CSP and already named in the privacy policy).
+4. **Beginner-first wording.** "Ramp", "Card draw", "Removal" - not "role_tags", "provenance",
+   "judgement".
+5. The honesty guarantees stay: a red marker replaces a paragraph, it does not replace the fact.
+
+## What already exists and gets reused (checked 2026-09-28)
+
+| Need | Already there |
+|---|---|
+| Card types ("creature, sorcery, ...") | `OracleCard.type_line`, `DerivedProfile.kind` |
+| Meta-categories ("ramp, draw, ...") | `DerivedProfile.role_tags` from the Scryfall Tagger DAG (`cards/profiles.py` `ROLE_FROM_TAG`). Verified tag sizes in the local DB: `ramp` 2437 (`mana-rock` 394, `mana-dork` 459, `land-ramp` 664), `draw` 4513, `tutor` 1220, `removal` 6713 (`spot-removal` 5460), `sweeper` 978, `counterspell` 561, `protection` 1356, `recursion` 2346, `reanimate` 1114. No tag for "win condition" - that one stays a user choice. |
+| Manual correction of a card | `simulations/annotations.py` (`JUDGEMENTS`, `AnnotationForm`, deck/user scope) and `templates/simulations/annotate.html` |
+| "What could the engine not read" | `simulations/gaps.py`, `simulations/provenance.py`, `DerivedProfile.review_reasons` |
+| Mana curve, lands, colour charts | `simulations/report.py`, `templates/simulations/_report.html` (div bars) |
+| Draw a hand | `playtest/` (htmx board, undo, branch) - today a text list |
+| Screenshots of real pages | `scripts/screenshots.py`, `scripts/demo_screens.py`, `seed_demo_deck` |
+
+## The category vocabulary (the user asked to look it up)
+
+**Card types** are printed on the card (rule 205): Land, Creature, Artifact, Enchantment,
+Planeswalker, Instant, Sorcery, Battle (+ Kindred). A card can have two (Artifact Creature) -
+it counts in both.
+
+**Functional categories** are what the Commander community sorts a deck into. They come from the
+"Command Zone" deckbuilding template and are what Archidekt and Moxfield call "categories";
+Scryfall calls them Tagger *oracle tags* (`otag:ramp`). Shown and searchable in the app:
+
+| Shown as | From tag(s) | Typical target in a 100-card deck (template, not a rule) |
+|---|---|---|
+| Ramp | `ramp` (split: rocks, dorks, land ramp) | ~10 |
+| Card draw | `draw` | ~10 |
+| Removal | `removal` / `spot-removal` | ~8-10 |
+| Board wipe | `sweeper` | ~2-4 |
+| Tutor | `tutor` | - |
+| Counterspell | `counterspell` | - |
+| Protection | `protection` | - |
+| Recursion | `recursion`, `reanimate` | - |
+| Lands | type | ~36-38 |
+
+Counterspell and Protection are new roles (two lines in `ROLE_FROM_TAG` + `ingest_scryfall
+--profiles`). The targets appear as a faint band on the deck page, clearly labelled "a common
+template", never as a verdict.
+
+## Batches
+
+Each batch is one PR `dev -> main`, tests + ruff + djlint green, a Tailwind rebuild where
+templates change, and screenshots checked (`scripts/screenshots.py`) before asking for review.
+
+### A — Quick wins (small, ship first)
+
+1. **Favicon.** One SVG (a goldfish in a flask, drawn in the palette) + 32px PNG +
+   180px `apple-touch-icon`, `<link rel="icon">` in `base.html`. Test: the tags exist and the
+   files are served.
+2. **Header:** `Decks` (list) and `Import` instead of `Collection`; plan and sign-out stay.
+   Signed-out header unchanged.
+3. **Import page rebuilt:**
+   * One big dashed drop zone - "Drop your deck file here, or click to choose" - that *is* the
+     file input (a styled `<label>` over the real input; drag and drop works without JavaScript).
+     The chosen file name shows in it.
+   * A second tab "Paste a list" (textarea) - the fastest path for a beginner, and it goes
+     through the same importer (text format). Same size limits as the upload.
+   * "Format" moves into "Advanced" (`<details>`), since auto-detect is right almost always.
+   * Three lines instead of three paragraphs: **"Any CSV works. It only needs a column with the
+     card name - a quantity column is optional."**, a four-line example, and "Export from
+     Archidekt / Moxfield / ManaBox" with one-line how-tos. The spreadsheet explanation moves to
+     "Why?".
+4. **"Remember me" on the sign-in page** - the checkbox sits on its own line, not beside its
+   label. Cause: `.auth-form form > p` in `assets/css/input.css` is a flex *column* for every
+   field, the checkbox row included. Fix: a row layout for the paragraph holding a checkbox
+   (`.auth-form p:has(> input[type="checkbox"])`, centred, small gap). Checked on the screenshots
+   at 1440px and 390px.
+5. **Styleguide dev-only** - already done locally 2026-09-28 (view 404 in production, footer
+   link only with `DEBUG`, test `test_styleguide_is_a_development_tool`). Ships in this PR.
+6. Text cut on home, deck list and import (principle 1).
+
+**A - what was built (2026-09-28).**
+
+* Favicon: `static/img/favicon.svg` only, linked from `base.html` and shown beside the
+  wordmark; `/favicon.ico` redirects to it (the admin asks the old way). **No PNGs**: the bot's
+  push path (GitHub MCP) is text-only, and every current browser takes an SVG tab icon. The
+  180px `apple-touch-icon` is the one gap - a PNG the user would have to commit by hand.
+* Import: `ImportForm` gained `source` (the tab), `text` (the paste box, same 1 MB ceiling,
+  `clean_text`) and `payload()`; the view feeds a paste through the same `services.prepare`
+  as a file. The tab the person chose decides which input counts. Errors land under the
+  control that was used; "More options" (name, format) opens itself when it holds an error.
+  Drop zone: the real file input stretched invisibly over a dashed box (`.dropzone` in
+  input.css); `static/js/import.js` only shows the file name and the drag highlight. The
+  "Where to get it" lines were checked against Archidekt's forum, the Moxfield-import guides
+  and ManaBox's own guide (2026-09-28).
+* Remember me: box first, in a row (`row-reverse`, because allauth writes the label first).
+* Found on the way: the local gunicorn caches templates until `docker compose restart web`
+  (its reloader only watches Python files), so a template edit can look like it did nothing.
+
+### A2 — Accounts and mail: nothing may look shady (own PR, right after A)
+
+What the user saw on 2026-09-28: the confirmation mail arrived in the inbox (not spam - SPF, DKIM
+and DMARC work), but it "sieht shiet aus", and the page behind the link said *"Please confirm
+that X is an email address for user X"* - which reads like phishing. Both are allauth's
+defaults, untouched until now (only `templates/allauth/layouts/base.html` is overridden):
+
+* The mail is allauth's `account/email/email_confirmation_signup_message.txt`: plain text, "Hello
+  from goldfishlab.app! You're receiving this email because user <your address> has given your
+  email address to register an account on goldfishlab.app. To confirm this is correct, go to
+  <link>". The subject is `[goldfishlab.app] Please Confirm Your Email Address` (allauth prefixes
+  `[<site name>]`; there is no Sites framework, so the name is the request's domain).
+* The confirm page is `account/email_confirm.html`: a GET shows a question and a button, only
+  the POST confirms (`ACCOUNT_CONFIRM_EMAIL_ON_GET` is False by default).
+
+What changes (allauth **65.19.4**, checked in `.venv`):
+
+1. **Every mail allauth can send gets our own text and a branded HTML version.** The adapter
+   (`DefaultAccountAdapter.render_mail`) sends `<prefix>_message.txt` and, if it exists,
+   `<prefix>_message.html` as the HTML alternative - so overriding the templates is enough, no
+   code. The full list in 65.19.4 (`allauth/templates/account/email/`): `base_message`,
+   `base_notification`, `email_confirmation(_signup)`, `password_reset_key`, `password_reset`,
+   `password_reset_code`, `unknown_account`, `account_already_exists`, `login_code`,
+   `email_confirm`, `email_changed`, `email_deleted`, `password_changed`, `password_set`.
+   * One HTML base (`base_message.html`): table layout and inline styles only (mail clients drop
+     `<style>` and external CSS), the palette (ink / parchment / blood), "Goldfish Lab" as a text
+     wordmark (no remote images - clients block them), one big button, the plain link under it
+     for clients that strip buttons, a one-line footer with the legal-notice link. Dark-mode-safe
+     colours.
+   * Wording: short, human, no "user X". E.g. *"Confirm your email - one click and your
+     Goldfish Lab account is ready."* Forgot-password gets the same look ("Reset your password",
+     valid for N days, "didn't ask? ignore this").
+   * Subjects without the `[domain]` prefix (`ACCOUNT_EMAIL_SUBJECT_PREFIX = ""`), written
+     out: "Confirm your email for Goldfish Lab", "Reset your Goldfish Lab password", ...
+   * **Security notifications on** (`ACCOUNT_EMAIL_NOTIFICATIONS = True`): "your password was
+     changed", "your email was changed" - standard practice, and they get the same template.
+2. **Confirmation by link, without the confusing page** (decision D5 = link). The user clicks the
+   link and sees "✓ Email confirmed" - no question, no button:
+   * The confirm page (`account/email_confirm.html`, overridden) shows "Confirming your email…"
+     and **submits its own POST** through a few lines of static JavaScript (`static/js/`, so
+     `script-src 'self'` stays as it is). That is allauth's own advice for skipping the question
+     without confirming on GET - verify the wording in the allauth docs at implementation
+     (HABIT 4). Without JavaScript the same page shows one plain "Confirm my email" button.
+   * **Rejected: `ACCOUNT_CONFIRM_EMAIL_ON_GET = True`.** Mail security scanners (Outlook Safe
+     Links and others) open every link in a mail; on GET they would confirm an address nobody
+     clicked - e.g. an account somebody else registered with your address.
+   * `ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True`: in the browser that signed up, the click also
+     signs in and lands on the saved deck (guest flow) or the deck list. Opened in another
+     browser (the phone's mail app), the page says "✓ Email confirmed - sign in to see your
+     deck" - the deck is already on the account, nothing is lost.
+   * allauth's success message (`account/messages/email_confirmed.txt`) and the "check your
+     inbox" page after sign-up (`account/verification_sent.html`) are rewritten in the same
+     tone: "We sent a link to x@y. Click it and you're in."
+3. **Sign-up asks for the password once** (`ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*"]`),
+   the headline says "Free account - just an email and a password".
+4. Tests: every mail prefix renders subject, text and HTML with a realistic context; none contains
+   "user " + the address, "example.com" or a `[`-prefixed subject; the HTML has the link *and*
+   the plain URL; and a guard that lists allauth's own `account/email/*_message.txt` and fails if
+   one has no override - so an allauth upgrade that adds a mail cannot ship it unstyled.
+5. Manual: a small script renders every mail to HTML files for a look in the browser (light and
+   dark); then sign-up and forgot-password once for real on production, read on a phone and in
+   one desktop client.
+
+### B — Remove the Collection
+
+The production database has no collection rows (fresh since 2026-09-28), so this is a clean cut:
+
+* Delete the `collection` app (models, views, forms, services, urls, templates, admin) with a
+  migration that drops its tables; remove it from `INSTALLED_APPS` and `goldfishlab/urls.py`.
+* Remove the "Against your collection" shortfall from the deck page, the collection import quota
+  and any plan-page line about it (`billing/quotas.py`, `billing/services.py`, `plans.html`).
+* `accounts/privacy.py` (data export and deletion) and `seed_demo_deck` stop touching it.
+* Legal pages: the privacy policy's collection rows go (and "Last updated" moves); terms if they
+  mention it. `tests/test_privacy.py` follows.
+* `cards.Printing` / `--kind default_cards` stays (opt-in, unused) - removing ingestion code is
+  not needed for the product and would touch the tested importer; documented as unused.
+* Tests for the collection are deleted with it; everything else stays green.
+
+### C — Deck status and the card review ("annotate") redesign
+
+1. **A red marker per deck that is not fully read**, on the deck list and the deck page:
+   "3 cards need you" (red) or "Ready" (green). Cheap: a cached `Deck.open_questions` count,
+   recomputed on import, commander change and annotation save/forget (one function in
+   `decks/services.py`, used by all four). Simulating and drawing stay possible either way
+   (the user's "or not even").
+2. **Review flow, one card at a time**, entered from the marker:
+   * Right: the card image, and the card text underneath it (Oracle text, readable, not only
+     the picture).
+   * Left: "What does this card do?" - dropdowns and number fields built from the existing
+     `AnnotationForm` (treated as, taps for N mana of which colours, draws N, tutors N to hand,
+     enters tapped, ...), only the fields relevant to that card first, the rest behind "More".
+   * Buttons: Save and next · Skip · Back. Progress "2 of 5". Deck/all-decks scope stays as a
+     small toggle.
+   * The field-by-field provenance table moves behind "Why does the engine think this?".
+3. The tune page becomes a card grid with the same markers; its long preamble goes to the
+   methodology page.
+
+### D — Deck page: actions first, pictures instead of paragraphs
+
+Top to bottom:
+1. Deck name, commander image, status marker, two big buttons: **Simulate** and **Draw a hand**
+   (games/turns settings in a small "Options" fold).
+2. Four small stat tiles: lands (with the in-band marker), average mana value, bracket, legality
+   (✓ or "2 problems" opening the detail).
+3. Mana curve (as now) and a **category bar**: count per type and per functional category, with
+   the template band.
+4. **Card grid with filter chips and search** - chips for every type and category ("Creature",
+   "Ramp", "Removal", ...), a search box over name and text. The categories are searchable here.
+5. Combos, legality detail, earlier runs and playtests: collapsed sections.
+
+### E — Simulation: what was drawn, by category and by mana value
+
+The engine records per turn today: lands, mana, life, hand size, milestones. It does **not**
+record which cards were seen. New:
+
+* **Engine instrumentation** (`simulation/analysis.py`): per game and turn, the cards *seen so
+  far* (opening hand after mulligan + draws) counted per card type, per functional category and
+  per mana value bucket. Aggregated like `turn_stats`: for each turn the mean count and the share
+  of games with at least one. Categories are resolved once per deck in the adapter
+  (`simulations/engine`), so the hot loop only adds small integers. `serial.py` and the chunk merge
+  learn the new keys.
+* **Charts** (server-rendered inline SVG):
+  * "Seen by turn N" - one line per functional category, y = % of games with at least one
+    (Ramp by turn 2, Draw by turn 3, ...). Chips toggle lines (CSS only).
+  * Same for card types.
+  * "Mana value of what you drew" - the curve of the cards in hand/played by turn, like the land
+    chart, so a clunky hand shows as a bump on the right.
+* Runs made before this exist without the data: the section says "Run again to see this" instead
+  of breaking. `ENGINE_VERSION` bumps only if game behaviour changes (it should not); the golden
+  parity test must stay unchanged - if it goes red, STOP (trap: never regenerate).
+* Performance check: the hot loop must stay within ~5% of today's speed (measure before/after).
+
+### F — Draw a hand, Hearthstone-style (clean, not elaborate)
+
+* The hand as a **fan of real card images** at the bottom (CSS transforms; hover or tap lifts and
+  enlarges a card). Battlefield above it in rows: lands, mana sources, other permanents - also
+  images, smaller. Commander in its own slot. Library and graveyard as small stacks with counts.
+* Click a card -> the actions it has (Play land / Cast / ...), as today, still real forms with
+  htmx on top (works without JavaScript).
+* Mana available as coloured pips; turn and phase as a slim bar. Mulligan / keep as two big
+  buttons at the start.
+* Phone: the fan becomes a horizontal scroll row.
+* No animations library; a short CSS transition at most.
+
+### G — Onboarding and trying it without an account
+
+1. **Home page:** one sentence, two screenshots (the drawn hand and a simulation chart, real
+   pages via `scripts/screenshots.py`, stored as WebP in `static/img/`), a three-step strip
+   "Export from Archidekt -> Upload -> Simulate or draw", and a big **"Try it now - no account"**
+   plus "Create an account".
+2. **Try first, account only to save - decided by the user 2026-09-28** ("das Onboarding muss
+   smooth af ablaufen"). The flow, exactly:
+
+   ```
+   Home: "Try it with your deck"  ->  drop a CSV (no account, no deck name asked)
+     ->  the simulation starts by itself, report appears  (draw a hand works too)
+     ->  a clear button: "Save this deck - free account, just email and password"
+     ->  one short form: deck name (pre-filled from the file), email, password
+     ->  "we sent you a link"  ->  click it (D5)  ->  signed in, on the saved deck's page
+   ```
+
+   * The wording says it plainly everywhere: **free**, **only email and password**.
+   * **How it is built - a temporary guest user** (the "lazy sign-up" pattern), not decks with a
+     nullable owner: on the first upload an unusable-password guest user is created and logged in
+     for this browser session. Every existing query is already owner-filtered (the review checked:
+     no IDOR), so decks, runs and playtests work unchanged and stay private to that browser. A
+     nullable owner would have meant touching every queryset - exactly where an IDOR hides.
+   * **Saving = claiming:** the save form creates the real account (allauth sign-up, so its
+     validation, rate limits and verification all apply) and moves the guest's deck, runs and
+     playtests to it, then deletes the guest. The hook (allauth `user_signed_up` signal vs. a
+     custom sign-up view) and the order of allauth's session handling are verified in the
+     `.venv` source before writing it - Django's `login()` flushes a session that belonged to
+     another user, so the guest id has to be read before that.
+   * Guest limits, stricter than the free plan (a "Guest" plan row): one deck, one run at a time
+     with small numbers (e.g. 2,000 games, 6 turns) on the short queue, `django-ratelimit` per IP
+     on guest creation, upload and run, and a global cap on queued guest runs so nobody can fill
+     the workers. Guests never see billing or account pages.
+   * Guests (and everything they own) are deleted after 24 hours by the Celery beat that already
+     runs in `worker-short`.
+   * The header shows a guest "Sign in / Create account" as for anybody signed out, plus the save
+     button while a guest deck exists.
+   * Privacy policy: what a guest leaves (the list, the run, a strictly necessary session
+     cookie), deleted after 24 hours - text change + test.
+3. The sign-up page itself also gets the "free, just email and password" line (A2.3).
+
+### H — The text pass
+
+Every remaining page against principle 1: plans, account data, run detail, priority page,
+legal pages excepted (they are legal text). Removed explanations land on the methodology page.
+
+### I — Clean-up (last, own PR; added at the user's request 2026-09-28)
+
+Goal: code, docs and production carry nothing the overhaul left behind, so whoever reads the
+repository next (a person or an agent) reads only what is true.
+
+1. **Dead code.**
+   * Find it with `vulture` (run ad hoc via `pipx run vulture`, not added as a dependency) and
+     ruff's unused-code rules, then by hand: templates, partials, URL names and context
+     variables no view uses any more (old tune page, `decks/_mapping_preview.html` /
+     `review.html` if the new flow replaced them, the old playtest board markup), settings
+     nothing reads, collection leftovers (quotas, `seed_demo_deck`, importer wording).
+   * `cards.Printing` and `ingest_scryfall --kind default_cards` - only the collection's prices
+     used them. Removed with a migration (production never ingested printings, so the table is
+     empty), plus their tests and the step-7 note in GO-LIVE.
+   * Hand-written CSS in `assets/css/input.css` nothing uses; Tailwind rebuild; `main.css` size
+     before/after.
+   * `requirements*.txt`: whatever nothing imports any more; `pip-audit` clean.
+   * Celery tasks and beat entries of removed features; admin registrations of removed models.
+2. **Tests.** Tests of removed behaviour go; duplicate fixtures merge; every batch's new code
+   has its tests. The fast suite took 6.5 minutes on 2026-09-28 - the 20 slowest
+   (`--durations=20`) get a look.
+3. **Docs (HABIT 5).** README (features, fresh screenshots, no collection), `DESIGN.md` and a
+   regenerated `STYLEGUIDE.html` (new components: drop zone, card fan, markers, charts), the
+   methodology page reading as one text after H, `docs/phases/README.md`, RESUME's traps
+   consolidated (obsolete ones marked), GO-LIVE (collection and printings mentions),
+   `.env.example`, `CLAUDE.md` if a convention changed, the project memory.
+4. **A review pass over the whole phase-9 diff**, like the pre-launch review of 2026-09-25:
+   * security - guest endpoints, paste import, review wizard: owner filters, rate limits, the CSP
+     without any new exception;
+   * accessibility - alt text on every card image, the hand usable by keyboard, contrast, focus;
+   * performance - `loading="lazy"` on card images, query counts on the deck page and the card
+     grid, simulation speed against the baseline measured in E.
+5. **Screenshot pass** of every page at 1440px and 390px (`scripts/screenshots.py`) - signed
+   out, as a guest, signed in - and every mail rendered once more.
+6. **Production.** B's and I's migrations applied and the tables gone; `manage.py check
+   --deploy` clean; the privacy policy's "Last updated" matches the last legal change; the go-live
+   checks the user deferred (6.4, 6.6-6.9) done at the latest here.
+7. Not done, on purpose: squashing migrations. Production exists and the gain is cosmetic.
+
+## Order (confirmed by the user 2026-09-28)
+
+A -> A2 -> B -> C -> D -> E -> F -> G -> H -> I, one PR each. A, A2 and B first because they are
+small, remove the worst first impressions and shrink the code the later batches touch. E before F
+because the charts are the paid value; F and G are the "wow" for newcomers. I (clean-up) closes
+the phase, at the user's request.
+
+## Decisions
+
+| # | Question | Answer |
+|---|---|---|
+| D1 | Guest mode | **Decided 2026-09-28:** try without an account (upload + simulation), then "Save" -> deck name -> email + password -> free account. See G2. |
+| D2 | Collection | **Out** ("die Collections will ich raus haben") - deleted completely, code and tables (production has no data). |
+| D3 | Launch timing (announcing the site) | Open - the user's call, does not block any batch. Recommended: after A-C. |
+| D4 | Order | **As proposed** (A2 inserted for the mail findings). |
+| D5 | Email confirmation | **Decided 2026-09-28: link** (not a 6-digit code). One click, "✓ Email confirmed", signed in when it is the same browser. Built as an auto-submitting confirm page, not as confirm-on-GET - see A2.2. |
+
+## Not in this phase
+
+Opponent modelling, deck building/editing inside the app, prices, collection anything, a
+JavaScript charting library, a native app.
+
+## Still open from the go-live (before or alongside batch A)
+
+* Step 9: the sign-up mail **arrived in the inbox, not spam** (user, 2026-09-28) - done. Still to
+  see: one real simulation reaching `completed` on production.
+* **Deferred by the user (2026-09-28):** step 6.4 (client address check with a phone), 6.6
+  (`https://<env>.jcloud.ik-server.com` must not serve the site), 6.7 (restart `sqldb`, the
+  superuser is still there), 6.8 (`PUBLIC_BASE_URL` + first pipeline deploy - the batch-A PR can
+  be that deploy), 6.9 (rollback test).
+* Optional: Cloudflare redirect rule `www` -> apex.
+* The styleguide change and the `prod.py` comment shipped with batch A's PR.

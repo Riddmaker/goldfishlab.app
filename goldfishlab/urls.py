@@ -1,7 +1,10 @@
 """Root URL configuration."""
 
 from django.contrib import admin
+from django.templatetags.static import static
 from django.urls import include, path
+from django.utils.functional import lazy
+from django.views.generic import RedirectView
 from django_ratelimit.decorators import ratelimit
 
 from core.views import (
@@ -33,6 +36,11 @@ urlpatterns = [
     path("billing/", include("billing.urls")),
     path("styleguide/", StyleguideView.as_view(), name="styleguide"),
     path("healthz/", healthz, name="healthz"),
+    # Pages carry `<link rel="icon">`; this is for whatever asks the old way
+    # (the admin, a feed reader, a browser opening a JSON response). Lazy,
+    # because the hashed file name is only known once the manifest is loaded,
+    # and temporary, because that name changes whenever the icon does.
+    path("favicon.ico", RedirectView.as_view(url=lazy(static, str)("img/favicon.svg"))),
     # The methodology page is a competitive asset rather than boilerplate:
     # saying plainly what is simulated and what is not is the thing no
     # "AI power level: 7.3" competitor can write. (Phase 8.)

@@ -43,3 +43,12 @@ def source_code(request):
         "source_code_url": url,
         "report_url": f"{url}/issues/new/choose" if url else "",
     }
+
+
+def dev_tools(request):
+    """Pages that exist for development only, such as the styleguide.
+
+    Not Django's own `debug` context variable: that also needs the visitor in
+    INTERNAL_IPS, which the browser behind docker compose never is.
+    """
+    return {"show_dev_tools": settings.DEBUG}

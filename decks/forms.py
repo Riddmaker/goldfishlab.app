@@ -26,24 +26,49 @@ class DeckForm(forms.ModelForm):
 
 
 class ImportForm(forms.Form):
-    """Upload a deck list.
+    """A deck list, as a file or pasted.
+
+    Two ways in, one importer: a pasted list is encoded and handed to exactly
+    the pipeline an upload goes through - the same decode, the same byte and
+    row ceilings, the same sniffing - so there is no second, laxer path for a
+    stranger's text to reach the resolver.
+
+    `source` says which of the two the person meant. Both controls are on the
+    page at once (the tabs are CSS), so a textarea somebody typed into and then
+    left for the file tab still posts; the chosen tab decides, not whichever
+    field happens to be filled.
 
     `format` is optional: the registry sniffs first, and only asks when it is
     not confident. Offering the picker up front would train users to pick
     wrongly when the sniff would have been right.
     """
 
+    FILE = "file"
+    PASTE = "paste"
+
+    source = forms.ChoiceField(
+        choices=[(FILE, "Upload a file"), (PASTE, "Paste a list")],
+        required=False,
+        widget=forms.RadioSelect,
+    )
+    file = forms.FileField(required=False, label="Deck file")
+    text = forms.CharField(
+        required=False,
+        label="Your deck list",
+        widget=forms.Textarea(attrs={
+            "rows": 10,
+            "spellcheck": "false",
+            "placeholder": (
+                "// Commander\n1 Chainer, Dementia Master\n// Deck\n"
+                "1 Sol Ring\n1 Arcane Signet\n36 Swamp"
+            ),
+        }),
+    )
     name = forms.CharField(
         max_length=120,
         required=False,
-        help_text="Leave blank to name the deck after the file.",
-    )
-    file = forms.FileField(
-        help_text=(
-            "Any CSV or TSV export, or a plain text list, up to "
-            f"{MAX_UPLOAD_BYTES // 1_000_000} MB. Spreadsheets are not "
-            "accepted - see the note below."
-        ),
+        label="Deck name",
+        help_text="Optional - otherwise the deck is named after the file.",
     )
     format = forms.ChoiceField(
         required=False,
@@ -57,13 +82,51 @@ class ImportForm(forms.Form):
 
     def clean_file(self):
         upload = self.cleaned_data["file"]
-        if upload.size > MAX_UPLOAD_BYTES:
+        if upload and upload.size > MAX_UPLOAD_BYTES:
             raise forms.ValidationError(
                 f"That file is {upload.size // 1024} KB. "
                 f"The limit is {MAX_UPLOAD_BYTES // 1024} KB "
                 "- a deck list is a few dozen."
             )
         return upload
+
+    def clean_text(self):
+        text = self.cleaned_data["text"]
+        size = len(text.encode("utf-8"))
+        if size > MAX_UPLOAD_BYTES:
+            raise forms.ValidationError(
+                f"That list is {size // 1024} KB. "
+                f"The limit is {MAX_UPLOAD_BYTES // 1024} KB "
+                "- a deck list is a few dozen."
+            )
+        return text
+
+    def clean(self):
+        cleaned = super().clean()
+        if self.pasting:
+            if not cleaned.get("text") and "text" not in self.errors:
+                self.add_error("text", "Paste your deck list first.")
+        elif not cleaned.get("file") and "file" not in self.errors:
+            self.add_error("file", "Choose a file first - or paste your list instead.")
+        return cleaned
+
+    @property
+    def pasting(self) -> bool:
+        """Whether the paste tab is the chosen one - also for re-rendering."""
+        if self.is_bound:
+            return self.data.get("source") == self.PASTE
+        return False
+
+    def payload(self) -> tuple[bytes, str]:
+        """The raw bytes and the file name, whichever way they came in.
+
+        A pasted list has no file name; the deck is then named by the name
+        field or the importer's own fallback.
+        """
+        if self.pasting:
+            return self.cleaned_data["text"].encode("utf-8"), ""
+        upload = self.cleaned_data["file"]
+        return upload.read(), upload.name
 
 
 #: The two concepts worth stopping somebody for. A missing card name means

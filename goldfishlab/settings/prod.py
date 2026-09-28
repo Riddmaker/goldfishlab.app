@@ -19,11 +19,11 @@ LEGAL_DETAILS_REQUIRED = True
 
 # Cloudflare sets X-Forwarded-Proto to the scheme the visitor used and
 # overwrites any value the visitor sent; the tunnel is the only way in, so the
-# header cannot come from anywhere else. VERIFY at the first deploy that it
-# survives the tunnel (cloudflared#1245 once reported it missing): if every
-# page answers with a redirect to itself, it did not, and a Cloudflare request
-# header transform rule setting it to "https" is the fix - not switching the
-# redirect off.
+# header cannot come from anywhere else. It survives the tunnel (confirmed at
+# the first deploy, 2026-09-28; cloudflared#1245 once reported it missing). If
+# every page ever answers with a redirect to itself, it stopped arriving, and a
+# Cloudflare request header transform rule setting it to "https" is the fix -
+# not switching the redirect off.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)  # noqa: F405
 SESSION_COOKIE_SECURE = True

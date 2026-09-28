@@ -136,16 +136,19 @@ class DeckImportView(LoginRequiredMixin, FormView):
     form_class = ImportForm
 
     def form_valid(self, form):
-        upload = form.cleaned_data["file"]
+        raw, filename = form.payload()
         chosen_format = form.cleaned_data.get("format", "")
+        # Where a complaint about the contents goes: under the control the
+        # person actually used, or it lands in a tab they cannot see.
+        source_field = "text" if form.pasting else "file"
 
         try:
-            preparation = services.prepare(upload.read(), chosen_format)
+            preparation = services.prepare(raw, chosen_format)
         except services.UnknownFormat:
             form.add_error("format", UNKNOWN_FORMAT_HELP)
             return self.form_invalid(form)
         except services.ImportError_ as exc:
-            form.add_error("file", str(exc))
+            form.add_error(source_field, str(exc))
             return self.form_invalid(form)
 
         # The columns do not answer for themselves, so a person does. Nothing
@@ -155,7 +158,7 @@ class DeckImportView(LoginRequiredMixin, FormView):
                 owner=self.request.user,
                 preparation=preparation,
                 kind=PendingImport.Kind.DECK,
-                filename=upload.name,
+                filename=filename,
                 deck_name=form.cleaned_data.get("name", ""),
             )
             return redirect(pending.get_absolute_url())
@@ -165,14 +168,14 @@ class DeckImportView(LoginRequiredMixin, FormView):
                 owner=self.request.user,
                 text=preparation.text,
                 name=form.cleaned_data.get("name", ""),
-                filename=upload.name,
+                filename=filename,
                 parser_name=chosen_format,
             )
         except QuotaExceeded as exc:
             form.add_error(None, str(exc))
             return self.form_invalid(form)
         except services.ImportError_ as exc:
-            form.add_error("file", str(exc))
+            form.add_error(source_field, str(exc))
             return self.form_invalid(form)
 
         if outcome.clean:

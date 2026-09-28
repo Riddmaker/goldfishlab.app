@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>Goldfish Lab</title>
+  <defs>
+    <clipPath id="flask">
+      <path d="M13 4.5h6v7l7.6 12.4A2.7 2.7 0 0 1 24.3 28H7.7a2.7 2.7 0 0 1-2.3-4.1L13 11.5z"/>
+    </clipPath>
+  </defs>
+  <rect width="32" height="32" rx="6" fill="#12100d"/>
+  <rect y="17" width="32" height="15" fill="#86231d" clip-path="url(#flask)"/>
+  <path d="M13 4.5h6v7l7.6 12.4A2.7 2.7 0 0 1 24.3 28H7.7a2.7 2.7 0 0 1-2.3-4.1L13 11.5z"
+        fill="none" stroke="#f5ecd7" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M11.5 3.5h9" stroke="#f5ecd7" stroke-width="1.8" stroke-linecap="round"/>
+  <ellipse cx="17" cy="22.4" rx="4.6" ry="2.9" fill="#dcc79b"/>
+  <path d="M12.9 22.4l-3.6-2.7v5.4z" fill="#dcc79b"/>
+  <circle cx="19.2" cy="21.7" r="0.8" fill="#12100d"/>
+  <circle cx="17.2" cy="14.6" r="1" fill="none" stroke="#dcc79b" stroke-width="0.8"/>
+  <circle cx="15.4" cy="10.2" r="0.7" fill="none" stroke="#dcc79b" stroke-width="0.7"/>
+</svg>

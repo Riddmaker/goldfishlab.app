@@ -4,7 +4,7 @@ import logging
 
 from django.conf import settings
 from django.db import connection
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.views.generic import TemplateView
 
 from core.tokens import color_families
@@ -24,10 +24,15 @@ class StyleguideView(TemplateView):
 
     Kept as a real page rather than a static document so a token change is
     visible immediately and so tests/test_design_tokens.py has something to
-    check against.
+    check against. A development tool: production answers 404.
     """
 
     template_name = "core/styleguide.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not settings.DEBUG:
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

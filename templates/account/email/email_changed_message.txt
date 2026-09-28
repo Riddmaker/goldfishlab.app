@@ -1,0 +1,3 @@
+{% extends "account/email/base_notification.txt" %}
+{% block notification_message %}The email of your Goldfish Lab account was changed from {{ from_email }} to {{ to_email }}.{% endblock notification_message %}
+{% block if_not_you %}If it wasn't you, write to us{% if operator.email %} at {{ operator.email }}{% endif %} right away - a new password would go to the new address.{% endblock if_not_you %}

@@ -1,0 +1,31 @@
+{% extends "account/email/base_message.html" %}
+{% comment %}
+  "Something changed on your account" - the security notifications allauth
+  sends with ACCOUNT_EMAIL_NOTIFICATIONS. Children fill `heading`,
+  `notification_message`, and `if_not_you` when choosing a new password is
+  not the way back (an email change: the reset would go to the new address).
+{% endcomment %}
+{% block content %}
+  <p style="margin:0 0 16px;">{% block notification_message %}{% endblock notification_message %}</p>
+  <p style="margin:0 0 16px;">If that was you, there's nothing to do.</p>
+  {% block if_not_you %}
+    <p style="margin:0 0 16px;">
+      If it wasn't you, <a href="{{ site_url }}{% url 'account_reset_password' %}" style="color:#86231d;">choose a new password</a> right away{% if operator.email %}
+      and write to us at <a href="mailto:{{ operator.email }}" style="color:#86231d;">{{ operator.email }}</a>{% endif %}.
+    </p>
+  {% endblock if_not_you %}
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="font-size:13px;line-height:20px;color:#5d564a;">
+    <tr>
+      <td style="padding:0 12px 0 0;vertical-align:top;white-space:nowrap;">When</td>
+      <td>{{ timestamp|date:"j F Y, H:i T" }}</td>
+    </tr>
+    <tr>
+      <td style="padding:0 12px 0 0;vertical-align:top;white-space:nowrap;">IP address</td>
+      <td>{{ ip }}</td>
+    </tr>
+    <tr>
+      <td style="padding:0 12px 0 0;vertical-align:top;white-space:nowrap;">Browser</td>
+      <td>{{ user_agent }}</td>
+    </tr>
+  </table>
+{% endblock content %}

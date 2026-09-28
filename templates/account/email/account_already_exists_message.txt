@@ -1,0 +1,7 @@
+{% extends "account/email/base_message.txt" %}
+{% block content %}Someone - probably you - tried to create a Goldfish Lab account with {{ email }}. There already is one with this address.
+
+Forgot your password? Choose a new one:
+{{ password_reset_url }}
+
+Wasn't you? Ignore this mail - nothing has changed.{% endblock content %}

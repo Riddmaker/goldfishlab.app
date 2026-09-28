@@ -1,0 +1,7 @@
+{% extends "account/email/base_message.txt" %}
+{% block content %}Someone - probably you - tried to sign in or reset a password on Goldfish Lab with {{ email }}. There is no account with this address. Maybe you signed up with a different one?
+
+Or create a free account:
+{{ signup_url }}
+
+Didn't try anything? Ignore this mail.{% endblock content %}

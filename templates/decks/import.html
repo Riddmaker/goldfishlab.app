@@ -1,50 +1,143 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Import a deck — Goldfish Lab{% endblock %}
-{% block description %}Import an Archidekt CSV export or a plain text deck list.{% endblock %}
+{% block description %}Import a deck from any CSV export or a pasted list.{% endblock %}
+{% block head %}
+  <script src="{% static 'js/import.js' %}" defer></script>
+{% endblock %}
 {% block content %}
   <h1 class="font-display text-3xl text-parchment-100">Import a deck</h1>
-  <div class="surface-parchment mt-8 max-w-2xl p-6">
-    <form method="post" enctype="multipart/form-data" class="auth-form">
-      {% csrf_token %}
-      {% if form.non_field_errors %}
-        <ul class="errorlist">
-          {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
-        </ul>
-      {% endif %}
-      {% for field in form %}
-        <div class="form-group">
-          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{ field }}
-          {% if field.help_text %}<p class="text-sm text-ink-700">{{ field.help_text }}</p>{% endif %}
-          {% if field.errors %}
-            <ul class="errorlist">
-              {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+  <p class="mt-2 text-parchment-200">
+    <strong class="text-parchment-100">Any CSV works.</strong>
+    It only needs a column with the card name - a quantity column is optional.
+  </p>
+  <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    <div class="surface-parchment p-6">
+      {% comment %}
+        The two tabs are two radio buttons and CSS (`.import-form` in
+        input.css): no JavaScript, and the chosen one is posted as `source`,
+        which is what the form reads - not whichever box happens to be filled.
+      {% endcomment %}
+      <form method="post" enctype="multipart/form-data" class="import-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <ul class="errorlist">
+            {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+          </ul>
+        {% endif %}
+        <fieldset class="import-tabs">
+          <legend class="sr-only">How do you want to add your deck?</legend>
+          <input type="radio"
+                 name="source"
+                 value="file"
+                 id="source-file"
+                 {% if not form.pasting %}checked{% endif %}>
+          <label for="source-file">Upload a file</label>
+          <input type="radio"
+                 name="source"
+                 value="paste"
+                 id="source-paste"
+                 {% if form.pasting %}checked{% endif %}>
+          <label for="source-paste">Paste a list</label>
+        </fieldset>
+        <div class="import-panel-file">
+          <div class="dropzone" data-dropzone>
+            <input type="file"
+                   name="{{ form.file.html_name }}"
+                   id="{{ form.file.id_for_label }}"
+                   class="dropzone-input"
+                   aria-describedby="dropzone-hint">
+            <div class="dropzone-face" aria-hidden="true">
+              <svg viewBox="0 0 24 24"
+                   width="40"
+                   height="40"
+                   fill="none"
+                   stroke="currentColor"
+                   stroke-width="1.6"
+                   stroke-linecap="round"
+                   stroke-linejoin="round">
+                <path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5" />
+                <path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15" />
+              </svg>
+              <p class="dropzone-title">Drop your deck file here</p>
+              <p>or <span class="underline">click to choose one</span></p>
+              <p class="dropzone-name" data-dropzone-name></p>
+            </div>
+          </div>
+          <p id="dropzone-hint" class="sr-only">A CSV, TSV or text file, up to 1 MB.</p>
+          {% if form.file.errors %}
+            <ul class="errorlist mt-2">
+              {% for error in form.file.errors %}<li>{{ error }}</li>{% endfor %}
             </ul>
           {% endif %}
         </div>
-      {% endfor %}
-      <button type="submit">Import</button>
-    </form>
-  </div>
-  <div class="mt-8 max-w-2xl border-l-2 border-parchment-600 pl-5">
-    <h2 class="font-display text-xl text-parchment-100">What is supported</h2>
-    <p class="mt-3 text-parchment-200">
-      <strong class="text-parchment-100">Any CSV or TSV export.</strong> Moxfield, Deckbox,
-      ManaBox, Delver Lens, Dragon Shield, Archidekt — and tools nobody here has heard of.
-      Columns are read by what they mean rather than by which site wrote them, and where
-      that is not enough you are shown the columns and asked. It takes about thirty seconds
-      and it only happens once per file.
-    </p>
-    <p class="mt-3 text-parchment-200">
-      <strong class="text-parchment-100">Plain text</strong> — one card per line, with or
-      without a leading quantity. <span class="tabular">1x Sol Ring</span> and
-      <span class="tabular">31 Swamp</span> both work.
-    </p>
-    <p class="mt-4 text-sm text-ink-300">
-      <strong class="text-ink-100">Spreadsheets are deliberately not accepted.</strong> An
-      .xlsx file is a zip archive and an .xls file can carry macros; reading either would
-      mean running a large parser over a stranger's upload for no benefit you would notice.
-      Every tool that exports a spreadsheet also exports a CSV.
-    </p>
+        <div class="import-panel-paste form-field">
+          <label for="{{ form.text.id_for_label }}" class="sr-only">{{ form.text.label }}</label>
+          {{ form.text }}
+          <p class="mt-1 text-sm text-ink-700">
+            One card per line. The commander goes under <code class="font-mono whitespace-nowrap">// Commander</code> - or pick it later.
+          </p>
+          {% if form.text.errors %}
+            <ul class="errorlist mt-2">
+              {% for error in form.text.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+        <details class="mt-5 text-ink-900"
+                 {% if form.name.errors or form.format.errors %}open{% endif %}>
+          <summary class="cursor-pointer text-sm text-ink-700">More options</summary>
+          {% for field in form %}
+            {% if field.name == "name" or field.name == "format" %}
+              <div class="form-field mt-3">
+                <label for="{{ field.id_for_label }}"
+                       class="text-sm font-semibold text-ink-800">{{ field.label }}</label>
+                {{ field }}
+                <p class="text-sm text-ink-700">{{ field.help_text }}</p>
+                {% if field.errors %}
+                  <ul class="errorlist">
+                    {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                  </ul>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </details>
+        <button type="submit"
+                class="mt-6 border border-blood-800 bg-blood-700 px-6 py-2.5 font-display text-lg text-parchment-100 hover:bg-blood-800">
+          Import
+        </button>
+      </form>
+    </div>
+    <div class="space-y-6 text-parchment-200">
+      <div>
+        <h2 class="font-display text-xl text-parchment-100">This is enough</h2>
+        <pre class="mt-2 border border-ink-800 bg-ink-900 px-4 py-3 font-mono text-sm text-parchment-100">Quantity,Name
+1,Sol Ring
+1,Arcane Signet
+36,Swamp</pre>
+      </div>
+      <div>
+        <h2 class="font-display text-xl text-parchment-100">Where to get it</h2>
+        <ul class="mt-2 space-y-1 text-sm">
+          <li>
+            <strong class="text-parchment-100">Archidekt:</strong> open the deck → More → Export → CSV
+          </li>
+          <li>
+            <strong class="text-parchment-100">Moxfield:</strong> open the deck → More → Export → copy, then paste it here
+          </li>
+          <li>
+            <strong class="text-parchment-100">ManaBox:</strong> open the deck → ⋮ → Export
+          </li>
+        </ul>
+      </div>
+      <details class="text-sm text-ink-300">
+        <summary class="cursor-pointer">Why not an Excel file?</summary>
+        <p class="mt-2">
+          An .xlsx file is a zip archive and an .xls file can carry macros - a large parser run
+          over a stranger's upload for no benefit you would notice. Every tool that exports a
+          spreadsheet also exports a CSV.
+        </p>
+      </details>
+    </div>
   </div>
 {% endblock %}

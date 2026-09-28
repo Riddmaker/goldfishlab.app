@@ -213,6 +213,22 @@ body {
   margin-bottom: 1rem;
 }
 
+/* "Remember me": the column layout above put the checkbox on a line of its
+ * own, below its label. A row for the paragraph that holds a checkbox, box
+ * first as people expect it (allauth writes the label first, hence reverse). */
+.auth-form form > p:has(> input[type="checkbox"]) {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.auth-form input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--color-blood-700);
+}
+
 .auth-form label {
   font-size: 0.875rem;
   font-weight: 600;
@@ -245,7 +261,8 @@ body {
   color: var(--color-ink-700);
 }
 
-.auth-form .errorlist {
+.auth-form .errorlist,
+.import-form .errorlist {
   list-style: none;
   padding-left: 0;
   color: var(--color-blood-700);
@@ -333,6 +350,134 @@ body {
 .form-cell input:focus-visible {
   outline: 2px solid var(--color-blood-700);
   outline-offset: 1px;
+}
+
+/* The import page (templates/decks/import.html).
+ *
+ * Tabs: two radio buttons, visually hidden but still focusable and arrow-key
+ * operable, with their labels drawn as tabs. `:has()` on the form shows the
+ * panel that belongs to the checked one - no JavaScript.
+ *
+ * Drop zone: the real file input is stretched invisibly over the whole dashed
+ * box, so a click anywhere opens the picker and a file dropped anywhere lands
+ * in the input - both natively. static/js/import.js only adds the file name
+ * and the drag highlight. */
+.import-tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--color-parchment-600);
+  margin-bottom: 1.25rem;
+}
+
+.import-tabs input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.import-tabs label {
+  padding: 0.5rem 1rem;
+  margin-bottom: -1px;
+  border: 1px solid transparent;
+  border-radius: 2px 2px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  color: var(--color-ink-700);
+  cursor: pointer;
+}
+
+.import-tabs input:checked + label {
+  border-color: var(--color-parchment-600);
+  border-bottom-color: var(--color-parchment-100);
+  background-color: var(--color-parchment-100);
+  color: var(--color-ink-900);
+}
+
+.import-tabs input:focus-visible + label {
+  outline: 2px solid var(--color-blood-700);
+  outline-offset: 1px;
+}
+
+.import-panel-paste {
+  display: none;
+}
+
+.import-form:has(#source-paste:checked) .import-panel-paste {
+  display: block;
+}
+
+.import-form:has(#source-paste:checked) .import-panel-file {
+  display: none;
+}
+
+.import-panel-paste textarea {
+  max-width: none;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
+.dropzone {
+  position: relative;
+  border: 2px dashed var(--color-parchment-600);
+  border-radius: 4px;
+  background-color: var(--color-parchment-50);
+  color: var(--color-ink-800);
+  text-align: center;
+}
+
+.dropzone:hover,
+.dropzone.is-dragover {
+  border-color: var(--color-blood-700);
+  background-color: var(--color-parchment-200);
+}
+
+.dropzone:has(.dropzone-input:focus-visible) {
+  outline: 2px solid var(--color-blood-700);
+  outline-offset: 2px;
+}
+
+.dropzone.has-file {
+  border-style: solid;
+}
+
+.dropzone-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dropzone-face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 2.5rem 1rem;
+  pointer-events: none;
+}
+
+.dropzone-face svg {
+  color: var(--color-blood-700);
+  margin-bottom: 0.25rem;
+}
+
+.dropzone-title {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  color: var(--color-ink-900);
+}
+
+.dropzone-name {
+  margin-top: 0.5rem;
+  font-weight: 600;
+  color: var(--color-blood-700);
+}
+
+.dropzone-name:empty {
+  display: none;
 }
 
 /* htmx's loading indicator, owned here rather than injected.

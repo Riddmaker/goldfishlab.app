@@ -99,6 +99,21 @@ This is a data product for someone reading probabilities, not a marketing page.
 
 ---
 
+# THE MARK AND THE UPLOAD (PHASE 9 A)
+
+- **The mark** is `static/img/favicon.svg`: a goldfish in a flask, drawn only in tokens - ink-950
+  tile, parchment-100 flask, blood-700 liquid, parchment-300 fish. It is the tab icon and sits
+  beside the wordmark in the header. SVG only: every current browser takes an SVG tab icon, and
+  the repository's push path is text-only. A PNG `apple-touch-icon` is the one thing missing.
+- **Where a file goes, the whole area is the target.** A dashed parchment-600 box, blood-700 on
+  hover and while a file is dragged over it, solid once a file is chosen, with the file's name in
+  it. The real `<input type="file">` covers the box invisibly, so clicking and dropping are the
+  browser's own and work without JavaScript.
+- **Tabs** are radio buttons and CSS: the chosen tab is a parchment-100 face joined to its
+  panel.
+
+---
+
 # STYLEGUIDE (VISUAL REFERENCE)
 
 The binding, rendered implementation of this document is **`STYLEGUIDE.html`** (repo root):

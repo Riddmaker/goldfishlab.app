@@ -35,7 +35,7 @@ See [docs/phases/](docs/phases/README.md) for how it was built, phase by phase.
 
 **Phase 8's local half landed on 2026-09-22**: a Content-Security-Policy on every response, rate limits that are counted somewhere shared rather than per worker, an upload row ceiling, `pip-audit` in CI, env-gated Sentry, JSON logging in production, terms and a privacy policy, a data export and an account deletion that both actually work, and an [`/about/methodology`](docs/phases/phase-8-launch.md) page saying plainly what is simulated and what is not.
 
-**Go-live itself has not happened, and happens once, in Phase 8.** Everything until then runs on `docker compose` locally. Product decisions live in the sibling `magic-project` repository's
+**Live at [goldfishlab.app](https://goldfishlab.app) since 2026-09-28** (Phase 8). Phase 9 - decks only, fewer words, more pictures - is under way. Product decisions live in the sibling `magic-project` repository's
 `instructions.md`, section "Teil 2".
 
 ## Requirements
@@ -174,6 +174,17 @@ URL.
 stripe listen --forward-to localhost:8000/billing/webhook/
 ```
 
+## The account mails
+
+```bash
+# Every mail allauth can send (confirm, reset, notifications), as HTML and text files.
+.venv/Scripts/python manage.py preview_mails          # -> screenshots/mails/index.html
+```
+
+The mails are templates in `templates/account/email/`, one text and one HTML version each; the
+sample contexts live in `accounts/mail_samples.py`. A browser shows the layout and the words -
+a real phone mail app is still the test that counts.
+
 ## The reference deck, and the odd ones
 
 ```bash
@@ -285,8 +296,9 @@ own that never touches long work, because one 100,000-game run would otherwise s
 every small one — and no quota system fixes that.
 
 The progress bar is htmx polling an HTML fragment that carries its own trigger; when the run
-finishes, the fragment comes back without it. **There is no hand-written JavaScript anywhere in
-this application**, and the charts are server-rendered divs with widths.
+finishes, the fragment comes back without it. The charts are server-rendered divs with widths.
+The little hand-written JavaScript there is (`static/js/`: the import drop zone and the
+self-submitting email confirmation) only improves pages that already work without it.
 
 ## Checking the numbers
 

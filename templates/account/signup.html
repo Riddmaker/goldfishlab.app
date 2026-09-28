@@ -1,0 +1,31 @@
+{% extends "account/base_entrance.html" %}
+{% comment %}
+  Override of allauth's account/signup.html for its words only: the headline
+  says what the account costs and asks for (phase 9 A2). The form is
+  allauth's, rendered the way allauth renders it - the fields come from
+  ACCOUNT_SIGNUP_FIELDS (email and one password).
+{% endcomment %}
+{% load allauth %}
+{% block head_title %}
+  Create a free account
+{% endblock head_title %}
+{% block content %}
+  <h1>Create a free account</h1>
+  <p>
+    Just an email and a password. Already have an account? <a href="{{ login_url }}">Sign in</a>.
+  </p>
+  {% url 'account_signup' as action_url %}
+  {% element form form=form method="post" action=action_url tags="entrance,signup" %}
+    {% slot body %}
+      {% csrf_token %}
+      {% element fields form=form unlabeled=True %}
+      {% endelement %}
+      {{ redirect_field }}
+    {% endslot %}
+    {% slot actions %}
+      {% element button tags="prominent,signup" type="submit" %}
+        Create my account
+      {% endelement %}
+    {% endslot %}
+  {% endelement %}
+{% endblock content %}

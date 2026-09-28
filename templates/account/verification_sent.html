@@ -1,0 +1,16 @@
+{% extends "account/base_entrance.html" %}
+{% comment %}
+  Override of allauth's account/verification_sent.html - where sign-up (and a
+  sign-in with an unconfirmed address) lands. allauth's version was a
+  paragraph about spam folders and contacting support. The address itself is
+  in the message above the page (account/messages/email_confirmation_sent.txt):
+  this view's context does not carry it.
+{% endcomment %}
+{% block head_title %}
+  Check your inbox
+{% endblock head_title %}
+{% block content %}
+  <h1>Check your inbox</h1>
+  <p>We sent you a link. Click it and you're in.</p>
+  <p class="text-sm text-ink-600">Nothing there after a few minutes? Look in the spam folder.</p>
+{% endblock content %}

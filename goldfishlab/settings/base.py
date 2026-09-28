@@ -162,8 +162,21 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 ACCOUNT_LOGIN_METHODS = {"email"}
-ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+# One password box: a typo in it is fixed with "Forgot your password?", and
+# the sign-up page promises "just an email and a password".
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*"]
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+# The mails (templates/account/email/) write their subjects out in full;
+# allauth's default puts "[<domain>] " in front of each.
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
+# "Your password was changed" and the like, with IP address and browser.
+ACCOUNT_EMAIL_NOTIFICATIONS = True
+# The confirmation link signs in - but only in the browser that signed up
+# (allauth checks the session), so a forwarded or scanned link cannot.
+# It is still confirmed by POST only: templates/account/email_confirm.html
+# submits itself, and ACCOUNT_CONFIRM_EMAIL_ON_GET stays off, because the
+# link scanners of mail services open every link in a mail.
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_UNIQUE_EMAIL = True
 # accounts.User sets `username = None`. allauth defaults this setting to
 # "username" and calls User._meta.get_field() on it, which raises

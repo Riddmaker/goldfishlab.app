@@ -22,7 +22,10 @@
 
   No allauth template is overridden for presentation - the form styling is
   scoped to .auth-form in assets/css/input.css - so upgrading allauth cannot
-  silently break the look.
+  silently break the look. A few are overridden for their words (phase 9 A2):
+  account/signup.html, email_confirm.html, verification_sent.html, two
+  messages, and every mail under account/email/ - tests/test_mails.py fails
+  when an allauth upgrade brings a mail that has no override.
 {% endcomment %}
 {% block title %}
 {% block head_title %}Account{% endblock %} — Goldfish Lab

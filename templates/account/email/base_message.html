@@ -1,0 +1,57 @@
+{% comment %}
+  The HTML half of every account mail. allauth's adapter (render_mail) sends
+  `<prefix>_message.txt` and, when it exists, `<prefix>_message.html` as the
+  alternative - so each mail here is a pair, and this is the shared frame.
+
+  Mail clients are not browsers: they drop <style> blocks and external CSS,
+  block remote images, and some repaint colours in dark mode. So: a table
+  layout, inline styles only, a text wordmark instead of a logo, and a light
+  card that stays legible if a client inverts it. `color-scheme: light only`
+  asks the clients that listen (Apple Mail) to leave it alone.
+
+  Children fill `preheader` (the grey line an inbox shows after the subject),
+  `heading` and `content`. `site_url` is built from the request, like
+  allauth's own links in these mails.
+{% endcomment %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light only">
+    <meta name="supported-color-schemes" content="light only">
+    <meta name="description" content="A mail from Goldfish Lab">
+    <title>Goldfish Lab</title>
+  </head>
+  {% with site_url=request.scheme|add:"://"|add:current_site.domain %}
+    <body style="margin:0;padding:0;background-color:#f0ece4;">
+      <div style="display:none;max-height:0;overflow:hidden;">{% block preheader %}{% endblock preheader %}</div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f0ece4;">
+        <tr>
+          <td align="center" style="padding:24px 12px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;background-color:#fdfaf3;border:1px solid #dcc79b;border-radius:6px;">
+              <tr>
+                <td style="background-color:#12100d;border-radius:5px 5px 0 0;padding:16px 28px;font-family:Georgia,'Times New Roman',serif;font-size:20px;line-height:28px;color:#f5ecd7;">
+                  Goldfish Lab
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:28px;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:24px;color:#2f2b24;">
+                  <h1 style="margin:0 0 16px;font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:32px;font-weight:normal;color:#12100d;">
+                    {% block heading %}{% endblock heading %}
+                  </h1>
+                  {% block content %}{% endblock content %}
+                </td>
+              </tr>
+            </table>
+            <p style="margin:16px 0 0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:18px;color:#7a7263;">
+              Goldfish Lab ·
+              <a href="{{ site_url }}/" style="color:#7a7263;">{{ current_site.domain }}</a> ·
+              <a href="{{ site_url }}{% url 'imprint' %}" style="color:#7a7263;">Legal notice</a> ·
+              <a href="{{ site_url }}{% url 'privacy' %}" style="color:#7a7263;">Privacy</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </body>
+  {% endwith %}
+</html>

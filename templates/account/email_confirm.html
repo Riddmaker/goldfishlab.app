@@ -1,0 +1,50 @@
+{% extends "account/base_entrance.html" %}
+{% comment %}
+  Override of allauth's account/email_confirm.html - the page behind the link
+  in the confirmation mail (phase 9 A2, decision D5).
+
+  allauth's version asks "Please confirm that x@y is an email address for user
+  x@y" and waits for a button, which read like phishing. Only a POST confirms,
+  and that stays: a GET that confirmed (ACCOUNT_CONFIRM_EMAIL_ON_GET) would let
+  the link scanners of Outlook and others confirm an address nobody clicked.
+  Instead js/confirm-email.js submits the form as soon as the page opens -
+  the way allauth's documentation suggests - and without JavaScript the same
+  form is one plain button.
+
+  Context from allauth's ConfirmEmailView: `confirmation` (None when the key
+  is expired, already used or made up), `can_confirm` (False when another
+  account already owns the address) and `email`.
+{% endcomment %}
+{% load static %}
+{% block head_title %}
+  Confirm your email
+{% endblock head_title %}
+{% block head %}
+  {% if confirmation and can_confirm %}
+    <script src="{% static 'js/confirm-email.js' %}" defer></script>
+  {% endif %}
+{% endblock head %}
+{% block content %}
+  {% if confirmation and can_confirm %}
+    <h1>Confirming your email…</h1>
+    <p>One moment - this confirms {{ email }} and takes you on.</p>
+    <form method="post"
+          action="{% url 'account_confirm_email' confirmation.key %}"
+          data-autosubmit>
+      {% csrf_token %}
+      {{ redirect_field }}
+      <button type="submit">Confirm my email</button>
+    </form>
+  {% elif confirmation %}
+    <h1>This email is taken</h1>
+    <p>
+      {{ email }} is already confirmed on another Goldfish Lab account. <a href="{% url 'account_login' %}">Sign in</a> with it instead.
+    </p>
+  {% else %}
+    <h1>This link doesn't work any more</h1>
+    <p>It was already used, or it has expired.</p>
+    <p>
+      <a href="{% url 'account_login' %}">Sign in</a> - if your email is not confirmed yet, we send you a fresh link.
+    </p>
+  {% endif %}
+{% endblock content %}

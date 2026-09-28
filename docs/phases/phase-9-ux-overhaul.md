@@ -1,8 +1,9 @@
 # Phase 9 — UX overhaul: fewer words, more pictures, decks only
 
 **Status: IN PROGRESS (plan approved 2026-09-28, all build decisions made the same day - see
-"Decisions").** Batch A is built (see "A - what was built"); next is A2. Compaction-safe: this
-file plus `RESUME.md` is everything needed to continue.
+"Decisions").** Batches A and A2 are built (see "A - what was built" and "A2 - what was
+built"); next is B. Compaction-safe: this file plus `RESUME.md` is everything needed to
+continue.
 
 ## Why
 
@@ -186,6 +187,34 @@ What changes (allauth **65.19.4**, checked in `.venv`):
 5. Manual: a small script renders every mail to HTML files for a look in the browser (light and
    dark); then sign-up and forgot-password once for real on production, read on a phone and in
    one desktop client.
+
+### A2 - what was built (2026-09-28)
+
+* allauth 65.19.4's mail list, checked in `.venv`: 13 mails that are sent (each has a
+  `_subject.txt`) plus the two bases. All 13 have our subject, text and HTML
+  (`templates/account/email/`), the HTML on `base_message.html` with `snippets/button.html` and
+  `snippets/code.html`. `email_confirm` is in allauth's template folder but nothing in 65.19.4
+  sends it; it is overridden anyway, so the guard stays simple.
+* `accounts/mail_samples.py` holds a realistic context per mail (mirroring allauth's
+  `send_mail`, `send_confirmation_mail`, `send_notification_mail`); `manage.py preview_mails`
+  writes them all to `screenshots/mails/` (gitignored), and `tests/test_mails.py` renders every
+  one. The guard lists allauth's `*_subject.txt`, so a new mail in an upgrade fails the build.
+* The email-change notice goes to the **old** address, so it says "write to us" instead of
+  "choose a new password" (the reset mail would go to the new address).
+* allauth's docs, verbatim, on `ACCOUNT_CONFIRM_EMAIL_ON_GET`: "To avoid requiring user
+  interaction, consider using POST via Javascript in your email confirmation template as an
+  alternative to setting this to True." That is `static/js/confirm-email.js`.
+* Checked in the local stack (Playwright): sign-up -> "We sent a link to x" + "Check your inbox";
+  the link in the same browser -> confirmed and signed in on the home page; in another browser ->
+  confirmed, sign-in page; without JavaScript -> one "Confirm my email" button; a used link ->
+  "This link doesn't work any more".
+* `ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION` lands on `LOGIN_REDIRECT_URL` (the home page) for now;
+  landing on the saved deck belongs to the guest flow (G).
+* Found on the way: the simulation-start limit test flaked (404 instead of 429) the same way the
+  admin one did - django-ratelimit's fixed window. The window pin is now a fixture for every
+  limiter test in `tests/test_security.py`.
+* Still open (A2.5, the user's part after the merge): one real sign-up and one forgot-password
+  on production, read on a phone and in a desktop client.
 
 ### B — Remove the Collection
 
@@ -381,7 +410,7 @@ JavaScript charting library, a native app.
   see: one real simulation reaching `completed` on production.
 * **Deferred by the user (2026-09-28):** step 6.4 (client address check with a phone), 6.6
   (`https://<env>.jcloud.ik-server.com` must not serve the site), 6.7 (restart `sqldb`, the
-  superuser is still there), 6.8 (`PUBLIC_BASE_URL` + first pipeline deploy - the batch-A PR can
-  be that deploy), 6.9 (rollback test).
+  superuser is still there), 6.9 (rollback test). 6.8 (`PUBLIC_BASE_URL` + the first pipeline
+  deploy) is done: the deploy after PR #7 went green, public health check included.
 * Optional: Cloudflare redirect rule `www` -> apex.
 * The styleguide change and the `prod.py` comment shipped with batch A's PR.

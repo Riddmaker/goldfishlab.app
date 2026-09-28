@@ -1,0 +1,9 @@
+{% extends "account/email/base_message.txt" %}
+{% block content %}Click the link to use {{ email }} for your Goldfish Lab account.
+{% if code %}
+Your code - type it into the page you have open:
+
+{{ code }}{% else %}
+{{ activate_url }}{% endif %}
+
+Didn't ask for this? Ignore this mail - without the click, nothing changes.{% endblock content %}

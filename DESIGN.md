@@ -114,6 +114,25 @@ This is a data product for someone reading probabilities, not a marketing page.
 
 ---
 
+# THE MAILS (PHASE 9 A2)
+
+Every account mail is a pair under `templates/account/email/`: plain text, and HTML on one frame
+(`base_message.html`). A mail client is not a browser, so the frame keeps to what survives one:
+
+- **Inline styles and tables only** - clients drop `<style>` and external CSS. The tokens are
+  written out as hex: parchment-50 card on ink-100, an ink-950 band with "Goldfish Lab" in
+  parchment-100 as the wordmark (text, never an image - clients block remote images), ink-800
+  body text, blood-700 button with white text.
+- **One button per mail, and its address written out under it** for clients that strip
+  buttons. Codes stand alone in a large monospace box.
+- **Light only.** `color-scheme: light only` for the clients that honour it; the rest may
+  invert, and dark text on a light card stays legible when they do.
+- **Words:** what happened and what to do, in one or two sentences, and what to do if it was not
+  you. No "user x@y", no bracketed domain in the subject. `manage.py preview_mails` writes them
+  all to files for a look.
+
+---
+
 # STYLEGUIDE (VISUAL REFERENCE)
 
 The binding, rendered implementation of this document is **`STYLEGUIDE.html`** (repo root):

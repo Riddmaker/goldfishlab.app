@@ -84,15 +84,16 @@ def test_inline_style_attributes_are_allowed_and_style_elements_are_not():
     assert "'unsafe-inline'" not in directives["style-src"]
 
 
-def test_the_chart_pages_still_render_their_inline_widths(client, signed_in):
+def test_the_chart_pages_still_render_their_inline_widths(client, signed_in, settings):
     """The reason `style-src-attr` exists, checked from the other end.
 
     If somebody ever tightens the policy by deleting that directive, this test
     goes on passing - the server still emits the attribute, the browser is what
     would refuse it. So this is not a security test; it is the record of what
     the security test is protecting, and the styleguide is where a width lives
-    with no login and no fixtures.
+    with no login and no fixtures (a development page, hence DEBUG).
     """
+    settings.DEBUG = True
     response = signed_in.get(reverse("styleguide"))
     assert response.status_code == 200
     assert b"style=" in response.content

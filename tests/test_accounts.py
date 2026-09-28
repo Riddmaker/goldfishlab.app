@@ -66,7 +66,6 @@ def test_signup_creates_user_and_subscription(client):
         {
             "email": "flow@example.com",
             "password1": "a-long-enough-test-password",
-            "password2": "a-long-enough-test-password",
         },
     )
     assert response.status_code in (200, 302)

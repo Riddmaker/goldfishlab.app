@@ -207,6 +207,21 @@ def test_allauth_counts_the_same_client_as_our_own_limiter():
 # --- The limiters actually trigger ------------------------------------------
 
 
+@pytest.fixture(autouse=True)
+def _pinned_window(monkeypatch):
+    """Keep every django-ratelimit count inside one fixed window.
+
+    It counts in fixed windows, so a loop of posts that straddles a window
+    edge restarts the count and a limit test fails for no reason - seen with
+    the admin login (twelve password hashes) and the simulation start (25
+    posts). Pinning the window makes these tests measure the limit, not the
+    clock. allauth's own limits count differently and are not touched.
+    """
+    import django_ratelimit.core
+
+    monkeypatch.setattr(django_ratelimit.core, "_get_window", lambda value, period: 4_102_444_800)
+
+
 def _post_repeatedly(client, url, times, data=None):
     """Hammer an endpoint and return the last response."""
     response = None
@@ -273,22 +288,18 @@ def test_signing_up_in_a_loop_is_refused(client):
     for i in range(25):
         response = client.post(
             url,
-            {"email": f"flood{i}@example.com", "password1": PASSWORD, "password2": PASSWORD},
+            {"email": f"flood{i}@example.com", "password1": PASSWORD},
         )
     assert response.status_code == 429
 
 
-def test_guessing_the_admin_password_in_a_loop_is_refused(client, monkeypatch):
+def test_guessing_the_admin_password_in_a_loop_is_refused(client):
     """Django's admin login sits outside both limiters unless it is wrapped.
 
-    django-ratelimit counts in fixed windows, and each of these posts runs the
-    password hasher, so twelve of them take long enough to straddle a window
-    edge about one run in six - the count restarts and the test fails for no
-    reason. Pinning the window makes it measure the limit, not the clock.
+    Each of these posts runs the password hasher, which is why the window is
+    pinned (`_pinned_window`) - twelve of them straddled a window edge about
+    one run in six.
     """
-    import django_ratelimit.core
-
-    monkeypatch.setattr(django_ratelimit.core, "_get_window", lambda value, period: 4_102_444_800)
     response = None
     for _ in range(12):
         response = client.post(
@@ -365,7 +376,7 @@ def test_signup_sends_a_confirmation_and_therefore_needs_mail(client):
 
     response = client.post(
         reverse("account_signup"),
-        {"email": "newcomer@example.com", "password1": PASSWORD, "password2": PASSWORD},
+        {"email": "newcomer@example.com", "password1": PASSWORD},
     )
     assert response.status_code in (302, 200)
     assert len(mail.outbox) == 1

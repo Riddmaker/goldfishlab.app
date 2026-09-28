@@ -32,3 +32,5 @@ jobs:
       # redeploy.yml checks the format and the signature (deploy-prod.yml on
       # main) before anything reaches the platform.
       tag: ${{ inputs.sha }}
+    # Without it the environment's token arrives empty - see deploy-prod.yml.
+    secrets: inherit

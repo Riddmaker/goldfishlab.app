@@ -218,9 +218,10 @@ def test_an_unknown_key_cannot_be_written_through_the_editor():
 
 
 def test_a_single_purpose_screen_changes_only_the_key_it_knows_about():
-    """`patch`, not `apply`. The casting-order page edits one key, and calling
-    the whole-form merge from it would delete every role and mana judgement
-    the card's own page had recorded."""
+    """`patch`, not `apply`. A screen that edits one key must not call the
+    whole-form merge, or it deletes every role and mana judgement the card's
+    own page had recorded - which is what the casting-order page (removed in
+    Phase 9 C) nearly did."""
     stored = {"priority": 10, "tags": ["ramp"], "mana_produces": {"B": 1}}
 
     result = patch(stored, {"priority": 40})
@@ -484,7 +485,10 @@ def test_a_value_nobody_set_is_credited_to_nobody(no_builtins, deck, spell):
     row = _row(entry, "effective_priority")
 
     assert row.source == "engine"
-    assert row.is_weak
+    # Credited to nobody, but not flagged: nobody is asked for a priority any
+    # more (Phase 9 C), so "worth checking" would nag about a question the
+    # interface no longer puts.
+    assert not row.is_weak
     assert not row.is_yours
 
 
@@ -716,73 +720,44 @@ def test_forgetting_from_the_card_page_removes_the_row(client, owner, deck, spel
     assert not CardAnnotation.objects.filter(oracle_card=spell, deck=deck).exists()
 
 
-def test_the_priority_page_leaves_the_boxes_empty_until_somebody_fills_them(
-    client, owner, deck
-):
-    """A box pre-filled with the engine's default would turn "nobody has said"
-    into a judgement the moment the page was saved."""
-    client.force_login(owner)
+def test_the_casting_order_page_is_gone(client, owner, deck):
+    """Phase 9 C (decision D6): nobody is asked for a casting order any more.
 
-    response = client.get(reverse("simulations:priority", args=[deck.pk]))
-
-    assert response.status_code == 200
-    for choice in response.context["form"].choices:
-        assert choice.current is None
-
-
-def test_the_priority_page_saves_the_whole_order_at_once(client, owner, deck, spell):
-    client.force_login(owner)
-    url = reverse("simulations:priority", args=[deck.pk])
-    form = client.get(url).context["form"]
-    data = {f"priority-{choice.oracle_id}": "" for choice in form.choices}
-    data[f"priority-{spell.pk}"] = "61"
-
-    response = client.post(url, data)
-
-    assert response.status_code == 302
-    assert CardAnnotation.objects.get(
-        oracle_card=spell, deck=deck
-    ).overrides == {"priority": 61}
-
-
-def test_saving_the_casting_order_keeps_the_other_judgements(client, owner, deck, spell):
-    """The bug that `patch` exists to prevent, end to end.
-
-    Somebody records a role on the card page, then sets a priority on the
-    casting-order page. The role has to still be there afterwards.
+    The product is statistics about a deck, not steering a game, and the
+    engine's own rule - cheapest first - is an answer nobody has to give.
     """
-    services.save_annotation(
-        deck=deck, oracle_card=spell, scope="deck",
-        judgements={"tags": ["draw_engine"]},
+    client.force_login(owner)
+
+    assert client.get(f"/decks/{deck.pk}/priority/").status_code == 404
+
+
+def test_no_page_puts_the_casting_priority_to_anybody(
+    no_builtins, client, owner, deck, spell
+):
+    """The priority gap is still recorded, but neither the card list nor the
+    card page shows it as an open question."""
+    assert any(gap.field == "priority"
+               for gap in provenance.for_card(deck, spell).gaps), (
+        "the fixture no longer carries a priority gap, so this test proves nothing"
     )
     client.force_login(owner)
-    url = reverse("simulations:priority", args=[deck.pk])
-    form = client.get(url).context["form"]
-    data = {f"priority-{choice.oracle_id}": "" for choice in form.choices}
-    data[f"priority-{spell.pk}"] = "61"
 
-    client.post(url, data)
+    tune = client.get(reverse("simulations:tune", args=[deck.pk])).content.decode()
+    card = client.get(
+        reverse("simulations:annotate", args=[deck.pk, spell.pk])
+    ).content.decode()
 
-    overrides = CardAnnotation.objects.get(oracle_card=spell, deck=deck).overrides
-    assert overrides == {"tags": ["draw_engine"], "priority": 61}
-
-
-def test_the_priority_page_never_lists_a_land(client, owner, deck):
-    """The engine does not cast lands, so a land has no casting order."""
-    client.force_login(owner)
-
-    response = client.get(reverse("simulations:priority", args=[deck.pk]))
-
-    labels = {choice.label for choice in response.context["form"].choices}
-    assert "Swamp" not in labels
+    for body in (tune, card):
+        assert "no one said how early to cast it" not in body
+        assert "call only you can make" not in body
+        assert "/priority/" not in body
 
 
 def test_another_users_deck_is_a_404_not_a_permission_error(client, deck):
     stranger = User.objects.create_user(email="stranger@example.com", password=PASSWORD)
     client.force_login(stranger)
 
-    for name in ("simulations:tune", "simulations:priority"):
-        assert client.get(reverse(name, args=[deck.pk])).status_code == 404
+    assert client.get(reverse("simulations:tune", args=[deck.pk])).status_code == 404
 
 
 def test_a_card_that_is_not_in_the_deck_cannot_be_annotated(client, owner, deck):

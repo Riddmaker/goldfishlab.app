@@ -652,7 +652,8 @@ def test_a_stored_result_is_not_rewritten_when_a_judgement_changes(deck, owner, 
 # --- the screens -----------------------------------------------------------
 
 
-def test_the_tune_page_lists_every_card_and_its_sources(client, owner, deck):
+def test_the_tune_page_shows_every_card(client, owner, deck):
+    """The sources it used to open with are on the methodology page now."""
     client.force_login(owner)
 
     response = client.get(reverse("simulations:tune", args=[deck.pk]))
@@ -660,8 +661,8 @@ def test_the_tune_page_lists_every_card_and_its_sources(client, owner, deck):
 
     assert response.status_code == 200
     assert "What the engine reads" in body
-    assert "Scryfall field" in body
     assert "Swamp" in body
+    assert "Scryfall field" in client.get(reverse("methodology")).content.decode()
 
 
 def test_the_card_page_shows_the_reading_and_a_form(client, owner, deck, spell):
@@ -674,7 +675,8 @@ def test_the_card_page_shows_the_reading_and_a_form(client, owner, deck, spell):
 
     assert response.status_code == 200
     assert spell.front_name in body
-    assert "Say what you know" in body
+    assert "What does this card do?" in body
+    assert "Why does the engine think this?" in body
 
 
 def test_saving_from_the_card_page_records_the_judgement(client, owner, deck, spell):

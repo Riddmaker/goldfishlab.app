@@ -212,6 +212,9 @@ makes "all the old tests still pass" mean anything.
     --email demo@goldfishlab.test --password "$GOLDFISH_DEMO_PASSWORD" 
 ```
 
+After a change to `simulation/`, compare the engine's speed before and after with
+`.venv/Scripts/python scripts/bench_engine.py` (best of five, microseconds per game).
+
 `scripts/screenshots.py` fails on any non-200 response **or any browser console error**. That is
 deliberate: during Phase 0 it caught two bugs that HTTP 200 checks and a green test suite both
 missed — static files not being served at all, and the account pages not inheriting the site
@@ -279,7 +282,11 @@ own that never touches long work, because one 100,000-game run would otherwise s
 every small one — and no quota system fixes that.
 
 The progress bar is htmx polling an HTML fragment that carries its own trigger; when the run
-finishes, the fragment comes back without it. The charts are server-rendered divs with widths.
+finishes, the fragment comes back without it. The charts are server-rendered: divs with widths,
+and inline SVG for the line charts (`simulations/charts.py` does the geometry), switched with
+CSS-only chips. Every run also counts what the player had drawn by each turn - by category, card
+type and mana value (`analysis.seen_groups`, Phase 9 E); a run from before that says "run
+again" instead of drawing an empty chart.
 The little hand-written JavaScript there is (`static/js/`: the import drop zone and the
 self-submitting email confirmation) only improves pages that already work without it.
 

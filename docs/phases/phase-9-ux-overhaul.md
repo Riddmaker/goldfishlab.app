@@ -1,8 +1,8 @@
 # Phase 9 — UX overhaul: fewer words, more pictures, decks only
 
 **Status: IN PROGRESS (plan approved 2026-09-28, all build decisions made the same day - see
-"Decisions").** Batches A, A2 and B are live, C (priority out) is built (see "... - what was
-built"); next is E, then C2 - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
+"Decisions").** Batches A, A2, B and C are live, E (draw statistics) is built (see "... - what
+was built"); next is C2 - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
 `RESUME.md` is everything needed to continue.
 
 ## Why
@@ -354,6 +354,48 @@ record which cards were seen. New:
   of breaking. `ENGINE_VERSION` bumps only if game behaviour changes (it should not); the golden
   parity test must stay unchanged - if it goes red, STOP (trap: never regenerate).
 * Performance check: the hot loop must stay within ~5% of today's speed (measure before/after).
+
+### E - what was built (2026-09-29)
+
+* **Engine** (`simulation/`, no Django): `Card.types` (the printed front-face types, lower
+  case, `cards.CARD_TYPES`; read by no rule). `analysis.seen_groups(deck)` lays out the groups
+  once per run: `type:<type>`, `role:<category>` and `mv:0`..`mv:7` (7 = "7+", spells only - a
+  land has no mv group). After every turn `_count_seen` counts hand + battlefield + graveyard +
+  exile (bottomed cards and the commander are not seen). `run()` stores
+  `result["seen"][key] = {"cards": [per turn], "games": [per turn]}` - summed cards (mean after
+  / iterations) and games with at least one (share). `as_json`/`from_json`/`merge` carry it;
+  a group only one chunk has is kept, a chunk without the block drops it from the merge.
+* **Categories come from `Card.categories`, not from `Card.tags`.** Found on the first
+  screenshot: card draw at 8% on the reference deck. Cause: **70 built-in annotations replace the
+  role list** (from the original hand-written Chainer list, e.g. Phyrexian Arena = `draw_engine`
+  only), and built-in annotations apply to every deck of every user. They exist so that the
+  reference deck plays exactly as the fixture (game metrics read `tags`), so they stay - but the
+  statistics must not follow them. `adapter._categories`: the community roles
+  (`profile.role_tags`), unless the **user** replaced them (deck or user scope, an empty list
+  included); a built-in replacement is ignored. `analysis.SEEN_CATEGORIES` is then a plain list of
+  the eight shown roles (ramp, draw, removal, wipe, tutor, counterspell, protection, recursion) -
+  a narrower community tag always carries its broader one, so nothing is folded together. (A
+  first attempt folded `draw_engine` into draw etc.; the user asked why a third category, and the
+  real cause came out - replaced by this.) Game behaviour unchanged, parity green.
+* **New roles** `counterspell` (561 cards) and `protection` (1356) in `ROLE_FROM_TAG`.
+  **Production needs `python manage.py ingest_scryfall --profiles` once after the deploy**
+  (~45 s locally), or those two lines are simply absent.
+* **Adapter**: `adapter.card_types(oracle_card)` - front face only ("Sorcery // Land" is a
+  sorcery), Kindred ignored, never overridable (printed, not judged).
+* **Page** (`report.seen`, `_report.html` "What you drew", `_line_chart.html`,
+  `simulations/charts.py`): categories as % of games with at least one; **card types as the mean
+  count** (deviation from the plan: the share is a flat line at 100% for creatures and lands);
+  mana-value bars per turn with one shared scale, a turn picked by radio chips. Lines toggle by
+  checkbox chips via `:has()` in `input.css` (8 colours, the last four dashed). The numbers sit
+  under a "The numbers" `<details>`. An old run says "This run is older than this chart" and links
+  to the deck page's new `#play` anchor.
+* **Speed**: `scripts/bench_engine.py` (new). Reference deck, 5000 games x 6 turns: before 1004-1046
+  usec/game, after 1023-1058 - inside the ~5% bar. `ENGINE_VERSION` unchanged, golden parity
+  test unchanged and green.
+* Methodology has a "What you drew" section; README mentions the charts and the bench script.
+* Tests: `tests/test_draw_statistics.py` (groups, the count = hand kept + draws, counting changes
+  no game, chunks in any order, old chunks, storage, type lines, chart geometry, report), plus
+  two page tests in `test_simulations_runs.py`.
 
 ### F — Draw a hand, Hearthstone-style (clean, not elaborate)
 

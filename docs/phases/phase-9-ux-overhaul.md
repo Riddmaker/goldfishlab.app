@@ -1,8 +1,8 @@
 # Phase 9 — UX overhaul: fewer words, more pictures, decks only
 
 **Status: IN PROGRESS (plan approved 2026-09-28, all build decisions made the same day - see
-"Decisions").** Batches A and A2 are built (see "A - what was built" and "A2 - what was
-built"); next is B. Compaction-safe: this file plus `RESUME.md` is everything needed to
+"Decisions").** Batches A and A2 are live, B is built (see "... - what was built"); next
+is C. Compaction-safe: this file plus `RESUME.md` is everything needed to
 continue.
 
 ## Why
@@ -231,6 +231,26 @@ The production database has no collection rows (fresh since 2026-09-28), so this
   not needed for the product and would touch the tested importer; documented as unused.
 * Tests for the collection are deleted with it; everything else stays green.
 
+### B - what was built (2026-09-29)
+
+* Deleted: `collection/` admin, forms, services, urls, views; `templates/collection/`;
+  `tests/test_collection.py`; the deck page's "Against your collection" panel and the collection
+  branch of the mapping screen; the collection in the data export, `seed_demo_deck` and the
+  screenshot list.
+* **Two deploys, as Django's "How to delete a Django application" guide prescribes:**
+  `collection/models.py` is empty and migration `collection/0004` drops both tables, but the stub
+  app (`apps.py`, `migrations/`) stays in `INSTALLED_APPS` so that migration runs in production.
+  Batch I removes the app, the directory and the stale content types
+  (`remove_stale_contenttypes`).
+* `decks/0005`: `PendingImport.Kind` is deck-only, and any waiting collection upload is deleted
+  first (otherwise answering its mapping screen would have imported it as a deck).
+* Legal pages: privacy (short version, the uploads row now describes deck files, Cloudflare,
+  correction) and terms no longer mention a collection; both "Last updated 29 September 2026".
+  403/429/data page wording too, and "spam or junk folder" on the sign-up page.
+* Not touched, as planned: `cards.Printing` and `--kind default_cards` (they still resolve
+  imports by exact printing); the import quota (it always counted deck imports too).
+* 1053 fast tests green (1091 minus the collection's own, plus `test_the_collection_is_gone`).
+
 ### C — Deck status and the card review ("annotate") redesign
 
 1. **A red marker per deck that is not fully read**, on the deck list and the deck page:
@@ -412,5 +432,11 @@ JavaScript charting library, a native app.
   (`https://<env>.jcloud.ik-server.com` must not serve the site), 6.7 (restart `sqldb`, the
   superuser is still there), 6.9 (rollback test). 6.8 (`PUBLIC_BASE_URL` + the first pipeline
   deploy) is done: the deploy after PR #7 went green, public health check included.
+* **Hotmail puts the account mails in Junk** (2026-09-28). The headers of the junked mail
+  (2026-09-29): `spf=pass`, `dmarc=pass`, `compauth=pass`, but **`dkim=none (message not
+  signed)`** and SCL 5. The DKIM key is published (selector `20260928`), so Infomaniak is not
+  signing what the application sends through SMTP - DKIM signing has to be switched on for the
+  domain in the Infomaniak Manager (the user's step), then one mail to Hotmail checked for
+  `dkim=pass`.
 * Optional: Cloudflare redirect rule `www` -> apex.
 * The styleguide change and the `prod.py` comment shipped with batch A's PR.

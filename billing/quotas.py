@@ -4,7 +4,7 @@ There are exactly FOUR call sites for `check()` in the finished application:
 
   1. simulation enqueue   (Phase 3)
   2. deck create          (Phase 1)
-  3. deck/collection import (Phase 1)
+  3. deck import          (Phase 1)
   4. API token issue      (Phase 6)
 
 Quota logic anywhere else is a bug. Keeping the count of call sites small is

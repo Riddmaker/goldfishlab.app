@@ -1,5 +1,9 @@
 # Phase 6 — Collection, remaining importers, billing
 
+> **2026-09-29: §1 (the collection) was removed in Phase 9 batch B** - see
+> [phase-9-ux-overhaul.md](phase-9-ux-overhaul.md). This file stays as the historical account;
+> the printing catalogue and the importer from §1/§2 are still in use.
+
 **Status:** **complete.** §1 and §3 landed on 2026-09-20 with the printing catalogue and Stripe;
 **§2 landed the same day**, by abandoning its design rather than finishing it. **757 tests
 green.**

@@ -17,9 +17,8 @@ requirement is visible; dropping it as detail would let the page say "your deck
 contains this combo" about a deck that cannot run it.
 
 **A card in a combo may not be in our catalogue.** `ComboCard.oracle_card` is
-nullable and the name is kept beside it, the same arrangement and for the same
-reason as `CollectionItem`: a later ingest cannot invent what the first lookup
-discarded.
+nullable and the name is kept beside it, because a later ingest cannot invent
+what the first lookup discarded.
 
 **An answer is as old as the lookup that fetched it.** `ComboLookup.fetched_at`
 is shown wherever combos are, exactly as `prices_updated_at` is shown wherever

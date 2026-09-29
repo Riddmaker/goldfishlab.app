@@ -251,12 +251,6 @@ def test_importing_decks_in_a_loop_is_refused(signed_in):
     assert response.status_code == 429
 
 
-def test_importing_collections_in_a_loop_is_refused(signed_in):
-    """Half the deck importer's rate: the files are the biggest we accept."""
-    response = _post_repeatedly(signed_in, reverse("collection:import"), times=10)
-    assert response.status_code == 429
-
-
 def test_a_refusal_says_waiting_will_work(signed_in):
     """429, not 403, and the difference is the whole point of the page.
 

@@ -107,7 +107,8 @@ behind one extra button.
 ### The recording
 
 Most imports never see the mapping screen, because most files answer the question themselves. So
-the reading is recorded on `DeckImport.column_mapping` and `Collection.column_mapping` and shown
+the reading is recorded on `DeckImport.column_mapping` (and was on `Collection.column_mapping`
+until the collection went in Phase 9 B) and shown
 on the screen afterwards. Otherwise the quiet path would be the unaccountable one.
 
 ---

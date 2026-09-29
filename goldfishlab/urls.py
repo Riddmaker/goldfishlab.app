@@ -31,7 +31,6 @@ urlpatterns = [
     path("decks/", include("decks.urls")),
     path("", include("simulations.urls")),
     path("", include("playtest.urls")),
-    path("collection/", include("collection.urls")),
     path("combos/", include("combos.urls")),
     path("billing/", include("billing.urls")),
     path("styleguide/", StyleguideView.as_view(), name="styleguide"),

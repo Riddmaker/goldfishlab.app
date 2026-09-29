@@ -81,7 +81,8 @@ def _age(queryset, field, days):
 def test_an_abandoned_upload_is_deleted_after_a_week():
     owner = User.objects.create_user(email="a@example.com", password="pw-test-only")
     old = PendingImport.objects.create(owner=owner, kind="deck", text="1 Sol Ring")
-    fresh = PendingImport.objects.create(owner=owner, kind="collection", text="1 Sol Ring")
+    other = User.objects.create_user(email="b@example.com", password="pw-test-only")
+    fresh = PendingImport.objects.create(owner=other, kind="deck", text="1 Swamp")
     _age(PendingImport.objects.filter(pk=old.pk), "created_at", tasks.PENDING_IMPORT_DAYS + 1)
 
     counts = tasks.run()

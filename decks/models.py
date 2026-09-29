@@ -179,9 +179,11 @@ class PendingImport(models.Model):
     on its way to becoming deck rows a few seconds later.
     """
 
+    #: One kind since the collection went (phase 9 B). The column and the
+    #: constraint stay: dropping them buys nothing, and a second kind of
+    #: upload would need them back.
     class Kind(models.TextChoices):
         DECK = "deck", "Deck"
-        COLLECTION = "collection", "Collection"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(
@@ -194,9 +196,7 @@ class PendingImport(models.Model):
     #: encoding ladder - the three things `decks.services.decode` is for.
     text = models.TextField()
     parser = models.CharField(max_length=32, blank=True)
-    #: Only for a deck import: the name the person typed, and the deck they
-    #: were refilling. Both meaningless for a collection, which has exactly one
-    #: per user and no name.
+    #: The name the person typed, and the deck they were refilling.
     deck_name = models.CharField(max_length=120, blank=True)
     deck = models.ForeignKey(
         Deck, on_delete=models.CASCADE, related_name="pending_imports", null=True, blank=True

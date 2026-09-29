@@ -2,7 +2,7 @@
 
 Mounted under `/account/` rather than `/accounts/`, which allauth already owns.
 No primary key anywhere: there is one of each of these per user and it is
-always `request.user`'s, exactly like the collection screens.
+always `request.user`'s.
 """
 
 from django.urls import path

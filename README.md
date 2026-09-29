@@ -17,10 +17,10 @@ agree with closed-form mathematics wherever closed-form mathematics applies.
 
 ## Status
 
-**Phases 0 (Foundations), 0b (Design system), 1 (Card database & deck import), 2 (engine generalization), 3 (background simulation & reports), 4 (the honesty layer), 5 (interactive playtest) and 5b (the effect catalogue) are complete, and 6 (collection & billing) are complete, and Phase 7 §1 (combo lookup) and §2
+**Phases 0 (Foundations), 0b (Design system), 1 (Card database & deck import), 2 (engine generalization), 3 (background simulation & reports), 4 (the honesty layer), 5 (interactive playtest) and 5b (the effect catalogue) are complete, and 6 (billing) are complete, and Phase 7 §1 (combo lookup) and §2
 (turns-to-assemble) both landed on 2026-09-21:** a deck stored in Postgres simulates identically to the hand-written reference deck, the engine makes, spends and now reports all five colours separately, a deck can be simulated in the background — thousands of games spread across workers — with a progress bar that needs no hand-written JavaScript and a report whose opening-hand distribution visibly matches the exact hypergeometric, and every value the engine reads off a card can be inspected, traced to its source and corrected by hand. A deck can also be **played by hand**, one game at a time, with undo, redo and fork. Seven **test decks** cover shapes the reference deck does not have — five colours, no commander, twenty lands, forty-five, and one made entirely of cards the engine cannot read.
 
-A collection export answers the question people actually ask before sleeving a deck up — **can I build this?** — on the deck's own page, counting basic lands separately because "ten Swamps short" is arithmetic rather than advice. Paid plans go through hosted Stripe Checkout, so no card number reaches this application and the signed webhook is the only thing that may change what somebody is entitled to.
+Paid plans go through hosted Stripe Checkout, so no card number reaches this application and the signed webhook is the only thing that may change what somebody is entitled to.
 
 Combos come from Commander Spellbook's curated list, and then the simulator does the thing only a
 simulator can: it says **how long each one takes to come together**. Not "your deck contains this"
@@ -122,39 +122,22 @@ The agent and the player drive the same code. `simulation/actions.py` is the onl
 of what casting a spell means, and `agent.take_turn` chooses from the same `legal_actions` a
 person clicks.
 
-## Your collection, and paid plans
+## Paid plans, and the printing catalogue
 
-```bash
-# Nothing to configure. Sign in, open Collection, upload any CSV or TSV
-# collection export - Moxfield, Deckbox, ManaBox, Archidekt, anything.
-# Columns are read by what they mean; where that is not enough you are
-# shown your own file and asked. seed_demo_deck imports one automatically.
-```
+*(Phase 9 B, 2026-09-29: the collection feature is removed - Goldfish Lab is about decks.
+Its tables are dropped by `collection/0004`; the empty app goes in batch I.)*
 
-Every deck then carries an answer to **can I build this?** — on the collection page for all of
-them at once, and on each deck's own page. Basic lands are counted separately, because "ten
-Swamps short" is arithmetic rather than advice, and the commander is counted, because it is not
-a `DeckCard` and forgetting it would give the one useless version of the answer.
-
-It can also tell one printing from another, which needs a second bulk file:
+An import can also tell one printing from another, which needs a second bulk file:
 
 ```bash
 py manage.py ingest_scryfall --kind default_cards   # 78.8 MB, ~2 minutes
 ```
 
 **That is opt-in and `--kind all` deliberately leaves it out**, because a command in the boot
-path should not pull 78.8 MB because somebody upgraded. Everything works without it — the
-collection page says which half of itself is switched off, and deck answers are counted on
-cards and never on printings, so they do not change either way.
-
-With it loaded there are 112,581 printings against 35,568 cards. That is **3.2x** the card
-table and 43 MB on disk, which is less than half what the card table costs — the "roughly
-twelve times" that earlier drafts of this file and three phase documents quoted was the size of
-`all_cards`, a different and much larger file. It buys the exact printing on every import
-(rung 1 went from 62 of 214 rows on a real export to 214 of 214), the set/collector-number rung
-that had been a documented hole since Phase 1, and Cardmarket trend prices in euros — shown per
-row with the date they were true, never totalled into a valuation, and shown as “—” rather than
-as zero on the 18 rows nobody publishes a price for.
+path should not pull 78.8 MB because somebody upgraded. Everything works without it: decks are
+counted on cards and never on printings. With it loaded there are 112,581 printings against
+35,568 cards (3.2x the card table, 43 MB on disk), and an import can match a row by its exact
+printing or by set and collector number instead of by name.
 
 **Payments are off unless `STRIPE_SECRET_KEY` is set**, which is every environment but
 production. The plans page then says so and offers nothing to buy; the limits are still

@@ -18,7 +18,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 
-from collection import services as collection_services
 from decks import services
 from decks.models import Deck
 
@@ -115,16 +114,3 @@ class Command(BaseCommand):
             )
         )
         self.stdout.write(f"deck: {outcome.deck.get_absolute_url()}")
-
-        # The same file, imported a second time as a collection. It genuinely
-        # is a collection export - that is where the demo deck comes from - so
-        # this is not a contrivance for the screenshot: it is the real answer
-        # to "can I build this deck from what I own", which for a deck built
-        # out of the collection is yes, and worth seeing said.
-        collection = collection_services.import_collection(
-            owner=user, raw=source.read_bytes(), filename=source.name,
-        ).collection
-        self.stdout.write(
-            f"collection: {collection.total_cards} cards, "
-            f"{collection.distinct_cards} different"
-        )

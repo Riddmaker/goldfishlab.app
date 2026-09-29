@@ -76,9 +76,8 @@
     {% if combos.one_away_rest %}
       {% comment %}
         Folded away rather than cut. The demo deck returns 125 of these and
-        rendering them flat makes a deck page taller than the collection page
-        was when it pushed its own answers off the screen - but a list somebody
-        might act on is not ours to truncate silently.
+        rendering them flat pushes the rest of the deck page off the screen -
+        but a list somebody might act on is not ours to truncate silently.
       {% endcomment %}
       <details class="mt-3">
         <summary class="cursor-pointer text-sm text-ink-700">
@@ -140,8 +139,7 @@
     </button>
     {% if combos.lookup.fetched_at %}
       {# A cached answer that does not say when it was true is a claim about #}
-      {# the present that nobody checked. Same rule as the collection's      #}
-      {# prices, and the same reason.                                        #}
+      {# the present that nobody checked.                                     #}
       <p class="mt-2 text-sm text-ink-700">
         Looked up {{ combos.lookup.fetched_at|date:"j M Y" }}{% if combos.stale %} — your deck has changed, or this is more than a fortnight old{% endif %}.
       </p>

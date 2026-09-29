@@ -72,6 +72,15 @@ ISLAND_SUBTYPE = "island"
 MOUNTAIN_SUBTYPE = "mountain"
 FOREST_SUBTYPE = "forest"
 
+#: The card types of rule 205.2a that a Commander deck can hold, in the order
+#: a deck list sorts them. Kindred is left out on purpose: it never stands
+#: alone ("Kindred Instant"), so the other word on the line already counts the
+#: card. What ``Card.types`` may contain.
+CARD_TYPES = (
+    "creature", "planeswalker", "battle", "artifact", "enchantment",
+    "instant", "sorcery", "land",
+)
+
 
 @dataclass(frozen=True)
 class ManaAbility:
@@ -271,6 +280,27 @@ class Card:
     #: ``Game.stays_tapped``. Last, and defaulted, for the same positional
     #: reason as ``cost``.
     untaps: bool = True
+
+    #: The card types printed on the front face, lower case: ``{"artifact",
+    #: "creature"}`` for an artifact creature. **No rule reads it** - ``kind``
+    #: is what the game plays by. It exists for the draw statistics
+    #: (``analysis.seen_groups``), which count what a player would call the
+    #: card, and ``kind`` cannot say that: it files a mana rock under "rock"
+    #: and an artifact creature under "creature" only. Empty for the
+    #: hand-written fixture decks, which never carried a type line. Last, and
+    #: defaulted, for the same positional reason as ``cost``.
+    types: frozenset[str] = field(default_factory=frozenset)
+
+    #: The deck-building categories a player would sort the card into - ramp,
+    #: draw, removal and the rest - for the draw statistics only. **Not the
+    #: same set as ``tags``**, on purpose: ``tags`` is what the game's metrics
+    #: read, and the application's built-in annotations may replace it to keep
+    #: the reference deck playing exactly as it always has (Phyrexian Arena is
+    #: ``draw_engine`` there and nothing else). The categories are the
+    #: community's reading plus the user's own corrections, never the built-in
+    #: ones; ``simulations/engine/adapter.py`` decides which. Empty for the
+    #: hand-written fixture decks. Last, and defaulted, like ``types``.
+    categories: frozenset[str] = field(default_factory=frozenset)
 
     @property
     def mana_cost(self) -> ManaCost:

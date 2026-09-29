@@ -15,6 +15,7 @@ died at 99%. Chunks give progress, cancellation and restart for free.
 from dataclasses import dataclass
 
 from simulation import analysis, combos
+from simulation.cards import CARD_TYPES
 from simulation.manacost import SUBTYPE_COLORS
 
 #: The mana sources a run reports, WUBRG then colourless, and which stored
@@ -23,6 +24,12 @@ from simulation.manacost import SUBTYPE_COLORS
 #: boundary is that `adapter.py` and this module are the only way across.
 MANA_SOURCES = analysis.MANA_SOURCES
 COLOR_FIELD = analysis.COLOR_FIELD
+
+#: The card types and the top mana-value bucket the draw statistics count in
+#: (Phase 9 E). Re-exported for `simulations/report.py`, which names them on
+#: the page and must not import the engine to do it.
+SEEN_CARD_TYPES = CARD_TYPES
+SEEN_MV_CAP = analysis.MV_CAP
 
 #: The land types that make a land tap for a colour, and which colour each
 #: one makes. Re-exported because the annotation editor offers them: a land

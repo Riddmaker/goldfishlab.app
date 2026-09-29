@@ -39,6 +39,12 @@ class Deck(models.Model):
         related_name="commands_decks",
     )
     notes = models.TextField(blank=True)
+    #: How many cards the engine could not read and the owner has not answered
+    #: yet - the red marker (Phase 9 C2). `None` means "not counted since the
+    #: last thing that could change it", and the page that needs it counts
+    #: then. Written with `QuerySet.update`, never `save()`: a count is not an
+    #: edit, and `updated_at` orders the deck list.
+    open_questions = models.PositiveSmallIntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

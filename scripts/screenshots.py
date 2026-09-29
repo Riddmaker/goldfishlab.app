@@ -77,8 +77,6 @@ PRIVATE_SHOTS = [
     # sees, and a broken upgrade button would be invisible to every test.
     ("plans-desktop", "/billing/", DESKTOP),
     ("plans-phone", "/billing/", PHONE),
-    ("collection-desktop", "/collection/", DESKTOP),
-    ("collection-phone", "/collection/", PHONE),
     # Phase 8. The one screen in the application with an irreversible button on
     # it, so it is photographed at both widths: the confirmation field and the
     # warning above it have to stay together on a phone, or the warning becomes

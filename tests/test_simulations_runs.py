@@ -631,8 +631,12 @@ def test_the_report_renders_for_a_finished_run(client, owner, run, fake_redis):
     assert response.status_code == 200
     assert "Opening hands" in body
     assert "hypergeometric" in body
-    # Coverage is shown beside every result, never omitted.
-    assert "coverage" in body
+    # How much of the deck the engine read is shown beside every result, never
+    # omitted - and since Phase 9 C it is the only score: the casting-priority
+    # half ("calls nobody has made") is no longer put to anybody.
+    assert "The engine read" in body
+    assert "nobody has made" not in body
+    assert "Somebody had decided" not in body
 
 
 def test_another_users_run_is_a_404_not_a_permission_error(client, run):

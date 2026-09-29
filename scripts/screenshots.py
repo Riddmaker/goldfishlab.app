@@ -69,8 +69,6 @@ PRIVATE_SHOTS = [
     ("import-map-phone", "{pending}", PHONE),
     ("tune-desktop", "/decks/{deck_id}/tune/", DESKTOP),
     ("tune-phone", "/decks/{deck_id}/tune/", PHONE),
-    ("priority-desktop", "/decks/{deck_id}/priority/", DESKTOP),
-    ("priority-phone", "/decks/{deck_id}/priority/", PHONE),
     # Phase 6. With no Stripe keys - which is every environment but production
     # - this page says so and offers nothing to buy, and that is exactly the
     # state worth photographing: it is what a stranger running this repository

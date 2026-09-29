@@ -414,7 +414,7 @@ def test_the_console_backend_is_a_deliberate_way_out(settings):
     """An installation that genuinely does not send mail must still boot."""
     from core.checks import check_email_is_configured
 
-    settings.EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    settings.EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
     settings.EMAIL_HOST = ""
     settings.ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
@@ -436,4 +436,4 @@ def test_both_tls_flags_at_once_is_refused(settings):
     settings.EMAIL_USE_TLS = True
     settings.EMAIL_USE_SSL = True
 
-    assert check_email_is_configured(None) == []
+    assert [error.id for error in check_email_is_configured(None)] == ["core.E002"]

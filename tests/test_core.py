@@ -77,6 +77,16 @@ def test_the_header_is_about_decks(client, django_user_model):
     assert ">Collection<" not in body
 
 
+def test_the_collection_is_gone(client, django_user_model):
+    """Phase 9 B: no page, and no legal page still promising to keep one."""
+    user = django_user_model.objects.create_user(email="c@example.com", password="pw-x-1234")
+    client.force_login(user)
+
+    assert client.get("/collection/").status_code == 404
+    for name in ("privacy", "terms", "accounts:data"):
+        assert "collection" not in client.get(reverse(name)).content.decode().lower()
+
+
 def test_healthz_reports_ok(client):
     """The probe must be unauthenticated and must name what it checked."""
     response = client.get(reverse("healthz"))

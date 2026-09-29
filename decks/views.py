@@ -17,7 +17,6 @@ from django_ratelimit.decorators import ratelimit
 from billing.quotas import QuotaExceeded
 from billing.views import upgrade_prompt
 from cards.models import OracleCard
-from collection import services as collection_services
 from combos import services as combo_services
 from decks import analysis as deck_analysis
 from decks import services
@@ -67,15 +66,6 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         context["curve_max"] = max(context["analysis"].curve.values() or [1]) or 1
         context["run_form"] = RunForm()
         context["runs"] = deck.runs.all()[:5]
-        # "Can I build this?" - the question somebody asks before sleeving a
-        # deck up, and the reason the collection app exists. `None` when they
-        # have never imported one, which the panel says rather than implying
-        # they own nothing.
-        collection = collection_services.for_user(self.request.user)
-        context["collection"] = collection
-        context["shortfall"] = (
-            collection_services.shortfall(deck, collection) if collection else None
-        )
         # Sessions, not games: a playtest is one game played by hand and is
         # resumed rather than re-run, so the list is of things to go back to.
         context["playtests"] = deck.playtests.all()[:5]
@@ -202,11 +192,6 @@ class ImportMappingView(LoginRequiredMixin, View):
     unrecognised format now costs the person thirty seconds instead of costing
     us a phase.
 
-    It serves both kinds of import. A collection export and a deck export are
-    the same file from the same site, read by the same pipeline; giving them
-    two mapping screens would be two places for the same CSV to be understood
-    differently, which is the bug this whole design exists to prevent.
-
     **Nothing is written and no quota is spent until the form validates.** The
     `PendingImport` holds the decoded text in the meantime and deletes itself
     the moment the import lands.
@@ -249,14 +234,6 @@ class ImportMappingView(LoginRequiredMixin, View):
         return self.done(request, pending, outcome)
 
     def run(self, pending: PendingImport, overrides: dict):
-        if pending.kind == PendingImport.Kind.COLLECTION:
-            return collection_services.import_collection(
-                owner=self.request.user,
-                text=pending.text,
-                filename=pending.filename,
-                parser_name=pending.parser,
-                overrides=overrides,
-            )
         return services.import_deck(
             owner=self.request.user,
             text=pending.text,
@@ -268,14 +245,6 @@ class ImportMappingView(LoginRequiredMixin, View):
         )
 
     def done(self, request, pending: PendingImport, outcome):
-        if pending.kind == PendingImport.Kind.COLLECTION:
-            messages.success(
-                request,
-                f"{outcome.collection.total_cards} cards imported, "
-                f"{outcome.collection.distinct_cards} of them different.",
-            )
-            return redirect("collection:detail")
-
         if outcome.clean:
             messages.success(
                 request,

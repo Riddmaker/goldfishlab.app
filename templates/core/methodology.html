@@ -142,7 +142,7 @@
       </p>
     </div>
 
-    <h2 class="mt-12 font-display text-2xl text-parchment-100">What the engine could not read</h2>
+    <h2 id="reading" class="mt-12 font-display text-2xl text-parchment-100">What the engine could not read</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
         Every result says <strong>how much of the deck the engine could
@@ -167,6 +167,20 @@
         than a guess. A deriver that defaults a missing number is right often
         enough to look correct and silent when it is not.
       </p>
+      <p class="mt-4 text-ink-900">
+        A card the engine could not read marks its deck red — “3 cards need
+        you” — until you have looked at each one: correct what it reads, or say
+        it looks right. Either way the deck turns “Ready”. Simulating never
+        waits for it. Every value on a card's page says where it came from:
+      </p>
+      <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+        {% for key, pair in sources.items %}
+          <div>
+            <dt class="text-ink-900">{{ pair.0 }}</dt>
+            <dd class="text-sm text-ink-700">{{ pair.1 }}</dd>
+          </div>
+        {% endfor %}
+      </dl>
     </div>
 
     <h2 class="mt-12 font-display text-2xl text-parchment-100">Combos</h2>

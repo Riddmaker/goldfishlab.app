@@ -7,6 +7,7 @@
     <span class="tabular text-parchment-200">
       {{ analysis.total_cards }} cards{% if deck.commander %} + commander{% endif %}
     </span>
+    {% include "decks/_status.html" %}
     <a href="{% url 'decks:list' %}"
        class="ml-auto text-sm text-parchment-200 underline">All decks</a>
   </div>

@@ -311,6 +311,13 @@ Three rules hold the layer together, and all three are about not inventing a jud
   provenance panel would credit somebody with an opinion they never had.
 - **A stored run is never re-read.** It is a record of what the engine saw at the time. When the
   annotations move on, the report says so and offers a re-run.
+- **A deck says when it needs you.** Every deck carries a marker: red "3 cards need you" while
+  the engine could not read a card its owner has not answered, green "Ready" once each has an
+  answer - a corrected value, or "Looks right". The marker opens a review one card at a time
+  (picture and card text beside the questions that card raises; Save and next, Looks right,
+  Skip, Back). It never blocks a simulation. The count is stored on the deck and forgotten by
+  anything that could change it: an import, a new commander, an answer saved or forgotten, a
+  profile rebuild.
 
 Alongside it, the **"what this simulation does not model"** panel names the limitations that
 more games will never fix — cards that need an opponent, mana sources nobody has pinned down,

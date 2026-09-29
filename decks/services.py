@@ -275,6 +275,8 @@ def import_deck(
     _write_entries(deck, report, commander=_commander_for(deck, report))
     _write_unresolved(record, report)
     _set_commander(deck, report)
+    recount_later(Deck.objects.filter(pk=deck.pk))
+    deck.open_questions = None
 
     return ImportOutcome(deck=deck, record=record, report=report)
 
@@ -356,6 +358,17 @@ def _set_commander(deck: Deck, report: resolve.ResolutionReport) -> None:
         deck.save(update_fields=["commander", "updated_at"])
 
 
+def recount_later(decks) -> None:
+    """Forget the stored count of open questions; the next page counts again.
+
+    Called by everything that can change which cards the engine cannot read
+    or which of them the owner has answered: an import, a commander change, a
+    saved or forgotten annotation, a profile rebuild. `update`, so a count
+    going stale is not an edit of the deck and does not reorder the list.
+    """
+    decks.update(open_questions=None)
+
+
 @transaction.atomic
 def set_commander(deck: Deck, card) -> None:
     """Set the commander by hand, from the deck page.
@@ -386,7 +399,8 @@ def set_commander(deck: Deck, card) -> None:
             back.save(update_fields=["quantity"])
 
     deck.commander = card
-    deck.save(update_fields=["commander", "updated_at"])
+    deck.open_questions = None
+    deck.save(update_fields=["commander", "open_questions", "updated_at"])
 
 
 # --- the mapping round trip -------------------------------------------------

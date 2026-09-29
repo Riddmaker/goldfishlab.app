@@ -242,6 +242,9 @@ def save_annotation(*, deck, oracle_card, scope: str, judgements: dict,
                     note: str = ""):
     """Write one judgement, merged into whatever is already stored.
 
+    A "Looks right" already on the row is kept, and keeps the row: a row
+    carrying only that flag is an answer, not an empty judgement.
+
     Returns:
         CardAnnotation | None: The row, or `None` when the judgement was empty
         and the row was removed.
@@ -258,17 +261,36 @@ def save_annotation(*, deck, oracle_card, scope: str, judgements: dict,
     existing = CardAnnotation.objects.filter(oracle_card=oracle_card, **keys).first()
     overrides = apply(existing.overrides if existing else {}, judgements)
     note = (note or "").strip()
+    confirmed = bool(existing and existing.confirmed)
+    _recount_holding(deck, oracle_card, scope)
 
-    if not overrides and not note:
+    if not overrides and not note and not confirmed:
         if existing:
             existing.delete()
         return None
 
     annotation, _created = CardAnnotation.objects.update_or_create(
         oracle_card=oracle_card,
-        defaults={"overrides": overrides, "note": note},
+        defaults={"overrides": overrides, "note": note, "confirmed": confirmed},
         **keys,
     )
+    return annotation
+
+
+def confirm_annotation(*, deck, oracle_card, scope: str):
+    """Record "Looks right": the owner read the engine's reading and agrees.
+
+    Nothing the engine reads changes - the stored values stay as they were,
+    which is why this does not go through `save_annotation`: an empty form
+    handed to `annotations.apply` would remove every judgement on the card.
+    """
+    from simulations.models import CardAnnotation
+
+    annotation, _created = CardAnnotation.objects.update_or_create(
+        oracle_card=oracle_card, defaults={"confirmed": True},
+        **_scope_keys(deck, scope),
+    )
+    _recount_holding(deck, oracle_card, scope)
     return annotation
 
 
@@ -283,7 +305,30 @@ def delete_annotation(*, deck, oracle_card, scope: str) -> bool:
     deleted, _ = CardAnnotation.objects.filter(
         oracle_card=oracle_card, **_scope_keys(deck, scope)
     ).delete()
+    if deleted:
+        _recount_holding(deck, oracle_card, scope)
     return bool(deleted)
+
+
+def _recount_holding(deck, oracle_card, scope: str) -> None:
+    """Count the red marker again on every deck this judgement reaches.
+
+    One deck for a deck-scoped row; for one about all the owner's decks, each
+    of theirs that holds the card - in the 99 or in the command zone.
+    """
+    from django.db.models import Q
+
+    from decks.models import Deck
+    from decks.services import recount_later
+    from simulations.engine.adapter import USER_SCOPE
+
+    if scope == USER_SCOPE:
+        reached = Deck.objects.filter(owner=deck.owner).filter(
+            Q(entries__oracle_card=oracle_card) | Q(commander=oracle_card)
+        ).distinct()
+    else:
+        reached = Deck.objects.filter(pk=deck.pk)
+    recount_later(Deck.objects.filter(pk__in=reached.values("pk")))
 
 
 def _scope_keys(deck, scope: str) -> dict:

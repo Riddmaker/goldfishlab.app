@@ -71,10 +71,10 @@
         {% endfor %}
       </tbody>
     </table>
-    {% if entry.gaps %}
+    {% if entry.reading_gaps %}
       <h3 class="font-display mt-6 text-lg text-ink-900">What could not be established</h3>
       <ul class="mt-2 space-y-1 text-sm text-blood-700">
-        {% for gap in entry.gaps %}
+        {% for gap in entry.reading_gaps %}
           <li>{{ gap.field }}: {{ gap.reason }}</li>
         {% endfor %}
       </ul>

@@ -7,8 +7,7 @@
   <div class="flex flex-wrap items-baseline gap-4">
     <h1 class="font-display text-3xl text-parchment-100">What the engine reads</h1>
     <span class="tabular text-parchment-200">
-      {{ cards_unreadable }} of {{ cards_total }} the engine could not read ·
-      {{ cards_unjudged }} waiting on a call only you can make
+      {{ cards_unreadable }} of {{ cards_total }} the engine could not read
     </span>
     <a href="{{ deck.get_absolute_url }}"
        class="ml-auto text-sm text-parchment-200 underline">Back to {{ deck.name }}</a>
@@ -36,9 +35,8 @@
   <section class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">The cards</h2>
     <p class="mt-1 text-sm text-ink-700">
-      Cards the engine could not read come first, then the ones waiting on a
-      call only you can make, then the rest. That ordering is deliberate: a
-      list sorted by name buries them among thirty Swamps.
+      Cards the engine could not read come first. That ordering is deliberate:
+      a list sorted by name buries them among thirty Swamps.
     </p>
     {% comment %}
       One row per card, not one table per card. The first version of this page
@@ -69,13 +67,13 @@
             <td class="py-1.5 pr-3 text-ink-700">{{ entry.reading.card.kind }} · {{ entry.reading.cost }}</td>
             <td class="py-1.5 pr-3 text-ink-700">{{ entry.reading.taps_for }}</td>
             <td class="py-1.5 text-ink-700">
-              {% if entry.has_gaps %}
+              {% if entry.reading_gaps %}
                 {% comment %}
                   Truncated: a reason runs to a full sentence, and at phone
                   width an untruncated one turns every gap row into a
                   paragraph. The whole text is on the card's own page.
                 {% endcomment %}
-                <span class="block text-blood-700">! {{ entry.gaps|length }} unresolved — {{ entry.gaps.0.reason|truncatechars:60 }}</span>
+                <span class="block text-blood-700">! {{ entry.reading_gaps|length }} unresolved — {{ entry.reading_gaps.0.reason|truncatechars:60 }}</span>
               {% endif %}
               {% if entry.yours %}
                 <span class="block text-verdigris-800">
@@ -89,8 +87,4 @@
       </tbody>
     </table>
   </section>
-  <p class="mt-8">
-    <a href="{% url 'simulations:priority' deck.id %}"
-       class="text-parchment-200 underline">Set the casting order for this deck</a>
-  </p>
 {% endblock %}

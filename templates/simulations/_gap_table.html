@@ -1,8 +1,7 @@
 {% comment %}
-  One list of stored gaps. Included twice on a report - once for what the
-  engine could not read, once for the calls nobody has made - because the two
-  lists have different readers and different fixes, and one table headed "the
-  things it could not establish" was answering both questions at once.
+  One list of stored gaps - on a report, the ones the engine could not read.
+  The other kind ("nobody said how early to cast it") is stored too but no
+  longer shown: nobody is asked for a casting priority since Phase 9 C.
 
   `rows` is a list of stored gap dicts, exactly as `asdict(Gap)` wrote them.
 {% endcomment %}

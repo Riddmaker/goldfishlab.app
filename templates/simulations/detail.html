@@ -22,55 +22,27 @@
     {% endcomment %}
     <section class="surface-parchment mt-6 p-6">
       <h2 class="font-display text-2xl text-ink-900">What was actually modelled</h2>
-      <p class="mt-2 text-ink-700">
-        <strong class="tabular">{{ run.cards_modelled }}</strong>
-        of {{ run.cards_total }} distinct cards were described in full —
-        <strong class="tabular">{{ run.coverage_pct|floatformat:"1" }}%</strong> coverage.
-        The rest were played with whatever the engine could read off them.
-      </p>
       {% comment %}
-        One number was hiding two very different problems. Measured over every
-        deck in development, three quarters of all gaps were "nobody has said
-        how early to cast it" — so a deck of cards the engine read perfectly
-        scored the same as one it could barely read at all. Split, because the
-        two have different people responsible for them.
+        One number: how much of the deck the engine could read. It used to sit
+        beside a second one - how many cards somebody had said how early to
+        cast - but nobody is asked that any more (Phase 9 C, decision D6), and
+        a score for a question nobody is asked only ever reads as a failing
+        grade. The priority gaps are still stored on every run; they are just
+        not put to anybody.
       {% endcomment %}
-      <dl class="mt-4 grid gap-4 sm:grid-cols-2">
-        <div class="border-l-2 border-parchment-600 pl-4">
-          <dt class="text-ink-900">The engine read it</dt>
-          <dd class="mt-1 text-sm text-ink-700">
-            <strong class="tabular">{{ run.cards_read }}</strong> of
-            {{ run.cards_total }} cards —
-            <strong class="tabular">{{ run.readable_pct|floatformat:"1" }}%</strong>.
-            Where it could not, the limit is this application's, not yours.
-          </dd>
-        </div>
-        <div class="border-l-2 border-parchment-600 pl-4">
-          <dt class="text-ink-900">Somebody had decided</dt>
-          <dd class="mt-1 text-sm text-ink-700">
-            <strong class="tabular">{{ run.cards_judged }}</strong> of
-            {{ run.cards_total }} cards —
-            <strong class="tabular">{{ run.judged_pct|floatformat:"1" }}%</strong>
-            — had the calls made that no card text can supply: how early to cast
-            it, whether it makes a one-land hand keepable. The rest used the
-            engine's default rule.
-          </dd>
-        </div>
-      </dl>
+      <p class="mt-2 text-ink-700">
+        The engine read <strong class="tabular">{{ run.cards_read }}</strong>
+        of {{ run.cards_total }} cards in full —
+        <strong class="tabular">{{ run.readable_pct|floatformat:"1" }}%</strong>.
+        The rest were played with whatever it could read off them; where it
+        could not, the limit is this application's, not yours.
+      </p>
       {% if run.reading_gaps %}
         <details class="mt-4">
           <summary class="cursor-pointer text-ink-900 underline">
             The {{ run.reading_gaps|length }} thing{{ run.reading_gaps|length|pluralize }} the engine could not read
           </summary>
           {% include "simulations/_gap_table.html" with rows=run.reading_gaps %}
-        </details>
-      {% endif %}
-      {% if run.judgement_gaps %}
-        <details class="mt-3">
-          <summary class="cursor-pointer text-ink-900 underline">
-            The {{ run.judgement_gaps|length }} call{{ run.judgement_gaps|length|pluralize }} nobody has made
-          </summary>
-          {% include "simulations/_gap_table.html" with rows=run.judgement_gaps %}
         </details>
       {% endif %}
       <p class="mt-4 text-sm text-ink-700">

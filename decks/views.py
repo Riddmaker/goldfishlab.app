@@ -10,6 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils.cache import patch_vary_headers
 from django.utils.decorators import method_decorator
 from django.views.generic import DeleteView, DetailView, FormView, ListView, View
 from django_ratelimit.decorators import ratelimit
@@ -24,7 +25,7 @@ from decks.forms import ColumnMappingForm, ImportForm
 from decks.importers import columns, tabular
 from decks.models import Deck, DeckCard, DeckImport, PendingImport
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
-from simulations import blindspots, review
+from simulations import blindspots, deck_cards, review
 from simulations.engine import adapter
 from simulations.forms import RunForm
 
@@ -53,7 +54,16 @@ class DeckListView(OwnedDecksMixin, ListView):
 
 
 class DeckDetailView(OwnedDecksMixin, DetailView):
+    """The deck page: what to do first, then what the deck is (Phase 9 D).
+
+    An htmx request from the grid's filter form gets the grid alone - the rest
+    of the page does not change when a chip is clicked, so it is not worked
+    out again. A history restore is a whole page, which htmx asks for with its
+    own header when the back button finds nothing cached.
+    """
+
     template_name = "decks/detail.html"
+    grid_template = "decks/_card_grid.html"
     context_object_name = "deck"
 
     def get_queryset(self):
@@ -65,14 +75,43 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
             .prefetch_related(Prefetch("entries", queryset=entries))
         )
 
+    def get(self, request, *args, **kwargs):
+        headers = request.headers
+        if headers.get("HX-Request") and not headers.get("HX-History-Restore-Request"):
+            self.object = self.get_object()
+            readings = adapter.readings(self.object)
+            response = render(request, self.grid_template,
+                              self.grid_context(self.object, readings))
+        else:
+            response = super().get(request, *args, **kwargs)
+        # One URL, two bodies: a cache must not hand the fragment to a page load.
+        patch_vary_headers(response, ("HX-Request",))
+        return response
+
+    def grid_context(self, deck, readings) -> dict:
+        grid = deck_cards.cards(readings, review.queue(deck, readings))
+        filters = deck_cards.Filters.from_request(self.request.GET)
+        type_bars, category_bars = deck_cards.bars(grid)
+        return {
+            "deck": deck,
+            "grid": deck_cards.shown(grid, filters),
+            "grid_total": len(grid),
+            "filters": filters,
+            "type_bars": type_bars,
+            "category_bars": category_bars,
+        }
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         deck = self.object
+        readings = adapter.readings(deck)
         review.open_questions(deck)
-        context["analysis"] = deck_analysis.analyse(deck)
-        context["review_cards"] = deck_analysis.review_cards(deck)
+        context.update(self.grid_context(deck, readings))
+        analysis = deck_analysis.analyse(deck)
+        context["analysis"] = analysis
+        context["legality_problems"] = sum(1 for verdict in analysis.legality if not verdict.ok)
         context["last_import"] = deck.imports.first()
-        context["curve_max"] = max(context["analysis"].curve.values() or [1]) or 1
+        context["curve_max"] = max(analysis.curve.values() or [1]) or 1
         context["run_form"] = RunForm()
         context["runs"] = deck.runs.all()[:5]
         # Sessions, not games: a playtest is one game played by hand and is
@@ -86,7 +125,7 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         # report; repeating it here would make the deck page the third place
         # that says the same thing, and three copies of a warning is how a
         # warning becomes furniture.
-        spots = blindspots.find(adapter.readings(deck))
+        spots = blindspots.find(readings)
         context["blindspots"] = spots
         context["blindspot_cards"] = len(
             {suspect.oracle_id for spot in spots for suspect in spot.suspects}

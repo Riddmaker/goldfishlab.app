@@ -8,6 +8,7 @@ from django.http import Http404, JsonResponse
 from django.views.generic import TemplateView
 
 from core.tokens import color_families
+from decks.analysis import KARSTEN_MAX, KARSTEN_MIN
 from goldfishlab import celery_app
 from simulations.provenance import SOURCES
 
@@ -58,7 +59,9 @@ class MethodologyView(TemplateView):
     def get_context_data(self, **kwargs):
         # Where a card's value can come from - the tune page's old preamble,
         # read off the same table the card pages label their rows with.
-        return {**super().get_context_data(**kwargs), "sources": SOURCES}
+        # The land band the deck page draws, from the constant it judges by.
+        return {**super().get_context_data(**kwargs), "sources": SOURCES,
+                "karsten_min": KARSTEN_MIN, "karsten_max": KARSTEN_MAX}
 
 
 class TermsView(TemplateView):

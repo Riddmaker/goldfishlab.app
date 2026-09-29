@@ -31,5 +31,4 @@ urlpatterns = [
         views.AnnotationDeleteView.as_view(),
         name="forget",
     ),
-    path("decks/<uuid:pk>/priority/", views.PriorityEditView.as_view(), name="priority"),
 ]

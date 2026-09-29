@@ -6,15 +6,13 @@ POST is the difference between a simulation and a denial of service. The plan's
 own limits are checked again in `services.start_run`; this form is the friendly
 first line, not the security boundary.
 
-`AnnotationForm` and `PriorityForm` write the judgements the engine cannot
-derive. The rule they both obey, and the one worth reading `simulations/
-annotations.py` for: **an empty field means "no opinion" and removes the
-override.** Every field is therefore three-state - yes, no, and nobody said -
-and none of them is a plain checkbox, because a checkbox cannot say the third
-thing and would quietly save "no" for every card it was never asked about.
+`AnnotationForm` writes the judgements the engine cannot derive. The rule it
+obeys, and the one worth reading `simulations/annotations.py` for: **an empty
+field means "no opinion" and removes the override.** Every field is therefore
+three-state - yes, no, and nobody said - and none of them is a plain checkbox,
+because a checkbox cannot say the third thing and would quietly save "no" for
+every card it was never asked about.
 """
-
-from dataclasses import dataclass
 
 from django import forms
 
@@ -263,68 +261,3 @@ class AnnotationForm(forms.Form):
         if "mana_activation" in overrides:
             initial["mana_activation"] = overrides["mana_activation"]
         return initial
-
-
-@dataclass(frozen=True)
-class PriorityChoice:
-    """One row of the casting-order screen.
-
-    `current` is the **stored override only**, never the engine's default: a
-    box pre-filled with 38 would turn "nobody has said" into a judgement the
-    moment anybody saved the page. `reading` carries what the engine does
-    today, which the template shows in the column beside it.
-    """
-
-    oracle_id: object
-    label: str
-    current: int | None = None
-    reading: object = None
-
-
-class PriorityForm(forms.Form):
-    """The whole deck's casting order, in one POST.
-
-    The priority list *is* the deck's plan, and a generic default - ramp, then
-    draw, then curve out - is right for a good many Commander decks and
-    actively wrong for any deck that needs to hold a specific pair of cards
-    until both are castable. So it has to be editable, and editable for the
-    whole deck at once: setting thirty priorities one screen at a time is a
-    feature nobody would finish using.
-
-    One integer per card, each optional. Blank means what it means everywhere
-    else here - nobody has said, so the engine's own rule applies.
-    """
-
-    #: Field names are `priority-<oracle id>`. Built from the deck, so a POST
-    #: naming a card that is not in it has nowhere to land.
-    PREFIX = "priority-"
-
-    def __init__(self, choices, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.choices = list(choices)
-        for choice in self.choices:
-            self.fields[self._name(choice.oracle_id)] = forms.IntegerField(
-                required=False, min_value=0, max_value=100,
-                label=choice.label, initial=choice.current,
-            )
-
-    def rows(self):
-        """`(choice, bound field)` pairs, in the order the deck was given in.
-
-        Paired here rather than looked up in the template: a Django template
-        cannot index a dict by a loop variable without a custom filter, and a
-        template filter is a lot of machinery to buy for one column.
-        """
-        for choice in self.choices:
-            yield choice, self[self._name(choice.oracle_id)]
-
-    def priorities(self) -> dict:
-        """`{oracle_id: int | None}` for every card the form was built with."""
-        return {
-            choice.oracle_id: self.cleaned_data.get(self._name(choice.oracle_id))
-            for choice in self.choices
-        }
-
-    @classmethod
-    def _name(cls, oracle_id) -> str:
-        return f"{cls.PREFIX}{oracle_id}"

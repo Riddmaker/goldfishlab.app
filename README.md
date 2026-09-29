@@ -104,7 +104,7 @@ Then, for a deck to look at locally:
 
 ## Playing a deck by hand
 
-Open a deck and press **Deal a hand**. There is no management command for this on purpose: a
+Open a deck and press **Draw a hand**. There is no management command for this on purpose: a
 playtest is a session somebody is sitting in front of, not a batch job.
 
 The simulation answers "what usually happens". The playtest is for the turn you want to look at
@@ -318,6 +318,13 @@ Three rules hold the layer together, and all three are about not inventing a jud
   Skip, Back). It never blocks a simulation. The count is stored on the deck and forgotten by
   anything that could change it: an import, a new commander, an answer saved or forgotten, a
   profile rebuild.
+- **The deck page shows the deck, it does not describe it.** Simulate and Draw a hand come first
+  (games and turns in a folded "Options"), then four tiles - lands, average mana value, bracket,
+  legality - with the reasons behind a "Why?". The bars count every card type and the eight
+  categories, with a faint band for a common template (never a verdict). The cards are a grid of
+  pictures with filter chips and a search over name and text; the filters are a plain GET form,
+  and htmx only swaps the grid (`simulations/deck_cards.py`). Types and categories are the ones
+  the simulation's "What you drew" counts, so the page and the report cannot disagree.
 
 Alongside it, the **"what this simulation does not model"** panel names the limitations that
 more games will never fix — cards that need an opponent, mana sources nobody has pinned down,

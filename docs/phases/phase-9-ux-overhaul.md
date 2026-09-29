@@ -1,8 +1,8 @@
 # Phase 9 — UX overhaul: fewer words, more pictures, decks only
 
 **Status: IN PROGRESS (plan approved 2026-09-28, all build decisions made the same day - see
-"Decisions").** Batches A, A2, B, C and E are live, C2 (marker + review) is built (see "... - what
-was built"); next is D - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
+"Decisions").** Batches A, A2, B, C, C2 and E are live, D (deck page) is built (see "... - what
+was built"); next is F - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
 `RESUME.md` is everything needed to continue.
 
 ## Why
@@ -360,6 +360,39 @@ Top to bottom:
 4. **Card grid with filter chips and search** - chips for every type and category ("Creature",
    "Ramp", "Removal", ...), a search box over name and text. The categories are searchable here.
 5. Combos, legality detail, earlier runs and playtests: collapsed sections.
+
+### D - what was built (2026-09-29)
+
+Decisions by the user: a card in the grid opens its own card page (the one place it can be
+corrected); the tune page ("What the engine reads") stays until I decides whether the grid makes
+it redundant. Template + view + CSS only - no migration, no engine change.
+
+* **`simulations/deck_cards.py`** (new): `cards(readings, questions)` - the grid, commander left
+  out, open cards first; `Filters.from_request` (`?type=&cat=&q=`, unknown values ignored, query
+  whitespace-collapsed and cut at `QUERY_MAX` = 100, matched in Python over name + Oracle text,
+  case-folded - never SQL); `bars(grid)` - one row per printed type the deck has and always all
+  eight categories, counted by quantity on one shared scale; `TEMPLATE` - the band. Types are
+  `Card.types`, categories `Card.categories`, so the page and "What you drew" (E) sort a card
+  alike, a role the owner replaced included. The land band is `KARSTEN_MIN`-`KARSTEN_MAX`
+  (35-38, the constant the land tile judges by - the vocabulary table above said 36-38).
+* **`DeckDetailView`**: one `adapter.readings` per request, shared by grid, queue and blind
+  spots. An htmx request (not a history restore) gets `decks/_card_grid.html` alone and skips
+  the analysis; every response carries `Vary: HX-Request`. `review_cards` is no longer read by
+  the page (left in `decks/analysis.py` for I).
+* **`decks/detail.html`** rewritten: header with commander picture, marker, **Simulate** (the
+  run form, selects folded in "Options", which also holds the playtest's 1-v-1 box via
+  `form="deal-hand"`) and **Draw a hand**; no commander -> the select form at the top. Four
+  tiles, reasons behind "Why?". Mana curve beside "What is in it" (`decks/_bar.html`, a row
+  links to its filter). Card grid with radio chips (the `seen-chip` styles from E) and a search
+  box - a plain GET form; htmx swaps only `#card-grid` and pushes the URL. Folds: legality (open
+  when there is a problem, the tile links to it), combos, "What the engine cannot model" (the
+  old coverage paragraph, blind spots, import match), earlier runs and games. `#play` kept.
+* CSS: `.tune-card-count`, `.deck-bar-*`; `.tune-grid` three across on a phone (two made a
+  69-card deck ~9000 px). Fixed on the way: the mana curve's longest bar started left of the
+  others (a full-width bar squeezed the label column).
+* Methodology "What you drew" names the template band; README bullet.
+* Tests: `tests/test_deck_page.py` (17); the coverage-panel test in `test_decks_views.py` now
+  looks for the fold.
 
 ### E — Simulation: what was drawn, by category and by mana value
 

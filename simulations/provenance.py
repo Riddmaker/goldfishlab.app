@@ -28,6 +28,7 @@ simulation uses - so a panel and a run cannot drift apart.
 
 from dataclasses import dataclass
 
+from simulations import gaps as gaps_module
 from simulations.annotations import BY_KEY, format_mana
 from simulations.engine import adapter
 
@@ -149,6 +150,13 @@ ANNOTATION_KEY = {
     "goldfish_castable": "goldfish_castable",
 }
 
+#: Rows whose engine default is a fine answer rather than a weakness. The cast
+#: priority is the one: nobody is asked for it since Phase 9 C (decision D6 -
+#: the product is statistics about a deck, not steering a game), so flagging
+#: "the engine's own rule" as worth checking would nag about a question the
+#: interface no longer asks. The row still says who decided.
+SETTLED_BY_DEFAULT = frozenset({"effective_priority"})
+
 
 @dataclass(frozen=True)
 class Row:
@@ -174,7 +182,8 @@ class Row:
     @property
     def is_weak(self) -> bool:
         """Worth a second look: a prose pattern, or nobody's decision at all."""
-        return self.source in {"regex", "engine"}
+        return (self.source in {"regex", "engine"}
+                and self.key not in SETTLED_BY_DEFAULT)
 
     @property
     def editable_as(self) -> str:
@@ -204,18 +213,18 @@ class CardProvenance:
         return self.reading.gaps
 
     @property
-    def has_gaps(self) -> bool:
-        return self.reading.has_gaps
-
-    @property
     def unreadable(self) -> bool:
         """The engine could not read something off this card."""
         return self.reading.unreadable
 
     @property
-    def unjudged(self) -> bool:
-        """A call only the deck's author can make is still open."""
-        return self.reading.unjudged
+    def reading_gaps(self) -> list:
+        """The gaps the engine could not read. The only ones the pages show.
+
+        The other kind - "nobody said how early to cast it" - is still recorded
+        on every run, but it is no longer a question put to anybody (Phase 9 C).
+        """
+        return gaps_module.of_kind(self.gaps, gaps_module.READING)
 
     @property
     def yours(self) -> list[Row]:

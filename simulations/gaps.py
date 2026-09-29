@@ -29,6 +29,12 @@ already stored on finished runs and open playtest sessions. That is deliberate:
 stored gaps are a record of what the engine saw, they are never rewritten, and
 a migration that back-filled a `kind` column would have been a migration that
 edited history. `kind_of` reads the field name, which those rows already carry.
+
+**Since Phase 9 C (2026-09-29, decision D6) only the ``reading`` kind is shown.**
+Nobody is asked for a casting priority any more - the product is statistics
+about a deck, not steering a game, and the engine's default (cheapest first) is
+an answer nobody has to give. The ``judgement`` gaps are still recorded on every
+run, so stored rows keep their meaning; they are simply not put to anybody.
 """
 
 #: The engine could not read the card. Ours to fix.

@@ -31,7 +31,7 @@ from decks.models import Deck
 from simulations import blindspots, provenance, report, services
 from simulations.engine import adapter
 from simulations.engine.adapter import DECK_SCOPE, USER_SCOPE
-from simulations.forms import AnnotationForm, PriorityChoice, PriorityForm, RunForm
+from simulations.forms import AnnotationForm, RunForm
 from simulations.models import SimulationRun
 
 
@@ -144,11 +144,12 @@ class RunCancelView(OwnedRunsMixin, View):
 
 # --- the honesty layer ------------------------------------------------------
 #
-# Three screens, and the reason they exist: a result nobody can check is a
+# Two screens, and the reason they exist: a result nobody can check is a
 # result nobody should believe. The tune page says what the engine reads off
 # every card and where each reading came from; the card page lets a human
-# disagree; the priority page lets them say what the deck is actually trying
-# to do, which is the one thing no amount of card text implies.
+# disagree. (A third, the deck's casting order, went in Phase 9 C: the product
+# is statistics about a deck, not steering a game, and the engine's own rule -
+# cheapest first - is an answer nobody has to be asked for.)
 #
 # Ownership works the same way as everywhere else in this application: the
 # deck is fetched filtered by owner, and the card is fetched filtered by deck
@@ -185,10 +186,9 @@ class DeckScopedView(LoginRequiredMixin, View):
 class DeckTuneView(DeckScopedView):
     """What the engine reads off every card in one deck.
 
-    The page that answers "why does my deck simulate like that". Cards with
-    something unresolved come first, because they are the ones where the
-    answer is "because nobody told it" - and a list sorted by name would bury
-    them among thirty Swamps.
+    The page that answers "why does my deck simulate like that". Cards the
+    engine could not read come first - a list sorted by name would bury them
+    among thirty Swamps.
     """
 
     def get(self, request, pk):
@@ -200,16 +200,10 @@ class DeckTuneView(DeckScopedView):
             "deck": deck,
             "entries": sorted(
                 entries,
-                # Cards the engine could not read come first, then the ones
-                # only the author can answer for. Two different jobs, and the
-                # first one is ours rather than theirs.
-                key=lambda entry: (not entry.unreadable, not entry.unjudged,
-                                   entry.name.lower()),
+                key=lambda entry: (not entry.unreadable, entry.name.lower()),
             ),
             "cards_total": len(entries),
-            "cards_with_gaps": sum(1 for entry in entries if entry.has_gaps),
             "cards_unreadable": sum(1 for entry in entries if entry.unreadable),
-            "cards_unjudged": sum(1 for entry in entries if entry.unjudged),
             "blindspots": spots,
             "sources": provenance.SOURCES,
         })
@@ -304,70 +298,3 @@ class AnnotationDeleteView(DeckScopedView):
         else:
             messages.info(request, "There was nothing recorded for that card.")
         return redirect(reverse("simulations:tune", args=[deck.pk]))
-
-
-class PriorityEditView(DeckScopedView):
-    """The deck's casting order, all of it on one screen.
-
-    Ordered by what the engine will actually do, not by name: the page is for
-    seeing that the plan is wrong, and an alphabetical list hides that
-    completely. Lands are left out - the engine never casts one.
-    """
-
-    def get(self, request, pk):
-        deck = self.get_deck(request, pk)
-        return render(request, "simulations/priority.html", {
-            "deck": deck,
-            "form": PriorityForm(self._choices(deck)),
-        })
-
-    def post(self, request, pk):
-        deck = self.get_deck(request, pk)
-        form = PriorityForm(self._choices(deck), request.POST)
-
-        if not form.is_valid():
-            messages.error(
-                request, "A priority has to be a whole number between 0 and 100."
-            )
-            return render(
-                request,
-                "simulations/priority.html",
-                {"deck": deck, "form": form},
-                status=400,
-            )
-
-        changed = services.set_priorities(deck=deck, priorities=form.priorities())
-        messages.success(
-            request,
-            f"{changed} card{'' if changed == 1 else 's'} changed. "
-            "The next run will use the new order."
-            if changed else "Nothing changed.",
-        )
-        return redirect(reverse("simulations:priority", args=[deck.pk]))
-
-    @staticmethod
-    def _choices(deck) -> list[PriorityChoice]:
-        """Every card the agent might actually cast, best-first.
-
-        A land has no casting order and a card with no legal target against
-        nobody never comes up, so neither belongs on a screen about what to
-        cast first.
-        """
-        stored = services.deck_priorities(deck)
-        castable = [
-            reading for reading in adapter.readings(deck)
-            if not reading.card.is_land and reading.card.goldfish_castable
-        ]
-        castable.sort(
-            key=lambda reading: (-reading.effective_priority,
-                                 reading.oracle_card.front_name.lower())
-        )
-        return [
-            PriorityChoice(
-                oracle_id=reading.oracle_card.pk,
-                label=reading.oracle_card.front_name,
-                current=stored.get(reading.oracle_card.pk),
-                reading=reading,
-            )
-            for reading in castable
-        ]

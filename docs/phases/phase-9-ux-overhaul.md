@@ -1,9 +1,9 @@
 # Phase 9 — UX overhaul: fewer words, more pictures, decks only
 
 **Status: IN PROGRESS (plan approved 2026-09-28, all build decisions made the same day - see
-"Decisions").** Batches A and A2 are live, B is built (see "... - what was built"); next
-is C. Compaction-safe: this file plus `RESUME.md` is everything needed to
-continue.
+"Decisions").** Batches A, A2 and B are live, C (priority out) is built (see "... - what was
+built"); next is E, then C2 - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
+`RESUME.md` is everything needed to continue.
 
 ## Why
 
@@ -251,14 +251,64 @@ The production database has no collection rows (fresh since 2026-09-28), so this
   imports by exact printing); the import quota (it always counted deck imports too).
 * 1053 fast tests green (1091 minus the collection's own, plus `test_the_collection_is_gone`).
 
-### C — Deck status and the card review ("annotate") redesign
+### C — The casting priority leaves the interface (re-planned 2026-09-29, small)
+
+Why (measured 2026-09-29 on the local decks): of the 183 cards in the Chainer deck, 119 carry an
+open question, and every one of those 119 is `priority` ("no one said how early to cast it").
+A "N cards need you" marker counting them would say "119" on every deck - useless and
+discouraging. And the user does not want to direct a game ("für was ist denn das?"); they want
+statistics over the deck: what gets drawn, by type, by community tag, by mana value (= E). The
+priority only decides which spell the goldfish casts first when several are affordable; the
+engine's default rule (cheapest first, `40 - mana value`) is a fine answer nobody has to give.
+
+1. **No priority question anywhere in the UI.** The priority gap is no longer shown or counted:
+   not on the tune page ("waiting on a call only you can make"), not on the report (the
+   "calls nobody made" table), not in the blind-spot panel. The engine keeps recording it
+   (stored runs and the parity test stay meaningful); only the pages stop showing it.
+2. **The casting-order page goes** (`simulations:priority`, `PriorityEditView`, `PriorityForm`,
+   `priority.html`, its links). Stored priority annotations keep working (the reference deck
+   and `builtin` rows use them), they are just no longer edited through a screen of their own.
+   The "How early to cast it" field moves behind "More" on the card page.
+3. Docs: methodology page wording, README, the gaps docstring (`simulations/gaps.py`).
+   Tests for the removed page (404) and that no report or tune page mentions the priority gap.
+
+### C - what was built (2026-09-29)
+
+* `simulations:priority` is gone: `PriorityEditView`, `PriorityForm`/`PriorityChoice`,
+  `services.deck_priorities`/`set_priorities`, `priority.html`, its links on the deck page and
+  the tune page, its two screenshots. `/decks/<id>/priority/` answers 404.
+* The engine still **records** the priority gap (`_record_gaps` unchanged, so stored runs and
+  the golden parity test mean what they meant) - it is just never shown: the run page has one
+  score ("The engine read X of Y cards"), the judgement table and "Somebody had decided" are
+  gone; the tune page counts and sorts by unreadable only; the card page lists
+  `CardProvenance.reading_gaps`. The provenance row "Cast priority" stays but is no longer
+  flagged "worth checking" (`provenance.SETTLED_BY_DEFAULT`).
+* The card form keeps "How early to cast it" for now (C2 moves it behind "More"). Stored and
+  built-in priorities keep working.
+* Methodology, README and `simulations/gaps.py` say it: one score, cheapest first, why.
+* Tests: the page is 404; neither tune nor card page puts the priority question; the run page
+  shows "The engine read" and no "nobody has made".
+
+### C2 — Deck status and the card review ("annotate") redesign (after E)
+
+Counts **only cards whose mana the engine could not read** (the `reading` gaps: ~25 of 183 in
+the Chainer deck, a handful elsewhere) - optional, never blocking. Decided 2026-09-29:
+
+* A card counts as answered once the user has said anything about it - a saved value, or a new
+  **"Looks right"** button (`CardAnnotation.confirmed`, a row carrying only that flag is kept,
+  not deleted as empty). Needed because many reasons (hybrid pips, cost X) cannot be fixed by any
+  field, so the engine's warning stays after a save.
+* `Deck.open_questions` is nullable: NULL = not computed. Import, commander change, annotation
+  save/forget (user scope: every deck of that user holding the card) and
+  `ingest_scryfall --profiles` (all decks) set it to NULL; the list and deck page compute it when
+  they find NULL. No data migration, nothing stale.
 
 1. **A red marker per deck that is not fully read**, on the deck list and the deck page:
-   "3 cards need you" (red) or "Ready" (green). Cheap: a cached `Deck.open_questions` count,
-   recomputed on import, commander change and annotation save/forget (one function in
-   `decks/services.py`, used by all four). Simulating and drawing stay possible either way
-   (the user's "or not even").
-2. **Review flow, one card at a time**, entered from the marker:
+   "3 cards need you" (red) or "Ready" (green). One function in `decks/services.py`. Simulating
+   and drawing stay possible either way (the user's "or not even").
+2. **Review flow, one card at a time**, entered from the marker (stable queue: every card with
+   a reading gap, by name, answered ones ticked; after the last open one back to the deck,
+   "Ready"):
    * Right: the card image, and the card text underneath it (Oracle text, readable, not only
      the picture).
    * Left: "What does this card do?" - dropdowns and number fields built from the existing
@@ -360,7 +410,7 @@ record which cards were seen. New:
 
 ### H — The text pass
 
-Every remaining page against principle 1: plans, account data, run detail, priority page,
+Every remaining page against principle 1: plans, account data, run detail,
 legal pages excepted (they are legal text). Removed explanations land on the methodology page.
 
 ### I — Clean-up (last, own PR; added at the user's request 2026-09-28)
@@ -381,6 +431,11 @@ repository next (a person or an agent) reads only what is true.
      before/after.
    * `requirements*.txt`: whatever nothing imports any more; `pip-audit` clean.
    * Celery tasks and beat entries of removed features; admin registrations of removed models.
+   * Left by C (priority out): the judgement half of the score API that no page reads any more -
+     `SimulationRun.judgement_gaps` / `cards_unjudged` / `cards_judged` / `judged_pct`, the same
+     on `PlaytestSession` and `adapter.Conversion` (`cards_unjudged`, `judged`),
+     `Reading.unjudged` - and their tests in `test_gaps.py`. `annotations.patch` stays if C2's
+     review flow uses it (it posts only the fields it shows), else it goes too.
 2. **Tests.** Tests of removed behaviour go; duplicate fixtures merge; every batch's new code
    has its tests. The fast suite took 6.5 minutes on 2026-09-28 - the 20 slowest
    (`--durations=20`) get a look.
@@ -404,7 +459,10 @@ repository next (a person or an agent) reads only what is true.
 
 ## Order (confirmed by the user 2026-09-28)
 
-A -> A2 -> B -> C -> D -> E -> F -> G -> H -> I, one PR each. A, A2 and B first because they are
+A -> A2 -> B -> C -> D -> E -> F -> G -> H -> I, one PR each. **Re-ordered 2026-09-29** (user:
+"nimm die drei punkte und passe den plan an"): **A -> A2 -> B -> C (priority out) -> E (what was
+drawn) -> C2 (status marker + review) -> D -> F -> G -> H -> I** - the draw statistics are the
+value the user asked for, so they come before the review flow. A, A2 and B first because they are
 small, remove the worst first impressions and shrink the code the later batches touch. E before F
 because the charts are the paid value; F and G are the "wow" for newcomers. I (clean-up) closes
 the phase, at the user's request.
@@ -418,6 +476,7 @@ the phase, at the user's request.
 | D3 | Launch timing (announcing the site) | Open - the user's call, does not block any batch. Recommended: after A-C. |
 | D4 | Order | **As proposed** (A2 inserted for the mail findings). |
 | D5 | Email confirmation | **Decided 2026-09-28: link** (not a 6-digit code). One click, "✓ Email confirmed", signed in when it is the same browser. Built as an auto-submitting confirm page, not as confirm-on-GET - see A2.2. |
+| D6 | Casting priority | **Decided 2026-09-29: out of the interface** (engine default rule stays). The simulation's purpose is deck statistics - curve, what is drawn by type/tag/mana value - not steering a game. See C. The mana simulation itself stays. |
 
 ## Not in this phase
 
@@ -437,6 +496,11 @@ JavaScript charting library, a native app.
   signed)`** and SCL 5. The DKIM key is published (selector `20260928`), so Infomaniak is not
   signing what the application sends through SMTP - DKIM signing has to be switched on for the
   domain in the Infomaniak Manager (the user's step), then one mail to Hotmail checked for
-  `dkim=pass`.
+  `dkim=pass`. **Done 2026-09-29:** DKIM enabled; a fresh mail passes spf, dkim
+  (`d=goldfishlab.app`), dmarc and compauth - and still lands in Junk. Authentication is
+  complete; what is left is the new domain's reputation on a shared sending IP. Not code: mark
+  "Not junk" and add the sender to safe senders; move DMARC to `p=quarantine` after about two
+  weeks of clean reports; a dedicated sending service only if Junk persists for weeks (rejected
+  by the user on 2026-09-22).
 * Optional: Cloudflare redirect rule `www` -> apex.
 * The styleguide change and the `prod.py` comment shipped with batch A's PR.

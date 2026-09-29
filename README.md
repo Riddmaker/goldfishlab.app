@@ -30,7 +30,7 @@ combo needs it in, the added card is named on the page because the simulated dec
 larger than the real one, and a combo that needs *any creature with persist* gets the requirement
 in words and no percentage at all.
 
-The coverage score every result carries is **two numbers, not one**: how much of the deck the engine could *read*, which is this application's limit to fix, and how much of it somebody has *decided*, which only the deck's author can answer. They were one number until they were measured, and three quarters of every gap turned out to be the second kind.
+Every result says **how much of the deck the engine could read** - this application's limit to fix, with every gap listed. It used to be two numbers, the second being how much of the deck somebody had given a casting order; three quarters of every gap turned out to be that question, and since Phase 9 C nobody is asked it any more: the engine casts the cheapest affordable spell first (plus a built-in order for a few dozen well-known cards), because the product is statistics about a deck, not steering a game.
 See [docs/phases/](docs/phases/README.md) for how it was built, phase by phase.
 
 **Phase 8's local half landed on 2026-09-22**: a Content-Security-Policy on every response, rate limits that are counted somewhere shared rather than per worker, an upload row ceiling, `pip-audit` in CI, env-gated Sentry, JSON logging in production, terms and a privacy policy, a data export and an account deletion that both actually work, and an [`/about/methodology`](docs/phases/phase-8-launch.md) page saying plainly what is simulated and what is not.
@@ -291,8 +291,8 @@ simulation says what it could not model, and lets you fix it.
 Every deck has a **"what the engine reads"** page listing each card as the engine will actually
 play it, with the source of every value: a Scryfall field, the community tagger, a regular
 expression over English prose, a built-in default, something you said — or **nobody**, where the
-engine simply applied its own rule. That last one is the point. "Cast priority 38" looks like a
-decision until it says the engine made it up out of the mana value.
+engine simply applied its own rule. That last one is the point. "Enters tapped: no" looks like a
+fact until it says a regular expression read it off the card text.
 
 Three rules hold the layer together, and all three are about not inventing a judgement:
 

@@ -30,7 +30,7 @@ these files describe execution.
 | 6 | [phase-6-billing.md](phase-6-billing.md) | **Complete** (2026-09-20): collection, printing catalogue and prices, Stripe, and §2 closed by replacing seven planned parsers with one generic CSV importer — [importers.md](importers.md) |
 | 7 | [phase-7-combos.md](phase-7-combos.md) | **§1 and §2 complete** (2026-09-21): combos looked up per deck and cached, **no bulk mirror** — 656.8 MB, no gzip, 70% image URLs; then **turns-to-assemble** for both the combos a deck holds and the ones it is one card short of, the second measured on the deck **plus** that card. §3 and §4 need an API key nobody has |
 | 8 | phase-8-launch.md (operator-only) | **Local half complete (2026-09-22); live at goldfishlab.app since 2026-09-28** (a few checks and Stripe still open) — **the only phase that touches production** |
-| 9 | [phase-9-ux-overhaul.md](phase-9-ux-overhaul.md) | **In progress** (2026-09-28): decks only, fewer words, more pictures, a guest trial. Batches A (favicon, header, import page) and A2 (mails, confirmation link) done |
+| 9 | [phase-9-ux-overhaul.md](phase-9-ux-overhaul.md) | **In progress** (2026-09-28): decks only, fewer words, more pictures, a guest trial. Batches A (favicon, header, import page) and A2 (mails, confirmation link) done; B (collection removed) built |
 
 **Update the status column when a phase starts and when it finishes.** Phases 0–4 are detailed
 and each ends with a "What actually happened" account of where the plan met reality; phases

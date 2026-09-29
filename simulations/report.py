@@ -18,6 +18,7 @@ which runs on a 128 MiB cloudlet.
 from dataclasses import dataclass
 from math import comb
 
+from simulations import charts
 from simulations.engine import runner
 
 #: Cards in an opening hand, before any mulligan.
@@ -281,6 +282,114 @@ def milestones(result: dict) -> list[dict]:
     return rows
 
 
+#: The categories a Commander deck is sorted into, in the order a deck list
+#: sorts them, and what the page calls each (Phase 9, "The category
+#: vocabulary"). The keys are `simulation.analysis.SEEN_CATEGORIES`, and a test
+#: holds the two lists together.
+SEEN_ROLES = (
+    ("ramp", "Ramp"),
+    ("draw", "Card draw"),
+    ("removal", "Removal"),
+    ("wipe", "Board wipe"),
+    ("tutor", "Tutor"),
+    ("counterspell", "Counterspell"),
+    ("protection", "Protection"),
+    ("recursion", "Recursion"),
+)
+
+
+@dataclass(frozen=True)
+class CurveBar:
+    """One mana value in the "what you drew" curve, at one turn."""
+
+    label: str
+    mean: float
+    #: Height as a share of the tallest bar on the chart, 0-100.
+    height: float
+
+
+def seen(result: dict) -> dict | None:
+    """What the player had seen by each turn, as the page draws it.
+
+    `None` for a run made before the engine counted it (Phase 9 E), and the
+    page says "run again" - an old run is not a deck that never draws ramp.
+
+    Three pictures:
+
+    * **roles** - the share of games that had seen at least one card of the
+      category by that turn. "Ramp by turn two" is a yes/no question per game,
+      and the share is its answer.
+    * **types** - how many cards of each type had been seen, on average.
+      Almost every game sees a creature by turn one, so the share would be a
+      flat line at the top; the count is the part that differs between decks.
+    * **curve** - the same count by mana value, spells only, one set of bars
+      per turn.
+
+    A category the deck has no card in has no line: an absent line is the
+    honest picture of "none in the deck", where a line along the bottom would
+    read as "never drawn".
+    """
+    groups = result.get("seen")
+    if groups is None:
+        return None
+    games = result["iterations"]
+    turns = result["turns"]
+    x_labels = [str(turn) for turn in range(1, turns + 1)]
+
+    def shares(key):
+        return [_pct(count, games) for count in groups[key]["games"]]
+
+    def means(key):
+        return [count / games if games else 0.0 for count in groups[key]["cards"]]
+
+    role_series = [(key, label, shares(f"role:{key}"))
+                   for key, label in SEEN_ROLES if f"role:{key}" in groups]
+    type_series = [(kind, kind.title(), means(f"type:{kind}"))
+                   for kind in runner.SEEN_CARD_TYPES if f"type:{kind}" in groups]
+    largest = max((value for _, _, values in type_series for value in values),
+                  default=0.0)
+    count_top, count_ticks = charts.count_scale(largest)
+
+    return {
+        "roles": charts.line_chart(role_series, x_labels, top_value=charts.PERCENT_TOP,
+                                   y_ticks=charts.PERCENT_TICKS),
+        "types": charts.line_chart(type_series, x_labels, top_value=count_top,
+                                   y_ticks=count_ticks),
+        "curve": _curve(groups, games, turns),
+        "turns": x_labels,
+    }
+
+
+def _curve(groups: dict, games: int, turns: int) -> list[dict]:
+    """Per turn, the mean number of spells seen at each mana value.
+
+    Every bar on every turn shares one scale - the tallest bar of the last
+    turn, which is the tallest there is, because nothing seen is ever unseen.
+    Switching turns then shows the curve growing rather than re-scaling itself
+    to look the same each time.
+    """
+    cap = runner.SEEN_MV_CAP
+    labels = [(f"mv:{value}", str(value)) for value in range(cap)]
+    labels.append((f"mv:{cap}", f"{cap}+"))
+
+    def mean(key, turn):
+        entry = groups.get(key)
+        return entry["cards"][turn] / games if entry and games else 0.0
+
+    tallest = max((mean(key, turns - 1) for key, _ in labels), default=0.0)
+    return [
+        {
+            "turn": turn + 1,
+            "bars": [
+                CurveBar(label=label, mean=mean(key, turn),
+                         height=100.0 * mean(key, turn) / tallest if tallest else 0.0)
+                for key, label in labels
+            ],
+        }
+        for turn in range(turns)
+    ]
+
+
 def annotations_changed_since(run) -> bool:
     """Whether anybody has recorded a judgement since this run was computed.
 
@@ -320,6 +429,7 @@ def build(run) -> dict:
         "color_columns": columns,
         "color_rows": color_rows(result, columns),
         "milestones": milestones(result),
+        "seen": seen(result),
         "combos": combo_measurements(run),
         "percentiles": PERCENTILES,
         "library_size": run.library_size,

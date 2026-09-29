@@ -1,0 +1,41 @@
+{% comment %}
+  One line chart, drawn by the server (Phase 9 E). The coordinates come from
+  `simulations/charts.py`; this file only places them.
+
+  The chips switch lines on and off with no JavaScript: each is a checkbox,
+  and `.seen-chart:has(.seen-toggle-N:not(:checked))` in assets/css/input.css
+  hides line N. With CSS switched off every line simply shows.
+
+  Takes: chart (a charts.LineChart), name (unique on the page, for the ids),
+  title (what the chart shows, for a screen reader).
+{% endcomment %}
+<div class="seen-chart mt-3">
+  <div class="seen-chips" role="group" aria-label="Lines to show">
+    {% for line in chart.lines %}
+      <input type="checkbox"
+             id="{{ name }}-{{ line.key }}"
+             class="seen-toggle seen-toggle-{{ line.index }}"
+             checked>
+      <label for="{{ name }}-{{ line.key }}" class="seen-chip">
+        <span class="seen-swatch seen-swatch-{{ line.index }}" aria-hidden="true"></span>{{ line.label }}
+      </label>
+    {% endfor %}
+  </div>
+  <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}"
+       class="seen-svg"
+       role="img"
+       aria-label="{{ title }}">
+    {% for tick in chart.y_ticks %}
+      <line x1="{{ chart.left }}" x2="{{ chart.right }}" y1="{{ tick.position }}" y2="{{ tick.position }}" class="seen-grid" />
+      <text x="{{ chart.left|add:-4 }}" y="{{ tick.position }}" class="seen-axis" text-anchor="end" dominant-baseline="middle">{{ tick.label }}</text>
+    {% endfor %}
+    {% for tick in chart.x_ticks %}
+      <text x="{{ tick.position }}" y="{{ chart.height|add:-6 }}" class="seen-axis" text-anchor="middle">{{ tick.label }}</text>
+    {% endfor %}
+    {% for line in chart.lines %}
+      <polyline points="{{ line.points }}" class="seen-line seen-line-{{ line.index }}">
+        <title>{{ line.label }}</title>
+      </polyline>
+    {% endfor %}
+  </svg>
+</div>

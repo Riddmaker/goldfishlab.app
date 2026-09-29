@@ -4,6 +4,88 @@
   a bar is a div with a width, which needs no charting library, no JavaScript,
   and works in a browser with both switched off.
 {% endcomment %}
+<section id="seen" class="surface-parchment mt-6 p-6">
+  <h2 class="font-display text-2xl text-ink-900">What you drew</h2>
+  {% if report.seen %}
+    <p class="mt-1 text-sm text-ink-700">
+      Every card you had so far: the opening hand you kept, each draw, each card a tutor found.
+    </p>
+    {% if report.seen.roles.lines %}
+      <h3 class="font-display mt-5 text-lg text-ink-900">By category</h3>
+      <p class="text-sm text-ink-700">Games with at least one, by the end of each turn.</p>
+      {% include "simulations/_line_chart.html" with chart=report.seen.roles name="seen-role" title="Share of games with at least one card of each category, by turn" %}
+    {% endif %}
+    {% if report.seen.types.lines %}
+      <h3 class="font-display mt-6 text-lg text-ink-900">By card type</h3>
+      <p class="text-sm text-ink-700">Cards seen per game, on average.</p>
+      {% include "simulations/_line_chart.html" with chart=report.seen.types name="seen-type" title="Average number of cards of each type seen, by turn" %}
+    {% endif %}
+    <h3 class="font-display mt-6 text-lg text-ink-900">Mana value of the spells you drew</h3>
+    <p class="text-sm text-ink-700">Spells per game, on average. A bump on the right is a hand that waits.</p>
+    <div class="seen-curve mt-3">
+      <div class="seen-chips" role="radiogroup" aria-label="By the end of turn">
+        {% for step in report.seen.curve %}
+          <input type="radio"
+                 name="seen-curve-turn"
+                 id="seen-turn-{{ step.turn }}"
+                 class="seen-toggle seen-pick-{{ step.turn }}"
+                 {% if forloop.last %}checked{% endif %}>
+          <label for="seen-turn-{{ step.turn }}" class="seen-chip">Turn {{ step.turn }}</label>
+        {% endfor %}
+      </div>
+      {% for step in report.seen.curve %}
+        <div class="seen-bars seen-bars-{{ step.turn }}"
+             role="img"
+             aria-label="Spells seen by mana value, by the end of turn {{ step.turn }}">
+          {% for bar in step.bars %}
+            <div class="seen-bar">
+              <span class="tabular seen-bar-value">{{ bar.mean|floatformat:"1" }}</span>
+              <span class="seen-bar-track"><span class="seen-bar-fill" style="height: {{ bar.height|floatformat:"0" }}%"></span></span>
+              <span class="tabular seen-bar-label">{{ bar.label }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+    <details class="mt-5 text-sm">
+      <summary class="cursor-pointer text-ink-900 underline">The numbers</summary>
+      <table class="mt-3 w-full text-left text-sm">
+        <thead>
+          <tr class="border-b border-parchment-600 text-ink-700">
+            <th scope="col" class="py-1.5 pr-3">By end of turn</th>
+            {% for turn in report.seen.turns %}
+              <th scope="col" class="tabular py-1.5 pr-3">{{ turn }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for line in report.seen.roles.lines %}
+            <tr class="border-b border-parchment-300">
+              <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ line.label }} (games)</th>
+              {% for value in line.values %}
+                <td class="tabular py-1.5 pr-3 text-ink-700">{{ value|floatformat:"0" }}%</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+          {% for line in report.seen.types.lines %}
+            <tr class="border-b border-parchment-300">
+              <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ line.label }} (cards)</th>
+              {% for value in line.values %}
+                <td class="tabular py-1.5 pr-3 text-ink-700">{{ value|floatformat:"1" }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </details>
+  {% else %}
+    <p class="mt-2 text-ink-700">
+      This run is older than this chart.
+      <a href="{{ run.deck.get_absolute_url }}#play" class="text-ink-900 underline">Run the deck again</a>
+      to see what it draws.
+    </p>
+  {% endif %}
+</section>
 <section class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">Opening hands</h2>
   <p class="mt-1 text-sm text-ink-700">

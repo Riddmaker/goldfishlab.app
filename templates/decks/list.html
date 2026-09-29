@@ -19,6 +19,7 @@
               {{ deck.name }}
             </a>
             <span class="tabular text-sm text-ink-700">{{ deck.total_with_commander }} cards</span>
+            {% include "decks/_status.html" %}
             <span class="text-sm text-ink-700">
               {% if deck.commander %}
                 Commander: {{ deck.commander.name }}

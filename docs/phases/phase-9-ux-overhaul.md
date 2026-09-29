@@ -1,8 +1,8 @@
 # Phase 9 — UX overhaul: fewer words, more pictures, decks only
 
 **Status: IN PROGRESS (plan approved 2026-09-28, all build decisions made the same day - see
-"Decisions").** Batches A, A2, B and C are live, E (draw statistics) is built (see "... - what
-was built"); next is C2 - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
+"Decisions").** Batches A, A2, B, C and E are live, C2 (marker + review) is built (see "... - what
+was built"); next is D - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
 `RESUME.md` is everything needed to continue.
 
 ## Why
@@ -319,6 +319,34 @@ the Chainer deck, a handful elsewhere) - optional, never blocking. Decided 2026-
    * The field-by-field provenance table moves behind "Why does the engine think this?".
 3. The tune page becomes a card grid with the same markers; its long preamble goes to the
    methodology page.
+
+### C2 - what was built (2026-09-29)
+
+* `CardAnnotation.confirmed` ("Looks right", migration `simulations 0003`) and
+  `Deck.open_questions` (nullable, migration `decks 0006`). No data migration.
+* `simulations/review.py`: `queue(deck)` - every card with a reading gap, by name, each marked
+  answered when the owner has any row for it (this deck or all their decks; built-ins are
+  nobody's answer) - and `open_questions(deck)`, counted once and stored with `update` so
+  `updated_at` (the list order) does not move. It lives in `simulations`, not in
+  `decks/services.py` as planned, because `simulations` depends on `decks` and not the other
+  way round; `decks/services.recount_later(queryset)` is the one reset, called by the import,
+  `set_commander`, `save_annotation`/`confirm_annotation`/`delete_annotation` (user scope: every
+  deck of the owner holding the card, commander included) and `ingest_scryfall --profiles`.
+* `services.confirm_annotation` sets the flag without touching the stored values (an empty
+  form through `annotations.apply` would have removed them all); `save_annotation` keeps a flag
+  already there, and a row carrying only it is kept.
+* Marker `templates/decks/_status.html` on the deck list, the deck page and the tune page;
+  `.deck-status-*` styles. It links to `simulations:review`, which redirects to the first open
+  card or back to the deck, "Ready".
+* The card page (`annotate`) is the review step: picture and Oracle text (first on a phone),
+  the gap reasons, the fields that answer them first (`forms.ANSWERS`, plus land types for a
+  land), the rest - "How early to cast it" among them - behind "More"; scope as a link toggle;
+  Save and next, Looks right, Skip, Back, "2 of 5". After the last open card: the deck,
+  "Ready". The provenance table sits behind "Why does the engine think this?".
+* The tune page is a card grid, open cards first; the sources list moved to the methodology
+  page (`#reading`).
+* Tests: `tests/test_deck_review.py` (22) - the count, the four resets, Looks right keeping
+  values, the queue walk, ownership.
 
 ### D — Deck page: actions first, pictures instead of paragraphs
 

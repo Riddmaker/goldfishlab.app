@@ -112,6 +112,12 @@ class CardAnnotation(models.Model):
 
     overrides = models.JSONField(default=dict, blank=True)
     note = models.TextField(blank=True, help_text="Why, for the provenance panel.")
+    #: "Looks right": the user read what the engine made of this card and
+    #: agrees (Phase 9 C2). Needed because many reading gaps - hybrid pips, a
+    #: cost of X - have no field that could fix them, so the engine's warning
+    #: stays after any save. A row carrying only this flag is kept. The engine
+    #: never reads it.
+    confirmed = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

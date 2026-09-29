@@ -31,6 +31,8 @@ from django.core.management.base import BaseCommand, CommandError
 from cards import ingest, profiles
 from cards.models import BulkImport, DerivedProfile, OracleCard
 from cards.scryfall import ScryfallError
+from decks.models import Deck
+from decks.services import recount_later
 
 #: The kinds whose rows a profile is derived from. Printings are not one of
 #: them - a profile is about a card, not about which Swamp somebody owns.
@@ -119,6 +121,9 @@ class Command(BaseCommand):
     def _rebuild_profiles(self, reason: str) -> None:
         self.stdout.write(f"profiles: rebuilding ({reason})...")
         written = profiles.rebuild()
+        # A profile is what decides which cards the engine can read, so every
+        # deck's red marker has to be counted again (Phase 9 C2).
+        recount_later(Deck.objects.all())
         self.stdout.write(self.style.SUCCESS(f"  {written} profiles derived"))
 
     def _ingest(self, kind: str, options) -> ingest.IngestResult:

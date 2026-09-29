@@ -9,6 +9,7 @@ from django.views.generic import TemplateView
 
 from core.tokens import color_families
 from goldfishlab import celery_app
+from simulations.provenance import SOURCES
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +54,11 @@ class MethodologyView(TemplateView):
     """
 
     template_name = "core/methodology.html"
+
+    def get_context_data(self, **kwargs):
+        # Where a card's value can come from - the tune page's old preamble,
+        # read off the same table the card pages label their rows with.
+        return {**super().get_context_data(**kwargs), "sources": SOURCES}
 
 
 class TermsView(TemplateView):

@@ -24,7 +24,7 @@ from decks.forms import ColumnMappingForm, ImportForm
 from decks.importers import columns, tabular
 from decks.models import Deck, DeckCard, DeckImport, PendingImport
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
-from simulations import blindspots
+from simulations import blindspots, review
 from simulations.engine import adapter
 from simulations.forms import RunForm
 
@@ -43,6 +43,14 @@ class DeckListView(OwnedDecksMixin, ListView):
     def get_queryset(self):
         return super().get_queryset().select_related("commander")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Counted once per deck and stored; after that the marker is a column
+        # read, not a reading of every card on every visit.
+        for deck in context["decks"]:
+            review.open_questions(deck)
+        return context
+
 
 class DeckDetailView(OwnedDecksMixin, DetailView):
     template_name = "decks/detail.html"
@@ -60,6 +68,7 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         deck = self.object
+        review.open_questions(deck)
         context["analysis"] = deck_analysis.analyse(deck)
         context["review_cards"] = deck_analysis.review_cards(deck)
         context["last_import"] = deck.imports.first()

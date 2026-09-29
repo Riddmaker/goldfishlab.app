@@ -28,7 +28,7 @@ from billing import views as billing_views
 from billing.quotas import QuotaExceeded
 from cards.models import OracleCard
 from decks.models import Deck
-from simulations import blindspots, provenance, report, services
+from simulations import blindspots, provenance, report, review, services
 from simulations.engine import adapter
 from simulations.engine.adapter import DECK_SCOPE, USER_SCOPE
 from simulations.forms import AnnotationForm, RunForm
@@ -184,33 +184,66 @@ class DeckScopedView(LoginRequiredMixin, View):
 
 
 class DeckTuneView(DeckScopedView):
-    """What the engine reads off every card in one deck.
+    """Every card of one deck, as a grid, marked the way the deck is.
 
-    The page that answers "why does my deck simulate like that". Cards the
-    engine could not read come first - a list sorted by name would bury them
-    among thirty Swamps.
+    The page that answers "why does my deck simulate like that". Cards that
+    still need their owner come first - a grid sorted by name would bury them
+    among thirty Swamps - and each one opens its own page.
     """
 
     def get(self, request, pk):
         deck = self.get_deck(request, pk)
         entries = provenance.for_deck(deck)
         spots = blindspots.find(entry.reading for entry in entries)
+        questions = review.queue(deck, [entry.reading for entry in entries])
+        answered = {q.oracle_card.pk for q in questions if q.answered}
+        open_ids = {q.oracle_card.pk for q in questions if not q.answered}
+        review.open_questions(deck)
 
         return render(request, "simulations/tune.html", {
             "deck": deck,
-            "entries": sorted(
-                entries,
-                key=lambda entry: (not entry.unreadable, entry.name.lower()),
+            "cards": sorted(
+                (
+                    {"entry": entry,
+                     "open": entry.oracle_card.pk in open_ids,
+                     "answered": entry.oracle_card.pk in answered}
+                    for entry in entries
+                ),
+                key=lambda card: (not card["open"], card["entry"].name.lower()),
             ),
             "cards_total": len(entries),
-            "cards_unreadable": sum(1 for entry in entries if entry.unreadable),
             "blindspots": spots,
-            "sources": provenance.SOURCES,
         })
 
 
+class DeckReviewView(DeckScopedView):
+    """The way in from the red marker: the first card that still needs you.
+
+    Nothing left to answer is "Ready", said on the deck page, which is where
+    the marker that led here is.
+    """
+
+    def get(self, request, pk):
+        deck = self.get_deck(request, pk)
+        questions = review.queue(deck)
+        first = next((question for question in questions if not question.answered), None)
+        if first is None:
+            messages.success(request, READY)
+            return redirect(deck.get_absolute_url())
+        return redirect(reverse("simulations:annotate", args=[deck.pk, first.oracle_card.pk]))
+
+
+#: What the deck page says once every card the engine could not read is answered.
+READY = "Ready. Every card the engine could not read has an answer."
+
+
 class CardAnnotateView(DeckScopedView):
-    """One card: what the engine reads, and a form to disagree with it."""
+    """One card: what the engine reads, and a form to disagree with it.
+
+    A card the engine could not read is also one step of the review (Phase 9
+    C2): the page says "2 of 5", and Save and next, Looks right, Skip and Back
+    walk the same stable queue the red marker counts.
+    """
 
     def get(self, request, pk, oracle_id):
         deck = self.get_deck(request, pk)
@@ -230,8 +263,14 @@ class CardAnnotateView(DeckScopedView):
     def post(self, request, pk, oracle_id):
         deck = self.get_deck(request, pk)
         card = self.get_card(deck, oracle_id)
-        form = AnnotationForm(request.POST)
 
+        if request.POST.get("action") == "confirm":
+            scope = self._scope(request.POST.get("scope"))
+            services.confirm_annotation(deck=deck, oracle_card=card, scope=scope)
+            messages.success(request, f"Noted: {card.front_name} looks right to you.")
+            return self._onwards(request, deck, card, scope)
+
+        form = AnnotationForm(request.POST)
         if form.is_valid():
             scope = form.cleaned_data["scope"]
             try:
@@ -251,25 +290,70 @@ class CardAnnotateView(DeckScopedView):
                     "next run onwards — this one does not change a result that "
                     "has already been computed.",
                 )
-                return redirect(reverse("simulations:tune", args=[deck.pk]))
+                return self._onwards(request, deck, card, scope)
 
-        scope = form.data.get("scope") or DECK_SCOPE
+        scope = self._scope(form.data.get("scope"))
         return render(request, "simulations/annotate.html", self._context(
             deck, card, form=form,
-            annotation=services.annotation_at(deck, card, self._scope(scope)),
+            annotation=services.annotation_at(deck, card, scope),
             scope=scope,
         ), status=400)
 
+    def _onwards(self, request, deck, card, scope):
+        """After an answer: the next card still open, else the deck, "Ready".
+
+        A card that was never in the queue goes back to the card list, where
+        its owner came from.
+        """
+        questions = review.queue(deck)
+        ids = [question.oracle_card.pk for question in questions]
+        if card.pk not in ids:
+            return redirect(reverse("simulations:tune", args=[deck.pk]))
+        here = ids.index(card.pk)
+        # From here to the end, then round from the start: "next" is the next
+        # one that still needs an answer, wherever it is.
+        for question in questions[here + 1:] + questions[:here]:
+            if not question.answered:
+                return redirect(self._url(deck, question.oracle_card, scope))
+        messages.success(request, READY)
+        return redirect(deck.get_absolute_url())
+
+    @staticmethod
+    def _url(deck, oracle_card, scope) -> str:
+        url = reverse("simulations:annotate", args=[deck.pk, oracle_card.pk])
+        return f"{url}?scope={scope}" if scope != DECK_SCOPE else url
+
     def _context(self, deck, card, *, form, annotation, scope) -> dict:
-        return {
+        entries = provenance.for_deck(deck)
+        entry = next(entry for entry in entries if entry.oracle_card.pk == card.pk)
+        questions = review.queue(deck, [each.reading for each in entries])
+        ids = [question.oracle_card.pk for question in questions]
+        first, more = form.split(
+            {gap.field for gap in entry.reading_gaps}, is_land=entry.reading.card.is_land,
+        )
+        context = {
             "deck": deck,
             "card": card,
-            "entry": provenance.for_card(deck, card),
+            "entry": entry,
             "form": form,
+            "first_fields": first,
+            "more_fields": more,
             "annotation": annotation,
             "scope": scope,
-            "sources": provenance.SOURCES,
+            "step": None,
         }
+        if card.pk in ids:
+            here = ids.index(card.pk)
+            context["step"] = {
+                "position": here + 1,
+                "total": len(questions),
+                "open": sum(1 for question in questions if not question.answered),
+                "back": self._url(deck, questions[here - 1].oracle_card, scope)
+                if here else None,
+                "skip": self._url(deck, questions[here + 1].oracle_card, scope)
+                if here + 1 < len(questions) else deck.get_absolute_url(),
+            }
+        return context
 
     @staticmethod
     def _scope(value) -> str:

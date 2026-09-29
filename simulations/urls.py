@@ -21,6 +21,7 @@ urlpatterns = [
     path("runs/<uuid:pk>/progress/", views.RunProgressView.as_view(), name="progress"),
     path("runs/<uuid:pk>/cancel/", views.RunCancelView.as_view(), name="cancel"),
     path("decks/<uuid:pk>/tune/", views.DeckTuneView.as_view(), name="tune"),
+    path("decks/<uuid:pk>/review/", views.DeckReviewView.as_view(), name="review"),
     path(
         "decks/<uuid:pk>/tune/<uuid:oracle_id>/",
         views.CardAnnotateView.as_view(),

@@ -110,6 +110,16 @@ def _as_bool(value):
     return value == "1"
 
 
+#: The fields that can answer each kind of reading gap, by the gap's field.
+#: They come first on a card's page; everything else waits behind "More".
+ANSWERS = {
+    "mana_abilities": ("mana_produces", "mana_activation", "untaps"),
+    "profile": ("kind", "mana_produces", "replace_tags", "tags"),
+}
+#: And what a land adds to them: a land's colours are its land types.
+LAND_ANSWERS = ("replace_subtypes", "subtypes", "enters_tapped")
+
+
 class AnnotationForm(forms.Form):
     """One user's judgement about one card, in one scope.
 
@@ -199,6 +209,22 @@ class AnnotationForm(forms.Form):
             ["scope", *[judgement.key for judgement in JUDGEMENTS],
              "replace_tags", "replace_subtypes", "note"]
         )
+
+    def split(self, gap_fields, *, is_land: bool) -> tuple[list, list]:
+        """The fields worth asking about this card first, and the rest.
+
+        `scope` is in neither: the page carries it as a hidden field and offers
+        the other scope as a link, which is a toggle and not a question.
+        """
+        wanted = [name for field in gap_fields for name in ANSWERS.get(field, ())]
+        if is_land:
+            wanted.extend(LAND_ANSWERS)
+        fields = [bound for bound in self if bound.name != "scope"]
+        # In the order `ANSWERS` names them, so a "Replace the roles" box sits
+        # above the roles it replaces rather than after them.
+        first = sorted((bound for bound in fields if bound.name in wanted),
+                       key=lambda bound: wanted.index(bound.name))
+        return first, [bound for bound in fields if bound.name not in wanted]
 
     def clean_mana_produces(self):
         text = self.cleaned_data.get("mana_produces", "")

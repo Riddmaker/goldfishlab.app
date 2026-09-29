@@ -26,6 +26,7 @@ from dataclasses import dataclass, field
 from decks.models import Deck
 from simulation import ENGINE_VERSION, agent
 from simulation.cards import (
+    CARD_TYPES,
     DOUBLE_SUBTYPE,
     FLAT,
     PER_CONTROLLED,
@@ -153,7 +154,7 @@ def convert(deck: Deck, *, adding=None) -> Conversion:
     entries = list(
         deck.entries.select_related("oracle_card", "oracle_card__profile").all()
     )
-    annotations = annotations_for(deck).overrides
+    annotations = annotations_for(deck)
 
     gaps: list[Gap] = []
     library: list[Card] = []
@@ -346,7 +347,7 @@ def readings(deck: Deck) -> list[Reading]:
     entries = list(
         deck.entries.select_related("oracle_card", "oracle_card__profile").all()
     )
-    annotations = annotations_for(deck).overrides
+    annotations = annotations_for(deck)
     colors = _deck_colors(entries, deck)
 
     found: list[Reading] = []
@@ -525,17 +526,18 @@ def scope_filter(deck: Deck):
     )
 
 
-def _card_from(oracle_card, annotations: dict, gaps: list[Gap],
+def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
                deck_colors: frozenset[str] = frozenset()) -> Card:
     """One database card, as the engine sees it."""
     profile = getattr(oracle_card, "profile", None)
-    overrides = annotations.get(oracle_card.pk, {})
+    overrides = annotations.for_card(oracle_card.pk)
     name = oracle_card.front_name
 
     if profile is None:
         gaps.append(Gap(name, "profile", "no derived profile; run cards.profiles.rebuild()"))
         return Card(name=name, mv=int(oracle_card.cmc or 0), pips=0,
-                    generic=int(oracle_card.cmc or 0), kind="artifact")
+                    generic=int(oracle_card.cmc or 0), kind="artifact",
+                    types=card_types(oracle_card))
 
     kind = overrides.get("kind", profile.kind)
     mana_abilities = _mana_abilities(profile, overrides, kind, name, gaps, deck_colors)
@@ -572,6 +574,9 @@ def _card_from(oracle_card, annotations: dict, gaps: list[Gap],
         accelerant=bool(overrides.get("accelerant", False)),
         subtypes=_subtypes(oracle_card, profile, overrides),
         untaps=bool(overrides.get("untaps", getattr(profile, "mana_untaps", True))),
+        types=card_types(oracle_card),
+        categories=_categories(profile, overrides,
+                               annotations.scope_of(oracle_card.pk, "tags")),
     )
 
     _record_gaps(card, profile, overrides, gaps)
@@ -820,6 +825,41 @@ def _printed_subtypes(oracle_card) -> frozenset[str]:
 
     printed = {word.strip().casefold() for word in tail.replace("//", " ").split()}
     return frozenset(printed & BASIC_LAND_SUBTYPES)
+
+
+def _categories(profile, overrides: dict, tags_scope: str | None) -> frozenset[str]:
+    """The roles the draw statistics sort this card by (`Card.categories`).
+
+    The community's roles, unless the **user** replaced them - on this deck or
+    on all of theirs - in which case their list is the answer, an empty one
+    included. A **built-in** replacement is ignored here: the built-in
+    annotations exist so that the reference deck plays exactly as its original
+    hand-written list did, which is why Phyrexian Arena is only `draw_engine`
+    there. That keeps a game metric right and would make every Phyrexian Arena
+    on the site vanish from "Card draw" - it is a statement about how the
+    engine plays the card, not about what the card is.
+    """
+    if "tags" in overrides and tags_scope != BUILTIN_SCOPE:
+        return frozenset(overrides["tags"])
+    return frozenset(profile.role_tags)
+
+
+def card_types(oracle_card) -> frozenset[str]:
+    """The card types printed on the front face, as `Card.types` holds them.
+
+    **The front face only.** A modal double-faced card such as "Sorcery // Land"
+    is counted as what its front says, which is how a deck list sorts it and
+    how a player names it; counting both faces would put one card in two type
+    columns and make the type chart add up to more cards than were drawn.
+    An artifact creature is still both - those are two types on one face.
+
+    Not overridable by an annotation: the type line is printed, not judged.
+    """
+    front = (oracle_card.type_line or "").split("//", 1)[0]
+    for separator in TYPE_SEPARATORS:
+        front = front.split(separator, 1)[0]
+    words = {word.casefold() for word in front.split()}
+    return frozenset(kind for kind in CARD_TYPES if kind in words)
 
 
 def _subtypes(oracle_card, profile, overrides: dict) -> frozenset[str]:

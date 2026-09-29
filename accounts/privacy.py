@@ -34,8 +34,6 @@ EXPORTED = [
     ("deck_imports", "decks.DeckImport", "owner"),
     ("unresolved_rows", "decks.UnresolvedRow", "deck_import__owner"),
     ("pending_imports", "decks.PendingImport", "owner"),
-    ("collections", "collection.Collection", "owner"),
-    ("collection_items", "collection.CollectionItem", "collection__owner"),
     ("simulation_runs", "simulations.SimulationRun", "owner"),
     ("card_annotations", "simulations.CardAnnotation", "owner"),
     ("playtest_sessions", "playtest.PlaytestSession", "owner"),

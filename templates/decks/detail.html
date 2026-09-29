@@ -226,31 +226,6 @@
         {% endfor %}
       </ul>
     {% endif %}
-    {% comment %}
-      "Can I build this?" belongs on the deck page, not only on the collection
-      page: it is the question somebody asks while looking at a deck, and a
-      panel they have to go and find is a panel they will not read.
-    {% endcomment %}
-    {% if shortfall %}
-      <h3 class="font-display mt-6 text-lg text-ink-900">Against your collection</h3>
-      {% if shortfall.buildable %}
-        <p class="mt-2 text-sm text-ink-900">
-          You own every card in this deck.
-          {% if shortfall.basics_short %}
-            Basic lands aside — {{ shortfall.basics_short }} of those, which nobody counts.
-          {% endif %}
-        </p>
-      {% else %}
-        <p class="mt-2 text-sm text-ink-700">
-          <strong class="tabular text-blood-700">{{ shortfall.cards_short }}</strong>
-          card{{ shortfall.cards_short|pluralize }} short:
-          {% for card in shortfall.missing_nonbasic|slice:":6" %}
-            {{ card.name }}{% if card.short_by > 1 %} ({{ card.short_by }}){% endif %}{% if not forloop.last %}, {% endif %}
-          {% endfor %}{% if shortfall.missing_nonbasic|length > 6 %} and more{% endif %}.
-          <a href="{% url 'collection:detail' %}" class="text-ink-900 underline">See the whole list</a>.
-        </p>
-      {% endif %}
-    {% endif %}
     {% if runs %}
       <h3 class="font-display mt-6 text-lg text-ink-900">Earlier runs</h3>
       <ul class="mt-2 space-y-1 text-sm">

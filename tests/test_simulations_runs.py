@@ -706,3 +706,34 @@ def test_one_user_cannot_run_another_users_deck(client, deck):
 
     assert response.status_code == 404
     assert not SimulationRun.objects.exists()
+
+
+def test_the_run_page_draws_what_was_seen(client, owner, run, fake_redis):
+    """Phase 9 E: the draw statistics, as charts, on every new run."""
+    chunks = [tasks.simulate_chunk(str(run.pk), index, 20) for index in range(2)]
+    tasks.finalize_run(chunks, str(run.pk))
+    client.force_login(owner)
+
+    body = client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+
+    assert "What you drew" in body
+    assert "<polyline" in body
+    assert "seen-bars-2" in body
+    assert "Run the deck again" not in body
+
+
+def test_an_old_run_asks_to_be_run_again(client, owner, run, fake_redis):
+    """A run from before the count is not a deck that never draws ramp."""
+    chunks = [tasks.simulate_chunk(str(run.pk), 0, 20)]
+    tasks.finalize_run(chunks, str(run.pk))
+    run.refresh_from_db()
+    run.result = {key: value for key, value in run.result.items() if key != "seen"}
+    run.save(update_fields=["result"])
+    client.force_login(owner)
+
+    response = client.get(reverse("simulations:detail", args=[run.pk]))
+    body = response.content.decode()
+
+    assert response.status_code == 200
+    assert "Run the deck again" in body
+    assert "<polyline" not in body

@@ -158,7 +158,12 @@ def test_the_deck_definitions_are_equal(converted):
         # Both sides get the cost spelled out, for the reason given above
         # ENGINE_FIELDS: `cost=None` and an equal explicit cost are the same
         # cost, and this comparison is about decks, not about spelling.
-        return replace(card, name=normalise(card.name), cost=card.mana_cost)
+        # `types` and `categories` are left out: the hand-written deck never
+        # had a type line or community tags, and both are read by the draw
+        # statistics only, never by a rule (Phase 9 E) - the identical
+        # aggregates below are the proof of that.
+        return replace(card, name=normalise(card.name), cost=card.mana_cost,
+                       types=frozenset(), categories=frozenset())
 
     def fold(definition):
         return tuple(

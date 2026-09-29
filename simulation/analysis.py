@@ -233,9 +233,89 @@ def _skips_draw_step(cards) -> bool:
     return any(card.skips_draw_step for card in cards)
 
 
+# --- What was seen ----------------------------------------------------------
+#
+# Phase 9 E. Everything above measures the board; this measures the cards a
+# player has had in hand so far - the opening hand they kept, every draw, every
+# tutored card - counted by type, by category and by mana value. "Seen" is
+# the word because a card that was drawn and cast is still one the player had.
+#
+# Nothing here decides anything or touches the random stream, which is why it
+# runs on every game without changing a single number above it, and why the
+# golden parity snapshot does not see it.
+
+#: Mana values are counted one by one below this and together from it: "7+".
+MV_CAP = 7
+
+#: The categories a Commander deck is sorted into (Phase 9, "The category
+#: vocabulary"), read off ``Card.categories``. One community role each: a
+#: narrower role such as ``mana_rock`` always comes with its broader one in the
+#: community tags, so nothing has to be folded together here.
+SEEN_CATEGORIES = (
+    "ramp", "draw", "removal", "wipe", "tutor", "counterspell", "protection",
+    "recursion",
+)
+
+
+def seen_groups(deck) -> tuple[tuple[str, ...], dict[str, tuple[int, ...]]]:
+    """The groups a deck's cards are counted in, and which groups each card is in.
+
+    Worked out once per run, so that the per-turn count only adds integers. The
+    keys are ``type:creature``, ``role:ramp`` (one of `SEEN_CATEGORIES`) and
+    ``mv:3``, and only the ones this deck has cards in exist - a deck with no
+    planeswalker has no ``type:planeswalker``, which is an absent line on the
+    chart, not a zero.
+
+    **Lands have no mana-value group.** Every land is mana value zero, and
+    thirty-seven of them would bury the one question the curve answers: are
+    the spells you draw ones you can cast.
+
+    Returns:
+        The group keys, and for each card name the positions it counts in.
+    """
+    keys: list[str] = []
+    position: dict[str, int] = {}
+
+    def slot(key: str) -> int:
+        if key not in position:
+            position[key] = len(keys)
+            keys.append(key)
+        return position[key]
+
+    table: dict[str, tuple[int, ...]] = {}
+    # Sorted, so that the same deck always lays its groups out the same way
+    # whatever order the adapter read its cards in.
+    for card in sorted(deck.library, key=lambda card: card.name):
+        if card.name in table:
+            continue
+        slots = [slot(f"type:{kind}") for kind in sorted(card.types)]
+        slots += [slot(f"role:{category}")
+                  for category in SEEN_CATEGORIES if category in card.categories]
+        if not card.is_land:
+            slots.append(slot(f"mv:{min(card.mv, MV_CAP)}"))
+        table[card.name] = tuple(slots)
+    return tuple(keys), table
+
+
+def _count_seen(game, board, groups) -> list[int]:
+    """How many cards of each group the player has seen by now.
+
+    Every card out of the library: hand, battlefield, graveyard and exile. The
+    cards a mulligan put on the bottom are back in the library and are rightly
+    not counted, and the commander is in no group - it is not drawn.
+    """
+    keys, table = groups
+    counts = [0] * len(keys)
+    for zone in (game.hand, board, game.graveyard, game.exiled):
+        for card in zone:
+            for slot in table.get(card.name, ()):
+                counts[slot] += 1
+    return counts
+
+
 def simulate_game(rng: random.Random, on_the_play: bool = True,
                   turns: int = DEFAULT_TURNS, keep_log: bool = False,
-                  deck=None, watch=()):
+                  deck=None, watch=(), groups=None):
     """Play one goldfish game and return what was measured.
 
     Args:
@@ -243,6 +323,9 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
             game is played. Empty - the default - and nothing is watched and
             no ``combos`` key comes back, which is what keeps every existing
             caller, and the golden parity snapshot, untouched.
+        groups: What :func:`seen_groups` returned for this deck. Given, and
+            every turn's snapshot carries a ``seen`` count per group; left out,
+            and it does not.
 
     Returns:
         dict: the game's metrics, including the state after each turn.
@@ -268,7 +351,8 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
             # is the board they actually pass the turn with.
             watcher.look(game, number)
         names = game.permanent_names
-        per_turn.append({
+        board = list(game.battlefield)
+        snapshot = {
             "lands": len(game.lands),
             "mana": game.mana_available,
             "black": game.black_available,
@@ -287,8 +371,11 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
             "hand_size": len(game.hand),
             # Carried along from Phase 2 on, so that the analysis never has to
             # fall back on card names: the metrics read the cards themselves.
-            "battlefield": list(game.battlefield),
-        })
+            "battlefield": board,
+        }
+        if groups is not None:
+            snapshot["seen"] = _count_seen(game, board, groups)
+        per_turn.append(snapshot)
 
     measured = {
         "mulligans": game.mulligans,
@@ -319,6 +406,15 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
     watch = tuple(watch)
     rng = random.Random(seed)
 
+    if deck is None:
+        # The same default `Game` falls back on, resolved here as well because
+        # the groups have to be laid out before the first game is dealt.
+        from simulation.fixtures import chainer
+        deck = chainer.DECK
+    groups = seen_groups(deck)
+    seen_cards = [[0] * len(groups[0]) for _ in range(turns)]
+    seen_games = [[0] * len(groups[0]) for _ in range(turns)]
+
     counters = {field: Counter() for field in COUNTER_FIELDS}
     turn_stats = [{
         **{field: Histogram() for field in HISTOGRAM_FIELDS},
@@ -331,7 +427,7 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
 
     for _ in range(iterations):
         result = simulate_game(rng, on_the_play=on_the_play, turns=turns,
-                               deck=deck, watch=watch)
+                               deck=deck, watch=watch, groups=groups)
         for key, first in (result.get("combos") or {}).items():
             # Cumulative on the way in: the page asks "by turn six", not "on
             # turn six", and a cumulative count merges by addition exactly as
@@ -360,6 +456,11 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
             stats["engine_online"] += has_sac and has_rec
             stats["drain"] += _tagged(board, DRAIN_TAG)
             stats["ramp_engine"] += _scaling_mana_sources(board) >= 2
+            cards, games = seen_cards[index], seen_games[index]
+            for slot, count in enumerate(snapshot["seen"]):
+                if count:
+                    cards[slot] += count
+                    games[slot] += 1
 
     summary = {
         "iterations": iterations,
@@ -367,6 +468,16 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
         "turns": turns,
         **counters,
         "turn_stats": turn_stats,
+        # Per group and turn: cards seen, summed over the games (a mean, once
+        # divided by `iterations`), and games that had seen at least one (a
+        # share). Both are counts, so chunks merge by addition.
+        "seen": {
+            key: {
+                "cards": [seen_cards[turn][slot] for turn in range(turns)],
+                "games": [seen_games[turn][slot] for turn in range(turns)],
+            }
+            for slot, key in enumerate(groups[0])
+        },
     }
     if watch:
         # `games` travels with every combo rather than being read off
@@ -463,6 +574,10 @@ def as_json(result: dict) -> dict:
             for stats in result["turn_stats"]
         ],
     }
+    # Absent from a result stored before Phase 9 E, and read back as absent:
+    # the page says "run again" for those rather than drawing a flat line.
+    if "seen" in result:
+        payload["seen"] = _copy_seen(result["seen"])
     # Absent rather than empty when nothing was watched. A result carrying an
     # empty `combos` would be indistinguishable from a run that watched a combo
     # and never saw it, and those are different answers.
@@ -495,6 +610,8 @@ def from_json(data: dict) -> dict:
             for stats in data["turn_stats"]
         ],
     }
+    if "seen" in data:
+        result["seen"] = _copy_seen(data["seen"])
     if data.get("combos"):
         result["combos"] = {
             key: {"games": int(entry["games"]), "by_turn": list(entry["by_turn"])}
@@ -535,6 +652,7 @@ def merge(chunks) -> dict:
         other = from_json(chunk)
         merged["iterations"] += other["iterations"]
         _merge_combos(merged, other)
+        _merge_seen(merged, other)
         for field in COUNTER_FIELDS:
             merged[field].update(other[field])
         for stats, extra in zip(merged["turn_stats"], other["turn_stats"], strict=True):
@@ -544,6 +662,37 @@ def merge(chunks) -> dict:
                 else:
                     stats[key] += value
     return as_json(merged)
+
+
+def _copy_seen(seen: dict) -> dict:
+    """The ``seen`` block, as fresh lists of plain integers."""
+    return {
+        key: {"cards": [int(n) for n in entry["cards"]],
+              "games": [int(n) for n in entry["games"]]}
+        for key, entry in seen.items()
+    }
+
+
+def _merge_seen(merged: dict, other: dict) -> None:
+    """Add one chunk's draw counts into another's, in place.
+
+    A group present in only one chunk is kept, like a combo: a card edited
+    while the run was in flight can give one chunk a group the others lack, and
+    for their games zero is the true count. A chunk from before Phase 9 E has
+    no block at all, and then the merged run has none either - half a
+    measurement divided by the whole run's games would be a wrong number.
+    """
+    if "seen" not in merged or "seen" not in other:
+        merged.pop("seen", None)
+        return
+    seen = merged["seen"]
+    for key, entry in other["seen"].items():
+        held = seen.get(key)
+        if held is None:
+            seen[key] = {"cards": list(entry["cards"]), "games": list(entry["games"])}
+            continue
+        for field in ("cards", "games"):
+            held[field] = [a + b for a, b in zip(held[field], entry[field], strict=True)]
 
 
 def _merge_combos(merged: dict, other: dict) -> None:

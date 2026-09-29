@@ -61,6 +61,13 @@ ROLE_FROM_TAG = {
     "theft": "steal",
     "discard": "discard",
     "mana-rock": "mana_rock",
+    # Phase 9 E: two of the categories a Commander deck is sorted into
+    # (Archidekt and Moxfield both offer them). No rule reads either - a
+    # goldfish has nothing to counter and nothing to protect against - and
+    # they exist for the draw statistics, which count how early a player sees
+    # one. 561 and 1356 cards in the full catalogue.
+    "counterspell": "counterspell",
+    "protection": "protection",
     # The one role the *analysis* reads that no tag supplied, and therefore the
     # one milestone that could only ever fire for the hand-written fixture deck:
     # `simulation/analysis.py` counts `draw_engine` and the report prints "A

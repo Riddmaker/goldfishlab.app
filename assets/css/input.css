@@ -480,6 +480,237 @@ body {
   display: none;
 }
 
+/* Draw statistics (Phase 9 E): the "What you drew" charts on a run's report.
+ *
+ * Switched with no JavaScript, in the same way as the import tabs above: each
+ * chip is a real checkbox or radio button, and :has() on the chart shows or
+ * hides the line or the set of bars it names. The rules are numbered because
+ * CSS cannot match a checkbox to a line by a shared value; eight lines is the
+ * longest list the report draws (the eight categories, the eight card types),
+ * and ten turns the longest run the form offers.
+ *
+ * Solid lines for the first four colours, dashed for the next four, so two
+ * neighbouring shades still tell apart on a greyscale printout. */
+.seen-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.seen-toggle {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.seen-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.625rem;
+  border: 1px solid var(--color-parchment-600);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  color: var(--color-ink-700);
+  cursor: pointer;
+}
+
+/* A line switched off is struck through; a turn not picked is only unpicked. */
+.seen-toggle[type="checkbox"] + .seen-chip {
+  text-decoration: line-through;
+}
+
+.seen-toggle:checked + .seen-chip {
+  background-color: var(--color-parchment-200);
+  color: var(--color-ink-900);
+  text-decoration: none;
+}
+
+.seen-toggle:focus-visible + .seen-chip {
+  outline: 2px solid var(--color-blood-700);
+  outline-offset: 1px;
+}
+
+.seen-swatch {
+  display: inline-block;
+  width: 1rem;
+}
+
+.seen-svg {
+  display: block;
+  width: 100%;
+  max-width: 40rem;
+  height: auto;
+  margin-top: 0.75rem;
+  overflow: visible;
+}
+
+.seen-grid {
+  stroke: var(--color-parchment-400);
+  stroke-width: 0.5;
+}
+
+.seen-axis {
+  fill: var(--color-ink-700);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.seen-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.seen-line-0 {
+  stroke: var(--color-blood-600);
+}
+.seen-swatch-0 {
+  border-top: 3px solid var(--color-blood-600);
+}
+.seen-chart:has(.seen-toggle-0:not(:checked)) .seen-line-0 {
+  display: none;
+}
+.seen-line-1 {
+  stroke: var(--color-verdigris-500);
+}
+.seen-swatch-1 {
+  border-top: 3px solid var(--color-verdigris-500);
+}
+.seen-chart:has(.seen-toggle-1:not(:checked)) .seen-line-1 {
+  display: none;
+}
+.seen-line-2 {
+  stroke: var(--color-parchment-700);
+}
+.seen-swatch-2 {
+  border-top: 3px solid var(--color-parchment-700);
+}
+.seen-chart:has(.seen-toggle-2:not(:checked)) .seen-line-2 {
+  display: none;
+}
+.seen-line-3 {
+  stroke: var(--color-ink-900);
+}
+.seen-swatch-3 {
+  border-top: 3px solid var(--color-ink-900);
+}
+.seen-chart:has(.seen-toggle-3:not(:checked)) .seen-line-3 {
+  display: none;
+}
+.seen-line-4 {
+  stroke: var(--color-blood-400);
+  stroke-dasharray: 6 4;
+}
+.seen-swatch-4 {
+  border-top: 3px dashed var(--color-blood-400);
+}
+.seen-chart:has(.seen-toggle-4:not(:checked)) .seen-line-4 {
+  display: none;
+}
+.seen-line-5 {
+  stroke: var(--color-verdigris-300);
+  stroke-dasharray: 6 4;
+}
+.seen-swatch-5 {
+  border-top: 3px dashed var(--color-verdigris-300);
+}
+.seen-chart:has(.seen-toggle-5:not(:checked)) .seen-line-5 {
+  display: none;
+}
+.seen-line-6 {
+  stroke: var(--color-parchment-500);
+  stroke-dasharray: 6 4;
+}
+.seen-swatch-6 {
+  border-top: 3px dashed var(--color-parchment-500);
+}
+.seen-chart:has(.seen-toggle-6:not(:checked)) .seen-line-6 {
+  display: none;
+}
+.seen-line-7 {
+  stroke: var(--color-ink-500);
+  stroke-dasharray: 6 4;
+}
+.seen-swatch-7 {
+  border-top: 3px dashed var(--color-ink-500);
+}
+.seen-chart:has(.seen-toggle-7:not(:checked)) .seen-line-7 {
+  display: none;
+}
+
+.seen-bars {
+  display: none;
+  align-items: flex-end;
+  gap: 0.5rem;
+  max-width: 40rem;
+  margin-top: 0.75rem;
+}
+
+.seen-curve:has(.seen-pick-1:checked) .seen-bars-1 {
+  display: flex;
+}
+.seen-curve:has(.seen-pick-2:checked) .seen-bars-2 {
+  display: flex;
+}
+.seen-curve:has(.seen-pick-3:checked) .seen-bars-3 {
+  display: flex;
+}
+.seen-curve:has(.seen-pick-4:checked) .seen-bars-4 {
+  display: flex;
+}
+.seen-curve:has(.seen-pick-5:checked) .seen-bars-5 {
+  display: flex;
+}
+.seen-curve:has(.seen-pick-6:checked) .seen-bars-6 {
+  display: flex;
+}
+.seen-curve:has(.seen-pick-7:checked) .seen-bars-7 {
+  display: flex;
+}
+.seen-curve:has(.seen-pick-8:checked) .seen-bars-8 {
+  display: flex;
+}
+.seen-curve:has(.seen-pick-9:checked) .seen-bars-9 {
+  display: flex;
+}
+.seen-curve:has(.seen-pick-10:checked) .seen-bars-10 {
+  display: flex;
+}
+
+.seen-bar {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+}
+
+.seen-bar-value {
+  color: var(--color-ink-900);
+}
+
+.seen-bar-track {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: 8rem;
+  border-bottom: 1px solid var(--color-parchment-600);
+}
+
+.seen-bar-fill {
+  display: block;
+  width: 100%;
+  background-color: var(--color-ink-800);
+}
+
+.seen-bar-label {
+  color: var(--color-ink-700);
+}
+
 /* htmx's loading indicator, owned here rather than injected.
  *
  * htmx normally writes these two rules into a <style> element at load. Our

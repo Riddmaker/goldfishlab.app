@@ -1,8 +1,8 @@
 # Phase 9 — UX overhaul: fewer words, more pictures, decks only
 
 **Status: IN PROGRESS (plan approved 2026-09-28, all build decisions made the same day - see
-"Decisions").** Batches A, A2, B, C, C2, D and E are live, F (the board) is built (see "... - what
-was built"); next is G - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
+"Decisions").** Batches A, A2, B, C, C2, D and E are live, F (the board) and G (guest trial) are built
+(see "... - what was built"); next is H - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
 `RESUME.md` is everything needed to continue.
 
 ## Why
@@ -540,6 +540,51 @@ pointer grows until it can be read. Template + view + CSS only - no migration, n
    * Privacy policy: what a guest leaves (the list, the run, a strictly necessary session
      cookie), deleted after 24 hours - text change + test.
 3. The sign-up page itself also gets the "free, just email and password" line (A2.3).
+
+### G - what was built (2026-09-30)
+
+* **App `guests/`** (services, views, form, middleware, task). `User.is_guest` (accounts 0002);
+  a guest is `guest-<hex>@guest.invalid` (RFC 2606 - no mail can reach it) with an unusable
+  password, signed in with the model backend. Plan row **`guest`** (billing 0005): inactive, so
+  never on the plans page and never for sale; 1 deck, 2,000 games, 6 turns, 1 concurrent, 10
+  runs and 10 imports a month.
+* **`/try/`** (`TryView`) is the deck importer with another owner: the import logic moved out
+  of `DeckImportView` into `decks.views.ImportFlowMixin`, used by both. The guest is created only
+  after the file was read (a bad file makes nothing); a guest's next upload replaces its deck. A
+  clean import starts the 2,000-game run itself and lands on the run page; rows that did not
+  match go to the review first, as for everybody (the column-mapping route lands the same way).
+  Rate limits: 10 uploads a minute and 5 new guests per 5 minutes per address (5 minutes because
+  the privacy policy promises no counter holds an address longer); allauth's signup limit on
+  saving; and at most 20 guest runs queued or running across all guests (`start_run`).
+* **Saving** (`/try/save/`, `SaveDeckView`): allauth's `SignupForm` plus the deck name, not
+  allauth's `SignupView` - that one sends every signed-in visitor away, and a guest is signed in.
+  Verified in allauth 65.19.4: `login_on_verification` signs in only when nobody is signed in,
+  and the pending `Login` (with `redirect_url`) lives in the session. So the guest is signed out
+  first, then `try_save`, then `guests.services.claim` moves every user-owned row (the list is
+  the privacy export's, which `test_privacy` keeps complete; billing stays behind) and deletes
+  the guest, then `complete_signup(redirect_url=<deck>)`. Checked in the local stack
+  (Playwright): the mail's link, in the same browser, signs in on the saved deck. An address
+  that already has an account gets allauth's usual answer (no enumeration); the guest's deck
+  then stays with the guest and expires.
+* **Fence** (`GuestFenceMiddleware`): `/billing/`, `/account/`, `/accounts/email|password|signup/`
+  send a guest to the save page, `/decks/import/` to `/try/`; the sign-in page signs the guest out
+  first (allauth's login page turns away anybody signed in). Header: "Your deck", "Save your deck
+  - free", "Sign in"; no address, no "Your data".
+* **Expiry**: beat task `guests.expire`, hourly (`crontab(minute=15)`), deletes guests older
+  than 24 hours with everything they own.
+* `RunForm(plan=...)` now offers only the sizes the plan runs, plus the plan's own ceiling (a
+  Free account no longer sees 50,000 games it would be refused; a guest sees 2,000). A posted
+  form accepts every size, so one over the plan still gets `start_run`'s sentence.
+* **A new deck is named after its commander**, else after the file without its extension
+  (every Archidekt export is called `archidekt-collection-export-<date>.csv`) - for everybody.
+* Home: "Try it now - no account" + "Create a free account", the three-step strip
+  (`guests/_steps.html`, `.try-steps`), and two real screenshots as WebP (`static/img/home-hand.webp`,
+  `home-report.webp`), taken from a guest trial on the local stack and encoded by Chromium
+  itself (no Pillow). The upload form is one partial, `decks/_import_form.html`, for the
+  importer and the trial page.
+* Privacy policy: a row for trying without an account (24 hours) and the session cookie line.
+* G.3 was already done in A2 (the sign-up headline).
+* Tests: `tests/test_guests.py` (32).
 
 ### H — The text pass
 

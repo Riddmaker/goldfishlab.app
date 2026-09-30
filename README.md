@@ -259,6 +259,7 @@ msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
 | `simulations/` | Runs: the engine boundary, Celery tasks, reports, annotations |
 | `combos/` | Commander Spellbook lookups, cached per deck. **No bulk mirror** — see `combos/spellbook.py` |
 | `billing/` | Plans, subscriptions, usage records, quota enforcement |
+| `guests/` | Trying it without an account: a temporary guest user per browser, its limits and fence, saving (claiming) and hourly expiry |
 | `DESIGN.md` | **Normative design rules** |
 | `STYLEGUIDE.html` | Binding rendered reference, standalone, print CSS included |
 | `assets/css/input.css` | **Design-token source of truth** |

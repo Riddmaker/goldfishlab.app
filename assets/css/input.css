@@ -859,3 +859,313 @@ body {
   height: 0.75rem;
   vertical-align: middle;
 }
+
+/* --- the playtest board (Phase 9 F) ------------------------------------------ */
+
+/* The phase stepper: the phase the turn is in is framed, the rest are quiet. */
+.playtest-phase {
+  padding: 0 0.5rem;
+  border: 1px solid transparent;
+  color: var(--color-ink-500);
+}
+
+.playtest-phase-now {
+  border-color: var(--color-ink-800);
+  background-color: var(--color-parchment-200);
+  color: var(--color-ink-900);
+}
+
+/* Mana as coloured pips. Drawn here rather than hot-linked from Scryfall's
+ * symbol set: six circles and a letter need no request and no licence. The
+ * colours are the five of the pie and a grey, not theme colours - they have
+ * to read as Magic's, whatever the page around them looks like. */
+.pip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-ink-800);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.pip-W { background-color: #f8f1d8; color: var(--color-ink-900); }
+.pip-U { background-color: #2a6fb0; color: #ffffff; }
+.pip-B { background-color: #2b2622; color: #f0ece4; }
+.pip-R { background-color: #c43d33; color: #ffffff; }
+.pip-G { background-color: #2e7d4f; color: #ffffff; }
+.pip-C { background-color: #c9c3b6; color: var(--color-ink-900); }
+
+/* The table: the commander and the library on the left, the graveyard and
+ * the exile on the right, the battlefield rows side by side between them. On
+ * a phone the three stack, each side a row of its own. */
+.playtest-table {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1.25rem;
+}
+
+.playtest-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.playtest-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0.75rem 1.5rem;
+  min-width: 0;
+}
+
+.playtest-row {
+  flex: 1 1 10rem;
+}
+
+@media (max-width: 40rem) {
+  .playtest-table {
+    grid-template-columns: 1fr;
+  }
+
+  .playtest-side {
+    flex-direction: row;
+  }
+
+  /* Three narrow rows side by side: stacked, an empty board was a screen of
+   * dashed boxes on a phone. */
+  .playtest-row {
+    flex-basis: 5rem;
+  }
+}
+
+/* A card on the table: small, and full size while the pointer rests on it -
+ * a board you cannot read is a board you cannot play. */
+.board-card {
+  display: block;
+  position: relative;
+  width: 4.5rem;
+  aspect-ratio: 488 / 680;
+  border-radius: 0.25rem;
+  transition: transform 150ms ease-out;
+}
+
+@media (hover: hover) {
+  img.board-card:hover {
+    z-index: 30;
+    transform: scale(3);
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.45);
+  }
+}
+
+.board-card-gone {
+  opacity: 0.4;
+}
+
+/* A card without a picture: its name on a card-shaped box. */
+.board-card-text {
+  display: block;
+  padding: 0.25rem;
+  overflow: hidden;
+  border: 1px solid var(--color-ink-700);
+  background-color: var(--color-parchment-50);
+  font-size: 0.625rem;
+  line-height: 1.2;
+  color: var(--color-ink-900);
+}
+
+.board-card-empty {
+  display: block;
+  width: 4.5rem;
+  aspect-ratio: 488 / 680;
+  border: 1px dashed var(--color-parchment-500);
+  border-radius: 0.25rem;
+}
+
+/* The library, face down: no card back is hot-linked, a dark card with the
+ * count on it says the same. */
+.card-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  aspect-ratio: 488 / 680;
+  border: 2px solid var(--color-parchment-600);
+  border-radius: 0.25rem;
+  background: repeating-linear-gradient(45deg, var(--color-ink-800) 0 6px, var(--color-ink-900) 6px 12px);
+  color: var(--color-parchment-100);
+  font-size: 1.25rem;
+}
+
+/* The hand: a fan. Each card turns by how far it sits from the middle, about
+ * a point far below the hand, which bends the row into an arc without a
+ * second transform. The more cards, the more they overlap and the less each
+ * one turns, so a hand of fifteen still fits the width a hand of seven does.
+ * `clip` rather than `hidden` on the one axis: a raised card may still grow
+ * upwards over the table. */
+.playtest-hand {
+  padding: 0.5rem 0 2rem;
+  overflow-x: clip;
+}
+
+.hand-fan {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+.hand-slot {
+  position: relative;
+  flex: none;
+  width: 8.5rem;
+  transform: rotate(calc((var(--i) - (var(--n) - 1) / 2) * min(3deg, 24deg / var(--n))));
+  transform-origin: 50% 250%;
+  transition: transform 150ms ease-out;
+}
+
+.hand-slot + .hand-slot {
+  margin-left: calc(-1 * min(6.5rem, 3rem + max(0, var(--n) - 8) * 0.5rem));
+}
+
+/* Resting on a card straightens it and lifts it to the top; the picture
+ * grows to a size its rules text can be read at (the user asked for that). */
+.hand-slot:hover,
+.hand-slot:focus-within {
+  z-index: 20;
+  transform: rotate(0deg) translateY(-0.75rem);
+}
+
+.hand-card {
+  display: block;
+  position: relative;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+span.hand-card {
+  cursor: default;
+}
+
+.hand-card-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 488 / 680;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 0.4);
+  transform-origin: 50% 100%;
+  transition: transform 150ms ease-out;
+}
+
+@media (hover: hover) {
+  .hand-slot:hover .hand-card-img,
+  .hand-slot:focus-within .hand-card-img {
+    transform: scale(1.8);
+  }
+}
+
+/* Playable now: a glow, and the card sits a little higher than the rest. */
+.hand-card-ready .hand-card-img {
+  box-shadow: 0 0 0 3px var(--color-verdigris-300), 0 0 1rem var(--color-verdigris-300);
+}
+
+.hand-slot:has(.hand-card-ready):not(:hover, :focus-within) {
+  translate: 0 -0.5rem;
+}
+
+.hand-card:focus-visible {
+  outline: none;
+}
+
+.hand-card:focus-visible .hand-card-img {
+  outline: 3px solid var(--color-blood-500);
+  outline-offset: 2px;
+}
+
+/* What a click does, said on the card while it is raised. */
+.hand-card-action {
+  position: absolute;
+  left: 50%;
+  bottom: 0.5rem;
+  translate: -50% 0;
+  padding: 0.125rem 0.75rem;
+  border-radius: 999px;
+  background-color: var(--color-ink-900);
+  color: var(--color-parchment-100);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 150ms ease-out;
+}
+
+.hand-slot:hover .hand-card-action,
+.hand-slot:focus-within .hand-card-action {
+  opacity: 1;
+}
+
+/* With a pointer the raised card is read, so the label moves under it
+ * rather than over its rules text. */
+@media (hover: hover) {
+  .hand-slot:hover .hand-card-action,
+  .hand-slot:focus-within .hand-card-action {
+    bottom: auto;
+    top: calc(100% + 0.25rem);
+  }
+}
+
+/* A phone has no pointer to rest on a card, and a tablet no room for the
+ * fan: the fan becomes a row that scrolls sideways, cards straight and big
+ * enough to read. */
+@media (max-width: 48rem) {
+  .hand-fan {
+    justify-content: flex-start;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 0.5rem;
+  }
+
+  .hand-slot {
+    width: 10rem;
+    transform: none;
+    scroll-snap-align: start;
+  }
+
+  .hand-slot + .hand-slot {
+    margin-left: 0;
+  }
+
+  .hand-slot:hover,
+  .hand-slot:focus-within {
+    transform: none;
+  }
+
+  /* A tapped card keeps focus; it must not stay enlarged and cut off. */
+  .hand-slot:hover .hand-card-img,
+  .hand-slot:focus-within .hand-card-img {
+    transform: none;
+  }
+
+  .hand-card-action,
+  .hand-slot:hover .hand-card-action,
+  .hand-slot:focus-within .hand-card-action {
+    top: auto;
+    bottom: 0.5rem;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hand-slot,
+  .hand-card-img,
+  .board-card,
+  .hand-card-action {
+    transition: none;
+  }
+}

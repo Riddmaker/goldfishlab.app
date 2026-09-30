@@ -363,7 +363,7 @@ def test_no_combos_is_an_answer_and_not_an_empty_list(client, owner, deck, resul
     body = client.get(deck.get_absolute_url()).content.decode()
 
     assert "No known combos in this deck" in body
-    assert "normal result and not a fault" in body
+    assert "normal result and not a fault" in body.lower()
 
 
 def test_the_refresh_is_a_post_and_belongs_to_its_owner(client, owner, deck, answered):

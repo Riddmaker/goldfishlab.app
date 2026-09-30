@@ -314,7 +314,7 @@ def test_the_success_page_grants_nothing(signed_in, subscription, paid_plan):
 
     subscription.refresh_from_db()
     assert subscription.plan.is_default
-    assert b"separate message" in response.content
+    assert b"your plan changes within a few seconds" in response.content
 
 
 def test_an_unsigned_webhook_is_refused(client, settings):

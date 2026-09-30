@@ -1,8 +1,8 @@
 # Phase 9 — UX overhaul: fewer words, more pictures, decks only
 
 **Status: IN PROGRESS (plan approved 2026-09-28, all build decisions made the same day - see
-"Decisions").** Batches A, A2, B, C, C2, D and E are live, F (the board) and G (guest trial) are built
-(see "... - what was built"); next is H - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
+"Decisions").** Batches A, A2, B, C, C2, D and E are live, F (the board) and G (guest trial) are live, H (the text pass) is built
+(see "... - what was built"); next is I (clean-up) - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
 `RESUME.md` is everything needed to continue.
 
 ## Why
@@ -590,6 +590,63 @@ pointer grows until it can be read. Template + view + CSS only - no migration, n
 
 Every remaining page against principle 1: plans, account data, run detail,
 legal pages excepted (they are legal text). Removed explanations land on the methodology page.
+
+**Detailed plan (drafted 2026-09-30, APPROVED by the user the same day: "passt").** Checked against the
+templates: the words left are on the run page (`simulations/detail.html` + `_report.html` +
+`_blindspots.html`, ~1,000 words), plans (~470), account data (~370). Rule for every section: a
+heading, at most one short sentence, then the picture/table; the explanation goes to the
+methodology page under an anchor, and the section gets a small "Why?" link to it. Facts that
+protect the reader stay on the page (principle 5): coverage %, the gaps list, "something changed
+since this run", the plus-one-card combo rows, the failed-payment banner, "no undo".
+
+Suggested commits: (1) run page + methodology "Reading the report", (2) plans + account data +
+the small pages + home tiles, (3) tests/docs/phase status. Start state: dev = origin/dev at the
+G merge, nothing built for H yet.
+
+* **H.1 Run page.** Opening hands: one line ("Simulated beside the exact maths - where they
+  agree, the simulation is right"), the two-methods paragraph is already on the methodology page.
+  Kept hands, mana turn by turn (median/10th percentile), mana by colour (means only, fixed
+  colour), milestones (from role tags), combos (zone rule, "one card larger"): one line each,
+  the rest into a new methodology section "Reading the report" with an anchor per topic.
+  Mulligans get the same bar column the opening-hand table has (principle 2, existing markup).
+  "What was actually modelled": the coverage sentence stays, the rest shortened; engine
+  version/seed stays as the small line, the noise sentence links to "How many games is enough".
+  Blind spots: the intro paragraph goes (to methodology); per spot heading + count + cards stay,
+  `spot.detail` moves into a `<details>` "Why?".
+* **H.2 Plans.** Usage as bars (used / limit, text beside the bar - never colour alone) with one
+  line; "the honest lever" -> one line + link to "How many games is enough" (already says it);
+  payments-off notice one sentence; portal paragraph one sentence. The Link reseller notice stays
+  as it is (sales disclosure, counts as legal text).
+* **H.3 Account data.** Export: one sentence + `<details>` "What is not in the file?" (card data,
+  Stripe identifiers). Delete: the irreversible warning stays, the "why type the address"
+  rationale becomes a template comment.
+* **H.4 The rest** against the same rule: `403`, `429`, `billing/done`, `billing/blocked`,
+  `simulations/tune`, `annotate`, `decks/map`, `combos/_panel`. Mails and legal pages untouched.
+* **H.5 Home:** the three feature tiles ("Keep or mulligan?", "When does it come online?", "No
+  guessing") go - **decided by the user 2026-09-30** ("die drei kacheln auch weg"); the steps
+  strip and the two screenshots say it. Check that the CSS they alone used is not left behind.
+* **H.6 Tests/docs:** tests asserting removed wording are updated, a test that every "Why?" anchor
+  exists on the methodology page, CSS rebuild, `djlint --lint`, ruff, full suite, screenshots of
+  run page / plans / data at 1440 and 390 before and after. One PR, ~3 commits.
+
+**H - what was built (2026-09-30).**
+
+* `core/_why.html`: the small "Why?" link to `methodology#<anchor>`; `tests/test_text_pass.py`
+  checks that every anchor a template links to exists on the methodology page.
+* Methodology: ids on its sections (`opening`, `mulligan`, `drew`, `combos`, `games`) and a new
+  section "Reading the report" (`report-mana`, `report-colour`, `report-milestones`,
+  `blind-spots`) with the texts the run page gave up.
+* Run page: one line per section; mulligans got the bar column; blind spots keep heading, count
+  and cards, the explanation per spot is behind "Why?"; the `asof` parameter of
+  `_blindspots.html` is gone.
+* Plans: usage as bars (`_usage_rows` gives `pct`, capped at 100, red when full), one line per
+  notice; the Link reseller notice unchanged. Account data: one sentence + "What is not in the
+  file?"; the delete rationale is a template comment. 429, billing done, the mapping page (its
+  "Why you are being asked" folded) and the combos panel shortened; tune, annotate, 403 and
+  blocked were already short.
+* Home: the three feature tiles are gone.
+* Tests: 1176 passed; ruff and `djlint --lint` clean; screenshots of run, plans, data, deck,
+  tune, methodology and home at 1440 and 390 px (no horizontal scroll).
 
 ### I — Clean-up (last, own PR; added at the user's request 2026-09-28)
 

@@ -3,7 +3,7 @@
 pytest==9.1.1
 pytest-django==4.14.0
 ruff==0.16.8
-djlint==1.46.1
+djlint==1.46.2
 playwright==1.63.0
 # scipy is used ONLY by tests/test_statistics.py (hypergeometric validation).
 # It must never enter the production image: ~90 MB on a 128 MiB cloudlet.

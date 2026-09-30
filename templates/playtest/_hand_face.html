@@ -1,0 +1,6 @@
+{% comment %}The face of a card in hand - the picture, or its name when there is none.{% endcomment %}
+{% if tile.image %}
+  <img src="{{ tile.image }}" alt="{{ tile.card.name }}" loading="lazy" class="hand-card-img">
+{% else %}
+  <span class="hand-card-img board-card-text">{{ tile.card.name }} · {{ tile.card.mv }}</span>
+{% endif %}

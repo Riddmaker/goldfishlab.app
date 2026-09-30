@@ -248,7 +248,9 @@ def test_casting_a_card_the_pool_cannot_pay_for_is_a_message_not_a_500(signed_in
     )
 
     assert response.status_code == 200
-    assert b"floating mana" in response.content
+    # "costs": the message itself. "floating mana" alone was also in the old
+    # hand's caption, so this test passed while the message went unseen.
+    assert b"costs" in response.content
     assert session.actions.count() == before
 
 

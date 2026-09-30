@@ -22,6 +22,7 @@ from playtest import services
 from playtest.forms import ActionForm, ForkForm, StartForm
 from playtest.models import PlaytestSession
 from simulation import actions
+from simulation.manacost import COLORLESS, COLORS
 
 #: The board fragment htmx swaps in. The whole page includes it too, so the two
 #: can never show different boards.
@@ -68,15 +69,17 @@ def card_keywords(session: PlaytestSession) -> dict:
     return pairs
 
 
-#: The zones the board draws, in reading order, with the words a player uses.
-BOARD_ZONES = (
-    (actions.LANDS, "Lands"),
-    (actions.ROCKS, "Mana artifacts"),
-    (actions.CREATURES, "Creatures"),
-    (actions.OTHER, "Other permanents"),
-    (actions.GRAVEYARD, "Graveyard"),
-    (actions.EXILED, "Exile"),
+#: The battlefield, in rows, with the words a player uses. Creatures and the
+#: other permanents share a row: a goldfish board rarely holds more than a
+#: handful of either, and two half-empty rows read as a gap, not as order.
+BATTLEFIELD_ROWS = (
+    ("lands", "Lands", (actions.LANDS,)),
+    ("mana", "Mana sources", (actions.ROCKS,)),
+    ("permanents", "Permanents", (actions.CREATURES, actions.OTHER)),
 )
+
+#: The order a mana pip is drawn in - the colour pie, then colourless.
+PIP_ORDER = (*COLORS, COLORLESS)
 
 
 def _tiles(cards, images, keywords=None, *, castable=(), playable=()) -> list[dict]:
@@ -99,6 +102,29 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=()) -> list[di
     ]
 
 
+def pips(pool) -> list[tuple[str, int]]:
+    """The floating mana, colour by colour, in the order a player reads it.
+
+    Empty before the main phase opens the pool, which is when the board has
+    nothing to show rather than a row of noughts.
+    """
+    if pool is None:
+        return []
+    held = pool.by_color()
+    return [(color, held[color]) for color in PIP_ORDER if held.get(color)]
+
+
+def deciding(game, live) -> bool:
+    """Is the opening hand still being decided?
+
+    The engine has no "kept" flag - a kept hand before turn one looks exactly
+    like one not yet kept - so it is read off the actions: only mulligans so
+    far, and no turn begun, means Mulligan and Keep are the two things to do.
+    """
+    return game.phase is None and game.turn == 0 and all(
+        row.kind == actions.Mulligan.kind for row in live)
+
+
 def board_context(session: PlaytestSession, game) -> dict:
     """Everything the board template needs, for a page and for a fragment."""
     live = list(services.live_actions(session))
@@ -115,19 +141,26 @@ def board_context(session: PlaytestSession, game) -> dict:
             castable={a.index for a in legal if isinstance(a, actions.CastSpell)},
             playable={a.index for a in legal if isinstance(a, actions.PlayLand)},
         ),
-        "board": [
-            {"name": name, "label": label,
-             "tiles": _tiles(getattr(game, name), images, keywords)}
-            for name, label in BOARD_ZONES
+        "battlefield": [
+            {"key": key, "label": label,
+             "tiles": [tile for zone in zones
+                       for tile in _tiles(getattr(game, zone), images, keywords)]}
+            for key, label, zones in BATTLEFIELD_ROWS
         ],
+        "graveyard": _tiles(game.graveyard, images),
+        "exiled": _tiles(game.exiled, images),
+        "pips": pips(getattr(game, "pool", None)),
+        "deciding": deciding(game, live),
+        "to_bottom": game.cards_to_bottom(game.mulligans),
         "commander": session.deck.commander,
         "commander_castable": any(
             isinstance(a, actions.CastCommander) for a in legal),
+        "commander_out": bool(session.deck.commander_id)
+        and game.has(session.deck.commander.front_name),
         "phases": actions.PHASES,
         "history": live,
         "can_undo": bool(live),
         "can_redo": session.actions.filter(undone=True).exists(),
-        "move_zones": actions.ZONES,
     }
 
 
@@ -135,6 +168,10 @@ def render_board(request, session: PlaytestSession, game):
     """The fragment for htmx, the whole page for everyone else."""
     context = board_context(session, game)
     if request.headers.get("HX-Request"):
+        # The page shows messages above its content; a swapped fragment has no
+        # page around it, so it shows them itself - or "costs 4, the floating
+        # mana is 2" is said to nobody until the next reload.
+        context["board_messages"] = True
         return render(request, BOARD_FRAGMENT, context)
     return redirect(session.get_absolute_url())
 

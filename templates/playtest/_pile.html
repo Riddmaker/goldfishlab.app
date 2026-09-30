@@ -1,0 +1,29 @@
+{% comment %}
+  A graveyard or an exile: the top card and a count, the rest behind a fold.
+  `label` and `tiles` come from the include.
+{% endcomment %}
+<div>
+  <p class="text-xs uppercase tracking-wide text-ink-700">
+    {{ label }} <span class="tabular">{{ tiles|length }}</span>
+  </p>
+  {% if tiles %}
+    {% with top=tiles|last %}
+      {% if top.image %}
+        <img src="{{ top.image }}" alt="{{ top.card.name }}" title="{{ top.card.name }}"
+             loading="lazy" class="board-card mt-1">
+      {% else %}
+        <span class="board-card board-card-text mt-1">{{ top.card.name }}</span>
+      {% endif %}
+    {% endwith %}
+    {% if tiles|length > 1 %}
+      <details class="mt-1 text-xs text-ink-700">
+        <summary class="cursor-pointer">All {{ tiles|length }}</summary>
+        <ol class="mt-1 space-y-0.5">
+          {% for tile in tiles reversed %}<li>{{ tile.card.name }}</li>{% endfor %}
+        </ol>
+      </details>
+    {% endif %}
+  {% else %}
+    <span class="board-card-empty mt-1" aria-hidden="true"></span>
+  {% endif %}
+</div>

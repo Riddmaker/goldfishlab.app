@@ -19,17 +19,18 @@
     <h2 class="mt-10 font-display text-2xl text-parchment-100">Download everything</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        A single JSON file with your account, your decks and their annotations,
-        every simulation you have run and its result, your
-        playtest sessions, and your plan and usage counters.
+        One JSON file: your account, decks, simulations, playtests and plan.
       </p>
-      <p class="mt-3 text-sm text-ink-700">
-        Card and combo data is not included — it is public reference data from
-        Scryfall and Commander Spellbook, identical for every account, and it is
-        not about you. Stripe payment identifiers are left out on purpose: a
-        downloadable file containing them would be a file worth stealing. Your
-        invoices are in <a href="{% url 'billing:plans' %}" class="underline hover:text-ink-700">Stripe's portal</a>.
-      </p>
+      <details class="mt-3 text-sm text-ink-700">
+        <summary class="cursor-pointer underline">What is not in the file?</summary>
+        <p class="mt-2">
+          Card and combo data — public reference data from Scryfall and Commander
+          Spellbook, the same for every account, and not about you. Stripe payment
+          identifiers are left out on purpose: a downloadable file containing them
+          would be a file worth stealing. Your invoices are in
+          <a href="{% url 'billing:plans' %}" class="underline hover:text-ink-900">Stripe's portal</a>.
+        </p>
+      </details>
       <form method="post" action="{% url 'accounts:export' %}" class="mt-4">
         {% csrf_token %}
         <button type="submit"
@@ -62,15 +63,14 @@
         </p>
       {% else %}
         <p class="text-ink-900">
-          This deletes your account and everything in it — decks, annotations,
-          simulation results and playtest sessions.
-          <strong>It happens immediately and there is no undo.</strong> Nothing
-          is kept for analytics.
+          Your account and everything in it goes, immediately.
+          <strong>There is no undo</strong> — download a copy above first if you want one.
         </p>
-        <p class="mt-3 text-sm text-ink-700">
-          If you want a copy first, download it above. Afterwards there will be
-          nothing to download.
-        </p>
+        {% comment %}
+          Typing the address rather than ticking a box, because a checkbox is
+          muscle memory by the third time you see one and this is the one
+          action here with no way back.
+        {% endcomment %}
         <form method="post" action="{% url 'accounts:delete' %}" class="mt-5">
           {% csrf_token %}
           <div class="form-field">
@@ -84,11 +84,6 @@
                    required
                    placeholder="{{ user.email }}">
           </div>
-          <p class="mt-2 text-sm text-ink-700">
-            Typing the address rather than ticking a box, because a checkbox is
-            muscle memory by the third time you see one and this is the one
-            action here with no way back.
-          </p>
           <button type="submit"
                   class="mt-4 inline-block border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
             Delete my account permanently

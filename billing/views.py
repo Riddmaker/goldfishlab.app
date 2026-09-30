@@ -66,8 +66,13 @@ def _usage_rows(user) -> list[dict]:
         (quotas.DECKS_OWNED, "Decks", "right now"),
     ):
         decision = quotas.check(user, metric, amount=0, raise_on_fail=False)
+        # The bar's width; capped, because a plan changed mid-month can leave
+        # more used than the new limit allows.
+        pct = 0 if decision.unlimited or not decision.limit else min(
+            100, round(100 * decision.used / decision.limit))
         rows.append({"label": label, "period": period, "used": decision.used,
-                     "limit": decision.limit, "unlimited": decision.unlimited})
+                     "limit": decision.limit, "unlimited": decision.unlimited,
+                     "pct": pct})
     return rows
 
 

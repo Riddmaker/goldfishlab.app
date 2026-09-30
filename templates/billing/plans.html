@@ -30,19 +30,32 @@
 
   <section class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">What you have used</h2>
-    <p class="mt-1 text-sm text-ink-700">
-      Simulations are counted from the first of the month; decks are the ones you
-      have now, so deleting one frees a slot. These are the same numbers the
-      application checks before it starts work — not a second tally that could
-      disagree with it.
-    </p>
+    {% comment %}
+      Simulations count from the first of the month; decks are the ones the
+      account has now, so deleting one frees a slot. The numbers come from the
+      same check that refuses work (`_usage_rows`), so they cannot disagree.
+    {% endcomment %}
     <dl class="mt-4 grid gap-4 sm:grid-cols-2">
       {% for row in usage %}
-        <div class="border-l-2 border-parchment-600 pl-4">
+        <div>
           <dt class="text-ink-900">{{ row.label }} <span class="text-sm text-ink-700">({{ row.period }})</span></dt>
-          <dd class="tabular mt-1 text-ink-700">
-            {{ row.used }}
-            {% if row.unlimited %}used — no limit{% else %}of {{ row.limit }}{% endif %}
+          <dd class="mt-2 flex items-center gap-3">
+            {% if not row.unlimited %}
+              {# Never colour alone: the count stands beside the bar in text. #}
+              <span class="h-3 flex-1 border border-parchment-600 bg-parchment-200"
+                    role="progressbar"
+                    aria-valuenow="{{ row.used }}"
+                    aria-valuemin="0"
+                    aria-valuemax="{{ row.limit }}"
+                    aria-label="{{ row.label }} used">
+                <span class="block h-full {% if row.pct >= 100 %}bg-blood-700{% else %}bg-ink-800{% endif %}"
+                      style="width: {{ row.pct }}%"></span>
+              </span>
+            {% endif %}
+            <span class="tabular text-ink-700">
+              {{ row.used }}
+              {% if row.unlimited %}used — no limit{% else %}of {{ row.limit }}{% endif %}
+            </span>
           </dd>
         </div>
       {% endfor %}
@@ -51,20 +64,15 @@
 
   {% if not can_pay %}
     <p class="mt-6 border border-parchment-600 bg-ink-900 px-4 py-3 text-sm text-parchment-100">
-      <strong>Payments are not switched on in this installation.</strong> The
-      tiers below are real and the limits are enforced; there is simply nothing
-      here to charge a card with yet. Everyone is on Free.
+      <strong>Payments are not switched on in this installation</strong> — everyone is on Free.
     </p>
   {% endif %}
 
   <section class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">The tiers</h2>
     <p class="mt-1 text-sm text-ink-700">
-      The honest lever is <strong>turns simulated</strong>, not games per run.
-      Ten thousand games already pins a percentage to about half a point, so
-      selling more of them would be selling a number that does not improve the
-      answer. Simulating to turn fifteen instead of turn six costs real time and
-      genuinely changes what you learn.
+      The tiers differ mainly in <strong>turns simulated</strong>.
+      {% include "core/_why.html" with anchor="games" %}
     </p>
 
     <div class="mt-5 grid gap-5 lg:grid-cols-3">
@@ -137,15 +145,11 @@
       <h2 class="font-display text-2xl text-ink-900">Card, invoices and cancelling</h2>
       <p class="mt-1 text-sm text-ink-700">
         {% if sold_through_link %}
-          All three live in Stripe's own portal, and your orders at
+          All three live in Stripe's own portal; your orders at
           <a href="https://link.com" class="underline hover:text-ink-900" rel="noopener">link.com</a>
-          can cancel too. No card number ever reaches this application, and
-          whichever you use, Stripe tells this site, so the plan here follows.
+          can cancel too.
         {% else %}
-          All three live in Stripe's own portal. That is deliberate: no card
-          number ever reaches this application, and there is exactly one place
-          that can end a subscription, so nothing here can disagree with your
-          bank about whether it ended.
+          All three live in Stripe's own portal — no card number ever reaches this site.
         {% endif %}
       </p>
       <form method="post" action="{% url 'billing:portal' %}" class="mt-4">

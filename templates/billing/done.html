@@ -22,14 +22,12 @@
       </p>
     {% else %}
       <p class="text-ink-900">
-        Stripe has your payment. The confirmation reaches this application in a
-        separate message, usually within a few seconds, and your plan changes
-        when it arrives — not when this page loads.
+        Stripe has your payment; your plan changes within a few seconds.
       </p>
       <p class="mt-3 text-sm text-ink-700">
-        Nothing is lost if you close this. Reload
+        You can close this. Reload
         <a href="{% url 'billing:plans' %}" class="text-ink-900 underline">your plan</a>
-        in a moment and it will say {{ subscription.plan.name }} no longer.
+        in a moment to see it.
       </p>
     {% endif %}
 

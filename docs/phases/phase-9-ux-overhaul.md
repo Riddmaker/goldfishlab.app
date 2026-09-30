@@ -1,8 +1,8 @@
 # Phase 9 — UX overhaul: fewer words, more pictures, decks only
 
 **Status: IN PROGRESS (plan approved 2026-09-28, all build decisions made the same day - see
-"Decisions").** Batches A, A2, B, C, C2 and E are live, D (deck page) is built (see "... - what
-was built"); next is F - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
+"Decisions").** Batches A, A2, B, C, C2, D and E are live, F (the board) is built (see "... - what
+was built"); next is G - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
 `RESUME.md` is everything needed to continue.
 
 ## Why
@@ -469,6 +469,35 @@ record which cards were seen. New:
   buttons at the start.
 * Phone: the fan becomes a horizontal scroll row.
 * No animations library; a short CSS transition at most.
+
+### F - what was built (2026-09-30)
+
+Decisions by the user: a click on a card in hand plays it at once (Undo covers a slip); mana is
+drawn as own CSS pips, not Scryfall's symbols; and (the user's addition) a card under the
+pointer grows until it can be read. Template + view + CSS only - no migration, no engine change.
+
+* **`playtest/views.py`**: `board_context` gives the battlefield as three rows
+  (`BATTLEFIELD_ROWS`: lands, mana sources, creatures and other permanents together), graveyard
+  and exile as piles, `pips(pool)` in `PIP_ORDER` (the colour pie, then colourless), and
+  `deciding(game, live)` - no turn begun and only mulligans so far - because the engine has no
+  "kept" flag. An htmx answer sets `board_messages`, so the fragment shows its own messages;
+  the full page shows them once, in the base layout. **Found on the way:** an htmx action's
+  error ("costs 4, the floating mana is 2") was never shown until a reload, and the test that
+  looked for it passed on the hand's caption, which also said "floating mana".
+* **`playtest/_board.html`** rewritten, plus `_pile.html` and `_hand_face.html`: the bar (turn or
+  "Opening hand", life, phase stepper, pips, Next phase / "Start turn N", Draw, Undo, Redo); the
+  opening as two big buttons, Mulligan and Keep, with how many cards keeping bottoms; the table
+  (command zone and library left, rows in the middle, graveyard and exile right; the top card of
+  a pile shown, all of it in a fold); the hand as a fan where each card is a submit button
+  posting `play_land` or `cast_spell`. Log and branching folded. A draw-step line says to play
+  the land first - the engine counts a turn's mana once, when the main phase opens.
+* CSS (`.playtest-*`, `.pip-*`, `.board-card*`, `.card-back`, `.hand-*`): the fan turns each
+  card about a point below the hand (less per card and more overlap as the hand grows, so
+  fifteen fit), hover or focus straightens, lifts and scales it 1.8x with the action label
+  below; table cards scale 3x under the pointer. Up to 48rem the fan is a sideways-scrolling row
+  of straight cards. `prefers-reduced-motion` drops the transitions.
+* Page intro cut to one line. Tests: `tests/test_playtest_board.py` (10); the unaffordable-cast
+  test in `test_playtest_views.py` now looks for the message itself.
 
 ### G — Onboarding and trying it without an account
 

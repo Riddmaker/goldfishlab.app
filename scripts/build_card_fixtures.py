@@ -1,11 +1,6 @@
 """Regenerate the committed card/tag test fixtures from the Scryfall bulk files.
 
     py -3.13 scripts/build_card_fixtures.py <oracle_cards.jsonl.gz> <oracle_tags.jsonl.gz>
-    py -3.13 scripts/build_card_fixtures.py <oracle_cards> <oracle_tags> <default_cards>
-
-The third argument is optional and adds `default_cards_sample.jsonl.gz`, the
-printings of the sampled cards. Omit it and the existing printings fixture is
-left alone, which is what you want when only a deck changed.
 
 The fixtures are a deliberately small slice of the real bulk files: the 70 cards
 of the reference Chainer deck, every card the test decks in `decks/fixtures.py`
@@ -74,12 +69,6 @@ WANTED = DECK_NAMES | TEST_DECK_NAMES | set(EDGE_CASES)
 NON_CARD_LAYOUTS = {"art_series", "token"}
 KEEP_NON_CARDS = 2
 
-#: Printings kept per sampled card. Enough that a card genuinely has several to
-#: tell apart, few enough that the fixture stays a fixture - Sol Ring alone has
-#: over a hundred, and none of the hundredth tests anything the fourth did not.
-PER_CARD_CAP = 4
-
-
 def front(name: str) -> str:
     return name.split("//")[0].strip()
 
@@ -92,7 +81,7 @@ def fold(name: str) -> str:
     return "".join(c for c in text if not unicodedata.combining(c)).casefold()
 
 
-def main(cards_path: str, tags_path: str, printings_path: str | None = None) -> None:
+def main(cards_path: str, tags_path: str) -> None:
     FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
     wanted_folded = {fold(n) for n in WANTED}
 
@@ -123,50 +112,6 @@ def main(cards_path: str, tags_path: str, printings_path: str | None = None) -> 
 
     oracle_ids = set(chosen)
     _write(FIXTURE_DIR / "oracle_tags_sample.jsonl.gz", _select_tags(tags_path, oracle_ids))
-
-    if printings_path:
-        _write(
-            FIXTURE_DIR / "default_cards_sample.jsonl.gz",
-            _select_printings(printings_path, oracle_ids),
-        )
-
-
-def _select_printings(printings_path: str, oracle_ids: set[str]) -> list[dict]:
-    """Every printing of every sampled card, and nothing else.
-
-    All of them, not a representative one. The point of the printing catalogue
-    is that a card has many and a deck list names one, so a fixture holding a
-    single printing per card would let a resolver that ignores the set code
-    pass every test in the suite.
-
-    `PER_CARD_CAP` keeps the file small anyway: some cards in the sample have
-    dozens of printings, and the tests need enough to tell apart, not all of
-    them. Rows are taken in file order, which is Scryfall's own, so the
-    selection is stable across regenerations.
-    """
-    per_card: dict[str, list[dict]] = {}
-    total = 0
-
-    with gzip.open(printings_path, "rt", encoding="utf-8") as handle:
-        for line in handle:
-            row = json.loads(line)
-            if row.get("layout") in NON_CARD_LAYOUTS:
-                continue
-            oracle_id = row.get("oracle_id")
-            if oracle_id not in oracle_ids:
-                continue
-            kept = per_card.setdefault(oracle_id, [])
-            if len(kept) < PER_CARD_CAP:
-                kept.append(row)
-            total += 1
-
-    rows = [row for kept in per_card.values() for row in kept]
-    missing = len(oracle_ids) - len(per_card)
-    print(
-        f"printings fixture: {len(rows)} rows over {len(per_card)} cards "
-        f"(of {total} real printings; {missing} sampled cards have none)"
-    )
-    return rows
 
 
 def _select_tags(tags_path: str, oracle_ids: set[str]) -> list[dict]:
@@ -218,6 +163,6 @@ def _write(path: Path, rows: list[dict]) -> None:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) not in (3, 4):
+    if len(sys.argv) != 3:
         sys.exit(__doc__)
     main(*sys.argv[1:])

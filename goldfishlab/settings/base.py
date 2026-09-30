@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     "decks",
     "simulations",
     "playtest",
-    "collection",
     "combos",
     "core",
     "guests",
@@ -97,7 +96,7 @@ DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 
 # --- Scryfall ---------------------------------------------------------------
 # Scryfall requires a descriptive User-Agent AND an Accept header on every
-# request; omitting either answers HTTP 400 on /cards/collection. Identifying
+# request; omitting either answers HTTP 400. Identifying
 # the application is also simply their stated condition of use.
 SCRYFALL_USER_AGENT = env(
     "SCRYFALL_USER_AGENT", default="GoldfishLab/0.1 (+https://goldfishlab.app)"
@@ -278,8 +277,7 @@ CACHES = {
 # --- Content-Security-Policy ------------------------------------------------
 # Configured HERE rather than in prod.py on purpose: a policy that is only
 # switched on in production is a policy nobody has ever run. This one is
-# exercised by every request in development and by every test in the suite,
-# which is the same argument that keeps the printing catalogue optional.
+# exercised by every request in development and by every test in the suite.
 #
 # `style-src-attr` is the interesting line. Every chart in this application is
 # a server-rendered div whose *width* is the datum (the settled "no

@@ -323,31 +323,13 @@ body {
   min-height: 9rem;
 }
 
-/* Narrow controls where the value is a couple of characters: a priority box
+/* Narrow controls where the value is a couple of characters: a number box
  * as wide as the panel invites an essay. */
 .form-field input[type="number"] {
   max-width: 7rem;
 }
 
 .form-field :is(input, select, textarea):focus-visible {
-  outline: 2px solid var(--color-blood-700);
-  outline-offset: 1px;
-}
-
-/* The casting-order screen puts one control in a table cell, where a full
- * width box would push the table sideways on a phone. */
-.form-cell input[type="number"] {
-  width: 5rem;
-  padding: 0.25rem 0.375rem;
-  background-color: var(--color-parchment-50);
-  border: 1px solid var(--color-parchment-600);
-  border-radius: 2px;
-  color: var(--color-ink-900);
-  font-family: var(--font-body);
-  font-size: 0.9375rem;
-}
-
-.form-cell input:focus-visible {
   outline: 2px solid var(--color-blood-700);
   outline-offset: 1px;
 }
@@ -805,9 +787,9 @@ body {
   background-color: var(--color-parchment-100);
 }
 
-/* --- the card grid of the tune page ---------------------------------------- */
+/* --- the card grid of the deck page ---------------------------------------- */
 
-.tune-grid {
+.card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
   gap: 0.75rem;
@@ -816,25 +798,25 @@ body {
 /* Three across on a phone, not two: at two a 100-card deck was nine thousand
  * pixels of scrolling (Phase 9 D screenshot pass). */
 @media (max-width: 30rem) {
-  .tune-grid {
+  .card-grid {
     grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
     gap: 0.5rem;
   }
 }
 
-.tune-card {
+.card-grid-item {
   position: relative;
   display: block;
   text-decoration: none;
 }
 
-.tune-card img {
+.card-grid-item img {
   width: 100%;
   height: auto;
   border-radius: 0.5rem;
 }
 
-.tune-card-mark {
+.card-grid-mark {
   position: absolute;
   top: 0.375rem;
   right: 0.375rem;
@@ -843,7 +825,7 @@ body {
 /* --- the deck page (Phase 9 D) ---------------------------------------------- */
 
 /* How many copies, bottom left on the card - a stack of Swamps is one tile. */
-.tune-card-count {
+.card-grid-count {
   position: absolute;
   bottom: 0.375rem;
   left: 0.375rem;

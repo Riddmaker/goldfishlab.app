@@ -193,9 +193,6 @@ class Mapping:
     def has(self, column: Column) -> bool:
         return column.key in self.found
 
-    def declared_absent(self, column: Column) -> bool:
-        return column.key in self.absent
-
     def header_for(self, column: Column) -> str:
         """What this concept is bound to, for redisplaying the mapping form."""
         if column.key in self.absent:
@@ -246,10 +243,6 @@ class Mapping:
             f"this file has no {column.label} column. "
             + (hint or f"Re-export it with {column.aliases[0]} included.")
         )
-
-    @property
-    def missing_labels(self) -> list[str]:
-        return [c.label for c in ALL if not self.has(c)]
 
 
 #: Concept keys, for validating whatever a form posts back at us.

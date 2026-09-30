@@ -76,8 +76,8 @@ def test_the_opening_seven_are_the_same_every_time(deck, owner):
 def test_a_session_freezes_what_the_engine_could_not_read(session):
     """The board has to be as honest as the report."""
     assert session.cards_total > 0
-    assert 0.0 <= session.coverage <= 1.0
-    assert session.coverage_pct == round(session.coverage * 100, 1)
+    assert 0.0 <= session.readable_pct <= 100.0
+    assert session.cards_unreadable <= session.cards_with_gaps
 
 
 def test_editing_the_deck_does_not_reshape_a_game_in_progress(session, owner):

@@ -1,6 +1,8 @@
 {% comment %}
-  The named blind spots. Expects `blindspots` and `deck` in the context. The intro that used to
-  sit here is on the methodology page (#blind-spots, phase 9 H).
+  The named blind spots. Expects `blindspots` and `deck` in the context, and
+  `cards_link` where the deck's card grid is on another page (the run page).
+  The intro that used to sit here is on the methodology page (#blind-spots,
+  phase 9 H).
 
   This panel is the whole product's case for being trusted, so it is not a
   footnote and it is not behind a tab. Each entry names the limitation, says
@@ -41,9 +43,11 @@
         </ul>
       </div>
     {% endfor %}
-    <p class="mt-6 text-sm text-parchment-200">
-      <a href="{% url 'simulations:tune' deck.id %}"
-         class="text-parchment-100 underline">See what the engine read off every card</a>
-    </p>
+    {% if cards_link %}
+      <p class="mt-6 text-sm text-parchment-200">
+        <a href="{{ deck.get_absolute_url }}#cards"
+           class="text-parchment-100 underline">See every card of the deck</a>
+      </p>
+    {% endif %}
   </section>
 {% endif %}

@@ -9,8 +9,7 @@ Two rules that follow from it, both deliberate:
 
 1. **A stale answer is shown, not hidden.** The alternative is a page that goes
    blank because somebody else's API is down, which converts their outage into
-   our bug. An old answer with a date on it is worth more than no answer, and
-   it is the same call the collection page makes about prices.
+   our bug. An old answer with a date on it is worth more than no answer.
 2. **A refusal to refresh is not an error.** `COOLDOWN` stops somebody holding
    a key down and turning this application into a load generator against a free
    service. It returns the existing lookup and says why.
@@ -170,7 +169,7 @@ def _store(deck, results: spellbook.Results, *, held: set[str]) -> ComboLookup:
 
     # Replace, never merge. A lookup is Spellbook saying "this is what the deck
     # contains now"; merging would leave a combo on the page after the card
-    # that made it was cut. Same rule as the deck and collection importers.
+    # that made it was cut. Same rule as the deck importer.
     lookup.entries.all().delete()
 
     entries = []
@@ -251,9 +250,9 @@ def _upsert(record: spellbook.ComboRecord) -> Combo:
 
 #: How many "one card away" combos are shown before the rest are folded away.
 #: Measured, not guessed: the demo deck returns **125** of them and the
-#: reference deck 76. Rendered flat, that is a deck page taller than the
-#: collection page was at 7,958 pixels, and for the same reason - the detail
-#: pushes the thing somebody came for off the top of the screen. They are
+#: reference deck 76. Rendered flat, that is a deck page thousands of pixels
+#: tall - the detail pushes the thing somebody came for off the top of the
+#: screen. They are
 #: ordered by how many decks Spellbook has seen playing them, so the ones worth
 #: reading are the ones that survive the cut.
 ONE_AWAY_SHOWN = 8

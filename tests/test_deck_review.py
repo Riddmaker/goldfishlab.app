@@ -303,15 +303,15 @@ def test_a_ready_deck_has_nothing_to_review(client, owner, deck, questions):
     assert response.url == deck.get_absolute_url()
 
 
-def test_the_tune_page_puts_the_open_cards_first(client, owner, deck, questions):
+def test_the_card_grid_puts_the_open_cards_first(client, owner, deck, questions):
     client.force_login(owner)
 
-    body = client.get(reverse("simulations:tune", args=[deck.pk])).content.decode()
+    body = client.get(deck.get_absolute_url()).content.decode()
 
     assert body.count("! needs you") == len(questions)
     # The first tile of the grid is the first open card.
-    first_tile = body.index('class="tune-card"')
-    assert body.index("! needs you") < body.index('class="tune-card"', first_tile + 1)
+    first_tile = body.index('class="card-grid-item"')
+    assert body.index("! needs you") < body.index('class="card-grid-item"', first_tile + 1)
 
 
 def test_somebody_elses_deck_has_no_review(client, deck):

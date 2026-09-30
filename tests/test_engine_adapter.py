@@ -226,7 +226,7 @@ def test_the_conversion_reports_what_it_could_not_model(converted):
     that there are none.
     """
     assert converted.cards_total > 0
-    assert 0.0 <= converted.coverage <= 1.0
+    assert 0.0 <= converted.readable <= 1.0
     for gap in converted.gaps:
         assert gap.card and gap.field and gap.reason
 

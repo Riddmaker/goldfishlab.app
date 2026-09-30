@@ -183,11 +183,10 @@ def test_coverage_reports_what_the_reader_could_not_resolve(deck):
     add(deck, "Sol Ring")  # fully resolved
 
     result = analyse(deck)
-    assert result.cards_needing_review >= 1
-    assert 0.0 < result.coverage < 1.0
+    assert 1 <= result.cards_needing_review < result.total_cards
 
 
 def test_an_empty_deck_does_not_divide_by_zero(deck):
     result = analyse(deck)
-    assert result.coverage == 0.0
+    assert result.cards_needing_review == 0
     assert result.average_mv == 0.0

@@ -237,10 +237,11 @@ def apply(overrides: dict, values: dict) -> dict:
     make the box a lie. Every non-editable key is carried through untouched -
     see the module docstring for why that matters more than it looks.
 
-    For a screen that edits **one** key, use :func:`patch`. Calling this with a
-    partial dict would silently throw away judgements the caller never asked
-    about, which is how the casting-order screen (removed in Phase 9 C) nearly
-    deleted every role somebody had set.
+    Never call it with a partial dict: it would silently throw away judgements
+    the caller never asked about, which is how the casting-order screen
+    (removed in Phase 9 C) nearly deleted every role somebody had set. (Its
+    one-key sibling `patch` went in phase 9 I, with the last screen that used
+    it.)
 
     Args:
         overrides: What is stored now.
@@ -254,23 +255,6 @@ def apply(overrides: dict, values: dict) -> dict:
         key: value for key, value in (overrides or {}).items()
         if key not in EDITABLE_KEYS
     }
-    return _merged(kept, values)
-
-
-def patch(overrides: dict, values: dict) -> dict:
-    """Change only the keys named, leaving every other one alone.
-
-    What a single-purpose screen needs: one that knows about `priority` and
-    nothing else must not be able to remove a role or a mana judgement that a
-    different screen recorded. `None` still means "no opinion", and removes
-    that one key.
-
-    Returns:
-        dict: The overrides to store. Never the same object as `overrides`.
-    """
-    kept = dict(overrides or {})
-    for key in values:
-        kept.pop(key, None)
     return _merged(kept, values)
 
 

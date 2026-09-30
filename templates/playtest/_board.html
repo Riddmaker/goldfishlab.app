@@ -31,7 +31,7 @@
       <strong>{{ session.cards_total }}</strong> cards in this deck
       ({{ session.readable_pct }}% read). Those cards still move, but what
       they <em>do</em> is up to you —
-      <a href="{% url 'simulations:tune' deck.id %}" class="underline">tell the engine what they mean</a>.
+      <a href="{% url 'simulations:review' deck.id %}" class="underline">tell the engine what they mean</a>.
     </p>
   {% endif %}
 

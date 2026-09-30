@@ -233,3 +233,13 @@ def test_the_methodology_page_names_the_template_and_its_land_band(client):
 
     assert "not a rule" in body
     assert f"{low} to {high} lands" in body
+
+
+def test_the_commander_picture_opens_its_card_page(client_in, deck):
+    """Phase 9 I: the commander is not in the grid (not one of the 99), and
+    the card list that did show it is gone - so its picture is the way in."""
+    assert deck.commander.image_uri, "the fixture commander has no picture"
+
+    body = client_in.get(deck.get_absolute_url()).content.decode()
+
+    assert reverse("simulations:annotate", args=[deck.pk, deck.commander.pk]) in body

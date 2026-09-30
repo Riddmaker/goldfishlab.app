@@ -324,29 +324,13 @@ class SimulationRun(models.Model):
         share = int(100 * self.games_done / self.games_total)
         return share if self.is_finished else min(99, share)
 
-    @property
-    def cards_modelled(self) -> int:
-        """Distinct cards the engine could describe without a gap."""
-        return max(0, self.cards_total - self.cards_with_gaps)
-
-    @property
-    def coverage(self) -> float:
-        """The share of the deck's cards the engine could describe in full."""
-        if not self.cards_total:
-            return 0.0
-        return self.cards_modelled / self.cards_total
-
-    @property
-    def coverage_pct(self) -> float:
-        """The same share, as the percentage every result is shown beside."""
-        return 100.0 * self.coverage
-
-    # --- the two halves of that score --------------------------------------
+    # --- the score: how much of the deck the engine read ---------------------
     #
     # Classified out of the stored `gaps` by field name, which every row -
     # including every run finished before the split existed - already carries.
-    # Nothing is back-filled and nothing is rewritten: a stored run is a record
-    # of what the engine saw, and this only reads it more carefully.
+    # The engine still records the `judgement` gaps (a cast priority nobody
+    # set), but since phase 9 C no page counts them: the default rule is an
+    # answer nobody has to give. Nothing is back-filled and nothing rewritten.
 
     @property
     def reading_gaps(self) -> list:
@@ -354,19 +338,9 @@ class SimulationRun(models.Model):
         return gaps.of_kind(self.gaps, gaps.READING)
 
     @property
-    def judgement_gaps(self) -> list:
-        """The stored gaps only the deck's author can close."""
-        return gaps.of_kind(self.gaps, gaps.JUDGEMENT)
-
-    @property
     def cards_unreadable(self) -> int:
         """Distinct cards the engine could not read. Our own limit."""
         return len(gaps.cards_with(self.gaps, gaps.READING))
-
-    @property
-    def cards_unjudged(self) -> int:
-        """Distinct cards nobody has made the deck-author calls on."""
-        return len(gaps.cards_with(self.gaps, gaps.JUDGEMENT))
 
     @property
     def cards_read(self) -> int:
@@ -374,16 +348,6 @@ class SimulationRun(models.Model):
         return max(0, self.cards_total - self.cards_unreadable)
 
     @property
-    def cards_judged(self) -> int:
-        """Distinct cards with every deck-author call already made."""
-        return max(0, self.cards_total - self.cards_unjudged)
-
-    @property
     def readable_pct(self) -> float:
         """How much of the deck the engine read, as a percentage."""
         return 100.0 * gaps.share(self.cards_total, self.cards_unreadable)
-
-    @property
-    def judged_pct(self) -> float:
-        """How much of the deck somebody has said how to play."""
-        return 100.0 * gaps.share(self.cards_total, self.cards_unjudged)

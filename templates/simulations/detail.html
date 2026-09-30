@@ -45,8 +45,8 @@
         </details>
       {% endif %}
       <p class="mt-4 text-sm text-ink-700">
-        <a href="{% url 'simulations:tune' run.deck.id %}"
-           class="text-ink-900 underline">See what the engine read off every card</a>
+        <a href="{{ run.deck.get_absolute_url }}#cards"
+           class="text-ink-900 underline">See every card of the deck</a>
       </p>
       {% if report.annotations_changed %}
         <p class="mt-3 border-l-2 border-blood-600 pl-4 text-sm text-ink-700">
@@ -62,6 +62,6 @@
         {% include "core/_why.html" with anchor="games" %}
       </p>
     </section>
-    {% include "simulations/_blindspots.html" with deck=run.deck %}
+    {% include "simulations/_blindspots.html" with deck=run.deck cards_link=True %}
   {% endif %}
 {% endblock %}

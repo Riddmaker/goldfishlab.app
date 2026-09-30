@@ -21,8 +21,8 @@ So a gap now says which question it is:
     Nobody has said. How early to cast it, whether it makes a one-land hand
     keepable. No amount of card text implies these; they are deck-author
     opinions, and `simulation/` has always treated them that way. **This is not
-    a limit of the application**, and closing it is one person's five minutes on
-    the tune page.
+    a limit of the application** - and since phase 9 C the engine's default rule
+    answers them, so no page asks.
 
 The split is a **property of the field**, not of the row, so it applies to gaps
 already stored on finished runs and open playtest sessions. That is deliberate:

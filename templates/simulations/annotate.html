@@ -9,7 +9,7 @@
     {% if step %}
       <span class="tabular text-parchment-200">{{ step.position }} of {{ step.total }}</span>
     {% endif %}
-    <a href="{% url 'simulations:tune' deck.id %}"
+    <a href="{{ deck.get_absolute_url }}#cards"
        class="ml-auto text-sm text-parchment-200 underline">All cards of {{ deck.name }}</a>
   </div>
   <div class="mt-6 grid gap-6 md:grid-cols-2">

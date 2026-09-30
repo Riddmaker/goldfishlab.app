@@ -103,29 +103,14 @@ class Conversion:
         return len(gaps_module.cards_with(self.gaps, gaps_module.READING))
 
     @property
-    def cards_unjudged(self) -> int:
-        """Cards nobody has made the deck-author calls on. Not our limit."""
-        return len(gaps_module.cards_with(self.gaps, gaps_module.JUDGEMENT))
-
-    @property
-    def coverage(self) -> float:
-        """Share of cards the adapter could describe without a gap.
-
-        Both questions at once, which is what every stored run was computed
-        with. `readable` and `judged` are the two halves, and they are the ones
-        worth acting on - see `simulations.gaps`.
-        """
-        return gaps_module.share(self.cards_total, self.cards_with_gaps)
-
-    @property
     def readable(self) -> float:
-        """Share of cards the engine read in full."""
-        return gaps_module.share(self.cards_total, self.cards_unreadable)
+        """Share of cards the engine read in full - the score every page shows.
 
-    @property
-    def judged(self) -> float:
-        """Share of cards somebody has said how to play."""
-        return gaps_module.share(self.cards_total, self.cards_unjudged)
+        The cast-priority gaps are recorded too (`cards_with_gaps` counts
+        them) but not scored: since phase 9 C the default rule is an answer
+        nobody has to give - see `simulations.gaps`.
+        """
+        return gaps_module.share(self.cards_total, self.cards_unreadable)
 
 
 def deck_definition(deck: Deck, *, adding=None) -> DeckDefinition:
@@ -208,18 +193,9 @@ class Reading:
     is_commander: bool = False
 
     @property
-    def has_gaps(self) -> bool:
-        return bool(self.gaps)
-
-    @property
     def unreadable(self) -> bool:
         """The engine could not read something off this card."""
         return any(gap.kind == gaps_module.READING for gap in self.gaps)
-
-    @property
-    def unjudged(self) -> bool:
-        """Nobody has made a call this card needs. A different sort of row."""
-        return any(gap.kind == gaps_module.JUDGEMENT for gap in self.gaps)
 
     # --- the engine's reading, in words --------------------------------------
     #

@@ -71,8 +71,6 @@ PRIVATE_SHOTS = [
     # stacked, which is the layout most likely to fall apart on a phone.
     ("import-map-desktop", "{pending}", DESKTOP),
     ("import-map-phone", "{pending}", PHONE),
-    ("tune-desktop", "/decks/{deck_id}/tune/", DESKTOP),
-    ("tune-phone", "/decks/{deck_id}/tune/", PHONE),
     # Phase 6. With no Stripe keys - which is every environment but production
     # - this page says so and offers nothing to buy, and that is exactly the
     # state worth photographing: it is what a stranger running this repository
@@ -293,14 +291,14 @@ def _find_review_url(page, base: str, deck_url: str) -> str:
 
 
 def _find_card_url(page, base: str, deck_id: str) -> str:
-    """The first card on the tune page, which is one with an unresolved value.
+    """The first card of the deck page's grid, which is one with an open value.
 
-    The page sorts those first on purpose, so taking the first link
+    The grid sorts those first on purpose, so taking the first link
     photographs the screen doing its job rather than a Swamp about which
     everything is already known.
     """
-    page.goto(f"{base}/decks/{deck_id}/tune/", wait_until="networkidle")
-    link = page.query_selector(f"a[href^='/decks/{deck_id}/tune/'][href$='/']")
+    page.goto(f"{base}/decks/{deck_id}/", wait_until="networkidle")
+    link = page.query_selector(f"#card-grid a[href^='/decks/{deck_id}/tune/'][href$='/']")
     href = link.get_attribute("href") if link else ""
     return href if href and href.rstrip("/").split("/")[-1] != "tune" else ""
 

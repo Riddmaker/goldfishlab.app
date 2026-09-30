@@ -11,7 +11,8 @@ What these tests hold:
 1. The classification is a property of the **field**, so gaps already stored on
    finished runs and open sessions split correctly with no migration and no
    rewriting of history.
-2. The two halves are each bounded, and neither can exceed the whole.
+2. The reading score is bounded, and the priority gaps (recorded, but shown
+   nowhere since phase 9 C) never pull it down.
 3. The decks whose whole purpose is one of the two kinds land on the right side
    of the line. `unmodellable` is meant to be unreadable; the 183-card demo
    deck is readable and simply unjudged, which is exactly the distinction the
@@ -140,15 +141,12 @@ def test_a_share_is_never_negative_and_never_over_one():
 
 # --- the numbers on a real deck --------------------------------------------
 
-def test_neither_half_can_exceed_the_whole(build):
+def test_the_reading_score_is_bounded_and_ignores_the_priority_gaps(build):
     conversion = adapter.convert(build(LAND_LIGHT))
     assert conversion.cards_unreadable <= conversion.cards_with_gaps
-    assert conversion.cards_unjudged <= conversion.cards_with_gaps
     assert 0.0 <= conversion.readable <= 1.0
-    assert 0.0 <= conversion.judged <= 1.0
-    # Both halves are at least as good as the number that mixes them.
-    assert conversion.readable >= conversion.coverage
-    assert conversion.judged >= conversion.coverage
+    # At least as good as the number that mixes both kinds of gap.
+    assert conversion.readable >= gaps.share(conversion.cards_total, conversion.cards_with_gaps)
 
 
 def test_the_unreadable_deck_is_unreadable_and_not_merely_unjudged(build):
@@ -163,15 +161,17 @@ def test_the_unreadable_deck_is_unreadable_and_not_merely_unjudged(build):
     assert conversion.cards_unreadable >= 5
 
 
-def test_a_deck_nobody_annotated_reads_well_and_judges_badly(build):
+def test_a_deck_nobody_annotated_still_reads_well(build):
     """The other side of the same line.
 
     Every card here is an ordinary card the deriver handles; what is missing is
-    a person's opinion. Before the split this deck and the one above were both
-    simply "low coverage".
+    a person's opinion on casting order, which no page counts any more (phase 9
+    C). Before the split this deck and the one above were both simply "low
+    coverage".
     """
     conversion = adapter.convert(build(LAND_LIGHT))
-    assert conversion.readable > conversion.judged
+    mixed = gaps.share(conversion.cards_total, conversion.cards_with_gaps)
+    assert conversion.readable > mixed
 
 
 # --- what a stored run reports ---------------------------------------------
@@ -189,11 +189,8 @@ def test_a_finished_run_splits_the_gaps_it_was_computed_with(build, owner):
     )
 
     assert run.cards_unreadable == conversion.cards_unreadable
-    assert run.cards_unjudged == conversion.cards_unjudged
     assert run.cards_read + run.cards_unreadable == run.cards_total
-    assert run.cards_judged + run.cards_unjudged == run.cards_total
-    assert run.readable_pct >= run.coverage_pct
-    assert run.judged_pct >= run.coverage_pct
+    assert run.readable_pct == 100.0 * conversion.readable
 
 
 def test_the_two_stored_lists_partition_the_whole(build, owner):
@@ -207,8 +204,9 @@ def test_the_two_stored_lists_partition_the_whole(build, owner):
         cards_with_gaps=conversion.cards_with_gaps,
     )
 
-    assert len(run.reading_gaps) + len(run.judgement_gaps) == len(run.gaps)
-    assert not set(map(id, run.reading_gaps)) & set(map(id, run.judgement_gaps))
+    judgement = gaps.of_kind(run.gaps, gaps.JUDGEMENT)
+    assert len(run.reading_gaps) + len(judgement) == len(run.gaps)
+    assert not set(map(id, run.reading_gaps)) & set(map(id, judgement))
 
 
 def test_a_run_from_before_the_split_still_splits(build, owner):
@@ -231,7 +229,5 @@ def test_a_run_from_before_the_split_still_splits(build, owner):
     )
 
     assert run.cards_unreadable == 1
-    assert run.cards_unjudged == 1
+    assert run.cards_read == 3
     assert run.readable_pct == 75.0
-    assert run.judged_pct == 75.0
-    assert run.coverage_pct == 50.0

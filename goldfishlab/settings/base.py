@@ -114,9 +114,6 @@ SCRYFALL_USER_AGENT = env(
 # check with a message that looks like an attack.
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
 STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
-# Publishable, and therefore the one value here that may appear in a page.
-# Unused today: hosted Checkout is a redirect, so nothing runs Stripe.js.
-STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY", default="")
 # Stripe Managed Payments: Stripe ("Sold through Link") becomes the merchant of
 # record and owes, files and pays the EU/UK/... VAT that a Swiss seller of a
 # subscription would otherwise owe from the first sale. Off until Stripe's

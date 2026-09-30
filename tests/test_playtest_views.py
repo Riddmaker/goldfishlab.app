@@ -194,13 +194,13 @@ def test_a_draw_cannot_ask_for_the_whole_library(signed_in, session):
 # --- Honesty ---------------------------------------------------------------
 
 def test_a_deck_the_engine_cannot_read_says_so_on_the_board(signed_in, owner):
-    """The same claim the tune page makes, made where the game is played."""
+    """The same claim the deck page makes, made where the game is played."""
     deck = seeding.build(UNMODELLABLE, owner).deck
     session = services.start(deck, owner, seed=1)
     body = signed_in.get(session.get_absolute_url()).content.decode()
     assert "could not read" in body
     assert f"{session.cards_with_gaps}" in body
-    assert reverse("simulations:tune", args=[deck.id]) in body
+    assert reverse("simulations:review", args=[deck.id]) in body
 
 
 def test_a_deck_the_engine_understands_does_not_shout(signed_in, session):

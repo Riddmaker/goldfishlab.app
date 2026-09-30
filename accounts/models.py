@@ -2,7 +2,7 @@
 
 AUTH_USER_MODEL is set from the very first migration on purpose. Swapping it
 later is one of the genuinely painful migrations in Django, and this project
-will grow user-owned decks, collections and simulation runs.
+will grow user-owned decks, simulation runs and playtests.
 """
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager

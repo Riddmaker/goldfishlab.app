@@ -1,0 +1,6 @@
+{% comment %}
+  The small "Why?" beside a section (phase 9 H, principle 1): the page keeps
+  one sentence, the explanation lives on the methodology page under `anchor`.
+{% endcomment %}
+<a href="{% url 'methodology' %}#{{ anchor }}"
+   class="text-sm {% if dark %}text-parchment-200 hover:text-parchment-100{% else %}text-ink-700 hover:text-ink-900{% endif %} underline">Why?</a>

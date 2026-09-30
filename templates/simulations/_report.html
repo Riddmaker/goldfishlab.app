@@ -89,12 +89,9 @@
 <section class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">Opening hands</h2>
   <p class="mt-1 text-sm text-ink-700">
-    Lands in the first seven cards across {{ report.iterations }} games, beside the
-    exact hypergeometric probability for a {{ report.library_size }}-card deck with
-    {{ report.lands_total }} lands. The two columns are computed in completely
-    different ways — one by shuffling and dealing thousands of times, the other by
-    counting combinations — so where they agree, the simulation is demonstrably
-    doing what it claims.
+    Lands in the first seven cards, simulated beside the exact (hypergeometric) maths
+    for {{ report.lands_total }} lands in {{ report.library_size }} cards.
+    {% include "core/_why.html" with anchor="opening" %}
   </p>
   <table class="mt-5 w-full text-left text-sm">
     <thead>
@@ -122,10 +119,8 @@
   </table>
   <h3 class="font-display mt-6 text-lg text-ink-900">…and what was kept</h3>
   <p class="mt-1 text-sm text-ink-700">
-    The same hands after the mulligan rule has had its say. There is no exact
-    column here and there should not be: this distribution is the product of the
-    keep heuristic, not of arithmetic, which is why the hands with no lands and
-    the hands with six have largely gone.
+    The same hands after the mulligan rule.
+    {% include "core/_why.html" with anchor="mulligan" %}
   </p>
   <table class="mt-4 w-full text-left text-sm">
     <thead>
@@ -153,7 +148,8 @@
       <tr class="border-b border-parchment-600 text-ink-700">
         <th scope="col" class="py-1.5 pr-3">Opening hand</th>
         <th scope="col" class="py-1.5 pr-3">Share</th>
-        <th scope="col" class="py-1.5">Games</th>
+        <th scope="col" class="py-1.5 pr-3">Games</th>
+        <th scope="col" class="py-1.5"><span class="sr-only">Share as a bar</span></th>
       </tr>
     </thead>
     <tbody>
@@ -161,7 +157,12 @@
         <tr class="border-b border-parchment-300">
           <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
           <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.share|floatformat:"1" }}%</td>
-          <td class="tabular py-1.5 text-ink-700">{{ row.count }}</td>
+          <td class="tabular py-1.5 pr-3 text-ink-700">{{ row.count }}</td>
+          <td class="py-1.5">
+            <span class="inline-block h-3 bg-ink-800 align-middle"
+                  style="width: {% widthratio row.share 100 100 %}%"
+                  role="presentation"></span>
+          </td>
         </tr>
       {% endfor %}
     </tbody>
@@ -170,9 +171,8 @@
 <section class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">Mana and lands, turn by turn</h2>
   <p class="mt-1 text-sm text-ink-700">
-    The median is what usually happens. The tenth percentile is the game that
-    goes wrong — which is the one a deck gets rebuilt for, and the one an
-    average hides completely.
+    p10 is the game that goes wrong.
+    {% include "core/_why.html" with anchor="report-mana" %}
   </p>
   <table class="mt-5 w-full text-left text-sm">
     <thead>
@@ -203,9 +203,8 @@
   <section class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">What the mana was made of</h2>
     <p class="mt-1 text-sm text-ink-700">
-      The same mana as the table above, split by colour. This is the column that
-      says whether a mana base works: five mana on turn three is a good turn, and
-      five mana of which four is the wrong colour is a turn spent doing nothing.
+      The same mana, split by colour — means only.
+      {% include "core/_why.html" with anchor="report-colour" %}
     </p>
     <table class="mt-5 w-full text-left text-sm">
       <thead>
@@ -229,21 +228,14 @@
         {% endfor %}
       </tbody>
     </table>
-    <p class="mt-4 text-xs text-ink-700">
-      Means, and only means — the engine's pool counts mana rather than holding
-      the sources that made it, so a card that could have made one of several
-      colours was read as making one fixed colour. Every card that happened to
-      is listed as a gap under “What was actually modelled”.
-    </p>
   </section>
 {% endif %}
 {% if report.milestones %}
   <section class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">Milestones</h2>
     <p class="mt-1 text-sm text-ink-700">
-      The share of games in which each of these was true by the end of that turn.
-      They are read from the cards' own role tags, so a deck built differently
-      gets the same table without anything here changing.
+      Share of games where it was true by the end of each turn.
+      {% include "core/_why.html" with anchor="report-milestones" %}
     </p>
     <table class="mt-5 w-full text-left text-sm">
       <thead>
@@ -281,9 +273,8 @@
   <section id="combo-timings" class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">Combos, and how long they take</h2>
     <p class="mt-2 text-sm text-ink-700">
-      From Commander Spellbook's curated list, measured by this run. A combo counts as
-      together only when every card is in the zone it has to be in — on the battlefield, in
-      the graveyard, in hand — not merely drawn.
+      From Commander Spellbook, measured by this run.
+      {% include "core/_why.html" with anchor="combos" %}
     </p>
     <table class="mt-4 w-full text-left text-sm">
       <thead>
@@ -316,9 +307,7 @@
       </tbody>
     </table>
     <p class="mt-3 text-xs text-ink-700">
-      A row with a card in the <strong>Add</strong> column was measured on this deck
-      <em>plus</em> that card — one card larger, with nothing cut to make room. Which card a
-      deck can spare is not a judgement this application makes.
+      A card in <strong>Add</strong>: measured on this deck <em>plus</em> that card, nothing cut.
     </p>
   </section>
 {% endif %}

@@ -20,7 +20,6 @@ What these tests are really for, in order of how much they matter:
    deck is a 404, at the source.
 """
 
-from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -28,7 +27,6 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 
-from cards import ingest, profiles
 from cards.models import OracleCard
 from decks import services as deck_services
 from simulations import annotations, blindspots, provenance, report, services
@@ -47,15 +45,7 @@ pytestmark = pytest.mark.django_db
 User = get_user_model()
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 ARCHIDEKT_CSV = FIXTURES / "archidekt_sample.csv"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 PASSWORD = "pw-for-test-only"
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture

@@ -8,13 +8,10 @@ The verdicts are tested for their *sentences*, not only their booleans. A red
 badge with no explanation next to it is how users learn to ignore badges.
 """
 
-from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
 
-from cards import ingest, profiles
 from cards.models import OracleCard
 from decks.analysis import KARSTEN_MAX, KARSTEN_MIN, analyse
 from decks.models import Deck, DeckCard
@@ -22,15 +19,6 @@ from decks.models import Deck, DeckCard
 pytestmark = pytest.mark.django_db
 
 User = get_user_model()
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture

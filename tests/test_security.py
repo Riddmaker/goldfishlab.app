@@ -208,18 +208,8 @@ def test_allauth_counts_the_same_client_as_our_own_limiter():
 
 
 @pytest.fixture(autouse=True)
-def _pinned_window(monkeypatch):
-    """Keep every django-ratelimit count inside one fixed window.
-
-    It counts in fixed windows, so a loop of posts that straddles a window
-    edge restarts the count and a limit test fails for no reason - seen with
-    the admin login (twelve password hashes) and the simulation start (25
-    posts). Pinning the window makes these tests measure the limit, not the
-    clock. allauth's own limits count differently and are not touched.
-    """
-    import django_ratelimit.core
-
-    monkeypatch.setattr(django_ratelimit.core, "_get_window", lambda value, period: 4_102_444_800)
+def _pinned_window(pinned_window):
+    """Every limiter test here loops; see `conftest.pinned_window`."""
 
 
 def _post_repeatedly(client, url, times, data=None):

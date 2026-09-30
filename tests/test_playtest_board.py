@@ -13,14 +13,11 @@ What these tests hold:
 4. **Mana reads like Magic.** The pips come in the order of the colour pie.
 """
 
-from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from cards import ingest, profiles
 from decks import seeding
 from decks.fixtures import LAND_LIGHT
 from playtest import services, views
@@ -29,16 +26,11 @@ from simulation.manacost import COLORLESS, COLORS
 pytestmark = pytest.mark.django_db
 
 User = get_user_model()
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 HTMX = {"HX-Request": "true"}
 
 
 @pytest.fixture
-def owner():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
+def owner(catalogue):
     return User.objects.create_user(email="table@example.com", password="pw-for-test-only")
 
 

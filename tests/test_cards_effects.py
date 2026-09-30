@@ -17,28 +17,20 @@ reference deck was annotated by somebody who plays it, and the deriver now
 reproduces all three of their tutors without being shown the answer.
 """
 
-from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
 
-from cards import ingest, profiles
+from cards import profiles
 from cards.models import OracleCard
 from simulation.fixtures import chainer
 
 pytestmark = pytest.mark.django_db
 
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 
 
 @pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz",
-                        updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz",
-                       updated_at=VERSION)
-    profiles.rebuild()
+def catalogue(catalogue):
+    """The shared sample (conftest), as `{name: profile}`."""
     return {card.front_name: card.profile for card in
             OracleCard.objects.select_related("profile")}
 

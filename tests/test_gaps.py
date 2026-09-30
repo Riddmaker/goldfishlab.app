@@ -19,13 +19,10 @@ What these tests hold:
    old single number hid.
 """
 
-from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
 
-from cards import ingest, profiles
 from decks import seeding
 from decks.fixtures import BY_KEY, LAND_LIGHT, UNMODELLABLE
 from simulations import gaps
@@ -35,17 +32,6 @@ from simulations.models import SimulationRun
 pytestmark = pytest.mark.django_db
 
 User = get_user_model()
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz",
-                        updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz",
-                       updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture

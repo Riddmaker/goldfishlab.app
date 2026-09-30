@@ -16,14 +16,12 @@ What these tests are for, in order of how much they matter:
 5. **Ownership.** Somebody else's deck is a 404, fragment or not.
 """
 
-from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from cards import ingest, profiles
 from decks import services as deck_services
 from simulations import deck_cards, review, services
 from simulations.engine import adapter
@@ -35,15 +33,11 @@ pytestmark = pytest.mark.django_db
 User = get_user_model()
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 ARCHIDEKT_CSV = FIXTURES / "archidekt_sample.csv"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 HTMX = {"HTTP_HX_REQUEST": "true"}
 
 
 @pytest.fixture
-def owner():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
+def owner(catalogue):
     return User.objects.create_user(email="owner@example.com", password="pw-for-test-only")
 
 

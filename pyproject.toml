@@ -40,7 +40,7 @@ select = ["E", "F", "W", "I", "B", "UP", "DJ", "S"]
 "tests/test_statistics.py" = ["S101", "S105", "S106", "S311", "I001"]
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "goldfishlab.settings.dev"
+DJANGO_SETTINGS_MODULE = "goldfishlab.settings.test"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 markers = [

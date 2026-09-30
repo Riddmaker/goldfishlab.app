@@ -11,14 +11,11 @@ belonging to somebody else is a 404, never a 403 and never a page.
 """
 
 import random
-from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from cards import ingest, profiles
 from decks import seeding
 from decks.fixtures import LAND_LIGHT, UNMODELLABLE
 from playtest import services
@@ -29,18 +26,7 @@ from simulation.game import Game
 pytestmark = pytest.mark.django_db
 
 User = get_user_model()
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 PASSWORD = "pw-for-test-only"
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz",
-                        updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz",
-                       updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture

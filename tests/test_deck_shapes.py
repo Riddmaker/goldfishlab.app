@@ -31,13 +31,10 @@ here, in order:
 """
 
 import html
-from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
 
-from cards import ingest, profiles
 from cards.models import OracleCard
 from decks import seeding
 from decks.fixtures import (
@@ -61,21 +58,12 @@ from simulations.models import CardAnnotation
 pytestmark = pytest.mark.django_db
 
 User = get_user_model()
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 
 #: Small enough to stay in the fast loop, large enough for the two land counts
 #: to separate. At ~110 microseconds per game per turn this is a few hundred
 #: milliseconds, and the difference it measures is enormous.
 GAMES = 300
 TURNS = 6
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture

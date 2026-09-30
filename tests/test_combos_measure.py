@@ -23,15 +23,12 @@ damage:
 """
 
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
 
 from billing.models import UsageRecord
 from billing.quotas import period_start
-from cards import ingest, profiles
 from cards.models import OracleCard
 from combos import measure, services
 from combos.models import (
@@ -53,8 +50,6 @@ from simulations.models import SimulationRun
 pytestmark = pytest.mark.django_db
 
 User = get_user_model()
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 PASSWORD = "pw-for-test-only"
 
 #: Small, cheap and real. Carrion Feeder and Gravecrawler both cost one mana,
@@ -276,13 +271,6 @@ def test_two_hypotheticals_in_one_chunk_do_not_play_the_same_games():
 
 
 # --- the database side -----------------------------------------------------
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture

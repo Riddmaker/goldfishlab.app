@@ -15,7 +15,6 @@ What these tests are for, in order of how much they matter:
 5. **Ownership.** Somebody else's deck is a 404 here too.
 """
 
-from datetime import UTC, datetime
 from io import StringIO
 from pathlib import Path
 
@@ -24,7 +23,6 @@ from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.urls import reverse
 
-from cards import ingest, profiles
 from cards.models import DerivedProfile
 from decks import services as deck_services
 from decks.models import Deck
@@ -37,14 +35,6 @@ pytestmark = pytest.mark.django_db
 User = get_user_model()
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 ARCHIDEKT_CSV = FIXTURES / "archidekt_sample.csv"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture

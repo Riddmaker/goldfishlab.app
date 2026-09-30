@@ -10,6 +10,8 @@ drifting, "all 65 tests still green" stops meaning anything.
 import pytest
 from django.core.cache import cache
 
+from tests.support import load_catalogue
+
 # Engine test modules vendored from magic-project. They import no Django and
 # must never need a database.
 ENGINE_MODULES = {"test_cards", "test_mana", "test_game", "test_statistics"}
@@ -33,3 +35,30 @@ def _isolate_cache():
     cache.clear()
     yield
     cache.clear()
+
+
+# --- the card catalogue (the loader lives in tests/support.py) ---------------
+
+
+@pytest.fixture
+def catalogue(db):
+    load_catalogue()
+
+
+# --- rate limits ------------------------------------------------------------
+
+
+@pytest.fixture
+def pinned_window(monkeypatch):
+    """Keep every django-ratelimit count inside one fixed window.
+
+    It counts in fixed windows, so a loop of posts that straddles a window
+    edge restarts the count and a limit test fails for no reason - seen with
+    the admin login (twelve password hashes) and the simulation start (25
+    posts). Pinning the window makes these tests measure the limit, not the
+    clock. allauth's own limits count differently and are not touched.
+    """
+    import django_ratelimit.core
+
+    monkeypatch.setattr(django_ratelimit.core, "_get_window",
+                        lambda value, period: 4_102_444_800)

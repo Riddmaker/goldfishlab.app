@@ -22,7 +22,7 @@ What it covers, on purpose:
 
 import json
 from dataclasses import replace
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
@@ -30,7 +30,6 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils import timezone
 
-from cards import ingest, profiles
 from combos import services, spellbook
 from combos.models import Combo, ComboCard, ComboLookup, ComboTemplate, DeckCombo
 from decks import services as deck_services
@@ -40,7 +39,6 @@ pytestmark = pytest.mark.django_db
 User = get_user_model()
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 RESPONSE = FIXTURES / "spellbook_find_my_combos.json"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 PASSWORD = "pw-for-test-only"
 
 DECK_LIST = (
@@ -51,13 +49,6 @@ DECK_LIST = (
     b"1 Blood Artist\n"
     b"30 Swamp\n"
 )
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture

@@ -6,25 +6,19 @@ defaulted. Most of the assertions below are therefore about what the code
 refuses to claim.
 """
 
-from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
 
-from cards import ingest, profiles
+from cards import profiles
 from cards.models import DerivedProfile, OracleCard
 
 pytestmark = pytest.mark.django_db
 
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 
 
 @pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
+def catalogue(catalogue):
+    """The shared sample (conftest), as `{name: profile}`."""
     return {card.front_name: card.profile for card in OracleCard.objects.all()}
 
 

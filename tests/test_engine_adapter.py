@@ -17,24 +17,20 @@ differently ordered lists. Same cards in a different order is the same deck,
 and the comparison should say so.
 """
 
-from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
 from django.core.management import call_command
 
-from cards import ingest, profiles
 from cards.names import normalise
 from decks.models import Deck
 from simulation import analysis
 from simulation.fixtures import chainer
 from simulations.engine import adapter
 from simulations.models import CardAnnotation
+from tests.support import forget_module_rows, load_catalogue
 
 pytestmark = pytest.mark.django_db
 
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 
 #: Everything the engine reads off a card. `tags` is included: the seeded
 #: annotations carry the deck author's own roles, which is what its numbers
@@ -65,13 +61,17 @@ KNOWN_SPELLING_DIFFERENCES = {"lim dul the necromancer"}
 
 @pytest.fixture(scope="module")
 def seeded(django_db_setup, django_db_blocker):
-    """Ingest the catalogue and seed the reference deck, once."""
+    """Ingest the catalogue and seed the reference deck, once.
+
+    Written outside any test's transaction, so it is deleted again after the
+    module - it used to stay, and every later module found its user, deck and
+    70 annotations (phase 9 I).
+    """
     with django_db_blocker.unblock():
-        ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-        ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-        profiles.rebuild()
+        load_catalogue()
         call_command("seed_reference_deck", verbosity=0)
         yield Deck.objects.get(name="Chainer, Dementia Master")
+        forget_module_rows()
 
 
 @pytest.fixture(scope="module")

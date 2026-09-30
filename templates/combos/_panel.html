@@ -15,8 +15,7 @@
 
   {% if not combos.asked %}
     <p class="mt-2 text-ink-700">
-      Commander Spellbook keeps a human-curated list of card combinations that win games or
-      go infinite. Nothing has been looked up for this deck yet.
+      Look this deck up in Commander Spellbook's curated list of combos.
     </p>
   {% elif combos.failed %}
     <p class="mt-2 text-ink-700">
@@ -28,9 +27,7 @@
       <strong>No known combos in this deck.</strong>
     </p>
     <p class="mt-2 text-sm text-ink-700">
-      That is a normal result and not a fault. Spellbook lists combinations that go infinite
-      or win outright; a deck built to grind rather than to combo off contains none of them,
-      and the reference deck this application was built around is one such deck.
+      A normal result and not a fault: a deck built to grind rather than to combo off has none.
     </p>
   {% endif %}
 
@@ -65,8 +62,7 @@
       {{ combos.one_away|length }} one card away
     </h3>
     <p class="mt-1 text-sm text-ink-700">
-      Within your commander's colour identity, most-played first. The card you are missing
-      is named — and where a simulation has priced it, so is what adding it would be worth.
+      In your colours, most-played first.
     </p>
     <ul class="mt-3 space-y-3">
       {% for entry in combos.one_away_top %}
@@ -98,10 +94,9 @@
     {# needs games somebody has to ask for.                                  #}
     <p class="mt-5 border-l-2 border-parchment-600 pl-4 text-sm text-ink-700">
       <strong class="text-ink-900">Nothing has timed these yet.</strong>
-      Simulate this deck and every combo it holds gets a number — how often it is together by
-      the last turn — while the most-played few you are one card short of get measured on this
-      deck with that card added, so you can see what buying it would be worth.
-      A run of {{ combos.min_measurable|intcomma }} games or more is enough to price one.
+      Simulate {{ combos.min_measurable|intcomma }} games or more to see how often each one
+      comes together.
+      {% include "core/_why.html" with anchor="combos" %}
     </p>
   {% elif combos.measured %}
     <p class="mt-5 text-sm text-ink-700">
@@ -110,18 +105,16 @@
       {# Said once here rather than on every row it is true of. A list of 125  #}
       {# with the same sentence under a hundred of them is noise where the eye #}
       {# is looking for a number.                                             #}
-      It timed {{ combos.measured_count }} of the combos above — every one this deck holds,
-      and the most-played of the ones it is a card short of, since each of those has to be
-      simulated as a deck of its own.
-      Magic has enormous variance: differences below about one percentage point are noise.
+      It timed {{ combos.measured_count }} of the combos above: all this deck holds, and the
+      most-played it is a card short of.
+      {% include "core/_why.html" with anchor="combos" %}
     </p>
   {% endif %}
 
   {% if combos.lookup.out_of_identity %}
     <p class="mt-5 text-sm text-ink-700">
       {{ combos.lookup.out_of_identity }} further combo{{ combos.lookup.out_of_identity|pluralize }}
-      would need colours outside your commander's identity. They are counted and not listed:
-      they are advice about a different deck.
+      would need colours outside your commander's identity, so they are not listed.
     </p>
   {% endif %}
 

@@ -47,7 +47,7 @@
       </p>
     </div>
 
-    <h2 class="mt-12 font-display text-2xl text-parchment-100">The opening hand, and how we know it is right</h2>
+    <h2 id="opening" class="mt-12 font-display text-2xl text-parchment-100">The opening hand, and how we know it is right</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
         A Monte Carlo simulation is only worth reading if it agrees with
@@ -70,7 +70,7 @@
       </p>
     </div>
 
-    <h2 class="mt-12 font-display text-2xl text-parchment-100">The mulligan rule</h2>
+    <h2 id="mulligan" class="mt-12 font-display text-2xl text-parchment-100">The mulligan rule</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
         <strong>London mulligan</strong>: draw a fresh seven, then put cards on
@@ -121,7 +121,7 @@
       </p>
     </div>
 
-    <h2 class="mt-12 font-display text-2xl text-parchment-100">What you drew</h2>
+    <h2 id="drew" class="mt-12 font-display text-2xl text-parchment-100">What you drew</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
         After every turn of every game, the engine counts the cards you have had
@@ -147,6 +147,49 @@
         card draw, eight to ten removal, two to four board wipes, and Frank
         Karsten's {{ karsten_min }} to {{ karsten_max }} lands. It is a starting
         point many players use, not a rule, and no deck is marked for leaving it.
+      </p>
+    </div>
+
+    <h2 id="report" class="mt-12 font-display text-2xl text-parchment-100">Reading the report</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <h3 id="report-mana" class="font-display text-lg text-ink-900">Mana and lands, turn by turn</h3>
+      <p class="mt-2 text-ink-900">
+        The median is what usually happens. The tenth percentile (p10) is the game
+        that goes wrong — which is the one a deck gets rebuilt for, and the one an
+        average hides completely.
+      </p>
+      <h3 id="report-colour" class="mt-6 font-display text-lg text-ink-900">What the mana was made of</h3>
+      <p class="mt-2 text-ink-900">
+        The same mana, split by colour. This is the column that says whether a mana
+        base works: five mana on turn three is a good turn, and five mana of which
+        four is the wrong colour is a turn spent doing nothing.
+      </p>
+      <p class="mt-4 text-sm text-ink-700">
+        Means, and only means — the engine's pool counts mana rather than holding
+        the sources that made it, so a card that could have made one of several
+        colours was read as making one fixed colour. Every card that happened to is
+        listed as a gap under “What was actually modelled”.
+      </p>
+      <h3 id="report-milestones" class="mt-6 font-display text-lg text-ink-900">Milestones</h3>
+      <p class="mt-2 text-ink-900">
+        The share of games in which each milestone was true by the end of that turn.
+        They are read from the cards' own category tags, so a deck built differently
+        gets the same table without anything here changing.
+      </p>
+      <h3 id="blind-spots" class="mt-6 font-display text-lg text-ink-900">What a simulation does not model</h3>
+      <p class="mt-2 text-ink-900">
+        Some limits are not bugs and more games will not fix them. They are the
+        difference between a goldfish game and a real one, so the report names which
+        of your cards they touch, and the field on each card that answers them.
+        The list is read from the deck as it stands now rather than from the run:
+        these are properties of the cards, not measurements a simulation made.
+      </p>
+      <p class="mt-4 text-sm text-ink-700">
+        When a card's reading is changed after a run, that run is not recalculated —
+        its numbers are a record of what the engine actually saw — so the report says
+        so, and running the deck again shows the difference. Magic has enormous
+        variance: differences below about one percentage point are noise, whatever
+        the number of games.
       </p>
     </div>
 
@@ -191,7 +234,7 @@
       </dl>
     </div>
 
-    <h2 class="mt-12 font-display text-2xl text-parchment-100">Combos</h2>
+    <h2 id="combos" class="mt-12 font-display text-2xl text-parchment-100">Combos</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
         Combos come from <strong>Commander Spellbook</strong>, looked up for your
@@ -221,7 +264,7 @@
       </p>
     </div>
 
-    <h2 class="mt-12 font-display text-2xl text-parchment-100">How many games is enough</h2>
+    <h2 id="games" class="mt-12 font-display text-2xl text-parchment-100">How many games is enough</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
         Ten thousand games gives roughly <strong>±0.5 percentage points at 95%

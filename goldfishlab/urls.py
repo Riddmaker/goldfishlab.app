@@ -29,6 +29,7 @@ admin.site.login = ratelimit(key="ip", rate="10/m", method="POST", block=True)(
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
     path("decks/", include("decks.urls")),
+    path("try/", include("guests.urls")),
     path("", include("simulations.urls")),
     path("", include("playtest.urls")),
     path("combos/", include("combos.urls")),

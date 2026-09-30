@@ -64,6 +64,17 @@ def start_run(*, owner, deck, games: int, turns: int, on_the_play: bool = True,
 
     quotas.check(owner, UsageRecord.Metric.RUNS_STARTED)
 
+    # Guests share one allowance of workers between them, whoever they are.
+    if getattr(owner, "is_guest", False):
+        from guests import services as guests
+
+        if guests.busy():
+            raise SimulationRefused(
+                "A lot of people are trying Goldfish Lab right now. Try again in "
+                "a minute - or save your deck with a free account, which does "
+                "not wait for guests."
+            )
+
     if not _take_slot(owner, plan.max_concurrent_runs):
         raise TooManyRuns(
             f"You already have {plan.max_concurrent_runs} simulation(s) running. "

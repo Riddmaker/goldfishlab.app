@@ -21,6 +21,7 @@ Two rules this module exists to enforce:
 """
 
 from dataclasses import dataclass
+from pathlib import Path
 
 from django.db import transaction
 
@@ -255,7 +256,9 @@ def import_deck(
     report = resolve.resolve(rows)
 
     if creating:
-        deck = Deck.objects.create(owner=owner, name=name or filename or "Imported deck")
+        deck = Deck.objects.create(
+            owner=owner, name=name or Path(filename).stem or "Imported deck"
+        )
         quotas.consume(owner, UsageRecord.Metric.DECKS_CREATED)
     quotas.consume(owner, UsageRecord.Metric.IMPORTS)
 
@@ -275,6 +278,12 @@ def import_deck(
     _write_entries(deck, report, commander=_commander_for(deck, report))
     _write_unresolved(record, report)
     _set_commander(deck, report)
+    if creating and not name and deck.commander_id:
+        # A deck is called after its commander, not after the file: every
+        # Archidekt export is named "archidekt-collection-export-<date>.csv"
+        # (phase 9 G - the name a guest's save form starts from).
+        deck.name = deck.commander.name
+        deck.save(update_fields=["name"])
     recount_later(Deck.objects.filter(pk=deck.pk))
     deck.open_questions = None
 

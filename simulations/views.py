@@ -24,6 +24,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, View
 from django_ratelimit.decorators import ratelimit
 
+from billing import quotas
 from billing import views as billing_views
 from billing.quotas import QuotaExceeded
 from cards.models import OracleCard
@@ -56,7 +57,7 @@ class RunCreateView(LoginRequiredMixin, View):
 
     def post(self, request, deck_id):
         deck = get_object_or_404(Deck, pk=deck_id, owner=request.user)
-        form = RunForm(request.POST)
+        form = RunForm(request.POST, plan=quotas.plan_for(request.user), trim=False)
 
         if not form.is_valid():
             messages.error(request, "That is not a size this application runs.")

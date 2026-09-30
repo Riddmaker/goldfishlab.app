@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "collection",
     "combos",
     "core",
+    "guests",
 ]
 
 MIDDLEWARE = [
@@ -58,6 +59,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    # After authentication: it reads request.user.
+    "guests.middleware.GuestFenceMiddleware",
 ]
 
 ROOT_URLCONF = "goldfishlab.urls"
@@ -228,6 +231,12 @@ CELERY_BEAT_SCHEDULE = {
     "housekeeping": {
         "task": "core.housekeeping",
         "schedule": crontab(minute="30", hour="4"),
+    },
+    # Hourly, so "deleted after 24 hours" in the privacy policy means a day and
+    # at most an hour, not up to two days.
+    "guests-expire": {
+        "task": "guests.expire",
+        "schedule": crontab(minute="15"),
     },
 }
 

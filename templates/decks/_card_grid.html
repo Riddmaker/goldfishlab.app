@@ -8,10 +8,10 @@
   <p class="tabular text-sm text-ink-700" aria-live="polite">
     {% if filters.active %}{{ grid|length }} of {{ grid_total }} cards{% else %}{{ grid_total }} cards{% endif %}
   </p>
-  <ul class="tune-grid mt-4">
+  <ul class="card-grid mt-4">
     {% for card in grid %}
       <li>
-        <a href="{% url 'simulations:annotate' deck.id card.oracle_card.pk %}" class="tune-card">
+        <a href="{% url 'simulations:annotate' deck.id card.oracle_card.pk %}" class="card-grid-item">
           {% if card.oracle_card.image_uri %}
             <img src="{{ card.oracle_card.image_uri }}" alt="{{ card.name }}"
                  width="488" height="680" loading="lazy">
@@ -19,12 +19,12 @@
             <span class="block border border-parchment-600 p-3 text-ink-900">{{ card.name }}</span>
           {% endif %}
           {% if card.open %}
-            <span class="tune-card-mark deck-status deck-status-open">! needs you</span>
+            <span class="card-grid-mark deck-status deck-status-open">! needs you</span>
           {% elif card.answered %}
-            <span class="tune-card-mark deck-status deck-status-ready">✓ answered</span>
+            <span class="card-grid-mark deck-status deck-status-ready">✓ answered</span>
           {% endif %}
           {% if card.quantity > 1 %}
-            <span class="tune-card-count tabular">×{{ card.quantity }}</span>
+            <span class="card-grid-count tabular">×{{ card.quantity }}</span>
           {% endif %}
         </a>
         <p class="mt-1 text-sm text-ink-900">

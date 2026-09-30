@@ -17,20 +17,16 @@ Two kinds of assertion live here, and the difference matters:
   exist. Patching them with a name list would be lying to the test.
 """
 
-from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
 
-from cards import ingest, profiles
 from cards.models import DerivedProfile, OracleCard
 from cards.names import normalise
 from simulation.cards import COMMANDER, SPELLS, SWAMP, UTILITY_LANDS
+from tests.support import forget_module_rows, load_catalogue
 
 pytestmark = pytest.mark.django_db
 
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 
 HAND_ANNOTATED = [COMMANDER, SWAMP, *UTILITY_LANDS, *SPELLS]
 
@@ -47,12 +43,14 @@ KNOWN_KIND_DIVERGENCES = {
 
 @pytest.fixture(scope="module")
 def _loaded(django_db_setup, django_db_blocker):
-    """Load the catalogue once for the whole module; these tests only read."""
+    """Load the catalogue once for the whole module; these tests only read.
+
+    Written outside any test's transaction, so it is deleted after the module.
+    """
     with django_db_blocker.unblock():
-        ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-        ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-        profiles.rebuild()
+        load_catalogue()
         yield
+        forget_module_rows()
 
 
 @pytest.fixture(scope="module")

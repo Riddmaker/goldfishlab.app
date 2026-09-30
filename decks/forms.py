@@ -1,4 +1,4 @@
-"""Forms for creating and importing decks.
+"""The deck import form.
 
 The upload field is the application's only untrusted input in Phase 1, so the
 validation here is the security boundary: size before decode, decode before
@@ -9,20 +9,7 @@ from django import forms
 
 from decks import importers
 from decks.importers import columns
-from decks.models import Deck
 from decks.services import MAX_UPLOAD_BYTES
-
-
-class DeckForm(forms.ModelForm):
-    """Create or rename a deck by hand."""
-
-    class Meta:
-        model = Deck
-        fields = ["name", "notes"]
-        widgets = {
-            "name": forms.TextInput(attrs={"placeholder": "Chainer, Dementia Master"}),
-            "notes": forms.Textarea(attrs={"rows": 3}),
-        }
 
 
 class ImportForm(forms.Form):

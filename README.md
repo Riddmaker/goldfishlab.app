@@ -35,8 +35,13 @@ See [docs/phases/](docs/phases/README.md) for how it was built, phase by phase.
 
 **Phase 8's local half landed on 2026-09-22**: a Content-Security-Policy on every response, rate limits that are counted somewhere shared rather than per worker, an upload row ceiling, `pip-audit` in CI, env-gated Sentry, JSON logging in production, terms and a privacy policy, a data export and an account deletion that both actually work, and an [`/about/methodology`](docs/phases/phase-8-launch.md) page saying plainly what is simulated and what is not.
 
-**Live at [goldfishlab.app](https://goldfishlab.app) since 2026-09-28** (Phase 8). Phase 9 - decks only, fewer words, more pictures - is under way. Product decisions live in the sibling `magic-project` repository's
-`instructions.md`, section "Teil 2".
+**Live at [goldfishlab.app](https://goldfishlab.app) since 2026-09-28** (Phase 8). **Phase 9 (2026-09-28 to 30)** made it
+decks only, with fewer words and more pictures: an import page with a drop zone, a deck page of
+card pictures with filters, charts of what was drawn by category and mana value, a playtest board
+laid out like a card game, a guest trial that needs no account ("Try it now") and a red marker on
+every deck the engine could not fully read. The collection and the casting-order screen are gone.
+Product decisions live in the sibling `magic-project` repository's `instructions.md`, section
+"Teil 2".
 
 ## Requirements
 
@@ -131,22 +136,7 @@ The agent and the player drive the same code. `simulation/actions.py` is the onl
 of what casting a spell means, and `agent.take_turn` chooses from the same `legal_actions` a
 person clicks.
 
-## Paid plans, and the printing catalogue
-
-*(Phase 9 B, 2026-09-29: the collection feature is removed - Goldfish Lab is about decks.
-Its tables are dropped by `collection/0004`; the empty app goes in batch I.)*
-
-An import can also tell one printing from another, which needs a second bulk file:
-
-```bash
-py manage.py ingest_scryfall --kind default_cards   # 78.8 MB, ~2 minutes
-```
-
-**That is opt-in and `--kind all` deliberately leaves it out**, because a command in the boot
-path should not pull 78.8 MB because somebody upgraded. Everything works without it: decks are
-counted on cards and never on printings. With it loaded there are 112,581 printings against
-35,568 cards (3.2x the card table, 43 MB on disk), and an import can match a row by its exact
-printing or by set and collector number instead of by name.
+## Paid plans
 
 **Payments are off unless `STRIPE_SECRET_KEY` is set**, which is every environment but
 production. The plans page then says so and offers nothing to buy; the limits are still
@@ -212,6 +202,8 @@ makes "all the old tests still pass" mean anything.
 .venv/Scripts/python -m ruff check .
 .venv/Scripts/python -m djlint templates/ --lint
 .venv/Scripts/python -m pip_audit -r requirements.txt   # production pins only
+# pytest runs on goldfishlab.settings.test: development's settings plus a fast
+# password hasher (PBKDF2 cost every create_user 0.7 s and the suite twice as long).
 
 # Visual check against the running stack. Screenshots go to a scratch
 # directory, never into the repository. Add --email/--password to include the
@@ -305,8 +297,8 @@ self-submitting email confirmation) only improves pages that already work withou
 The part of this application that is hardest to copy is not the simulation. It is that the
 simulation says what it could not model, and lets you fix it.
 
-Every deck has a **"what the engine reads"** page listing each card as the engine will actually
-play it, with the source of every value: a Scryfall field, the community tagger, a regular
+Every card in a deck's grid opens **its own page**, showing it as the engine will actually play
+it, with the source of every value: a Scryfall field, the community tagger, a regular
 expression over English prose, a built-in default, something you said — or **nobody**, where the
 engine simply applied its own rule. That last one is the point. "Enters tapped: no" looks like a
 fact until it says a regular expression read it off the card text.

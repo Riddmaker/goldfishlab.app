@@ -54,8 +54,6 @@ class DeckAnalysis:
     curve: dict[int, int] = field(default_factory=dict)
     color_identity: list[str] = field(default_factory=list)
     game_changers: list[str] = field(default_factory=list)
-    kind_counts: dict[str, int] = field(default_factory=dict)
-    role_counts: dict[str, int] = field(default_factory=dict)
 
     lands_verdict: Verdict | None = None
     bracket_verdict: Verdict | None = None
@@ -65,12 +63,6 @@ class DeckAnalysis:
     # the coverage panel; it is recorded from the start so no page can imply
     # full understanding it does not have.
     cards_needing_review: int = 0
-
-    @property
-    def coverage(self) -> float:
-        if not self.total_cards:
-            return 0.0
-        return 1 - self.cards_needing_review / self.total_cards
 
     @property
     def is_legal(self) -> bool:
@@ -85,8 +77,6 @@ def analyse(deck) -> DeckAnalysis:
 
     analysis = DeckAnalysis()
     curve: Counter[int] = Counter()
-    kinds: Counter[str] = Counter()
-    roles: Counter[str] = Counter()
     colors: set[str] = set()
     mv_total = 0
 
@@ -109,12 +99,8 @@ def analyse(deck) -> DeckAnalysis:
         if card.game_changer:
             analysis.game_changers.append(card.name)
 
-        if profile is not None:
-            kinds[profile.kind] += quantity
-            for role in profile.role_tags:
-                roles[role] += quantity
-            if profile.needs_review:
-                analysis.cards_needing_review += quantity
+        if profile is not None and profile.needs_review:
+            analysis.cards_needing_review += quantity
 
     if deck.commander_id and deck.commander:
         colors.update(deck.commander.color_identity)
@@ -124,8 +110,6 @@ def analyse(deck) -> DeckAnalysis:
         round(mv_total / analysis.nonland_count, 2) if analysis.nonland_count else 0.0
     )
     analysis.color_identity = sorted(colors)
-    analysis.kind_counts = dict(kinds)
-    analysis.role_counts = dict(roles.most_common())
 
     analysis.lands_verdict = _judge_lands(analysis.land_count)
     analysis.bracket_verdict = _judge_bracket(analysis.game_changers)
@@ -267,33 +251,6 @@ def _unlimited(card) -> bool:
     return "A deck can have any number of cards named" in (card.oracle_text or "")
 
 
-def role_summary(deck) -> dict[str, int]:
-    """Role counts, for the deck page's role strip.
-
-    Reads `DerivedProfile.role_tags`, which is the rolled-up tag vocabulary -
-    so "removal" here means what the Scryfall tag DAG means by it, which is
-    broader than what a player usually means. The page says so.
-    """
-    counts: Counter[str] = Counter()
-    for entry in deck.entries.select_related("oracle_card__profile"):
-        profile = getattr(entry.oracle_card, "profile", None)
-        if profile is None:
-            continue
-        for role in profile.role_tags:
-            counts[role] += entry.quantity
-    return dict(counts.most_common())
-
-
-def review_cards(deck) -> list[tuple[str, list[str]]]:
-    """Cards whose profile the deriver was not sure about, with the reasons."""
-    rows = []
-    for entry in deck.entries.select_related("oracle_card__profile"):
-        profile = getattr(entry.oracle_card, "profile", None)
-        if profile is not None and profile.needs_review:
-            rows.append((entry.oracle_card.name, profile.review_reasons))
-    return sorted(rows)
-
-
 __all__ = [
     "BRACKET_3_GAME_CHANGERS",
     "COMMANDER_DECK_SIZE",
@@ -302,6 +259,4 @@ __all__ = [
     "KARSTEN_MIN",
     "Verdict",
     "analyse",
-    "review_cards",
-    "role_summary",
 ]

@@ -1,18 +1,14 @@
 """The card catalogue, derived from Scryfall bulk data.
 
 Two scopes, and the distinction is the whole reason imports work:
-`OracleCard` is one row per distinct **card**, and `Printing` is one row per
-**printing** of one. A deck list names a card; a collection export names a
-printing. Printings arrived at the end of Phase 6 from the 78.8 MB
-`default_cards` bulk file - 112,581 rows, 3.2x the card table, which is a
-quarter of what the phase documents feared.
+`OracleCard` is one row per distinct **card** - what a deck list names. The
+per-printing table (`Printing`, from the 78.8 MB `default_cards` file) went in
+phase 9 I: only the collection's prices used it, and production never loaded it.
 
 `DerivedProfile` lives here rather than in `simulations/` on purpose: it is a
 statement about a *card*, independent of any deck or run, and Phase 2's engine
 adapter reads it without importing anything simulation-specific.
 """
-
-from decimal import Decimal, InvalidOperation
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -31,7 +27,6 @@ class BulkImport(models.Model):
     class Kind(models.TextChoices):
         ORACLE_CARDS = "oracle_cards", "Oracle cards"
         ORACLE_TAGS = "oracle_tags", "Oracle tags"
-        DEFAULT_CARDS = "default_cards", "Printings"
 
     class Status(models.TextChoices):
         RUNNING = "running", "Running"
@@ -143,11 +138,10 @@ class OracleCard(models.Model):
     edhrec_rank = models.PositiveIntegerField(null=True, blank=True)
 
     released_at = models.DateField(null=True, blank=True)
-    # The id of the ONE printing the oracle_cards file happens to ship. It is
-    # not "the" printing of the card, and it is **not** how rung 1 of the
-    # import ladder works any more - `Printing` is, and it holds all 112,581.
-    # This stays as the fallback for an installation whose printings have not
-    # been ingested yet, where it is the only printing id there is.
+    # The id of the ONE printing the oracle_cards file happens to ship. Rung 1
+    # of the import ladder matches an export's "Scryfall ID" against it, which
+    # finds the card whenever the export names that printing; every other row
+    # falls through to the name.
     scryfall_id = models.UUIDField(null=True, blank=True, db_index=True)
     scryfall_uri = models.URLField(max_length=512, blank=True)
     image_uri = models.URLField(max_length=512, blank=True)
@@ -220,10 +214,6 @@ class OracleCard(models.Model):
 
 def image_uri(data: dict) -> str:
     """A representative image, from the card itself or its front face.
-
-    Module level rather than a method, because both `OracleCard` and `Printing`
-    read it off the same bulk-row shape - and a printing's image is the one a
-    person owns, which is the whole point of storing it twice.
     """
     images = data.get("image_uris") or {}
     if not images:
@@ -256,160 +246,6 @@ class OracleCardTag(models.Model):
 
     def __str__(self) -> str:
         return f"{self.oracle_card_id} :: {self.tag_id}"
-
-
-def _finish_key(finish: str) -> str:
-    """One export's word for a finish, reduced to Scryfall's.
-
-    Exports disagree and always will: Archidekt writes `Normal`, `Foil` and
-    `Etched`, ManaBox writes `foil`, Dragon Shield writes `Normal`/`Foil` under
-    a column called Printing, and several write a bare `true`/`false`. Anything
-    unrecognised falls through to nonfoil, which is what a card is unless
-    somebody says otherwise.
-    """
-    return (finish or "").strip().lower().replace(" ", "_").replace("-", "_")
-
-
-#: Which column holds the price for a finish, and `None` where no column can.
-#: There is no EUR etched price anywhere in the bulk file - Scryfall publishes
-#: `usd_etched` alone - and deriving one from the dollar figure would be a
-#: currency conversion this application has no business performing.
-FINISH_PRICE_FIELD: dict[str, str | None] = {
-    "": "price_eur",
-    "normal": "price_eur",
-    "nonfoil": "price_eur",
-    "false": "price_eur",
-    "foil": "price_eur_foil",
-    "true": "price_eur_foil",
-    "etched": None,
-    "etched_foil": None,
-}
-
-
-class Printing(models.Model):
-    """One printing of one card - the thing a collection export actually names.
-
-    `OracleCard` answers "which card is this?". This answers "which of the
-    thirty-one Swamps is this?", and it is the difference between a collection
-    this application can count and one it can price.
-
-    **Measured before this table existed, because every document in the repo
-    had the number wrong:** `default_cards` holds **112,581** real printings
-    over 35,572 cards - **3.2x** the card table, not the twelvefold the phase
-    documents claimed. That figure came from `all_cards`, which is 393 MB and
-    carries every language of every printing. This file carries one row per
-    printing, and 109,971 of them are English.
-
-    **`(set_code, collector_number)` is globally unique across all of them -
-    zero collisions, measured, not assumed.** That is what makes rung 3 of the
-    import ladder safe: a row saying `tor 341` names exactly one printing, with
-    no language to guess and no tie to break. The pair is indexed rather than
-    constrained, because a unique constraint is a promise about somebody else's
-    data forever, and an ingestion that dies on one upstream duplicate is worse
-    than a resolver that picks deterministically and says so.
-
-    Prices are **EUR only**: Cardmarket is the European market, this is a
-    European project, and a second currency answers a question nobody asked.
-    They are a daily snapshot, so `prices_updated_at` carries the bulk file's
-    own timestamp and **nothing displays a price without displaying that date**.
-    Etched printings show no price at all, honestly blank - Scryfall publishes
-    `usd_etched` and no EUR equivalent, and converting one would be inventing a
-    number on the user's behalf.
-    """
-
-    #: Scryfall's `id`, which is the printing id - not `oracle_id`. A collection
-    #: export's "Scryfall ID" column is this, which is why rung 1 of the ladder
-    #: could only ever half-work against an oracle-level catalogue.
-    scryfall_id = models.UUIDField(primary_key=True)
-    oracle_card = models.ForeignKey(
-        OracleCard, on_delete=models.CASCADE, related_name="printings"
-    )
-
-    set_code = models.CharField(max_length=16, db_index=True)
-    set_name = models.CharField(max_length=128, blank=True)
-    collector_number = models.CharField(max_length=32)
-    rarity = models.CharField(max_length=16, blank=True)
-    lang = models.CharField(max_length=8, blank=True)
-    released_at = models.DateField(null=True, blank=True)
-
-    #: Which finishes this printing was made in: nonfoil, foil, etched. A list,
-    #: because most printings exist in two of them and the collection item
-    #: records which one a person owns.
-    finishes = ArrayField(models.CharField(max_length=16), default=list, blank=True)
-    #: Arena and MTGO only - 9,356 of them. They cannot be in a paper
-    #: collection, and a collection's value should not count them.
-    digital = models.BooleanField(default=False)
-    promo = models.BooleanField(default=False)
-    image_uri = models.URLField(max_length=512, blank=True)
-
-    # --- prices: a snapshot, never a valuation ---
-    price_eur = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    price_eur_foil = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    #: The bulk file's timestamp, so a page can say when this was true. Null
-    #: means the row predates price loading, and the page must say nothing.
-    prices_updated_at = models.DateTimeField(null=True, blank=True)
-
-    imported_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["set_code", "collector_number"]
-        indexes = [
-            # Rung 3 of the import ladder, in one index.
-            models.Index(fields=["set_code", "collector_number"]),
-            models.Index(fields=["oracle_card"]),
-        ]
-
-    def __str__(self) -> str:
-        return f"{self.set_code} {self.collector_number}"
-
-    def price_for(self, finish: str) -> "Decimal | None":
-        """What one copy in this finish is worth, or None when nobody knows.
-
-        **None is a real answer and is rendered as one**, not as a zero. Three
-        ways to land here, all of them normal: an etched printing, for which
-        Scryfall publishes `usd_etched` and no EUR equivalent; a printing
-        Cardmarket has never traded, which is 26,832 of them; and an
-        MTGO-only set like Masters Edition, which has no paper price because
-        there is no paper.
-        """
-        column = FINISH_PRICE_FIELD.get(_finish_key(finish), "price_eur")
-        return getattr(self, column) if column else None
-
-    @classmethod
-    def from_scryfall(cls, data: dict, *, prices_updated_at=None) -> "Printing":
-        """Build (not save) one printing from one `default_cards` row."""
-        return cls(
-            scryfall_id=data["id"],
-            oracle_card_id=data["oracle_id"],
-            set_code=(data.get("set") or "")[:16],
-            set_name=(data.get("set_name") or "")[:128],
-            collector_number=(data.get("collector_number") or "")[:32],
-            rarity=(data.get("rarity") or "")[:16],
-            lang=(data.get("lang") or "")[:8],
-            released_at=data.get("released_at") or None,
-            finishes=[f[:16] for f in (data.get("finishes") or [])],
-            digital=bool(data.get("digital")),
-            promo=bool(data.get("promo")),
-            image_uri=image_uri(data)[:512],
-            price_eur=_money((data.get("prices") or {}).get("eur")),
-            price_eur_foil=_money((data.get("prices") or {}).get("eur_foil")),
-            prices_updated_at=prices_updated_at,
-        )
-
-
-def _money(value) -> "Decimal | None":
-    """Scryfall's price strings to Decimal, and anything unusable to None.
-
-    Prices arrive as strings or as JSON null, and a card with no trend price is
-    the normal case rather than an error. `Decimal(str)` and not `float`:
-    money through binary floating point is how a total ends in `.9999999`.
-    """
-    if value in (None, "", "null"):
-        return None
-    try:
-        return Decimal(str(value))
-    except (InvalidOperation, ValueError, TypeError):
-        return None
 
 
 class DerivedProfile(models.Model):

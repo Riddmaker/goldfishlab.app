@@ -122,15 +122,10 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         # only thing in this application that talks to Commander Spellbook, so
         # a deck page cannot be made slow - or made to fail - by their uptime.
         context["combos"] = combo_services.panel_for(deck)
-        # A summary only. The full panel lives on the tune page and on every
-        # report; repeating it here would make the deck page the third place
-        # that says the same thing, and three copies of a warning is how a
-        # warning becomes furniture.
-        spots = blindspots.find(readings)
-        context["blindspots"] = spots
-        context["blindspot_cards"] = len(
-            {suspect.oracle_id for spot in spots for suspect in spot.suspects}
-        )
+        # The full panel, folded in "What the engine cannot model" - since the
+        # card list moved here (phase 9 I) this is the deck's one copy of it;
+        # every report carries the other.
+        context["blindspots"] = blindspots.find(readings)
         return context
 
 

@@ -8,8 +8,11 @@
   {% endcomment %}
   <div id="play" class="flex flex-wrap items-start gap-6">
     {% if deck.commander.image_uri %}
-      <img src="{{ deck.commander.image_uri }}" alt="{{ deck.commander.front_name }}"
-           width="488" height="680" class="h-auto w-24 rounded-lg sm:w-40">
+      {# The commander is not in the grid below (it is not one of the 99), so its picture is the way to its card page. #}
+      <a href="{% url 'simulations:annotate' deck.id deck.commander.pk %}" class="shrink-0">
+        <img src="{{ deck.commander.image_uri }}" alt="{{ deck.commander.front_name }}"
+             width="488" height="680" class="h-auto w-24 rounded-lg sm:w-40">
+      </a>
     {% endif %}
     <div class="min-w-0 flex-1">
       <div class="flex flex-wrap items-baseline gap-4">
@@ -171,8 +174,6 @@
   <section id="cards" class="surface-parchment mt-6 p-6">
     <div class="flex flex-wrap items-baseline gap-4">
       <h2 class="font-display text-2xl text-ink-900">Cards</h2>
-      <a href="{% url 'simulations:tune' deck.id %}"
-         class="ml-auto text-sm text-ink-900 underline">What the engine reads</a>
     </div>
     {% comment %}
       A real GET form: without scripting a click on "Show" reloads the page
@@ -254,17 +255,7 @@
       card reader could not resolve on its own.
       {% if deck.open_questions %}The red marker at the top takes you through them.{% endif %}
     </p>
-    {% if blindspots %}
-      <p class="mt-3 text-parchment-200">
-        <strong class="text-parchment-100">{{ blindspots|length }}</strong>
-        known limitation{{ blindspots|length|pluralize }} of the simulation, affecting
-        <strong class="tabular text-parchment-100">{{ blindspot_cards }}</strong>
-        of this deck's cards — cards that need an opponent, mana nobody has pinned
-        down, roles worth a second look.
-        <a href="{% url 'simulations:tune' deck.id %}"
-           class="text-parchment-100 underline">See which, and why</a>.
-      </p>
-    {% endif %}
+    {% include "simulations/_blindspots.html" %}
     {% if last_import %}
       <p class="mt-3 text-sm text-parchment-200">
         Imported from {{ last_import.filename|default:"a file" }}:

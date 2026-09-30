@@ -102,7 +102,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 # the instrumentation either.
 #
 # `send_default_pii` stays False. This application holds other people's
-# collections and decks, and the one thing a crash report must not do is carry
+# decks, and the one thing a crash report must not do is carry
 # them out of the country the privacy policy promises they stay in.
 SENTRY_DSN = env("SENTRY_DSN", default="")  # noqa: F405
 if SENTRY_DSN:

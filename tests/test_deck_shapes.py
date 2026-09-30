@@ -31,14 +31,10 @@ here, in order:
 """
 
 import html
-from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 
-from cards import ingest, profiles
 from cards.models import OracleCard
 from decks import seeding
 from decks.fixtures import (
@@ -62,21 +58,12 @@ from simulations.models import CardAnnotation
 pytestmark = pytest.mark.django_db
 
 User = get_user_model()
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 
 #: Small enough to stay in the fast loop, large enough for the two land counts
 #: to separate. At ~110 microseconds per game per turn this is a few hundred
 #: milliseconds, and the difference it measures is enormous.
 GAMES = 300
 TURNS = 6
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture
@@ -149,7 +136,10 @@ def test_a_deck_the_engine_cannot_read_has_bad_coverage(build):
     """
     conversion = adapter.convert(build(UNMODELLABLE))
 
-    assert conversion.coverage < 0.25
+    # The reading score - the one the pages show - is 4 of 12 here: a few cards
+    # are unreadable only in their casting order, which no page counts since
+    # phase 9 C. The mixed number this used to check was under 25%.
+    assert conversion.readable < 0.5
     assert conversion.cards_with_gaps >= conversion.cards_total - 1
 
 
@@ -165,7 +155,7 @@ def test_a_deck_the_engine_cannot_read_shouts_about_it(client, owner, build):
     deck = build(UNMODELLABLE)
     client.force_login(owner)
 
-    response = client.get(reverse("simulations:tune", args=[deck.id]))
+    response = client.get(deck.get_absolute_url())
     # Unescaped, because the assertions below are about what a person reads.
     # Django renders `Gaea's Cradle` as `Gaea&#x27;s Cradle`, and a test that
     # tripped over that would be testing the template engine.
@@ -205,9 +195,9 @@ def test_a_deck_the_engine_can_read_stays_quiet_by_comparison(build):
     assert "unresolved_mana" not in quiet
     assert loud["unresolved_mana"] >= 5
 
-    assert adapter.convert(build(UNMODELLABLE)).coverage < adapter.convert(
+    assert adapter.convert(build(UNMODELLABLE)).readable < adapter.convert(
         build(LAND_HEAVY)
-    ).coverage
+    ).readable
 
 
 def test_coverage_is_never_negative(owner):
@@ -234,7 +224,7 @@ def test_coverage_is_never_negative(owner):
     conversion = adapter.convert(deck)
 
     assert conversion.cards_total == 3, "the commander belongs in its own denominator"
-    assert 0.0 <= conversion.coverage <= 1.0
+    assert 0.0 <= conversion.readable <= 1.0
 
 
 # --- five colours -----------------------------------------------------------

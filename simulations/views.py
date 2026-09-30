@@ -145,12 +145,13 @@ class RunCancelView(OwnedRunsMixin, View):
 
 # --- the honesty layer ------------------------------------------------------
 #
-# Two screens, and the reason they exist: a result nobody can check is a
-# result nobody should believe. The tune page says what the engine reads off
-# every card and where each reading came from; the card page lets a human
-# disagree. (A third, the deck's casting order, went in Phase 9 C: the product
-# is statistics about a deck, not steering a game, and the engine's own rule -
-# cheapest first - is an answer nobody has to be asked for.)
+# The reason these screens exist: a result nobody can check is a result nobody
+# should believe. The card page says what the engine reads off a card and where
+# each reading came from, and lets a human disagree; the deck page's grid is the
+# way to every card (the separate card list went in phase 9 I). The deck's
+# casting order went in Phase 9 C: the product is statistics about a deck, not
+# steering a game, and the engine's own rule - cheapest first - is an answer
+# nobody has to be asked for.
 #
 # Ownership works the same way as everywhere else in this application: the
 # deck is fetched filtered by owner, and the card is fetched filtered by deck
@@ -184,37 +185,20 @@ class DeckScopedView(LoginRequiredMixin, View):
         )
 
 
-class DeckTuneView(DeckScopedView):
-    """Every card of one deck, as a grid, marked the way the deck is.
+def _cards_of(deck) -> str:
+    """The deck page's card grid - the one list of a deck's cards."""
+    return f"{deck.get_absolute_url()}#cards"
 
-    The page that answers "why does my deck simulate like that". Cards that
-    still need their owner come first - a grid sorted by name would bury them
-    among thirty Swamps - and each one opens its own page.
+
+def tune_moved(request, pk):
+    """The old card list ("What the engine reads"), gone in phase 9 I.
+
+    Since D the deck page shows the same grid, with the same markers and
+    filters on top, so an old link or bookmark lands there. Nothing is looked
+    up: the deck page does its own owner check, and a redirect reveals nothing.
+    A temporary redirect, so no browser remembers it for good.
     """
-
-    def get(self, request, pk):
-        deck = self.get_deck(request, pk)
-        entries = provenance.for_deck(deck)
-        spots = blindspots.find(entry.reading for entry in entries)
-        questions = review.queue(deck, [entry.reading for entry in entries])
-        answered = {q.oracle_card.pk for q in questions if q.answered}
-        open_ids = {q.oracle_card.pk for q in questions if not q.answered}
-        review.open_questions(deck)
-
-        return render(request, "simulations/tune.html", {
-            "deck": deck,
-            "cards": sorted(
-                (
-                    {"entry": entry,
-                     "open": entry.oracle_card.pk in open_ids,
-                     "answered": entry.oracle_card.pk in answered}
-                    for entry in entries
-                ),
-                key=lambda card: (not card["open"], card["entry"].name.lower()),
-            ),
-            "cards_total": len(entries),
-            "blindspots": spots,
-        })
+    return redirect(f"{reverse('decks:detail', args=[pk])}#cards")
 
 
 class DeckReviewView(DeckScopedView):
@@ -303,13 +287,13 @@ class CardAnnotateView(DeckScopedView):
     def _onwards(self, request, deck, card, scope):
         """After an answer: the next card still open, else the deck, "Ready".
 
-        A card that was never in the queue goes back to the card list, where
-        its owner came from.
+        A card that was never in the queue goes back to the deck's card grid,
+        where its owner came from.
         """
         questions = review.queue(deck)
         ids = [question.oracle_card.pk for question in questions]
         if card.pk not in ids:
-            return redirect(reverse("simulations:tune", args=[deck.pk]))
+            return redirect(_cards_of(deck))
         here = ids.index(card.pk)
         # From here to the end, then round from the start: "next" is the next
         # one that still needs an answer, wherever it is.
@@ -382,4 +366,4 @@ class AnnotationDeleteView(DeckScopedView):
             )
         else:
             messages.info(request, "There was nothing recorded for that card.")
-        return redirect(reverse("simulations:tune", args=[deck.pk]))
+        return redirect(_cards_of(deck))

@@ -20,9 +20,9 @@ export of the user's own collection:
 
 Two facts about that file worth keeping in mind:
 
-* `Scryfall ID` is a **printing** id, not an oracle id. Since the printing
-  catalogue landed it matches exactly, on all 214 rows; before it, it matched
-  only the arbitrary printing `oracle_cards` ships, on 62.
+* `Scryfall ID` is a **printing** id, not an oracle id. It matches only the
+  one printing `oracle_cards` ships for each card - 62 of 214 rows; the rest
+  resolve by name.
 * A collection export repeats a card once per printing owned. Quantities are
   summed by the resolver, not here; a parser that deduplicated would be making
   a decision that belongs downstream.

@@ -45,7 +45,8 @@ jobs:
           --health-cmd "redis-cli ping" --health-interval 5s
           --health-timeout 3s --health-retries 10
     env:
-      DJANGO_SETTINGS_MODULE: goldfishlab.settings.dev
+      # Development's settings plus a fast password hasher - see the module.
+      DJANGO_SETTINGS_MODULE: goldfishlab.settings.test
       DJANGO_SECRET_KEY: ci-only-not-a-secret
       DJANGO_DEBUG: "True"
       DATABASE_URL: postgres://goldfishlab:ci-only-not-a-secret@localhost:5432/goldfishlab

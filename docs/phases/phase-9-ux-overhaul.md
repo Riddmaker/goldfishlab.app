@@ -1,9 +1,9 @@
 # Phase 9 — UX overhaul: fewer words, more pictures, decks only
 
-**Status: IN PROGRESS (plan approved 2026-09-28, all build decisions made the same day - see
-"Decisions").** Batches A, A2, B, C, C2, D and E are live, F (the board) and G (guest trial) are live, H (the text pass) is built
-(see "... - what was built"); next is I (clean-up) - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
-`RESUME.md` is everything needed to continue.
+**Status: COMPLETE (plan approved 2026-09-28, all ten batches built 2026-09-28 to 30, one PR
+each).** A to H are live; I (clean-up) is built - see "I - what was built"; what is left is the
+user's post-merge production check listed there. Compaction-safe: this file plus `RESUME.md` is
+everything needed to continue.
 
 ## Why
 
@@ -691,6 +691,150 @@ repository next (a person or an agent) reads only what is true.
    --deploy` clean; the privacy policy's "Last updated" matches the last legal change; the go-live
    checks the user deferred (6.4, 6.6-6.9) done at the latest here.
 7. Not done, on purpose: squashing migrations. Production exists and the gain is cosmetic.
+
+**Detailed plan (drafted 2026-09-30, APPROVED by the user the same day: "der plan passt"; I-D1
+decided: the tune page goes - "weg damit").** Checked against the
+code the same day (H merged = PR #16, dev = origin/dev). What the check found, and what it
+changes against the list above:
+
+* `decks/_mapping_preview.html` (the mapping page's htmx preview) and `decks/review.html` (the
+  import review) are **in use** - they stay. Every other template is referenced too.
+* **`cards.Printing` does nothing in production:** printings were never ingested there (opt-in,
+  GO-LIVE step 7), so rung 1 already uses the `OracleCard.scryfall_id` fallback and rung 3 (set +
+  collector number) never matches. And the mapping page requires a name column, so no file can
+  depend on rung 3 alone. B kept them "because they still resolve imports" - true only on a
+  machine that ingested the 78.8 MB file. Removing them loses nothing a user has.
+* **The leaking test** is `tests/test_engine_adapter.py`: its module fixture `seeded` runs
+  `seed_reference_deck` (a user + the Chainer deck) and the catalogue ingest under
+  `django_db_blocker.unblock()`, outside any transaction, and never cleans up - so every later
+  module sees those rows. `tests/test_cards_reference_deck.py` does the same with the catalogue.
+* **The privacy policy says "Last updated 29 September 2026"**, but G changed it on 30 September
+  (the guest row, the session cookie line).
+* Vulture (run from a throwaway venv, not a dependency) plus a template/CSS scan: the list in I.2.
+* `simulation/` (the vendored engine) has four unused helpers - left alone: vendored code, and
+  the golden parity test is not worth a risk for four functions.
+
+**I-D1 - the tune page ("What the engine reads"): it goes (decided by the user 2026-09-30).**
+Since D the deck page has the same grid (same markers, open cards first, each card opens its
+card page) plus filters. The tune page adds only the commander in the grid and the full
+blind-spot list. So: `/decks/<id>/tune/` redirects to the deck page's `#cards`, the blind-spot list moves into
+the deck page's "What the engine cannot model" fold, the commander picture on the deck page links
+to its card page, and the links that pointed at it (deck page x2, run page, board, card page
+"back", blind spots, the two redirects after save/forget) point at the deck page. The card-page
+URLs (`/decks/<id>/tune/<card>/`) stay as they are - renaming them is churn. `.tune-*` CSS is
+renamed to `.card-grid*`, since the name would point at nothing. Its tests become redirect tests;
+the screenshot list drops it.
+
+Suggested commits (one PR, ~4 commits). Start state: dev = origin/dev = `6985a81` (main =
+`54afb43`, the H merge), nothing built for I yet; this plan edit is local and goes in with I.1.
+
+* **I.1 Collection stub and printings out.** Django's "How to delete a Django application"
+  guide checked first (HABIT 4). `collection` leaves `INSTALLED_APPS` and the directory goes (no
+  other app's migration depends on it - checked). `cards.Printing` goes: the model,
+  `ingest_printings`, `--kind default_cards`, `BulkImport.Kind.DEFAULT_CARDS`, rung 3 and
+  `Resolution.printing`; rung 1 keeps the `OracleCard.scryfall_id` lookup. One migration
+  `cards/0009`: `DeleteModel`, the choice, and a `RunPython` that deletes the stale content types
+  (`collection.*`, `cards.printing`, their permissions go with them) - so production needs no
+  manual `remove_stale_contenttypes`. Also out: `cards/scryfall.collection()` (the Scryfall
+  `/cards/collection` call nothing makes), `tests/test_printings.py`, the `printings` fixture,
+  `default_cards_sample.jsonl.gz`, `archidekt_printings_sample.csv` (unused since B),
+  `scripts/build_printing_fixture.py` and the printings half of `build_card_fixtures.py`.
+  Stored imports that counted rung 3 still render (the review page iterates `RUNG_ORDER`).
+* **I.2 Dead code, CSS, requirements, the tune page (I-D1).**
+  * Left by C: `SimulationRun.judgement_gaps` / `cards_unjudged` / `cards_judged` / `judged_pct`,
+    the same on `PlaytestSession`, `Conversion.cards_unjudged` / `judged`, `Reading.unjudged`,
+    and `annotations.patch` (C2's review does not use it) - with their tests. Also the combined
+    score nothing shows any more (`SimulationRun.cards_modelled` / `coverage` / `coverage_pct`,
+    `Conversion.coverage` / `readable`); the playtest admin column shows `readable_pct` instead.
+    The engine keeps recording the priority gaps and `gaps.JUDGEMENT` stays: it is how the one
+    score leaves them out.
+  * Unused elsewhere: `decks/analysis.review_cards`, `kind_counts`, `role_counts`,
+    `DeckAnalysis.coverage`; `decks/forms.DeckForm`; `columns.declared_absent` /
+    `missing_labels`; `cards/scryfall` `size_mb`; `provenance` `weak`; `Reading.has_gaps`.
+  * CSS: `.form-cell` (the casting-order screen, gone since C) and the "priority box" comment;
+    `main.css` size before/after.
+  * `STRIPE_PUBLISHABLE_KEY` (settings + `.env.example`): hosted Checkout never needs it.
+    The production variable can stay or be deleted - nothing reads it.
+  * `pytest-playwright` out of `requirements-dev.txt` (no test uses its fixtures; Playwright
+    itself stays for the screenshot scripts). `pip-audit` clean.
+  * Stale comments that still name the collection page (`combos/services.py` x3,
+    `accounts/models.py`, `settings/prod.py`). "Collection export" stays where it means
+    Archidekt's file of that name.
+  * Checked and clean: the Celery beat (housekeeping, guests.expire), the admin registrations,
+    every setting is read by the framework or the app.
+* **I.3 Tests.** The leak fixed: both module fixtures delete what they made after their
+  module (user, deck, annotations, catalogue), then one run checked with a count at the end.
+  One `catalogue` fixture in `conftest.py` instead of the 16 identical copies (plus the two
+  inside `owner`); the rate-limit window pin, now in `test_security.py` and `test_guests.py`,
+  moves there too. **Speed, measured 2026-09-30 before the build:** 1176 passed in 7:18. The
+  two slowest are the rate-limit loops in `test_security.py` (signup 14.8 s, admin login 13.9 s)
+  - password hashing: the tests run on `settings.dev`, so every `create_user` and login pays
+  Django's full PBKDF2. Planned: a `goldfishlab/settings/test.py` (dev + the MD5 hasher, the
+  way Django's "Speeding up the tests" documents it) as pytest's settings module. Next: the
+  database setup (9.3 s, once) and the catalogue setup, ~0.9 s for every test in the 21 modules
+  that load it - measured part by part (cards, tags, profiles) before anything changes. A
+  session-wide catalogue is NOT the plan: it would change the empty-database baseline the
+  ingest tests rely on.
+* **I.4 Docs, review, screenshots.**
+  * README (no printing section, the features as they are now), `docs/phases/README.md` (phase
+    9 row is stale since C), GO-LIVE (step 7's printings note and the "prices show -" row),
+    `.env.example`, RESUME traps (obsolete ones marked), the project memory; `DESIGN.md` gets
+    the phase-9 components (drop zone, card fan, status marker, usage bar, charts, "Why?") and
+    `scripts/build_styleguide.py` regenerates `STYLEGUIDE.html` with them.
+  * Privacy policy: "Last updated 30 September 2026".
+  * Review pass over the phase-9 diff: security (guest endpoints, paste import, review flow:
+    owner filters, rate limits, CSP without a new exception), accessibility (alt text, the hand
+    by keyboard, focus, contrast), performance (`loading="lazy"`, query counts on the deck page
+    and the grid with a test that pins them, `scripts/bench_engine.py` against E's baseline).
+    Findings go into this file; anything bigger than a few lines comes back to the user first.
+  * Screenshot pass: every page at 1440 and 390, signed out, as a guest (the script gets a
+    guest mode: upload through `/try/`), signed in; every mail once more (`preview_mails`).
+* **After the merge (user, with the agent reading along):** the deploy runs `cards/0009` by
+  itself. Then on `cp`: `python manage.py check --deploy` (only W021 expected) and
+  `showmigrations collection` (empty = gone). The deferred go-live checks, at the latest now:
+  6.4 (phone on mobile data not locked out), 6.6 (`https://<env>.jcloud.ik-server.com` does not
+  serve the site), 6.7 (restart `sqldb`, the superuser is still there), 6.9 (rollback with the
+  running SHA). Locally, optional: `.data/default-cards.jsonl.gz` (78.8 MB) can be deleted.
+
+### I - what was built (2026-09-30)
+
+* **I.1** `collection` out of `INSTALLED_APPS` and the repository (Django's delete-app guide:
+  steps 1-6 were B, 7-8 are this). `cards.Printing`, `ingest_printings`, `--kind
+  default_cards`, rung 3 and `Resolution.printing` gone; rung 1 matches `OracleCard.scryfall_id`
+  as production always did. **`cards/0009`** deletes the `default_cards` import rows, the table
+  and the stale content types (`collection.*`, `cards.printing`, their permissions cascade) -
+  nothing manual on production. The unused Scryfall `/cards/collection` client went too.
+* **I.2** Removed as planned (judgement half, mixed coverage, `annotations.patch`,
+  `review_cards`, `role_summary`, `DeckForm`, `declared_absent`, `missing_labels`, `size_mb`,
+  `weak`, `has_gaps`, `.form-cell`, `STRIPE_PUBLISHABLE_KEY`, `pytest-playwright`). Deviation:
+  `Conversion.readable` stays - it is the one score, and the deck-shape tests read it; the
+  unmodellable deck reads 4 of 12 cards, so its bound is `< 0.5` (the mixed number was < 25%).
+  **Tune page gone (I-D1):** `/decks/<id>/tune/` redirects (302) to the deck page's `#cards`;
+  the blind-spot panel is inside "What the engine cannot model"; the commander picture links to
+  its card page; card page "back", run page, board ("tell the engine" -> the review) and the
+  post-save redirects point at the deck. `.tune-*` -> `.card-grid*`. `main.css` 41,482 ->
+  41,157 bytes. `pip-audit` clean.
+* **I.3** The leak: both module fixtures end with `tests/support.forget_module_rows()`;
+  checked by counting every table after them (only the migration rows remain). One `catalogue`
+  fixture (conftest, loader in `tests/support.py`) instead of 18 copies, one `pinned_window`.
+  Measured before changing anything: the catalogue is ~0.27 s, `create_user` 0.7 s - so
+  **`goldfishlab/settings/test.py`** (dev + MD5 hasher) in pyproject and in `checks.yml`'s env
+  (pytest-django prefers the env var). Fast suite **7:18 -> 3:38**.
+* **I.4** README (phase 9 summary, no printing section, the card page instead of the card list,
+  the test settings), `docs/phases/README.md` (phase 9 complete), `DESIGN.md` "Pictures,
+  markers and charts", `STYLEGUIDE.html` regenerated with a marker/bar/"Why?" section, privacy
+  "Last updated 30 September 2026", GO-LIVE and RESUME traps 58-61 (local).
+  Review pass: owner filters on every lookup, rate limits on every writing entry point
+  (the mapping POST imports an upload that was already limited), the CSP unchanged since the
+  first commit, no inline script; every image has `alt`, the ones without `loading="lazy"` are
+  above the fold; a new test pins that the deck page and its grid cost the same queries at ten
+  cards more; the engine is unchanged since E (bench 925 usec/game, E: 1023-1058).
+  Screenshots: 37 signed in (`demo_screens.py`) + 19 public/guest (`screenshots.py --guest`,
+  new) at 1440 and 390, no HTTP or console error; 13 mails rendered. **Found:** the screenshot
+  script had skipped the playtest board since D (the button names its form from outside it) -
+  fixed, and it now fails loudly.
+* After the merge (user): the deploy runs `cards/0009`; then `check --deploy`, `showmigrations
+  collection` and the deferred go-live checks 6.4, 6.6, 6.7, 6.9.
 
 ## Order (confirmed by the user 2026-09-28)
 

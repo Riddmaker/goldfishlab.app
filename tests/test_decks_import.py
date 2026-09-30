@@ -7,13 +7,11 @@ a deck page that is wrong and confident, which is the exact failure this
 application exists to avoid.
 """
 
-from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
 
-from cards import ingest, profiles
 from decks import importers, resolve, services
 from decks.importers.archidekt import ArchidektParser
 from decks.importers.tabular import TabularParser
@@ -25,7 +23,6 @@ pytestmark = pytest.mark.django_db
 User = get_user_model()
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 ARCHIDEKT_CSV = FIXTURES / "archidekt_sample.csv"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 
 # The real 214-row export, outside this repo. Used when present, skipped when not,
 # so the suite works on a fresh checkout without the sibling project.
@@ -34,13 +31,6 @@ REAL_EXPORT = (
     / "magic-project"
     / "archidekt-collection-export-2026-09-15.csv"
 )
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture

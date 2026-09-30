@@ -96,47 +96,22 @@ class PlaytestSession(models.Model):
     def get_absolute_url(self) -> str:
         return reverse("playtest:detail", args=[self.id])
 
-    @property
-    def coverage(self) -> float:
-        """How much of the deck the engine actually models, 0 to 1.
-
-        Bounded on purpose: a score outside the range is a bug, not a strong
-        opinion. The commander counts toward its own denominator - it is not a
-        `DeckCard`, and forgetting that once produced -50%.
-        """
-        if not self.cards_total:
-            return 0.0
-        modelled = max(0, self.cards_total - self.cards_with_gaps)
-        return modelled / self.cards_total
-
-    @property
-    def coverage_pct(self) -> float:
-        return round(self.coverage * 100, 1)
-
-    # --- the two halves of that score --------------------------------------
+    # --- the score: how much of the deck the engine read ---------------------
     #
-    # A board that says "the engine could not read 11 of 12 cards" is telling
-    # the player something it can fix; one that says "nobody has said how early
-    # to cast 11 of 12 cards" is telling them something only they can. Same
-    # stored gaps, classified by field - see `simulations.gaps`.
+    # "The engine could not read 11 of 12 cards" is something the player can
+    # fix. The stored gaps also hold the cast-priority questions, which no page
+    # counts since phase 9 C - see `simulations.gaps`. The commander counts
+    # toward its own denominator: it is not a `DeckCard`, and forgetting that
+    # once produced -50%.
 
     @property
     def cards_unreadable(self) -> int:
         return len(gaps_module.cards_with(self.gaps, gaps_module.READING))
 
     @property
-    def cards_unjudged(self) -> int:
-        return len(gaps_module.cards_with(self.gaps, gaps_module.JUDGEMENT))
-
-    @property
     def readable_pct(self) -> float:
         return round(100 * gaps_module.share(self.cards_total,
                                              self.cards_unreadable), 1)
-
-    @property
-    def judged_pct(self) -> float:
-        return round(100 * gaps_module.share(self.cards_total,
-                                             self.cards_unjudged), 1)
 
     def invalidate(self) -> None:
         """Forget the cached state. Called by anything that edits the actions."""

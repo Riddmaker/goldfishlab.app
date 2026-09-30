@@ -231,11 +231,6 @@ class CardProvenance:
         """The rows the user is responsible for."""
         return [row for row in self.rows if row.is_yours]
 
-    @property
-    def weak(self) -> list[Row]:
-        """The rows nobody has confirmed and a regex or a default supplied."""
-        return [row for row in self.rows if row.is_weak]
-
 
 def for_deck(deck) -> list[CardProvenance]:
     """Every card in the deck, with a provenance row per field.

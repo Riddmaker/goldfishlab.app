@@ -9,12 +9,10 @@ ones, and the reason nothing in this module ever holds a whole file.
 The one thing deliberately held in memory is the tag DAG itself: 4,544 tags
 with their edges, a few hundred kilobytes. The *taggings* (236,000 of them) are
 never held - they are streamed past three times from a local copy of the file.
-The printing ingestion holds one comparable thing, the set of known oracle ids,
-for the same reason and at the same scale.
 
-Three files, and **the order between them is a dependency, not a preference**:
-`oracle_cards` first, then `default_cards` and `oracle_tags`, both of which
-carry a foreign key to a card. Rows whose card is missing are counted as
+Two files, and **the order between them is a dependency, not a preference**:
+`oracle_cards` first, then `oracle_tags`, which carries a foreign key to a
+card. Rows whose card is missing are counted as
 skipped rather than raising.
 
 Idempotency lives in `BulkImport.scryfall_updated_at`. A run whose timestamp
@@ -34,7 +32,7 @@ from django.db import reset_queries, transaction
 from django.utils import timezone
 
 from cards import scryfall
-from cards.models import BulkImport, OracleCard, OracleCardTag, Printing, Tag, TagEdge
+from cards.models import BulkImport, OracleCard, OracleCardTag, Tag, TagEdge
 
 # Rows that are not cards anyone can put in a deck. They carry oracle_ids and
 # would import cleanly, they are just noise: 2,243 art series pieces and 913
@@ -43,9 +41,6 @@ NON_CARD_LAYOUTS = frozenset({"art_series", "token", "double_faced_token", "embl
 
 CARD_BATCH = 1_000
 TAG_LINK_BATCH = 5_000
-# Printings are narrow rows - no oracle text, no legalities blob - so a larger
-# batch costs little memory and saves round trips over 112,581 of them.
-PRINTING_BATCH = 2_000
 
 # Columns refreshed when a card already exists. Everything except the key.
 _CARD_UPDATE_FIELDS = [
@@ -55,16 +50,6 @@ _CARD_UPDATE_FIELDS = [
     "reserved", "edhrec_rank", "released_at", "scryfall_id", "scryfall_uri", "image_uri",
     "imported_at",
 ]
-
-# Same idea for printings: everything except the key. `prices_updated_at` is in
-# the list because a re-ingest is usually a price refresh and nothing else, and
-# a price whose date did not move is a price nobody can trust.
-_PRINTING_UPDATE_FIELDS = [
-    "oracle_card", "set_code", "set_name", "collector_number", "rarity", "lang",
-    "released_at", "finishes", "digital", "promo", "image_uri",
-    "price_eur", "price_eur_foil", "prices_updated_at", "imported_at",
-]
-
 
 @dataclass
 class IngestResult:
@@ -222,88 +207,6 @@ def _flush_cards(batch: list[OracleCard]) -> int:
         update_conflicts=True,
         update_fields=_CARD_UPDATE_FIELDS,
         unique_fields=["oracle_id"],
-    )
-    _forget_queries()
-    return len(batch)
-
-
-def ingest_printings(
-    *,
-    source: str | Path | None = None,
-    updated_at: datetime | None = None,
-    force: bool = False,
-    limit: int | None = None,
-    measure: bool = False,
-) -> IngestResult:
-    """Load `default_cards` into `Printing`.
-
-    **Cards must be loaded first.** A printing carries a foreign key to its
-    oracle card, and `default_cards` includes rows for layouts `oracle_cards`
-    deliberately drops. So the known-card set is read once and a printing whose
-    card is absent is *skipped and counted*, never allowed to raise - the same
-    treatment a tagging with no card gets, and for the same reason: an
-    ingestion that dies on one row is a worse failure than one that reports
-    5,000 rows it could not place.
-
-    The known-id set holds **strings**, not `UUID` objects. `"..." in {UUID(...)}`
-    is silently False, which presents as an ingestion that reports success and
-    writes nothing at all. That is trap 4, paid for once already in `ingest_tags`.
-
-    Peak memory is the set (~36,000 ids, a couple of megabytes) plus one batch.
-    The 78.8 MB file itself is streamed and never held, exactly as the 24.7 MB
-    one is.
-    """
-    kind = BulkImport.Kind.DEFAULT_CARDS
-    location, version = _resolve_source(kind, source, updated_at)
-
-    if not force and _already_done(kind, version):
-        return IngestResult(
-            kind=kind,
-            status=BulkImport.Status.SKIPPED,
-            message=f"already imported {version:%Y-%m-%d %H:%M}",
-        )
-
-    with _run(kind, version, measure) as (_record, result):
-        known = {str(pk) for pk in OracleCard.objects.values_list("oracle_id", flat=True)}
-        if not known:
-            result.message = "no cards in the catalogue - run oracle_cards first"
-
-        batch: list[Printing] = []
-        for row in scryfall.stream_jsonl(location):
-            result.rows_seen += 1
-            if limit is not None and result.rows_seen > limit:
-                result.rows_seen -= 1
-                break
-
-            if row.get("layout") in NON_CARD_LAYOUTS or not row.get("id"):
-                result.rows_skipped += 1
-                continue
-            if row.get("oracle_id") not in known:
-                result.rows_skipped += 1
-                continue
-
-            batch.append(Printing.from_scryfall(row, prices_updated_at=version))
-            if len(batch) >= PRINTING_BATCH:
-                result.rows_written += _flush_printings(batch)
-                batch = []
-
-        result.rows_written += _flush_printings(batch)
-
-        if not result.message:
-            result.message = f"prices as of {version:%Y-%m-%d}"
-
-    return result
-
-
-def _flush_printings(batch: list[Printing]) -> int:
-    if not batch:
-        return 0
-    Printing.objects.bulk_create(
-        batch,
-        batch_size=PRINTING_BATCH,
-        update_conflicts=True,
-        update_fields=_PRINTING_UPDATE_FIELDS,
-        unique_fields=["scryfall_id"],
     )
     _forget_queries()
     return len(batch)

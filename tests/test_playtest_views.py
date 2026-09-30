@@ -11,14 +11,11 @@ belonging to somebody else is a 404, never a 403 and never a page.
 """
 
 import random
-from datetime import UTC, datetime
-from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from cards import ingest, profiles
 from decks import seeding
 from decks.fixtures import LAND_LIGHT, UNMODELLABLE
 from playtest import services
@@ -29,18 +26,7 @@ from simulation.game import Game
 pytestmark = pytest.mark.django_db
 
 User = get_user_model()
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 PASSWORD = "pw-for-test-only"
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz",
-                        updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz",
-                       updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture
@@ -194,13 +180,13 @@ def test_a_draw_cannot_ask_for_the_whole_library(signed_in, session):
 # --- Honesty ---------------------------------------------------------------
 
 def test_a_deck_the_engine_cannot_read_says_so_on_the_board(signed_in, owner):
-    """The same claim the tune page makes, made where the game is played."""
+    """The same claim the deck page makes, made where the game is played."""
     deck = seeding.build(UNMODELLABLE, owner).deck
     session = services.start(deck, owner, seed=1)
     body = signed_in.get(session.get_absolute_url()).content.decode()
     assert "could not read" in body
     assert f"{session.cards_with_gaps}" in body
-    assert reverse("simulations:tune", args=[deck.id]) in body
+    assert reverse("simulations:review", args=[deck.id]) in body
 
 
 def test_a_deck_the_engine_understands_does_not_shout(signed_in, session):

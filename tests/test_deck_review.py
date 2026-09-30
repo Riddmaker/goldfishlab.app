@@ -15,7 +15,6 @@ What these tests are for, in order of how much they matter:
 5. **Ownership.** Somebody else's deck is a 404 here too.
 """
 
-from datetime import UTC, datetime
 from io import StringIO
 from pathlib import Path
 
@@ -24,7 +23,6 @@ from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.urls import reverse
 
-from cards import ingest, profiles
 from cards.models import DerivedProfile
 from decks import services as deck_services
 from decks.models import Deck
@@ -37,14 +35,6 @@ pytestmark = pytest.mark.django_db
 User = get_user_model()
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 ARCHIDEKT_CSV = FIXTURES / "archidekt_sample.csv"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture
@@ -303,15 +293,15 @@ def test_a_ready_deck_has_nothing_to_review(client, owner, deck, questions):
     assert response.url == deck.get_absolute_url()
 
 
-def test_the_tune_page_puts_the_open_cards_first(client, owner, deck, questions):
+def test_the_card_grid_puts_the_open_cards_first(client, owner, deck, questions):
     client.force_login(owner)
 
-    body = client.get(reverse("simulations:tune", args=[deck.pk])).content.decode()
+    body = client.get(deck.get_absolute_url()).content.decode()
 
     assert body.count("! needs you") == len(questions)
     # The first tile of the grid is the first open card.
-    first_tile = body.index('class="tune-card"')
-    assert body.index("! needs you") < body.index('class="tune-card"', first_tile + 1)
+    first_tile = body.index('class="card-grid-item"')
+    assert body.index("! needs you") < body.index('class="card-grid-item"', first_tile + 1)
 
 
 def test_somebody_elses_deck_has_no_review(client, deck):

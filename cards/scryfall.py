@@ -6,14 +6,14 @@ of aspirational.
 
 Three traps, all of them already paid for during the deck research:
 
-1. **`User-Agent` *and* `Accept` are both mandatory.** Omit either and
-   `/cards/collection` answers HTTP 400, not 403 - so it reads like a malformed
-   body, and you go looking in the wrong place.
+1. **`User-Agent` *and* `Accept` are both mandatory.** Omit either and the
+   API answers HTTP 400, not 403 - so it reads like a malformed request, and
+   you go looking in the wrong place.
 2. **Stay under 10 requests/second.** Scryfall asks for 50-100 ms between
    requests; `MIN_INTERVAL` is 100 ms and is enforced process-wide.
-3. **Bulk, never per-card, for the catalogue.** The per-card endpoints are for
-   filling gaps during an import. Walking 38,000 cards through them would take
-   an hour and is exactly what the bulk files exist to prevent.
+3. **Bulk, never per-card, for the catalogue.** Walking 38,000 cards through
+   the per-card endpoints would take an hour and is exactly what the bulk files
+   exist to prevent.
 
 Why `urllib` and not `requests`/`httpx`: the production container runs on a
 128 MiB cloudlet, and this module needs three verbs. A dependency that has to
@@ -35,14 +35,10 @@ from django.conf import settings
 from django.utils.dateparse import parse_datetime
 
 BULK_ENDPOINT = "https://api.scryfall.com/bulk-data"
-COLLECTION_ENDPOINT = "https://api.scryfall.com/cards/collection"
 
 # Scryfall's documented ceiling is 10 requests/second; they ask for 50-100 ms
 # of delay. We take the slow end of their own advice.
 MIN_INTERVAL = 0.1
-
-# `/cards/collection` rejects more than 75 identifiers per request.
-COLLECTION_BATCH = 75
 
 MAX_RETRIES = 4
 RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
@@ -68,10 +64,6 @@ class BulkMeta:
     download_uri: str
     compressed_size: int
 
-    @property
-    def size_mb(self) -> float:
-        return self.compressed_size / 1_000_000
-
 
 def _user_agent() -> str:
     return getattr(settings, "SCRYFALL_USER_AGENT", "GoldfishLab/0.1")
@@ -92,7 +84,7 @@ def _check_scheme(url: str) -> None:
         raise ScryfallError(f"refusing to open URL with scheme {scheme!r}: {url}")
 
 
-def _open(url: str, *, accept: str, data: bytes | None = None, timeout: int = 60):
+def _open(url: str, *, accept: str, timeout: int = 60):
     """A rate-limited, retrying request. Returns an open response.
 
     Retries only on 429 and 5xx. A 400 or 404 is a bug in the caller and
@@ -100,14 +92,12 @@ def _open(url: str, *, accept: str, data: bytes | None = None, timeout: int = 60
     """
     _check_scheme(url)
     headers = {"User-Agent": _user_agent(), "Accept": accept}
-    if data is not None:
-        headers["Content-Type"] = "application/json"
 
     last_error: Exception | None = None
     for attempt in range(MAX_RETRIES):
         _throttle()
         # _check_scheme above restricts this to https, which is what S310 asks for.
-        request = urllib.request.Request(url, data=data, headers=headers)  # noqa: S310
+        request = urllib.request.Request(url, headers=headers)  # noqa: S310
         try:
             return urllib.request.urlopen(request, timeout=timeout)  # noqa: S310
         except urllib.error.HTTPError as exc:
@@ -194,23 +184,3 @@ def _parse_lines(lines) -> Iterator[dict]:
         line = line.strip()
         if line:
             yield json.loads(line)
-
-
-def collection(identifiers: list[dict]) -> tuple[list[dict], list[dict]]:
-    """Resolve up to 75 card identifiers at a time.
-
-    Used only to fill gaps left by an import, never to load the catalogue.
-    Returns `(found, not_found)`.
-    """
-    found: list[dict] = []
-    missing: list[dict] = []
-
-    for start in range(0, len(identifiers), COLLECTION_BATCH):
-        chunk = identifiers[start : start + COLLECTION_BATCH]
-        body = json.dumps({"identifiers": chunk}).encode("utf-8")
-        with _open(COLLECTION_ENDPOINT, accept="application/json", data=body) as response:
-            payload = json.load(response)
-        found.extend(payload.get("data", []))
-        missing.extend(payload.get("not_found", []))
-
-    return found, missing

@@ -20,7 +20,6 @@ What these tests are really for, in order of how much they matter:
    deck is a 404, at the source.
 """
 
-from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -28,7 +27,6 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 
-from cards import ingest, profiles
 from cards.models import OracleCard
 from decks import services as deck_services
 from simulations import annotations, blindspots, provenance, report, services
@@ -37,7 +35,6 @@ from simulations.annotations import (
     apply,
     format_mana,
     parse_mana,
-    patch,
 )
 from simulations.engine import adapter
 from simulations.forms import AnnotationForm
@@ -48,15 +45,7 @@ pytestmark = pytest.mark.django_db
 User = get_user_model()
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 ARCHIDEKT_CSV = FIXTURES / "archidekt_sample.csv"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 PASSWORD = "pw-for-test-only"
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture
@@ -215,24 +204,6 @@ def test_saving_keeps_the_keys_the_editor_does_not_show():
 def test_an_unknown_key_cannot_be_written_through_the_editor():
     with pytest.raises(ValueError, match="not an editable judgement"):
         apply({}, {"skips_draw_step": True})
-
-
-def test_a_single_purpose_screen_changes_only_the_key_it_knows_about():
-    """`patch`, not `apply`. A screen that edits one key must not call the
-    whole-form merge, or it deletes every role and mana judgement the card's
-    own page had recorded - which is what the casting-order page (removed in
-    Phase 9 C) nearly did."""
-    stored = {"priority": 10, "tags": ["ramp"], "mana_produces": {"B": 1}}
-
-    result = patch(stored, {"priority": 40})
-
-    assert result == {"priority": 40, "tags": ["ramp"], "mana_produces": {"B": 1}}
-
-
-def test_a_single_purpose_screen_can_still_clear_its_own_key():
-    assert patch({"priority": 10, "tags": ["ramp"]}, {"priority": None}) == {
-        "tags": ["ramp"]
-    }
 
 
 def test_an_empty_list_of_roles_is_a_real_answer():
@@ -652,16 +623,17 @@ def test_a_stored_result_is_not_rewritten_when_a_judgement_changes(deck, owner, 
 # --- the screens -----------------------------------------------------------
 
 
-def test_the_tune_page_shows_every_card(client, owner, deck):
-    """The sources it used to open with are on the methodology page now."""
+def test_the_old_card_list_sends_its_links_to_the_deck_page(client, owner, deck):
+    """Phase 9 I: `/decks/<id>/tune/` was the card list; the deck page's grid is.
+
+    The sources it used to open with are on the methodology page."""
     client.force_login(owner)
 
-    response = client.get(reverse("simulations:tune", args=[deck.pk]))
-    body = response.content.decode()
+    response = client.get(f"/decks/{deck.pk}/tune/")
 
-    assert response.status_code == 200
-    assert "What the engine reads" in body
-    assert "Swamp" in body
+    assert response.status_code == 302
+    assert response.url == f"{deck.get_absolute_url()}#cards"
+    assert "Swamp" in client.get(response.url).content.decode()
     assert "Scryfall field" in client.get(reverse("methodology")).content.decode()
 
 
@@ -744,12 +716,12 @@ def test_no_page_puts_the_casting_priority_to_anybody(
     )
     client.force_login(owner)
 
-    tune = client.get(reverse("simulations:tune", args=[deck.pk])).content.decode()
+    grid = client.get(deck.get_absolute_url()).content.decode()
     card = client.get(
         reverse("simulations:annotate", args=[deck.pk, spell.pk])
     ).content.decode()
 
-    for body in (tune, card):
+    for body in (grid, card):
         assert "no one said how early to cast it" not in body
         assert "call only you can make" not in body
         assert "/priority/" not in body
@@ -759,7 +731,10 @@ def test_another_users_deck_is_a_404_not_a_permission_error(client, deck):
     stranger = User.objects.create_user(email="stranger@example.com", password=PASSWORD)
     client.force_login(stranger)
 
-    assert client.get(reverse("simulations:tune", args=[deck.pk])).status_code == 404
+    spell = deck.entries.first().oracle_card
+    assert client.get(
+        reverse("simulations:annotate", args=[deck.pk, spell.pk])
+    ).status_code == 404
 
 
 def test_a_card_that_is_not_in_the_deck_cannot_be_annotated(client, owner, deck):
@@ -781,7 +756,8 @@ def test_a_card_that_is_not_in_the_deck_cannot_be_annotated(client, owner, deck)
 
 
 def test_signing_out_hides_the_honesty_layer(client, deck):
-    response = client.get(reverse("simulations:tune", args=[deck.pk]))
+    spell = deck.entries.first().oracle_card
+    response = client.get(reverse("simulations:annotate", args=[deck.pk, spell.pk]))
 
     assert response.status_code == 302
     assert "login" in response.url

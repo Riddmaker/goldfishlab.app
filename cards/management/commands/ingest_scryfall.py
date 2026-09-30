@@ -2,18 +2,13 @@
 
     py manage.py ingest_scryfall                       # cards + tags, skip if unchanged
     py manage.py ingest_scryfall --kind oracle_tags    # just the tags
-    py manage.py ingest_scryfall --kind default_cards  # the 78.8 MB printings file
     py manage.py ingest_scryfall --force --measure     # rebuild, report memory
     py manage.py ingest_scryfall --source path.jsonl.gz --kind oracle_cards
 
-Order matters: taggings and printings both carry a foreign key to the card, so
-cards go first and a row whose card is missing is counted as skipped rather
-than crashing the run.
-
-**`--kind all` deliberately does not include `default_cards`.** This command is
-in the boot path and in the README's first commands, and a routine invocation
-should not pull 78.8 MB because somebody upgraded. Printings are asked for by
-name; everything that reads them works without them.
+Order matters: a tagging carries a foreign key to the card, so cards go first
+and a row whose card is missing is counted as skipped rather than crashing the
+run. (The 78.8 MB `default_cards` printings file went in phase 9 I - only the
+collection's prices read it.)
 
 **It also derives the card profiles, and that is not optional.** The engine
 reads `DerivedProfile`, never the raw card: a catalogue with cards and no
@@ -34,19 +29,11 @@ from cards.scryfall import ScryfallError
 from decks.models import Deck
 from decks.services import recount_later
 
-#: The kinds whose rows a profile is derived from. Printings are not one of
-#: them - a profile is about a card, not about which Swamp somebody owns.
+#: The kinds whose rows a profile is derived from.
 PROFILE_INPUTS = {BulkImport.Kind.ORACLE_CARDS, BulkImport.Kind.ORACLE_TAGS}
 
-#: What `--kind all` means: the catalogue, and nothing that is 78.8 MB.
+#: What `--kind all` means, in dependency order.
 KINDS = [BulkImport.Kind.ORACLE_CARDS, BulkImport.Kind.ORACLE_TAGS]
-
-#: Everything that can be asked for by name, in dependency order.
-ALL_KINDS = [
-    BulkImport.Kind.ORACLE_CARDS,
-    BulkImport.Kind.DEFAULT_CARDS,
-    BulkImport.Kind.ORACLE_TAGS,
-]
 
 
 class Command(BaseCommand):
@@ -55,12 +42,9 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--kind",
-            choices=[*ALL_KINDS, "all"],
+            choices=[*KINDS, "all"],
             default="all",
-            help=(
-                "Which bulk file to load. Default 'all' means cards then tags; "
-                "default_cards (printings, 78.8 MB) must be named explicitly."
-            ),
+            help="Which bulk file to load. Default 'all' means cards then tags.",
         )
         parser.add_argument(
             "--source",
@@ -134,6 +118,4 @@ class Command(BaseCommand):
         }
         if kind == BulkImport.Kind.ORACLE_CARDS:
             return ingest.ingest_cards(limit=options["limit"], **common)
-        if kind == BulkImport.Kind.DEFAULT_CARDS:
-            return ingest.ingest_printings(limit=options["limit"], **common)
         return ingest.ingest_tags(**common)

@@ -7,11 +7,10 @@ safety net for the Phase 2 generalization - the moment those files start
 drifting, "all 65 tests still green" stops meaning anything.
 """
 
-from datetime import UTC, datetime
-from pathlib import Path
-
 import pytest
 from django.core.cache import cache
+
+from tests.support import load_catalogue
 
 # Engine test modules vendored from magic-project. They import no Django and
 # must never need a database.
@@ -38,39 +37,28 @@ def _isolate_cache():
     cache.clear()
 
 
-# --- printings ---------------------------------------------------------------
-#
-# Deliberately **not** part of the per-module `catalogue` fixtures, and this is
-# a design decision rather than an omission.
-#
-# `default_cards` is an optional 78.8 MB download that a real installation may
-# never have made, so "no printings at all" is a supported state that the whole
-# application has to keep working in. Leaving it as the default for the suite
-# means several hundred existing tests go on exercising that state for free,
-# every run, instead of it being something nobody looks at until somebody
-# deploys without it.
-#
-# A test that wants printings asks for `printings` *after* `catalogue`, because
-# a printing carries a foreign key to its card.
-
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-PRINTINGS_FIXTURE = FIXTURES / "default_cards_sample.jsonl.gz"
-
-#: The fixtures' stand-in for a bulk file's timestamp. Fixed, not `now()`, so a
-#: test asserting "prices as of" gets the same answer on every run.
-PRINTINGS_VERSION = datetime(2026, 9, 20, 9, 5, tzinfo=UTC)
+# --- the card catalogue (the loader lives in tests/support.py) ---------------
 
 
 @pytest.fixture
-def printings(db):
-    """The 361 printings of the sampled cards, over 96 of the 98 cards.
+def catalogue(db):
+    load_catalogue()
 
-    All of a card's printings, capped at four, never one: a fixture with a
-    single printing per card would let a resolver that quietly ignores the set
-    code pass every test here.
+
+# --- rate limits ------------------------------------------------------------
+
+
+@pytest.fixture
+def pinned_window(monkeypatch):
+    """Keep every django-ratelimit count inside one fixed window.
+
+    It counts in fixed windows, so a loop of posts that straddles a window
+    edge restarts the count and a limit test fails for no reason - seen with
+    the admin login (twelve password hashes) and the simulation start (25
+    posts). Pinning the window makes these tests measure the limit, not the
+    clock. allauth's own limits count differently and are not touched.
     """
-    from cards import ingest
+    import django_ratelimit.core
 
-    return ingest.ingest_printings(
-        source=PRINTINGS_FIXTURE, updated_at=PRINTINGS_VERSION
-    )
+    monkeypatch.setattr(django_ratelimit.core, "_get_window",
+                        lambda value, period: 4_102_444_800)

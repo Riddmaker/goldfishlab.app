@@ -14,10 +14,8 @@ What these tests hold:
 """
 
 import re
-from datetime import UTC, datetime, timedelta
-from pathlib import Path
+from datetime import timedelta
 
-import django_ratelimit.core
 import pytest
 from allauth.account.models import EmailAddress
 from django.contrib.auth import get_user_model
@@ -26,7 +24,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from billing import quotas
-from cards import ingest, profiles
 from decks.models import Deck
 from guests import services
 from simulations import services as simulations
@@ -35,8 +32,6 @@ from simulations.models import SimulationRun
 pytestmark = pytest.mark.django_db
 
 User = get_user_model()
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 PASSWORD = "a-long-test-passphrase-9"
 DECK_TEXT = "// Commander\n1 Chainer, Dementia Master\n// Deck\n1 Sol Ring\n36 Swamp\n"
 
@@ -74,17 +69,8 @@ def _no_workers(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
-
-
-@pytest.fixture
-def pinned_window(monkeypatch):
-    """One fixed rate-limit window, so a loop of posts cannot straddle two."""
-    monkeypatch.setattr(django_ratelimit.core, "_get_window",
-                        lambda value, period: 4_102_444_800)
+def _catalogue(catalogue):
+    """Every guest test imports a deck, so every one needs the cards."""
 
 
 def upload(client, text=DECK_TEXT):

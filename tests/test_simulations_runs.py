@@ -13,7 +13,6 @@ What these tests are really for, in order of how much they matter:
    run is finished the fragment comes back without it.
 """
 
-from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -23,7 +22,6 @@ from scipy.stats import hypergeom
 
 from billing.models import Plan, UsageRecord
 from billing.quotas import period_start
-from cards import ingest, profiles
 from decks import services as deck_services
 from simulations import report, services, tasks
 from simulations.engine import runner
@@ -34,7 +32,6 @@ pytestmark = pytest.mark.django_db
 User = get_user_model()
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 ARCHIDEKT_CSV = FIXTURES / "archidekt_sample.csv"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 PASSWORD = "pw-for-test-only"
 
 
@@ -79,13 +76,6 @@ def no_dispatch(monkeypatch):
         services, "_dispatch", lambda run, tasks_module: queued.append(run)
     )
     return queued
-
-
-@pytest.fixture
-def catalogue():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
 
 
 @pytest.fixture

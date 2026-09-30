@@ -57,7 +57,7 @@ class MethodologyView(TemplateView):
     template_name = "core/methodology.html"
 
     def get_context_data(self, **kwargs):
-        # Where a card's value can come from - the tune page's old preamble,
+        # Where a card's value can come from - the old card list's preamble,
         # read off the same table the card pages label their rows with.
         # The land band the deck page draws, from the constant it judges by.
         return {**super().get_context_data(**kwargs), "sources": SOURCES,

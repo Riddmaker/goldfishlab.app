@@ -87,6 +87,31 @@ def test_the_collection_is_gone(client, django_user_model):
         assert "collection" not in client.get(reverse(name)).content.decode().lower()
 
 
+def test_the_collection_app_and_the_printings_leave_nothing_behind():
+    """Phase 9 I: the app is uninstalled, and its content types are cleaned up.
+
+    Django deletes no content type by itself, so `cards/0009` does what
+    `remove_stale_contenttypes --include-stale-apps` would. Called here on rows
+    made to look like production's, since a test database never had them.
+    """
+    import importlib
+
+    from django.apps import apps
+    from django.contrib.contenttypes.models import ContentType
+
+    assert not apps.is_installed("collection")
+    for label, model in [("collection", "collection"), ("collection", "collectionitem"),
+                         ("cards", "printing")]:
+        ContentType.objects.create(app_label=label, model=model)
+
+    migration = importlib.import_module("cards.migrations.0009_printings_out")
+    migration.drop_stale_content_types(apps, None)
+
+    assert not ContentType.objects.filter(app_label="collection").exists()
+    assert not ContentType.objects.filter(app_label="cards", model="printing").exists()
+    assert ContentType.objects.filter(app_label="cards", model="oraclecard").exists()
+
+
 def test_healthz_reports_ok(client):
     """The probe must be unauthenticated and must name what it checked."""
     response = client.get(reverse("healthz"))

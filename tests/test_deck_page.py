@@ -16,14 +16,12 @@ What these tests are for, in order of how much they matter:
 5. **Ownership.** Somebody else's deck is a 404, fragment or not.
 """
 
-from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from cards import ingest, profiles
 from decks import services as deck_services
 from simulations import deck_cards, review, services
 from simulations.engine import adapter
@@ -35,15 +33,11 @@ pytestmark = pytest.mark.django_db
 User = get_user_model()
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 ARCHIDEKT_CSV = FIXTURES / "archidekt_sample.csv"
-VERSION = datetime(2026, 9, 17, 21, 0, tzinfo=UTC)
 HTMX = {"HTTP_HX_REQUEST": "true"}
 
 
 @pytest.fixture
-def owner():
-    ingest.ingest_cards(source=FIXTURES / "oracle_cards_sample.jsonl.gz", updated_at=VERSION)
-    ingest.ingest_tags(source=FIXTURES / "oracle_tags_sample.jsonl.gz", updated_at=VERSION)
-    profiles.rebuild()
+def owner(catalogue):
     return User.objects.create_user(email="owner@example.com", password="pw-for-test-only")
 
 
@@ -233,3 +227,46 @@ def test_the_methodology_page_names_the_template_and_its_land_band(client):
 
     assert "not a rule" in body
     assert f"{low} to {high} lands" in body
+
+
+def test_the_commander_picture_opens_its_card_page(client_in, deck):
+    """Phase 9 I: the commander is not in the grid (not one of the 99), and
+    the card list that did show it is gone - so its picture is the way in."""
+    assert deck.commander.image_uri, "the fixture commander has no picture"
+
+    body = client_in.get(deck.get_absolute_url()).content.decode()
+
+    assert reverse("simulations:annotate", args=[deck.pk, deck.commander.pk]) in body
+
+
+# --- queries: the page costs the same for a deck of any size (phase 9 I) ------
+
+def _queries(client, url, **extra):
+    from django.db import connection
+    from django.test.utils import CaptureQueriesContext
+
+    client.get(url, **extra)  # the first visit counts the red marker once
+    with CaptureQueriesContext(connection) as queries:
+        assert client.get(url, **extra).status_code == 200
+    return len(queries)
+
+
+def test_the_deck_page_and_its_grid_do_not_query_per_card(client_in, deck):
+    """An N+1 hides on a small deck: the same page, ten cards larger, must not
+    cost a single query more - the whole page and the htmx grid alone."""
+    from cards.models import OracleCard
+    from decks.models import DeckCard
+
+    url = deck.get_absolute_url()
+    before = (_queries(client_in, url), _queries(client_in, url, **HTMX))
+
+    held = deck.entries.values_list("oracle_card_id", flat=True)
+    extra = OracleCard.objects.exclude(pk__in=held).exclude(pk=deck.commander_id)[:10]
+    DeckCard.objects.bulk_create(DeckCard(deck=deck, oracle_card=card, quantity=1)
+                                 for card in extra)
+    type(deck).objects.filter(pk=deck.pk).update(open_questions=None)
+
+    after = (_queries(client_in, url), _queries(client_in, url, **HTMX))
+
+    assert len(extra) == 10
+    assert after == before, f"queries grew with the deck: {before} -> {after}"

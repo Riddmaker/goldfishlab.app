@@ -118,6 +118,15 @@ available, and the identical POST redirects and re-renders when it is not; every
 tested both ways. Legality is **advisory** — the board highlights what the floating mana can pay
 for and forbids nothing, because full manual control is what a paper playtest gives you.
 
+The board is laid out like a card game on a screen: a bar with the turn, the phases and the
+floating mana as coloured pips; the table with the command zone, the library, the battlefield
+rows and the graveyard and exile; the hand as a fan of card pictures. Resting the pointer on a
+card straightens and enlarges it until its rules text reads, and clicking it plays it - each card
+is its own form. A fresh hand offers **Mulligan** and **Keep** and nothing else (the engine has no
+"kept" flag, so the view reads it off the actions). On a phone the fan is a row that scrolls
+sideways. Mana is counted once, when the main phase opens, exactly as in the simulation, so the
+draw step says to play the land first.
+
 The agent and the player drive the same code. `simulation/actions.py` is the only implementation
 of what casting a spell means, and `agent.take_turn` chooses from the same `legal_actions` a
 person clicks.

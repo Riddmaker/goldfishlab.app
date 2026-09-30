@@ -15,6 +15,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DeleteView, DetailView, FormView, ListView, View
 from django_ratelimit.decorators import ratelimit
 
+from billing import quotas
 from billing.quotas import QuotaExceeded
 from billing.views import upgrade_prompt
 from cards.models import OracleCard
@@ -112,7 +113,7 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         context["legality_problems"] = sum(1 for verdict in analysis.legality if not verdict.ok)
         context["last_import"] = deck.imports.first()
         context["curve_max"] = max(analysis.curve.values() or [1]) or 1
-        context["run_form"] = RunForm()
+        context["run_form"] = RunForm(plan=quotas.plan_for(self.request.user))
         context["runs"] = deck.runs.all()[:5]
         # Sessions, not games: a playtest is one game played by hand and is
         # resumed rather than re-run, so the list is of things to go back to.
@@ -156,22 +157,20 @@ UNKNOWN_FORMAT_HELP = (
 )
 
 
-@method_decorator(ratelimit(key="user", rate="10/m", method="POST"), name="post")
-class DeckImportView(LoginRequiredMixin, FormView):
-    """Upload a deck list and turn it into a deck.
+class ImportFlowMixin:
+    """Upload -> prepare -> (map | import) -> land, for any owner.
 
-    Rate limited because this is one of the two endpoints where a stranger
-    hands the server a file and the server does work proportional to it. The
-    quota system already bounds how many decks an account may own; it does not
-    bound how fast somebody may ask, and parsing is the expensive half.
-
-    Keyed on the user rather than the address because the view is
-    login-required, so there is always one. Registering accounts to get around
-    it runs into allauth's own signup limit, which is keyed on the address.
+    Shared by the signed-in importer below and the guest trial
+    (`guests.views.TryView`), which differ only in who owns the result and
+    where a clean import lands. `import_owner()` is asked only after the file
+    has been read, so a bad upload creates nothing - not even a guest.
     """
 
     template_name = "decks/import.html"
     form_class = ImportForm
+
+    def import_owner(self):
+        return self.request.user
 
     def form_valid(self, form):
         raw, filename = form.payload()
@@ -189,11 +188,13 @@ class DeckImportView(LoginRequiredMixin, FormView):
             form.add_error(source_field, str(exc))
             return self.form_invalid(form)
 
+        owner = self.import_owner()
+
         # The columns do not answer for themselves, so a person does. Nothing
         # is written and no quota is spent until they have.
         if preparation.needs_mapping:
             pending = services.hold(
-                owner=self.request.user,
+                owner=owner,
                 preparation=preparation,
                 kind=PendingImport.Kind.DECK,
                 filename=filename,
@@ -203,7 +204,7 @@ class DeckImportView(LoginRequiredMixin, FormView):
 
         try:
             outcome = services.import_deck(
-                owner=self.request.user,
+                owner=owner,
                 text=preparation.text,
                 name=form.cleaned_data.get("name", ""),
                 filename=filename,
@@ -216,19 +217,43 @@ class DeckImportView(LoginRequiredMixin, FormView):
             form.add_error(source_field, str(exc))
             return self.form_invalid(form)
 
-        if outcome.clean:
-            messages.success(
-                self.request,
-                f"Imported {outcome.record.rows_resolved} rows into {outcome.deck.name}.",
-            )
-            return redirect(outcome.deck.get_absolute_url())
+        return self.landed(outcome)
 
-        messages.warning(
-            self.request,
-            f"{outcome.record.rows_unresolved} of {outcome.record.rows_total} rows "
-            "could not be matched. Nothing was dropped - they are listed below.",
+    def landed(self, outcome):
+        """Where an import that went through ends up."""
+        return imported(self.request, outcome)
+
+
+def imported(request, outcome):
+    """The deck page for a clean import, the review for one with gaps."""
+    if outcome.clean:
+        messages.success(
+            request,
+            f"Imported {outcome.record.rows_resolved} rows into {outcome.deck.name}.",
         )
-        return redirect(reverse("decks:review", args=[outcome.record.id]))
+        return redirect(outcome.deck.get_absolute_url())
+
+    messages.warning(
+        request,
+        f"{outcome.record.rows_unresolved} of {outcome.record.rows_total} rows "
+        "could not be matched. Nothing was dropped - they are listed below.",
+    )
+    return redirect(reverse("decks:review", args=[outcome.record.id]))
+
+
+@method_decorator(ratelimit(key="user", rate="10/m", method="POST"), name="post")
+class DeckImportView(LoginRequiredMixin, ImportFlowMixin, FormView):
+    """Upload a deck list and turn it into a deck.
+
+    Rate limited because this is one of the two endpoints where a stranger
+    hands the server a file and the server does work proportional to it. The
+    quota system already bounds how many decks an account may own; it does not
+    bound how fast somebody may ask, and parsing is the expensive half.
+
+    Keyed on the user rather than the address because the view is
+    login-required, so there is always one. Registering accounts to get around
+    it runs into allauth's own signup limit, which is keyed on the address.
+    """
 
 
 class ImportMappingView(LoginRequiredMixin, View):
@@ -293,21 +318,12 @@ class ImportMappingView(LoginRequiredMixin, View):
         )
 
     def done(self, request, pending: PendingImport, outcome):
-        if outcome.clean:
-            messages.success(
-                request,
-                f"Imported {outcome.record.rows_resolved} rows into "
-                f"{outcome.deck.name}.",
-            )
-            return redirect(outcome.deck.get_absolute_url())
+        if getattr(request.user, "is_guest", False):
+            # A guest's upload runs by itself, whichever way it came in.
+            from guests.views import land
 
-        messages.warning(
-            request,
-            f"{outcome.record.rows_unresolved} of {outcome.record.rows_total} "
-            "rows could not be matched. Nothing was dropped - they are listed "
-            "below.",
-        )
-        return redirect(reverse("decks:review", args=[outcome.record.id]))
+            return land(request, outcome)
+        return imported(request, outcome)
 
     def page(self, request, pending, preparation, form, overrides=None):
         rows, problem = self.panel(pending, overrides)

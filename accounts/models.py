@@ -40,6 +40,11 @@ class User(AbstractUser):
 
     username = None
     email = models.EmailField("email address", unique=True)
+    #: Somebody trying the site without an account (phase 9 G): created on the
+    #: first upload, signed in for that browser only, with a placeholder
+    #: address and no usable password. Saving the deck turns the guest's rows
+    #: into a real account's; otherwise `guests.services.expire` deletes it.
+    is_guest = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

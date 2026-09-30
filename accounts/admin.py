@@ -9,7 +9,8 @@ from accounts.models import User
 @admin.register(User)
 class GoldfishUserAdmin(UserAdmin):
     ordering = ("email",)
-    list_display = ("email", "is_staff", "is_active", "date_joined")
+    list_display = ("email", "is_guest", "is_staff", "is_active", "date_joined")
+    list_filter = ("is_guest", "is_staff", "is_active")
     search_fields = ("email",)
     fieldsets = (
         (None, {"fields": ("email", "password")}),

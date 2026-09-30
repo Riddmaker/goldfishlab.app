@@ -417,6 +417,45 @@ body {
   font-size: 0.875rem;
 }
 
+/* The three steps of the guest trial (phase 9 G): numbers you can read from
+   across the room, one line of words each. A row from 640px, a column below. */
+.try-steps {
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+}
+
+@media (min-width: 640px) {
+  .try-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.try-steps li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--color-ink-800);
+  background-color: var(--color-ink-900);
+  padding: 0.75rem 1rem;
+  color: var(--color-parchment-100);
+}
+
+.try-step-number {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  background-color: var(--color-blood-700);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: var(--color-parchment-100);
+}
+
 .dropzone {
   position: relative;
   border: 2px dashed var(--color-parchment-600);

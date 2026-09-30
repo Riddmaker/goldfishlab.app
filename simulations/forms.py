@@ -42,7 +42,14 @@ TURN_CHOICES = tuple((turns, f"{turns} turns") for turns in (3, 4, 5, 6, 8, 10))
 
 
 class RunForm(forms.Form):
-    """How many games, how many turns, and which side of the table."""
+    """How many games, how many turns, and which side of the table.
+
+    Given a `plan`, it offers only what that plan runs: a size the plan
+    refuses is not a choice worth showing, and the plan's own ceiling is added
+    when no fixed size matches it (the guest plan's 2,000 games). A posted
+    form passes `trim=False`: it accepts every size, so that one over the plan
+    is refused by `services.start_run` with a sentence naming the limit.
+    """
 
     games = forms.TypedChoiceField(
         choices=GAME_CHOICES, coerce=int, initial=10_000, label="Games",
@@ -71,6 +78,24 @@ class RunForm(forms.Form):
             "starting player skip it."
         ),
     )
+
+    def __init__(self, *args, plan=None, trim=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        if plan is not None:
+            _fit(self.fields["games"], plan.max_games_per_run, "{:,} games", trim)
+            _fit(self.fields["turns"], plan.max_turns, "{} turns", trim)
+
+
+def _fit(field, limit, label: str, trim: bool) -> None:
+    """Offer `limit` itself, and with `trim` nothing above it."""
+    if limit is None:
+        return
+    choices = [(value, text) for value, text in field.choices
+               if value <= limit or not trim]
+    if all(value != limit for value, _ in choices):
+        choices.append((limit, label.format(limit)))
+    field.choices = sorted(choices)
+    field.initial = min(field.initial, limit)
 
 
 #: The two scopes a user may write. **`builtin` is deliberately absent.** A

@@ -35,6 +35,10 @@ PUBLIC_SHOTS = [
     ("styleguide-desktop", "/styleguide/", DESKTOP),
     ("styleguide-phone", "/styleguide/", PHONE),
     ("signup-desktop", "/accounts/signup/", DESKTOP),
+    # Phase 9 G: the guest trial's way in. Uploading from it makes a guest,
+    # so the script photographs the page and never posts to it.
+    ("try-desktop", "/try/", DESKTOP),
+    ("try-phone", "/try/", PHONE),
     ("login-desktop", "/accounts/login/", DESKTOP),
     # Phase 8. All three are public on purpose: somebody has to be able to read
     # what is stored about them and how the numbers are made BEFORE deciding to

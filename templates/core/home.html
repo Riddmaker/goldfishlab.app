@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Goldfish Lab — it actually plays your deck{% endblock %}
 {% block content %}
   <section class="max-w-3xl">
@@ -7,7 +8,15 @@
       Upload your Commander deck. Goldfish Lab plays it thousands of times and shows you what happens.
     </p>
     <p class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-      {% if user.is_authenticated %}
+      {% if user.is_guest %}
+        {% comment %}A guest (phase 9 G): back to what it was trying, or keep it.{% endcomment %}
+        <a href="{% url 'decks:list' %}"
+           class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
+          Back to your deck
+        </a>
+        <a href="{% url 'guests:save' %}"
+           class="text-parchment-200 underline hover:text-parchment-50">Save it - free account</a>
+      {% elif user.is_authenticated %}
         <a href="{% url 'decks:import' %}"
            class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
           Import a deck
@@ -15,15 +24,42 @@
         <a href="{% url 'decks:list' %}"
            class="text-parchment-200 underline hover:text-parchment-50">Your decks</a>
       {% else %}
-        <a href="{% url 'account_signup' %}"
+        <a href="{% url 'guests:try' %}"
            class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
-          Create a free account
+          Try it now - no account
         </a>
-        <a href="{% url 'account_login' %}"
-           class="text-parchment-200 underline hover:text-parchment-50">Sign in</a>
+        <a href="{% url 'account_signup' %}"
+           class="text-parchment-200 underline hover:text-parchment-50">Create a free account</a>
       {% endif %}
     </p>
   </section>
+  {% if not user.is_authenticated or user.is_guest %}
+    {% include "guests/_steps.html" %}
+  {% endif %}
+  {% comment %}
+    Real pages of a guest trial (phase 9 G), captured from the local stack and
+    encoded as WebP: the hand as dealt on the playtest table, and the first
+    chart of a finished report.
+  {% endcomment %}
+  <div class="mt-10 grid items-start gap-6 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    <figure>
+      <img src="{% static 'img/home-hand.webp' %}"
+           alt="An opening hand of seven cards, fanned out on the playtest table"
+           width="900"
+           height="235"
+           class="w-full">
+      <figcaption class="mt-2 text-sm text-ink-400">Draw a hand and play it out.</figcaption>
+    </figure>
+    <figure>
+      <img src="{% static 'img/home-report.webp' %}"
+           alt="A report chart: how often the deck has drawn ramp, card draw and removal by each turn"
+           width="720"
+           height="530"
+           loading="lazy"
+           class="w-full border border-ink-800">
+      <figcaption class="mt-2 text-sm text-ink-400">Or play it two thousand times.</figcaption>
+    </figure>
+  </div>
   <ul class="mt-12 grid gap-4 sm:grid-cols-3">
     <li class="surface-parchment p-5 text-ink-900">
       <p class="font-display text-xl">Keep or mulligan?</p>

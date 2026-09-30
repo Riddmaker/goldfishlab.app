@@ -1,9 +1,9 @@
 # Phase 9 — UX overhaul: fewer words, more pictures, decks only
 
-**Status: IN PROGRESS (plan approved 2026-09-28, all build decisions made the same day - see
-"Decisions").** Batches A, A2, B, C, C2, D and E are live, F (the board) and G (guest trial) are live, H (the text pass) is built
-(see "... - what was built") and merged (PR #16); next is I (clean-up, plan APPROVED 2026-09-30, see "### I") - re-ordered 2026-09-29, see "Order". Compaction-safe: this file plus
-`RESUME.md` is everything needed to continue.
+**Status: COMPLETE (plan approved 2026-09-28, all ten batches built 2026-09-28 to 30, one PR
+each).** A to H are live; I (clean-up) is built - see "I - what was built"; what is left is the
+user's post-merge production check listed there. Compaction-safe: this file plus `RESUME.md` is
+everything needed to continue.
 
 ## Why
 
@@ -795,6 +795,46 @@ Suggested commits (one PR, ~4 commits). Start state: dev = origin/dev = `6985a81
   6.4 (phone on mobile data not locked out), 6.6 (`https://<env>.jcloud.ik-server.com` does not
   serve the site), 6.7 (restart `sqldb`, the superuser is still there), 6.9 (rollback with the
   running SHA). Locally, optional: `.data/default-cards.jsonl.gz` (78.8 MB) can be deleted.
+
+### I - what was built (2026-09-30)
+
+* **I.1** `collection` out of `INSTALLED_APPS` and the repository (Django's delete-app guide:
+  steps 1-6 were B, 7-8 are this). `cards.Printing`, `ingest_printings`, `--kind
+  default_cards`, rung 3 and `Resolution.printing` gone; rung 1 matches `OracleCard.scryfall_id`
+  as production always did. **`cards/0009`** deletes the `default_cards` import rows, the table
+  and the stale content types (`collection.*`, `cards.printing`, their permissions cascade) -
+  nothing manual on production. The unused Scryfall `/cards/collection` client went too.
+* **I.2** Removed as planned (judgement half, mixed coverage, `annotations.patch`,
+  `review_cards`, `role_summary`, `DeckForm`, `declared_absent`, `missing_labels`, `size_mb`,
+  `weak`, `has_gaps`, `.form-cell`, `STRIPE_PUBLISHABLE_KEY`, `pytest-playwright`). Deviation:
+  `Conversion.readable` stays - it is the one score, and the deck-shape tests read it; the
+  unmodellable deck reads 4 of 12 cards, so its bound is `< 0.5` (the mixed number was < 25%).
+  **Tune page gone (I-D1):** `/decks/<id>/tune/` redirects (302) to the deck page's `#cards`;
+  the blind-spot panel is inside "What the engine cannot model"; the commander picture links to
+  its card page; card page "back", run page, board ("tell the engine" -> the review) and the
+  post-save redirects point at the deck. `.tune-*` -> `.card-grid*`. `main.css` 41,482 ->
+  41,157 bytes. `pip-audit` clean.
+* **I.3** The leak: both module fixtures end with `tests/support.forget_module_rows()`;
+  checked by counting every table after them (only the migration rows remain). One `catalogue`
+  fixture (conftest, loader in `tests/support.py`) instead of 18 copies, one `pinned_window`.
+  Measured before changing anything: the catalogue is ~0.27 s, `create_user` 0.7 s - so
+  **`goldfishlab/settings/test.py`** (dev + MD5 hasher) in pyproject and in `checks.yml`'s env
+  (pytest-django prefers the env var). Fast suite **7:18 -> 3:38**.
+* **I.4** README (phase 9 summary, no printing section, the card page instead of the card list,
+  the test settings), `docs/phases/README.md` (phase 9 complete), `DESIGN.md` "Pictures,
+  markers and charts", `STYLEGUIDE.html` regenerated with a marker/bar/"Why?" section, privacy
+  "Last updated 30 September 2026", GO-LIVE and RESUME traps 58-61 (local).
+  Review pass: owner filters on every lookup, rate limits on every writing entry point
+  (the mapping POST imports an upload that was already limited), the CSP unchanged since the
+  first commit, no inline script; every image has `alt`, the ones without `loading="lazy"` are
+  above the fold; a new test pins that the deck page and its grid cost the same queries at ten
+  cards more; the engine is unchanged since E (bench 925 usec/game, E: 1023-1058).
+  Screenshots: 37 signed in (`demo_screens.py`) + 19 public/guest (`screenshots.py --guest`,
+  new) at 1440 and 390, no HTTP or console error; 13 mails rendered. **Found:** the screenshot
+  script had skipped the playtest board since D (the button names its form from outside it) -
+  fixed, and it now fails loudly.
+* After the merge (user): the deploy runs `cards/0009`; then `check --deploy`, `showmigrations
+  collection` and the deferred go-live checks 6.4, 6.6, 6.7, 6.9.
 
 ## Order (confirmed by the user 2026-09-28)
 

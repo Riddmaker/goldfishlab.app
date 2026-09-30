@@ -5,6 +5,7 @@ Usage:
     py -3.13 scripts/screenshots.py [--out DIR] [--base URL]
     py -3.13 manage.py seed_demo_deck            # then, for the deck screens:
     py -3.13 scripts/screenshots.py --email demo@goldfishlab.test --password ...
+    py -3.13 scripts/screenshots.py --guest      # also the trial, as a guest
 
 Screenshots go to a scratch directory, NEVER into the repository (see
 .gitignore). They exist to be looked at by a human or an agent once, then
@@ -17,6 +18,9 @@ A screenshot pass is now part of finishing any phase that touches the UI.
 
 The deck screens need a session, so they are captured only when credentials are
 given. Without them the public pages are still captured and the run is a pass.
+`--guest` walks the trial instead (phase 9 G): it uploads a small deck list
+on /try/, which makes a real guest in the local database, and photographs
+what a guest sees. The guest expires after a day like any other.
 """
 
 import argparse
@@ -101,6 +105,24 @@ CARD_SHOTS = [
 #: is what `scripts/demo_screens.py` arranges.
 MAX_RUN_SHOTS = 4
 
+#: What a guest sees after the trial upload (phase 9 G, added in I). The run
+#: page is where the upload lands; `{deck}` is the guest's one deck.
+#: A list every row of which resolves against the full catalogue, so the trial
+#: starts its run instead of stopping on the import review.
+GUEST_LIST = "\n".join([
+    "1 Sol Ring", "1 Arcane Signet", "1 Dark Ritual", "1 Night's Whisper",
+    "1 Sign in Blood", "1 Doom Blade", "1 Murder", "1 Read the Bones",
+    "1 Phyrexian Arena", "1 Gravecrawler", "1 Vampire Nighthawk", "30 Swamp",
+])
+GUEST_SHOTS = [
+    ("guest-run-desktop", "{run}", DESKTOP),
+    ("guest-run-phone", "{run}", PHONE),
+    ("guest-deck-desktop", "{deck}", DESKTOP),
+    ("guest-deck-phone", "{deck}", PHONE),
+    ("guest-save-desktop", "/try/save/", DESKTOP),
+    ("guest-save-phone", "/try/save/", PHONE),
+]
+
 #: The playtest board, which only exists once a game has been dealt. Rather
 #: than seeding one, the script presses the button on the deck page - so the
 #: shot is evidence that the entry point works, not only that the template
@@ -122,6 +144,8 @@ def main() -> int:
     # upload and passes the URL here; without it that shot falls back to the
     # deck page, which is what happened the first time this was wired up.
     parser.add_argument("--pending-url", default="")
+    parser.add_argument("--guest", action="store_true",
+                        help="Also upload through /try/ and capture the guest's pages.")
     args = parser.parse_args()
 
     out = Path(args.out) if args.out else Path.cwd() / "screenshots"
@@ -156,6 +180,20 @@ def main() -> int:
             context.close()
         else:
             print("\nno --email given: skipping the deck screens")
+
+        if args.guest:
+            context = browser.new_context(viewport=DESKTOP)
+            try:
+                shots = _as_a_guest(context, args.base)
+            except RuntimeError as exc:
+                failures.append(str(exc))
+                shots = []
+            for slug, path, viewport in shots:
+                page = context.new_page()
+                page.set_viewport_size(viewport)
+                captured += _capture(page, args.base, slug, path, out, failures)
+                page.close()
+            context.close()
 
         browser.close()
 
@@ -252,6 +290,34 @@ def _sign_in(context, base: str, email: str, password: str,
     return resolved
 
 
+def _as_a_guest(context, base: str) -> list[tuple]:
+    """Upload the sample deck on /try/ and find the guest's run and deck.
+
+    The upload starts the trial run by itself and lands on it, so the page it
+    lands on is the run; the deck list holds its one deck.
+    """
+    page = context.new_page()
+    page.goto(f"{base}/try/", wait_until="networkidle")
+    page.set_input_files("input[type=file]", files=[{
+        "name": "guest-deck.txt", "mimeType": "text/plain", "buffer": GUEST_LIST.encode(),
+    }])
+    page.click("form.import-form button[type=submit]")
+    page.wait_for_load_state("networkidle")
+    run_url = page.url[len(base):]
+    if "/runs/" not in run_url:
+        page.close()
+        raise RuntimeError(f"the trial upload landed on {run_url}, not on a run")
+    # "Your deck" in a guest's header is the deck list, which holds the one deck.
+    page.goto(f"{base}/decks/", wait_until="networkidle")
+    link = page.query_selector("li a[href^='/decks/']")
+    deck_url = link.get_attribute("href") if link else ""
+    page.close()
+    if not deck_url:
+        raise RuntimeError("a guest's header shows no link to the deck")
+    return [(slug, path.replace("{run}", run_url).replace("{deck}", deck_url), viewport)
+            for slug, path, viewport in GUEST_SHOTS]
+
+
 def _deal_a_playtest(page, base: str, deck_url: str) -> str:
     """Open a playtest from the deck page and return where it landed.
 
@@ -260,9 +326,12 @@ def _deal_a_playtest(page, base: str, deck_url: str) -> str:
     where a layout looks fine and a real board does not.
     """
     page.goto(f"{base}{deck_url}", wait_until="networkidle")
-    button = page.query_selector("form[action*='/playtest/'] button[type=submit]")
+    # Since phase 9 D the button sits in the Simulate row and names its form
+    # (`form="deal-hand"`); looking for a button inside the form found nothing
+    # and skipped the board silently until I.
+    button = page.query_selector("button[form=deal-hand]")
     if button is None:
-        return ""
+        raise RuntimeError(f"no Draw a hand button on {deck_url}")
     button.click()
     page.wait_for_load_state("networkidle")
     if "/playtest/" not in page.url:

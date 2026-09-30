@@ -133,6 +133,34 @@ Every account mail is a pair under `templates/account/email/`: plain text, and H
 
 ---
 
+# PICTURES, MARKERS AND CHARTS (PHASE 9 C2-H)
+
+The rule behind all of them: **a number that can be a picture is a picture, and no picture says
+anything by colour alone** - a word or a count always stands beside it. All server-rendered;
+where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), never a script.
+
+- **The status marker** (`decks/_status.html`, `.deck-status-open` / `-ready`): blood-700 "! 3
+  cards need you" (a link into the card review) or green "✓ Ready". On the deck list, the deck
+  page and the card page.
+- **The card grid** (`decks/_card_grid.html`, `.card-grid*`): card pictures, three across on a
+  phone; the same marker words on a card ("! needs you", "✓ answered"), "×2" for a quantity.
+  Filter chips reuse the chart chips. Every picture has its card name as `alt` and loads lazily.
+- **Bars** (`decks/_bar.html`, `.deck-bar-*`, the usage bars on the plans page): an ink-800 fill
+  in a parchment frame with the count as text beside it; blood-700 only when a limit is full.
+  A common template shows as a faint band behind the bar, labelled "a common template, not a
+  rule". A progress-type bar carries `role="progressbar"` with its values.
+- **Line charts** (`simulations/_line_chart.html`, `.seen-*`): inline SVG, eight line colours, the
+  last four dashed so a colour-blind reader can still tell them apart; checkbox chips hide a
+  line. The numbers sit under a "The numbers" fold.
+- **The playtest board** (`playtest/_board.html`, `.playtest-*`, `.hand-*`, `.pip-*`): the hand
+  as a fan of card buttons that straighten and grow under the pointer or keyboard focus (a
+  straight sideways row up to 48rem); mana as round pips in the colour pie with the letter
+  inside; `prefers-reduced-motion` drops the transitions.
+- **"Why?"** (`core/_why.html`): the one small link beside a section that keeps a sentence and
+  sends its explanation to a methodology anchor. `dark=True` on dark grounds.
+
+---
+
 # STYLEGUIDE (VISUAL REFERENCE)
 
 The binding, rendered implementation of this document is **`STYLEGUIDE.html`** (repo root):

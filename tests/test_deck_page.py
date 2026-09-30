@@ -237,3 +237,36 @@ def test_the_commander_picture_opens_its_card_page(client_in, deck):
     body = client_in.get(deck.get_absolute_url()).content.decode()
 
     assert reverse("simulations:annotate", args=[deck.pk, deck.commander.pk]) in body
+
+
+# --- queries: the page costs the same for a deck of any size (phase 9 I) ------
+
+def _queries(client, url, **extra):
+    from django.db import connection
+    from django.test.utils import CaptureQueriesContext
+
+    client.get(url, **extra)  # the first visit counts the red marker once
+    with CaptureQueriesContext(connection) as queries:
+        assert client.get(url, **extra).status_code == 200
+    return len(queries)
+
+
+def test_the_deck_page_and_its_grid_do_not_query_per_card(client_in, deck):
+    """An N+1 hides on a small deck: the same page, ten cards larger, must not
+    cost a single query more - the whole page and the htmx grid alone."""
+    from cards.models import OracleCard
+    from decks.models import DeckCard
+
+    url = deck.get_absolute_url()
+    before = (_queries(client_in, url), _queries(client_in, url, **HTMX))
+
+    held = deck.entries.values_list("oracle_card_id", flat=True)
+    extra = OracleCard.objects.exclude(pk__in=held).exclude(pk=deck.commander_id)[:10]
+    DeckCard.objects.bulk_create(DeckCard(deck=deck, oracle_card=card, quantity=1)
+                                 for card in extra)
+    type(deck).objects.filter(pk=deck.pk).update(open_questions=None)
+
+    after = (_queries(client_in, url), _queries(client_in, url, **HTMX))
+
+    assert len(extra) == 10
+    assert after == before, f"queries grew with the deck: {before} -> {after}"

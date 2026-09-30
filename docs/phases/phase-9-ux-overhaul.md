@@ -111,8 +111,9 @@ templates change, and screenshots checked (`scripts/screenshots.py`) before aski
 
 * Favicon: `static/img/favicon.svg` only, linked from `base.html` and shown beside the
   wordmark; `/favicon.ico` redirects to it (the admin asks the old way). **No PNGs**: the bot's
-  push path (GitHub MCP) is text-only, and every current browser takes an SVG tab icon. The
-  180px `apple-touch-icon` is the one gap - a PNG the user would have to commit by hand.
+  push path at the time (GitHub MCP) was text-only, and every current browser takes an SVG tab
+  icon. The 180px `apple-touch-icon` is the one gap - since 2026-09-30 the bot pushes with plain
+  git, so a PNG can now go in with any later batch.
 * Import: `ImportForm` gained `source` (the tab), `text` (the paste box, same 1 MB ceiling,
   `clean_text`) and `payload()`; the view feeds a paste through the same `services.prepare`
   as a file. The tab the person chose decides which input counts. Errors land under the

@@ -1,0 +1,44 @@
+{% comment %}
+  The deck page's card grid (Phase 9 D). Rendered inside the whole page, and
+  alone as the answer to the filter form's htmx request - the one template,
+  so the two cannot drift. Each card opens its own page, where it can be
+  corrected.
+{% endcomment %}
+<div id="card-grid">
+  <p class="tabular text-sm text-ink-700" aria-live="polite">
+    {% if filters.active %}{{ grid|length }} of {{ grid_total }} cards{% else %}{{ grid_total }} cards{% endif %}
+  </p>
+  <ul class="tune-grid mt-4">
+    {% for card in grid %}
+      <li>
+        <a href="{% url 'simulations:annotate' deck.id card.oracle_card.pk %}" class="tune-card">
+          {% if card.oracle_card.image_uri %}
+            <img src="{{ card.oracle_card.image_uri }}" alt="{{ card.name }}"
+                 width="488" height="680" loading="lazy">
+          {% else %}
+            <span class="block border border-parchment-600 p-3 text-ink-900">{{ card.name }}</span>
+          {% endif %}
+          {% if card.open %}
+            <span class="tune-card-mark deck-status deck-status-open">! needs you</span>
+          {% elif card.answered %}
+            <span class="tune-card-mark deck-status deck-status-ready">✓ answered</span>
+          {% endif %}
+          {% if card.quantity > 1 %}
+            <span class="tune-card-count tabular">×{{ card.quantity }}</span>
+          {% endif %}
+        </a>
+        <p class="mt-1 text-sm text-ink-900">
+          {{ card.name }}
+          {% if card.oracle_card.game_changer %}
+            <span class="ml-1 border border-blood-600 px-1 text-xs text-blood-700">Game Changer</span>
+          {% endif %}
+        </p>
+      </li>
+    {% empty %}
+      <li class="col-span-full text-ink-700">
+        No card matches.
+        <a href="{{ deck.get_absolute_url }}#cards" class="text-ink-900 underline">Show all cards</a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

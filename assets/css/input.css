@@ -774,6 +774,15 @@ body {
   gap: 0.75rem;
 }
 
+/* Three across on a phone, not two: at two a 100-card deck was nine thousand
+ * pixels of scrolling (Phase 9 D screenshot pass). */
+@media (max-width: 30rem) {
+  .tune-grid {
+    grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+    gap: 0.5rem;
+  }
+}
+
 .tune-card {
   position: relative;
   display: block;
@@ -790,4 +799,63 @@ body {
   position: absolute;
   top: 0.375rem;
   right: 0.375rem;
+}
+
+/* --- the deck page (Phase 9 D) ---------------------------------------------- */
+
+/* How many copies, bottom left on the card - a stack of Swamps is one tile. */
+.tune-card-count {
+  position: absolute;
+  bottom: 0.375rem;
+  left: 0.375rem;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background-color: var(--color-ink-900);
+  color: var(--color-parchment-100);
+  font-size: 0.875rem;
+}
+
+/* "What is in it": one row per type or category. The label column is wide
+ * enough for "Counterspell" and "Planeswalker"; the count column for "38 / ~35-38". */
+.deck-bar-row {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr 5.5rem;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.deck-bar-track {
+  position: relative;
+  display: block;
+  height: 1rem;
+}
+
+.deck-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background-color: var(--color-ink-800);
+}
+
+/* The common template: faint, behind the bar, and at least a tick wide when
+ * the template is a single number. Drawn over the bar's end so an in-band bar
+ * still shows where the band is. */
+.deck-bar-band,
+.deck-bar-key {
+  background-color: var(--color-verdigris-800);
+  opacity: 0.35;
+  min-width: 3px;
+}
+
+.deck-bar-band {
+  position: absolute;
+  top: -0.1875rem;
+  bottom: -0.1875rem;
+  z-index: 1;
+}
+
+.deck-bar-key {
+  display: inline-block;
+  width: 1.5rem;
+  height: 0.75rem;
+  vertical-align: middle;
 }

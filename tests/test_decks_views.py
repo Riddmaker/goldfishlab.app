@@ -119,9 +119,11 @@ def test_the_deck_page_admits_what_it_could_not_read(signed_in, deck):
 
     A page that shows a curve and a verdict without saying which cards it
     failed to understand is exactly the overclaim this product is against.
+    Phase 9 D folded it away; folded is not gone.
     """
     body = signed_in.get(deck.get_absolute_url()).content.decode()
-    assert "What this page did not read" in body
+    assert "What the engine cannot model" in body
+    assert "could not resolve on its own" in body
 
 
 def test_the_review_screen_lists_every_unmatched_row(signed_in, deck):

@@ -1,0 +1,17 @@
+{% comment %}
+  One row of the deck page's "What is in it" bars. The faint band behind the
+  bar is the common template (`simulations.deck_cards.TEMPLATE`), labelled as
+  such in words beside the count - never a verdict, never colour alone.
+{% endcomment %}
+<li class="deck-bar-row">
+  <a href="?{{ bar.param }}={{ bar.value }}#cards" class="text-ink-900 underline decoration-parchment-600">{{ bar.label }}</a>
+  <span class="deck-bar-track" role="presentation">
+    {% if bar.band %}
+      <span class="deck-bar-band" style="left: {{ bar.band.0 }}%; width: {{ bar.band.1 }}%"></span>
+    {% endif %}
+    <span class="deck-bar" style="width: {{ bar.width }}%"></span>
+  </span>
+  <span class="tabular text-sm text-ink-900">
+    {{ bar.count }}{% if bar.band_label %}<span class="text-ink-700"> / ~{{ bar.band_label }}</span>{% endif %}
+  </span>
+</li>

@@ -52,8 +52,8 @@ jobs:
       DATABASE_URL: postgres://goldfishlab:ci-only-not-a-secret@localhost:5432/goldfishlab
       REDIS_URL: redis://localhost:6379/0
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
           cache: pip

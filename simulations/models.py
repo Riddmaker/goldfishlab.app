@@ -262,6 +262,10 @@ class SimulationRun(models.Model):
     gaps = models.JSONField(default=list, blank=True)
     cards_total = models.PositiveIntegerField(default=0)
     cards_with_gaps = models.PositiveIntegerField(default=0)
+    #: The same deck counted by copies (phase 10): every card, and the copies
+    #: of the ones the engine could not read. Zero on a run from before.
+    copies_total = models.PositiveIntegerField(default=0)
+    copies_unreadable = models.PositiveIntegerField(default=0)
     #: The deck as it was when this run happened. Stored rather than counted
     #: at render time, because the report compares the opening hands against
     #: the exact hypergeometric distribution - and that comparison is only
@@ -349,5 +353,25 @@ class SimulationRun(models.Model):
 
     @property
     def readable_pct(self) -> float:
-        """How much of the deck the engine read, as a percentage."""
-        return 100.0 * gaps.share(self.cards_total, self.cards_unreadable)
+        """How much of the deck the engine read, as a percentage - of every copy
+        on a run from phase 10 on, of distinct cards on an older one."""
+        return 100.0 * gaps.share(self.coverage_total, self.coverage_unreadable)
+
+    # --- coverage over every copy (phase 10 T5.9) ----------------------------
+    #
+    # Since phase 10 the coverage counts copies: thirty Swamps are thirty of a
+    # hundred. A run or session from before has no copy counts (both zero) and
+    # keeps its distinct-card pair - the two ways of counting are never mixed in
+    # one sentence.
+
+    @property
+    def coverage_total(self) -> int:
+        return self.copies_total or self.cards_total
+
+    @property
+    def coverage_unreadable(self) -> int:
+        return self.copies_unreadable if self.copies_total else self.cards_unreadable
+
+    @property
+    def coverage_read(self) -> int:
+        return max(0, self.coverage_total - self.coverage_unreadable)

@@ -58,6 +58,8 @@ def start(deck, owner, *, seed: int | None = None,
         gaps=[asdict(gap) for gap in conversion.gaps],
         cards_total=conversion.cards_total,
         cards_with_gaps=conversion.cards_with_gaps,
+        copies_total=conversion.copies_total,
+        copies_unreadable=conversion.copies_unreadable,
     )
 
 
@@ -182,6 +184,8 @@ def fork(session: PlaytestSession, seq: int) -> PlaytestSession:
         gaps=session.gaps,
         cards_total=session.cards_total,
         cards_with_gaps=session.cards_with_gaps,
+        copies_total=session.copies_total,
+        copies_unreadable=session.copies_unreadable,
         forked_from=session,
         forked_at_seq=seq,
     )

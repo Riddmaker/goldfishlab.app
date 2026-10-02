@@ -124,15 +124,18 @@
     <h2 id="drew" class="mt-12 font-display text-2xl text-parchment-100">What you drew</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        After every turn of every game, the engine counts the cards you have had
-        so far: the opening hand you kept, each draw, each card a tutor found.
-        Cards a mulligan put on the bottom are not counted, and neither is your
-        commander. Counting draws no random number, so the games are exactly
+        After every turn of every game, the engine counts the cards you have
+        drawn so far: the opening hand you kept and each draw. A card a tutor
+        found is not a draw and is not counted, and neither is a land a spell
+        fetched. Cards a mulligan put on the bottom are not counted, and neither
+        is your commander. Counting draws no random number, so the games are exactly
         the games they would have been without it.
       </p>
       <p class="mt-4 text-ink-900">
         <strong>Categories</strong> — ramp, card draw, removal and the rest — come
-        from the community's card tags, or from what you said about a card. The
+        from the community's card tags, or from what you said about a card. A
+        spell that can only fetch lands, such as Cultivate, is ramp rather than
+        a tutor. The
         chart shows the share of games with <em>at least one</em> by each turn,
         because that is the question a deck is built around: do I see ramp by turn
         two. <strong>Card types</strong> are shown as an average count instead:
@@ -197,7 +200,8 @@
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
         Every result says <strong>how much of the deck the engine could
-        read</strong> from the cards themselves. A gap there is <em>ours</em> —
+        read</strong> from the cards themselves, counting every copy: thirty
+        Swamps are thirty of a hundred cards. A gap there is <em>ours</em> —
         a card whose text we could not turn into behaviour — and the result
         lists every one.
       </p>
@@ -212,6 +216,12 @@
         score mostly reported how much hand-annotation a deck had received. We
         stopped asking: this is a tool for statistics about a deck, not for
         steering a game.
+      </p>
+      <p class="mt-4 text-ink-900">
+        A tutor is the exception, because the cheapest card in a library is a
+        land. A tutor takes a spell: first a piece of one of the deck's combos
+        or a card-advantage engine, then the biggest spell it can cast by next
+        turn. Only a search that can find nothing but lands takes a land.
       </p>
       <p class="mt-4 text-ink-900">
         Wherever nothing could be established, the answer is a stated gap rather

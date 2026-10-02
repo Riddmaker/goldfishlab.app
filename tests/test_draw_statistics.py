@@ -127,6 +127,33 @@ def test_the_count_is_the_hand_kept_plus_every_draw(on_the_play):
             assert seen == kept + draws
 
 
+def test_a_tutored_card_is_not_a_drawn_card():
+    """Phase 10 T5.1: the tutors in this deck find cards every game, and the
+    count is still exactly the hand kept plus the draws."""
+    from simulation import agent
+    from simulation.cards import TutorSpec
+    from simulation.fixtures import chainer
+
+    swamp = next(card for card in chainer.DECK.library if card.name == "Swamp")
+    tutor = Card("Tutor", 1, 0, 1, SORCERY, tutor=TutorSpec(to_hand=True, count=1),
+                 types=frozenset({"sorcery"}))
+    deck = DeckDefinition(name="tutors", commander=None,
+                          library=(swamp,) * 38 + (tutor,) * 30 + (BEAR,) * 31)
+    rng = random.Random(3)
+    tutored = 0
+    for _ in range(100):
+        game = Game(rng, deck=deck)
+        game.take_opening_hand()
+        for _turn in range(5):
+            agent.take_turn(game)
+        kept = 7 - Game.cards_to_bottom(game.mulligans)
+        draws = 4  # on the play: no draw on turn one
+        assert len(game.drawn) == kept + draws
+        tutored += deck.size - len(game.library) - len(game.drawn)
+
+    assert tutored > 100, "the tutors found nothing, so this proved nothing"
+
+
 def test_counting_changes_no_game():
     """No random number is drawn to count, so the same seed plays the same game."""
     counted = analysis.simulate_game(random.Random(11), turns=5, deck=PLAIN_DECK,
@@ -144,11 +171,37 @@ def test_what_has_been_seen_is_never_unseen():
     result = analysis.run(300, turns=5, seed=3, deck=PLAIN_DECK)
 
     for entry in result["seen"].values():
-        for field in ("cards", "games"):
+        for field in ("cards", "games", "squares"):
             assert entry[field] == sorted(entry[field])
         assert all(games <= 300 for games in entry["games"])
         assert all(games <= cards for cards, games in zip(entry["cards"], entry["games"],
                                                           strict=True))
+
+
+def test_the_spread_is_counted_beside_the_mean():
+    """Phase 10: the sum of squares, so the page can show "3.2 ± 1.1"."""
+    result = analysis.run(300, turns=5, seed=3, deck=PLAIN_DECK)
+
+    for entry in result["seen"].values():
+        for cards, squares in zip(entry["cards"], entry["squares"], strict=True):
+            # Cauchy-Schwarz: n * sum(x^2) >= (sum x)^2, so a variance >= 0.
+            assert 300 * squares >= cards * cards
+    # Some games hold two or more creatures, so the squares outgrow the sum.
+    creatures = result["seen"]["type:creature"]
+    assert creatures["squares"][0] > creatures["cards"][0]
+
+
+def test_a_chunk_from_before_the_spread_leaves_the_mean_alone():
+    first, second = _chunks(2)
+    for entry in second["seen"].values():
+        del entry["squares"]
+
+    merged = analysis.merge([first, second])["seen"]["type:creature"]
+
+    assert "squares" not in merged
+    assert merged["cards"] == [a + b for a, b in zip(
+        first["seen"]["type:creature"]["cards"], second["seen"]["type:creature"]["cards"],
+        strict=True)]
 
 
 def test_the_hand_written_deck_still_gets_its_curve():

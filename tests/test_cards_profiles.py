@@ -427,3 +427,57 @@ def test_the_signet_profile_carries_its_cost_and_both_colours():
 def test_the_vault_profile_says_it_stays_tapped():
     profile = profiles.derive(_real_card("Mana Vault", "{1}"), {"mana-rock"})
     assert (profile.mana_amount, profile.mana_untaps) == (3, False)
+
+
+# --- phase 10 N2: a land fetcher is not a "Tutor" -------------------------------
+
+CULTIVATE = OracleCard(
+    name="Cultivate", front_name="Cultivate", search_name="cultivate",
+    type_line="Sorcery", mana_cost="{2}{G}",
+    oracle_text="Search your library for up to two basic land cards, reveal those cards, "
+                "put one onto the battlefield tapped and the other into your hand, then shuffle.",
+)
+BRANCHES = frozenset({"tutor-land", "tutor-to", "tutor-card", "tutor-creature"})
+LAND_FETCHER_TAGS = {"ramp", "tutor", "tutor-land", "tutor-land-basic",
+                     "tutor-to", "tutor-to-hand", "tutor-land-to-battlefield"}
+
+
+def test_a_land_fetcher_is_ramp_and_not_a_tutor():
+    profile = profiles.derive(CULTIVATE, LAND_FETCHER_TAGS, branches=BRANCHES)
+
+    assert "tutor" not in profile.role_tags
+    assert "ramp" in profile.role_tags
+
+
+def test_a_card_that_finds_lands_and_creatures_stays_a_tutor():
+    tags = LAND_FETCHER_TAGS | {"tutor-creature"}
+
+    assert "tutor" in profiles.derive(CULTIVATE, tags, branches=BRANCHES).role_tags
+
+
+def test_a_tutor_that_says_only_where_the_card_goes_stays_a_tutor():
+    """Unmarked Grave wears only `tutor-to-graveyard`: it finds a nonlegendary
+    card, not a land, and the tagger has no kind branch for that."""
+    tags = {"tutor", "tutor-to", "tutor-to-graveyard"}
+
+    assert "tutor" in profiles.derive(CULTIVATE, tags, branches=BRANCHES).role_tags
+
+
+def test_the_branches_are_read_from_the_tag_tree():
+    """Without `branches`, the tree in the database decides - Scryfall's tree
+    grows, and a card under a branch nobody listed must not lose its role."""
+    from uuid import uuid4
+
+    from cards.models import Tag, TagEdge
+
+    def tag(slug):
+        return Tag.objects.create(id=uuid4(), slug=slug, label=slug)
+
+    root = tag("tutor")
+    for slug in ("tutor-land", "tutor-to", "tutor-brand-new-branch"):
+        TagEdge.objects.create(parent=root, child=tag(slug))
+
+    assert profiles.tutor_branches() == {"tutor-land", "tutor-to", "tutor-brand-new-branch"}
+    assert "tutor" not in profiles.derive(CULTIVATE, LAND_FETCHER_TAGS).role_tags
+    assert "tutor" in profiles.derive(
+        CULTIVATE, LAND_FETCHER_TAGS | {"tutor-brand-new-branch"}).role_tags

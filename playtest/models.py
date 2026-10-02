@@ -65,6 +65,9 @@ class PlaytestSession(models.Model):
     gaps = models.JSONField(default=list, blank=True)
     cards_total = models.PositiveIntegerField(default=0)
     cards_with_gaps = models.PositiveIntegerField(default=0)
+    #: Counted by copies (phase 10), as on a simulation run. Zero from before.
+    copies_total = models.PositiveIntegerField(default=0)
+    copies_unreadable = models.PositiveIntegerField(default=0)
 
     #: A replay of every action not undone, cached. `cached_seq` is the
     #: sequence number it was taken at; `None` means there is no cache.
@@ -110,8 +113,27 @@ class PlaytestSession(models.Model):
 
     @property
     def readable_pct(self) -> float:
-        return round(100 * gaps_module.share(self.cards_total,
-                                             self.cards_unreadable), 1)
+        return round(100 * gaps_module.share(self.coverage_total,
+                                             self.coverage_unreadable), 1)
+
+    # --- coverage over every copy (phase 10 T5.9) ----------------------------
+    #
+    # Since phase 10 the coverage counts copies: thirty Swamps are thirty of a
+    # hundred. A run or session from before has no copy counts (both zero) and
+    # keeps its distinct-card pair - the two ways of counting are never mixed in
+    # one sentence.
+
+    @property
+    def coverage_total(self) -> int:
+        return self.copies_total or self.cards_total
+
+    @property
+    def coverage_unreadable(self) -> int:
+        return self.copies_unreadable if self.copies_total else self.cards_unreadable
+
+    @property
+    def coverage_read(self) -> int:
+        return max(0, self.coverage_total - self.coverage_unreadable)
 
     def invalidate(self) -> None:
         """Forget the cached state. Called by anything that edits the actions."""

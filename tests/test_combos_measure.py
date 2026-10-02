@@ -343,6 +343,24 @@ def test_a_combo_the_deck_holds_is_watched_in_the_runs_own_games(run, contained)
     assert plan.extra_games == 0, "a combo the deck holds costs no extra games at all"
 
 
+def test_the_pieces_of_a_held_combo_are_the_decks_key_cards(run, contained):
+    """Phase 10 N1: what a tutor with no priority list goes for first."""
+    plan = measure.plan_for(run)
+    pieces = {requirement.name for requirement in plan.watched[0].watch.requirements}
+
+    assert pieces and plan.key_cards == pieces
+    deck = measure.with_key_cards(adapter.deck_definition(run.deck), plan)
+    assert deck.key_cards == pieces
+
+
+def test_a_hypothetical_deck_knows_the_pieces_of_its_combo(run, one_away, monkeypatch):
+    monkeypatch.setattr(measure, "MIN_SAMPLE", 5)
+
+    samples = measure.samples_for(run, measure.plan_for(run), index=0, chunks=2)
+
+    assert "Ashnod's Altar" in samples[0].deck.key_cards
+
+
 def test_a_combo_needing_a_template_gets_no_number_and_a_reason(run, lookup):
     """The honesty trap of the whole feature, from §1, arriving in §2.
 

@@ -34,6 +34,13 @@ boundary, not the symptom.
 #:    Phyrexian symbols are paid with life when the mana is needed for the
 #:    generic part. The reference deck has none of these cards, so the golden
 #:    snapshot is unchanged - the evidence that nothing else moved.
-ENGINE_VERSION = 3
+#: 4: Phase 10, after the first user test. A tutor in a deck with no priority
+#:    list takes a spell before a land - a key card (a combo piece or an
+#:    engine) first, then the biggest spell castable by next turn - where it
+#:    used to take the cheapest card, which was a land. "What you drew" counts
+#:    only the opening hand and the draws (``Game.drawn``), no longer the cards
+#:    a tutor found, and carries the sum of squares for a spread. The reference
+#:    deck has a priority list, so the golden snapshot is unchanged.
+ENGINE_VERSION = 4
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

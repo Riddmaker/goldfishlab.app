@@ -126,7 +126,7 @@ def simulate_chunk(run_id: str, index: int, games: int):
             index=index,
             turns=run.turns,
             on_the_play=run.on_the_play,
-            deck=conversion.definition,
+            deck=measure.with_key_cards(conversion.definition, plan),
             watch=plan.watches,
             samples=samples,
         )
@@ -203,12 +203,15 @@ def finalize_run(chunks, run_id: str) -> str:
     ]
     run.cards_total = conversion.cards_total
     run.cards_with_gaps = conversion.cards_with_gaps
+    run.copies_total = conversion.copies_total
+    run.copies_unreadable = conversion.copies_unreadable
     run.engine_version = conversion.engine_version
     run.library_size = conversion.definition.size
     run.lands_total = conversion.definition.land_count
     run.games_done = merged["iterations"]
     if not _close(run, SimulationRun.Status.DONE, fields=[
         "result", "gaps", "cards_total", "cards_with_gaps",
+        "copies_total", "copies_unreadable",
         "engine_version", "library_size", "lands_total", "games_done",
     ]):
         return SimulationRun.objects.get(pk=run.pk).status

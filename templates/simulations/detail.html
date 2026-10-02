@@ -31,8 +31,8 @@
         not put to anybody.
       {% endcomment %}
       <p class="mt-2 text-ink-700">
-        The engine read <strong class="tabular">{{ run.cards_read }}</strong>
-        of {{ run.cards_total }} cards in full —
+        The engine read <strong class="tabular">{{ run.coverage_read }}</strong>
+        of {{ run.coverage_total }} cards in full —
         <strong class="tabular">{{ run.readable_pct|floatformat:"1" }}%</strong>.
         {% include "core/_why.html" with anchor="reading" %}
       </p>

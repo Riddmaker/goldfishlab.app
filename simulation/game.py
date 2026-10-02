@@ -49,6 +49,14 @@ class Game:
         self.deck = deck
         self.library = self.deck.shuffled(self.rng)
         self.hand = []
+        #: Every card that came into the hand by being drawn - the kept opening
+        #: hand and each draw since - and nothing else: not a tutored card, not
+        #: a fetched land, not a card milled into the graveyard. What "What you
+        #: drew" counts (phase 10 T5.1). A card drawn, put back and drawn again
+        #: would count twice; nothing in the engine puts a card back today.
+        #: Not part of a stored playtest state, which shows no draw statistics:
+        #: a loaded game starts it empty.
+        self.drawn = []
         self.lands = []            # lands on the battlefield
         self.rocks = []            # mana artifacts on the battlefield
         self.creatures = []
@@ -136,6 +144,7 @@ class Game:
                 break
             card = self.library.pop(0)
             self.hand.append(card)
+            self.drawn.append(card)
             drawn.append(card)
         return drawn
 
@@ -181,6 +190,8 @@ class Game:
             else:
                 worst = max(self.hand, key=lambda card: (card.mv, card.name))
             self.hand.remove(worst)
+            if worst in self.drawn:
+                self.drawn.remove(worst)
             self.library.append(worst)
 
     def take_opening_hand(self) -> None:
@@ -189,6 +200,7 @@ class Game:
         while True:
             self.library = self.deck.shuffled(self.rng)
             self.hand = []
+            self.drawn = []
             self.draw(STARTING_HAND_SIZE)
             if first:
                 self.first_hand_lands = sum(1 for card in self.hand if card.is_land)

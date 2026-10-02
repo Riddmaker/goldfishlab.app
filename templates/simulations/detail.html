@@ -44,8 +44,9 @@
       - then the pictures, and the depth folded at the bottom. "What was
       actually modelled" became the attention block; its coverage line lives
       there, its gap table is the card review, and the engine and seed moved
-      into "Advanced". The deck summary (phase 10 G, H) is the last block before it, and not
-      there at all for somebody who switched summaries off.
+      into "Advanced". The deck summary (phase 10 G, H) follows the pictures, and is not
+      there at all for somebody who switched summaries off; the combos come
+      after it (phase 11 Z5.4), last before "Advanced".
     {% endcomment %}
     {% if user.is_guest %}
       {% include "simulations/_keep_deck.html" %}
@@ -55,6 +56,7 @@
     {% if user.deck_summaries %}
       {% include "simulations/_summary.html" %}
     {% endif %}
+    {% include "simulations/_combos.html" %}
     {% include "simulations/_advanced.html" %}
   {% endif %}
 {% endblock %}

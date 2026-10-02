@@ -283,7 +283,9 @@ MILESTONE_INFO = {
     "sol_ring": "An artifact that made more mana than it cost, such as Sol Ring.",
 }
 
-#: The share of games that makes a turn the "typical" one: half of them.
+#: The share of games that makes a turn the "typical" one: half of them. It
+#: feeds the info sentence only; the dashed marker on the chart is gone
+#: (phase 11 K14 - the sentence said the same thing).
 TYPICAL_SHARE = 50.0
 
 #: The line chart has eight colours (DESIGN.md, "Line charts"). A deck that
@@ -307,7 +309,7 @@ def milestone_chart(rows: list[dict], turns: int) -> charts.LineChart | None:
     }
     return charts.line_chart(series, [str(turn) for turn in range(1, turns + 1)],
                              top_value=charts.PERCENT_TOP, y_ticks=charts.PERCENT_TICKS,
-                             typical_at=TYPICAL_SHARE, infos=infos)
+                             infos=infos)
 
 
 def _typical_sentence(shares, verb: str, turns: int) -> str:
@@ -487,7 +489,7 @@ def seen(result: dict) -> dict | None:
     return {
         "roles": charts.line_chart(role_series, x_labels, top_value=charts.PERCENT_TOP,
                                    y_ticks=charts.PERCENT_TICKS,
-                                   typical_at=TYPICAL_SHARE, infos=role_infos),
+                                   infos=role_infos),
         "types": charts.line_chart(type_series, x_labels, top_value=count_top,
                                    y_ticks=count_ticks, spreads=bands, infos=type_infos),
         # "The numbers" under the charts (phase 10 T5.3): a count reads

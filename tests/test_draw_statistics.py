@@ -19,6 +19,7 @@ import random
 from types import SimpleNamespace
 
 import pytest
+from django.template.loader import render_to_string
 
 from simulation import analysis
 from simulation.cards import CREATURE, LAND, SORCERY, Card, DeckDefinition
@@ -373,11 +374,15 @@ def test_a_band_is_the_mean_plus_and_minus_the_spread_and_stops_at_zero():
         charts._y(2.0, 4.0), charts._y(0.0, 4.0)]
 
 
-def test_the_typical_turn_is_the_first_that_half_the_games_reach():
-    marker = charts.typical([10.0, 49.9, 50.0, 80.0], ["1", "2", "3", "4"], 50.0, 100.0)
-
-    assert marker.label == "3"
-    assert charts.typical([10.0, 20.0], ["1", "2"], 50.0, 100.0) is None
+def test_the_typical_turn_is_said_in_words_and_no_longer_drawn():
+    # Phase 11 K14: the dashed marker went; the info sentence carries the turn.
+    assert report._typical_sentence([10.0, 49.9, 50.0, 80.0], "have one", 4) == (
+        "Half your games have one by turn 3.")
+    assert report._typical_sentence([10.0, 20.0], "have one", 2) == (
+        "Fewer than half your games have one by turn 2.")
+    html = render_to_string("simulations/_line_chart.html", {
+        "chart": report.seen(_result())["roles"], "name": "t", "title": "t"})
+    assert "seen-marker" not in html
 
 
 def test_every_line_on_the_report_says_what_it_counts():

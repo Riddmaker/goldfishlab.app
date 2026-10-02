@@ -54,7 +54,7 @@
         <div class="flex flex-wrap gap-3">
           <button type="submit"
                   class="border border-blood-800 bg-blood-700 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-blood-800">
-            Simulate
+            {% if last_run %}Simulate again{% else %}Simulate{% endif %}
           </button>
           <button type="submit" form="deal-hand"
                   class="border border-parchment-100 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-ink-800">
@@ -84,6 +84,9 @@
       <form id="deal-hand" method="post" action="{% url 'playtest:start' deck.id %}">
         {% csrf_token %}
       </form>
+      {% if running_run or last_run %}
+        {% include "decks/_last_run.html" %}
+      {% endif %}
     </div>
   </div>
 

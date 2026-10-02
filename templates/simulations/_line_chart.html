@@ -9,9 +9,9 @@
   Phase 10 (T5.2): a line explains itself, still without a script. Every line
   has a wider, invisible twin (`.seen-hit`) that can be hovered, focused by
   the keyboard or tapped; the chip does the same. Then `:has()` fades the
-  other lines, shows this line's spread band (count charts) or its "typical
-  turn" marker (share charts), and swaps the info line under the chart to
-  this line's sentence. The twin's `<title>` carries the same sentence.
+  other lines, shows this line's spread band (count charts), and swaps the
+  info line under the chart to this line's sentence. (The dashed "typical
+  turn" marker of share charts went in phase 11, K14: the sentence says it.) The twin's `<title>` carries the same sentence.
 
   Takes: chart (a charts.LineChart), name (unique on the page, for the ids),
   title (what the chart shows, for a screen reader).
@@ -45,14 +45,6 @@
     {% endfor %}
     {% for line in chart.lines %}
       <polyline points="{{ line.points }}" class="seen-line seen-line-{{ line.index }}" />
-    {% endfor %}
-    {% for line in chart.lines %}
-      {% if line.marker %}
-        <g class="seen-marker seen-marker-{{ line.index }}">
-          <line x1="{{ line.marker.x }}" x2="{{ line.marker.x }}" y1="{{ line.marker.y }}" y2="{{ chart.bottom }}" class="seen-marker-guide" />
-          <circle cx="{{ line.marker.x }}" cy="{{ line.marker.y }}" r="3.5" class="seen-marker-dot" />
-        </g>
-      {% endif %}
     {% endfor %}
     {% for line in chart.lines %}
       <polyline points="{{ line.points }}"

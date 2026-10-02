@@ -1190,3 +1190,137 @@ span.hand-card {
     transition: none;
   }
 }
+
+/* --- the run page (Phase 10 C) ---------------------------------------------- */
+
+/* "Keep this deck": the guest's second way to save, dressed as a Magic card.
+ * An ink-950 border round a parchment frame, a name bar, the commander's art,
+ * a type line and a text box - only tokens, so it is the page's card and not a
+ * picture of somebody else's. The button sits inside the text box. */
+.keep-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 18rem;
+  padding: 0.75rem;
+  border: 0.5rem solid var(--color-ink-950);
+  border-radius: 0.9rem;
+  background-color: var(--color-parchment-200);
+  color: var(--color-ink-900);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+}
+
+.keep-card-name,
+.keep-card-type {
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--color-parchment-600);
+  border-radius: 0.375rem;
+  background-color: var(--color-parchment-100);
+  font-family: var(--font-display);
+}
+
+.keep-card-name {
+  font-size: 1.125rem;
+}
+
+.keep-card-type {
+  font-size: 0.875rem;
+}
+
+.keep-card-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--color-ink-800);
+  background-color: var(--color-ink-950);
+}
+
+.keep-card-art-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* No art yet (or no commander): the flask, small, on the dark art ground. */
+.keep-card-flask {
+  width: 6rem;
+  height: 6rem;
+}
+
+.keep-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--color-parchment-600);
+  background-color: var(--color-parchment-50);
+  font-size: 0.9375rem;
+  line-height: 1.35;
+}
+
+.keep-card-fine {
+  font-size: 0.8125rem;
+  color: var(--color-ink-700);
+}
+
+.keep-card-flavour {
+  font-style: italic;
+  color: var(--color-ink-700);
+}
+
+.keep-card-button {
+  display: block;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-blood-800);
+  background-color: var(--color-blood-700);
+  color: var(--color-parchment-100);
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.keep-card-button:hover {
+  background-color: var(--color-blood-800);
+}
+
+/* "Advanced": a closed fold on the dark page, its summary a heading with the
+ * fold's contents named under it, and a marker that turns when it opens. */
+.report-advanced-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-ink-800);
+  cursor: pointer;
+  list-style: none;
+}
+
+.report-advanced-summary::-webkit-details-marker {
+  display: none;
+}
+
+.report-advanced-summary::before {
+  content: "▸";
+  color: var(--color-parchment-200);
+  transition: transform 150ms ease;
+}
+
+.report-advanced[open] > .report-advanced-summary::before {
+  transform: rotate(90deg);
+}
+
+.report-advanced-summary:focus-visible {
+  outline: 2px solid var(--color-parchment-100);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-advanced-summary::before {
+    transition: none;
+  }
+}

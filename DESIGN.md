@@ -161,6 +161,28 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
 
 ---
 
+# THE RUN PAGE (PHASE 10)
+
+The order follows what a person can do first: keep the deck (a guest), answer the cards the
+engine could not read, then the pictures, and the depth folded at the bottom.
+
+- **"Keep this deck"** (`simulations/_keep_deck.html`, `.keep-card*`), for guests only: a Magic
+  card made of tokens - an ink-950 border, a parchment frame, a name bar and a type line on
+  parchment-100, the commander's art (Scryfall's art crop) or the flask, a parchment-50 text box
+  with italic ink-700 flavour, and a blood-700 button. At most 18rem wide.
+- **"Cards that need your attention"** (`simulations/_attention.html`): the status marker in its
+  three states ("! 3 cards need you", "✓ All answered" with "Run the deck again", "✓ Nothing needs
+  you"), and under it the coverage line with "See what it could not read".
+- **"Advanced"** (`simulations/_advanced.html`, `.report-advanced*`): a closed `<details>` on the
+  dark page; the summary is a display heading with the fold's contents named beside it and a
+  turning ▸ (no turn under `prefers-reduced-motion`). Inside: the mana table, the blind spots,
+  the engine version and seed.
+- **"The numbers"** under a chart: one sentence says what the rows are, each group has its unit
+  as a row heading, a count reads "3.2 ± 1.1", and the table scrolls sideways inside its fold on
+  a phone - the page never does.
+
+---
+
 # STYLEGUIDE (VISUAL REFERENCE)
 
 The binding, rendered implementation of this document is **`STYLEGUIDE.html`** (repo root):

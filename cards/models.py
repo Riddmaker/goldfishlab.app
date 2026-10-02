@@ -145,6 +145,11 @@ class OracleCard(models.Model):
     scryfall_id = models.UUIDField(null=True, blank=True, db_index=True)
     scryfall_uri = models.URLField(max_length=512, blank=True)
     image_uri = models.URLField(max_length=512, blank=True)
+    #: Scryfall's `art_crop`: the card's art alone (phase 10, the "Keep this
+    #: deck" card). Taken from `image_uris` like `image_uri`, never built from
+    #: it - Scryfall documents the links in `image_uris`, not a URL pattern.
+    #: Empty until the next card ingest; the page then shows the flask.
+    art_uri = models.URLField(max_length=512, blank=True)
 
     tags = models.ManyToManyField(Tag, through="OracleCardTag", related_name="cards")
     imported_at = models.DateTimeField(auto_now=True)
@@ -204,6 +209,7 @@ class OracleCard(models.Model):
             scryfall_id=data.get("id") or None,
             scryfall_uri=(data.get("scryfall_uri") or "")[:512],
             image_uri=image_uri(data)[:512],
+            art_uri=art_uri(data)[:512],
         )
 
     @staticmethod
@@ -212,14 +218,25 @@ class OracleCard(models.Model):
         return "\n//\n".join(face.get("oracle_text") or "" for face in faces)
 
 
-def image_uri(data: dict) -> str:
-    """A representative image, from the card itself or its front face.
-    """
+def _images(data: dict) -> dict:
+    """The image links of the card itself, or of its front face."""
     images = data.get("image_uris") or {}
     if not images:
         faces = data.get("card_faces") or []
         images = (faces[0].get("image_uris") if faces else {}) or {}
+    return images
+
+
+def image_uri(data: dict) -> str:
+    """A representative image, from the card itself or its front face.
+    """
+    images = _images(data)
     return images.get("normal") or images.get("large") or ""
+
+
+def art_uri(data: dict) -> str:
+    """The art alone, from the card itself or its front face."""
+    return _images(data).get("art_crop") or ""
 
 
 class OracleCardTag(models.Model):

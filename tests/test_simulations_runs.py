@@ -620,8 +620,9 @@ def test_the_report_renders_for_a_finished_run(client, owner, run, fake_redis):
     body = response.content.decode()
 
     assert response.status_code == 200
-    assert "Opening hands" in body
-    assert "hypergeometric" in body
+    # Phase 10 T5.5: the opening-hand table left the page (the comparison it
+    # showed is still asserted above, against real games).
+    assert "Opening hands" not in body
     # How much of the deck the engine read is shown beside every result, never
     # omitted - and since Phase 9 C it is the only score: the casting-priority
     # half ("calls nobody has made") is no longer put to anybody.
@@ -742,4 +743,112 @@ def test_an_old_run_asks_to_be_run_again(client, owner, run, fake_redis):
 
     assert response.status_code == 200
     assert "Run the deck again" in body
-    assert "<polyline" not in body
+    # The milestones are drawn as lines too since phase 10; "What you drew" is not.
+    seen = body[body.index('id="seen"'):body.index('id="milestones"')]
+    assert "<polyline" not in seen
+
+
+# --- phase 10 C: the report, re-ordered ---------------------------------------
+
+def _finished_page(client, owner, run, **user_fields):
+    for field, value in user_fields.items():
+        setattr(owner, field, value)
+    owner.save()
+    chunks = [tasks.simulate_chunk(str(run.pk), 0, 20)]
+    tasks.finalize_run(chunks, str(run.pk))
+    client.force_login(owner)
+    return client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+
+
+def test_the_report_opens_with_what_a_person_can_do(client, owner, run, fake_redis):
+    body = _finished_page(client, owner, run)
+    order = ['id="attention"', 'id="seen"', 'id="milestones"', ">Mulligans<",
+             'id="advanced"']
+    positions = [body.index(marker) for marker in order]
+
+    assert positions == sorted(positions)
+    assert "What was actually modelled" not in body
+
+
+def test_advanced_is_closed_and_holds_the_mana_table_and_the_engine(client, owner, run,
+                                                                      fake_redis):
+    body = _finished_page(client, owner, run)
+    advanced = body[body.index('<details id="advanced"'):]
+
+    assert re.match(r'<details id="advanced"[^>]*>', advanced)
+    assert " open" not in re.match(r"<details[^>]*>", advanced).group(0)
+    assert "Mana and lands, turn by turn" in advanced
+    assert f"seed {run.seed}" in advanced
+    assert "Mana and lands, turn by turn" not in body[:body.index('id="advanced"')]
+
+
+def test_only_a_guest_is_offered_to_keep_the_deck(client, owner, run, fake_redis):
+    from guests.services import LIFETIME
+
+    member = _finished_page(client, owner, run)
+    owner.is_guest = True
+    owner.save()
+    guest = client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+
+    assert "Keep this deck" not in member
+    assert "Keep this deck" in guest
+    assert reverse("guests:save") in guest
+    assert f"forgotten after {int(LIFETIME.total_seconds() // 3600)} hours" in guest
+    assert "compared" not in guest, "P2: there is no run comparison to promise"
+
+
+def test_attention_names_the_open_cards(client, owner, run, fake_redis, monkeypatch):
+    monkeypatch.setattr("simulations.review.open_questions", lambda deck: 3)
+
+    body = _finished_page(client, owner, run)
+
+    assert "! 3 cards need you" in body
+    assert reverse("simulations:review", args=[run.deck.pk]) in body
+
+
+def test_attention_after_an_answer_asks_for_a_new_run(client, owner, run, fake_redis,
+                                                       monkeypatch):
+    monkeypatch.setattr("simulations.review.open_questions", lambda deck: 0)
+    monkeypatch.setattr("simulations.report.annotations_changed_since", lambda run: True)
+
+    body = _finished_page(client, owner, run)
+
+    assert "All answered" in body
+    assert "Run the deck again" in body
+
+
+def test_attention_with_nothing_to_do_says_so(client, owner, run, fake_redis, monkeypatch):
+    monkeypatch.setattr("simulations.review.open_questions", lambda deck: 0)
+    monkeypatch.setattr("simulations.report.annotations_changed_since", lambda run: False)
+
+    body = _finished_page(client, owner, run)
+
+    assert "Nothing needs you" in body
+    assert "The engine read" in body
+
+
+def test_see_every_card_is_gone_from_every_template():
+    """K7: the run page links to the cards it could not read, not to all of them."""
+    templates = Path(__file__).resolve().parent.parent / "templates"
+    for template in templates.rglob("*.html"):
+        assert "See every card of the deck" not in template.read_text(encoding="utf-8"), template
+
+
+def test_a_count_reads_as_a_mean_and_a_spread():
+    from simulations.report import _spreads
+
+    # Three games that drew 1, 2 and 3 creatures: mean 2, sd sqrt(2/3).
+    spreads = _spreads({"cards": [6], "squares": [14]}, games=3)
+
+    assert spreads[0].mean == pytest.approx(2.0)
+    assert spreads[0].sd == pytest.approx((2 / 3) ** 0.5)
+    assert _spreads({"cards": [6]}, games=3)[0].sd is None
+
+
+def test_nine_milestones_draw_eight_lines_and_keep_nine_rows():
+    rows = [{"key": f"m{n}", "label": f"M{n}", "shares": [float(n)] * 3} for n in range(9)]
+
+    chart = report.milestone_chart(rows, 3)
+
+    assert len(chart.lines) == report.MAX_LINES
+    assert "m0" not in {line.key for line in chart.lines}, "the rarest one is left out"

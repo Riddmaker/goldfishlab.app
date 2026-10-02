@@ -3,12 +3,14 @@
 Kept apart from the view, because this is where the honesty of the product
 lives and it deserves to be testable without a browser.
 
-The centrepiece is :func:`opening_lands`. It puts the simulated distribution of
-opening-hand lands next to the **exact hypergeometric probability** for the
-same deck, and lets the reader see that they agree. Nothing else on the page
-earns as much trust: it demonstrates that the simulation reproduces closed-form
-mathematics everywhere closed-form mathematics can reach, which is the only
-honest way to ask someone to believe the parts where it cannot.
+:func:`opening_lands` puts the simulated distribution of opening-hand lands
+next to the **exact hypergeometric probability** for the same deck. It
+demonstrates that the simulation reproduces closed-form mathematics everywhere
+closed-form mathematics can reach, which is the only honest way to ask someone
+to believe the parts where it cannot. Since phase 10 (T5.5) the page no longer
+shows that table - the user test found it read as noise - but the comparison is
+still asserted, by `tests/test_simulations_runs.py`, on every test run, and the
+methodology page still says so.
 
 `math.comb` rather than scipy: scipy is ~90 MB and this needs one binomial
 coefficient. It is a test dependency and must never enter the production image,
@@ -16,7 +18,7 @@ which runs on a 128 MiB cloudlet.
 """
 
 from dataclasses import dataclass
-from math import comb
+from math import comb, sqrt
 
 from simulations import charts
 from simulations.engine import runner
@@ -264,6 +266,23 @@ MILESTONES = (
 )
 
 
+#: The line chart has eight colours (DESIGN.md, "Line charts"). A deck that
+#: reaches all nine milestones shows the eight most frequent as lines; every
+#: one stays in the table under the chart (phase 10 T5.8).
+MAX_LINES = 8
+
+
+def milestone_chart(rows: list[dict], turns: int) -> charts.LineChart | None:
+    """The milestones as lines on the percent scale, the most frequent first."""
+    if not rows:
+        return None
+    ranked = sorted(rows, key=lambda row: (-row["shares"][-1], row["label"]))[:MAX_LINES]
+    shown = {row["key"] for row in ranked}
+    series = [(row["key"], row["label"], row["shares"]) for row in rows if row["key"] in shown]
+    return charts.line_chart(series, [str(turn) for turn in range(1, turns + 1)],
+                             top_value=charts.PERCENT_TOP, y_ticks=charts.PERCENT_TICKS)
+
+
 def milestones(result: dict) -> list[dict]:
     """For each metric, the share of games it had happened by each turn.
 
@@ -296,6 +315,34 @@ SEEN_ROLES = (
     ("protection", "Protection"),
     ("recursion", "Recursion"),
 )
+
+
+@dataclass(frozen=True)
+class Spread:
+    """A count per game: its mean and, when the run counted it, its spread.
+
+    `sd` is the standard deviation over the games, `None` on a run from before
+    phase 10, whose page then shows the mean alone.
+    """
+
+    mean: float
+    sd: float | None
+
+
+def _spreads(entry: dict, games: int) -> list[Spread]:
+    """Mean and standard deviation per turn, from the sums the engine kept."""
+    if not games:
+        return [Spread(0.0, None) for _ in entry["cards"]]
+    squares = entry.get("squares")
+    spreads = []
+    for turn, total in enumerate(entry["cards"]):
+        mean = total / games
+        sd = None
+        if squares is not None:
+            # max(0, ...): rounding can leave a hair below zero on a flat line.
+            sd = sqrt(max(0.0, squares[turn] / games - mean * mean))
+        spreads.append(Spread(mean, sd))
+    return spreads
 
 
 @dataclass(frozen=True)
@@ -355,6 +402,12 @@ def seen(result: dict) -> dict | None:
                                    y_ticks=charts.PERCENT_TICKS),
         "types": charts.line_chart(type_series, x_labels, top_value=count_top,
                                    y_ticks=count_ticks),
+        # "The numbers" under the charts (phase 10 T5.3): a count reads
+        # "3.2 ± 1.1", a share stays a plain percentage (K3).
+        "type_spreads": [
+            {"label": kind.title(), "spreads": _spreads(groups[f"type:{kind}"], games)}
+            for kind in runner.SEEN_CARD_TYPES if f"type:{kind}" in groups
+        ],
         "curve": _curve(groups, games, turns),
         "turns": x_labels,
     }
@@ -417,23 +470,22 @@ def build(run) -> dict:
     """Everything the report template needs, from one stored run."""
     result = runner.read(run.result)
     columns = color_columns(result)
+    milestone_rows = milestones(result)
     return {
         "annotations_changed": annotations_changed_since(run),
         "iterations": result["iterations"],
         "turns": result["turns"],
         "on_the_play": result["on_the_play"],
         "mulligans": mulligans(result),
-        "opening_lands": opening_lands(result, run.library_size, run.lands_total),
-        "kept_lands": kept_lands(result),
         "turn_rows": turns(result),
         "color_columns": columns,
         "color_rows": color_rows(result, columns),
-        "milestones": milestones(result),
+        "milestones": milestone_rows,
+        "milestone_chart": milestone_chart(milestone_rows, result["turns"]),
+        "milestones_hidden": max(0, len(milestone_rows) - MAX_LINES),
         "seen": seen(result),
         "combos": combo_measurements(run),
         "percentiles": PERCENTILES,
-        "library_size": run.library_size,
-        "lands_total": run.lands_total,
     }
 
 

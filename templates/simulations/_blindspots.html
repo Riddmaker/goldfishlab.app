@@ -1,14 +1,18 @@
 {% comment %}
-  The named blind spots. Expects `blindspots` and `deck` in the context, and
-  `cards_link` where the deck's card grid is on another page (the run page).
-  The intro that used to sit here is on the methodology page (#blind-spots,
+  The named blind spots. Expects `blindspots` and `deck` in the context. The
+  intro that used to sit here is on the methodology page (#blind-spots,
   phase 9 H).
 
-  This panel is the whole product's case for being trusted, so it is not a
-  footnote and it is not behind a tab. Each entry names the limitation, says
-  what it costs, lists the cards it applies to, and links to the one field
-  that answers it - because a warning with no way to act on it is just a
-  disclaimer, and people learn to skip disclaimers.
+  Each entry names the limitation, says what it costs, lists the cards it
+  applies to, and links to the one field that answers it - because a warning
+  with no way to act on it is just a disclaimer, and people learn to skip
+  disclaimers.
+
+  On the run page it sits inside the closed "Advanced" fold (phase 10, K6).
+  That reverses an earlier rule - "not a footnote, not behind a tab" - on the
+  user's own test: a first visit read the panel as noise above the numbers it
+  qualifies, and what a person can act on now opens the report instead, in
+  "Cards that need your attention". The deck page still shows it open.
 {% endcomment %}
 {% if blindspots %}
   <section class="mt-6 border-l-2 border-blood-600 pl-5">
@@ -43,11 +47,5 @@
         </ul>
       </div>
     {% endfor %}
-    {% if cards_link %}
-      <p class="mt-6 text-sm text-parchment-200">
-        <a href="{{ deck.get_absolute_url }}#cards"
-           class="text-parchment-100 underline">See every card of the deck</a>
-      </p>
-    {% endif %}
   </section>
 {% endif %}

@@ -7,9 +7,7 @@
 <section id="seen" class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">What you drew</h2>
   {% if report.seen %}
-    <p class="mt-1 text-sm text-ink-700">
-      The opening hand you kept and every card you drew. A card a tutor found is not counted.
-    </p>
+    <p class="mt-1 text-sm text-ink-700">Your opening hand and every card you drew.</p>
     {% if report.seen.roles.lines %}
       <h3 class="font-display mt-5 text-lg text-ink-900">By category</h3>
       <p class="text-sm text-ink-700">Games with at least one, by the end of each turn.</p>
@@ -50,98 +48,109 @@
     </div>
     <details class="mt-5 text-sm">
       <summary class="cursor-pointer text-ink-900 underline">The numbers</summary>
-      <table class="mt-3 w-full text-left text-sm">
-        <thead>
-          <tr class="border-b border-parchment-600 text-ink-700">
-            <th scope="col" class="py-1.5 pr-3">By end of turn</th>
-            {% for turn in report.seen.turns %}
-              <th scope="col" class="tabular py-1.5 pr-3">{{ turn }}</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody>
-          {% for line in report.seen.roles.lines %}
-            <tr class="border-b border-parchment-300">
-              <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ line.label }} (games)</th>
-              {% for value in line.values %}
-                <td class="tabular py-1.5 pr-3 text-ink-700">{{ value|floatformat:"0" }}%</td>
+      <p class="mt-3 text-ink-700">
+        By the end of each turn: how many games had drawn at least one card of a
+        category, and how many cards of each type a game had drawn - the average,
+        and ± how far a typical game was from it.
+      </p>
+      <div class="mt-3 overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="border-b border-parchment-600 text-ink-700">
+              <th scope="col" class="py-1.5 pr-3">By end of turn</th>
+              {% for turn in report.seen.turns %}
+                <th scope="col" class="tabular py-1.5 pr-3">{{ turn }}</th>
               {% endfor %}
             </tr>
-          {% endfor %}
-          {% for line in report.seen.types.lines %}
-            <tr class="border-b border-parchment-300">
-              <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ line.label }} (cards)</th>
-              {% for value in line.values %}
-                <td class="tabular py-1.5 pr-3 text-ink-700">{{ value|floatformat:"1" }}</td>
+          </thead>
+          {% if report.seen.roles.lines %}
+            <tbody>
+              <tr>
+                <th scope="colgroup"
+                    colspan="{{ report.seen.turns|length|add:1 }}"
+                    class="pt-3 pb-1 font-semibold text-ink-900">% of games with at least one</th>
+              </tr>
+              {% for line in report.seen.roles.lines %}
+                <tr class="border-b border-parchment-300">
+                  <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ line.label }}</th>
+                  {% for value in line.values %}
+                    <td class="tabular py-1.5 pr-3 text-ink-700">{{ value|floatformat:"0" }}%</td>
+                  {% endfor %}
+                </tr>
               {% endfor %}
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+            </tbody>
+          {% endif %}
+          {% if report.seen.type_spreads %}
+            <tbody>
+              <tr>
+                <th scope="colgroup"
+                    colspan="{{ report.seen.turns|length|add:1 }}"
+                    class="pt-3 pb-1 font-semibold text-ink-900">Cards per game, average ± spread</th>
+              </tr>
+              {% for row in report.seen.type_spreads %}
+                <tr class="border-b border-parchment-300">
+                  <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
+                  {% for spread in row.spreads %}
+                    <td class="tabular whitespace-nowrap py-1.5 pr-3 text-ink-700">
+                      {{ spread.mean|floatformat:"1" }}{% if spread.sd is not None %} ± {{ spread.sd|floatformat:"1" }}{% endif %}
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          {% endif %}
+        </table>
+      </div>
     </details>
   {% else %}
     <p class="mt-2 text-ink-700">
       This run is older than this chart.
-      <a href="{{ run.deck.get_absolute_url }}#play" class="text-ink-900 underline">Run the deck again</a>
+      <a href="{{ run.deck.get_absolute_url }}#play"
+         class="text-ink-900 underline">Run the deck again</a>
       to see what it draws.
     </p>
   {% endif %}
 </section>
-<section class="surface-parchment mt-6 p-6">
-  <h2 class="font-display text-2xl text-ink-900">Opening hands</h2>
-  <p class="mt-1 text-sm text-ink-700">
-    Lands in the first seven cards, simulated beside the exact (hypergeometric) maths
-    for {{ report.lands_total }} lands in {{ report.library_size }} cards.
-    {% include "core/_why.html" with anchor="opening" %}
-  </p>
-  <table class="mt-5 w-full text-left text-sm">
-    <thead>
-      <tr class="border-b border-parchment-600 text-ink-700">
-        <th scope="col" class="py-1.5 pr-3">Lands</th>
-        <th scope="col" class="py-1.5 pr-3">Simulated</th>
-        <th scope="col" class="py-1.5 pr-3">Exact</th>
-        <th scope="col" class="py-1.5">Simulated share</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in report.opening_lands %}
-        <tr class="border-b border-parchment-300">
-          <th scope="row" class="tabular py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
-          <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.share|floatformat:"1" }}%</td>
-          <td class="tabular py-1.5 pr-3 text-ink-700">{{ row.exact|floatformat:"1" }}%</td>
-          <td class="py-1.5">
-            <span class="inline-block h-3 bg-ink-800 align-middle"
-                  style="width: {% widthratio row.share 100 100 %}%"
-                  role="presentation"></span>
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <h3 class="font-display mt-6 text-lg text-ink-900">…and what was kept</h3>
-  <p class="mt-1 text-sm text-ink-700">
-    The same hands after the mulligan rule.
-    {% include "core/_why.html" with anchor="mulligan" %}
-  </p>
-  <table class="mt-4 w-full text-left text-sm">
-    <thead>
-      <tr class="border-b border-parchment-600 text-ink-700">
-        <th scope="col" class="py-1.5 pr-3">Lands</th>
-        <th scope="col" class="py-1.5 pr-3">Share</th>
-        <th scope="col" class="py-1.5">Games</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in report.kept_lands %}
-        <tr class="border-b border-parchment-300">
-          <th scope="row" class="tabular py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
-          <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.share|floatformat:"1" }}%</td>
-          <td class="tabular py-1.5 text-ink-700">{{ row.count }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</section>
+{% if report.milestone_chart %}
+  <section id="milestones" class="surface-parchment mt-6 p-6">
+    <h2 class="font-display text-2xl text-ink-900">Milestones</h2>
+    <p class="mt-1 text-sm text-ink-700">
+      Share of games where it was true by the end of each turn.
+      {% include "core/_why.html" with anchor="report-milestones" %}
+    </p>
+    {% include "simulations/_line_chart.html" with chart=report.milestone_chart name="milestone" title="Share of games where each milestone was reached, by turn" %}
+    {% if report.milestones_hidden %}
+      <p class="mt-2 text-sm text-ink-700">
+        {{ report.milestones_hidden }} more, rarer milestone{{ report.milestones_hidden|pluralize }} in the numbers below.
+      </p>
+    {% endif %}
+    <details class="mt-5 text-sm">
+      <summary class="cursor-pointer text-ink-900 underline">The numbers</summary>
+      <div class="mt-3 overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="border-b border-parchment-600 text-ink-700">
+              <th scope="col" class="py-1.5 pr-3">% of games, by end of turn</th>
+              {% for row in report.turn_rows %}
+                <th scope="col" class="tabular py-1.5 pr-3">{{ row.turn }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for milestone in report.milestones %}
+              <tr class="border-b border-parchment-300">
+                <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ milestone.label }}</th>
+                {% for share in milestone.shares %}
+                  <td class="tabular py-1.5 pr-3 text-ink-700">{{ share|floatformat:"0" }}%</td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+{% endif %}
 <section class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">Mulligans</h2>
   <table class="mt-4 w-full text-left text-sm">
@@ -164,37 +173,6 @@
                   style="width: {% widthratio row.share 100 100 %}%"
                   role="presentation"></span>
           </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</section>
-<section class="surface-parchment mt-6 p-6">
-  <h2 class="font-display text-2xl text-ink-900">Mana and lands, turn by turn</h2>
-  <p class="mt-1 text-sm text-ink-700">
-    p10 is the game that goes wrong.
-    {% include "core/_why.html" with anchor="report-mana" %}
-  </p>
-  <table class="mt-5 w-full text-left text-sm">
-    <thead>
-      <tr class="border-b border-parchment-600 text-ink-700">
-        <th scope="col" class="py-1.5 pr-3">Turn</th>
-        <th scope="col" class="py-1.5 pr-3">Mana (mean)</th>
-        {% for p in report.percentiles %}
-          <th scope="col" class="py-1.5 pr-3">Mana p{{ p }}</th>
-        {% endfor %}
-        <th scope="col" class="py-1.5">Lands (mean)</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in report.turn_rows %}
-        <tr class="border-b border-parchment-300">
-          <th scope="row" class="tabular py-1.5 pr-3 font-normal text-ink-900">{{ row.turn }}</th>
-          <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.mana_mean|floatformat:"2" }}</td>
-          {% for value in row.mana_percentiles %}
-            <td class="tabular py-1.5 pr-3 text-ink-700">{{ value }}</td>
-          {% endfor %}
-          <td class="tabular py-1.5 text-ink-700">{{ row.lands_mean|floatformat:"2" }}</td>
         </tr>
       {% endfor %}
     </tbody>
@@ -231,36 +209,6 @@
     </table>
   </section>
 {% endif %}
-{% if report.milestones %}
-  <section class="surface-parchment mt-6 p-6">
-    <h2 class="font-display text-2xl text-ink-900">Milestones</h2>
-    <p class="mt-1 text-sm text-ink-700">
-      Share of games where it was true by the end of each turn.
-      {% include "core/_why.html" with anchor="report-milestones" %}
-    </p>
-    <table class="mt-5 w-full text-left text-sm">
-      <thead>
-        <tr class="border-b border-parchment-600 text-ink-700">
-          <th scope="col" class="py-1.5 pr-3">By end of turn</th>
-          {% for row in report.turn_rows %}
-            <th scope="col" class="tabular py-1.5 pr-3">{{ row.turn }}</th>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for milestone in report.milestones %}
-          <tr class="border-b border-parchment-300">
-            <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ milestone.label }}</th>
-            {% for share in milestone.shares %}
-              <td class="tabular py-1.5 pr-3 text-ink-700">{{ share|floatformat:"0" }}%</td>
-            {% endfor %}
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </section>
-{% endif %}
-
 {% if report.combos %}
   {% comment %}
     The differentiator, on the page where the numbers are. Everyone can list a
@@ -296,9 +244,7 @@
             <td class="py-1.5 pr-3 text-ink-700">
               {% if measurement.hypothetical %}{{ measurement.added_name }}{% else %}—{% endif %}
             </td>
-            <td class="tabular py-1.5 pr-3 text-ink-900">
-              {{ measurement.share_label }}
-            </td>
+            <td class="tabular py-1.5 pr-3 text-ink-900">{{ measurement.share_label }}</td>
             <td class="tabular py-1.5 pr-3 text-ink-700">
               {% if measurement.median_turn %}turn {{ measurement.median_turn }}{% else %}—{% endif %}
             </td>

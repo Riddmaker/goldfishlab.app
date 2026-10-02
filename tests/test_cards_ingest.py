@@ -78,6 +78,16 @@ def test_double_faced_cards_keep_their_cost_and_text(loaded_cards):
     assert "//" in tergrid.name
 
 
+def test_the_art_is_taken_from_scryfalls_links_not_built(loaded_cards):
+    """Phase 10 T4.1: `art_crop` from `image_uris`, the front face for a
+    double-faced card - the same place `image_uri` comes from."""
+    tergrid = OracleCard.objects.get(front_name="Tergrid, God of Fright")
+
+    assert "art_crop" in tergrid.art_uri
+    assert tergrid.art_uri != tergrid.image_uri
+    assert OracleCard.objects.exclude(image_uri="").filter(art_uri="").count() == 0
+
+
 def test_extreme_values_survive(loaded_cards):
     """Gleemax costs {1000000}. It overflowed a smallint once."""
     gleemax = OracleCard.objects.get(front_name="Gleemax")

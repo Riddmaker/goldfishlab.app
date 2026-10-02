@@ -29,6 +29,7 @@ from billing import views as billing_views
 from billing.quotas import QuotaExceeded
 from cards.models import OracleCard
 from decks.models import Deck
+from guests.services import LIFETIME as GUEST_LIFETIME
 from simulations import blindspots, provenance, report, review, services
 from simulations.engine import adapter
 from simulations.engine.adapter import DECK_SCOPE, USER_SCOPE
@@ -102,6 +103,10 @@ class RunDetailView(OwnedRunsMixin, DetailView):
             # properties of the cards rather than of the simulation, and the
             # panel says so rather than implying the run measured them.
             context["blindspots"] = blindspots.find(adapter.readings(run.deck))
+            # The deck as it stands now, like the blind spots: "cards that need
+            # your attention" is about what a person can still do.
+            context["open_questions"] = review.open_questions(run.deck)
+            context["guest_hours"] = int(GUEST_LIFETIME.total_seconds() // 3600)
         return context
 
 

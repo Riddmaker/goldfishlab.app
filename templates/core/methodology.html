@@ -56,17 +56,19 @@
         <strong>hypergeometric distribution</strong>, which has a closed form.
       </p>
       <p class="mt-4 text-ink-900">
-        Every report puts the simulated distribution next to the exact one,
-        computed with <code>math.comb</code>, so you can see them agree. The
-        test suite draws <strong>200,000</strong> opening hands on every run and
-        fails if they diverge beyond sampling error.
+        The simulated distribution is checked against the exact one, computed
+        with <code>math.comb</code>: the test suite draws <strong>200,000</strong>
+        opening hands on every run and fails if they diverge beyond sampling
+        error. The report used to print both side by side; it left the page
+        because it answered a question nobody had asked, and the check did not
+        leave with it.
         {% comment %} tests/test_statistics.py, the `slow` marker. {% endcomment %}
       </p>
       <p class="mt-4 text-ink-900">
-        The <em>kept</em> hand is shown separately and has <strong>no exact
-        column</strong>, because no closed form describes it — the mulligan rule
-        throws the tails back and reshapes the distribution. Printing a
-        closed-form number beside it would be inventing one.
+        The <em>kept</em> hand has <strong>no exact answer</strong>, because no
+        closed form describes it — the mulligan rule throws the tails back and
+        reshapes the distribution. The report's "Mulligans" shows what the rule
+        did instead.
       </p>
     </div>
 
@@ -171,13 +173,15 @@
         Means, and only means — the engine's pool counts mana rather than holding
         the sources that made it, so a card that could have made one of several
         colours was read as making one fixed colour. Every card that happened to is
-        listed as a gap under “What was actually modelled”.
+        among the cards the engine could not read, under “Cards that need your
+        attention”.
       </p>
       <h3 id="report-milestones" class="mt-6 font-display text-lg text-ink-900">Milestones</h3>
       <p class="mt-2 text-ink-900">
         The share of games in which each milestone was true by the end of that turn.
         They are read from the cards' own category tags, so a deck built differently
-        gets the same table without anything here changing.
+        gets the same chart without anything here changing. The chart draws the
+        eight most frequent; a rarer ninth stays in the numbers under it.
       </p>
       <h3 id="blind-spots" class="mt-6 font-display text-lg text-ink-900">What a simulation does not model</h3>
       <p class="mt-2 text-ink-900">

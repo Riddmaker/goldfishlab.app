@@ -35,7 +35,10 @@ def _referenced_anchors() -> set[str]:
 
 def test_the_pages_link_into_the_methodology_page():
     """Guards the guard: a regex that matched nothing would pass every page."""
-    assert {"opening", "mulligan", "report-mana", "blind-spots", "games"} <= _referenced_anchors()
+    # Phase 10 took "opening" and "mulligan" off the run page with the opening
+    # hands; the sections stay on the methodology page.
+    assert {"reading", "report-milestones", "report-mana", "blind-spots",
+            "games"} <= _referenced_anchors()
 
 
 @pytest.mark.django_db

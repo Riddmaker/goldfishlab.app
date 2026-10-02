@@ -1,0 +1,49 @@
+{% comment %}
+  "Cards that need your attention" (phase 10 T4.2, K1, K2, K7): the work a
+  person can do, at the top of the report. Replaces "What was actually
+  modelled", which sat under every chart. Three states:
+
+  1. cards the engine could not read and nobody has answered - the red marker,
+     into the card review;
+  2. nothing open, but an answer was given after this run - run it again;
+  3. nothing to do.
+
+  Underneath, always, how much of the deck the engine read, counted over every
+  copy (phase 10 B), and the way into the cards it could not read. Needs `run`,
+  `report` and `open_questions` (simulations.review.open_questions).
+{% endcomment %}
+<section id="attention" class="surface-parchment mt-6 p-6">
+  <h2 class="font-display text-2xl text-ink-900">Cards that need your attention</h2>
+  {% if open_questions %}
+    <p class="mt-3">
+      <a href="{% url 'simulations:review' run.deck.id %}"
+         class="deck-status deck-status-open">! {{ open_questions }} card{{ open_questions|pluralize }} need{{ open_questions|pluralize:"s," }} you</a>
+    </p>
+    <p class="mt-2 text-sm text-ink-700">
+      The engine could not read {{ open_questions|pluralize:"it,them" }}. Say what {{ open_questions|pluralize:"it does,they do" }},
+      or that the engine's reading is right.
+    </p>
+  {% elif report.annotations_changed %}
+    <p class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+      <span class="deck-status deck-status-ready">✓ All answered</span>
+      <span class="text-ink-900">
+        A card was answered after this run.
+        <a href="{{ run.deck.get_absolute_url }}#play" class="underline">Run the deck again</a>
+        to see the difference.
+      </span>
+    </p>
+  {% else %}
+    <p class="mt-3">
+      <span class="deck-status deck-status-ready">✓ Nothing needs you</span>
+    </p>
+  {% endif %}
+  <p class="mt-4 text-sm text-ink-700">
+    The engine read <strong class="tabular text-ink-900">{{ run.coverage_read }}</strong>
+    of {{ run.coverage_total }} cards in full —
+    <strong class="tabular text-ink-900">{{ run.readable_pct|floatformat:"0" }}%</strong>.
+    {% if run.reading_gaps %}
+      <a href="{% url 'simulations:review' run.deck.id %}" class="text-ink-900 underline">See what it could not read</a>
+    {% endif %}
+    {% include "core/_why.html" with anchor="reading" %}
+  </p>
+</section>

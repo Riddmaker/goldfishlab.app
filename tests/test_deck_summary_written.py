@@ -1,4 +1,5 @@
-"""The deck summary's written part (phase 10 H, T6.1, T6.2, T6.4, T6.5).
+"""The deck summary's written part (phase 10 H, T6.1, T6.2, T6.4, T6.5;
+version 2 with title and tagline, phase 11 D, Z5.2, K15).
 
 Mistral is never called: `urlopen` and the task are stand-ins. What is tested
 is everything around the call - what goes into the prompt, what comes back
@@ -30,6 +31,8 @@ ARCHIDEKT_CSV = FIXTURES / "archidekt_sample.csv"
 RUNS = UsageRecord.Metric.RUNS_STARTED
 
 GOOD = {
+    "title": '"Patient Graveyard Engine."',
+    "tagline": "A slow **engine** that wins from the graveyard.",
     "feel": "A **graveyard** deck that wants long games. See https://example.com now.",
     "strengths": ["+ Plenty of ramp.", "Strong recursion.", "c", "d", "e", "f"],
     "weaknesses": ["- Few ways to draw cards."],
@@ -179,6 +182,43 @@ def test_an_answer_is_checked_before_it_is_kept():
     assert len(checked["strengths"]) == summary.POINTS_MAX
     assert checked["strengths"][0] == "Plenty of ramp.", "the page draws its own +"
     assert checked["weaknesses"] == ["Few ways to draw cards."]
+
+
+def test_the_title_and_tagline_are_checked_and_optional():
+    checked = summary.parse(json.dumps(GOOD))
+    untitled = summary.parse(json.dumps(
+        {key: value for key, value in GOOD.items() if key not in {"title", "tagline"}}))
+    long = summary.parse(json.dumps(dict(GOOD, title="Word " * 20, tagline=["no"])))
+
+    assert checked["title"] == "Patient Graveyard Engine", "no quotes, no full stop"
+    assert checked["tagline"] == "A slow engine that wins from the graveyard."
+    assert (untitled["title"], untitled["tagline"]) == ("", ""), "not a rejection (P4)"
+    assert len(long["title"]) <= summary.TITLE_MAX + 1
+    assert long["tagline"] == ""
+
+
+def test_the_prompt_asks_for_a_name_and_the_strategies():
+    assert summary.PROMPT_VERSION == 2
+    assert '"title"' in summary.SYSTEM_PROMPT and '"tagline"' in summary.SYSTEM_PROMPT
+    assert "strategies" in summary.SYSTEM_PROMPT
+    assert "Do not suggest specific new cards by name" in summary.SYSTEM_PROMPT
+
+
+def test_the_facts_hold_each_category_by_turn_four_calculated(owner, deck):
+    from simulations.report import hypergeometric
+
+    facts = summary.facts(deck, adapter.readings(deck))
+    by_turn = facts["chance_of_at_least_one_by_turn_4_percent"]
+    population = facts["cards_in_library"]
+
+    assert "no mulligan" in by_turn["assumes"]
+    assert by_turn["by_category"].keys() == facts["cards_per_category"].keys()
+    for label, count in facts["cards_per_category"].items():
+        expected = 100 - hypergeometric(0, population, count, 10)
+        assert by_turn["by_category"][label] == pytest.approx(expected, abs=0.05), label
+        hand = facts["opening_hand_of_7"]["chance_of_at_least_one_percent"].get(label)
+        if hand is not None:
+            assert by_turn["by_category"][label] >= hand, "three more cards seen"
 
 
 def test_a_long_answer_is_cut_at_a_word():
@@ -385,11 +425,29 @@ def test_the_text_is_shown_escaped_in_k9_order(key, client, owner, deck, finishe
     body = _page(client, owner, finished)
     block = body[body.index('id="summary"'):body.index('id="advanced"')]
 
-    order = [">Feel<", ">Mechanisms<", ">Strengths<", ">Weaknesses<", ">Tactics<"]
+    order = ["Patient Graveyard Engine", "A slow engine", ">Feel<", ">Strengths<",
+             ">Weaknesses<", ">Tactics<"]
     assert [block.index(title) for title in order] == sorted(block.index(t) for t in order)
+    assert "Mechanisms" not in block and "summary-chip" not in block, "K15"
     assert "&lt;script&gt;" in block and "<script>x" not in block
     assert "Written by Mistral AI. It can be wrong." in block
+    assert "calculated from your list, not measured" in block
     assert "Write a summary" not in block, "it is current"
+
+
+def test_a_version_one_summary_shows_without_a_title(key, client, owner, deck, finished):
+    """F13: an old summary stays until the deck changes, and starts with Feel."""
+    old = {key: value for key, value in GOOD.items() if key not in {"title", "tagline"}}
+    DeckSummary.objects.create(deck=deck, fingerprint=summary.fingerprint(deck),
+                               status=DeckSummary.Status.DONE, prompt_version=1,
+                               content=summary.parse(json.dumps(old)))
+
+    body = _page(client, owner, finished)
+    block = body[body.index('id="summary"'):body.index('id="advanced"')]
+
+    assert "summary-name" not in block
+    assert ">Feel<" in block
+    assert "Write a summary" not in block, "our prompt change rewrites nothing"
 
 
 def test_a_summary_being_written_polls(key, client, owner, deck, finished):
@@ -461,13 +519,13 @@ def test_another_users_run_cannot_buy_a_summary(key, client, finished):
     assert response.status_code == 404
 
 
-def test_without_a_key_the_block_is_the_mechanisms_alone(client, owner, finished):
+def test_without_a_key_there_is_no_summary_block(client, owner, finished):
+    """Phase 11 D: the chips were all it had without Mistral, and they are gone."""
     body = _page(client, owner, finished)
-    block = body[body.index('id="summary"'):body.index('id="advanced"')]
 
-    assert "Mechanisms" in block
-    assert "Mistral" not in block
-    assert "Hide summaries" not in block
+    assert 'id="summary"' not in body
+    assert "Mistral" not in body
+    assert "Hide summaries" not in body
 
 
 def test_the_export_holds_the_summaries(owner, deck):

@@ -1,122 +1,69 @@
-"""The deck summary at the foot of a report (phase 10 G, T6.1 and T6.3).
+"""The deck summary at the foot of a report (phase 10 G and H, phase 11 D).
 
-This part is **computed, not written**: the "Mechanisms" are what the deck
-plays, counted off the same readings the deck page and the engine use, and
-how soon this run drew each of them. The numbers are always right and cost
-nothing, which is why no language model is asked for them - batch H's text
-gets them as facts instead of inventing its own.
+Version 2 (phase 11 D, Z5.2, K15) is the written part alone: a short title
+and a tagline on top, then feel, strengths, weaknesses and tactics. The
+"Mechanisms" chips of phase 10 G are gone - their numbers live in "By
+strategy" now - and the core categories the deck has none of (`missing`) are
+named under "By category", where their lines are missing.
 
-Two sources, said plainly on purpose:
-
-* **the card count** is the deck as it stands now, like the blind spots and
-  "Cards that need your attention" beside it - it is a property of the cards;
-* **the share** is this run's, read off the "What you drew" chart at turn
-  four (or the run's last turn, if it is shorter), so a chip and its line on
-  the chart cannot disagree.
-
-A mechanism the run did not measure - sacrifice outlets, drain and the like,
-or a category the deck gained after the run - has a count and no share.
-
-**The written part** (phase 10 H, T6.1, T6.2, T6.4, T6.5) - feel, strengths,
-weaknesses, tactics - is Mistral's, through `simulations.mistral`:
+The text is Mistral's, through `simulations.mistral`:
 
 * **What goes there:** catalogue data and our own arithmetic only - the
   commander, card names with their type, mana value, categories and counts,
-  the curve, the colours, the combos, and the exact opening-hand odds. No deck
-  name, nothing about the person, no free text anybody typed, so there is
-  next to nothing to inject a prompt through. No simulation numbers either:
-  the text is written while the run still plays (P4); the measured numbers
-  are the chips.
-* **What comes back** is JSON, and `parse` checks it - the four keys, strings,
-  at most four points each, every length capped, Markdown and links taken
-  out. The template escapes it like any other text.
+  the curve, the colours, the combos, and exact odds (the opening hand, and
+  at least one of each category by turn four). No deck name, nothing about
+  the person, no free text anybody typed, so there is next to nothing to
+  inject a prompt through. No simulation numbers either: the text is written
+  while the run still plays (P4 of phase 10), which is why the odds are
+  *calculated* over the list rather than measured.
+* **What comes back** is JSON, and `parse` checks it - the keys, strings, at
+  most four points each, every length capped, Markdown and links taken out.
+  The template escapes it like any other text.
 * **When it is written:** when a run starts and the deck has changed since the
   last one (`fingerprint`), or on the "Write a summary" button. It costs one
   run of the monthly allowance (a guest's one summary is free), and a failure
-  gives that run back.
+  gives that run back. A version 1 summary stays until the deck changes
+  (F13): it shows without title and tagline, and our new prompt rewrites
+  nothing and charges nobody.
 """
 
 import hashlib
 import json
 import re
-from dataclasses import dataclass
 
 from django.db import transaction
 
 from simulations import mistral
 from simulations.report import SEEN_ROLES, SEEN_STRATEGY_ROLES, hypergeometric
 
-#: The turn a chip reports the share for (P6), unless the run is shorter.
+#: The turn the "at least one by turn N" odds in the facts are worked out for.
 BY_TURN = 4
 
 
-@dataclass(frozen=True)
-class Mechanism:
-    """One chip: what it is, how many cards, and - if measured - how soon."""
-
-    key: str
-    label: str
-    cards: int
-    #: Share of games that had drawn one by `turn`, in percent; `None` when
-    #: the run did not measure it.
-    share: float | None = None
-    turn: int | None = None
-    #: The line on the "What you drew" chart with the same colour, if any.
-    line: int | None = None
-
-
-def mechanisms(readings, report: dict) -> dict:
-    """The "Mechanisms" chips, and the core categories the deck has none of.
+def missing(readings) -> list[str]:
+    """The core categories the deck has no card of, in deck-list order.
 
     Args:
         readings: `simulations.engine.adapter.readings(deck)`.
-        report: `simulations.report.build(run)`.
-
-    Returns:
-        ``{"chips": [Mechanism, ...], "missing": [label, ...]}``, the chips in
-        the order a deck list sorts them.
     """
-    counts: dict[str, int] = {}
-    for reading in readings:
-        if reading.is_commander:
-            continue
-        for category in reading.card.categories:
-            counts[category] = counts.get(category, 0) + reading.quantity
-
-    lines = {}
-    if report.get("seen"):
-        # Two charts, one palette: a chip's swatch is its line's colour on
-        # "By category" or on "By strategy" (phase 11 B).
-        lines = {line.key: line
-                 for chart in (report["seen"]["roles"], report["seen"].get("strategies"))
-                 if chart for line in chart.lines}
-    turn = min(BY_TURN, report["turns"])
-
-    chips = []
-    for key, label in SEEN_ROLES + SEEN_STRATEGY_ROLES:
-        if not counts.get(key):
-            continue
-        line = lines.get(key)
-        chips.append(Mechanism(
-            key=key, label=label, cards=counts[key],
-            share=line.values[turn - 1] if line else None,
-            turn=turn if line else None,
-            line=line.index if line else None,
-        ))
-    missing = [label for key, label in SEEN_ROLES if not counts.get(key)]
-    return {"chips": chips, "missing": missing}
+    present = {category for reading in readings if not reading.is_commander
+               for category in reading.card.categories}
+    return [label for key, label in SEEN_ROLES if key not in present]
 
 
-# --- the written part (phase 10 H) ---------------------------------------------
+# --- the written part (phase 10 H, phase 11 D) ------------------------------------
 
 #: Recorded on every summary, never compared: a new prompt does not rewrite
 #: anybody's summary, because that would charge them for our change.
-PROMPT_VERSION = 1
+#: 2 = phase 11 D: title and tagline, tactics about the deck's strategies.
+PROMPT_VERSION = 2
 
 #: Room for the JSON answer. Each part is "not longer than a paragraph"
 #: (T6.1); this is generous and still bounds the cost of a runaway answer.
-MAX_TOKENS = 900
+MAX_TOKENS = 1000
 
+TITLE_MAX = 40
+TAGLINE_MAX = 200
 FEEL_MAX = 500
 POINT_MAX = 200
 POINTS_MAX = 4
@@ -124,25 +71,36 @@ TACTICS_MAX = 700
 
 #: The opening hand the odds are worked out for.
 HAND = 7
+#: Cards seen by the end of turn `BY_TURN`: the hand and one draw a turn,
+#: none on turn one - a run's default (on the play), and no mulligans.
+SEEN_BY_TURN = HAND + BY_TURN - 1
 
 SYSTEM_PROMPT = (
     "You are an experienced Magic: The Gathering Commander (EDH) player helping "
     "someone understand their own deck. You get facts about one deck: its commander, "
     "its cards with their categories, its mana curve, its combos and exact "
-    "opening-hand odds. Use only these facts and your knowledge of the named cards. "
+    "odds for the opening hand and for the first turns. Use only these facts and "
+    "your knowledge of the named cards. "
     "Never invent numbers; quote only numbers that are in the facts. Judge counts "
     "against this deck's own size (cards_in_library) and the land band given for "
     "it, not against a fixed 99. If combos_in_deck is null, nobody has looked the "
     "deck up for combos: say nothing about combos at all. Do not suggest specific "
     "new cards by name - suggest changes as roles and counts (for example "
     '"two more card draw spells").\n\n'
-    "Answer with one JSON object and nothing else, with exactly these keys:\n"
+    "Answer with one JSON object and nothing else, with exactly these keys, in "
+    "this order:\n"
+    '- "title": a name for the deck in two to four words, the way players nickname '
+    'a deck by its style, for example "Unconventional Dark" or "Patient Artifact '
+    "Engine\". Not the commander's name, no quotes, at most 40 characters.\n"
+    '- "tagline": one sentence that says what this deck is.\n'
     '- "feel": two or three sentences on how the deck wants to play and what kind '
     "of game its owner probably enjoys, guessed from the cards.\n"
     '- "strengths": a list of at most four short sentences, each one strength.\n'
     '- "weaknesses": a list of at most four short sentences, each one weakness.\n'
-    '- "tactics": two to four sentences on how to play the deck, and what to change '
-    "if the owner wants it to carry out its plan better.\n"
+    "- \"tactics\": two to four sentences that name the deck's main strategies "
+    "(from cards_per_category), say how they work together to win, and what to "
+    "change if the owner wants the plan to come together more often.\n"
+    "Write about this deck: a sentence that would fit any deck says nothing. "
     "Plain sentences only: no Markdown, no lists inside strings, no links, no "
     "leading + or -. Write in English."
 )
@@ -176,7 +134,8 @@ def fingerprint(deck) -> str:
 
 
 def _at_least_one(successes: int, population: int, drawn: int = HAND) -> float:
-    return 100.0 - hypergeometric(0, population, successes, drawn)
+    # A deck smaller than the cards seen has shown all of itself.
+    return 100.0 - hypergeometric(0, population, successes, min(drawn, population))
 
 
 def facts(deck, readings) -> dict:
@@ -232,6 +191,16 @@ def facts(deck, readings) -> dict:
             "chance_of_at_least_one_percent": {
                 labels[key]: round(_at_least_one(count, population), 1)
                 for key, count in counts.items() if count and key in core
+            },
+        },
+        # Phase 11 D: the strategies' odds, calculated - the run's own numbers
+        # do not exist yet when this is written.
+        f"chance_of_at_least_one_by_turn_{BY_TURN}_percent": {
+            "assumes": f"the opening hand of {HAND} and one draw a turn from turn 2, "
+                       "no mulligan",
+            "by_category": {
+                labels[key]: round(_at_least_one(count, population, SEEN_BY_TURN), 1)
+                for key, count in counts.items() if count
             },
         },
         "cards": cards,
@@ -293,6 +262,11 @@ def _clean(value, limit: int) -> str:
     return text
 
 
+def _optional(value, limit: int) -> str:
+    """`_clean`, but a missing or wrong-typed value is just empty."""
+    return _clean(value, limit) if isinstance(value, str) else ""
+
+
 def _points(value) -> list[str]:
     if not isinstance(value, list):
         raise ValueError("not a list")
@@ -306,6 +280,9 @@ def parse(content: str) -> dict:
     if not isinstance(data, dict):
         raise ValueError("not an object")
     checked = {
+        # Optional (P4): without a title the block starts with "Feel".
+        "title": _optional(data.get("title"), TITLE_MAX).strip(" .\"'“”"),
+        "tagline": _optional(data.get("tagline"), TAGLINE_MAX),
         "feel": _clean(data.get("feel"), FEEL_MAX),
         "strengths": _points(data.get("strengths")),
         "weaknesses": _points(data.get("weaknesses")),
@@ -422,5 +399,5 @@ def state(user, deck) -> dict:
     }
 
 
-__all__ = ["BY_TURN", "Mechanism", "PROMPT_VERSION", "begin", "claim", "due",
-           "facts", "fingerprint", "mechanisms", "messages", "parse", "state"]
+__all__ = ["BY_TURN", "PROMPT_VERSION", "begin", "claim", "due", "facts",
+           "fingerprint", "messages", "missing", "parse", "state"]

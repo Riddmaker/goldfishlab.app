@@ -128,9 +128,8 @@ class RunDetailView(OwnedRunsMixin, DetailView):
             # panel says so rather than implying the run measured them.
             readings = adapter.readings(run.deck)
             context["blindspots"] = blindspots.find(readings)
-            # The deck summary's chips: the cards counted now, the shares
-            # from this run (simulations/summary.py says why both).
-            context["mechanisms"] = summary.mechanisms(readings, context["report"])
+            # "None in the deck: ..." under "By category" (phase 11 D, P3).
+            context["missing_roles"] = summary.missing(readings)
             # The written part (phase 10 H), unless the viewer switched it off.
             if self.request.user.deck_summaries:
                 context["written"] = summary.state(self.request.user, run.deck)

@@ -1,4 +1,4 @@
-{% load humanize %}
+{% load humanize i18n %}
 {% comment %}
   The report. Every chart here is server-rendered from the run's own numbers:
   a bar is a div with a width, which needs no charting library, no JavaScript,
@@ -12,6 +12,9 @@
       <h3 class="font-display mt-5 text-lg text-ink-900">By category</h3>
       <p class="text-sm text-ink-700">Games with at least one, by the end of each turn.</p>
       {% include "simulations/_line_chart.html" with chart=report.seen.roles name="seen-role" title="Share of games with at least one card of each category, by turn" %}
+      {% if missing_roles %}
+        <p class="mt-2 text-sm text-ink-700">{% blocktranslate with labels=missing_roles|join:", " %}None in the deck: {{ labels }}.{% endblocktranslate %}</p>
+      {% endif %}
     {% endif %}
     {% if report.seen.strategies.lines %}
       <h3 class="font-display mt-6 text-lg text-ink-900">By strategy</h3>

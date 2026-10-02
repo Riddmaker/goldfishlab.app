@@ -881,7 +881,10 @@ def _finished_page(client, owner, run, **user_fields):
     return client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
 
 
-def test_the_report_opens_with_what_a_person_can_do(client, owner, run, fake_redis):
+def test_the_report_opens_with_what_a_person_can_do(client, owner, run, fake_redis,
+                                                   settings):
+    # The summary block is there only with Mistral configured (phase 11 D).
+    settings.MISTRAL_API_KEY = "test-key-not-real"
     body = _finished_page(client, owner, run)
     order = ['id="attention"', 'id="seen"', 'id="milestones"', ">Mulligans<",
              'id="summary"', 'id="advanced"']
@@ -918,19 +921,19 @@ def test_only_a_guest_is_offered_to_keep_the_deck(client, owner, run, fake_redis
     assert "compared" not in guest, "P2: there is no run comparison to promise"
 
 
-def test_the_deck_summary_shows_the_mechanisms_with_their_lines(client, owner, run,
-                                                                 fake_redis):
-    """Phase 10 G: computed chips, each with its line's swatch and this run's share."""
-    body = _finished_page(client, owner, run)
-    summary = body[body.index('id="summary"'):body.index('id="advanced"')]
+def test_what_the_deck_lacks_is_named_under_by_category(client, owner, run, fake_redis,
+                                                       monkeypatch):
+    """Phase 11 D (P3): the chips are gone, and "None in the deck" moved next
+    to the chart whose lines it explains."""
+    monkeypatch.setattr("simulations.summary.missing", lambda readings: ["Tutor", "Wipe"])
 
-    assert "Deck summary" in summary
-    assert "Mechanisms" in summary
-    assert "summary-chip" in summary
-    assert "seen-swatch-" in summary
-    # The run is two turns long, so the chips say turn 2 (P6), not turn 4.
-    assert re.search(r"drawn by turn 2 in \d+% of games", summary)
-    assert "drawn by turn 4" not in summary
+    body = _finished_page(client, owner, run)
+    drawn = body[body.index('id="seen"'):]
+    by_category = drawn[drawn.index(">By category<"):drawn.index(">By card type<")]
+
+    assert "None in the deck: Tutor, Wipe." in by_category
+    assert "summary-chip" not in body
+    assert ">Mechanisms<" not in body
 
 
 def test_attention_names_the_open_cards(client, owner, run, fake_redis, monkeypatch):

@@ -23,6 +23,12 @@ class Plan(models.Model):
     slug = models.SlugField(unique=True)
     name = models.CharField(max_length=64)
     price_chf_cents = models.PositiveIntegerField(default=0)
+    #: Phase 11 G (K13): the price in each currency, in cents, the same round
+    #: number in each ({"chf": 400, "eur": 400, "usd": 400}). Read only while
+    #: `LOCAL_PRICES` is on (`billing.currency`); `price_chf_cents` stays the
+    #: price everything else reads. The Stripe price carries the same amounts
+    #: as its `currency_options`, so Checkout charges what this page showed.
+    prices = models.JSONField(default=dict, blank=True)
     interval = models.CharField(max_length=16, default="month")
     is_default = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -62,6 +68,13 @@ class Plan(models.Model):
         from decimal import Decimal
 
         return Decimal(self.price_chf_cents) / 100
+
+    def price_cents(self, currency: str) -> int:
+        """The price in cents in this currency; francs fall back to `price_chf_cents`."""
+        cents = (self.prices or {}).get(currency)
+        if cents is None and currency == "chf":
+            return self.price_chf_cents
+        return int(cents or 0)
 
 
 class Subscription(models.Model):

@@ -24,6 +24,7 @@ from simulation import analysis
 from simulation.cards import CREATURE, LAND, SORCERY, Card, DeckDefinition
 from simulation.game import Game
 from simulations import charts, report
+from simulations.engine import runner
 from simulations.engine.adapter import card_types
 
 
@@ -357,3 +358,51 @@ def test_a_run_from_before_the_count_has_no_section():
     del result["seen"]
 
     assert report.seen(result) is None
+
+
+# --- phase 10 D: lines that explain themselves ---------------------------------
+
+def test_a_band_is_the_mean_plus_and_minus_the_spread_and_stops_at_zero():
+    points = charts.band([1.0, 3.0], [2.0, 1.0], top_value=4.0).split()
+
+    upper, lower = points[:2], points[2:]
+    assert [float(p.split(",")[1]) for p in upper] == [
+        charts._y(3.0, 4.0), charts._y(4.0, 4.0)]
+    # Back from right to left; the left edge would be -1, so it sits on zero.
+    assert [float(p.split(",")[1]) for p in lower] == [
+        charts._y(2.0, 4.0), charts._y(0.0, 4.0)]
+
+
+def test_the_typical_turn_is_the_first_that_half_the_games_reach():
+    marker = charts.typical([10.0, 49.9, 50.0, 80.0], ["1", "2", "3", "4"], 50.0, 100.0)
+
+    assert marker.label == "3"
+    assert charts.typical([10.0, 20.0], ["1", "2"], 50.0, 100.0) is None
+
+
+def test_every_line_on_the_report_says_what_it_counts():
+    seen = report.seen(_result())
+
+    for line in seen["roles"].lines:
+        assert line.info.startswith(report.SEEN_ROLE_INFO[line.key])
+        assert "by turn 3" in line.info
+    for line in seen["types"].lines:
+        assert line.band, "a run that counted squares draws a band"
+        assert "±" in line.info
+
+
+def test_a_run_without_the_spread_has_no_band_and_no_plus_minus():
+    result = _result()
+    for entry in result["seen"].values():
+        entry.pop("squares", None)
+
+    seen = report.seen(result)
+
+    assert not any(line.band for line in seen["types"].lines)
+    assert not any("±" in line.info for line in seen["types"].lines)
+
+
+def test_every_category_type_and_milestone_has_a_sentence():
+    assert set(report.SEEN_ROLE_INFO) == {key for key, _ in report.SEEN_ROLES}
+    assert set(report.SEEN_TYPE_INFO) == set(runner.SEEN_CARD_TYPES)
+    assert set(report.MILESTONE_INFO) == {key for key, _ in report.MILESTONES}

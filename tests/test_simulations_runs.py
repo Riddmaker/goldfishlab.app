@@ -852,3 +852,15 @@ def test_nine_milestones_draw_eight_lines_and_keep_nine_rows():
 
     assert len(chart.lines) == report.MAX_LINES
     assert "m0" not in {line.key for line in chart.lines}, "the rarest one is left out"
+
+
+def test_every_line_can_be_focused_and_explains_itself(client, owner, run, fake_redis):
+    """Phase 10 D: a twin per line that takes focus, a title and an info line."""
+    body = _finished_page(client, owner, run)
+
+    hits = re.findall(r'<polyline[^>]*class="seen-hit[^"]*"[^>]*>', body)
+    lines = re.findall(r'class="seen-line seen-line-\d+"', body)
+    assert hits and len(hits) == len(lines)
+    assert all('tabindex="0"' in hit and "aria-label=" in hit for hit in hits)
+    assert "Lands, basic and nonbasic. On average" in body
+    assert body.count('class="seen-info"') == body.count('class="seen-chart')

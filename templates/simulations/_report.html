@@ -15,7 +15,7 @@
     {% endif %}
     {% if report.seen.types.lines %}
       <h3 class="font-display mt-6 text-lg text-ink-900">By card type</h3>
-      <p class="text-sm text-ink-700">Cards seen per game, on average.</p>
+      <p class="text-sm text-ink-700">Cards drawn per game, on average. Point at a line for the spread.</p>
       {% include "simulations/_line_chart.html" with chart=report.seen.types name="seen-type" title="Average number of cards of each type seen, by turn" %}
     {% endif %}
     <h3 class="font-display mt-6 text-lg text-ink-900">Mana value of the spells you drew</h3>

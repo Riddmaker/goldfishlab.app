@@ -662,6 +662,216 @@ body {
   display: none;
 }
 
+/* A line that explains itself (phase 10 T5.2). Each line has an invisible,
+ * wider twin to point at, focus or tap; pointing at it - or at its chip - fades
+ * the others, shows its band or its typical-turn marker, and puts its sentence
+ * in the info line. One block per line below, like the toggles above. */
+.seen-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 12;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  pointer-events: stroke;
+  cursor: help;
+  outline: none;
+}
+
+.seen-line {
+  transition: opacity 150ms ease;
+}
+
+.seen-band {
+  fill: var(--color-ink-700);
+  fill-opacity: 0.14;
+  stroke: var(--color-ink-500);
+  stroke-width: 0.5;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.seen-marker {
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.seen-marker-guide {
+  stroke: var(--color-ink-700);
+  stroke-width: 0.75;
+  stroke-dasharray: 2 2;
+}
+
+.seen-marker-dot {
+  fill: var(--color-parchment-50);
+  stroke: var(--color-ink-900);
+  stroke-width: 1.5;
+}
+
+.seen-info {
+  max-width: 40rem;
+  min-height: 3rem;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-ink-700);
+}
+
+.seen-info-line {
+  display: none;
+  color: var(--color-ink-900);
+}
+.seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) .seen-line:not(.seen-line-0) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) :is(.seen-band-0, .seen-marker-0) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) .seen-info-0 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-0:focus-visible) .seen-line-0 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-0:not(:checked)) :is(.seen-hit-0, .seen-band-0, .seen-marker-0) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) .seen-line:not(.seen-line-1) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) :is(.seen-band-1, .seen-marker-1) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) .seen-info-1 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-1:focus-visible) .seen-line-1 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-1:not(:checked)) :is(.seen-hit-1, .seen-band-1, .seen-marker-1) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) .seen-line:not(.seen-line-2) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) :is(.seen-band-2, .seen-marker-2) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) .seen-info-2 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-2:focus-visible) .seen-line-2 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-2:not(:checked)) :is(.seen-hit-2, .seen-band-2, .seen-marker-2) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) .seen-line:not(.seen-line-3) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) :is(.seen-band-3, .seen-marker-3) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) .seen-info-3 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-3:focus-visible) .seen-line-3 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-3:not(:checked)) :is(.seen-hit-3, .seen-band-3, .seen-marker-3) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) .seen-line:not(.seen-line-4) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) :is(.seen-band-4, .seen-marker-4) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) .seen-info-4 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-4:focus-visible) .seen-line-4 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-4:not(:checked)) :is(.seen-hit-4, .seen-band-4, .seen-marker-4) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) .seen-line:not(.seen-line-5) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) :is(.seen-band-5, .seen-marker-5) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) .seen-info-5 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-5:focus-visible) .seen-line-5 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-5:not(:checked)) :is(.seen-hit-5, .seen-band-5, .seen-marker-5) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) .seen-line:not(.seen-line-6) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) :is(.seen-band-6, .seen-marker-6) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) .seen-info-6 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-6:focus-visible) .seen-line-6 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-6:not(:checked)) :is(.seen-hit-6, .seen-band-6, .seen-marker-6) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) .seen-line:not(.seen-line-7) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) :is(.seen-band-7, .seen-marker-7) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) .seen-info-7 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-7:focus-visible) .seen-line-7 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-7:not(:checked)) :is(.seen-hit-7, .seen-band-7, .seen-marker-7) {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seen-line,
+  .seen-band,
+  .seen-marker {
+    transition: none;
+  }
+}
+
 .seen-bars {
   display: none;
   align-items: flex-end;

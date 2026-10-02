@@ -1870,3 +1870,37 @@ span.hand-card {
     transition: none;
   }
 }
+
+/* The home ticker (phase 11 C). A line the page has not shown before fades
+ * in; ticker.js marks it. Without motion it simply appears. The box keeps the
+ * pictures' 4:3 next to them; the shade at its foot says there is more below
+ * rather than cutting a line in half without a word. On the phone, stacked,
+ * the box is as tall as its lines. */
+@media (width >= 48rem) {
+  .ticker-box {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+
+  .ticker-box::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 2.5rem;
+    background: linear-gradient(to top, var(--color-parchment-100), transparent);
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ticker-fresh {
+    animation: ticker-fade 0.8s ease-out;
+  }
+}
+
+@keyframes ticker-fade {
+  from {
+    opacity: 0;
+  }
+}

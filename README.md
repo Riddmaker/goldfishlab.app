@@ -248,7 +248,7 @@ msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
 |---|---|
 | `simulation/` | **The engine. Pure Python; never imports Django.** |
 | `goldfishlab/` | Settings (split base/dev/prod), URLs, Celery app |
-| `core/` | Landing page, `/styleguide/`, `/healthz/`, `/about/methodology/`, terms, privacy, design-token reader, the rate-limit address rule and the production log formatter |
+| `core/` | Landing page and its ticker of what others are doing (`core/ticker.py`, cached a minute, never the viewer's own), `/styleguide/`, `/healthz/`, `/about/methodology/`, terms, privacy, design-token reader, the rate-limit address rule and the production log formatter |
 | `accounts/` | Custom user identified by email, plus the data export and account deletion (`privacy.py`) |
 | `cards/` | The Scryfall catalogue, role tags and the derived card profiles |
 | `decks/` | Decks, the importer and the per-deck analysis screens |

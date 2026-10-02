@@ -3,6 +3,7 @@
 {% block title %}Goldfish Lab — it actually plays your deck{% endblock %}
 {% block head %}
   <script src="{% static 'js/fish.js' %}" defer></script>
+  <script src="{% static 'js/ticker.js' %}" defer></script>
 {% endblock %}
 {% block content %}
   <section class="max-w-3xl">
@@ -42,10 +43,11 @@
   {% comment %}
     Real pages of a guest trial (phase 9 G), captured from the local stack and
     encoded as WebP: the hand as dealt on the playtest table, and the first
-    chart of a finished report. Both 720 x 540 (4:3) in two equal columns
-    (phase 10 T1.5), re-captured by `scripts/home_pictures.py`.
+    chart of a finished report. Both 720 x 540 (4:3), re-captured by
+    `scripts/home_pictures.py` (phase 10 T1.5). The third column (phase 11 C)
+    is what others are doing, in a box as tall as the pictures.
   {% endcomment %}
-  <div class="mt-10 grid items-start gap-6 md:grid-cols-2">
+  <div class="mt-10 grid items-start gap-6 md:grid-cols-3">
     <figure>
       <img src="{% static 'img/home-hand.webp' %}"
            alt="An opening hand of seven cards on the playtest table, with Mulligan and Keep above it"
@@ -62,6 +64,20 @@
            loading="lazy"
            class="w-full border border-ink-800">
       <figcaption class="mt-2 text-sm text-ink-400">Or get the odds from thousands of games.</figcaption>
+    </figure>
+    <figure data-ticker>
+      <div class="ticker-box surface-parchment p-4">
+        {% include "core/_ticker_lines.html" %}
+      </div>
+      <figcaption class="mt-2 flex items-baseline justify-between gap-3 text-sm text-ink-400">
+        What others are doing
+        <button type="button"
+                data-ticker-pause
+                aria-pressed="false"
+                aria-controls="ticker-lines"
+                hidden
+                class="underline hover:text-ink-300">Pause</button>
+      </figcaption>
     </figure>
   </div>
   <p class="mt-8 text-sm text-ink-400">

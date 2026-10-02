@@ -14,6 +14,7 @@ from core.views import (
     PrivacyView,
     StyleguideView,
     TermsView,
+    TickerView,
     healthz,
 )
 
@@ -28,6 +29,7 @@ admin.site.login = ratelimit(key="ip", rate="10/m", method="POST", block=True)(
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
+    path("ticker/", TickerView.as_view(), name="ticker"),
     path("decks/", include("decks.urls")),
     path("try/", include("guests.urls")),
     path("", include("simulations.urls")),

@@ -117,6 +117,43 @@ TUTOR_UNEXPRESSIBLE_TAGS = frozenset({
 #: which is what makes "tutors, but we could not read what it finds" sayable.
 TUTOR_TAG = "tutor"
 
+#: The two branches of the tutor tree that say nothing about finding a spell:
+#: `tutor-land` finds lands, `tutor-to` says where a card goes. A card whose
+#: only tutor branches are these two is a land fetcher - Cultivate, Farseek,
+#: Evolving Wilds - and is not filed under the category "Tutor" (phase 10 N2:
+#: 587 of the catalogue's 1,220 "tutors" were exactly that, and the category
+#: read as if a deck could find its combo pieces when it could find a Forest).
+#: Its tutor *behaviour* is unchanged: `tutor_to`/`tutor_kind` still let the
+#: engine fetch the land. And it keeps "Ramp" when the tags say ramp.
+LAND_TUTOR_TAG = "tutor-land"
+TUTOR_DESTINATION_TAG = "tutor-to"
+
+
+def tutor_branches() -> frozenset[str]:
+    """The direct children of `tutor` in the tag tree, read from the database.
+
+    Read rather than written down, because the tree is Scryfall's and grows: a
+    list here would quietly file a card under a new branch as a land fetcher.
+    """
+    from cards.models import TagEdge
+
+    return frozenset(TagEdge.objects.filter(parent__slug=TUTOR_TAG)
+                     .values_list("child__slug", flat=True))
+
+
+def _finds_only_lands(tags: set[str], branches: frozenset[str] | None) -> bool:
+    """Whether every tutor branch the card wears is the land or the destination one.
+
+    The tags are rolled up, so a card tagged `tutor-land-basic` also wears
+    `tutor-land`, and one tagged `tutor-creature-elf` wears `tutor-creature`.
+    The tree is only read for a card that wears `tutor-land` at all.
+    """
+    if LAND_TUTOR_TAG not in tags:
+        return False
+    if branches is None:
+        branches = tutor_branches()
+    return not tags & (branches - {LAND_TUTOR_TAG, TUTOR_DESTINATION_TAG})
+
 # Artifacts wearing this tag are mana rocks rather than plain artifacts.
 MANA_ROCK_TAG = "mana-rock"
 RITUAL_TAG = "ritual"
@@ -685,14 +722,21 @@ def _first_number(pattern: re.Pattern, text: str) -> int | None:
     return min(value, _NUMBER_CEILING)
 
 
-def derive(card: OracleCard, tag_slugs: set[str] | None = None) -> DerivedProfile:
-    """Build (not save) the profile for one card."""
+def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
+           branches: frozenset[str] | None = None) -> DerivedProfile:
+    """Build (not save) the profile for one card.
+
+    `branches` is `tutor_branches()`, passed in by `rebuild` so that a pass over
+    the catalogue reads the tag tree once rather than once per land fetcher.
+    """
     tags = tag_slugs if tag_slugs is not None else set(card.tags.values_list("slug", flat=True))
     text = card.oracle_text or ""
 
     cost = parse_mana_cost(card.mana_cost)
     kind = derive_kind(card, tags)
     roles = sorted({ROLE_FROM_TAG[slug] for slug in tags if slug in ROLE_FROM_TAG})
+    if "tutor" in roles and _finds_only_lands(tags, branches):
+        roles.remove("tutor")
     if card.game_changer:
         roles.append("gamechanger")
     if kind == DerivedProfile.Kind.CREATURE and "creature" not in roles:
@@ -827,21 +871,22 @@ def rebuild(queryset=None, *, batch_size: int = 1_000) -> int:
     from cards.models import OracleCardTag
 
     cards = queryset if queryset is not None else OracleCard.objects.all()
+    branches = tutor_branches()
     written = 0
     batch: list[OracleCard] = []
 
     for card in cards.iterator(chunk_size=batch_size):
         batch.append(card)
         if len(batch) >= batch_size:
-            written += _flush_profiles(batch, OracleCardTag)
+            written += _flush_profiles(batch, OracleCardTag, branches)
             batch = []
             reset_queries()
 
-    written += _flush_profiles(batch, OracleCardTag)
+    written += _flush_profiles(batch, OracleCardTag, branches)
     return written
 
 
-def _flush_profiles(batch: list[OracleCard], link_model) -> int:
+def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str]) -> int:
     if not batch:
         return 0
 
@@ -852,7 +897,8 @@ def _flush_profiles(batch: list[OracleCard], link_model) -> int:
     for card_id, slug in links:
         slugs_by_card.setdefault(str(card_id), set()).add(slug)
 
-    profiles = [derive(card, slugs_by_card.get(str(card.pk), set())) for card in batch]
+    profiles = [derive(card, slugs_by_card.get(str(card.pk), set()), branches=branches)
+                for card in batch]
     DerivedProfile.objects.bulk_create(
         profiles,
         batch_size=len(profiles),

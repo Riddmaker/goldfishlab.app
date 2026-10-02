@@ -257,6 +257,7 @@ class Mulligan(Action):
     def run(self, game, policy) -> None:
         game.library = game.deck.shuffled(game.rng)
         game.hand = []
+        game.drawn = []
         game.mulligans += 1
         game.draw(7)
 

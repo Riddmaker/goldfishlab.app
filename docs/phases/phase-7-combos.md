@@ -187,6 +187,11 @@ This is the one clearly good use of an LLM in this product.
 
 ## 4. AI prose (Pro) — deliberately not the headline
 
+> **Superseded by phase 10 (K8, 2026-10-02).** The written deck summary is built in phase 10 H:
+> for every account rather than Pro only (a guest gets one, everybody else pays one run per new
+> summary), and still at the foot of the report rather than the headline. See
+> `simulations/summary.py`.
+
 Optional narration on top of simulation results, in the style of the hand-written commentary in
 `simulation.md`.
 

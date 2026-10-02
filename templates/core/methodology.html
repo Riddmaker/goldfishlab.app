@@ -56,17 +56,19 @@
         <strong>hypergeometric distribution</strong>, which has a closed form.
       </p>
       <p class="mt-4 text-ink-900">
-        Every report puts the simulated distribution next to the exact one,
-        computed with <code>math.comb</code>, so you can see them agree. The
-        test suite draws <strong>200,000</strong> opening hands on every run and
-        fails if they diverge beyond sampling error.
+        The simulated distribution is checked against the exact one, computed
+        with <code>math.comb</code>: the test suite draws <strong>200,000</strong>
+        opening hands on every run and fails if they diverge beyond sampling
+        error. The report used to print both side by side; it left the page
+        because it answered a question nobody had asked, and the check did not
+        leave with it.
         {% comment %} tests/test_statistics.py, the `slow` marker. {% endcomment %}
       </p>
       <p class="mt-4 text-ink-900">
-        The <em>kept</em> hand is shown separately and has <strong>no exact
-        column</strong>, because no closed form describes it — the mulligan rule
-        throws the tails back and reshapes the distribution. Printing a
-        closed-form number beside it would be inventing one.
+        The <em>kept</em> hand has <strong>no exact answer</strong>, because no
+        closed form describes it — the mulligan rule throws the tails back and
+        reshapes the distribution. The report's "Mulligans" shows what the rule
+        did instead.
       </p>
     </div>
 
@@ -124,15 +126,18 @@
     <h2 id="drew" class="mt-12 font-display text-2xl text-parchment-100">What you drew</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        After every turn of every game, the engine counts the cards you have had
-        so far: the opening hand you kept, each draw, each card a tutor found.
-        Cards a mulligan put on the bottom are not counted, and neither is your
-        commander. Counting draws no random number, so the games are exactly
+        After every turn of every game, the engine counts the cards you have
+        drawn so far: the opening hand you kept and each draw. A card a tutor
+        found is not a draw and is not counted, and neither is a land a spell
+        fetched. Cards a mulligan put on the bottom are not counted, and neither
+        is your commander. Counting draws no random number, so the games are exactly
         the games they would have been without it.
       </p>
       <p class="mt-4 text-ink-900">
         <strong>Categories</strong> — ramp, card draw, removal and the rest — come
-        from the community's card tags, or from what you said about a card. The
+        from the community's card tags, or from what you said about a card. A
+        spell that can only fetch lands, such as Cultivate, is ramp rather than
+        a tutor. The
         chart shows the share of games with <em>at least one</em> by each turn,
         because that is the question a deck is built around: do I see ramp by turn
         two. <strong>Card types</strong> are shown as an average count instead:
@@ -168,13 +173,15 @@
         Means, and only means — the engine's pool counts mana rather than holding
         the sources that made it, so a card that could have made one of several
         colours was read as making one fixed colour. Every card that happened to is
-        listed as a gap under “What was actually modelled”.
+        among the cards the engine could not read, under “Cards that need your
+        attention”.
       </p>
       <h3 id="report-milestones" class="mt-6 font-display text-lg text-ink-900">Milestones</h3>
       <p class="mt-2 text-ink-900">
         The share of games in which each milestone was true by the end of that turn.
         They are read from the cards' own category tags, so a deck built differently
-        gets the same table without anything here changing.
+        gets the same chart without anything here changing. The chart draws the
+        eight most frequent; a rarer ninth stays in the numbers under it.
       </p>
       <h3 id="blind-spots" class="mt-6 font-display text-lg text-ink-900">What a simulation does not model</h3>
       <p class="mt-2 text-ink-900">
@@ -197,7 +204,8 @@
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
         Every result says <strong>how much of the deck the engine could
-        read</strong> from the cards themselves. A gap there is <em>ours</em> —
+        read</strong> from the cards themselves, counting every copy: thirty
+        Swamps are thirty of a hundred cards. A gap there is <em>ours</em> —
         a card whose text we could not turn into behaviour — and the result
         lists every one.
       </p>
@@ -212,6 +220,12 @@
         score mostly reported how much hand-annotation a deck had received. We
         stopped asking: this is a tool for statistics about a deck, not for
         steering a game.
+      </p>
+      <p class="mt-4 text-ink-900">
+        A tutor is the exception, because the cheapest card in a library is a
+        land. A tutor takes a spell: first a piece of one of the deck's combos
+        or a card-advantage engine, then the biggest spell it can cast by next
+        turn. Only a search that can find nothing but lands takes a land.
       </p>
       <p class="mt-4 text-ink-900">
         Wherever nothing could be established, the answer is a stated gap rather

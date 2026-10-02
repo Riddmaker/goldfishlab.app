@@ -47,6 +47,10 @@ class PlansView(LoginRequiredMixin, TemplateView):
         context["purchasable"] = {plan.pk for plan in services.purchasable_plans()}
         context["can_pay"] = stripe_api.is_configured()
         context["usage"] = _usage_rows(self.request.user)
+        # The deck summary's switch (phase 10 H, T6.5) is turned on again here.
+        from simulations import mistral
+
+        context["summaries_available"] = mistral.is_configured()
         return context
 
 

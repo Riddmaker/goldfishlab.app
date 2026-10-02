@@ -45,6 +45,10 @@ class User(AbstractUser):
     #: address and no usable password. Saving the deck turns the guest's rows
     #: into a real account's; otherwise `guests.services.expire` deletes it.
     is_guest = models.BooleanField(default=False)
+    #: The written deck summary (phase 10 H, T6.5): on by default, switched off
+    #: by "Hide summaries" on the run page and on again on "Your plan". Off,
+    #: the summary block is not shown and nothing is written or charged.
+    deck_summaries = models.BooleanField(default=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

@@ -662,6 +662,278 @@ body {
   display: none;
 }
 
+/* The deck summary (phase 10 G, T6.3). Each part's title has its colour -
+ * bronze for what the deck is, verdigris for strengths, blood for weaknesses,
+ * ink for the closing words - and always its word, and + or − on every point,
+ * so the colour is never the only sign. The mechanism chips are not switches:
+ * a quiet frame, with the swatch of their line in "What you drew". */
+.summary-title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+.summary-title-feel,
+.summary-title-mechanisms {
+  color: var(--color-parchment-700);
+}
+.summary-title-strengths {
+  color: var(--color-verdigris-700);
+}
+.summary-title-weaknesses {
+  color: var(--color-blood-700);
+}
+.summary-title-closing {
+  color: var(--color-ink-700);
+}
+
+/* A strength or weakness: its sign hangs in front, so a wrapped line lines up
+ * with the words, not with the sign. */
+.summary-point {
+  position: relative;
+  margin-top: 0.25rem;
+  padding-left: 1.25rem;
+}
+.summary-sign {
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+.summary-sign-plus {
+  color: var(--color-verdigris-700);
+}
+.summary-sign-minus {
+  color: var(--color-blood-700);
+}
+
+.summary-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.summary-chip {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.375rem;
+  padding: 0.125rem 0.625rem;
+  border: 1px solid var(--color-parchment-600);
+  border-radius: 0.75rem; /* a long chip wraps on a phone, and a pill would not */
+  background-color: var(--color-parchment-50);
+  font-size: 0.875rem;
+  color: var(--color-ink-900);
+}
+
+/* A line that explains itself (phase 10 T5.2). Each line has an invisible,
+ * wider twin to point at, focus or tap; pointing at it - or at its chip - fades
+ * the others, shows its band or its typical-turn marker, and puts its sentence
+ * in the info line. One block per line below, like the toggles above. */
+.seen-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 12;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  pointer-events: stroke;
+  cursor: help;
+  outline: none;
+}
+
+.seen-line {
+  transition: opacity 150ms ease;
+}
+
+.seen-band {
+  fill: var(--color-ink-700);
+  fill-opacity: 0.14;
+  stroke: var(--color-ink-500);
+  stroke-width: 0.5;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.seen-marker {
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.seen-marker-guide {
+  stroke: var(--color-ink-700);
+  stroke-width: 0.75;
+  stroke-dasharray: 2 2;
+}
+
+.seen-marker-dot {
+  fill: var(--color-parchment-50);
+  stroke: var(--color-ink-900);
+  stroke-width: 1.5;
+}
+
+.seen-info {
+  max-width: 40rem;
+  min-height: 3rem;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-ink-700);
+}
+
+.seen-info-line {
+  display: none;
+  color: var(--color-ink-900);
+}
+.seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) .seen-line:not(.seen-line-0) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) :is(.seen-band-0, .seen-marker-0) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) .seen-info-0 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-0:focus-visible) .seen-line-0 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-0:not(:checked)) :is(.seen-hit-0, .seen-band-0, .seen-marker-0) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) .seen-line:not(.seen-line-1) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) :is(.seen-band-1, .seen-marker-1) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) .seen-info-1 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-1:focus-visible) .seen-line-1 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-1:not(:checked)) :is(.seen-hit-1, .seen-band-1, .seen-marker-1) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) .seen-line:not(.seen-line-2) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) :is(.seen-band-2, .seen-marker-2) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) .seen-info-2 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-2:focus-visible) .seen-line-2 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-2:not(:checked)) :is(.seen-hit-2, .seen-band-2, .seen-marker-2) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) .seen-line:not(.seen-line-3) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) :is(.seen-band-3, .seen-marker-3) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) .seen-info-3 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-3:focus-visible) .seen-line-3 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-3:not(:checked)) :is(.seen-hit-3, .seen-band-3, .seen-marker-3) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) .seen-line:not(.seen-line-4) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) :is(.seen-band-4, .seen-marker-4) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) .seen-info-4 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-4:focus-visible) .seen-line-4 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-4:not(:checked)) :is(.seen-hit-4, .seen-band-4, .seen-marker-4) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) .seen-line:not(.seen-line-5) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) :is(.seen-band-5, .seen-marker-5) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) .seen-info-5 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-5:focus-visible) .seen-line-5 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-5:not(:checked)) :is(.seen-hit-5, .seen-band-5, .seen-marker-5) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) .seen-line:not(.seen-line-6) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) :is(.seen-band-6, .seen-marker-6) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) .seen-info-6 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-6:focus-visible) .seen-line-6 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-6:not(:checked)) :is(.seen-hit-6, .seen-band-6, .seen-marker-6) {
+  display: none;
+}
+.seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) .seen-line:not(.seen-line-7) {
+  opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) :is(.seen-band-7, .seen-marker-7) {
+  opacity: 1;
+}
+.seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) .seen-info-7 {
+  display: block;
+}
+.seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) .seen-info-hint {
+  display: none;
+}
+.seen-chart:has(.seen-hit-7:focus-visible) .seen-line-7 {
+  stroke-width: 3.5;
+}
+.seen-chart:has(.seen-toggle-7:not(:checked)) :is(.seen-hit-7, .seen-band-7, .seen-marker-7) {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seen-line,
+  .seen-band,
+  .seen-marker {
+    transition: none;
+  }
+}
+
 .seen-bars {
   display: none;
   align-items: flex-end;
@@ -1187,6 +1459,432 @@ span.hand-card {
   .hand-card-img,
   .board-card,
   .hand-card-action {
+    transition: none;
+  }
+}
+
+/* --- the run page (Phase 10 C) ---------------------------------------------- */
+
+/* "Keep this deck": the guest's second way to save, dressed as a Magic card.
+ * An ink-950 border round a parchment frame, a name bar, the commander's art,
+ * a type line and a text box - only tokens, so it is the page's card and not a
+ * picture of somebody else's. The button sits inside the text box. */
+.keep-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 18rem;
+  padding: 0.75rem;
+  border: 0.5rem solid var(--color-ink-950);
+  border-radius: 0.9rem;
+  background-color: var(--color-parchment-200);
+  color: var(--color-ink-900);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+}
+
+.keep-card-name,
+.keep-card-type {
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--color-parchment-600);
+  border-radius: 0.375rem;
+  background-color: var(--color-parchment-100);
+  font-family: var(--font-display);
+}
+
+.keep-card-name {
+  font-size: 1.125rem;
+}
+
+.keep-card-type {
+  font-size: 0.875rem;
+}
+
+.keep-card-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--color-ink-800);
+  background-color: var(--color-ink-950);
+}
+
+.keep-card-art-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* No art yet (or no commander): the flask, small, on the dark art ground. */
+.keep-card-flask {
+  width: 6rem;
+  height: 6rem;
+}
+
+.keep-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--color-parchment-600);
+  background-color: var(--color-parchment-50);
+  font-size: 0.9375rem;
+  line-height: 1.35;
+}
+
+.keep-card-fine {
+  font-size: 0.8125rem;
+  color: var(--color-ink-700);
+}
+
+.keep-card-flavour {
+  font-style: italic;
+  color: var(--color-ink-700);
+}
+
+.keep-card-button {
+  display: block;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-blood-800);
+  background-color: var(--color-blood-700);
+  color: var(--color-parchment-100);
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.keep-card-button:hover {
+  background-color: var(--color-blood-800);
+}
+
+/* "Advanced": a closed fold on the dark page, its summary a heading with the
+ * fold's contents named under it, and a marker that turns when it opens. */
+.report-advanced-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-ink-800);
+  cursor: pointer;
+  list-style: none;
+}
+
+.report-advanced-summary::-webkit-details-marker {
+  display: none;
+}
+
+.report-advanced-summary::before {
+  content: "▸";
+  color: var(--color-parchment-200);
+  transition: transform 150ms ease;
+}
+
+.report-advanced[open] > .report-advanced-summary::before {
+  transform: rotate(90deg);
+}
+
+.report-advanced-summary:focus-visible {
+  outline: 2px solid var(--color-parchment-100);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .report-advanced-summary::before {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* The logo, inline (core/_logo.html, phase 10 E): the favicon's shapes, its  */
+/* colours as tokens. `logo-animated` lets the fish swim a circle - turning  */
+/* round at each end - and the bubbles rise from the water. Still under      */
+/* reduced motion.                                                            */
+.logo-ground {
+  fill: var(--color-ink-950);
+}
+
+.logo-water {
+  fill: var(--color-blood-700);
+}
+
+.logo-glass {
+  fill: none;
+  stroke: var(--color-parchment-100);
+}
+
+.logo-fish-body {
+  fill: var(--color-parchment-300);
+}
+
+.logo-fish-eye {
+  fill: var(--color-ink-950);
+}
+
+.logo-bubble {
+  fill: none;
+  stroke: var(--color-parchment-300);
+}
+
+.logo-fish,
+.logo-bubble {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.logo-animated .logo-fish {
+  animation: logo-swim 5s ease-in-out infinite;
+}
+
+.logo-animated .logo-bubble {
+  opacity: 0;
+  animation: logo-rise 2.6s ease-in infinite;
+}
+
+.logo-animated .logo-bubble-2 {
+  animation-delay: 1.3s;
+}
+
+/* Right along the top of the water, round, back left along the bottom and
+ * round again. A scaleX through zero reads as the fish turning. */
+@keyframes logo-swim {
+  0% {
+    transform: translate(-1px, 0) scaleX(1);
+  }
+  38% {
+    transform: translate(2.5px, -1.4px) scaleX(1);
+  }
+  48% {
+    transform: translate(3px, -0.4px) scaleX(-1);
+  }
+  86% {
+    transform: translate(-2.2px, 0.9px) scaleX(-1);
+  }
+  96% {
+    transform: translate(-2.4px, 0.2px) scaleX(1);
+  }
+  100% {
+    transform: translate(-1px, 0) scaleX(1);
+  }
+}
+
+@keyframes logo-rise {
+  0% {
+    transform: translateY(5px);
+    opacity: 0;
+  }
+  25%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+}
+
+/* While a run plays: the logo beside the bar, the smoothed fill and the
+ * loading lines (simulations/_progress.html, _waiting.html). */
+.run-logo {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+}
+
+@media (min-width: 40rem) {
+  .run-logo {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+}
+
+.run-progress-fill {
+  transition: width 900ms ease-out;
+}
+
+.run-progress-fill.is-instant {
+  transition: none;
+}
+
+.run-lines {
+  display: grid;
+}
+
+.run-lines > li {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+
+.run-lines > li.is-current {
+  opacity: 1;
+}
+
+/* The fish on the home page (phase 10 F, static/js/fish.js): the logo in the
+ * header plays one short move at a time, as a class on the svg. Every move
+ * ends inside 2 s. The jump lifts the fish out of the flask and over the top
+ * of the logo, so for it the pond stops clipping and the svg stops cutting
+ * off what leaves its box. */
+.logo-home {
+  width: 1.75rem;
+  height: 1.75rem;
+  overflow: visible;
+}
+
+.logo-fish-eye,
+.logo-water {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.logo.is-gaze .logo-fish {
+  animation: logo-gaze 1.4s ease-in-out;
+}
+
+.logo.is-gaze .logo-fish-eye {
+  animation: logo-look 1.4s ease-in-out;
+}
+
+.logo.is-turn .logo-fish {
+  animation: logo-turn 1.6s ease-in-out;
+}
+
+.logo.is-jump .logo-pond {
+  clip-path: none;
+}
+
+.logo.is-jump .logo-fish {
+  animation: logo-jump 1.6s ease-in-out;
+}
+
+.logo.is-jump .logo-water {
+  animation: logo-slosh 0.8s ease-out 0.8s;
+}
+
+.logo.is-tilt {
+  transform-origin: 50% 100%;
+  animation: logo-tilt 1.2s ease-in-out;
+}
+
+.logo.is-tilt .logo-water {
+  animation: logo-slosh 1.2s ease-in-out;
+}
+
+/* A small turn of the head: at 28 px the eye alone is under a pixel. */
+@keyframes logo-gaze {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(-9deg);
+  }
+  65% {
+    transform: rotate(6deg);
+  }
+}
+
+@keyframes logo-look {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  20%,
+  80% {
+    transform: scale(1.7);
+  }
+}
+
+@keyframes logo-turn {
+  0%,
+  100% {
+    transform: translate(0, 0) scaleX(1);
+  }
+  25%,
+  65% {
+    transform: translate(-1px, 0) scaleX(-1);
+  }
+}
+
+/* Down for the push, up out of the neck and over the rim, back in. */
+@keyframes logo-jump {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0);
+  }
+  15% {
+    transform: translate(0, 1px) rotate(8deg);
+  }
+  50% {
+    transform: translate(-1px, -25px) rotate(-35deg);
+  }
+  85% {
+    transform: translate(0, -1px) rotate(25deg);
+  }
+}
+
+@keyframes logo-slosh {
+  0%,
+  100% {
+    transform: skewY(0);
+  }
+  25% {
+    transform: skewY(9deg);
+  }
+  60% {
+    transform: skewY(-6deg);
+  }
+  85% {
+    transform: skewY(2deg);
+  }
+}
+
+@keyframes logo-tilt {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-12deg);
+  }
+  60% {
+    transform: rotate(6deg);
+  }
+  85% {
+    transform: rotate(-2deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-animated .logo-fish,
+  .logo-animated .logo-bubble {
+    animation: none;
+  }
+
+  .logo-animated .logo-bubble {
+    opacity: 1;
+  }
+
+  /* fish.js plays no idle move here; a click only widens the eye, with no
+   * movement on the way. */
+  .logo.is-gaze .logo-fish,
+  .logo.is-turn .logo-fish,
+  .logo.is-jump .logo-fish,
+  .logo.is-jump .logo-water,
+  .logo.is-tilt,
+  .logo.is-tilt .logo-water {
+    animation: none;
+  }
+
+  .logo.is-gaze .logo-fish-eye {
+    animation: none;
+    transform: scale(1.7);
+  }
+
+  .run-progress-fill,
+  .run-lines > li {
     transition: none;
   }
 }

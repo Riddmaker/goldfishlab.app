@@ -262,6 +262,10 @@ class SimulationRun(models.Model):
     gaps = models.JSONField(default=list, blank=True)
     cards_total = models.PositiveIntegerField(default=0)
     cards_with_gaps = models.PositiveIntegerField(default=0)
+    #: The same deck counted by copies (phase 10): every card, and the copies
+    #: of the ones the engine could not read. Zero on a run from before.
+    copies_total = models.PositiveIntegerField(default=0)
+    copies_unreadable = models.PositiveIntegerField(default=0)
     #: The deck as it was when this run happened. Stored rather than counted
     #: at render time, because the report compares the opening hands against
     #: the exact hypergeometric distribution - and that comparison is only
@@ -349,5 +353,64 @@ class SimulationRun(models.Model):
 
     @property
     def readable_pct(self) -> float:
-        """How much of the deck the engine read, as a percentage."""
-        return 100.0 * gaps.share(self.cards_total, self.cards_unreadable)
+        """How much of the deck the engine read, as a percentage - of every copy
+        on a run from phase 10 on, of distinct cards on an older one."""
+        return 100.0 * gaps.share(self.coverage_total, self.coverage_unreadable)
+
+    # --- coverage over every copy (phase 10 T5.9) ----------------------------
+    #
+    # Since phase 10 the coverage counts copies: thirty Swamps are thirty of a
+    # hundred. A run or session from before has no copy counts (both zero) and
+    # keeps its distinct-card pair - the two ways of counting are never mixed in
+    # one sentence.
+
+    @property
+    def coverage_total(self) -> int:
+        return self.copies_total or self.cards_total
+
+    @property
+    def coverage_unreadable(self) -> int:
+        return self.copies_unreadable if self.copies_total else self.cards_unreadable
+
+    @property
+    def coverage_read(self) -> int:
+        return max(0, self.coverage_total - self.coverage_unreadable)
+
+
+class DeckSummary(models.Model):
+    """The written part of a deck's summary (phase 10 H, T6.2), one per deck.
+
+    Written by Mistral while a run plays, kept, and shown again until the deck
+    changes: `fingerprint` is the cards, their counts, the commander and the
+    annotations in the scope the engine merges (`simulations.summary.
+    fingerprint`). A new prompt alone does not rewrite anything - that would
+    charge people for our change - which is why `prompt_version` is recorded
+    and not compared.
+
+    `charged` is whether a run was taken from the owner's monthly allowance
+    for it, so a failure gives back exactly what was taken, once.
+    """
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Being written"
+        DONE = "done", "Written"
+        FAILED = "failed", "Could not be written"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    deck = models.OneToOneField(Deck, on_delete=models.CASCADE, related_name="summary")
+    fingerprint = models.CharField(max_length=64)
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.PENDING)
+    #: The checked answer: {"feel": str, "strengths": [str], "weaknesses": [str],
+    #: "tactics": str}. Empty until it is written.
+    content = models.JSONField(default=dict, blank=True)
+    model_name = models.CharField(max_length=64, blank=True)
+    prompt_version = models.PositiveSmallIntegerField(default=0)
+    prompt_tokens = models.PositiveIntegerField(default=0)
+    completion_tokens = models.PositiveIntegerField(default=0)
+    charged = models.BooleanField(default=False)
+    error = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"Summary of {self.deck_id} ({self.status})"

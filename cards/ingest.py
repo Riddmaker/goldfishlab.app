@@ -48,7 +48,7 @@ _CARD_UPDATE_FIELDS = [
     "oracle_text", "colors", "color_identity", "produced_mana", "keywords",
     "layout", "power", "toughness", "loyalty", "legalities", "game_changer",
     "reserved", "edhrec_rank", "released_at", "scryfall_id", "scryfall_uri", "image_uri",
-    "imported_at",
+    "art_uri", "imported_at",
 ]
 
 @dataclass

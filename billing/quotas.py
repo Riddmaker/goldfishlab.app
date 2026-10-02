@@ -1,11 +1,16 @@
 """Quota enforcement.
 
-There are exactly FOUR call sites for `check()` in the finished application:
+There are exactly FIVE call sites for `check()` in the finished application:
 
-  1. simulation enqueue   (Phase 3)
+  1. simulation enqueue   (Phase 3; since phase 10 H it also asks for
+                           amount=2 when the deck's summary is due with it)
   2. deck create          (Phase 1)
   3. deck import          (Phase 1)
   4. API token issue      (Phase 6)
+  5. "Write a summary"    (phase 10 H: one deck summary, one run)
+
+`simulations.summary.state` also asks, with `raise_on_fail=False`, only to word
+the button - it decides nothing.
 
 Quota logic anywhere else is a bug. Keeping the count of call sites small is
 what makes the limits auditable.

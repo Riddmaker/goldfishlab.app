@@ -40,6 +40,7 @@ ROLE_PAIRINGS = [
     ("muted text on parchment", ("ink", 700), ("parchment", 100)),
     ("link on parchment", ("blood", 700), ("parchment", 100)),
     ("success text on parchment", ("verdigris", 700), ("parchment", 100)),
+    ("summary title on parchment", ("parchment", 700), ("parchment", 100)),
     # Buttons
     ("primary button label", ("parchment", 100), ("blood", 700)),
     ("primary button hover label", ("parchment", 100), ("blood", 800)),

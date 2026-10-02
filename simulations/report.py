@@ -3,12 +3,14 @@
 Kept apart from the view, because this is where the honesty of the product
 lives and it deserves to be testable without a browser.
 
-The centrepiece is :func:`opening_lands`. It puts the simulated distribution of
-opening-hand lands next to the **exact hypergeometric probability** for the
-same deck, and lets the reader see that they agree. Nothing else on the page
-earns as much trust: it demonstrates that the simulation reproduces closed-form
-mathematics everywhere closed-form mathematics can reach, which is the only
-honest way to ask someone to believe the parts where it cannot.
+:func:`opening_lands` puts the simulated distribution of opening-hand lands
+next to the **exact hypergeometric probability** for the same deck. It
+demonstrates that the simulation reproduces closed-form mathematics everywhere
+closed-form mathematics can reach, which is the only honest way to ask someone
+to believe the parts where it cannot. Since phase 10 (T5.5) the page no longer
+shows that table - the user test found it read as noise - but the comparison is
+still asserted, by `tests/test_simulations_runs.py`, on every test run, and the
+methodology page still says so.
 
 `math.comb` rather than scipy: scipy is ~90 MB and this needs one binomial
 coefficient. It is a test dependency and must never enter the production image,
@@ -16,7 +18,7 @@ which runs on a 128 MiB cloudlet.
 """
 
 from dataclasses import dataclass
-from math import comb
+from math import comb, sqrt
 
 from simulations import charts
 from simulations.engine import runner
@@ -264,6 +266,64 @@ MILESTONES = (
 )
 
 
+#: What each milestone means, for the info line under the chart (phase 10
+#: T5.2). Kept beside the labels so a new milestone cannot arrive without one;
+#: a test holds the two together.
+MILESTONE_INFO = {
+    "commander": "Your commander has been cast and is on the battlefield.",
+    "draw_engine": "A permanent that keeps drawing you cards, such as Phyrexian Arena.",
+    "ramp_engine": "Two mana sources that make more as your board grows, such as Cabal "
+                   "Coffers and Crypt Ghast.",
+    "sac_outlet": "A permanent that lets you sacrifice creatures again and again.",
+    "recursive": "A creature that comes back from your graveyard by itself.",
+    "engine_online": "A sacrifice outlet and a recursive creature at once: a loop.",
+    "drain": "A permanent that makes your opponents lose life when something happens.",
+    "necropotence": "A card that trades your draw step for something better, such as "
+                    "Necropotence.",
+    "sol_ring": "An artifact that made more mana than it cost, such as Sol Ring.",
+}
+
+#: The share of games that makes a turn the "typical" one: half of them.
+TYPICAL_SHARE = 50.0
+
+#: The line chart has eight colours (DESIGN.md, "Line charts"). A deck that
+#: reaches all nine milestones shows the eight most frequent as lines; every
+#: one stays in the table under the chart (phase 10 T5.8).
+MAX_LINES = 8
+
+
+def milestone_chart(rows: list[dict], turns: int) -> charts.LineChart | None:
+    """The milestones as lines on the percent scale, the most frequent first."""
+    if not rows:
+        return None
+    ranked = sorted(rows, key=lambda row: (-row["shares"][-1], row["label"]))[:MAX_LINES]
+    shown = {row["key"] for row in ranked}
+    series = [(row["key"], row["label"], row["shares"]) for row in rows if row["key"] in shown]
+    infos = {
+        row["key"]: " ".join(filter(None, (
+            MILESTONE_INFO.get(row["key"], ""),
+            _typical_sentence(row["shares"], "get there", turns))))
+        for row in rows
+    }
+    return charts.line_chart(series, [str(turn) for turn in range(1, turns + 1)],
+                             top_value=charts.PERCENT_TOP, y_ticks=charts.PERCENT_TICKS,
+                             typical_at=TYPICAL_SHARE, infos=infos)
+
+
+def _typical_sentence(shares, verb: str, turns: int) -> str:
+    """"Half your games have one by turn 4." - or the honest negative."""
+    for turn, share in enumerate(shares, start=1):
+        if share >= TYPICAL_SHARE:
+            return f"Half your games {verb} by turn {turn}."
+    return f"Fewer than half your games {verb} by turn {turns}."
+
+
+def _average_sentence(spread: "Spread", turns: int) -> str:
+    """"On average 0.8 ± 0.7 drawn by turn 6." - the ± only when it was counted."""
+    plus = f" ± {spread.sd:.1f}" if spread.sd is not None else ""
+    return f"On average {spread.mean:.1f}{plus} drawn by turn {turns}."
+
+
 def milestones(result: dict) -> list[dict]:
     """For each metric, the share of games it had happened by each turn.
 
@@ -296,6 +356,62 @@ SEEN_ROLES = (
     ("protection", "Protection"),
     ("recursion", "Recursion"),
 )
+
+#: What each category means (phase 10, F5 in the user test report, approved).
+#: The categories are Scryfall Tagger's community tags, or the user's own.
+SEEN_ROLE_INFO = {
+    "ramp": "More mana, now or on later turns: mana rocks, mana creatures, extra lands, "
+            "rituals.",
+    "draw": "Cards that draw you cards.",
+    "removal": "Gets something off the table: destroy, exile, bounce, damage. Board wipes "
+               "count too.",
+    "wipe": "Removes many things at once.",
+    "tutor": "Searches your library for a card.",
+    "counterspell": "Counters a spell.",
+    "protection": "Keeps your permanents alive: hexproof, indestructible, phasing …",
+    "recursion": "Gets cards back from your graveyard: to your hand, the battlefield or "
+                 "your library.",
+}
+
+#: What each card type line counts. A card with two types counts in both.
+SEEN_TYPE_INFO = {
+    "creature": "Creature cards, artifact and enchantment creatures included.",
+    "planeswalker": "Planeswalker cards.",
+    "battle": "Battle cards.",
+    "artifact": "Artifact cards: mana rocks, equipment, artifact creatures.",
+    "enchantment": "Enchantment cards, auras and enchantment creatures included.",
+    "instant": "Instants: spells you can cast at any time.",
+    "sorcery": "Sorceries: spells for your own main phase.",
+    "land": "Lands, basic and nonbasic.",
+}
+
+
+@dataclass(frozen=True)
+class Spread:
+    """A count per game: its mean and, when the run counted it, its spread.
+
+    `sd` is the standard deviation over the games, `None` on a run from before
+    phase 10, whose page then shows the mean alone.
+    """
+
+    mean: float
+    sd: float | None
+
+
+def _spreads(entry: dict, games: int) -> list[Spread]:
+    """Mean and standard deviation per turn, from the sums the engine kept."""
+    if not games:
+        return [Spread(0.0, None) for _ in entry["cards"]]
+    squares = entry.get("squares")
+    spreads = []
+    for turn, total in enumerate(entry["cards"]):
+        mean = total / games
+        sd = None
+        if squares is not None:
+            # max(0, ...): rounding can leave a hair below zero on a flat line.
+            sd = sqrt(max(0.0, squares[turn] / games - mean * mean))
+        spreads.append(Spread(mean, sd))
+    return spreads
 
 
 @dataclass(frozen=True)
@@ -346,15 +462,39 @@ def seen(result: dict) -> dict | None:
                    for key, label in SEEN_ROLES if f"role:{key}" in groups]
     type_series = [(kind, kind.title(), means(f"type:{kind}"))
                    for kind in runner.SEEN_CARD_TYPES if f"type:{kind}" in groups]
-    largest = max((value for _, _, values in type_series for value in values),
+    type_spreads = {kind: _spreads(groups[f"type:{kind}"], games)
+                    for kind, _, _ in type_series}
+    # The band's top belongs on the scale too, or it would be cut off.
+    largest = max((spread.mean + (spread.sd or 0.0)
+                   for spreads in type_spreads.values() for spread in spreads),
                   default=0.0)
     count_top, count_ticks = charts.count_scale(largest)
 
+    role_infos = {
+        key: " ".join((SEEN_ROLE_INFO[key],
+                       _typical_sentence(values, "have one", turns),
+                       _average_sentence(_spreads(groups[f"role:{key}"], games)[-1], turns)))
+        for key, _, values in role_series
+    }
+    type_infos = {
+        kind: f"{SEEN_TYPE_INFO[kind]} {_average_sentence(type_spreads[kind][-1], turns)}"
+        for kind, _, _ in type_series
+    }
+    bands = {kind: [spread.sd for spread in spreads]
+             for kind, spreads in type_spreads.items()
+             if all(spread.sd is not None for spread in spreads)}
+
     return {
         "roles": charts.line_chart(role_series, x_labels, top_value=charts.PERCENT_TOP,
-                                   y_ticks=charts.PERCENT_TICKS),
+                                   y_ticks=charts.PERCENT_TICKS,
+                                   typical_at=TYPICAL_SHARE, infos=role_infos),
         "types": charts.line_chart(type_series, x_labels, top_value=count_top,
-                                   y_ticks=count_ticks),
+                                   y_ticks=count_ticks, spreads=bands, infos=type_infos),
+        # "The numbers" under the charts (phase 10 T5.3): a count reads
+        # "3.2 ± 1.1", a share stays a plain percentage (K3).
+        "type_spreads": [
+            {"label": label, "spreads": type_spreads[kind]} for kind, label, _ in type_series
+        ],
         "curve": _curve(groups, games, turns),
         "turns": x_labels,
     }
@@ -417,23 +557,22 @@ def build(run) -> dict:
     """Everything the report template needs, from one stored run."""
     result = runner.read(run.result)
     columns = color_columns(result)
+    milestone_rows = milestones(result)
     return {
         "annotations_changed": annotations_changed_since(run),
         "iterations": result["iterations"],
         "turns": result["turns"],
         "on_the_play": result["on_the_play"],
         "mulligans": mulligans(result),
-        "opening_lands": opening_lands(result, run.library_size, run.lands_total),
-        "kept_lands": kept_lands(result),
         "turn_rows": turns(result),
         "color_columns": columns,
         "color_rows": color_rows(result, columns),
-        "milestones": milestones(result),
+        "milestones": milestone_rows,
+        "milestone_chart": milestone_chart(milestone_rows, result["turns"]),
+        "milestones_hidden": max(0, len(milestone_rows) - MAX_LINES),
         "seen": seen(result),
         "combos": combo_measurements(run),
         "percentiles": PERCENTILES,
-        "library_size": run.library_size,
-        "lands_total": run.lands_total,
     }
 
 

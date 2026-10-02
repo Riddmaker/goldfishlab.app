@@ -29,11 +29,12 @@ a true sentence and a useful one.
 
 **No fifth `quotas.check()` call site.** The games are the run's own, planned
 where the run is planned and consumed where the run's games are consumed.
-`billing/quotas.py` still documents exactly four places that decide whether
-somebody may do something, and this is not one of them.
+`billing/quotas.py` documents every place that decides whether somebody may do
+something - five since phase 10 H added the deck summary's button - and this is
+not one of them.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from combos.models import ComboLookup, ComboMeasurement, DeckCombo
 from simulations.engine import adapter, runner
@@ -123,6 +124,9 @@ class Plan:
     watched: tuple = ()
     hypotheticals: tuple = ()
     refusals: dict = field(default_factory=dict)
+    #: Every piece of every combo the deck holds, watched or not: what a tutor
+    #: with no priority list goes for first (phase 10 N1).
+    key_cards: frozenset = frozenset()
 
     @property
     def watches(self) -> tuple:
@@ -177,6 +181,7 @@ def plan_for(run) -> Plan:
             continue
         candidates.append(Hypothetical(entry=entry, card=card, watch=watch))
 
+    key_cards = _pieces(item.watch for item in watched)
     for item in watched[MAX_WATCHED:]:
         refusals[item.entry.combo_id] = NOT_CHOSEN
     watched = watched[:MAX_WATCHED]
@@ -189,7 +194,18 @@ def plan_for(run) -> Plan:
     for item in candidates[count:]:
         refusals[item.entry.combo_id] = NOT_CHOSEN
 
-    return Plan(watched=tuple(watched), hypotheticals=chosen, refusals=refusals)
+    return Plan(watched=tuple(watched), hypotheticals=chosen, refusals=refusals,
+                key_cards=key_cards)
+
+
+def _pieces(watches) -> frozenset:
+    """The card names a set of combos needs."""
+    return frozenset(requirement.name for watch in watches for requirement in watch.requirements)
+
+
+def with_key_cards(definition, plan: Plan):
+    """The deck as this run plays it: knowing which of its cards are combo pieces."""
+    return replace(definition, key_cards=plan.key_cards)
 
 
 def budget(games_total: int, candidates: int) -> tuple[int, int]:
@@ -218,7 +234,10 @@ def samples_for(run, plan: Plan, index: int, chunks: int) -> list:
             continue
         samples.append(runner.Sample(
             key=item.entry.combo_id,
-            deck=adapter.deck_definition(run.deck, adding=item.card),
+            # The deck plus the card plays as a deck that holds this combo,
+            # so its pieces are key cards as well.
+            deck=replace(adapter.deck_definition(run.deck, adding=item.card),
+                         key_cards=plan.key_cards | _pieces((item.watch,))),
             watch=item.watch,
             games=games,
         ))

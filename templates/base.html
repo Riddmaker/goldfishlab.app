@@ -48,11 +48,28 @@
         answers HTTP 200 to.
       {% endcomment %}
       <nav class="mx-auto flex max-w-5xl flex-wrap items-baseline gap-x-6 gap-y-2 px-4 py-4">
-        <a href="{% url 'home' %}"
-           class="flex items-center gap-2 self-center font-display text-xl tracking-wide text-parchment-100 hover:text-parchment-50">
-          <img src="{% static 'img/favicon.svg' %}" alt="" width="28" height="28">
-          Goldfish&nbsp;Lab
-        </a>
+        {% comment %}
+          On the home page (phase 10 F) the mark is the inline logo, and the
+          fish in it is alive: static/js/fish.js plays a short move now and
+          then, and clicking the logo makes it react instead of reloading the
+          page it is already on. Without that script it is a plain link.
+          Everywhere else the mark stays the static image.
+        {% endcomment %}
+        {% if request.resolver_match.url_name == "home" %}
+          <a href="{% url 'home' %}"
+             aria-current="page"
+             data-fish-link
+             class="flex items-baseline gap-2 font-display text-xl tracking-wide text-parchment-100 hover:text-parchment-50">
+            {% include "core/_logo.html" with id="home-logo" class="logo-home self-center" %}
+            Goldfish&nbsp;Lab
+          </a>
+        {% else %}
+          <a href="{% url 'home' %}"
+             class="flex items-baseline gap-2 font-display text-xl tracking-wide text-parchment-100 hover:text-parchment-50">
+            <img src="{% static 'img/favicon.svg' %}" alt="" width="28" height="28" class="self-center">
+            Goldfish&nbsp;Lab
+          </a>
+        {% endif %}
         <span class="hidden text-sm text-ink-400 sm:inline">it actually plays your deck</span>
         <div class="ml-auto flex flex-wrap items-baseline justify-end gap-x-4 gap-y-1 text-sm">
           {% if user.is_guest %}

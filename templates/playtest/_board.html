@@ -24,11 +24,11 @@
     cast it" is advice to a simulation, and there is no agent here to take it -
     the player decides what to cast by clicking on it.
   {% endcomment %}
-  {% if session.cards_unreadable %}
+  {% if session.coverage_unreadable %}
     <p class="border border-parchment-600 bg-ink-900 px-4 py-3 text-sm text-parchment-100">
       The engine could not read
-      <strong>{{ session.cards_unreadable }}</strong> of
-      <strong>{{ session.cards_total }}</strong> cards in this deck
+      <strong>{{ session.coverage_unreadable }}</strong> of
+      <strong>{{ session.coverage_total }}</strong> cards in this deck
       ({{ session.readable_pct }}% read). Those cards still move, but what
       they <em>do</em> is up to you —
       <a href="{% url 'simulations:review' deck.id %}" class="underline">tell the engine what they mean</a>.

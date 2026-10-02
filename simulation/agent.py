@@ -32,12 +32,54 @@ class _AgentPolicy:
 
     @staticmethod
     def choose_tutor_target(game, options):
-        """The best card the search may take."""
-        return max(options, key=priority)
+        """The best card the search may take.
+
+        A deck with a priority list is asked, exactly as before - which is what
+        keeps the reference deck, and the golden snapshot, playing the same
+        games. A deck without one (every user deck since the priorities left
+        the page) used to fall through to "cheaper first", and the cheapest card
+        in a library is a land: Demonic Tutor fetched a Forest (phase 10 N1).
+        """
+        if any(card.priority is not None for card in options):
+            return max(options, key=priority)
+        return _unprioritised_target(game, options)
 
 
 #: The agent's answers, passed to every ``actions.apply`` it makes.
 POLICY = _AgentPolicy()
+
+
+#: Tags that make a card worth finding before a bigger spell: the engines the
+#: milestones already count. Combo pieces come from the deck (`key_cards`).
+ENGINE_TAGS = frozenset({"draw_engine", "sac_outlet", "drain_payoff"})
+
+
+def _unprioritised_target(game, options):
+    """A tutor's pick when nobody said what the deck wants.
+
+    1. A spell before a land - a land is what the next draw brings anyway.
+    2. A key card before any other spell: a piece of one of the deck's combos,
+       or an engine.
+    3. Among those, the biggest one castable by next turn, which is what a
+       player tutors for when there is nothing more specific to find.
+    4. Failing that, the cheapest: the one closest to being cast.
+
+    Only lands to choose from (Expedition Map, Crop Rotation): the land the land
+    rule would play. Ties go by name, so a run stays reproducible.
+    """
+    spells = [card for card in options if not card.is_land]
+    if not spells:
+        return max(options, key=lambda card: (_land_score(card, game), card.name))
+
+    key_names = game.deck.key_cards
+    key = [card for card in spells
+           if card.name in key_names or card.tags & ENGINE_TAGS]
+    pool = key or spells
+    reach = game.mana_available + 1
+    castable = [card for card in pool if card.mv <= reach]
+    if castable:
+        return max(castable, key=lambda card: (card.mv, card.name))
+    return min(pool, key=lambda card: (card.mv, card.name))
 
 
 def priority(card) -> int:

@@ -6,9 +6,21 @@
   terminal state the replacement comes back WITHOUT those attributes and the
   polling stops because nothing is left to poll with - and the view adds an
   HX-Refresh header, so the page reloads once and the report appears.
+
+  Phase 10 T3.1: the bar is smoothed by static/js/run-progress.js, which reads
+  the `data-*` below - the real share, the seconds since the run was asked for
+  and the seconds it should take (`pace`, from the view) - and shows the
+  largest of the value it showed last, the real one and a curve that slows as
+  it nears 95%. It keeps that value across the swaps, never goes backwards and
+  never reaches 100 before the run is done; while the run waits in the queue
+  (`data-queued`) it stays under 10%. Without the script: the real bar.
+  The panel around this fragment is in detail.html.
 {% endcomment %}
+{% load humanize %}
 <div id="run-progress"
-     class="surface-parchment mt-6 p-6"
+     data-run-progress="{{ run.id }}"
+     data-pct="{{ run.progress_pct }}"
+     {% if pace %}data-elapsed="{{ pace.elapsed|stringformat:'.1f' }}" data-expected="{{ pace.expected|stringformat:'.1f' }}"{% if pace.queued %} data-queued{% endif %}{% endif %}
      {% if not run.is_finished %}hx-get="{% url 'simulations:progress' run.id %}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
   <div class="flex flex-wrap items-baseline gap-3">
     <h2 class="font-display text-2xl text-ink-900">
@@ -24,9 +36,17 @@
         Failed
       {% endif %}
     </h2>
+    {# A count next to a gliding bar contradicts it: the numbers come once it is over. #}
     <span class="tabular text-sm text-ink-700">
-      {{ run.games_done|floatformat:"0" }} of {{ run.games_total }} games
-      {% if run.chunks_total %}· {{ run.chunks_done }}/{{ run.chunks_total }} batches{% endif %}
+      {% if run.is_finished %}
+        {{ run.games_done|intcomma }} of {{ run.games_total|intcomma }} games
+        {% if run.chunks_total %}· {{ run.chunks_done }}/{{ run.chunks_total }} batches{% endif %}
+      {% elif run.status == "pending" %}
+        {{ run.games_total|intcomma }} games, waiting for a free table
+      {% else %}
+        {# The heading already says "Playing your deck". #}
+        {{ run.games_total|intcomma }} games
+      {% endif %}
     </span>
     {% if not run.is_finished %}
       <form method="post"
@@ -46,9 +66,11 @@
          aria-valuemin="0"
          aria-valuemax="100"
          aria-label="Simulation progress">
-      <div class="h-full bg-ink-800" style="width: {{ run.progress_pct }}%"></div>
+      <div class="run-progress-fill h-full bg-ink-800"
+           data-run-fill
+           style="width: {{ run.progress_pct }}%"></div>
     </div>
-    <span class="tabular w-12 text-right text-ink-900">{{ run.progress_pct }}%</span>
+    <span class="tabular w-12 text-right text-ink-900" data-run-label>{{ run.progress_pct }}%</span>
   </div>
   {% if run.cancel_requested and not run.is_finished %}
     <p class="mt-3 text-sm text-ink-700">

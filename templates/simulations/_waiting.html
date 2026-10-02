@@ -1,0 +1,32 @@
+{% comment %}
+  While a run plays (phase 10 T3.2): one line at a time from a pre-written
+  list. The first is shown by the server, so it reads without JavaScript;
+  static/js/run-progress.js then fades to another every three to five
+  seconds, in random order, none repeated until all have been shown.
+
+  Outside the polled fragment on purpose: htmx replaces that every two
+  seconds, which would restart the fish and the lines with it. Hidden from
+  screen readers - the status heading above is the state they hear, and a
+  line changing every four seconds would only talk over it.
+{% endcomment %}
+<ul class="run-lines mt-3 text-sm italic text-ink-700"
+    data-run-lines
+    aria-hidden="true">
+  <li class="is-current">Shuffling up…</li>
+  <li>Drawing seven…</li>
+  <li>Sending the no-land hands back…</li>
+  <li>Keeping a two-lander. Living dangerously.</li>
+  <li>Untap, upkeep, draw. Again.</li>
+  <li>Playing a land for the turn…</li>
+  <li>Looking for the third land…</li>
+  <li>Counting the mana…</li>
+  <li>Casting the commander from the command zone…</li>
+  <li>Tapping out. Nobody is holding a counterspell.</li>
+  <li>Resolving the stack. It is a short stack.</li>
+  <li>Passing the turn to nobody…</li>
+  <li>The goldfish has no blockers. It never does.</li>
+  <li>Topdecking…</li>
+  <li>Discarding to hand size. Reluctantly.</li>
+  <li>Feeding the goldfish…</li>
+  <li>Writing it all down. The goldfish won't.</li>
+</ul>

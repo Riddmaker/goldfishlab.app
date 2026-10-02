@@ -45,6 +45,8 @@ class SimulationRunAdmin(admin.ModelAdmin):
         "gaps",
         "cards_total",
         "cards_with_gaps",
+        "copies_total",
+        "copies_unreadable",
         "engine_version",
         "task_id",
         "created_at",

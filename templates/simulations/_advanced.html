@@ -1,0 +1,50 @@
+{% comment %}
+  "Advanced" (phase 10 T5.6, T5.10, K4, K6): the depth, folded at the bottom
+  of the report. A first visit should be useful at once; the per-turn mana
+  table, the limits of the simulation and the run's own fingerprint are for
+  the second. Closed by default, and a real <details>, so it opens without
+  JavaScript. Needs `run`, `report`, `blindspots`.
+{% endcomment %}
+<details id="advanced" class="report-advanced mt-10">
+  <summary class="report-advanced-summary">
+    <span class="font-display text-2xl text-parchment-100">Advanced</span>
+    <span class="text-sm text-parchment-200">Mana and lands turn by turn, what the simulation does not model, engine and seed</span>
+  </summary>
+  <section class="surface-parchment mt-6 p-6">
+    <h2 class="font-display text-2xl text-ink-900">Mana and lands, turn by turn</h2>
+    <p class="mt-1 text-sm text-ink-700">
+      p10 is the game that goes wrong.
+      {% include "core/_why.html" with anchor="report-mana" %}
+    </p>
+    <table class="mt-5 w-full text-left text-sm">
+      <thead>
+        <tr class="border-b border-parchment-600 text-ink-700">
+          <th scope="col" class="py-1.5 pr-3">Turn</th>
+          <th scope="col" class="py-1.5 pr-3">Mana (mean)</th>
+          {% for p in report.percentiles %}
+            <th scope="col" class="py-1.5 pr-3">Mana p{{ p }}</th>
+          {% endfor %}
+          <th scope="col" class="py-1.5">Lands (mean)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in report.turn_rows %}
+          <tr class="border-b border-parchment-300">
+            <th scope="row" class="tabular py-1.5 pr-3 font-normal text-ink-900">{{ row.turn }}</th>
+            <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.mana_mean|floatformat:"2" }}</td>
+            {% for value in row.mana_percentiles %}
+              <td class="tabular py-1.5 pr-3 text-ink-700">{{ value }}</td>
+            {% endfor %}
+            <td class="tabular py-1.5 text-ink-700">{{ row.lands_mean|floatformat:"2" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% include "simulations/_blindspots.html" with deck=run.deck %}
+  <p class="mt-6 text-xs text-parchment-200">
+    Engine v{{ run.engine_version }}, seed {{ run.seed }}. Differences below about
+    one percentage point are noise.
+    {% include "core/_why.html" with anchor="games" dark=True %}
+  </p>
+</details>

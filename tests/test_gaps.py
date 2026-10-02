@@ -217,3 +217,16 @@ def test_a_run_from_before_the_split_still_splits(build, owner):
     assert run.cards_unreadable == 1
     assert run.cards_read == 3
     assert run.readable_pct == 75.0
+
+
+def test_a_run_counts_copies_and_an_older_one_keeps_its_distinct_pair(build, owner):
+    """Phase 10 T5.9: "of 100" on a new run; an old run is never mixed up."""
+    common = {"deck": build(LAND_LIGHT), "owner": owner, "games_total": 1, "seed": 1,
+              "cards_total": 4, "cards_with_gaps": 1,
+              "gaps": [{"card": "Cabal Coffers", "field": "mana_abilities",
+                        "reason": "makes mana, but how much could not be read"}]}
+    new = SimulationRun.objects.create(**common, copies_total=100, copies_unreadable=2)
+    old = SimulationRun.objects.create(**common)
+
+    assert (new.coverage_read, new.coverage_total, new.readable_pct) == (98, 100, 98.0)
+    assert (old.coverage_read, old.coverage_total, old.readable_pct) == (3, 4, 75.0)

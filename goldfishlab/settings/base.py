@@ -122,6 +122,17 @@ STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 # because who sells the plan changes with it (the operator's VAT notes have the steps).
 STRIPE_MANAGED_PAYMENTS = env.bool("STRIPE_MANAGED_PAYMENTS", default=False)
 
+# --- Mistral (phase 10 H) ------------------------------------------------------
+# The deck summary's written part. Empty by default and in the test suite:
+# `simulations.mistral.is_configured()` is false, nothing is written and nothing
+# is charged, and the summary block shows its computed "Mechanisms" alone.
+# Read by the web process (whether a summary is due) AND by the short-queue
+# worker that writes it, so production needs it on both node groups.
+MISTRAL_API_KEY = env("MISTRAL_API_KEY", default="")
+# Chosen by F7 (docs/phases/phase-10-test-findings.md): the test decks were
+# summarised by each candidate and checked against their lists.
+MISTRAL_MODEL = env("MISTRAL_MODEL", default="mistral-medium-2604")
+
 # --- The operator, for the legal pages ---------------------------------------
 # Who runs this installation: the controller in the privacy policy, the
 # identity the Swiss UWG Art. 3 para. 1 lit. s requires of anyone offering

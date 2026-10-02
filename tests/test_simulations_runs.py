@@ -13,6 +13,7 @@ What these tests are really for, in order of how much they matter:
    run is finished the fragment comes back without it.
 """
 
+import re
 from pathlib import Path
 
 import pytest
@@ -506,6 +507,127 @@ def test_a_run_with_nothing_to_do_does_not_divide_by_zero(owner, deck):
     assert empty.progress_pct == 0
 
 
+
+# --- while it plays (phase 10 E) -------------------------------------------
+
+
+def test_the_expected_time_uses_the_measured_rate(owner, deck):
+    """The bar's pace: games x the rate this run measured, plus the queue."""
+    measured = SimulationRun.objects.create(
+        owner=owner, deck=deck, games_total=2_000, turns=6, seed=1,
+        usec_per_game=1_000.0, chunks_total=1,
+    )
+
+    assert services.expected_seconds(measured) == pytest.approx(services.QUEUE_SECONDS + 2.0)
+
+
+def test_a_first_run_borrows_the_decks_last_rate(owner, deck):
+    SimulationRun.objects.create(
+        owner=owner, deck=deck, games_total=2_000, turns=6, seed=1, usec_per_game=500.0,
+    )
+    fresh = SimulationRun.objects.create(
+        owner=owner, deck=deck, games_total=2_000, turns=6, seed=2,
+    )
+
+    assert services.known_rate(fresh) == 500.0
+    assert services.expected_seconds(fresh) == pytest.approx(services.QUEUE_SECONDS + 1.0)
+
+
+def test_a_long_run_counts_its_chunks_playing_side_by_side(owner, deck):
+    big = SimulationRun.objects.create(
+        owner=owner, deck=deck, games_total=100_000, turns=6, seed=1,
+        usec_per_game=1_000.0, chunks_total=40,
+    )
+
+    parallel = services.PARALLEL_CHUNKS[services.LONG_QUEUE]
+    assert services.expected_seconds(big) == pytest.approx(
+        services.QUEUE_SECONDS + 100.0 / parallel
+    )
+
+
+def test_a_playing_run_says_what_it_plays_not_a_count_beside_a_gliding_bar(client, owner, run):
+    """T3.1: "0 of 2,000 games" next to a moving bar contradicts it."""
+    SimulationRun.objects.filter(pk=run.pk).update(
+        status=SimulationRun.Status.RUNNING, started_at=run.created_at
+    )
+    client.force_login(owner)
+
+    body = client.get(reverse("simulations:progress", args=[run.pk])).content.decode()
+
+    assert f"{run.games_total:,} games" in body
+    # The heading says "Playing your deck"; the line does not say it twice.
+    assert body.count("Playing") == 1
+    assert f"of {run.games_total} games" not in body
+    assert "batches" not in body
+    assert "data-expected=" in body
+    assert "data-elapsed=" in body
+    assert "data-queued" not in body
+
+
+def test_a_queued_run_says_it_waits_and_holds_the_bar_low(client, owner, run):
+    """A queue can be long: "Queued" above a bar at 90% would promise work
+    nobody is doing yet, so the fragment tells the script it is queued."""
+    client.force_login(owner)
+
+    body = client.get(reverse("simulations:progress", args=[run.pk])).content.decode()
+
+    assert f"{run.games_total} games, waiting for a free table" in body
+    assert "Playing 40" not in body
+    assert "data-queued" in body
+
+
+def test_a_finished_run_shows_the_exact_numbers_and_stops_gliding(client, owner, run, fake_redis):
+    chunks = [tasks.simulate_chunk(str(run.pk), index, 20) for index in range(2)]
+    tasks.finalize_run(chunks, str(run.pk))
+    client.force_login(owner)
+
+    body = client.get(reverse("simulations:progress", args=[run.pk])).content.decode()
+
+    assert f"{run.games_total} of {run.games_total} games" in body
+    assert "Playing" not in body.replace("Playing your deck", "")
+    assert "data-expected=" not in body
+
+
+def test_the_fish_and_the_lines_sit_outside_the_polled_fragment(client, owner, run):
+    """htmx swaps the fragment every two seconds; inside it, the fish would
+    jump back to the start and the line would reset each time."""
+    client.force_login(owner)
+
+    page = client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+    fragment = client.get(reverse("simulations:progress", args=[run.pk])).content.decode()
+
+    assert "logo-animated" in page
+    assert "data-run-lines" in page
+    assert "js/run-progress.js" in page
+    assert "logo-animated" not in fragment
+    assert "data-run-lines" not in fragment
+
+
+def test_the_first_line_shows_without_javascript_and_is_not_read_out(client, owner, run):
+    client.force_login(owner)
+
+    page = client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+    lines = re.search(r'<ul class="run-lines[^>]*>(.*?)</ul>', page, re.S)
+
+    assert lines
+    assert 'aria-hidden="true"' in lines.group(0)
+    items = re.findall(r"<li[^>]*>(.*?)</li>", lines.group(1))
+    assert len(items) == 17
+    assert len(set(items)) == len(items)
+    assert lines.group(1).count("is-current") == 1
+
+
+def test_a_finished_run_page_has_no_fish_and_no_script(client, owner, run, fake_redis):
+    chunks = [tasks.simulate_chunk(str(run.pk), index, 20) for index in range(2)]
+    tasks.finalize_run(chunks, str(run.pk))
+    client.force_login(owner)
+
+    page = client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+
+    assert "logo-animated" not in page
+    assert "data-run-lines" not in page
+    assert "run-progress.js" not in page
+
 # --- mana by colour --------------------------------------------------------
 #
 # The last piece of colour work carried over from Phase 2. The engine spent
@@ -619,8 +741,9 @@ def test_the_report_renders_for_a_finished_run(client, owner, run, fake_redis):
     body = response.content.decode()
 
     assert response.status_code == 200
-    assert "Opening hands" in body
-    assert "hypergeometric" in body
+    # Phase 10 T5.5: the opening-hand table left the page (the comparison it
+    # showed is still asserted above, against real games).
+    assert "Opening hands" not in body
     # How much of the deck the engine read is shown beside every result, never
     # omitted - and since Phase 9 C it is the only score: the casting-priority
     # half ("calls nobody has made") is no longer put to anybody.
@@ -712,6 +835,21 @@ def test_the_run_page_draws_what_was_seen(client, owner, run, fake_redis):
     assert "Run the deck again" not in body
 
 
+def test_the_curve_opens_on_turn_one(client, owner, run, fake_redis):
+    """Phase 10 T5.4: always turn 1, and Firefox may not restore the last pick."""
+    chunks = [tasks.simulate_chunk(str(run.pk), 0, 20)]
+    tasks.finalize_run(chunks, str(run.pk))
+    client.force_login(owner)
+
+    body = client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+    radios = re.findall(r'<input type="radio"\s+name="seen-curve-turn"[^>]*>', body)
+
+    assert len(radios) > 1
+    assert [("checked" in radio) for radio in radios] == [True] + [False] * (len(radios) - 1)
+    assert 'id="seen-turn-1"' in radios[0]
+    assert all('autocomplete="off"' in radio for radio in radios)
+
+
 def test_an_old_run_asks_to_be_run_again(client, owner, run, fake_redis):
     """A run from before the count is not a deck that never draws ramp."""
     chunks = [tasks.simulate_chunk(str(run.pk), 0, 20)]
@@ -726,4 +864,139 @@ def test_an_old_run_asks_to_be_run_again(client, owner, run, fake_redis):
 
     assert response.status_code == 200
     assert "Run the deck again" in body
-    assert "<polyline" not in body
+    # The milestones are drawn as lines too since phase 10; "What you drew" is not.
+    seen = body[body.index('id="seen"'):body.index('id="milestones"')]
+    assert "<polyline" not in seen
+
+
+# --- phase 10 C: the report, re-ordered ---------------------------------------
+
+def _finished_page(client, owner, run, **user_fields):
+    for field, value in user_fields.items():
+        setattr(owner, field, value)
+    owner.save()
+    chunks = [tasks.simulate_chunk(str(run.pk), 0, 20)]
+    tasks.finalize_run(chunks, str(run.pk))
+    client.force_login(owner)
+    return client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+
+
+def test_the_report_opens_with_what_a_person_can_do(client, owner, run, fake_redis):
+    body = _finished_page(client, owner, run)
+    order = ['id="attention"', 'id="seen"', 'id="milestones"', ">Mulligans<",
+             'id="summary"', 'id="advanced"']
+    positions = [body.index(marker) for marker in order]
+
+    assert positions == sorted(positions)
+    assert "What was actually modelled" not in body
+
+
+def test_advanced_is_closed_and_holds_the_mana_table_and_the_engine(client, owner, run,
+                                                                      fake_redis):
+    body = _finished_page(client, owner, run)
+    advanced = body[body.index('<details id="advanced"'):]
+
+    assert re.match(r'<details id="advanced"[^>]*>', advanced)
+    assert " open" not in re.match(r"<details[^>]*>", advanced).group(0)
+    assert "Mana and lands, turn by turn" in advanced
+    assert f"seed {run.seed}" in advanced
+    assert "Mana and lands, turn by turn" not in body[:body.index('id="advanced"')]
+
+
+def test_only_a_guest_is_offered_to_keep_the_deck(client, owner, run, fake_redis):
+    from guests.services import LIFETIME
+
+    member = _finished_page(client, owner, run)
+    owner.is_guest = True
+    owner.save()
+    guest = client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+
+    assert "Keep this deck" not in member
+    assert "Keep this deck" in guest
+    assert reverse("guests:save") in guest
+    assert f"forgotten after {int(LIFETIME.total_seconds() // 3600)} hours" in guest
+    assert "compared" not in guest, "P2: there is no run comparison to promise"
+
+
+def test_the_deck_summary_shows_the_mechanisms_with_their_lines(client, owner, run,
+                                                                 fake_redis):
+    """Phase 10 G: computed chips, each with its line's swatch and this run's share."""
+    body = _finished_page(client, owner, run)
+    summary = body[body.index('id="summary"'):body.index('id="advanced"')]
+
+    assert "Deck summary" in summary
+    assert "Mechanisms" in summary
+    assert "summary-chip" in summary
+    assert "seen-swatch-" in summary
+    # The run is two turns long, so the chips say turn 2 (P6), not turn 4.
+    assert re.search(r"drawn by turn 2 in \d+% of games", summary)
+    assert "drawn by turn 4" not in summary
+
+
+def test_attention_names_the_open_cards(client, owner, run, fake_redis, monkeypatch):
+    monkeypatch.setattr("simulations.review.open_questions", lambda deck: 3)
+
+    body = _finished_page(client, owner, run)
+
+    assert "! 3 cards need you" in body
+    assert reverse("simulations:review", args=[run.deck.pk]) in body
+
+
+def test_attention_after_an_answer_asks_for_a_new_run(client, owner, run, fake_redis,
+                                                       monkeypatch):
+    monkeypatch.setattr("simulations.review.open_questions", lambda deck: 0)
+    monkeypatch.setattr("simulations.report.annotations_changed_since", lambda run: True)
+
+    body = _finished_page(client, owner, run)
+
+    assert "All answered" in body
+    assert "Run the deck again" in body
+
+
+def test_attention_with_nothing_to_do_says_so(client, owner, run, fake_redis, monkeypatch):
+    monkeypatch.setattr("simulations.review.open_questions", lambda deck: 0)
+    monkeypatch.setattr("simulations.report.annotations_changed_since", lambda run: False)
+
+    body = _finished_page(client, owner, run)
+
+    assert "Nothing needs you" in body
+    assert "The engine read" in body
+
+
+def test_see_every_card_is_gone_from_every_template():
+    """K7: the run page links to the cards it could not read, not to all of them."""
+    templates = Path(__file__).resolve().parent.parent / "templates"
+    for template in templates.rglob("*.html"):
+        assert "See every card of the deck" not in template.read_text(encoding="utf-8"), template
+
+
+def test_a_count_reads_as_a_mean_and_a_spread():
+    from simulations.report import _spreads
+
+    # Three games that drew 1, 2 and 3 creatures: mean 2, sd sqrt(2/3).
+    spreads = _spreads({"cards": [6], "squares": [14]}, games=3)
+
+    assert spreads[0].mean == pytest.approx(2.0)
+    assert spreads[0].sd == pytest.approx((2 / 3) ** 0.5)
+    assert _spreads({"cards": [6]}, games=3)[0].sd is None
+
+
+def test_nine_milestones_draw_eight_lines_and_keep_nine_rows():
+    rows = [{"key": f"m{n}", "label": f"M{n}", "shares": [float(n)] * 3} for n in range(9)]
+
+    chart = report.milestone_chart(rows, 3)
+
+    assert len(chart.lines) == report.MAX_LINES
+    assert "m0" not in {line.key for line in chart.lines}, "the rarest one is left out"
+
+
+def test_every_line_can_be_focused_and_explains_itself(client, owner, run, fake_redis):
+    """Phase 10 D: a twin per line that takes focus, a title and an info line."""
+    body = _finished_page(client, owner, run)
+
+    hits = re.findall(r'<polyline[^>]*class="seen-hit[^"]*"[^>]*>', body)
+    lines = re.findall(r'class="seen-line seen-line-\d+"', body)
+    assert hits and len(hits) == len(lines)
+    assert all('tabindex="0"' in hit and "aria-label=" in hit for hit in hits)
+    assert "Lands, basic and nonbasic. On average" in body
+    assert body.count('class="seen-info"') == body.count('class="seen-chart')

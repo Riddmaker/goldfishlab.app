@@ -54,7 +54,10 @@
         <p class="dropzone-name" data-dropzone-name></p>
       </div>
     </div>
-    <p id="dropzone-hint" class="sr-only">A CSV, TSV or text file, up to 1 MB.</p>
+    <p id="dropzone-hint" class="mt-2 text-sm text-ink-700">
+      Only the card names are needed. Quantities and set codes work too.
+      A CSV, TSV or text file, up to 1&nbsp;MB.
+    </p>
     {% if form.file.errors %}
       <ul class="errorlist mt-2">
         {% for error in form.file.errors %}<li>{{ error }}</li>{% endfor %}
@@ -65,7 +68,7 @@
     <label for="{{ form.text.id_for_label }}" class="sr-only">{{ form.text.label }}</label>
     {{ form.text }}
     <p class="mt-1 text-sm text-ink-700">
-      One card per line. The commander goes under <code class="font-mono whitespace-nowrap">// Commander</code> - or pick it later.
+      One card per line - the name is enough, a quantity and set code work too. The commander goes under <code class="font-mono whitespace-nowrap">// Commander</code> - or pick it later.
     </p>
     {% if form.text.errors %}
       <ul class="errorlist mt-2">

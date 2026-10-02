@@ -21,6 +21,7 @@ rule applies and `coverage()` reports the gap. A simulation that quietly
 invented the missing half of its input would be worse than no simulation.
 """
 
+from collections import Counter
 from dataclasses import dataclass, field
 
 from decks.models import Deck
@@ -89,6 +90,10 @@ class Conversion:
     definition: DeckDefinition
     gaps: list[Gap] = field(default_factory=list)
     cards_total: int = 0
+    #: Copies of each card, by the name its gaps carry - the commander and a
+    #: hypothetical card included. What the coverage counts since phase 10
+    #: (T5.9, K2): thirty Swamps are thirty of a hundred cards, not one.
+    copies: dict[str, int] = field(default_factory=dict)
     #: Which engine produced this reading. Stored with every run so a result
     #: can later say "computed with v2, current is v5 - re-run to compare".
     engine_version: int = ENGINE_VERSION
@@ -111,6 +116,17 @@ class Conversion:
         nobody has to give - see `simulations.gaps`.
         """
         return gaps_module.share(self.cards_total, self.cards_unreadable)
+
+    @property
+    def copies_total(self) -> int:
+        """Every card in the deck, counting each copy - "of 100"."""
+        return sum(self.copies.values())
+
+    @property
+    def copies_unreadable(self) -> int:
+        """Copies of the cards the engine could not read."""
+        names = gaps_module.cards_with(self.gaps, gaps_module.READING)
+        return sum(count for name, count in self.copies.items() if name in names)
 
 
 def deck_definition(deck: Deck, *, adding=None) -> DeckDefinition:
@@ -172,7 +188,11 @@ def convert(deck: Deck, *, adding=None) -> Conversion:
         commander=commander,
         library=tuple(library),
     )
-    return Conversion(definition=definition, gaps=gaps, cards_total=len(seen))
+    copies = Counter(card.name for card in library)
+    if commander is not None:
+        copies[commander.name] += 1
+    return Conversion(definition=definition, gaps=gaps, cards_total=len(seen),
+                      copies=dict(copies))
 
 
 @dataclass

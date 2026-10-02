@@ -24,6 +24,7 @@ from simulation import analysis
 from simulation.cards import CREATURE, LAND, SORCERY, Card, DeckDefinition
 from simulation.game import Game
 from simulations import charts, report
+from simulations.engine import runner
 from simulations.engine.adapter import card_types
 
 
@@ -127,6 +128,33 @@ def test_the_count_is_the_hand_kept_plus_every_draw(on_the_play):
             assert seen == kept + draws
 
 
+def test_a_tutored_card_is_not_a_drawn_card():
+    """Phase 10 T5.1: the tutors in this deck find cards every game, and the
+    count is still exactly the hand kept plus the draws."""
+    from simulation import agent
+    from simulation.cards import TutorSpec
+    from simulation.fixtures import chainer
+
+    swamp = next(card for card in chainer.DECK.library if card.name == "Swamp")
+    tutor = Card("Tutor", 1, 0, 1, SORCERY, tutor=TutorSpec(to_hand=True, count=1),
+                 types=frozenset({"sorcery"}))
+    deck = DeckDefinition(name="tutors", commander=None,
+                          library=(swamp,) * 38 + (tutor,) * 30 + (BEAR,) * 31)
+    rng = random.Random(3)
+    tutored = 0
+    for _ in range(100):
+        game = Game(rng, deck=deck)
+        game.take_opening_hand()
+        for _turn in range(5):
+            agent.take_turn(game)
+        kept = 7 - Game.cards_to_bottom(game.mulligans)
+        draws = 4  # on the play: no draw on turn one
+        assert len(game.drawn) == kept + draws
+        tutored += deck.size - len(game.library) - len(game.drawn)
+
+    assert tutored > 100, "the tutors found nothing, so this proved nothing"
+
+
 def test_counting_changes_no_game():
     """No random number is drawn to count, so the same seed plays the same game."""
     counted = analysis.simulate_game(random.Random(11), turns=5, deck=PLAIN_DECK,
@@ -144,11 +172,37 @@ def test_what_has_been_seen_is_never_unseen():
     result = analysis.run(300, turns=5, seed=3, deck=PLAIN_DECK)
 
     for entry in result["seen"].values():
-        for field in ("cards", "games"):
+        for field in ("cards", "games", "squares"):
             assert entry[field] == sorted(entry[field])
         assert all(games <= 300 for games in entry["games"])
         assert all(games <= cards for cards, games in zip(entry["cards"], entry["games"],
                                                           strict=True))
+
+
+def test_the_spread_is_counted_beside_the_mean():
+    """Phase 10: the sum of squares, so the page can show "3.2 ± 1.1"."""
+    result = analysis.run(300, turns=5, seed=3, deck=PLAIN_DECK)
+
+    for entry in result["seen"].values():
+        for cards, squares in zip(entry["cards"], entry["squares"], strict=True):
+            # Cauchy-Schwarz: n * sum(x^2) >= (sum x)^2, so a variance >= 0.
+            assert 300 * squares >= cards * cards
+    # Some games hold two or more creatures, so the squares outgrow the sum.
+    creatures = result["seen"]["type:creature"]
+    assert creatures["squares"][0] > creatures["cards"][0]
+
+
+def test_a_chunk_from_before_the_spread_leaves_the_mean_alone():
+    first, second = _chunks(2)
+    for entry in second["seen"].values():
+        del entry["squares"]
+
+    merged = analysis.merge([first, second])["seen"]["type:creature"]
+
+    assert "squares" not in merged
+    assert merged["cards"] == [a + b for a, b in zip(
+        first["seen"]["type:creature"]["cards"], second["seen"]["type:creature"]["cards"],
+        strict=True)]
 
 
 def test_the_hand_written_deck_still_gets_its_curve():
@@ -304,3 +358,51 @@ def test_a_run_from_before_the_count_has_no_section():
     del result["seen"]
 
     assert report.seen(result) is None
+
+
+# --- phase 10 D: lines that explain themselves ---------------------------------
+
+def test_a_band_is_the_mean_plus_and_minus_the_spread_and_stops_at_zero():
+    points = charts.band([1.0, 3.0], [2.0, 1.0], top_value=4.0).split()
+
+    upper, lower = points[:2], points[2:]
+    assert [float(p.split(",")[1]) for p in upper] == [
+        charts._y(3.0, 4.0), charts._y(4.0, 4.0)]
+    # Back from right to left; the left edge would be -1, so it sits on zero.
+    assert [float(p.split(",")[1]) for p in lower] == [
+        charts._y(2.0, 4.0), charts._y(0.0, 4.0)]
+
+
+def test_the_typical_turn_is_the_first_that_half_the_games_reach():
+    marker = charts.typical([10.0, 49.9, 50.0, 80.0], ["1", "2", "3", "4"], 50.0, 100.0)
+
+    assert marker.label == "3"
+    assert charts.typical([10.0, 20.0], ["1", "2"], 50.0, 100.0) is None
+
+
+def test_every_line_on_the_report_says_what_it_counts():
+    seen = report.seen(_result())
+
+    for line in seen["roles"].lines:
+        assert line.info.startswith(report.SEEN_ROLE_INFO[line.key])
+        assert "by turn 3" in line.info
+    for line in seen["types"].lines:
+        assert line.band, "a run that counted squares draws a band"
+        assert "±" in line.info
+
+
+def test_a_run_without_the_spread_has_no_band_and_no_plus_minus():
+    result = _result()
+    for entry in result["seen"].values():
+        entry.pop("squares", None)
+
+    seen = report.seen(result)
+
+    assert not any(line.band for line in seen["types"].lines)
+    assert not any("±" in line.info for line in seen["types"].lines)
+
+
+def test_every_category_type_and_milestone_has_a_sentence():
+    assert set(report.SEEN_ROLE_INFO) == {key for key, _ in report.SEEN_ROLES}
+    assert set(report.SEEN_TYPE_INFO) == set(runner.SEEN_CARD_TYPES)
+    assert set(report.MILESTONE_INFO) == {key for key, _ in report.MILESTONES}

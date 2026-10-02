@@ -1,7 +1,13 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Simulation — {{ run.deck.name }} — Goldfish Lab{% endblock %}
 {% block description %}
   What happened when Goldfish Lab played {{ run.deck.name }} {{ run.games_total }} times.
+{% endblock %}
+{% block head %}
+  {% if not run.is_finished %}
+    <script src="{% static 'js/run-progress.js' %}" defer></script>
+  {% endif %}
 {% endblock %}
 {% block content %}
   <div class="flex flex-wrap items-baseline gap-4">
@@ -13,55 +19,42 @@
     <a href="{{ run.deck.get_absolute_url }}"
        class="ml-auto text-sm text-parchment-200 underline">Back to the deck</a>
   </div>
-  {% include "simulations/_progress.html" %}
+  {% comment %}
+    The panel holds the polled fragment, and while the run plays the fish and
+    the lines beside it (phase 10 T3.2) - outside the fragment, so the swaps
+    every two seconds do not restart them.
+  {% endcomment %}
+  <section class="surface-parchment mt-6 p-6" aria-label="Progress">
+    <div class="flex items-start gap-4 sm:gap-6">
+      {% if not run.is_finished %}
+        {% include "core/_logo.html" with id="run-logo" class="logo-animated run-logo" %}
+      {% endif %}
+      <div class="min-w-0 flex-1">
+        {% include "simulations/_progress.html" %}
+        {% if not run.is_finished %}
+          {% include "simulations/_waiting.html" %}
+        {% endif %}
+      </div>
+    </div>
+  </section>
   {% if report %}
-    {% include "simulations/_report.html" %}
     {% comment %}
-      The coverage panel is not a footnote. A result that implied the engine
-      modelled more of the deck than it did would be worse than no result.
+      The order of the report (phase 10, from the user test): first what a
+      person can do - keep the deck, answer the cards the engine could not read
+      - then the pictures, and the depth folded at the bottom. "What was
+      actually modelled" became the attention block; its coverage line lives
+      there, its gap table is the card review, and the engine and seed moved
+      into "Advanced". The deck summary (phase 10 G, H) is the last block before it, and not
+      there at all for somebody who switched summaries off.
     {% endcomment %}
-    <section class="surface-parchment mt-6 p-6">
-      <h2 class="font-display text-2xl text-ink-900">What was actually modelled</h2>
-      {% comment %}
-        One number: how much of the deck the engine could read. It used to sit
-        beside a second one - how many cards somebody had said how early to
-        cast - but nobody is asked that any more (Phase 9 C, decision D6), and
-        a score for a question nobody is asked only ever reads as a failing
-        grade. The priority gaps are still stored on every run; they are just
-        not put to anybody.
-      {% endcomment %}
-      <p class="mt-2 text-ink-700">
-        The engine read <strong class="tabular">{{ run.cards_read }}</strong>
-        of {{ run.cards_total }} cards in full —
-        <strong class="tabular">{{ run.readable_pct|floatformat:"1" }}%</strong>.
-        {% include "core/_why.html" with anchor="reading" %}
-      </p>
-      {% if run.reading_gaps %}
-        <details class="mt-4">
-          <summary class="cursor-pointer text-ink-900 underline">
-            The {{ run.reading_gaps|length }} thing{{ run.reading_gaps|length|pluralize }} the engine could not read
-          </summary>
-          {% include "simulations/_gap_table.html" with rows=run.reading_gaps %}
-        </details>
-      {% endif %}
-      <p class="mt-4 text-sm text-ink-700">
-        <a href="{{ run.deck.get_absolute_url }}#cards"
-           class="text-ink-900 underline">See every card of the deck</a>
-      </p>
-      {% if report.annotations_changed %}
-        <p class="mt-3 border-l-2 border-blood-600 pl-4 text-sm text-ink-700">
-          <strong class="text-ink-900">Something has changed since this run.</strong>
-          A card was corrected after these numbers were computed — run the deck again
-          to see the difference.
-          {% include "core/_why.html" with anchor="blind-spots" %}
-        </p>
-      {% endif %}
-      <p class="mt-4 text-xs text-ink-700">
-        Engine v{{ run.engine_version }}, seed {{ run.seed }}. Differences below about
-        one percentage point are noise.
-        {% include "core/_why.html" with anchor="games" %}
-      </p>
-    </section>
-    {% include "simulations/_blindspots.html" with deck=run.deck cards_link=True %}
+    {% if user.is_guest %}
+      {% include "simulations/_keep_deck.html" %}
+    {% endif %}
+    {% include "simulations/_attention.html" %}
+    {% include "simulations/_report.html" %}
+    {% if user.deck_summaries %}
+      {% include "simulations/_summary.html" %}
+    {% endif %}
+    {% include "simulations/_advanced.html" %}
   {% endif %}
 {% endblock %}

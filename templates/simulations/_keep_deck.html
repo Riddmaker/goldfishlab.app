@@ -1,0 +1,34 @@
+{% load static %}
+{% comment %}
+  "Keep this deck" (phase 10 T4.1, F3): the second way to save, for a guest,
+  dressed as a Magic card - the art is the commander's (Scryfall's art crop),
+  or the flask when the deck has none or the art is not ingested yet. The
+  button goes to the same place as the header's. Needs `run` and
+  `guest_hours` (guests.services.LIFETIME, in hours).
+{% endcomment %}
+<aside class="keep-card mt-6" aria-labelledby="keep-card-name">
+  <p class="keep-card-name">
+    <span id="keep-card-name">Keep this deck</span>
+  </p>
+  <div class="keep-card-art">
+    {% if run.deck.commander.art_uri %}
+      <img src="{{ run.deck.commander.art_uri }}"
+           alt=""
+           loading="lazy"
+           class="keep-card-art-img">
+    {% else %}
+      <img src="{% static 'img/favicon.svg' %}"
+           alt=""
+           width="96"
+           height="96"
+           class="keep-card-flask">
+    {% endif %}
+  </div>
+  <p class="keep-card-type">Sorcery — Free</p>
+  <div class="keep-card-text">
+    <p>Save your deck and every run, and come back to it after your next change.</p>
+    <p class="keep-card-fine">Guest decks are forgotten after {{ guest_hours }} hours.</p>
+    <p class="keep-card-flavour">“A goldfish forgets in three seconds. The lab doesn't.”</p>
+  </div>
+  <a href="{% url 'guests:save' %}" class="keep-card-button">Save your deck - free</a>
+</aside>

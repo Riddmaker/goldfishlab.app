@@ -6,6 +6,13 @@
   and `.seen-chart:has(.seen-toggle-N:not(:checked))` in assets/css/input.css
   hides line N. With CSS switched off every line simply shows.
 
+  Phase 10 (T5.2): a line explains itself, still without a script. Every line
+  has a wider, invisible twin (`.seen-hit`) that can be hovered, focused by
+  the keyboard or tapped; the chip does the same. Then `:has()` fades the
+  other lines, shows this line's spread band (count charts) or its "typical
+  turn" marker (share charts), and swaps the info line under the chart to
+  this line's sentence. The twin's `<title>` carries the same sentence.
+
   Takes: chart (a charts.LineChart), name (unique on the page, for the ids),
   title (what the chart shows, for a screen reader).
 {% endcomment %}
@@ -16,26 +23,52 @@
              id="{{ name }}-{{ line.key }}"
              class="seen-toggle seen-toggle-{{ line.index }}"
              checked>
-      <label for="{{ name }}-{{ line.key }}" class="seen-chip">
+      <label for="{{ name }}-{{ line.key }}"
+             class="seen-chip seen-chip-{{ line.index }}">
         <span class="seen-swatch seen-swatch-{{ line.index }}" aria-hidden="true"></span>{{ line.label }}
       </label>
     {% endfor %}
   </div>
   <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}"
        class="seen-svg"
-       role="img"
+       role="group"
        aria-label="{{ title }}">
     {% for tick in chart.y_ticks %}
       <line x1="{{ chart.left }}" x2="{{ chart.right }}" y1="{{ tick.position }}" y2="{{ tick.position }}" class="seen-grid" />
-      <text x="{{ chart.left|add:-4 }}" y="{{ tick.position }}" class="seen-axis" text-anchor="end" dominant-baseline="middle">{{ tick.label }}</text>
+      <text x="{{ chart.left|add:-4 }}" y="{{ tick.position }}" class="seen-axis" text-anchor="end" dominant-baseline="middle" aria-hidden="true">{{ tick.label }}</text>
     {% endfor %}
     {% for tick in chart.x_ticks %}
-      <text x="{{ tick.position }}" y="{{ chart.height|add:-6 }}" class="seen-axis" text-anchor="middle">{{ tick.label }}</text>
+      <text x="{{ tick.position }}" y="{{ chart.height|add:-6 }}" class="seen-axis" text-anchor="middle" aria-hidden="true">{{ tick.label }}</text>
     {% endfor %}
     {% for line in chart.lines %}
-      <polyline points="{{ line.points }}" class="seen-line seen-line-{{ line.index }}">
-        <title>{{ line.label }}</title>
+      {% if line.band %}<polygon points="{{ line.band }}" class="seen-band seen-band-{{ line.index }}" />{% endif %}
+    {% endfor %}
+    {% for line in chart.lines %}
+      <polyline points="{{ line.points }}" class="seen-line seen-line-{{ line.index }}" />
+    {% endfor %}
+    {% for line in chart.lines %}
+      {% if line.marker %}
+        <g class="seen-marker seen-marker-{{ line.index }}">
+          <line x1="{{ line.marker.x }}" x2="{{ line.marker.x }}" y1="{{ line.marker.y }}" y2="{{ chart.bottom }}" class="seen-marker-guide" />
+          <circle cx="{{ line.marker.x }}" cy="{{ line.marker.y }}" r="3.5" class="seen-marker-dot" />
+        </g>
+      {% endif %}
+    {% endfor %}
+    {% for line in chart.lines %}
+      <polyline points="{{ line.points }}"
+                class="seen-hit seen-hit-{{ line.index }}"
+                tabindex="0"
+                aria-label="{{ line.label }}. {{ line.info }}">
+        <title>{{ line.label }}{% if line.info %}: {{ line.info }}{% endif %}</title>
       </polyline>
     {% endfor %}
   </svg>
+  <div class="seen-info" aria-hidden="true">
+    <p class="seen-info-hint">Point at a line or a name, or tap it, to see what it counts.</p>
+    {% for line in chart.lines %}
+      <p class="seen-info-line seen-info-{{ line.index }}">
+        <strong>{{ line.label }}</strong> — {{ line.info }}
+      </p>
+    {% endfor %}
+  </div>
 </div>

@@ -1,9 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Goldfish Lab — it actually plays your deck{% endblock %}
+{% block head %}
+  <script src="{% static 'js/fish.js' %}" defer></script>
+{% endblock %}
 {% block content %}
   <section class="max-w-3xl">
-    <h1 class="font-display text-4xl leading-tight text-parchment-100 sm:text-5xl">It actually plays your deck.</h1>
+    <h1 class="font-display text-4xl leading-tight text-parchment-100 sm:text-5xl">Know your deck before game night.</h1>
     <p class="mt-5 text-lg leading-relaxed text-parchment-200">
       Upload your Commander deck. Goldfish Lab plays it thousands of times and shows you what happens.
     </p>
@@ -39,22 +42,23 @@
   {% comment %}
     Real pages of a guest trial (phase 9 G), captured from the local stack and
     encoded as WebP: the hand as dealt on the playtest table, and the first
-    chart of a finished report.
+    chart of a finished report. Both 720 x 540 (4:3) in two equal columns
+    (phase 10 T1.5), re-captured by `scripts/home_pictures.py`.
   {% endcomment %}
-  <div class="mt-10 grid items-start gap-6 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+  <div class="mt-10 grid items-start gap-6 md:grid-cols-2">
     <figure>
       <img src="{% static 'img/home-hand.webp' %}"
-           alt="An opening hand of seven cards, fanned out on the playtest table"
-           width="900"
-           height="235"
-           class="w-full">
+           alt="An opening hand of seven cards on the playtest table, with Mulligan and Keep above it"
+           width="720"
+           height="540"
+           class="w-full border border-ink-800">
       <figcaption class="mt-2 text-sm text-ink-400">Draw a hand and play it out.</figcaption>
     </figure>
     <figure>
       <img src="{% static 'img/home-report.webp' %}"
            alt="A report chart: how often the deck has drawn ramp, card draw and removal by each turn"
            width="720"
-           height="530"
+           height="540"
            loading="lazy"
            class="w-full border border-ink-800">
       <figcaption class="mt-2 text-sm text-ink-400">Or play it two thousand times.</figcaption>

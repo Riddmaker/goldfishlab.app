@@ -381,6 +381,11 @@ class DeckDefinition:
     name: str
     commander: Card | None
     library: tuple[Card, ...]
+    #: The cards the deck is built around: the pieces of the combos it holds.
+    #: A tutor with no priority list to ask takes one of these before anything
+    #: else (phase 10 N1). Names, because a combo names its cards; empty by
+    #: default, which is every deck and every caller from before.
+    key_cards: frozenset[str] = frozenset()
 
     def __post_init__(self):
         if len(self.library) < 1:
@@ -414,6 +419,7 @@ class DeckDefinition:
             name=self.name,
             commander=self.commander,
             library=tuple(sorted(self.library, key=lambda card: (card.name, card.mv))),
+            key_cards=self.key_cards,
         )
 
 

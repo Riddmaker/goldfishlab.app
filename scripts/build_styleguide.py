@@ -161,7 +161,8 @@ def build() -> str:
   --ink-300: {scales["ink"][300]}; --ink-200: {scales["ink"][200]};
   --parch-50: {scales["parchment"][50]}; --parch-100: {scales["parchment"][100]};
   --parch-200: {scales["parchment"][200]}; --parch-300: {scales["parchment"][300]};
-  --parch-600: {scales["parchment"][600]};
+  --parch-600: {scales["parchment"][600]}; --parch-700: {scales["parchment"][700]};
+  --blood-600: {scales["blood"][600]};
   --blood-700: {scales["blood"][700]}; --blood-800: {scales["blood"][800]};
   --blood-100: {scales["blood"][100]};
   --verd-700: {scales["verdigris"][700]}; --verd-100: {scales["verdigris"][100]};
@@ -271,6 +272,33 @@ ul.dodont li {{ margin-bottom: .4rem; font-size: .93rem; }}
   section, table, .grid2 {{ page-break-inside: avoid; }}
   .chip {{ border-color: #999 !important; }}
   a[href]::after {{ content: " (" attr(href) ")"; font-size: 9pt; color: #555; }}
+}}
+/* Motion (phase 10 E): the logo while a run plays. input.css .logo-* */
+.logo-ground {{ fill: var(--ink-950); }}
+.logo-water {{ fill: var(--blood-700); }}
+.logo-glass {{ fill: none; stroke: var(--parch-100); }}
+.logo-fish-body {{ fill: var(--parch-300); }}
+.logo-fish-eye {{ fill: var(--ink-950); }}
+.logo-bubble {{ fill: none; stroke: var(--parch-300); }}
+.logo-fish, .logo-bubble {{ transform-box: fill-box; transform-origin: center; }}
+.logo-animated .logo-fish {{ animation: logo-swim 5s ease-in-out infinite; }}
+.logo-animated .logo-bubble {{ opacity: 0; animation: logo-rise 2.6s ease-in infinite; }}
+.logo-animated .logo-bubble-2 {{ animation-delay: 1.3s; }}
+@keyframes logo-swim {{
+  0% {{ transform: translate(-1px, 0) scaleX(1); }}
+  38% {{ transform: translate(2.5px, -1.4px) scaleX(1); }}
+  48% {{ transform: translate(3px, -0.4px) scaleX(-1); }}
+  86% {{ transform: translate(-2.2px, 0.9px) scaleX(-1); }}
+  96% {{ transform: translate(-2.4px, 0.2px) scaleX(1); }}
+  100% {{ transform: translate(-1px, 0) scaleX(1); }}
+}}
+@keyframes logo-rise {{
+  0% {{ transform: translateY(5px); opacity: 0; }}
+  25%, 75% {{ opacity: 1; }}
+  100% {{ transform: translateY(-4px); opacity: 0; }}
+}}
+@media (prefers-reduced-motion: reduce) {{
+  .logo-animated .logo-fish, .logo-animated .logo-bubble {{ animation: none; opacity: 1; }}
 }}
 </style>
 </head>
@@ -434,6 +462,61 @@ in words as well: the marker is a sentence, the bar has its count beside it, and
 a bar only when the limit is reached. The card grid, the line charts and the playtest hand are
 described in <code>DESIGN.md</code> (&ldquo;Pictures, markers and charts&rdquo;) and live at
 their templates; this file shows the tokens they are built from.</p>
+
+<h2>Motion (Phase 10)</h2>
+<div class="surface" style="display:flex;align-items:center;gap:1.2rem">
+  <svg viewBox="0 0 32 32" width="72" height="72" class="logo-animated" aria-hidden="true">
+    <defs><clipPath id="sg-flask">
+      <path d="M13 4.5h6v7l7.6 12.4A2.7 2.7 0 0 1 24.3 28H7.7a2.7 2.7 0 0 1-2.3-4.1L13 11.5z"/>
+    </clipPath></defs>
+    <rect width="32" height="32" rx="6" class="logo-ground"/>
+    <g clip-path="url(#sg-flask)"><rect y="17" width="32" height="15" class="logo-water"/></g>
+    <path d="M13 4.5h6v7l7.6 12.4A2.7 2.7 0 0 1 24.3 28H7.7a2.7 2.7 0 0 1-2.3-4.1L13 11.5z"
+          class="logo-glass" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M11.5 3.5h9" class="logo-glass" stroke-width="1.8" stroke-linecap="round"/>
+    <g clip-path="url(#sg-flask)"><g class="logo-fish">
+      <ellipse cx="17" cy="22.4" rx="4.6" ry="2.9" class="logo-fish-body"/>
+      <path d="M12.9 22.4l-3.6-2.7v5.4z" class="logo-fish-body"/>
+      <circle cx="19.2" cy="21.7" r="0.8" class="logo-fish-eye"/>
+    </g></g>
+    <circle cx="17.2" cy="14.6" r="1" class="logo-bubble" stroke-width="0.8"/>
+    <circle cx="15.4" cy="10.2" r="0.7" class="logo-bubble logo-bubble-2" stroke-width="0.7"/>
+  </svg>
+  <p style="margin:0;font-style:italic;color:var(--ink-700)">Keeping a two-lander. Living
+  dangerously.</p>
+</div>
+<p class="rule">While a run plays, and only then: the fish swims a circle in the flask, bubbles
+rise, and one loading line beside it changes every three to five seconds with a 600&nbsp;ms fade.
+The progress bar glides to each new value in 900&nbsp;ms. Under
+<code>prefers-reduced-motion</code> all of it stands still: a still logo, one line, a bar that
+steps. The shapes are the favicon's; only the colours moved into tokens.</p>
+<p class="rule">On the home page the header's fish is alive (<code>static/js/fish.js</code>): one
+short move now and then while nobody touches the page - a glance, a turn, rarely a jump out of the
+flask - and a click tilts the flask. Every move ends inside 2&nbsp;s; under reduced motion only the
+eye widens, on a click.</p>
+
+<h2>Deck summary (Phase 10)</h2>
+<div class="surface">
+  <h3 style="margin:0;color:var(--parch-700)">Mechanisms</h3>
+  <p style="margin:.5rem 0 0;display:flex;flex-wrap:wrap;gap:.4rem">
+    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.1rem .6rem;
+      border:1px solid var(--parch-600);border-radius:.75rem;background:var(--parch-50);
+      font-size:.85rem;color:var(--ink-900)"><span style="width:1rem;
+      border-top:3px solid var(--blood-600)"></span><strong>Ramp</strong> &middot; 11 cards
+      &middot; drawn by turn 4 in 91% of games</span>
+    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.1rem .6rem;
+      border:1px solid var(--parch-600);border-radius:.75rem;background:var(--parch-50);
+      font-size:.85rem;color:var(--ink-900)"><strong>Drain</strong> &middot; 4 cards</span>
+  </p>
+  <h3 style="margin:1rem 0 0;color:var(--verd-700)">Strengths</h3>
+  <p style="margin:.2rem 0 0">+ Plenty of early mana.</p>
+  <h3 style="margin:1rem 0 0;color:var(--blood-700)">Weaknesses</h3>
+  <p style="margin:.2rem 0 0">&minus; Few ways to draw cards.</p>
+  <h3 style="margin:1rem 0 0;color:var(--ink-700)">Tactics</h3>
+</div>
+<p class="rule">Every title in the deck summary has its colour and its word, and every strength
+or weakness its <strong>+</strong> or <strong>&minus;</strong>. A mechanism chip wears the swatch of
+its line in &ldquo;What you drew&rdquo;; the words say what it is.</p>
 
 <h2>Do &amp; Don't</h2>
 <div class="grid2">

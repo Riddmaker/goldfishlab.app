@@ -19,7 +19,7 @@ header, panels, buttons, empty states. **Data itself is set plainly.**
 
 WCAG 2.1 AA is the minimum, and it is enforced by test, not by intention:
 `tests/test_design_tokens.py` parses `assets/css/input.css` and fails CI if any declared role
-pairing drops below 4.5:1. **18 pairings are currently covered and all pass.**
+pairing drops below 4.5:1. **19 pairings are currently covered and all pass.**
 
 - **Colour is never the only carrier of meaning.** A card marked "not modelled" gets the word,
   not just a hue. This matters more here than in most products: the honesty layer (Phase 4) exists
@@ -105,6 +105,17 @@ This is a data product for someone reading probabilities, not a marketing page.
   tile, parchment-100 flask, blood-700 liquid, parchment-300 fish. It is the tab icon and sits
   beside the wordmark in the header. SVG only: every current browser takes an SVG tab icon, and
   the repository's push path is text-only. A PNG `apple-touch-icon` is the one thing missing.
+- **The mark, inline** (`core/_logo.html`, `.logo-*`, phase 10 E): the same shapes with a class
+  on each part and the colours as tokens, so it can move; a test keeps it equal to the favicon.
+  With `logo-animated` the fish swims a circle in the flask (5 s, turning round through a scaleX)
+  and two bubbles rise (2.6 s). It swims only while a run plays.
+- **The fish at home** (`static/js/fish.js`, phase 10 F): on the home page, and only there, the
+  header mark is the inline logo and a link marked `aria-current="page"`. Idle, the fish makes
+  one move under 2 s now and then - first after 20-30 s without input, then every 25-60 s, at
+  most six a visit: a glance (head turn, eye wide) about 60 %, a turn round about 30 %, a jump
+  out of the flask about 10 %, never two jumps running, always the glance first. A click tilts
+  the flask, sloshes the water and the fish glances; three clicks within 1.5 s and it jumps.
+  Reduced motion: no idle moves, and a click only widens the eye.
 - **Where a file goes, the whole area is the target.** A dashed parchment-600 box, blood-700 on
   hover and while a file is dragged over it, solid once a file is chosen, with the file's name in
   it. The real `<input type="file">` covers the box invisibly, so clicking and dropping are the
@@ -151,13 +162,58 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   rule". A progress-type bar carries `role="progressbar"` with its values.
 - **Line charts** (`simulations/_line_chart.html`, `.seen-*`): inline SVG, eight line colours, the
   last four dashed so a colour-blind reader can still tell them apart; checkbox chips hide a
-  line. The numbers sit under a "The numbers" fold.
+  line. The numbers sit under a "The numbers" fold. Since phase 10 a line explains itself:
+  pointing at it or its chip (or focusing or tapping it) fades the others to 0.2 and puts its
+  sentence in the info line under the chart; a count line shows a neutral ink band of ±1
+  spread, a share line a dot with a dashed guide at its typical turn.
 - **The playtest board** (`playtest/_board.html`, `.playtest-*`, `.hand-*`, `.pip-*`): the hand
   as a fan of card buttons that straighten and grow under the pointer or keyboard focus (a
   straight sideways row up to 48rem); mana as round pips in the colour pie with the letter
   inside; `prefers-reduced-motion` drops the transitions.
 - **"Why?"** (`core/_why.html`): the one small link beside a section that keeps a sentence and
   sends its explanation to a methodology anchor. `dark=True` on dark grounds.
+
+---
+
+# THE RUN PAGE (PHASE 10)
+
+The order follows what a person can do first: keep the deck (a guest), answer the cards the
+engine could not read, then the pictures, and the depth folded at the bottom.
+
+- **"Keep this deck"** (`simulations/_keep_deck.html`, `.keep-card*`), for guests only: a Magic
+  card made of tokens - an ink-950 border, a parchment frame, a name bar and a type line on
+  parchment-100, the commander's art (Scryfall's art crop) or the flask, a parchment-50 text box
+  with italic ink-700 flavour, and a blood-700 button. At most 18rem wide.
+- **"Cards that need your attention"** (`simulations/_attention.html`): the status marker in its
+  three states ("! 3 cards need you", "✓ All answered" with "Run the deck again", "✓ Nothing needs
+  you"), and under it the coverage line with "See what it could not read".
+- **While a run plays** (`simulations/_progress.html`, `_waiting.html`,
+  `static/js/run-progress.js`): the moving logo beside the bar, one italic ink-700 loading line
+  under it that fades (600 ms) to another every 3-5 s, and a bar that glides (900 ms) on a
+  curve that slows towards 95% (under 10% while the run waits in the queue) and never shows less
+  than the real share or 100 before the end. Beside the heading "Playing your deck" the line
+  "2,000 games" ("2,000 games, waiting for a free table" while queued); the exact counts once it
+  is over. Under `prefers-reduced-motion`: a still logo, one line, no glide.
+- **"Deck summary"** (`simulations/_summary.html`, `.summary-*`), the last block before
+  "Advanced". Each part's title has its colour: parchment-700 for what the deck is (feel,
+  mechanisms), verdigris-700 for strengths, blood-700 for weaknesses, ink-700 for the closing
+  tactics - and each point under strengths and weaknesses starts with **+** or **−**, so the
+  colour is never the only sign. The mechanisms are chips that are not switches: a parchment-50
+  frame with rounded corners (a long one wraps on a phone), ink-900 words "Removal · 9 cards ·
+  drawn by turn 4 in 78% of games", and the swatch of the same category's line in "What you
+  drew" in front. A mechanism the run does not count has no swatch. The written parts (phase 10
+  H) are plain ink-900 text under their titles; a strength or weakness has its sign hanging in
+  front in its colour (`.summary-point`, `.summary-sign-*`), so a wrapped line lines up with the
+  words. While Mistral writes, one italic ink-700 line "Writing your deck summary…". Under the
+  text, small ink-700: "Written by Mistral AI. It can be wrong. The numbers above are measured.",
+  then the "Write a summary" offer when there is one, then "Hide summaries".
+- **"Advanced"** (`simulations/_advanced.html`, `.report-advanced*`): a closed `<details>` on the
+  dark page; the summary is a display heading with the fold's contents named beside it and a
+  turning ▸ (no turn under `prefers-reduced-motion`). Inside: the mana table, the blind spots,
+  the engine version and seed.
+- **"The numbers"** under a chart: one sentence says what the rows are, each group has its unit
+  as a row heading, a count reads "3.2 ± 1.1", and the table scrolls sideways inside its fold on
+  a phone - the page never does.
 
 ---
 

@@ -185,7 +185,9 @@ def test_a_deck_the_engine_cannot_read_says_so_on_the_board(signed_in, owner):
     session = services.start(deck, owner, seed=1)
     body = signed_in.get(session.get_absolute_url()).content.decode()
     assert "could not read" in body
-    assert f"{session.cards_with_gaps}" in body
+    # Counted by copies since phase 10 (T5.9, K2): the decided change, not a leak.
+    assert f"<strong>{session.coverage_unreadable}</strong>" in body
+    assert f"<strong>{session.coverage_total}</strong>" in body
     assert reverse("simulations:review", args=[deck.id]) in body
 
 

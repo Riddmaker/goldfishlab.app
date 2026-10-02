@@ -51,7 +51,7 @@ from decks.fixtures import (
 from decks.models import Deck, DeckCard
 from simulation import analysis, mana
 from simulation.cards import DOUBLE_SUBTYPE, PER_CONTROLLED, TYPE_ADDING
-from simulations import blindspots
+from simulations import blindspots, gaps
 from simulations.engine import adapter
 from simulations.models import CardAnnotation
 
@@ -498,3 +498,24 @@ def test_a_deck_of_opponent_dependent_cards_still_simulates(build):
 
     assert result["iterations"] == GAMES
     assert blindspots.find(adapter.readings(deck)), "this deck of all decks must warn"
+
+
+def test_coverage_counts_every_copy(owner):
+    """Phase 10 T5.9 (K2): thirty Swamps are thirty of the deck, not one."""
+    deck = Deck.objects.create(owner=owner, name="thirty swamps")
+    swamp = OracleCard.objects.get(front_name="Swamp")
+    maze = OracleCard.objects.get(front_name="Maze of Ith")
+    DeckCard.objects.bulk_create([
+        DeckCard(deck=deck, oracle_card=swamp, quantity=30),
+        DeckCard(deck=deck, oracle_card=maze, quantity=1),
+    ])
+    deck.commander = OracleCard.objects.get(front_name="Kenrith, the Returned King")
+    deck.save(update_fields=["commander", "updated_at"])
+
+    conversion = adapter.convert(deck)
+    unreadable = gaps.cards_with(conversion.gaps, gaps.READING)
+
+    assert conversion.cards_total == 3
+    assert conversion.copies_total == 32, "30 Swamps, the Maze and the commander"
+    assert "Swamp" not in unreadable
+    assert conversion.copies_unreadable == len(unreadable) <= 2

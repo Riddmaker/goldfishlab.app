@@ -236,9 +236,10 @@ def _skips_draw_step(cards) -> bool:
 # --- What was seen ----------------------------------------------------------
 #
 # Phase 9 E. Everything above measures the board; this measures the cards a
-# player has had in hand so far - the opening hand they kept, every draw, every
-# tutored card - counted by type, by category and by mana value. "Seen" is
-# the word because a card that was drawn and cast is still one the player had.
+# player has drawn so far - the opening hand they kept and every draw, but not
+# a tutored card (phase 10 T5.1) - counted by type, by category and by mana
+# value. "Seen" is the word because a card that was drawn and cast is still one
+# the player had.
 #
 # Nothing here decides anything or touches the random stream, which is why it
 # runs on every game without changing a single number above it, and why the
@@ -297,19 +298,20 @@ def seen_groups(deck) -> tuple[tuple[str, ...], dict[str, tuple[int, ...]]]:
     return tuple(keys), table
 
 
-def _count_seen(game, board, groups) -> list[int]:
-    """How many cards of each group the player has seen by now.
+def _count_seen(game, groups) -> list[int]:
+    """How many cards of each group the player has drawn by now.
 
-    Every card out of the library: hand, battlefield, graveyard and exile. The
-    cards a mulligan put on the bottom are back in the library and are rightly
-    not counted, and the commander is in no group - it is not drawn.
+    The kept opening hand and every draw since: `Game.drawn`. Until phase 10
+    (T5.1) this walked hand, battlefield, graveyard and exile, which also
+    counted every card a tutor found and every land a Cultivate fetched - and
+    a "Tutor" line that rose because tutors found tutors. The cards a mulligan
+    put on the bottom are out of the list, and the commander is in no group.
     """
     keys, table = groups
     counts = [0] * len(keys)
-    for zone in (game.hand, board, game.graveyard, game.exiled):
-        for card in zone:
-            for slot in table.get(card.name, ()):
-                counts[slot] += 1
+    for card in game.drawn:
+        for slot in table.get(card.name, ()):
+            counts[slot] += 1
     return counts
 
 
@@ -374,7 +376,7 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
             "battlefield": board,
         }
         if groups is not None:
-            snapshot["seen"] = _count_seen(game, board, groups)
+            snapshot["seen"] = _count_seen(game, groups)
         per_turn.append(snapshot)
 
     measured = {
@@ -414,6 +416,7 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
     groups = seen_groups(deck)
     seen_cards = [[0] * len(groups[0]) for _ in range(turns)]
     seen_games = [[0] * len(groups[0]) for _ in range(turns)]
+    seen_squares = [[0] * len(groups[0]) for _ in range(turns)]
 
     counters = {field: Counter() for field in COUNTER_FIELDS}
     turn_stats = [{
@@ -457,10 +460,12 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
             stats["drain"] += _tagged(board, DRAIN_TAG)
             stats["ramp_engine"] += _scaling_mana_sources(board) >= 2
             cards, games = seen_cards[index], seen_games[index]
+            squares = seen_squares[index]
             for slot, count in enumerate(snapshot["seen"]):
                 if count:
                     cards[slot] += count
                     games[slot] += 1
+                    squares[slot] += count * count
 
     summary = {
         "iterations": iterations,
@@ -469,12 +474,14 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
         **counters,
         "turn_stats": turn_stats,
         # Per group and turn: cards seen, summed over the games (a mean, once
-        # divided by `iterations`), and games that had seen at least one (a
-        # share). Both are counts, so chunks merge by addition.
+        # divided by `iterations`), games that had seen at least one (a share),
+        # and the sum of the squared counts (with the mean, the spread - phase
+        # 10). All three are counts, so chunks merge by addition.
         "seen": {
             key: {
                 "cards": [seen_cards[turn][slot] for turn in range(turns)],
                 "games": [seen_games[turn][slot] for turn in range(turns)],
+                "squares": [seen_squares[turn][slot] for turn in range(turns)],
             }
             for slot, key in enumerate(groups[0])
         },
@@ -664,11 +671,16 @@ def merge(chunks) -> dict:
     return as_json(merged)
 
 
+#: The counters of one ``seen`` group. ``squares`` arrived in phase 10 and is
+#: absent from older results, which then show no spread.
+SEEN_FIELDS = ("cards", "games", "squares")
+
+
 def _copy_seen(seen: dict) -> dict:
     """The ``seen`` block, as fresh lists of plain integers."""
     return {
-        key: {"cards": [int(n) for n in entry["cards"]],
-              "games": [int(n) for n in entry["games"]]}
+        key: {field: [int(n) for n in entry[field]]
+              for field in SEEN_FIELDS if field in entry}
         for key, entry in seen.items()
     }
 
@@ -689,10 +701,15 @@ def _merge_seen(merged: dict, other: dict) -> None:
     for key, entry in other["seen"].items():
         held = seen.get(key)
         if held is None:
-            seen[key] = {"cards": list(entry["cards"]), "games": list(entry["games"])}
+            seen[key] = {field: list(entry[field]) for field in SEEN_FIELDS if field in entry}
             continue
-        for field in ("cards", "games"):
-            held[field] = [a + b for a, b in zip(held[field], entry[field], strict=True)]
+        for field in SEEN_FIELDS:
+            if field in held and field in entry:
+                held[field] = [a + b for a, b in zip(held[field], entry[field], strict=True)]
+            else:
+                # A chunk from before the spread was counted: the sum over
+                # part of the games would be a wrong spread, so there is none.
+                held.pop(field, None)
 
 
 def _merge_combos(merged: dict, other: dict) -> None:

@@ -211,6 +211,10 @@ makes "all the old tests still pass" mean anything.
 .venv/Scripts/python scripts/screenshots.py --out /tmp/shots
 .venv/Scripts/python scripts/screenshots.py --out /tmp/shots \
     --email demo@goldfishlab.test --password "$GOLDFISH_DEMO_PASSWORD" 
+
+# The two pictures on the home page are real pages of a guest trial. This one
+# writes INTO static/img/ (720 x 540 WebP each); look at both before committing.
+.venv/Scripts/python scripts/home_pictures.py path/to/a-deck.csv
 ```
 
 After a change to `simulation/`, compare the engine's speed before and after with

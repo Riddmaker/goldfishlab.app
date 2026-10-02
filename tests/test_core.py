@@ -13,6 +13,16 @@ def test_home_renders(client):
     response = client.get(reverse("home"))
     assert response.status_code == 200
     assert b"it actually plays your deck" in response.content
+    assert b"Know your deck before game night." in response.content
+
+
+def test_step_one_is_not_only_for_archidekt(client):
+    """Phase 10 T1.3: any deck site's export, or a list copied by hand."""
+    body = client.get(reverse("home")).content.decode()
+
+    assert "Export or copy your list" in body
+    assert "Archidekt, Moxfield, ManaBox" in body
+    assert "Export from Archidekt" not in body
 
 
 def test_home_carries_the_fan_content_disclaimer(client):

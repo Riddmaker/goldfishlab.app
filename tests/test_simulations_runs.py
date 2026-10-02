@@ -13,6 +13,7 @@ What these tests are really for, in order of how much they matter:
    run is finished the fragment comes back without it.
 """
 
+import re
 from pathlib import Path
 
 import pytest
@@ -710,6 +711,21 @@ def test_the_run_page_draws_what_was_seen(client, owner, run, fake_redis):
     assert "<polyline" in body
     assert "seen-bars-2" in body
     assert "Run the deck again" not in body
+
+
+def test_the_curve_opens_on_turn_one(client, owner, run, fake_redis):
+    """Phase 10 T5.4: always turn 1, and Firefox may not restore the last pick."""
+    chunks = [tasks.simulate_chunk(str(run.pk), 0, 20)]
+    tasks.finalize_run(chunks, str(run.pk))
+    client.force_login(owner)
+
+    body = client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+    radios = re.findall(r'<input type="radio"\s+name="seen-curve-turn"[^>]*>', body)
+
+    assert len(radios) > 1
+    assert [("checked" in radio) for radio in radios] == [True] + [False] * (len(radios) - 1)
+    assert 'id="seen-turn-1"' in radios[0]
+    assert all('autocomplete="off"' in radio for radio in radios)
 
 
 def test_an_old_run_asks_to_be_run_again(client, owner, run, fake_redis):

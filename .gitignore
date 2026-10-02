@@ -43,3 +43,7 @@ htmlcov/
 /docs/phases/phase-8-launch.md
 /docs/phases/pre-launch-review.md
 /docs/phases/vat-managed-payments.md
+# The operator's manual test reports (raw notes and the cleaned-up version),
+# and the phase plan that works from them.
+/Testbericht*
+/docs/phases/phase-10-test-findings.md

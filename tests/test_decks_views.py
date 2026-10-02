@@ -412,6 +412,19 @@ def test_the_import_page_offers_both_ways_in(signed_in):
     assert "Any CSV works." in body
 
 
+def test_the_import_page_says_what_a_deck_file_needs(signed_in):
+    """Phase 10 T2.1: visible, not only for screen readers - and true.
+
+    The importer's own tests prove the sentence: bare names, quantities and set
+    codes all parse (`test_plain_text_line_shapes`), and a CSV without a
+    quantity column is counted once per row on the mapping screen.
+    """
+    body = signed_in.get(reverse("decks:import")).content.decode()
+
+    assert "Only the card names are needed. Quantities and set codes work too." in body
+    assert 'id="dropzone-hint" class="sr-only"' not in body
+
+
 def test_deleting_a_deck_leaves_the_catalogue_alone(signed_in, deck):
     cards_before = OracleCard.objects.count()
     signed_in.post(reverse("decks:delete", args=[deck.id]))

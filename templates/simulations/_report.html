@@ -29,7 +29,8 @@
                  name="seen-curve-turn"
                  id="seen-turn-{{ step.turn }}"
                  class="seen-toggle seen-pick-{{ step.turn }}"
-                 {% if forloop.last %}checked{% endif %}>
+                 {% if forloop.first %}checked{% endif %}
+                 autocomplete="off">
           <label for="seen-turn-{{ step.turn }}" class="seen-chip">Turn {{ step.turn }}</label>
         {% endfor %}
       </div>

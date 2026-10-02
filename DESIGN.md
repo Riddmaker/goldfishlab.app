@@ -184,9 +184,9 @@ engine could not read, then the pictures, and the depth folded at the bottom.
   `static/js/run-progress.js`): the moving logo beside the bar, one italic ink-700 loading line
   under it that fades (600 ms) to another every 3-5 s, and a bar that glides (900 ms) on a
   curve that slows towards 95% (under 10% while the run waits in the queue) and never shows less
-  than the real share or 100 before the end. Beside the bar "Playing 2,000 games" ("2,000 games,
-  waiting for a free table" while queued); the exact counts once it is over. Under
-  `prefers-reduced-motion`: a still logo, one line, no glide.
+  than the real share or 100 before the end. Beside the heading "Playing your deck" the line
+  "2,000 games" ("2,000 games, waiting for a free table" while queued); the exact counts once it
+  is over. Under `prefers-reduced-motion`: a still logo, one line, no glide.
 - **"Advanced"** (`simulations/_advanced.html`, `.report-advanced*`): a closed `<details>` on the
   dark page; the summary is a display heading with the fold's contents named beside it and a
   turning ▸ (no turn under `prefers-reduced-motion`). Inside: the mana table, the blind spots,

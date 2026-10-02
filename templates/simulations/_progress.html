@@ -44,7 +44,8 @@
       {% elif run.status == "pending" %}
         {{ run.games_total|intcomma }} games, waiting for a free table
       {% else %}
-        Playing {{ run.games_total|intcomma }} games
+        {# The heading already says "Playing your deck". #}
+        {{ run.games_total|intcomma }} games
       {% endif %}
     </span>
     {% if not run.is_finished %}

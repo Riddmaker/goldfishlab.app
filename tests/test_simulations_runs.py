@@ -554,7 +554,9 @@ def test_a_playing_run_says_what_it_plays_not_a_count_beside_a_gliding_bar(clien
 
     body = client.get(reverse("simulations:progress", args=[run.pk])).content.decode()
 
-    assert f"Playing {run.games_total:,} games" in body
+    assert f"{run.games_total:,} games" in body
+    # The heading says "Playing your deck"; the line does not say it twice.
+    assert body.count("Playing") == 1
     assert f"of {run.games_total} games" not in body
     assert "batches" not in body
     assert "data-expected=" in body

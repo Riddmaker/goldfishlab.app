@@ -62,7 +62,9 @@ def missing(readings) -> list[str]:
 #: anybody's summary, because that would charge them for our change.
 #: 2 = phase 11 D: title and tagline, tactics about the deck's strategies.
 #: 3 = phase 11 E: "strategies", cards picked from the lists we offer.
-PROMPT_VERSION = 3
+#: 4 = phase 11 F: the land verdict worked out, no card from the deck picked,
+#: changes from the deck's own numbers; six shorter candidates a strategy.
+PROMPT_VERSION = 4
 
 #: Room for the JSON answer. Each part is "not longer than a paragraph"
 #: (T6.1); this is generous and still bounds the cost of a runaway answer.
@@ -92,13 +94,16 @@ SYSTEM_PROMPT = (
     "its cards with their categories, its mana curve, its combos, exact "
     "odds for the opening hand and for the first turns, and for each of its "
     "strategies a short list of catalogue cards that would feed it. Use only these "
-    "facts and your knowledge of the named cards. "
+    "facts and your knowledge of the named cards. Every card in \"cards\" is "
+    "already in the deck; the candidates are not. "
     "Never invent numbers; quote only numbers that are in the facts. Judge counts "
     "against this deck's own size (cards_in_library) and the land band given for "
     "it, not against a fixed 99. If combos_in_deck is null, nobody has looked the "
     "deck up for combos: say nothing about combos at all. Outside \"strategies\", "
     "do not suggest specific new cards by name - suggest changes as roles and "
-    'counts (for example "two more card draw spells").\n\n'
+    "counts. For the land count, follow lands_compared_with_usual. Base every "
+    "suggested change on this deck's own numbers, the strategies with the lowest "
+    "chances first; never suggest more of a kind by habit.\n\n"
     "Answer with one JSON object and nothing else, with exactly these keys, in "
     "this order:\n"
     '- "title": a name for the deck in two to four words, the way players nickname '
@@ -118,7 +123,8 @@ SYSTEM_PROMPT = (
     "and \"cards\": at most three cards from that strategy's own candidates, each an "
     'object with "name" (exactly as given) and "reason" (why it fits this deck, at '
     "most 120 characters). Never name a card that is not in that strategy's "
-    "candidates. Prefer cards that fit the deck's theme and its commander over the "
+    "candidates, and never one from \"cards\": the deck already plays those. "
+    "Prefer cards that fit the deck's theme and its commander over the "
     "merely popular.\n"
     "Write about this deck: a sentence that would fit any deck says nothing. "
     "Plain sentences only: no Markdown, no lists inside strings, no links, no "
@@ -168,6 +174,8 @@ def facts(deck, readings) -> dict:
     library = [reading for reading in readings if not reading.is_commander]
     population = sum(reading.quantity for reading in library)
     lands = sum(reading.quantity for reading in library if reading.card.is_land)
+    usual_min = round(population * KARSTEN_MIN / 99)
+    usual_max = round(population * KARSTEN_MAX / 99)
     labels = dict(SEEN_ROLES + SEEN_STRATEGY_ROLES)
     counts = dict.fromkeys(labels, 0)
     cards = []
@@ -197,8 +205,11 @@ def facts(deck, readings) -> dict:
         "lands": lands,
         # Karsten's 35-38 for 99 cards, scaled to this deck: the first F7 pass
         # called 24 lands in 48 cards "very low", measured against 99.
-        "usual_lands_for_this_size": (
-            f"{round(population * KARSTEN_MIN / 99)}-{round(population * KARSTEN_MAX / 99)}"
+        "usual_lands_for_this_size": f"{usual_min}-{usual_max}",
+        # Batch F: worked out here - the model read "22 lands" as low against
+        # a usual 18-19.
+        "lands_compared_with_usual": (
+            "below" if lands < usual_min else "above" if lands > usual_max else "within"
         ),
         "average_mana_value_of_spells": analysis.average_mv,
         "curve_of_spells": {("7+" if value == 7 else str(value)): count
@@ -303,13 +314,14 @@ def _strategies(value, offered) -> list[dict]:
     """Mistral's picks, checked against what it was offered (Principle 3).
 
     An unknown strategy, a card not on that strategy's list (the list holds no
-    card of the deck), a second mention - each is dropped without a word, and
-    so is a strategy left without a card. Names are stored as we spelled them.
+    card of the deck), a second mention - also under another strategy - each is
+    dropped without a word, and so is a strategy left without a card. Names are
+    stored as we spelled them.
     """
     if not isinstance(value, list):
         return []
     lists = {row["strategy"].casefold(): row for row in offered or []}
-    chosen, seen = [], set()
+    chosen, seen, named = [], set(), set()
     for item in value:
         if len(chosen) == STRATEGIES_MAX:
             break
@@ -324,8 +336,9 @@ def _strategies(value, offered) -> list[dict]:
         for card in item.get("cards") if isinstance(item.get("cards"), list) else []:
             name = (names.get(card["name"].strip().casefold())
                     if isinstance(card, dict) and isinstance(card.get("name"), str) else None)
-            if name is None or any(kept["name"] == name for kept in cards):
+            if name is None or name in named:
                 continue
+            named.add(name)
             cards.append({"name": name, "reason": _optional(card.get("reason"), REASON_MAX)})
             if len(cards) == CARDS_MAX:
                 break

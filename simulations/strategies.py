@@ -34,7 +34,7 @@ from simulations.summary import BY_TURN, SEEN_BY_TURN, at_least_one
 #: A category is a strategy from this many cards in the library.
 MIN_CARDS = 2
 #: Candidates per strategy offered to Mistral.
-CANDIDATES = 10
+CANDIDATES = 6
 #: "with two more": the odds if this many more cards of the kind were played.
 MORE = 2
 #: Without Mistral: this many strategies, the biggest, with this many cards.
@@ -165,7 +165,7 @@ def offered(readings) -> list[dict]:
 
 
 #: Oracle text offered to Mistral, cut here.
-TEXT_MAX = 300
+TEXT_MAX = 200
 
 
 def _card(card) -> dict:

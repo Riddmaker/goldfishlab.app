@@ -168,7 +168,19 @@ def test_the_facts_offer_each_strategy_with_its_candidates(deck, readings):
         assert all(len(card["text"]) <= strategies.TEXT_MAX + 1 for card in row["candidates"])
     assert '"strategies"' in summary.SYSTEM_PROMPT
     assert "Never name a card that is not in that strategy's candidates" in summary.SYSTEM_PROMPT
-    assert summary.PROMPT_VERSION == 3
+    assert 'never one from "cards"' in summary.SYSTEM_PROMPT
+    assert summary.PROMPT_VERSION == 4
+
+
+def test_the_land_verdict_is_worked_out_not_left_to_the_model(deck, readings):
+    """Batch F: "22 lands, low against the usual 18-19" was the model's own reading."""
+    deck_facts = summary.facts(deck, readings)
+    low, high = (int(part) for part in deck_facts["usual_lands_for_this_size"].split("-"))
+    lands = deck_facts["lands"]
+    expected = "below" if lands < low else "above" if lands > high else "within"
+
+    assert deck_facts["lands_compared_with_usual"] == expected
+    assert "lands_compared_with_usual" in summary.SYSTEM_PROMPT
 
 
 ANSWER = {
@@ -219,6 +231,23 @@ def test_three_strategies_with_three_cards_at_most(deck, readings):
     assert len(picks) <= summary.STRATEGIES_MAX
     assert len(picks[0]["cards"]) == summary.CARDS_MAX
     assert len({pick["key"] for pick in picks}) == len(picks)
+
+
+def test_a_card_is_named_under_one_strategy_only():
+    """Batch F: Mind Stone came back under both Ramp and Card draw."""
+    stone = {"name": "Mind Stone", "type": "Artifact", "mana_cost": "{2}", "text": ""}
+    offered = [
+        {"strategy": "Ramp", "candidates": [stone, {**stone, "name": "Sol Ring"}]},
+        {"strategy": "Card draw", "candidates": [stone, {**stone, "name": "Skullclamp"}]},
+    ]
+
+    picks = _parse([
+        {"strategy": "Ramp", "cards": [{"name": "Mind Stone"}, {"name": "Sol Ring"}]},
+        {"strategy": "Card draw", "cards": [{"name": "Mind Stone"}, {"name": "Skullclamp"}]},
+    ], offered)
+
+    assert [[card["name"] for card in pick["cards"]] for pick in picks] == [
+        ["Mind Stone", "Sol Ring"], ["Skullclamp"]]
 
 
 def test_an_answer_without_strategies_is_still_a_summary(deck, readings):

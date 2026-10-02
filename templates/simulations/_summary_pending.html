@@ -1,0 +1,11 @@
+{% comment %}
+  The deck summary while Mistral writes it (phase 10 H, T6.2). Polls
+  `simulations:summary` every 3 s, which answers with this same line while the
+  summary is pending and with `HX-Refresh` once it is not - the page reloads
+  with the text in its place, the way the progress fragment ends a run.
+  Without JavaScript it is a line that a reload replaces.
+{% endcomment %}
+<p class="mt-3 text-ink-700 italic"
+   hx-get="{% url 'simulations:summary' run.id %}"
+   hx-trigger="every 3s"
+   hx-swap="outerHTML">Writing your deck summary…</p>

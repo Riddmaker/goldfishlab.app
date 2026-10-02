@@ -375,3 +375,42 @@ class SimulationRun(models.Model):
     @property
     def coverage_read(self) -> int:
         return max(0, self.coverage_total - self.coverage_unreadable)
+
+
+class DeckSummary(models.Model):
+    """The written part of a deck's summary (phase 10 H, T6.2), one per deck.
+
+    Written by Mistral while a run plays, kept, and shown again until the deck
+    changes: `fingerprint` is the cards, their counts, the commander and the
+    annotations in the scope the engine merges (`simulations.summary.
+    fingerprint`). A new prompt alone does not rewrite anything - that would
+    charge people for our change - which is why `prompt_version` is recorded
+    and not compared.
+
+    `charged` is whether a run was taken from the owner's monthly allowance
+    for it, so a failure gives back exactly what was taken, once.
+    """
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Being written"
+        DONE = "done", "Written"
+        FAILED = "failed", "Could not be written"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    deck = models.OneToOneField(Deck, on_delete=models.CASCADE, related_name="summary")
+    fingerprint = models.CharField(max_length=64)
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.PENDING)
+    #: The checked answer: {"feel": str, "strengths": [str], "weaknesses": [str],
+    #: "tactics": str}. Empty until it is written.
+    content = models.JSONField(default=dict, blank=True)
+    model_name = models.CharField(max_length=64, blank=True)
+    prompt_version = models.PositiveSmallIntegerField(default=0)
+    prompt_tokens = models.PositiveIntegerField(default=0)
+    completion_tokens = models.PositiveIntegerField(default=0)
+    charged = models.BooleanField(default=False)
+    error = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"Summary of {self.deck_id} ({self.status})"

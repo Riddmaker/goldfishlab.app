@@ -22,6 +22,10 @@ urlpatterns = [
     path("runs/<uuid:pk>/", views.RunDetailView.as_view(), name="detail"),
     path("runs/<uuid:pk>/progress/", views.RunProgressView.as_view(), name="progress"),
     path("runs/<uuid:pk>/cancel/", views.RunCancelView.as_view(), name="cancel"),
+    path("runs/<uuid:pk>/summary/", views.RunSummaryView.as_view(), name="summary"),
+    path("runs/<uuid:pk>/summary/write/", views.SummaryWriteView.as_view(),
+         name="write_summary"),
+    path("summaries/switch/", views.SummarySwitchView.as_view(), name="summary_switch"),
     path("decks/<uuid:pk>/tune/", views.tune_moved),
     path("decks/<uuid:pk>/review/", views.DeckReviewView.as_view(), name="review"),
     path(

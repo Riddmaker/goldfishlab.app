@@ -17,16 +17,19 @@ out what the engine read off their cards, and say so when it read them wrong.
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import DetailView, View
 from django_ratelimit.decorators import ratelimit
 
 from billing import quotas
 from billing import views as billing_views
+from billing.models import UsageRecord
 from billing.quotas import QuotaExceeded
 from cards.models import OracleCard
 from decks.models import Deck
@@ -128,6 +131,9 @@ class RunDetailView(OwnedRunsMixin, DetailView):
             # The deck summary's chips: the cards counted now, the shares
             # from this run (simulations/summary.py says why both).
             context["mechanisms"] = summary.mechanisms(readings, context["report"])
+            # The written part (phase 10 H), unless the viewer switched it off.
+            if self.request.user.deck_summaries:
+                context["written"] = summary.state(self.request.user, run.deck)
             # The deck as it stands now, like the blind spots: "cards that need
             # your attention" is about what a person can still do.
             context["open_questions"] = review.open_questions(run.deck)
@@ -160,6 +166,77 @@ class RunProgressView(OwnedRunsMixin, DetailView):
         if self.object.is_finished and self.request.headers.get("HX-Request"):
             response.headers["HX-Refresh"] = "true"
         return response
+
+
+class RunSummaryView(OwnedRunsMixin, DetailView):
+    """The deck summary while it is being written: the progress view's trick.
+
+    Answers with the small "Writing your deck summary" line, carrying its own
+    `hx-trigger`, while the row is pending; once it is not, `HX-Refresh`, and
+    the page reloads with the text in its place.
+    """
+
+    template_name = "simulations/_summary_pending.html"
+    context_object_name = "run"
+
+    def render_to_response(self, context, **kwargs):
+        from simulations.models import DeckSummary
+
+        response = super().render_to_response(context, **kwargs)
+        pending = DeckSummary.objects.filter(
+            deck=self.object.deck, status=DeckSummary.Status.PENDING).exists()
+        if not pending and self.request.headers.get("HX-Request"):
+            response.headers["HX-Refresh"] = "true"
+        return response
+
+
+@method_decorator(ratelimit(key="user", rate="10/m", method="POST"), name="post")
+class SummaryWriteView(OwnedRunsMixin, View):
+    """"Write a summary for this deck" (phase 10 H, P8): one click, one run.
+
+    The fifth call site of `quotas.check()`. Posted from a run page, and back
+    to it: the run is fetched through the owner's runs, so a guessed id is a
+    404, and the deck is that run's.
+    """
+
+    def post(self, request, pk):
+        run = get_object_or_404(self.get_queryset(), pk=pk)
+        back = f"{run.get_absolute_url()}#summary"
+        user = request.user
+        # Nothing to write - current, already being written, switched off, a
+        # guest, no Mistral: back to the page, which shows why.
+        if user.is_guest or not summary.due(user, run.deck):
+            return redirect(back)
+        try:
+            quotas.check(user, UsageRecord.Metric.RUNS_STARTED)
+        except QuotaExceeded as exc:
+            return billing_views.upgrade_prompt(request, str(exc))
+        with transaction.atomic():
+            if summary.claim(user, run.deck):
+                quotas.consume(user, UsageRecord.Metric.RUNS_STARTED)
+                summary.begin(run.deck, charged=True)
+        return redirect(back)
+
+
+class SummarySwitchView(LoginRequiredMixin, View):
+    """Deck summaries on or off, for the whole account (phase 10 H, T6.5).
+
+    "Hide summaries" on the run page, "Show deck summaries" on "Your plan".
+    Back to where it was pressed, if that is a page of ours.
+    """
+
+    def post(self, request):
+        request.user.deck_summaries = request.POST.get("on") == "1"
+        request.user.save(update_fields=["deck_summaries"])
+        if request.user.deck_summaries:
+            messages.success(request, "Deck summaries are on again.")
+        else:
+            messages.success(request, "Deck summaries are off. Switch them on again on Your plan.")
+        target = request.POST.get("next", "")
+        if not url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()},
+                                               require_https=request.is_secure()):
+            target = reverse("billing:plans")
+        return redirect(target)
 
 
 class RunCancelView(OwnedRunsMixin, View):

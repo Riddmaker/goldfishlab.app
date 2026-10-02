@@ -29,8 +29,9 @@ a true sentence and a useful one.
 
 **No fifth `quotas.check()` call site.** The games are the run's own, planned
 where the run is planned and consumed where the run's games are consumed.
-`billing/quotas.py` still documents exactly four places that decide whether
-somebody may do something, and this is not one of them.
+`billing/quotas.py` documents every place that decides whether somebody may do
+something - five since phase 10 H added the deck summary's button - and this is
+not one of them.
 """
 
 from dataclasses import dataclass, field, replace

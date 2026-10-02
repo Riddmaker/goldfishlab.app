@@ -60,6 +60,29 @@
         </div>
       {% endfor %}
     </dl>
+    {% if summaries_available and not user.is_guest %}
+      {% comment %}
+        Phase 10 H (T6.5, P8): the deck summary's switch. Off from "Hide
+        summaries" on a run page, on again only here; a deck then offers
+        "Write a summary" on its run page.
+      {% endcomment %}
+      <div id="deck-summaries" class="mt-5 border-t border-parchment-400 pt-4 text-sm">
+        {% if user.deck_summaries %}
+          <p class="text-ink-900">
+            <strong>Deck summaries are on.</strong>
+            A new one is written when you run a changed deck, and uses one simulation.
+          </p>
+        {% else %}
+          <form method="post" action="{% url 'simulations:summary_switch' %}" class="flex flex-wrap items-center gap-x-4 gap-y-2">
+            {% csrf_token %}
+            <input type="hidden" name="on" value="1">
+            <input type="hidden" name="next" value="{% url 'billing:plans' %}#deck-summaries">
+            <span class="text-ink-900"><strong>Deck summaries are off.</strong></span>
+            <button type="submit" class="text-ink-900 underline">Show deck summaries again</button>
+          </form>
+        {% endif %}
+      </div>
+    {% endif %}
   </section>
 
   {% if not can_pay %}

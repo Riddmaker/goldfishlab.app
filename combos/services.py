@@ -14,10 +14,10 @@ Two rules that follow from it, both deliberate:
    a key down and turning this application into a load generator against a free
    service. It returns the existing lookup and says why.
 
-Not metered. `billing/quotas.py` documents exactly four `check()` call sites
-and a fifth would be a bug; the cache and the cooldown are what bound this, and
-they bound it per deck rather than per person, which is the right axis for a
-cost that is somebody else's bandwidth.
+Not metered. `billing/quotas.py` documents every `check()` call site (five
+since phase 10 H) and another one here would be a bug; the cache and the
+cooldown are what bound this, and they bound it per deck rather than per
+person, which is the right axis for a cost that is somebody else's bandwidth.
 """
 
 import hashlib

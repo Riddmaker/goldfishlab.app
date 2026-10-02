@@ -300,3 +300,51 @@ def _close(run: SimulationRun, status: str, *, error: str = "", fields=None) -> 
     services.finish_slot(run)
     run.status, run.error, run.finished_at = status, error, now
     return True
+
+
+# --- the deck summary (phase 10 H) ---------------------------------------------
+
+
+@shared_task(name="simulations.write_summary")
+def write_summary(summary_id: str) -> str:
+    """Have Mistral write a deck's summary, check it, and keep it.
+
+    On the default queue, beside the run it was started with, and short: one
+    request. Any failure - Mistral down, an answer that does not check out -
+    closes the row as failed and gives back the run it was charged, **once**:
+    the row is closed by a conditional update, and only the call that closed
+    it refunds, the way `_close` settles a run.
+    """
+    from simulations import mistral, summary
+    from simulations.models import DeckSummary
+
+    row = DeckSummary.objects.select_related("deck", "deck__owner").filter(
+        pk=summary_id, status=DeckSummary.Status.PENDING).first()
+    if row is None:
+        return "nothing to write"
+    deck = row.deck
+    try:
+        readings = adapter.readings(deck)
+        completion = mistral.complete(summary.messages(summary.facts(deck, readings)),
+                                      max_tokens=summary.MAX_TOKENS)
+        content = summary.parse(completion.content)
+    except (mistral.MistralError, ValueError) as exc:
+        # The message names what went wrong, never the request: no key, no deck.
+        logger.warning("summary %s not written: %s", summary_id, exc)
+        closed = DeckSummary.objects.filter(
+            pk=row.pk, status=DeckSummary.Status.PENDING,
+        ).update(status=DeckSummary.Status.FAILED, error=str(exc)[:200], charged=False)
+        if closed and row.charged:
+            quotas.refund(deck.owner, UsageRecord.Metric.RUNS_STARTED)
+        return DeckSummary.Status.FAILED
+
+    DeckSummary.objects.filter(pk=row.pk, status=DeckSummary.Status.PENDING).update(
+        status=DeckSummary.Status.DONE,
+        content=content,
+        model_name=completion.model[:64],
+        prompt_version=summary.PROMPT_VERSION,
+        prompt_tokens=completion.prompt_tokens,
+        completion_tokens=completion.completion_tokens,
+        updated_at=timezone.now(),
+    )
+    return DeckSummary.Status.DONE

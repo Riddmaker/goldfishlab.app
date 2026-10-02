@@ -201,7 +201,12 @@ engine could not read, then the pictures, and the depth folded at the bottom.
   colour is never the only sign. The mechanisms are chips that are not switches: a parchment-50
   frame with rounded corners (a long one wraps on a phone), ink-900 words "Removal · 9 cards ·
   drawn by turn 4 in 78% of games", and the swatch of the same category's line in "What you
-  drew" in front. A mechanism the run does not count has no swatch.
+  drew" in front. A mechanism the run does not count has no swatch. The written parts (phase 10
+  H) are plain ink-900 text under their titles; a strength or weakness has its sign hanging in
+  front in its colour (`.summary-point`, `.summary-sign-*`), so a wrapped line lines up with the
+  words. While Mistral writes, one italic ink-700 line "Writing your deck summary…". Under the
+  text, small ink-700: "Written by Mistral AI. It can be wrong. The numbers above are measured.",
+  then the "Write a summary" offer when there is one, then "Hide summaries".
 - **"Advanced"** (`simulations/_advanced.html`, `.report-advanced*`): a closed `<details>` on the
   dark page; the summary is a display heading with the fold's contents named beside it and a
   turning ▸ (no turn under `prefers-reduced-motion`). Inside: the mana table, the blind spots,

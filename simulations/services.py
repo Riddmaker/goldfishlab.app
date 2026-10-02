@@ -10,6 +10,12 @@ stays a view. Four things happen at enqueue and the order matters:
 
 If step 3 fails the quota is given straight back, because nothing was run.
 
+Since phase 10 H a run can bring the deck's written summary with it, when the
+deck changed since the last one (`simulations.summary.due`). That costs one
+more run of the allowance: two are checked and debited together. With only
+one left the run has priority and goes alone - the page then says there was
+no run left for a new summary. A guest's one summary is free.
+
 The second half of the module, from "recording a judgement" on, is Phase 4's
 annotation writing. It is here for the same reason: four decisions have to be
 got right every time an annotation is saved, and a view is not the place to
@@ -74,6 +80,18 @@ def start_run(*, owner, deck, games: int, turns: int, on_the_play: bool = True,
 
     quotas.check(owner, UsageRecord.Metric.RUNS_STARTED)
 
+    # The summary rides along when it is due and, for a member, when the
+    # allowance has room for both (phase 10 H, T6.5). Decided before the slot
+    # is taken, so nothing here can leak one.
+    from simulations import summary
+
+    write_summary = summary.due(owner, deck)
+    charge_summary = write_summary and not owner.is_guest
+    if charge_summary:
+        both = quotas.check(owner, UsageRecord.Metric.RUNS_STARTED, amount=2,
+                            raise_on_fail=False)
+        write_summary = charge_summary = both.allowed
+
     # Guests share one allowance of workers between them, whoever they are.
     if getattr(owner, "is_guest", False):
         from guests import services as guests
@@ -94,6 +112,10 @@ def start_run(*, owner, deck, games: int, turns: int, on_the_play: bool = True,
     try:
         with transaction.atomic():
             quotas.consume(owner, UsageRecord.Metric.RUNS_STARTED)
+            if write_summary and summary.claim(owner, deck):
+                if charge_summary:
+                    quotas.consume(owner, UsageRecord.Metric.RUNS_STARTED)
+                summary.begin(deck, charged=charge_summary)
             run = SimulationRun.objects.create(
                 owner=owner,
                 deck=deck,

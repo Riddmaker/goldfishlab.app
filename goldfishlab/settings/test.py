@@ -11,3 +11,8 @@ pytest selects this module (pyproject.toml, and the CI job's environment).
 from .dev import *  # noqa: F403
 
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+
+# Never the developer's real Mistral key from .env: a test that forgot to stub
+# the client must fail on "not configured", not spend money and send a deck
+# list to a third party. Tests that need it set their own fake value.
+MISTRAL_API_KEY = ""

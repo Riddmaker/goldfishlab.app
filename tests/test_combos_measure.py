@@ -18,7 +18,7 @@ damage:
    sentence instead. A template ("any creature with persist") is a Scryfall
    search, not a card, and a silent zero beside it would be a lie.
 4. **The cost is bounded and it is the run's own.** `billing/quotas.py`
-   documents exactly four `check()` call sites and a fifth would be a bug, so
+   documents every `check()` call site and one more here would be a bug, so
    the hypotheticals are rationed out of the run's own budget.
 """
 

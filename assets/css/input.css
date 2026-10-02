@@ -686,6 +686,25 @@ body {
   color: var(--color-ink-700);
 }
 
+/* A strength or weakness: its sign hangs in front, so a wrapped line lines up
+ * with the words, not with the sign. */
+.summary-point {
+  position: relative;
+  margin-top: 0.25rem;
+  padding-left: 1.25rem;
+}
+.summary-sign {
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+.summary-sign-plus {
+  color: var(--color-verdigris-700);
+}
+.summary-sign-minus {
+  color: var(--color-blood-700);
+}
+
 .summary-chips {
   display: flex;
   flex-wrap: wrap;

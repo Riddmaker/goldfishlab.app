@@ -36,6 +36,7 @@ EXPORTED = [
     ("pending_imports", "decks.PendingImport", "owner"),
     ("simulation_runs", "simulations.SimulationRun", "owner"),
     ("card_annotations", "simulations.CardAnnotation", "owner"),
+    ("deck_summaries", "simulations.DeckSummary", "deck__owner"),
     ("playtest_sessions", "playtest.PlaytestSession", "owner"),
     ("playtest_actions", "playtest.PlaytestAction", "session__owner"),
     ("subscription", "billing.Subscription", "user"),
@@ -87,6 +88,7 @@ def export(user) -> dict:
             "last_login": user.last_login,
             "first_name": user.first_name,
             "last_name": user.last_name,
+            "deck_summaries": user.deck_summaries,
         },
         "exported_at": _now(),
         # Named in the file itself, because a person who opens an export and

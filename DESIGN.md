@@ -108,7 +108,14 @@ This is a data product for someone reading probabilities, not a marketing page.
 - **The mark, inline** (`core/_logo.html`, `.logo-*`, phase 10 E): the same shapes with a class
   on each part and the colours as tokens, so it can move; a test keeps it equal to the favicon.
   With `logo-animated` the fish swims a circle in the flask (5 s, turning round through a scaleX)
-  and two bubbles rise (2.6 s). It moves only while a run plays.
+  and two bubbles rise (2.6 s). It swims only while a run plays.
+- **The fish at home** (`static/js/fish.js`, phase 10 F): on the home page, and only there, the
+  header mark is the inline logo and a link marked `aria-current="page"`. Idle, the fish makes
+  one move under 2 s now and then - first after 20-30 s without input, then every 25-60 s, at
+  most six a visit: a glance (head turn, eye wide) about 60 %, a turn round about 30 %, a jump
+  out of the flask about 10 %, never two jumps running, always the glance first. A click tilts
+  the flask, sloshes the water and the fish glances; three clicks within 1.5 s and it jumps.
+  Reduced motion: no idle moves, and a click only widens the eye.
 - **Where a file goes, the whole area is the target.** A dashed parchment-600 box, blood-700 on
   hover and while a file is dragged over it, solid once a file is chosen, with the file's name in
   it. The real `<input type="file">` covers the box invisibly, so clicking and dropping are the

@@ -60,5 +60,9 @@ def test_every_moving_part_stands_still_for_reduced_motion():
     still = css[css.rindex("@media (prefers-reduced-motion: reduce)"):]
 
     for part in (".logo-animated .logo-fish", ".logo-animated .logo-bubble",
-                 ".run-progress-fill", ".run-lines > li"):
+                 ".run-progress-fill", ".run-lines > li",
+                 # the home page's fish (phase 10 F)
+                 ".logo.is-gaze .logo-fish", ".logo.is-turn .logo-fish",
+                 ".logo.is-jump .logo-fish", ".logo.is-jump .logo-water",
+                 ".logo.is-tilt", ".logo.is-tilt .logo-water"):
         assert part in still, part

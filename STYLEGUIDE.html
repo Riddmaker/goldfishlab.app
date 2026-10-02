@@ -497,7 +497,7 @@ their templates; this file shows the tokens they are built from.</p>
       <path d="M13 4.5h6v7l7.6 12.4A2.7 2.7 0 0 1 24.3 28H7.7a2.7 2.7 0 0 1-2.3-4.1L13 11.5z"/>
     </clipPath></defs>
     <rect width="32" height="32" rx="6" class="logo-ground"/>
-    <rect y="17" width="32" height="15" class="logo-water" clip-path="url(#sg-flask)"/>
+    <g clip-path="url(#sg-flask)"><rect y="17" width="32" height="15" class="logo-water"/></g>
     <path d="M13 4.5h6v7l7.6 12.4A2.7 2.7 0 0 1 24.3 28H7.7a2.7 2.7 0 0 1-2.3-4.1L13 11.5z"
           class="logo-glass" stroke-width="1.8" stroke-linejoin="round"/>
     <path d="M11.5 3.5h9" class="logo-glass" stroke-width="1.8" stroke-linecap="round"/>
@@ -517,6 +517,10 @@ rise, and one loading line beside it changes every three to five seconds with a 
 The progress bar glides to each new value in 900&nbsp;ms. Under
 <code>prefers-reduced-motion</code> all of it stands still: a still logo, one line, a bar that
 steps. The shapes are the favicon's; only the colours moved into tokens.</p>
+<p class="rule">On the home page the header's fish is alive (<code>static/js/fish.js</code>): one
+short move now and then while nobody touches the page - a glance, a turn, rarely a jump out of the
+flask - and a click tilts the flask. Every move ends inside 2&nbsp;s; under reduced motion only the
+eye widens, on a click.</p>
 
 <h2>Do &amp; Don't</h2>
 <div class="grid2">

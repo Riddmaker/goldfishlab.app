@@ -1660,6 +1660,141 @@ span.hand-card {
   opacity: 1;
 }
 
+/* The fish on the home page (phase 10 F, static/js/fish.js): the logo in the
+ * header plays one short move at a time, as a class on the svg. Every move
+ * ends inside 2 s. The jump lifts the fish out of the flask and over the top
+ * of the logo, so for it the pond stops clipping and the svg stops cutting
+ * off what leaves its box. */
+.logo-home {
+  width: 1.75rem;
+  height: 1.75rem;
+  overflow: visible;
+}
+
+.logo-fish-eye,
+.logo-water {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.logo.is-gaze .logo-fish {
+  animation: logo-gaze 1.4s ease-in-out;
+}
+
+.logo.is-gaze .logo-fish-eye {
+  animation: logo-look 1.4s ease-in-out;
+}
+
+.logo.is-turn .logo-fish {
+  animation: logo-turn 1.6s ease-in-out;
+}
+
+.logo.is-jump .logo-pond {
+  clip-path: none;
+}
+
+.logo.is-jump .logo-fish {
+  animation: logo-jump 1.6s ease-in-out;
+}
+
+.logo.is-jump .logo-water {
+  animation: logo-slosh 0.8s ease-out 0.8s;
+}
+
+.logo.is-tilt {
+  transform-origin: 50% 100%;
+  animation: logo-tilt 1.2s ease-in-out;
+}
+
+.logo.is-tilt .logo-water {
+  animation: logo-slosh 1.2s ease-in-out;
+}
+
+/* A small turn of the head: at 28 px the eye alone is under a pixel. */
+@keyframes logo-gaze {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(-9deg);
+  }
+  65% {
+    transform: rotate(6deg);
+  }
+}
+
+@keyframes logo-look {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  20%,
+  80% {
+    transform: scale(1.7);
+  }
+}
+
+@keyframes logo-turn {
+  0%,
+  100% {
+    transform: translate(0, 0) scaleX(1);
+  }
+  25%,
+  65% {
+    transform: translate(-1px, 0) scaleX(-1);
+  }
+}
+
+/* Down for the push, up out of the neck and over the rim, back in. */
+@keyframes logo-jump {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0);
+  }
+  15% {
+    transform: translate(0, 1px) rotate(8deg);
+  }
+  50% {
+    transform: translate(-1px, -25px) rotate(-35deg);
+  }
+  85% {
+    transform: translate(0, -1px) rotate(25deg);
+  }
+}
+
+@keyframes logo-slosh {
+  0%,
+  100% {
+    transform: skewY(0);
+  }
+  25% {
+    transform: skewY(9deg);
+  }
+  60% {
+    transform: skewY(-6deg);
+  }
+  85% {
+    transform: skewY(2deg);
+  }
+}
+
+@keyframes logo-tilt {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-12deg);
+  }
+  60% {
+    transform: rotate(6deg);
+  }
+  85% {
+    transform: rotate(-2deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .logo-animated .logo-fish,
   .logo-animated .logo-bubble {
@@ -1668,6 +1803,22 @@ span.hand-card {
 
   .logo-animated .logo-bubble {
     opacity: 1;
+  }
+
+  /* fish.js plays no idle move here; a click only widens the eye, with no
+   * movement on the way. */
+  .logo.is-gaze .logo-fish,
+  .logo.is-turn .logo-fish,
+  .logo.is-jump .logo-fish,
+  .logo.is-jump .logo-water,
+  .logo.is-tilt,
+  .logo.is-tilt .logo-water {
+    animation: none;
+  }
+
+  .logo.is-gaze .logo-fish-eye {
+    animation: none;
+    transform: scale(1.7);
   }
 
   .run-progress-fill,

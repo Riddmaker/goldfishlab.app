@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Goldfish Lab — it actually plays your deck{% endblock %}
+{% block head %}
+  <script src="{% static 'js/fish.js' %}" defer></script>
+{% endblock %}
 {% block content %}
   <section class="max-w-3xl">
     <h1 class="font-display text-4xl leading-tight text-parchment-100 sm:text-5xl">Know your deck before game night.</h1>

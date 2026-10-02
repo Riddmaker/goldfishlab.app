@@ -5,8 +5,13 @@
   tokens in assets/css/input.css (`.logo-*`), not attributes.
 
   `logo-animated` in `class` lets the fish swim its circle and the bubbles
-  rise; `prefers-reduced-motion` keeps both still. Decorative wherever it is
-  used, so hidden from screen readers.
+  rise; `prefers-reduced-motion` keeps both still. On the home page
+  static/js/fish.js instead plays one short move now and then (phase 10 F).
+  Decorative wherever it is used, so hidden from screen readers.
+
+  The water and the fish each sit in a clipped group rather than carrying the
+  clip themselves: a clip on a moving shape would move with it, and the water
+  could not slosh inside the glass. `logo-pond` lets the fish out for a jump.
 
   Takes: id (unique on the page, for the clip path), class (size, animation).
 {% endcomment %}
@@ -21,13 +26,15 @@
     </clipPath>
   </defs>
   <rect width="32" height="32" rx="6" class="logo-ground" />
-  <rect y="17" width="32" height="15" class="logo-water" clip-path="url(#{{ id }}-flask)" />
+  <g clip-path="url(#{{ id }}-flask)">
+    <rect y="17" width="32" height="15" class="logo-water" />
+  </g>
   <path d="M13 4.5h6v7l7.6 12.4A2.7 2.7 0 0 1 24.3 28H7.7a2.7 2.7 0 0 1-2.3-4.1L13 11.5z"
         class="logo-glass"
         stroke-width="1.8"
         stroke-linejoin="round" />
   <path d="M11.5 3.5h9" class="logo-glass" stroke-width="1.8" stroke-linecap="round" />
-  <g clip-path="url(#{{ id }}-flask)">
+  <g class="logo-pond" clip-path="url(#{{ id }}-flask)">
     <g class="logo-fish">
       <ellipse cx="17" cy="22.4" rx="4.6" ry="2.9" class="logo-fish-body" />
       <path d="M12.9 22.4l-3.6-2.7v5.4z" class="logo-fish-body" />

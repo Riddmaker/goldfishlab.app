@@ -198,10 +198,11 @@ def test_the_title_and_tagline_are_checked_and_optional():
 
 
 def test_the_prompt_asks_for_a_name_and_the_strategies():
-    assert summary.PROMPT_VERSION == 2
+    assert summary.PROMPT_VERSION >= 2
     assert '"title"' in summary.SYSTEM_PROMPT and '"tagline"' in summary.SYSTEM_PROMPT
     assert "strategies" in summary.SYSTEM_PROMPT
-    assert "Do not suggest specific new cards by name" in summary.SYSTEM_PROMPT
+    assert ('Outside "strategies", do not suggest specific new cards by name'
+            in summary.SYSTEM_PROMPT)
 
 
 def test_the_facts_hold_each_category_by_turn_four_calculated(owner, deck):
@@ -364,13 +365,20 @@ def _pending(deck, charged=True):
 
 def test_the_task_keeps_a_checked_answer(key, deck, monkeypatch):
     row = _pending(deck)
+    offered = summary.facts(deck, adapter.readings(deck))["strategies"][0]
+    real = offered["candidates"][0]["name"]
+    picks = [{"strategy": offered["strategy"], "why": "Why.",
+              "cards": [{"name": real, "reason": "Fits."}, {"name": "Invented Card"}]}]
     monkeypatch.setattr(mistral.urllib.request, "urlopen",
-                        lambda request, timeout: _Response(_answer(GOOD)))
+                        lambda request, timeout: _Response(_answer({**GOOD,
+                                                                    "strategies": picks})))
 
     assert tasks.write_summary(str(row.pk)) == DeckSummary.Status.DONE
 
     row.refresh_from_db()
     assert row.content["weaknesses"] == ["Few ways to draw cards."]
+    assert [card["name"] for card in row.content["strategies"][0]["cards"]] == [real], \
+        "the task checks the picks against what it offered (phase 11 E)"
     assert row.model_name == "mistral-small-2603"
     assert row.prompt_version == summary.PROMPT_VERSION
     assert (row.prompt_tokens, row.completion_tokens) == (1200, 300)

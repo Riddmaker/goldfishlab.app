@@ -34,7 +34,15 @@ from billing.quotas import QuotaExceeded
 from cards.models import OracleCard
 from decks.models import Deck
 from guests.services import LIFETIME as GUEST_LIFETIME
-from simulations import blindspots, provenance, report, review, services, summary
+from simulations import (
+    blindspots,
+    provenance,
+    report,
+    review,
+    services,
+    strategies,
+    summary,
+)
 from simulations.engine import adapter
 from simulations.engine.adapter import DECK_SCOPE, USER_SCOPE
 from simulations.forms import AnnotationForm, RunForm
@@ -133,6 +141,10 @@ class RunDetailView(OwnedRunsMixin, DetailView):
             # The written part (phase 10 H), unless the viewer switched it off.
             if self.request.user.deck_summaries:
                 context["written"] = summary.state(self.request.user, run.deck)
+            # "Your strategies, and what would feed them" (phase 11 E): with
+            # Mistral's picks when it made some, its fallback otherwise.
+            written = context.get("written") or {}
+            context["strategies"] = strategies.block(readings, written.get("content"))
             # The deck as it stands now, like the blind spots: "cards that need
             # your attention" is about what a person can still do.
             context["open_questions"] = review.open_questions(run.deck)

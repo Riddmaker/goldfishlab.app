@@ -4,20 +4,25 @@ Version 2 (phase 11 D, Z5.2, K15) is the written part alone: a short title
 and a tagline on top, then feel, strengths, weaknesses and tactics. The
 "Mechanisms" chips of phase 10 G are gone - their numbers live in "By
 strategy" now - and the core categories the deck has none of (`missing`) are
-named under "By category", where their lines are missing.
+named under "By category", where their lines are missing. Version 3 (phase
+11 E) adds "strategies": Mistral's picks from the cards that would feed the
+deck's strategies, shown in that block (`simulations.strategies`).
 
 The text is Mistral's, through `simulations.mistral`:
 
 * **What goes there:** catalogue data and our own arithmetic only - the
   commander, card names with their type, mana value, categories and counts,
   the curve, the colours, the combos, and exact odds (the opening hand, and
-  at least one of each category by turn four). No deck name, nothing about
+  at least one of each category by turn four), and for each strategy the
+  catalogue cards that would feed it (`simulations.strategies`, phase 11 E),
+  which "strategies" in the answer picks from. No deck name, nothing about
   the person, no free text anybody typed, so there is next to nothing to
   inject a prompt through. No simulation numbers either: the text is written
   while the run still plays (P4 of phase 10), which is why the odds are
   *calculated* over the list rather than measured.
 * **What comes back** is JSON, and `parse` checks it - the keys, strings, at
-  most four points each, every length capped, Markdown and links taken out.
+  most four points each, every length capped, Markdown and links taken out,
+  and every card it names checked against the list it was offered.
   The template escapes it like any other text.
 * **When it is written:** when a run starts and the deck has changed since the
   last one (`fingerprint`), or on the "Write a summary" button. It costs one
@@ -56,11 +61,12 @@ def missing(readings) -> list[str]:
 #: Recorded on every summary, never compared: a new prompt does not rewrite
 #: anybody's summary, because that would charge them for our change.
 #: 2 = phase 11 D: title and tagline, tactics about the deck's strategies.
-PROMPT_VERSION = 2
+#: 3 = phase 11 E: "strategies", cards picked from the lists we offer.
+PROMPT_VERSION = 3
 
 #: Room for the JSON answer. Each part is "not longer than a paragraph"
 #: (T6.1); this is generous and still bounds the cost of a runaway answer.
-MAX_TOKENS = 1000
+MAX_TOKENS = 1600
 
 TITLE_MAX = 40
 TAGLINE_MAX = 200
@@ -68,6 +74,11 @@ FEEL_MAX = 500
 POINT_MAX = 200
 POINTS_MAX = 4
 TACTICS_MAX = 700
+#: "strategies" (phase 11 E): at most three, each with at most three cards.
+STRATEGIES_MAX = 3
+CARDS_MAX = 3
+WHY_MAX = 200
+REASON_MAX = 120
 
 #: The opening hand the odds are worked out for.
 HAND = 7
@@ -78,15 +89,16 @@ SEEN_BY_TURN = HAND + BY_TURN - 1
 SYSTEM_PROMPT = (
     "You are an experienced Magic: The Gathering Commander (EDH) player helping "
     "someone understand their own deck. You get facts about one deck: its commander, "
-    "its cards with their categories, its mana curve, its combos and exact "
-    "odds for the opening hand and for the first turns. Use only these facts and "
-    "your knowledge of the named cards. "
+    "its cards with their categories, its mana curve, its combos, exact "
+    "odds for the opening hand and for the first turns, and for each of its "
+    "strategies a short list of catalogue cards that would feed it. Use only these "
+    "facts and your knowledge of the named cards. "
     "Never invent numbers; quote only numbers that are in the facts. Judge counts "
     "against this deck's own size (cards_in_library) and the land band given for "
     "it, not against a fixed 99. If combos_in_deck is null, nobody has looked the "
-    "deck up for combos: say nothing about combos at all. Do not suggest specific "
-    "new cards by name - suggest changes as roles and counts (for example "
-    '"two more card draw spells").\n\n'
+    "deck up for combos: say nothing about combos at all. Outside \"strategies\", "
+    "do not suggest specific new cards by name - suggest changes as roles and "
+    'counts (for example "two more card draw spells").\n\n'
     "Answer with one JSON object and nothing else, with exactly these keys, in "
     "this order:\n"
     '- "title": a name for the deck in two to four words, the way players nickname '
@@ -100,6 +112,14 @@ SYSTEM_PROMPT = (
     "- \"tactics\": two to four sentences that name the deck's main strategies "
     "(from cards_per_category), say how they work together to win, and what to "
     "change if the owner wants the plan to come together more often.\n"
+    '- "strategies": at most three entries from the facts\' "strategies", the ones '
+    "that matter most for this deck's plan. Each is an object with \"strategy\" (its "
+    'name exactly as given), "why" (one sentence on why it matters for this deck) '
+    "and \"cards\": at most three cards from that strategy's own candidates, each an "
+    'object with "name" (exactly as given) and "reason" (why it fits this deck, at '
+    "most 120 characters). Never name a card that is not in that strategy's "
+    "candidates. Prefer cards that fit the deck's theme and its commander over the "
+    "merely popular.\n"
     "Write about this deck: a sentence that would fit any deck says nothing. "
     "Plain sentences only: no Markdown, no lists inside strings, no links, no "
     "leading + or -. Write in English."
@@ -133,7 +153,8 @@ def fingerprint(deck) -> str:
     return hashlib.sha256(text.encode()).hexdigest()
 
 
-def _at_least_one(successes: int, population: int, drawn: int = HAND) -> float:
+def at_least_one(successes: int, population: int, drawn: int = HAND) -> float:
+    """The chance, in percent, of at least one of `successes` in `drawn` cards."""
     # A deck smaller than the cards seen has shown all of itself.
     return 100.0 - hypergeometric(0, population, successes, min(drawn, population))
 
@@ -141,6 +162,7 @@ def _at_least_one(successes: int, population: int, drawn: int = HAND) -> float:
 def facts(deck, readings) -> dict:
     """Everything the prompt says about the deck - and nothing else."""
     from decks.analysis import KARSTEN_MAX, KARSTEN_MIN, analyse
+    from simulations.strategies import offered
 
     analysis = analyse(deck)
     library = [reading for reading in readings if not reading.is_commander]
@@ -189,7 +211,7 @@ def facts(deck, readings) -> dict:
                 for count in range(HAND + 1)
             },
             "chance_of_at_least_one_percent": {
-                labels[key]: round(_at_least_one(count, population), 1)
+                labels[key]: round(at_least_one(count, population), 1)
                 for key, count in counts.items() if count and key in core
             },
         },
@@ -199,11 +221,14 @@ def facts(deck, readings) -> dict:
             "assumes": f"the opening hand of {HAND} and one draw a turn from turn 2, "
                        "no mulligan",
             "by_category": {
-                labels[key]: round(_at_least_one(count, population, SEEN_BY_TURN), 1)
+                labels[key]: round(at_least_one(count, population, SEEN_BY_TURN), 1)
                 for key, count in counts.items() if count
             },
         },
         "cards": cards,
+        # Phase 11 E: the strategies and the catalogue cards that would feed
+        # them, for "strategies" to pick from - nothing else may be named.
+        "strategies": offered(readings),
     }
 
 
@@ -274,8 +299,51 @@ def _points(value) -> list[str]:
     return [point for point in points if point]
 
 
-def parse(content: str) -> dict:
-    """Mistral's answer, checked. Raises ValueError for anything else."""
+def _strategies(value, offered) -> list[dict]:
+    """Mistral's picks, checked against what it was offered (Principle 3).
+
+    An unknown strategy, a card not on that strategy's list (the list holds no
+    card of the deck), a second mention - each is dropped without a word, and
+    so is a strategy left without a card. Names are stored as we spelled them.
+    """
+    if not isinstance(value, list):
+        return []
+    lists = {row["strategy"].casefold(): row for row in offered or []}
+    chosen, seen = [], set()
+    for item in value:
+        if len(chosen) == STRATEGIES_MAX:
+            break
+        if not isinstance(item, dict) or not isinstance(item.get("strategy"), str):
+            continue
+        label = item["strategy"].strip().casefold()
+        row = lists.get(label)
+        if row is None or label in seen:
+            continue
+        names = {card["name"].casefold(): card["name"] for card in row["candidates"]}
+        cards = []
+        for card in item.get("cards") if isinstance(item.get("cards"), list) else []:
+            name = (names.get(card["name"].strip().casefold())
+                    if isinstance(card, dict) and isinstance(card.get("name"), str) else None)
+            if name is None or any(kept["name"] == name for kept in cards):
+                continue
+            cards.append({"name": name, "reason": _optional(card.get("reason"), REASON_MAX)})
+            if len(cards) == CARDS_MAX:
+                break
+        if cards:
+            seen.add(label)
+            chosen.append({"key": _KEY_BY_LABEL[label], "label": row["strategy"],
+                           "why": _optional(item.get("why"), WHY_MAX), "cards": cards})
+    return chosen
+
+
+_KEY_BY_LABEL = {label.casefold(): key for key, label in SEEN_ROLES + SEEN_STRATEGY_ROLES}
+
+
+def parse(content: str, offered: list[dict] | None = None) -> dict:
+    """Mistral's answer, checked. Raises ValueError for anything else.
+
+    `offered` is the facts' "strategies": the only cards it may name.
+    """
     data = json.loads(content)
     if not isinstance(data, dict):
         raise ValueError("not an object")
@@ -287,6 +355,8 @@ def parse(content: str) -> dict:
         "strengths": _points(data.get("strengths")),
         "weaknesses": _points(data.get("weaknesses")),
         "tactics": _clean(data.get("tactics"), TACTICS_MAX),
+        # Optional too (P6): without picks the block shows its fallback.
+        "strategies": _strategies(data.get("strategies"), offered),
     }
     if not checked["feel"] or not (checked["strengths"] or checked["weaknesses"]):
         raise ValueError("empty summary")
@@ -399,5 +469,5 @@ def state(user, deck) -> dict:
     }
 
 
-__all__ = ["BY_TURN", "PROMPT_VERSION", "begin", "claim", "due", "facts",
-           "fingerprint", "messages", "missing", "parse", "state"]
+__all__ = ["BY_TURN", "PROMPT_VERSION", "SEEN_BY_TURN", "at_least_one", "begin", "claim",
+           "due", "facts", "fingerprint", "messages", "missing", "parse", "state"]

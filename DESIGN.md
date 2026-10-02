@@ -19,7 +19,7 @@ header, panels, buttons, empty states. **Data itself is set plainly.**
 
 WCAG 2.1 AA is the minimum, and it is enforced by test, not by intention:
 `tests/test_design_tokens.py` parses `assets/css/input.css` and fails CI if any declared role
-pairing drops below 4.5:1. **18 pairings are currently covered and all pass.**
+pairing drops below 4.5:1. **19 pairings are currently covered and all pass.**
 
 - **Colour is never the only carrier of meaning.** A card marked "not modelled" gets the word,
   not just a hue. This matters more here than in most products: the honesty layer (Phase 4) exists
@@ -194,6 +194,14 @@ engine could not read, then the pictures, and the depth folded at the bottom.
   than the real share or 100 before the end. Beside the heading "Playing your deck" the line
   "2,000 games" ("2,000 games, waiting for a free table" while queued); the exact counts once it
   is over. Under `prefers-reduced-motion`: a still logo, one line, no glide.
+- **"Deck summary"** (`simulations/_summary.html`, `.summary-*`), the last block before
+  "Advanced". Each part's title has its colour: parchment-700 for what the deck is (feel,
+  mechanisms), verdigris-700 for strengths, blood-700 for weaknesses, ink-700 for the closing
+  tactics - and each point under strengths and weaknesses starts with **+** or **−**, so the
+  colour is never the only sign. The mechanisms are chips that are not switches: a parchment-50
+  frame with rounded corners (a long one wraps on a phone), ink-900 words "Removal · 9 cards ·
+  drawn by turn 4 in 78% of games", and the swatch of the same category's line in "What you
+  drew" in front. A mechanism the run does not count has no swatch.
 - **"Advanced"** (`simulations/_advanced.html`, `.report-advanced*`): a closed `<details>` on the
   dark page; the summary is a display heading with the fold's contents named beside it and a
   turning ▸ (no turn under `prefers-reduced-motion`). Inside: the mana table, the blind spots,

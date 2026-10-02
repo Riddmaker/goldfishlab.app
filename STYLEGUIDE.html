@@ -23,7 +23,8 @@
   --ink-300: #c2baa9; --ink-200: #ded8cc;
   --parch-50: #fdfaf3; --parch-100: #f5ecd7;
   --parch-200: #ebdcbd; --parch-300: #dcc79b;
-  --parch-600: #9a7739;
+  --parch-600: #9a7739; --parch-700: #7c5e2c;
+  --blood-600: #a52c24;
   --blood-700: #86231d; --blood-800: #6a1c17;
   --blood-100: #fae0de;
   --verd-700: #224f3e; --verd-100: #d9ece2;
@@ -171,8 +172,8 @@ ul.dodont li { margin-bottom: .4rem; font-size: .93rem; }
 <code>DESIGN.md</code>; this document renders them.</p>
 <p class="meta">Generated from <code>assets/css/input.css</code> by
 <code>scripts/build_styleguide.py</code> &mdash; do not edit by hand.
-41 colour tokens, 18 enforced role pairings,
-worst measured contrast 7.86:1 (AA needs 4.5:1).</p>
+41 colour tokens, 19 enforced role pairings,
+worst measured contrast 5.11:1 (AA needs 4.5:1).</p>
 
 <h2>Grounding</h2>
 <p>A <strong>measurement instrument dressed as an old grimoire.</strong> It must feel like the
@@ -311,6 +312,14 @@ colour can enter the system by accident.</p>
   <td class="num">7.92:1</td>
   <td class="pass">AA</td>
   <td><span class="demo" style="color:#224f3e;background:#f5ecd7">Aa 18.4%</span></td>
+</tr>
+<tr>
+  <td>summary title on parchment</td>
+  <td><code>parchment-700</code></td>
+  <td><code>parchment-100</code></td>
+  <td class="num">5.11:1</td>
+  <td class="pass">AA</td>
+  <td><span class="demo" style="color:#7c5e2c;background:#f5ecd7">Aa 18.4%</span></td>
 </tr>
 <tr>
   <td>primary button label</td>
@@ -521,6 +530,29 @@ steps. The shapes are the favicon's; only the colours moved into tokens.</p>
 short move now and then while nobody touches the page - a glance, a turn, rarely a jump out of the
 flask - and a click tilts the flask. Every move ends inside 2&nbsp;s; under reduced motion only the
 eye widens, on a click.</p>
+
+<h2>Deck summary (Phase 10)</h2>
+<div class="surface">
+  <h3 style="margin:0;color:var(--parch-700)">Mechanisms</h3>
+  <p style="margin:.5rem 0 0;display:flex;flex-wrap:wrap;gap:.4rem">
+    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.1rem .6rem;
+      border:1px solid var(--parch-600);border-radius:.75rem;background:var(--parch-50);
+      font-size:.85rem;color:var(--ink-900)"><span style="width:1rem;
+      border-top:3px solid var(--blood-600)"></span><strong>Ramp</strong> &middot; 11 cards
+      &middot; drawn by turn 4 in 91% of games</span>
+    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.1rem .6rem;
+      border:1px solid var(--parch-600);border-radius:.75rem;background:var(--parch-50);
+      font-size:.85rem;color:var(--ink-900)"><strong>Drain</strong> &middot; 4 cards</span>
+  </p>
+  <h3 style="margin:1rem 0 0;color:var(--verd-700)">Strengths</h3>
+  <p style="margin:.2rem 0 0">+ Plenty of early mana.</p>
+  <h3 style="margin:1rem 0 0;color:var(--blood-700)">Weaknesses</h3>
+  <p style="margin:.2rem 0 0">&minus; Few ways to draw cards.</p>
+  <h3 style="margin:1rem 0 0;color:var(--ink-700)">Tactics</h3>
+</div>
+<p class="rule">Every title in the deck summary has its colour and its word, and every strength
+or weakness its <strong>+</strong> or <strong>&minus;</strong>. A mechanism chip wears the swatch of
+its line in &ldquo;What you drew&rdquo;; the words say what it is.</p>
 
 <h2>Do &amp; Don't</h2>
 <div class="grid2">

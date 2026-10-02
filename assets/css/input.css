@@ -662,6 +662,49 @@ body {
   display: none;
 }
 
+/* The deck summary (phase 10 G, T6.3). Each part's title has its colour -
+ * bronze for what the deck is, verdigris for strengths, blood for weaknesses,
+ * ink for the closing words - and always its word, and + or − on every point,
+ * so the colour is never the only sign. The mechanism chips are not switches:
+ * a quiet frame, with the swatch of their line in "What you drew". */
+.summary-title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+.summary-title-feel,
+.summary-title-mechanisms {
+  color: var(--color-parchment-700);
+}
+.summary-title-strengths {
+  color: var(--color-verdigris-700);
+}
+.summary-title-weaknesses {
+  color: var(--color-blood-700);
+}
+.summary-title-closing {
+  color: var(--color-ink-700);
+}
+
+.summary-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.summary-chip {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.375rem;
+  padding: 0.125rem 0.625rem;
+  border: 1px solid var(--color-parchment-600);
+  border-radius: 0.75rem; /* a long chip wraps on a phone, and a pill would not */
+  background-color: var(--color-parchment-50);
+  font-size: 0.875rem;
+  color: var(--color-ink-900);
+}
+
 /* A line that explains itself (phase 10 T5.2). Each line has an invisible,
  * wider twin to point at, focus or tap; pointing at it - or at its chip - fades
  * the others, shows its band or its typical-turn marker, and puts its sentence

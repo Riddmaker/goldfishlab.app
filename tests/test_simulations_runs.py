@@ -884,7 +884,7 @@ def _finished_page(client, owner, run, **user_fields):
 def test_the_report_opens_with_what_a_person_can_do(client, owner, run, fake_redis):
     body = _finished_page(client, owner, run)
     order = ['id="attention"', 'id="seen"', 'id="milestones"', ">Mulligans<",
-             'id="advanced"']
+             'id="summary"', 'id="advanced"']
     positions = [body.index(marker) for marker in order]
 
     assert positions == sorted(positions)
@@ -916,6 +916,21 @@ def test_only_a_guest_is_offered_to_keep_the_deck(client, owner, run, fake_redis
     assert reverse("guests:save") in guest
     assert f"forgotten after {int(LIFETIME.total_seconds() // 3600)} hours" in guest
     assert "compared" not in guest, "P2: there is no run comparison to promise"
+
+
+def test_the_deck_summary_shows_the_mechanisms_with_their_lines(client, owner, run,
+                                                                 fake_redis):
+    """Phase 10 G: computed chips, each with its line's swatch and this run's share."""
+    body = _finished_page(client, owner, run)
+    summary = body[body.index('id="summary"'):body.index('id="advanced"')]
+
+    assert "Deck summary" in summary
+    assert "Mechanisms" in summary
+    assert "summary-chip" in summary
+    assert "seen-swatch-" in summary
+    # The run is two turns long, so the chips say turn 2 (P6), not turn 4.
+    assert re.search(r"drawn by turn 2 in \d+% of games", summary)
+    assert "drawn by turn 4" not in summary
 
 
 def test_attention_names_the_open_cards(client, owner, run, fake_redis, monkeypatch):

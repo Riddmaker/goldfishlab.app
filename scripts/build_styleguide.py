@@ -161,7 +161,8 @@ def build() -> str:
   --ink-300: {scales["ink"][300]}; --ink-200: {scales["ink"][200]};
   --parch-50: {scales["parchment"][50]}; --parch-100: {scales["parchment"][100]};
   --parch-200: {scales["parchment"][200]}; --parch-300: {scales["parchment"][300]};
-  --parch-600: {scales["parchment"][600]};
+  --parch-600: {scales["parchment"][600]}; --parch-700: {scales["parchment"][700]};
+  --blood-600: {scales["blood"][600]};
   --blood-700: {scales["blood"][700]}; --blood-800: {scales["blood"][800]};
   --blood-100: {scales["blood"][100]};
   --verd-700: {scales["verdigris"][700]}; --verd-100: {scales["verdigris"][100]};
@@ -493,6 +494,29 @@ steps. The shapes are the favicon's; only the colours moved into tokens.</p>
 short move now and then while nobody touches the page - a glance, a turn, rarely a jump out of the
 flask - and a click tilts the flask. Every move ends inside 2&nbsp;s; under reduced motion only the
 eye widens, on a click.</p>
+
+<h2>Deck summary (Phase 10)</h2>
+<div class="surface">
+  <h3 style="margin:0;color:var(--parch-700)">Mechanisms</h3>
+  <p style="margin:.5rem 0 0;display:flex;flex-wrap:wrap;gap:.4rem">
+    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.1rem .6rem;
+      border:1px solid var(--parch-600);border-radius:.75rem;background:var(--parch-50);
+      font-size:.85rem;color:var(--ink-900)"><span style="width:1rem;
+      border-top:3px solid var(--blood-600)"></span><strong>Ramp</strong> &middot; 11 cards
+      &middot; drawn by turn 4 in 91% of games</span>
+    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.1rem .6rem;
+      border:1px solid var(--parch-600);border-radius:.75rem;background:var(--parch-50);
+      font-size:.85rem;color:var(--ink-900)"><strong>Drain</strong> &middot; 4 cards</span>
+  </p>
+  <h3 style="margin:1rem 0 0;color:var(--verd-700)">Strengths</h3>
+  <p style="margin:.2rem 0 0">+ Plenty of early mana.</p>
+  <h3 style="margin:1rem 0 0;color:var(--blood-700)">Weaknesses</h3>
+  <p style="margin:.2rem 0 0">&minus; Few ways to draw cards.</p>
+  <h3 style="margin:1rem 0 0;color:var(--ink-700)">Tactics</h3>
+</div>
+<p class="rule">Every title in the deck summary has its colour and its word, and every strength
+or weakness its <strong>+</strong> or <strong>&minus;</strong>. A mechanism chip wears the swatch of
+its line in &ldquo;What you drew&rdquo;; the words say what it is.</p>
 
 <h2>Do &amp; Don't</h2>
 <div class="grid2">

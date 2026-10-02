@@ -44,23 +44,10 @@ from dataclasses import dataclass
 from django.db import transaction
 
 from simulations import mistral
-from simulations.report import SEEN_ROLES, hypergeometric
+from simulations.report import SEEN_ROLES, SEEN_STRATEGY_ROLES, hypergeometric
 
 #: The turn a chip reports the share for (P6), unless the run is shorter.
 BY_TURN = 4
-
-#: What else a deck can be built around, beyond the eight categories the run
-#: counts, in the engine's own role names (`cards.profiles.ROLE_FROM_TAG`).
-#: Each comes from one community tag or the owner's own list.
-MORE_MECHANISMS = (
-    ("sac_outlet", "Sacrifice outlet"),
-    ("reanimate", "Reanimate"),
-    ("drain_payoff", "Drain"),
-    ("steal", "Theft"),
-    ("discard", "Discard"),
-    ("cost_reducer", "Cost reducer"),
-    ("evasion", "Evasion"),
-)
 
 
 @dataclass(frozen=True)
@@ -98,11 +85,15 @@ def mechanisms(readings, report: dict) -> dict:
 
     lines = {}
     if report.get("seen"):
-        lines = {line.key: line for line in report["seen"]["roles"].lines}
+        # Two charts, one palette: a chip's swatch is its line's colour on
+        # "By category" or on "By strategy" (phase 11 B).
+        lines = {line.key: line
+                 for chart in (report["seen"]["roles"], report["seen"].get("strategies"))
+                 if chart for line in chart.lines}
     turn = min(BY_TURN, report["turns"])
 
     chips = []
-    for key, label in SEEN_ROLES + MORE_MECHANISMS:
+    for key, label in SEEN_ROLES + SEEN_STRATEGY_ROLES:
         if not counts.get(key):
             continue
         line = lines.get(key)
@@ -196,7 +187,7 @@ def facts(deck, readings) -> dict:
     library = [reading for reading in readings if not reading.is_commander]
     population = sum(reading.quantity for reading in library)
     lands = sum(reading.quantity for reading in library if reading.card.is_land)
-    labels = dict(SEEN_ROLES + MORE_MECHANISMS)
+    labels = dict(SEEN_ROLES + SEEN_STRATEGY_ROLES)
     counts = dict.fromkeys(labels, 0)
     cards = []
     for reading in sorted(library, key=lambda reading: reading.oracle_card.front_name):
@@ -431,5 +422,5 @@ def state(user, deck) -> dict:
     }
 
 
-__all__ = ["BY_TURN", "MORE_MECHANISMS", "Mechanism", "PROMPT_VERSION", "begin", "claim", "due",
+__all__ = ["BY_TURN", "Mechanism", "PROMPT_VERSION", "begin", "claim", "due",
            "facts", "fingerprint", "mechanisms", "messages", "parse", "state"]

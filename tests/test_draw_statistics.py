@@ -21,6 +21,7 @@ from types import SimpleNamespace
 import pytest
 from django.template.loader import render_to_string
 
+from cards.profiles import ROLE_FROM_TAG
 from simulation import analysis
 from simulation.cards import CREATURE, LAND, SORCERY, Card, DeckDefinition
 from simulation.game import Game
@@ -72,18 +73,29 @@ def test_the_categories_are_read_from_categories_not_from_the_game_tags():
     assert {keys[slot] for slot in table[arena.name]} == {"role:draw", "mv:3"}
 
 
-def test_a_role_that_is_no_category_is_not_counted():
-    """The engine's own roles - a sac outlet, a drain payoff - are milestones
-    on the report already, and no deck list sorts cards by them."""
+def test_a_strategy_is_counted_and_an_engine_only_role_is_not():
+    """Phase 11 K17: the seven strategies are counted like the categories. A
+    role that only the game reads - a draw engine - is in no deck list."""
     outlet = _card("Altar", SORCERY, 3, categories={"sac_outlet", "draw_engine"})
     keys, _ = analysis.seen_groups(DeckDefinition(name="d", commander=None,
                                                   library=(outlet,)))
 
-    assert keys == ("mv:3",)
+    assert keys == ("role:sac_outlet", "mv:3")
 
 
 def test_every_category_has_a_name_on_the_page():
     assert [key for key, _ in report.SEEN_ROLES] == list(analysis.SEEN_CATEGORIES)
+
+
+def test_every_strategy_has_a_name_on_the_page():
+    assert [key for key, _ in report.SEEN_STRATEGY_ROLES] == list(analysis.SEEN_STRATEGIES)
+
+
+def test_every_strategy_is_a_role_the_profiles_give():
+    known = set(ROLE_FROM_TAG.values())
+
+    assert set(analysis.SEEN_STRATEGIES) <= known
+    assert not set(analysis.SEEN_STRATEGIES) & set(analysis.SEEN_CATEGORIES)
 
 
 def test_a_land_has_no_mana_value_group():
@@ -354,6 +366,31 @@ def test_the_curve_shares_one_scale_across_turns():
         assert all(0 <= bar.height <= 100 for bar in step["bars"])
 
 
+def _with_strategy(result, key="drain_payoff"):
+    """The plain deck's result, as if its ramp cards were also drain payoffs."""
+    ramp = result["seen"]["role:ramp"]
+    result["seen"][f"role:{key}"] = {field: list(values) for field, values in ramp.items()}
+    return result
+
+
+def test_by_strategy_draws_only_the_strategies_the_deck_has():
+    seen = report.seen(_with_strategy(_result()))
+
+    [line] = seen["strategies"].lines
+    assert line.label == "Drain"
+    assert line.values == seen["roles"].lines[0].values
+    assert line.info.startswith(report.SEEN_STRATEGY_INFO["drain_payoff"])
+    assert "Half your games have one" in line.info and "drawn by turn 3" in line.info
+
+
+def test_a_run_from_before_the_strategies_has_no_strategy_chart():
+    """Phase 10 runs counted the categories only: no line, not a zero line."""
+    seen = report.seen(_result())
+
+    assert seen["roles"].lines
+    assert not seen["strategies"].lines
+
+
 def test_a_run_from_before_the_count_has_no_section():
     result = _result()
     del result["seen"]
@@ -409,5 +446,6 @@ def test_a_run_without_the_spread_has_no_band_and_no_plus_minus():
 
 def test_every_category_type_and_milestone_has_a_sentence():
     assert set(report.SEEN_ROLE_INFO) == {key for key, _ in report.SEEN_ROLES}
+    assert set(report.SEEN_STRATEGY_INFO) == {key for key, _ in report.SEEN_STRATEGY_ROLES}
     assert set(report.SEEN_TYPE_INFO) == set(runner.SEEN_CARD_TYPES)
     assert set(report.MILESTONE_INFO) == {key for key, _ in report.MILESTONES}

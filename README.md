@@ -290,9 +290,10 @@ every small one — and no quota system fixes that.
 The progress bar is htmx polling an HTML fragment that carries its own trigger; when the run
 finishes, the fragment comes back without it. The charts are server-rendered: divs with widths,
 and inline SVG for the line charts (`simulations/charts.py` does the geometry), switched with
-CSS-only chips. Every run also counts what the player had drawn by each turn - by category, card
-type and mana value (`analysis.seen_groups`, Phase 9 E); a run from before that says "run
-again" instead of drawing an empty chart.
+CSS-only chips. Every run also counts what the player had drawn by each turn - by category,
+strategy, card type and mana value (`analysis.seen_groups`, Phase 9 E; strategies since phase
+11); a run from before that says "run again" instead of drawing an empty chart, and one from
+before the strategies simply has no "By strategy" chart.
 The little hand-written JavaScript there is (`static/js/`: the import drop zone and the
 self-submitting email confirmation) only improves pages that already work without it.
 

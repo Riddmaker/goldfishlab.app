@@ -13,6 +13,11 @@
       <p class="text-sm text-ink-700">Games with at least one, by the end of each turn.</p>
       {% include "simulations/_line_chart.html" with chart=report.seen.roles name="seen-role" title="Share of games with at least one card of each category, by turn" %}
     {% endif %}
+    {% if report.seen.strategies.lines %}
+      <h3 class="font-display mt-6 text-lg text-ink-900">By strategy</h3>
+      <p class="text-sm text-ink-700">Games with at least one, by the end of each turn.</p>
+      {% include "simulations/_line_chart.html" with chart=report.seen.strategies name="seen-strategy" title="Share of games with at least one card of each strategy, by turn" %}
+    {% endif %}
     {% if report.seen.types.lines %}
       <h3 class="font-display mt-6 text-lg text-ink-900">By card type</h3>
       <p class="text-sm text-ink-700">Cards drawn per game, on average. Point at a line for the spread.</p>
@@ -70,7 +75,7 @@
                     colspan="{{ report.seen.turns|length|add:1 }}"
                     class="pt-3 pb-1 font-semibold text-ink-900">% of games with at least one</th>
               </tr>
-              {% for line in report.seen.roles.lines %}
+              {% for line in report.seen.roles.lines|add:report.seen.strategies.lines %}
                 <tr class="border-b border-parchment-300">
                   <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ line.label }}</th>
                   {% for value in line.values %}

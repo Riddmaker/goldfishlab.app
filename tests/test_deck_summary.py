@@ -9,8 +9,8 @@ tests/test_simulations_runs.py.
 from dataclasses import dataclass, field
 
 from cards.profiles import ROLE_FROM_TAG
-from simulations.report import SEEN_ROLES
-from simulations.summary import BY_TURN, MORE_MECHANISMS, mechanisms
+from simulations.report import SEEN_ROLES, SEEN_STRATEGY_ROLES
+from simulations.summary import BY_TURN, mechanisms
 
 
 @dataclass
@@ -41,8 +41,13 @@ class _Chart:
     lines: list
 
 
-def _report(lines, turns=6):
-    return {"turns": turns, "seen": {"roles": _Chart(lines)} if lines is not None else None}
+def _report(lines, turns=6, strategies=None):
+    if lines is None:
+        return {"turns": turns, "seen": None}
+    seen = {"roles": _Chart(lines)}
+    if strategies is not None:
+        seen["strategies"] = _Chart(strategies)
+    return {"turns": turns, "seen": seen}
 
 
 def _chip(result, key):
@@ -120,5 +125,18 @@ def test_the_core_categories_the_deck_lacks_are_named():
 def test_every_extra_mechanism_is_a_role_the_engine_knows():
     known = set(ROLE_FROM_TAG.values())
 
-    for key, _ in MORE_MECHANISMS:
+    for key, _ in SEEN_STRATEGY_ROLES:
         assert key in known, key
+
+
+def test_a_strategy_chip_reads_its_share_off_by_strategy():
+    """Phase 11 B: until D removes the chips, a strategy's turn number comes
+    from the new chart, with that chart's swatch."""
+    strategies = [_Line("evasion", 0, [1, 2, 3]), _Line("drain_payoff", 1, [5, 9, 30, 44])]
+
+    chip = _chip(mechanisms([_Reading(("drain_payoff",))],
+                            _report([], turns=4, strategies=strategies)), "drain_payoff")
+
+    assert chip.share == 44
+    assert chip.turn == 4
+    assert chip.line == 1

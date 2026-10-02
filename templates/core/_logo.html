@@ -1,0 +1,39 @@
+{% comment %}
+  The flask and the goldfish as inline SVG (phase 10 E), so its parts can move:
+  the same shapes as static/img/favicon.svg, which stays the tab icon -
+  tests/test_logo.py checks that the two draw the same thing. The colours are
+  tokens in assets/css/input.css (`.logo-*`), not attributes.
+
+  `logo-animated` in `class` lets the fish swim its circle and the bubbles
+  rise; `prefers-reduced-motion` keeps both still. Decorative wherever it is
+  used, so hidden from screen readers.
+
+  Takes: id (unique on the page, for the clip path), class (size, animation).
+{% endcomment %}
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 32 32"
+     class="logo {{ class }}"
+     aria-hidden="true"
+     focusable="false">
+  <defs>
+    <clipPath id="{{ id }}-flask">
+      <path d="M13 4.5h6v7l7.6 12.4A2.7 2.7 0 0 1 24.3 28H7.7a2.7 2.7 0 0 1-2.3-4.1L13 11.5z" />
+    </clipPath>
+  </defs>
+  <rect width="32" height="32" rx="6" class="logo-ground" />
+  <rect y="17" width="32" height="15" class="logo-water" clip-path="url(#{{ id }}-flask)" />
+  <path d="M13 4.5h6v7l7.6 12.4A2.7 2.7 0 0 1 24.3 28H7.7a2.7 2.7 0 0 1-2.3-4.1L13 11.5z"
+        class="logo-glass"
+        stroke-width="1.8"
+        stroke-linejoin="round" />
+  <path d="M11.5 3.5h9" class="logo-glass" stroke-width="1.8" stroke-linecap="round" />
+  <g clip-path="url(#{{ id }}-flask)">
+    <g class="logo-fish">
+      <ellipse cx="17" cy="22.4" rx="4.6" ry="2.9" class="logo-fish-body" />
+      <path d="M12.9 22.4l-3.6-2.7v5.4z" class="logo-fish-body" />
+      <circle cx="19.2" cy="21.7" r="0.8" class="logo-fish-eye" />
+    </g>
+  </g>
+  <circle cx="17.2" cy="14.6" r="1" class="logo-bubble" stroke-width="0.8" />
+  <circle cx="15.4" cy="10.2" r="0.7" class="logo-bubble logo-bubble-2" stroke-width="0.7" />
+</svg>

@@ -1,7 +1,13 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Simulation — {{ run.deck.name }} — Goldfish Lab{% endblock %}
 {% block description %}
   What happened when Goldfish Lab played {{ run.deck.name }} {{ run.games_total }} times.
+{% endblock %}
+{% block head %}
+  {% if not run.is_finished %}
+    <script src="{% static 'js/run-progress.js' %}" defer></script>
+  {% endif %}
 {% endblock %}
 {% block content %}
   <div class="flex flex-wrap items-baseline gap-4">
@@ -13,7 +19,24 @@
     <a href="{{ run.deck.get_absolute_url }}"
        class="ml-auto text-sm text-parchment-200 underline">Back to the deck</a>
   </div>
-  {% include "simulations/_progress.html" %}
+  {% comment %}
+    The panel holds the polled fragment, and while the run plays the fish and
+    the lines beside it (phase 10 T3.2) - outside the fragment, so the swaps
+    every two seconds do not restart them.
+  {% endcomment %}
+  <section class="surface-parchment mt-6 p-6" aria-label="Progress">
+    <div class="flex items-start gap-4 sm:gap-6">
+      {% if not run.is_finished %}
+        {% include "core/_logo.html" with id="run-logo" class="logo-animated run-logo" %}
+      {% endif %}
+      <div class="min-w-0 flex-1">
+        {% include "simulations/_progress.html" %}
+        {% if not run.is_finished %}
+          {% include "simulations/_waiting.html" %}
+        {% endif %}
+      </div>
+    </div>
+  </section>
   {% if report %}
     {% comment %}
       The order of the report (phase 10, from the user test): first what a

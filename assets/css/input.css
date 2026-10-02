@@ -1534,3 +1534,144 @@ span.hand-card {
     transition: none;
   }
 }
+
+/* ------------------------------------------------------------------------ */
+/* The logo, inline (core/_logo.html, phase 10 E): the favicon's shapes, its  */
+/* colours as tokens. `logo-animated` lets the fish swim a circle - turning  */
+/* round at each end - and the bubbles rise from the water. Still under      */
+/* reduced motion.                                                            */
+.logo-ground {
+  fill: var(--color-ink-950);
+}
+
+.logo-water {
+  fill: var(--color-blood-700);
+}
+
+.logo-glass {
+  fill: none;
+  stroke: var(--color-parchment-100);
+}
+
+.logo-fish-body {
+  fill: var(--color-parchment-300);
+}
+
+.logo-fish-eye {
+  fill: var(--color-ink-950);
+}
+
+.logo-bubble {
+  fill: none;
+  stroke: var(--color-parchment-300);
+}
+
+.logo-fish,
+.logo-bubble {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.logo-animated .logo-fish {
+  animation: logo-swim 5s ease-in-out infinite;
+}
+
+.logo-animated .logo-bubble {
+  opacity: 0;
+  animation: logo-rise 2.6s ease-in infinite;
+}
+
+.logo-animated .logo-bubble-2 {
+  animation-delay: 1.3s;
+}
+
+/* Right along the top of the water, round, back left along the bottom and
+ * round again. A scaleX through zero reads as the fish turning. */
+@keyframes logo-swim {
+  0% {
+    transform: translate(-1px, 0) scaleX(1);
+  }
+  38% {
+    transform: translate(2.5px, -1.4px) scaleX(1);
+  }
+  48% {
+    transform: translate(3px, -0.4px) scaleX(-1);
+  }
+  86% {
+    transform: translate(-2.2px, 0.9px) scaleX(-1);
+  }
+  96% {
+    transform: translate(-2.4px, 0.2px) scaleX(1);
+  }
+  100% {
+    transform: translate(-1px, 0) scaleX(1);
+  }
+}
+
+@keyframes logo-rise {
+  0% {
+    transform: translateY(5px);
+    opacity: 0;
+  }
+  25%,
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-4px);
+    opacity: 0;
+  }
+}
+
+/* While a run plays: the logo beside the bar, the smoothed fill and the
+ * loading lines (simulations/_progress.html, _waiting.html). */
+.run-logo {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+}
+
+@media (min-width: 40rem) {
+  .run-logo {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+}
+
+.run-progress-fill {
+  transition: width 900ms ease-out;
+}
+
+.run-progress-fill.is-instant {
+  transition: none;
+}
+
+.run-lines {
+  display: grid;
+}
+
+.run-lines > li {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+
+.run-lines > li.is-current {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-animated .logo-fish,
+  .logo-animated .logo-bubble {
+    animation: none;
+  }
+
+  .logo-animated .logo-bubble {
+    opacity: 1;
+  }
+
+  .run-progress-fill,
+  .run-lines > li {
+    transition: none;
+  }
+}

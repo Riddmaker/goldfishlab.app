@@ -105,6 +105,10 @@ This is a data product for someone reading probabilities, not a marketing page.
   tile, parchment-100 flask, blood-700 liquid, parchment-300 fish. It is the tab icon and sits
   beside the wordmark in the header. SVG only: every current browser takes an SVG tab icon, and
   the repository's push path is text-only. A PNG `apple-touch-icon` is the one thing missing.
+- **The mark, inline** (`core/_logo.html`, `.logo-*`, phase 10 E): the same shapes with a class
+  on each part and the colours as tokens, so it can move; a test keeps it equal to the favicon.
+  With `logo-animated` the fish swims a circle in the flask (5 s, turning round through a scaleX)
+  and two bubbles rise (2.6 s). It moves only while a run plays.
 - **Where a file goes, the whole area is the target.** A dashed parchment-600 box, blood-700 on
   hover and while a file is dragged over it, solid once a file is chosen, with the file's name in
   it. The real `<input type="file">` covers the box invisibly, so clicking and dropping are the
@@ -176,6 +180,13 @@ engine could not read, then the pictures, and the depth folded at the bottom.
 - **"Cards that need your attention"** (`simulations/_attention.html`): the status marker in its
   three states ("! 3 cards need you", "✓ All answered" with "Run the deck again", "✓ Nothing needs
   you"), and under it the coverage line with "See what it could not read".
+- **While a run plays** (`simulations/_progress.html`, `_waiting.html`,
+  `static/js/run-progress.js`): the moving logo beside the bar, one italic ink-700 loading line
+  under it that fades (600 ms) to another every 3-5 s, and a bar that glides (900 ms) on a
+  curve that slows towards 95% (under 10% while the run waits in the queue) and never shows less
+  than the real share or 100 before the end. Beside the bar "Playing 2,000 games" ("2,000 games,
+  waiting for a free table" while queued); the exact counts once it is over. Under
+  `prefers-reduced-motion`: a still logo, one line, no glide.
 - **"Advanced"** (`simulations/_advanced.html`, `.report-advanced*`): a closed `<details>` on the
   dark page; the summary is a display heading with the fold's contents named beside it and a
   turning ▸ (no turn under `prefers-reduced-motion`). Inside: the mana table, the blind spots,

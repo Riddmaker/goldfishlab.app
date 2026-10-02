@@ -507,6 +507,125 @@ def test_a_run_with_nothing_to_do_does_not_divide_by_zero(owner, deck):
     assert empty.progress_pct == 0
 
 
+
+# --- while it plays (phase 10 E) -------------------------------------------
+
+
+def test_the_expected_time_uses_the_measured_rate(owner, deck):
+    """The bar's pace: games x the rate this run measured, plus the queue."""
+    measured = SimulationRun.objects.create(
+        owner=owner, deck=deck, games_total=2_000, turns=6, seed=1,
+        usec_per_game=1_000.0, chunks_total=1,
+    )
+
+    assert services.expected_seconds(measured) == pytest.approx(services.QUEUE_SECONDS + 2.0)
+
+
+def test_a_first_run_borrows_the_decks_last_rate(owner, deck):
+    SimulationRun.objects.create(
+        owner=owner, deck=deck, games_total=2_000, turns=6, seed=1, usec_per_game=500.0,
+    )
+    fresh = SimulationRun.objects.create(
+        owner=owner, deck=deck, games_total=2_000, turns=6, seed=2,
+    )
+
+    assert services.known_rate(fresh) == 500.0
+    assert services.expected_seconds(fresh) == pytest.approx(services.QUEUE_SECONDS + 1.0)
+
+
+def test_a_long_run_counts_its_chunks_playing_side_by_side(owner, deck):
+    big = SimulationRun.objects.create(
+        owner=owner, deck=deck, games_total=100_000, turns=6, seed=1,
+        usec_per_game=1_000.0, chunks_total=40,
+    )
+
+    parallel = services.PARALLEL_CHUNKS[services.LONG_QUEUE]
+    assert services.expected_seconds(big) == pytest.approx(
+        services.QUEUE_SECONDS + 100.0 / parallel
+    )
+
+
+def test_a_playing_run_says_what_it_plays_not_a_count_beside_a_gliding_bar(client, owner, run):
+    """T3.1: "0 of 2,000 games" next to a moving bar contradicts it."""
+    SimulationRun.objects.filter(pk=run.pk).update(
+        status=SimulationRun.Status.RUNNING, started_at=run.created_at
+    )
+    client.force_login(owner)
+
+    body = client.get(reverse("simulations:progress", args=[run.pk])).content.decode()
+
+    assert f"Playing {run.games_total:,} games" in body
+    assert f"of {run.games_total} games" not in body
+    assert "batches" not in body
+    assert "data-expected=" in body
+    assert "data-elapsed=" in body
+    assert "data-queued" not in body
+
+
+def test_a_queued_run_says_it_waits_and_holds_the_bar_low(client, owner, run):
+    """A queue can be long: "Queued" above a bar at 90% would promise work
+    nobody is doing yet, so the fragment tells the script it is queued."""
+    client.force_login(owner)
+
+    body = client.get(reverse("simulations:progress", args=[run.pk])).content.decode()
+
+    assert f"{run.games_total} games, waiting for a free table" in body
+    assert "Playing 40" not in body
+    assert "data-queued" in body
+
+
+def test_a_finished_run_shows_the_exact_numbers_and_stops_gliding(client, owner, run, fake_redis):
+    chunks = [tasks.simulate_chunk(str(run.pk), index, 20) for index in range(2)]
+    tasks.finalize_run(chunks, str(run.pk))
+    client.force_login(owner)
+
+    body = client.get(reverse("simulations:progress", args=[run.pk])).content.decode()
+
+    assert f"{run.games_total} of {run.games_total} games" in body
+    assert "Playing" not in body.replace("Playing your deck", "")
+    assert "data-expected=" not in body
+
+
+def test_the_fish_and_the_lines_sit_outside_the_polled_fragment(client, owner, run):
+    """htmx swaps the fragment every two seconds; inside it, the fish would
+    jump back to the start and the line would reset each time."""
+    client.force_login(owner)
+
+    page = client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+    fragment = client.get(reverse("simulations:progress", args=[run.pk])).content.decode()
+
+    assert "logo-animated" in page
+    assert "data-run-lines" in page
+    assert "js/run-progress.js" in page
+    assert "logo-animated" not in fragment
+    assert "data-run-lines" not in fragment
+
+
+def test_the_first_line_shows_without_javascript_and_is_not_read_out(client, owner, run):
+    client.force_login(owner)
+
+    page = client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+    lines = re.search(r'<ul class="run-lines[^>]*>(.*?)</ul>', page, re.S)
+
+    assert lines
+    assert 'aria-hidden="true"' in lines.group(0)
+    items = re.findall(r"<li[^>]*>(.*?)</li>", lines.group(1))
+    assert len(items) == 17
+    assert len(set(items)) == len(items)
+    assert lines.group(1).count("is-current") == 1
+
+
+def test_a_finished_run_page_has_no_fish_and_no_script(client, owner, run, fake_redis):
+    chunks = [tasks.simulate_chunk(str(run.pk), index, 20) for index in range(2)]
+    tasks.finalize_run(chunks, str(run.pk))
+    client.force_login(owner)
+
+    page = client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+
+    assert "logo-animated" not in page
+    assert "data-run-lines" not in page
+    assert "run-progress.js" not in page
+
 # --- mana by colour --------------------------------------------------------
 #
 # The last piece of colour work carried over from Phase 2. The engine spent

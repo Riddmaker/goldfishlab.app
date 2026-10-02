@@ -68,7 +68,7 @@ def run_simulation(run_id: str) -> str:
             quotas.refund(run.owner, UsageRecord.Metric.RUNS_STARTED)
         return SimulationRun.Status.CANCELLED
 
-    plan = runner.chunk_plan(run.games_total, run.turns, _known_rate(run))
+    plan = runner.chunk_plan(run.games_total, run.turns, services.known_rate(run))
 
     SimulationRun.objects.filter(pk=run.pk).update(
         status=SimulationRun.Status.RUNNING,
@@ -300,23 +300,3 @@ def _close(run: SimulationRun, status: str, *, error: str = "", fields=None) -> 
     services.finish_slot(run)
     run.status, run.error, run.finished_at = status, error, now
     return True
-
-
-def _known_rate(run: SimulationRun) -> float | None:
-    """How fast this deck actually simulated last time, if it ever has.
-
-    Better than any estimate: the same deck, the same engine, the same
-    hardware. Only runs with the same turn count qualify, because the cost of a
-    game is linear in the number of turns it plays.
-    """
-    return (
-        SimulationRun.objects.filter(
-            deck_id=run.deck_id,
-            turns=run.turns,
-            usec_per_game__isnull=False,
-        )
-        .exclude(pk=run.pk)
-        .order_by("-created_at")
-        .values_list("usec_per_game", flat=True)
-        .first()
-    )

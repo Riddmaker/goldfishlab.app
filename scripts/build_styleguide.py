@@ -272,6 +272,33 @@ ul.dodont li {{ margin-bottom: .4rem; font-size: .93rem; }}
   .chip {{ border-color: #999 !important; }}
   a[href]::after {{ content: " (" attr(href) ")"; font-size: 9pt; color: #555; }}
 }}
+/* Motion (phase 10 E): the logo while a run plays. input.css .logo-* */
+.logo-ground {{ fill: var(--ink-950); }}
+.logo-water {{ fill: var(--blood-700); }}
+.logo-glass {{ fill: none; stroke: var(--parch-100); }}
+.logo-fish-body {{ fill: var(--parch-300); }}
+.logo-fish-eye {{ fill: var(--ink-950); }}
+.logo-bubble {{ fill: none; stroke: var(--parch-300); }}
+.logo-fish, .logo-bubble {{ transform-box: fill-box; transform-origin: center; }}
+.logo-animated .logo-fish {{ animation: logo-swim 5s ease-in-out infinite; }}
+.logo-animated .logo-bubble {{ opacity: 0; animation: logo-rise 2.6s ease-in infinite; }}
+.logo-animated .logo-bubble-2 {{ animation-delay: 1.3s; }}
+@keyframes logo-swim {{
+  0% {{ transform: translate(-1px, 0) scaleX(1); }}
+  38% {{ transform: translate(2.5px, -1.4px) scaleX(1); }}
+  48% {{ transform: translate(3px, -0.4px) scaleX(-1); }}
+  86% {{ transform: translate(-2.2px, 0.9px) scaleX(-1); }}
+  96% {{ transform: translate(-2.4px, 0.2px) scaleX(1); }}
+  100% {{ transform: translate(-1px, 0) scaleX(1); }}
+}}
+@keyframes logo-rise {{
+  0% {{ transform: translateY(5px); opacity: 0; }}
+  25%, 75% {{ opacity: 1; }}
+  100% {{ transform: translateY(-4px); opacity: 0; }}
+}}
+@media (prefers-reduced-motion: reduce) {{
+  .logo-animated .logo-fish, .logo-animated .logo-bubble {{ animation: none; opacity: 1; }}
+}}
 </style>
 </head>
 <body>
@@ -434,6 +461,34 @@ in words as well: the marker is a sentence, the bar has its count beside it, and
 a bar only when the limit is reached. The card grid, the line charts and the playtest hand are
 described in <code>DESIGN.md</code> (&ldquo;Pictures, markers and charts&rdquo;) and live at
 their templates; this file shows the tokens they are built from.</p>
+
+<h2>Motion (Phase 10)</h2>
+<div class="surface" style="display:flex;align-items:center;gap:1.2rem">
+  <svg viewBox="0 0 32 32" width="72" height="72" class="logo-animated" aria-hidden="true">
+    <defs><clipPath id="sg-flask">
+      <path d="M13 4.5h6v7l7.6 12.4A2.7 2.7 0 0 1 24.3 28H7.7a2.7 2.7 0 0 1-2.3-4.1L13 11.5z"/>
+    </clipPath></defs>
+    <rect width="32" height="32" rx="6" class="logo-ground"/>
+    <rect y="17" width="32" height="15" class="logo-water" clip-path="url(#sg-flask)"/>
+    <path d="M13 4.5h6v7l7.6 12.4A2.7 2.7 0 0 1 24.3 28H7.7a2.7 2.7 0 0 1-2.3-4.1L13 11.5z"
+          class="logo-glass" stroke-width="1.8" stroke-linejoin="round"/>
+    <path d="M11.5 3.5h9" class="logo-glass" stroke-width="1.8" stroke-linecap="round"/>
+    <g clip-path="url(#sg-flask)"><g class="logo-fish">
+      <ellipse cx="17" cy="22.4" rx="4.6" ry="2.9" class="logo-fish-body"/>
+      <path d="M12.9 22.4l-3.6-2.7v5.4z" class="logo-fish-body"/>
+      <circle cx="19.2" cy="21.7" r="0.8" class="logo-fish-eye"/>
+    </g></g>
+    <circle cx="17.2" cy="14.6" r="1" class="logo-bubble" stroke-width="0.8"/>
+    <circle cx="15.4" cy="10.2" r="0.7" class="logo-bubble logo-bubble-2" stroke-width="0.7"/>
+  </svg>
+  <p style="margin:0;font-style:italic;color:var(--ink-700)">Keeping a two-lander. Living
+  dangerously.</p>
+</div>
+<p class="rule">While a run plays, and only then: the fish swims a circle in the flask, bubbles
+rise, and one loading line beside it changes every three to five seconds with a 600&nbsp;ms fade.
+The progress bar glides to each new value in 900&nbsp;ms. Under
+<code>prefers-reduced-motion</code> all of it stands still: a still logo, one line, a bar that
+steps. The shapes are the favicon's; only the colours moved into tokens.</p>
 
 <h2>Do &amp; Don't</h2>
 <div class="grid2">

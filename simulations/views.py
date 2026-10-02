@@ -20,6 +20,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, View
 from django_ratelimit.decorators import ratelimit
@@ -88,6 +89,25 @@ class RunCreateView(LoginRequiredMixin, View):
         return redirect(run.get_absolute_url())
 
 
+def _pace(run: SimulationRun) -> dict | None:
+    """What the smoothed progress bar needs (phase 10 T3.1), while it runs.
+
+    Elapsed time is counted here, on the server's clock, so a visitor whose
+    own clock is wrong still sees the bar start where it should - from the
+    moment the run was asked for while it waits in the queue, from the moment
+    a worker started it once it plays. A queue can be long, and the script
+    holds the bar low while `queued` says so.
+    """
+    if run.is_finished:
+        return None
+    since = run.started_at or run.created_at
+    return {
+        "elapsed": (timezone.now() - since).total_seconds(),
+        "expected": services.expected_seconds(run),
+        "queued": run.started_at is None,
+    }
+
+
 class RunDetailView(OwnedRunsMixin, DetailView):
     """One run: the progress bar while it works, the report once it is done."""
 
@@ -97,6 +117,7 @@ class RunDetailView(OwnedRunsMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         run = self.object
+        context["pace"] = _pace(run)
         if run.status == SimulationRun.Status.DONE and run.result:
             context["report"] = report.build(run)
             # Read from the deck as it stands now, not from the run: these are
@@ -124,6 +145,11 @@ class RunProgressView(OwnedRunsMixin, DetailView):
 
     template_name = "simulations/_progress.html"
     context_object_name = "run"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["pace"] = _pace(self.object)
+        return context
 
     def render_to_response(self, context, **kwargs):
         response = super().render_to_response(context, **kwargs)

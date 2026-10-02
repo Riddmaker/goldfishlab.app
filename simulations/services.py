@@ -25,6 +25,7 @@ from redis.exceptions import RedisError
 
 from billing import quotas
 from billing.models import UsageRecord
+from simulations.engine import runner
 from simulations.models import SimulationRun
 
 #: Runs at or below this size go to the short queue, which has a worker of its
@@ -34,6 +35,15 @@ from simulations.models import SimulationRun
 SHORT_QUEUE_MAX_GAMES = 10_000
 SHORT_QUEUE = "sim_short"
 LONG_QUEUE = "sim_long"
+
+#: How many chunks of one run play side by side: the short queue has a worker
+#: process of its own, the long queue two (docker-compose.yml; production runs
+#: one worker for both at CELERY_CONCURRENCY=2, start.sh). Only the pace of the
+#: progress bar reads this, so erring on the slow side costs nothing.
+PARALLEL_CHUNKS = {SHORT_QUEUE: 1, LONG_QUEUE: 2}
+#: From pressing the button to the first chunk playing, on an empty queue: the
+#: dispatcher task and the broker round trips.
+QUEUE_SECONDS = 2.0
 
 #: How long a concurrency slot lives if nothing ever releases it. A worker
 #: killed mid-run would otherwise hold a slot for ever, and the user would be
@@ -120,6 +130,41 @@ def _dispatch(run: SimulationRun, tasks) -> None:
 def queue_for(games: int) -> str:
     """Which queue a run of this size belongs on."""
     return SHORT_QUEUE if games <= SHORT_QUEUE_MAX_GAMES else LONG_QUEUE
+
+
+def known_rate(run: SimulationRun) -> float | None:
+    """How fast this deck actually simulated last time, if it ever has.
+
+    Better than any estimate: the same deck, the same engine, the same
+    hardware. Only runs with the same turn count qualify, because the cost of a
+    game is linear in the number of turns it plays.
+    """
+    return (
+        SimulationRun.objects.filter(
+            deck_id=run.deck_id,
+            turns=run.turns,
+            usec_per_game__isnull=False,
+        )
+        .exclude(pk=run.pk)
+        .order_by("-created_at")
+        .values_list("usec_per_game", flat=True)
+        .first()
+    )
+
+
+def expected_seconds(run: SimulationRun) -> float:
+    """About how long a run takes, queue included (phase 10 T3.1).
+
+    Sets the pace of the progress bar between two real batches, nothing else:
+    the bar never shows less than the real share, so a wrong guess only makes
+    it glide faster or slower. The rate is this run's own once its first chunk
+    has measured it, else this deck's last one, else the engine's estimate.
+    """
+    rate = run.usec_per_game or known_rate(run) or runner.default_usec_per_game(run.turns)
+    games = max(1, run.games_total)
+    chunks = run.chunks_total or len(runner.chunk_plan(games, run.turns, rate))
+    parallel = min(PARALLEL_CHUNKS[queue_for(games)], chunks)
+    return QUEUE_SECONDS + games * rate / 1_000_000 / parallel
 
 
 def request_cancel(run: SimulationRun) -> bool:

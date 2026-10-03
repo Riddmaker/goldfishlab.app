@@ -7,6 +7,7 @@ from django.db import connection
 from django.http import Http404, JsonResponse
 from django.views.generic import TemplateView
 
+from core import ticker
 from core.tokens import color_families
 from decks.analysis import KARSTEN_MAX, KARSTEN_MIN
 from goldfishlab import celery_app
@@ -19,6 +20,16 @@ class HomeView(TemplateView):
     """Landing page."""
 
     template_name = "core/home.html"
+
+    def get_context_data(self, **kwargs):
+        return {**super().get_context_data(**kwargs),
+                "ticker": ticker.lines_for(self.request.user)}
+
+
+class TickerView(HomeView):
+    """The ticker's lines alone, for the home page to ask for every 30 s."""
+
+    template_name = "core/_ticker_lines.html"
 
 
 class StyleguideView(TemplateView):

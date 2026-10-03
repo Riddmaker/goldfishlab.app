@@ -1,4 +1,4 @@
-{% load humanize %}
+{% load humanize i18n %}
 {% comment %}
   The report. Every chart here is server-rendered from the run's own numbers:
   a bar is a div with a width, which needs no charting library, no JavaScript,
@@ -12,6 +12,14 @@
       <h3 class="font-display mt-5 text-lg text-ink-900">By category</h3>
       <p class="text-sm text-ink-700">Games with at least one, by the end of each turn.</p>
       {% include "simulations/_line_chart.html" with chart=report.seen.roles name="seen-role" title="Share of games with at least one card of each category, by turn" %}
+      {% if missing_roles %}
+        <p class="mt-2 text-sm text-ink-700">{% blocktranslate with labels=missing_roles|join:", " %}None in the deck: {{ labels }}.{% endblocktranslate %}</p>
+      {% endif %}
+    {% endif %}
+    {% if report.seen.strategies.lines %}
+      <h3 class="font-display mt-6 text-lg text-ink-900">By strategy</h3>
+      <p class="text-sm text-ink-700">Games with at least one, by the end of each turn.</p>
+      {% include "simulations/_line_chart.html" with chart=report.seen.strategies name="seen-strategy" title="Share of games with at least one card of each strategy, by turn" %}
     {% endif %}
     {% if report.seen.types.lines %}
       <h3 class="font-display mt-6 text-lg text-ink-900">By card type</h3>
@@ -70,7 +78,7 @@
                     colspan="{{ report.seen.turns|length|add:1 }}"
                     class="pt-3 pb-1 font-semibold text-ink-900">% of games with at least one</th>
               </tr>
-              {% for line in report.seen.roles.lines %}
+              {% for line in report.seen.roles.lines|add:report.seen.strategies.lines %}
                 <tr class="border-b border-parchment-300">
                   <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ line.label }}</th>
                   {% for value in line.values %}
@@ -207,54 +215,5 @@
         {% endfor %}
       </tbody>
     </table>
-  </section>
-{% endif %}
-{% if report.combos %}
-  {% comment %}
-    The differentiator, on the page where the numbers are. Everyone can list a
-    combo; this table says how long it takes, and - for the ones the deck is a
-    card short of - what buying that card would be worth.
-
-    The hypothetical is named in the row rather than in a footnote. A
-    percentage measured on a deck that is one card larger than the real one is
-    a percentage nobody should read without knowing that.
-  {% endcomment %}
-  <section id="combo-timings" class="surface-parchment mt-6 p-6">
-    <h2 class="font-display text-2xl text-ink-900">Combos, and how long they take</h2>
-    <p class="mt-2 text-sm text-ink-700">
-      From Commander Spellbook, measured by this run.
-      {% include "core/_why.html" with anchor="combos" %}
-    </p>
-    <table class="mt-4 w-full text-left text-sm">
-      <thead>
-        <tr class="border-b border-parchment-600 text-ink-700">
-          <th scope="col" class="py-1.5 pr-3">Combo</th>
-          <th scope="col" class="py-1.5 pr-3">Add</th>
-          <th scope="col" class="py-1.5 pr-3">By turn {{ report.turns }}</th>
-          <th scope="col" class="py-1.5 pr-3">Half by</th>
-          <th scope="col" class="py-1.5 pr-3">Games</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for measurement in report.combos %}
-          <tr class="border-b border-parchment-300">
-            <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">
-              {% for card in measurement.combo.cards.all %}{{ card.name }}{% if not forloop.last %} + {% endif %}{% endfor %}
-            </th>
-            <td class="py-1.5 pr-3 text-ink-700">
-              {% if measurement.hypothetical %}{{ measurement.added_name }}{% else %}—{% endif %}
-            </td>
-            <td class="tabular py-1.5 pr-3 text-ink-900">{{ measurement.share_label }}</td>
-            <td class="tabular py-1.5 pr-3 text-ink-700">
-              {% if measurement.median_turn %}turn {{ measurement.median_turn }}{% else %}—{% endif %}
-            </td>
-            <td class="tabular py-1.5 pr-3 text-ink-700">{{ measurement.games|intcomma }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <p class="mt-3 text-xs text-ink-700">
-      A card in <strong>Add</strong>: measured on this deck <em>plus</em> that card, nothing cut.
-    </p>
   </section>
 {% endif %}

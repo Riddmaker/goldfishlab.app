@@ -1,0 +1,33 @@
+{% load humanize %}
+{% comment %}
+  "Your last run" (phase 11 F11). Runs were always kept, but a deck page only
+  showed them folded under "Earlier runs and games"; somebody coming back to
+  a deck wants the last report, not a fresh simulation. A run still going
+  comes first, with its progress, and links to the page that is watching it.
+
+  Takes: running_run, last_run, deck_changed (DeckDetailView.last_run_context).
+{% endcomment %}
+<section class="surface-parchment mt-5 max-w-xl p-4" aria-label="Your last run">
+  {% if running_run %}
+    <p class="font-display text-lg text-ink-900">A run is going</p>
+    <p class="tabular mt-1 text-sm text-ink-700">
+      {{ running_run.games_total|intcomma }} games · {{ running_run.progress_pct }}% done
+    </p>
+    <a href="{{ running_run.get_absolute_url }}"
+       class="mt-2 inline-block text-sm text-ink-900 underline">Watch it</a>
+  {% endif %}
+  {% if last_run %}
+    <div class="{% if running_run %}mt-4 border-t border-parchment-600 pt-3{% endif %}">
+      <p class="font-display text-lg text-ink-900">Your last run</p>
+      <p class="tabular mt-1 text-sm text-ink-700">
+        {{ last_run.finished_at|default:last_run.created_at|date:"j M Y, H:i" }} ·
+        {{ last_run.games_total|intcomma }} games · {{ last_run.turns }} turns
+      </p>
+      {% if deck_changed %}
+        <p class="mt-1 text-sm text-ink-900">The deck has changed since this run.</p>
+      {% endif %}
+      <a href="{{ last_run.get_absolute_url }}"
+         class="mt-2 inline-block text-sm text-ink-900 underline">Open the report</a>
+    </div>
+  {% endif %}
+</section>

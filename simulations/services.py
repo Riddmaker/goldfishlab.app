@@ -126,6 +126,7 @@ def start_run(*, owner, deck, games: int, turns: int, on_the_play: bool = True,
                 # two runs started in the same second differ, and `secrets`
                 # says that without the engine's reproducibility caveat.
                 seed=seed if seed is not None else secrets.randbelow(2**62),
+                deck_print=summary.fingerprint(deck),
             )
     except Exception:
         _release_slot(owner)

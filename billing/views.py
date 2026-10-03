@@ -22,7 +22,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View
 
-from billing import quotas, services, stripe_api
+from billing import currency, quotas, services, stripe_api
 from billing.models import Plan
 
 logger = logging.getLogger(__name__)
@@ -43,7 +43,13 @@ class PlansView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         subscription = services.subscription_for(self.request.user)
         context["subscription"] = subscription
-        context["plans"] = Plan.objects.filter(is_active=True).order_by("price_chf_cents")
+        plans = list(Plan.objects.filter(is_active=True).order_by("price_chf_cents"))
+        shown = currency.for_request(self.request)
+        for plan in plans:
+            # Phase 11 G: "CHF 4", "€4" or "$4" while LOCAL_PRICES is on.
+            cents = plan.price_cents(shown)
+            plan.price_label = currency.label(cents, shown) if cents else ""
+        context["plans"] = plans
         context["purchasable"] = {plan.pk for plan in services.purchasable_plans()}
         context["can_pay"] = stripe_api.is_configured()
         context["usage"] = _usage_rows(self.request.user)
@@ -95,6 +101,7 @@ class StartCheckoutView(LoginRequiredMixin, View):
                 success_url=base(reverse("billing:done")),
                 cancel_url=base(reverse("billing:plans")),
                 terms_url=base(reverse("terms")),
+                currency=currency.for_request(request),
             )
         except services.BillingNotConfigured as exc:
             messages.error(request, str(exc))

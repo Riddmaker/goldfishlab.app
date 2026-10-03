@@ -283,6 +283,22 @@ def test_the_confirmation_link_signs_in_on_the_saved_deck(client, guest, mailout
     assert EmailAddress.objects.get(user=user).verified
 
 
+def test_the_saved_deck_opens_on_the_guests_last_run(client, guest, mailoutbox):
+    """Phase 11 F11: saving keeps the trial's report, one click from the deck."""
+    deck = guest.decks.get()
+    run = SimulationRun.objects.get(owner=guest)
+    SimulationRun.objects.filter(pk=run.pk).update(status=SimulationRun.Status.DONE)
+    save(client)
+    link = re.search(r"/accounts/confirm-email/[^/\s]+/", mailoutbox[-1].body).group(0)
+
+    landing = client.post(link).url
+    body = client.get(landing).content.decode()
+
+    assert landing == deck.get_absolute_url()
+    assert "Your last run" in body
+    assert run.get_absolute_url() in body
+
+
 def test_an_address_with_an_account_keeps_it_and_says_nothing(client, guest, mailoutbox):
     existing = User.objects.create_user(email="taken@example.com", password=PASSWORD)
 

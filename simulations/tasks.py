@@ -325,9 +325,10 @@ def write_summary(summary_id: str) -> str:
     deck = row.deck
     try:
         readings = adapter.readings(deck)
-        completion = mistral.complete(summary.messages(summary.facts(deck, readings)),
+        deck_facts = summary.facts(deck, readings)
+        completion = mistral.complete(summary.messages(deck_facts),
                                       max_tokens=summary.MAX_TOKENS)
-        content = summary.parse(completion.content)
+        content = summary.parse(completion.content, deck_facts["strategies"])
     except (mistral.MistralError, ValueError) as exc:
         # The message names what went wrong, never the request: no key, no deck.
         logger.warning("summary %s not written: %s", summary_id, exc)

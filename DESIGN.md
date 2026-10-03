@@ -165,7 +165,8 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   line. The numbers sit under a "The numbers" fold. Since phase 10 a line explains itself:
   pointing at it or its chip (or focusing or tapping it) fades the others to 0.2 and puts its
   sentence in the info line under the chart; a count line shows a neutral ink band of ±1
-  spread, a share line a dot with a dashed guide at its typical turn.
+  spread; a share line's sentence names its typical turn (the dot with a dashed guide went
+  in phase 11 - it said the same thing as the sentence).
 - **The playtest board** (`playtest/_board.html`, `.playtest-*`, `.hand-*`, `.pip-*`): the hand
   as a fan of card buttons that straighten and grow under the pointer or keyboard focus (a
   straight sideways row up to 48rem); mana as round pips in the colour pie with the letter

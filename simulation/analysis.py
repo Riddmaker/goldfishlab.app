@@ -257,15 +257,23 @@ SEEN_CATEGORIES = (
     "recursion",
 )
 
+#: What else a deck can be built around (phase 11 K17): the strategies, read
+#: off ``Card.categories`` like the categories above and counted the same way,
+#: as ``role:`` groups. Each comes from one community tag or the owner's list.
+SEEN_STRATEGIES = (
+    "sac_outlet", "reanimate", "drain_payoff", "steal", "discard",
+    "cost_reducer", "evasion",
+)
+
 
 def seen_groups(deck) -> tuple[tuple[str, ...], dict[str, tuple[int, ...]]]:
     """The groups a deck's cards are counted in, and which groups each card is in.
 
     Worked out once per run, so that the per-turn count only adds integers. The
-    keys are ``type:creature``, ``role:ramp`` (one of `SEEN_CATEGORIES`) and
-    ``mv:3``, and only the ones this deck has cards in exist - a deck with no
-    planeswalker has no ``type:planeswalker``, which is an absent line on the
-    chart, not a zero.
+    keys are ``type:creature``, ``role:ramp`` (one of `SEEN_CATEGORIES` or
+    `SEEN_STRATEGIES`) and ``mv:3``, and only the ones this deck has cards in
+    exist - a deck with no planeswalker has no ``type:planeswalker``, which is
+    an absent line on the chart, not a zero.
 
     **Lands have no mana-value group.** Every land is mana value zero, and
     thirty-seven of them would bury the one question the curve answers: are
@@ -291,7 +299,8 @@ def seen_groups(deck) -> tuple[tuple[str, ...], dict[str, tuple[int, ...]]]:
             continue
         slots = [slot(f"type:{kind}") for kind in sorted(card.types)]
         slots += [slot(f"role:{category}")
-                  for category in SEEN_CATEGORIES if category in card.categories]
+                  for category in SEEN_CATEGORIES + SEEN_STRATEGIES
+                  if category in card.categories]
         if not card.is_land:
             slots.append(slot(f"mv:{min(card.mv, MV_CAP)}"))
         table[card.name] = tuple(slots)

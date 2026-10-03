@@ -283,7 +283,9 @@ MILESTONE_INFO = {
     "sol_ring": "An artifact that made more mana than it cost, such as Sol Ring.",
 }
 
-#: The share of games that makes a turn the "typical" one: half of them.
+#: The share of games that makes a turn the "typical" one: half of them. It
+#: feeds the info sentence only; the dashed marker on the chart is gone
+#: (phase 11 K14 - the sentence said the same thing).
 TYPICAL_SHARE = 50.0
 
 #: The line chart has eight colours (DESIGN.md, "Line charts"). A deck that
@@ -307,7 +309,7 @@ def milestone_chart(rows: list[dict], turns: int) -> charts.LineChart | None:
     }
     return charts.line_chart(series, [str(turn) for turn in range(1, turns + 1)],
                              top_value=charts.PERCENT_TOP, y_ticks=charts.PERCENT_TICKS,
-                             typical_at=TYPICAL_SHARE, infos=infos)
+                             infos=infos)
 
 
 def _typical_sentence(shares, verb: str, turns: int) -> str:
@@ -373,6 +375,33 @@ SEEN_ROLE_INFO = {
                  "your library.",
 }
 
+#: What else a deck can be built around (phase 11 K17), and what the page calls
+#: each. The keys are `simulation.analysis.SEEN_STRATEGIES` - the engine's own
+#: role names (`cards.profiles.ROLE_FROM_TAG`) - and a test holds the two lists
+#: together. The deck summary's chips use the same labels.
+SEEN_STRATEGY_ROLES = (
+    ("sac_outlet", "Sacrifice outlet"),
+    ("reanimate", "Reanimate"),
+    ("drain_payoff", "Drain"),
+    ("steal", "Theft"),
+    ("discard", "Discard"),
+    ("cost_reducer", "Cost reducer"),
+    ("evasion", "Evasion"),
+)
+
+#: What each strategy means (phase 11 P2), checked against the definitions of
+#: the Scryfall Tagger tags they come from.
+SEEN_STRATEGY_INFO = {
+    "sac_outlet": "Lets you sacrifice your own permanents again and again: an engine, "
+                  "not a one-off.",
+    "reanimate": "Puts creature cards from a graveyard onto the battlefield.",
+    "drain_payoff": "Opponents lose life and you gain it.",
+    "steal": "Takes control of something an opponent owns, or plays their cards.",
+    "discard": "Makes a player discard cards.",
+    "cost_reducer": "Makes your spells cheaper to cast.",
+    "evasion": "Helps your creatures get past blockers: flying, menace, unblockable …",
+}
+
 #: What each card type line counts. A card with two types counts in both.
 SEEN_TYPE_INFO = {
     "creature": "Creature cards, artifact and enchantment creatures included.",
@@ -430,11 +459,12 @@ def seen(result: dict) -> dict | None:
     `None` for a run made before the engine counted it (Phase 9 E), and the
     page says "run again" - an old run is not a deck that never draws ramp.
 
-    Three pictures:
+    The pictures:
 
     * **roles** - the share of games that had seen at least one card of the
       category by that turn. "Ramp by turn two" is a yes/no question per game,
-      and the share is its answer.
+      and the share is its answer. **strategies** asks the same of the
+      strategies (phase 11).
     * **types** - how many cards of each type had been seen, on average.
       Almost every game sees a creature by turn one, so the share would be a
       flat line at the top; the count is the part that differs between decks.
@@ -460,6 +490,8 @@ def seen(result: dict) -> dict | None:
 
     role_series = [(key, label, shares(f"role:{key}"))
                    for key, label in SEEN_ROLES if f"role:{key}" in groups]
+    strategy_series = [(key, label, shares(f"role:{key}"))
+                       for key, label in SEEN_STRATEGY_ROLES if f"role:{key}" in groups]
     type_series = [(kind, kind.title(), means(f"type:{kind}"))
                    for kind in runner.SEEN_CARD_TYPES if f"type:{kind}" in groups]
     type_spreads = {kind: _spreads(groups[f"type:{kind}"], games)
@@ -470,12 +502,20 @@ def seen(result: dict) -> dict | None:
                   default=0.0)
     count_top, count_ticks = charts.count_scale(largest)
 
-    role_infos = {
-        key: " ".join((SEEN_ROLE_INFO[key],
-                       _typical_sentence(values, "have one", turns),
-                       _average_sentence(_spreads(groups[f"role:{key}"], games)[-1], turns)))
-        for key, _, values in role_series
-    }
+    def share_infos(series, texts):
+        return {
+            key: " ".join((texts[key],
+                           _typical_sentence(values, "have one", turns),
+                           _average_sentence(_spreads(groups[f"role:{key}"], games)[-1],
+                                             turns)))
+            for key, _, values in series
+        }
+
+    def share_chart(series, texts):
+        return charts.line_chart(series, x_labels, top_value=charts.PERCENT_TOP,
+                                 y_ticks=charts.PERCENT_TICKS,
+                                 infos=share_infos(series, texts))
+
     type_infos = {
         kind: f"{SEEN_TYPE_INFO[kind]} {_average_sentence(type_spreads[kind][-1], turns)}"
         for kind, _, _ in type_series
@@ -485,9 +525,10 @@ def seen(result: dict) -> dict | None:
              if all(spread.sd is not None for spread in spreads)}
 
     return {
-        "roles": charts.line_chart(role_series, x_labels, top_value=charts.PERCENT_TOP,
-                                   y_ticks=charts.PERCENT_TICKS,
-                                   typical_at=TYPICAL_SHARE, infos=role_infos),
+        "roles": share_chart(role_series, SEEN_ROLE_INFO),
+        # Phase 11 K17. A run from before has no strategy groups and so no
+        # lines here: the chart is absent, not empty.
+        "strategies": share_chart(strategy_series, SEEN_STRATEGY_INFO),
         "types": charts.line_chart(type_series, x_labels, top_value=count_top,
                                    y_ticks=count_ticks, spreads=bands, infos=type_infos),
         # "The numbers" under the charts (phase 10 T5.3): a count reads

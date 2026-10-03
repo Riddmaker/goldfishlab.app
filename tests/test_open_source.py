@@ -17,7 +17,7 @@ REPO = "https://github.com/example/goldfish-lab"
 
 @pytest.mark.parametrize("configured", [False, True])
 def test_the_footer_links_the_code_and_the_tracker_only_when_configured(
-    client, settings, configured
+    client, db, settings, configured
 ):
     settings.SOURCE_CODE_URL = REPO if configured else ""
     content = client.get(reverse("home")).content.decode()
@@ -27,7 +27,7 @@ def test_the_footer_links_the_code_and_the_tracker_only_when_configured(
 
 
 @pytest.mark.parametrize("email", ["", "hello@example.ch"])
-def test_the_footer_offers_email_for_anyone_without_github(client, settings, email):
+def test_the_footer_offers_email_for_anyone_without_github(client, db, settings, email):
     settings.LEGAL_CONTACT_EMAIL = email
     content = client.get(reverse("home")).content.decode()
     assert ("Email us" in content) is bool(email)

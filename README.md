@@ -248,7 +248,7 @@ msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
 |---|---|
 | `simulation/` | **The engine. Pure Python; never imports Django.** |
 | `goldfishlab/` | Settings (split base/dev/prod), URLs, Celery app |
-| `core/` | Landing page, `/styleguide/`, `/healthz/`, `/about/methodology/`, terms, privacy, design-token reader, the rate-limit address rule and the production log formatter |
+| `core/` | Landing page and its ticker of what others are doing (`core/ticker.py`, cached a minute, never the viewer's own), `/styleguide/`, `/healthz/`, `/about/methodology/`, terms, privacy, design-token reader, the rate-limit address rule and the production log formatter |
 | `accounts/` | Custom user identified by email, plus the data export and account deletion (`privacy.py`) |
 | `cards/` | The Scryfall catalogue, role tags and the derived card profiles |
 | `decks/` | Decks, the importer and the per-deck analysis screens |
@@ -290,9 +290,10 @@ every small one — and no quota system fixes that.
 The progress bar is htmx polling an HTML fragment that carries its own trigger; when the run
 finishes, the fragment comes back without it. The charts are server-rendered: divs with widths,
 and inline SVG for the line charts (`simulations/charts.py` does the geometry), switched with
-CSS-only chips. Every run also counts what the player had drawn by each turn - by category, card
-type and mana value (`analysis.seen_groups`, Phase 9 E); a run from before that says "run
-again" instead of drawing an empty chart.
+CSS-only chips. Every run also counts what the player had drawn by each turn - by category,
+strategy, card type and mana value (`analysis.seen_groups`, Phase 9 E; strategies since phase
+11); a run from before that says "run again" instead of drawing an empty chart, and one from
+before the strategies simply has no "By strategy" chart.
 The little hand-written JavaScript there is (`static/js/`: the import drop zone and the
 self-submitting email confirmation) only improves pages that already work without it.
 

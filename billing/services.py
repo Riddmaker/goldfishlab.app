@@ -115,7 +115,7 @@ def purchasable_plans():
 
 
 def start_checkout(user, plan: Plan, *, success_url: str, cancel_url: str,
-                   terms_url: str) -> str:
+                   terms_url: str, currency: str | None = None) -> str:
     """A hosted Checkout page for this user and plan. Returns its URL.
 
     The user id travels twice on purpose: as `client_reference_id`, which comes
@@ -127,6 +127,12 @@ def start_checkout(user, plan: Plan, *, success_url: str, cancel_url: str,
     plan as merchant of record and deals with the VAT. The subscription and
     its invoices still live in our Stripe account, so the webhook handling
     below does not change - the launch runbook proves that in test mode.
+
+    With `LOCAL_PRICES` on, `currency` is the one the plans page showed and the
+    session is fixed to it, so Checkout charges the same round number (one
+    Stripe price carries chf, eur and usd as `currency_options`; a fixed
+    currency wins over the visitor's location and over Adaptive Pricing).
+    Off, nothing is sent and Checkout behaves as before.
     """
     if not stripe_api.is_configured() or not plan.stripe_price_id:
         raise BillingNotConfigured(
@@ -168,6 +174,7 @@ def start_checkout(user, plan: Plan, *, success_url: str, cancel_url: str,
         **({"customer": subscription.stripe_customer_id}
            if subscription.stripe_customer_id else {"customer_email": user.email}),
         **({"managed_payments": {"enabled": True}} if managed else {}),
+        **({"currency": currency} if settings.LOCAL_PRICES and currency else {}),
     }
     return stripe_api.checkout_session(**params).url
 

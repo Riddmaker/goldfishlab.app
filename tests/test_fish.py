@@ -24,7 +24,7 @@ NODE = shutil.which("node")
 # --- where it lives --------------------------------------------------------
 
 
-def test_the_home_page_has_the_living_logo(client):
+def test_the_home_page_has_the_living_logo(client, db):
     body = client.get(reverse("home")).content.decode()
 
     assert "data-fish-link" in body
@@ -33,7 +33,7 @@ def test_the_home_page_has_the_living_logo(client):
     assert "js/fish.js" in body
 
 
-def test_the_living_logo_is_a_link_home_without_javascript(client):
+def test_the_living_logo_is_a_link_home_without_javascript(client, db):
     body = client.get(reverse("home")).content.decode()
     link = body[body.index("<a", body.index("<nav")):body.index("data-fish-link")]
 

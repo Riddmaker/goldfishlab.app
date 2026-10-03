@@ -121,6 +121,12 @@ STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 # before that. The terms, the privacy policy and the plans page read this too,
 # because who sells the plan changes with it (the operator's VAT notes have the steps).
 STRIPE_MANAGED_PAYMENTS = env.bool("STRIPE_MANAGED_PAYMENTS", default=False)
+# Phase 11 G: round prices per currency - CHF for Switzerland and Liechtenstein,
+# EUR for the EU/EEA, USD elsewhere, from Cloudflare's CF-IPCountry header
+# (`billing.currency`). Checkout is fixed to the currency the page showed. Off
+# until Managed Payments is approved AND an EU representative is appointed:
+# euro prices on our own page are a sign of offering to the EU (GDPR Art. 3(2)).
+LOCAL_PRICES = env.bool("LOCAL_PRICES", default=False)
 
 # --- Mistral (phase 10 H) ------------------------------------------------------
 # The deck summary's written part. Empty by default and in the test suite:

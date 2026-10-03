@@ -84,7 +84,10 @@
         <strong>more simulation capacity</strong> - more turns per game, more
         games per run, more runs a month, more decks. What each plan includes
         and what it costs is on <a href="{% url 'billing:plans' %}" class="underline hover:text-ink-700">the plans page</a>;
-        {% if sold_through_link %}prices are set in Swiss francs and include
+        {% if local_prices %}prices are shown in Swiss francs, euros or US
+        dollars, depending on where you visit from, and include any taxes that
+        apply; checkout charges the price in the currency the plans page
+        showed.{% elif sold_through_link %}prices are set in Swiss francs and include
         any taxes that apply; the checkout page may show them converted into
         your own currency.{% else %}prices are in Swiss francs and include any
         taxes that apply.{% endif %}

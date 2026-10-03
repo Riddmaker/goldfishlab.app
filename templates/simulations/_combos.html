@@ -1,0 +1,61 @@
+{% load humanize i18n %}
+{% comment %}
+  The combos, the last part of "Your strategies, and what would feed them"
+  (phase 11 E, K16) - the block's own heading is above it. The anchor
+  #combo-timings stays, so links to it keep working.
+
+  The differentiator, on the page where the numbers are. Everyone can list a
+  combo; this table says how long it takes, and - for the ones the deck is a
+  card short of - what that card would be worth.
+
+  The columns read as sentences (P7). "Games" left the table for the line
+  under the heading; a combo with a missing card is measured on a smaller
+  sample of its own, which its row says. The hypothetical is named in the row
+  rather than in a footnote: a percentage measured on a deck one card larger
+  than the real one is a percentage nobody should read without knowing that.
+
+  Needs `report` and `run`.
+{% endcomment %}
+{% if report.combos %}
+  <div id="combo-timings" class="mt-6 border-t border-parchment-400 pt-5">
+    <h3 class="summary-title text-ink-900">{% translate "Combos" %}</h3>
+    <p class="mt-1 text-sm text-ink-700">
+      {% blocktranslate with games=run.games_total|intcomma %}From Commander Spellbook, measured over {{ games }} games.{% endblocktranslate %}
+      {% include "core/_why.html" with anchor="combos" %}
+    </p>
+    <div class="mt-3 overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead>
+          <tr class="border-b border-parchment-600 text-ink-700">
+            <th scope="col" class="py-1.5 pr-3">{% translate "Combo" %}</th>
+            <th scope="col" class="py-1.5 pr-3">{% translate "Missing card" %}</th>
+            <th scope="col" class="py-1.5 pr-3">{% blocktranslate with turn=report.turns %}Together by turn {{ turn }}{% endblocktranslate %}</th>
+            <th scope="col" class="py-1.5 pr-3">{% translate "When it happens, usually by" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for measurement in report.combos %}
+            <tr class="border-b border-parchment-300">
+              <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">
+                {% for card in measurement.combo.cards.all %}{{ card.name }}{% if not forloop.last %} + {% endif %}{% endfor %}
+              </th>
+              <td class="py-1.5 pr-3 text-ink-700">
+                {% if measurement.hypothetical %}
+                  {{ measurement.added_name }}
+                  <span class="block text-xs">{% blocktranslate with games=measurement.games|intcomma %}over {{ games }} games{% endblocktranslate %}</span>
+                {% else %}—{% endif %}
+              </td>
+              <td class="tabular py-1.5 pr-3 text-ink-900">{{ measurement.share_label }}</td>
+              <td class="tabular py-1.5 pr-3 text-ink-700">
+                {% if measurement.median_turn %}{% blocktranslate with turn=measurement.median_turn %}turn {{ turn }}{% endblocktranslate %}{% else %}—{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-3 text-xs text-ink-700">
+      {% blocktranslate %}A <strong>missing card</strong> is measured on this deck <em>plus</em> that card, nothing cut.{% endblocktranslate %}
+    </p>
+  </div>
+{% endif %}

@@ -277,6 +277,10 @@ class SimulationRun(models.Model):
     #: a stored result can later say "computed with v2, current is v5 - re-run
     #: to compare". Zero means it was never computed.
     engine_version = models.PositiveSmallIntegerField(default=0)
+    #: The deck's `summary.fingerprint` when the run started (phase 11 F11):
+    #: the deck page compares it with today's to say "The deck has changed
+    #: since this run." Empty on a run from before, which then says nothing.
+    deck_print = models.CharField(max_length=64, blank=True)
 
     #: How long one game actually took, measured by the first chunk. Used to
     #: size the chunks of the *next* run of this deck: a measurement on this

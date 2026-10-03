@@ -28,7 +28,8 @@ def payments(request):
     and owes the VAT. The terms, the privacy policy and the plans page all say
     so, and must never say it while the setting is off.
     """
-    return {"sold_through_link": settings.STRIPE_MANAGED_PAYMENTS}
+    return {"sold_through_link": settings.STRIPE_MANAGED_PAYMENTS,
+            "local_prices": settings.LOCAL_PRICES}
 
 
 def source_code(request):

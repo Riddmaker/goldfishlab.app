@@ -103,7 +103,10 @@
         <div class="flex flex-col border {% if plan == subscription.plan %}border-2 border-ink-900{% else %}border-parchment-600{% endif %} p-4">
           <h3 class="font-display text-xl text-ink-900">{{ plan.name }}</h3>
           <p class="tabular mt-1 text-ink-700">
-            {% if plan.price_chf_cents %}
+            {% if local_prices and plan.price_label %}
+              {# Phase 11 G: the same round number in each currency (billing.currency). #}
+              {{ plan.price_label }} / {{ plan.interval }}
+            {% elif plan.price_chf_cents %}
               CHF {{ plan.price_chf|floatformat:"2" }} / {{ plan.interval }}
             {% else %}
               Free
@@ -156,8 +159,8 @@
       <p class="mt-5 text-sm text-ink-700">
         Paid plans are <strong>sold through Link</strong>, Stripe's reseller
         service: Link takes the payment, handles the VAT and sends the receipts,
-        and your statement shows <em>LINK.COM*</em>. Checkout may show the price
-        in your own currency. The details are in the
+        and your statement shows <em>LINK.COM*</em>.{% if not local_prices %} Checkout may show the price
+        in your own currency.{% endif %} The details are in the
         <a href="{% url 'terms' %}" class="underline hover:text-ink-900">terms</a>.
       </p>
     {% endif %}

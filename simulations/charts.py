@@ -34,16 +34,6 @@ class Tick:
 
 
 @dataclass(frozen=True)
-class Marker:
-    """The "typical turn" on a share line: the first turn half the games got there."""
-
-    x: float
-    y: float
-    #: The x label of that turn ("4").
-    label: str
-
-
-@dataclass(frozen=True)
 class Line:
     """One series, ready for ``<polyline points="...">``."""
 
@@ -56,7 +46,6 @@ class Line:
     #: A ±1 standard deviation band, as ``<polygon points="...">`` - the upper
     #: edge left to right, then the lower edge back. Empty without a spread.
     band: str = ""
-    marker: Marker | None = None
     #: What the line counts, in a sentence or two, for the info line under the
     #: chart and the line's ``<title>`` (phase 10 T5.2, F5).
     info: str = ""
@@ -111,18 +100,8 @@ def band(values, spreads, top_value: float) -> str:
     return " ".join(upper + lower[::-1])
 
 
-def typical(values, x_labels, threshold: float, top_value: float) -> Marker | None:
-    """The first position at which a share reaches ``threshold``, or ``None``."""
-    count = len(values)
-    for position, value in enumerate(values):
-        if value >= threshold:
-            return Marker(x=round(_x(position, count), 1), y=round(_y(value, top_value), 1),
-                          label=x_labels[position])
-    return None
-
-
 def line_chart(series, x_labels, *, top_value: float, y_ticks,
-               spreads=None, typical_at: float | None = None, infos=None) -> LineChart:
+               spreads=None, infos=None) -> LineChart:
     """Lay out several series against one shared x axis.
 
     Args:
@@ -132,8 +111,6 @@ def line_chart(series, x_labels, *, top_value: float, y_ticks,
         y_ticks: ``(value, label)`` for each horizontal gridline.
         spreads: ``{key: [standard deviation per position]}`` for a count
             chart; a line without one gets no band.
-        typical_at: For a share chart, the share that makes a turn "typical"
-            (50 - half the games); every line gets its marker.
         infos: ``{key: sentence}``, what each line counts.
     """
     x_labels = tuple(x_labels)
@@ -152,8 +129,6 @@ def line_chart(series, x_labels, *, top_value: float, y_ticks,
         lines.append(Line(
             key=key, label=label, index=index, values=values, points=points,
             band=band(values, spreads[key], top_value) if key in spreads else "",
-            marker=(typical(values, x_labels, typical_at, top_value)
-                    if typical_at is not None else None),
             info=infos.get(key, ""),
         ))
     return LineChart(

@@ -26,9 +26,10 @@ from decks.forms import ColumnMappingForm, ImportForm
 from decks.importers import columns, tabular
 from decks.models import Deck, DeckCard, DeckImport, PendingImport
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
-from simulations import blindspots, deck_cards, review
+from simulations import blindspots, deck_cards, review, summary
 from simulations.engine import adapter
 from simulations.forms import RunForm
+from simulations.models import SimulationRun
 
 
 class OwnedDecksMixin(LoginRequiredMixin):
@@ -102,6 +103,21 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
             "category_bars": category_bars,
         }
 
+    @staticmethod
+    def last_run_context(deck, runs) -> dict:
+        """"Your last run" (phase 11 F11): the newest finished run, a run still
+        going instead when there is one, and whether the deck changed since.
+
+        Runs are never deleted; before this they were only reachable folded
+        under "Earlier runs and games". A run from before `deck_print` existed
+        says nothing about changes rather than guess.
+        """
+        going = next((run for run in runs[:1] if not run.is_finished), None)
+        done = next((run for run in runs if run.status == SimulationRun.Status.DONE), None)
+        changed = bool(done and done.deck_print
+                       and done.deck_print != summary.fingerprint(deck))
+        return {"running_run": going, "last_run": done, "deck_changed": changed}
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         deck = self.object
@@ -114,7 +130,8 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         context["last_import"] = deck.imports.first()
         context["curve_max"] = max(analysis.curve.values() or [1]) or 1
         context["run_form"] = RunForm(plan=quotas.plan_for(self.request.user))
-        context["runs"] = deck.runs.all()[:5]
+        context["runs"] = runs = list(deck.runs.all()[:5])
+        context.update(self.last_run_context(deck, runs))
         # Sessions, not games: a playtest is one game played by hand and is
         # resumed rather than re-run, so the list is of things to go back to.
         context["playtests"] = deck.playtests.all()[:5]

@@ -1,0 +1,60 @@
+{% load i18n %}
+{% comment %}
+  "Your strategies, and what would feed them" (phase 11 E, Z5.3, K16, F14):
+  the deck's strategies, the calculated chance of one of each by turn four,
+  cards that would feed them, and the combos last.
+
+  The picks are Mistral's when it made some (`strategies.picked`), each with
+  its reason, checked against the lists we offered before they were stored.
+  Otherwise - no key, a failure, summaries switched off, an older summary -
+  the two biggest strategies with the most played candidates, no reasons:
+  the block never disappears because the written part is missing (P6).
+
+  Needs `strategies` (simulations.strategies.block), `report` and `run`.
+{% endcomment %}
+{% if strategies.shown or report.combos %}
+<section id="strategies" class="surface-parchment mt-6 p-6">
+  <h2 class="font-display text-2xl text-ink-900">{% translate "Your strategies, and what would feed them" %}</h2>
+  {% if strategies.shown %}
+    <p class="mt-2 max-w-3xl text-sm text-ink-700">
+      {% translate "Cards that fit your colours, are legal in Commander and are not in your deck yet." %}
+      {% if not strategies.picked %}{% translate "The most played first." %}{% endif %}
+    </p>
+    <div class="mt-4 grid gap-6 md:grid-cols-2">
+      {% for item in strategies.shown %}
+        <div>
+          <h3 class="summary-title summary-title-feel">
+            {{ item.strategy.label }}
+            <span class="text-sm text-ink-700">{% blocktranslate count cards=item.strategy.count %}{{ cards }} card in your deck{% plural %}{{ cards }} cards in your deck{% endblocktranslate %}</span>
+          </h3>
+          <p class="tabular text-sm text-ink-700">
+            {% blocktranslate with turn=strategies.by_turn now=item.strategy.now_label more=item.strategy.more_label extra=strategies.more %}At least one by turn {{ turn }}: {{ now }} now, {{ more }} with {{ extra }} more.{% endblocktranslate %}
+          </p>
+          {% if item.why %}
+            <p class="mt-1 text-ink-900">{{ item.why }}</p>
+          {% endif %}
+          {% if item.cards %}
+            <ul class="mt-2 text-ink-900">
+              {% for card in item.cards %}
+                <li class="summary-point">
+                  <span class="summary-sign summary-sign-plus" aria-hidden="true">+</span>
+                  {% if card.url %}<a href="{{ card.url }}" rel="noopener noreferrer" target="_blank" class="underline">{{ card.name }}</a>{% else %}{{ card.name }}{% endif %}{% if card.reason %}<span class="text-ink-700"> - {{ card.reason }}</span>{% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="mt-2 text-sm text-ink-700">{% translate "No card in your colours left to suggest." %}</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="mt-5 text-sm text-ink-700">
+      {% if strategies.picked %}
+        <p>{% translate "Picked by Mistral AI from cards that fit your colours. It can be wrong." %}</p>
+      {% endif %}
+      <p class="mt-1">{% translate "The odds are calculated from your list: a hand of 7, one draw a turn, no mulligan. What this run measured is in “By category” and “By strategy” above." %}</p>
+    </div>
+  {% endif %}
+  {% include "simulations/_combos.html" %}
+</section>
+{% endif %}

@@ -1,0 +1,17 @@
+{% comment %}
+  The ticker's lines (phase 11 C), on the home page and alone as the answer
+  to its own poll: the list replaces itself, attributes and all, so it keeps
+  asking. ticker.js holds the asking while "Pause" is pressed and marks the
+  lines it has not seen before. Takes: ticker (core.ticker.lines_for).
+{% endcomment %}
+<ul id="ticker-lines"
+    class="space-y-2 text-sm leading-snug text-ink-900"
+    hx-get="{% url 'ticker' %}"
+    hx-trigger="every 30s"
+    hx-swap="outerHTML">
+  {% for event in ticker %}
+    <li data-key="{{ event.key }}">{{ event.text }}</li>
+  {% empty %}
+    <li class="text-ink-700">Quiet right now. The lab is waiting for your deck.</li>
+  {% endfor %}
+</ul>

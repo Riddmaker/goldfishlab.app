@@ -3,8 +3,8 @@
 **Numbers first.** With a language on, Django formats every float it prints in
 that language: German writes 12.5 as "12,5". In text that is right; in an SVG
 coordinate, a CSS width or an `aria-valuenow` it breaks the chart without an
-error. Django ships German formats, so German is switched on here with no
-catalogue at all and the pages with charts and bars are rendered in it.
+error. Django ships German formats, so German is switched on here (with our
+German catalogue, phase 12 D) and the pages with charts and bars are rendered in it.
 
 **The switch.** No language in the URL (Q1): the account's choice, then the
 cookie the footer sets, then the browser, then English. Only a language that is

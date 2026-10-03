@@ -84,7 +84,7 @@
                 <tr class="border-b border-parchment-300">
                   <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ line.label }}</th>
                   {% for value in line.values %}
-                    <td class="tabular py-1.5 pr-3 text-ink-700">{{ value|floatformat:"0" }}%</td>
+                    <td class="tabular py-1.5 pr-3 text-ink-700">{% blocktranslate with number=value|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
                   {% endfor %}
                 </tr>
               {% endfor %}
@@ -157,7 +157,7 @@
               <tr class="border-b border-parchment-300">
                 <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ milestone.label }}</th>
                 {% for share in milestone.shares %}
-                  <td class="tabular py-1.5 pr-3 text-ink-700">{{ share|floatformat:"0" }}%</td>
+                  <td class="tabular py-1.5 pr-3 text-ink-700">{% blocktranslate with number=share|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
                 {% endfor %}
               </tr>
             {% endfor %}
@@ -182,7 +182,7 @@
       {% for row in report.mulligans %}
         <tr class="border-b border-parchment-300">
           <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
-          <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.share|floatformat:"1" }}%</td>
+          <td class="tabular py-1.5 pr-3 text-ink-900">{% blocktranslate with number=row.share|floatformat:"1" %}{{ number }}%{% endblocktranslate %}</td>
           <td class="tabular py-1.5 pr-3 text-ink-700">{{ row.count }}</td>
           <td class="py-1.5">
             <span class="inline-block h-3 bg-ink-800 align-middle"

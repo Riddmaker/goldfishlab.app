@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Goldfish Lab\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 13:58+0200\n"
+"POT-Creation-Date: 2026-10-03 20:58+0200\n"
 "PO-Revision-Date: 2026-10-03 13:00+0200\n"
 "Last-Translator: Claude\n"
 "Language-Team: \n"
@@ -14,6 +14,58 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+
+#: accounts/allauth_tone.py
+msgid "Enter Email Verification Code"
+msgstr ""
+
+#: accounts/allauth_tone.py
+msgid "Enter Phone Verification Code"
+msgstr ""
+
+#: accounts/allauth_tone.py
+msgid "Enter a phone number including country code (e.g. +1 for the US)."
+msgstr ""
+
+#: accounts/allauth_tone.py
+msgid "Enter your password:"
+msgstr ""
+
+#: accounts/allauth_tone.py
+msgid "Sign In"
+msgstr ""
+
+#: accounts/allauth_tone.py
+msgid "Please reauthenticate to safeguard your account."
+msgstr ""
+
+#: accounts/allauth_tone.py
+msgid "Use a security key"
+msgstr ""
+
+#: accounts/allauth_tone.py
+msgid "Use authenticator app or code"
+msgstr ""
+
+#: accounts/allauth_tone.py
+msgid "Use your password"
+msgstr ""
+
+#: accounts/allauth_tone.py
+#, python-format
+msgid ""
+"We've sent a code to %(recipient)s. The code expires shortly, so please "
+"enter it soon."
+msgstr ""
+
+#: accounts/allauth_tone.py
+#, python-format
+msgid "You have verified phone number %(phone)s."
+msgstr ""
+
+#: accounts/allauth_tone.py
+msgid "You will receive a special code for a password-free sign-in."
+msgstr ""
 
 #: accounts/privacy.py
 msgid ""
@@ -349,7 +401,8 @@ msgstr[0] ""
 msgid "There are no cards in this deck to look up."
 msgstr ""
 
-#: core/l10n.py
+#: core/l10n.py templates/simulations/_progress.html
+#: templates/simulations/_report.html
 #, python-format
 msgid "%(number)s%%"
 msgstr ""

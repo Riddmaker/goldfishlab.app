@@ -70,7 +70,10 @@
     } else {
       fill.style.width = `${state.shown.toFixed(1)}%`;
     }
-    label.textContent = `${Math.floor(state.shown)}%`;
+    // The page's language places the sign: "42%" in English, "42 %" in German.
+    label.textContent = new Intl.NumberFormat(document.documentElement.lang, {
+      style: "percent", maximumFractionDigits: 0,
+    }).format(Math.floor(state.shown) / 100);
   }
 
   function adopt(scope) {

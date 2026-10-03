@@ -6,7 +6,7 @@
   <div class="flex flex-wrap items-baseline gap-4">
     <h1 class="font-display text-3xl text-parchment-100">{% translate "Your plan" %}</h1>
     <span class="tabular text-parchment-200">
-      {% blocktranslate trimmed with plan=subscription.plan.name %}Currently on <strong>{{ plan }}</strong>{% endblocktranslate %}
+      {% blocktranslate trimmed with plan=subscription.plan.display_name %}Currently on <strong>{{ plan }}</strong>{% endblocktranslate %}
     </span>
   </div>
 
@@ -107,13 +107,13 @@
     <div class="mt-5 grid gap-5 lg:grid-cols-3">
       {% for plan in plans %}
         <div class="flex flex-col border {% if plan == subscription.plan %}border-2 border-ink-900{% else %}border-parchment-600{% endif %} p-4">
-          <h3 class="font-display text-xl text-ink-900">{{ plan.name }}</h3>
+          <h3 class="font-display text-xl text-ink-900">{{ plan.display_name }}</h3>
           <p class="tabular mt-1 text-ink-700">
             {% if local_prices and plan.price_label %}
               {# Phase 11 G: the same round number in each currency (billing.currency). #}
-              {% blocktranslate with price=plan.price_label interval=plan.interval %}{{ price }} / {{ interval }}{% endblocktranslate %}
+              {% blocktranslate with price=plan.price_label interval=plan.interval_label %}{{ price }} / {{ interval }}{% endblocktranslate %}
             {% elif plan.price_chf_cents %}
-              {% blocktranslate with price=plan.price_chf|floatformat:"2" interval=plan.interval %}CHF {{ price }} / {{ interval }}{% endblocktranslate %}
+              {% blocktranslate with price=plan.price_chf|floatformat:"2" interval=plan.interval_label %}CHF {{ price }} / {{ interval }}{% endblocktranslate %}
             {% else %}
               {% translate "Free" %}
             {% endif %}
@@ -149,7 +149,7 @@
                 {% csrf_token %}
                 <button type="submit"
                         class="w-full border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
-                  {% blocktranslate with plan=plan.name %}Choose {{ plan }}{% endblocktranslate %}
+                  {% blocktranslate with plan=plan.display_name %}Choose {{ plan }}{% endblocktranslate %}
                 </button>
               </form>
             {% elif plan.is_default %}

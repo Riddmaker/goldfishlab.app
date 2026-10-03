@@ -9,6 +9,9 @@ Robust under load: `recent()` merges the newest `KEEP` events across the
 sources at most once a `REFRESH` and keeps them in the cache. A request only
 filters out the viewer's own events and slices (`lines_for`), so a crowd on
 the home page costs the database nothing more.
+
+The cache holds events, not sentences (phase 12): the sentence is written per
+request, in the viewer's language, from the event's kind and parts.
 """
 
 import hashlib
@@ -19,7 +22,9 @@ from heapq import nlargest
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db.models import F
+from django.utils.translation import gettext, ngettext
 
+from core.l10n import number
 from decks.models import DeckImport
 from playtest.models import PlaytestSession
 from simulations.models import SimulationRun
@@ -31,7 +36,13 @@ KEEP = 40
 SHOWN = 8
 #: Seconds the merged list lives in the cache; the page asks every 30 s.
 REFRESH = 60
-CACHE_KEY = "home-ticker:v1"
+#: v2 (phase 12): events without their sentence; a v1 entry held sentences.
+CACHE_KEY = "home-ticker:v2"
+
+RUN = "run"
+PLAYTEST = "playtest"
+IMPORT = "import"
+JOIN = "join"
 
 
 @dataclass(frozen=True)
@@ -40,17 +51,51 @@ class Event:
 
     key: str
     owner_id: int
-    text: str
+    kind: str
     at: datetime
+    guest: bool = False
+    #: The deck's commander, `None` for a deck without one.
+    commander: str | None = None
+    games: int = 0
+
+    @property
+    def text(self) -> str:
+        """The line, in the language of whoever is reading it."""
+        if self.kind == JOIN:
+            return gettext("A new user joined.")
+        parts = {"commander": self.commander, "games": number(self.games)}
+        return _sentence(self.kind, self.guest, bool(self.commander), self.games) % parts
 
 
-def _actor(is_guest: bool) -> str:
-    return "Another guest" if is_guest else "Another user"
+def _sentence(kind: str, guest: bool, led: bool, games: int) -> str:
+    """Whole sentences, one per case, so every language can build its own.
 
-
-def _deck(commander_name: str | None) -> str:
-    # "led by" avoids "a"/"an" in front of a name like Atraxa.
-    return f"a deck led by {commander_name}" if commander_name else "a deck"
+    "led by" avoids "a"/"an" in front of a name like Atraxa.
+    """
+    if kind == RUN:
+        if guest:
+            return (ngettext("Another guest simulated a deck led by %(commander)s: "
+                             "%(games)s game.",
+                             "Another guest simulated a deck led by %(commander)s: "
+                             "%(games)s games.", games) if led
+                    else ngettext("Another guest simulated a deck: %(games)s game.",
+                                  "Another guest simulated a deck: %(games)s games.", games))
+        return (ngettext("Another user simulated a deck led by %(commander)s: %(games)s game.",
+                         "Another user simulated a deck led by %(commander)s: "
+                         "%(games)s games.", games) if led
+                else ngettext("Another user simulated a deck: %(games)s game.",
+                              "Another user simulated a deck: %(games)s games.", games))
+    if kind == PLAYTEST:
+        if guest:
+            return (gettext("Another guest playtested a deck led by %(commander)s.") if led
+                    else gettext("Another guest playtested a deck."))
+        return (gettext("Another user playtested a deck led by %(commander)s.") if led
+                else gettext("Another user playtested a deck."))
+    if guest:
+        return (gettext("Another guest imported a deck led by %(commander)s.") if led
+                else gettext("Another guest imported a deck."))
+    return (gettext("Another user imported a deck led by %(commander)s.") if led
+            else gettext("Another user imported a deck."))
 
 
 def _key(kind: str, pk, at: datetime) -> str:
@@ -87,25 +132,19 @@ def build() -> list[Event]:
     )
 
     events = [
-        Event(_key("run", row["pk"], row["at"]), row["owner_id"],
-              f"{_actor(row['owner__is_guest'])} simulated {_deck(row['commander'])}: "
-              f"{row['games_total']:,} games.", row["at"])
+        Event(_key(RUN, row["pk"], row["at"]), row["owner_id"], RUN, row["at"],
+              guest=row["owner__is_guest"], commander=row["commander"],
+              games=row["games_total"])
         for row in runs
     ]
     events += [
-        Event(_key("playtest", row["pk"], row["at"]), row["owner_id"],
-              f"{_actor(row['owner__is_guest'])} playtested {_deck(row['commander'])}.",
-              row["at"])
-        for row in playtests
+        Event(_key(kind, row["pk"], row["at"]), row["owner_id"], kind, row["at"],
+              guest=row["owner__is_guest"], commander=row["commander"])
+        for kind, rows in ((PLAYTEST, playtests), (IMPORT, imports))
+        for row in rows
     ]
     events += [
-        Event(_key("import", row["pk"], row["at"]), row["owner_id"],
-              f"{_actor(row['owner__is_guest'])} imported {_deck(row['commander'])}.",
-              row["at"])
-        for row in imports
-    ]
-    events += [
-        Event(_key("join", row["pk"], row["at"]), row["pk"], "A new user joined.", row["at"])
+        Event(_key(JOIN, row["pk"], row["at"]), row["pk"], JOIN, row["at"])
         for row in joins
     ]
     return nlargest(KEEP, events, key=lambda event: event.at)

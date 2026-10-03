@@ -24,6 +24,7 @@ from django_ratelimit.decorators import ratelimit
 from django_ratelimit.exceptions import Ratelimited
 
 from billing.quotas import QuotaExceeded
+from billing.views import refusal
 from decks.views import ImportFlowMixin, imported
 from guests import services
 from guests.forms import SaveDeckForm
@@ -47,7 +48,11 @@ def land(request, outcome):
             turns=services.TRIAL_TURNS,
             on_the_play=False,
         )
-    except (QuotaExceeded, simulations.SimulationRefused) as exc:
+    except QuotaExceeded as exc:
+        # The sentence, not the exception's text: that is a log line.
+        messages.info(request, refusal(exc))
+        return redirect(outcome.deck.get_absolute_url())
+    except simulations.SimulationRefused as exc:
         messages.info(request, str(exc))
         return redirect(outcome.deck.get_absolute_url())
     return redirect(run.get_absolute_url())

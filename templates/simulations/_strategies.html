@@ -24,7 +24,7 @@
       {% for item in strategies.shown %}
         <div>
           <h3 class="summary-title summary-title-feel">
-            {{ item.strategy.label }}
+            {{ item.strategy.name }}
             <span class="text-sm text-ink-700">{% blocktranslate count cards=item.strategy.count %}{{ cards }} card in your deck{% plural %}{{ cards }} cards in your deck{% endblocktranslate %}</span>
           </h3>
           <p class="tabular text-sm text-ink-700">

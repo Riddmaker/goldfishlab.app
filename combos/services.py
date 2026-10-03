@@ -26,6 +26,7 @@ from datetime import timedelta
 
 from django.db import transaction
 from django.utils import timezone
+from django.utils.translation import gettext, ngettext
 
 from cards.models import OracleCard
 from combos import spellbook
@@ -121,15 +122,21 @@ def refresh(deck, *, force: bool = False) -> ComboLookup | Refusal:
         since = timezone.now() - existing.attempted_at
         if since < COOLDOWN:
             wait = int((COOLDOWN - since).total_seconds())
+            ago = int(since.total_seconds())
             return Refusal(
-                f"Checked {int(since.total_seconds())} seconds ago. "
-                f"Try again in about {wait} seconds - Commander Spellbook is a free "
-                "service and this is the polite thing to do."
+                ngettext("Checked %(ago)s second ago.", "Checked %(ago)s seconds ago.",
+                         ago) % {"ago": ago}
+                + " "
+                + ngettext("Try again in about %(wait)s second - Commander Spellbook is a "
+                           "free service and this is the polite thing to do.",
+                           "Try again in about %(wait)s seconds - Commander Spellbook is a "
+                           "free service and this is the polite thing to do.",
+                           wait) % {"wait": wait}
             )
 
     main, commanders = _names(deck)
     if not main and not commanders:
-        return Refusal("There are no cards in this deck to look up.")
+        return Refusal(gettext("There are no cards in this deck to look up."))
 
     try:
         results = spellbook.find_my_combos(main, commanders)
@@ -390,7 +397,9 @@ def _worth_saying(reason: str) -> str:
     """
     from combos import measure
 
-    return "" if reason == measure.NOT_CHOSEN else reason
+    if not reason or reason == measure.NOT_CHOSEN:
+        return ""
+    return gettext(measure.SENTENCES[reason]) if reason in measure.SENTENCES else reason
 
 
 def _measurements_for(deck) -> tuple:

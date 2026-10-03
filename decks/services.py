@@ -24,9 +24,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from django.db import transaction
+from django.utils.translation import gettext
 
 from billing import quotas
 from billing.models import UsageRecord
+from core.l10n import number
 from decks import importers, resolve
 from decks.models import Deck, DeckCard, DeckImport, PendingImport, UnresolvedRow
 
@@ -77,9 +79,8 @@ class ImportOutcome:
 def decode(raw: bytes) -> str:
     """Bytes to text, without dying on a Windows-encoded export."""
     if len(raw) > MAX_UPLOAD_BYTES:
-        raise ImportError_(
-            f"file is {len(raw) // 1024} KB; the limit is {MAX_UPLOAD_BYTES // 1024} KB"
-        )
+        raise ImportError_(gettext("file is %(size)s KB; the limit is %(limit)s KB") % {
+            "size": len(raw) // 1024, "limit": MAX_UPLOAD_BYTES // 1024})
 
     # A NUL byte is the cheapest reliable proof that this is not a text file,
     # and latin-1 will happily "decode" any byte sequence at all - so without
@@ -88,7 +89,7 @@ def decode(raw: bytes) -> str:
     # (0x00) bytes`. That was a 500 on an upload form, which is a 500 a
     # stranger can cause on purpose.
     if b"\x00" in raw:
-        raise ImportError_("that is not a text file - it contains binary data")
+        raise ImportError_(gettext("that is not a text file - it contains binary data"))
 
     text = None
     for encoding in ENCODINGS:
@@ -98,7 +99,7 @@ def decode(raw: bytes) -> str:
         except UnicodeDecodeError:
             continue
     if text is None:
-        raise ImportError_("could not decode the file as text")
+        raise ImportError_(gettext("could not decode the file as text"))
 
     # Counted here rather than in a parser, for the same reason the size and
     # the NUL check are here: this is the boundary every upload crosses, and a
@@ -108,10 +109,10 @@ def decode(raw: bytes) -> str:
     # measure it - the point is to refuse the file without doing its work.
     rows = text.count("\n") + 1
     if rows > MAX_UPLOAD_ROWS:
-        raise ImportError_(
-            f"file has about {rows:,} lines; the limit is {MAX_UPLOAD_ROWS:,}. "
-            "That is far more than a deck or a collection - is it the right file?"
-        )
+        raise ImportError_(gettext(
+            "file has about %(rows)s lines; the limit is %(limit)s. That is far more "
+            "than a deck or a collection - is it the right file?"
+        ) % {"rows": number(rows), "limit": number(MAX_UPLOAD_ROWS)})
     return text
 
 
@@ -152,7 +153,7 @@ def parse(
         raise ImportError_(str(exc)) from exc
 
     if not rows:
-        raise ImportError_("the file contained no card rows")
+        raise ImportError_(gettext("the file contained no card rows"))
     return parser_class, rows
 
 
@@ -251,13 +252,13 @@ def import_deck(
         # Call site 2: deck creation, which the free plan caps by decks OWNED.
         quotas.check(owner, quotas.DECKS_OWNED)
     elif deck.owner_id != owner.pk:
-        raise ImportError_("that deck belongs to someone else")
+        raise ImportError_(gettext("that deck belongs to someone else"))
 
     report = resolve.resolve(rows)
 
     if creating:
         deck = Deck.objects.create(
-            owner=owner, name=name or Path(filename).stem or "Imported deck"
+            owner=owner, name=name or Path(filename).stem or gettext("Imported deck")
         )
         quotas.consume(owner, UsageRecord.Metric.DECKS_CREATED)
     quotas.consume(owner, UsageRecord.Metric.IMPORTS)
@@ -453,7 +454,7 @@ def preview(text: str, parser_name: str = "",
     except importers.ImportRefused as exc:
         return [], str(exc)
     except UnknownFormat:
-        return [], "no parser recognised this file"
+        return [], gettext("no parser recognised this file")
 
 
 def describe(text: str, parser_name: str = "", overrides: dict | None = None) -> list:

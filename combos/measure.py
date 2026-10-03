@@ -36,6 +36,8 @@ not one of them.
 
 from dataclasses import dataclass, field, replace
 
+from django.utils.translation import gettext_noop
+
 from combos.models import ComboLookup, ComboMeasurement, DeckCombo
 from simulations.engine import adapter, runner
 
@@ -77,6 +79,23 @@ UNWATCHABLE = "asks for a card to be somewhere this simulator does not model"
 MISSING_SEVERAL = "is more than one card away once this deck is read our way"
 NOT_REALLY_HELD = "is one this deck turns out not to hold, once it is read our way"
 NOT_CHOSEN = "was not among the most-played few this run had room to measure"
+
+#: What a page prints for each, as a whole sentence (phase 12): a fragment
+#: after "it" cannot be translated on its own. English, translated where shown.
+SENTENCES = {
+    NEEDS_TEMPLATE: gettext_noop("No timing for this one: it needs a kind of card rather "
+                                 "than a named one, which is a search and not a simulation."),
+    NOT_IN_CATALOGUE: gettext_noop("No timing for this one: it names a card this "
+                                   "application has not got in its catalogue."),
+    UNWATCHABLE: gettext_noop("No timing for this one: it asks for a card to be somewhere "
+                              "this simulator does not model."),
+    MISSING_SEVERAL: gettext_noop("No timing for this one: it is more than one card away "
+                                  "once this deck is read our way."),
+    NOT_REALLY_HELD: gettext_noop("No timing for this one: it is one this deck turns out "
+                                  "not to hold, once it is read our way."),
+    NOT_CHOSEN: gettext_noop("No timing for this one: it was not among the most-played "
+                             "few this run had room to measure."),
+}
 
 
 @dataclass(frozen=True)

@@ -85,9 +85,8 @@
   {% elif run.status == "failed" %}
     <p class="mt-3 border-l-2 border-blood-600 pl-4 text-sm text-ink-700">
       {% if run.error %}
-        {% blocktranslate trimmed with error=run.error %}
-          This run did not finish: {{ error }}
-        {% endblocktranslate %}
+        {# The worker's own words, a technical detail in English (phase 12). #}
+        {% translate "This run did not finish:" %} <span lang="en">{{ run.error }}</span>
       {% else %}
         {% translate "This run did not finish: the worker reported no reason." %}
       {% endif %}

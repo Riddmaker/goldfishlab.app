@@ -14,6 +14,8 @@ series and the scale; this only turns numbers into points.
 
 from dataclasses import dataclass
 
+from core.l10n import percent
+
 #: The drawing, in SVG user units. The browser scales it to the column width
 #: (`viewBox` + `width: 100%`), so these are proportions, not pixels.
 WIDTH = 320
@@ -155,4 +157,9 @@ def count_scale(largest: float) -> tuple[float, list[tuple[float, str]]]:
 #: The scale every share chart uses. Always the whole 0-100, so that two
 #: charts side by side cannot make a small difference look like a big one.
 PERCENT_TOP = 100.0
-PERCENT_TICKS = [(value, f"{value}%") for value in (0, 25, 50, 75, 100)]
+PERCENT_STEPS = (0, 25, 50, 75, 100)
+
+
+def percent_ticks() -> list[tuple[int, str]]:
+    """The share charts' gridlines, labelled in the page's language ("50 %")."""
+    return [(value, percent(value)) for value in PERCENT_STEPS]

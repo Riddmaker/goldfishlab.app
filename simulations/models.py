@@ -34,6 +34,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from cards.models import OracleCard
 from decks.models import Deck
@@ -214,11 +215,11 @@ class SimulationRun(models.Model):
     """
 
     class Status(models.TextChoices):
-        PENDING = "pending", "Pending"
-        RUNNING = "running", "Running"
-        DONE = "done", "Done"
-        FAILED = "failed", "Failed"
-        CANCELLED = "cancelled", "Cancelled"
+        PENDING = "pending", _("Pending")
+        RUNNING = "running", _("Running")
+        DONE = "done", _("Done")
+        FAILED = "failed", _("Failed")
+        CANCELLED = "cancelled", _("Cancelled")
 
     #: Statuses from which nothing further will happen. The progress fragment
     #: stops polling on these, and the quota refund happens on the way in.
@@ -396,9 +397,9 @@ class DeckSummary(models.Model):
     """
 
     class Status(models.TextChoices):
-        PENDING = "pending", "Being written"
-        DONE = "done", "Written"
-        FAILED = "failed", "Could not be written"
+        PENDING = "pending", _("Being written")
+        DONE = "done", _("Written")
+        FAILED = "failed", _("Could not be written")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     deck = models.OneToOneField(Deck, on_delete=models.CASCADE, related_name="summary")

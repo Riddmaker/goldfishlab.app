@@ -16,7 +16,7 @@
 
   {% if board_messages %}
     {% for message in messages %}
-      <p class="border border-parchment-600 bg-ink-900 px-4 py-3 text-parchment-100" role="status">{{ message }}</p>
+      <p class="border border-parchment-600 bg-ink-900 px-4 py-3 text-parchment-100" role="status"{% if "engine" in message.tags %} lang="en"{% endif %}>{{ message }}</p>
     {% endfor %}
   {% endif %}
 
@@ -47,9 +47,9 @@
 
     {% if game.turn %}
       <ol class="flex flex-wrap gap-1 text-sm" aria-label="{% translate "Phase" %}">
-        {% for phase in phases %}
+        {% for phase, name in phases %}
           <li class="playtest-phase{% if phase == game.phase %} playtest-phase-now{% endif %}"
-              {% if phase == game.phase %}aria-current="step"{% endif %}>{{ phase }}</li>
+              {% if phase == game.phase %}aria-current="step"{% endif %}>{{ name }}</li>
         {% endfor %}
       </ol>
     {% endif %}
@@ -269,7 +269,8 @@
     <summary class="cursor-pointer font-display text-lg text-ink-900">{% translate "What happened" %}</summary>
     <ol class="mt-3 space-y-1 text-sm text-ink-700">
       {% for line in game.log %}
-        <li class="tabular">{{ line }}</li>
+        {# The engine's log, in English like the card names in it (phase 12). #}
+        <li class="tabular" lang="en">{{ line }}</li>
       {% empty %}
         <li>{% translate "Nothing yet." %}</li>
       {% endfor %}
@@ -289,8 +290,8 @@
         {% csrf_token %}
         <label for="fork-seq" class="text-sm text-ink-900">{% translate "Replay up to action" %}</label>
         <select id="fork-seq" name="seq" class="border border-ink-800 bg-parchment-100 px-2 py-1 text-sm text-ink-900">
-          {% for row in history %}
-            <option value="{{ row.seq }}">{{ row.seq }}. {{ row.kind }}</option>
+          {% for seq, name in history %}
+            <option value="{{ seq }}">{{ seq }}. {{ name }}</option>
           {% endfor %}
         </select>
         <button type="submit"

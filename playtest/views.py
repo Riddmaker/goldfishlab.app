@@ -15,6 +15,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext, gettext_noop
 from django.views.generic import DetailView, View
 
 from decks.models import Deck
@@ -73,10 +74,40 @@ def card_keywords(session: PlaytestSession) -> dict:
 #: other permanents share a row: a goldfish board rarely holds more than a
 #: handful of either, and two half-empty rows read as a gap, not as order.
 BATTLEFIELD_ROWS = (
-    ("lands", "Lands", (actions.LANDS,)),
-    ("mana", "Mana sources", (actions.ROCKS,)),
-    ("permanents", "Permanents", (actions.CREATURES, actions.OTHER)),
+    ("lands", gettext_noop("Lands"), (actions.LANDS,)),
+    ("mana", gettext_noop("Mana sources"), (actions.ROCKS,)),
+    ("permanents", gettext_noop("Permanents"), (actions.CREATURES, actions.OTHER)),
 )
+
+#: The engine's phases and action kinds are keys; these are their words
+#: (phase 12). What happened in the game - the engine's log and its refusals -
+#: stays English, like the card names in it (decided 2026-10-03).
+PHASE_NAMES = {
+    actions.DRAW: gettext_noop("Draw"),
+    actions.MAIN1: gettext_noop("Main 1"),
+    actions.COMBAT: gettext_noop("Combat"),
+    actions.MAIN2: gettext_noop("Main 2"),
+    actions.END: gettext_noop("End"),
+}
+ACTION_NAMES = {
+    "begin_turn": gettext_noop("Start of turn"),
+    "play_land": gettext_noop("Land played"),
+    "open_main": gettext_noop("Main phase"),
+    "cast_spell": gettext_noop("Spell cast"),
+    "cast_commander": gettext_noop("Commander cast"),
+    "end_step": gettext_noop("End step"),
+    "advance_phase": gettext_noop("Next phase"),
+    "mulligan": gettext_noop("Mulligan"),
+    "keep_hand": gettext_noop("Hand kept"),
+    "draw": gettext_noop("Card drawn"),
+    "set_life": gettext_noop("Life changed"),
+    "move_card": gettext_noop("Card moved"),
+    "tap_permanent": gettext_noop("Permanent tapped"),
+}
+
+#: The message tag that marks an engine refusal, so the page can say it is
+#: English (`lang="en"`) - the engine names cards and costs in its own words.
+ENGINE_TAG = "engine"
 
 #: The order a mana pip is drawn in - the colour pie, then colourless.
 PIP_ORDER = (*COLORS, COLORLESS)
@@ -142,7 +173,7 @@ def board_context(session: PlaytestSession, game) -> dict:
             playable={a.index for a in legal if isinstance(a, actions.PlayLand)},
         ),
         "battlefield": [
-            {"key": key, "label": label,
+            {"key": key, "label": gettext(label),
              "tiles": [tile for zone in zones
                        for tile in _tiles(getattr(game, zone), images, keywords)]}
             for key, label, zones in BATTLEFIELD_ROWS
@@ -157,8 +188,9 @@ def board_context(session: PlaytestSession, game) -> dict:
             isinstance(a, actions.CastCommander) for a in legal),
         "commander_out": bool(session.deck.commander_id)
         and game.has(session.deck.commander.front_name),
-        "phases": actions.PHASES,
-        "history": live,
+        "phases": [(phase, gettext(PHASE_NAMES[phase])) for phase in actions.PHASES],
+        "history": [(row.seq, gettext(ACTION_NAMES[row.kind]) if row.kind in ACTION_NAMES
+                     else row.kind) for row in live],
         "can_undo": bool(live),
         "can_redo": session.actions.filter(undone=True).exists(),
     }
@@ -182,12 +214,12 @@ class StartView(LoginRequiredMixin, View):
     def post(self, request, deck_id):
         deck = get_object_or_404(Deck, pk=deck_id, owner=request.user)
         if not deck.entries.exists():
-            messages.error(request, "There is nothing in this deck to play yet.")
+            messages.error(request, gettext("There is nothing in this deck to play yet."))
             return redirect(deck.get_absolute_url())
 
         form = StartForm(request.POST)
         if not form.is_valid():
-            messages.error(request, "That is not a game this application deals.")
+            messages.error(request, gettext("That is not a game this application deals."))
             return redirect(deck.get_absolute_url())
 
         session = services.start(
@@ -222,7 +254,7 @@ class ActView(OwnedSessionsMixin, View):
         try:
             game = services.record(session, form.action())
         except actions.IllegalAction as exc:
-            messages.error(request, str(exc))
+            messages.error(request, str(exc), extra_tags=ENGINE_TAG)
             game = services.state(session)
         except services.PlaytestFull as exc:
             messages.error(request, str(exc))
@@ -254,5 +286,5 @@ class ForkView(OwnedSessionsMixin, View):
         branch = services.fork(session, form.cleaned_data["seq"])
         messages.success(
             request,
-            "Branched. The original is untouched and still in your playtests.")
+            gettext("Branched. The original is untouched and still in your playtests."))
         return redirect(branch.get_absolute_url())

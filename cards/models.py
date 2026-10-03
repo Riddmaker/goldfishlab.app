@@ -12,6 +12,7 @@ adapter reads it without importing anything simulation-specific.
 
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from cards.names import front_face, normalise
 
@@ -288,15 +289,15 @@ class DerivedProfile(models.Model):
     """
 
     class Kind(models.TextChoices):
-        LAND = "land", "Land"
-        ROCK = "rock", "Mana rock"
-        RITUAL = "ritual", "Ritual"
-        CREATURE = "creature", "Creature"
-        ENCHANTMENT = "enchantment", "Enchantment"
-        ARTIFACT = "artifact", "Artifact"
-        SORCERY = "sorcery", "Sorcery"
-        INSTANT = "instant", "Instant"
-        PLANESWALKER = "planeswalker", "Planeswalker"
+        LAND = "land", _("Land")
+        ROCK = "rock", _("Mana rock")
+        RITUAL = "ritual", _("Ritual")
+        CREATURE = "creature", _("Creature")
+        ENCHANTMENT = "enchantment", _("Enchantment")
+        ARTIFACT = "artifact", _("Artifact")
+        SORCERY = "sorcery", _("Sorcery")
+        INSTANT = "instant", _("Instant")
+        PLANESWALKER = "planeswalker", _("Planeswalker")
 
     oracle_card = models.OneToOneField(
         OracleCard, on_delete=models.CASCADE, primary_key=True, related_name="profile"

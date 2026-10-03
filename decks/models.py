@@ -15,6 +15,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext
 
 from cards.models import OracleCard
 
@@ -139,6 +140,19 @@ class DeckImport(models.Model):
     @property
     def is_clean(self) -> bool:
         return self.rows_unresolved == 0
+
+    @property
+    def parser_label(self) -> str:
+        """The format the file was read as, in the page's language."""
+        from decks import importers
+
+        parser = importers.by_name(self.parser) if self.parser else None
+        return gettext(parser.label) if parser is not None else self.parser
+
+    @property
+    def columns_shown(self) -> list[tuple[str, str]]:
+        """`column_mapping` with each label in the page's language."""
+        return [(gettext(label), header) for label, header in self.column_mapping]
 
 
 class UnresolvedRow(models.Model):

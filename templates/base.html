@@ -108,7 +108,7 @@
     <main id="main" class="mx-auto w-full max-w-5xl flex-1 px-4 py-10">
       {% if messages %}
         {% for message in messages %}
-          <div class="mb-4 border border-parchment-600 bg-ink-900 px-4 py-3 text-parchment-100">{{ message }}</div>
+          <div class="mb-4 border border-parchment-600 bg-ink-900 px-4 py-3 text-parchment-100"{% if "engine" in message.tags %} lang="en"{% endif %}>{{ message }}</div>
         {% endfor %}
       {% endif %}
       {% block main %}
@@ -126,7 +126,8 @@
             <a href="{% url 'accounts:data' %}" class="underline hover:text-ink-300">{% translate "Your data" %}</a>
           {% endif %}
           {% if show_dev_tools %}
-            <a href="{% url 'styleguide' %}" class="underline hover:text-ink-300">Styleguide</a>
+            {# Only with DEBUG, for us: not translated. #}
+            <a href="{% url 'styleguide' %}" class="underline hover:text-ink-300" lang="en">Styleguide</a>
           {% endif %}
           {% if source_code_url %}
             <a href="{{ report_url }}" class="underline hover:text-ink-300" rel="noopener">{% translate "Report a problem" %}</a>

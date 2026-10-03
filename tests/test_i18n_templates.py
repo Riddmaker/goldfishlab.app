@@ -94,7 +94,10 @@ class _Reader(HTMLParser):
     def handle_starttag(self, tag, attrs):
         attrs = {name: value or "" for name, value in attrs}
         if tag not in VOID:
-            self._open.append((tag, tag in ("script", "style") or "lang" in attrs))
+            # `<html lang>` names the page's language; any other `lang` marks an
+            # element kept in a language of its own.
+            own_language = "lang" in attrs and tag != "html"
+            self._open.append((tag, tag in ("script", "style") or own_language))
         if self._hidden:
             return
         for name in VISIBLE_ATTRIBUTES & attrs.keys():
@@ -144,6 +147,9 @@ def test_the_checker_finds_text_and_ignores_what_is_marked():
         <p lang="en">Stays <a href="/">English</a>.</p>"""
     assert untranslated(marked) == []
     assert untranslated('<p lang="en">Here</p><p>Not here</p>') == ["Not here"]
+    # The root's `lang` is the page's own, not an exception (base.html went
+    # unchecked in B1 because of it).
+    assert untranslated('<html lang="en"><p>Read</p></html>') == ["Read"]
 
 
 @pytest.mark.parametrize("name", list(_checked()))

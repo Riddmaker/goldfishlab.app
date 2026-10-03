@@ -17,6 +17,8 @@ matches nothing and says so, instead of in a parser, where a wrong guess
 imports the wrong cards in silence.
 """
 
+from django.utils.translation import gettext
+
 from decks.importers import columns
 from decks.importers.archidekt import ArchidektParser
 from decks.importers.base import (
@@ -100,4 +102,4 @@ def by_name(name: str) -> type[Parser] | None:
 
 def choices() -> list[tuple[str, str]]:
     """Options for the manual format picker."""
-    return [(parser.name, parser.label) for parser in PARSERS]
+    return [(parser.name, gettext(parser.label)) for parser in PARSERS]

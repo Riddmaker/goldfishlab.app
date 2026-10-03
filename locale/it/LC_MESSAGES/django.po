@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Goldfish Lab\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 12:55+0200\n"
+"POT-Creation-Date: 2026-10-03 13:31+0200\n"
 "PO-Revision-Date: 2026-10-03 13:00+0200\n"
 "Last-Translator: Claude\n"
 "Language-Team: \n"
@@ -14,6 +14,1876 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: accounts/privacy.py
+msgid ""
+"Everything Goldfish Lab stores about your account. Card and combo data is "
+"not included: it is public reference data from Scryfall and Commander "
+"Spellbook, identical for every account, and is not about you. Stripe payment "
+"identifiers are deliberately left out - your invoices live in Stripe's own "
+"portal, linked from your plan page."
+msgstr ""
+
+#: accounts/privacy.py
+msgid ""
+"You have a paid subscription. Cancel it first in the billing portal - "
+"deleting this account here would not stop Stripe charging your card, and "
+"afterwards nobody could sign in to stop it."
+msgstr ""
+
+#: accounts/views.py
+msgid "That is not the address this account uses, so nothing was deleted."
+msgstr ""
+
+#: accounts/views.py
+msgid "Your account and everything in it have been deleted. Nothing was kept."
+msgstr ""
+
+#: billing/models.py templates/billing/plans.html
+msgid "Free"
+msgstr ""
+
+#: billing/models.py
+msgid "Guest"
+msgstr ""
+
+#: billing/models.py cards/models.py simulations/report.py
+msgid "Planeswalker"
+msgstr ""
+
+#: billing/models.py
+msgid "Archmage"
+msgstr ""
+
+#: billing/models.py
+msgid "month"
+msgstr ""
+
+#: billing/models.py
+msgid "year"
+msgstr ""
+
+#: billing/services.py
+msgid ""
+"This installation cannot take payments yet: no Stripe key, or the plan has "
+"no price configured."
+msgstr ""
+
+#: billing/services.py
+#, python-format
+msgid ""
+"You are already on %(plan)s. Switching plans happens in the billing portal, "
+"so that you are never charged for two at once."
+msgstr ""
+
+#: billing/services.py
+msgid "This account has never been to Stripe."
+msgstr ""
+
+#: billing/views.py
+msgid "Simulations started"
+msgstr ""
+
+#: billing/views.py
+msgid "this month"
+msgstr ""
+
+#: billing/views.py templates/base.html
+msgid "Decks"
+msgstr ""
+
+#: billing/views.py
+msgid "right now"
+msgstr ""
+
+#: billing/views.py
+msgid ""
+"Stripe could not start a checkout just now. Nothing was charged. Please try "
+"again."
+msgstr ""
+
+#: billing/views.py
+msgid "Stripe could not open the billing portal just now."
+msgstr ""
+
+#: billing/views.py
+#, python-format
+msgid "You have started %(used)s of %(limit)s simulation this month."
+msgid_plural "You have started %(used)s of %(limit)s simulations this month."
+msgstr[0] ""
+msgstr[1] ""
+
+#: billing/views.py
+#, python-format
+msgid "You have %(used)s of %(limit)s deck."
+msgid_plural "You have %(used)s of %(limit)s decks."
+msgstr[0] ""
+msgstr[1] ""
+
+#: billing/views.py
+#, python-format
+msgid "You have imported %(used)s of %(limit)s deck list this month."
+msgid_plural "You have imported %(used)s of %(limit)s deck lists this month."
+msgstr[0] ""
+msgstr[1] ""
+
+#: billing/views.py
+msgid "Your plan's limit is reached."
+msgstr ""
+
+#: cards/models.py simulations/annotations.py simulations/report.py
+msgid "Land"
+msgstr ""
+
+#: cards/models.py simulations/annotations.py
+msgid "Mana rock"
+msgstr ""
+
+#: cards/models.py simulations/annotations.py
+msgid "Ritual"
+msgstr ""
+
+#: cards/models.py simulations/annotations.py simulations/report.py
+msgid "Creature"
+msgstr ""
+
+#: cards/models.py simulations/report.py
+msgid "Enchantment"
+msgstr ""
+
+#: cards/models.py simulations/report.py
+msgid "Artifact"
+msgstr ""
+
+#: cards/models.py simulations/report.py
+msgid "Sorcery"
+msgstr ""
+
+#: cards/models.py simulations/report.py
+msgid "Instant"
+msgstr ""
+
+#: cards/profiles.py
+msgid "enters tapped only conditionally ('unless')"
+msgstr ""
+
+#: cards/profiles.py
+msgid "text mentions entering tapped, but the condition was not readable"
+msgstr ""
+
+#: cards/profiles.py
+msgid "a mana ability with a coloured cost (a filter) is not modelled"
+msgstr ""
+
+#: cards/profiles.py
+msgid "makes a kind of mana the engine does not model"
+msgstr ""
+
+#: cards/profiles.py
+msgid "the part of its mana that grows with the board is not counted"
+msgstr ""
+
+#: cards/profiles.py
+msgid "mana amount scales with the board"
+msgstr ""
+
+#: cards/profiles.py
+msgid "a conditional replacement ('instead') is not counted"
+msgstr ""
+
+#: cards/profiles.py
+msgid "needs an opponent's lands; a goldfish has none"
+msgstr ""
+
+#: cards/profiles.py
+msgid "an 'Add' clause whose amount could not be read"
+msgstr ""
+
+#: cards/profiles.py
+msgid "makes mana only from a triggered or static ability"
+msgstr ""
+
+#: cards/profiles.py
+msgid "makes mana only as part of another effect"
+msgstr ""
+
+#: cards/profiles.py
+msgid "its mana is restricted to certain spells or moments"
+msgstr ""
+
+#: cards/profiles.py
+msgid "enters only by discarding a land card, which the engine does not do"
+msgstr ""
+
+#: cards/profiles.py
+msgid "only grants a mana ability to another permanent"
+msgstr ""
+
+#: cards/profiles.py
+msgid "produces mana, but no readable 'Add' clause"
+msgstr ""
+
+#: cards/profiles.py
+msgid "an ability that only converts mana is not modelled"
+msgstr ""
+
+#: cards/profiles.py
+msgid "sacrifices itself for mana, which is not modelled on a creature"
+msgstr ""
+
+#: cards/profiles.py
+msgid "its mana ability costs as much as it makes"
+msgstr ""
+
+#: cards/profiles.py
+msgid "searches the library more than once; not modelled"
+msgstr ""
+
+#: cards/profiles.py
+msgid "tutors, but no readable 'search your library' clause"
+msgstr ""
+
+#: cards/profiles.py
+msgid "tutors, but to which zone could not be read"
+msgstr ""
+
+#: cards/profiles.py
+msgid "tutors to more than one zone; not modelled"
+msgstr ""
+
+#: cards/profiles.py
+msgid "tutors onto the battlefield, which the engine cannot do"
+msgstr ""
+
+#: cards/profiles.py
+msgid "tutors for something the engine cannot describe"
+msgstr ""
+
+#: cards/profiles.py
+msgid "tutors for more than one card kind; not modelled"
+msgstr ""
+
+#: cards/profiles.py
+msgid "searches, then discards at random; the discard is not modelled"
+msgstr ""
+
+#: cards/profiles.py
+msgid "tutors, but how many cards it finds could not be read"
+msgstr ""
+
+#: cards/profiles.py
+msgid "tagged as adding more than one mana; only one was read"
+msgstr ""
+
+#: cards/profiles.py
+msgid "has an additional casting cost the engine does not pay"
+msgstr ""
+
+#: cards/profiles.py
+msgid "hybrid pips: payment flexibility is not modelled"
+msgstr ""
+
+#: cards/profiles.py
+msgid "cost contains X"
+msgstr ""
+
+#: combos/measure.py
+msgid ""
+"No timing for this one: it needs a kind of card rather than a named one, "
+"which is a search and not a simulation."
+msgstr ""
+
+#: combos/measure.py
+msgid ""
+"No timing for this one: it names a card this application has not got in its "
+"catalogue."
+msgstr ""
+
+#: combos/measure.py
+msgid ""
+"No timing for this one: it asks for a card to be somewhere this simulator "
+"does not model."
+msgstr ""
+
+#: combos/measure.py
+msgid ""
+"No timing for this one: it is more than one card away once this deck is read "
+"our way."
+msgstr ""
+
+#: combos/measure.py
+msgid ""
+"No timing for this one: it is one this deck turns out not to hold, once it "
+"is read our way."
+msgstr ""
+
+#: combos/measure.py
+msgid ""
+"No timing for this one: it was not among the most-played few this run had "
+"room to measure."
+msgstr ""
+
+#: combos/models.py
+msgid "never"
+msgstr ""
+
+#: combos/models.py simulations/strategies.py
+#, python-format
+msgid "under %(percent)s"
+msgstr ""
+
+#: combos/services.py
+#, python-format
+msgid "Checked %(ago)s second ago."
+msgid_plural "Checked %(ago)s seconds ago."
+msgstr[0] ""
+msgstr[1] ""
+
+#: combos/services.py
+#, python-format
+msgid ""
+"Try again in about %(wait)s second - Commander Spellbook is a free service "
+"and this is the polite thing to do."
+msgid_plural ""
+"Try again in about %(wait)s seconds - Commander Spellbook is a free service "
+"and this is the polite thing to do."
+msgstr[0] ""
+msgstr[1] ""
+
+#: combos/services.py
+msgid "There are no cards in this deck to look up."
+msgstr ""
+
+#: core/l10n.py
+#, python-format
+msgid "%(number)s%%"
+msgstr ""
+
+#: core/ticker.py
+msgid "A new user joined."
+msgstr ""
+
+#: core/ticker.py
+#, python-format
+msgid "Another guest simulated a deck led by %(commander)s: %(games)s game."
+msgid_plural ""
+"Another guest simulated a deck led by %(commander)s: %(games)s games."
+msgstr[0] ""
+msgstr[1] ""
+
+#: core/ticker.py
+#, python-format
+msgid "Another guest simulated a deck: %(games)s game."
+msgid_plural "Another guest simulated a deck: %(games)s games."
+msgstr[0] ""
+msgstr[1] ""
+
+#: core/ticker.py
+#, python-format
+msgid "Another user simulated a deck led by %(commander)s: %(games)s game."
+msgid_plural ""
+"Another user simulated a deck led by %(commander)s: %(games)s games."
+msgstr[0] ""
+msgstr[1] ""
+
+#: core/ticker.py
+#, python-format
+msgid "Another user simulated a deck: %(games)s game."
+msgid_plural "Another user simulated a deck: %(games)s games."
+msgstr[0] ""
+msgstr[1] ""
+
+#: core/ticker.py
+#, python-format
+msgid "Another guest playtested a deck led by %(commander)s."
+msgstr ""
+
+#: core/ticker.py
+msgid "Another guest playtested a deck."
+msgstr ""
+
+#: core/ticker.py
+#, python-format
+msgid "Another user playtested a deck led by %(commander)s."
+msgstr ""
+
+#: core/ticker.py
+msgid "Another user playtested a deck."
+msgstr ""
+
+#: core/ticker.py
+#, python-format
+msgid "Another guest imported a deck led by %(commander)s."
+msgstr ""
+
+#: core/ticker.py
+msgid "Another guest imported a deck."
+msgstr ""
+
+#: core/ticker.py
+#, python-format
+msgid "Another user imported a deck led by %(commander)s."
+msgstr ""
+
+#: core/ticker.py
+msgid "Another user imported a deck."
+msgstr ""
+
+#: decks/analysis.py
+msgid "Frank Karsten's mana-base guidance for Commander"
+msgstr ""
+
+#: decks/analysis.py
+#, python-format
+msgid "%(count)s land"
+msgid_plural "%(count)s lands"
+msgstr[0] ""
+msgstr[1] ""
+
+#: decks/analysis.py
+#, python-format
+msgid "Within the %(low)s-%(high)s band of %(source)s."
+msgstr ""
+
+#: decks/analysis.py
+#, python-format
+msgid "Below the %(low)s-%(high)s band of %(source)s."
+msgstr ""
+
+#: decks/analysis.py
+#, python-format
+msgid "Above the %(low)s-%(high)s band of %(source)s."
+msgstr ""
+
+#: decks/analysis.py
+msgid ""
+"Rituals and mana rocks can justify the low end; this count does not know "
+"about them yet."
+msgstr ""
+
+#: decks/analysis.py
+#, python-format
+msgid "%(count)s Game Changer"
+msgid_plural "%(count)s Game Changers"
+msgstr[0] ""
+msgstr[1] ""
+
+#: decks/analysis.py
+#, python-format
+msgid "Bracket 3 allows up to %(limit)s."
+msgstr ""
+
+#: decks/analysis.py
+#, python-format
+msgid "Bracket 3 allows %(limit)s. This deck reads as Bracket 4: %(cards)s"
+msgstr ""
+
+#: decks/analysis.py simulations/engine/adapter.py
+#: templates/decks/_card_grid.html templates/decks/detail.html
+#: templates/decks/list.html
+#, python-format
+msgid "%(count)s card"
+msgid_plural "%(count)s cards"
+msgstr[0] ""
+msgstr[1] ""
+
+#: decks/analysis.py
+#, python-format
+msgid "Commander decks are exactly %(size)s, commander included."
+msgstr ""
+
+#: decks/analysis.py
+msgid "Basic lands and cards that say otherwise are exempt."
+msgstr ""
+
+#: decks/analysis.py
+msgid "Singleton"
+msgstr ""
+
+#: decks/analysis.py
+#, python-format
+msgid "%(count)s card over the limit"
+msgid_plural "%(count)s cards over the limit"
+msgstr[0] ""
+msgstr[1] ""
+
+#: decks/analysis.py
+#, python-format
+msgid "Over the limit: %(cards)s"
+msgstr ""
+
+#: decks/analysis.py
+#, python-format
+msgid "The commander's identity is %(colours)s."
+msgstr ""
+
+#: decks/analysis.py
+msgid "colourless"
+msgstr ""
+
+#: decks/analysis.py
+msgid "Colour identity"
+msgstr ""
+
+#: decks/analysis.py
+#, python-format
+msgid "%(count)s card outside the identity"
+msgid_plural "%(count)s cards outside the identity"
+msgstr[0] ""
+msgstr[1] ""
+
+#: decks/analysis.py
+#, python-format
+msgid "Outside it: %(cards)s"
+msgstr ""
+
+#: decks/analysis.py
+msgid "Commander is legal"
+msgstr ""
+
+#: decks/analysis.py
+msgid "Commander is banned"
+msgstr ""
+
+#: decks/analysis.py templates/decks/list.html
+msgid "No commander set"
+msgstr ""
+
+#: decks/analysis.py
+msgid "A Commander deck needs one."
+msgstr ""
+
+#: decks/analysis.py
+#, python-format
+msgid "Banned: %(cards)s"
+msgstr ""
+
+#: decks/analysis.py
+#, python-format
+msgid "Not legal in Commander: %(cards)s"
+msgstr ""
+
+#: decks/analysis.py
+msgid "Checked against Scryfall's Commander legality for each card."
+msgstr ""
+
+#: decks/analysis.py
+msgid "Every card is legal"
+msgstr ""
+
+#: decks/analysis.py
+#, python-format
+msgid "%(count)s card not allowed"
+msgid_plural "%(count)s cards not allowed"
+msgstr[0] ""
+msgstr[1] ""
+
+#: decks/analysis.py
+#, python-format
+msgid "%(cards)s and more"
+msgstr ""
+
+#: decks/forms.py templates/decks/_import_form.html
+msgid "Upload a file"
+msgstr ""
+
+#: decks/forms.py templates/decks/_import_form.html
+msgid "Paste a list"
+msgstr ""
+
+#: decks/forms.py
+msgid "Deck file"
+msgstr ""
+
+#: decks/forms.py
+msgid "Your deck list"
+msgstr ""
+
+#: decks/forms.py guests/forms.py
+msgid "Deck name"
+msgstr ""
+
+#: decks/forms.py
+msgid "Optional - otherwise the deck is named after the file."
+msgstr ""
+
+#: decks/forms.py
+msgid "Format"
+msgstr ""
+
+#: decks/forms.py
+msgid "Detect automatically"
+msgstr ""
+
+#: decks/forms.py
+msgid "Only needed if the file is not recognised."
+msgstr ""
+
+#: decks/forms.py
+#, python-format
+msgid ""
+"That file is %(size)s KB. The limit is %(limit)s KB - a deck list is a few "
+"dozen."
+msgstr ""
+
+#: decks/forms.py
+#, python-format
+msgid ""
+"That list is %(size)s KB. The limit is %(limit)s KB - a deck list is a few "
+"dozen."
+msgstr ""
+
+#: decks/forms.py
+msgid "Paste your deck list first."
+msgstr ""
+
+#: decks/forms.py
+msgid "Choose a file first - or paste your list instead."
+msgstr ""
+
+#: decks/forms.py
+msgid "not in this file"
+msgstr ""
+
+#: decks/forms.py
+msgid "choose a column"
+msgstr ""
+
+#: decks/forms.py
+#, python-format
+msgid ""
+"Choose which column holds the %(column)s, or say the file has not got one."
+msgstr ""
+
+#: decks/importers/archidekt.py
+msgid "Archidekt CSV (deck or collection export)"
+msgstr ""
+
+#: decks/importers/columns.py
+msgid "quantity"
+msgstr ""
+
+#: decks/importers/columns.py
+msgid "card name"
+msgstr ""
+
+#: decks/importers/columns.py
+msgid "set code"
+msgstr ""
+
+#: decks/importers/columns.py
+msgid "collector number"
+msgstr ""
+
+#: decks/importers/columns.py
+msgid "Scryfall printing id"
+msgstr ""
+
+#: decks/importers/columns.py
+msgid "finish"
+msgstr ""
+
+#: decks/importers/columns.py
+msgid "condition"
+msgstr ""
+
+#: decks/importers/columns.py
+msgid "language"
+msgstr ""
+
+#: decks/importers/columns.py
+msgid "tags or category"
+msgstr ""
+
+#: decks/importers/columns.py
+#, python-format
+msgid "this file has no %(column)s column."
+msgstr ""
+
+#: decks/importers/columns.py
+#, python-format
+msgid "Re-export it with %(header)s included."
+msgstr ""
+
+#: decks/importers/tabular.py
+msgid "CSV or TSV export (any tool)"
+msgstr ""
+
+#: decks/importers/tabular.py
+msgid ""
+"Nothing can be read from a file with no card name in it. Re-export it with "
+"the card name included, or map a column to it by hand."
+msgstr ""
+
+#: decks/importers/tabular.py
+msgid ""
+"Re-export it with Quantity ticked - without it every card would be read as a "
+"single copy, and a 28-Swamp deck would import as a 28-card deck with one "
+"Swamp in it. You can also map the column by hand."
+msgstr ""
+
+#: decks/importers/tabular.py
+#, python-format
+msgid ""
+"that file has more than %(limit)s card rows. The largest real collection "
+"export is a few thousand, so this is almost certainly not a deck list."
+msgstr ""
+
+#: decks/importers/tabular.py
+#, python-format
+msgid "that file is not valid CSV: %(error)s"
+msgstr ""
+
+#: decks/importers/tabular.py
+msgid ""
+"that file is not a table - no line in it splits into columns consistently. "
+"If it is a plain list of card names, choose 'Plain text list' as the format."
+msgstr ""
+
+#: decks/importers/text.py
+msgid "Plain text list (one card per line)"
+msgstr ""
+
+#: decks/resolve.py
+msgid "matched on the exact printing"
+msgstr ""
+
+#: decks/resolve.py
+msgid "matched on the card id"
+msgstr ""
+
+#: decks/resolve.py
+msgid "matched on the exact name"
+msgstr ""
+
+#: decks/resolve.py
+msgid "matched on the name, ignoring accents and punctuation"
+msgstr ""
+
+#: decks/resolve.py
+msgid "not found"
+msgstr ""
+
+#: decks/resolve.py
+msgid "the quantity is more than any collection holds"
+msgstr ""
+
+#: decks/resolve.py
+msgid "the row has no card name"
+msgstr ""
+
+#: decks/resolve.py
+msgid "no card with this name, and the printing id is not in the catalogue"
+msgstr ""
+
+#: decks/resolve.py
+msgid "no card with this name in the catalogue"
+msgstr ""
+
+#: decks/services.py
+#, python-format
+msgid "file is %(size)s KB; the limit is %(limit)s KB"
+msgstr ""
+
+#: decks/services.py
+msgid "that is not a text file - it contains binary data"
+msgstr ""
+
+#: decks/services.py
+msgid "could not decode the file as text"
+msgstr ""
+
+#: decks/services.py
+#, python-format
+msgid ""
+"file has about %(rows)s lines; the limit is %(limit)s. That is far more than "
+"a deck or a collection - is it the right file?"
+msgstr ""
+
+#: decks/services.py
+msgid "the file contained no card rows"
+msgstr ""
+
+#: decks/services.py
+msgid "that deck belongs to someone else"
+msgstr ""
+
+#: decks/services.py
+msgid "Imported deck"
+msgstr ""
+
+#: decks/services.py
+msgid "no parser recognised this file"
+msgstr ""
+
+#: decks/views.py
+msgid ""
+"Choose a column above for each of card name and quantity - or say the file "
+"has not got one - and your own rows will appear here."
+msgstr ""
+
+#: decks/views.py
+msgid ""
+"That file was not recognised, so nothing has been assumed about it. Choose "
+"“CSV or TSV export (any tool)” as the format and you will be asked which "
+"column is which - it takes about thirty seconds and works for any export. "
+"Choose “Plain text list” if it is simply one card name per line."
+msgstr ""
+
+#: decks/views.py
+#, python-format
+msgid "Imported %(rows)s row into %(deck)s."
+msgid_plural "Imported %(rows)s rows into %(deck)s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: decks/views.py
+#, python-format
+msgid ""
+"%(missing)s of %(rows)s row could not be matched. Nothing was dropped - it "
+"is listed below."
+msgid_plural ""
+"%(missing)s of %(rows)s rows could not be matched. Nothing was dropped - "
+"they are listed below."
+msgstr[0] ""
+msgstr[1] ""
+
+#: decks/views.py
+msgid "That card is not in this deck."
+msgstr ""
+
+#: decks/views.py
+#, python-format
+msgid "%(card)s is now the commander."
+msgstr ""
+
+#: playtest/services.py
+#, python-format
+msgid "a session holds at most %(limit)s actions; start a new one"
+msgstr ""
+
+#: playtest/views.py templates/decks/detail.html
+msgid "Lands"
+msgstr ""
+
+#: playtest/views.py
+msgid "Mana sources"
+msgstr ""
+
+#: playtest/views.py
+msgid "Permanents"
+msgstr ""
+
+#: playtest/views.py
+msgid "Draw"
+msgstr ""
+
+#: playtest/views.py
+msgid "Main 1"
+msgstr ""
+
+#: playtest/views.py
+msgid "Combat"
+msgstr ""
+
+#: playtest/views.py
+msgid "Main 2"
+msgstr ""
+
+#: playtest/views.py
+msgid "End"
+msgstr ""
+
+#: playtest/views.py
+msgid "Start of turn"
+msgstr ""
+
+#: playtest/views.py
+msgid "Land played"
+msgstr ""
+
+#: playtest/views.py
+msgid "Main phase"
+msgstr ""
+
+#: playtest/views.py
+msgid "Spell cast"
+msgstr ""
+
+#: playtest/views.py
+msgid "Commander cast"
+msgstr ""
+
+#: playtest/views.py
+msgid "End step"
+msgstr ""
+
+#: playtest/views.py templates/playtest/_board.html
+msgid "Next phase"
+msgstr ""
+
+#: playtest/views.py templates/playtest/_board.html
+msgid "Mulligan"
+msgstr ""
+
+#: playtest/views.py
+msgid "Hand kept"
+msgstr ""
+
+#: playtest/views.py
+msgid "Card drawn"
+msgstr ""
+
+#: playtest/views.py
+msgid "Life changed"
+msgstr ""
+
+#: playtest/views.py
+msgid "Card moved"
+msgstr ""
+
+#: playtest/views.py
+msgid "Permanent tapped"
+msgstr ""
+
+#: playtest/views.py
+msgid "There is nothing in this deck to play yet."
+msgstr ""
+
+#: playtest/views.py
+msgid "That is not a game this application deals."
+msgstr ""
+
+#: playtest/views.py
+msgid "Branched. The original is untouched and still in your playtests."
+msgstr ""
+
+#: simulations/annotations.py
+msgid "Draw engine"
+msgstr ""
+
+#: simulations/annotations.py templates/decks/_card_grid.html
+msgid "Game Changer"
+msgstr ""
+
+#: simulations/annotations.py
+msgid "Recursive creature"
+msgstr ""
+
+#: simulations/annotations.py
+#, python-brace-format
+msgid "{type} (taps for {color})"
+msgstr ""
+
+#: simulations/annotations.py
+msgid "How early to cast it"
+msgstr ""
+
+#: simulations/annotations.py
+msgid ""
+"Higher goes first. The engine's own rule is 40 minus the mana value, so a "
+"two-drop it has no opinion about sits at 38."
+msgstr ""
+
+#: simulations/annotations.py simulations/provenance.py
+msgid "Counts as acceleration"
+msgstr ""
+
+#: simulations/annotations.py
+msgid ""
+"Whether this card makes a one-land opening hand worth keeping. It changes "
+"the mulligan decision and therefore every number below it."
+msgstr ""
+
+#: simulations/annotations.py simulations/blindspots.py
+#: simulations/provenance.py
+msgid "Can be cast against nobody"
+msgstr ""
+
+#: simulations/annotations.py
+msgid ""
+"Say no for a card with no legal target in an empty game - removal, a board "
+"wipe, anything that needs an opponent. The engine will hold it rather than "
+"pretend it did something."
+msgstr ""
+
+#: simulations/annotations.py
+msgid "What the engine treats it as"
+msgstr ""
+
+#: simulations/annotations.py
+msgid ""
+"Rituals add their mana when cast; rocks add it when tapped. The type line "
+"cannot always tell the two apart."
+msgstr ""
+
+#: simulations/annotations.py simulations/blindspots.py
+#: simulations/provenance.py
+msgid "Taps for"
+msgstr ""
+
+#: simulations/annotations.py
+msgid ""
+"Letters for the colours, with a number where it makes more than one: B, 2B, "
+"B C. Write “nothing” for a card that makes no mana the engine can use."
+msgstr ""
+
+#: simulations/annotations.py simulations/provenance.py
+msgid "Land types"
+msgstr ""
+
+#: simulations/annotations.py
+msgid ""
+"What the land counts as. This is what a basic land taps for, what Cabal "
+"Coffers counts and what Crypt Ghast doubles — so a land with a type here "
+"taps for that colour whatever “Taps for” says above."
+msgstr ""
+
+#: simulations/annotations.py simulations/provenance.py
+msgid "Enters tapped"
+msgstr ""
+
+#: simulations/annotations.py
+msgid ""
+"Read off the card text by a regular expression, which is the weakest reading "
+"this application makes. Worth checking on anything unusual."
+msgstr ""
+
+#: simulations/annotations.py simulations/blindspots.py
+#: simulations/provenance.py
+msgid "Roles"
+msgstr ""
+
+#: simulations/annotations.py
+msgid ""
+"What the card does, in the vocabulary the report's milestone table counts. "
+"Replacing them overrides the community tags completely."
+msgstr ""
+
+#: simulations/annotations.py simulations/provenance.py
+msgid "Costs to tap for mana"
+msgstr ""
+
+#: simulations/annotations.py
+#, python-brace-format
+msgid ""
+"Generic mana its mana ability costs on top of tapping - the {1} on a Signet. "
+"Write 0 for a card that only has to tap."
+msgstr ""
+
+#: simulations/annotations.py simulations/provenance.py
+msgid "Untaps every turn"
+msgstr ""
+
+#: simulations/annotations.py
+msgid ""
+"Say no for Mana Vault, Grim Monolith and anything else that stays tapped "
+"once it has been used. The engine then takes its mana once, not every turn."
+msgstr ""
+
+#: simulations/annotations.py
+msgid "Cards it searches up"
+msgstr ""
+
+#: simulations/annotations.py
+msgid ""
+"How many cards this finds in your library. The community tags say which zone "
+"it searches to and can never say how many, so the number is read off the "
+"card text and is often missing. Write 0 for a card the engine should not "
+"treat as a tutor at all."
+msgstr ""
+
+#: simulations/annotations.py
+#, python-format
+msgid ""
+"%(letter)s is not a mana colour. Use letters from %(letters)s, or "
+"“%(nothing)s”."
+msgstr ""
+
+#: simulations/annotations.py
+#, python-format
+msgid "“%(amount)s” names an amount but no colour. Write 2B rather than 2."
+msgstr ""
+
+#: simulations/blindspots.py
+msgid "Cards that need an opponent"
+msgstr ""
+
+#: simulations/blindspots.py
+msgid ""
+"A goldfish game has no opponents, so nothing these cards react to ever "
+"happens. They cost mana and then do nothing else. A deck built around them "
+"plays considerably better than it simulates — and no number on this page can "
+"tell you by how much."
+msgstr ""
+
+#: simulations/blindspots.py
+msgid "triggers on something an opponent does"
+msgstr ""
+
+#: simulations/blindspots.py
+msgid "part of what it does needs an opponent"
+msgstr ""
+
+#: simulations/blindspots.py
+msgid "Mana sources nobody has pinned down"
+msgstr ""
+
+#: simulations/blindspots.py
+msgid ""
+"Scryfall records which colours a card can make, never how much or at what "
+"cost. Where a pattern could not read the amount off the card text, the "
+"engine was told nothing rather than guessing at one — so these cards are "
+"currently making less mana in the simulation than they do on a table."
+msgstr ""
+
+#: simulations/blindspots.py
+msgid "Roles worth a second look"
+msgstr ""
+
+#: simulations/blindspots.py
+msgid ""
+"The role vocabulary comes from the Scryfall Tagger community, which is broad "
+"by design: “destroy target creature you control” is filed under removal "
+"alongside “destroy target creature”. The first is an engine piece and the "
+"second answers a threat, and the report's milestone table counts them the "
+"same way."
+msgstr ""
+
+#: simulations/blindspots.py
+msgid "tagged as removal, but it destroys something you control"
+msgstr ""
+
+#: simulations/engine/adapter.py
+msgid "no cost"
+msgstr ""
+
+#: simulations/engine/adapter.py
+msgid "nothing"
+msgstr ""
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s × %(kind)s"
+msgstr ""
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s to hand"
+msgstr ""
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s to the graveyard"
+msgstr ""
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, paying %(life)s life"
+msgstr ""
+
+#: simulations/engine/adapter.py simulations/provenance.py
+msgid "yes"
+msgstr ""
+
+#: simulations/engine/adapter.py simulations/provenance.py
+msgid "no"
+msgstr ""
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "1 %(color)s (as a basic land)"
+msgstr ""
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s - once, then it stays tapped"
+msgstr ""
+
+#: simulations/engine/adapter.py
+msgid "nothing beyond tapping"
+msgstr ""
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each %(subtype)s you control"
+msgstr ""
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one extra %(color)s whenever a %(subtype)s is tapped"
+msgstr ""
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "makes every land a %(subtype)s"
+msgstr ""
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "for %(cost)s, %(mana)s"
+msgstr ""
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"makes one of %(colors)s; the engine cannot hold a choice and reads it as "
+"%(color)s"
+msgstr ""
+
+#: simulations/engine/adapter.py
+msgid "no one said how early to cast it; the default rule applies"
+msgstr ""
+
+#: simulations/engine/adapter.py
+msgid "makes mana, but how much could not be read"
+msgstr ""
+
+#: simulations/engine/adapter.py
+msgid "a land that taps for nothing the engine can see"
+msgstr ""
+
+#: simulations/forms.py
+#, python-format
+msgid "%(games)s games - quick look"
+msgstr ""
+
+#: simulations/forms.py
+#, python-format
+msgid "%(games)s games - the usual answer"
+msgstr ""
+
+#: simulations/forms.py
+#, python-format
+msgid "%(games)s games - for small differences"
+msgstr ""
+
+#: simulations/forms.py
+#, python-format
+msgid "%(games)s game"
+msgid_plural "%(games)s games"
+msgstr[0] ""
+msgstr[1] ""
+
+#: simulations/forms.py
+#, python-format
+msgid "%(turns)s turn"
+msgid_plural "%(turns)s turns"
+msgstr[0] ""
+msgstr[1] ""
+
+#: simulations/forms.py templates/simulations/_report.html
+msgid "Games"
+msgstr ""
+
+#: simulations/forms.py
+msgid "Turns per game"
+msgstr ""
+
+#: simulations/forms.py
+msgid "Multiplayer - everyone draws on turn one"
+msgstr ""
+
+#: simulations/forms.py
+msgid "1-v-1 - you start and skip your first draw"
+msgstr ""
+
+#: simulations/forms.py
+msgid "First draw"
+msgstr ""
+
+#: simulations/forms.py
+msgid ""
+"In a multiplayer Commander game nobody skips the draw on their first turn "
+"(Comprehensive Rules 103.8c). Only a two-player game makes the starting "
+"player skip it."
+msgstr ""
+
+#: simulations/forms.py
+msgid "This deck only"
+msgstr ""
+
+#: simulations/forms.py
+msgid "All of my decks"
+msgstr ""
+
+#: simulations/forms.py
+msgid "Nobody has said"
+msgstr ""
+
+#: simulations/forms.py
+msgid "Yes"
+msgstr ""
+
+#: simulations/forms.py
+msgid "No"
+msgstr ""
+
+#: simulations/forms.py
+msgid "Applies to"
+msgstr ""
+
+#: simulations/forms.py
+msgid ""
+"A deck-scoped judgement wins over one you set for every deck, which wins "
+"over the application's own default."
+msgstr ""
+
+#: simulations/forms.py
+msgid "Replace the roles below"
+msgstr ""
+
+#: simulations/forms.py
+msgid ""
+"Leave this alone to keep the community roles. Tick it and the selection "
+"below becomes the complete list - including an empty one, which is how you "
+"say a card has no role at all."
+msgstr ""
+
+#: simulations/forms.py
+msgid "Replace the land types below"
+msgstr ""
+
+#: simulations/forms.py
+msgid ""
+"Same rule as the roles: leave it alone to keep what the type line says, tick "
+"it to state the complete list. Ticking it with nothing selected is how you "
+"stop a land tapping for a colour at all."
+msgstr ""
+
+#: simulations/forms.py
+msgid "Why"
+msgstr ""
+
+#: simulations/forms.py
+msgid "Shown beside the value on the provenance panel. Optional, and worth it."
+msgstr ""
+
+#: simulations/models.py
+msgid "Pending"
+msgstr ""
+
+#: simulations/models.py
+msgid "Running"
+msgstr ""
+
+#: simulations/models.py
+msgid "Done"
+msgstr ""
+
+#: simulations/models.py templates/simulations/_progress.html
+msgid "Failed"
+msgstr ""
+
+#: simulations/models.py templates/simulations/_progress.html
+msgid "Cancelled"
+msgstr ""
+
+#: simulations/models.py
+msgid "Being written"
+msgstr ""
+
+#: simulations/models.py
+msgid "Written"
+msgstr ""
+
+#: simulations/models.py
+msgid "Could not be written"
+msgstr ""
+
+#: simulations/provenance.py
+msgid "Scryfall field"
+msgstr ""
+
+#: simulations/provenance.py
+msgid ""
+"Structured data straight off the card. As close to ground truth as this "
+"application gets."
+msgstr ""
+
+#: simulations/provenance.py
+msgid "Community tagger"
+msgstr ""
+
+#: simulations/provenance.py
+msgid ""
+"Rolled up from the Scryfall Tagger project. Community-maintained, "
+"deliberately broad, and occasionally an opinion rather than a fact."
+msgstr ""
+
+#: simulations/provenance.py
+msgid "Read from the card text"
+msgstr ""
+
+#: simulations/provenance.py
+msgid ""
+"A pattern matched against English prose. The weakest reading this "
+"application makes, and the one most worth checking."
+msgstr ""
+
+#: simulations/provenance.py
+msgid "Built in"
+msgstr ""
+
+#: simulations/provenance.py
+msgid "A default that ships with the application and applies to every deck."
+msgstr ""
+
+#: simulations/provenance.py
+msgid "You, for all your decks"
+msgstr ""
+
+#: simulations/provenance.py
+msgid "A judgement you recorded."
+msgstr ""
+
+#: simulations/provenance.py
+msgid "You, for this deck"
+msgstr ""
+
+#: simulations/provenance.py
+msgid "A judgement you recorded for this deck only."
+msgstr ""
+
+#: simulations/provenance.py
+msgid "Nobody — the engine's own rule"
+msgstr ""
+
+#: simulations/provenance.py
+msgid ""
+"No one said, so the engine's fallback applies. Worth a look if the card "
+"matters to how the deck plays."
+msgstr ""
+
+#: simulations/provenance.py
+msgid "Mana cost"
+msgstr ""
+
+#: simulations/provenance.py
+msgid "Engine treats it as"
+msgstr ""
+
+#: simulations/provenance.py
+msgid "Searches your library for"
+msgstr ""
+
+#: simulations/provenance.py
+msgid "Skips the draw step"
+msgstr ""
+
+#: simulations/provenance.py
+msgid "Cast priority"
+msgstr ""
+
+#: simulations/provenance.py
+msgid "none"
+msgstr ""
+
+#: simulations/provenance.py
+msgid "not set"
+msgstr ""
+
+#: simulations/report.py
+msgid "White"
+msgstr ""
+
+#: simulations/report.py
+msgid "Blue"
+msgstr ""
+
+#: simulations/report.py
+msgid "Black"
+msgstr ""
+
+#: simulations/report.py
+msgid "Red"
+msgstr ""
+
+#: simulations/report.py
+msgid "Green"
+msgstr ""
+
+#: simulations/report.py
+msgid "Colourless"
+msgstr ""
+
+#: simulations/report.py
+msgid "Battle"
+msgstr ""
+
+#: simulations/report.py
+msgid "Commander on the battlefield"
+msgstr ""
+
+#: simulations/report.py
+msgid "A card-advantage engine in play"
+msgstr ""
+
+#: simulations/report.py
+msgid "Two or more scaling mana sources"
+msgstr ""
+
+#: simulations/report.py
+msgid "A sacrifice outlet in play"
+msgstr ""
+
+#: simulations/report.py
+msgid "A recursive creature in play"
+msgstr ""
+
+#: simulations/report.py
+msgid "Sacrifice outlet and recursion together"
+msgstr ""
+
+#: simulations/report.py
+msgid "A drain payoff in play"
+msgstr ""
+
+#: simulations/report.py
+msgid "Trading the draw step for cards"
+msgstr ""
+
+#: simulations/report.py
+msgid "A mana source that made more than it cost"
+msgstr ""
+
+#: simulations/report.py
+msgid "Your commander has been cast and is on the battlefield."
+msgstr ""
+
+#: simulations/report.py
+msgid "A permanent that keeps drawing you cards, such as Phyrexian Arena."
+msgstr ""
+
+#: simulations/report.py
+msgid ""
+"Two mana sources that make more as your board grows, such as Cabal Coffers "
+"and Crypt Ghast."
+msgstr ""
+
+#: simulations/report.py
+msgid "A permanent that lets you sacrifice creatures again and again."
+msgstr ""
+
+#: simulations/report.py
+msgid "A creature that comes back from your graveyard by itself."
+msgstr ""
+
+#: simulations/report.py
+msgid "A sacrifice outlet and a recursive creature at once: a loop."
+msgstr ""
+
+#: simulations/report.py
+msgid "A permanent that makes your opponents lose life when something happens."
+msgstr ""
+
+#: simulations/report.py
+msgid ""
+"A card that trades your draw step for something better, such as Necropotence."
+msgstr ""
+
+#: simulations/report.py
+msgid "An artifact that made more mana than it cost, such as Sol Ring."
+msgstr ""
+
+#: simulations/report.py
+#, python-format
+msgid "Half your games get there by turn %(turn)s."
+msgstr ""
+
+#: simulations/report.py
+#, python-format
+msgid "Half your games have one by turn %(turn)s."
+msgstr ""
+
+#: simulations/report.py
+#, python-format
+msgid "Fewer than half your games get there by turn %(turn)s."
+msgstr ""
+
+#: simulations/report.py
+#, python-format
+msgid "Fewer than half your games have one by turn %(turn)s."
+msgstr ""
+
+#: simulations/report.py
+#, python-format
+msgid "On average %(mean)s drawn by turn %(turn)s."
+msgstr ""
+
+#: simulations/report.py
+msgid "Ramp"
+msgstr ""
+
+#: simulations/report.py
+msgid "Card draw"
+msgstr ""
+
+#: simulations/report.py
+msgid "Removal"
+msgstr ""
+
+#: simulations/report.py
+msgid "Board wipe"
+msgstr ""
+
+#: simulations/report.py
+msgid "Tutor"
+msgstr ""
+
+#: simulations/report.py
+msgid "Counterspell"
+msgstr ""
+
+#: simulations/report.py
+msgid "Protection"
+msgstr ""
+
+#: simulations/report.py
+msgid "Recursion"
+msgstr ""
+
+#: simulations/report.py
+msgid ""
+"More mana, now or on later turns: mana rocks, mana creatures, extra lands, "
+"rituals."
+msgstr ""
+
+#: simulations/report.py
+msgid "Cards that draw you cards."
+msgstr ""
+
+#: simulations/report.py
+msgid ""
+"Gets something off the table: destroy, exile, bounce, damage. Board wipes "
+"count too."
+msgstr ""
+
+#: simulations/report.py
+msgid "Removes many things at once."
+msgstr ""
+
+#: simulations/report.py
+msgid "Searches your library for a card."
+msgstr ""
+
+#: simulations/report.py
+msgid "Counters a spell."
+msgstr ""
+
+#: simulations/report.py
+msgid "Keeps your permanents alive: hexproof, indestructible, phasing …"
+msgstr ""
+
+#: simulations/report.py
+msgid ""
+"Gets cards back from your graveyard: to your hand, the battlefield or your "
+"library."
+msgstr ""
+
+#: simulations/report.py
+msgid "Sacrifice outlet"
+msgstr ""
+
+#: simulations/report.py
+msgid "Reanimate"
+msgstr ""
+
+#: simulations/report.py
+msgid "Drain"
+msgstr ""
+
+#: simulations/report.py
+msgid "Theft"
+msgstr ""
+
+#: simulations/report.py
+msgid "Discard"
+msgstr ""
+
+#: simulations/report.py
+msgid "Cost reducer"
+msgstr ""
+
+#: simulations/report.py
+msgid "Evasion"
+msgstr ""
+
+#: simulations/report.py
+msgid ""
+"Lets you sacrifice your own permanents again and again: an engine, not a one-"
+"off."
+msgstr ""
+
+#: simulations/report.py
+msgid "Puts creature cards from a graveyard onto the battlefield."
+msgstr ""
+
+#: simulations/report.py
+msgid "Opponents lose life and you gain it."
+msgstr ""
+
+#: simulations/report.py
+msgid "Takes control of something an opponent owns, or plays their cards."
+msgstr ""
+
+#: simulations/report.py
+msgid "Makes a player discard cards."
+msgstr ""
+
+#: simulations/report.py
+msgid "Makes your spells cheaper to cast."
+msgstr ""
+
+#: simulations/report.py
+msgid "Helps your creatures get past blockers: flying, menace, unblockable …"
+msgstr ""
+
+#: simulations/report.py
+msgid "Creature cards, artifact and enchantment creatures included."
+msgstr ""
+
+#: simulations/report.py
+msgid "Planeswalker cards."
+msgstr ""
+
+#: simulations/report.py
+msgid "Battle cards."
+msgstr ""
+
+#: simulations/report.py
+msgid "Artifact cards: mana rocks, equipment, artifact creatures."
+msgstr ""
+
+#: simulations/report.py
+msgid "Enchantment cards, auras and enchantment creatures included."
+msgstr ""
+
+#: simulations/report.py
+msgid "Instants: spells you can cast at any time."
+msgstr ""
+
+#: simulations/report.py
+msgid "Sorceries: spells for your own main phase."
+msgstr ""
+
+#: simulations/report.py
+msgid "Lands, basic and nonbasic."
+msgstr ""
+
+#: simulations/report.py
+msgid "Kept the first seven"
+msgstr ""
+
+#: simulations/report.py
+#, python-format
+msgid "%(count)s mulligan (keep %(kept)s)"
+msgid_plural "%(count)s mulligans (keep %(kept)s)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: simulations/services.py
+msgid ""
+"A lot of people are trying Goldfish Lab right now. Try again in a minute - "
+"or save your deck with a free account, which does not wait for guests."
+msgstr ""
+
+#: simulations/services.py
+#, python-format
+msgid ""
+"You already have %(count)s simulation running. Wait for it to finish, or "
+"cancel it."
+msgid_plural ""
+"You already have %(count)s simulations running. Wait for one to finish, or "
+"cancel it."
+msgstr[0] ""
+msgstr[1] ""
+
+#: simulations/services.py
+msgid "A run needs at least one game."
+msgstr ""
+
+#: simulations/services.py
+msgid "A run needs at least one turn."
+msgstr ""
+
+#: simulations/services.py
+#, python-format
+msgid ""
+"Your plan allows at most %(limit)s game per run; you asked for %(value)s."
+msgid_plural ""
+"Your plan allows at most %(limit)s games per run; you asked for %(value)s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: simulations/services.py
+#, python-format
+msgid ""
+"Your plan allows at most %(limit)s turn per run; you asked for %(value)s."
+msgid_plural ""
+"Your plan allows at most %(limit)s turns per run; you asked for %(value)s."
+msgstr[0] ""
+msgstr[1] ""
+
+#: simulations/services.py
+msgid "Simulations are unavailable at the moment. Please try again shortly."
+msgstr ""
+
+#: simulations/strategies.py
+#, python-format
+msgid "over %(percent)s"
+msgstr ""
+
+#: simulations/views.py
+msgid "That is not a size this application runs."
+msgstr ""
+
+#: simulations/views.py
+msgid "There is nothing in this deck to simulate yet."
+msgstr ""
+
+#: simulations/views.py
+msgid "Deck summaries are on again."
+msgstr ""
+
+#: simulations/views.py
+msgid "Deck summaries are off. Switch them on again on Your plan."
+msgstr ""
+
+#: simulations/views.py
+msgid ""
+"Cancelling. The chunk already in flight finishes first, so this takes a few "
+"seconds."
+msgstr ""
+
+#: simulations/views.py
+msgid "That run had already finished."
+msgstr ""
+
+#: simulations/views.py
+msgid "Ready. Every card the engine could not read has an answer."
+msgstr ""
+
+#: simulations/views.py
+#, python-format
+msgid "Noted: %(card)s looks right to you."
+msgstr ""
+
+#: simulations/views.py
+#, python-format
+msgid ""
+"Saved. %(card)s will be read that way from the next run onwards — this one "
+"does not change a result that has already been computed."
+msgstr ""
+
+#: simulations/views.py
+#, python-format
+msgid "Removed. %(card)s is back to what the card data says."
+msgstr ""
+
+#: simulations/views.py
+msgid "There was nothing recorded for that card."
+msgstr ""
 
 #: templates/accounts/data.html templates/base.html
 msgid "Your data"
@@ -117,10 +1987,6 @@ msgid "Sign in"
 msgstr ""
 
 #: templates/base.html
-msgid "Decks"
-msgstr ""
-
-#: templates/base.html
 msgctxt "navigation"
 msgid "Import"
 msgstr ""
@@ -176,8 +2042,8 @@ msgstr ""
 
 #: templates/base.html
 msgid ""
-"Card data and images from <a href=\"https://scryfall.com\" class=\"underline"
-" hover:text-ink-300\" rel=\"noopener\">Scryfall</a>; combos from <a "
+"Card data and images from <a href=\"https://scryfall.com\" class=\"underline "
+"hover:text-ink-300\" rel=\"noopener\">Scryfall</a>; combos from <a "
 "href=\"https://commanderspellbook.com\" class=\"underline hover:text-"
 "ink-300\" rel=\"noopener\">Commander Spellbook</a>. Neither is affiliated "
 "with Goldfish Lab."
@@ -197,8 +2063,8 @@ msgstr ""
 
 #: templates/billing/blocked.html
 msgid ""
-"Nothing was started and nothing was charged. The counter resets on the first"
-" of the month."
+"Nothing was started and nothing was charged. The counter resets on the first "
+"of the month."
 msgstr ""
 
 #: templates/billing/blocked.html
@@ -259,8 +2125,8 @@ msgstr ""
 #: templates/billing/plans.html
 #, python-format
 msgid ""
-"<strong>This plan ends on %(date)s.</strong> You keep everything until then,"
-" and the account returns to Free afterwards."
+"<strong>This plan ends on %(date)s.</strong> You keep everything until then, "
+"and the account returns to Free afterwards."
 msgstr ""
 
 #: templates/billing/plans.html
@@ -320,10 +2186,6 @@ msgid "CHF %(price)s / %(interval)s"
 msgstr ""
 
 #: templates/billing/plans.html
-msgid "Free"
-msgstr ""
-
-#: templates/billing/plans.html
 #, python-format
 msgid "Turns simulated: <strong>%(turns)s</strong>"
 msgstr ""
@@ -374,8 +2236,8 @@ msgstr ""
 #: templates/billing/plans.html
 msgid ""
 "Paid plans are <strong>sold through Link</strong>, Stripe's reseller "
-"service: Link takes the payment, handles the VAT and sends the receipts, and"
-" your statement shows <em>LINK.COM*</em>."
+"service: Link takes the payment, handles the VAT and sends the receipts, and "
+"your statement shows <em>LINK.COM*</em>."
 msgstr ""
 
 #: templates/billing/plans.html
@@ -385,8 +2247,8 @@ msgstr ""
 #: templates/billing/plans.html
 #, python-format
 msgid ""
-"The details are in the <a href=\"%(terms_url)s\" class=\"underline "
-"hover:text-ink-900\">terms</a>."
+"The details are in the <a href=\"%(terms_url)s\" class=\"underline hover:"
+"text-ink-900\">terms</a>."
 msgstr ""
 
 #: templates/billing/plans.html
@@ -395,9 +2257,9 @@ msgstr ""
 
 #: templates/billing/plans.html
 msgid ""
-"All three live in Stripe's own portal; your orders at <a "
-"href=\"https://link.com\" class=\"underline hover:text-ink-900\" "
-"rel=\"noopener\">link.com</a> can cancel too."
+"All three live in Stripe's own portal; your orders at <a href=\"https://link."
+"com\" class=\"underline hover:text-ink-900\" rel=\"noopener\">link.com</a> "
+"can cancel too."
 msgstr ""
 
 #: templates/billing/plans.html
@@ -432,8 +2294,8 @@ msgstr ""
 #: templates/combos/_measurement.html
 #, python-format
 msgid ""
-"Comes together by turn %(turns)s in <strong "
-"class=\"tabular\">%(share)s</strong> of games"
+"Comes together by turn %(turns)s in <strong class=\"tabular\">%(share)s</"
+"strong> of games"
 msgstr ""
 
 #: templates/combos/_measurement.html
@@ -444,8 +2306,8 @@ msgstr ""
 #: templates/combos/_measurement.html
 #, python-format
 msgid ""
-"Measured over %(games)s game of this deck with that one card added — nothing"
-" was cut to make room."
+"Measured over %(games)s game of this deck with that one card added — nothing "
+"was cut to make room."
 msgid_plural ""
 "Measured over %(games)s games of this deck with that one card added — "
 "nothing was cut to make room."
@@ -458,11 +2320,6 @@ msgid "Measured over %(games)s game."
 msgid_plural "Measured over %(games)s games."
 msgstr[0] ""
 msgstr[1] ""
-
-#: templates/combos/_measurement.html
-#, python-format
-msgid "No timing for this one: it %(reason)s."
-msgstr ""
 
 #: templates/combos/_one_away.html
 msgid "you do not have"
@@ -480,11 +2337,6 @@ msgstr ""
 
 #: templates/combos/_panel.html
 msgid "Look this deck up in Commander Spellbook's curated list of combos."
-msgstr ""
-
-#: templates/combos/_panel.html
-#, python-format
-msgid "Commander Spellbook could not be reached — %(message)s."
 msgstr ""
 
 #: templates/combos/_panel.html
@@ -576,8 +2428,8 @@ msgstr ""
 #: templates/combos/_panel.html
 #, python-format
 msgid ""
-"Looked up %(date)s — your deck has changed, or this is more than a fortnight"
-" old."
+"Looked up %(date)s — your deck has changed, or this is more than a fortnight "
+"old."
 msgstr ""
 
 #: templates/combos/_panel.html
@@ -631,8 +2483,8 @@ msgstr ""
 
 #: templates/core/home.html
 msgid ""
-"An opening hand of seven cards on the playtest table, with Mulligan and Keep"
-" above it"
+"An opening hand of seven cards on the playtest table, with Mulligan and Keep "
+"above it"
 msgstr ""
 
 #: templates/core/home.html
@@ -672,24 +2524,12 @@ msgid_plural "%(shown)s of %(count)s cards"
 msgstr[0] ""
 msgstr[1] ""
 
-#: templates/decks/_card_grid.html templates/decks/detail.html
-#: templates/decks/list.html
-#, python-format
-msgid "%(count)s card"
-msgid_plural "%(count)s cards"
-msgstr[0] ""
-msgstr[1] ""
-
 #: templates/decks/_card_grid.html
 msgid "needs you"
 msgstr ""
 
 #: templates/decks/_card_grid.html
 msgid "answered"
-msgstr ""
-
-#: templates/decks/_card_grid.html
-msgid "Game Changer"
 msgstr ""
 
 #: templates/decks/_card_grid.html
@@ -702,14 +2542,6 @@ msgstr ""
 
 #: templates/decks/_import_form.html
 msgid "How do you want to add your deck?"
-msgstr ""
-
-#: templates/decks/_import_form.html
-msgid "Upload a file"
-msgstr ""
-
-#: templates/decks/_import_form.html
-msgid "Paste a list"
 msgstr ""
 
 #: templates/decks/_import_form.html
@@ -837,8 +2669,7 @@ msgstr ""
 
 #: templates/decks/detail.html
 #, python-format
-msgid ""
-"Mana curve, card types, categories and Commander legality for %(name)s."
+msgid "Mana curve, card types, categories and Commander legality for %(name)s."
 msgstr ""
 
 #: templates/decks/detail.html
@@ -893,10 +2724,6 @@ msgstr ""
 
 #: templates/decks/detail.html
 msgid "The deck at a glance"
-msgstr ""
-
-#: templates/decks/detail.html
-msgid "Lands"
 msgstr ""
 
 #: templates/decks/detail.html
@@ -1007,8 +2834,8 @@ msgid ""
 "%(some)s of %(count)s card has something the card reader could not resolve "
 "on its own."
 msgid_plural ""
-"%(some)s of %(count)s cards have something the card reader could not resolve"
-" on its own."
+"%(some)s of %(count)s cards have something the card reader could not resolve "
+"on its own."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1079,8 +2906,8 @@ msgstr ""
 
 #: templates/decks/import.html
 msgid ""
-"<strong class=\"text-parchment-100\">Any CSV works.</strong> It only needs a"
-" column with the card name - a quantity column is optional."
+"<strong class=\"text-parchment-100\">Any CSV works.</strong> It only needs a "
+"column with the card name - a quantity column is optional."
 msgstr ""
 
 #: templates/decks/import.html
@@ -1103,8 +2930,8 @@ msgstr ""
 
 #: templates/decks/import.html templates/guests/try.html
 msgid ""
-"<strong class=\"text-parchment-100\">Moxfield:</strong> open the deck → More"
-" → Export → copy, then paste it here"
+"<strong class=\"text-parchment-100\">Moxfield:</strong> open the deck → More "
+"→ Export → copy, then paste it here"
 msgstr ""
 
 #: templates/decks/import.html templates/guests/try.html
@@ -1131,10 +2958,6 @@ msgstr ""
 #: templates/decks/list.html
 #, python-format
 msgid "Commander: %(name)s"
-msgstr ""
-
-#: templates/decks/list.html
-msgid "No commander set"
 msgstr ""
 
 #: templates/decks/list.html
@@ -1254,8 +3077,7 @@ msgid "Import review"
 msgstr ""
 
 #: templates/decks/review.html
-msgid ""
-"The rows the importer could not match, and what it matched the rest on."
+msgid "The rows the importer could not match, and what it matched the rest on."
 msgstr ""
 
 #: templates/decks/review.html
@@ -1399,8 +3221,8 @@ msgid ""
 "The engine could not read <strong>%(unreadable)s</strong> of "
 "<strong>%(total)s</strong> cards in this deck (%(pct)s%% read). Those cards "
 "still move, but what they <em>do</em> is up to you — <a "
-"href=\"%(review_url)s\" class=\"underline\">tell the engine what they "
-"mean</a>."
+"href=\"%(review_url)s\" class=\"underline\">tell the engine what they mean</"
+"a>."
 msgstr ""
 
 #: templates/playtest/_board.html templates/simulations/_report.html
@@ -1436,10 +3258,6 @@ msgid "Start turn %(turn)s"
 msgstr ""
 
 #: templates/playtest/_board.html
-msgid "Next phase"
-msgstr ""
-
-#: templates/playtest/_board.html
 msgid "Draw a card"
 msgstr ""
 
@@ -1455,10 +3273,6 @@ msgstr ""
 msgid ""
 "Play your land now: the mana for this turn is counted when the main phase "
 "opens."
-msgstr ""
-
-#: templates/playtest/_board.html
-msgid "Mulligan"
 msgstr ""
 
 #: templates/playtest/_board.html
@@ -1516,8 +3330,8 @@ msgstr ""
 
 #: templates/playtest/_board.html
 msgid ""
-"click a card to play it. A glowing card is one the mana can pay for; nothing"
-" is blocked."
+"click a card to play it. A glowing card is one the mana can pay for; nothing "
+"is blocked."
 msgstr ""
 
 #: templates/playtest/_board.html
@@ -1634,8 +3448,8 @@ msgstr ""
 
 #: templates/simulations/_attention.html
 msgid ""
-"The engine could not read it. Say what it does, or that the engine's reading"
-" is right."
+"The engine could not read it. Say what it does, or that the engine's reading "
+"is right."
 msgid_plural ""
 "The engine could not read them. Say what they do, or that the engine's "
 "reading is right."
@@ -1661,8 +3475,8 @@ msgstr ""
 #, python-format
 msgid ""
 "The engine read <strong class=\"tabular text-ink-900\">%(read)s</strong> of "
-"%(total)s cards in full — <strong class=\"tabular text-"
-"ink-900\">%(pct)s%%</strong>."
+"%(total)s cards in full — <strong class=\"tabular text-ink-900\">%(pct)s%%</"
+"strong>."
 msgstr ""
 
 #: templates/simulations/_attention.html
@@ -1772,14 +3586,6 @@ msgid "Finished"
 msgstr ""
 
 #: templates/simulations/_progress.html
-msgid "Cancelled"
-msgstr ""
-
-#: templates/simulations/_progress.html
-msgid "Failed"
-msgstr ""
-
-#: templates/simulations/_progress.html
 #, python-format
 msgid "%(done)s of %(total)s games"
 msgstr ""
@@ -1814,8 +3620,7 @@ msgid ""
 msgstr ""
 
 #: templates/simulations/_progress.html
-#, python-format
-msgid "This run did not finish: %(error)s"
+msgid "This run did not finish:"
 msgstr ""
 
 #: templates/simulations/_progress.html
@@ -1926,8 +3731,7 @@ msgstr ""
 #, python-format
 msgid ""
 "This run is older than this chart. <a href=\"%(deck_url)s#play\" "
-"class=\"text-ink-900 underline\">Run the deck again</a> to see what it "
-"draws."
+"class=\"text-ink-900 underline\">Run the deck again</a> to see what it draws."
 msgstr ""
 
 #: templates/simulations/_report.html
@@ -1963,10 +3767,6 @@ msgid "Share"
 msgstr ""
 
 #: templates/simulations/_report.html
-msgid "Games"
-msgstr ""
-
-#: templates/simulations/_report.html
 msgid "Share as a bar"
 msgstr ""
 
@@ -1988,8 +3788,8 @@ msgstr ""
 
 #: templates/simulations/_strategies.html
 msgid ""
-"Cards that fit your colours, are legal in Commander and are not in your deck"
-" yet."
+"Cards that fit your colours, are legal in Commander and are not in your deck "
+"yet."
 msgstr ""
 
 #: templates/simulations/_strategies.html
@@ -2014,15 +3814,13 @@ msgid "No card in your colours left to suggest."
 msgstr ""
 
 #: templates/simulations/_strategies.html
-msgid ""
-"Picked by Mistral AI from cards that fit your colours. It can be wrong."
+msgid "Picked by Mistral AI from cards that fit your colours. It can be wrong."
 msgstr ""
 
 #: templates/simulations/_strategies.html
 msgid ""
 "The odds are calculated from your list: a hand of 7, one draw a turn, no "
-"mulligan. What this run measured is in “By category” and “By strategy” "
-"above."
+"mulligan. What this run measured is in “By category” and “By strategy” above."
 msgstr ""
 
 #: templates/simulations/_summary.html
@@ -2047,14 +3845,13 @@ msgstr ""
 
 #: templates/simulations/_summary.html
 msgid ""
-"Written by Mistral AI. It can be wrong. Its numbers are calculated from your"
-" list, not measured by this run."
+"Written by Mistral AI. It can be wrong. Its numbers are calculated from your "
+"list, not measured by this run."
 msgstr ""
 
 #: templates/simulations/_summary.html
 msgid ""
-"The summary could not be written this time. Nothing was taken from your "
-"runs."
+"The summary could not be written this time. Nothing was taken from your runs."
 msgstr ""
 
 #: templates/simulations/_summary.html

@@ -14,7 +14,7 @@
   <section class="surface-parchment mt-6 p-6">
     {% if subscription.is_paid %}
       <p class="text-ink-900">
-        {% blocktranslate trimmed with plan=subscription.plan.name turns=subscription.plan.max_turns games=subscription.plan.max_games_per_run|intcomma %}
+        {% blocktranslate trimmed with plan=subscription.plan.display_name turns=subscription.plan.max_turns games=subscription.plan.max_games_per_run|intcomma %}
           You are on <strong>{{ plan }}</strong>, with
           <strong class="tabular">{{ turns }}</strong> turns
           a simulation and

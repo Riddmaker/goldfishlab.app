@@ -27,7 +27,9 @@ because the written part is missing.
 from dataclasses import dataclass, field
 
 from django.db.models import F
+from django.utils.translation import gettext
 
+from core.l10n import percent
 from simulations.report import SEEN_ROLES, SEEN_STRATEGY_ROLES
 from simulations.summary import BY_TURN, SEEN_BY_TURN, at_least_one
 
@@ -57,6 +59,11 @@ class Strategy:
     more: float
 
     @property
+    def name(self) -> str:
+        """`label` in the page's language; `label` stays English for Mistral."""
+        return gettext(self.label)
+
+    @property
     def now_label(self) -> str:
         return _percent(self.now)
 
@@ -68,10 +75,10 @@ class Strategy:
 def _percent(value: float) -> str:
     """A whole percent, but never 100% or 0% for something that is not."""
     if 99 < value < 100:
-        return "over 99%"
+        return gettext("over %(percent)s") % {"percent": percent(99)}
     if 0 < value < 1:
-        return "under 1%"
-    return f"{value:.0f}%"
+        return gettext("under %(percent)s") % {"percent": percent(1)}
+    return percent(value)
 
 
 @dataclass(frozen=True)

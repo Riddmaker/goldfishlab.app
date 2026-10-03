@@ -62,6 +62,6 @@
   {% elif entry.no_number %}
     {# A gap with a reason is an honest limit. A gap without one is a bug   #}
     {# report the user has to write for us.                                #}
-    <p class="mt-1 text-xs text-ink-700">{% blocktranslate with reason=entry.no_number %}No timing for this one: it {{ reason }}.{% endblocktranslate %}</p>
+    <p class="mt-1 text-xs text-ink-700">{{ entry.no_number }}</p>
   {% endif %}
 {% endwith %}

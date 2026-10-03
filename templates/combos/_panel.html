@@ -20,9 +20,9 @@
   {% elif combos.failed %}
     <p class="mt-2 text-ink-700">
       {% if combos.lookup.message %}
-        {% blocktranslate trimmed with message=combos.lookup.message %}
-          Commander Spellbook could not be reached — {{ message }}.
-        {% endblocktranslate %}
+        {# The detail is Spellbook's or the network's own, in English. #}
+        {% translate "Commander Spellbook could not be reached." %}
+        <span lang="en">({{ combos.lookup.message }})</span>
       {% else %}
         {% translate "Commander Spellbook could not be reached." %}
       {% endif %}

@@ -46,6 +46,9 @@ import io
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 
+from django.utils.translation import gettext, gettext_noop
+
+from core.l10n import number
 from decks.importers import columns
 from decks.importers.base import (
     MalformedTable,
@@ -187,7 +190,7 @@ class TabularParser(Parser):
     """Reads a delimited file through the concept vocabulary."""
 
     name = "csv"
-    label = "CSV or TSV export (any tool)"
+    label = gettext_noop("CSV or TSV export (any tool)")
 
     def __init__(self, overrides: dict | None = None):
         """`overrides` is a person's answer on the mapping screen.
@@ -246,9 +249,9 @@ class TabularParser(Parser):
 
         mapping.require(
             columns.NAME,
-            hint="Nothing can be read from a file with no card name in it. "
-                 "Re-export it with the card name included, or map a column to "
-                 "it by hand.",
+            hint=gettext("Nothing can be read from a file with no card name in it. "
+                         "Re-export it with the card name included, or map a column to "
+                         "it by hand."),
         )
         if not mapping.confirmed:
             # Only when nobody has been asked. Once a person has seen the
@@ -258,10 +261,10 @@ class TabularParser(Parser):
             # not that every file must have one.
             mapping.require(
                 columns.QUANTITY,
-                hint="Re-export it with Quantity ticked - without it every "
-                     "card would be read as a single copy, and a 28-Swamp deck "
-                     "would import as a 28-card deck with one Swamp in it. You "
-                     "can also map the column by hand.",
+                hint=gettext("Re-export it with Quantity ticked - without it every "
+                             "card would be read as a single copy, and a 28-Swamp deck "
+                             "would import as a 28-card deck with one Swamp in it. You "
+                             "can also map the column by hand."),
             )
         return self._rows(text, table, mapping)
 
@@ -284,11 +287,11 @@ class TabularParser(Parser):
 
             produced += 1
             if produced > MAX_ROWS:
-                raise TooManyRows(
-                    f"that file has more than {MAX_ROWS:,} card rows. The "
-                    "largest real collection export is a few thousand, so this "
-                    "is almost certainly not a deck list."
-                )
+                raise TooManyRows(gettext(
+                    "that file has more than %(limit)s card rows. The largest real "
+                    "collection export is a few thousand, so this is almost certainly "
+                    "not a deck list."
+                ) % {"limit": number(MAX_ROWS)})
 
             yield ParsedRow(
                 line_number=offset,
@@ -323,13 +326,14 @@ def _why_not(text: str) -> "NotTabular | MalformedTable":
             errors += 1
             last = exc
     if errors == len(DELIMITERS):
-        return MalformedTable(f"that file is not valid CSV: {last}")
+        return MalformedTable(gettext("that file is not valid CSV: %(error)s") % {
+            "error": last})
 
-    return NotTabular(
+    return NotTabular(gettext(
         "that file is not a table - no line in it splits into columns "
         "consistently. If it is a plain list of card names, choose "
         "'Plain text list' as the format."
-    )
+    ))
 
 
 def _body(text: str, table: "Table") -> str:
@@ -375,7 +379,8 @@ def _records(text: str, table: "Table") -> Iterator[dict]:
         # 128 KB limit. Both are bounded by `MAX_UPLOAD_BYTES` already, so this
         # is about answering with a form error instead of a 500 on an upload a
         # stranger controls - not about memory.
-        raise MalformedTable(f"that file is not valid CSV: {exc}") from exc
+        raise MalformedTable(gettext("that file is not valid CSV: %(error)s") % {
+            "error": exc}) from exc
 
 
 def _int(value, *, default: int) -> int:

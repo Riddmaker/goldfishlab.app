@@ -26,11 +26,13 @@ import secrets
 
 from django.conf import settings
 from django.db import transaction
+from django.utils.translation import gettext, ngettext
 from redis import Redis
 from redis.exceptions import RedisError
 
 from billing import quotas
 from billing.models import UsageRecord
+from core.l10n import number
 from simulations.engine import runner
 from simulations.models import SimulationRun
 
@@ -75,8 +77,8 @@ def start_run(*, owner, deck, games: int, turns: int, on_the_play: bool = True,
         billing.quotas.QuotaExceeded: The monthly run quota is used up.
     """
     plan = quotas.plan_for(owner)
-    games = _within(games, plan.max_games_per_run, "games")
-    turns = _within(turns, plan.max_turns, "turns")
+    games = _within(games, plan.max_games_per_run, GAMES)
+    turns = _within(turns, plan.max_turns, TURNS)
 
     quotas.check(owner, UsageRecord.Metric.RUNS_STARTED)
 
@@ -97,17 +99,20 @@ def start_run(*, owner, deck, games: int, turns: int, on_the_play: bool = True,
         from guests import services as guests
 
         if guests.busy():
-            raise SimulationRefused(
+            raise SimulationRefused(gettext(
                 "A lot of people are trying Goldfish Lab right now. Try again in "
                 "a minute - or save your deck with a free account, which does "
                 "not wait for guests."
-            )
+            ))
 
     if not _take_slot(owner, plan.max_concurrent_runs):
-        raise TooManyRuns(
-            f"You already have {plan.max_concurrent_runs} simulation(s) running. "
-            "Wait for one to finish, or cancel it."
-        )
+        raise TooManyRuns(ngettext(
+            "You already have %(count)s simulation running. Wait for it to finish, "
+            "or cancel it.",
+            "You already have %(count)s simulations running. Wait for one to finish, "
+            "or cancel it.",
+            plan.max_concurrent_runs,
+        ) % {"count": plan.max_concurrent_runs})
 
     try:
         with transaction.atomic():
@@ -225,15 +230,28 @@ def finish_slot(run: SimulationRun) -> None:
 # --- plan limits -----------------------------------------------------------
 
 
+GAMES = "games"
+TURNS = "turns"
+
+
 def _within(value: int, limit: int | None, what: str) -> int:
     value = int(value)
+    numbers = {"limit": number(limit or 0), "value": number(value)}
     if value < 1:
-        raise SimulationRefused(f"A run needs at least one {what[:-1]}.")
+        raise SimulationRefused(gettext("A run needs at least one game.") if what == GAMES
+                                else gettext("A run needs at least one turn."))
     if limit is not None and value > limit:
-        raise SimulationRefused(
-            f"Your plan allows at most {limit:,} {what} per run; you asked for "
-            f"{value:,}."
-        )
+        raise SimulationRefused((
+            ngettext("Your plan allows at most %(limit)s game per run; you asked for "
+                     "%(value)s.",
+                     "Your plan allows at most %(limit)s games per run; you asked for "
+                     "%(value)s.", limit)
+            if what == GAMES else
+            ngettext("Your plan allows at most %(limit)s turn per run; you asked for "
+                     "%(value)s.",
+                     "Your plan allows at most %(limit)s turns per run; you asked for "
+                     "%(value)s.", limit)
+        ) % numbers)
     return value
 
 
@@ -263,9 +281,9 @@ def _take_slot(owner, limit: int | None) -> bool:
     except RedisError:
         # Redis is the broker: if it is down, nothing can run anyway. Refusing
         # here rather than starting a run that will never be picked up.
-        raise SimulationRefused(
+        raise SimulationRefused(gettext(
             "Simulations are unavailable at the moment. Please try again shortly."
-        ) from None
+        )) from None
     if active > limit:
         _release_slot(owner)
         return False

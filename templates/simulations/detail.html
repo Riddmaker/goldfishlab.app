@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% load static i18n %}
+{% load humanize static i18n %}
 {% block title %}{% translate "Simulation" %} — {{ run.deck.name }} — Goldfish Lab{% endblock %}
 {% block description %}
-  {% blocktranslate trimmed with name=run.deck.name games=run.games_total %}
+  {% blocktranslate trimmed with name=run.deck.name games=run.games_total|intcomma %}
     What happened when Goldfish Lab played {{ name }} {{ games }} times.
   {% endblocktranslate %}
 {% endblock %}
@@ -15,7 +15,7 @@
   <div class="flex flex-wrap items-baseline gap-4">
     <h1 class="font-display text-3xl text-parchment-100">{{ run.deck.name }}</h1>
     <span class="tabular text-parchment-200">
-      {% blocktranslate trimmed with games=run.games_total turns=run.turns %}
+      {% blocktranslate trimmed with games=run.games_total|intcomma turns=run.turns %}
         {{ games }} games · {{ turns }} turns ·
       {% endblocktranslate %}
       {% if run.on_the_play %}{% translate "1-v-1, first draw skipped" %}{% else %}{% translate "multiplayer draw rule" %}{% endif %}

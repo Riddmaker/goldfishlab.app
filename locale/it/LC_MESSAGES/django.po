@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: Goldfish Lab\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-03 20:58+0200\n"
-"PO-Revision-Date: 2026-10-03 13:00+0200\n"
+"PO-Revision-Date: 2026-10-03 22:00+0200\n"
 "Last-Translator: Claude\n"
 "Language-Team: \n"
 "Language: it\n"
@@ -37,7 +37,7 @@ msgstr ""
 
 #: accounts/allauth_tone.py
 msgid "Please reauthenticate to safeguard your account."
-msgstr ""
+msgstr "Conferma di nuovo la tua identità per proteggere il tuo account."
 
 #: accounts/allauth_tone.py
 msgid "Use a security key"
@@ -75,6 +75,11 @@ msgid ""
 "identifiers are deliberately left out - your invoices live in Stripe's own "
 "portal, linked from your plan page."
 msgstr ""
+"Tutto ciò che Goldfish Lab salva sul tuo account. I dati di carte e combo "
+"non sono inclusi: sono dati di riferimento pubblici di Scryfall e Commander "
+"Spellbook, uguali per ogni account, e non riguardano te. Gli identificativi "
+"di pagamento di Stripe sono esclusi di proposito: le tue fatture si trovano "
+"nel portale di Stripe, collegato dalla pagina del tuo piano."
 
 #: accounts/privacy.py
 msgid ""
@@ -82,44 +87,53 @@ msgid ""
 "deleting this account here would not stop Stripe charging your card, and "
 "afterwards nobody could sign in to stop it."
 msgstr ""
+"Hai un abbonamento a pagamento. Prima annullalo nel portale di fatturazione: "
+"eliminando qui l'account, Stripe continuerebbe ad addebitare la tua carta e "
+"poi nessuno potrebbe più accedere per fermarlo."
 
 #: accounts/views.py
 msgid "That is not the address this account uses, so nothing was deleted."
 msgstr ""
+"Questo non è l'indirizzo di questo account, quindi non è stato eliminato "
+"nulla."
 
 #: accounts/views.py
 msgid "Your account and everything in it have been deleted. Nothing was kept."
 msgstr ""
+"Il tuo account e tutto ciò che conteneva sono stati eliminati. Non è stato "
+"conservato nulla."
 
 #: billing/models.py templates/billing/plans.html
 msgid "Free"
-msgstr ""
+msgstr "Gratis"
 
 #: billing/models.py
 msgid "Guest"
-msgstr ""
+msgstr "Ospite"
 
 #: billing/models.py cards/models.py simulations/report.py
 msgid "Planeswalker"
-msgstr ""
+msgstr "Planeswalker"
 
 #: billing/models.py
 msgid "Archmage"
-msgstr ""
+msgstr "Archmage"
 
 #: billing/models.py
 msgid "month"
-msgstr ""
+msgstr "mese"
 
 #: billing/models.py
 msgid "year"
-msgstr ""
+msgstr "anno"
 
 #: billing/services.py
 msgid ""
 "This installation cannot take payments yet: no Stripe key, or the plan has "
 "no price configured."
 msgstr ""
+"Questa installazione non può ancora ricevere pagamenti: manca la chiave "
+"Stripe, oppure il piano non ha un prezzo configurato."
 
 #: billing/services.py
 #, python-format
@@ -127,269 +141,286 @@ msgid ""
 "You are already on %(plan)s. Switching plans happens in the billing portal, "
 "so that you are never charged for two at once."
 msgstr ""
+"Hai già %(plan)s. Il cambio di piano avviene nel portale di fatturazione, "
+"così non paghi mai due piani insieme."
 
 #: billing/services.py
 msgid "This account has never been to Stripe."
-msgstr ""
+msgstr "Questo account non è mai passato da Stripe."
 
 #: billing/views.py
 msgid "Simulations started"
-msgstr ""
+msgstr "Simulazioni avviate"
 
 #: billing/views.py
 msgid "this month"
-msgstr ""
+msgstr "questo mese"
 
 #: billing/views.py templates/base.html
 msgid "Decks"
-msgstr ""
+msgstr "Deck"
 
 #: billing/views.py
 msgid "right now"
-msgstr ""
+msgstr "adesso"
 
 #: billing/views.py
 msgid ""
 "Stripe could not start a checkout just now. Nothing was charged. Please try "
 "again."
 msgstr ""
+"Stripe non è riuscito ad avviare il pagamento. Non è stato addebitato nulla. "
+"Riprova."
 
 #: billing/views.py
 msgid "Stripe could not open the billing portal just now."
-msgstr ""
+msgstr "Stripe non è riuscito ad aprire il portale di fatturazione."
 
 #: billing/views.py
 #, python-format
 msgid "You have started %(used)s of %(limit)s simulation this month."
 msgid_plural "You have started %(used)s of %(limit)s simulations this month."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Questo mese hai avviato %(used)s di %(limit)s simulazione."
+msgstr[1] "Questo mese hai avviato %(used)s di %(limit)s simulazioni."
 
 #: billing/views.py
 #, python-format
 msgid "You have %(used)s of %(limit)s deck."
 msgid_plural "You have %(used)s of %(limit)s decks."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Hai %(used)s di %(limit)s deck."
+msgstr[1] "Hai %(used)s di %(limit)s deck."
 
 #: billing/views.py
 #, python-format
 msgid "You have imported %(used)s of %(limit)s deck list this month."
 msgid_plural "You have imported %(used)s of %(limit)s deck lists this month."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Questo mese hai importato %(used)s di %(limit)s lista."
+msgstr[1] "Questo mese hai importato %(used)s di %(limit)s liste."
 
 #: billing/views.py
 msgid "Your plan's limit is reached."
-msgstr ""
+msgstr "Hai raggiunto il limite del tuo piano."
 
 #: cards/models.py simulations/annotations.py simulations/report.py
 msgid "Land"
-msgstr ""
+msgstr "Terra"
 
 #: cards/models.py simulations/annotations.py
 msgid "Mana rock"
-msgstr ""
+msgstr "Mana rock"
 
 #: cards/models.py simulations/annotations.py
 msgid "Ritual"
-msgstr ""
+msgstr "Rituale"
 
 #: cards/models.py simulations/annotations.py simulations/report.py
 msgid "Creature"
-msgstr ""
+msgstr "Creatura"
 
 #: cards/models.py simulations/report.py
 msgid "Enchantment"
-msgstr ""
+msgstr "Incantesimo"
 
 #: cards/models.py simulations/report.py
 msgid "Artifact"
-msgstr ""
+msgstr "Artefatto"
 
 #: cards/models.py simulations/report.py
 msgid "Sorcery"
-msgstr ""
+msgstr "Stregoneria"
 
 #: cards/models.py simulations/report.py
 msgid "Instant"
-msgstr ""
+msgstr "Istantaneo"
 
 #: cards/profiles.py
 msgid "enters tapped only conditionally ('unless')"
-msgstr ""
+msgstr "entra TAPpato solo a una condizione (“unless”)"
 
 #: cards/profiles.py
 msgid "text mentions entering tapped, but the condition was not readable"
-msgstr ""
+msgstr "il testo dice che entra TAPpato, ma la condizione non era leggibile"
 
 #: cards/profiles.py
 msgid "a mana ability with a coloured cost (a filter) is not modelled"
-msgstr ""
+msgstr "un'abilità di mana con un costo colorato (un filtro) non è modellata"
 
 #: cards/profiles.py
 msgid "makes a kind of mana the engine does not model"
-msgstr ""
+msgstr "produce un tipo di mana che il motore non modella"
 
 #: cards/profiles.py
 msgid "the part of its mana that grows with the board is not counted"
-msgstr ""
+msgstr "la parte del suo mana che cresce con il campo non è conteggiata"
 
 #: cards/profiles.py
 msgid "mana amount scales with the board"
-msgstr ""
+msgstr "la quantità di mana dipende dal campo"
 
 #: cards/profiles.py
 msgid "a conditional replacement ('instead') is not counted"
-msgstr ""
+msgstr "una sostituzione condizionale (“instead”) non è conteggiata"
 
 #: cards/profiles.py
 msgid "needs an opponent's lands; a goldfish has none"
-msgstr ""
+msgstr "richiede le terre di un avversario; un goldfish non ne ha"
 
 #: cards/profiles.py
 msgid "an 'Add' clause whose amount could not be read"
-msgstr ""
+msgstr "una clausola “Add” di cui non si è potuta leggere la quantità"
 
 #: cards/profiles.py
 msgid "makes mana only from a triggered or static ability"
-msgstr ""
+msgstr "produce mana solo da un'abilità innescata o statica"
 
 #: cards/profiles.py
 msgid "makes mana only as part of another effect"
-msgstr ""
+msgstr "produce mana solo come parte di un altro effetto"
 
 #: cards/profiles.py
 msgid "its mana is restricted to certain spells or moments"
-msgstr ""
+msgstr "il suo mana è limitato a certe magie o momenti"
 
 #: cards/profiles.py
 msgid "enters only by discarding a land card, which the engine does not do"
-msgstr ""
+msgstr "entra solo scartando una carta terra, cosa che il motore non fa"
 
 #: cards/profiles.py
 msgid "only grants a mana ability to another permanent"
-msgstr ""
+msgstr "conferisce solo un'abilità di mana a un altro permanente"
 
 #: cards/profiles.py
 msgid "produces mana, but no readable 'Add' clause"
-msgstr ""
+msgstr "produce mana, ma senza una clausola “Add” leggibile"
 
 #: cards/profiles.py
 msgid "an ability that only converts mana is not modelled"
-msgstr ""
+msgstr "un'abilità che si limita a convertire mana non è modellata"
 
 #: cards/profiles.py
 msgid "sacrifices itself for mana, which is not modelled on a creature"
-msgstr ""
+msgstr "si sacrifica per mana, cosa non modellata su una creatura"
 
 #: cards/profiles.py
 msgid "its mana ability costs as much as it makes"
-msgstr ""
+msgstr "la sua abilità di mana costa quanto produce"
 
 #: cards/profiles.py
 msgid "searches the library more than once; not modelled"
-msgstr ""
+msgstr "cerca nel grimorio più di una volta; non modellato"
 
 #: cards/profiles.py
 msgid "tutors, but no readable 'search your library' clause"
-msgstr ""
+msgstr "è un tutor, ma senza una clausola “search your library” leggibile"
 
 #: cards/profiles.py
 msgid "tutors, but to which zone could not be read"
-msgstr ""
+msgstr "è un tutor, ma non si è potuta leggere la zona di destinazione"
 
 #: cards/profiles.py
 msgid "tutors to more than one zone; not modelled"
-msgstr ""
+msgstr "è un tutor verso più di una zona; non modellato"
 
 #: cards/profiles.py
 msgid "tutors onto the battlefield, which the engine cannot do"
 msgstr ""
+"è un tutor che mette sul campo di battaglia, cosa che il motore non sa fare"
 
 #: cards/profiles.py
 msgid "tutors for something the engine cannot describe"
-msgstr ""
+msgstr "è un tutor per qualcosa che il motore non sa descrivere"
 
 #: cards/profiles.py
 msgid "tutors for more than one card kind; not modelled"
-msgstr ""
+msgstr "è un tutor per più di un tipo di carta; non modellato"
 
 #: cards/profiles.py
 msgid "searches, then discards at random; the discard is not modelled"
-msgstr ""
+msgstr "cerca, poi scarta a caso; lo scarto non è modellato"
 
 #: cards/profiles.py
 msgid "tutors, but how many cards it finds could not be read"
-msgstr ""
+msgstr "è un tutor, ma non si è potuto leggere quante carte trova"
 
 #: cards/profiles.py
 msgid "tagged as adding more than one mana; only one was read"
-msgstr ""
+msgstr "segnato come produttore di più di un mana; ne è stato letto solo uno"
 
 #: cards/profiles.py
 msgid "has an additional casting cost the engine does not pay"
-msgstr ""
+msgstr "ha un costo di lancio aggiuntivo che il motore non paga"
 
 #: cards/profiles.py
 msgid "hybrid pips: payment flexibility is not modelled"
-msgstr ""
+msgstr "simboli ibridi: la flessibilità di pagamento non è modellata"
 
 #: cards/profiles.py
 msgid "cost contains X"
-msgstr ""
+msgstr "il costo contiene X"
 
 #: combos/measure.py
 msgid ""
 "No timing for this one: it needs a kind of card rather than a named one, "
 "which is a search and not a simulation."
 msgstr ""
+"Nessuna tempistica per questa: richiede un tipo di carta invece di una carta "
+"precisa, il che è una ricerca e non una simulazione."
 
 #: combos/measure.py
 msgid ""
 "No timing for this one: it names a card this application has not got in its "
 "catalogue."
 msgstr ""
+"Nessuna tempistica per questa: nomina una carta che questa applicazione non "
+"ha nel suo catalogo."
 
 #: combos/measure.py
 msgid ""
 "No timing for this one: it asks for a card to be somewhere this simulator "
 "does not model."
 msgstr ""
+"Nessuna tempistica per questa: richiede che una carta si trovi in un posto "
+"che questo simulatore non modella."
 
 #: combos/measure.py
 msgid ""
 "No timing for this one: it is more than one card away once this deck is read "
 "our way."
 msgstr ""
+"Nessuna tempistica per questa: le manca più di una carta, una volta letto il "
+"deck a modo nostro."
 
 #: combos/measure.py
 msgid ""
 "No timing for this one: it is one this deck turns out not to hold, once it "
 "is read our way."
 msgstr ""
+"Nessuna tempistica per questa: una volta letto il deck a modo nostro, "
+"risulta che non la contiene."
 
 #: combos/measure.py
 msgid ""
 "No timing for this one: it was not among the most-played few this run had "
 "room to measure."
 msgstr ""
+"Nessuna tempistica per questa: non era tra le poche più giocate che questa "
+"simulazione aveva spazio per misurare."
 
 #: combos/models.py
 msgid "never"
-msgstr ""
+msgstr "mai"
 
 #: combos/models.py simulations/strategies.py
 #, python-format
 msgid "under %(percent)s"
-msgstr ""
+msgstr "sotto %(percent)s"
 
 #: combos/services.py
 #, python-format
 msgid "Checked %(ago)s second ago."
 msgid_plural "Checked %(ago)s seconds ago."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Controllato %(ago)s secondo fa."
+msgstr[1] "Controllato %(ago)s secondi fa."
 
 #: combos/services.py
 #, python-format
@@ -400,21 +431,25 @@ msgid_plural ""
 "Try again in about %(wait)s seconds - Commander Spellbook is a free service "
 "and this is the polite thing to do."
 msgstr[0] ""
+"Riprova tra circa %(wait)s secondo: Commander Spellbook è un servizio "
+"gratuito ed è la cosa educata da fare."
 msgstr[1] ""
+"Riprova tra circa %(wait)s secondi: Commander Spellbook è un servizio "
+"gratuito ed è la cosa educata da fare."
 
 #: combos/services.py
 msgid "There are no cards in this deck to look up."
-msgstr ""
+msgstr "In questo deck non ci sono carte da cercare."
 
 #: core/l10n.py templates/simulations/_progress.html
 #: templates/simulations/_report.html
 #, python-format
 msgid "%(number)s%%"
-msgstr ""
+msgstr "%(number)s%%"
 
 #: core/ticker.py
 msgid "A new user joined."
-msgstr ""
+msgstr "Si è iscritto un nuovo utente."
 
 #: core/ticker.py
 #, python-format
@@ -422,14 +457,18 @@ msgid "Another guest simulated a deck led by %(commander)s: %(games)s game."
 msgid_plural ""
 "Another guest simulated a deck led by %(commander)s: %(games)s games."
 msgstr[0] ""
+"Un altro ospite ha simulato un deck guidato da %(commander)s: %(games)s "
+"partita."
 msgstr[1] ""
+"Un altro ospite ha simulato un deck guidato da %(commander)s: %(games)s "
+"partite."
 
 #: core/ticker.py
 #, python-format
 msgid "Another guest simulated a deck: %(games)s game."
 msgid_plural "Another guest simulated a deck: %(games)s games."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Un altro ospite ha simulato un deck: %(games)s partita."
+msgstr[1] "Un altro ospite ha simulato un deck: %(games)s partite."
 
 #: core/ticker.py
 #, python-format
@@ -437,99 +476,110 @@ msgid "Another user simulated a deck led by %(commander)s: %(games)s game."
 msgid_plural ""
 "Another user simulated a deck led by %(commander)s: %(games)s games."
 msgstr[0] ""
+"Un altro utente ha simulato un deck guidato da %(commander)s: %(games)s "
+"partita."
 msgstr[1] ""
+"Un altro utente ha simulato un deck guidato da %(commander)s: %(games)s "
+"partite."
 
 #: core/ticker.py
 #, python-format
 msgid "Another user simulated a deck: %(games)s game."
 msgid_plural "Another user simulated a deck: %(games)s games."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Un altro utente ha simulato un deck: %(games)s partita."
+msgstr[1] "Un altro utente ha simulato un deck: %(games)s partite."
 
 #: core/ticker.py
 #, python-format
 msgid "Another guest playtested a deck led by %(commander)s."
 msgstr ""
+"Un altro ospite ha fatto una partita di prova con un deck guidato da "
+"%(commander)s."
 
 #: core/ticker.py
 msgid "Another guest playtested a deck."
-msgstr ""
+msgstr "Un altro ospite ha fatto una partita di prova con un deck."
 
 #: core/ticker.py
 #, python-format
 msgid "Another user playtested a deck led by %(commander)s."
 msgstr ""
+"Un altro utente ha fatto una partita di prova con un deck guidato da "
+"%(commander)s."
 
 #: core/ticker.py
 msgid "Another user playtested a deck."
-msgstr ""
+msgstr "Un altro utente ha fatto una partita di prova con un deck."
 
 #: core/ticker.py
 #, python-format
 msgid "Another guest imported a deck led by %(commander)s."
-msgstr ""
+msgstr "Un altro ospite ha importato un deck guidato da %(commander)s."
 
 #: core/ticker.py
 msgid "Another guest imported a deck."
-msgstr ""
+msgstr "Un altro ospite ha importato un deck."
 
 #: core/ticker.py
 #, python-format
 msgid "Another user imported a deck led by %(commander)s."
-msgstr ""
+msgstr "Un altro utente ha importato un deck guidato da %(commander)s."
 
 #: core/ticker.py
 msgid "Another user imported a deck."
-msgstr ""
+msgstr "Un altro utente ha importato un deck."
 
 #: decks/analysis.py
 msgid "Frank Karsten's mana-base guidance for Commander"
-msgstr ""
+msgstr "le linee guida di Frank Karsten sulla base di mana per Commander"
 
 #: decks/analysis.py
 #, python-format
 msgid "%(count)s land"
 msgid_plural "%(count)s lands"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s terra"
+msgstr[1] "%(count)s terre"
 
 #: decks/analysis.py
 #, python-format
 msgid "Within the %(low)s-%(high)s band of %(source)s."
-msgstr ""
+msgstr "Nella fascia %(low)s-%(high)s secondo %(source)s."
 
 #: decks/analysis.py
 #, python-format
 msgid "Below the %(low)s-%(high)s band of %(source)s."
-msgstr ""
+msgstr "Sotto la fascia %(low)s-%(high)s secondo %(source)s."
 
 #: decks/analysis.py
 #, python-format
 msgid "Above the %(low)s-%(high)s band of %(source)s."
-msgstr ""
+msgstr "Sopra la fascia %(low)s-%(high)s secondo %(source)s."
 
 #: decks/analysis.py
 msgid ""
 "Rituals and mana rocks can justify the low end; this count does not know "
 "about them yet."
 msgstr ""
+"Rituali e mana rock possono giustificare il valore basso; questo conteggio "
+"non ne tiene ancora conto."
 
 #: decks/analysis.py
 #, python-format
 msgid "%(count)s Game Changer"
 msgid_plural "%(count)s Game Changers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s Game Changer"
+msgstr[1] "%(count)s Game Changer"
 
 #: decks/analysis.py
 #, python-format
 msgid "Bracket 3 allows up to %(limit)s."
-msgstr ""
+msgstr "Il Bracket 3 ne consente fino a %(limit)s."
 
 #: decks/analysis.py
 #, python-format
 msgid "Bracket 3 allows %(limit)s. This deck reads as Bracket 4: %(cards)s"
 msgstr ""
+"Il Bracket 3 ne consente %(limit)s. Questo deck risulta Bracket 4: %(cards)s"
 
 #: decks/analysis.py simulations/engine/adapter.py
 #: templates/decks/_card_grid.html templates/decks/detail.html
@@ -537,140 +587,140 @@ msgstr ""
 #, python-format
 msgid "%(count)s card"
 msgid_plural "%(count)s cards"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s carta"
+msgstr[1] "%(count)s carte"
 
 #: decks/analysis.py
 #, python-format
 msgid "Commander decks are exactly %(size)s, commander included."
-msgstr ""
+msgstr "I deck Commander hanno esattamente %(size)s carte, comandante incluso."
 
 #: decks/analysis.py
 msgid "Basic lands and cards that say otherwise are exempt."
-msgstr ""
+msgstr "Le terre base e le carte che dicono altrimenti sono escluse."
 
 #: decks/analysis.py
 msgid "Singleton"
-msgstr ""
+msgstr "Singleton"
 
 #: decks/analysis.py
 #, python-format
 msgid "%(count)s card over the limit"
 msgid_plural "%(count)s cards over the limit"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s carta oltre il limite"
+msgstr[1] "%(count)s carte oltre il limite"
 
 #: decks/analysis.py
 #, python-format
 msgid "Over the limit: %(cards)s"
-msgstr ""
+msgstr "Oltre il limite: %(cards)s"
 
 #: decks/analysis.py
 #, python-format
 msgid "The commander's identity is %(colours)s."
-msgstr ""
+msgstr "L'identità del comandante è %(colours)s."
 
 #: decks/analysis.py
 msgid "colourless"
-msgstr ""
+msgstr "incolore"
 
 #: decks/analysis.py
 msgid "Colour identity"
-msgstr ""
+msgstr "Identità di colore"
 
 #: decks/analysis.py
 #, python-format
 msgid "%(count)s card outside the identity"
 msgid_plural "%(count)s cards outside the identity"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s carta fuori dall'identità"
+msgstr[1] "%(count)s carte fuori dall'identità"
 
 #: decks/analysis.py
 #, python-format
 msgid "Outside it: %(cards)s"
-msgstr ""
+msgstr "Fuori: %(cards)s"
 
 #: decks/analysis.py
 msgid "Commander is legal"
-msgstr ""
+msgstr "Il comandante è legale"
 
 #: decks/analysis.py
 msgid "Commander is banned"
-msgstr ""
+msgstr "Il comandante è bandito"
 
 #: decks/analysis.py templates/decks/list.html
 msgid "No commander set"
-msgstr ""
+msgstr "Nessun comandante impostato"
 
 #: decks/analysis.py
 msgid "A Commander deck needs one."
-msgstr ""
+msgstr "Un deck Commander ne ha bisogno."
 
 #: decks/analysis.py
 #, python-format
 msgid "Banned: %(cards)s"
-msgstr ""
+msgstr "Bandite: %(cards)s"
 
 #: decks/analysis.py
 #, python-format
 msgid "Not legal in Commander: %(cards)s"
-msgstr ""
+msgstr "Non legali in Commander: %(cards)s"
 
 #: decks/analysis.py
 msgid "Checked against Scryfall's Commander legality for each card."
-msgstr ""
+msgstr "Verificato con la legalità Commander di Scryfall per ogni carta."
 
 #: decks/analysis.py
 msgid "Every card is legal"
-msgstr ""
+msgstr "Ogni carta è legale"
 
 #: decks/analysis.py
 #, python-format
 msgid "%(count)s card not allowed"
 msgid_plural "%(count)s cards not allowed"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s carta non consentita"
+msgstr[1] "%(count)s carte non consentite"
 
 #: decks/analysis.py
 #, python-format
 msgid "%(cards)s and more"
-msgstr ""
+msgstr "%(cards)s e altre"
 
 #: decks/forms.py templates/decks/_import_form.html
 msgid "Upload a file"
-msgstr ""
+msgstr "Carica un file"
 
 #: decks/forms.py templates/decks/_import_form.html
 msgid "Paste a list"
-msgstr ""
+msgstr "Incolla una lista"
 
 #: decks/forms.py
 msgid "Deck file"
-msgstr ""
+msgstr "File del deck"
 
 #: decks/forms.py
 msgid "Your deck list"
-msgstr ""
+msgstr "La tua lista"
 
 #: decks/forms.py guests/forms.py
 msgid "Deck name"
-msgstr ""
+msgstr "Nome del deck"
 
 #: decks/forms.py
 msgid "Optional - otherwise the deck is named after the file."
-msgstr ""
+msgstr "Facoltativo: altrimenti il deck prende il nome del file."
 
 #: decks/forms.py
 msgid "Format"
-msgstr ""
+msgstr "Formato"
 
 #: decks/forms.py
 msgid "Detect automatically"
-msgstr ""
+msgstr "Rileva automaticamente"
 
 #: decks/forms.py
 msgid "Only needed if the file is not recognised."
-msgstr ""
+msgstr "Serve solo se il file non viene riconosciuto."
 
 #: decks/forms.py
 #, python-format
@@ -678,6 +728,8 @@ msgid ""
 "That file is %(size)s KB. The limit is %(limit)s KB - a deck list is a few "
 "dozen."
 msgstr ""
+"Quel file pesa %(size)s KB. Il limite è %(limit)s KB: una lista ne pesa "
+"qualche decina."
 
 #: decks/forms.py
 #, python-format
@@ -685,88 +737,94 @@ msgid ""
 "That list is %(size)s KB. The limit is %(limit)s KB - a deck list is a few "
 "dozen."
 msgstr ""
+"Quella lista pesa %(size)s KB. Il limite è %(limit)s KB: una lista ne pesa "
+"qualche decina."
 
 #: decks/forms.py
 msgid "Paste your deck list first."
-msgstr ""
+msgstr "Prima incolla la tua lista."
 
 #: decks/forms.py
 msgid "Choose a file first - or paste your list instead."
-msgstr ""
+msgstr "Prima scegli un file, oppure incolla la tua lista."
 
 #: decks/forms.py
 msgid "not in this file"
-msgstr ""
+msgstr "non in questo file"
 
 #: decks/forms.py
 msgid "choose a column"
-msgstr ""
+msgstr "scegli una colonna"
 
 #: decks/forms.py
 #, python-format
 msgid ""
 "Choose which column holds the %(column)s, or say the file has not got one."
 msgstr ""
+"Scegli quale colonna contiene: %(column)s, oppure indica che il file non ce "
+"l'ha."
 
 #: decks/importers/archidekt.py
 msgid "Archidekt CSV (deck or collection export)"
-msgstr ""
+msgstr "CSV di Archidekt (esportazione di deck o collezione)"
 
 #: decks/importers/columns.py
 msgid "quantity"
-msgstr ""
+msgstr "quantità"
 
 #: decks/importers/columns.py
 msgid "card name"
-msgstr ""
+msgstr "nome della carta"
 
 #: decks/importers/columns.py
 msgid "set code"
-msgstr ""
+msgstr "codice dell'espansione"
 
 #: decks/importers/columns.py
 msgid "collector number"
-msgstr ""
+msgstr "numero da collezione"
 
 #: decks/importers/columns.py
 msgid "Scryfall printing id"
-msgstr ""
+msgstr "ID di stampa Scryfall"
 
 #: decks/importers/columns.py
 msgid "finish"
-msgstr ""
+msgstr "finitura"
 
 #: decks/importers/columns.py
 msgid "condition"
-msgstr ""
+msgstr "condizione"
 
 #: decks/importers/columns.py
 msgid "language"
-msgstr ""
+msgstr "lingua"
 
 #: decks/importers/columns.py
 msgid "tags or category"
-msgstr ""
+msgstr "tag o categoria"
 
 #: decks/importers/columns.py
 #, python-format
 msgid "this file has no %(column)s column."
-msgstr ""
+msgstr "questo file non ha la colonna %(column)s."
 
 #: decks/importers/columns.py
 #, python-format
 msgid "Re-export it with %(header)s included."
-msgstr ""
+msgstr "Esportalo di nuovo includendo %(header)s."
 
 #: decks/importers/tabular.py
 msgid "CSV or TSV export (any tool)"
-msgstr ""
+msgstr "Esportazione CSV o TSV (qualsiasi strumento)"
 
 #: decks/importers/tabular.py
 msgid ""
 "Nothing can be read from a file with no card name in it. Re-export it with "
 "the card name included, or map a column to it by hand."
 msgstr ""
+"Da un file senza nomi di carte non si può leggere nulla. Esportalo di nuovo "
+"includendo il nome della carta, oppure assegna a mano una colonna."
 
 #: decks/importers/tabular.py
 msgid ""
@@ -774,6 +832,9 @@ msgid ""
 "single copy, and a 28-Swamp deck would import as a 28-card deck with one "
 "Swamp in it. You can also map the column by hand."
 msgstr ""
+"Esportalo di nuovo con Quantity spuntato: senza, ogni carta verrebbe letta "
+"come una copia sola, e un deck con 28 Swamp verrebbe importato come un deck "
+"da 28 carte con un solo Swamp. Puoi anche assegnare la colonna a mano."
 
 #: decks/importers/tabular.py
 #, python-format
@@ -781,70 +842,76 @@ msgid ""
 "that file has more than %(limit)s card rows. The largest real collection "
 "export is a few thousand, so this is almost certainly not a deck list."
 msgstr ""
+"quel file ha più di %(limit)s righe di carte. La più grande esportazione di "
+"collezione reale ne ha qualche migliaio, quindi quasi certamente non è una "
+"lista di un deck."
 
 #: decks/importers/tabular.py
 #, python-format
 msgid "that file is not valid CSV: %(error)s"
-msgstr ""
+msgstr "quel file non è un CSV valido: %(error)s"
 
 #: decks/importers/tabular.py
 msgid ""
 "that file is not a table - no line in it splits into columns consistently. "
 "If it is a plain list of card names, choose 'Plain text list' as the format."
 msgstr ""
+"quel file non è una tabella: nessuna riga si divide in colonne in modo "
+"coerente. Se è una semplice lista di nomi di carte, scegli “Lista di testo "
+"semplice” come formato."
 
 #: decks/importers/text.py
 msgid "Plain text list (one card per line)"
-msgstr ""
+msgstr "Lista di testo semplice (una carta per riga)"
 
 #: decks/resolve.py
 msgid "matched on the exact printing"
-msgstr ""
+msgstr "trovata con la stampa esatta"
 
 #: decks/resolve.py
 msgid "matched on the card id"
-msgstr ""
+msgstr "trovata con l'ID della carta"
 
 #: decks/resolve.py
 msgid "matched on the exact name"
-msgstr ""
+msgstr "trovata con il nome esatto"
 
 #: decks/resolve.py
 msgid "matched on the name, ignoring accents and punctuation"
-msgstr ""
+msgstr "trovata con il nome, ignorando accenti e punteggiatura"
 
 #: decks/resolve.py
 msgid "not found"
-msgstr ""
+msgstr "non trovata"
 
 #: decks/resolve.py
 msgid "the quantity is more than any collection holds"
-msgstr ""
+msgstr "la quantità supera quella di qualsiasi collezione"
 
 #: decks/resolve.py
 msgid "the row has no card name"
-msgstr ""
+msgstr "la riga non ha un nome di carta"
 
 #: decks/resolve.py
 msgid "no card with this name, and the printing id is not in the catalogue"
-msgstr ""
+msgstr "nessuna carta con questo nome, e l'ID di stampa non è nel catalogo"
 
 #: decks/resolve.py
 msgid "no card with this name in the catalogue"
-msgstr ""
+msgstr "nessuna carta con questo nome nel catalogo"
 
 #: decks/services.py
 #, python-format
 msgid "file is %(size)s KB; the limit is %(limit)s KB"
-msgstr ""
+msgstr "il file pesa %(size)s KB; il limite è %(limit)s KB"
 
 #: decks/services.py
 msgid "that is not a text file - it contains binary data"
-msgstr ""
+msgstr "non è un file di testo: contiene dati binari"
 
 #: decks/services.py
 msgid "could not decode the file as text"
-msgstr ""
+msgstr "impossibile decodificare il file come testo"
 
 #: decks/services.py
 #, python-format
@@ -852,28 +919,32 @@ msgid ""
 "file has about %(rows)s lines; the limit is %(limit)s. That is far more than "
 "a deck or a collection - is it the right file?"
 msgstr ""
+"il file ha circa %(rows)s righe; il limite è %(limit)s. È molto più di un "
+"deck o di una collezione: è il file giusto?"
 
 #: decks/services.py
 msgid "the file contained no card rows"
-msgstr ""
+msgstr "il file non conteneva righe di carte"
 
 #: decks/services.py
 msgid "that deck belongs to someone else"
-msgstr ""
+msgstr "quel deck appartiene a qualcun altro"
 
 #: decks/services.py
 msgid "Imported deck"
-msgstr ""
+msgstr "Deck importato"
 
 #: decks/services.py
 msgid "no parser recognised this file"
-msgstr ""
+msgstr "nessun parser ha riconosciuto questo file"
 
 #: decks/views.py
 msgid ""
 "Choose a column above for each of card name and quantity - or say the file "
 "has not got one - and your own rows will appear here."
 msgstr ""
+"Scegli qui sopra una colonna per il nome della carta e una per la quantità "
+"(oppure indica che il file non ce l'ha) e qui compariranno le tue righe."
 
 #: decks/views.py
 msgid ""
@@ -882,13 +953,18 @@ msgid ""
 "column is which - it takes about thirty seconds and works for any export. "
 "Choose “Plain text list” if it is simply one card name per line."
 msgstr ""
+"Quel file non è stato riconosciuto, quindi non è stato dato nulla per "
+"scontato. Scegli “Esportazione CSV o TSV (qualsiasi strumento)” come formato "
+"e ti verrà chiesto quale colonna è quale: ci vogliono circa trenta secondi e "
+"funziona con qualsiasi esportazione. Scegli “Lista di testo semplice” se è "
+"solo un nome di carta per riga."
 
 #: decks/views.py
 #, python-format
 msgid "Imported %(rows)s row into %(deck)s."
 msgid_plural "Imported %(rows)s rows into %(deck)s."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Importata %(rows)s riga in %(deck)s."
+msgstr[1] "Importate %(rows)s righe in %(deck)s."
 
 #: decks/views.py
 #, python-format
@@ -899,159 +975,168 @@ msgid_plural ""
 "%(missing)s of %(rows)s rows could not be matched. Nothing was dropped - "
 "they are listed below."
 msgstr[0] ""
+"Riga non abbinata: %(missing)s di %(rows)s. Non è stato scartato nulla: è "
+"elencata qui sotto."
 msgstr[1] ""
+"Righe non abbinate: %(missing)s di %(rows)s. Non è stato scartato nulla: "
+"sono elencate qui sotto."
 
 #: decks/views.py
 msgid "That card is not in this deck."
-msgstr ""
+msgstr "Quella carta non è in questo deck."
 
 #: decks/views.py
 #, python-format
 msgid "%(card)s is now the commander."
-msgstr ""
+msgstr "%(card)s ora è il comandante."
 
 #: playtest/services.py
 #, python-format
 msgid "a session holds at most %(limit)s actions; start a new one"
-msgstr ""
+msgstr "una sessione contiene al massimo %(limit)s azioni; iniziane una nuova"
 
 #: playtest/views.py templates/decks/detail.html
 msgid "Lands"
-msgstr ""
+msgstr "Terre"
 
 #: playtest/views.py
 msgid "Mana sources"
-msgstr ""
+msgstr "Fonti di mana"
 
 #: playtest/views.py
 msgid "Permanents"
-msgstr ""
+msgstr "Permanenti"
 
 #: playtest/views.py
 msgid "Draw"
-msgstr ""
+msgstr "Pescata"
 
 #: playtest/views.py
 msgid "Main 1"
-msgstr ""
+msgstr "Principale 1"
 
 #: playtest/views.py
 msgid "Combat"
-msgstr ""
+msgstr "Combattimento"
 
 #: playtest/views.py
 msgid "Main 2"
-msgstr ""
+msgstr "Principale 2"
 
 #: playtest/views.py
 msgid "End"
-msgstr ""
+msgstr "Finale"
 
 #: playtest/views.py
 msgid "Start of turn"
-msgstr ""
+msgstr "Inizio del turno"
 
 #: playtest/views.py
 msgid "Land played"
-msgstr ""
+msgstr "Terra giocata"
 
 #: playtest/views.py
 msgid "Main phase"
-msgstr ""
+msgstr "Fase principale"
 
 #: playtest/views.py
 msgid "Spell cast"
-msgstr ""
+msgstr "Magia lanciata"
 
 #: playtest/views.py
 msgid "Commander cast"
-msgstr ""
+msgstr "Comandante lanciato"
 
 #: playtest/views.py
 msgid "End step"
-msgstr ""
+msgstr "Sottofase finale"
 
 #: playtest/views.py templates/playtest/_board.html
 msgid "Next phase"
-msgstr ""
+msgstr "Fase successiva"
 
 #: playtest/views.py templates/playtest/_board.html
 msgid "Mulligan"
-msgstr ""
+msgstr "Mulligan"
 
 #: playtest/views.py
 msgid "Hand kept"
-msgstr ""
+msgstr "Mano tenuta"
 
 #: playtest/views.py
 msgid "Card drawn"
-msgstr ""
+msgstr "Carta pescata"
 
 #: playtest/views.py
 msgid "Life changed"
-msgstr ""
+msgstr "Punti vita cambiati"
 
 #: playtest/views.py
 msgid "Card moved"
-msgstr ""
+msgstr "Carta spostata"
 
 #: playtest/views.py
 msgid "Permanent tapped"
-msgstr ""
+msgstr "Permanente TAPpato"
 
 #: playtest/views.py
 msgid "There is nothing in this deck to play yet."
-msgstr ""
+msgstr "In questo deck non c'è ancora nulla da giocare."
 
 #: playtest/views.py
 msgid "That is not a game this application deals."
-msgstr ""
+msgstr "Questa non è una partita distribuita da questa applicazione."
 
 #: playtest/views.py
 msgid "Branched. The original is untouched and still in your playtests."
 msgstr ""
+"Diramata. L'originale è intatto ed è ancora tra le tue partite di prova."
 
 #: simulations/annotations.py
 msgid "Draw engine"
-msgstr ""
+msgstr "Motore di pescate"
 
 #: simulations/annotations.py templates/decks/_card_grid.html
 msgid "Game Changer"
-msgstr ""
+msgstr "Game Changer"
 
 #: simulations/annotations.py
 msgid "Recursive creature"
-msgstr ""
+msgstr "Creatura ricorsiva"
 
 #: simulations/annotations.py
 #, python-brace-format
 msgid "{type} (taps for {color})"
-msgstr ""
+msgstr "{type} (TAPpa per {color})"
 
 #: simulations/annotations.py
 msgid "How early to cast it"
-msgstr ""
+msgstr "Quanto presto lanciarla"
 
 #: simulations/annotations.py
 msgid ""
 "Higher goes first. The engine's own rule is 40 minus the mana value, so a "
 "two-drop it has no opinion about sits at 38."
 msgstr ""
+"Più alto va prima. La regola del motore è 40 meno il valore di mana, quindi "
+"una carta da due su cui non ha opinioni sta a 38."
 
 #: simulations/annotations.py simulations/provenance.py
 msgid "Counts as acceleration"
-msgstr ""
+msgstr "Conta come accelerazione"
 
 #: simulations/annotations.py
 msgid ""
 "Whether this card makes a one-land opening hand worth keeping. It changes "
 "the mulligan decision and therefore every number below it."
 msgstr ""
+"Se questa carta rende da tenere una mano iniziale con una sola terra. Cambia "
+"la decisione di mulligan e quindi ogni numero sotto."
 
 #: simulations/annotations.py simulations/blindspots.py
 #: simulations/provenance.py
 msgid "Can be cast against nobody"
-msgstr ""
+msgstr "Si può lanciare senza avversari"
 
 #: simulations/annotations.py
 msgid ""
@@ -1059,31 +1144,38 @@ msgid ""
 "wipe, anything that needs an opponent. The engine will hold it rather than "
 "pretend it did something."
 msgstr ""
+"Rispondi no per una carta senza bersagli legali in una partita vuota: "
+"removal, board wipe, tutto ciò che richiede un avversario. Il motore la "
+"terrà invece di fingere che abbia fatto qualcosa."
 
 #: simulations/annotations.py
 msgid "What the engine treats it as"
-msgstr ""
+msgstr "Come la tratta il motore"
 
 #: simulations/annotations.py
 msgid ""
 "Rituals add their mana when cast; rocks add it when tapped. The type line "
 "cannot always tell the two apart."
 msgstr ""
+"I rituali danno il loro mana quando vengono lanciati; le rock quando vengono "
+"TAPpate. La riga del tipo non sempre permette di distinguerli."
 
 #: simulations/annotations.py simulations/blindspots.py
 #: simulations/provenance.py
 msgid "Taps for"
-msgstr ""
+msgstr "TAPpa per"
 
 #: simulations/annotations.py
 msgid ""
 "Letters for the colours, with a number where it makes more than one: B, 2B, "
 "B C. Write “nothing” for a card that makes no mana the engine can use."
 msgstr ""
+"Lettere per i colori, con un numero dove ne produce più di uno: B, 2B, B C. "
+"Scrivi “nothing” per una carta che non produce mana utilizzabile dal motore."
 
 #: simulations/annotations.py simulations/provenance.py
 msgid "Land types"
-msgstr ""
+msgstr "Tipi di terra"
 
 #: simulations/annotations.py
 msgid ""
@@ -1091,31 +1183,40 @@ msgid ""
 "Coffers counts and what Crypt Ghast doubles — so a land with a type here "
 "taps for that colour whatever “Taps for” says above."
 msgstr ""
+"Ciò che la terra conta come tipo. È ciò per cui TAPpa una terra base, ciò "
+"che conta Cabal Coffers e ciò che raddoppia Crypt Ghast: quindi una terra "
+"con un tipo qui TAPpa per quel colore, qualunque cosa dica “TAPpa per” qui "
+"sopra."
 
 #: simulations/annotations.py simulations/provenance.py
 msgid "Enters tapped"
-msgstr ""
+msgstr "Entra TAPpata"
 
 #: simulations/annotations.py
 msgid ""
 "Read off the card text by a regular expression, which is the weakest reading "
 "this application makes. Worth checking on anything unusual."
 msgstr ""
+"Letto dal testo della carta con un'espressione regolare, la lettura più "
+"debole che fa questa applicazione. Vale la pena controllare per tutto ciò "
+"che è insolito."
 
 #: simulations/annotations.py simulations/blindspots.py
 #: simulations/provenance.py
 msgid "Roles"
-msgstr ""
+msgstr "Ruoli"
 
 #: simulations/annotations.py
 msgid ""
 "What the card does, in the vocabulary the report's milestone table counts. "
 "Replacing them overrides the community tags completely."
 msgstr ""
+"Cosa fa la carta, nel vocabolario contato dalla tabella delle tappe del "
+"report. Sostituirli ignora completamente i tag della community."
 
 #: simulations/annotations.py simulations/provenance.py
 msgid "Costs to tap for mana"
-msgstr ""
+msgstr "Costo per TAPpare per mana"
 
 #: simulations/annotations.py
 #, python-brace-format
@@ -1123,20 +1224,25 @@ msgid ""
 "Generic mana its mana ability costs on top of tapping - the {1} on a Signet. "
 "Write 0 for a card that only has to tap."
 msgstr ""
+"Mana generico che la sua abilità di mana costa oltre a TAPpare: il {1} di un "
+"Signet. Scrivi 0 per una carta che deve solo TAPpare."
 
 #: simulations/annotations.py simulations/provenance.py
 msgid "Untaps every turn"
-msgstr ""
+msgstr "Si STAPpa ogni turno"
 
 #: simulations/annotations.py
 msgid ""
 "Say no for Mana Vault, Grim Monolith and anything else that stays tapped "
 "once it has been used. The engine then takes its mana once, not every turn."
 msgstr ""
+"Rispondi no per Mana Vault, Grim Monolith e qualsiasi cosa resti TAPpata "
+"dopo l'uso. Il motore allora ne prende il mana una volta sola, non ogni "
+"turno."
 
 #: simulations/annotations.py
 msgid "Cards it searches up"
-msgstr ""
+msgstr "Carte che cerca"
 
 #: simulations/annotations.py
 msgid ""
@@ -1145,6 +1251,10 @@ msgid ""
 "card text and is often missing. Write 0 for a card the engine should not "
 "treat as a tutor at all."
 msgstr ""
+"Quante carte trova nel tuo grimorio. I tag della community dicono in quale "
+"zona cerca, ma mai quante, quindi il numero viene letto dal testo della "
+"carta e spesso manca. Scrivi 0 per una carta che il motore non deve trattare "
+"affatto come tutor."
 
 #: simulations/annotations.py
 #, python-format
@@ -1152,15 +1262,18 @@ msgid ""
 "%(letter)s is not a mana colour. Use letters from %(letters)s, or "
 "“%(nothing)s”."
 msgstr ""
+"%(letter)s non è un colore di mana. Usa lettere tra %(letters)s, oppure "
+"“%(nothing)s”."
 
 #: simulations/annotations.py
 #, python-format
 msgid "“%(amount)s” names an amount but no colour. Write 2B rather than 2."
 msgstr ""
+"“%(amount)s” indica una quantità ma nessun colore. Scrivi 2B invece di 2."
 
 #: simulations/blindspots.py
 msgid "Cards that need an opponent"
-msgstr ""
+msgstr "Carte che richiedono un avversario"
 
 #: simulations/blindspots.py
 msgid ""
@@ -1169,18 +1282,22 @@ msgid ""
 "plays considerably better than it simulates — and no number on this page can "
 "tell you by how much."
 msgstr ""
+"Una partita goldfish non ha avversari, quindi ciò a cui queste carte "
+"reagiscono non succede mai. Costano mana e poi non fanno nient'altro. Un "
+"deck costruito attorno a loro gioca molto meglio di come simula, e nessun "
+"numero in questa pagina può dirti di quanto."
 
 #: simulations/blindspots.py
 msgid "triggers on something an opponent does"
-msgstr ""
+msgstr "si innesca su qualcosa che fa un avversario"
 
 #: simulations/blindspots.py
 msgid "part of what it does needs an opponent"
-msgstr ""
+msgstr "parte di ciò che fa richiede un avversario"
 
 #: simulations/blindspots.py
 msgid "Mana sources nobody has pinned down"
-msgstr ""
+msgstr "Fonti di mana che nessuno ha definito"
 
 #: simulations/blindspots.py
 msgid ""
@@ -1189,10 +1306,15 @@ msgid ""
 "engine was told nothing rather than guessing at one — so these cards are "
 "currently making less mana in the simulation than they do on a table."
 msgstr ""
+"Scryfall registra quali colori una carta può produrre, mai quanto o a quale "
+"costo. Dove uno schema non è riuscito a leggere la quantità dal testo della "
+"carta, al motore non è stato detto nulla invece di tirare a indovinare: "
+"quindi queste carte al momento producono meno mana nella simulazione che al "
+"tavolo."
 
 #: simulations/blindspots.py
 msgid "Roles worth a second look"
-msgstr ""
+msgstr "Ruoli da ricontrollare"
 
 #: simulations/blindspots.py
 msgid ""
@@ -1202,80 +1324,85 @@ msgid ""
 "second answers a threat, and the report's milestone table counts them the "
 "same way."
 msgstr ""
+"Il vocabolario dei ruoli viene dalla community di Scryfall Tagger, che è "
+"ampio per scelta: “destroy target creature you control” è archiviato come "
+"removal insieme a “destroy target creature”. Il primo è un pezzo del motore "
+"e il secondo risponde a una minaccia, e la tabella delle tappe del report li "
+"conta allo stesso modo."
 
 #: simulations/blindspots.py
 msgid "tagged as removal, but it destroys something you control"
-msgstr ""
+msgstr "segnata come removal, ma distrugge qualcosa che controlli"
 
 #: simulations/engine/adapter.py
 msgid "no cost"
-msgstr ""
+msgstr "nessun costo"
 
 #: simulations/engine/adapter.py
 msgid "nothing"
-msgstr ""
+msgstr "niente"
 
 #: simulations/engine/adapter.py
 #, python-format
 msgid "%(count)s × %(kind)s"
-msgstr ""
+msgstr "%(count)s × %(kind)s"
 
 #: simulations/engine/adapter.py
 #, python-format
 msgid "%(what)s to hand"
-msgstr ""
+msgstr "%(what)s in mano"
 
 #: simulations/engine/adapter.py
 #, python-format
 msgid "%(what)s to the graveyard"
-msgstr ""
+msgstr "%(what)s nel cimitero"
 
 #: simulations/engine/adapter.py
 #, python-format
 msgid "%(search)s, paying %(life)s life"
-msgstr ""
+msgstr "%(search)s, pagando %(life)s punti vita"
 
 #: simulations/engine/adapter.py simulations/provenance.py
 msgid "yes"
-msgstr ""
+msgstr "sì"
 
 #: simulations/engine/adapter.py simulations/provenance.py
 msgid "no"
-msgstr ""
+msgstr "no"
 
 #: simulations/engine/adapter.py
 #, python-format
 msgid "1 %(color)s (as a basic land)"
-msgstr ""
+msgstr "1 %(color)s (come una terra base)"
 
 #: simulations/engine/adapter.py
 #, python-format
 msgid "%(mana)s - once, then it stays tapped"
-msgstr ""
+msgstr "%(mana)s: una volta, poi resta TAPpata"
 
 #: simulations/engine/adapter.py
 msgid "nothing beyond tapping"
-msgstr ""
+msgstr "nulla oltre a TAPpare"
 
 #: simulations/engine/adapter.py
 #, python-format
 msgid "one %(color)s for each %(subtype)s you control"
-msgstr ""
+msgstr "un %(color)s per ogni %(subtype)s che controlli"
 
 #: simulations/engine/adapter.py
 #, python-format
 msgid "one extra %(color)s whenever a %(subtype)s is tapped"
-msgstr ""
+msgstr "un %(color)s in più ogni volta che un %(subtype)s viene TAPpato"
 
 #: simulations/engine/adapter.py
 #, python-format
 msgid "makes every land a %(subtype)s"
-msgstr ""
+msgstr "rende ogni terra un %(subtype)s"
 
 #: simulations/engine/adapter.py
 #, python-format
 msgid "for %(cost)s, %(mana)s"
-msgstr ""
+msgstr "per %(cost)s, %(mana)s"
 
 #: simulations/engine/adapter.py
 #, python-format
@@ -1283,67 +1410,69 @@ msgid ""
 "makes one of %(colors)s; the engine cannot hold a choice and reads it as "
 "%(color)s"
 msgstr ""
+"produce uno tra %(colors)s; il motore non può tenere una scelta e lo legge "
+"come %(color)s"
 
 #: simulations/engine/adapter.py
 msgid "no one said how early to cast it; the default rule applies"
-msgstr ""
+msgstr "nessuno ha detto quanto presto lanciarla; vale la regola predefinita"
 
 #: simulations/engine/adapter.py
 msgid "makes mana, but how much could not be read"
-msgstr ""
+msgstr "produce mana, ma non si è potuto leggere quanto"
 
 #: simulations/engine/adapter.py
 msgid "a land that taps for nothing the engine can see"
-msgstr ""
+msgstr "una terra che TAPpa per niente che il motore possa vedere"
 
 #: simulations/forms.py
 #, python-format
 msgid "%(games)s games - quick look"
-msgstr ""
+msgstr "%(games)s partite: uno sguardo veloce"
 
 #: simulations/forms.py
 #, python-format
 msgid "%(games)s games - the usual answer"
-msgstr ""
+msgstr "%(games)s partite: la risposta abituale"
 
 #: simulations/forms.py
 #, python-format
 msgid "%(games)s games - for small differences"
-msgstr ""
+msgstr "%(games)s partite: per le piccole differenze"
 
 #: simulations/forms.py
 #, python-format
 msgid "%(games)s game"
 msgid_plural "%(games)s games"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(games)s partita"
+msgstr[1] "%(games)s partite"
 
 #: simulations/forms.py
 #, python-format
 msgid "%(turns)s turn"
 msgid_plural "%(turns)s turns"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(turns)s turno"
+msgstr[1] "%(turns)s turni"
 
 #: simulations/forms.py templates/simulations/_report.html
 msgid "Games"
-msgstr ""
+msgstr "Partite"
 
 #: simulations/forms.py
 msgid "Turns per game"
-msgstr ""
+msgstr "Turni per partita"
 
 #: simulations/forms.py
 msgid "Multiplayer - everyone draws on turn one"
-msgstr ""
+msgstr "Multigiocatore: tutti pescano al primo turno"
 
 #: simulations/forms.py
 msgid "1-v-1 - you start and skip your first draw"
-msgstr ""
+msgstr "1 contro 1: inizi tu e salti la prima pescata"
 
 #: simulations/forms.py
 msgid "First draw"
-msgstr ""
+msgstr "Prima pescata"
 
 #: simulations/forms.py
 msgid ""
@@ -1351,40 +1480,45 @@ msgid ""
 "(Comprehensive Rules 103.8c). Only a two-player game makes the starting "
 "player skip it."
 msgstr ""
+"In una partita Commander multigiocatore nessuno salta la pescata del primo "
+"turno (Regole Complete 103.8c). Solo in una partita a due il giocatore che "
+"inizia la salta."
 
 #: simulations/forms.py
 msgid "This deck only"
-msgstr ""
+msgstr "Solo questo deck"
 
 #: simulations/forms.py
 msgid "All of my decks"
-msgstr ""
+msgstr "Tutti i miei deck"
 
 #: simulations/forms.py
 msgid "Nobody has said"
-msgstr ""
+msgstr "Nessuno l'ha detto"
 
 #: simulations/forms.py
 msgid "Yes"
-msgstr ""
+msgstr "Sì"
 
 #: simulations/forms.py
 msgid "No"
-msgstr ""
+msgstr "No"
 
 #: simulations/forms.py
 msgid "Applies to"
-msgstr ""
+msgstr "Vale per"
 
 #: simulations/forms.py
 msgid ""
 "A deck-scoped judgement wins over one you set for every deck, which wins "
 "over the application's own default."
 msgstr ""
+"Un giudizio per un singolo deck prevale su uno impostato per tutti i deck, "
+"che a sua volta prevale sul valore predefinito dell'applicazione."
 
 #: simulations/forms.py
 msgid "Replace the roles below"
-msgstr ""
+msgstr "Sostituisci i ruoli qui sotto"
 
 #: simulations/forms.py
 msgid ""
@@ -1392,10 +1526,13 @@ msgid ""
 "below becomes the complete list - including an empty one, which is how you "
 "say a card has no role at all."
 msgstr ""
+"Lascialo così per mantenere i ruoli della community. Spuntalo e la selezione "
+"qui sotto diventa la lista completa, anche vuota: così dici che una carta "
+"non ha alcun ruolo."
 
 #: simulations/forms.py
 msgid "Replace the land types below"
-msgstr ""
+msgstr "Sostituisci i tipi di terra qui sotto"
 
 #: simulations/forms.py
 msgid ""
@@ -1403,443 +1540,482 @@ msgid ""
 "it to state the complete list. Ticking it with nothing selected is how you "
 "stop a land tapping for a colour at all."
 msgstr ""
+"Stessa regola dei ruoli: lascialo così per mantenere ciò che dice la riga "
+"del tipo, spuntalo per indicare la lista completa. Spuntarlo senza "
+"selezionare nulla è il modo per far sì che una terra non TAPpi più per alcun "
+"colore."
 
 #: simulations/forms.py
 msgid "Why"
-msgstr ""
+msgstr "Perché"
 
 #: simulations/forms.py
 msgid "Shown beside the value on the provenance panel. Optional, and worth it."
 msgstr ""
+"Mostrato accanto al valore nel pannello di provenienza. Facoltativo, ma ne "
+"vale la pena."
 
 #: simulations/models.py
 msgid "Pending"
-msgstr ""
+msgstr "In attesa"
 
 #: simulations/models.py
 msgid "Running"
-msgstr ""
+msgstr "In corso"
 
 #: simulations/models.py
 msgid "Done"
-msgstr ""
+msgstr "Completata"
 
 #: simulations/models.py templates/simulations/_progress.html
 msgid "Failed"
-msgstr ""
+msgstr "Non riuscita"
 
 #: simulations/models.py templates/simulations/_progress.html
 msgid "Cancelled"
-msgstr ""
+msgstr "Annullata"
 
 #: simulations/models.py
 msgid "Being written"
-msgstr ""
+msgstr "In scrittura"
 
 #: simulations/models.py
 msgid "Written"
-msgstr ""
+msgstr "Scritto"
 
 #: simulations/models.py
 msgid "Could not be written"
-msgstr ""
+msgstr "Non è stato possibile scriverlo"
 
 #: simulations/provenance.py
 msgid "Scryfall field"
-msgstr ""
+msgstr "Campo di Scryfall"
 
 #: simulations/provenance.py
 msgid ""
 "Structured data straight off the card. As close to ground truth as this "
 "application gets."
 msgstr ""
+"Dati strutturati presi direttamente dalla carta. Il dato più vicino alla "
+"verità che questa applicazione abbia."
 
 #: simulations/provenance.py
 msgid "Community tagger"
-msgstr ""
+msgstr "Tagger della community"
 
 #: simulations/provenance.py
 msgid ""
 "Rolled up from the Scryfall Tagger project. Community-maintained, "
 "deliberately broad, and occasionally an opinion rather than a fact."
 msgstr ""
+"Raccolto dal progetto Scryfall Tagger. Curato dalla community, volutamente "
+"ampio e talvolta un'opinione più che un fatto."
 
 #: simulations/provenance.py
 msgid "Read from the card text"
-msgstr ""
+msgstr "Letto dal testo della carta"
 
 #: simulations/provenance.py
 msgid ""
 "A pattern matched against English prose. The weakest reading this "
 "application makes, and the one most worth checking."
 msgstr ""
+"Uno schema confrontato con la prosa inglese. La lettura più debole che fa "
+"questa applicazione, e quella che più vale la pena controllare."
 
 #: simulations/provenance.py
 msgid "Built in"
-msgstr ""
+msgstr "Predefinito"
 
 #: simulations/provenance.py
 msgid "A default that ships with the application and applies to every deck."
 msgstr ""
+"Un valore predefinito incluso nell'applicazione, che vale per ogni deck."
 
 #: simulations/provenance.py
 msgid "You, for all your decks"
-msgstr ""
+msgstr "Tu, per tutti i tuoi deck"
 
 #: simulations/provenance.py
 msgid "A judgement you recorded."
-msgstr ""
+msgstr "Un giudizio che hai registrato."
 
 #: simulations/provenance.py
 msgid "You, for this deck"
-msgstr ""
+msgstr "Tu, per questo deck"
 
 #: simulations/provenance.py
 msgid "A judgement you recorded for this deck only."
-msgstr ""
+msgstr "Un giudizio che hai registrato solo per questo deck."
 
 #: simulations/provenance.py
 msgid "Nobody — the engine's own rule"
-msgstr ""
+msgstr "Nessuno: la regola del motore"
 
 #: simulations/provenance.py
 msgid ""
 "No one said, so the engine's fallback applies. Worth a look if the card "
 "matters to how the deck plays."
 msgstr ""
+"Nessuno l'ha detto, quindi vale la regola di ripiego del motore. Vale "
+"un'occhiata se la carta conta per come gioca il deck."
 
 #: simulations/provenance.py
 msgid "Mana cost"
-msgstr ""
+msgstr "Costo di mana"
 
 #: simulations/provenance.py
 msgid "Engine treats it as"
-msgstr ""
+msgstr "Il motore la tratta come"
 
 #: simulations/provenance.py
 msgid "Searches your library for"
-msgstr ""
+msgstr "Cerca nel tuo grimorio"
 
 #: simulations/provenance.py
 msgid "Skips the draw step"
-msgstr ""
+msgstr "Salta la sottofase di pescata"
 
 #: simulations/provenance.py
 msgid "Cast priority"
-msgstr ""
+msgstr "Priorità di lancio"
 
 #: simulations/provenance.py
 msgid "none"
-msgstr ""
+msgstr "nessuno"
 
 #: simulations/provenance.py
 msgid "not set"
-msgstr ""
+msgstr "non impostato"
 
 #: simulations/report.py
 msgid "White"
-msgstr ""
+msgstr "Bianco"
 
 #: simulations/report.py
 msgid "Blue"
-msgstr ""
+msgstr "Blu"
 
 #: simulations/report.py
 msgid "Black"
-msgstr ""
+msgstr "Nero"
 
 #: simulations/report.py
 msgid "Red"
-msgstr ""
+msgstr "Rosso"
 
 #: simulations/report.py
 msgid "Green"
-msgstr ""
+msgstr "Verde"
 
 #: simulations/report.py
 msgid "Colourless"
-msgstr ""
+msgstr "Incolore"
 
 #: simulations/report.py
 msgid "Battle"
-msgstr ""
+msgstr "Battaglia"
 
 #: simulations/report.py
 msgid "Commander on the battlefield"
-msgstr ""
+msgstr "Comandante sul campo di battaglia"
 
 #: simulations/report.py
 msgid "A card-advantage engine in play"
-msgstr ""
+msgstr "Un motore di vantaggio carte in gioco"
 
 #: simulations/report.py
 msgid "Two or more scaling mana sources"
-msgstr ""
+msgstr "Due o più fonti di mana che crescono"
 
 #: simulations/report.py
 msgid "A sacrifice outlet in play"
-msgstr ""
+msgstr "Un outlet di sacrificio in gioco"
 
 #: simulations/report.py
 msgid "A recursive creature in play"
-msgstr ""
+msgstr "Una creatura ricorsiva in gioco"
 
 #: simulations/report.py
 msgid "Sacrifice outlet and recursion together"
-msgstr ""
+msgstr "Outlet di sacrificio e ricorsione insieme"
 
 #: simulations/report.py
 msgid "A drain payoff in play"
-msgstr ""
+msgstr "Un payoff di drain in gioco"
 
 #: simulations/report.py
 msgid "Trading the draw step for cards"
-msgstr ""
+msgstr "Scambiare la pescata con carte"
 
 #: simulations/report.py
 msgid "A mana source that made more than it cost"
-msgstr ""
+msgstr "Una fonte di mana che ha prodotto più di quanto è costata"
 
 #: simulations/report.py
 msgid "Your commander has been cast and is on the battlefield."
-msgstr ""
+msgstr "Il tuo comandante è stato lanciato ed è sul campo di battaglia."
 
 #: simulations/report.py
 msgid "A permanent that keeps drawing you cards, such as Phyrexian Arena."
 msgstr ""
+"Un permanente che continua a farti pescare carte, come Phyrexian Arena."
 
 #: simulations/report.py
 msgid ""
 "Two mana sources that make more as your board grows, such as Cabal Coffers "
 "and Crypt Ghast."
 msgstr ""
+"Due fonti di mana che producono di più man mano che il tuo campo cresce, "
+"come Cabal Coffers e Crypt Ghast."
 
 #: simulations/report.py
 msgid "A permanent that lets you sacrifice creatures again and again."
-msgstr ""
+msgstr "Un permanente che ti permette di sacrificare creature più e più volte."
 
 #: simulations/report.py
 msgid "A creature that comes back from your graveyard by itself."
-msgstr ""
+msgstr "Una creatura che torna da sola dal tuo cimitero."
 
 #: simulations/report.py
 msgid "A sacrifice outlet and a recursive creature at once: a loop."
-msgstr ""
+msgstr "Un outlet di sacrificio e una creatura ricorsiva insieme: un loop."
 
 #: simulations/report.py
 msgid "A permanent that makes your opponents lose life when something happens."
 msgstr ""
+"Un permanente che fa perdere punti vita ai tuoi avversari quando succede "
+"qualcosa."
 
 #: simulations/report.py
 msgid ""
 "A card that trades your draw step for something better, such as Necropotence."
 msgstr ""
+"Una carta che scambia la tua pescata con qualcosa di meglio, come "
+"Necropotence."
 
 #: simulations/report.py
 msgid "An artifact that made more mana than it cost, such as Sol Ring."
 msgstr ""
+"Un artefatto che ha prodotto più mana di quanto è costato, come Sol Ring."
 
 #: simulations/report.py
 #, python-format
 msgid "Half your games get there by turn %(turn)s."
-msgstr ""
+msgstr "Metà delle tue partite ci arriva entro il turno %(turn)s."
 
 #: simulations/report.py
 #, python-format
 msgid "Half your games have one by turn %(turn)s."
-msgstr ""
+msgstr "Metà delle tue partite ne ha uno entro il turno %(turn)s."
 
 #: simulations/report.py
 #, python-format
 msgid "Fewer than half your games get there by turn %(turn)s."
-msgstr ""
+msgstr "Meno della metà delle tue partite ci arriva entro il turno %(turn)s."
 
 #: simulations/report.py
 #, python-format
 msgid "Fewer than half your games have one by turn %(turn)s."
-msgstr ""
+msgstr "Meno della metà delle tue partite ne ha uno entro il turno %(turn)s."
 
 #: simulations/report.py
 #, python-format
 msgid "On average %(mean)s drawn by turn %(turn)s."
-msgstr ""
+msgstr "In media %(mean)s pescate entro il turno %(turn)s."
 
 #: simulations/report.py
 msgid "Ramp"
-msgstr ""
+msgstr "Ramp"
 
 #: simulations/report.py
 msgid "Card draw"
-msgstr ""
+msgstr "Pescate"
 
 #: simulations/report.py
 msgid "Removal"
-msgstr ""
+msgstr "Removal"
 
 #: simulations/report.py
 msgid "Board wipe"
-msgstr ""
+msgstr "Board wipe"
 
 #: simulations/report.py
 msgid "Tutor"
-msgstr ""
+msgstr "Tutor"
 
 #: simulations/report.py
 msgid "Counterspell"
-msgstr ""
+msgstr "Counterspell"
 
 #: simulations/report.py
 msgid "Protection"
-msgstr ""
+msgstr "Protezione"
 
 #: simulations/report.py
 msgid "Recursion"
-msgstr ""
+msgstr "Ricorsione"
 
 #: simulations/report.py
 msgid ""
 "More mana, now or on later turns: mana rocks, mana creatures, extra lands, "
 "rituals."
 msgstr ""
+"Più mana, subito o nei turni successivi: mana rock, creature di mana, terre "
+"extra, rituali."
 
 #: simulations/report.py
 msgid "Cards that draw you cards."
-msgstr ""
+msgstr "Carte che ti fanno pescare carte."
 
 #: simulations/report.py
 msgid ""
 "Gets something off the table: destroy, exile, bounce, damage. Board wipes "
 "count too."
 msgstr ""
+"Toglie qualcosa dal tavolo: distruzione, esilio, rimbalzo, danno. Contano "
+"anche i board wipe."
 
 #: simulations/report.py
 msgid "Removes many things at once."
-msgstr ""
+msgstr "Rimuove molte cose in una volta."
 
 #: simulations/report.py
 msgid "Searches your library for a card."
-msgstr ""
+msgstr "Cerca una carta nel tuo grimorio."
 
 #: simulations/report.py
 msgid "Counters a spell."
-msgstr ""
+msgstr "Neutralizza una magia."
 
 #: simulations/report.py
 msgid "Keeps your permanents alive: hexproof, indestructible, phasing …"
 msgstr ""
+"Mantiene in vita i tuoi permanenti: anti-malocchio, indistruttibile, "
+"intermittenza …"
 
 #: simulations/report.py
 msgid ""
 "Gets cards back from your graveyard: to your hand, the battlefield or your "
 "library."
 msgstr ""
+"Recupera carte dal tuo cimitero: in mano, sul campo di battaglia o nel "
+"grimorio."
 
 #: simulations/report.py
 msgid "Sacrifice outlet"
-msgstr ""
+msgstr "Outlet di sacrificio"
 
 #: simulations/report.py
 msgid "Reanimate"
-msgstr ""
+msgstr "Rianimazione"
 
 #: simulations/report.py
 msgid "Drain"
-msgstr ""
+msgstr "Drain"
 
 #: simulations/report.py
 msgid "Theft"
-msgstr ""
+msgstr "Furto"
 
 #: simulations/report.py
 msgid "Discard"
-msgstr ""
+msgstr "Scarto"
 
 #: simulations/report.py
 msgid "Cost reducer"
-msgstr ""
+msgstr "Riduttore di costo"
 
 #: simulations/report.py
 msgid "Evasion"
-msgstr ""
+msgstr "Evasione"
 
 #: simulations/report.py
 msgid ""
 "Lets you sacrifice your own permanents again and again: an engine, not a one-"
 "off."
 msgstr ""
+"Ti permette di sacrificare i tuoi permanenti più e più volte: un motore, non "
+"un effetto singolo."
 
 #: simulations/report.py
 msgid "Puts creature cards from a graveyard onto the battlefield."
-msgstr ""
+msgstr "Mette carte creatura da un cimitero sul campo di battaglia."
 
 #: simulations/report.py
 msgid "Opponents lose life and you gain it."
-msgstr ""
+msgstr "Gli avversari perdono punti vita e tu li guadagni."
 
 #: simulations/report.py
 msgid "Takes control of something an opponent owns, or plays their cards."
 msgstr ""
+"Prende il controllo di qualcosa di un avversario, o gioca le sue carte."
 
 #: simulations/report.py
 msgid "Makes a player discard cards."
-msgstr ""
+msgstr "Fa scartare carte a un giocatore."
 
 #: simulations/report.py
 msgid "Makes your spells cheaper to cast."
-msgstr ""
+msgstr "Rende più economico lanciare le tue magie."
 
 #: simulations/report.py
 msgid "Helps your creatures get past blockers: flying, menace, unblockable …"
 msgstr ""
+"Aiuta le tue creature a superare i bloccanti: volare, minacciare, non "
+"bloccabile …"
 
 #: simulations/report.py
 msgid "Creature cards, artifact and enchantment creatures included."
-msgstr ""
+msgstr "Carte creatura, incluse le creature artefatto e incantesimo."
 
 #: simulations/report.py
 msgid "Planeswalker cards."
-msgstr ""
+msgstr "Carte planeswalker."
 
 #: simulations/report.py
 msgid "Battle cards."
-msgstr ""
+msgstr "Carte battaglia."
 
 #: simulations/report.py
 msgid "Artifact cards: mana rocks, equipment, artifact creatures."
-msgstr ""
+msgstr "Carte artefatto: mana rock, equipaggiamenti, creature artefatto."
 
 #: simulations/report.py
 msgid "Enchantment cards, auras and enchantment creatures included."
-msgstr ""
+msgstr "Carte incantesimo, incluse aure e creature incantesimo."
 
 #: simulations/report.py
 msgid "Instants: spells you can cast at any time."
-msgstr ""
+msgstr "Istantanei: magie che puoi lanciare in qualsiasi momento."
 
 #: simulations/report.py
 msgid "Sorceries: spells for your own main phase."
-msgstr ""
+msgstr "Stregonerie: magie per la tua fase principale."
 
 #: simulations/report.py
 msgid "Lands, basic and nonbasic."
-msgstr ""
+msgstr "Terre, base e non base."
 
 #: simulations/report.py
 msgid "Kept the first seven"
-msgstr ""
+msgstr "Tenute le prime sette"
 
 #: simulations/report.py
 #, python-format
 msgid "%(count)s mulligan (keep %(kept)s)"
 msgid_plural "%(count)s mulligans (keep %(kept)s)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s mulligan (ne tieni %(kept)s)"
+msgstr[1] "%(count)s mulligan (ne tieni %(kept)s)"
 
 #: simulations/services.py
 msgid ""
 "A lot of people are trying Goldfish Lab right now. Try again in a minute - "
 "or save your deck with a free account, which does not wait for guests."
 msgstr ""
+"In questo momento molte persone stanno provando Goldfish Lab. Riprova tra un "
+"minuto, oppure salva il tuo deck con un account gratuito, che non deve "
+"aspettare come gli ospiti."
 
 #: simulations/services.py
 #, python-format
@@ -1850,15 +2026,19 @@ msgid_plural ""
 "You already have %(count)s simulations running. Wait for one to finish, or "
 "cancel it."
 msgstr[0] ""
+"Hai già %(count)s simulazione in corso. Aspetta che finisca, oppure "
+"annullala."
 msgstr[1] ""
+"Hai già %(count)s simulazioni in corso. Aspetta che una finisca, oppure "
+"annullala."
 
 #: simulations/services.py
 msgid "A run needs at least one game."
-msgstr ""
+msgstr "Una simulazione richiede almeno una partita."
 
 #: simulations/services.py
 msgid "A run needs at least one turn."
-msgstr ""
+msgstr "Una simulazione richiede almeno un turno."
 
 #: simulations/services.py
 #, python-format
@@ -1867,7 +2047,11 @@ msgid ""
 msgid_plural ""
 "Your plan allows at most %(limit)s games per run; you asked for %(value)s."
 msgstr[0] ""
+"Il tuo piano consente al massimo %(limit)s partita per simulazione; ne hai "
+"chieste %(value)s."
 msgstr[1] ""
+"Il tuo piano consente al massimo %(limit)s partite per simulazione; ne hai "
+"chieste %(value)s."
 
 #: simulations/services.py
 #, python-format
@@ -1876,51 +2060,57 @@ msgid ""
 msgid_plural ""
 "Your plan allows at most %(limit)s turns per run; you asked for %(value)s."
 msgstr[0] ""
+"Il tuo piano consente al massimo %(limit)s turno per simulazione; ne hai "
+"chiesti %(value)s."
 msgstr[1] ""
+"Il tuo piano consente al massimo %(limit)s turni per simulazione; ne hai "
+"chiesti %(value)s."
 
 #: simulations/services.py
 msgid "Simulations are unavailable at the moment. Please try again shortly."
-msgstr ""
+msgstr "Le simulazioni al momento non sono disponibili. Riprova tra poco."
 
 #: simulations/strategies.py
 #, python-format
 msgid "over %(percent)s"
-msgstr ""
+msgstr "oltre %(percent)s"
 
 #: simulations/views.py
 msgid "That is not a size this application runs."
-msgstr ""
+msgstr "Questa non è una dimensione che questa applicazione esegue."
 
 #: simulations/views.py
 msgid "There is nothing in this deck to simulate yet."
-msgstr ""
+msgstr "In questo deck non c'è ancora nulla da simulare."
 
 #: simulations/views.py
 msgid "Deck summaries are on again."
-msgstr ""
+msgstr "I riassunti del deck sono di nuovo attivi."
 
 #: simulations/views.py
 msgid "Deck summaries are off. Switch them on again on Your plan."
-msgstr ""
+msgstr "I riassunti del deck sono disattivati. Riattivali in Il tuo piano."
 
 #: simulations/views.py
 msgid ""
 "Cancelling. The chunk already in flight finishes first, so this takes a few "
 "seconds."
 msgstr ""
+"Annullamento in corso. Il blocco già avviato finisce prima, quindi ci vuole "
+"qualche secondo."
 
 #: simulations/views.py
 msgid "That run had already finished."
-msgstr ""
+msgstr "Quella simulazione era già finita."
 
 #: simulations/views.py
 msgid "Ready. Every card the engine could not read has an answer."
-msgstr ""
+msgstr "Pronto. Ogni carta che il motore non sapeva leggere ha una risposta."
 
 #: simulations/views.py
 #, python-format
 msgid "Noted: %(card)s looks right to you."
-msgstr ""
+msgstr "Annotato: per te %(card)s è corretta."
 
 #: simulations/views.py
 #, python-format
@@ -1928,94 +2118,102 @@ msgid ""
 "Saved. %(card)s will be read that way from the next run onwards — this one "
 "does not change a result that has already been computed."
 msgstr ""
+"Salvato. %(card)s verrà letta così dalla prossima simulazione in poi: questa "
+"non cambia un risultato già calcolato."
 
 #: simulations/views.py
 #, python-format
 msgid "Removed. %(card)s is back to what the card data says."
-msgstr ""
+msgstr "Rimosso. %(card)s torna a ciò che dicono i dati della carta."
 
 #: simulations/views.py
 msgid "There was nothing recorded for that card."
-msgstr ""
+msgstr "Per quella carta non c'era nulla di registrato."
 
 #: templates/403.html
 msgid "Not yours"
-msgstr ""
+msgstr "Non è tuo"
 
 #: templates/403.html
 msgid "This page belongs to another account."
-msgstr ""
+msgstr "Questa pagina appartiene a un altro account."
 
 #: templates/403.html
 msgid "That is not yours to open"
-msgstr ""
+msgstr "Non sta a te aprirlo"
 
 #: templates/403.html
 msgid ""
 "This account is not allowed to see that page. If you have more than one "
 "account, you may be signed in as the other one."
 msgstr ""
+"Questo account non può vedere quella pagina. Se hai più di un account, forse "
+"hai effettuato l'accesso con l'altro."
 
 #: templates/403.html templates/404.html templates/429.html templates/500.html
 msgid "Back to the start"
-msgstr ""
+msgstr "Torna all'inizio"
 
 #: templates/404.html
 msgid "Not found"
-msgstr ""
+msgstr "Non trovato"
 
 #: templates/404.html
 msgid "There is no page at this address."
-msgstr ""
+msgstr "A questo indirizzo non c'è nessuna pagina."
 
 #: templates/404.html
 msgid "Nothing here"
-msgstr ""
+msgstr "Qui non c'è niente"
 
 #: templates/404.html
 msgid ""
 "There is no page at this address. The link may be old, or the deck behind it "
 "was deleted."
 msgstr ""
+"A questo indirizzo non c'è nessuna pagina. Il link potrebbe essere vecchio, "
+"oppure il deck a cui portava è stato eliminato."
 
 #: templates/429.html
 msgid "Too many requests"
-msgstr ""
+msgstr "Troppe richieste"
 
 #: templates/429.html
 msgid "This account or address has made too many requests in a short time."
-msgstr ""
+msgstr "Questo account o indirizzo ha fatto troppe richieste in poco tempo."
 
 #: templates/429.html
 msgid "One moment"
-msgstr ""
+msgstr "Un momento"
 
 #: templates/429.html
 msgid ""
 "That came through faster than this site accepts. Nothing was lost and "
 "nothing was charged — wait about a minute and try again."
 msgstr ""
+"È arrivato più in fretta di quanto questo sito accetti. Non si è perso nulla "
+"e non è stato addebitato nulla: aspetta circa un minuto e riprova."
 
 #: templates/429.html
 msgid ""
 "Seeing this while doing something ordinary? That is a bug worth reporting."
-msgstr ""
+msgstr "Lo vedi mentre fai qualcosa di normale? Allora è un bug da segnalare."
 
 #: templates/500.html
 msgid "Something went wrong"
-msgstr ""
+msgstr "Qualcosa è andato storto"
 
 #: templates/500.html
 msgid "That is our fault, not yours. Try again in a moment."
-msgstr ""
+msgstr "È colpa nostra, non tua. Riprova tra un momento."
 
 #: templates/account/email/account_already_exists_message.html
 msgid "There already is a Goldfish Lab account for this email."
-msgstr ""
+msgstr "Esiste già un account Goldfish Lab per questa email."
 
 #: templates/account/email/account_already_exists_message.html
 msgid "You already have an account"
-msgstr ""
+msgstr "Hai già un account"
 
 #: templates/account/email/account_already_exists_message.html
 #, python-format
@@ -2023,20 +2221,22 @@ msgid ""
 "Someone - probably you - tried to create a Goldfish Lab account with "
 "<strong>%(email)s</strong>. There already is one with this address."
 msgstr ""
+"Qualcuno, probabilmente tu, ha provato a creare un account Goldfish Lab con "
+"<strong>%(email)s</strong>. Ne esiste già uno con questo indirizzo."
 
 #: templates/account/email/account_already_exists_message.html
 #: templates/account/email/account_already_exists_message.txt
 msgid "Forgot your password? Choose a new one:"
-msgstr ""
+msgstr "Hai dimenticato la password? Scegline una nuova:"
 
 #: templates/account/email/account_already_exists_message.html
 msgid "Reset my password"
-msgstr ""
+msgstr "Reimposta la mia password"
 
 #: templates/account/email/account_already_exists_message.html
 #: templates/account/email/account_already_exists_message.txt
 msgid "Wasn't you? Ignore this mail - nothing has changed."
-msgstr ""
+msgstr "Non sei stato tu? Ignora questa email: non è cambiato nulla."
 
 #: templates/account/email/account_already_exists_message.txt
 #, python-format
@@ -2044,28 +2244,30 @@ msgid ""
 "Someone - probably you - tried to create a Goldfish Lab account with "
 "%(email)s. There already is one with this address."
 msgstr ""
+"Qualcuno, probabilmente tu, ha provato a creare un account Goldfish Lab con "
+"%(email)s. Ne esiste già uno con questo indirizzo."
 
 #: templates/account/email/account_already_exists_subject.txt
 msgid "You already have a Goldfish Lab account"
-msgstr ""
+msgstr "Hai già un account Goldfish Lab"
 
 #: templates/account/email/base_message.html
 msgid "A mail from Goldfish Lab"
-msgstr ""
+msgstr "Un'email di Goldfish Lab"
 
 #: templates/account/email/base_message.html templates/base.html
 msgid "Legal notice"
-msgstr ""
+msgstr "Note legali"
 
 #: templates/account/email/base_message.html templates/base.html
 #: templates/guests/try.html
 msgid "Privacy"
-msgstr ""
+msgstr "Privacy"
 
 #: templates/account/email/base_notification.html
 #: templates/account/email/base_notification.txt
 msgid "If that was you, there's nothing to do."
-msgstr ""
+msgstr "Se sei stato tu, non devi fare nulla."
 
 #: templates/account/email/base_notification.html
 #, python-format
@@ -2074,6 +2276,9 @@ msgid ""
 "password</a> right away and write to us at <a href=\"mailto:%(address)s\" "
 "style=\"color:#86231d;\">%(address)s</a>."
 msgstr ""
+"Se non sei stato tu, <a href=\"%(url)s\" style=\"color:#86231d;\">scegli "
+"subito una nuova password</a> e scrivici a <a href=\"mailto:%(address)s\" "
+"style=\"color:#86231d;\">%(address)s</a>."
 
 #: templates/account/email/base_notification.html
 #, python-format
@@ -2081,47 +2286,49 @@ msgid ""
 "If it wasn't you, <a href=\"%(url)s\" style=\"color:#86231d;\">choose a new "
 "password</a> right away."
 msgstr ""
+"Se non sei stato tu, <a href=\"%(url)s\" style=\"color:#86231d;\">scegli "
+"subito una nuova password</a>."
 
 #: templates/account/email/base_notification.html
 msgid "When"
-msgstr ""
+msgstr "Quando"
 
 #: templates/account/email/base_notification.html
 msgid "IP address"
-msgstr ""
+msgstr "Indirizzo IP"
 
 #: templates/account/email/base_notification.html
 msgid "Browser"
-msgstr ""
+msgstr "Browser"
 
 #: templates/account/email/base_notification.txt
 msgid "If it wasn't you, choose a new password right away:"
-msgstr ""
+msgstr "Se non sei stato tu, scegli subito una nuova password:"
 
 #: templates/account/email/base_notification.txt
 #, python-format
 msgid "And write to us at %(address)s."
-msgstr ""
+msgstr "E scrivici a %(address)s."
 
 #: templates/account/email/base_notification.txt
 msgid "When:"
-msgstr ""
+msgstr "Quando:"
 
 #: templates/account/email/base_notification.txt
 msgid "IP address:"
-msgstr ""
+msgstr "Indirizzo IP:"
 
 #: templates/account/email/base_notification.txt
 msgid "Browser:"
-msgstr ""
+msgstr "Browser:"
 
 #: templates/account/email/email_changed_message.html
 msgid "Your email was changed."
-msgstr ""
+msgstr "La tua email è stata cambiata."
 
 #: templates/account/email/email_changed_message.html
 msgid "Your email was changed"
-msgstr ""
+msgstr "La tua email è stata cambiata"
 
 #: templates/account/email/email_changed_message.html
 #, python-format
@@ -2129,6 +2336,8 @@ msgid ""
 "The email of your Goldfish Lab account was changed from "
 "<strong>%(from_email)s</strong> to <strong>%(to_email)s</strong>."
 msgstr ""
+"L'email del tuo account Goldfish Lab è stata cambiata da "
+"<strong>%(from_email)s</strong> a <strong>%(to_email)s</strong>."
 
 #: templates/account/email/email_changed_message.html
 #, python-format
@@ -2137,6 +2346,9 @@ msgid ""
 "style=\"color:#86231d;\">%(address)s</a> right away - a new password would "
 "go to the new address."
 msgstr ""
+"Se non sei stato tu, scrivici subito a <a href=\"mailto:%(address)s\" "
+"style=\"color:#86231d;\">%(address)s</a>: una nuova password arriverebbe al "
+"nuovo indirizzo."
 
 #: templates/account/email/email_changed_message.html
 #: templates/account/email/email_changed_message.txt
@@ -2144,6 +2356,8 @@ msgid ""
 "If it wasn't you, write to us right away - a new password would go to the "
 "new address."
 msgstr ""
+"Se non sei stato tu, scrivici subito: una nuova password arriverebbe al "
+"nuovo indirizzo."
 
 #: templates/account/email/email_changed_message.txt
 #, python-format
@@ -2151,6 +2365,8 @@ msgid ""
 "The email of your Goldfish Lab account was changed from %(from_email)s to "
 "%(to_email)s."
 msgstr ""
+"L'email del tuo account Goldfish Lab è stata cambiata da %(from_email)s a "
+"%(to_email)s."
 
 #: templates/account/email/email_changed_message.txt
 #, python-format
@@ -2158,41 +2374,44 @@ msgid ""
 "If it wasn't you, write to us at %(address)s right away - a new password "
 "would go to the new address."
 msgstr ""
+"Se non sei stato tu, scrivici subito a %(address)s: una nuova password "
+"arriverebbe al nuovo indirizzo."
 
 #: templates/account/email/email_changed_subject.txt
 msgid "The email of your Goldfish Lab account was changed"
-msgstr ""
+msgstr "L'email del tuo account Goldfish Lab è stata cambiata"
 
 #: templates/account/email/email_confirm_message.html
 msgid "Your email is confirmed."
-msgstr ""
+msgstr "La tua email è confermata."
 
 #: templates/account/email/email_confirm_message.html
 msgid "Your email is confirmed"
-msgstr ""
+msgstr "La tua email è confermata"
 
 #: templates/account/email/email_confirm_message.html
 #, python-format
 msgid ""
 "<strong>%(email)s</strong> is now confirmed for your Goldfish Lab account."
 msgstr ""
+"<strong>%(email)s</strong> ora è confermata per il tuo account Goldfish Lab."
 
 #: templates/account/email/email_confirm_message.txt
 #, python-format
 msgid "%(email)s is now confirmed for your Goldfish Lab account."
-msgstr ""
+msgstr "%(email)s ora è confermata per il tuo account Goldfish Lab."
 
 #: templates/account/email/email_confirm_subject.txt
 msgid "Your email for Goldfish Lab is confirmed"
-msgstr ""
+msgstr "La tua email per Goldfish Lab è confermata"
 
 #: templates/account/email/email_confirmation_message.html
 msgid "One click to use this address for Goldfish Lab."
-msgstr ""
+msgstr "Un clic per usare questo indirizzo per Goldfish Lab."
 
 #: templates/account/email/email_confirmation_message.html
 msgid "Confirm this email"
-msgstr ""
+msgstr "Conferma questa email"
 
 #: templates/account/email/email_confirmation_message.html
 #, python-format
@@ -2200,39 +2419,42 @@ msgid ""
 "Click the button to use <strong>%(email)s</strong> for your Goldfish Lab "
 "account."
 msgstr ""
+"Clicca il pulsante per usare <strong>%(email)s</strong> per il tuo account "
+"Goldfish Lab."
 
 #: templates/account/email/email_confirmation_message.html
 #: templates/account/email/email_confirmation_message.txt
 #: templates/account/email/email_confirmation_signup_message.html
 #: templates/account/email/email_confirmation_signup_message.txt
 msgid "Your code - type it into the page you have open:"
-msgstr ""
+msgstr "Il tuo codice: inseriscilo nella pagina che hai aperto:"
 
 #: templates/account/email/email_confirmation_message.html
 #: templates/account/email/email_confirmation_message.txt
 msgid ""
 "Didn't ask for this? Ignore this mail - without the click, nothing changes."
 msgstr ""
+"Non l'hai chiesto tu? Ignora questa email: senza il clic non cambia nulla."
 
 #: templates/account/email/email_confirmation_message.txt
 #, python-format
 msgid "Click the link to use %(email)s for your Goldfish Lab account."
-msgstr ""
+msgstr "Clicca il link per usare %(email)s per il tuo account Goldfish Lab."
 
 #: templates/account/email/email_confirmation_signup_message.html
 #: templates/account/email/email_confirmation_signup_message.txt
 msgid "One click and your Goldfish Lab account is ready."
-msgstr ""
+msgstr "Un clic e il tuo account Goldfish Lab è pronto."
 
 #: templates/account/email/email_confirmation_signup_message.html
 #: templates/account/email_confirm.html
 msgid "Confirm your email"
-msgstr ""
+msgstr "Conferma la tua email"
 
 #: templates/account/email/email_confirmation_signup_message.html
 #: templates/account/email_confirm.html
 msgid "Confirm my email"
-msgstr ""
+msgstr "Conferma la mia email"
 
 #: templates/account/email/email_confirmation_signup_message.html
 #: templates/account/email/email_confirmation_signup_message.txt
@@ -2240,23 +2462,25 @@ msgid ""
 "Didn't sign up? Then someone typed your address by mistake. Ignore this mail "
 "- without the click, nothing happens."
 msgstr ""
+"Non ti sei registrato? Allora qualcuno ha scritto il tuo indirizzo per "
+"errore. Ignora questa email: senza il clic non succede nulla."
 
 #: templates/account/email/email_confirmation_signup_message.txt
 msgid "Click the link to confirm your email:"
-msgstr ""
+msgstr "Clicca il link per confermare la tua email:"
 
 #: templates/account/email/email_confirmation_signup_subject.txt
 #: templates/account/email/email_confirmation_subject.txt
 msgid "Confirm your email for Goldfish Lab"
-msgstr ""
+msgstr "Conferma la tua email per Goldfish Lab"
 
 #: templates/account/email/email_deleted_message.html
 msgid "An email was removed."
-msgstr ""
+msgstr "È stata rimossa un'email."
 
 #: templates/account/email/email_deleted_message.html
 msgid "An email was removed"
-msgstr ""
+msgstr "È stata rimossa un'email"
 
 #: templates/account/email/email_deleted_message.html
 #, python-format
@@ -2264,62 +2488,66 @@ msgid ""
 "<strong>%(deleted_email)s</strong> was removed from your Goldfish Lab "
 "account."
 msgstr ""
+"<strong>%(deleted_email)s</strong> è stata rimossa dal tuo account Goldfish "
+"Lab."
 
 #: templates/account/email/email_deleted_message.txt
 #, python-format
 msgid "%(deleted_email)s was removed from your Goldfish Lab account."
-msgstr ""
+msgstr "%(deleted_email)s è stata rimossa dal tuo account Goldfish Lab."
 
 #: templates/account/email/email_deleted_subject.txt
 msgid "An email was removed from your Goldfish Lab account"
-msgstr ""
+msgstr "È stata rimossa un'email dal tuo account Goldfish Lab"
 
 #: templates/account/email/login_code_message.html
 #: templates/account/email/password_reset_code_message.html
 msgid "Type this code into the page you have open."
-msgstr ""
+msgstr "Inserisci questo codice nella pagina che hai aperto."
 
 #: templates/account/email/login_code_message.html
 msgid "Your sign-in code"
-msgstr ""
+msgstr "Il tuo codice di accesso"
 
 #: templates/account/email/login_code_message.html
 #: templates/account/email/login_code_message.txt
 #: templates/account/email/password_reset_code_message.html
 #: templates/account/email/password_reset_code_message.txt
 msgid "Type this code into the page you have open:"
-msgstr ""
+msgstr "Inserisci questo codice nella pagina che hai aperto:"
 
 #: templates/account/email/login_code_message.html
 #: templates/account/email/login_code_message.txt
 msgid ""
 "Didn't try to sign in? Ignore this mail - nobody gets in without the code."
 msgstr ""
+"Non hai provato ad accedere? Ignora questa email: senza il codice non entra "
+"nessuno."
 
 #: templates/account/email/login_code_subject.txt
 msgid "Your Goldfish Lab sign-in code"
-msgstr ""
+msgstr "Il tuo codice di accesso a Goldfish Lab"
 
 #: templates/account/email/password_changed_message.html
 msgid "Your password was changed."
-msgstr ""
+msgstr "La tua password è stata cambiata."
 
 #: templates/account/email/password_changed_message.html
 msgid "Your password was changed"
-msgstr ""
+msgstr "La tua password è stata cambiata"
 
 #: templates/account/email/password_changed_message.html
 #: templates/account/email/password_changed_message.txt
 msgid "The password of your Goldfish Lab account was just changed."
-msgstr ""
+msgstr "La password del tuo account Goldfish Lab è appena stata cambiata."
 
 #: templates/account/email/password_changed_subject.txt
 msgid "Your Goldfish Lab password was changed"
-msgstr ""
+msgstr "La tua password di Goldfish Lab è stata cambiata"
 
 #: templates/account/email/password_reset_code_message.html
 msgid "Your password reset code"
-msgstr ""
+msgstr "Il tuo codice per reimpostare la password"
 
 #: templates/account/email/password_reset_code_message.html
 #: templates/account/email/password_reset_code_message.txt
@@ -2327,81 +2555,85 @@ msgstr ""
 #: templates/account/email/password_reset_key_message.txt
 msgid "Didn't ask for this? Ignore this mail - your password stays as it is."
 msgstr ""
+"Non l'hai chiesto tu? Ignora questa email: la tua password resta com'è."
 
 #: templates/account/email/password_reset_code_subject.txt
 msgid "Your Goldfish Lab password reset code"
-msgstr ""
+msgstr "Il tuo codice per reimpostare la password di Goldfish Lab"
 
 #: templates/account/email/password_reset_key_message.html
 msgid "Choose a new password for your Goldfish Lab account."
-msgstr ""
+msgstr "Scegli una nuova password per il tuo account Goldfish Lab."
 
 #: templates/account/email/password_reset_key_message.html
 msgid "Reset your password"
-msgstr ""
+msgstr "Reimposta la tua password"
 
 #: templates/account/email/password_reset_key_message.html
 msgid ""
 "Click the button and choose a new password for your Goldfish Lab account."
 msgstr ""
+"Clicca il pulsante e scegli una nuova password per il tuo account Goldfish "
+"Lab."
 
 #: templates/account/email/password_reset_key_message.html
 msgid "Choose a new password"
-msgstr ""
+msgstr "Scegli una nuova password"
 
 #: templates/account/email/password_reset_key_message.txt
 msgid "Click the link and choose a new password for your Goldfish Lab account:"
 msgstr ""
+"Clicca il link e scegli una nuova password per il tuo account Goldfish Lab:"
 
 #: templates/account/email/password_reset_key_subject.txt
 msgid "Reset your Goldfish Lab password"
-msgstr ""
+msgstr "Reimposta la tua password di Goldfish Lab"
 
 #: templates/account/email/password_reset_message.html
 msgid "Your password was reset."
-msgstr ""
+msgstr "La tua password è stata reimpostata."
 
 #: templates/account/email/password_reset_message.html
 msgid "Your password was reset"
-msgstr ""
+msgstr "La tua password è stata reimpostata"
 
 #: templates/account/email/password_reset_message.html
 #: templates/account/email/password_reset_message.txt
 msgid "The password of your Goldfish Lab account was just reset."
-msgstr ""
+msgstr "La password del tuo account Goldfish Lab è appena stata reimpostata."
 
 #: templates/account/email/password_reset_subject.txt
 msgid "Your Goldfish Lab password was reset"
-msgstr ""
+msgstr "La tua password di Goldfish Lab è stata reimpostata"
 
 #: templates/account/email/password_set_message.html
 msgid "Your password was set."
-msgstr ""
+msgstr "La tua password è stata impostata."
 
 #: templates/account/email/password_set_message.html
 msgid "Your password was set"
-msgstr ""
+msgstr "La tua password è stata impostata"
 
 #: templates/account/email/password_set_message.html
 #: templates/account/email/password_set_message.txt
 msgid "A password was just set on your Goldfish Lab account."
-msgstr ""
+msgstr "È appena stata impostata una password per il tuo account Goldfish Lab."
 
 #: templates/account/email/password_set_subject.txt
 msgid "Your Goldfish Lab password was set"
-msgstr ""
+msgstr "La tua password di Goldfish Lab è stata impostata"
 
 #: templates/account/email/snippets/button.html
 msgid "Button not working? Copy this link into your browser:"
-msgstr ""
+msgstr "Il pulsante non funziona? Copia questo link nel tuo browser:"
 
 #: templates/account/email/unknown_account_message.html
 msgid "There is no Goldfish Lab account for this email."
-msgstr ""
+msgstr "Non esiste un account Goldfish Lab per questa email."
 
 #: templates/account/email/unknown_account_message.html
 msgid "No account with this address"
-msgstr ""
+msgstr "Nessun account con questo indirizzo"
 
 #: templates/account/email/unknown_account_message.html
 #, python-format
@@ -2410,16 +2642,19 @@ msgid ""
 "Lab with <strong>%(email)s</strong>. There is no account with this address. "
 "Maybe you signed up with a different one?"
 msgstr ""
+"Qualcuno, probabilmente tu, ha provato ad accedere o a reimpostare una "
+"password su Goldfish Lab con <strong>%(email)s</strong>. Non esiste nessun "
+"account con questo indirizzo. Forse ti sei registrato con un altro?"
 
 #: templates/account/email/unknown_account_message.html
 #: templates/account/signup.html templates/core/home.html
 msgid "Create a free account"
-msgstr ""
+msgstr "Crea un account gratuito"
 
 #: templates/account/email/unknown_account_message.html
 #: templates/account/email/unknown_account_message.txt
 msgid "Didn't try anything? Ignore this mail."
-msgstr ""
+msgstr "Non hai provato nulla? Ignora questa email."
 
 #: templates/account/email/unknown_account_message.txt
 #, python-format
@@ -2428,27 +2663,30 @@ msgid ""
 "Lab with %(email)s. There is no account with this address. Maybe you signed "
 "up with a different one?"
 msgstr ""
+"Qualcuno, probabilmente tu, ha provato ad accedere o a reimpostare una "
+"password su Goldfish Lab con %(email)s. Non esiste nessun account con questo "
+"indirizzo. Forse ti sei registrato con un altro?"
 
 #: templates/account/email/unknown_account_message.txt
 msgid "Or create a free account:"
-msgstr ""
+msgstr "Oppure crea un account gratuito:"
 
 #: templates/account/email/unknown_account_subject.txt
 msgid "No Goldfish Lab account for this email"
-msgstr ""
+msgstr "Nessun account Goldfish Lab per questa email"
 
 #: templates/account/email_confirm.html
 msgid "Confirming your email…"
-msgstr ""
+msgstr "Conferma della tua email…"
 
 #: templates/account/email_confirm.html
 #, python-format
 msgid "One moment - this confirms %(email)s and takes you on."
-msgstr ""
+msgstr "Un momento: confermiamo %(email)s e ti portiamo avanti."
 
 #: templates/account/email_confirm.html
 msgid "This email is taken"
-msgstr ""
+msgstr "Questa email è già in uso"
 
 #: templates/account/email_confirm.html
 #, python-format
@@ -2456,14 +2694,16 @@ msgid ""
 "%(email)s is already confirmed on another Goldfish Lab account. <a "
 "href=\"%(login_url)s\">Sign in</a> with it instead."
 msgstr ""
+"%(email)s è già confermata su un altro account Goldfish Lab. <a "
+"href=\"%(login_url)s\">Accedi</a> con quello."
 
 #: templates/account/email_confirm.html
 msgid "This link doesn't work any more"
-msgstr ""
+msgstr "Questo link non funziona più"
 
 #: templates/account/email_confirm.html
 msgid "It was already used, or it has expired."
-msgstr ""
+msgstr "È già stato usato oppure è scaduto."
 
 #: templates/account/email_confirm.html
 #, python-format
@@ -2471,16 +2711,18 @@ msgid ""
 "<a href=\"%(login_url)s\">Sign in</a> - if your email is not confirmed yet, "
 "we send you a fresh link."
 msgstr ""
+"<a href=\"%(login_url)s\">Accedi</a>: se la tua email non è ancora "
+"confermata, ti mandiamo un nuovo link."
 
 #: templates/account/messages/email_confirmation_sent.txt
 #, python-format
 msgid "We sent a link to %(email)s."
-msgstr ""
+msgstr "Abbiamo mandato un link a %(email)s."
 
 #: templates/account/messages/email_confirmed.txt
 #, python-format
 msgid "Email confirmed: %(email)s"
-msgstr ""
+msgstr "Email confermata: %(email)s"
 
 #: templates/account/signup.html
 #, python-format
@@ -2488,48 +2730,56 @@ msgid ""
 "Just an email and a password. Already have an account? <a "
 "href=\"%(login_url)s\">Sign in</a>."
 msgstr ""
+"Solo un'email e una password. Hai già un account? <a "
+"href=\"%(login_url)s\">Accedi</a>."
 
 #: templates/account/signup.html
 msgid "Create my account"
-msgstr ""
+msgstr "Crea il mio account"
 
 #: templates/account/verification_sent.html
 msgid "Check your inbox"
-msgstr ""
+msgstr "Controlla la posta"
 
 #: templates/account/verification_sent.html
 msgid "We sent you a link. Click it and you're in."
-msgstr ""
+msgstr "Ti abbiamo mandato un link. Cliccalo e sei dentro."
 
 #: templates/account/verification_sent.html
 msgid "Nothing there after a few minutes? Look in the spam or junk folder."
 msgstr ""
+"Dopo qualche minuto non è arrivato niente? Guarda nella cartella spam o "
+"posta indesiderata."
 
 #: templates/accounts/data.html templates/base.html
 msgid "Your data"
-msgstr ""
+msgstr "I tuoi dati"
 
 #: templates/accounts/data.html
 msgid ""
 "Download everything Goldfish Lab holds about you, or delete your account."
 msgstr ""
+"Scarica tutto ciò che Goldfish Lab conserva su di te, oppure elimina il tuo "
+"account."
 
 #: templates/accounts/data.html
 #, python-format
 msgid "Signed in as <strong>%(email)s</strong>."
-msgstr ""
+msgstr "Accesso effettuato come <strong>%(email)s</strong>."
 
 #: templates/accounts/data.html
 msgid "Download everything"
-msgstr ""
+msgstr "Scarica tutto"
 
 #: templates/accounts/data.html
 msgid "One JSON file: your account, decks, simulations, playtests and plan."
 msgstr ""
+"Un file JSON: il tuo account, i deck, le simulazioni, le partite di prova e "
+"il piano."
 
 #: templates/accounts/data.html
 msgid "What is not in the file?"
-msgstr ""
+msgstr "Cosa non c'è nel file?"
 
 #: templates/accounts/data.html
 #, python-format
@@ -2541,37 +2791,45 @@ msgid ""
 "href=\"%(plans_url)s\" class=\"underline hover:text-ink-900\">Stripe's "
 "portal</a>."
 msgstr ""
+"I dati di carte e combo: dati di riferimento pubblici di Scryfall e "
+"Commander Spellbook, uguali per ogni account e non riguardano te. Gli "
+"identificativi di pagamento di Stripe sono esclusi di proposito: un file "
+"scaricabile che li contenesse varrebbe la pena di rubarlo. Le tue fatture "
+"sono nel <a href=\"%(plans_url)s\" class=\"underline hover:text-"
+"ink-900\">portale di Stripe</a>."
 
 #: templates/accounts/data.html
 msgid "Download my data"
-msgstr ""
+msgstr "Scarica i miei dati"
 
 #: templates/accounts/data.html
 msgid "Delete your account"
-msgstr ""
+msgstr "Elimina il tuo account"
 
 #: templates/accounts/data.html
 msgid "Not yet."
-msgstr ""
+msgstr "Non ancora."
 
 #: templates/accounts/data.html
 msgid "Go to billing"
-msgstr ""
+msgstr "Vai alla fatturazione"
 
 #: templates/accounts/data.html
 msgid ""
 "Your account and everything in it goes, immediately. <strong>There is no "
 "undo</strong> — download a copy above first if you want one."
 msgstr ""
+"Il tuo account e tutto ciò che contiene spariscono subito. <strong>Non si "
+"può annullare</strong>: se vuoi una copia, scaricala prima qui sopra."
 
 #: templates/accounts/data.html
 #, python-format
 msgid "Type <strong>%(email)s</strong> to confirm"
-msgstr ""
+msgstr "Scrivi <strong>%(email)s</strong> per confermare"
 
 #: templates/accounts/data.html
 msgid "Delete my account permanently"
-msgstr ""
+msgstr "Elimina il mio account per sempre"
 
 #: templates/accounts/data.html
 #, python-format
@@ -2579,82 +2837,86 @@ msgid ""
 "What we store and why is set out in the <a href=\"%(privacy_url)s\" "
 "class=\"underline hover:text-ink-200\">privacy policy</a>."
 msgstr ""
+"Cosa conserviamo e perché è spiegato nell'<a href=\"%(privacy_url)s\" "
+"class=\"underline hover:text-ink-200\">informativa sulla privacy</a>."
 
 #: templates/allauth/layouts/base.html
 msgid "Account"
-msgstr ""
+msgstr "Account"
 
 #: templates/base.html
 msgid ""
 "Goldfish Lab actually plays your Commander deck, thousands of times, and "
 "tells you what happens."
 msgstr ""
+"Goldfish Lab gioca davvero il tuo deck Commander, migliaia di volte, e ti "
+"dice cosa succede."
 
 #: templates/base.html
 msgid "Skip to content"
-msgstr ""
+msgstr "Vai al contenuto"
 
 #: templates/base.html templates/core/home.html
 msgid "it actually plays your deck"
-msgstr ""
+msgstr "gioca davvero il tuo deck"
 
 #: templates/base.html
 msgid "Your deck"
-msgstr ""
+msgstr "Il tuo deck"
 
 #: templates/base.html templates/simulations/_keep_deck.html
 msgid "Save your deck - free"
-msgstr ""
+msgstr "Salva il tuo deck: è gratis"
 
 #: templates/base.html
 msgid "Sign in"
-msgstr ""
+msgstr "Accedi"
 
 #: templates/base.html
 msgctxt "navigation"
 msgid "Import"
-msgstr ""
+msgstr "Importa"
 
 #: templates/base.html templates/billing/plans.html
 msgid "Your plan"
-msgstr ""
+msgstr "Il tuo piano"
 
 #: templates/base.html
 msgid "Sign out"
-msgstr ""
+msgstr "Esci"
 
 #: templates/base.html
 msgid "Create account"
-msgstr ""
+msgstr "Crea un account"
 
 #: templates/base.html
 msgid "How this works"
-msgstr ""
+msgstr "Come funziona"
 
 #: templates/base.html
 msgid "Terms"
-msgstr ""
+msgstr "Termini di servizio"
 
 #: templates/base.html
 msgid "Report a problem"
-msgstr ""
+msgstr "Segnala un problema"
 
 #: templates/base.html
 msgid "Source code (AGPL)"
-msgstr ""
+msgstr "Codice sorgente (AGPL)"
 
 #: templates/base.html
 msgid "Email us"
-msgstr ""
+msgstr "Scrivici"
 
 #: templates/base.html
 msgid "Language"
-msgstr ""
+msgstr "Lingua"
 
 #: templates/base.html
 msgctxt "language switch"
 msgid "Change"
-msgstr ""
+msgstr "Cambia"
 
 #: templates/base.html
 msgid ""
@@ -2664,38 +2926,48 @@ msgid ""
 "ink-300\" rel=\"noopener\">Commander Spellbook</a>. Neither is affiliated "
 "with Goldfish Lab."
 msgstr ""
+"Dati e immagini delle carte da <a href=\"https://scryfall.com\" "
+"class=\"underline hover:text-ink-300\" rel=\"noopener\">Scryfall</a>; combo "
+"da <a href=\"https://commanderspellbook.com\" class=\"underline hover:text-"
+"ink-300\" rel=\"noopener\">Commander Spellbook</a>. Nessuno dei due è "
+"affiliato a Goldfish Lab."
 
 #: templates/billing/blocked.html
 msgid "Plan limit reached"
-msgstr ""
+msgstr "Limite del piano raggiunto"
 
 #: templates/billing/blocked.html
 msgid "This account has used everything its plan allows this month."
 msgstr ""
+"Questo account ha usato tutto ciò che il suo piano consente questo mese."
 
 #: templates/billing/blocked.html
 msgid "That is everything your plan allows"
-msgstr ""
+msgstr "È tutto ciò che il tuo piano consente"
 
 #: templates/billing/blocked.html
 msgid ""
 "Nothing was started and nothing was charged. The counter resets on the first "
 "of the month."
 msgstr ""
+"Non è stato avviato nulla e non è stato addebitato nulla. Il contatore si "
+"azzera il primo del mese."
 
 #: templates/billing/blocked.html
 msgid "See what the other tiers allow"
-msgstr ""
+msgstr "Guarda cosa consentono gli altri livelli"
 
 #: templates/billing/done.html
 msgid "Thank you"
-msgstr ""
+msgstr "Grazie"
 
 #: templates/billing/done.html
 msgid ""
 "Your payment went to Stripe. This page reflects what has been confirmed so "
 "far."
 msgstr ""
+"Il tuo pagamento è andato a Stripe. Questa pagina mostra ciò che è stato "
+"confermato finora."
 
 #: templates/billing/done.html
 #, python-format
@@ -2704,10 +2976,14 @@ msgid ""
 "class=\"tabular\">%(turns)s</strong> turns a simulation and <strong "
 "class=\"tabular\">%(games)s</strong> games a run."
 msgstr ""
+"Hai <strong>%(plan)s</strong>, con <strong class=\"tabular\">%(turns)s</"
+"strong> turni per simulazione e <strong class=\"tabular\">%(games)s</strong> "
+"partite per simulazione."
 
 #: templates/billing/done.html
 msgid "Stripe has your payment; your plan changes within a few seconds."
 msgstr ""
+"Stripe ha ricevuto il tuo pagamento; il tuo piano cambia entro pochi secondi."
 
 #: templates/billing/done.html
 #, python-format
@@ -2715,21 +2991,26 @@ msgid ""
 "You can close this. Reload <a href=\"%(plans_url)s\" class=\"text-ink-900 "
 "underline\">your plan</a> in a moment to see it."
 msgstr ""
+"Puoi chiudere questa pagina. Ricarica tra un momento <a "
+"href=\"%(plans_url)s\" class=\"text-ink-900 underline\">il tuo piano</a> per "
+"vederlo."
 
 #: templates/billing/done.html
 msgid "Back to your decks"
-msgstr ""
+msgstr "Torna ai tuoi deck"
 
 #: templates/billing/plans.html
 msgid ""
 "What each Goldfish Lab tier costs, what it allows, and what you have used "
 "this month."
 msgstr ""
+"Quanto costa ogni livello di Goldfish Lab, cosa consente e cosa hai usato "
+"questo mese."
 
 #: templates/billing/plans.html
 #, python-format
 msgid "Currently on <strong>%(plan)s</strong>"
-msgstr ""
+msgstr "Piano attuale: <strong>%(plan)s</strong>"
 
 #: templates/billing/plans.html
 msgid ""
@@ -2737,6 +3018,10 @@ msgid ""
 "while the card is retried. Update it in the billing portal below, or the "
 "subscription will end and the account will return to Free."
 msgstr ""
+"<strong>Un pagamento non è andato a buon fine.</strong> Il tuo piano resta "
+"attivo mentre la carta viene riprovata. Aggiornala nel portale di "
+"fatturazione qui sotto, altrimenti l'abbonamento finisce e l'account torna a "
+"Gratis."
 
 #: templates/billing/plans.html
 #, python-format
@@ -2744,110 +3029,117 @@ msgid ""
 "<strong>This plan ends on %(date)s.</strong> You keep everything until then, "
 "and the account returns to Free afterwards."
 msgstr ""
+"<strong>Questo piano termina il %(date)s.</strong> Fino ad allora mantieni "
+"tutto, poi l'account torna a Gratis."
 
 #: templates/billing/plans.html
 msgid "What you have used"
-msgstr ""
+msgstr "Cosa hai usato"
 
 #: templates/billing/plans.html
 #, python-format
 msgid "%(label)s used"
-msgstr ""
+msgstr "%(label)s: utilizzo"
 
 #: templates/billing/plans.html
 msgid "used — no limit"
-msgstr ""
+msgstr "(nessun limite)"
 
 #: templates/billing/plans.html
 #, python-format
 msgid "of %(limit)s"
-msgstr ""
+msgstr "di %(limit)s"
 
 #: templates/billing/plans.html
 msgid ""
 "<strong>Deck summaries are on.</strong> A new one is written when you run a "
 "changed deck, and uses one simulation."
 msgstr ""
+"<strong>I riassunti del deck sono attivi.</strong> Ne viene scritto uno "
+"nuovo quando simuli un deck modificato, e usa una simulazione."
 
 #: templates/billing/plans.html
 msgid "Deck summaries are off."
-msgstr ""
+msgstr "I riassunti del deck sono disattivati."
 
 #: templates/billing/plans.html
 msgid "Show deck summaries again"
-msgstr ""
+msgstr "Mostra di nuovo i riassunti del deck"
 
 #: templates/billing/plans.html
 msgid ""
 "<strong>Payments are not switched on in this installation</strong> — "
 "everyone is on Free."
 msgstr ""
+"<strong>I pagamenti non sono attivi in questa installazione</strong>: tutti "
+"hanno il piano Gratis."
 
 #: templates/billing/plans.html
 msgid "The tiers"
-msgstr ""
+msgstr "I livelli"
 
 #: templates/billing/plans.html
 msgid "The tiers differ mainly in <strong>turns simulated</strong>."
 msgstr ""
+"I livelli differiscono soprattutto nei <strong>turni simulati</strong>."
 
 #: templates/billing/plans.html
 #, python-format
 msgid "%(price)s / %(interval)s"
-msgstr ""
+msgstr "%(price)s / %(interval)s"
 
 #: templates/billing/plans.html
 #, python-format
 msgid "CHF %(price)s / %(interval)s"
-msgstr ""
+msgstr "CHF %(price)s / %(interval)s"
 
 #: templates/billing/plans.html
 #, python-format
 msgid "Turns simulated: <strong>%(turns)s</strong>"
-msgstr ""
+msgstr "Turni simulati: <strong>%(turns)s</strong>"
 
 #: templates/billing/plans.html
 #, python-format
 msgid "Games per run: <strong>%(games)s</strong>"
-msgstr ""
+msgstr "Partite per simulazione: <strong>%(games)s</strong>"
 
 #: templates/billing/plans.html
 msgid "Runs a month:"
-msgstr ""
+msgstr "Simulazioni al mese:"
 
 #: templates/billing/plans.html
 msgid "no limit"
-msgstr ""
+msgstr "nessun limite"
 
 #: templates/billing/plans.html
 msgid "Decks:"
-msgstr ""
+msgstr "Deck:"
 
 #: templates/billing/plans.html
 #, python-format
 msgid "At once: <strong>%(runs)s</strong>"
-msgstr ""
+msgstr "In contemporanea: <strong>%(runs)s</strong>"
 
 #: templates/billing/plans.html
 msgid "This is your plan."
-msgstr ""
+msgstr "Questo è il tuo piano."
 
 #: templates/billing/plans.html
 msgid "Switch to it in the billing portal below."
-msgstr ""
+msgstr "Passa a questo piano nel portale di fatturazione qui sotto."
 
 #: templates/billing/plans.html
 #, python-format
 msgid "Choose %(plan)s"
-msgstr ""
+msgstr "Scegli %(plan)s"
 
 #: templates/billing/plans.html
 msgid "Where every account starts."
-msgstr ""
+msgstr "Dove inizia ogni account."
 
 #: templates/billing/plans.html
 msgid "Not available yet."
-msgstr ""
+msgstr "Non ancora disponibile."
 
 #: templates/billing/plans.html
 msgid ""
@@ -2855,10 +3147,13 @@ msgid ""
 "service: Link takes the payment, handles the VAT and sends the receipts, and "
 "your statement shows <em>LINK.COM*</em>."
 msgstr ""
+"I piani a pagamento sono <strong>venduti tramite Link</strong>, il servizio "
+"di rivendita di Stripe: Link riceve il pagamento, gestisce l'IVA e invia le "
+"ricevute, e sul tuo estratto conto compare <em>LINK.COM*</em>."
 
 #: templates/billing/plans.html
 msgid "Checkout may show the price in your own currency."
-msgstr ""
+msgstr "Al pagamento il prezzo può comparire nella tua valuta."
 
 #: templates/billing/plans.html
 #, python-format
@@ -2866,10 +3161,12 @@ msgid ""
 "The details are in the <a href=\"%(terms_url)s\" class=\"underline hover:"
 "text-ink-900\">terms</a>."
 msgstr ""
+"I dettagli sono nei <a href=\"%(terms_url)s\" class=\"underline hover:text-"
+"ink-900\">termini di servizio</a>."
 
 #: templates/billing/plans.html
 msgid "Card, invoices and cancelling"
-msgstr ""
+msgstr "Carta, fatture e disdetta"
 
 #: templates/billing/plans.html
 msgid ""
@@ -2877,16 +3174,21 @@ msgid ""
 "com\" class=\"underline hover:text-ink-900\" rel=\"noopener\">link.com</a> "
 "can cancel too."
 msgstr ""
+"Tutte e tre si trovano nel portale di Stripe; anche i tuoi ordini su <a "
+"href=\"https://link.com\" class=\"underline hover:text-ink-900\" "
+"rel=\"noopener\">link.com</a> permettono di disdire."
 
 #: templates/billing/plans.html
 msgid ""
 "All three live in Stripe's own portal — no card number ever reaches this "
 "site."
 msgstr ""
+"Tutte e tre si trovano nel portale di Stripe: nessun numero di carta arriva "
+"mai su questo sito."
 
 #: templates/billing/plans.html
 msgid "Open the billing portal"
-msgstr ""
+msgstr "Apri il portale di fatturazione"
 
 #: templates/combos/_measurement.html
 #, python-format
@@ -2894,11 +3196,13 @@ msgid ""
 "Even with %(card)s in the deck, it never came together within %(turns)s "
 "turns, across %(games)s games."
 msgstr ""
+"Anche con %(card)s nel deck, non si è mai completata entro %(turns)s turni, "
+"su %(games)s partite."
 
 #: templates/combos/_measurement.html
 #, python-format
 msgid "It never came together within %(turns)s turns, across %(games)s games."
-msgstr ""
+msgstr "Non si è mai completata entro %(turns)s turni, su %(games)s partite."
 
 #: templates/combos/_measurement.html
 #, python-format
@@ -2906,6 +3210,8 @@ msgid ""
 "Add <strong>%(card)s</strong> and it comes together by turn %(turns)s in "
 "<strong class=\"tabular\">%(share)s</strong> of games"
 msgstr ""
+"Aggiungi <strong>%(card)s</strong> e si completa entro il turno %(turns)s "
+"nel <strong class=\"tabular\">%(share)s</strong> delle partite"
 
 #: templates/combos/_measurement.html
 #, python-format
@@ -2913,11 +3219,13 @@ msgid ""
 "Comes together by turn %(turns)s in <strong class=\"tabular\">%(share)s</"
 "strong> of games"
 msgstr ""
+"Si completa entro il turno %(turns)s nel <strong "
+"class=\"tabular\">%(share)s</strong> delle partite"
 
 #: templates/combos/_measurement.html
 #, python-format
 msgid "half of those by turn %(turn)s"
-msgstr ""
+msgstr "la metà di queste entro il turno %(turn)s"
 
 #: templates/combos/_measurement.html
 #, python-format
@@ -2928,80 +3236,86 @@ msgid_plural ""
 "Measured over %(games)s games of this deck with that one card added — "
 "nothing was cut to make room."
 msgstr[0] ""
+"Misurato su %(games)s partita di questo deck con quella sola carta aggiunta: "
+"non è stato tolto nulla per farle posto."
 msgstr[1] ""
+"Misurato su %(games)s partite di questo deck con quella sola carta aggiunta: "
+"non è stato tolto nulla per farle posto."
 
 #: templates/combos/_measurement.html
 #, python-format
 msgid "Measured over %(games)s game."
 msgid_plural "Measured over %(games)s games."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Misurato su %(games)s partita."
+msgstr[1] "Misurato su %(games)s partite."
 
 #: templates/combos/_one_away.html
 msgid "you do not have"
-msgstr ""
+msgstr "non ce l'hai"
 
 #: templates/combos/_one_away.html
 #, python-format
 msgid "and any %(template)s"
-msgstr ""
+msgstr "e qualsiasi %(template)s"
 
 #: templates/combos/_panel.html templates/decks/detail.html
 #: templates/simulations/_combos.html
 msgid "Combos"
-msgstr ""
+msgstr "Combo"
 
 #: templates/combos/_panel.html
 msgid "Look this deck up in Commander Spellbook's curated list of combos."
-msgstr ""
+msgstr "Cerca questo deck nella lista curata di combo di Commander Spellbook."
 
 #: templates/combos/_panel.html
 msgid "Commander Spellbook could not be reached."
-msgstr ""
+msgstr "Non è stato possibile raggiungere Commander Spellbook."
 
 #: templates/combos/_panel.html
 msgid "Anything below is what was found last time."
-msgstr ""
+msgstr "Ciò che vedi qui sotto è quanto trovato l'ultima volta."
 
 #: templates/combos/_panel.html
 msgid "No known combos in this deck."
-msgstr ""
+msgstr "Nessuna combo nota in questo deck."
 
 #: templates/combos/_panel.html
 msgid ""
 "A normal result and not a fault: a deck built to grind rather than to combo "
 "off has none."
 msgstr ""
+"Un risultato normale, non un errore: un deck costruito per macinare valore "
+"invece che per comboare non ne ha."
 
 #: templates/combos/_panel.html
 #, python-format
 msgid "%(count)s combo in this deck"
 msgid_plural "%(count)s combos in this deck"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s combo in questo deck"
+msgstr[1] "%(count)s combo in questo deck"
 
 #: templates/combos/_panel.html
 #, python-format
 msgid "Needs: %(needs)s"
-msgstr ""
+msgstr "Richiede: %(needs)s"
 
 #: templates/combos/_panel.html
 #, python-format
 msgid "%(count)s one card away"
 msgid_plural "%(count)s one card away"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s a una carta di distanza"
+msgstr[1] "%(count)s a una carta di distanza"
 
 #: templates/combos/_panel.html
 msgid "In your colours, most-played first."
-msgstr ""
+msgstr "Nei tuoi colori, prima le più giocate."
 
 #: templates/combos/_panel.html
 #, python-format
 msgid "%(count)s more, less commonly played"
 msgid_plural "%(count)s more, less commonly played"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Altra %(count)s, giocata meno spesso"
+msgstr[1] "Altre %(count)s, giocate meno spesso"
 
 #: templates/combos/_panel.html
 #, python-format
@@ -3009,11 +3323,15 @@ msgid ""
 "<strong class=\"text-ink-900\">Nothing has timed these yet.</strong> "
 "Simulate %(games)s games or more to see how often each one comes together."
 msgstr ""
+"<strong class=\"text-ink-900\">Nessuno le ha ancora cronometrate.</strong> "
+"Simula %(games)s partite o più per vedere quanto spesso si completa ciascuna."
 
 #: templates/combos/_panel.html
 #, python-format
 msgid "Timings from the run of %(date)s — %(games)s games, %(turns)s turns."
 msgstr ""
+"Tempistiche dalla simulazione del %(date)s: %(games)s partite, %(turns)s "
+"turni."
 
 #: templates/combos/_panel.html
 #, python-format
@@ -3021,6 +3339,8 @@ msgid ""
 "It timed %(timed)s of the combos above: all this deck holds, and the most-"
 "played it is a card short of."
 msgstr ""
+"Ha cronometrato %(timed)s delle combo qui sopra: tutte quelle che il deck "
+"contiene, e le più giocate a cui manca una carta."
 
 #: templates/combos/_panel.html
 #, python-format
@@ -3031,15 +3351,19 @@ msgid_plural ""
 "%(count)s further combos would need colours outside your commander's "
 "identity, so they are not listed."
 msgstr[0] ""
+"%(count)s altra combo richiederebbe colori fuori dall'identità del tuo "
+"comandante, quindi non è elencata."
 msgstr[1] ""
+"%(count)s altre combo richiederebbero colori fuori dall'identità del tuo "
+"comandante, quindi non sono elencate."
 
 #: templates/combos/_panel.html
 msgid "Check again"
-msgstr ""
+msgstr "Controlla di nuovo"
 
 #: templates/combos/_panel.html
 msgid "Find combos"
-msgstr ""
+msgstr "Trova combo"
 
 #: templates/combos/_panel.html
 #, python-format
@@ -3047,128 +3371,138 @@ msgid ""
 "Looked up %(date)s — your deck has changed, or this is more than a fortnight "
 "old."
 msgstr ""
+"Cercato il %(date)s: il tuo deck è cambiato, oppure risale a più di due "
+"settimane fa."
 
 #: templates/combos/_panel.html
 #, python-format
 msgid "Looked up %(date)s."
-msgstr ""
+msgstr "Cercato il %(date)s."
 
 #: templates/core/_ticker_lines.html
 msgid "Quiet right now. The lab is waiting for your deck."
-msgstr ""
+msgstr "Tutto tranquillo al momento. Il laboratorio aspetta il tuo deck."
 
 #: templates/core/_why.html templates/decks/detail.html
 #: templates/simulations/_blindspots.html
 msgid "Why?"
-msgstr ""
+msgstr "Perché?"
 
 #: templates/core/home.html
 msgid "Know your deck before game night."
-msgstr ""
+msgstr "Conosci il tuo deck prima della serata di gioco."
 
 #: templates/core/home.html
 msgid ""
 "Upload your Commander deck. Goldfish Lab plays it thousands of times and "
 "shows you what happens."
 msgstr ""
+"Carica il tuo deck Commander. Goldfish Lab lo gioca migliaia di volte e ti "
+"mostra cosa succede."
 
 #: templates/core/home.html
 msgid "Back to your deck"
-msgstr ""
+msgstr "Torna al tuo deck"
 
 #: templates/core/home.html
 msgid "Save it - free account"
-msgstr ""
+msgstr "Salvalo: account gratuito"
 
 #: templates/core/home.html templates/decks/import.html
 #: templates/decks/list.html
 msgid "Import a deck"
-msgstr ""
+msgstr "Importa un deck"
 
 #: templates/core/home.html templates/decks/list.html
 msgid "Your decks"
-msgstr ""
+msgstr "I tuoi deck"
 
 #: templates/core/home.html
 msgid "Try it now - no account"
-msgstr ""
+msgstr "Provalo ora, senza account"
 
 #: templates/core/home.html
 msgid ""
 "An opening hand of seven cards on the playtest table, with Mulligan and Keep "
 "above it"
 msgstr ""
+"Una mano iniziale di sette carte sul tavolo della partita di prova, con "
+"Mulligan e Tieni sopra"
 
 #: templates/core/home.html
 msgid "Draw a hand and play it out."
-msgstr ""
+msgstr "Pesca una mano e giocala."
 
 #: templates/core/home.html
 msgid ""
 "A report chart: how often the deck has drawn ramp, card draw and removal by "
 "each turn"
 msgstr ""
+"Un grafico del report: quanto spesso il deck ha pescato ramp, pescate e "
+"removal turno per turno"
 
 #: templates/core/home.html
 msgid "Or get the odds from thousands of games."
-msgstr ""
+msgstr "Oppure ottieni le probabilità da migliaia di partite."
 
 #: templates/core/home.html
 msgid "What others are doing"
-msgstr ""
+msgstr "Cosa fanno gli altri"
 
 #: templates/core/home.html
 msgid "Pause"
-msgstr ""
+msgstr "Pausa"
 
 #: templates/core/home.html
 msgid "Resume"
-msgstr ""
+msgstr "Riprendi"
 
 #: templates/core/home.html templates/guests/_steps.html
 msgid "How it works"
-msgstr ""
+msgstr "Come funziona"
 
 #: templates/decks/_card_grid.html
 #, python-format
 msgid "%(shown)s of %(count)s card"
 msgid_plural "%(shown)s of %(count)s cards"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(shown)s di %(count)s carta"
+msgstr[1] "%(shown)s di %(count)s carte"
 
 #: templates/decks/_card_grid.html
 msgid "needs you"
-msgstr ""
+msgstr "serve il tuo aiuto"
 
 #: templates/decks/_card_grid.html
 msgid "answered"
-msgstr ""
+msgstr "risposto"
 
 #: templates/decks/_card_grid.html
 msgid "No card matches."
-msgstr ""
+msgstr "Nessuna carta corrisponde."
 
 #: templates/decks/_card_grid.html
 msgid "Show all cards"
-msgstr ""
+msgstr "Mostra tutte le carte"
 
 #: templates/decks/_import_form.html
 msgid "How do you want to add your deck?"
-msgstr ""
+msgstr "Come vuoi aggiungere il tuo deck?"
 
 #: templates/decks/_import_form.html
 msgid "Drop your deck file here"
-msgstr ""
+msgstr "Trascina qui il file del tuo deck"
 
 #: templates/decks/_import_form.html
 msgid "or <span class=\"underline\">click to choose one</span>"
-msgstr ""
+msgstr "oppure <span class=\"underline\">clicca per sceglierne uno</span>"
 
 #: templates/decks/_import_form.html
 msgid ""
 "Only the card names are needed. Quantities and set codes work too. A CSV, "
 "TSV or text file, up to 1&nbsp;MB."
 msgstr ""
+"Servono solo i nomi delle carte. Funzionano anche quantità e codici "
+"dell'espansione. Un file CSV, TSV o di testo, fino a 1&nbsp;MB."
 
 #: templates/decks/_import_form.html
 msgid ""
@@ -3176,89 +3510,93 @@ msgid ""
 "The commander goes under <code class=\"font-mono whitespace-nowrap\">// "
 "Commander</code> - or pick it later."
 msgstr ""
+"Una carta per riga: basta il nome, funzionano anche quantità e codice "
+"dell'espansione. Il comandante va sotto <code class=\"font-mono whitespace-"
+"nowrap\">// Commander</code>, oppure sceglilo dopo."
 
 #: templates/decks/_import_form.html
 msgid "More options"
-msgstr ""
+msgstr "Altre opzioni"
 
 #: templates/decks/_last_run.html
 msgid "Your last run"
-msgstr ""
+msgstr "La tua ultima simulazione"
 
 #: templates/decks/_last_run.html
 msgid "A run is going"
-msgstr ""
+msgstr "C'è una simulazione in corso"
 
 #: templates/decks/_last_run.html
 #, python-format
 msgid "%(games)s games · %(pct)s%% done"
-msgstr ""
+msgstr "%(games)s partite · %(pct)s%% completata"
 
 #: templates/decks/_last_run.html
 msgid "Watch it"
-msgstr ""
+msgstr "Guardala"
 
 #: templates/decks/_last_run.html
 #, python-format
 msgid "%(games)s games · %(turns)s turns"
-msgstr ""
+msgstr "%(games)s partite · %(turns)s turni"
 
 #: templates/decks/_last_run.html
 msgid "The deck has changed since this run."
-msgstr ""
+msgstr "Il deck è cambiato da questa simulazione."
 
 #: templates/decks/_last_run.html
 msgid "Open the report"
-msgstr ""
+msgstr "Apri il report"
 
 #: templates/decks/_mapping_preview.html
 msgid "Qty"
-msgstr ""
+msgstr "Qtà"
 
 #: templates/decks/_mapping_preview.html
 msgid "Card"
-msgstr ""
+msgstr "Carta"
 
 #: templates/decks/_mapping_preview.html
 msgid "Printing"
-msgstr ""
+msgstr "Stampa"
 
 #: templates/decks/_mapping_preview.html
 msgid "Finish"
-msgstr ""
+msgstr "Finitura"
 
 #: templates/decks/_mapping_preview.html
 msgid "commander"
-msgstr ""
+msgstr "comandante"
 
 #: templates/decks/_mapping_preview.html
 msgid "No card rows could be read with this mapping."
 msgstr ""
+"Con questa assegnazione non è stato possibile leggere nessuna riga di carte."
 
 #: templates/decks/_status.html templates/simulations/_attention.html
 #, python-format
 msgid "%(count)s card needs you"
 msgid_plural "%(count)s cards need you"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s carta ha bisogno di te"
+msgstr[1] "%(count)s carte hanno bisogno di te"
 
 #: templates/decks/_status.html
 msgid "Ready"
-msgstr ""
+msgstr "Pronto"
 
 #: templates/decks/confirm_delete.html
 #, python-format
 msgid "Delete %(name)s"
-msgstr ""
+msgstr "Elimina %(name)s"
 
 #: templates/decks/confirm_delete.html
 msgid "Confirm deleting this deck."
-msgstr ""
+msgstr "Conferma l'eliminazione di questo deck."
 
 #: templates/decks/confirm_delete.html
 #, python-format
 msgid "Delete %(name)s?"
-msgstr ""
+msgstr "Eliminare %(name)s?"
 
 #: templates/decks/confirm_delete.html
 #, python-format
@@ -3269,176 +3607,188 @@ msgid_plural ""
 "This removes the deck and its %(count)s cards, along with its import "
 "history. The card catalogue is untouched. This cannot be undone."
 msgstr[0] ""
+"Rimuove il deck e la sua unica carta, insieme alla cronologia di "
+"importazione. Il catalogo delle carte non viene toccato. Non si può "
+"annullare."
 msgstr[1] ""
+"Rimuove il deck e le sue %(count)s carte, insieme alla cronologia di "
+"importazione. Il catalogo delle carte non viene toccato. Non si può "
+"annullare."
 
 #: templates/decks/confirm_delete.html
 msgid "Delete permanently"
-msgstr ""
+msgstr "Elimina per sempre"
 
 #: templates/decks/confirm_delete.html
 msgid "Keep it"
-msgstr ""
+msgstr "Tienilo"
 
 #: templates/decks/detail.html
 #, python-format
 msgid "Mana curve, card types, categories and Commander legality for %(name)s."
 msgstr ""
+"Curva di mana, tipi di carta, categorie e legalità Commander per %(name)s."
 
 #: templates/decks/detail.html
 #, python-format
 msgid "%(count)s card + commander"
 msgid_plural "%(count)s cards + commander"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s carta + comandante"
+msgstr[1] "%(count)s carte + comandante"
 
 #: templates/decks/detail.html
 msgid "All decks"
-msgstr ""
+msgstr "Tutti i deck"
 
 #: templates/decks/detail.html
 #, python-format
 msgid "Commander: <strong class=\"text-parchment-100\">%(name)s</strong>"
-msgstr ""
+msgstr "Comandante: <strong class=\"text-parchment-100\">%(name)s</strong>"
 
 #: templates/decks/detail.html
 msgid "No commander set - the file did not mark one. Pick it:"
-msgstr ""
+msgstr "Nessun comandante impostato: il file non ne indicava uno. Sceglilo:"
 
 #: templates/decks/detail.html
 msgid "Save commander"
-msgstr ""
+msgstr "Salva il comandante"
 
 #: templates/decks/detail.html
 msgid "Simulate again"
-msgstr ""
+msgstr "Simula di nuovo"
 
 #: templates/decks/detail.html
 msgid "Simulate"
-msgstr ""
+msgstr "Simula"
 
 #: templates/decks/detail.html
 msgid "Draw a hand"
-msgstr ""
+msgstr "Pesca una mano"
 
 #: templates/decks/detail.html
 msgid "Options"
-msgstr ""
+msgstr "Opzioni"
 
 #: templates/decks/detail.html
 msgid "Draw a hand: 1-v-1, skip the first draw"
-msgstr ""
+msgstr "Pesca una mano: 1 contro 1, salta la prima pescata"
 
 #: templates/decks/detail.html
 msgid ""
 "Simulate plays the deck out thousands of times against no opponent. Draw a "
 "hand is one game by hand, with undo."
 msgstr ""
+"Simula gioca il deck migliaia di volte senza avversari. Pesca una mano è una "
+"partita giocata a mano, con annulla."
 
 #: templates/decks/detail.html
 msgid "The deck at a glance"
-msgstr ""
+msgstr "Il deck a colpo d'occhio"
 
 #: templates/decks/detail.html
 msgid "in band"
-msgstr ""
+msgstr "nella fascia"
 
 #: templates/decks/detail.html
 msgid "outside band"
-msgstr ""
+msgstr "fuori fascia"
 
 #: templates/decks/detail.html
 msgid "Average mana value"
-msgstr ""
+msgstr "Valore di mana medio"
 
 #: templates/decks/detail.html
 msgid "spells only"
-msgstr ""
+msgstr "solo magie"
 
 #: templates/decks/detail.html
 msgid "Bracket"
-msgstr ""
+msgstr "Bracket"
 
 #: templates/decks/detail.html
 msgid "Commander legality"
-msgstr ""
+msgstr "Legalità Commander"
 
 #: templates/decks/detail.html
 #, python-format
 msgid "%(count)s problem"
 msgid_plural "%(count)s problems"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s problema"
+msgstr[1] "%(count)s problemi"
 
 #: templates/decks/detail.html
 msgid "Legal"
-msgstr ""
+msgstr "Legale"
 
 #: templates/decks/detail.html
 #, python-format
 msgid "Lands: %(detail)s"
-msgstr ""
+msgstr "Terre: %(detail)s"
 
 #: templates/decks/detail.html
 #, python-format
 msgid "Bracket: %(detail)s"
-msgstr ""
+msgstr "Bracket: %(detail)s"
 
 #: templates/decks/detail.html
 msgid ""
 "Every count is exact arithmetic over the list - nothing here is simulated."
 msgstr ""
+"Ogni conteggio è aritmetica esatta sulla lista: qui non c'è nulla di "
+"simulato."
 
 #: templates/decks/detail.html
 msgid "Mana curve"
-msgstr ""
+msgstr "Curva di mana"
 
 #: templates/decks/detail.html
 msgid "Spells by mana value."
-msgstr ""
+msgstr "Magie per valore di mana."
 
 #: templates/decks/detail.html
 msgid "What is in it"
-msgstr ""
+msgstr "Cosa contiene"
 
 #: templates/decks/detail.html
 msgid "a common template, not a rule. Click a row to see its cards."
 msgstr ""
+"un modello comune, non una regola. Clicca una riga per vedere le sue carte."
 
 #: templates/decks/detail.html
 msgid "Cards"
-msgstr ""
+msgstr "Carte"
 
 #: templates/decks/detail.html
 msgid "Search the cards"
-msgstr ""
+msgstr "Cerca tra le carte"
 
 #: templates/decks/detail.html
 msgid "Search name or text"
-msgstr ""
+msgstr "Cerca nome o testo"
 
 #: templates/decks/detail.html
 msgid "Show"
-msgstr ""
+msgstr "Mostra"
 
 #: templates/decks/detail.html
 msgid "Card type"
-msgstr ""
+msgstr "Tipo di carta"
 
 #: templates/decks/detail.html
 msgid "All types"
-msgstr ""
+msgstr "Tutti i tipi"
 
 #: templates/decks/detail.html
 msgid "Category"
-msgstr ""
+msgstr "Categoria"
 
 #: templates/decks/detail.html
 msgid "All categories"
-msgstr ""
+msgstr "Tutte le categorie"
 
 #: templates/decks/detail.html
 msgid "What the engine cannot model"
-msgstr ""
+msgstr "Cosa il motore non sa modellare"
 
 #: templates/decks/detail.html
 #, python-format
@@ -3449,11 +3799,15 @@ msgid_plural ""
 "%(some)s of %(count)s cards have something the card reader could not resolve "
 "on its own."
 msgstr[0] ""
+"Carta con qualcosa che il lettore di carte non ha saputo risolvere da solo: "
+"%(some)s di %(count)s."
 msgstr[1] ""
+"Carte con qualcosa che il lettore di carte non ha saputo risolvere da solo: "
+"%(some)s di %(count)s."
 
 #: templates/decks/detail.html
 msgid "The red marker at the top takes you through them."
-msgstr ""
+msgstr "Il segnalino rosso in alto te le fa scorrere."
 
 #: templates/decks/detail.html
 #, python-format
@@ -3462,6 +3816,10 @@ msgid ""
 "<span class=\"tabular\">%(total)s</span> rows matched. <a "
 "href=\"%(review_url)s\" class=\"underline\">See how exact the match was</a>."
 msgstr ""
+"Importato da %(filename)s: <span class=\"tabular\">%(matched)s</span> di "
+"<span class=\"tabular\">%(total)s</span> righe abbinate. <a "
+"href=\"%(review_url)s\" class=\"underline\">Guarda quanto è stato preciso "
+"l'abbinamento</a>."
 
 #: templates/decks/detail.html
 #, python-format
@@ -3470,91 +3828,105 @@ msgid ""
 "class=\"tabular\">%(total)s</span> rows matched. <a href=\"%(review_url)s\" "
 "class=\"underline\">See how exact the match was</a>."
 msgstr ""
+"Importato da un file: <span class=\"tabular\">%(matched)s</span> di <span "
+"class=\"tabular\">%(total)s</span> righe abbinate. <a "
+"href=\"%(review_url)s\" class=\"underline\">Guarda quanto è stato preciso "
+"l'abbinamento</a>."
 
 #: templates/decks/detail.html
 msgid "Earlier runs and games"
-msgstr ""
+msgstr "Simulazioni e partite precedenti"
 
 #: templates/decks/detail.html
 msgid "Simulations"
-msgstr ""
+msgstr "Simulazioni"
 
 #: templates/decks/detail.html
 #, python-format
 msgid "%(games)s games, %(turns)s turns"
-msgstr ""
+msgstr "%(games)s partite, %(turns)s turni"
 
 #: templates/decks/detail.html
 msgid "finished"
-msgstr ""
+msgstr "completata"
 
 #: templates/decks/detail.html
 #, python-format
 msgid "%(pct)s%% done"
-msgstr ""
+msgstr "%(pct)s%% completata"
 
 #: templates/decks/detail.html
 msgid "Games in progress"
-msgstr ""
+msgstr "Partite in corso"
 
 #: templates/decks/detail.html
 #, python-format
 msgid "%(count)s action"
 msgid_plural "%(count)s actions"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s azione"
+msgstr[1] "%(count)s azioni"
 
 #: templates/decks/detail.html
 msgid "branched"
-msgstr ""
+msgstr "diramata"
 
 #: templates/decks/detail.html
 msgid "Delete this deck"
-msgstr ""
+msgstr "Elimina questo deck"
 
 #: templates/decks/import.html
 msgid "Import a deck from any CSV export or a pasted list."
 msgstr ""
+"Importa un deck da qualsiasi esportazione CSV o da una lista incollata."
 
 #: templates/decks/import.html
 msgid ""
 "<strong class=\"text-parchment-100\">Any CSV works.</strong> It only needs a "
 "column with the card name - a quantity column is optional."
 msgstr ""
+"<strong class=\"text-parchment-100\">Va bene qualsiasi CSV.</strong> Serve "
+"solo una colonna con il nome della carta; la colonna della quantità è "
+"facoltativa."
 
 #: templates/decks/import.html
 msgid "Import"
-msgstr ""
+msgstr "Importa"
 
 #: templates/decks/import.html
 msgid "This is enough"
-msgstr ""
+msgstr "Questo basta"
 
 #: templates/decks/import.html
 msgid "Where to get it"
-msgstr ""
+msgstr "Dove trovarlo"
 
 #: templates/decks/import.html templates/guests/try.html
 msgid ""
 "<strong class=\"text-parchment-100\">Archidekt:</strong> open the deck → "
 "More → Export → CSV"
 msgstr ""
+"<strong class=\"text-parchment-100\">Archidekt:</strong> apri il deck → More "
+"→ Export → CSV"
 
 #: templates/decks/import.html templates/guests/try.html
 msgid ""
 "<strong class=\"text-parchment-100\">Moxfield:</strong> open the deck → More "
 "→ Export → copy, then paste it here"
 msgstr ""
+"<strong class=\"text-parchment-100\">Moxfield:</strong> apri il deck → More "
+"→ Export → copia, poi incollalo qui"
 
 #: templates/decks/import.html templates/guests/try.html
 msgid ""
 "<strong class=\"text-parchment-100\">ManaBox:</strong> open the deck → ⋮ → "
 "Export"
 msgstr ""
+"<strong class=\"text-parchment-100\">ManaBox:</strong> apri il deck → ⋮ → "
+"Export"
 
 #: templates/decks/import.html
 msgid "Why not an Excel file?"
-msgstr ""
+msgstr "Perché non un file Excel?"
 
 #: templates/decks/import.html
 msgid ""
@@ -3562,111 +3934,118 @@ msgid ""
 "parser run over a stranger's upload for no benefit you would notice. Every "
 "tool that exports a spreadsheet also exports a CSV."
 msgstr ""
+"Un file .xlsx è un archivio zip e un file .xls può contenere macro: un "
+"grosso parser eseguito sul caricamento di uno sconosciuto, senza alcun "
+"vantaggio che noteresti. Ogni strumento che esporta un foglio di calcolo "
+"esporta anche un CSV."
 
 #: templates/decks/list.html
 msgid "Every deck you have imported, with its commander and card count."
 msgstr ""
+"Ogni deck che hai importato, con il suo comandante e il numero di carte."
 
 #: templates/decks/list.html
 #, python-format
 msgid "Commander: %(name)s"
-msgstr ""
+msgstr "Comandante: %(name)s"
 
 #: templates/decks/list.html
 #, python-format
 msgid "updated %(date)s"
-msgstr ""
+msgstr "aggiornato il %(date)s"
 
 #: templates/decks/list.html
 msgid "Nothing here yet"
-msgstr ""
+msgstr "Ancora niente qui"
 
 #: templates/decks/list.html
 msgid "Any CSV export works, or paste your list."
-msgstr ""
+msgstr "Va bene qualsiasi esportazione CSV, oppure incolla la tua lista."
 
 #: templates/decks/list.html
 msgid "Import your first deck"
-msgstr ""
+msgstr "Importa il tuo primo deck"
 
 #: templates/decks/map.html
 msgid "Which column is which?"
-msgstr ""
+msgstr "Quale colonna è quale?"
 
 #: templates/decks/map.html
 msgid ""
 "Confirm what each column of your export means before anything is imported."
 msgstr ""
+"Conferma il significato di ogni colonna della tua esportazione prima di "
+"importare qualcosa."
 
 #: templates/decks/map.html
 msgid "Your file"
-msgstr ""
+msgstr "Il tuo file"
 
 #: templates/decks/map.html
 #, python-format
 msgid "%(count)s column"
 msgid_plural "%(count)s columns"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s colonna"
+msgstr[1] "%(count)s colonne"
 
 #: templates/decks/map.html
 msgid "separated by commas"
-msgstr ""
+msgstr "separate da virgole"
 
 #: templates/decks/map.html
 msgid "separated by semicolons"
-msgstr ""
+msgstr "separate da punti e virgola"
 
 #: templates/decks/map.html
 msgid "separated by tabs"
-msgstr ""
+msgstr "separate da tabulazioni"
 
 #: templates/decks/map.html
 msgid "with a separator we do not know"
-msgstr ""
+msgstr "con un separatore che non conosciamo"
 
 #: templates/decks/map.html
 #, python-format
 msgid "with %(count)s line skipped above the header"
 msgid_plural "with %(count)s lines skipped above the header"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "con %(count)s riga saltata sopra l'intestazione"
+msgstr[1] "con %(count)s righe saltate sopra l'intestazione"
 
 #: templates/decks/map.html
 msgid "Nothing has been imported yet."
-msgstr ""
+msgstr "Non è stato ancora importato nulla."
 
 #: templates/decks/map.html
 msgid "The first rows of your file"
-msgstr ""
+msgstr "Le prime righe del tuo file"
 
 #: templates/decks/map.html
 msgid "Exactly as they are, so you can see what you are choosing between."
-msgstr ""
+msgstr "Esattamente come sono, così vedi tra cosa stai scegliendo."
 
 #: templates/decks/map.html
 msgid "What each column means"
-msgstr ""
+msgstr "Cosa significa ogni colonna"
 
 #: templates/decks/map.html
 msgid "Only the card name is required."
-msgstr ""
+msgstr "Serve solo il nome della carta."
 
 #: templates/decks/map.html
 msgid "How your rows will be read"
-msgstr ""
+msgstr "Come verranno lette le tue righe"
 
 #: templates/decks/map.html
 msgid "This updates as you choose. Check the quantities before importing."
-msgstr ""
+msgstr "Si aggiorna mentre scegli. Controlla le quantità prima di importare."
 
 #: templates/decks/map.html
 msgid "Import with this mapping"
-msgstr ""
+msgstr "Importa con questa assegnazione"
 
 #: templates/decks/map.html
 msgid "Why you are being asked"
-msgstr ""
+msgstr "Perché te lo chiediamo"
 
 #: templates/decks/map.html
 msgid ""
@@ -3674,6 +4053,10 @@ msgid ""
 "produces a different file for every person. Reading this one by guessing "
 "would not fail loudly — it would import the wrong cards and say nothing."
 msgstr ""
+"La maggior parte delle esportazioni ti lascia scegliere quali colonne "
+"includere, quindi lo stesso sito produce un file diverso per ogni persona. "
+"Leggere questo tirando a indovinare non fallirebbe in modo evidente: "
+"importerebbe le carte sbagliate senza dire nulla."
 
 #: templates/decks/map.html
 msgid ""
@@ -3683,130 +4066,142 @@ msgid ""
 "this screen will not let you past a quantity column it cannot find without "
 "you saying what to do about it."
 msgstr ""
+"Il caso che lo ha dimostrato: un'esportazione senza la colonna della "
+"quantità una volta ha importato un deck con 28 Swamp come un deck da 28 "
+"carte con <strong class=\"text-parchment-100\">un solo</strong> Swamp. Tutti "
+"i test erano passati. Per questo questa schermata non ti lascia proseguire "
+"se non trova una colonna della quantità finché non dici cosa farne."
 
 #: templates/decks/review.html
 msgid "Import review"
-msgstr ""
+msgstr "Revisione dell'importazione"
 
 #: templates/decks/review.html
 msgid "The rows the importer could not match, and what it matched the rest on."
 msgstr ""
+"Le righe che l'importatore non ha saputo abbinare, e su cosa ha abbinato le "
+"altre."
 
 #: templates/decks/review.html
 msgid "Uploaded file"
-msgstr ""
+msgstr "File caricato"
 
 #: templates/decks/review.html
 #, python-format
 msgid "read as <strong class=\"text-parchment-100\">%(parser)s</strong>."
-msgstr ""
+msgstr "letto come <strong class=\"text-parchment-100\">%(parser)s</strong>."
 
 #: templates/decks/review.html
 msgid "Columns:"
-msgstr ""
+msgstr "Colonne:"
 
 #: templates/decks/review.html
 #, python-format
 msgid "%(label)s from <span class=\"tabular\">%(header)s</span>"
-msgstr ""
+msgstr "%(label)s da <span class=\"tabular\">%(header)s</span>"
 
 #: templates/decks/review.html
 msgid "How exact the match was"
-msgstr ""
+msgstr "Quanto è stato preciso l'abbinamento"
 
 #: templates/decks/review.html
 msgid ""
 "Higher rungs are stronger claims. A row matched on its name is the right "
 "card, but not necessarily the printing you own."
 msgstr ""
+"I gradini più alti sono affermazioni più forti. Una riga abbinata per nome è "
+"la carta giusta, ma non per forza la stampa che possiedi."
 
 #: templates/decks/review.html
 msgid "Matched by"
-msgstr ""
+msgstr "Abbinata per"
 
 #: templates/decks/review.html
 msgid "Rows"
-msgstr ""
+msgstr "Righe"
 
 #: templates/decks/review.html
 msgid "Total rows in the file"
-msgstr ""
+msgstr "Righe totali nel file"
 
 #: templates/decks/review.html
 #, python-format
 msgid "%(count)s row not matched"
 msgid_plural "%(count)s rows not matched"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s riga non abbinata"
+msgstr[1] "%(count)s righe non abbinate"
 
 #: templates/decks/review.html
 msgid "These were kept, not dropped. The deck below does not contain them."
 msgstr ""
+"Sono state conservate, non scartate. Il deck qui sotto non le contiene."
 
 #: templates/decks/review.html
 #, python-format
 msgid "Line %(line)s — %(reason)s"
-msgstr ""
+msgstr "Riga %(line)s — %(reason)s"
 
 #: templates/decks/review.html
 msgid "Did you mean:"
-msgstr ""
+msgstr "Forse intendevi:"
 
 #: templates/decks/review.html
 msgid "Every row matched. Nothing needed review."
-msgstr ""
+msgstr "Ogni riga è stata abbinata. Non c'era nulla da rivedere."
 
 #: templates/decks/review.html
 #, python-format
 msgid "Open %(name)s"
-msgstr ""
+msgstr "Apri %(name)s"
 
 #: templates/guests/_steps.html
 msgid "Export or copy your list"
-msgstr ""
+msgstr "Esporta o copia la tua lista"
 
 #: templates/guests/_steps.html
 msgid "Upload"
-msgstr ""
+msgstr "Carica"
 
 #: templates/guests/_steps.html
 msgid "Simulate or draw a hand"
-msgstr ""
+msgstr "Simula o pesca una mano"
 
 #: templates/guests/save.html
 msgid "Save your deck"
-msgstr ""
+msgstr "Salva il tuo deck"
 
 #: templates/guests/save.html
 #, python-format
 msgid "Save %(name)s"
-msgstr ""
+msgstr "Salva %(name)s"
 
 #: templates/guests/save.html
 msgid "A free account keeps it. Just an email and a password."
-msgstr ""
+msgstr "Un account gratuito lo conserva. Solo un'email e una password."
 
 #: templates/guests/save.html
 msgid "Save my deck"
-msgstr ""
+msgstr "Salva il mio deck"
 
 #: templates/guests/save.html
 msgid ""
 "We send you a link. Click it and you're in, with this deck. Unsaved, it is "
 "deleted after 24 hours."
 msgstr ""
+"Ti mandiamo un link. Cliccalo e sei dentro, con questo deck. Se non lo "
+"salvi, viene eliminato dopo 24 ore."
 
 #: templates/guests/try.html
 msgid "Try it with your deck"
-msgstr ""
+msgstr "Provalo con il tuo deck"
 
 #: templates/guests/try.html
 msgid "Upload a Commander deck and simulate it - no account needed."
-msgstr ""
+msgstr "Carica un deck Commander e simulalo, senza bisogno di un account."
 
 #: templates/guests/try.html
 msgid "No account. Drop the file and the simulation starts."
-msgstr ""
+msgstr "Nessun account. Trascina il file e la simulazione parte."
 
 #: templates/guests/try.html
 #, python-format
@@ -3814,18 +4209,21 @@ msgid ""
 "Trying another deck replaces <strong>%(name)s</strong>. <a "
 "href=\"%(save_url)s\" class=\"underline\">Save it first</a> - free."
 msgstr ""
+"Provare un altro deck sostituisce <strong>%(name)s</strong>. <a "
+"href=\"%(save_url)s\" class=\"underline\">Prima salvalo</a>: è gratis."
 
 #: templates/guests/try.html
 msgid "Simulate it"
-msgstr ""
+msgstr "Simulalo"
 
 #: templates/guests/try.html
 msgid "Where to get the file"
-msgstr ""
+msgstr "Dove trovare il file"
 
 #: templates/guests/try.html
 msgid "Kept for 24 hours unless you save it with a free account."
 msgstr ""
+"Conservato per 24 ore, a meno che tu non lo salvi con un account gratuito."
 
 #: templates/playtest/_board.html
 #, python-format
@@ -3836,60 +4234,67 @@ msgid ""
 "href=\"%(review_url)s\" class=\"underline\">tell the engine what they mean</"
 "a>."
 msgstr ""
+"Il motore non ha saputo leggere <strong>%(unreadable)s</strong> di "
+"<strong>%(total)s</strong> carte in questo deck (%(pct)s%% lette). Quelle "
+"carte si muovono comunque, ma cosa <em>fanno</em> dipende da te: <a "
+"href=\"%(review_url)s\" class=\"underline\">di' al motore cosa significano</"
+"a>."
 
 #: templates/playtest/_board.html templates/simulations/_report.html
 #, python-format
 msgid "Turn %(turn)s"
-msgstr ""
+msgstr "Turno %(turn)s"
 
 #: templates/playtest/_board.html templates/simulations/_report.html
 msgid "Opening hand"
-msgstr ""
+msgstr "Mano iniziale"
 
 #: templates/playtest/_board.html
 #, python-format
 msgid "Life %(life)s"
-msgstr ""
+msgstr "Vita %(life)s"
 
 #: templates/playtest/_board.html
 #, python-format
 msgid "Mulligans %(count)s"
-msgstr ""
+msgstr "Mulligan %(count)s"
 
 #: templates/playtest/_board.html
 msgid "Phase"
-msgstr ""
+msgstr "Fase"
 
 #: templates/playtest/_board.html
 msgid "Floating mana"
-msgstr ""
+msgstr "Mana fluttuante"
 
 #: templates/playtest/_board.html
 #, python-format
 msgid "Start turn %(turn)s"
-msgstr ""
+msgstr "Inizia il turno %(turn)s"
 
 #: templates/playtest/_board.html
 msgid "Draw a card"
-msgstr ""
+msgstr "Pesca una carta"
 
 #: templates/playtest/_board.html
 msgid "Undo"
-msgstr ""
+msgstr "Annulla"
 
 #: templates/playtest/_board.html
 msgid "Redo"
-msgstr ""
+msgstr "Ripeti"
 
 #: templates/playtest/_board.html
 msgid ""
 "Play your land now: the mana for this turn is counted when the main phase "
 "opens."
 msgstr ""
+"Gioca adesso la tua terra: il mana di questo turno viene contato all'inizio "
+"della fase principale."
 
 #: templates/playtest/_board.html
 msgid "Keep"
-msgstr ""
+msgstr "Tieni"
 
 #: templates/playtest/_board.html
 #, python-format
@@ -3898,112 +4303,120 @@ msgid ""
 msgid_plural ""
 "Keeping puts %(count)s cards on the bottom - the engine picks the weakest."
 msgstr[0] ""
+"Tenendo metti %(count)s carta in fondo: il motore sceglie la più debole."
 msgstr[1] ""
+"Tenendo metti %(count)s carte in fondo: il motore sceglie le più deboli."
 
 #: templates/playtest/_board.html
 msgid "Command zone"
-msgstr ""
+msgstr "Zona di comando"
 
 #: templates/playtest/_board.html
 msgid "On the battlefield"
-msgstr ""
+msgstr "Sul campo di battaglia"
 
 #: templates/playtest/_board.html
 msgid "Cast"
-msgstr ""
+msgstr "Lancia"
 
 #: templates/playtest/_board.html
 msgid "Library"
-msgstr ""
+msgstr "Grimorio"
 
 #: templates/playtest/_board.html
 #, python-format
 msgid "%(count)s card in the library"
 msgid_plural "%(count)s cards in the library"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s carta nel grimorio"
+msgstr[1] "%(count)s carte nel grimorio"
 
 #: templates/playtest/_board.html
 msgid "Graveyard"
-msgstr ""
+msgstr "Cimitero"
 
 #: templates/playtest/_board.html
 msgid "Exile"
-msgstr ""
+msgstr "Esilio"
 
 #: templates/playtest/_board.html
 msgid "Hand"
-msgstr ""
+msgstr "Mano"
 
 #: templates/playtest/_board.html
 #, python-format
 msgid "Hand <span class=\"tabular\">%(count)s</span>"
-msgstr ""
+msgstr "Mano <span class=\"tabular\">%(count)s</span>"
 
 #: templates/playtest/_board.html
 msgid ""
 "click a card to play it. A glowing card is one the mana can pay for; nothing "
 "is blocked."
 msgstr ""
+"clicca una carta per giocarla. Una carta illuminata è una che il mana può "
+"pagare; non è bloccato nulla."
 
 #: templates/playtest/_board.html
 msgid "Play land"
-msgstr ""
+msgstr "Gioca la terra"
 
 #: templates/playtest/_board.html
 msgid "Nothing in hand."
-msgstr ""
+msgstr "Niente in mano."
 
 #: templates/playtest/_board.html
 msgid "What happened"
-msgstr ""
+msgstr "Cosa è successo"
 
 #: templates/playtest/_board.html
 msgid "Nothing yet."
-msgstr ""
+msgstr "Ancora niente."
 
 #: templates/playtest/_board.html
 msgid "Branch from here"
-msgstr ""
+msgstr "Dirama da qui"
 
 #: templates/playtest/_board.html
 msgid ""
 "Keeps this game as it is and plays on from the action you pick - the way to "
 "ask \"what if I had kept the land instead\"."
 msgstr ""
+"Conserva questa partita così com'è e continua a giocare dall'azione che "
+"scegli: il modo per chiederti \"e se avessi tenuto la terra?\"."
 
 #: templates/playtest/_board.html
 msgid "Replay up to action"
-msgstr ""
+msgstr "Rigioca fino all'azione"
 
 #: templates/playtest/_board.html
 msgid "Branch"
-msgstr ""
+msgstr "Dirama"
 
 #: templates/playtest/_pile.html
 #, python-format
 msgid "All %(count)s"
-msgstr ""
+msgstr "Tutte e %(count)s"
 
 #: templates/playtest/detail.html
 msgid "Playtest"
-msgstr ""
+msgstr "Partita di prova"
 
 #: templates/playtest/detail.html
 #, python-format
 msgid "Play one game of %(name)s by hand, take it back, and branch it."
-msgstr ""
+msgstr "Gioca a mano una partita con %(name)s, torna indietro e diramala."
 
 #: templates/playtest/detail.html
 #, python-format
 msgid "Back to %(name)s"
-msgstr ""
+msgstr "Torna a %(name)s"
 
 #: templates/playtest/detail.html
 msgid ""
 "One game by hand, against nobody. Take moves back, or branch to play the "
 "same draw twice."
 msgstr ""
+"Una partita a mano, contro nessuno. Annulla le mosse, oppure dirama per "
+"giocare due volte la stessa pescata."
 
 #: templates/playtest/detail.html
 #, python-format
@@ -4011,41 +4424,44 @@ msgid ""
 "Branched from <a href=\"%(earlier_url)s\" class=\"underline\">an earlier "
 "game</a> at action %(seq)s."
 msgstr ""
+"Diramata da <a href=\"%(earlier_url)s\" class=\"underline\">una partita "
+"precedente</a> all'azione %(seq)s."
 
 #: templates/simulations/_advanced.html
 msgid "Advanced"
-msgstr ""
+msgstr "Avanzate"
 
 #: templates/simulations/_advanced.html
 msgid ""
 "Mana and lands turn by turn, what the simulation does not model, engine and "
 "seed"
 msgstr ""
+"Mana e terre turno per turno, cosa non modella la simulazione, motore e seed"
 
 #: templates/simulations/_advanced.html
 msgid "Mana and lands, turn by turn"
-msgstr ""
+msgstr "Mana e terre, turno per turno"
 
 #: templates/simulations/_advanced.html
 msgid "p10 is the game that goes wrong."
-msgstr ""
+msgstr "p10 è la partita che va male."
 
 #: templates/simulations/_advanced.html templates/simulations/_report.html
 msgid "Turn"
-msgstr ""
+msgstr "Turno"
 
 #: templates/simulations/_advanced.html
 msgid "Mana (mean)"
-msgstr ""
+msgstr "Mana (media)"
 
 #: templates/simulations/_advanced.html
 #, python-format
 msgid "Mana p%(p)s"
-msgstr ""
+msgstr "Mana p%(p)s"
 
 #: templates/simulations/_advanced.html
 msgid "Lands (mean)"
-msgstr ""
+msgstr "Terre (media)"
 
 #: templates/simulations/_advanced.html
 #, python-format
@@ -4053,10 +4469,12 @@ msgid ""
 "Engine v%(version)s, seed %(seed)s. Differences below about one percentage "
 "point are noise."
 msgstr ""
+"Motore v%(version)s, seed %(seed)s. Differenze sotto circa un punto "
+"percentuale sono rumore."
 
 #: templates/simulations/_attention.html
 msgid "Cards that need your attention"
-msgstr ""
+msgstr "Carte che richiedono la tua attenzione"
 
 #: templates/simulations/_attention.html
 msgid ""
@@ -4066,11 +4484,15 @@ msgid_plural ""
 "The engine could not read them. Say what they do, or that the engine's "
 "reading is right."
 msgstr[0] ""
+"Il motore non ha saputo leggerla. Di' cosa fa, oppure che la lettura del "
+"motore è corretta."
 msgstr[1] ""
+"Il motore non ha saputo leggerle. Di' cosa fanno, oppure che la lettura del "
+"motore è corretta."
 
 #: templates/simulations/_attention.html
 msgid "All answered"
-msgstr ""
+msgstr "Tutte con risposta"
 
 #: templates/simulations/_attention.html
 #, python-format
@@ -4078,10 +4500,13 @@ msgid ""
 "A card was answered after this run. <a href=\"%(deck_url)s#play\" "
 "class=\"underline\">Run the deck again</a> to see the difference."
 msgstr ""
+"Una carta ha ricevuto una risposta dopo questa simulazione. <a "
+"href=\"%(deck_url)s#play\" class=\"underline\">Simula di nuovo il deck</a> "
+"per vedere la differenza."
 
 #: templates/simulations/_attention.html
 msgid "Nothing needs you"
-msgstr ""
+msgstr "Non serve il tuo aiuto"
 
 #: templates/simulations/_attention.html
 #, python-format
@@ -4090,25 +4515,28 @@ msgid ""
 "%(total)s cards in full — <strong class=\"tabular text-ink-900\">%(pct)s%%</"
 "strong>."
 msgstr ""
+"Il motore ha letto per intero <strong class=\"tabular text-"
+"ink-900\">%(read)s</strong> di %(total)s carte: <strong class=\"tabular text-"
+"ink-900\">%(pct)s%%</strong>."
 
 #: templates/simulations/_attention.html
 msgid "See what it could not read"
-msgstr ""
+msgstr "Guarda cosa non ha saputo leggere"
 
 #: templates/simulations/_blindspots.html
 msgid "What this simulation does not model"
-msgstr ""
+msgstr "Cosa non modella questa simulazione"
 
 #: templates/simulations/_blindspots.html
 msgid "The cards a goldfish game cannot fully play."
-msgstr ""
+msgstr "Le carte che una partita goldfish non può giocare fino in fondo."
 
 #: templates/simulations/_blindspots.html
 #, python-format
 msgid "%(heading)s — <span class=\"tabular\">%(count)s</span> card"
 msgid_plural "%(heading)s — <span class=\"tabular\">%(count)s</span> cards"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(heading)s — <span class=\"tabular\">%(count)s</span> carta"
+msgstr[1] "%(heading)s — <span class=\"tabular\">%(count)s</span> carte"
 
 #: templates/simulations/_blindspots.html
 #, python-format
@@ -4116,208 +4544,221 @@ msgid ""
 "Answered by the <strong class=\"text-parchment-100\">“%(field)s”</strong> "
 "field on each card."
 msgstr ""
+"Si risponde con il campo <strong class=\"text-parchment-100\">“%(field)s”</"
+"strong> di ogni carta."
 
 #: templates/simulations/_combos.html
 #, python-format
 msgid "From Commander Spellbook, measured over %(games)s games."
-msgstr ""
+msgstr "Da Commander Spellbook, misurate su %(games)s partite."
 
 #: templates/simulations/_combos.html
 msgid "Combo"
-msgstr ""
+msgstr "Combo"
 
 #: templates/simulations/_combos.html
 msgid "Missing card"
-msgstr ""
+msgstr "Carta mancante"
 
 #: templates/simulations/_combos.html
 #, python-format
 msgid "Together by turn %(turn)s"
-msgstr ""
+msgstr "Completa entro il turno %(turn)s"
 
 #: templates/simulations/_combos.html
 msgid "When it happens, usually by"
-msgstr ""
+msgstr "Quando succede, di solito entro"
 
 #: templates/simulations/_combos.html
 #, python-format
 msgid "over %(games)s games"
-msgstr ""
+msgstr "su %(games)s partite"
 
 #: templates/simulations/_combos.html
 #, python-format
 msgid "turn %(turn)s"
-msgstr ""
+msgstr "turno %(turn)s"
 
 #: templates/simulations/_combos.html
 msgid ""
 "A <strong>missing card</strong> is measured on this deck <em>plus</em> that "
 "card, nothing cut."
 msgstr ""
+"Una <strong>carta mancante</strong> viene misurata su questo deck <em>più</"
+"em> quella carta, senza togliere nulla."
 
 #: templates/simulations/_keep_deck.html
 msgid "Keep this deck"
-msgstr ""
+msgstr "Tieni questo deck"
 
 #: templates/simulations/_keep_deck.html
 msgid "Sorcery — Free"
-msgstr ""
+msgstr "Stregoneria — Gratis"
 
 #: templates/simulations/_keep_deck.html
 msgid ""
 "Save your deck and every run, and come back to it after your next change."
 msgstr ""
+"Salva il tuo deck e ogni simulazione, e ritrovalo dopo la tua prossima "
+"modifica."
 
 #: templates/simulations/_keep_deck.html
 #, python-format
 msgid "Guest decks are forgotten after %(hours)s hours."
-msgstr ""
+msgstr "I deck degli ospiti vengono dimenticati dopo %(hours)s ore."
 
 #: templates/simulations/_keep_deck.html
 msgid "“A goldfish forgets in three seconds. The lab doesn't.”"
-msgstr ""
+msgstr "“Un goldfish dimentica in tre secondi. Il laboratorio no.”"
 
 #: templates/simulations/_line_chart.html
 msgid "Lines to show"
-msgstr ""
+msgstr "Linee da mostrare"
 
 #: templates/simulations/_line_chart.html
 msgid "Point at a line or a name, or tap it, to see what it counts."
-msgstr ""
+msgstr "Punta o tocca una linea o un nome per vedere cosa conta."
 
 #: templates/simulations/_progress.html
 msgid "Queued"
-msgstr ""
+msgstr "In coda"
 
 #: templates/simulations/_progress.html
 msgid "Playing your deck"
-msgstr ""
+msgstr "Sto giocando il tuo deck"
 
 #: templates/simulations/_progress.html
 msgid "Finished"
-msgstr ""
+msgstr "Completata"
 
 #: templates/simulations/_progress.html
 #, python-format
 msgid "%(done)s of %(total)s games"
-msgstr ""
+msgstr "%(done)s di %(total)s partite"
 
 #: templates/simulations/_progress.html
 #, python-format
 msgid "%(done)s/%(total)s batches"
-msgstr ""
+msgstr "%(done)s/%(total)s blocchi"
 
 #: templates/simulations/_progress.html
 #, python-format
 msgid "%(games)s games, waiting for a free table"
-msgstr ""
+msgstr "%(games)s partite, in attesa di un tavolo libero"
 
 #: templates/simulations/_progress.html
 #, python-format
 msgid "%(games)s games"
-msgstr ""
+msgstr "%(games)s partite"
 
 #: templates/simulations/_progress.html
 msgid "Cancel this run"
-msgstr ""
+msgstr "Annulla questa simulazione"
 
 #: templates/simulations/_progress.html
 msgid "Simulation progress"
-msgstr ""
+msgstr "Avanzamento della simulazione"
 
 #: templates/simulations/_progress.html
 msgid ""
 "Cancelling. The batch already in flight finishes first — a few seconds at "
 "most."
 msgstr ""
+"Annullamento in corso. Il blocco già avviato finisce prima: al massimo "
+"qualche secondo."
 
 #: templates/simulations/_progress.html
 msgid "This run did not finish:"
-msgstr ""
+msgstr "Questa simulazione non è finita:"
 
 #: templates/simulations/_progress.html
 msgid "This run did not finish: the worker reported no reason."
-msgstr ""
+msgstr "Questa simulazione non è finita: il worker non ha indicato un motivo."
 
 #: templates/simulations/_progress.html
 msgid "Your monthly quota was given back."
-msgstr ""
+msgstr "La tua quota mensile è stata restituita."
 
 #: templates/simulations/_progress.html
 msgid ""
 "Stopped before it finished, so there are no numbers to show. Your monthly "
 "quota was given back."
 msgstr ""
+"Interrotta prima della fine, quindi non ci sono numeri da mostrare. La tua "
+"quota mensile è stata restituita."
 
 #: templates/simulations/_progress.html
 msgid "This page updates itself — you can close it and come back."
-msgstr ""
+msgstr "Questa pagina si aggiorna da sola: puoi chiuderla e tornare dopo."
 
 #: templates/simulations/_report.html
 msgid "What you drew"
-msgstr ""
+msgstr "Cosa hai pescato"
 
 #: templates/simulations/_report.html
 msgid "Your opening hand and every card you drew."
-msgstr ""
+msgstr "La tua mano iniziale e ogni carta che hai pescato."
 
 #: templates/simulations/_report.html
 msgid "By category"
-msgstr ""
+msgstr "Per categoria"
 
 #: templates/simulations/_report.html
 msgid "Games with at least one, by the end of each turn."
-msgstr ""
+msgstr "Partite con almeno una, alla fine di ogni turno."
 
 #: templates/simulations/_report.html
 msgid "Share of games with at least one card of each category, by turn"
-msgstr ""
+msgstr "Quota di partite con almeno una carta di ogni categoria, per turno"
 
 #: templates/simulations/_report.html
 #, python-format
 msgid "None in the deck: %(labels)s."
-msgstr ""
+msgstr "Nessuna nel deck: %(labels)s."
 
 #: templates/simulations/_report.html
 msgid "By strategy"
-msgstr ""
+msgstr "Per strategia"
 
 #: templates/simulations/_report.html
 msgid "Share of games with at least one card of each strategy, by turn"
-msgstr ""
+msgstr "Quota di partite con almeno una carta di ogni strategia, per turno"
 
 #: templates/simulations/_report.html
 msgid "By card type"
-msgstr ""
+msgstr "Per tipo di carta"
 
 #: templates/simulations/_report.html
 msgid "Cards drawn per game, on average. Point at a line for the spread."
 msgstr ""
+"Carte pescate per partita, in media. Punta una linea per vedere la "
+"dispersione."
 
 #: templates/simulations/_report.html
 msgid "Average number of cards of each type seen, by turn"
-msgstr ""
+msgstr "Numero medio di carte di ogni tipo viste, per turno"
 
 #: templates/simulations/_report.html
 msgid "Mana value of the spells you drew"
-msgstr ""
+msgstr "Valore di mana delle magie che hai pescato"
 
 #: templates/simulations/_report.html
 msgid "Spells per game, on average. A bump on the right is a hand that waits."
 msgstr ""
+"Magie per partita, in media. Una gobba a destra è una mano che aspetta."
 
 #: templates/simulations/_report.html
 msgid "By the end of turn"
-msgstr ""
+msgstr "Alla fine del turno"
 
 #: templates/simulations/_report.html
 #, python-format
 msgid "Spells seen by mana value, by the end of turn %(turn)s"
-msgstr ""
+msgstr "Magie viste per valore di mana, alla fine del turno %(turn)s"
 
 #: templates/simulations/_report.html
 msgid "The numbers"
-msgstr ""
+msgstr "I numeri"
 
 #: templates/simulations/_report.html
 msgid ""
@@ -4325,19 +4766,22 @@ msgid ""
 "category, and how many cards of each type a game had drawn - the average, "
 "and ± how far a typical game was from it."
 msgstr ""
+"Alla fine di ogni turno: quante partite avevano pescato almeno una carta di "
+"una categoria, e quante carte di ogni tipo aveva pescato una partita: la "
+"media, e ± quanto se ne discostava una partita tipica."
 
 #: templates/simulations/_report.html
 msgid "By end of turn"
-msgstr ""
+msgstr "Alla fine del turno"
 
 #: templates/simulations/_report.html
 #, python-format
 msgid "%% of games with at least one"
-msgstr ""
+msgstr "%% delle partite con almeno una"
 
 #: templates/simulations/_report.html
 msgid "Cards per game, average ± spread"
-msgstr ""
+msgstr "Carte per partita, media ± dispersione"
 
 #: templates/simulations/_report.html
 #, python-format
@@ -4345,364 +4789,387 @@ msgid ""
 "This run is older than this chart. <a href=\"%(deck_url)s#play\" "
 "class=\"text-ink-900 underline\">Run the deck again</a> to see what it draws."
 msgstr ""
+"Questa simulazione è più vecchia di questo grafico. <a "
+"href=\"%(deck_url)s#play\" class=\"text-ink-900 underline\">Simula di nuovo "
+"il deck</a> per vedere cosa pesca."
 
 #: templates/simulations/_report.html
 msgid "Milestones"
-msgstr ""
+msgstr "Tappe"
 
 #: templates/simulations/_report.html
 msgid "Share of games where it was true by the end of each turn."
-msgstr ""
+msgstr "Quota di partite in cui era vero alla fine di ogni turno."
 
 #: templates/simulations/_report.html
 msgid "Share of games where each milestone was reached, by turn"
-msgstr ""
+msgstr "Quota di partite in cui ogni tappa è stata raggiunta, per turno"
 
 #: templates/simulations/_report.html
 #, python-format
 msgid "%(count)s more, rarer milestone in the numbers below."
 msgid_plural "%(count)s more, rarer milestones in the numbers below."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(count)s altra tappa, più rara, nei numeri qui sotto."
+msgstr[1] "%(count)s altre tappe, più rare, nei numeri qui sotto."
 
 #: templates/simulations/_report.html
 #, python-format
 msgid "%% of games, by end of turn"
-msgstr ""
+msgstr "%% delle partite, alla fine del turno"
 
 #: templates/simulations/_report.html
 msgid "Mulligans"
-msgstr ""
+msgstr "Mulligan"
 
 #: templates/simulations/_report.html
 msgid "Share"
-msgstr ""
+msgstr "Quota"
 
 #: templates/simulations/_report.html
 msgid "Share as a bar"
-msgstr ""
+msgstr "Quota come barra"
 
 #: templates/simulations/_report.html
 msgid "What the mana was made of"
-msgstr ""
+msgstr "Di cosa era fatto il mana"
 
 #: templates/simulations/_report.html
 msgid "The same mana, split by colour — means only."
-msgstr ""
+msgstr "Lo stesso mana, diviso per colore: solo medie."
 
 #: templates/simulations/_report.html
 msgid "Total"
-msgstr ""
+msgstr "Totale"
 
 #: templates/simulations/_strategies.html
 msgid "Your strategies, and what would feed them"
-msgstr ""
+msgstr "Le tue strategie, e cosa le alimenterebbe"
 
 #: templates/simulations/_strategies.html
 msgid ""
 "Cards that fit your colours, are legal in Commander and are not in your deck "
 "yet."
 msgstr ""
+"Carte che si adattano ai tuoi colori, legali in Commander e non ancora nel "
+"tuo deck."
 
 #: templates/simulations/_strategies.html
 msgid "The most played first."
-msgstr ""
+msgstr "Prima le più giocate."
 
 #: templates/simulations/_strategies.html
 #, python-format
 msgid "%(cards)s card in your deck"
 msgid_plural "%(cards)s cards in your deck"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(cards)s carta nel tuo deck"
+msgstr[1] "%(cards)s carte nel tuo deck"
 
 #: templates/simulations/_strategies.html
 #, python-format
 msgid ""
 "At least one by turn %(turn)s: %(now)s now, %(more)s with %(extra)s more."
 msgstr ""
+"Almeno una entro il turno %(turn)s: %(now)s ora, %(more)s con %(extra)s in "
+"più."
 
 #: templates/simulations/_strategies.html
 msgid "No card in your colours left to suggest."
-msgstr ""
+msgstr "Nessuna carta nei tuoi colori da suggerire."
 
 #: templates/simulations/_strategies.html
 msgid "Picked by Mistral AI from cards that fit your colours. It can be wrong."
 msgstr ""
+"Scelte da Mistral AI tra le carte che si adattano ai tuoi colori. Può "
+"sbagliare."
 
 #: templates/simulations/_strategies.html
 msgid ""
 "The odds are calculated from your list: a hand of 7, one draw a turn, no "
 "mulligan. What this run measured is in “By category” and “By strategy” above."
 msgstr ""
+"Le probabilità sono calcolate dalla tua lista: una mano da 7, una pescata "
+"per turno, nessun mulligan. Ciò che ha misurato questa simulazione è in “Per "
+"categoria” e “Per strategia” qui sopra."
 
 #: templates/simulations/_summary.html
 msgid "Deck summary"
-msgstr ""
+msgstr "Riassunto del deck"
 
 #: templates/simulations/_summary.html
 msgid "Feel"
-msgstr ""
+msgstr "Sensazione di gioco"
 
 #: templates/simulations/_summary.html
 msgid "Strengths"
-msgstr ""
+msgstr "Punti di forza"
 
 #: templates/simulations/_summary.html
 msgid "Weaknesses"
-msgstr ""
+msgstr "Punti deboli"
 
 #: templates/simulations/_summary.html
 msgid "Tactics"
-msgstr ""
+msgstr "Tattica"
 
 #: templates/simulations/_summary.html
 msgid ""
 "Written by Mistral AI. It can be wrong. Its numbers are calculated from your "
 "list, not measured by this run."
 msgstr ""
+"Scritto da Mistral AI. Può sbagliare. I suoi numeri sono calcolati dalla tua "
+"lista, non misurati da questa simulazione."
 
 #: templates/simulations/_summary.html
 msgid ""
 "The summary could not be written this time. Nothing was taken from your runs."
 msgstr ""
+"Questa volta non è stato possibile scrivere il riassunto. Non è stato tolto "
+"nulla dalle tue simulazioni."
 
 #: templates/simulations/_summary.html
 msgid "Written for an earlier version of this deck."
-msgstr ""
+msgstr "Scritto per una versione precedente di questo deck."
 
 #: templates/simulations/_summary.html
 #, python-format
 msgid "Write a summary for this deck - uses 1 of your %(count)s run"
 msgid_plural "Write a summary for this deck - uses 1 of your %(count)s runs"
 msgstr[0] ""
+"Scrivi un riassunto per questo deck: usa 1 delle tue %(count)s simulazione"
 msgstr[1] ""
+"Scrivi un riassunto per questo deck: usa 1 delle tue %(count)s simulazioni"
 
 #: templates/simulations/_summary.html
 msgid "Write a summary for this deck"
-msgstr ""
+msgstr "Scrivi un riassunto per questo deck"
 
 #: templates/simulations/_summary.html
 msgid "Not enough runs left this month for a new summary."
 msgstr ""
+"Questo mese non ti restano abbastanza simulazioni per un nuovo riassunto."
 
 #: templates/simulations/_summary.html
 msgid "The last one is shown."
-msgstr ""
+msgstr "Viene mostrato l'ultimo."
 
 #: templates/simulations/_summary.html
 msgid "Hide summaries"
-msgstr ""
+msgstr "Nascondi i riassunti"
 
 #: templates/simulations/_summary_pending.html
 msgid "Writing your deck summary…"
-msgstr ""
+msgstr "Sto scrivendo il riassunto del tuo deck…"
 
 #: templates/simulations/_waiting.html
 msgid "Shuffling up…"
-msgstr ""
+msgstr "Mescolo il mazzo…"
 
 #: templates/simulations/_waiting.html
 msgid "Drawing seven…"
-msgstr ""
+msgstr "Pesco sette carte…"
 
 #: templates/simulations/_waiting.html
 msgid "Sending the no-land hands back…"
-msgstr ""
+msgstr "Rimando indietro le mani senza terre…"
 
 #: templates/simulations/_waiting.html
 msgid "Keeping a two-lander. Living dangerously."
-msgstr ""
+msgstr "Tengo una mano con due terre. Vivere pericolosamente."
 
 #: templates/simulations/_waiting.html
 msgid "Untap, upkeep, draw. Again."
-msgstr ""
+msgstr "STAP, mantenimento, pescata. Di nuovo."
 
 #: templates/simulations/_waiting.html
 msgid "Playing a land for the turn…"
-msgstr ""
+msgstr "Gioco la terra del turno…"
 
 #: templates/simulations/_waiting.html
 msgid "Looking for the third land…"
-msgstr ""
+msgstr "Cerco la terza terra…"
 
 #: templates/simulations/_waiting.html
 msgid "Counting the mana…"
-msgstr ""
+msgstr "Conto il mana…"
 
 #: templates/simulations/_waiting.html
 msgid "Casting the commander from the command zone…"
-msgstr ""
+msgstr "Lancio il comandante dalla zona di comando…"
 
 #: templates/simulations/_waiting.html
 msgid "Tapping out. Nobody is holding a counterspell."
-msgstr ""
+msgstr "TAPpo tutto. Nessuno tiene un counterspell."
 
 #: templates/simulations/_waiting.html
 msgid "Resolving the stack. It is a short stack."
-msgstr ""
+msgstr "Risolvo la pila. È una pila corta."
 
 #: templates/simulations/_waiting.html
 msgid "Passing the turn to nobody…"
-msgstr ""
+msgstr "Passo il turno a nessuno…"
 
 #: templates/simulations/_waiting.html
 msgid "The goldfish has no blockers. It never does."
-msgstr ""
+msgstr "Il goldfish non ha bloccanti. Non ne ha mai."
 
 #: templates/simulations/_waiting.html
 msgid "Topdecking…"
-msgstr ""
+msgstr "Pesco dalla cima e spero…"
 
 #: templates/simulations/_waiting.html
 msgid "Discarding to hand size. Reluctantly."
-msgstr ""
+msgstr "Scarto fino al limite di carte in mano. A malincuore."
 
 #: templates/simulations/_waiting.html
 msgid "Feeding the goldfish…"
-msgstr ""
+msgstr "Do da mangiare al goldfish…"
 
 #: templates/simulations/_waiting.html
 msgid "Writing it all down. The goldfish won't."
-msgstr ""
+msgstr "Annoto tutto. Il goldfish non lo farà."
 
 #: templates/simulations/annotate.html
 #, python-format
 msgid "What the simulation engine reads off %(card)s, and how to correct it."
-msgstr ""
+msgstr "Cosa legge il motore di simulazione da %(card)s, e come correggerlo."
 
 #: templates/simulations/annotate.html
 #, python-format
 msgid "%(position)s of %(total)s"
-msgstr ""
+msgstr "%(position)s di %(total)s"
 
 #: templates/simulations/annotate.html
 #, python-format
 msgid "All cards of %(name)s"
-msgstr ""
+msgstr "Tutte le carte di %(name)s"
 
 #: templates/simulations/annotate.html
 msgid "See it on Scryfall"
-msgstr ""
+msgstr "Guardala su Scryfall"
 
 #: templates/simulations/annotate.html
 msgid "What does this card do?"
-msgstr ""
+msgstr "Cosa fa questa carta?"
 
 #: templates/simulations/annotate.html
 msgid "Blank means you have not said, and the engine keeps its own reading."
 msgstr ""
+"Vuoto significa che non l'hai detto, e il motore mantiene la sua lettura."
 
 #: templates/simulations/annotate.html
 msgid "For:"
-msgstr ""
+msgstr "Per:"
 
 #: templates/simulations/annotate.html
 msgid "this deck"
-msgstr ""
+msgstr "questo deck"
 
 #: templates/simulations/annotate.html
 msgid "all my decks"
-msgstr ""
+msgstr "tutti i miei deck"
 
 #: templates/simulations/annotate.html
 msgid "More"
-msgstr ""
+msgstr "Altro"
 
 #: templates/simulations/annotate.html
 msgid "Save and next"
-msgstr ""
+msgstr "Salva e avanti"
 
 #: templates/simulations/annotate.html
 msgid "Save"
-msgstr ""
+msgstr "Salva"
 
 #: templates/simulations/annotate.html
 msgid "Looks right"
-msgstr ""
+msgstr "Sembra giusta"
 
 #: templates/simulations/annotate.html
 msgid "Back"
-msgstr ""
+msgstr "Indietro"
 
 #: templates/simulations/annotate.html
 msgid "Skip"
-msgstr ""
+msgstr "Salta"
 
 #: templates/simulations/annotate.html
 #, python-format
 msgid "%(count)s still open"
-msgstr ""
+msgstr "%(count)s ancora aperte"
 
 #: templates/simulations/annotate.html
 msgid "You said it looks right."
-msgstr ""
+msgstr "Hai detto che sembra giusta."
 
 #: templates/simulations/annotate.html
 #, python-format
 msgid "Recorded %(date)s — “%(note)s”."
-msgstr ""
+msgstr "Registrato il %(date)s: “%(note)s”."
 
 #: templates/simulations/annotate.html
 #, python-format
 msgid "Recorded %(date)s."
-msgstr ""
+msgstr "Registrato il %(date)s."
 
 #: templates/simulations/annotate.html
 msgid "Forget this and go back to the card data"
-msgstr ""
+msgstr "Dimentica e torna ai dati della carta"
 
 #: templates/simulations/annotate.html
 msgid "Why does the engine think this?"
-msgstr ""
+msgstr "Perché il motore pensa questo?"
 
 #: templates/simulations/annotate.html
 msgid "Field"
-msgstr ""
+msgstr "Campo"
 
 #: templates/simulations/annotate.html
 msgid "Value"
-msgstr ""
+msgstr "Valore"
 
 #: templates/simulations/annotate.html
 msgid "Source"
-msgstr ""
+msgstr "Fonte"
 
 #: templates/simulations/annotate.html
 msgid "worth checking"
-msgstr ""
+msgstr "da controllare"
 
 #: templates/simulations/annotate.html
 msgid ""
 "An answer applies from the next run onwards. It never changes a result "
 "already computed."
 msgstr ""
+"Una risposta vale dalla prossima simulazione in poi. Non cambia mai un "
+"risultato già calcolato."
 
 #: templates/simulations/detail.html
 msgid "Simulation"
-msgstr ""
+msgstr "Simulazione"
 
 #: templates/simulations/detail.html
 #, python-format
 msgid "What happened when Goldfish Lab played %(name)s %(games)s times."
 msgstr ""
+"Cosa è successo quando Goldfish Lab ha giocato %(name)s %(games)s volte."
 
 #: templates/simulations/detail.html
 #, python-format
 msgid "%(games)s games · %(turns)s turns ·"
-msgstr ""
+msgstr "%(games)s partite · %(turns)s turni ·"
 
 #: templates/simulations/detail.html
 msgid "1-v-1, first draw skipped"
-msgstr ""
+msgstr "1 contro 1, prima pescata saltata"
 
 #: templates/simulations/detail.html
 msgid "multiplayer draw rule"
-msgstr ""
+msgstr "regola di pescata multigiocatore"
 
 #: templates/simulations/detail.html
 msgid "Back to the deck"
-msgstr ""
+msgstr "Torna al deck"
 
 #: templates/simulations/detail.html
 msgid "Progress"
-msgstr ""
+msgstr "Avanzamento"

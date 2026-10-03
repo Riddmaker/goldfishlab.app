@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load humanize i18n %}
 {% block title %}{{ deck.name }} — Goldfish Lab{% endblock %}
 {% block description %}{% blocktranslate with name=deck.name %}Mana curve, card types, categories and Commander legality for {{ name }}.{% endblocktranslate %}{% endblock %}
 {% block content %}
@@ -301,7 +301,7 @@
           {% for run in runs %}
             <li class="flex flex-wrap items-baseline gap-2">
               <a href="{{ run.get_absolute_url }}" class="text-ink-900 underline">
-                {% blocktranslate trimmed with games=run.games_total turns=run.turns %}
+                {% blocktranslate trimmed with games=run.games_total|intcomma turns=run.turns %}
                   {{ games }} games, {{ turns }} turns
                 {% endblocktranslate %}
               </a>

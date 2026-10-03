@@ -7,6 +7,7 @@ from django.utils.functional import lazy
 from django.views.generic import RedirectView
 from django_ratelimit.decorators import ratelimit
 
+from accounts.language import set_language
 from core.views import (
     HomeView,
     ImprintView,
@@ -54,6 +55,9 @@ urlpatterns = [
     path("account/", include("accounts.urls")),
     path("accounts/", include("allauth.urls")),
     path("admin/", admin.site.urls),
+    # The footer's language switcher (phase 12). Outside `/account/`, which the
+    # guest fence closes, so a guest can switch as well.
+    path("i18n/", set_language, name="set_language"),
 ]
 
 # Two limiters, one page. django-ratelimit raises `Ratelimited`, which is a

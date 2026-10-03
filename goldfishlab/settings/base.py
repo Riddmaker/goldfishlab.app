@@ -10,6 +10,7 @@ from pathlib import Path
 import environ
 from celery.schedules import crontab
 from csp.constants import NONE, SELF
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -52,9 +53,15 @@ MIDDLEWARE = [
     "csp.middleware.CSPMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    # After the session, before CommonMiddleware (Django's i18n docs). It picks
+    # the language from the cookie, then the browser; `accounts` below puts a
+    # signed-in person's own choice first.
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # After authentication: it reads request.user.language.
+    "accounts.middleware.AccountLanguageMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
@@ -254,10 +261,43 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 # --- i18n / static --------------------------------------------------------
-LANGUAGE_CODE = "en-us"
+# Phase 12 (Z1.1, K10). English is the source and always on; every other
+# language is switched on by name once its catalogue is done and checked, like
+# LOCAL_PRICES. No language in the URL (Q1): a signed-in person's own choice,
+# then the cookie the footer switcher sets, then the browser, then English.
+LANGUAGE_CODE = "en"
 TIME_ZONE = "Europe/Zurich"
-USE_I18N = False
+USE_I18N = True
 USE_TZ = True
+
+#: Every language the site can be put into, in its own name (the switcher
+#: shows it that way, so a person can find theirs without reading English).
+LANGUAGE_NAMES = {
+    "en": "English",
+    "de": "Deutsch",
+    "fr": "Français",
+    "it": "Italiano",
+    "es": "Español",
+    "pt-br": "Português (Brasil)",
+    "ja": "日本語",
+}
+#: Which of them are on. es, pt-br and ja wait for a legal check (Q5).
+LANGUAGES_ON = env.list("LANGUAGES_ON", default=[])
+if unknown := set(LANGUAGES_ON) - set(LANGUAGE_NAMES):
+    # A typo would otherwise leave a language silently off.
+    raise ImproperlyConfigured(f"LANGUAGES_ON names unknown languages: {sorted(unknown)}")
+LANGUAGES = [("en", LANGUAGE_NAMES["en"])] + [
+    (code, LANGUAGE_NAMES[code])
+    for code in LANGUAGE_NAMES
+    if code != "en" and code in LANGUAGES_ON
+]
+LOCALE_PATHS = [BASE_DIR / "locale"]
+# One year instead of Django's session cookie: a choice made once should hold.
+# HttpOnly and Lax because no script reads it and no other site needs to send
+# it; Secure in production (prod.py).
+LANGUAGE_COOKIE_AGE = 365 * 24 * 60 * 60
+LANGUAGE_COOKIE_HTTPONLY = True
+LANGUAGE_COOKIE_SAMESITE = "Lax"
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"

@@ -1,4 +1,4 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -136,6 +136,33 @@
             <a href="mailto:{{ operator.email }}" class="underline hover:text-ink-300">Email us</a>
           {% endif %}
         </p>
+        {% get_available_languages as languages %}
+        {% if languages|length > 1 %}
+          {% comment %}
+            Phase 12: a plain form, no script, so the CSP stays as it is. Every
+            language in its own name and marked with its `lang`, so a person
+            finds theirs without reading English and a screen reader says it right.
+            Shown only once a second language is switched on (LANGUAGES_ON).
+          {% endcomment %}
+          {% get_current_language as current_language %}
+          <form method="post"
+                action="{% url 'set_language' %}"
+                class="mt-2 flex items-center gap-2">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <label for="footer-language">Language</label>
+            <select id="footer-language"
+                    name="language"
+                    class="rounded border border-ink-700 bg-ink-900 px-2 py-1 text-ink-300">
+              {% for code, name in languages %}
+                <option value="{{ code }}" lang="{{ code }}" {% if code == current_language %}selected{% endif %}>
+                  {{ name }}
+                </option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="underline hover:text-ink-300">Change</button>
+          </form>
+        {% endif %}
         <p class="mt-2 max-w-3xl">
           Goldfish Lab is unofficial Fan Content permitted under the
           <a href="https://company.wizards.com/en/legal/fancontentpolicy" class="underline hover:text-ink-300" rel="noopener">Fan Content Policy</a>.

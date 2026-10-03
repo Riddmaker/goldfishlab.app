@@ -11,6 +11,7 @@
   and the stacks; the hand as a fan at the bottom. The log and the branching
   are folded, because they are what you look for, not what you look at.
 {% endcomment %}
+{% load l10n %}
 <div id="board" class="space-y-4">
 
   {% if board_messages %}
@@ -228,7 +229,7 @@
     </p>
     <ul class="hand-fan">
       {% for tile in hand %}
-        <li class="hand-slot" style="--i: {{ forloop.counter0 }}; --n: {{ hand|length }};">
+        <li class="hand-slot" style="--i: {{ forloop.counter0|unlocalize }}; --n: {{ hand|length|unlocalize }};">
           {% if deciding %}
             <span class="hand-card">
               {% include "playtest/_hand_face.html" %}

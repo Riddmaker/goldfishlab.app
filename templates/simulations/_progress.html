@@ -16,10 +16,10 @@
   (`data-queued`) it stays under 10%. Without the script: the real bar.
   The panel around this fragment is in detail.html.
 {% endcomment %}
-{% load humanize %}
+{% load humanize l10n %}
 <div id="run-progress"
      data-run-progress="{{ run.id }}"
-     data-pct="{{ run.progress_pct }}"
+     data-pct="{{ run.progress_pct|unlocalize }}"
      {% if pace %}data-elapsed="{{ pace.elapsed|stringformat:'.1f' }}" data-expected="{{ pace.expected|stringformat:'.1f' }}"{% if pace.queued %} data-queued{% endif %}{% endif %}
      {% if not run.is_finished %}hx-get="{% url 'simulations:progress' run.id %}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
   <div class="flex flex-wrap items-baseline gap-3">
@@ -62,13 +62,13 @@
   <div class="mt-4 flex items-center gap-3">
     <div class="h-4 flex-1 border border-parchment-600 bg-parchment-200"
          role="progressbar"
-         aria-valuenow="{{ run.progress_pct }}"
+         aria-valuenow="{{ run.progress_pct|unlocalize }}"
          aria-valuemin="0"
          aria-valuemax="100"
          aria-label="Simulation progress">
       <div class="run-progress-fill h-full bg-ink-800"
            data-run-fill
-           style="width: {{ run.progress_pct }}%"></div>
+           style="width: {{ run.progress_pct|unlocalize }}%"></div>
     </div>
     <span class="tabular w-12 text-right text-ink-900" data-run-label>{{ run.progress_pct }}%</span>
   </div>

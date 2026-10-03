@@ -15,7 +15,7 @@
   {% endcomment %}
   <section class="max-w-3xl">
     <h1 class="font-display text-4xl leading-tight text-parchment-100">Privacy policy</h1>
-    <p class="mt-4 text-sm text-ink-300">Last updated 2 October 2026.</p>
+    <p class="mt-4 text-sm text-ink-300">Last updated 3 October 2026.</p>
 
     <h2 class="mt-10 font-display text-2xl text-parchment-100">The short version</h2>
     <div class="mt-4 surface-parchment p-6">
@@ -66,7 +66,7 @@
           </thead>
           <tbody>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">Your email address, your password (only as a salted hash - nobody can read it back), when you joined and last signed in</td>
+              <td class="py-2 pr-4 align-top">Your email address, your password (only as a salted hash - nobody can read it back), when you joined and last signed in, and the language you picked for the site</td>
               <td class="py-2 pr-4 align-top">To give you an account, confirm it is yours, and let you reset a forgotten password (contract, Art. 6(1)(b))</td>
               <td class="py-2 align-top">Until you delete the account</td>
             </tr>
@@ -279,13 +279,14 @@
     <h2 class="mt-10 font-display text-2xl text-parchment-100">Cookies</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        Three, all strictly necessary, none tracking you - which is why there
+        Four, all strictly necessary, none tracking you - which is why there
         is no consent banner:
       </p>
       <ul class="mt-4 space-y-2 text-ink-900">
         <li>• <strong>sessionid</strong> - keeps you signed in - or, trying it without an account, keeps your deck yours. Until you sign out, at most 2 weeks; a guest's is useless after 24 hours, when the guest is deleted.</li>
         <li>• <strong>csrftoken</strong> - stops other websites from submitting forms in your name. One year.</li>
         <li>• <strong>messages</strong> - carries a one-line notice such as "deck imported" to the next page, then disappears.</li>
+        <li>• <strong>django_language</strong> - remembers the language you picked at the bottom of the page. Only set when you pick one; one year.</li>
       </ul>
       <p class="mt-4 text-sm text-ink-700">
         Nothing is kept in your browser's local storage. You can block cookies

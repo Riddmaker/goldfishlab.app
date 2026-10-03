@@ -121,6 +121,10 @@ def claim(guest, user, *, deck_name: str = "") -> None:
         raise ValueError("only a guest can be claimed")
     if deck_name:
         guest.decks.update(name=deck_name)
+    if guest.language and not user.language:
+        # The language picked while trying the site (phase 12).
+        user.language = guest.language
+        user.save(update_fields=["language"])
     for model, path in _owned():
         model.objects.filter(**{path: guest}).update(**{path: user})
     guest.delete()

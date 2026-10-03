@@ -89,6 +89,7 @@ def export(user) -> dict:
             "first_name": user.first_name,
             "last_name": user.last_name,
             "deck_summaries": user.deck_summaries,
+            "language": user.language,
         },
         "exported_at": _now(),
         # Named in the file itself, because a person who opens an export and

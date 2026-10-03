@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load humanize %}
+{% load humanize l10n %}
 {% block title %}Your plan — Goldfish Lab{% endblock %}
 {% block description %}What each Goldfish Lab tier costs, what it allows, and what you have used this month.{% endblock %}
 {% block content %}
@@ -44,12 +44,12 @@
               {# Never colour alone: the count stands beside the bar in text. #}
               <span class="h-3 flex-1 border border-parchment-600 bg-parchment-200"
                     role="progressbar"
-                    aria-valuenow="{{ row.used }}"
+                    aria-valuenow="{{ row.used|unlocalize }}"
                     aria-valuemin="0"
-                    aria-valuemax="{{ row.limit }}"
+                    aria-valuemax="{{ row.limit|unlocalize }}"
                     aria-label="{{ row.label }} used">
                 <span class="block h-full {% if row.pct >= 100 %}bg-blood-700{% else %}bg-ink-800{% endif %}"
-                      style="width: {{ row.pct }}%"></span>
+                      style="width: {{ row.pct|unlocalize }}%"></span>
               </span>
             {% endif %}
             <span class="tabular text-ink-700">

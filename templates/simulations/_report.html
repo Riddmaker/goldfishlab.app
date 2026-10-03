@@ -1,4 +1,4 @@
-{% load humanize i18n %}
+{% load humanize i18n l10n %}
 {% comment %}
   The report. Every chart here is server-rendered from the run's own numbers:
   a bar is a div with a width, which needs no charting library, no JavaScript,
@@ -47,7 +47,7 @@
           {% for bar in step.bars %}
             <div class="seen-bar">
               <span class="tabular seen-bar-value">{{ bar.mean|floatformat:"1" }}</span>
-              <span class="seen-bar-track"><span class="seen-bar-fill" style="height: {{ bar.height|floatformat:"0" }}%"></span></span>
+              <span class="seen-bar-track"><span class="seen-bar-fill" style="height: {{ bar.height|floatformat:"0"|unlocalize }}%"></span></span>
               <span class="tabular seen-bar-label">{{ bar.label }}</span>
             </div>
           {% endfor %}

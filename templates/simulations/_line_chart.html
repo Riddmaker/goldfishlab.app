@@ -16,6 +16,7 @@
   Takes: chart (a charts.LineChart), name (unique on the page, for the ids),
   title (what the chart shows, for a screen reader).
 {% endcomment %}
+{% load l10n %}
 <div class="seen-chart mt-3">
   <div class="seen-chips" role="group" aria-label="Lines to show">
     {% for line in chart.lines %}
@@ -29,16 +30,16 @@
       </label>
     {% endfor %}
   </div>
-  <svg viewBox="0 0 {{ chart.width }} {{ chart.height }}"
+  <svg viewBox="0 0 {{ chart.width|unlocalize }} {{ chart.height|unlocalize }}"
        class="seen-svg"
        role="group"
        aria-label="{{ title }}">
     {% for tick in chart.y_ticks %}
-      <line x1="{{ chart.left }}" x2="{{ chart.right }}" y1="{{ tick.position }}" y2="{{ tick.position }}" class="seen-grid" />
-      <text x="{{ chart.left|add:-4 }}" y="{{ tick.position }}" class="seen-axis" text-anchor="end" dominant-baseline="middle" aria-hidden="true">{{ tick.label }}</text>
+      <line x1="{{ chart.left|unlocalize }}" x2="{{ chart.right|unlocalize }}" y1="{{ tick.position|unlocalize }}" y2="{{ tick.position|unlocalize }}" class="seen-grid" />
+      <text x="{{ chart.left|add:-4|unlocalize }}" y="{{ tick.position|unlocalize }}" class="seen-axis" text-anchor="end" dominant-baseline="middle" aria-hidden="true">{{ tick.label }}</text>
     {% endfor %}
     {% for tick in chart.x_ticks %}
-      <text x="{{ tick.position }}" y="{{ chart.height|add:-6 }}" class="seen-axis" text-anchor="middle" aria-hidden="true">{{ tick.label }}</text>
+      <text x="{{ tick.position|unlocalize }}" y="{{ chart.height|add:-6|unlocalize }}" class="seen-axis" text-anchor="middle" aria-hidden="true">{{ tick.label }}</text>
     {% endfor %}
     {% for line in chart.lines %}
       {% if line.band %}<polygon points="{{ line.band }}" class="seen-band seen-band-{{ line.index }}" />{% endif %}

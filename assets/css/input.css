@@ -169,6 +169,33 @@ body {
   font-family: var(--font-body);
 }
 
+/* Japanese (phase 12, Q7). EB Garamond has no Japanese glyphs, so they fall
+   through to the system's Mincho, the serif closest to it; no web font (several
+   MB). Garamond stays first for Latin text such as card names. Japanese breaks
+   between characters, not at spaces: `strict` keeps small kana and closing
+   punctuation off the start of a line. No synthetic italics: slanted Mincho is
+   not a Japanese style. */
+:root:lang(ja) {
+  --font-display: "EB Garamond", "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    "Noto Serif JP", "Noto Serif CJK JP", serif;
+  --font-body: "EB Garamond", "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    "Noto Serif JP", "Noto Serif CJK JP", serif;
+}
+
+:lang(ja) {
+  line-break: strict;
+  word-break: normal;
+  overflow-wrap: break-word;
+  font-synthesis: weight;
+}
+
+/* A break between any two characters lets a narrow table squeeze its row
+   labels to two characters a line ("アー/ティ/ファク/ト"). Seven ems (padding
+   included) hold the card types and roles whole; the tables scroll sideways. */
+:lang(ja) table th:first-child {
+  min-width: 7em;
+}
+
 /* A parchment surface: the card-like panel this whole design rests on. */
 .surface-parchment {
   background-color: var(--color-parchment-100);

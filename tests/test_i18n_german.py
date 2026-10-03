@@ -23,14 +23,17 @@ _SIE = re.compile(r"\b(Ihnen|Ihre[mnrs]?)\b|\b\w+en Sie\b|\bIhr (Konto|Passwort)
 
 
 def test_every_string_has_a_german_translation():
+    # Other languages' allauth overrides stay empty here (test_i18n_languages).
+    others = allauth_tone.OVERRIDDEN - set(allauth_tone.OVERRIDES["de"])
     untranslated = [entry.msgid for entry in polib.pofile(str(CATALOGUE))
-                    if not entry.translated() and not entry.obsolete]
+                    if not entry.translated() and not entry.obsolete
+                    and entry.msgid not in others]
     assert untranslated == []
 
 
 def test_every_allauth_override_is_translated_and_says_du():
     german = {entry.msgid: entry.msgstr for entry in polib.pofile(str(CATALOGUE))}
-    for msgid in allauth_tone.OVERRIDDEN:
+    for msgid in allauth_tone.OVERRIDES["de"]:
         assert german.get(msgid), msgid
         assert not _SIE.search(german[msgid]), msgid
 

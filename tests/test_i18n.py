@@ -284,7 +284,9 @@ def _entries(po_path):
 def _pairs(entry):
     """(source, translation) for every form, plural ones included."""
     if entry.msgid_plural:
-        return [(entry.msgid_plural if index else entry.msgid, text)
+        # A language with one form (Japanese) uses it for every count, 1 too.
+        single = len(entry.msgstr_plural) == 1
+        return [(entry.msgid_plural if index or single else entry.msgid, text)
                 for index, text in sorted(entry.msgstr_plural.items())]
     return [(entry.msgid, entry.msgstr)]
 

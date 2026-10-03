@@ -169,7 +169,7 @@ def test_the_facts_offer_each_strategy_with_its_candidates(deck, readings):
     assert '"strategies"' in summary.SYSTEM_PROMPT
     assert "Never name a card that is not in that strategy's candidates" in summary.SYSTEM_PROMPT
     assert 'never one from "cards"' in summary.SYSTEM_PROMPT
-    assert summary.PROMPT_VERSION == 4
+    assert summary.PROMPT_VERSION >= 4
 
 
 def test_the_land_verdict_is_worked_out_not_left_to_the_model(deck, readings):

@@ -30,13 +30,19 @@ The text is Mistral's, through `simulations.mistral`:
   gives that run back. A version 1 summary stays until the deck changes
   (F13): it shows without title and tagline, and our new prompt rewrites
   nothing and charges nobody.
+* **In which language** (phase 12 G, Q3): the language of whoever starts it,
+  kept on the row and never in the fingerprint - a language change alone
+  rewrites nothing and charges nobody. Strategy and card names stay English,
+  so `parse` checks them as strictly as before.
 """
 
 import hashlib
 import json
 import re
 
+from django.conf import settings
 from django.db import transaction
+from django.utils.translation import get_language
 
 from simulations import mistral
 from simulations.report import SEEN_ROLES, SEEN_STRATEGY_ROLES, hypergeometric
@@ -64,7 +70,8 @@ def missing(readings) -> list[str]:
 #: 3 = phase 11 E: "strategies", cards picked from the lists we offer.
 #: 4 = phase 11 F: the land verdict worked out, no card from the deck picked,
 #: changes from the deck's own numbers; six shorter candidates a strategy.
-PROMPT_VERSION = 4
+#: 5 = phase 12 G: written in the starter's language, names kept in English.
+PROMPT_VERSION = 5
 
 #: Room for the JSON answer. Each part is "not longer than a paragraph"
 #: (T6.1); this is generous and still bounds the cost of a runaway answer.
@@ -110,11 +117,11 @@ SYSTEM_PROMPT = (
     'a deck by its style, for example "Unconventional Dark" or "Patient Artifact '
     "Engine\". Not the commander's name, no quotes, at most 40 characters.\n"
     '- "tagline": one sentence that says what this deck is.\n'
-    '- "feel": two or three sentences on how the deck wants to play and what kind '
+    '- "feel": one string of two or three sentences on how the deck wants to play and what kind '
     "of game its owner probably enjoys, guessed from the cards.\n"
     '- "strengths": a list of at most four short sentences, each one strength.\n'
     '- "weaknesses": a list of at most four short sentences, each one weakness.\n'
-    "- \"tactics\": two to four sentences that name the deck's main strategies "
+    "- \"tactics\": one string of two to four sentences that name the deck's main strategies "
     "(from cards_per_category), say how they work together to win, and what to "
     "change if the owner wants the plan to come together more often.\n"
     '- "strategies": at most three entries from the facts\' "strategies", the ones '
@@ -128,8 +135,31 @@ SYSTEM_PROMPT = (
     "merely popular.\n"
     "Write about this deck: a sentence that would fit any deck says nothing. "
     "Plain sentences only: no Markdown, no lists inside strings, no links, no "
-    "leading + or -. Write in English."
+    "leading + or -. "
 )
+
+#: How the last line of the prompt names each language, in English (the
+#: prompt is English), with the tone the site takes in it (Q8).
+WRITE_IN = {
+    "en": "English",
+    "de": "German, addressing the reader informally (du)",
+    "fr": "French, addressing the reader formally (vous)",
+    "it": "Italian, addressing the reader informally (tu)",
+    "es": "Spanish, addressing the reader informally (tú)",
+    "pt-br": "Brazilian Portuguese, addressing the reader as você",
+    # Without these, shroud became a "shout" (シャウト) and Chainer チャイナー.
+    # Tutors still turn into チュートリアル now and then: the category name in
+    # the facts is English. Open until Japanese goes on (Q5).
+    "ja": "Japanese, in the polite style (です・ます), with the terms printed on Japanese "
+          "cards (速攻 haste, 呪禁 hexproof, 被覆 shroud; a tutor is a サーチ card) and every "
+          "card name, the commander's too, in its English spelling",
+}
+
+
+def language() -> str:
+    """The active language as a key of `settings.LANGUAGE_NAMES`, else English."""
+    code = (get_language() or "en").lower()
+    return code if code in settings.LANGUAGE_NAMES else "en"
 
 
 def fingerprint(deck) -> str:
@@ -268,9 +298,19 @@ def _combos(deck) -> list[dict] | None:
     ]
 
 
-def messages(deck_facts: dict) -> list[dict]:
+def write_in(code: str) -> str:
+    """The prompt's last line: the language, and the names that stay English."""
+    if code not in WRITE_IN or code == "en":
+        return "Write in English."
+    return (f"Write every text value, the title too, in {WRITE_IN[code]}. Use the Magic "
+            "terms players of that language use, the official ones where they exist. Keep "
+            "the JSON keys, and every strategy name and card name exactly as given, in "
+            "English.")
+
+
+def messages(deck_facts: dict, code: str = "en") -> list[dict]:
     return [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": SYSTEM_PROMPT + write_in(code)},
         {"role": "user", "content": "Facts about the deck, as JSON:\n"
                                     + json.dumps(deck_facts, ensure_ascii=False)},
     ]
@@ -287,15 +327,28 @@ def _clean(value, limit: int) -> str:
     """One string from the model, as the page may show it.
 
     No links, no Markdown markers, one line, and cut at the last whole word
-    under `limit`. The template escapes it as well; this is about what it
-    says, not about whether it is safe to put in HTML.
+    under `limit`. Japanese has no spaces between words: there, a space is
+    only one inside a card name, so a cut that would lose more than a third
+    is made at the limit instead. The template escapes it as well; this is
+    about what it says, not about whether it is safe to put in HTML.
     """
     if not isinstance(value, str):
         raise ValueError("not a string")
     text = " ".join(_MARKDOWN.sub("", _LINK.sub("", value)).split())
     if len(text) > limit:
-        text = text[:limit].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+        cut = text[:limit]
+        head = cut.rsplit(" ", 1)[0]
+        text = (head if len(head) * 3 >= limit * 2 else cut).rstrip(",;:、，") + "…"
     return text
+
+
+def _prose(value, limit: int) -> str:
+    """`_clean` for a paragraph. Its sentences sometimes come back as a list
+    (phase 12 G: 2 of 8 Spanish and Portuguese answers); joined, they are the
+    paragraph that was asked for."""
+    if isinstance(value, list) and value and all(isinstance(item, str) for item in value):
+        value = " ".join(value)
+    return _clean(value, limit)
 
 
 def _optional(value, limit: int) -> str:
@@ -364,10 +417,10 @@ def parse(content: str, offered: list[dict] | None = None) -> dict:
         # Optional (P4): without a title the block starts with "Feel".
         "title": _optional(data.get("title"), TITLE_MAX).strip(" .\"'“”"),
         "tagline": _optional(data.get("tagline"), TAGLINE_MAX),
-        "feel": _clean(data.get("feel"), FEEL_MAX),
+        "feel": _prose(data.get("feel"), FEEL_MAX),
         "strengths": _points(data.get("strengths")),
         "weaknesses": _points(data.get("weaknesses")),
-        "tactics": _clean(data.get("tactics"), TACTICS_MAX),
+        "tactics": _prose(data.get("tactics"), TACTICS_MAX),
         # Optional too (P6): without picks the block shows its fallback.
         "strategies": _strategies(data.get("strategies"), offered),
     }
@@ -429,7 +482,8 @@ def begin(deck, *, charged: bool, print_: str | None = None):
 
     Call inside the transaction that charged for it: the task is sent on
     commit, so a worker never looks for a row that is not there yet. The old
-    text stays in the row until a new one replaces it.
+    text stays in the row until a new one replaces it. It is written in the
+    language active now - the request of whoever started it (Q3).
     """
     from simulations import tasks
     from simulations.models import DeckSummary
@@ -440,6 +494,7 @@ def begin(deck, *, charged: bool, print_: str | None = None):
             "fingerprint": print_ or fingerprint(deck),
             "status": DeckSummary.Status.PENDING,
             "charged": charged,
+            "language": language(),
             "error": "",
         },
     )
@@ -473,6 +528,8 @@ def state(user, deck) -> dict:
     return {
         "configured": configured,
         "content": (stored.content if stored is not None else None) or {},
+        # The text's own language, for its `lang` (screen readers, fonts).
+        "language": stored.language if stored is not None else "",
         "pending": pending,
         "current": current,
         "failed": stored is not None and stored.status == DeckSummary.Status.FAILED,
@@ -482,5 +539,6 @@ def state(user, deck) -> dict:
     }
 
 
-__all__ = ["BY_TURN", "PROMPT_VERSION", "SEEN_BY_TURN", "at_least_one", "begin", "claim",
-           "due", "facts", "fingerprint", "messages", "missing", "parse", "state"]
+__all__ = ["BY_TURN", "PROMPT_VERSION", "SEEN_BY_TURN", "WRITE_IN", "at_least_one", "begin",
+           "claim", "due", "facts", "fingerprint", "language", "messages", "missing", "parse",
+           "state", "write_in"]

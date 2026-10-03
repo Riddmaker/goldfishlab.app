@@ -10,7 +10,8 @@
   the two biggest strategies with the most played candidates, no reasons:
   the block never disappears because the written part is missing (P6).
 
-  Needs `strategies` (simulations.strategies.block), `report` and `run`.
+  Needs `strategies` (simulations.strategies.block), `report` and `run`;
+  `written` gives Mistral's reasons their `lang` (phase 12 G).
 {% endcomment %}
 {% if strategies.shown or report.combos %}
 <section id="strategies" class="surface-parchment mt-6 p-6">
@@ -31,14 +32,14 @@
             {% blocktranslate with turn=strategies.by_turn now=item.strategy.now_label more=item.strategy.more_label extra=strategies.more %}At least one by turn {{ turn }}: {{ now }} now, {{ more }} with {{ extra }} more.{% endblocktranslate %}
           </p>
           {% if item.why %}
-            <p class="mt-1 text-ink-900">{{ item.why }}</p>
+            <p class="mt-1 text-ink-900"{% if written.language %} lang="{{ written.language }}"{% endif %}>{{ item.why }}</p>
           {% endif %}
           {% if item.cards %}
             <ul class="mt-2 text-ink-900">
               {% for card in item.cards %}
                 <li class="summary-point">
                   <span class="summary-sign summary-sign-plus" aria-hidden="true">+</span>
-                  {% if card.url %}<a href="{{ card.url }}" rel="noopener noreferrer" target="_blank" class="underline">{{ card.name }}</a>{% else %}{{ card.name }}{% endif %}{% if card.reason %}<span class="text-ink-700"> - {{ card.reason }}</span>{% endif %}
+                  {% if card.url %}<a href="{{ card.url }}" rel="noopener noreferrer" target="_blank" class="underline">{{ card.name }}</a>{% else %}{{ card.name }}{% endif %}{% if card.reason %}<span class="text-ink-700"{% if written.language %} lang="{{ written.language }}"{% endif %}> - {{ card.reason }}</span>{% endif %}
                 </li>
               {% endfor %}
             </ul>

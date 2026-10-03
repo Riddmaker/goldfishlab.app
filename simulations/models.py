@@ -394,6 +394,10 @@ class DeckSummary(models.Model):
 
     `charged` is whether a run was taken from the owner's monthly allowance
     for it, so a failure gives back exactly what was taken, once.
+
+    `language` is the language of whoever started it (phase 12 G, Q3), a key
+    of `settings.LANGUAGE_NAMES`. It is not in the fingerprint: a language
+    change alone would otherwise rewrite the summary and charge for it.
     """
 
     class Status(models.TextChoices):
@@ -410,6 +414,7 @@ class DeckSummary(models.Model):
     content = models.JSONField(default=dict, blank=True)
     model_name = models.CharField(max_length=64, blank=True)
     prompt_version = models.PositiveSmallIntegerField(default=0)
+    language = models.CharField(max_length=8, default="en")
     prompt_tokens = models.PositiveIntegerField(default=0)
     completion_tokens = models.PositiveIntegerField(default=0)
     charged = models.BooleanField(default=False)

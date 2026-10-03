@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Goldfish Lab{% endblock %}</title>
     <meta name="description"
-          content="{% block description %}Goldfish Lab actually plays your Commander deck, thousands of times, and tells you what happens.{% endblock %}">
+          content="{% block description %}{% translate "Goldfish Lab actually plays your Commander deck, thousands of times, and tells you what happens." %}{% endblock %}">
     <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     {% comment %}
@@ -37,7 +37,7 @@
   <body class="min-h-screen flex flex-col">
     <a href="#main"
        class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-parchment-100 focus:text-ink-900 focus:px-3 focus:py-2">
-      Skip to content
+      {% translate "Skip to content" %}
     </a>
     <header class="border-b border-ink-800">
       {% comment %}
@@ -70,7 +70,7 @@
             Goldfish&nbsp;Lab
           </a>
         {% endif %}
-        <span class="hidden text-sm text-ink-400 sm:inline">it actually plays your deck</span>
+        <span class="hidden text-sm text-ink-400 sm:inline">{% translate "it actually plays your deck" %}</span>
         <div class="ml-auto flex flex-wrap items-baseline justify-end gap-x-4 gap-y-1 text-sm">
           {% if user.is_guest %}
             {% comment %}
@@ -78,29 +78,29 @@
               the way to keep it, and the way in for somebody who has one.
             {% endcomment %}
             <a href="{% url 'decks:list' %}"
-               class="text-parchment-200 underline hover:text-parchment-50">Your deck</a>
+               class="text-parchment-200 underline hover:text-parchment-50">{% translate "Your deck" %}</a>
             <a href="{% url 'guests:save' %}"
-               class="border border-blood-800 bg-blood-700 px-3 py-1 text-parchment-100 hover:bg-blood-800">Save your deck - free</a>
+               class="border border-blood-800 bg-blood-700 px-3 py-1 text-parchment-100 hover:bg-blood-800">{% translate "Save your deck - free" %}</a>
             <a href="{% url 'account_login' %}"
-               class="text-parchment-200 underline hover:text-parchment-50">Sign in</a>
+               class="text-parchment-200 underline hover:text-parchment-50">{% translate "Sign in" %}</a>
           {% elif user.is_authenticated %}
             <a href="{% url 'decks:list' %}"
-               class="text-parchment-200 underline hover:text-parchment-50">Decks</a>
+               class="text-parchment-200 underline hover:text-parchment-50">{% translate "Decks" %}</a>
             <a href="{% url 'decks:import' %}"
-               class="text-parchment-200 underline hover:text-parchment-50">Import</a>
+               class="text-parchment-200 underline hover:text-parchment-50">{% translate "Import" context "navigation" %}</a>
             <a href="{% url 'billing:plans' %}"
-               class="text-parchment-200 underline hover:text-parchment-50">Your plan</a>
+               class="text-parchment-200 underline hover:text-parchment-50">{% translate "Your plan" %}</a>
             <span class="text-ink-300">{{ user.email }}</span>
             <form method="post" action="{% url 'account_logout' %}">
               {% csrf_token %}
               <button type="submit"
-                      class="text-parchment-200 underline hover:text-parchment-50">Sign out</button>
+                      class="text-parchment-200 underline hover:text-parchment-50">{% translate "Sign out" %}</button>
             </form>
           {% else %}
             <a href="{% url 'account_login' %}"
-               class="text-parchment-200 underline hover:text-parchment-50">Sign in</a>
+               class="text-parchment-200 underline hover:text-parchment-50">{% translate "Sign in" %}</a>
             <a href="{% url 'account_signup' %}"
-               class="text-parchment-200 underline hover:text-parchment-50">Create account</a>
+               class="text-parchment-200 underline hover:text-parchment-50">{% translate "Create account" %}</a>
           {% endif %}
         </div>
       </nav>
@@ -118,26 +118,25 @@
     <footer class="border-t border-ink-800">
       <div class="mx-auto max-w-5xl px-4 py-6 text-xs leading-relaxed text-ink-400">
         <p class="flex flex-wrap gap-x-4 gap-y-1">
-          <a href="{% url 'methodology' %}" class="underline hover:text-ink-300">How this works</a>
-          <a href="{% url 'terms' %}" class="underline hover:text-ink-300">Terms</a>
-          <a href="{% url 'privacy' %}" class="underline hover:text-ink-300">Privacy</a>
-          <a href="{% url 'imprint' %}" class="underline hover:text-ink-300">Legal notice</a>
+          <a href="{% url 'methodology' %}" class="underline hover:text-ink-300">{% translate "How this works" %}</a>
+          <a href="{% url 'terms' %}" class="underline hover:text-ink-300">{% translate "Terms" %}</a>
+          <a href="{% url 'privacy' %}" class="underline hover:text-ink-300">{% translate "Privacy" %}</a>
+          <a href="{% url 'imprint' %}" class="underline hover:text-ink-300">{% translate "Legal notice" %}</a>
           {% if user.is_authenticated and not user.is_guest %}
-            <a href="{% url 'accounts:data' %}" class="underline hover:text-ink-300">Your data</a>
+            <a href="{% url 'accounts:data' %}" class="underline hover:text-ink-300">{% translate "Your data" %}</a>
           {% endif %}
           {% if show_dev_tools %}
             <a href="{% url 'styleguide' %}" class="underline hover:text-ink-300">Styleguide</a>
           {% endif %}
           {% if source_code_url %}
-            <a href="{{ report_url }}" class="underline hover:text-ink-300" rel="noopener">Report a problem</a>
-            <a href="{{ source_code_url }}" class="underline hover:text-ink-300" rel="noopener">Source code (AGPL)</a>
+            <a href="{{ report_url }}" class="underline hover:text-ink-300" rel="noopener">{% translate "Report a problem" %}</a>
+            <a href="{{ source_code_url }}" class="underline hover:text-ink-300" rel="noopener">{% translate "Source code (AGPL)" %}</a>
           {% endif %}
           {% if operator.email %}
-            <a href="mailto:{{ operator.email }}" class="underline hover:text-ink-300">Email us</a>
+            <a href="mailto:{{ operator.email }}" class="underline hover:text-ink-300">{% translate "Email us" %}</a>
           {% endif %}
         </p>
-        {% get_available_languages as languages %}
-        {% if languages|length > 1 %}
+        {% if site_languages|length > 1 %}
           {% comment %}
             Phase 12: a plain form, no script, so the CSP stays as it is. Every
             language in its own name and marked with its `lang`, so a person
@@ -150,29 +149,35 @@
                 class="mt-2 flex items-center gap-2">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            <label for="footer-language">Language</label>
+            <label for="footer-language">{% translate "Language" %}</label>
             <select id="footer-language"
                     name="language"
                     class="rounded border border-ink-700 bg-ink-900 px-2 py-1 text-ink-300">
-              {% for code, name in languages %}
+              {% for code, name in site_languages %}
                 <option value="{{ code }}" lang="{{ code }}" {% if code == current_language %}selected{% endif %}>
                   {{ name }}
                 </option>
               {% endfor %}
             </select>
-            <button type="submit" class="underline hover:text-ink-300">Change</button>
+            <button type="submit" class="underline hover:text-ink-300">{% translate "Change" context "language switch" %}</button>
           </form>
         {% endif %}
-        <p class="mt-2 max-w-3xl">
+        {% comment %}
+          The Fan Content Policy asks for this notice in these words, and the
+          policy exists in English only: it stays English in every language.
+        {% endcomment %}
+        <p class="mt-2 max-w-3xl" lang="en">
           Goldfish Lab is unofficial Fan Content permitted under the
           <a href="https://company.wizards.com/en/legal/fancontentpolicy" class="underline hover:text-ink-300" rel="noopener">Fan Content Policy</a>.
           Not approved/endorsed by Wizards. Portions of the materials used are property of
           Wizards of the Coast. ©Wizards of the Coast LLC.
         </p>
         <p class="mt-2 max-w-3xl">
-          Card data and images from <a href="https://scryfall.com" class="underline hover:text-ink-300" rel="noopener">Scryfall</a>;
-          combos from <a href="https://commanderspellbook.com" class="underline hover:text-ink-300" rel="noopener">Commander Spellbook</a>.
-          Neither is affiliated with Goldfish Lab.
+          {% blocktranslate trimmed %}
+            Card data and images from <a href="https://scryfall.com" class="underline hover:text-ink-300" rel="noopener">Scryfall</a>;
+            combos from <a href="https://commanderspellbook.com" class="underline hover:text-ink-300" rel="noopener">Commander Spellbook</a>.
+            Neither is affiliated with Goldfish Lab.
+          {% endblocktranslate %}
         </p>
       </div>
     </footer>

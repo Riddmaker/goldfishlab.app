@@ -85,6 +85,7 @@ TEMPLATES = [
                 "core.context_processors.payments",
                 "core.context_processors.source_code",
                 "core.context_processors.dev_tools",
+                "core.context_processors.languages",
             ],
         },
     },
@@ -292,6 +293,10 @@ LANGUAGES = [("en", LANGUAGE_NAMES["en"])] + [
     if code != "en" and code in LANGUAGES_ON
 ]
 LOCALE_PATHS = [BASE_DIR / "locale"]
+# Dates by name (`|date:"SHORT_DATE_FORMAT"`), so each language writes them its
+# own way. Only English is ours (goldfishlab/formats/en): the site wrote
+# "3 Oct 2026" before phase 12 and keeps doing so; the others are Django's.
+FORMAT_MODULE_PATH = ["goldfishlab.formats"]
 # One year instead of Django's session cookie: a choice made once should hold.
 # HttpOnly and Lax because no script reads it and no other site needs to send
 # it; Secure in production (prod.py).

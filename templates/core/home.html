@@ -1,39 +1,39 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %}Goldfish Lab — it actually plays your deck{% endblock %}
+{% load static i18n %}
+{% block title %}Goldfish Lab — {% translate "it actually plays your deck" %}{% endblock %}
 {% block head %}
   <script src="{% static 'js/fish.js' %}" defer></script>
   <script src="{% static 'js/ticker.js' %}" defer></script>
 {% endblock %}
 {% block content %}
   <section class="max-w-3xl">
-    <h1 class="font-display text-4xl leading-tight text-parchment-100 sm:text-5xl">Know your deck before game night.</h1>
+    <h1 class="font-display text-4xl leading-tight text-parchment-100 sm:text-5xl">{% translate "Know your deck before game night." %}</h1>
     <p class="mt-5 text-lg leading-relaxed text-parchment-200">
-      Upload your Commander deck. Goldfish Lab plays it thousands of times and shows you what happens.
+      {% translate "Upload your Commander deck. Goldfish Lab plays it thousands of times and shows you what happens." %}
     </p>
     <p class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
       {% if user.is_guest %}
         {% comment %}A guest (phase 9 G): back to what it was trying, or keep it.{% endcomment %}
         <a href="{% url 'decks:list' %}"
            class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
-          Back to your deck
+          {% translate "Back to your deck" %}
         </a>
         <a href="{% url 'guests:save' %}"
-           class="text-parchment-200 underline hover:text-parchment-50">Save it - free account</a>
+           class="text-parchment-200 underline hover:text-parchment-50">{% translate "Save it - free account" %}</a>
       {% elif user.is_authenticated %}
         <a href="{% url 'decks:import' %}"
            class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
-          Import a deck
+          {% translate "Import a deck" %}
         </a>
         <a href="{% url 'decks:list' %}"
-           class="text-parchment-200 underline hover:text-parchment-50">Your decks</a>
+           class="text-parchment-200 underline hover:text-parchment-50">{% translate "Your decks" %}</a>
       {% else %}
         <a href="{% url 'guests:try' %}"
            class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
-          Try it now - no account
+          {% translate "Try it now - no account" %}
         </a>
         <a href="{% url 'account_signup' %}"
-           class="text-parchment-200 underline hover:text-parchment-50">Create a free account</a>
+           class="text-parchment-200 underline hover:text-parchment-50">{% translate "Create a free account" %}</a>
       {% endif %}
     </p>
   </section>
@@ -50,37 +50,39 @@
   <div class="mt-10 grid items-start gap-6 md:grid-cols-3">
     <figure>
       <img src="{% static 'img/home-hand.webp' %}"
-           alt="An opening hand of seven cards on the playtest table, with Mulligan and Keep above it"
+           alt="{% translate "An opening hand of seven cards on the playtest table, with Mulligan and Keep above it" %}"
            width="720"
            height="540"
            class="w-full border border-ink-800">
-      <figcaption class="mt-2 text-sm text-ink-400">Draw a hand and play it out.</figcaption>
+      <figcaption class="mt-2 text-sm text-ink-400">{% translate "Draw a hand and play it out." %}</figcaption>
     </figure>
     <figure>
       <img src="{% static 'img/home-report.webp' %}"
-           alt="A report chart: how often the deck has drawn ramp, card draw and removal by each turn"
+           alt="{% translate "A report chart: how often the deck has drawn ramp, card draw and removal by each turn" %}"
            width="720"
            height="540"
            loading="lazy"
            class="w-full border border-ink-800">
-      <figcaption class="mt-2 text-sm text-ink-400">Or get the odds from thousands of games.</figcaption>
+      <figcaption class="mt-2 text-sm text-ink-400">{% translate "Or get the odds from thousands of games." %}</figcaption>
     </figure>
     <figure data-ticker>
       <div class="ticker-box surface-parchment p-4">
         {% include "core/_ticker_lines.html" %}
       </div>
       <figcaption class="mt-2 flex items-baseline justify-between gap-3 text-sm text-ink-400">
-        What others are doing
+        {% translate "What others are doing" %}
         <button type="button"
                 data-ticker-pause
                 aria-pressed="false"
                 aria-controls="ticker-lines"
+                data-pause="{% translate "Pause" %}"
+                data-resume="{% translate "Resume" %}"
                 hidden
-                class="underline hover:text-ink-300">Pause</button>
+                class="underline hover:text-ink-300">{% translate "Pause" %}</button>
       </figcaption>
     </figure>
   </div>
   <p class="mt-8 text-sm text-ink-400">
-    <a href="{% url 'methodology' %}" class="underline hover:text-ink-300">How it works</a>
+    <a href="{% url 'methodology' %}" class="underline hover:text-ink-300">{% translate "How it works" %}</a>
   </p>
 {% endblock %}

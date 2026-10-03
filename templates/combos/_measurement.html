@@ -1,4 +1,4 @@
-{% load humanize %}
+{% load humanize i18n %}
 {% comment %}
   What the simulator found out about one combo, or why it found out nothing.
 
@@ -21,28 +21,47 @@
     {% if m.never %}
       <p class="mt-1 text-sm text-ink-700">
         {% if m.hypothetical %}
-          Even with {{ m.added_name }} in the deck, it never
+          {% blocktranslate trimmed with card=m.added_name turns=m.turns games=m.games|intcomma %}
+            Even with {{ card }} in the deck, it never came together within {{ turns }} turns,
+            across {{ games }} games.
+          {% endblocktranslate %}
         {% else %}
-          It never
+          {% blocktranslate trimmed with turns=m.turns games=m.games|intcomma %}
+            It never came together within {{ turns }} turns, across {{ games }} games.
+          {% endblocktranslate %}
         {% endif %}
-        came together within {{ m.turns }} turns, across {{ m.games|intcomma }} games.
       </p>
     {% else %}
       <p class="mt-1 text-sm text-ink-900">
         {% if m.hypothetical %}
-          Add <strong>{{ m.added_name }}</strong> and it comes together
-        {% else %}
-          Comes together
-        {% endif %}
-        by turn {{ m.turns }} in <strong class="tabular">{{ m.share_label }}</strong> of games{% if m.median_turn and m.median_turn < m.turns %}, half of those by turn {{ m.median_turn }}{% endif %}.
+          {% blocktranslate trimmed with card=m.added_name turns=m.turns share=m.share_label %}
+            Add <strong>{{ card }}</strong> and it comes together by turn {{ turns }} in
+            <strong class="tabular">{{ share }}</strong> of games
+          {% endblocktranslate %}{% else %}
+          {% blocktranslate trimmed with turns=m.turns share=m.share_label %}
+            Comes together by turn {{ turns }} in <strong class="tabular">{{ share }}</strong> of games
+          {% endblocktranslate %}{% endif %}{% if m.median_turn and m.median_turn < m.turns %},
+          {% blocktranslate with turn=m.median_turn %}half of those by turn {{ turn }}{% endblocktranslate %}{% endif %}.
       </p>
       <p class="text-xs text-ink-700">
-        Measured over {{ m.games|intcomma }} game{{ m.games|pluralize }}{% if m.hypothetical %} of this deck with that one card added — nothing was cut to make room{% endif %}.
+        {% if m.hypothetical %}
+          {% blocktranslate trimmed with games=m.games|intcomma count count=m.games %}
+            Measured over {{ games }} game of this deck with that one card added — nothing was cut to make room.
+          {% plural %}
+            Measured over {{ games }} games of this deck with that one card added — nothing was cut to make room.
+          {% endblocktranslate %}
+        {% else %}
+          {% blocktranslate trimmed with games=m.games|intcomma count count=m.games %}
+            Measured over {{ games }} game.
+          {% plural %}
+            Measured over {{ games }} games.
+          {% endblocktranslate %}
+        {% endif %}
       </p>
     {% endif %}
   {% elif entry.no_number %}
     {# A gap with a reason is an honest limit. A gap without one is a bug   #}
     {# report the user has to write for us.                                #}
-    <p class="mt-1 text-xs text-ink-700">No timing for this one: it {{ entry.no_number }}.</p>
+    <p class="mt-1 text-xs text-ink-700">{% blocktranslate with reason=entry.no_number %}No timing for this one: it {{ reason }}.{% endblocktranslate %}</p>
   {% endif %}
 {% endwith %}

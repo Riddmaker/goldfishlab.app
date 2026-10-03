@@ -8,6 +8,7 @@
   input.css): no JavaScript, and the chosen one is posted as `source`,
   which is what the form reads - not whichever box happens to be filled.
 {% endcomment %}
+{% load i18n %}
 <form method="post"{% if action %} action="{{ action }}"{% endif %} enctype="multipart/form-data" class="import-form">
   {% csrf_token %}
   {% if form.non_field_errors %}
@@ -16,19 +17,19 @@
     </ul>
   {% endif %}
   <fieldset class="import-tabs">
-    <legend class="sr-only">How do you want to add your deck?</legend>
+    <legend class="sr-only">{% translate "How do you want to add your deck?" %}</legend>
     <input type="radio"
            name="source"
            value="file"
            id="source-file"
            {% if not form.pasting %}checked{% endif %}>
-    <label for="source-file">Upload a file</label>
+    <label for="source-file">{% translate "Upload a file" %}</label>
     <input type="radio"
            name="source"
            value="paste"
            id="source-paste"
            {% if form.pasting %}checked{% endif %}>
-    <label for="source-paste">Paste a list</label>
+    <label for="source-paste">{% translate "Paste a list" %}</label>
   </fieldset>
   <div class="import-panel-file">
     <div class="dropzone" data-dropzone>
@@ -49,14 +50,16 @@
           <path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5" />
           <path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15" />
         </svg>
-        <p class="dropzone-title">Drop your deck file here</p>
-        <p>or <span class="underline">click to choose one</span></p>
+        <p class="dropzone-title">{% translate "Drop your deck file here" %}</p>
+        <p>{% blocktranslate trimmed %}or <span class="underline">click to choose one</span>{% endblocktranslate %}</p>
         <p class="dropzone-name" data-dropzone-name></p>
       </div>
     </div>
     <p id="dropzone-hint" class="mt-2 text-sm text-ink-700">
-      Only the card names are needed. Quantities and set codes work too.
-      A CSV, TSV or text file, up to 1&nbsp;MB.
+      {% blocktranslate trimmed %}
+        Only the card names are needed. Quantities and set codes work too.
+        A CSV, TSV or text file, up to 1&nbsp;MB.
+      {% endblocktranslate %}
     </p>
     {% if form.file.errors %}
       <ul class="errorlist mt-2">
@@ -68,7 +71,9 @@
     <label for="{{ form.text.id_for_label }}" class="sr-only">{{ form.text.label }}</label>
     {{ form.text }}
     <p class="mt-1 text-sm text-ink-700">
-      One card per line - the name is enough, a quantity and set code work too. The commander goes under <code class="font-mono whitespace-nowrap">// Commander</code> - or pick it later.
+      {% blocktranslate trimmed %}
+        One card per line - the name is enough, a quantity and set code work too. The commander goes under <code class="font-mono whitespace-nowrap">// Commander</code> - or pick it later.
+      {% endblocktranslate %}
     </p>
     {% if form.text.errors %}
       <ul class="errorlist mt-2">
@@ -78,7 +83,7 @@
   </div>
   <details class="mt-5 text-ink-900"
            {% if form.name.errors or form.format.errors %}open{% endif %}>
-    <summary class="cursor-pointer text-sm text-ink-700">More options</summary>
+    <summary class="cursor-pointer text-sm text-ink-700">{% translate "More options" %}</summary>
     {% for field in form %}
       {% if field.name == "name" or field.name == "format" %}
         <div class="form-field mt-3">

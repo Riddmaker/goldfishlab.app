@@ -1,4 +1,4 @@
-{% load static %}
+{% load static i18n %}
 {% comment %}
   "Keep this deck" (phase 10 T4.1, F3): the second way to save, for a guest,
   dressed as a Magic card - the art is the commander's (Scryfall's art crop),
@@ -8,7 +8,7 @@
 {% endcomment %}
 <aside class="keep-card mt-6" aria-labelledby="keep-card-name">
   <p class="keep-card-name">
-    <span id="keep-card-name">Keep this deck</span>
+    <span id="keep-card-name">{% translate "Keep this deck" %}</span>
   </p>
   <div class="keep-card-art">
     {% if run.deck.commander.art_uri %}
@@ -24,11 +24,11 @@
            class="keep-card-flask">
     {% endif %}
   </div>
-  <p class="keep-card-type">Sorcery — Free</p>
+  <p class="keep-card-type">{% translate "Sorcery — Free" %}</p>
   <div class="keep-card-text">
-    <p>Save your deck and every run, and come back to it after your next change.</p>
-    <p class="keep-card-fine">Guest decks are forgotten after {{ guest_hours }} hours.</p>
-    <p class="keep-card-flavour">“A goldfish forgets in three seconds. The lab doesn't.”</p>
+    <p>{% translate "Save your deck and every run, and come back to it after your next change." %}</p>
+    <p class="keep-card-fine">{% blocktranslate with hours=guest_hours %}Guest decks are forgotten after {{ hours }} hours.{% endblocktranslate %}</p>
+    <p class="keep-card-flavour">{% translate "“A goldfish forgets in three seconds. The lab doesn't.”" %}</p>
   </div>
-  <a href="{% url 'guests:save' %}" class="keep-card-button">Save your deck - free</a>
+  <a href="{% url 'guests:save' %}" class="keep-card-button">{% translate "Save your deck - free" %}</a>
 </aside>

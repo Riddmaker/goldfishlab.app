@@ -5,7 +5,8 @@
   with the text in its place, the way the progress fragment ends a run.
   Without JavaScript it is a line that a reload replaces.
 {% endcomment %}
+{% load i18n %}
 <p class="mt-3 text-ink-700 italic"
    hx-get="{% url 'simulations:summary' run.id %}"
    hx-trigger="every 3s"
-   hx-swap="outerHTML">Writing your deck summary…</p>
+   hx-swap="outerHTML">{% translate "Writing your deck summary…" %}</p>

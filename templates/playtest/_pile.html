@@ -2,6 +2,7 @@
   A graveyard or an exile: the top card and a count, the rest behind a fold.
   `label` and `tiles` come from the include.
 {% endcomment %}
+{% load i18n %}
 <div>
   <p class="text-xs uppercase tracking-wide text-ink-700">
     {{ label }} <span class="tabular">{{ tiles|length }}</span>
@@ -17,7 +18,7 @@
     {% endwith %}
     {% if tiles|length > 1 %}
       <details class="mt-1 text-xs text-ink-700">
-        <summary class="cursor-pointer">All {{ tiles|length }}</summary>
+        <summary class="cursor-pointer">{% blocktranslate with count=tiles|length %}All {{ count }}{% endblocktranslate %}</summary>
         <ol class="mt-1 space-y-0.5">
           {% for tile in tiles reversed %}<li>{{ tile.card.name }}</li>{% endfor %}
         </ol>

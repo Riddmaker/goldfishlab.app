@@ -1,12 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Your decks — Goldfish Lab{% endblock %}
-{% block description %}Every deck you have imported, with its commander and card count.{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Your decks" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "Every deck you have imported, with its commander and card count." %}{% endblock %}
 {% block content %}
   <div class="flex flex-wrap items-baseline gap-4">
-    <h1 class="font-display text-3xl text-parchment-100">Your decks</h1>
+    <h1 class="font-display text-3xl text-parchment-100">{% translate "Your decks" %}</h1>
     <a href="{% url 'decks:import' %}"
        class="ml-auto inline-block border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
-      Import a deck
+      {% translate "Import a deck" %}
     </a>
   </div>
   {% if decks %}
@@ -18,28 +19,28 @@
                class="font-display text-xl text-ink-900 underline decoration-parchment-600 underline-offset-4 hover:decoration-ink-900">
               {{ deck.name }}
             </a>
-            <span class="tabular text-sm text-ink-700">{{ deck.total_with_commander }} cards</span>
+            <span class="tabular text-sm text-ink-700">{% blocktranslate count count=deck.total_with_commander %}{{ count }} card{% plural %}{{ count }} cards{% endblocktranslate %}</span>
             {% include "decks/_status.html" %}
             <span class="text-sm text-ink-700">
               {% if deck.commander %}
-                Commander: {{ deck.commander.name }}
+                {% blocktranslate with name=deck.commander.name %}Commander: {{ name }}{% endblocktranslate %}
               {% else %}
-                <span class="text-blood-700">No commander set</span>
+                <span class="text-blood-700">{% translate "No commander set" %}</span>
               {% endif %}
             </span>
-            <span class="ml-auto text-sm text-ink-600">updated {{ deck.updated_at|date:"j M Y" }}</span>
+            <span class="ml-auto text-sm text-ink-600">{% blocktranslate with date=deck.updated_at|date:"SHORT_DATE_FORMAT" %}updated {{ date }}{% endblocktranslate %}</span>
           </div>
         </li>
       {% endfor %}
     </ul>
   {% else %}
     <div class="surface-parchment mt-8 p-6">
-      <h2 class="font-display text-2xl text-ink-900">Nothing here yet</h2>
-      <p class="mt-3 text-ink-900">Any CSV export works, or paste your list.</p>
+      <h2 class="font-display text-2xl text-ink-900">{% translate "Nothing here yet" %}</h2>
+      <p class="mt-3 text-ink-900">{% translate "Any CSV export works, or paste your list." %}</p>
       <p class="mt-5">
         <a href="{% url 'decks:import' %}"
            class="inline-block border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
-          Import your first deck
+          {% translate "Import your first deck" %}
         </a>
       </p>
     </div>

@@ -1,4 +1,4 @@
-{% load humanize %}
+{% load humanize i18n %}
 {% comment %}
   "Your last run" (phase 11 F11). Runs were always kept, but a deck page only
   showed them folded under "Earlier runs and games"; somebody coming back to
@@ -7,27 +7,31 @@
 
   Takes: running_run, last_run, deck_changed (DeckDetailView.last_run_context).
 {% endcomment %}
-<section class="surface-parchment mt-5 max-w-xl p-4" aria-label="Your last run">
+<section class="surface-parchment mt-5 max-w-xl p-4" aria-label="{% translate "Your last run" %}">
   {% if running_run %}
-    <p class="font-display text-lg text-ink-900">A run is going</p>
+    <p class="font-display text-lg text-ink-900">{% translate "A run is going" %}</p>
     <p class="tabular mt-1 text-sm text-ink-700">
-      {{ running_run.games_total|intcomma }} games · {{ running_run.progress_pct }}% done
+      {% blocktranslate trimmed with games=running_run.games_total|intcomma pct=running_run.progress_pct %}
+        {{ games }} games · {{ pct }}% done
+      {% endblocktranslate %}
     </p>
     <a href="{{ running_run.get_absolute_url }}"
-       class="mt-2 inline-block text-sm text-ink-900 underline">Watch it</a>
+       class="mt-2 inline-block text-sm text-ink-900 underline">{% translate "Watch it" %}</a>
   {% endif %}
   {% if last_run %}
     <div class="{% if running_run %}mt-4 border-t border-parchment-600 pt-3{% endif %}">
-      <p class="font-display text-lg text-ink-900">Your last run</p>
+      <p class="font-display text-lg text-ink-900">{% translate "Your last run" %}</p>
       <p class="tabular mt-1 text-sm text-ink-700">
-        {{ last_run.finished_at|default:last_run.created_at|date:"j M Y, H:i" }} ·
-        {{ last_run.games_total|intcomma }} games · {{ last_run.turns }} turns
+        {{ last_run.finished_at|default:last_run.created_at|date:"SHORT_DATETIME_FORMAT" }} ·
+        {% blocktranslate trimmed with games=last_run.games_total|intcomma turns=last_run.turns %}
+          {{ games }} games · {{ turns }} turns
+        {% endblocktranslate %}
       </p>
       {% if deck_changed %}
-        <p class="mt-1 text-sm text-ink-900">The deck has changed since this run.</p>
+        <p class="mt-1 text-sm text-ink-900">{% translate "The deck has changed since this run." %}</p>
       {% endif %}
       <a href="{{ last_run.get_absolute_url }}"
-         class="mt-2 inline-block text-sm text-ink-900 underline">Open the report</a>
+         class="mt-2 inline-block text-sm text-ink-900 underline">{% translate "Open the report" %}</a>
     </div>
   {% endif %}
 </section>

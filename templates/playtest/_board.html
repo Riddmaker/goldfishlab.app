@@ -11,7 +11,7 @@
   and the stacks; the hand as a fan at the bottom. The log and the branching
   are folded, because they are what you look for, not what you look at.
 {% endcomment %}
-{% load l10n %}
+{% load i18n l10n %}
 <div id="board" class="space-y-4">
 
   {% if board_messages %}
@@ -27,23 +27,26 @@
   {% endcomment %}
   {% if session.coverage_unreadable %}
     <p class="border border-parchment-600 bg-ink-900 px-4 py-3 text-sm text-parchment-100">
-      The engine could not read
-      <strong>{{ session.coverage_unreadable }}</strong> of
-      <strong>{{ session.coverage_total }}</strong> cards in this deck
-      ({{ session.readable_pct }}% read). Those cards still move, but what
-      they <em>do</em> is up to you —
-      <a href="{% url 'simulations:review' deck.id %}" class="underline">tell the engine what they mean</a>.
+      {% url 'simulations:review' deck.id as review_url %}
+      {% blocktranslate trimmed with unreadable=session.coverage_unreadable total=session.coverage_total pct=session.readable_pct %}
+        The engine could not read
+        <strong>{{ unreadable }}</strong> of
+        <strong>{{ total }}</strong> cards in this deck
+        ({{ pct }}% read). Those cards still move, but what
+        they <em>do</em> is up to you —
+        <a href="{{ review_url }}" class="underline">tell the engine what they mean</a>.
+      {% endblocktranslate %}
     </p>
   {% endif %}
 
   {# --- the bar: turn, life, phases, mana, and the moves that are not cards --- #}
   <section class="surface-parchment flex flex-wrap items-center gap-x-5 gap-y-3 px-4 py-3">
-    <span class="font-display text-2xl text-ink-900">{% if game.turn %}Turn {{ game.turn }}{% else %}Opening hand{% endif %}</span>
-    <span class="tabular text-ink-700">Life {{ game.life }}</span>
-    {% if game.mulligans %}<span class="tabular text-ink-700">Mulligans {{ game.mulligans }}</span>{% endif %}
+    <span class="font-display text-2xl text-ink-900">{% if game.turn %}{% blocktranslate with turn=game.turn %}Turn {{ turn }}{% endblocktranslate %}{% else %}{% translate "Opening hand" %}{% endif %}</span>
+    <span class="tabular text-ink-700">{% blocktranslate with life=game.life %}Life {{ life }}{% endblocktranslate %}</span>
+    {% if game.mulligans %}<span class="tabular text-ink-700">{% blocktranslate with count=game.mulligans %}Mulligans {{ count }}{% endblocktranslate %}</span>{% endif %}
 
     {% if game.turn %}
-      <ol class="flex flex-wrap gap-1 text-sm" aria-label="Phase">
+      <ol class="flex flex-wrap gap-1 text-sm" aria-label="{% translate "Phase" %}">
         {% for phase in phases %}
           <li class="playtest-phase{% if phase == game.phase %} playtest-phase-now{% endif %}"
               {% if phase == game.phase %}aria-current="step"{% endif %}>{{ phase }}</li>
@@ -52,7 +55,7 @@
     {% endif %}
 
     {% if pips %}
-      <span class="flex items-center gap-2" aria-label="Floating mana">
+      <span class="flex items-center gap-2" aria-label="{% translate "Floating mana" %}">
         {% for color, amount in pips %}
           <span class="flex items-center gap-0.5">
             <span class="pip pip-{{ color }}" aria-hidden="true">{{ color }}</span>
@@ -71,7 +74,7 @@
           <input type="hidden" name="kind" value="advance_phase">
           <button type="submit"
                   class="border border-ink-800 bg-ink-900 px-3 py-1.5 text-parchment-100 hover:bg-ink-800">
-            {% if game.phase is None or game.phase == "end" %}Start turn {{ game.turn|add:1 }}{% else %}Next phase{% endif %}
+            {% if game.phase is None or game.phase == "end" %}{% blocktranslate with turn=game.turn|add:1 %}Start turn {{ turn }}{% endblocktranslate %}{% else %}{% translate "Next phase" %}{% endif %}
           </button>
         </form>
 
@@ -83,7 +86,7 @@
           <input type="hidden" name="count" value="1">
           <button type="submit"
                   class="border border-ink-800 px-3 py-1.5 text-ink-900 hover:bg-parchment-300">
-            Draw a card
+            {% translate "Draw a card" %}
           </button>
         </form>
       </div>
@@ -96,7 +99,7 @@
         {% csrf_token %}
         <button type="submit" {% if not can_undo %}disabled{% endif %}
                 class="border border-ink-800 px-3 py-1.5 text-ink-900 hover:bg-parchment-300 disabled:border-parchment-600 disabled:text-ink-500">
-          Undo
+          {% translate "Undo" %}
         </button>
       </form>
 
@@ -106,7 +109,7 @@
         {% csrf_token %}
         <button type="submit" {% if not can_redo %}disabled{% endif %}
                 class="border border-ink-800 px-3 py-1.5 text-ink-900 hover:bg-parchment-300 disabled:border-parchment-600 disabled:text-ink-500">
-          Redo
+          {% translate "Redo" %}
         </button>
       </form>
     </div>
@@ -119,7 +122,7 @@
   {% endcomment %}
   {% if game.phase == "draw" and not game.land_drop_used %}
     <p class="text-sm text-parchment-200">
-      Play your land now: the mana for this turn is counted when the main phase opens.
+      {% translate "Play your land now: the mana for this turn is counted when the main phase opens." %}
     </p>
   {% endif %}
 
@@ -133,7 +136,7 @@
         <input type="hidden" name="kind" value="mulligan">
         <button type="submit"
                 class="min-w-40 border-2 border-ink-800 px-6 py-3 font-display text-xl text-ink-900 hover:bg-parchment-300">
-          Mulligan
+          {% translate "Mulligan" %}
         </button>
       </form>
       <form method="post" action="{% url 'playtest:act' session.id %}"
@@ -143,12 +146,16 @@
         <input type="hidden" name="kind" value="keep_hand">
         <button type="submit"
                 class="min-w-40 border-2 border-ink-900 bg-ink-900 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-ink-800">
-          Keep
+          {% translate "Keep" %}
         </button>
       </form>
       {% if to_bottom %}
         <p class="w-full text-center text-sm text-ink-700">
-          Keeping puts {{ to_bottom }} card{{ to_bottom|pluralize }} on the bottom - the engine picks the weakest.
+          {% blocktranslate trimmed count count=to_bottom %}
+            Keeping puts {{ count }} card on the bottom - the engine picks the weakest.
+          {% plural %}
+            Keeping puts {{ count }} cards on the bottom - the engine picks the weakest.
+          {% endblocktranslate %}
         </p>
       {% endif %}
     </section>
@@ -159,7 +166,7 @@
     <div class="playtest-side">
       {% if commander %}
         <div>
-          <p class="text-xs uppercase tracking-wide text-ink-700">Command zone</p>
+          <p class="text-xs uppercase tracking-wide text-ink-700">{% translate "Command zone" %}</p>
           {% if commander.image_uri %}
             <img src="{{ commander.image_uri }}" alt="{{ commander.front_name }}" title="{{ commander.front_name }}"
                  loading="lazy" class="board-card mt-1{% if commander_out %} board-card-gone{% endif %}">
@@ -167,7 +174,7 @@
             <p class="board-card board-card-text mt-1">{{ commander.front_name }}</p>
           {% endif %}
           {% if commander_out %}
-            <p class="mt-1 text-xs text-ink-700">On the battlefield</p>
+            <p class="mt-1 text-xs text-ink-700">{% translate "On the battlefield" %}</p>
           {% elif commander_castable %}
             <form method="post" action="{% url 'playtest:act' session.id %}"
                   hx-post="{% url 'playtest:act' session.id %}"
@@ -176,7 +183,7 @@
               <input type="hidden" name="kind" value="cast_commander">
               <button type="submit"
                       class="w-full border border-ink-800 bg-ink-900 px-2 py-1 text-xs text-parchment-100 hover:bg-ink-800">
-                Cast
+                {% translate "Cast" %}
               </button>
             </form>
           {% endif %}
@@ -184,8 +191,8 @@
       {% endif %}
 
       <div>
-        <p class="text-xs uppercase tracking-wide text-ink-700">Library</p>
-        <div class="card-back mt-1" aria-label="{{ game.library|length }} cards in the library">
+        <p class="text-xs uppercase tracking-wide text-ink-700">{% translate "Library" %}</p>
+        <div class="card-back mt-1" aria-label="{% blocktranslate count count=game.library|length %}{{ count }} card in the library{% plural %}{{ count }} cards in the library{% endblocktranslate %}">
           <span class="tabular">{{ game.library|length }}</span>
         </div>
       </div>
@@ -216,16 +223,16 @@
     </div>
 
     <div class="playtest-side">
-      {% include "playtest/_pile.html" with label="Graveyard" tiles=graveyard %}
-      {% include "playtest/_pile.html" with label="Exile" tiles=exiled %}
+      {% include "playtest/_pile.html" with label=_("Graveyard") tiles=graveyard %}
+      {% include "playtest/_pile.html" with label=_("Exile") tiles=exiled %}
     </div>
   </section>
 
   {# --- the hand: a fan of real cards; the card is the button --- #}
-  <section class="playtest-hand" aria-label="Hand">
+  <section class="playtest-hand" aria-label="{% translate "Hand" %}">
     <p class="mb-2 text-sm text-parchment-200">
-      Hand <span class="tabular">{{ hand|length }}</span>
-      {% if not deciding %}· click a card to play it. A glowing card is one the mana can pay for; nothing is blocked.{% endif %}
+      {% blocktranslate trimmed with count=hand|length %}Hand <span class="tabular">{{ count }}</span>{% endblocktranslate %}
+      {% if not deciding %}· {% translate "click a card to play it. A glowing card is one the mana can pay for; nothing is blocked." %}{% endif %}
     </p>
     <ul class="hand-fan">
       {% for tile in hand %}
@@ -247,38 +254,40 @@
               {% endif %}
               <button type="submit" class="hand-card{% if tile.castable or tile.playable %} hand-card-ready{% endif %}">
                 {% include "playtest/_hand_face.html" %}
-                <span class="hand-card-action">{% if tile.card.is_land %}Play land{% else %}Cast{% endif %}</span>
+                <span class="hand-card-action">{% if tile.card.is_land %}{% translate "Play land" %}{% else %}{% translate "Cast" %}{% endif %}</span>
               </button>
             </form>
           {% endif %}
         </li>
       {% empty %}
-        <li class="text-parchment-200">Nothing in hand.</li>
+        <li class="text-parchment-200">{% translate "Nothing in hand." %}</li>
       {% endfor %}
     </ul>
   </section>
 
   <details class="surface-parchment px-4 py-3">
-    <summary class="cursor-pointer font-display text-lg text-ink-900">What happened</summary>
+    <summary class="cursor-pointer font-display text-lg text-ink-900">{% translate "What happened" %}</summary>
     <ol class="mt-3 space-y-1 text-sm text-ink-700">
       {% for line in game.log %}
         <li class="tabular">{{ line }}</li>
       {% empty %}
-        <li>Nothing yet.</li>
+        <li>{% translate "Nothing yet." %}</li>
       {% endfor %}
     </ol>
   </details>
 
   {% if history %}
     <details class="surface-parchment px-4 py-3">
-      <summary class="cursor-pointer font-display text-lg text-ink-900">Branch from here</summary>
+      <summary class="cursor-pointer font-display text-lg text-ink-900">{% translate "Branch from here" %}</summary>
       <p class="mt-2 text-sm text-ink-700">
-        Keeps this game as it is and plays on from the action you pick - the
-        way to ask "what if I had kept the land instead".
+        {% blocktranslate trimmed %}
+          Keeps this game as it is and plays on from the action you pick - the
+          way to ask "what if I had kept the land instead".
+        {% endblocktranslate %}
       </p>
       <form method="post" action="{% url 'playtest:fork' session.id %}" class="mt-3 flex flex-wrap items-center gap-2">
         {% csrf_token %}
-        <label for="fork-seq" class="text-sm text-ink-900">Replay up to action</label>
+        <label for="fork-seq" class="text-sm text-ink-900">{% translate "Replay up to action" %}</label>
         <select id="fork-seq" name="seq" class="border border-ink-800 bg-parchment-100 px-2 py-1 text-sm text-ink-900">
           {% for row in history %}
             <option value="{{ row.seq }}">{{ row.seq }}. {{ row.kind }}</option>
@@ -286,7 +295,7 @@
         </select>
         <button type="submit"
                 class="border border-ink-800 px-3 py-1.5 text-sm text-ink-900 hover:bg-parchment-300">
-          Branch
+          {% translate "Branch" %}
         </button>
       </form>
     </details>

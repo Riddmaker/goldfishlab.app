@@ -9,6 +9,6 @@ If that was you, there's nothing to do.
 {{ site_url }}{% url 'account_reset_password' %}{% if operator.email %}
 and write to us at {{ operator.email }}.{% endif %}{% endblock if_not_you %}
 
-When: {{ timestamp|date:"j F Y, H:i T" }}
+When: {{ timestamp|date:"DATETIME_FORMAT" }}
 IP address: {{ ip }}
 Browser: {{ user_agent }}{% endblock content %}

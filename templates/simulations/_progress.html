@@ -16,7 +16,7 @@
   (`data-queued`) it stays under 10%. Without the script: the real bar.
   The panel around this fragment is in detail.html.
 {% endcomment %}
-{% load humanize l10n %}
+{% load humanize i18n l10n %}
 <div id="run-progress"
      data-run-progress="{{ run.id }}"
      data-pct="{{ run.progress_pct|unlocalize }}"
@@ -25,27 +25,33 @@
   <div class="flex flex-wrap items-baseline gap-3">
     <h2 class="font-display text-2xl text-ink-900">
       {% if run.status == "pending" %}
-        Queued
+        {% translate "Queued" %}
       {% elif run.status == "running" %}
-        Playing your deck
+        {% translate "Playing your deck" %}
       {% elif run.status == "done" %}
-        Finished
+        {% translate "Finished" %}
       {% elif run.status == "cancelled" %}
-        Cancelled
+        {% translate "Cancelled" %}
       {% else %}
-        Failed
+        {% translate "Failed" %}
       {% endif %}
     </h2>
     {# A count next to a gliding bar contradicts it: the numbers come once it is over. #}
     <span class="tabular text-sm text-ink-700">
       {% if run.is_finished %}
-        {{ run.games_done|intcomma }} of {{ run.games_total|intcomma }} games
-        {% if run.chunks_total %}· {{ run.chunks_done }}/{{ run.chunks_total }} batches{% endif %}
+        {% blocktranslate trimmed with done=run.games_done|intcomma total=run.games_total|intcomma %}
+          {{ done }} of {{ total }} games
+        {% endblocktranslate %}
+        {% if run.chunks_total %}·
+          {% blocktranslate trimmed with done=run.chunks_done total=run.chunks_total %}
+            {{ done }}/{{ total }} batches
+          {% endblocktranslate %}
+        {% endif %}
       {% elif run.status == "pending" %}
-        {{ run.games_total|intcomma }} games, waiting for a free table
+        {% blocktranslate with games=run.games_total|intcomma %}{{ games }} games, waiting for a free table{% endblocktranslate %}
       {% else %}
         {# The heading already says "Playing your deck". #}
-        {{ run.games_total|intcomma }} games
+        {% blocktranslate with games=run.games_total|intcomma %}{{ games }} games{% endblocktranslate %}
       {% endif %}
     </span>
     {% if not run.is_finished %}
@@ -54,7 +60,7 @@
             class="ml-auto">
         {% csrf_token %}
         <button type="submit"
-                class="text-sm text-blood-700 underline hover:text-blood-800">Cancel this run</button>
+                class="text-sm text-blood-700 underline hover:text-blood-800">{% translate "Cancel this run" %}</button>
       </form>
     {% endif %}
   </div>
@@ -65,7 +71,7 @@
          aria-valuenow="{{ run.progress_pct|unlocalize }}"
          aria-valuemin="0"
          aria-valuemax="100"
-         aria-label="Simulation progress">
+         aria-label="{% translate "Simulation progress" %}">
       <div class="run-progress-fill h-full bg-ink-800"
            data-run-fill
            style="width: {{ run.progress_pct|unlocalize }}%"></div>
@@ -74,21 +80,29 @@
   </div>
   {% if run.cancel_requested and not run.is_finished %}
     <p class="mt-3 text-sm text-ink-700">
-      Cancelling. The batch already in flight finishes first — a few seconds at most.
+      {% translate "Cancelling. The batch already in flight finishes first — a few seconds at most." %}
     </p>
   {% elif run.status == "failed" %}
     <p class="mt-3 border-l-2 border-blood-600 pl-4 text-sm text-ink-700">
-      This run did not finish: {{ run.error|default:"the worker reported no reason." }}
-      Your monthly quota was given back.
+      {% if run.error %}
+        {% blocktranslate trimmed with error=run.error %}
+          This run did not finish: {{ error }}
+        {% endblocktranslate %}
+      {% else %}
+        {% translate "This run did not finish: the worker reported no reason." %}
+      {% endif %}
+      {% translate "Your monthly quota was given back." %}
     </p>
   {% elif run.status == "cancelled" %}
     <p class="mt-3 text-sm text-ink-700">
-      Stopped before it finished, so there are no numbers to show. Your monthly
-      quota was given back.
+      {% blocktranslate trimmed %}
+        Stopped before it finished, so there are no numbers to show. Your monthly
+        quota was given back.
+      {% endblocktranslate %}
     </p>
   {% elif not run.is_finished %}
     <p class="mt-3 text-sm text-ink-700">
-      This page updates itself — you can close it and come back.
+      {% translate "This page updates itself — you can close it and come back." %}
     </p>
   {% endif %}
 </div>

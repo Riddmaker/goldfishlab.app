@@ -14,26 +14,31 @@
   qualifies, and what a person can act on now opens the report instead, in
   "Cards that need your attention". The deck page still shows it open.
 {% endcomment %}
+{% load i18n %}
 {% if blindspots %}
   <section class="mt-6 border-l-2 border-blood-600 pl-5">
-    <h2 class="font-display text-2xl text-parchment-100">What this simulation does not model</h2>
+    <h2 class="font-display text-2xl text-parchment-100">{% translate "What this simulation does not model" %}</h2>
     <p class="mt-2 text-sm text-parchment-200">
-      The cards a goldfish game cannot fully play.
+      {% translate "The cards a goldfish game cannot fully play." %}
       {% include "core/_why.html" with anchor="blind-spots" dark=True %}
     </p>
     {% for spot in blindspots %}
       <div class="mt-6">
         <h3 class="font-display text-lg text-parchment-100">
-          {{ spot.heading }} —
-          <span class="tabular">{{ spot.count }}</span>
-          card{{ spot.count|pluralize }}
+          {% blocktranslate trimmed with heading=spot.heading count count=spot.count %}
+            {{ heading }} — <span class="tabular">{{ count }}</span> card
+          {% plural %}
+            {{ heading }} — <span class="tabular">{{ count }}</span> cards
+          {% endblocktranslate %}
         </h3>
         <details class="mt-1 text-sm text-parchment-200">
-          <summary class="cursor-pointer underline">Why?</summary>
+          <summary class="cursor-pointer underline">{% translate "Why?" %}</summary>
           <p class="mt-1">{{ spot.detail }}</p>
           <p class="mt-2">
-            Answered by the <strong class="text-parchment-100">“{{ spot.fix }}”</strong> field
-            on each card.
+            {% blocktranslate trimmed with field=spot.fix %}
+              Answered by the <strong class="text-parchment-100">“{{ field }}”</strong> field
+              on each card.
+            {% endblocktranslate %}
           </p>
         </details>
         <ul class="mt-3 space-y-1 text-sm text-parchment-200">

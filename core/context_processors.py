@@ -53,3 +53,14 @@ def dev_tools(request):
     INTERNAL_IPS, which the browser behind docker compose never is.
     """
     return {"show_dev_tools": settings.DEBUG}
+
+
+def languages(request):
+    """The footer switcher's languages, each in its own name (phase 12).
+
+    Not `{% get_available_languages %}`: that runs every name through the
+    catalogue of the page's language, so a German page offered "Englisch",
+    which a person looking for English does not find.
+    """
+    return {"site_languages": [(code, settings.LANGUAGE_NAMES[code])
+                               for code, _ in settings.LANGUAGES]}

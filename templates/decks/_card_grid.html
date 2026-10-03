@@ -4,9 +4,18 @@
   so the two cannot drift. Each card opens its own page, where it can be
   corrected.
 {% endcomment %}
+{% load i18n %}
 <div id="card-grid">
   <p class="tabular text-sm text-ink-700" aria-live="polite">
-    {% if filters.active %}{{ grid|length }} of {{ grid_total }} cards{% else %}{{ grid_total }} cards{% endif %}
+    {% if filters.active %}
+      {% blocktranslate trimmed with shown=grid|length count count=grid_total %}
+        {{ shown }} of {{ count }} card
+      {% plural %}
+        {{ shown }} of {{ count }} cards
+      {% endblocktranslate %}
+    {% else %}
+      {% blocktranslate count count=grid_total %}{{ count }} card{% plural %}{{ count }} cards{% endblocktranslate %}
+    {% endif %}
   </p>
   <ul class="card-grid mt-4">
     {% for card in grid %}
@@ -19,9 +28,9 @@
             <span class="block border border-parchment-600 p-3 text-ink-900">{{ card.name }}</span>
           {% endif %}
           {% if card.open %}
-            <span class="card-grid-mark deck-status deck-status-open">! needs you</span>
+            <span class="card-grid-mark deck-status deck-status-open">! {% translate "needs you" %}</span>
           {% elif card.answered %}
-            <span class="card-grid-mark deck-status deck-status-ready">✓ answered</span>
+            <span class="card-grid-mark deck-status deck-status-ready">✓ {% translate "answered" %}</span>
           {% endif %}
           {% if card.quantity > 1 %}
             <span class="card-grid-count tabular">×{{ card.quantity }}</span>
@@ -30,14 +39,14 @@
         <p class="mt-1 text-sm text-ink-900">
           {{ card.name }}
           {% if card.oracle_card.game_changer %}
-            <span class="ml-1 border border-blood-600 px-1 text-xs text-blood-700">Game Changer</span>
+            <span class="ml-1 border border-blood-600 px-1 text-xs text-blood-700">{% translate "Game Changer" %}</span>
           {% endif %}
         </p>
       </li>
     {% empty %}
       <li class="col-span-full text-ink-700">
-        No card matches.
-        <a href="{{ deck.get_absolute_url }}#cards" class="text-ink-900 underline">Show all cards</a>
+        {% translate "No card matches." %}
+        <a href="{{ deck.get_absolute_url }}#cards" class="text-ink-900 underline">{% translate "Show all cards" %}</a>
       </li>
     {% endfor %}
   </ul>

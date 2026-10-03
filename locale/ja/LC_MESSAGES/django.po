@@ -1,0 +1,2299 @@
+# Goldfish Lab, the site's own text.
+# This file is distributed under the same license as Goldfish Lab (AGPL-3.0).
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Goldfish Lab\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-03 12:55+0200\n"
+"PO-Revision-Date: 2026-10-03 13:00+0200\n"
+"Last-Translator: Claude\n"
+"Language-Team: \n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: templates/accounts/data.html templates/base.html
+msgid "Your data"
+msgstr ""
+
+#: templates/accounts/data.html
+msgid ""
+"Download everything Goldfish Lab holds about you, or delete your account."
+msgstr ""
+
+#: templates/accounts/data.html
+#, python-format
+msgid "Signed in as <strong>%(email)s</strong>."
+msgstr ""
+
+#: templates/accounts/data.html
+msgid "Download everything"
+msgstr ""
+
+#: templates/accounts/data.html
+msgid "One JSON file: your account, decks, simulations, playtests and plan."
+msgstr ""
+
+#: templates/accounts/data.html
+msgid "What is not in the file?"
+msgstr ""
+
+#: templates/accounts/data.html
+#, python-format
+msgid ""
+"Card and combo data — public reference data from Scryfall and Commander "
+"Spellbook, the same for every account, and not about you. Stripe payment "
+"identifiers are left out on purpose: a downloadable file containing them "
+"would be a file worth stealing. Your invoices are in <a "
+"href=\"%(plans_url)s\" class=\"underline hover:text-ink-900\">Stripe's "
+"portal</a>."
+msgstr ""
+
+#: templates/accounts/data.html
+msgid "Download my data"
+msgstr ""
+
+#: templates/accounts/data.html
+msgid "Delete your account"
+msgstr ""
+
+#: templates/accounts/data.html
+msgid "Not yet."
+msgstr ""
+
+#: templates/accounts/data.html
+msgid "Go to billing"
+msgstr ""
+
+#: templates/accounts/data.html
+msgid ""
+"Your account and everything in it goes, immediately. <strong>There is no "
+"undo</strong> — download a copy above first if you want one."
+msgstr ""
+
+#: templates/accounts/data.html
+#, python-format
+msgid "Type <strong>%(email)s</strong> to confirm"
+msgstr ""
+
+#: templates/accounts/data.html
+msgid "Delete my account permanently"
+msgstr ""
+
+#: templates/accounts/data.html
+#, python-format
+msgid ""
+"What we store and why is set out in the <a href=\"%(privacy_url)s\" "
+"class=\"underline hover:text-ink-200\">privacy policy</a>."
+msgstr ""
+
+#: templates/base.html
+msgid ""
+"Goldfish Lab actually plays your Commander deck, thousands of times, and "
+"tells you what happens."
+msgstr ""
+
+#: templates/base.html
+msgid "Skip to content"
+msgstr ""
+
+#: templates/base.html templates/core/home.html
+msgid "it actually plays your deck"
+msgstr ""
+
+#: templates/base.html
+msgid "Your deck"
+msgstr ""
+
+#: templates/base.html templates/simulations/_keep_deck.html
+msgid "Save your deck - free"
+msgstr ""
+
+#: templates/base.html
+msgid "Sign in"
+msgstr ""
+
+#: templates/base.html
+msgid "Decks"
+msgstr ""
+
+#: templates/base.html
+msgctxt "navigation"
+msgid "Import"
+msgstr ""
+
+#: templates/base.html templates/billing/plans.html
+msgid "Your plan"
+msgstr ""
+
+#: templates/base.html
+msgid "Sign out"
+msgstr ""
+
+#: templates/base.html
+msgid "Create account"
+msgstr ""
+
+#: templates/base.html
+msgid "How this works"
+msgstr ""
+
+#: templates/base.html
+msgid "Terms"
+msgstr ""
+
+#: templates/base.html templates/guests/try.html
+msgid "Privacy"
+msgstr ""
+
+#: templates/base.html
+msgid "Legal notice"
+msgstr ""
+
+#: templates/base.html
+msgid "Report a problem"
+msgstr ""
+
+#: templates/base.html
+msgid "Source code (AGPL)"
+msgstr ""
+
+#: templates/base.html
+msgid "Email us"
+msgstr ""
+
+#: templates/base.html
+msgid "Language"
+msgstr ""
+
+#: templates/base.html
+msgctxt "language switch"
+msgid "Change"
+msgstr ""
+
+#: templates/base.html
+msgid ""
+"Card data and images from <a href=\"https://scryfall.com\" class=\"underline"
+" hover:text-ink-300\" rel=\"noopener\">Scryfall</a>; combos from <a "
+"href=\"https://commanderspellbook.com\" class=\"underline hover:text-"
+"ink-300\" rel=\"noopener\">Commander Spellbook</a>. Neither is affiliated "
+"with Goldfish Lab."
+msgstr ""
+
+#: templates/billing/blocked.html
+msgid "Plan limit reached"
+msgstr ""
+
+#: templates/billing/blocked.html
+msgid "This account has used everything its plan allows this month."
+msgstr ""
+
+#: templates/billing/blocked.html
+msgid "That is everything your plan allows"
+msgstr ""
+
+#: templates/billing/blocked.html
+msgid ""
+"Nothing was started and nothing was charged. The counter resets on the first"
+" of the month."
+msgstr ""
+
+#: templates/billing/blocked.html
+msgid "See what the other tiers allow"
+msgstr ""
+
+#: templates/billing/done.html
+msgid "Thank you"
+msgstr ""
+
+#: templates/billing/done.html
+msgid ""
+"Your payment went to Stripe. This page reflects what has been confirmed so "
+"far."
+msgstr ""
+
+#: templates/billing/done.html
+#, python-format
+msgid ""
+"You are on <strong>%(plan)s</strong>, with <strong "
+"class=\"tabular\">%(turns)s</strong> turns a simulation and <strong "
+"class=\"tabular\">%(games)s</strong> games a run."
+msgstr ""
+
+#: templates/billing/done.html
+msgid "Stripe has your payment; your plan changes within a few seconds."
+msgstr ""
+
+#: templates/billing/done.html
+#, python-format
+msgid ""
+"You can close this. Reload <a href=\"%(plans_url)s\" class=\"text-ink-900 "
+"underline\">your plan</a> in a moment to see it."
+msgstr ""
+
+#: templates/billing/done.html
+msgid "Back to your decks"
+msgstr ""
+
+#: templates/billing/plans.html
+msgid ""
+"What each Goldfish Lab tier costs, what it allows, and what you have used "
+"this month."
+msgstr ""
+
+#: templates/billing/plans.html
+#, python-format
+msgid "Currently on <strong>%(plan)s</strong>"
+msgstr ""
+
+#: templates/billing/plans.html
+msgid ""
+"<strong>A payment did not go through.</strong> Your plan is still active "
+"while the card is retried. Update it in the billing portal below, or the "
+"subscription will end and the account will return to Free."
+msgstr ""
+
+#: templates/billing/plans.html
+#, python-format
+msgid ""
+"<strong>This plan ends on %(date)s.</strong> You keep everything until then,"
+" and the account returns to Free afterwards."
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "What you have used"
+msgstr ""
+
+#: templates/billing/plans.html
+#, python-format
+msgid "%(label)s used"
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "used — no limit"
+msgstr ""
+
+#: templates/billing/plans.html
+#, python-format
+msgid "of %(limit)s"
+msgstr ""
+
+#: templates/billing/plans.html
+msgid ""
+"<strong>Deck summaries are on.</strong> A new one is written when you run a "
+"changed deck, and uses one simulation."
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "Deck summaries are off."
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "Show deck summaries again"
+msgstr ""
+
+#: templates/billing/plans.html
+msgid ""
+"<strong>Payments are not switched on in this installation</strong> — "
+"everyone is on Free."
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "The tiers"
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "The tiers differ mainly in <strong>turns simulated</strong>."
+msgstr ""
+
+#: templates/billing/plans.html
+#, python-format
+msgid "%(price)s / %(interval)s"
+msgstr ""
+
+#: templates/billing/plans.html
+#, python-format
+msgid "CHF %(price)s / %(interval)s"
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "Free"
+msgstr ""
+
+#: templates/billing/plans.html
+#, python-format
+msgid "Turns simulated: <strong>%(turns)s</strong>"
+msgstr ""
+
+#: templates/billing/plans.html
+#, python-format
+msgid "Games per run: <strong>%(games)s</strong>"
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "Runs a month:"
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "no limit"
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "Decks:"
+msgstr ""
+
+#: templates/billing/plans.html
+#, python-format
+msgid "At once: <strong>%(runs)s</strong>"
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "This is your plan."
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "Switch to it in the billing portal below."
+msgstr ""
+
+#: templates/billing/plans.html
+#, python-format
+msgid "Choose %(plan)s"
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "Where every account starts."
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "Not available yet."
+msgstr ""
+
+#: templates/billing/plans.html
+msgid ""
+"Paid plans are <strong>sold through Link</strong>, Stripe's reseller "
+"service: Link takes the payment, handles the VAT and sends the receipts, and"
+" your statement shows <em>LINK.COM*</em>."
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "Checkout may show the price in your own currency."
+msgstr ""
+
+#: templates/billing/plans.html
+#, python-format
+msgid ""
+"The details are in the <a href=\"%(terms_url)s\" class=\"underline "
+"hover:text-ink-900\">terms</a>."
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "Card, invoices and cancelling"
+msgstr ""
+
+#: templates/billing/plans.html
+msgid ""
+"All three live in Stripe's own portal; your orders at <a "
+"href=\"https://link.com\" class=\"underline hover:text-ink-900\" "
+"rel=\"noopener\">link.com</a> can cancel too."
+msgstr ""
+
+#: templates/billing/plans.html
+msgid ""
+"All three live in Stripe's own portal — no card number ever reaches this "
+"site."
+msgstr ""
+
+#: templates/billing/plans.html
+msgid "Open the billing portal"
+msgstr ""
+
+#: templates/combos/_measurement.html
+#, python-format
+msgid ""
+"Even with %(card)s in the deck, it never came together within %(turns)s "
+"turns, across %(games)s games."
+msgstr ""
+
+#: templates/combos/_measurement.html
+#, python-format
+msgid "It never came together within %(turns)s turns, across %(games)s games."
+msgstr ""
+
+#: templates/combos/_measurement.html
+#, python-format
+msgid ""
+"Add <strong>%(card)s</strong> and it comes together by turn %(turns)s in "
+"<strong class=\"tabular\">%(share)s</strong> of games"
+msgstr ""
+
+#: templates/combos/_measurement.html
+#, python-format
+msgid ""
+"Comes together by turn %(turns)s in <strong "
+"class=\"tabular\">%(share)s</strong> of games"
+msgstr ""
+
+#: templates/combos/_measurement.html
+#, python-format
+msgid "half of those by turn %(turn)s"
+msgstr ""
+
+#: templates/combos/_measurement.html
+#, python-format
+msgid ""
+"Measured over %(games)s game of this deck with that one card added — nothing"
+" was cut to make room."
+msgid_plural ""
+"Measured over %(games)s games of this deck with that one card added — "
+"nothing was cut to make room."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/combos/_measurement.html
+#, python-format
+msgid "Measured over %(games)s game."
+msgid_plural "Measured over %(games)s games."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/combos/_measurement.html
+#, python-format
+msgid "No timing for this one: it %(reason)s."
+msgstr ""
+
+#: templates/combos/_one_away.html
+msgid "you do not have"
+msgstr ""
+
+#: templates/combos/_one_away.html
+#, python-format
+msgid "and any %(template)s"
+msgstr ""
+
+#: templates/combos/_panel.html templates/decks/detail.html
+#: templates/simulations/_combos.html
+msgid "Combos"
+msgstr ""
+
+#: templates/combos/_panel.html
+msgid "Look this deck up in Commander Spellbook's curated list of combos."
+msgstr ""
+
+#: templates/combos/_panel.html
+#, python-format
+msgid "Commander Spellbook could not be reached — %(message)s."
+msgstr ""
+
+#: templates/combos/_panel.html
+msgid "Commander Spellbook could not be reached."
+msgstr ""
+
+#: templates/combos/_panel.html
+msgid "Anything below is what was found last time."
+msgstr ""
+
+#: templates/combos/_panel.html
+msgid "No known combos in this deck."
+msgstr ""
+
+#: templates/combos/_panel.html
+msgid ""
+"A normal result and not a fault: a deck built to grind rather than to combo "
+"off has none."
+msgstr ""
+
+#: templates/combos/_panel.html
+#, python-format
+msgid "%(count)s combo in this deck"
+msgid_plural "%(count)s combos in this deck"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/combos/_panel.html
+#, python-format
+msgid "Needs: %(needs)s"
+msgstr ""
+
+#: templates/combos/_panel.html
+#, python-format
+msgid "%(count)s one card away"
+msgid_plural "%(count)s one card away"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/combos/_panel.html
+msgid "In your colours, most-played first."
+msgstr ""
+
+#: templates/combos/_panel.html
+#, python-format
+msgid "%(count)s more, less commonly played"
+msgid_plural "%(count)s more, less commonly played"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/combos/_panel.html
+#, python-format
+msgid ""
+"<strong class=\"text-ink-900\">Nothing has timed these yet.</strong> "
+"Simulate %(games)s games or more to see how often each one comes together."
+msgstr ""
+
+#: templates/combos/_panel.html
+#, python-format
+msgid "Timings from the run of %(date)s — %(games)s games, %(turns)s turns."
+msgstr ""
+
+#: templates/combos/_panel.html
+#, python-format
+msgid ""
+"It timed %(timed)s of the combos above: all this deck holds, and the most-"
+"played it is a card short of."
+msgstr ""
+
+#: templates/combos/_panel.html
+#, python-format
+msgid ""
+"%(count)s further combo would need colours outside your commander's "
+"identity, so it is not listed."
+msgid_plural ""
+"%(count)s further combos would need colours outside your commander's "
+"identity, so they are not listed."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/combos/_panel.html
+msgid "Check again"
+msgstr ""
+
+#: templates/combos/_panel.html
+msgid "Find combos"
+msgstr ""
+
+#: templates/combos/_panel.html
+#, python-format
+msgid ""
+"Looked up %(date)s — your deck has changed, or this is more than a fortnight"
+" old."
+msgstr ""
+
+#: templates/combos/_panel.html
+#, python-format
+msgid "Looked up %(date)s."
+msgstr ""
+
+#: templates/core/_ticker_lines.html
+msgid "Quiet right now. The lab is waiting for your deck."
+msgstr ""
+
+#: templates/core/_why.html templates/decks/detail.html
+#: templates/simulations/_blindspots.html
+msgid "Why?"
+msgstr ""
+
+#: templates/core/home.html
+msgid "Know your deck before game night."
+msgstr ""
+
+#: templates/core/home.html
+msgid ""
+"Upload your Commander deck. Goldfish Lab plays it thousands of times and "
+"shows you what happens."
+msgstr ""
+
+#: templates/core/home.html
+msgid "Back to your deck"
+msgstr ""
+
+#: templates/core/home.html
+msgid "Save it - free account"
+msgstr ""
+
+#: templates/core/home.html templates/decks/import.html
+#: templates/decks/list.html
+msgid "Import a deck"
+msgstr ""
+
+#: templates/core/home.html templates/decks/list.html
+msgid "Your decks"
+msgstr ""
+
+#: templates/core/home.html
+msgid "Try it now - no account"
+msgstr ""
+
+#: templates/core/home.html
+msgid "Create a free account"
+msgstr ""
+
+#: templates/core/home.html
+msgid ""
+"An opening hand of seven cards on the playtest table, with Mulligan and Keep"
+" above it"
+msgstr ""
+
+#: templates/core/home.html
+msgid "Draw a hand and play it out."
+msgstr ""
+
+#: templates/core/home.html
+msgid ""
+"A report chart: how often the deck has drawn ramp, card draw and removal by "
+"each turn"
+msgstr ""
+
+#: templates/core/home.html
+msgid "Or get the odds from thousands of games."
+msgstr ""
+
+#: templates/core/home.html
+msgid "What others are doing"
+msgstr ""
+
+#: templates/core/home.html
+msgid "Pause"
+msgstr ""
+
+#: templates/core/home.html
+msgid "Resume"
+msgstr ""
+
+#: templates/core/home.html templates/guests/_steps.html
+msgid "How it works"
+msgstr ""
+
+#: templates/decks/_card_grid.html
+#, python-format
+msgid "%(shown)s of %(count)s card"
+msgid_plural "%(shown)s of %(count)s cards"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/decks/_card_grid.html templates/decks/detail.html
+#: templates/decks/list.html
+#, python-format
+msgid "%(count)s card"
+msgid_plural "%(count)s cards"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/decks/_card_grid.html
+msgid "needs you"
+msgstr ""
+
+#: templates/decks/_card_grid.html
+msgid "answered"
+msgstr ""
+
+#: templates/decks/_card_grid.html
+msgid "Game Changer"
+msgstr ""
+
+#: templates/decks/_card_grid.html
+msgid "No card matches."
+msgstr ""
+
+#: templates/decks/_card_grid.html
+msgid "Show all cards"
+msgstr ""
+
+#: templates/decks/_import_form.html
+msgid "How do you want to add your deck?"
+msgstr ""
+
+#: templates/decks/_import_form.html
+msgid "Upload a file"
+msgstr ""
+
+#: templates/decks/_import_form.html
+msgid "Paste a list"
+msgstr ""
+
+#: templates/decks/_import_form.html
+msgid "Drop your deck file here"
+msgstr ""
+
+#: templates/decks/_import_form.html
+msgid "or <span class=\"underline\">click to choose one</span>"
+msgstr ""
+
+#: templates/decks/_import_form.html
+msgid ""
+"Only the card names are needed. Quantities and set codes work too. A CSV, "
+"TSV or text file, up to 1&nbsp;MB."
+msgstr ""
+
+#: templates/decks/_import_form.html
+msgid ""
+"One card per line - the name is enough, a quantity and set code work too. "
+"The commander goes under <code class=\"font-mono whitespace-nowrap\">// "
+"Commander</code> - or pick it later."
+msgstr ""
+
+#: templates/decks/_import_form.html
+msgid "More options"
+msgstr ""
+
+#: templates/decks/_last_run.html
+msgid "Your last run"
+msgstr ""
+
+#: templates/decks/_last_run.html
+msgid "A run is going"
+msgstr ""
+
+#: templates/decks/_last_run.html
+#, python-format
+msgid "%(games)s games · %(pct)s%% done"
+msgstr ""
+
+#: templates/decks/_last_run.html
+msgid "Watch it"
+msgstr ""
+
+#: templates/decks/_last_run.html
+#, python-format
+msgid "%(games)s games · %(turns)s turns"
+msgstr ""
+
+#: templates/decks/_last_run.html
+msgid "The deck has changed since this run."
+msgstr ""
+
+#: templates/decks/_last_run.html
+msgid "Open the report"
+msgstr ""
+
+#: templates/decks/_mapping_preview.html
+msgid "Qty"
+msgstr ""
+
+#: templates/decks/_mapping_preview.html
+msgid "Card"
+msgstr ""
+
+#: templates/decks/_mapping_preview.html
+msgid "Printing"
+msgstr ""
+
+#: templates/decks/_mapping_preview.html
+msgid "Finish"
+msgstr ""
+
+#: templates/decks/_mapping_preview.html
+msgid "commander"
+msgstr ""
+
+#: templates/decks/_mapping_preview.html
+msgid "No card rows could be read with this mapping."
+msgstr ""
+
+#: templates/decks/_status.html templates/simulations/_attention.html
+#, python-format
+msgid "%(count)s card needs you"
+msgid_plural "%(count)s cards need you"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/decks/_status.html
+msgid "Ready"
+msgstr ""
+
+#: templates/decks/confirm_delete.html
+#, python-format
+msgid "Delete %(name)s"
+msgstr ""
+
+#: templates/decks/confirm_delete.html
+msgid "Confirm deleting this deck."
+msgstr ""
+
+#: templates/decks/confirm_delete.html
+#, python-format
+msgid "Delete %(name)s?"
+msgstr ""
+
+#: templates/decks/confirm_delete.html
+#, python-format
+msgid ""
+"This removes the deck and its one card, along with its import history. The "
+"card catalogue is untouched. This cannot be undone."
+msgid_plural ""
+"This removes the deck and its %(count)s cards, along with its import "
+"history. The card catalogue is untouched. This cannot be undone."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/decks/confirm_delete.html
+msgid "Delete permanently"
+msgstr ""
+
+#: templates/decks/confirm_delete.html
+msgid "Keep it"
+msgstr ""
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Mana curve, card types, categories and Commander legality for %(name)s."
+msgstr ""
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s card + commander"
+msgid_plural "%(count)s cards + commander"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/decks/detail.html
+msgid "All decks"
+msgstr ""
+
+#: templates/decks/detail.html
+#, python-format
+msgid "Commander: <strong class=\"text-parchment-100\">%(name)s</strong>"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "No commander set - the file did not mark one. Pick it:"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Save commander"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Simulate again"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Simulate"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Draw a hand"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Options"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Draw a hand: 1-v-1, skip the first draw"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid ""
+"Simulate plays the deck out thousands of times against no opponent. Draw a "
+"hand is one game by hand, with undo."
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "The deck at a glance"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Lands"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "in band"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "outside band"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Average mana value"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "spells only"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Bracket"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Commander legality"
+msgstr ""
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s problem"
+msgid_plural "%(count)s problems"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/decks/detail.html
+msgid "Legal"
+msgstr ""
+
+#: templates/decks/detail.html
+#, python-format
+msgid "Lands: %(detail)s"
+msgstr ""
+
+#: templates/decks/detail.html
+#, python-format
+msgid "Bracket: %(detail)s"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid ""
+"Every count is exact arithmetic over the list - nothing here is simulated."
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Mana curve"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Spells by mana value."
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "What is in it"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "a common template, not a rule. Click a row to see its cards."
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Cards"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Search the cards"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Search name or text"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Show"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Card type"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "All types"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Category"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "All categories"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "What the engine cannot model"
+msgstr ""
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(some)s of %(count)s card has something the card reader could not resolve "
+"on its own."
+msgid_plural ""
+"%(some)s of %(count)s cards have something the card reader could not resolve"
+" on its own."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/decks/detail.html
+msgid "The red marker at the top takes you through them."
+msgstr ""
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Imported from %(filename)s: <span class=\"tabular\">%(matched)s</span> of "
+"<span class=\"tabular\">%(total)s</span> rows matched. <a "
+"href=\"%(review_url)s\" class=\"underline\">See how exact the match was</a>."
+msgstr ""
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Imported from a file: <span class=\"tabular\">%(matched)s</span> of <span "
+"class=\"tabular\">%(total)s</span> rows matched. <a href=\"%(review_url)s\" "
+"class=\"underline\">See how exact the match was</a>."
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Earlier runs and games"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Simulations"
+msgstr ""
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(games)s games, %(turns)s turns"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "finished"
+msgstr ""
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(pct)s%% done"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Games in progress"
+msgstr ""
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s action"
+msgid_plural "%(count)s actions"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/decks/detail.html
+msgid "branched"
+msgstr ""
+
+#: templates/decks/detail.html
+msgid "Delete this deck"
+msgstr ""
+
+#: templates/decks/import.html
+msgid "Import a deck from any CSV export or a pasted list."
+msgstr ""
+
+#: templates/decks/import.html
+msgid ""
+"<strong class=\"text-parchment-100\">Any CSV works.</strong> It only needs a"
+" column with the card name - a quantity column is optional."
+msgstr ""
+
+#: templates/decks/import.html
+msgid "Import"
+msgstr ""
+
+#: templates/decks/import.html
+msgid "This is enough"
+msgstr ""
+
+#: templates/decks/import.html
+msgid "Where to get it"
+msgstr ""
+
+#: templates/decks/import.html templates/guests/try.html
+msgid ""
+"<strong class=\"text-parchment-100\">Archidekt:</strong> open the deck → "
+"More → Export → CSV"
+msgstr ""
+
+#: templates/decks/import.html templates/guests/try.html
+msgid ""
+"<strong class=\"text-parchment-100\">Moxfield:</strong> open the deck → More"
+" → Export → copy, then paste it here"
+msgstr ""
+
+#: templates/decks/import.html templates/guests/try.html
+msgid ""
+"<strong class=\"text-parchment-100\">ManaBox:</strong> open the deck → ⋮ → "
+"Export"
+msgstr ""
+
+#: templates/decks/import.html
+msgid "Why not an Excel file?"
+msgstr ""
+
+#: templates/decks/import.html
+msgid ""
+"An .xlsx file is a zip archive and an .xls file can carry macros - a large "
+"parser run over a stranger's upload for no benefit you would notice. Every "
+"tool that exports a spreadsheet also exports a CSV."
+msgstr ""
+
+#: templates/decks/list.html
+msgid "Every deck you have imported, with its commander and card count."
+msgstr ""
+
+#: templates/decks/list.html
+#, python-format
+msgid "Commander: %(name)s"
+msgstr ""
+
+#: templates/decks/list.html
+msgid "No commander set"
+msgstr ""
+
+#: templates/decks/list.html
+#, python-format
+msgid "updated %(date)s"
+msgstr ""
+
+#: templates/decks/list.html
+msgid "Nothing here yet"
+msgstr ""
+
+#: templates/decks/list.html
+msgid "Any CSV export works, or paste your list."
+msgstr ""
+
+#: templates/decks/list.html
+msgid "Import your first deck"
+msgstr ""
+
+#: templates/decks/map.html
+msgid "Which column is which?"
+msgstr ""
+
+#: templates/decks/map.html
+msgid ""
+"Confirm what each column of your export means before anything is imported."
+msgstr ""
+
+#: templates/decks/map.html
+msgid "Your file"
+msgstr ""
+
+#: templates/decks/map.html
+#, python-format
+msgid "%(count)s column"
+msgid_plural "%(count)s columns"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/decks/map.html
+msgid "separated by commas"
+msgstr ""
+
+#: templates/decks/map.html
+msgid "separated by semicolons"
+msgstr ""
+
+#: templates/decks/map.html
+msgid "separated by tabs"
+msgstr ""
+
+#: templates/decks/map.html
+msgid "with a separator we do not know"
+msgstr ""
+
+#: templates/decks/map.html
+#, python-format
+msgid "with %(count)s line skipped above the header"
+msgid_plural "with %(count)s lines skipped above the header"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/decks/map.html
+msgid "Nothing has been imported yet."
+msgstr ""
+
+#: templates/decks/map.html
+msgid "The first rows of your file"
+msgstr ""
+
+#: templates/decks/map.html
+msgid "Exactly as they are, so you can see what you are choosing between."
+msgstr ""
+
+#: templates/decks/map.html
+msgid "What each column means"
+msgstr ""
+
+#: templates/decks/map.html
+msgid "Only the card name is required."
+msgstr ""
+
+#: templates/decks/map.html
+msgid "How your rows will be read"
+msgstr ""
+
+#: templates/decks/map.html
+msgid "This updates as you choose. Check the quantities before importing."
+msgstr ""
+
+#: templates/decks/map.html
+msgid "Import with this mapping"
+msgstr ""
+
+#: templates/decks/map.html
+msgid "Why you are being asked"
+msgstr ""
+
+#: templates/decks/map.html
+msgid ""
+"Most exports let you choose which columns to include, so the same site "
+"produces a different file for every person. Reading this one by guessing "
+"would not fail loudly — it would import the wrong cards and say nothing."
+msgstr ""
+
+#: templates/decks/map.html
+msgid ""
+"The case that proved it: an export with the quantity column left out once "
+"imported a 28-Swamp deck as a 28-card deck with <strong class=\"text-"
+"parchment-100\">one</strong> Swamp in it. Every test passed. That is why "
+"this screen will not let you past a quantity column it cannot find without "
+"you saying what to do about it."
+msgstr ""
+
+#: templates/decks/review.html
+msgid "Import review"
+msgstr ""
+
+#: templates/decks/review.html
+msgid ""
+"The rows the importer could not match, and what it matched the rest on."
+msgstr ""
+
+#: templates/decks/review.html
+msgid "Uploaded file"
+msgstr ""
+
+#: templates/decks/review.html
+#, python-format
+msgid "read as <strong class=\"text-parchment-100\">%(parser)s</strong>."
+msgstr ""
+
+#: templates/decks/review.html
+msgid "Columns:"
+msgstr ""
+
+#: templates/decks/review.html
+#, python-format
+msgid "%(label)s from <span class=\"tabular\">%(header)s</span>"
+msgstr ""
+
+#: templates/decks/review.html
+msgid "How exact the match was"
+msgstr ""
+
+#: templates/decks/review.html
+msgid ""
+"Higher rungs are stronger claims. A row matched on its name is the right "
+"card, but not necessarily the printing you own."
+msgstr ""
+
+#: templates/decks/review.html
+msgid "Matched by"
+msgstr ""
+
+#: templates/decks/review.html
+msgid "Rows"
+msgstr ""
+
+#: templates/decks/review.html
+msgid "Total rows in the file"
+msgstr ""
+
+#: templates/decks/review.html
+#, python-format
+msgid "%(count)s row not matched"
+msgid_plural "%(count)s rows not matched"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/decks/review.html
+msgid "These were kept, not dropped. The deck below does not contain them."
+msgstr ""
+
+#: templates/decks/review.html
+#, python-format
+msgid "Line %(line)s — %(reason)s"
+msgstr ""
+
+#: templates/decks/review.html
+msgid "Did you mean:"
+msgstr ""
+
+#: templates/decks/review.html
+msgid "Every row matched. Nothing needed review."
+msgstr ""
+
+#: templates/decks/review.html
+#, python-format
+msgid "Open %(name)s"
+msgstr ""
+
+#: templates/guests/_steps.html
+msgid "Export or copy your list"
+msgstr ""
+
+#: templates/guests/_steps.html
+msgid "Upload"
+msgstr ""
+
+#: templates/guests/_steps.html
+msgid "Simulate or draw a hand"
+msgstr ""
+
+#: templates/guests/save.html
+msgid "Save your deck"
+msgstr ""
+
+#: templates/guests/save.html
+#, python-format
+msgid "Save %(name)s"
+msgstr ""
+
+#: templates/guests/save.html
+msgid "A free account keeps it. Just an email and a password."
+msgstr ""
+
+#: templates/guests/save.html
+msgid "Save my deck"
+msgstr ""
+
+#: templates/guests/save.html
+msgid ""
+"We send you a link. Click it and you're in, with this deck. Unsaved, it is "
+"deleted after 24 hours."
+msgstr ""
+
+#: templates/guests/try.html
+msgid "Try it with your deck"
+msgstr ""
+
+#: templates/guests/try.html
+msgid "Upload a Commander deck and simulate it - no account needed."
+msgstr ""
+
+#: templates/guests/try.html
+msgid "No account. Drop the file and the simulation starts."
+msgstr ""
+
+#: templates/guests/try.html
+#, python-format
+msgid ""
+"Trying another deck replaces <strong>%(name)s</strong>. <a "
+"href=\"%(save_url)s\" class=\"underline\">Save it first</a> - free."
+msgstr ""
+
+#: templates/guests/try.html
+msgid "Simulate it"
+msgstr ""
+
+#: templates/guests/try.html
+msgid "Where to get the file"
+msgstr ""
+
+#: templates/guests/try.html
+msgid "Kept for 24 hours unless you save it with a free account."
+msgstr ""
+
+#: templates/playtest/_board.html
+#, python-format
+msgid ""
+"The engine could not read <strong>%(unreadable)s</strong> of "
+"<strong>%(total)s</strong> cards in this deck (%(pct)s%% read). Those cards "
+"still move, but what they <em>do</em> is up to you — <a "
+"href=\"%(review_url)s\" class=\"underline\">tell the engine what they "
+"mean</a>."
+msgstr ""
+
+#: templates/playtest/_board.html templates/simulations/_report.html
+#, python-format
+msgid "Turn %(turn)s"
+msgstr ""
+
+#: templates/playtest/_board.html templates/simulations/_report.html
+msgid "Opening hand"
+msgstr ""
+
+#: templates/playtest/_board.html
+#, python-format
+msgid "Life %(life)s"
+msgstr ""
+
+#: templates/playtest/_board.html
+#, python-format
+msgid "Mulligans %(count)s"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Phase"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Floating mana"
+msgstr ""
+
+#: templates/playtest/_board.html
+#, python-format
+msgid "Start turn %(turn)s"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Next phase"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Draw a card"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Undo"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Redo"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid ""
+"Play your land now: the mana for this turn is counted when the main phase "
+"opens."
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Mulligan"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Keep"
+msgstr ""
+
+#: templates/playtest/_board.html
+#, python-format
+msgid ""
+"Keeping puts %(count)s card on the bottom - the engine picks the weakest."
+msgid_plural ""
+"Keeping puts %(count)s cards on the bottom - the engine picks the weakest."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/playtest/_board.html
+msgid "Command zone"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "On the battlefield"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Cast"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Library"
+msgstr ""
+
+#: templates/playtest/_board.html
+#, python-format
+msgid "%(count)s card in the library"
+msgid_plural "%(count)s cards in the library"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/playtest/_board.html
+msgid "Graveyard"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Exile"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Hand"
+msgstr ""
+
+#: templates/playtest/_board.html
+#, python-format
+msgid "Hand <span class=\"tabular\">%(count)s</span>"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid ""
+"click a card to play it. A glowing card is one the mana can pay for; nothing"
+" is blocked."
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Play land"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Nothing in hand."
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "What happened"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Nothing yet."
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Branch from here"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid ""
+"Keeps this game as it is and plays on from the action you pick - the way to "
+"ask \"what if I had kept the land instead\"."
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Replay up to action"
+msgstr ""
+
+#: templates/playtest/_board.html
+msgid "Branch"
+msgstr ""
+
+#: templates/playtest/_pile.html
+#, python-format
+msgid "All %(count)s"
+msgstr ""
+
+#: templates/playtest/detail.html
+msgid "Playtest"
+msgstr ""
+
+#: templates/playtest/detail.html
+#, python-format
+msgid "Play one game of %(name)s by hand, take it back, and branch it."
+msgstr ""
+
+#: templates/playtest/detail.html
+#, python-format
+msgid "Back to %(name)s"
+msgstr ""
+
+#: templates/playtest/detail.html
+msgid ""
+"One game by hand, against nobody. Take moves back, or branch to play the "
+"same draw twice."
+msgstr ""
+
+#: templates/playtest/detail.html
+#, python-format
+msgid ""
+"Branched from <a href=\"%(earlier_url)s\" class=\"underline\">an earlier "
+"game</a> at action %(seq)s."
+msgstr ""
+
+#: templates/simulations/_advanced.html
+msgid "Advanced"
+msgstr ""
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Mana and lands turn by turn, what the simulation does not model, engine and "
+"seed"
+msgstr ""
+
+#: templates/simulations/_advanced.html
+msgid "Mana and lands, turn by turn"
+msgstr ""
+
+#: templates/simulations/_advanced.html
+msgid "p10 is the game that goes wrong."
+msgstr ""
+
+#: templates/simulations/_advanced.html templates/simulations/_report.html
+msgid "Turn"
+msgstr ""
+
+#: templates/simulations/_advanced.html
+msgid "Mana (mean)"
+msgstr ""
+
+#: templates/simulations/_advanced.html
+#, python-format
+msgid "Mana p%(p)s"
+msgstr ""
+
+#: templates/simulations/_advanced.html
+msgid "Lands (mean)"
+msgstr ""
+
+#: templates/simulations/_advanced.html
+#, python-format
+msgid ""
+"Engine v%(version)s, seed %(seed)s. Differences below about one percentage "
+"point are noise."
+msgstr ""
+
+#: templates/simulations/_attention.html
+msgid "Cards that need your attention"
+msgstr ""
+
+#: templates/simulations/_attention.html
+msgid ""
+"The engine could not read it. Say what it does, or that the engine's reading"
+" is right."
+msgid_plural ""
+"The engine could not read them. Say what they do, or that the engine's "
+"reading is right."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/simulations/_attention.html
+msgid "All answered"
+msgstr ""
+
+#: templates/simulations/_attention.html
+#, python-format
+msgid ""
+"A card was answered after this run. <a href=\"%(deck_url)s#play\" "
+"class=\"underline\">Run the deck again</a> to see the difference."
+msgstr ""
+
+#: templates/simulations/_attention.html
+msgid "Nothing needs you"
+msgstr ""
+
+#: templates/simulations/_attention.html
+#, python-format
+msgid ""
+"The engine read <strong class=\"tabular text-ink-900\">%(read)s</strong> of "
+"%(total)s cards in full — <strong class=\"tabular text-"
+"ink-900\">%(pct)s%%</strong>."
+msgstr ""
+
+#: templates/simulations/_attention.html
+msgid "See what it could not read"
+msgstr ""
+
+#: templates/simulations/_blindspots.html
+msgid "What this simulation does not model"
+msgstr ""
+
+#: templates/simulations/_blindspots.html
+msgid "The cards a goldfish game cannot fully play."
+msgstr ""
+
+#: templates/simulations/_blindspots.html
+#, python-format
+msgid "%(heading)s — <span class=\"tabular\">%(count)s</span> card"
+msgid_plural "%(heading)s — <span class=\"tabular\">%(count)s</span> cards"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/simulations/_blindspots.html
+#, python-format
+msgid ""
+"Answered by the <strong class=\"text-parchment-100\">“%(field)s”</strong> "
+"field on each card."
+msgstr ""
+
+#: templates/simulations/_combos.html
+#, python-format
+msgid "From Commander Spellbook, measured over %(games)s games."
+msgstr ""
+
+#: templates/simulations/_combos.html
+msgid "Combo"
+msgstr ""
+
+#: templates/simulations/_combos.html
+msgid "Missing card"
+msgstr ""
+
+#: templates/simulations/_combos.html
+#, python-format
+msgid "Together by turn %(turn)s"
+msgstr ""
+
+#: templates/simulations/_combos.html
+msgid "When it happens, usually by"
+msgstr ""
+
+#: templates/simulations/_combos.html
+#, python-format
+msgid "over %(games)s games"
+msgstr ""
+
+#: templates/simulations/_combos.html
+#, python-format
+msgid "turn %(turn)s"
+msgstr ""
+
+#: templates/simulations/_combos.html
+msgid ""
+"A <strong>missing card</strong> is measured on this deck <em>plus</em> that "
+"card, nothing cut."
+msgstr ""
+
+#: templates/simulations/_keep_deck.html
+msgid "Keep this deck"
+msgstr ""
+
+#: templates/simulations/_keep_deck.html
+msgid "Sorcery — Free"
+msgstr ""
+
+#: templates/simulations/_keep_deck.html
+msgid ""
+"Save your deck and every run, and come back to it after your next change."
+msgstr ""
+
+#: templates/simulations/_keep_deck.html
+#, python-format
+msgid "Guest decks are forgotten after %(hours)s hours."
+msgstr ""
+
+#: templates/simulations/_keep_deck.html
+msgid "“A goldfish forgets in three seconds. The lab doesn't.”"
+msgstr ""
+
+#: templates/simulations/_line_chart.html
+msgid "Lines to show"
+msgstr ""
+
+#: templates/simulations/_line_chart.html
+msgid "Point at a line or a name, or tap it, to see what it counts."
+msgstr ""
+
+#: templates/simulations/_progress.html
+msgid "Queued"
+msgstr ""
+
+#: templates/simulations/_progress.html
+msgid "Playing your deck"
+msgstr ""
+
+#: templates/simulations/_progress.html
+msgid "Finished"
+msgstr ""
+
+#: templates/simulations/_progress.html
+msgid "Cancelled"
+msgstr ""
+
+#: templates/simulations/_progress.html
+msgid "Failed"
+msgstr ""
+
+#: templates/simulations/_progress.html
+#, python-format
+msgid "%(done)s of %(total)s games"
+msgstr ""
+
+#: templates/simulations/_progress.html
+#, python-format
+msgid "%(done)s/%(total)s batches"
+msgstr ""
+
+#: templates/simulations/_progress.html
+#, python-format
+msgid "%(games)s games, waiting for a free table"
+msgstr ""
+
+#: templates/simulations/_progress.html
+#, python-format
+msgid "%(games)s games"
+msgstr ""
+
+#: templates/simulations/_progress.html
+msgid "Cancel this run"
+msgstr ""
+
+#: templates/simulations/_progress.html
+msgid "Simulation progress"
+msgstr ""
+
+#: templates/simulations/_progress.html
+msgid ""
+"Cancelling. The batch already in flight finishes first — a few seconds at "
+"most."
+msgstr ""
+
+#: templates/simulations/_progress.html
+#, python-format
+msgid "This run did not finish: %(error)s"
+msgstr ""
+
+#: templates/simulations/_progress.html
+msgid "This run did not finish: the worker reported no reason."
+msgstr ""
+
+#: templates/simulations/_progress.html
+msgid "Your monthly quota was given back."
+msgstr ""
+
+#: templates/simulations/_progress.html
+msgid ""
+"Stopped before it finished, so there are no numbers to show. Your monthly "
+"quota was given back."
+msgstr ""
+
+#: templates/simulations/_progress.html
+msgid "This page updates itself — you can close it and come back."
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "What you drew"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Your opening hand and every card you drew."
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "By category"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Games with at least one, by the end of each turn."
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Share of games with at least one card of each category, by turn"
+msgstr ""
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "None in the deck: %(labels)s."
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "By strategy"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Share of games with at least one card of each strategy, by turn"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "By card type"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Cards drawn per game, on average. Point at a line for the spread."
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Average number of cards of each type seen, by turn"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Mana value of the spells you drew"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Spells per game, on average. A bump on the right is a hand that waits."
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "By the end of turn"
+msgstr ""
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "Spells seen by mana value, by the end of turn %(turn)s"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "The numbers"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid ""
+"By the end of each turn: how many games had drawn at least one card of a "
+"category, and how many cards of each type a game had drawn - the average, "
+"and ± how far a typical game was from it."
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "By end of turn"
+msgstr ""
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "%% of games with at least one"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Cards per game, average ± spread"
+msgstr ""
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"This run is older than this chart. <a href=\"%(deck_url)s#play\" "
+"class=\"text-ink-900 underline\">Run the deck again</a> to see what it "
+"draws."
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Milestones"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Share of games where it was true by the end of each turn."
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Share of games where each milestone was reached, by turn"
+msgstr ""
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "%(count)s more, rarer milestone in the numbers below."
+msgid_plural "%(count)s more, rarer milestones in the numbers below."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "%% of games, by end of turn"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Mulligans"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Share"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Games"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Share as a bar"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "What the mana was made of"
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "The same mana, split by colour — means only."
+msgstr ""
+
+#: templates/simulations/_report.html
+msgid "Total"
+msgstr ""
+
+#: templates/simulations/_strategies.html
+msgid "Your strategies, and what would feed them"
+msgstr ""
+
+#: templates/simulations/_strategies.html
+msgid ""
+"Cards that fit your colours, are legal in Commander and are not in your deck"
+" yet."
+msgstr ""
+
+#: templates/simulations/_strategies.html
+msgid "The most played first."
+msgstr ""
+
+#: templates/simulations/_strategies.html
+#, python-format
+msgid "%(cards)s card in your deck"
+msgid_plural "%(cards)s cards in your deck"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/simulations/_strategies.html
+#, python-format
+msgid ""
+"At least one by turn %(turn)s: %(now)s now, %(more)s with %(extra)s more."
+msgstr ""
+
+#: templates/simulations/_strategies.html
+msgid "No card in your colours left to suggest."
+msgstr ""
+
+#: templates/simulations/_strategies.html
+msgid ""
+"Picked by Mistral AI from cards that fit your colours. It can be wrong."
+msgstr ""
+
+#: templates/simulations/_strategies.html
+msgid ""
+"The odds are calculated from your list: a hand of 7, one draw a turn, no "
+"mulligan. What this run measured is in “By category” and “By strategy” "
+"above."
+msgstr ""
+
+#: templates/simulations/_summary.html
+msgid "Deck summary"
+msgstr ""
+
+#: templates/simulations/_summary.html
+msgid "Feel"
+msgstr ""
+
+#: templates/simulations/_summary.html
+msgid "Strengths"
+msgstr ""
+
+#: templates/simulations/_summary.html
+msgid "Weaknesses"
+msgstr ""
+
+#: templates/simulations/_summary.html
+msgid "Tactics"
+msgstr ""
+
+#: templates/simulations/_summary.html
+msgid ""
+"Written by Mistral AI. It can be wrong. Its numbers are calculated from your"
+" list, not measured by this run."
+msgstr ""
+
+#: templates/simulations/_summary.html
+msgid ""
+"The summary could not be written this time. Nothing was taken from your "
+"runs."
+msgstr ""
+
+#: templates/simulations/_summary.html
+msgid "Written for an earlier version of this deck."
+msgstr ""
+
+#: templates/simulations/_summary.html
+#, python-format
+msgid "Write a summary for this deck - uses 1 of your %(count)s run"
+msgid_plural "Write a summary for this deck - uses 1 of your %(count)s runs"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/simulations/_summary.html
+msgid "Write a summary for this deck"
+msgstr ""
+
+#: templates/simulations/_summary.html
+msgid "Not enough runs left this month for a new summary."
+msgstr ""
+
+#: templates/simulations/_summary.html
+msgid "The last one is shown."
+msgstr ""
+
+#: templates/simulations/_summary.html
+msgid "Hide summaries"
+msgstr ""
+
+#: templates/simulations/_summary_pending.html
+msgid "Writing your deck summary…"
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Shuffling up…"
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Drawing seven…"
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Sending the no-land hands back…"
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Keeping a two-lander. Living dangerously."
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Untap, upkeep, draw. Again."
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Playing a land for the turn…"
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Looking for the third land…"
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Counting the mana…"
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Casting the commander from the command zone…"
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Tapping out. Nobody is holding a counterspell."
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Resolving the stack. It is a short stack."
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Passing the turn to nobody…"
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "The goldfish has no blockers. It never does."
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Topdecking…"
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Discarding to hand size. Reluctantly."
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Feeding the goldfish…"
+msgstr ""
+
+#: templates/simulations/_waiting.html
+msgid "Writing it all down. The goldfish won't."
+msgstr ""
+
+#: templates/simulations/annotate.html
+#, python-format
+msgid "What the simulation engine reads off %(card)s, and how to correct it."
+msgstr ""
+
+#: templates/simulations/annotate.html
+#, python-format
+msgid "%(position)s of %(total)s"
+msgstr ""
+
+#: templates/simulations/annotate.html
+#, python-format
+msgid "All cards of %(name)s"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "See it on Scryfall"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "What does this card do?"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "Blank means you have not said, and the engine keeps its own reading."
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "For:"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "this deck"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "all my decks"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "More"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "Save and next"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "Save"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "Looks right"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "Back"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "Skip"
+msgstr ""
+
+#: templates/simulations/annotate.html
+#, python-format
+msgid "%(count)s still open"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "You said it looks right."
+msgstr ""
+
+#: templates/simulations/annotate.html
+#, python-format
+msgid "Recorded %(date)s — “%(note)s”."
+msgstr ""
+
+#: templates/simulations/annotate.html
+#, python-format
+msgid "Recorded %(date)s."
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "Forget this and go back to the card data"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "Why does the engine think this?"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "Field"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "Value"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "Source"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid "worth checking"
+msgstr ""
+
+#: templates/simulations/annotate.html
+msgid ""
+"An answer applies from the next run onwards. It never changes a result "
+"already computed."
+msgstr ""
+
+#: templates/simulations/detail.html
+msgid "Simulation"
+msgstr ""
+
+#: templates/simulations/detail.html
+#, python-format
+msgid "What happened when Goldfish Lab played %(name)s %(games)s times."
+msgstr ""
+
+#: templates/simulations/detail.html
+#, python-format
+msgid "%(games)s games · %(turns)s turns ·"
+msgstr ""
+
+#: templates/simulations/detail.html
+msgid "1-v-1, first draw skipped"
+msgstr ""
+
+#: templates/simulations/detail.html
+msgid "multiplayer draw rule"
+msgstr ""
+
+#: templates/simulations/detail.html
+msgid "Back to the deck"
+msgstr ""
+
+#: templates/simulations/detail.html
+msgid "Progress"
+msgstr ""

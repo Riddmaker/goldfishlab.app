@@ -153,6 +153,16 @@ def test_with_a_second_language_the_footer_offers_each_in_its_own_name(client, g
     assert "Deutsch" in body
 
 
+def test_on_a_german_page_english_is_still_called_english(client, german):
+    """Django's own tag would print "Englisch" here, from its catalogue."""
+    client.cookies["django_language"] = "de"
+
+    body = client.get(reverse("home")).content.decode()
+
+    assert '<option value="en" lang="en"' in body
+    assert "Englisch" not in body
+
+
 def test_the_browser_decides_when_nothing_was_picked(client, german):
     response = client.get(reverse("home"), headers={"Accept-Language": "de-CH,de;q=0.9"})
 

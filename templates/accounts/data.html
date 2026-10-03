@@ -1,6 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Your data — Goldfish Lab{% endblock %}
-{% block description %}Download everything Goldfish Lab holds about you, or delete your account.{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Your data" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "Download everything Goldfish Lab holds about you, or delete your account." %}{% endblock %}
 {% block content %}
   {% comment %}
     The two rights the privacy policy promises, as buttons. A right that
@@ -11,36 +12,39 @@
     a history file and in every proxy log on the way.
   {% endcomment %}
   <section class="max-w-3xl">
-    <h1 class="font-display text-4xl leading-tight text-parchment-100">Your data</h1>
+    <h1 class="font-display text-4xl leading-tight text-parchment-100">{% translate "Your data" %}</h1>
     <p class="mt-4 text-parchment-200">
-      Signed in as <strong>{{ user.email }}</strong>.
+      {% blocktranslate trimmed with email=user.email %}Signed in as <strong>{{ email }}</strong>.{% endblocktranslate %}
     </p>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Download everything</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Download everything" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        One JSON file: your account, decks, simulations, playtests and plan.
+        {% translate "One JSON file: your account, decks, simulations, playtests and plan." %}
       </p>
       <details class="mt-3 text-sm text-ink-700">
-        <summary class="cursor-pointer underline">What is not in the file?</summary>
+        <summary class="cursor-pointer underline">{% translate "What is not in the file?" %}</summary>
         <p class="mt-2">
-          Card and combo data — public reference data from Scryfall and Commander
-          Spellbook, the same for every account, and not about you. Stripe payment
-          identifiers are left out on purpose: a downloadable file containing them
-          would be a file worth stealing. Your invoices are in
-          <a href="{% url 'billing:plans' %}" class="underline hover:text-ink-900">Stripe's portal</a>.
+          {% url 'billing:plans' as plans_url %}
+          {% blocktranslate trimmed %}
+            Card and combo data — public reference data from Scryfall and Commander
+            Spellbook, the same for every account, and not about you. Stripe payment
+            identifiers are left out on purpose: a downloadable file containing them
+            would be a file worth stealing. Your invoices are in
+            <a href="{{ plans_url }}" class="underline hover:text-ink-900">Stripe's portal</a>.
+          {% endblocktranslate %}
         </p>
       </details>
       <form method="post" action="{% url 'accounts:export' %}" class="mt-4">
         {% csrf_token %}
         <button type="submit"
                 class="inline-block border border-verdigris-800 bg-verdigris-700 px-4 py-2 font-display text-parchment-100 hover:bg-verdigris-800">
-          Download my data
+          {% translate "Download my data" %}
         </button>
       </form>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Delete your account</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Delete your account" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       {% if blockers %}
         {% comment %}
@@ -50,7 +54,7 @@
           and leave Stripe charging a card for an account nobody can sign in to.
         {% endcomment %}
         <p class="text-ink-900">
-          <strong>Not yet.</strong>
+          <strong>{% translate "Not yet." %}</strong>
         </p>
         <ul class="mt-3 space-y-2 text-ink-900">
           {% for blocker in blockers %}<li>• {{ blocker }}</li>{% endfor %}
@@ -58,13 +62,15 @@
         <p class="mt-4">
           <a href="{% url 'billing:plans' %}"
              class="inline-block border border-ink-700 px-4 py-2 font-display text-ink-900 hover:bg-ink-100">
-            Go to billing
+            {% translate "Go to billing" %}
           </a>
         </p>
       {% else %}
         <p class="text-ink-900">
-          Your account and everything in it goes, immediately.
-          <strong>There is no undo</strong> — download a copy above first if you want one.
+          {% blocktranslate trimmed %}
+            Your account and everything in it goes, immediately.
+            <strong>There is no undo</strong> — download a copy above first if you want one.
+          {% endblocktranslate %}
         </p>
         {% comment %}
           Typing the address rather than ticking a box, because a checkbox is
@@ -75,7 +81,7 @@
           {% csrf_token %}
           <div class="form-field">
             <label for="confirm_email">
-              Type <strong>{{ user.email }}</strong> to confirm
+              {% blocktranslate trimmed with email=user.email %}Type <strong>{{ email }}</strong> to confirm{% endblocktranslate %}
             </label>
             <input type="email"
                    id="confirm_email"
@@ -86,15 +92,18 @@
           </div>
           <button type="submit"
                   class="mt-4 inline-block border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
-            Delete my account permanently
+            {% translate "Delete my account permanently" %}
           </button>
         </form>
       {% endif %}
     </div>
 
     <p class="mt-8 text-sm text-ink-300">
-      What we store and why is set out in the
-      <a href="{% url 'privacy' %}" class="underline hover:text-ink-200">privacy policy</a>.
+      {% url 'privacy' as privacy_url %}
+      {% blocktranslate trimmed %}
+        What we store and why is set out in the
+        <a href="{{ privacy_url }}" class="underline hover:text-ink-200">privacy policy</a>.
+      {% endblocktranslate %}
     </p>
   </section>
 {% endblock %}

@@ -1,35 +1,50 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %}Try it with your deck — Goldfish Lab{% endblock %}
-{% block description %}Upload a Commander deck and simulate it - no account needed.{% endblock %}
+{% load static i18n %}
+{% block title %}{% translate "Try it with your deck" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "Upload a Commander deck and simulate it - no account needed." %}{% endblock %}
 {% block head %}
   <script src="{% static 'js/import.js' %}" defer></script>
 {% endblock %}
 {% block content %}
-  <h1 class="font-display text-3xl text-parchment-100">Try it with your deck</h1>
-  <p class="mt-2 text-parchment-200">No account. Drop the file and the simulation starts.</p>
+  <h1 class="font-display text-3xl text-parchment-100">{% translate "Try it with your deck" %}</h1>
+  <p class="mt-2 text-parchment-200">{% translate "No account. Drop the file and the simulation starts." %}</p>
   {% include "guests/_steps.html" %}
   <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
     <div class="surface-parchment p-6">
       {% if guest_deck %}
         <p class="mb-4 text-sm text-ink-700">
-          Trying another deck replaces <strong>{{ guest_deck.name }}</strong>.
-          <a href="{% url 'guests:save' %}" class="underline">Save it first</a> - free.
+          {% url 'guests:save' as save_url %}
+          {% blocktranslate trimmed with name=guest_deck.name %}
+            Trying another deck replaces <strong>{{ name }}</strong>.
+            <a href="{{ save_url }}" class="underline">Save it first</a> - free.
+          {% endblocktranslate %}
         </p>
       {% endif %}
       {% url 'guests:try' as try_url %}
-      {% include "decks/_import_form.html" with action=try_url submit_label="Simulate it" %}
+      {% include "decks/_import_form.html" with action=try_url submit_label=_("Simulate it") %}
     </div>
     <div class="space-y-4 text-sm text-parchment-200">
-      <h2 class="font-display text-xl text-parchment-100">Where to get the file</h2>
+      <h2 class="font-display text-xl text-parchment-100">{% translate "Where to get the file" %}</h2>
       <ul class="space-y-1">
-        <li><strong class="text-parchment-100">Archidekt:</strong> open the deck → More → Export → CSV</li>
-        <li><strong class="text-parchment-100">Moxfield:</strong> More → Export → copy, then paste it here</li>
-        <li><strong class="text-parchment-100">ManaBox:</strong> open the deck → ⋮ → Export</li>
+        <li>
+          {% blocktranslate trimmed %}
+            <strong class="text-parchment-100">Archidekt:</strong> open the deck → More → Export → CSV
+          {% endblocktranslate %}
+        </li>
+        <li>
+          {% blocktranslate trimmed %}
+            <strong class="text-parchment-100">Moxfield:</strong> open the deck → More → Export → copy, then paste it here
+          {% endblocktranslate %}
+        </li>
+        <li>
+          {% blocktranslate trimmed %}
+            <strong class="text-parchment-100">ManaBox:</strong> open the deck → ⋮ → Export
+          {% endblocktranslate %}
+        </li>
       </ul>
       <p class="text-ink-300">
-        Kept for 24 hours unless you save it with a free account.
-        <a href="{% url 'privacy' %}" class="underline">Privacy</a>
+        {% translate "Kept for 24 hours unless you save it with a free account." %}
+        <a href="{% url 'privacy' %}" class="underline">{% translate "Privacy" %}</a>
       </p>
     </div>
   </div>

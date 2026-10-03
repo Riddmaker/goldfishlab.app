@@ -16,9 +16,9 @@
   Takes: chart (a charts.LineChart), name (unique on the page, for the ids),
   title (what the chart shows, for a screen reader).
 {% endcomment %}
-{% load l10n %}
+{% load i18n l10n %}
 <div class="seen-chart mt-3">
-  <div class="seen-chips" role="group" aria-label="Lines to show">
+  <div class="seen-chips" role="group" aria-label="{% translate "Lines to show" %}">
     {% for line in chart.lines %}
       <input type="checkbox"
              id="{{ name }}-{{ line.key }}"
@@ -57,7 +57,7 @@
     {% endfor %}
   </svg>
   <div class="seen-info" aria-hidden="true">
-    <p class="seen-info-hint">Point at a line or a name, or tap it, to see what it counts.</p>
+    <p class="seen-info-hint">{% translate "Point at a line or a name, or tap it, to see what it counts." %}</p>
     {% for line in chart.lines %}
       <p class="seen-info-line seen-info-{{ line.index }}">
         <strong>{{ line.label }}</strong> — {{ line.info }}

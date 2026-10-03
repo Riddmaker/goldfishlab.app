@@ -2,13 +2,14 @@
 {% comment %}
   "Something changed on your account" - see base_notification.html.
 {% endcomment %}
+{% load i18n %}
 {% block content %}{% block notification_message %}{% endblock notification_message %}
 
-If that was you, there's nothing to do.
-{% block if_not_you %}If it wasn't you, choose a new password right away:
+{% translate "If that was you, there's nothing to do." %}
+{% block if_not_you %}{% translate "If it wasn't you, choose a new password right away:" %}
 {{ site_url }}{% url 'account_reset_password' %}{% if operator.email %}
-and write to us at {{ operator.email }}.{% endif %}{% endblock if_not_you %}
+{% blocktranslate with address=operator.email %}And write to us at {{ address }}.{% endblocktranslate %}{% endif %}{% endblock if_not_you %}
 
-When: {{ timestamp|date:"DATETIME_FORMAT" }}
-IP address: {{ ip }}
-Browser: {{ user_agent }}{% endblock content %}
+{% translate "When:" %} {{ timestamp|date:"DATETIME_FORMAT" }}
+{% translate "IP address:" %} {{ ip }}
+{% translate "Browser:" %} {{ user_agent }}{% endblock content %}

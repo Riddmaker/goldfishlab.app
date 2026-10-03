@@ -12,14 +12,14 @@
   Children fill `preheader` (the grey line an inbox shows after the subject),
   `heading` and `content`. `site_url` is built from the request, like
   allauth's own links in these mails.
-{% endcomment %}<!DOCTYPE html>
-<html lang="en">
+{% endcomment %}{% load i18n %}{% get_current_language as current_language %}<!DOCTYPE html>
+<html lang="{{ current_language }}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light only">
     <meta name="supported-color-schemes" content="light only">
-    <meta name="description" content="A mail from Goldfish Lab">
+    <meta name="description" content="{% translate "A mail from Goldfish Lab" %}">
     <title>Goldfish Lab</title>
   </head>
   {% with site_url=request.scheme|add:"://"|add:current_site.domain %}
@@ -46,8 +46,8 @@
             <p style="margin:16px 0 0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:18px;color:#7a7263;">
               Goldfish Lab ·
               <a href="{{ site_url }}/" style="color:#7a7263;">{{ current_site.domain }}</a> ·
-              <a href="{{ site_url }}{% url 'imprint' %}" style="color:#7a7263;">Legal notice</a> ·
-              <a href="{{ site_url }}{% url 'privacy' %}" style="color:#7a7263;">Privacy</a>
+              <a href="{{ site_url }}{% url 'imprint' %}" style="color:#7a7263;">{% translate "Legal notice" %}</a> ·
+              <a href="{{ site_url }}{% url 'privacy' %}" style="color:#7a7263;">{% translate "Privacy" %}</a>
             </p>
           </td>
         </tr>

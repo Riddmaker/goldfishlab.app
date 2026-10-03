@@ -15,9 +15,9 @@
   is expired, already used or made up), `can_confirm` (False when another
   account already owns the address) and `email`.
 {% endcomment %}
-{% load static %}
+{% load static i18n %}
 {% block head_title %}
-  Confirm your email
+  {% translate "Confirm your email" %}
 {% endblock head_title %}
 {% block head %}
   {% if confirmation and can_confirm %}
@@ -26,25 +26,31 @@
 {% endblock head %}
 {% block content %}
   {% if confirmation and can_confirm %}
-    <h1>Confirming your email…</h1>
-    <p>One moment - this confirms {{ email }} and takes you on.</p>
+    <h1>{% translate "Confirming your email…" %}</h1>
+    <p>{% blocktranslate trimmed %}One moment - this confirms {{ email }} and takes you on.{% endblocktranslate %}</p>
     <form method="post"
           action="{% url 'account_confirm_email' confirmation.key %}"
           data-autosubmit>
       {% csrf_token %}
       {{ redirect_field }}
-      <button type="submit">Confirm my email</button>
+      <button type="submit">{% translate "Confirm my email" %}</button>
     </form>
   {% elif confirmation %}
-    <h1>This email is taken</h1>
+    <h1>{% translate "This email is taken" %}</h1>
     <p>
-      {{ email }} is already confirmed on another Goldfish Lab account. <a href="{% url 'account_login' %}">Sign in</a> with it instead.
+      {% url 'account_login' as login_url %}
+      {% blocktranslate trimmed %}
+        {{ email }} is already confirmed on another Goldfish Lab account. <a href="{{ login_url }}">Sign in</a> with it instead.
+      {% endblocktranslate %}
     </p>
   {% else %}
-    <h1>This link doesn't work any more</h1>
-    <p>It was already used, or it has expired.</p>
+    <h1>{% translate "This link doesn't work any more" %}</h1>
+    <p>{% translate "It was already used, or it has expired." %}</p>
     <p>
-      <a href="{% url 'account_login' %}">Sign in</a> - if your email is not confirmed yet, we send you a fresh link.
+      {% url 'account_login' as login_url %}
+      {% blocktranslate trimmed %}
+        <a href="{{ login_url }}">Sign in</a> - if your email is not confirmed yet, we send you a fresh link.
+      {% endblocktranslate %}
     </p>
   {% endif %}
 {% endblock content %}

@@ -1,4 +1,5 @@
 {% extends "account/email/base_notification.html" %}
-{% block preheader %}An email was removed.{% endblock preheader %}
-{% block heading %}An email was removed{% endblock heading %}
-{% block notification_message %}<strong>{{ deleted_email }}</strong> was removed from your Goldfish Lab account.{% endblock notification_message %}
+{% load i18n %}
+{% block preheader %}{% translate "An email was removed." %}{% endblock preheader %}
+{% block heading %}{% translate "An email was removed" %}{% endblock heading %}
+{% block notification_message %}{% blocktranslate trimmed %}<strong>{{ deleted_email }}</strong> was removed from your Goldfish Lab account.{% endblocktranslate %}{% endblock notification_message %}

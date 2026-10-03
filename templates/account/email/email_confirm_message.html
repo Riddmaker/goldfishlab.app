@@ -1,4 +1,5 @@
 {% extends "account/email/base_notification.html" %}
-{% block preheader %}Your email is confirmed.{% endblock preheader %}
-{% block heading %}Your email is confirmed{% endblock heading %}
-{% block notification_message %}<strong>{{ email }}</strong> is now confirmed for your Goldfish Lab account.{% endblock notification_message %}
+{% load i18n %}
+{% block preheader %}{% translate "Your email is confirmed." %}{% endblock preheader %}
+{% block heading %}{% translate "Your email is confirmed" %}{% endblock heading %}
+{% block notification_message %}{% blocktranslate trimmed %}<strong>{{ email }}</strong> is now confirmed for your Goldfish Lab account.{% endblocktranslate %}{% endblock notification_message %}

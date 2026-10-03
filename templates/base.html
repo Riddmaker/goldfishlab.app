@@ -1,6 +1,7 @@
 {% load static i18n %}
+{% get_current_language as current_language %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_language }}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -144,7 +145,6 @@
             finds theirs without reading English and a screen reader says it right.
             Shown only once a second language is switched on (LANGUAGES_ON).
           {% endcomment %}
-          {% get_current_language as current_language %}
           <form method="post"
                 action="{% url 'set_language' %}"
                 class="mt-2 flex items-center gap-2">

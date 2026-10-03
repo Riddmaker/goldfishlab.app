@@ -1,6 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Too many requests — Goldfish Lab{% endblock %}
-{% block description %}This account or address has made too many requests in a short time.{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Too many requests" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "This account or address has made too many requests in a short time." %}{% endblock %}
 {% block content %}
   {% comment %}
     Reached from BOTH limiters: allauth renders this file by name, and
@@ -11,18 +12,20 @@
     It says that waiting works. A refusal a person cannot act on is the same
     mistake billing/blocked.html exists to avoid.
   {% endcomment %}
-  <h1 class="font-display text-3xl text-parchment-100">One moment</h1>
+  <h1 class="font-display text-3xl text-parchment-100">{% translate "One moment" %}</h1>
 
   <section class="surface-parchment mt-6 p-6">
     <p class="text-ink-900">
-      That came through faster than this site accepts. Nothing was lost and
-      nothing was charged — wait about a minute and try again.
+      {% blocktranslate trimmed %}
+        That came through faster than this site accepts. Nothing was lost and
+        nothing was charged — wait about a minute and try again.
+      {% endblocktranslate %}
     </p>
     <p class="mt-3 text-sm text-ink-700">
-      Seeing this while doing something ordinary? That is a bug worth reporting.
+      {% translate "Seeing this while doing something ordinary? That is a bug worth reporting." %}
     </p>
     <p class="mt-4">
-      <a href="{% url 'home' %}" class="underline hover:text-ink-700">Back to the start</a>
+      <a href="{% url 'home' %}" class="underline hover:text-ink-700">{% translate "Back to the start" %}</a>
     </p>
   </section>
 {% endblock %}

@@ -1,1 +1,1 @@
-No Goldfish Lab account for this email
+{% load i18n %}{% translate "No Goldfish Lab account for this email" %}

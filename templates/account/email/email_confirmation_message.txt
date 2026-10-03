@@ -1,9 +1,10 @@
 {% extends "account/email/base_message.txt" %}
-{% block content %}Click the link to use {{ email }} for your Goldfish Lab account.
+{% load i18n %}
+{% block content %}{% blocktranslate %}Click the link to use {{ email }} for your Goldfish Lab account.{% endblocktranslate %}
 {% if code %}
-Your code - type it into the page you have open:
+{% translate "Your code - type it into the page you have open:" %}
 
 {{ code }}{% else %}
 {{ activate_url }}{% endif %}
 
-Didn't ask for this? Ignore this mail - without the click, nothing changes.{% endblock content %}
+{% translate "Didn't ask for this? Ignore this mail - without the click, nothing changes." %}{% endblock content %}

@@ -27,8 +27,9 @@
   messages, and every mail under account/email/ - tests/test_mails.py fails
   when an allauth upgrade brings a mail that has no override.
 {% endcomment %}
+{% load i18n %}
 {% block title %}
-{% block head_title %}Account{% endblock %} — Goldfish Lab
+{% block head_title %}{% translate "Account" %}{% endblock %} — Goldfish Lab
 {% endblock %}
 {% block main %}
 <div class="mx-auto max-w-md">

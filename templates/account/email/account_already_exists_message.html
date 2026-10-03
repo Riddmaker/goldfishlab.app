@@ -1,9 +1,10 @@
 {% extends "account/email/base_message.html" %}
-{% block preheader %}There already is a Goldfish Lab account for this email.{% endblock preheader %}
-{% block heading %}You already have an account{% endblock heading %}
+{% load i18n %}
+{% block preheader %}{% translate "There already is a Goldfish Lab account for this email." %}{% endblock preheader %}
+{% block heading %}{% translate "You already have an account" %}{% endblock heading %}
 {% block content %}
-<p style="margin:0 0 16px;">Someone - probably you - tried to create a Goldfish Lab account with <strong>{{ email }}</strong>. There already is one with this address.</p>
-<p style="margin:0 0 16px;">Forgot your password? Choose a new one:</p>
-{% include "account/email/snippets/button.html" with url=password_reset_url label="Reset my password" %}
-<p style="margin:0;font-size:13px;line-height:20px;color:#5d564a;">Wasn't you? Ignore this mail - nothing has changed.</p>
+<p style="margin:0 0 16px;">{% blocktranslate trimmed %}Someone - probably you - tried to create a Goldfish Lab account with <strong>{{ email }}</strong>. There already is one with this address.{% endblocktranslate %}</p>
+<p style="margin:0 0 16px;">{% translate "Forgot your password? Choose a new one:" %}</p>
+{% include "account/email/snippets/button.html" with url=password_reset_url label=_("Reset my password") %}
+<p style="margin:0;font-size:13px;line-height:20px;color:#5d564a;">{% translate "Wasn't you? Ignore this mail - nothing has changed." %}</p>
 {% endblock content %}

@@ -30,11 +30,10 @@ LATER = {
     "core/methodology.html": "H",
     # Only with DEBUG; nobody but us sees it.
     "core/styleguide.html": "dev only",
-    # Mails, allauth's pages and the error pages (C).
-    "403.html": "C",
-    "429.html": "C",
 }
-LATER_DIRS = ("account/", "allauth/")
+#: Plain-text templates read too: the mails' text halves, subjects and allauth
+#: messages are text a person reads (phase 12 C).
+TEXT_DIRS = ("account/",)
 
 #: Names, not words: the same in every language.
 NAMES = {"Goldfish Lab", "Goldfish\xa0Lab", "Scryfall", "Commander Spellbook", "Moxfield",
@@ -127,9 +126,10 @@ def untranslated(source: str) -> list[str]:
 
 
 def _checked():
-    for path in sorted(TEMPLATES.rglob("*.html")):
+    for path in sorted(TEMPLATES.rglob("*")):
         name = path.relative_to(TEMPLATES).as_posix()
-        if name not in LATER and not name.startswith(LATER_DIRS):
+        text = path.suffix == ".txt" and name.startswith(TEXT_DIRS)
+        if (path.suffix == ".html" or text) and name not in LATER:
             yield name
 
 

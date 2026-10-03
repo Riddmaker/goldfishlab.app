@@ -1,8 +1,9 @@
 {% extends "account/email/base_message.html" %}
-{% block preheader %}There is no Goldfish Lab account for this email.{% endblock preheader %}
-{% block heading %}No account with this address{% endblock heading %}
+{% load i18n %}
+{% block preheader %}{% translate "There is no Goldfish Lab account for this email." %}{% endblock preheader %}
+{% block heading %}{% translate "No account with this address" %}{% endblock heading %}
 {% block content %}
-<p style="margin:0 0 16px;">Someone - probably you - tried to sign in or reset a password on Goldfish Lab with <strong>{{ email }}</strong>. There is no account with this address. Maybe you signed up with a different one?</p>
-{% include "account/email/snippets/button.html" with url=signup_url label="Create a free account" %}
-<p style="margin:0;font-size:13px;line-height:20px;color:#5d564a;">Didn't try anything? Ignore this mail.</p>
+<p style="margin:0 0 16px;">{% blocktranslate trimmed %}Someone - probably you - tried to sign in or reset a password on Goldfish Lab with <strong>{{ email }}</strong>. There is no account with this address. Maybe you signed up with a different one?{% endblocktranslate %}</p>
+{% include "account/email/snippets/button.html" with url=signup_url label=_("Create a free account") %}
+<p style="margin:0;font-size:13px;line-height:20px;color:#5d564a;">{% translate "Didn't try anything? Ignore this mail." %}</p>
 {% endblock content %}

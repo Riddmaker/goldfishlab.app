@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Goldfish Lab\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 13:31+0200\n"
+"POT-Creation-Date: 2026-10-03 13:58+0200\n"
 "PO-Revision-Date: 2026-10-03 13:00+0200\n"
 "Last-Translator: Claude\n"
 "Language-Team: \n"
@@ -1908,6 +1908,573 @@ msgstr ""
 msgid "There was nothing recorded for that card."
 msgstr ""
 
+#: templates/403.html
+msgid "Not yours"
+msgstr ""
+
+#: templates/403.html
+msgid "This page belongs to another account."
+msgstr ""
+
+#: templates/403.html
+msgid "That is not yours to open"
+msgstr ""
+
+#: templates/403.html
+msgid ""
+"This account is not allowed to see that page. If you have more than one "
+"account, you may be signed in as the other one."
+msgstr ""
+
+#: templates/403.html templates/404.html templates/429.html templates/500.html
+msgid "Back to the start"
+msgstr ""
+
+#: templates/404.html
+msgid "Not found"
+msgstr ""
+
+#: templates/404.html
+msgid "There is no page at this address."
+msgstr ""
+
+#: templates/404.html
+msgid "Nothing here"
+msgstr ""
+
+#: templates/404.html
+msgid ""
+"There is no page at this address. The link may be old, or the deck behind it "
+"was deleted."
+msgstr ""
+
+#: templates/429.html
+msgid "Too many requests"
+msgstr ""
+
+#: templates/429.html
+msgid "This account or address has made too many requests in a short time."
+msgstr ""
+
+#: templates/429.html
+msgid "One moment"
+msgstr ""
+
+#: templates/429.html
+msgid ""
+"That came through faster than this site accepts. Nothing was lost and "
+"nothing was charged — wait about a minute and try again."
+msgstr ""
+
+#: templates/429.html
+msgid ""
+"Seeing this while doing something ordinary? That is a bug worth reporting."
+msgstr ""
+
+#: templates/500.html
+msgid "Something went wrong"
+msgstr ""
+
+#: templates/500.html
+msgid "That is our fault, not yours. Try again in a moment."
+msgstr ""
+
+#: templates/account/email/account_already_exists_message.html
+msgid "There already is a Goldfish Lab account for this email."
+msgstr ""
+
+#: templates/account/email/account_already_exists_message.html
+msgid "You already have an account"
+msgstr ""
+
+#: templates/account/email/account_already_exists_message.html
+#, python-format
+msgid ""
+"Someone - probably you - tried to create a Goldfish Lab account with "
+"<strong>%(email)s</strong>. There already is one with this address."
+msgstr ""
+
+#: templates/account/email/account_already_exists_message.html
+#: templates/account/email/account_already_exists_message.txt
+msgid "Forgot your password? Choose a new one:"
+msgstr ""
+
+#: templates/account/email/account_already_exists_message.html
+msgid "Reset my password"
+msgstr ""
+
+#: templates/account/email/account_already_exists_message.html
+#: templates/account/email/account_already_exists_message.txt
+msgid "Wasn't you? Ignore this mail - nothing has changed."
+msgstr ""
+
+#: templates/account/email/account_already_exists_message.txt
+#, python-format
+msgid ""
+"Someone - probably you - tried to create a Goldfish Lab account with "
+"%(email)s. There already is one with this address."
+msgstr ""
+
+#: templates/account/email/account_already_exists_subject.txt
+msgid "You already have a Goldfish Lab account"
+msgstr ""
+
+#: templates/account/email/base_message.html
+msgid "A mail from Goldfish Lab"
+msgstr ""
+
+#: templates/account/email/base_message.html templates/base.html
+msgid "Legal notice"
+msgstr ""
+
+#: templates/account/email/base_message.html templates/base.html
+#: templates/guests/try.html
+msgid "Privacy"
+msgstr ""
+
+#: templates/account/email/base_notification.html
+#: templates/account/email/base_notification.txt
+msgid "If that was you, there's nothing to do."
+msgstr ""
+
+#: templates/account/email/base_notification.html
+#, python-format
+msgid ""
+"If it wasn't you, <a href=\"%(url)s\" style=\"color:#86231d;\">choose a new "
+"password</a> right away and write to us at <a href=\"mailto:%(address)s\" "
+"style=\"color:#86231d;\">%(address)s</a>."
+msgstr ""
+
+#: templates/account/email/base_notification.html
+#, python-format
+msgid ""
+"If it wasn't you, <a href=\"%(url)s\" style=\"color:#86231d;\">choose a new "
+"password</a> right away."
+msgstr ""
+
+#: templates/account/email/base_notification.html
+msgid "When"
+msgstr ""
+
+#: templates/account/email/base_notification.html
+msgid "IP address"
+msgstr ""
+
+#: templates/account/email/base_notification.html
+msgid "Browser"
+msgstr ""
+
+#: templates/account/email/base_notification.txt
+msgid "If it wasn't you, choose a new password right away:"
+msgstr ""
+
+#: templates/account/email/base_notification.txt
+#, python-format
+msgid "And write to us at %(address)s."
+msgstr ""
+
+#: templates/account/email/base_notification.txt
+msgid "When:"
+msgstr ""
+
+#: templates/account/email/base_notification.txt
+msgid "IP address:"
+msgstr ""
+
+#: templates/account/email/base_notification.txt
+msgid "Browser:"
+msgstr ""
+
+#: templates/account/email/email_changed_message.html
+msgid "Your email was changed."
+msgstr ""
+
+#: templates/account/email/email_changed_message.html
+msgid "Your email was changed"
+msgstr ""
+
+#: templates/account/email/email_changed_message.html
+#, python-format
+msgid ""
+"The email of your Goldfish Lab account was changed from "
+"<strong>%(from_email)s</strong> to <strong>%(to_email)s</strong>."
+msgstr ""
+
+#: templates/account/email/email_changed_message.html
+#, python-format
+msgid ""
+"If it wasn't you, write to us at <a href=\"mailto:%(address)s\" "
+"style=\"color:#86231d;\">%(address)s</a> right away - a new password would "
+"go to the new address."
+msgstr ""
+
+#: templates/account/email/email_changed_message.html
+#: templates/account/email/email_changed_message.txt
+msgid ""
+"If it wasn't you, write to us right away - a new password would go to the "
+"new address."
+msgstr ""
+
+#: templates/account/email/email_changed_message.txt
+#, python-format
+msgid ""
+"The email of your Goldfish Lab account was changed from %(from_email)s to "
+"%(to_email)s."
+msgstr ""
+
+#: templates/account/email/email_changed_message.txt
+#, python-format
+msgid ""
+"If it wasn't you, write to us at %(address)s right away - a new password "
+"would go to the new address."
+msgstr ""
+
+#: templates/account/email/email_changed_subject.txt
+msgid "The email of your Goldfish Lab account was changed"
+msgstr ""
+
+#: templates/account/email/email_confirm_message.html
+msgid "Your email is confirmed."
+msgstr ""
+
+#: templates/account/email/email_confirm_message.html
+msgid "Your email is confirmed"
+msgstr ""
+
+#: templates/account/email/email_confirm_message.html
+#, python-format
+msgid ""
+"<strong>%(email)s</strong> is now confirmed for your Goldfish Lab account."
+msgstr ""
+
+#: templates/account/email/email_confirm_message.txt
+#, python-format
+msgid "%(email)s is now confirmed for your Goldfish Lab account."
+msgstr ""
+
+#: templates/account/email/email_confirm_subject.txt
+msgid "Your email for Goldfish Lab is confirmed"
+msgstr ""
+
+#: templates/account/email/email_confirmation_message.html
+msgid "One click to use this address for Goldfish Lab."
+msgstr ""
+
+#: templates/account/email/email_confirmation_message.html
+msgid "Confirm this email"
+msgstr ""
+
+#: templates/account/email/email_confirmation_message.html
+#, python-format
+msgid ""
+"Click the button to use <strong>%(email)s</strong> for your Goldfish Lab "
+"account."
+msgstr ""
+
+#: templates/account/email/email_confirmation_message.html
+#: templates/account/email/email_confirmation_message.txt
+#: templates/account/email/email_confirmation_signup_message.html
+#: templates/account/email/email_confirmation_signup_message.txt
+msgid "Your code - type it into the page you have open:"
+msgstr ""
+
+#: templates/account/email/email_confirmation_message.html
+#: templates/account/email/email_confirmation_message.txt
+msgid ""
+"Didn't ask for this? Ignore this mail - without the click, nothing changes."
+msgstr ""
+
+#: templates/account/email/email_confirmation_message.txt
+#, python-format
+msgid "Click the link to use %(email)s for your Goldfish Lab account."
+msgstr ""
+
+#: templates/account/email/email_confirmation_signup_message.html
+#: templates/account/email/email_confirmation_signup_message.txt
+msgid "One click and your Goldfish Lab account is ready."
+msgstr ""
+
+#: templates/account/email/email_confirmation_signup_message.html
+#: templates/account/email_confirm.html
+msgid "Confirm your email"
+msgstr ""
+
+#: templates/account/email/email_confirmation_signup_message.html
+#: templates/account/email_confirm.html
+msgid "Confirm my email"
+msgstr ""
+
+#: templates/account/email/email_confirmation_signup_message.html
+#: templates/account/email/email_confirmation_signup_message.txt
+msgid ""
+"Didn't sign up? Then someone typed your address by mistake. Ignore this mail "
+"- without the click, nothing happens."
+msgstr ""
+
+#: templates/account/email/email_confirmation_signup_message.txt
+msgid "Click the link to confirm your email:"
+msgstr ""
+
+#: templates/account/email/email_confirmation_signup_subject.txt
+#: templates/account/email/email_confirmation_subject.txt
+msgid "Confirm your email for Goldfish Lab"
+msgstr ""
+
+#: templates/account/email/email_deleted_message.html
+msgid "An email was removed."
+msgstr ""
+
+#: templates/account/email/email_deleted_message.html
+msgid "An email was removed"
+msgstr ""
+
+#: templates/account/email/email_deleted_message.html
+#, python-format
+msgid ""
+"<strong>%(deleted_email)s</strong> was removed from your Goldfish Lab "
+"account."
+msgstr ""
+
+#: templates/account/email/email_deleted_message.txt
+#, python-format
+msgid "%(deleted_email)s was removed from your Goldfish Lab account."
+msgstr ""
+
+#: templates/account/email/email_deleted_subject.txt
+msgid "An email was removed from your Goldfish Lab account"
+msgstr ""
+
+#: templates/account/email/login_code_message.html
+#: templates/account/email/password_reset_code_message.html
+msgid "Type this code into the page you have open."
+msgstr ""
+
+#: templates/account/email/login_code_message.html
+msgid "Your sign-in code"
+msgstr ""
+
+#: templates/account/email/login_code_message.html
+#: templates/account/email/login_code_message.txt
+#: templates/account/email/password_reset_code_message.html
+#: templates/account/email/password_reset_code_message.txt
+msgid "Type this code into the page you have open:"
+msgstr ""
+
+#: templates/account/email/login_code_message.html
+#: templates/account/email/login_code_message.txt
+msgid ""
+"Didn't try to sign in? Ignore this mail - nobody gets in without the code."
+msgstr ""
+
+#: templates/account/email/login_code_subject.txt
+msgid "Your Goldfish Lab sign-in code"
+msgstr ""
+
+#: templates/account/email/password_changed_message.html
+msgid "Your password was changed."
+msgstr ""
+
+#: templates/account/email/password_changed_message.html
+msgid "Your password was changed"
+msgstr ""
+
+#: templates/account/email/password_changed_message.html
+#: templates/account/email/password_changed_message.txt
+msgid "The password of your Goldfish Lab account was just changed."
+msgstr ""
+
+#: templates/account/email/password_changed_subject.txt
+msgid "Your Goldfish Lab password was changed"
+msgstr ""
+
+#: templates/account/email/password_reset_code_message.html
+msgid "Your password reset code"
+msgstr ""
+
+#: templates/account/email/password_reset_code_message.html
+#: templates/account/email/password_reset_code_message.txt
+#: templates/account/email/password_reset_key_message.html
+#: templates/account/email/password_reset_key_message.txt
+msgid "Didn't ask for this? Ignore this mail - your password stays as it is."
+msgstr ""
+
+#: templates/account/email/password_reset_code_subject.txt
+msgid "Your Goldfish Lab password reset code"
+msgstr ""
+
+#: templates/account/email/password_reset_key_message.html
+msgid "Choose a new password for your Goldfish Lab account."
+msgstr ""
+
+#: templates/account/email/password_reset_key_message.html
+msgid "Reset your password"
+msgstr ""
+
+#: templates/account/email/password_reset_key_message.html
+msgid ""
+"Click the button and choose a new password for your Goldfish Lab account."
+msgstr ""
+
+#: templates/account/email/password_reset_key_message.html
+msgid "Choose a new password"
+msgstr ""
+
+#: templates/account/email/password_reset_key_message.txt
+msgid "Click the link and choose a new password for your Goldfish Lab account:"
+msgstr ""
+
+#: templates/account/email/password_reset_key_subject.txt
+msgid "Reset your Goldfish Lab password"
+msgstr ""
+
+#: templates/account/email/password_reset_message.html
+msgid "Your password was reset."
+msgstr ""
+
+#: templates/account/email/password_reset_message.html
+msgid "Your password was reset"
+msgstr ""
+
+#: templates/account/email/password_reset_message.html
+#: templates/account/email/password_reset_message.txt
+msgid "The password of your Goldfish Lab account was just reset."
+msgstr ""
+
+#: templates/account/email/password_reset_subject.txt
+msgid "Your Goldfish Lab password was reset"
+msgstr ""
+
+#: templates/account/email/password_set_message.html
+msgid "Your password was set."
+msgstr ""
+
+#: templates/account/email/password_set_message.html
+msgid "Your password was set"
+msgstr ""
+
+#: templates/account/email/password_set_message.html
+#: templates/account/email/password_set_message.txt
+msgid "A password was just set on your Goldfish Lab account."
+msgstr ""
+
+#: templates/account/email/password_set_subject.txt
+msgid "Your Goldfish Lab password was set"
+msgstr ""
+
+#: templates/account/email/snippets/button.html
+msgid "Button not working? Copy this link into your browser:"
+msgstr ""
+
+#: templates/account/email/unknown_account_message.html
+msgid "There is no Goldfish Lab account for this email."
+msgstr ""
+
+#: templates/account/email/unknown_account_message.html
+msgid "No account with this address"
+msgstr ""
+
+#: templates/account/email/unknown_account_message.html
+#, python-format
+msgid ""
+"Someone - probably you - tried to sign in or reset a password on Goldfish "
+"Lab with <strong>%(email)s</strong>. There is no account with this address. "
+"Maybe you signed up with a different one?"
+msgstr ""
+
+#: templates/account/email/unknown_account_message.html
+#: templates/account/signup.html templates/core/home.html
+msgid "Create a free account"
+msgstr ""
+
+#: templates/account/email/unknown_account_message.html
+#: templates/account/email/unknown_account_message.txt
+msgid "Didn't try anything? Ignore this mail."
+msgstr ""
+
+#: templates/account/email/unknown_account_message.txt
+#, python-format
+msgid ""
+"Someone - probably you - tried to sign in or reset a password on Goldfish "
+"Lab with %(email)s. There is no account with this address. Maybe you signed "
+"up with a different one?"
+msgstr ""
+
+#: templates/account/email/unknown_account_message.txt
+msgid "Or create a free account:"
+msgstr ""
+
+#: templates/account/email/unknown_account_subject.txt
+msgid "No Goldfish Lab account for this email"
+msgstr ""
+
+#: templates/account/email_confirm.html
+msgid "Confirming your email…"
+msgstr ""
+
+#: templates/account/email_confirm.html
+#, python-format
+msgid "One moment - this confirms %(email)s and takes you on."
+msgstr ""
+
+#: templates/account/email_confirm.html
+msgid "This email is taken"
+msgstr ""
+
+#: templates/account/email_confirm.html
+#, python-format
+msgid ""
+"%(email)s is already confirmed on another Goldfish Lab account. <a "
+"href=\"%(login_url)s\">Sign in</a> with it instead."
+msgstr ""
+
+#: templates/account/email_confirm.html
+msgid "This link doesn't work any more"
+msgstr ""
+
+#: templates/account/email_confirm.html
+msgid "It was already used, or it has expired."
+msgstr ""
+
+#: templates/account/email_confirm.html
+#, python-format
+msgid ""
+"<a href=\"%(login_url)s\">Sign in</a> - if your email is not confirmed yet, "
+"we send you a fresh link."
+msgstr ""
+
+#: templates/account/messages/email_confirmation_sent.txt
+#, python-format
+msgid "We sent a link to %(email)s."
+msgstr ""
+
+#: templates/account/messages/email_confirmed.txt
+#, python-format
+msgid "Email confirmed: %(email)s"
+msgstr ""
+
+#: templates/account/signup.html
+#, python-format
+msgid ""
+"Just an email and a password. Already have an account? <a "
+"href=\"%(login_url)s\">Sign in</a>."
+msgstr ""
+
+#: templates/account/signup.html
+msgid "Create my account"
+msgstr ""
+
+#: templates/account/verification_sent.html
+msgid "Check your inbox"
+msgstr ""
+
+#: templates/account/verification_sent.html
+msgid "We sent you a link. Click it and you're in."
+msgstr ""
+
+#: templates/account/verification_sent.html
+msgid "Nothing there after a few minutes? Look in the spam or junk folder."
+msgstr ""
+
 #: templates/accounts/data.html templates/base.html
 msgid "Your data"
 msgstr ""
@@ -1983,6 +2550,10 @@ msgid ""
 "class=\"underline hover:text-ink-200\">privacy policy</a>."
 msgstr ""
 
+#: templates/allauth/layouts/base.html
+msgid "Account"
+msgstr ""
+
 #: templates/base.html
 msgid ""
 "Goldfish Lab actually plays your Commander deck, thousands of times, and "
@@ -2032,14 +2603,6 @@ msgstr ""
 
 #: templates/base.html
 msgid "Terms"
-msgstr ""
-
-#: templates/base.html templates/guests/try.html
-msgid "Privacy"
-msgstr ""
-
-#: templates/base.html
-msgid "Legal notice"
 msgstr ""
 
 #: templates/base.html
@@ -2498,10 +3061,6 @@ msgstr ""
 
 #: templates/core/home.html
 msgid "Try it now - no account"
-msgstr ""
-
-#: templates/core/home.html
-msgid "Create a free account"
 msgstr ""
 
 #: templates/core/home.html

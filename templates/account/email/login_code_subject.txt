@@ -1,1 +1,1 @@
-Your Goldfish Lab sign-in code
+{% load i18n %}{% translate "Your Goldfish Lab sign-in code" %}

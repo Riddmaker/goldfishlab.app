@@ -1,0 +1,31 @@
+{% load static i18n %}
+{% comment %}
+  Phase 12. Django renders this with an empty context - no request, no user,
+  no context processors - because whatever broke may be what they need. So it
+  does not extend base.html: only `static` and the active language, both of
+  which work without a request. Django's own 500 is one English line.
+{% endcomment %}
+{% get_current_language as current_language %}
+<!DOCTYPE html>
+<html lang="{{ current_language }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% translate "Something went wrong" %} — Goldfish Lab</title>
+    <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <main class="mx-auto w-full max-w-5xl flex-1 px-4 py-10">
+      <h1 class="font-display text-3xl text-parchment-100">{% translate "Something went wrong" %}</h1>
+      <section class="surface-parchment mt-6 p-6">
+        <p class="text-ink-900">
+          {% translate "That is our fault, not yours. Try again in a moment." %}
+        </p>
+        <p class="mt-4">
+          <a href="/" class="underline hover:text-ink-700">{% translate "Back to the start" %}</a>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

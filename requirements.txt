@@ -1,5 +1,5 @@
 # Production dependencies - pinned (verified on PyPI 2026-09-17)
-Django==5.2.17
+Django==6.1.1
 psycopg[binary]==3.3.6
 gunicorn==26.2.0
 whitenoise==6.12.0

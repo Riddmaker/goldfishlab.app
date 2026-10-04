@@ -23,8 +23,7 @@ TEMPLATES = Path(__file__).resolve().parent.parent / "templates"
 
 #: Not translated in this batch, each for a reason.
 LATER = {
-    # The legal pages are not here: their English body carries `lang="en"`
-    # (Q4 b, phase 12 H), so only the translated note and the title are read.
+    # The legal pages are not here: translated since phase 12 I, read like the rest.
     # Only with DEBUG; nobody but us sees it.
     "core/styleguide.html": "dev only",
 }

@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Goldfish Lab\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 09:01+0200\n"
+"POT-Creation-Date: 2026-10-04 09:36+0200\n"
 "PO-Revision-Date: 2026-10-03 22:00+0200\n"
 "Last-Translator: Claude\n"
 "Language-Team: \n"
@@ -3576,13 +3576,21 @@ msgstr ""
 msgid "Looked up %(date)s."
 msgstr "Consultado el %(date)s."
 
-#: templates/core/_english_only.html
-msgid "This page is only in English for now."
-msgstr "Esta página solo está en inglés por ahora."
-
 #: templates/core/_ticker_lines.html
 msgid "Quiet right now. The lab is waiting for your deck."
 msgstr "Ahora mismo hay calma. El laboratorio espera tu mazo."
+
+#: templates/core/_translated_note.html
+msgid ""
+"This page was translated automatically from English. Only the English "
+"version is legally binding."
+msgstr ""
+"Esta página se ha traducido automáticamente del inglés. Solo la versión en "
+"inglés es jurídicamente vinculante."
+
+#: templates/core/_translated_note.html
+msgid "Read the English version"
+msgstr "Leer la versión en inglés"
 
 #: templates/core/_why.html templates/decks/detail.html
 #: templates/simulations/_blindspots.html
@@ -3665,6 +3673,53 @@ msgstr "Cómo funciona"
 #: templates/core/imprint.html
 msgid "Who runs Goldfish Lab and how to reach them."
 msgstr "Quién gestiona Goldfish Lab y cómo contactar."
+
+#: templates/core/imprint.html
+msgid "Who runs this site"
+msgstr "Quién gestiona este sitio"
+
+#: templates/core/imprint.html
+msgid ""
+"Goldfish Lab is run by a private individual in Switzerland, who is "
+"responsible for its content:"
+msgstr ""
+"Goldfish Lab lo gestiona un particular en Suiza, que es responsable de su "
+"contenido:"
+
+#: templates/core/imprint.html
+msgid ""
+"The email address reaches that person directly - for questions, refunds, "
+"data requests and anything else. It is not a sales address."
+msgstr ""
+"La dirección de correo electrónico llega directamente a esa persona: para "
+"preguntas, reembolsos, solicitudes sobre datos y cualquier otra cosa. No es "
+"una dirección comercial."
+
+#: templates/core/imprint.html
+msgid "The rest of it"
+msgstr "Lo demás"
+
+#: templates/core/imprint.html
+#, python-format
+msgid ""
+"<a href=\"%(terms_url)s\" class=\"underline hover:text-ink-700\">Terms of "
+"service</a> - plans, cancelling, refunds."
+msgstr ""
+"<a href=\"%(terms_url)s\" class=\"underline hover:text-ink-700\">Términos "
+"del servicio</a>: planes, cancelación, reembolsos."
+
+#: templates/core/imprint.html
+#, python-format
+msgid ""
+"<a href=\"%(privacy_url)s\" class=\"underline hover:text-ink-700\">Privacy "
+"policy</a> - what is stored, where, for how long."
+msgstr ""
+"<a href=\"%(privacy_url)s\" class=\"underline hover:text-ink-700\">Política "
+"de privacidad</a>: qué se guarda, dónde y durante cuánto tiempo."
+
+#: templates/core/imprint.html
+msgid "Hosted by Infomaniak Network SA, Geneva, Switzerland."
+msgstr "Alojado por Infomaniak Network SA, Ginebra, Suiza."
 
 #: templates/core/methodology.html
 msgid "Methodology"
@@ -4278,6 +4333,806 @@ msgstr ""
 "Qué guarda Goldfish Lab sobre ti, por qué, durante cuánto tiempo, quién más "
 "lo ve y cómo recuperarlo o borrarlo."
 
+#: templates/core/privacy.html templates/core/terms.html
+#, python-format
+msgid "Last updated %(date)s."
+msgstr "Última actualización: %(date)s."
+
+#: templates/core/privacy.html
+msgid "The short version"
+msgstr "La versión corta"
+
+#: templates/core/privacy.html
+msgid ""
+"We store your email address, the decks you upload, and the results of the "
+"simulations you run - on servers in Switzerland. Connections reach those "
+"servers through Cloudflare's network. We do not sell any of it, we do not "
+"advertise, and there are no analytics or third-party trackers on this site. "
+"You can download everything we hold at any time, and you can delete your "
+"account yourself. Both of those are buttons, not requests."
+msgstr ""
+"Guardamos tu dirección de correo electrónico, los mazos que subes y los "
+"resultados de las simulaciones que ejecutas, en servidores en Suiza. Las "
+"conexiones llegan a esos servidores a través de la red de Cloudflare. No "
+"vendemos nada de ello, no hacemos publicidad y en este sitio no hay "
+"analítica ni rastreadores de terceros. Puedes descargar en cualquier momento"
+" todo lo que tenemos y puedes borrar tu cuenta tú mismo. Ambas cosas son "
+"botones, no solicitudes."
+
+#: templates/core/privacy.html
+msgid "Your data and account deletion →"
+msgstr "Tus datos y el borrado de la cuenta →"
+
+#: templates/core/privacy.html
+msgid "Who is responsible"
+msgstr "Quién es responsable"
+
+#: templates/core/privacy.html
+msgid ""
+"Goldfish Lab is run by a private individual in Switzerland, who is the "
+"controller of your personal data under the Swiss Data Protection Act (DSG) "
+"and, where it applies to you, the EU General Data Protection Regulation "
+"(GDPR):"
+msgstr ""
+"Goldfish Lab lo gestiona un particular en Suiza, que es el responsable del "
+"tratamiento de tus datos personales según la Ley suiza de protección de "
+"datos (DSG) y, cuando te sea aplicable, el Reglamento General de Protección "
+"de Datos de la UE (RGPD):"
+
+#: templates/core/privacy.html
+msgid ""
+"Every question about your data goes to that address and reaches the person "
+"who runs the site. There is no data protection officer; with one person and "
+"no sensitive data, the law does not require one."
+msgstr ""
+"Cualquier pregunta sobre tus datos va a esa dirección y llega a la persona "
+"que gestiona el sitio. No hay delegado de protección de datos; con una sola "
+"persona y sin datos sensibles, la ley no exige uno."
+
+#: templates/core/privacy.html
+msgid "What we store, why, and for how long"
+msgstr "Qué guardamos, por qué y durante cuánto tiempo"
+
+#: templates/core/privacy.html
+msgid ""
+"The legal basis in brackets is the GDPR article; under Swiss law the same "
+"processing rests on the purposes stated here."
+msgstr ""
+"La base jurídica entre paréntesis es el artículo del RGPD; según el derecho "
+"suizo, el mismo tratamiento se basa en las finalidades indicadas aquí."
+
+#: templates/core/privacy.html
+msgctxt "privacy table"
+msgid "What"
+msgstr "Qué"
+
+#: templates/core/privacy.html
+msgctxt "privacy table"
+msgid "Why"
+msgstr "Por qué"
+
+#: templates/core/privacy.html
+msgctxt "privacy table"
+msgid "Kept for"
+msgstr "Se conserva"
+
+#: templates/core/privacy.html
+msgid ""
+"Your email address, your password (only as a salted hash - nobody can read "
+"it back), when you joined and last signed in, and the language you picked "
+"for the site"
+msgstr ""
+"Tu dirección de correo electrónico, tu contraseña (solo como hash con sal: "
+"nadie puede volver a leerla), cuándo te registraste y cuándo iniciaste "
+"sesión por última vez, y el idioma que elegiste para el sitio"
+
+#: templates/core/privacy.html
+msgid ""
+"To give you an account, confirm it is yours, and let you reset a forgotten "
+"password (contract, Art. 6(1)(b))"
+msgstr ""
+"Para darte una cuenta, confirmar que es tuya y permitirte restablecer una "
+"contraseña olvidada (contrato, art. 6.1.b)"
+
+#: templates/core/privacy.html
+msgid "Until you delete the account"
+msgstr "Hasta que borres la cuenta"
+
+#: templates/core/privacy.html
+msgid "Your decks, card annotations, casting priorities and playtest games"
+msgstr ""
+"Tus mazos, anotaciones de cartas, prioridades de lanzamiento y partidas de "
+"prueba"
+
+#: templates/core/privacy.html
+msgid "They are what the service works on (contract)"
+msgstr "Son aquello con lo que trabaja el servicio (contrato)"
+
+#: templates/core/privacy.html
+msgid "Until you delete them or the account"
+msgstr "Hasta que los borres o borres la cuenta"
+
+#: templates/core/privacy.html
+msgid "The files you upload to import a deck"
+msgstr "Los archivos que subes para importar un mazo"
+
+#: templates/core/privacy.html
+msgid "To read the deck list in them (contract)"
+msgstr "Para leer la lista del mazo que contienen (contrato)"
+
+#: templates/core/privacy.html
+msgid ""
+"The file itself is not kept once the deck is imported; its name and any rows"
+" we could not read stay with the deck. An upload left unfinished on the "
+"column-matching screen: 7 days"
+msgstr ""
+"El archivo en sí no se conserva una vez importado el mazo; su nombre y las "
+"filas que no pudimos leer se quedan con el mazo. Una subida que se deja sin "
+"terminar en la pantalla de asignación de columnas: 7 días"
+
+#: templates/core/privacy.html
+msgid "Simulation runs and their results"
+msgstr "Las simulaciones y sus resultados"
+
+#: templates/core/privacy.html
+msgid "So a result is still there when you come back to it (contract)"
+msgstr "Para que un resultado siga ahí cuando vuelvas a él (contrato)"
+
+#: templates/core/privacy.html
+msgid "Until you delete the deck or the account"
+msgstr "Hasta que borres el mazo o la cuenta"
+
+#: templates/core/privacy.html
+msgid ""
+"Deck summaries: the text written about a deck, which model wrote it, and "
+"whether it used one of your simulations; and whether you have switched "
+"summaries off"
+msgstr ""
+"Resúmenes de mazos: el texto escrito sobre un mazo, qué modelo lo escribió y"
+" si usó una de tus simulaciones; y si has desactivado los resúmenes"
+
+#: templates/core/privacy.html
+msgid ""
+"So a summary is shown again until the deck changes, rather than written - "
+"and paid for - again (contract)"
+msgstr ""
+"Para que un resumen se vuelva a mostrar hasta que el mazo cambie, en lugar "
+"de escribirse —y pagarse— de nuevo (contrato)"
+
+#: templates/core/privacy.html
+msgid "Usage counters (simulations started per month)"
+msgstr "Contadores de uso (simulaciones iniciadas por mes)"
+
+#: templates/core/privacy.html
+msgid "To apply the limits of your plan (contract)"
+msgstr "Para aplicar los límites de tu plan (contrato)"
+
+#: templates/core/privacy.html
+msgid ""
+"Your plan, its status, and the Stripe identifiers of your customer record "
+"and subscription"
+msgstr ""
+"Tu plan, su estado y los identificadores de Stripe de tu registro de cliente"
+" y de tu suscripción"
+
+#: templates/core/privacy.html
+msgid ""
+"To know what your plan allows and to match Stripe's notifications to your "
+"account (contract)"
+msgstr ""
+"Para saber qué permite tu plan y asociar las notificaciones de Stripe a tu "
+"cuenta (contrato)"
+
+#: templates/core/privacy.html
+msgid ""
+"Notifications Stripe sends us about payments (they contain the email address"
+" and name given at checkout)"
+msgstr ""
+"Notificaciones que Stripe nos envía sobre los pagos (contienen la dirección "
+"de correo electrónico y el nombre indicados al pagar)"
+
+#: templates/core/privacy.html
+msgid ""
+"To update your plan reliably and to diagnose a failed payment (contract, "
+"legitimate interest, Art. 6(1)(f))"
+msgstr ""
+"Para actualizar tu plan de forma fiable y diagnosticar un pago fallido "
+"(contrato, interés legítimo, art. 6.1.f)"
+
+#: templates/core/privacy.html
+msgid ""
+"Contents: 30 days. After that only the notification's id and type remain, so"
+" a late duplicate is not processed twice"
+msgstr ""
+"Contenido: 30 días. Después solo quedan el id y el tipo de la notificación, "
+"para que un duplicado tardío no se procese dos veces"
+
+#: templates/core/privacy.html
+msgid "Payment and payout records"
+msgstr "Registros de pagos y de abonos"
+
+#: templates/core/privacy.html
+msgid "Invoices and payment records"
+msgstr "Facturas y registros de pagos"
+
+#: templates/core/privacy.html
+msgid ""
+"Swiss accounting law (legal obligation, Art. 6(1)(c); Art. 958f of the Swiss"
+" Code of Obligations)"
+msgstr ""
+"Derecho contable suizo (obligación legal, art. 6.1.c; art. 958f del Código "
+"de Obligaciones suizo)"
+
+#: templates/core/privacy.html
+msgid ""
+"10 years, held in Stripe - also after you delete your account, because the "
+"law requires it. Your invoices are issued and kept by Link, which sold you "
+"the plan (see below)"
+msgstr ""
+"10 años, en Stripe, también después de que borres tu cuenta, porque la ley "
+"lo exige. Tus facturas las emite y conserva Link, que te vendió el plan (ver"
+" más abajo)"
+
+#: templates/core/privacy.html
+msgid ""
+"10 years, held in Stripe - also after you delete your account, because the "
+"law requires it"
+msgstr ""
+"10 años, en Stripe, también después de que borres tu cuenta, porque la ley "
+"lo exige"
+
+#: templates/core/privacy.html
+msgid ""
+"Trying it without an account: the deck you upload, its simulation and "
+"playtest games, under a temporary guest with no email address and no "
+"password, and a session cookie that makes this browser that guest"
+msgstr ""
+"Probarlo sin cuenta: el mazo que subes, su simulación y sus partidas de "
+"prueba, bajo un invitado temporal sin dirección de correo electrónico ni "
+"contraseña, y una cookie de sesión que convierte este navegador en ese "
+"invitado"
+
+#: templates/core/privacy.html
+msgid ""
+"To show you what the service does before you sign up (steps prior to a "
+"contract, Art. 6(1)(b))"
+msgstr ""
+"Para mostrarte lo que hace el servicio antes de que te registres (medidas "
+"precontractuales, art. 6.1.b)"
+
+#: templates/core/privacy.html
+msgid ""
+"24 hours, then deleted with everything the guest made - unless you save the "
+"deck with an account, which then keeps it"
+msgstr ""
+"24 horas; después se borra junto con todo lo que creó el invitado, salvo que"
+" guardes el mazo con una cuenta, que entonces lo conserva"
+
+#: templates/core/privacy.html
+msgid "A session, while you are signed in"
+msgstr "Una sesión, mientras tienes la sesión iniciada"
+
+#: templates/core/privacy.html
+msgid "To keep you signed in from one page to the next (contract)"
+msgstr ""
+"Para mantener tu sesión iniciada de una página a la siguiente (contrato)"
+
+#: templates/core/privacy.html
+msgid "Until you sign out, at most 2 weeks"
+msgstr "Hasta que cierres sesión, como máximo 2 semanas"
+
+#: templates/core/privacy.html
+msgid "Your IP address, in rate-limit counters"
+msgstr "Tu dirección IP, en contadores de límite de solicitudes"
+
+#: templates/core/privacy.html
+msgid "To stop password guessing and floods of requests (legitimate interest)"
+msgstr ""
+"Para impedir que se adivinen contraseñas y las avalanchas de solicitudes "
+"(interés legítimo)"
+
+#: templates/core/privacy.html
+msgid ""
+"Minutes: each counter expires with the window it counts, at most 5 minutes"
+msgstr ""
+"Minutos: cada contador caduca con el intervalo que cuenta, como máximo 5 "
+"minutos"
+
+#: templates/core/privacy.html
+msgid ""
+"Technical logs: time, page requested, response, browser type, and your IP "
+"address, in the hosting provider's logs"
+msgstr ""
+"Registros técnicos: hora, página solicitada, respuesta, tipo de navegador y "
+"tu dirección IP, en los registros del proveedor de alojamiento"
+
+#: templates/core/privacy.html
+msgid ""
+"Security, abuse prevention and diagnosing faults (legitimate interest). Our "
+"own application logs name accounts by number, never by email"
+msgstr ""
+"Seguridad, prevención de abusos y diagnóstico de fallos (interés legítimo). "
+"Nuestros propios registros de la aplicación identifican las cuentas por "
+"número, nunca por correo electrónico"
+
+#: templates/core/privacy.html
+msgid "At most 30 days, then overwritten"
+msgstr "Como máximo 30 días; después se sobrescriben"
+
+#: templates/core/privacy.html
+msgid "Emails you send us"
+msgstr "Los correos que nos envías"
+
+#: templates/core/privacy.html
+msgid "To answer you (legitimate interest)"
+msgstr "Para responderte (interés legítimo)"
+
+#: templates/core/privacy.html
+msgid ""
+"As long as the matter needs, and no longer than 12 months after it is closed"
+msgstr ""
+"Mientras el asunto lo requiera, y no más de 12 meses después de cerrarlo"
+
+#: templates/core/privacy.html
+msgid ""
+"Card data, tags and combo definitions are <em>not</em> about you. They are "
+"public reference data from Scryfall and Commander Spellbook, identical for "
+"every account, which is why they are not in your export."
+msgstr ""
+"Los datos de cartas, las etiquetas y las definiciones de combos <em>no</em> "
+"tratan sobre ti. Son datos de referencia públicos de Scryfall y Commander "
+"Spellbook, idénticos para todas las cuentas, y por eso no están en tu "
+"exportación."
+
+#: templates/core/privacy.html
+msgid "Email we send you"
+msgstr "Correos que te enviamos"
+
+#: templates/core/privacy.html
+msgid ""
+"Only what the account needs: the message that confirms your address, "
+"password resets, and - rarely - a notice about a change to these documents "
+"or to a plan you pay for. No newsletter and no marketing, ever. The mail is "
+"sent through a mailbox at Infomaniak, in Switzerland."
+msgstr ""
+"Solo lo que la cuenta necesita: el mensaje que confirma tu dirección, los "
+"restablecimientos de contraseña y, rara vez, un aviso sobre un cambio en "
+"estos documentos o en un plan que pagas. Nada de boletines ni de marketing, "
+"nunca. El correo se envía desde un buzón de Infomaniak, en Suiza."
+
+#: templates/core/privacy.html
+msgid "Who else sees what"
+msgstr "Quién más ve qué"
+
+#: templates/core/privacy.html
+msgid ""
+"Nobody buys your data and nobody receives it for advertising. These are all "
+"the services involved, and exactly what each one gets:"
+msgstr ""
+"Nadie compra tus datos y nadie los recibe con fines publicitarios. Estos son"
+" todos los servicios implicados, y exactamente lo que recibe cada uno:"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Infomaniak Network SA</strong>, Geneva, Switzerland - hosts the "
+"application, its database and its email. Everything above is stored in "
+"Infomaniak's data centres in Switzerland. Infomaniak processes it only on "
+"our behalf, under a data processing agreement."
+msgstr ""
+"<strong>Infomaniak Network SA</strong>, Ginebra, Suiza: aloja la aplicación,"
+" su base de datos y su correo electrónico. Todo lo anterior se guarda en los"
+" centros de datos de Infomaniak en Suiza. Infomaniak lo trata solo por "
+"cuenta nuestra, en virtud de un contrato de encargo del tratamiento."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Cloudflare, Inc.</strong>, USA - every connection to this site "
+"passes through Cloudflare's network, which encrypts it and shields the "
+"servers: they have no address of their own on the internet. So Cloudflare "
+"processes <strong>your IP address, the address of the page you ask for and "
+"your browser details</strong>, only to deliver the page and to defend it "
+"against attacks, on our behalf under its data processing addendum. It keeps "
+"no copy of your account data or decks. Cloudflare transfers data to the USA "
+"under the EU-/Swiss-U.S. Data Privacy Framework and standard contractual "
+"clauses. <a href=\"https://www.cloudflare.com/privacypolicy/\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">Cloudflare's privacy"
+" policy</a>."
+msgstr ""
+"<strong>Cloudflare, Inc.</strong>, EE. UU.: cada conexión a este sitio pasa "
+"por la red de Cloudflare, que la cifra y protege los servidores: no tienen "
+"dirección propia en internet. Así que Cloudflare trata <strong>tu dirección "
+"IP, la dirección de la página que pides y los datos de tu "
+"navegador</strong>, solo para entregar la página y defenderla de ataques, "
+"por cuenta nuestra en virtud de su anexo de tratamiento de datos. No guarda "
+"ninguna copia de los datos de tu cuenta ni de tus mazos. Cloudflare "
+"transfiere datos a EE. UU. en virtud del Marco de Privacidad de Datos UE-"
+"EE. UU. / Suiza-EE. UU. y de cláusulas contractuales tipo. <a "
+"href=\"https://www.cloudflare.com/privacypolicy/\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">Política de privacidad de "
+"Cloudflare</a>."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Stripe</strong> (Stripe Payments Europe, Ltd., Ireland, and Stripe, "
+"Inc., USA) - takes payments, only if you choose a paid plan. You pay on "
+"Stripe's own page, so <strong>no card number ever reaches this "
+"application</strong>. Stripe receives your email address and what you enter "
+"at checkout, and acts partly on our behalf and partly as a controller in its"
+" own right (fraud prevention, its legal obligations). Stripe transfers data "
+"to the USA under the EU-/Swiss-U.S. Data Privacy Framework and standard "
+"contractual clauses. <a href=\"https://stripe.com/privacy\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">Stripe's privacy "
+"policy</a>."
+msgstr ""
+"<strong>Stripe</strong> (Stripe Payments Europe, Ltd., Irlanda, y Stripe, "
+"Inc., EE. UU.): procesa los pagos, solo si eliges un plan de pago. Pagas en "
+"la propia página de Stripe, así que <strong>ningún número de tarjeta llega "
+"nunca a esta aplicación</strong>. Stripe recibe tu dirección de correo "
+"electrónico y lo que introduces al pagar, y actúa en parte por cuenta "
+"nuestra y en parte como responsable del tratamiento por derecho propio "
+"(prevención del fraude, sus obligaciones legales). Stripe transfiere datos a"
+" EE. UU. en virtud del Marco de Privacidad de Datos UE-EE. UU. / Suiza-"
+"EE. UU. y de cláusulas contractuales tipo. <a "
+"href=\"https://stripe.com/privacy\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">Política de privacidad de Stripe</a>."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Link</strong> (Sold through Link, LLC, a Stripe company) - sells you"
+" a paid plan as the reseller (\"merchant of record\"), so it is a "
+"<strong>controller in its own right</strong> for the payment: your name, "
+"email address, billing address and country, the payment method, and the "
+"location evidence tax law requires (such as your IP address and card "
+"country). It uses them to charge you, to work out, declare and pay the tax, "
+"to prevent fraud and to send receipts. Link shares the order details with us"
+" so that we can give you the plan. If you ask Link to delete your data, Link"
+" also <strong>cancels the subscription</strong> it sold you, and your "
+"account here moves to the free plan. <a href=\"https://link.com/privacy\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">Link's privacy "
+"policy</a>."
+msgstr ""
+"<strong>Link</strong> (Sold through Link, LLC, una empresa de Stripe): te "
+"vende un plan de pago como revendedor (el \"merchant of record\"), así que "
+"es <strong>responsable del tratamiento por derecho propio</strong> en lo que"
+" respecta al pago: tu nombre, dirección de correo electrónico, dirección de "
+"facturación y país, el método de pago y las pruebas de ubicación que exige "
+"la legislación fiscal (como tu dirección IP y el país de tu tarjeta). Los "
+"usa para cobrarte, para calcular, declarar y pagar el impuesto, para "
+"prevenir el fraude y para enviar los recibos. Link comparte con nosotros los"
+" datos del pedido para que podamos darte el plan. Si pides a Link que borre "
+"tus datos, Link también <strong>cancela la suscripción</strong> que te "
+"vendió, y tu cuenta aquí pasa al plan gratuito. <a "
+"href=\"https://link.com/privacy\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">Política de privacidad de Link</a>."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Scryfall, LLC</strong>, USA - card images are shown straight from "
+"Scryfall's image servers rather than copied here, which is a condition "
+"Scryfall sets for using them. So when a page shows card images, <strong>your"
+" browser loads them from Scryfall</strong>, and Scryfall receives your IP "
+"address and browser details the way any website you visit does. It does not "
+"learn which page of ours you were on: this site tells browsers not to pass "
+"that on. We have a legitimate interest in showing card images, and only "
+"pages that show them make the connection. <a "
+"href=\"https://scryfall.com/docs/privacy\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Scryfall's privacy policy</a>."
+msgstr ""
+"<strong>Scryfall, LLC</strong>, EE. UU.: las imágenes de las cartas se "
+"muestran directamente desde los servidores de imágenes de Scryfall en lugar "
+"de copiarse aquí, que es una condición que Scryfall pone para usarlas. Así "
+"que, cuando una página muestra imágenes de cartas, <strong>tu navegador las "
+"carga desde Scryfall</strong>, y Scryfall recibe tu dirección IP y los datos"
+" de tu navegador como cualquier sitio web que visitas. No sabe en qué página"
+" nuestra estabas: este sitio indica a los navegadores que no lo transmitan. "
+"Tenemos un interés legítimo en mostrar imágenes de cartas, y solo las "
+"páginas que las muestran establecen la conexión. <a "
+"href=\"https://scryfall.com/docs/privacy\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Política de privacidad de Scryfall</a>."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Commander Spellbook</strong> - to find the combos in a deck, our "
+"server sends Commander Spellbook <strong>the list of card names</strong>, "
+"and nothing else: not your email, not your account, not your IP address."
+msgstr ""
+"<strong>Commander Spellbook</strong>: para encontrar los combos de un mazo, "
+"nuestro servidor envía a Commander Spellbook <strong>la lista de nombres de "
+"cartas</strong>, y nada más: ni tu correo electrónico, ni tu cuenta, ni tu "
+"dirección IP."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, Paris, France) - writes the "
+"deck summary on a simulation report and picks cards for its strategies. Our "
+"server sends Mistral <strong>the deck's card names, their categories and "
+"counts, the commander, the mana curve, its combos, the odds of drawing each "
+"category, worked out from the list, and lists of cards from the card "
+"database that would fit it</strong> - nothing about you: not your email, not"
+" your account, not your deck's name, not your IP address. Mistral processes "
+"it in the EU, keeps each request for up to 30 days to detect abuse, then "
+"deletes it, and does not use it to train its models. You can switch "
+"summaries off under \"Hide summaries\" on a report, and then nothing is "
+"sent. <a href=\"https://legal.mistral.ai/terms\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">Mistral's terms</a>."
+msgstr ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, París, Francia): escribe el "
+"resumen del mazo en un informe de simulación y elige cartas para sus "
+"estrategias. Nuestro servidor envía a Mistral <strong>los nombres de las "
+"cartas del mazo, sus categorías y cantidades, el comandante, la curva de "
+"maná, sus combos, las probabilidades de robar cada categoría, calculadas a "
+"partir de la lista, y listas de cartas de la base de datos de cartas que "
+"encajarían en él</strong>; nada sobre ti: ni tu correo electrónico, ni tu "
+"cuenta, ni el nombre de tu mazo, ni tu dirección IP. Mistral lo trata en la "
+"UE, conserva cada solicitud hasta 30 días para detectar abusos, después la "
+"borra, y no la usa para entrenar sus modelos. Puedes desactivar los "
+"resúmenes con «Ocultar resúmenes» en un informe, y entonces no se envía "
+"nada. <a href=\"https://legal.mistral.ai/terms\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">Condiciones de Mistral</a>."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>GitHub</strong> (GitHub, Inc., USA) - only if you choose to report a"
+" problem on our issue tracker there. What you post is "
+"<strong>public</strong>, so please leave out your email address and anything"
+" about a payment; write to us for those. We send GitHub nothing about you. "
+"<a href=\"https://docs.github.com/site-policy/privacy-policies/github-"
+"general-privacy-statement\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">GitHub's privacy statement</a>."
+msgstr ""
+"<strong>GitHub</strong> (GitHub, Inc., EE. UU.): solo si decides comunicar "
+"un problema en nuestro gestor de incidencias de allí. Lo que publicas es "
+"<strong>público</strong>, así que, por favor, no incluyas tu dirección de "
+"correo electrónico ni nada sobre un pago; para eso, escríbenos. No enviamos "
+"a GitHub nada sobre ti. <a href=\"https://docs.github.com/site-"
+"policy/privacy-policies/github-general-privacy-statement\" class=\"underline"
+" hover:text-ink-700\" rel=\"noopener\">Declaración de privacidad de "
+"GitHub</a>."
+
+#: templates/core/privacy.html
+msgid ""
+"We disclose data to authorities only when Swiss law obliges us to, we "
+"disclose the least that satisfies the obligation, and we tell you about it "
+"unless that is forbidden."
+msgstr ""
+"Comunicamos datos a las autoridades solo cuando el derecho suizo nos obliga "
+"a ello, comunicamos lo mínimo que cumple la obligación y te lo decimos, "
+"salvo que esté prohibido."
+
+#: templates/core/privacy.html
+msgid ""
+"No analytics, no advertising, no error-reporting service and no third-party "
+"scripts. If we ever add a service that processes anything about you, it is "
+"named here before it is switched on."
+msgstr ""
+"Sin analítica, sin publicidad, sin servicio de notificación de errores y sin"
+" scripts de terceros. Si algún día añadimos un servicio que trate algo sobre"
+" ti, se nombrará aquí antes de activarse."
+
+#: templates/core/privacy.html
+msgid "On the home page"
+msgstr "En la página de inicio"
+
+#: templates/core/privacy.html
+msgid ""
+"The home page lists what visitors have done recently: that somebody "
+"simulated, playtested or imported a deck, and which commander leads it, or "
+"that a new account was made. A line never names the person or the deck and "
+"carries no time; it only says whether it was a user or a guest. Your own "
+"activity is never shown to you, and it is gone from the list as soon as "
+"newer activity pushes it out."
+msgstr ""
+"La página de inicio enumera lo que han hecho recientemente los visitantes: "
+"que alguien simuló, probó o importó un mazo, y qué comandante lo lidera, o "
+"que se creó una cuenta nueva. Una línea nunca nombra a la persona ni el mazo"
+" y no lleva hora; solo dice si fue un usuario o un invitado. Tu propia "
+"actividad nunca se te muestra a ti, y desaparece de la lista en cuanto una "
+"actividad más reciente la desplaza."
+
+#: templates/core/privacy.html
+msgid "Cookies"
+msgstr "Cookies"
+
+#: templates/core/privacy.html
+msgid ""
+"Four, all strictly necessary, none tracking you - which is why there is no "
+"consent banner:"
+msgstr ""
+"Cuatro, todas estrictamente necesarias, ninguna te rastrea; por eso no hay "
+"banner de consentimiento:"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>sessionid</strong> - keeps you signed in - or, trying it without an "
+"account, keeps your deck yours. Until you sign out, at most 2 weeks; a "
+"guest's is useless after 24 hours, when the guest is deleted."
+msgstr ""
+"<strong>sessionid</strong>: mantiene tu sesión iniciada o, si lo pruebas sin"
+" cuenta, mantiene tu mazo como tuyo. Hasta que cierres sesión, como máximo 2"
+" semanas; la de un invitado deja de servir a las 24 horas, cuando se borra "
+"el invitado."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>csrftoken</strong> - stops other websites from submitting forms in "
+"your name. One year."
+msgstr ""
+"<strong>csrftoken</strong>: impide que otros sitios web envíen formularios "
+"en tu nombre. Un año."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>messages</strong> - carries a one-line notice such as \"deck "
+"imported\" to the next page, then disappears."
+msgstr ""
+"<strong>messages</strong>: lleva un aviso de una línea, como «Mazo "
+"importado», a la página siguiente y luego desaparece."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>django_language</strong> - remembers the language you picked at the "
+"bottom of the page. Only set when you pick one; one year."
+msgstr ""
+"<strong>django_language</strong>: recuerda el idioma que elegiste al pie de "
+"la página. Solo se crea cuando eliges uno; un año."
+
+#: templates/core/privacy.html
+msgid ""
+"Nothing is kept in your browser's local storage. You can block cookies in "
+"your browser; signing in then stops working, and the rest of the public "
+"pages still do."
+msgstr ""
+"No se guarda nada en el almacenamiento local de tu navegador. Puedes "
+"bloquear las cookies en tu navegador; entonces el inicio de sesión deja de "
+"funcionar, y el resto de las páginas públicas siguen funcionando."
+
+#: templates/core/privacy.html
+msgid "How it is protected"
+msgstr "Cómo se protege"
+
+#: templates/core/privacy.html
+msgid ""
+"Every connection is encrypted (HTTPS, enforced). Passwords are stored only "
+"as salted hashes. Every account sees only its own data - that is checked on "
+"every request, not only in the menus. Sign-in, sign-up and password reset "
+"are rate-limited, and the pages carry a strict content security policy. "
+"Database backups are encrypted before they leave the database server, stay "
+"with Infomaniak in Switzerland and are kept for at most 30 days."
+msgstr ""
+"Todas las conexiones están cifradas (HTTPS, obligatorio). Las contraseñas se"
+" guardan solo como hashes con sal. Cada cuenta ve solo sus propios datos, y "
+"eso se comprueba en cada solicitud, no solo en los menús. El inicio de "
+"sesión, el registro y el restablecimiento de contraseña tienen límite de "
+"solicitudes, y las páginas llevan una política de seguridad de contenido "
+"estricta. Las copias de seguridad de la base de datos se cifran antes de "
+"salir del servidor de base de datos, se quedan en Infomaniak en Suiza y se "
+"conservan como máximo 30 días."
+
+#: templates/core/privacy.html
+msgid "Your rights"
+msgstr "Tus derechos"
+
+#: templates/core/privacy.html
+msgid ""
+"You may ask what we hold about you and get a copy, have it corrected, have "
+"it deleted, take it elsewhere in a machine-readable format, and - where we "
+"rely on a legitimate interest - object to the processing. Three of those are"
+" buttons, because a right that needs an email is a right with a queue in "
+"front of it:"
+msgstr ""
+"Puedes pedir qué tenemos sobre ti y obtener una copia, hacer que se corrija,"
+" hacer que se borre, llevártelo a otro sitio en un formato legible por "
+"máquina y, cuando nos basamos en un interés legítimo, oponerte al "
+"tratamiento. Tres de ellos son botones, porque un derecho que necesita un "
+"correo electrónico es un derecho con una cola delante:"
+
+#: templates/core/privacy.html
+#, python-format
+msgid ""
+"<strong>A copy, machine-readable:</strong> <a href=\"%(data_url)s\" "
+"class=\"underline hover:text-ink-700\">download everything as JSON</a>, "
+"immediately."
+msgstr ""
+"<strong>Una copia, legible por máquina:</strong> <a href=\"%(data_url)s\" "
+"class=\"underline hover:text-ink-700\">descárgalo todo como JSON</a>, al "
+"instante."
+
+#: templates/core/privacy.html
+#, python-format
+msgid ""
+"<strong>Deletion:</strong> <a href=\"%(data_url)s\" class=\"underline "
+"hover:text-ink-700\">delete your account</a> yourself. It is immediate and "
+"cannot be undone. A running paid plan has to be cancelled first, so that "
+"Stripe stops charging you."
+msgstr ""
+"<strong>Borrado:</strong> <a href=\"%(data_url)s\" class=\"underline "
+"hover:text-ink-700\">borra tu cuenta</a> tú mismo. Es inmediato y no se "
+"puede deshacer. Un plan de pago en curso tiene que cancelarse primero, para "
+"que Stripe deje de cobrarte."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Correction:</strong> decks and annotations are editable in the "
+"application."
+msgstr ""
+"<strong>Corrección:</strong> los mazos y las anotaciones se pueden editar en"
+" la aplicación."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Everything else</strong> - including changing your email address - "
+"write to the contact address above. We answer within 30 days, and it costs "
+"nothing."
+msgstr ""
+"<strong>Todo lo demás</strong>, incluido cambiar tu dirección de correo "
+"electrónico: escribe a la dirección de contacto de arriba. Respondemos en un"
+" plazo de 30 días, y no cuesta nada."
+
+#: templates/core/privacy.html
+msgid ""
+"If you think we handle your data wrongly, please tell us first. You can also"
+" complain to the Swiss Federal Data Protection and Information Commissioner "
+"(<a href=\"https://www.edoeb.admin.ch\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">FDPIC</a>) or, if you live in the EU, to the data"
+" protection authority of your country."
+msgstr ""
+"Si crees que tratamos tus datos de forma incorrecta, por favor, dínoslo "
+"primero. También puedes presentar una reclamación ante el Comisionado "
+"Federal de Protección de Datos e Información de Suiza (<a "
+"href=\"https://www.edoeb.admin.ch\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">FDPIC</a>) o, si vives en la UE, ante la autoridad de "
+"protección de datos de tu país."
+
+#: templates/core/privacy.html
+msgid ""
+"A deleted account is gone from the live database at once. It survives only "
+"in backups until they age out (at most 30 days), and a backup is never used "
+"for anything but disaster recovery."
+msgstr ""
+"Una cuenta borrada desaparece de la base de datos activa al instante. Solo "
+"sobrevive en las copias de seguridad hasta que caducan (como máximo 30 "
+"días), y una copia de seguridad nunca se usa para nada que no sea la "
+"recuperación ante desastres."
+
+#: templates/core/privacy.html
+msgid "Decisions about you"
+msgstr "Decisiones sobre ti"
+
+#: templates/core/privacy.html
+msgid ""
+"None are automated. The simulator judges decks, not people: there is no "
+"profiling, no scoring of users and no decision with legal effect made by a "
+"machine."
+msgstr ""
+"Ninguna está automatizada. El simulador juzga mazos, no personas: no hay "
+"elaboración de perfiles, ni puntuación de usuarios, ni ninguna decisión con "
+"efectos jurídicos tomada por una máquina."
+
+#: templates/core/privacy.html
+msgid "Changes"
+msgstr "Cambios"
+
+#: templates/core/privacy.html
+msgid ""
+"When this policy changes, the date at the top changes. If the change matters"
+" - a new service that sees your data, a longer retention period - we email "
+"account holders before it takes effect."
+msgstr ""
+"Cuando esta política cambia, cambia la fecha de arriba. Si el cambio es "
+"importante —un nuevo servicio que ve tus datos, un plazo de conservación más"
+" largo—, enviamos un correo electrónico a los titulares de cuentas antes de "
+"que entre en vigor."
+
+#: templates/core/privacy.html
+msgid ""
+"This policy is written in English. Translations into other languages are "
+"made automatically and offered for convenience; if a translation differs "
+"from the English text, the English text applies."
+msgstr ""
+"Esta política está redactada en inglés. Las traducciones a otros idiomas se "
+"hacen automáticamente y se ofrecen por comodidad; si una traducción difiere "
+"del texto en inglés, se aplica el texto en inglés."
+
 #: templates/core/terms.html
 msgid "Terms of service"
 msgstr "Términos del servicio"
@@ -4289,6 +5144,485 @@ msgid ""
 msgstr ""
 "Los términos que aceptas al usar Goldfish Lab: cuentas, planes de pago, "
 "cancelaciones, reembolsos y lo que las simulaciones prometen y no prometen."
+
+#: templates/core/terms.html
+msgid "Who you are agreeing with"
+msgstr "Con quién llegas a un acuerdo"
+
+#: templates/core/terms.html
+msgid ""
+"Goldfish Lab is run by a private individual in Switzerland. These terms are "
+"an agreement between you and:"
+msgstr ""
+"Goldfish Lab lo gestiona un particular en Suiza. Estos términos son un "
+"acuerdo entre tú y:"
+
+#: templates/core/terms.html
+#, python-format
+msgid ""
+"You accept them when you create an account, and again, by ticking the box, "
+"when you buy a plan. How we handle your data is in the <a "
+"href=\"%(privacy_url)s\" class=\"underline hover:text-ink-700\">privacy "
+"policy</a>."
+msgstr ""
+"Los aceptas cuando creas una cuenta y, de nuevo, marcando la casilla, cuando"
+" compras un plan. Cómo tratamos tus datos está en la <a "
+"href=\"%(privacy_url)s\" class=\"underline hover:text-ink-700\">política de "
+"privacidad</a>."
+
+#: templates/core/terms.html
+msgid "What this service is"
+msgstr "Qué es este servicio"
+
+#: templates/core/terms.html
+msgid ""
+"Goldfish Lab simulates Magic: The Gathering decks against no opponent and "
+"reports what happened. It is an analysis tool. It is <strong>not</strong> a "
+"game, not a deck-building authority, and not affiliated with Wizards of the "
+"Coast, Scryfall or Commander Spellbook."
+msgstr ""
+"Goldfish Lab simula mazos de Magic: The Gathering sin oponente e informa de "
+"lo que pasó. Es una herramienta de análisis. <strong>No</strong> es un "
+"juego, ni una autoridad en construcción de mazos, y no está afiliado a "
+"Wizards of the Coast, Scryfall ni Commander Spellbook."
+
+#: templates/core/terms.html
+#, python-format
+msgid ""
+"Its output is a measurement of a model, and the model is deliberately "
+"incomplete - <a href=\"%(methodology_url)s\" class=\"underline hover:text-"
+"ink-700\">the methodology page</a> says exactly how. Decisions you make "
+"about your deck, including which cards to buy, are yours."
+msgstr ""
+"Su resultado es una medición de un modelo, y el modelo es incompleto a "
+"propósito: <a href=\"%(methodology_url)s\" class=\"underline hover:text-"
+"ink-700\">la página de metodología</a> explica exactamente en qué. Las "
+"decisiones que tomes sobre tu mazo, incluidas qué cartas comprar, son tuyas."
+
+#: templates/core/terms.html
+msgid "Your account"
+msgstr "Tu cuenta"
+
+#: templates/core/terms.html
+msgid ""
+"You must be at least 13 years old. To buy a plan you must be an adult, or "
+"have a parent's or guardian's permission."
+msgstr ""
+"Debes tener al menos 13 años. Para comprar un plan debes ser mayor de edad o"
+" tener el permiso de uno de tus padres o de tu tutor."
+
+#: templates/core/terms.html
+msgid ""
+"One person per account. Keep your password to yourself, and tell us if you "
+"think somebody else has got into your account."
+msgstr ""
+"Una persona por cuenta. No compartas tu contraseña, y avísanos si crees que "
+"alguien más ha entrado en tu cuenta."
+
+#: templates/core/terms.html
+msgid ""
+"One account per person: several accounts to get around a plan's limits are "
+"not allowed."
+msgstr ""
+"Una cuenta por persona: no se permiten varias cuentas para eludir los "
+"límites de un plan."
+
+#: templates/core/terms.html
+#, python-format
+msgid ""
+"You can <a href=\"%(data_url)s\" class=\"underline hover:text-"
+"ink-700\">delete your account</a> at any time, yourself, immediately."
+msgstr ""
+"Puedes <a href=\"%(data_url)s\" class=\"underline hover:text-"
+"ink-700\">borrar tu cuenta</a> en cualquier momento, tú mismo, al instante."
+
+#: templates/core/terms.html
+msgid "What you upload"
+msgstr "Lo que subes"
+
+#: templates/core/terms.html
+msgid ""
+"Your decks and annotations stay yours. You allow us to store and process "
+"them only as far as running the service for you needs. We do not publish "
+"them, sell them, or train anything on them."
+msgstr ""
+"Tus mazos y anotaciones siguen siendo tuyos. Nos permites guardarlos y "
+"tratarlos solo en la medida en que lo necesite el funcionamiento del "
+"servicio para ti. No los publicamos, no los vendemos ni entrenamos nada con "
+"ellos."
+
+#: templates/core/terms.html
+msgid "In return, please do not:"
+msgstr "A cambio, por favor, no:"
+
+#: templates/core/terms.html
+msgid "upload anything you have no right to upload, or anything unlawful;"
+msgstr "subas nada que no tengas derecho a subir, ni nada ilícito;"
+
+#: templates/core/terms.html
+msgid ""
+"attack, overload or probe the service, or work around its rate limits, size "
+"limits or plan limits;"
+msgstr ""
+"ataques, sobrecargues ni sondees el servicio, ni eludas sus límites de "
+"solicitudes, de tamaño o del plan;"
+
+#: templates/core/terms.html
+msgid "read the site with scripts or bots, or resell access to it."
+msgstr "leas el sitio con scripts o bots, ni revendas el acceso a él."
+
+#: templates/core/terms.html
+msgid "Plans and paying"
+msgstr "Planes y pagos"
+
+#: templates/core/terms.html
+#, python-format
+msgid ""
+"The free plan is a complete service, not a trial: every feature and all card"
+" and combo data are available on it. Paid plans buy <strong>more simulation "
+"capacity</strong> - more turns per game, more games per run, more runs a "
+"month, more decks. What each plan includes and what it costs is on <a "
+"href=\"%(plans_url)s\" class=\"underline hover:text-ink-700\">the plans "
+"page</a>."
+msgstr ""
+"El plan gratuito es un servicio completo, no una prueba: todas las funciones"
+" y todos los datos de cartas y combos están disponibles en él. Los planes de"
+" pago compran <strong>más capacidad de simulación</strong>: más turnos por "
+"partida, más partidas por simulación, más simulaciones al mes, más mazos. Lo"
+" que incluye cada plan y lo que cuesta está en <a href=\"%(plans_url)s\" "
+"class=\"underline hover:text-ink-700\">la página de planes</a>."
+
+#: templates/core/terms.html
+msgid ""
+"Prices are shown in Swiss francs, euros or US dollars, depending on where "
+"you visit from, and include any taxes that apply; checkout charges the price"
+" in the currency the plans page showed."
+msgstr ""
+"Los precios se muestran en francos suizos, euros o dólares estadounidenses, "
+"según desde dónde visites el sitio, e incluyen los impuestos aplicables; el "
+"pago cobra el precio en la moneda que mostró la página de planes."
+
+#: templates/core/terms.html
+msgid ""
+"Prices are set in Swiss francs and include any taxes that apply; the "
+"checkout page may show them converted into your own currency."
+msgstr ""
+"Los precios se fijan en francos suizos e incluyen los impuestos aplicables; "
+"la página de pago puede mostrarlos convertidos a tu propia moneda."
+
+#: templates/core/terms.html
+msgid "Prices are in Swiss francs and include any taxes that apply."
+msgstr ""
+"Los precios están en francos suizos e incluyen los impuestos aplicables."
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Who sells you the plan.</strong> Paid plans are sold through Link: "
+"<strong>Sold through Link, LLC, a Stripe company</strong>, is the reseller "
+"(the \"merchant of record\") for the payment. Link charges you, works out "
+"and pays the VAT or sales tax, sends the receipts and invoices, and handles "
+"questions about the payment itself under <a href=\"https://link.com/terms\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">Link's own "
+"terms</a>. Your card statement shows <em>LINK.COM*</em>. The service you get"
+" for the plan is provided by us, under these terms."
+msgstr ""
+"<strong>Quién te vende el plan.</strong> Los planes de pago se venden a "
+"través de Link: <strong>Sold through Link, LLC, una empresa de "
+"Stripe</strong>, es el revendedor (el \"merchant of record\") del pago. Link"
+" te cobra, calcula y paga el IVA o el impuesto sobre las ventas, envía los "
+"recibos y las facturas, y atiende las preguntas sobre el propio pago según "
+"<a href=\"https://link.com/terms\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">las condiciones propias de Link</a>. En el extracto de tu "
+"tarjeta aparece <em>LINK.COM*</em>. El servicio que obtienes con el plan lo "
+"prestamos nosotros, según estos términos."
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Paying.</strong> On Stripe's secure page, by card or another method "
+"Stripe offers. We never see your card details."
+msgstr ""
+"<strong>Pago.</strong> En la página segura de Stripe, con tarjeta u otro "
+"método que ofrezca Stripe. Nunca vemos los datos de tu tarjeta."
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Renewal.</strong> A plan is billed monthly in advance and renews "
+"every month until you cancel it."
+msgstr ""
+"<strong>Renovación.</strong> Un plan se factura mensualmente por adelantado "
+"y se renueva cada mes hasta que lo canceles."
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
+"from your plan page, or in your orders at <a href=\"https://link.com\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">link.com</a>. The "
+"plan then runs to the end of the month you have paid for and does not renew."
+" There is no notice period and no fee."
+msgstr ""
+"<strong>Cancelación.</strong> En cualquier momento, en el portal de "
+"facturación de Stripe, enlazado desde la página de tu plan, o en tus pedidos"
+" en <a href=\"https://link.com\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">link.com</a>. El plan sigue entonces hasta el final del mes"
+" que has pagado y no se renueva. No hay plazo de preaviso ni comisión."
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
+"from your plan page. The plan then runs to the end of the month you have "
+"paid for and does not renew. There is no notice period and no fee."
+msgstr ""
+"<strong>Cancelación.</strong> En cualquier momento, en el portal de "
+"facturación de Stripe, enlazado desde la página de tu plan. El plan sigue "
+"entonces hasta el final del mes que has pagado y no se renueva. No hay plazo"
+" de preaviso ni comisión."
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Changing plan.</strong> Also in the portal. Stripe credits what is "
+"left of the old plan against the new one."
+msgstr ""
+"<strong>Cambio de plan.</strong> También en el portal. Stripe abona lo que "
+"queda del plan anterior en el nuevo."
+
+#: templates/core/terms.html
+msgid ""
+"<strong>A failed payment.</strong> Stripe retries for about two weeks. Your "
+"plan keeps working meanwhile and the site tells you. If the payment never "
+"succeeds, the account moves to the free plan - nothing is deleted."
+msgstr ""
+"<strong>Un pago fallido.</strong> Stripe lo reintenta durante unas dos "
+"semanas. Mientras tanto tu plan sigue funcionando y el sitio te avisa. Si el"
+" pago nunca se completa, la cuenta pasa al plan gratuito: no se borra nada."
+
+#: templates/core/terms.html
+msgid "Refunds - 14 days, no questions"
+msgstr "Reembolsos: 14 días, sin preguntas"
+
+#: templates/core/terms.html
+msgid ""
+"<strong>If a plan is not what you expected, write to the contact address "
+"within 14 days of your first payment for it, and you get that payment back "
+"in full.</strong> No reason needed, and the plan ends when the refund is "
+"made. The plan starts immediately when you pay, at your request - this "
+"refund is what replaces a right to withdraw, and it is worth at least as "
+"much as any statutory right of withdrawal you may have."
+msgstr ""
+"<strong>Si un plan no es lo que esperabas, escribe a la dirección de "
+"contacto en un plazo de 14 días desde tu primer pago de ese plan y se te "
+"devuelve ese pago íntegramente.</strong> No hace falta dar ningún motivo, y "
+"el plan termina cuando se hace el reembolso. El plan empieza inmediatamente "
+"cuando pagas, a petición tuya: este reembolso es lo que sustituye al derecho"
+" de desistimiento, y vale al menos tanto como cualquier derecho legal de "
+"desistimiento que puedas tener."
+
+#: templates/core/terms.html
+msgid ""
+"We make the refund through Link, which sold you the plan, and it includes "
+"the tax you paid. You can also ask <a "
+"href=\"https://support.link.com/topics/sold-through-link\" class=\"underline"
+" hover:text-ink-700\" rel=\"noopener\">Link's support</a> about a payment; "
+"Link may refund under its own terms as well."
+msgstr ""
+"Hacemos el reembolso a través de Link, que te vendió el plan, e incluye el "
+"impuesto que pagaste. También puedes preguntar al <a "
+"href=\"https://support.link.com/topics/sold-through-link\" class=\"underline"
+" hover:text-ink-700\" rel=\"noopener\">soporte de Link</a> sobre un pago; "
+"Link también puede reembolsar según sus propias condiciones."
+
+#: templates/core/terms.html
+msgid ""
+"Later payments are not refunded for the part of a month you did not use; "
+"cancelling stops the next one. Where the law gives you more than this, the "
+"law applies."
+msgstr ""
+"Los pagos posteriores no se reembolsan por la parte de un mes que no usaste;"
+" cancelar detiene el siguiente. Cuando la ley te concede más que esto, se "
+"aplica la ley."
+
+#: templates/core/terms.html
+msgid "When we change something"
+msgstr "Cuando cambiamos algo"
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Prices and plan limits</strong> of a plan you pay for change only "
+"from a new billing period, and we email you at least 30 days before. If you "
+"do not want the new terms, cancel before they apply."
+msgstr ""
+"<strong>Los precios y los límites</strong> de un plan que pagas solo cambian"
+" a partir de un nuevo periodo de facturación, y te enviamos un correo "
+"electrónico al menos 30 días antes. Si no quieres las nuevas condiciones, "
+"cancela antes de que se apliquen."
+
+#: templates/core/terms.html
+msgid ""
+"<strong>These terms.</strong> A change that matters is emailed to account "
+"holders at least 30 days before it takes effect, and the date at the top "
+"changes. Continuing to use the service after that date means accepting the "
+"change; if you do not accept it, you can cancel and delete your account, and"
+" a paid plan's unused prepaid days are refunded."
+msgstr ""
+"<strong>Estos términos.</strong> Un cambio importante se comunica por correo"
+" electrónico a los titulares de cuentas al menos 30 días antes de que entre "
+"en vigor, y la fecha de arriba cambia. Seguir usando el servicio después de "
+"esa fecha significa aceptar el cambio; si no lo aceptas, puedes cancelar y "
+"borrar tu cuenta, y se te reembolsan los días prepagados no usados de un "
+"plan de pago."
+
+#: templates/core/terms.html
+msgid ""
+"<strong>The service itself</strong> keeps improving, and a feature may "
+"change or go. We will not take away what makes a paid plan worth paying for "
+"in the middle of a period you have paid for."
+msgstr ""
+"<strong>El servicio en sí</strong> sigue mejorando, y una función puede "
+"cambiar o desaparecer. No quitaremos lo que hace que valga la pena pagar por"
+" un plan de pago en mitad de un periodo que has pagado."
+
+#: templates/core/terms.html
+msgid "Availability, and the honest disclaimer"
+msgstr "Disponibilidad, y la exención de responsabilidad honesta"
+
+#: templates/core/terms.html
+msgid ""
+"The service is run with care by one person, but it is provided as it is. We "
+"do not promise it will be available without interruption, and we do not "
+"promise its results are right for any particular purpose - it is a "
+"simulation of a simplified model, and the methodology page lists the ways it"
+" is simplified."
+msgstr ""
+"El servicio lo lleva con cuidado una sola persona, pero se ofrece tal cual. "
+"No prometemos que esté disponible sin interrupciones, ni prometemos que sus "
+"resultados sean adecuados para ningún fin concreto: es una simulación de un "
+"modelo simplificado, y la página de metodología enumera en qué está "
+"simplificado."
+
+#: templates/core/terms.html
+msgid ""
+"We are fully liable for damage we cause intentionally or through gross "
+"negligence, and for injury to life, body or health. For slight negligence we"
+" are not liable, as far as the law allows; where the law does not allow "
+"that, liability is limited to what you paid us in the twelve months before "
+"the damage. Nothing here limits a liability that mandatory law does not let "
+"us limit."
+msgstr ""
+"Respondemos plenamente de los daños que causemos intencionadamente o por "
+"negligencia grave, y de los daños a la vida, la integridad física o la "
+"salud. Por negligencia leve no respondemos, en la medida en que la ley lo "
+"permita; cuando la ley no lo permita, la responsabilidad se limita a lo que "
+"nos pagaste en los doce meses anteriores al daño. Nada de lo aquí dispuesto "
+"limita una responsabilidad que el derecho imperativo no nos permite limitar."
+
+#: templates/core/terms.html
+msgid "Ending it"
+msgstr "Terminar"
+
+#: templates/core/terms.html
+msgid ""
+"You can leave whenever you like: cancel a paid plan, then delete your "
+"account. We may suspend or close an account that attacks the service, breaks"
+" the law or breaks these terms, and we say why unless saying so would itself"
+" be unlawful or unsafe. If we close an account without such a reason - or "
+"shut the service down - we tell you at least 30 days before and refund the "
+"unused prepaid part of a paid plan."
+msgstr ""
+"Puedes irte cuando quieras: cancela un plan de pago y después borra tu "
+"cuenta. Podemos suspender o cerrar una cuenta que ataque el servicio, "
+"infrinja la ley o infrinja estos términos, y decimos por qué, salvo que "
+"decirlo sea en sí ilícito o inseguro. Si cerramos una cuenta sin un motivo "
+"así —o cerramos el servicio—, te lo decimos al menos 30 días antes y "
+"reembolsamos la parte prepagada no usada de un plan de pago."
+
+#: templates/core/terms.html
+msgid "Magic: The Gathering, card data and combos"
+msgstr "Magic: The Gathering, datos de cartas y combos"
+
+#: templates/core/terms.html
+msgid ""
+"Card data and images come from <a href=\"https://scryfall.com\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">Scryfall</a> and "
+"remain free to use on every plan; images are shown from Scryfall's servers, "
+"never copied here. Combo data comes from <a "
+"href=\"https://commanderspellbook.com\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Commander Spellbook</a>."
+msgstr ""
+"Los datos y las imágenes de las cartas vienen de <a "
+"href=\"https://scryfall.com\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">Scryfall</a> y siguen siendo de uso libre en todos los "
+"planes; las imágenes se muestran desde los servidores de Scryfall, nunca se "
+"copian aquí. Los datos de combos vienen de <a "
+"href=\"https://commanderspellbook.com\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Commander Spellbook</a>."
+
+#: templates/core/terms.html
+#, python-format
+msgid ""
+"The application's source code is free software under the <a "
+"href=\"https://www.gnu.org/licenses/agpl-3.0.html\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">GNU Affero General Public License, "
+"version 3</a>, published at <a href=\"%(source_code_url)s\" "
+"class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">%(source_code_url)s</a>."
+msgstr ""
+"El código fuente de la aplicación es software libre bajo la <a "
+"href=\"https://www.gnu.org/licenses/agpl-3.0.html\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">GNU Affero General Public License, "
+"versión 3</a>, publicado en <a href=\"%(source_code_url)s\" "
+"class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">%(source_code_url)s</a>."
+
+#: templates/core/terms.html
+msgid ""
+"The application's source code is free software under the <a "
+"href=\"https://www.gnu.org/licenses/agpl-3.0.html\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">GNU Affero General Public License, "
+"version 3</a>."
+msgstr ""
+"El código fuente de la aplicación es software libre bajo la <a "
+"href=\"https://www.gnu.org/licenses/agpl-3.0.html\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">GNU Affero General Public License, "
+"versión 3</a>."
+
+#: templates/core/terms.html
+msgid "The licence covers the code, not the name Goldfish Lab."
+msgstr "La licencia cubre el código, no el nombre Goldfish Lab."
+
+#: templates/core/terms.html
+msgid "Law and courts"
+msgstr "Ley y tribunales"
+
+#: templates/core/terms.html
+msgid ""
+"Swiss law applies. If you are a consumer, you keep the protection of the "
+"mandatory law of the country you live in, and you can always take a dispute "
+"to the courts where you live. Otherwise the courts at the operator's place "
+"of residence in Switzerland decide. Before any of that, please write to us -"
+" most things are faster to fix than to argue about."
+msgstr ""
+"Se aplica el derecho suizo. Si eres consumidor, conservas la protección del "
+"derecho imperativo del país en el que vives, y siempre puedes llevar un "
+"litigio ante los tribunales de tu lugar de residencia. En los demás casos, "
+"deciden los tribunales del lugar de residencia del operador en Suiza. Antes "
+"de todo eso, por favor, escríbenos: la mayoría de las cosas se arreglan más "
+"rápido de lo que se discuten."
+
+#: templates/core/terms.html
+msgid ""
+"These terms are written in English. Translations into other languages are "
+"made automatically and offered for convenience; if a translation differs "
+"from the English text, the English text applies."
+msgstr ""
+"Estos términos están redactados en inglés. Las traducciones a otros idiomas "
+"se hacen automáticamente y se ofrecen por comodidad; si una traducción "
+"difiere del texto en inglés, se aplica el texto en inglés."
+
+#: templates/core/terms.html
+msgid ""
+"If one clause of these terms turns out to be invalid, the rest still apply."
+msgstr ""
+"Si una cláusula de estos términos resulta no válida, el resto sigue "
+"aplicándose."
 
 #: templates/decks/_card_grid.html
 #, python-format

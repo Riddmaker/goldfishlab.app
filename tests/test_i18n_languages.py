@@ -3,8 +3,8 @@
 As `test_i18n_german`, per language: the catalogue is complete, the allauth
 overrides it needs are there, and the main pages and allauth's pages render in
 it without the other tone. French says "vous", Italian "tu", Spanish "tú",
-Portuguese "você", Japanese is polite (Q8). es, pt-br and ja are switched off
-in production (Q5); the tests switch each on for themselves.
+Portuguese "você", Japanese is polite (Q8). Production switches languages on
+with LANGUAGES_ON; the tests switch each on for themselves.
 """
 
 import re

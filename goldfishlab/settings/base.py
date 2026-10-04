@@ -282,7 +282,7 @@ LANGUAGE_NAMES = {
     "pt-br": "Português (Brasil)",
     "ja": "日本語",
 }
-#: Which of them are on. es, pt-br and ja wait for a legal check (Q5).
+#: Which of them are on (phase 12; the operator switches all six on, Q5 as changed in I).
 LANGUAGES_ON = env.list("LANGUAGES_ON", default=[])
 if unknown := set(LANGUAGES_ON) - set(LANGUAGE_NAMES):
     # A typo would otherwise leave a language silently off.

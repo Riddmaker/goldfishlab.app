@@ -13,347 +13,427 @@
 
     The operator's details come from settings, never from this file; see
     templates/core/_operator.html. A careful draft, not legal advice.
-  {% endcomment %}
-  {% include "core/_english_only.html" %}
-  <section class="max-w-3xl" lang="en">
-    <h1 class="font-display text-4xl leading-tight text-parchment-100">Privacy policy</h1>
-    <p class="mt-4 text-sm text-ink-300">Last updated 3 October 2026.</p>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">The short version</h2>
+    Translated (phase 12 I, Q4 a): the English text binds, as the note at the
+    top and "Changes" say. Cookie names stay as they are: they are what a
+    browser shows. The date comes from the view.
+  {% endcomment %}
+  {% include "core/_translated_note.html" %}
+  {% url 'accounts:data' as data_url %}
+  <section class="max-w-3xl">
+    <h1 class="font-display text-4xl leading-tight text-parchment-100">{% translate "Privacy policy" %}</h1>
+    <p class="mt-4 text-sm text-ink-300">
+      {% blocktranslate trimmed with date=updated|date:"DATE_FORMAT" %}Last updated {{ date }}.{% endblocktranslate %}
+    </p>
+
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "The short version" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        We store your email address, the decks you upload, and
-        the results of the simulations you run - on servers in Switzerland.
-        Connections reach those servers through Cloudflare's network. We
-        do not sell any of it, we do not advertise, and there are no analytics
-        or third-party trackers on this site. You can download everything we
-        hold at any time, and you can delete your account yourself. Both of
-        those are buttons, not requests.
+        {% blocktranslate trimmed %}
+          We store your email address, the decks you upload, and
+          the results of the simulations you run - on servers in Switzerland.
+          Connections reach those servers through Cloudflare's network. We
+          do not sell any of it, we do not advertise, and there are no analytics
+          or third-party trackers on this site. You can download everything we
+          hold at any time, and you can delete your account yourself. Both of
+          those are buttons, not requests.
+        {% endblocktranslate %}
       </p>
       <p class="mt-4 text-ink-900">
-        <a href="{% url 'accounts:data' %}" class="underline hover:text-ink-700">Your data and account deletion →</a>
+        <a href="{{ data_url }}" class="underline hover:text-ink-700">{% translate "Your data and account deletion →" %}</a>
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Who is responsible</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Who is responsible" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        Goldfish Lab is run by a private individual in Switzerland, who is the
-        controller of your personal data under the Swiss Data Protection Act
-        (DSG) and, where it applies to you, the EU General Data Protection
-        Regulation (GDPR):
+        {% blocktranslate trimmed %}
+          Goldfish Lab is run by a private individual in Switzerland, who is the
+          controller of your personal data under the Swiss Data Protection Act
+          (DSG) and, where it applies to you, the EU General Data Protection
+          Regulation (GDPR):
+        {% endblocktranslate %}
       </p>
       <div class="mt-4">{% include "core/_operator.html" %}</div>
       <p class="mt-4 text-sm text-ink-700">
-        Every question about your data goes to that address and reaches the
-        person who runs the site. There is no data protection officer; with one
-        person and no sensitive data, the law does not require one.
+        {% blocktranslate trimmed %}
+          Every question about your data goes to that address and reaches the
+          person who runs the site. There is no data protection officer; with one
+          person and no sensitive data, the law does not require one.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">What we store, why, and for how long</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "What we store, why, and for how long" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        The legal basis in brackets is the GDPR article; under Swiss law the
-        same processing rests on the purposes stated here.
+        {% blocktranslate trimmed %}
+          The legal basis in brackets is the GDPR article; under Swiss law the
+          same processing rests on the purposes stated here.
+        {% endblocktranslate %}
       </p>
       <div class="mt-4 overflow-x-auto">
         <table class="w-full text-left text-sm text-ink-900">
           <thead>
             <tr class="border-b border-ink-300">
-              <th class="py-2 pr-4 font-display">What</th>
-              <th class="py-2 pr-4 font-display">Why</th>
-              <th class="py-2 font-display">Kept for</th>
+              <th class="py-2 pr-4 font-display">{% translate "What" context "privacy table" %}</th>
+              <th class="py-2 pr-4 font-display">{% translate "Why" context "privacy table" %}</th>
+              <th class="py-2 font-display">{% translate "Kept for" context "privacy table" %}</th>
             </tr>
           </thead>
           <tbody>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">Your email address, your password (only as a salted hash - nobody can read it back), when you joined and last signed in, and the language you picked for the site</td>
-              <td class="py-2 pr-4 align-top">To give you an account, confirm it is yours, and let you reset a forgotten password (contract, Art. 6(1)(b))</td>
-              <td class="py-2 align-top">Until you delete the account</td>
+              <td class="py-2 pr-4 align-top">{% translate "Your email address, your password (only as a salted hash - nobody can read it back), when you joined and last signed in, and the language you picked for the site" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "To give you an account, confirm it is yours, and let you reset a forgotten password (contract, Art. 6(1)(b))" %}</td>
+              <td class="py-2 align-top">{% translate "Until you delete the account" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">Your decks, card annotations, casting priorities and playtest games</td>
-              <td class="py-2 pr-4 align-top">They are what the service works on (contract)</td>
-              <td class="py-2 align-top">Until you delete them or the account</td>
+              <td class="py-2 pr-4 align-top">{% translate "Your decks, card annotations, casting priorities and playtest games" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "They are what the service works on (contract)" %}</td>
+              <td class="py-2 align-top">{% translate "Until you delete them or the account" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">The files you upload to import a deck</td>
-              <td class="py-2 pr-4 align-top">To read the deck list in them (contract)</td>
-              <td class="py-2 align-top">The file itself is not kept once the deck is imported; its name and any rows we could not read stay with the deck. An upload left unfinished on the column-matching screen: 7 days</td>
+              <td class="py-2 pr-4 align-top">{% translate "The files you upload to import a deck" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "To read the deck list in them (contract)" %}</td>
+              <td class="py-2 align-top">{% translate "The file itself is not kept once the deck is imported; its name and any rows we could not read stay with the deck. An upload left unfinished on the column-matching screen: 7 days" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">Simulation runs and their results</td>
-              <td class="py-2 pr-4 align-top">So a result is still there when you come back to it (contract)</td>
-              <td class="py-2 align-top">Until you delete the deck or the account</td>
+              <td class="py-2 pr-4 align-top">{% translate "Simulation runs and their results" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "So a result is still there when you come back to it (contract)" %}</td>
+              <td class="py-2 align-top">{% translate "Until you delete the deck or the account" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">Deck summaries: the text written about a deck, which model wrote it, and whether it used one of your simulations; and whether you have switched summaries off</td>
-              <td class="py-2 pr-4 align-top">So a summary is shown again until the deck changes, rather than written - and paid for - again (contract)</td>
-              <td class="py-2 align-top">Until you delete the deck or the account</td>
+              <td class="py-2 pr-4 align-top">{% translate "Deck summaries: the text written about a deck, which model wrote it, and whether it used one of your simulations; and whether you have switched summaries off" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "So a summary is shown again until the deck changes, rather than written - and paid for - again (contract)" %}</td>
+              <td class="py-2 align-top">{% translate "Until you delete the deck or the account" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">Usage counters (simulations started per month)</td>
-              <td class="py-2 pr-4 align-top">To apply the limits of your plan (contract)</td>
-              <td class="py-2 align-top">Until you delete the account</td>
+              <td class="py-2 pr-4 align-top">{% translate "Usage counters (simulations started per month)" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "To apply the limits of your plan (contract)" %}</td>
+              <td class="py-2 align-top">{% translate "Until you delete the account" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">Your plan, its status, and the Stripe identifiers of your customer record and subscription</td>
-              <td class="py-2 pr-4 align-top">To know what your plan allows and to match Stripe's notifications to your account (contract)</td>
-              <td class="py-2 align-top">Until you delete the account</td>
+              <td class="py-2 pr-4 align-top">{% translate "Your plan, its status, and the Stripe identifiers of your customer record and subscription" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "To know what your plan allows and to match Stripe's notifications to your account (contract)" %}</td>
+              <td class="py-2 align-top">{% translate "Until you delete the account" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">Notifications Stripe sends us about payments (they contain the email address and name given at checkout)</td>
-              <td class="py-2 pr-4 align-top">To update your plan reliably and to diagnose a failed payment (contract, legitimate interest, Art. 6(1)(f))</td>
-              <td class="py-2 align-top">Contents: 30 days. After that only the notification's id and type remain, so a late duplicate is not processed twice</td>
+              <td class="py-2 pr-4 align-top">{% translate "Notifications Stripe sends us about payments (they contain the email address and name given at checkout)" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "To update your plan reliably and to diagnose a failed payment (contract, legitimate interest, Art. 6(1)(f))" %}</td>
+              <td class="py-2 align-top">{% translate "Contents: 30 days. After that only the notification's id and type remain, so a late duplicate is not processed twice" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">{% if sold_through_link %}Payment and payout records{% else %}Invoices and payment records{% endif %}</td>
-              <td class="py-2 pr-4 align-top">Swiss accounting law (legal obligation, Art. 6(1)(c); Art. 958f of the Swiss Code of Obligations)</td>
-              <td class="py-2 align-top">10 years, held in Stripe - also after you delete your account, because the law requires it{% if sold_through_link %}. Your invoices are issued and kept by Link, which sold you the plan (see below){% endif %}</td>
+              <td class="py-2 pr-4 align-top">{% if sold_through_link %}{% translate "Payment and payout records" %}{% else %}{% translate "Invoices and payment records" %}{% endif %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "Swiss accounting law (legal obligation, Art. 6(1)(c); Art. 958f of the Swiss Code of Obligations)" %}</td>
+              <td class="py-2 align-top">
+                {% if sold_through_link %}
+                  {% translate "10 years, held in Stripe - also after you delete your account, because the law requires it. Your invoices are issued and kept by Link, which sold you the plan (see below)" %}
+                {% else %}
+                  {% translate "10 years, held in Stripe - also after you delete your account, because the law requires it" %}
+                {% endif %}
+              </td>
             </tr>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">Trying it without an account: the deck you upload, its simulation and playtest games, under a temporary guest with no email address and no password, and a session cookie that makes this browser that guest</td>
-              <td class="py-2 pr-4 align-top">To show you what the service does before you sign up (steps prior to a contract, Art. 6(1)(b))</td>
-              <td class="py-2 align-top">24 hours, then deleted with everything the guest made - unless you save the deck with an account, which then keeps it</td>
+              <td class="py-2 pr-4 align-top">{% translate "Trying it without an account: the deck you upload, its simulation and playtest games, under a temporary guest with no email address and no password, and a session cookie that makes this browser that guest" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "To show you what the service does before you sign up (steps prior to a contract, Art. 6(1)(b))" %}</td>
+              <td class="py-2 align-top">{% translate "24 hours, then deleted with everything the guest made - unless you save the deck with an account, which then keeps it" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">A session, while you are signed in</td>
-              <td class="py-2 pr-4 align-top">To keep you signed in from one page to the next (contract)</td>
-              <td class="py-2 align-top">Until you sign out, at most 2 weeks</td>
+              <td class="py-2 pr-4 align-top">{% translate "A session, while you are signed in" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "To keep you signed in from one page to the next (contract)" %}</td>
+              <td class="py-2 align-top">{% translate "Until you sign out, at most 2 weeks" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">Your IP address, in rate-limit counters</td>
-              <td class="py-2 pr-4 align-top">To stop password guessing and floods of requests (legitimate interest)</td>
-              <td class="py-2 align-top">Minutes: each counter expires with the window it counts, at most 5 minutes</td>
+              <td class="py-2 pr-4 align-top">{% translate "Your IP address, in rate-limit counters" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "To stop password guessing and floods of requests (legitimate interest)" %}</td>
+              <td class="py-2 align-top">{% translate "Minutes: each counter expires with the window it counts, at most 5 minutes" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
-              <td class="py-2 pr-4 align-top">Technical logs: time, page requested, response, browser type, and your IP address, in the hosting provider's logs</td>
-              <td class="py-2 pr-4 align-top">Security, abuse prevention and diagnosing faults (legitimate interest). Our own application logs name accounts by number, never by email</td>
-              <td class="py-2 align-top">At most 30 days, then overwritten</td>
+              <td class="py-2 pr-4 align-top">{% translate "Technical logs: time, page requested, response, browser type, and your IP address, in the hosting provider's logs" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "Security, abuse prevention and diagnosing faults (legitimate interest). Our own application logs name accounts by number, never by email" %}</td>
+              <td class="py-2 align-top">{% translate "At most 30 days, then overwritten" %}</td>
             </tr>
             <tr>
-              <td class="py-2 pr-4 align-top">Emails you send us</td>
-              <td class="py-2 pr-4 align-top">To answer you (legitimate interest)</td>
-              <td class="py-2 align-top">As long as the matter needs, and no longer than 12 months after it is closed</td>
+              <td class="py-2 pr-4 align-top">{% translate "Emails you send us" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "To answer you (legitimate interest)" %}</td>
+              <td class="py-2 align-top">{% translate "As long as the matter needs, and no longer than 12 months after it is closed" %}</td>
             </tr>
           </tbody>
         </table>
       </div>
       <p class="mt-4 text-sm text-ink-700">
-        Card data, tags and combo definitions are <em>not</em> about you. They
-        are public reference data from Scryfall and Commander Spellbook,
-        identical for every account, which is why they are not in your export.
+        {% blocktranslate trimmed %}
+          Card data, tags and combo definitions are <em>not</em> about you. They
+          are public reference data from Scryfall and Commander Spellbook,
+          identical for every account, which is why they are not in your export.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Email we send you</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Email we send you" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        Only what the account needs: the message that confirms your address,
-        password resets, and - rarely - a notice about a change to these
-        documents or to a plan you pay for. No newsletter and no marketing,
-        ever. The mail is sent through a mailbox at Infomaniak, in Switzerland.
+        {% blocktranslate trimmed %}
+          Only what the account needs: the message that confirms your address,
+          password resets, and - rarely - a notice about a change to these
+          documents or to a plan you pay for. No newsletter and no marketing,
+          ever. The mail is sent through a mailbox at Infomaniak, in Switzerland.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Who else sees what</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Who else sees what" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        Nobody buys your data and nobody receives it for advertising. These are
-        all the services involved, and exactly what each one gets:
+        {% blocktranslate trimmed %}
+          Nobody buys your data and nobody receives it for advertising. These are
+          all the services involved, and exactly what each one gets:
+        {% endblocktranslate %}
       </p>
       <ul class="mt-4 space-y-3 text-ink-900">
         <li>
-          • <strong>Infomaniak Network SA</strong>, Geneva, Switzerland - hosts
-          the application, its database and its email. Everything above is
-          stored in Infomaniak's data centres in Switzerland. Infomaniak
-          processes it only on our behalf, under a data processing agreement.
+          •
+          {% blocktranslate trimmed %}
+            <strong>Infomaniak Network SA</strong>, Geneva, Switzerland - hosts
+            the application, its database and its email. Everything above is
+            stored in Infomaniak's data centres in Switzerland. Infomaniak
+            processes it only on our behalf, under a data processing agreement.
+          {% endblocktranslate %}
         </li>
         <li>
-          • <strong>Cloudflare, Inc.</strong>, USA - every connection to this
-          site passes through Cloudflare's network, which encrypts it and
-          shields the servers: they have no address of their own on the
-          internet. So Cloudflare processes <strong>your IP address, the
-          address of the page you ask for and your browser details</strong>,
-          only to deliver the page and to defend it against attacks, on our
-          behalf under its data processing addendum. It keeps no copy of your
-          account data or decks. Cloudflare transfers data to the
-          USA under the EU-/Swiss-U.S. Data Privacy Framework and standard
-          contractual clauses.
-          <a href="https://www.cloudflare.com/privacypolicy/" class="underline hover:text-ink-700" rel="noopener">Cloudflare's privacy policy</a>.
+          •
+          {% blocktranslate trimmed %}
+            <strong>Cloudflare, Inc.</strong>, USA - every connection to this
+            site passes through Cloudflare's network, which encrypts it and
+            shields the servers: they have no address of their own on the
+            internet. So Cloudflare processes <strong>your IP address, the
+            address of the page you ask for and your browser details</strong>,
+            only to deliver the page and to defend it against attacks, on our
+            behalf under its data processing addendum. It keeps no copy of your
+            account data or decks. Cloudflare transfers data to the
+            USA under the EU-/Swiss-U.S. Data Privacy Framework and standard
+            contractual clauses.
+            <a href="https://www.cloudflare.com/privacypolicy/" class="underline hover:text-ink-700" rel="noopener">Cloudflare's privacy policy</a>.
+          {% endblocktranslate %}
         </li>
         <li>
-          • <strong>Stripe</strong> (Stripe Payments Europe, Ltd., Ireland, and
-          Stripe, Inc., USA) - takes payments, only if you choose a paid plan.
-          You pay on Stripe's own page, so <strong>no card number ever reaches
-          this application</strong>. Stripe receives your email address and
-          what you enter at checkout, and acts partly on our behalf and partly
-          as a controller in its own right (fraud prevention, its legal
-          obligations). Stripe transfers data to the USA under the
-          EU-/Swiss-U.S. Data Privacy Framework and standard contractual
-          clauses. <a href="https://stripe.com/privacy" class="underline hover:text-ink-700" rel="noopener">Stripe's privacy policy</a>.
+          •
+          {% blocktranslate trimmed %}
+            <strong>Stripe</strong> (Stripe Payments Europe, Ltd., Ireland, and
+            Stripe, Inc., USA) - takes payments, only if you choose a paid plan.
+            You pay on Stripe's own page, so <strong>no card number ever reaches
+            this application</strong>. Stripe receives your email address and
+            what you enter at checkout, and acts partly on our behalf and partly
+            as a controller in its own right (fraud prevention, its legal
+            obligations). Stripe transfers data to the USA under the
+            EU-/Swiss-U.S. Data Privacy Framework and standard contractual
+            clauses. <a href="https://stripe.com/privacy" class="underline hover:text-ink-700" rel="noopener">Stripe's privacy policy</a>.
+          {% endblocktranslate %}
         </li>
         {% if sold_through_link %}
           <li>
-            • <strong>Link</strong> (Sold through Link, LLC, a Stripe company) -
-            sells you a paid plan as the reseller ("merchant of record"), so it
-            is a <strong>controller in its own right</strong> for the payment:
-            your name, email address, billing address and country, the payment
-            method, and the location evidence tax law requires (such as your IP
-            address and card country). It uses them to charge you, to work out,
-            declare and pay the tax, to prevent fraud and to send receipts. Link
-            shares the order details with us so that we can give you the plan.
-            If you ask Link to delete your data, Link also
-            <strong>cancels the subscription</strong> it sold you, and your
-            account here moves to the free plan.
-            <a href="https://link.com/privacy" class="underline hover:text-ink-700" rel="noopener">Link's privacy policy</a>.
+            •
+            {% blocktranslate trimmed %}
+              <strong>Link</strong> (Sold through Link, LLC, a Stripe company) -
+              sells you a paid plan as the reseller ("merchant of record"), so it
+              is a <strong>controller in its own right</strong> for the payment:
+              your name, email address, billing address and country, the payment
+              method, and the location evidence tax law requires (such as your IP
+              address and card country). It uses them to charge you, to work out,
+              declare and pay the tax, to prevent fraud and to send receipts. Link
+              shares the order details with us so that we can give you the plan.
+              If you ask Link to delete your data, Link also
+              <strong>cancels the subscription</strong> it sold you, and your
+              account here moves to the free plan.
+              <a href="https://link.com/privacy" class="underline hover:text-ink-700" rel="noopener">Link's privacy policy</a>.
+            {% endblocktranslate %}
           </li>
         {% endif %}
         <li>
-          • <strong>Scryfall, LLC</strong>, USA - card images are shown straight
-          from Scryfall's image servers rather than copied here, which is a
-          condition Scryfall sets for using them. So when a page shows card
-          images, <strong>your browser loads them from Scryfall</strong>, and
-          Scryfall receives your IP address and browser details the way any
-          website you visit does. It does not learn which page of ours you were
-          on: this site tells browsers not to pass that on. We have a legitimate
-          interest in showing card images, and only pages that show them make
-          the connection.
-          <a href="https://scryfall.com/docs/privacy" class="underline hover:text-ink-700" rel="noopener">Scryfall's privacy policy</a>.
+          •
+          {% blocktranslate trimmed %}
+            <strong>Scryfall, LLC</strong>, USA - card images are shown straight
+            from Scryfall's image servers rather than copied here, which is a
+            condition Scryfall sets for using them. So when a page shows card
+            images, <strong>your browser loads them from Scryfall</strong>, and
+            Scryfall receives your IP address and browser details the way any
+            website you visit does. It does not learn which page of ours you were
+            on: this site tells browsers not to pass that on. We have a legitimate
+            interest in showing card images, and only pages that show them make
+            the connection.
+            <a href="https://scryfall.com/docs/privacy" class="underline hover:text-ink-700" rel="noopener">Scryfall's privacy policy</a>.
+          {% endblocktranslate %}
         </li>
         <li>
-          • <strong>Commander Spellbook</strong> - to find the combos in a deck,
-          our server sends Commander Spellbook <strong>the list of card
-          names</strong>, and nothing else: not your email, not your account,
-          not your IP address.
+          •
+          {% blocktranslate trimmed %}
+            <strong>Commander Spellbook</strong> - to find the combos in a deck,
+            our server sends Commander Spellbook <strong>the list of card
+            names</strong>, and nothing else: not your email, not your account,
+            not your IP address.
+          {% endblocktranslate %}
         </li>
         <li>
-          • <strong>Mistral AI</strong> (Mistral AI SAS, Paris, France) - writes
-          the deck summary on a simulation report and picks cards for its
-          strategies. Our server sends Mistral <strong>the deck's card names,
-          their categories and counts, the commander, the mana curve, its
-          combos, the odds of drawing each category, worked out from the list,
-          and lists of cards from the card database that would fit it</strong>
-          - nothing about you: not your email, not your account,
-          not your deck's name, not your IP address. Mistral processes it in
-          the EU, keeps each request for up to 30 days to detect abuse, then
-          deletes it, and does not use it to train its models. You can switch
-          summaries off under "Hide summaries" on a report, and then nothing is
-          sent.
-          <a href="https://legal.mistral.ai/terms" class="underline hover:text-ink-700" rel="noopener">Mistral's terms</a>.
+          •
+          {% blocktranslate trimmed %}
+            <strong>Mistral AI</strong> (Mistral AI SAS, Paris, France) - writes
+            the deck summary on a simulation report and picks cards for its
+            strategies. Our server sends Mistral <strong>the deck's card names,
+            their categories and counts, the commander, the mana curve, its
+            combos, the odds of drawing each category, worked out from the list,
+            and lists of cards from the card database that would fit it</strong>
+            - nothing about you: not your email, not your account,
+            not your deck's name, not your IP address. Mistral processes it in
+            the EU, keeps each request for up to 30 days to detect abuse, then
+            deletes it, and does not use it to train its models. You can switch
+            summaries off under "Hide summaries" on a report, and then nothing is
+            sent.
+            <a href="https://legal.mistral.ai/terms" class="underline hover:text-ink-700" rel="noopener">Mistral's terms</a>.
+          {% endblocktranslate %}
         </li>
         {% if source_code_url %}
           <li>
-            • <strong>GitHub</strong> (GitHub, Inc., USA) - only if you choose
-            to report a problem on our issue tracker there. What you post is
-            <strong>public</strong>, so please leave out your email address and
-            anything about a payment; write to us for those. We send GitHub
-            nothing about you.
-            <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" class="underline hover:text-ink-700" rel="noopener">GitHub's privacy statement</a>.
+            •
+            {% blocktranslate trimmed %}
+              <strong>GitHub</strong> (GitHub, Inc., USA) - only if you choose
+              to report a problem on our issue tracker there. What you post is
+              <strong>public</strong>, so please leave out your email address and
+              anything about a payment; write to us for those. We send GitHub
+              nothing about you.
+              <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" class="underline hover:text-ink-700" rel="noopener">GitHub's privacy statement</a>.
+            {% endblocktranslate %}
           </li>
         {% endif %}
       </ul>
       <p class="mt-4 text-ink-900">
-        We disclose data to authorities only when Swiss law obliges us to, we
-        disclose the least that satisfies the obligation, and we tell you about
-        it unless that is forbidden.
+        {% blocktranslate trimmed %}
+          We disclose data to authorities only when Swiss law obliges us to, we
+          disclose the least that satisfies the obligation, and we tell you about
+          it unless that is forbidden.
+        {% endblocktranslate %}
       </p>
       <p class="mt-4 text-sm text-ink-700">
-        No analytics, no advertising, no error-reporting service and no
-        third-party scripts. If we ever add a service that processes anything
-        about you, it is named here before it is switched on.
+        {% blocktranslate trimmed %}
+          No analytics, no advertising, no error-reporting service and no
+          third-party scripts. If we ever add a service that processes anything
+          about you, it is named here before it is switched on.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">On the home page</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "On the home page" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        The home page lists what visitors have done recently: that somebody
-        simulated, playtested or imported a deck, and which commander leads it,
-        or that a new account was made. A line never names the person or the
-        deck and carries no time; it only says whether it was a user or a
-        guest. Your own activity is never shown to you, and it is gone from
-        the list as soon as newer activity pushes it out.
+        {% blocktranslate trimmed %}
+          The home page lists what visitors have done recently: that somebody
+          simulated, playtested or imported a deck, and which commander leads it,
+          or that a new account was made. A line never names the person or the
+          deck and carries no time; it only says whether it was a user or a
+          guest. Your own activity is never shown to you, and it is gone from
+          the list as soon as newer activity pushes it out.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Cookies</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Cookies" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        Four, all strictly necessary, none tracking you - which is why there
-        is no consent banner:
+        {% blocktranslate trimmed %}
+          Four, all strictly necessary, none tracking you - which is why there
+          is no consent banner:
+        {% endblocktranslate %}
       </p>
       <ul class="mt-4 space-y-2 text-ink-900">
-        <li>• <strong>sessionid</strong> - keeps you signed in - or, trying it without an account, keeps your deck yours. Until you sign out, at most 2 weeks; a guest's is useless after 24 hours, when the guest is deleted.</li>
-        <li>• <strong>csrftoken</strong> - stops other websites from submitting forms in your name. One year.</li>
-        <li>• <strong>messages</strong> - carries a one-line notice such as "deck imported" to the next page, then disappears.</li>
-        <li>• <strong>django_language</strong> - remembers the language you picked at the bottom of the page. Only set when you pick one; one year.</li>
+        <li>• {% blocktranslate trimmed %}<strong>sessionid</strong> - keeps you signed in - or, trying it without an account, keeps your deck yours. Until you sign out, at most 2 weeks; a guest's is useless after 24 hours, when the guest is deleted.{% endblocktranslate %}</li>
+        <li>• {% blocktranslate trimmed %}<strong>csrftoken</strong> - stops other websites from submitting forms in your name. One year.{% endblocktranslate %}</li>
+        <li>• {% blocktranslate trimmed %}<strong>messages</strong> - carries a one-line notice such as "deck imported" to the next page, then disappears.{% endblocktranslate %}</li>
+        <li>• {% blocktranslate trimmed %}<strong>django_language</strong> - remembers the language you picked at the bottom of the page. Only set when you pick one; one year.{% endblocktranslate %}</li>
       </ul>
       <p class="mt-4 text-sm text-ink-700">
-        Nothing is kept in your browser's local storage. You can block cookies
-        in your browser; signing in then stops working, and the rest of the
-        public pages still do.
+        {% blocktranslate trimmed %}
+          Nothing is kept in your browser's local storage. You can block cookies
+          in your browser; signing in then stops working, and the rest of the
+          public pages still do.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">How it is protected</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "How it is protected" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        Every connection is encrypted (HTTPS, enforced). Passwords are stored
-        only as salted hashes. Every account sees only its own data - that is
-        checked on every request, not only in the menus. Sign-in, sign-up and
-        password reset are rate-limited, and the pages carry a strict content
-        security policy. Database backups are encrypted before they leave the
-        database server, stay with Infomaniak in Switzerland and are kept for
-        at most 30 days.
+        {% blocktranslate trimmed %}
+          Every connection is encrypted (HTTPS, enforced). Passwords are stored
+          only as salted hashes. Every account sees only its own data - that is
+          checked on every request, not only in the menus. Sign-in, sign-up and
+          password reset are rate-limited, and the pages carry a strict content
+          security policy. Database backups are encrypted before they leave the
+          database server, stay with Infomaniak in Switzerland and are kept for
+          at most 30 days.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Your rights</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Your rights" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        You may ask what we hold about you and get a copy, have it corrected,
-        have it deleted, take it elsewhere in a machine-readable format, and -
-        where we rely on a legitimate interest - object to the processing. Three
-        of those are buttons, because a right that needs an email is a right
-        with a queue in front of it:
+        {% blocktranslate trimmed %}
+          You may ask what we hold about you and get a copy, have it corrected,
+          have it deleted, take it elsewhere in a machine-readable format, and -
+          where we rely on a legitimate interest - object to the processing. Three
+          of those are buttons, because a right that needs an email is a right
+          with a queue in front of it:
+        {% endblocktranslate %}
       </p>
       <ul class="mt-4 space-y-2 text-ink-900">
-        <li>• <strong>A copy, machine-readable:</strong> <a href="{% url 'accounts:data' %}" class="underline hover:text-ink-700">download everything as JSON</a>, immediately.</li>
-        <li>• <strong>Deletion:</strong> <a href="{% url 'accounts:data' %}" class="underline hover:text-ink-700">delete your account</a> yourself. It is immediate and cannot be undone. A running paid plan has to be cancelled first, so that Stripe stops charging you.</li>
-        <li>• <strong>Correction:</strong> decks and annotations are editable in the application.</li>
-        <li>• <strong>Everything else</strong> - including changing your email address - write to the contact address above. We answer within 30 days, and it costs nothing.</li>
+        <li>• {% blocktranslate trimmed %}<strong>A copy, machine-readable:</strong> <a href="{{ data_url }}" class="underline hover:text-ink-700">download everything as JSON</a>, immediately.{% endblocktranslate %}</li>
+        <li>• {% blocktranslate trimmed %}<strong>Deletion:</strong> <a href="{{ data_url }}" class="underline hover:text-ink-700">delete your account</a> yourself. It is immediate and cannot be undone. A running paid plan has to be cancelled first, so that Stripe stops charging you.{% endblocktranslate %}</li>
+        <li>• {% blocktranslate trimmed %}<strong>Correction:</strong> decks and annotations are editable in the application.{% endblocktranslate %}</li>
+        <li>• {% blocktranslate trimmed %}<strong>Everything else</strong> - including changing your email address - write to the contact address above. We answer within 30 days, and it costs nothing.{% endblocktranslate %}</li>
       </ul>
       <p class="mt-4 text-ink-900">
-        If you think we handle your data wrongly, please tell us first. You can
-        also complain to the Swiss Federal Data Protection and Information
-        Commissioner (<a href="https://www.edoeb.admin.ch" class="underline hover:text-ink-700" rel="noopener">FDPIC</a>)
-        or, if you live in the EU, to the data protection authority of your
-        country.
+        {% blocktranslate trimmed %}
+          If you think we handle your data wrongly, please tell us first. You can
+          also complain to the Swiss Federal Data Protection and Information
+          Commissioner (<a href="https://www.edoeb.admin.ch" class="underline hover:text-ink-700" rel="noopener">FDPIC</a>)
+          or, if you live in the EU, to the data protection authority of your
+          country.
+        {% endblocktranslate %}
       </p>
       <p class="mt-4 text-sm text-ink-700">
-        A deleted account is gone from the live database at once. It survives
-        only in backups until they age out (at most 30 days), and a backup is
-        never used for anything but disaster recovery.
+        {% blocktranslate trimmed %}
+          A deleted account is gone from the live database at once. It survives
+          only in backups until they age out (at most 30 days), and a backup is
+          never used for anything but disaster recovery.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Decisions about you</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Decisions about you" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        None are automated. The simulator judges decks, not people: there is no
-        profiling, no scoring of users and no decision with legal effect made
-        by a machine.
+        {% blocktranslate trimmed %}
+          None are automated. The simulator judges decks, not people: there is no
+          profiling, no scoring of users and no decision with legal effect made
+          by a machine.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Changes</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Changes" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        When this policy changes, the date at the top changes. If the change
-        matters - a new service that sees your data, a longer retention period -
-        we email account holders before it takes effect.
+        {% blocktranslate trimmed %}
+          When this policy changes, the date at the top changes. If the change
+          matters - a new service that sees your data, a longer retention period -
+          we email account holders before it takes effect.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          This policy is written in English. Translations into other languages
+          are made automatically and offered for convenience; if a translation
+          differs from the English text, the English text applies.
+        {% endblocktranslate %}
       </p>
     </div>
   </section>

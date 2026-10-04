@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Goldfish Lab\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 09:01+0200\n"
+"POT-Creation-Date: 2026-10-04 09:36+0200\n"
 "PO-Revision-Date: 2026-10-03 22:00+0200\n"
 "Last-Translator: Claude\n"
 "Language-Team: \n"
@@ -3258,13 +3258,19 @@ msgstr "%(date)s に調べました。デッキが変更されたか、2週間�
 msgid "Looked up %(date)s."
 msgstr "%(date)s に調べました。"
 
-#: templates/core/_english_only.html
-msgid "This page is only in English for now."
-msgstr "このページは現在、英語のみです。"
-
 #: templates/core/_ticker_lines.html
 msgid "Quiet right now. The lab is waiting for your deck."
 msgstr "今は静かです。ラボはあなたのデッキを待っています。"
+
+#: templates/core/_translated_note.html
+msgid ""
+"This page was translated automatically from English. Only the English "
+"version is legally binding."
+msgstr "このページは英語から自動翻訳されたものです。法的拘束力を持つのは英語版のみです。"
+
+#: templates/core/_translated_note.html
+msgid "Read the English version"
+msgstr "英語版を読む"
 
 #: templates/core/_why.html templates/decks/detail.html
 #: templates/simulations/_blindspots.html
@@ -3341,6 +3347,49 @@ msgstr "仕組み"
 #: templates/core/imprint.html
 msgid "Who runs Goldfish Lab and how to reach them."
 msgstr "Goldfish Lab の運営者と連絡先。"
+
+#: templates/core/imprint.html
+msgid "Who runs this site"
+msgstr "このサイトの運営者"
+
+#: templates/core/imprint.html
+msgid ""
+"Goldfish Lab is run by a private individual in Switzerland, who is "
+"responsible for its content:"
+msgstr "Goldfish Lab はスイスの個人によって運営されており、その個人がコンテンツについて責任を負います。"
+
+#: templates/core/imprint.html
+msgid ""
+"The email address reaches that person directly - for questions, refunds, "
+"data requests and anything else. It is not a sales address."
+msgstr ""
+"このメールアドレスはその運営者本人に直接届きます。質問、返金、データに関する請求など、あらゆるご用件にご利用ください。営業用のアドレスではありません。"
+
+#: templates/core/imprint.html
+msgid "The rest of it"
+msgstr "その他"
+
+#: templates/core/imprint.html
+#, python-format
+msgid ""
+"<a href=\"%(terms_url)s\" class=\"underline hover:text-ink-700\">Terms of "
+"service</a> - plans, cancelling, refunds."
+msgstr ""
+"<a href=\"%(terms_url)s\" class=\"underline hover:text-"
+"ink-700\">利用規約</a>：プラン、解約、返金について。"
+
+#: templates/core/imprint.html
+#, python-format
+msgid ""
+"<a href=\"%(privacy_url)s\" class=\"underline hover:text-ink-700\">Privacy "
+"policy</a> - what is stored, where, for how long."
+msgstr ""
+"<a href=\"%(privacy_url)s\" class=\"underline hover:text-"
+"ink-700\">プライバシーポリシー</a>：何を、どこに、どのくらいの期間保存するかについて。"
+
+#: templates/core/imprint.html
+msgid "Hosted by Infomaniak Network SA, Geneva, Switzerland."
+msgstr "ホスティング：Infomaniak Network SA（スイス、ジュネーブ）。"
 
 #: templates/core/methodology.html
 msgid "Methodology"
@@ -3813,6 +3862,671 @@ msgid ""
 " how to get it back or delete it."
 msgstr "Goldfish Lab があなたについて何を保存するか、その理由、保存期間、ほかに誰が見るか、そしてデータを受け取る方法や削除する方法。"
 
+#: templates/core/privacy.html templates/core/terms.html
+#, python-format
+msgid "Last updated %(date)s."
+msgstr "最終更新日：%(date)s"
+
+#: templates/core/privacy.html
+msgid "The short version"
+msgstr "要点"
+
+#: templates/core/privacy.html
+msgid ""
+"We store your email address, the decks you upload, and the results of the "
+"simulations you run - on servers in Switzerland. Connections reach those "
+"servers through Cloudflare's network. We do not sell any of it, we do not "
+"advertise, and there are no analytics or third-party trackers on this site. "
+"You can download everything we hold at any time, and you can delete your "
+"account yourself. Both of those are buttons, not requests."
+msgstr ""
+"私たちは、あなたのメールアドレス、アップロードしたデッキ、実行したシミュレーションの結果を、スイスのサーバーに保存します。これらのサーバーへの接続は "
+"Cloudflare "
+"のネットワークを経由します。私たちはこれらを一切販売せず、広告も行わず、このサイトにはアクセス解析もサードパーティのトラッカーもありません。保存しているすべてのデータはいつでもダウンロードでき、アカウントはご自身で削除できます。どちらも依頼ではなく、ボタンひとつで行えます。"
+
+#: templates/core/privacy.html
+msgid "Your data and account deletion →"
+msgstr "あなたのデータとアカウントの削除 →"
+
+#: templates/core/privacy.html
+msgid "Who is responsible"
+msgstr "責任者"
+
+#: templates/core/privacy.html
+msgid ""
+"Goldfish Lab is run by a private individual in Switzerland, who is the "
+"controller of your personal data under the Swiss Data Protection Act (DSG) "
+"and, where it applies to you, the EU General Data Protection Regulation "
+"(GDPR):"
+msgstr ""
+"Goldfish Lab はスイスの個人によって運営されており、その個人が、スイス連邦データ保護法（DSG）および、あなたに適用される場合には "
+"EU一般データ保護規則（GDPR）に基づき、あなたの個人データの管理者となります。"
+
+#: templates/core/privacy.html
+msgid ""
+"Every question about your data goes to that address and reaches the person "
+"who runs the site. There is no data protection officer; with one person and "
+"no sensitive data, the law does not require one."
+msgstr ""
+"あなたのデータに関するご質問はすべてこのアドレスにお送りください。サイトの運営者本人に届きます。データ保護責任者はいません。運営者が1人で、機微なデータも扱わないため、法律上その設置は求められていません。"
+
+#: templates/core/privacy.html
+msgid "What we store, why, and for how long"
+msgstr "何を、なぜ、どのくらいの期間保存するか"
+
+#: templates/core/privacy.html
+msgid ""
+"The legal basis in brackets is the GDPR article; under Swiss law the same "
+"processing rests on the purposes stated here."
+msgstr "括弧内の法的根拠は GDPR の条文です。スイス法のもとでは、同じ処理はここに記載した目的に基づいています。"
+
+#: templates/core/privacy.html
+msgctxt "privacy table"
+msgid "What"
+msgstr "内容"
+
+#: templates/core/privacy.html
+msgctxt "privacy table"
+msgid "Why"
+msgstr "目的"
+
+#: templates/core/privacy.html
+msgctxt "privacy table"
+msgid "Kept for"
+msgstr "保存期間"
+
+#: templates/core/privacy.html
+msgid ""
+"Your email address, your password (only as a salted hash - nobody can read "
+"it back), when you joined and last signed in, and the language you picked "
+"for the site"
+msgstr ""
+"メールアドレス、パスワード（ソルト付きハッシュとしてのみ保存し、誰も元に戻して読むことはできません）、登録日時と最終ログイン日時、サイトで選んだ言語"
+
+#: templates/core/privacy.html
+msgid ""
+"To give you an account, confirm it is yours, and let you reset a forgotten "
+"password (contract, Art. 6(1)(b))"
+msgstr "アカウントを提供し、それがあなたのものかを確認し、忘れたパスワードを再設定できるようにするため（契約、第6条第1項(b)）"
+
+#: templates/core/privacy.html
+msgid "Until you delete the account"
+msgstr "アカウントを削除するまで"
+
+#: templates/core/privacy.html
+msgid "Your decks, card annotations, casting priorities and playtest games"
+msgstr "デッキ、カードの注釈、唱える優先度、テストプレイのゲーム"
+
+#: templates/core/privacy.html
+msgid "They are what the service works on (contract)"
+msgstr "サービスが処理する対象そのものとなるため（契約）"
+
+#: templates/core/privacy.html
+msgid "Until you delete them or the account"
+msgstr "それらまたはアカウントを削除するまで"
+
+#: templates/core/privacy.html
+msgid "The files you upload to import a deck"
+msgstr "デッキをインポートするためにアップロードしたファイル"
+
+#: templates/core/privacy.html
+msgid "To read the deck list in them (contract)"
+msgstr "ファイル内のデッキリストを読み取るため（契約）"
+
+#: templates/core/privacy.html
+msgid ""
+"The file itself is not kept once the deck is imported; its name and any rows"
+" we could not read stay with the deck. An upload left unfinished on the "
+"column-matching screen: 7 days"
+msgstr ""
+"ファイル自体はデッキのインポート後には保存しません。ファイル名と読み取れなかった行はデッキとともに残ります。列の対応付け画面で完了しなかったアップロード：7日間"
+
+#: templates/core/privacy.html
+msgid "Simulation runs and their results"
+msgstr "シミュレーションの実行とその結果"
+
+#: templates/core/privacy.html
+msgid "So a result is still there when you come back to it (contract)"
+msgstr "後で戻ってきたときにも結果が残っているようにするため（契約）"
+
+#: templates/core/privacy.html
+msgid "Until you delete the deck or the account"
+msgstr "デッキまたはアカウントを削除するまで"
+
+#: templates/core/privacy.html
+msgid ""
+"Deck summaries: the text written about a deck, which model wrote it, and "
+"whether it used one of your simulations; and whether you have switched "
+"summaries off"
+msgstr "デッキの要約：デッキについて書かれた文章、それを書いたモデル、あなたのシミュレーションを使ったかどうか、そして要約をオフにしているかどうか"
+
+#: templates/core/privacy.html
+msgid ""
+"So a summary is shown again until the deck changes, rather than written - "
+"and paid for - again (contract)"
+msgstr "デッキが変更されるまで、要約を再び作成する（そして再び費用を払う）のではなく、同じ要約を再表示するため（契約）"
+
+#: templates/core/privacy.html
+msgid "Usage counters (simulations started per month)"
+msgstr "利用回数のカウンター（月ごとに開始したシミュレーション数）"
+
+#: templates/core/privacy.html
+msgid "To apply the limits of your plan (contract)"
+msgstr "プランの上限を適用するため（契約）"
+
+#: templates/core/privacy.html
+msgid ""
+"Your plan, its status, and the Stripe identifiers of your customer record "
+"and subscription"
+msgstr "あなたのプラン、その状態、顧客記録とサブスクリプションの Stripe 識別子"
+
+#: templates/core/privacy.html
+msgid ""
+"To know what your plan allows and to match Stripe's notifications to your "
+"account (contract)"
+msgstr "プランで何ができるかを把握し、Stripe からの通知をあなたのアカウントに対応付けるため（契約）"
+
+#: templates/core/privacy.html
+msgid ""
+"Notifications Stripe sends us about payments (they contain the email address"
+" and name given at checkout)"
+msgstr "Stripe から届く支払いに関する通知（チェックアウト時に入力されたメールアドレスと氏名を含みます）"
+
+#: templates/core/privacy.html
+msgid ""
+"To update your plan reliably and to diagnose a failed payment (contract, "
+"legitimate interest, Art. 6(1)(f))"
+msgstr "プランを確実に更新し、失敗した支払いの原因を調べるため（契約、正当な利益、第6条第1項(f)）"
+
+#: templates/core/privacy.html
+msgid ""
+"Contents: 30 days. After that only the notification's id and type remain, so"
+" a late duplicate is not processed twice"
+msgstr "内容：30日間。その後は通知の ID と種類だけが残り、遅れて届いた重複通知が二重に処理されないようにします"
+
+#: templates/core/privacy.html
+msgid "Payment and payout records"
+msgstr "支払いと入金の記録"
+
+#: templates/core/privacy.html
+msgid "Invoices and payment records"
+msgstr "請求書と支払いの記録"
+
+#: templates/core/privacy.html
+msgid ""
+"Swiss accounting law (legal obligation, Art. 6(1)(c); Art. 958f of the Swiss"
+" Code of Obligations)"
+msgstr "スイスの会計法（法的義務、第6条第1項(c)、スイス債務法第958f条）"
+
+#: templates/core/privacy.html
+msgid ""
+"10 years, held in Stripe - also after you delete your account, because the "
+"law requires it. Your invoices are issued and kept by Link, which sold you "
+"the plan (see below)"
+msgstr ""
+"10年間、Stripe に保管されます。法律で義務付けられているため、アカウントを削除した後も保管されます。請求書は、あなたにプランを販売した Link"
+" が発行・保管します（下記参照）"
+
+#: templates/core/privacy.html
+msgid ""
+"10 years, held in Stripe - also after you delete your account, because the "
+"law requires it"
+msgstr "10年間、Stripe に保管されます。法律で義務付けられているため、アカウントを削除した後も保管されます"
+
+#: templates/core/privacy.html
+msgid ""
+"Trying it without an account: the deck you upload, its simulation and "
+"playtest games, under a temporary guest with no email address and no "
+"password, and a session cookie that makes this browser that guest"
+msgstr ""
+"アカウントなしでのお試し：アップロードしたデッキ、そのシミュレーションとテストプレイのゲーム。メールアドレスもパスワードもない一時的なゲストとして保存し、このブラウザをそのゲストとするセッション"
+" Cookie を使います"
+
+#: templates/core/privacy.html
+msgid ""
+"To show you what the service does before you sign up (steps prior to a "
+"contract, Art. 6(1)(b))"
+msgstr "登録前にサービスの内容をお見せするため（契約締結前の措置、第6条第1項(b)）"
+
+#: templates/core/privacy.html
+msgid ""
+"24 hours, then deleted with everything the guest made - unless you save the "
+"deck with an account, which then keeps it"
+msgstr "24時間。その後、ゲストが作成したすべてのものとともに削除します。ただし、アカウントでデッキを保存した場合は、そのアカウントに保持されます"
+
+#: templates/core/privacy.html
+msgid "A session, while you are signed in"
+msgstr "ログイン中のセッション"
+
+#: templates/core/privacy.html
+msgid "To keep you signed in from one page to the next (contract)"
+msgstr "ページを移動してもログイン状態を保つため（契約）"
+
+#: templates/core/privacy.html
+msgid "Until you sign out, at most 2 weeks"
+msgstr "ログアウトするまで、最長2週間"
+
+#: templates/core/privacy.html
+msgid "Your IP address, in rate-limit counters"
+msgstr "レート制限カウンター内の IP アドレス"
+
+#: templates/core/privacy.html
+msgid "To stop password guessing and floods of requests (legitimate interest)"
+msgstr "パスワードの推測や大量のリクエストを防ぐため（正当な利益）"
+
+#: templates/core/privacy.html
+msgid ""
+"Minutes: each counter expires with the window it counts, at most 5 minutes"
+msgstr "数分間：各カウンターは計測対象の時間枠とともに失効し、最長5分間です"
+
+#: templates/core/privacy.html
+msgid ""
+"Technical logs: time, page requested, response, browser type, and your IP "
+"address, in the hosting provider's logs"
+msgstr "技術ログ：ホスティング事業者のログに記録される日時、リクエストされたページ、応答、ブラウザの種類、IP アドレス"
+
+#: templates/core/privacy.html
+msgid ""
+"Security, abuse prevention and diagnosing faults (legitimate interest). Our "
+"own application logs name accounts by number, never by email"
+msgstr ""
+"セキュリティ、不正利用の防止、障害の診断のため（正当な利益）。当サイト独自のアプリケーションログでは、アカウントを番号で記録し、メールアドレスでは記録しません"
+
+#: templates/core/privacy.html
+msgid "At most 30 days, then overwritten"
+msgstr "最長30日間、その後は上書きされます"
+
+#: templates/core/privacy.html
+msgid "Emails you send us"
+msgstr "あなたから届いたメール"
+
+#: templates/core/privacy.html
+msgid "To answer you (legitimate interest)"
+msgstr "お返事するため（正当な利益）"
+
+#: templates/core/privacy.html
+msgid ""
+"As long as the matter needs, and no longer than 12 months after it is closed"
+msgstr "案件に必要な期間、ただし案件の終了後12か月を超えない期間"
+
+#: templates/core/privacy.html
+msgid ""
+"Card data, tags and combo definitions are <em>not</em> about you. They are "
+"public reference data from Scryfall and Commander Spellbook, identical for "
+"every account, which is why they are not in your export."
+msgstr ""
+"カードデータ、タグ、コンボの定義は、あなたに関するデータでは<em>ありません</em>。これらは Scryfall と Commander "
+"Spellbook の公開参照データで、すべてのアカウントで同一のため、エクスポートには含まれません。"
+
+#: templates/core/privacy.html
+msgid "Email we send you"
+msgstr "私たちがお送りするメール"
+
+#: templates/core/privacy.html
+msgid ""
+"Only what the account needs: the message that confirms your address, "
+"password resets, and - rarely - a notice about a change to these documents "
+"or to a plan you pay for. No newsletter and no marketing, ever. The mail is "
+"sent through a mailbox at Infomaniak, in Switzerland."
+msgstr ""
+"アカウントに必要なものだけです。メールアドレスを確認するメッセージ、パスワードの再設定、そしてごくまれに、これらの文書や有料プランの変更に関するお知らせです。ニュースレターやマーケティングメールは一切送りません。メールはスイスの"
+" Infomaniak のメールボックスから送信されます。"
+
+#: templates/core/privacy.html
+msgid "Who else sees what"
+msgstr "誰が何を見るか"
+
+#: templates/core/privacy.html
+msgid ""
+"Nobody buys your data and nobody receives it for advertising. These are all "
+"the services involved, and exactly what each one gets:"
+msgstr ""
+"あなたのデータを買う人はおらず、広告目的でデータを受け取る人もいません。関わるサービスはこれですべてで、それぞれが受け取るものは次のとおりです。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Infomaniak Network SA</strong>, Geneva, Switzerland - hosts the "
+"application, its database and its email. Everything above is stored in "
+"Infomaniak's data centres in Switzerland. Infomaniak processes it only on "
+"our behalf, under a data processing agreement."
+msgstr ""
+"<strong>Infomaniak Network "
+"SA</strong>（スイス、ジュネーブ）：アプリケーション、データベース、メールをホスティングしています。上記のすべてのデータは、スイスにある "
+"Infomaniak のデータセンターに保存されます。Infomaniak は、データ処理契約に基づき、私たちの委託によってのみこれを処理します。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Cloudflare, Inc.</strong>, USA - every connection to this site "
+"passes through Cloudflare's network, which encrypts it and shields the "
+"servers: they have no address of their own on the internet. So Cloudflare "
+"processes <strong>your IP address, the address of the page you ask for and "
+"your browser details</strong>, only to deliver the page and to defend it "
+"against attacks, on our behalf under its data processing addendum. It keeps "
+"no copy of your account data or decks. Cloudflare transfers data to the USA "
+"under the EU-/Swiss-U.S. Data Privacy Framework and standard contractual "
+"clauses. <a href=\"https://www.cloudflare.com/privacypolicy/\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">Cloudflare's privacy"
+" policy</a>."
+msgstr ""
+"<strong>Cloudflare, Inc.</strong>（米国）：このサイトへのすべての接続は Cloudflare "
+"のネットワークを経由し、そこで暗号化され、サーバーが保護されます。サーバーはインターネット上に独自のアドレスを持ちません。そのため Cloudflare"
+" は、<strong>あなたの IP "
+"アドレス、リクエストしたページのアドレス、ブラウザの情報</strong>を、ページを配信し攻撃から守るためだけに、同社のデータ処理補遺に基づき私たちの委託によって処理します。アカウントデータやデッキのコピーは保持しません。Cloudflare"
+" は、EU・スイス－米国データプライバシーフレームワークおよび標準契約条項に基づいてデータを米国に移転します。<a "
+"href=\"https://www.cloudflare.com/privacypolicy/\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">Cloudflare のプライバシーポリシー</a>。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Stripe</strong> (Stripe Payments Europe, Ltd., Ireland, and Stripe, "
+"Inc., USA) - takes payments, only if you choose a paid plan. You pay on "
+"Stripe's own page, so <strong>no card number ever reaches this "
+"application</strong>. Stripe receives your email address and what you enter "
+"at checkout, and acts partly on our behalf and partly as a controller in its"
+" own right (fraud prevention, its legal obligations). Stripe transfers data "
+"to the USA under the EU-/Swiss-U.S. Data Privacy Framework and standard "
+"contractual clauses. <a href=\"https://stripe.com/privacy\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">Stripe's privacy "
+"policy</a>."
+msgstr ""
+"<strong>Stripe</strong>（Stripe Payments Europe, Ltd.（アイルランド）および Stripe, "
+"Inc.（米国））：有料プランを選んだ場合にのみ、支払いを処理します。支払いは Stripe "
+"自身のページで行うため、<strong>カード番号がこのアプリケーションに届くことは決してありません</strong>。Stripe "
+"はあなたのメールアドレスとチェックアウト時に入力した内容を受け取り、一部は私たちの委託により、一部は独自の管理者として（不正防止、同社の法的義務のため）処理します。Stripe"
+" は、EU・スイス－米国データプライバシーフレームワークおよび標準契約条項に基づいてデータを米国に移転します。<a "
+"href=\"https://stripe.com/privacy\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">Stripe のプライバシーポリシー</a>。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Link</strong> (Sold through Link, LLC, a Stripe company) - sells you"
+" a paid plan as the reseller (\"merchant of record\"), so it is a "
+"<strong>controller in its own right</strong> for the payment: your name, "
+"email address, billing address and country, the payment method, and the "
+"location evidence tax law requires (such as your IP address and card "
+"country). It uses them to charge you, to work out, declare and pay the tax, "
+"to prevent fraud and to send receipts. Link shares the order details with us"
+" so that we can give you the plan. If you ask Link to delete your data, Link"
+" also <strong>cancels the subscription</strong> it sold you, and your "
+"account here moves to the free plan. <a href=\"https://link.com/privacy\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">Link's privacy "
+"policy</a>."
+msgstr ""
+"<strong>Link</strong>（Sold through Link, LLC、Stripe "
+"のグループ会社）：再販業者（「販売者（merchant of "
+"record）」）として有料プランを販売するため、支払いについては<strong>独自の管理者</strong>となります。対象は、氏名、メールアドレス、請求先住所と国、支払方法、そして税法が求める所在地の証拠（IP"
+" アドレスやカードの発行国など）です。Link はこれらを、請求、税額の算定・申告・納付、不正防止、領収書の送付に使用します。Link "
+"は、私たちがあなたにプランを提供できるよう、注文の詳細を私たちと共有します。Link にデータの削除を依頼すると、Link "
+"は販売した<strong>サブスクリプションも解約</strong>し、このサイトのアカウントは無料プランに移行します。<a "
+"href=\"https://link.com/privacy\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">Link のプライバシーポリシー</a>。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Scryfall, LLC</strong>, USA - card images are shown straight from "
+"Scryfall's image servers rather than copied here, which is a condition "
+"Scryfall sets for using them. So when a page shows card images, <strong>your"
+" browser loads them from Scryfall</strong>, and Scryfall receives your IP "
+"address and browser details the way any website you visit does. It does not "
+"learn which page of ours you were on: this site tells browsers not to pass "
+"that on. We have a legitimate interest in showing card images, and only "
+"pages that show them make the connection. <a "
+"href=\"https://scryfall.com/docs/privacy\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Scryfall's privacy policy</a>."
+msgstr ""
+"<strong>Scryfall, LLC</strong>（米国）：カード画像は、ここにコピーせず Scryfall "
+"の画像サーバーから直接表示しています。これは Scryfall "
+"が画像の利用に定めている条件です。そのため、ページにカード画像が表示されるときは<strong>ブラウザが Scryfall "
+"から画像を読み込み</strong>、Scryfall は、あなたが訪れるどのウェブサイトとも同じように、IP "
+"アドレスとブラウザの情報を受け取ります。当サイトのどのページを見ていたかは伝わりません。このサイトはブラウザにその情報を渡さないよう指示しています。カード画像の表示には正当な利益があり、接続が行われるのはカード画像を表示するページだけです。<a"
+" href=\"https://scryfall.com/docs/privacy\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Scryfall のプライバシーポリシー</a>。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Commander Spellbook</strong> - to find the combos in a deck, our "
+"server sends Commander Spellbook <strong>the list of card names</strong>, "
+"and nothing else: not your email, not your account, not your IP address."
+msgstr ""
+"<strong>Commander Spellbook</strong>：デッキ内のコンボを見つけるため、私たちのサーバーは Commander "
+"Spellbook に<strong>カード名のリスト</strong>だけを送信します。それ以外は何も送りません。メールアドレスも、アカウントも、IP"
+" アドレスも送りません。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, Paris, France) - writes the "
+"deck summary on a simulation report and picks cards for its strategies. Our "
+"server sends Mistral <strong>the deck's card names, their categories and "
+"counts, the commander, the mana curve, its combos, the odds of drawing each "
+"category, worked out from the list, and lists of cards from the card "
+"database that would fit it</strong> - nothing about you: not your email, not"
+" your account, not your deck's name, not your IP address. Mistral processes "
+"it in the EU, keeps each request for up to 30 days to detect abuse, then "
+"deletes it, and does not use it to train its models. You can switch "
+"summaries off under \"Hide summaries\" on a report, and then nothing is "
+"sent. <a href=\"https://legal.mistral.ai/terms\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">Mistral's terms</a>."
+msgstr ""
+"<strong>Mistral AI</strong>（Mistral AI "
+"SAS、フランス、パリ）：シミュレーションレポートのデッキの要約を作成し、その戦略に合うカードを選びます。私たちのサーバーは Mistral "
+"に、<strong>デッキのカード名、そのカテゴリーと枚数、統率者、マナカーブ、コンボ、リストから算出した各カテゴリーを引く確率、そしてカードデータベースからデッキに合いそうなカードのリスト</strong>を送信します。あなたに関する情報は何も送りません。メールアドレスも、アカウントも、デッキ名も、IP"
+" アドレスも送りません。Mistral はこれを EU "
+"内で処理し、不正利用の検出のために各リクエストを最長30日間保持した後に削除し、モデルの学習には使用しません。レポートの「要約を非表示」で要約をオフにでき、その場合は何も送信されません。<a"
+" href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Mistral の利用規約</a>。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>GitHub</strong> (GitHub, Inc., USA) - only if you choose to report a"
+" problem on our issue tracker there. What you post is "
+"<strong>public</strong>, so please leave out your email address and anything"
+" about a payment; write to us for those. We send GitHub nothing about you. "
+"<a href=\"https://docs.github.com/site-policy/privacy-policies/github-"
+"general-privacy-statement\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">GitHub's privacy statement</a>."
+msgstr ""
+"<strong>GitHub</strong>（GitHub, Inc.、米国）：GitHub "
+"上の課題トラッカーで問題を報告することを選んだ場合のみです。投稿した内容は<strong>公開</strong>されるため、メールアドレスや支払いに関することは書かないでください。それらについては私たちに直接ご連絡ください。私たちがあなたに関する情報を"
+" GitHub に送ることはありません。<a href=\"https://docs.github.com/site-policy/privacy-"
+"policies/github-general-privacy-statement\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">GitHub のプライバシーに関する声明</a>。"
+
+#: templates/core/privacy.html
+msgid ""
+"We disclose data to authorities only when Swiss law obliges us to, we "
+"disclose the least that satisfies the obligation, and we tell you about it "
+"unless that is forbidden."
+msgstr ""
+"当局へのデータの開示は、スイス法で義務付けられている場合に限り、その義務を満たす最小限の範囲で行い、禁止されていない限りそのことをあなたにお知らせします。"
+
+#: templates/core/privacy.html
+msgid ""
+"No analytics, no advertising, no error-reporting service and no third-party "
+"scripts. If we ever add a service that processes anything about you, it is "
+"named here before it is switched on."
+msgstr ""
+"アクセス解析、広告、エラー報告サービス、サードパーティのスクリプトはありません。あなたに関する情報を処理するサービスを追加する場合は、有効にする前にここに記載します。"
+
+#: templates/core/privacy.html
+msgid "On the home page"
+msgstr "ホームページについて"
+
+#: templates/core/privacy.html
+msgid ""
+"The home page lists what visitors have done recently: that somebody "
+"simulated, playtested or imported a deck, and which commander leads it, or "
+"that a new account was made. A line never names the person or the deck and "
+"carries no time; it only says whether it was a user or a guest. Your own "
+"activity is never shown to you, and it is gone from the list as soon as "
+"newer activity pushes it out."
+msgstr ""
+"ホームページには、訪問者が最近行ったことが表示されます。誰かがデッキをシミュレーションした、テストプレイした、インポートしたこととその統率者、または新しいアカウントが作成されたことです。各行に個人名やデッキ名が表示されることはなく、時刻も含まれません。ユーザーかゲストかだけが示されます。あなた自身の活動があなたに表示されることはなく、新しい活動に押し出されるとすぐに一覧から消えます。"
+
+#: templates/core/privacy.html
+msgid "Cookies"
+msgstr "Cookie"
+
+#: templates/core/privacy.html
+msgid ""
+"Four, all strictly necessary, none tracking you - which is why there is no "
+"consent banner:"
+msgstr "Cookie は4つで、すべて厳密に必要なものであり、あなたを追跡するものはありません。そのため、同意バナーはありません。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>sessionid</strong> - keeps you signed in - or, trying it without an "
+"account, keeps your deck yours. Until you sign out, at most 2 weeks; a "
+"guest's is useless after 24 hours, when the guest is deleted."
+msgstr ""
+"<strong>sessionid</strong>：ログイン状態を保ちます。アカウントなしで試している場合は、あなたのデッキがあなたのものであり続けるようにします。ログアウトするまで、最長2週間。ゲストのものは、ゲストが削除される24時間後に無効になります。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>csrftoken</strong> - stops other websites from submitting forms in "
+"your name. One year."
+msgstr "<strong>csrftoken</strong>：他のウェブサイトがあなたの名前でフォームを送信するのを防ぎます。1年間。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>messages</strong> - carries a one-line notice such as \"deck "
+"imported\" to the next page, then disappears."
+msgstr ""
+"<strong>messages</strong>：「デッキをインポートしました」のような1行のお知らせを次のページに渡し、その後消えます。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>django_language</strong> - remembers the language you picked at the "
+"bottom of the page. Only set when you pick one; one year."
+msgstr ""
+"<strong>django_language</strong>：ページ下部で選んだ言語を記憶します。言語を選んだときにのみ設定されます。1年間。"
+
+#: templates/core/privacy.html
+msgid ""
+"Nothing is kept in your browser's local storage. You can block cookies in "
+"your browser; signing in then stops working, and the rest of the public "
+"pages still do."
+msgstr ""
+"ブラウザのローカルストレージには何も保存しません。ブラウザで Cookie "
+"をブロックすることもできます。その場合、ログインはできなくなりますが、その他の公開ページは引き続き利用できます。"
+
+#: templates/core/privacy.html
+msgid "How it is protected"
+msgstr "保護の方法"
+
+#: templates/core/privacy.html
+msgid ""
+"Every connection is encrypted (HTTPS, enforced). Passwords are stored only "
+"as salted hashes. Every account sees only its own data - that is checked on "
+"every request, not only in the menus. Sign-in, sign-up and password reset "
+"are rate-limited, and the pages carry a strict content security policy. "
+"Database backups are encrypted before they leave the database server, stay "
+"with Infomaniak in Switzerland and are kept for at most 30 days."
+msgstr ""
+"すべての接続は暗号化されています（HTTPS、強制）。パスワードはソルト付きハッシュとしてのみ保存されます。各アカウントは自分のデータだけを閲覧できます。これはメニュー上だけでなく、すべてのリクエストで確認されます。ログイン、新規登録、パスワードの再設定にはレート制限があり、各ページには厳格なコンテンツセキュリティポリシーが適用されています。データベースのバックアップは、データベースサーバーから出る前に暗号化され、スイスの"
+" Infomaniak に保管され、最長30日間保存されます。"
+
+#: templates/core/privacy.html
+msgid "Your rights"
+msgstr "あなたの権利"
+
+#: templates/core/privacy.html
+msgid ""
+"You may ask what we hold about you and get a copy, have it corrected, have "
+"it deleted, take it elsewhere in a machine-readable format, and - where we "
+"rely on a legitimate interest - object to the processing. Three of those are"
+" buttons, because a right that needs an email is a right with a queue in "
+"front of it:"
+msgstr ""
+"あなたは、私たちが保有しているあなたに関する情報を問い合わせてそのコピーを受け取ること、訂正させること、削除させること、機械可読な形式で他へ移すこと、そして私たちが正当な利益に依拠している場合には処理に異議を唱えることができます。このうち3つはボタンで行えます。メールが必要な権利は、手前に順番待ちの列ができる権利だからです。"
+
+#: templates/core/privacy.html
+#, python-format
+msgid ""
+"<strong>A copy, machine-readable:</strong> <a href=\"%(data_url)s\" "
+"class=\"underline hover:text-ink-700\">download everything as JSON</a>, "
+"immediately."
+msgstr ""
+"<strong>機械可読なコピー：</strong><a href=\"%(data_url)s\" class=\"underline "
+"hover:text-ink-700\">すべてを JSON でダウンロード</a>できます。すぐに行えます。"
+
+#: templates/core/privacy.html
+#, python-format
+msgid ""
+"<strong>Deletion:</strong> <a href=\"%(data_url)s\" class=\"underline "
+"hover:text-ink-700\">delete your account</a> yourself. It is immediate and "
+"cannot be undone. A running paid plan has to be cancelled first, so that "
+"Stripe stops charging you."
+msgstr ""
+"<strong>削除：</strong>ご自身で<a href=\"%(data_url)s\" class=\"underline "
+"hover:text-ink-700\">アカウントを削除</a>できます。削除は即時に行われ、元に戻すことはできません。Stripe "
+"からの請求を止めるため、有効な有料プランは先に解約する必要があります。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Correction:</strong> decks and annotations are editable in the "
+"application."
+msgstr "<strong>訂正：</strong>デッキと注釈はアプリケーション内で編集できます。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Everything else</strong> - including changing your email address - "
+"write to the contact address above. We answer within 30 days, and it costs "
+"nothing."
+msgstr ""
+"<strong>その他すべて</strong>（メールアドレスの変更を含む）：上記の連絡先アドレスにご連絡ください。30日以内にお返事し、費用はかかりません。"
+
+#: templates/core/privacy.html
+msgid ""
+"If you think we handle your data wrongly, please tell us first. You can also"
+" complain to the Swiss Federal Data Protection and Information Commissioner "
+"(<a href=\"https://www.edoeb.admin.ch\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">FDPIC</a>) or, if you live in the EU, to the data"
+" protection authority of your country."
+msgstr ""
+"私たちのデータの取り扱いが不適切だと思われる場合は、まず私たちにお知らせください。スイス連邦データ保護・情報コミッショナー（<a "
+"href=\"https://www.edoeb.admin.ch\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">FDPIC</a>）に、また EU にお住まいの場合はお住まいの国のデータ保護当局に苦情を申し立てることもできます。"
+
+#: templates/core/privacy.html
+msgid ""
+"A deleted account is gone from the live database at once. It survives only "
+"in backups until they age out (at most 30 days), and a backup is never used "
+"for anything but disaster recovery."
+msgstr ""
+"削除されたアカウントは、稼働中のデータベースから直ちに消去されます。バックアップの保存期間が過ぎるまで（最長30日間）バックアップ内にのみ残り、バックアップは障害復旧以外の目的には一切使用されません。"
+
+#: templates/core/privacy.html
+msgid "Decisions about you"
+msgstr "あなたに関する決定"
+
+#: templates/core/privacy.html
+msgid ""
+"None are automated. The simulator judges decks, not people: there is no "
+"profiling, no scoring of users and no decision with legal effect made by a "
+"machine."
+msgstr ""
+"自動化された決定はありません。シミュレーターが評価するのはデッキであって、人ではありません。プロファイリングも、ユーザーの採点も、機械による法的効果を伴う決定もありません。"
+
+#: templates/core/privacy.html
+msgid "Changes"
+msgstr "変更"
+
+#: templates/core/privacy.html
+msgid ""
+"When this policy changes, the date at the top changes. If the change matters"
+" - a new service that sees your data, a longer retention period - we email "
+"account holders before it takes effect."
+msgstr ""
+"このポリシーが変更されると、冒頭の日付が変わります。重要な変更（あなたのデータを見る新しいサービスや、より長い保存期間など）の場合は、その変更が発効する前にアカウント保有者にメールでお知らせします。"
+
+#: templates/core/privacy.html
+msgid ""
+"This policy is written in English. Translations into other languages are "
+"made automatically and offered for convenience; if a translation differs "
+"from the English text, the English text applies."
+msgstr ""
+"このポリシーは英語で書かれています。他の言語への翻訳は自動で作成され、便宜のために提供しているものです。翻訳が英語の本文と異なる場合は、英語の本文が適用されます。"
+
 #: templates/core/terms.html
 msgid "Terms of service"
 msgstr "利用規約"
@@ -3823,6 +4537,403 @@ msgid ""
 "cancelling, refunds, and what the simulations do and do not promise."
 msgstr ""
 "Goldfish Lab を利用することで同意する規約：アカウント、有料プラン、解約、返金、そしてシミュレーションが約束することとしないこと。"
+
+#: templates/core/terms.html
+msgid "Who you are agreeing with"
+msgstr "契約の相手方"
+
+#: templates/core/terms.html
+msgid ""
+"Goldfish Lab is run by a private individual in Switzerland. These terms are "
+"an agreement between you and:"
+msgstr "Goldfish Lab はスイスの個人によって運営されています。この規約は、あなたと次の者との間の合意です。"
+
+#: templates/core/terms.html
+#, python-format
+msgid ""
+"You accept them when you create an account, and again, by ticking the box, "
+"when you buy a plan. How we handle your data is in the <a "
+"href=\"%(privacy_url)s\" class=\"underline hover:text-ink-700\">privacy "
+"policy</a>."
+msgstr ""
+"アカウントを作成したとき、そしてプランを購入する際にチェックボックスにチェックを入れたときに、この規約に同意したことになります。あなたのデータの取り扱いについては<a"
+" href=\"%(privacy_url)s\" class=\"underline hover:text-"
+"ink-700\">プライバシーポリシー</a>に記載しています。"
+
+#: templates/core/terms.html
+msgid "What this service is"
+msgstr "このサービスについて"
+
+#: templates/core/terms.html
+msgid ""
+"Goldfish Lab simulates Magic: The Gathering decks against no opponent and "
+"reports what happened. It is an analysis tool. It is <strong>not</strong> a "
+"game, not a deck-building authority, and not affiliated with Wizards of the "
+"Coast, Scryfall or Commander Spellbook."
+msgstr ""
+"Goldfish Lab は、Magic: The Gathering "
+"のデッキを対戦相手なしでシミュレーションし、その結果を報告します。分析ツールです。ゲームでは<strong>なく</strong>、デッキ構築の権威でもなく、Wizards"
+" of the Coast、Scryfall、Commander Spellbook とは提携していません。"
+
+#: templates/core/terms.html
+#, python-format
+msgid ""
+"Its output is a measurement of a model, and the model is deliberately "
+"incomplete - <a href=\"%(methodology_url)s\" class=\"underline hover:text-"
+"ink-700\">the methodology page</a> says exactly how. Decisions you make "
+"about your deck, including which cards to buy, are yours."
+msgstr ""
+"その出力はモデルの計測結果であり、モデルは意図的に不完全にしています。どのように不完全なのかは<a "
+"href=\"%(methodology_url)s\" class=\"underline hover:text-"
+"ink-700\">方法論のページ</a>に正確に記載しています。どのカードを購入するかを含め、デッキに関する判断はあなた自身が行うものです。"
+
+#: templates/core/terms.html
+msgid "Your account"
+msgstr "あなたのアカウント"
+
+#: templates/core/terms.html
+msgid ""
+"You must be at least 13 years old. To buy a plan you must be an adult, or "
+"have a parent's or guardian's permission."
+msgstr "13歳以上でなければなりません。プランを購入するには、成人か、親または保護者の許可を得ている必要があります。"
+
+#: templates/core/terms.html
+msgid ""
+"One person per account. Keep your password to yourself, and tell us if you "
+"think somebody else has got into your account."
+msgstr "1つのアカウントは1人で使用してください。パスワードは他人に教えず、誰かがアカウントに侵入したと思われる場合はお知らせください。"
+
+#: templates/core/terms.html
+msgid ""
+"One account per person: several accounts to get around a plan's limits are "
+"not allowed."
+msgstr "1人につき1つのアカウントです。プランの上限を回避するために複数のアカウントを作成することは認められません。"
+
+#: templates/core/terms.html
+#, python-format
+msgid ""
+"You can <a href=\"%(data_url)s\" class=\"underline hover:text-"
+"ink-700\">delete your account</a> at any time, yourself, immediately."
+msgstr ""
+"いつでもご自身で、即時に<a href=\"%(data_url)s\" class=\"underline hover:text-"
+"ink-700\">アカウントを削除</a>できます。"
+
+#: templates/core/terms.html
+msgid "What you upload"
+msgstr "アップロードするもの"
+
+#: templates/core/terms.html
+msgid ""
+"Your decks and annotations stay yours. You allow us to store and process "
+"them only as far as running the service for you needs. We do not publish "
+"them, sell them, or train anything on them."
+msgstr ""
+"あなたのデッキと注釈はあなたのものです。あなたは、あなたのためにサービスを運営するのに必要な範囲に限り、それらを保存・処理することを私たちに許可します。私たちはそれらを公開も販売もせず、何かの学習に使うこともありません。"
+
+#: templates/core/terms.html
+msgid "In return, please do not:"
+msgstr "その代わりに、次のことはしないでください。"
+
+#: templates/core/terms.html
+msgid "upload anything you have no right to upload, or anything unlawful;"
+msgstr "アップロードする権利のないもの、または違法なものをアップロードすること。"
+
+#: templates/core/terms.html
+msgid ""
+"attack, overload or probe the service, or work around its rate limits, size "
+"limits or plan limits;"
+msgstr "サービスを攻撃し、過負荷をかけ、または探査すること、あるいはレート制限、サイズ制限、プランの上限を回避すること。"
+
+#: templates/core/terms.html
+msgid "read the site with scripts or bots, or resell access to it."
+msgstr "スクリプトやボットでサイトを読み取ること、またはサイトへのアクセスを転売すること。"
+
+#: templates/core/terms.html
+msgid "Plans and paying"
+msgstr "プランと支払い"
+
+#: templates/core/terms.html
+#, python-format
+msgid ""
+"The free plan is a complete service, not a trial: every feature and all card"
+" and combo data are available on it. Paid plans buy <strong>more simulation "
+"capacity</strong> - more turns per game, more games per run, more runs a "
+"month, more decks. What each plan includes and what it costs is on <a "
+"href=\"%(plans_url)s\" class=\"underline hover:text-ink-700\">the plans "
+"page</a>."
+msgstr ""
+"無料プランはお試し版ではなく、完全なサービスです。すべての機能と、すべてのカードデータおよびコンボデータを利用できます。有料プランで購入できるのは<strong>より多くのシミュレーション容量</strong>です。1ゲームあたりのターン数、1回の実行あたりのゲーム数、月あたりの実行回数、デッキ数が増えます。各プランの内容と料金は<a"
+" href=\"%(plans_url)s\" class=\"underline hover:text-"
+"ink-700\">プランのページ</a>に記載しています。"
+
+#: templates/core/terms.html
+msgid ""
+"Prices are shown in Swiss francs, euros or US dollars, depending on where "
+"you visit from, and include any taxes that apply; checkout charges the price"
+" in the currency the plans page showed."
+msgstr ""
+"価格は、アクセス元の地域に応じてスイスフラン、ユーロ、または米ドルで表示され、適用される税金を含みます。チェックアウトでは、プランのページに表示された通貨で価格が請求されます。"
+
+#: templates/core/terms.html
+msgid ""
+"Prices are set in Swiss francs and include any taxes that apply; the "
+"checkout page may show them converted into your own currency."
+msgstr "価格はスイスフランで設定され、適用される税金を含みます。チェックアウトページでは、あなたの通貨に換算して表示される場合があります。"
+
+#: templates/core/terms.html
+msgid "Prices are in Swiss francs and include any taxes that apply."
+msgstr "価格はスイスフラン建てで、適用される税金を含みます。"
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Who sells you the plan.</strong> Paid plans are sold through Link: "
+"<strong>Sold through Link, LLC, a Stripe company</strong>, is the reseller "
+"(the \"merchant of record\") for the payment. Link charges you, works out "
+"and pays the VAT or sales tax, sends the receipts and invoices, and handles "
+"questions about the payment itself under <a href=\"https://link.com/terms\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">Link's own "
+"terms</a>. Your card statement shows <em>LINK.COM*</em>. The service you get"
+" for the plan is provided by us, under these terms."
+msgstr ""
+"<strong>プランの販売者。</strong>有料プランは Link を通じて販売されます。<strong>Sold through Link, "
+"LLC（Stripe のグループ会社）</strong>が、支払いについての再販業者（「販売者（merchant of record）」）です。Link"
+" はあなたへの請求、付加価値税または売上税の算定と納付、領収書と請求書の送付を行い、支払いそのものに関するお問い合わせには<a "
+"href=\"https://link.com/terms\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">Link "
+"独自の規約</a>に基づいて対応します。カードの利用明細には<em>LINK.COM*</em>と表示されます。プランで受けられるサービスは、この規約に基づき私たちが提供します。"
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Paying.</strong> On Stripe's secure page, by card or another method "
+"Stripe offers. We never see your card details."
+msgstr ""
+"<strong>支払い。</strong>Stripe の安全なページで、カードまたは Stripe "
+"が提供するその他の方法で支払います。私たちがあなたのカード情報を目にすることはありません。"
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Renewal.</strong> A plan is billed monthly in advance and renews "
+"every month until you cancel it."
+msgstr "<strong>更新。</strong>プランは毎月前払いで請求され、解約するまで毎月更新されます。"
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
+"from your plan page, or in your orders at <a href=\"https://link.com\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">link.com</a>. The "
+"plan then runs to the end of the month you have paid for and does not renew."
+" There is no notice period and no fee."
+msgstr ""
+"<strong>解約。</strong>いつでも、プランのページからリンクされている Stripe の請求ポータル、または<a "
+"href=\"https://link.com\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">link.com</a>の注文履歴から解約できます。解約後、プランは支払い済みの月の終わりまで有効で、更新されません。解約予告期間も手数料もありません。"
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
+"from your plan page. The plan then runs to the end of the month you have "
+"paid for and does not renew. There is no notice period and no fee."
+msgstr ""
+"<strong>解約。</strong>いつでも、プランのページからリンクされている Stripe "
+"の請求ポータルで解約できます。解約後、プランは支払い済みの月の終わりまで有効で、更新されません。解約予告期間も手数料もありません。"
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Changing plan.</strong> Also in the portal. Stripe credits what is "
+"left of the old plan against the new one."
+msgstr "<strong>プランの変更。</strong>これもポータルで行えます。Stripe は旧プランの残り分を新プランの料金に充当します。"
+
+#: templates/core/terms.html
+msgid ""
+"<strong>A failed payment.</strong> Stripe retries for about two weeks. Your "
+"plan keeps working meanwhile and the site tells you. If the payment never "
+"succeeds, the account moves to the free plan - nothing is deleted."
+msgstr ""
+"<strong>支払いの失敗。</strong>Stripe "
+"が約2週間再試行します。その間もプランは引き続き利用でき、サイト上でお知らせします。支払いが最後まで成功しなかった場合、アカウントは無料プランに移行します。何も削除されません。"
+
+#: templates/core/terms.html
+msgid "Refunds - 14 days, no questions"
+msgstr "返金：14日以内、理由は問いません"
+
+#: templates/core/terms.html
+msgid ""
+"<strong>If a plan is not what you expected, write to the contact address "
+"within 14 days of your first payment for it, and you get that payment back "
+"in full.</strong> No reason needed, and the plan ends when the refund is "
+"made. The plan starts immediately when you pay, at your request - this "
+"refund is what replaces a right to withdraw, and it is worth at least as "
+"much as any statutory right of withdrawal you may have."
+msgstr ""
+"<strong>プランが期待どおりでなかった場合、そのプランの初回支払いから14日以内に連絡先アドレスにご連絡いただければ、その支払いを全額返金します。</strong>理由は不要で、返金の時点でプランは終了します。プランはあなたの求めにより、支払いと同時に開始します。この返金は撤回権に代わるものであり、あなたが有する可能性のある法定の撤回権と少なくとも同等の価値があります。"
+
+#: templates/core/terms.html
+msgid ""
+"We make the refund through Link, which sold you the plan, and it includes "
+"the tax you paid. You can also ask <a "
+"href=\"https://support.link.com/topics/sold-through-link\" class=\"underline"
+" hover:text-ink-700\" rel=\"noopener\">Link's support</a> about a payment; "
+"Link may refund under its own terms as well."
+msgstr ""
+"返金は、あなたにプランを販売した Link を通じて行い、支払った税金も含まれます。支払いについては<a "
+"href=\"https://support.link.com/topics/sold-through-link\" class=\"underline"
+" hover:text-ink-700\" rel=\"noopener\">Link のサポート</a>に問い合わせることもできます。Link "
+"も独自の規約に基づいて返金する場合があります。"
+
+#: templates/core/terms.html
+msgid ""
+"Later payments are not refunded for the part of a month you did not use; "
+"cancelling stops the next one. Where the law gives you more than this, the "
+"law applies."
+msgstr ""
+"2回目以降の支払いについては、利用しなかった月の残り分は返金されません。解約すると次回の支払いは発生しません。法律でこれ以上の権利が認められている場合は、法律が適用されます。"
+
+#: templates/core/terms.html
+msgid "When we change something"
+msgstr "変更する場合"
+
+#: templates/core/terms.html
+msgid ""
+"<strong>Prices and plan limits</strong> of a plan you pay for change only "
+"from a new billing period, and we email you at least 30 days before. If you "
+"do not want the new terms, cancel before they apply."
+msgstr ""
+"有料プランの<strong>価格とプランの上限</strong>は、新しい請求期間からのみ変更され、少なくとも30日前にメールでお知らせします。新しい条件を望まない場合は、適用される前に解約してください。"
+
+#: templates/core/terms.html
+msgid ""
+"<strong>These terms.</strong> A change that matters is emailed to account "
+"holders at least 30 days before it takes effect, and the date at the top "
+"changes. Continuing to use the service after that date means accepting the "
+"change; if you do not accept it, you can cancel and delete your account, and"
+" a paid plan's unused prepaid days are refunded."
+msgstr ""
+"<strong>この規約。</strong>重要な変更は、発効の少なくとも30日前にアカウント保有者にメールでお知らせし、冒頭の日付が変わります。その日以降もサービスを使い続けると、変更に同意したものとみなされます。同意しない場合は、解約してアカウントを削除でき、有料プランの未使用の前払い日数分は返金されます。"
+
+#: templates/core/terms.html
+msgid ""
+"<strong>The service itself</strong> keeps improving, and a feature may "
+"change or go. We will not take away what makes a paid plan worth paying for "
+"in the middle of a period you have paid for."
+msgstr ""
+"<strong>サービス自体</strong>は改善を続けており、機能が変更または廃止されることがあります。支払い済みの期間の途中で、有料プランに支払う価値をもたらしているものを取り除くことはありません。"
+
+#: templates/core/terms.html
+msgid "Availability, and the honest disclaimer"
+msgstr "可用性と、正直な免責事項"
+
+#: templates/core/terms.html
+msgid ""
+"The service is run with care by one person, but it is provided as it is. We "
+"do not promise it will be available without interruption, and we do not "
+"promise its results are right for any particular purpose - it is a "
+"simulation of a simplified model, and the methodology page lists the ways it"
+" is simplified."
+msgstr ""
+"このサービスは1人が責任を持って運営していますが、現状のまま提供されます。中断なく利用できることも、その結果が特定の目的に適していることも約束しません。これは単純化したモデルのシミュレーションであり、どのように単純化しているかは方法論のページに記載しています。"
+
+#: templates/core/terms.html
+msgid ""
+"We are fully liable for damage we cause intentionally or through gross "
+"negligence, and for injury to life, body or health. For slight negligence we"
+" are not liable, as far as the law allows; where the law does not allow "
+"that, liability is limited to what you paid us in the twelve months before "
+"the damage. Nothing here limits a liability that mandatory law does not let "
+"us limit."
+msgstr ""
+"私たちは、故意または重大な過失によって生じた損害、および生命、身体、健康に対する侵害について、全面的に責任を負います。軽過失については、法律が認める範囲で責任を負いません。法律がそれを認めない場合、責任は、損害発生前の12か月間にあなたが私たちに支払った金額を上限とします。本規約のいかなる内容も、強行法規により制限できない責任を制限するものではありません。"
+
+#: templates/core/terms.html
+msgid "Ending it"
+msgstr "利用の終了"
+
+#: templates/core/terms.html
+msgid ""
+"You can leave whenever you like: cancel a paid plan, then delete your "
+"account. We may suspend or close an account that attacks the service, breaks"
+" the law or breaks these terms, and we say why unless saying so would itself"
+" be unlawful or unsafe. If we close an account without such a reason - or "
+"shut the service down - we tell you at least 30 days before and refund the "
+"unused prepaid part of a paid plan."
+msgstr ""
+"いつでも自由に退会できます。有料プランを解約してから、アカウントを削除してください。私たちは、サービスを攻撃するアカウント、法律に違反するアカウント、またはこの規約に違反するアカウントを停止または閉鎖することがあり、理由を伝えること自体が違法または危険でない限り、その理由をお伝えします。そのような理由なくアカウントを閉鎖する場合、またはサービスを終了する場合は、少なくとも30日前にお知らせし、有料プランの未使用の前払い分を返金します。"
+
+#: templates/core/terms.html
+msgid "Magic: The Gathering, card data and combos"
+msgstr "Magic: The Gathering、カードデータとコンボ"
+
+#: templates/core/terms.html
+msgid ""
+"Card data and images come from <a href=\"https://scryfall.com\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">Scryfall</a> and "
+"remain free to use on every plan; images are shown from Scryfall's servers, "
+"never copied here. Combo data comes from <a "
+"href=\"https://commanderspellbook.com\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Commander Spellbook</a>."
+msgstr ""
+"カードデータと画像は<a href=\"https://scryfall.com\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Scryfall</a>から提供されており、どのプランでも引き続き無料で利用できます。画像は "
+"Scryfall のサーバーから表示され、ここにコピーされることはありません。コンボデータは<a "
+"href=\"https://commanderspellbook.com\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Commander Spellbook</a>から提供されています。"
+
+#: templates/core/terms.html
+#, python-format
+msgid ""
+"The application's source code is free software under the <a "
+"href=\"https://www.gnu.org/licenses/agpl-3.0.html\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">GNU Affero General Public License, "
+"version 3</a>, published at <a href=\"%(source_code_url)s\" "
+"class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">%(source_code_url)s</a>."
+msgstr ""
+"このアプリケーションのソースコードは<a href=\"https://www.gnu.org/licenses/agpl-3.0.html\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">GNU Affero General "
+"Public License バージョン3</a>に基づくフリーソフトウェアで、<a href=\"%(source_code_url)s\" "
+"class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">%(source_code_url)s</a>で公開しています。"
+
+#: templates/core/terms.html
+msgid ""
+"The application's source code is free software under the <a "
+"href=\"https://www.gnu.org/licenses/agpl-3.0.html\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">GNU Affero General Public License, "
+"version 3</a>."
+msgstr ""
+"このアプリケーションのソースコードは<a href=\"https://www.gnu.org/licenses/agpl-3.0.html\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">GNU Affero General "
+"Public License バージョン3</a>に基づくフリーソフトウェアです。"
+
+#: templates/core/terms.html
+msgid "The licence covers the code, not the name Goldfish Lab."
+msgstr "このライセンスの対象はコードであり、Goldfish Lab という名称は含まれません。"
+
+#: templates/core/terms.html
+msgid "Law and courts"
+msgstr "準拠法と裁判所"
+
+#: templates/core/terms.html
+msgid ""
+"Swiss law applies. If you are a consumer, you keep the protection of the "
+"mandatory law of the country you live in, and you can always take a dispute "
+"to the courts where you live. Otherwise the courts at the operator's place "
+"of residence in Switzerland decide. Before any of that, please write to us -"
+" most things are faster to fix than to argue about."
+msgstr ""
+"スイス法が適用されます。あなたが消費者の場合、居住国の強行法規による保護は維持され、紛争はいつでも居住地の裁判所に提起できます。それ以外の場合は、スイスにある運営者の居住地の裁判所が管轄します。そのいずれよりも前に、まず私たちにご連絡ください。たいていのことは、争うよりも直すほうが早く済みます。"
+
+#: templates/core/terms.html
+msgid ""
+"These terms are written in English. Translations into other languages are "
+"made automatically and offered for convenience; if a translation differs "
+"from the English text, the English text applies."
+msgstr ""
+"この規約は英語で書かれています。他の言語への翻訳は自動で作成され、便宜のために提供しているものです。翻訳が英語の本文と異なる場合は、英語の本文が適用されます。"
+
+#: templates/core/terms.html
+msgid ""
+"If one clause of these terms turns out to be invalid, the rest still apply."
+msgstr "この規約のいずれかの条項が無効と判明した場合でも、その他の条項は引き続き適用されます。"
 
 #: templates/decks/_card_grid.html
 #, python-format

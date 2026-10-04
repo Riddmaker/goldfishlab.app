@@ -33,13 +33,22 @@ in words and no percentage at all.
 Every result says **how much of the deck the engine could read** - this application's limit to fix, with every gap listed. It used to be two numbers, the second being how much of the deck somebody had given a casting order; three quarters of every gap turned out to be that question, and since Phase 9 C nobody is asked it any more: the engine casts the cheapest affordable spell first (plus a built-in order for a few dozen well-known cards), because the product is statistics about a deck, not steering a game.
 See [docs/phases/](docs/phases/README.md) for how it was built, phase by phase.
 
-**Phase 8's local half landed on 2026-09-22**: a Content-Security-Policy on every response, rate limits that are counted somewhere shared rather than per worker, an upload row ceiling, `pip-audit` in CI, env-gated Sentry, JSON logging in production, terms and a privacy policy, a data export and an account deletion that both actually work, and an [`/about/methodology`](docs/phases/phase-8-launch.md) page saying plainly what is simulated and what is not.
+**Phase 8's local half landed on 2026-09-22**: a Content-Security-Policy on every response, rate limits that are counted somewhere shared rather than per worker, an upload row ceiling, `pip-audit` in CI, env-gated Sentry, JSON logging in production, terms and a privacy policy, a data export and an account deletion that both actually work, and an [`/about/methodology`](https://goldfishlab.app/about/methodology/) page saying plainly what is simulated and what is not.
 
 **Live at [goldfishlab.app](https://goldfishlab.app) since 2026-09-28** (Phase 8). **Phase 9 (2026-09-28 to 30)** made it
 decks only, with fewer words and more pictures: an import page with a drop zone, a deck page of
 card pictures with filters, charts of what was drawn by category and mana value, a playtest board
 laid out like a card game, a guest trial that needs no account ("Try it now") and a red marker on
 every deck the engine could not fully read. The collection and the casting-order screen are gone.
+**Phase 10 (2026-10-02)** followed the first user test: honest numbers (what a tutor fetches,
+draws only, coverage over every copy), a calmer report with an "Advanced" fold, line charts that
+explain themselves, a smoothed progress bar, a living logo, and a written deck summary
+(Mistral). **Phase 11 (2026-10-03)** followed the second: a chart per strategy, a ticker of what
+others are doing on the home page, and a summary that names the deck's strategies and suggests
+cards for each from the catalogue. **Phase 12 (2026-10-04)** translated the site: German,
+French, Italian, Spanish, Portuguese (Brazil) and Japanese, the mails, allauth's pages, the
+methodology and the legal pages (English stays binding), and the deck summary is written in the
+reader's language. Each language is switched on per deployment (`LANGUAGES_ON`).
 Product decisions live in the sibling `magic-project` repository's `instructions.md`, section
 "Teil 2".
 

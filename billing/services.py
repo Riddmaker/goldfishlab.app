@@ -39,6 +39,7 @@ import logging
 
 from django.conf import settings
 from django.db import transaction
+from django.utils.translation import gettext
 
 from billing import stripe_api
 from billing.models import Plan, StripeEvent, Subscription
@@ -135,17 +136,17 @@ def start_checkout(user, plan: Plan, *, success_url: str, cancel_url: str,
     Off, nothing is sent and Checkout behaves as before.
     """
     if not stripe_api.is_configured() or not plan.stripe_price_id:
-        raise BillingNotConfigured(
+        raise BillingNotConfigured(gettext(
             "This installation cannot take payments yet: no Stripe key, or the "
             "plan has no price configured."
-        )
+        ))
 
     subscription = subscription_for(user)
     if subscription.is_live_paid:
-        raise AlreadySubscribed(
-            f"You are already on {subscription.plan.name}. Switching plans happens in "
-            "the billing portal, so that you are never charged for two at once."
-        )
+        raise AlreadySubscribed(gettext(
+            "You are already on %(plan)s. Switching plans happens in the billing "
+            "portal, so that you are never charged for two at once."
+        ) % {"plan": subscription.plan.display_name})
     managed = settings.STRIPE_MANAGED_PAYMENTS
     where_to_cancel = ("in the billing portal or at link.com" if managed
                        else "in the billing portal")
@@ -163,6 +164,8 @@ def start_checkout(user, plan: Plan, *, success_url: str, cancel_url: str,
         # details); without one the API refuses the session (launch runbook).
         "submit_type": "subscribe",
         "consent_collection": {"terms_of_service": "required"},
+        # English on purpose (phase 12, Q4): the terms it agrees to are only
+        # binding in English, and the box links to them.
         "custom_text": {"terms_of_service_acceptance": {"message": (
             f"I agree to the [Terms of service]({terms_url}) and ask for the plan to start "
             f"immediately. It renews every month until I cancel it {where_to_cancel}. "
@@ -189,7 +192,7 @@ def start_portal(user, *, return_url: str) -> str:
     """
     subscription = subscription_for(user)
     if not stripe_api.is_configured() or not subscription.stripe_customer_id:
-        raise BillingNotConfigured("This account has never been to Stripe.")
+        raise BillingNotConfigured(gettext("This account has never been to Stripe."))
     return stripe_api.portal_session(
         customer=subscription.stripe_customer_id, return_url=return_url
     ).url

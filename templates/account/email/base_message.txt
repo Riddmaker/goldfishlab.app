@@ -2,7 +2,7 @@
   The plain-text half of every account mail, and the frame the HTML half
   (base_message.html) mirrors. allauth's own version opens with "Hello from
   <domain>!" - gone, like the rest of its wording.
-{% endcomment %}{% autoescape off %}{% with site_url=request.scheme|add:"://"|add:current_site.domain %}{% block content %}{% endblock content %}
+{% endcomment %}{% load i18n %}{% autoescape off %}{% with site_url=request.scheme|add:"://"|add:current_site.domain %}{% block content %}{% endblock content %}
 
 --
 Goldfish Lab - {{ site_url }}/

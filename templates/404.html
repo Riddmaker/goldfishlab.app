@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Not found" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "There is no page at this address." %}{% endblock %}
+{% block content %}
+  {% comment %}
+    Phase 12: Django's own 404 is one English line ("Not Found") without the
+    site around it. A deck, a run or a playtest of another account also ends
+    here (see 403.html), so the page does not guess why.
+  {% endcomment %}
+  <h1 class="font-display text-3xl text-parchment-100">{% translate "Nothing here" %}</h1>
+
+  <section class="surface-parchment mt-6 p-6">
+    <p class="text-ink-900">
+      {% translate "There is no page at this address. The link may be old, or the deck behind it was deleted." %}
+    </p>
+    <p class="mt-4">
+      <a href="{% url 'home' %}" class="underline hover:text-ink-700">{% translate "Back to the start" %}</a>
+    </p>
+  </section>
+{% endblock %}

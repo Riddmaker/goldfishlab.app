@@ -1,8 +1,10 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %}Simulation — {{ run.deck.name }} — Goldfish Lab{% endblock %}
+{% load humanize static i18n %}
+{% block title %}{% translate "Simulation" %} — {{ run.deck.name }} — Goldfish Lab{% endblock %}
 {% block description %}
-  What happened when Goldfish Lab played {{ run.deck.name }} {{ run.games_total }} times.
+  {% blocktranslate trimmed with name=run.deck.name games=run.games_total|intcomma %}
+    What happened when Goldfish Lab played {{ name }} {{ games }} times.
+  {% endblocktranslate %}
 {% endblock %}
 {% block head %}
   {% if not run.is_finished %}
@@ -13,18 +15,20 @@
   <div class="flex flex-wrap items-baseline gap-4">
     <h1 class="font-display text-3xl text-parchment-100">{{ run.deck.name }}</h1>
     <span class="tabular text-parchment-200">
-      {{ run.games_total }} games · {{ run.turns }} turns ·
-      {% if run.on_the_play %}1-v-1, first draw skipped{% else %}multiplayer draw rule{% endif %}
+      {% blocktranslate trimmed with games=run.games_total|intcomma turns=run.turns %}
+        {{ games }} games · {{ turns }} turns ·
+      {% endblocktranslate %}
+      {% if run.on_the_play %}{% translate "1-v-1, first draw skipped" %}{% else %}{% translate "multiplayer draw rule" %}{% endif %}
     </span>
     <a href="{{ run.deck.get_absolute_url }}"
-       class="ml-auto text-sm text-parchment-200 underline">Back to the deck</a>
+       class="ml-auto text-sm text-parchment-200 underline">{% translate "Back to the deck" %}</a>
   </div>
   {% comment %}
     The panel holds the polled fragment, and while the run plays the fish and
     the lines beside it (phase 10 T3.2) - outside the fragment, so the swaps
     every two seconds do not restart them.
   {% endcomment %}
-  <section class="surface-parchment mt-6 p-6" aria-label="Progress">
+  <section class="surface-parchment mt-6 p-6" aria-label="{% translate "Progress" %}">
     <div class="flex items-start gap-4 sm:gap-6">
       {% if not run.is_finished %}
         {% include "core/_logo.html" with id="run-logo" class="logo-animated run-logo" %}

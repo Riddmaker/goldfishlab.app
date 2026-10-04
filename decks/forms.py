@@ -6,6 +6,8 @@ parse, parse before anything touches the database.
 """
 
 from django import forms
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from decks import importers
 from decks.importers import columns
@@ -34,17 +36,20 @@ class ImportForm(forms.Form):
     PASTE = "paste"
 
     source = forms.ChoiceField(
-        choices=[(FILE, "Upload a file"), (PASTE, "Paste a list")],
+        choices=[(FILE, _("Upload a file")), (PASTE, _("Paste a list"))],
         required=False,
         widget=forms.RadioSelect,
     )
-    file = forms.FileField(required=False, label="Deck file")
+    file = forms.FileField(required=False, label=_("Deck file"))
     text = forms.CharField(
         required=False,
-        label="Your deck list",
+        label=_("Your deck list"),
         widget=forms.Textarea(attrs={
             "rows": 10,
             "spellcheck": "false",
+            # A deck list is card names and "// Commander", which the parser
+            # reads as written: English in every language (phase 12).
+            "lang": "en",
             "placeholder": (
                 "// Commander\n1 Chainer, Dementia Master\n// Deck\n"
                 "1 Sol Ring\n1 Arcane Signet\n36 Swamp"
@@ -54,47 +59,47 @@ class ImportForm(forms.Form):
     name = forms.CharField(
         max_length=120,
         required=False,
-        label="Deck name",
-        help_text="Optional - otherwise the deck is named after the file.",
+        label=_("Deck name"),
+        help_text=_("Optional - otherwise the deck is named after the file."),
     )
     format = forms.ChoiceField(
         required=False,
-        choices=[("", "Detect automatically")],
-        help_text="Only needed if the file is not recognised.",
+        label=_("Format"),
+        choices=[("", _("Detect automatically"))],
+        help_text=_("Only needed if the file is not recognised."),
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["format"].choices = [("", "Detect automatically"), *importers.choices()]
+        self.fields["format"].choices = [("", gettext("Detect automatically")),
+                                         *importers.choices()]
 
     def clean_file(self):
         upload = self.cleaned_data["file"]
         if upload and upload.size > MAX_UPLOAD_BYTES:
-            raise forms.ValidationError(
-                f"That file is {upload.size // 1024} KB. "
-                f"The limit is {MAX_UPLOAD_BYTES // 1024} KB "
-                "- a deck list is a few dozen."
-            )
+            raise forms.ValidationError(gettext(
+                "That file is %(size)s KB. The limit is %(limit)s KB - a deck list is a "
+                "few dozen."
+            ) % {"size": upload.size // 1024, "limit": MAX_UPLOAD_BYTES // 1024})
         return upload
 
     def clean_text(self):
         text = self.cleaned_data["text"]
         size = len(text.encode("utf-8"))
         if size > MAX_UPLOAD_BYTES:
-            raise forms.ValidationError(
-                f"That list is {size // 1024} KB. "
-                f"The limit is {MAX_UPLOAD_BYTES // 1024} KB "
-                "- a deck list is a few dozen."
-            )
+            raise forms.ValidationError(gettext(
+                "That list is %(size)s KB. The limit is %(limit)s KB - a deck list is a "
+                "few dozen."
+            ) % {"size": size // 1024, "limit": MAX_UPLOAD_BYTES // 1024})
         return text
 
     def clean(self):
         cleaned = super().clean()
         if self.pasting:
             if not cleaned.get("text") and "text" not in self.errors:
-                self.add_error("text", "Paste your deck list first.")
+                self.add_error("text", gettext("Paste your deck list first."))
         elif not cleaned.get("file") and "file" not in self.errors:
-            self.add_error("file", "Choose a file first - or paste your list instead.")
+            self.add_error("file", gettext("Choose a file first - or paste your list instead."))
         return cleaned
 
     @property
@@ -159,22 +164,23 @@ class ColumnMappingForm(forms.Form):
             current = mapping.header_for(column)
             must_answer = column in MUST_ANSWER and not current
 
-            choices = [(columns.ABSENT, "not in this file")] + available
+            choices = [(columns.ABSENT, gettext("not in this file"))] + available
             if must_answer:
-                choices.insert(0, ("", "choose a column"))
+                choices.insert(0, ("", gettext("choose a column")))
 
+            label = gettext(column.label)
             self.fields[column.key] = forms.ChoiceField(
                 choices=choices,
                 initial=current if current else ("" if must_answer else columns.ABSENT),
-                label=column.label.capitalize(),
+                label=label[:1].upper() + label[1:],
                 # Required exactly where an answer is genuinely needed, which
                 # is the same place the blank choice was added. Everything else
                 # falls back to what the aliases matched, so a post that omits
                 # a field keeps the guess rather than silently unsetting it.
                 required=must_answer,
                 error_messages={
-                    "required": f"Choose which column holds the {column.label}, "
-                                "or say the file has not got one.",
+                    "required": gettext("Choose which column holds the %(column)s, or "
+                                        "say the file has not got one.") % {"column": label},
                 },
             )
 

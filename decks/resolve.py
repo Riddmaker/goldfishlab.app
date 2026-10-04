@@ -24,6 +24,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 
 from django.db.models import Q
+from django.utils.translation import gettext_noop
 
 from cards.models import OracleCard
 from cards.names import front_face, normalise
@@ -43,12 +44,15 @@ RUNG_ORDER = [
     RUNG_NORMALISED_NAME,
 ]
 
+#: English, translated where shown. The row reasons below are stored
+#: (`UnresolvedRow.reason`) and translated by the page the same way, so an old
+#: row in a wording since changed simply stays English.
 RUNG_LABELS = {
-    RUNG_SCRYFALL_ID: "matched on the exact printing",
-    RUNG_ORACLE_ID: "matched on the card id",
-    RUNG_EXACT_NAME: "matched on the exact name",
-    RUNG_NORMALISED_NAME: "matched on the name, ignoring accents and punctuation",
-    RUNG_UNRESOLVED: "not found",
+    RUNG_SCRYFALL_ID: gettext_noop("matched on the exact printing"),
+    RUNG_ORACLE_ID: gettext_noop("matched on the card id"),
+    RUNG_EXACT_NAME: gettext_noop("matched on the exact name"),
+    RUNG_NORMALISED_NAME: gettext_noop("matched on the name, ignoring accents and punctuation"),
+    RUNG_UNRESOLVED: gettext_noop("not found"),
 }
 
 #: How many near-misses to offer per unresolved row.
@@ -139,7 +143,9 @@ def resolve(rows: list[ParsedRow]) -> ResolutionReport:
         if row.quantity > MAX_QUANTITY:
             report.resolutions.append(Resolution(
                 row=row, rung=RUNG_UNRESOLVED,
-                reason=f"a quantity of {row.quantity:,} is more than any collection holds",
+                # Without the number: the review shows the quantity beside it,
+                # and a fixed sentence is one a page can translate.
+                reason=gettext_noop("the quantity is more than any collection holds"),
             ))
             continue
         card, rung = _match(row, lookups)
@@ -229,10 +235,10 @@ def _match(row: ParsedRow, lookups: dict[str, dict]) -> tuple[OracleCard | None,
 
 def _reason(row: ParsedRow) -> str:
     if not row.name:
-        return "the row has no card name"
+        return gettext_noop("the row has no card name")
     if row.scryfall_id:
-        return "no card with this name, and the printing id is not in the catalogue"
-    return "no card with this name in the catalogue"
+        return gettext_noop("no card with this name, and the printing id is not in the catalogue")
+    return gettext_noop("no card with this name in the catalogue")
 
 
 def _suggest(name: str) -> list[str]:

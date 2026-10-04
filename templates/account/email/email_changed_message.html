@@ -1,9 +1,16 @@
 {% extends "account/email/base_notification.html" %}
-{% block preheader %}Your email was changed.{% endblock preheader %}
-{% block heading %}Your email was changed{% endblock heading %}
-{% block notification_message %}The email of your Goldfish Lab account was changed from <strong>{{ from_email }}</strong> to <strong>{{ to_email }}</strong>.{% endblock notification_message %}
+{% load i18n %}
+{% block preheader %}{% translate "Your email was changed." %}{% endblock preheader %}
+{% block heading %}{% translate "Your email was changed" %}{% endblock heading %}
+{% block notification_message %}{% blocktranslate trimmed %}The email of your Goldfish Lab account was changed from <strong>{{ from_email }}</strong> to <strong>{{ to_email }}</strong>.{% endblocktranslate %}{% endblock notification_message %}
 {% block if_not_you %}
   <p style="margin:0 0 16px;">
-    If it wasn't you, write to us{% if operator.email %} at <a href="mailto:{{ operator.email }}" style="color:#86231d;">{{ operator.email }}</a>{% endif %} right away - a new password would go to the new address.
+    {% if operator.email %}
+      {% blocktranslate trimmed with address=operator.email %}
+        If it wasn't you, write to us at <a href="mailto:{{ address }}" style="color:#86231d;">{{ address }}</a> right away - a new password would go to the new address.
+      {% endblocktranslate %}
+    {% else %}
+      {% translate "If it wasn't you, write to us right away - a new password would go to the new address." %}
+    {% endif %}
   </p>
 {% endblock if_not_you %}

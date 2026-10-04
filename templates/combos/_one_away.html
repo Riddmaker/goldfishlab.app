@@ -4,16 +4,17 @@
   and two copies of it would be two places for the missing card to be named
   differently.
 {% endcomment %}
+{% load i18n %}
 <li class="text-sm text-ink-900">
   {% for card in entry.combo.cards.all %}{{ card.name }}{% if not forloop.last %} + {% endif %}{% endfor %}
   {% if entry.missing %}
-    — you do not have
+    — {% translate "you do not have" %}
     <strong>{% for name in entry.missing %}{{ name }}{% if not forloop.last %}, {% endif %}{% endfor %}</strong>
   {% endif %}
   {% for template in entry.combo.templates.all %}
     {# A category, not a card. A combo whose template is unmet is one this #}
     {# deck does not have, however many named cards it holds.              #}
-    <span class="text-ink-700">and any {{ template.name|lower }}</span>
+    <span class="text-ink-700">{% blocktranslate with template=template.name|lower %}and any {{ template }}{% endblocktranslate %}</span>
   {% endfor %}
   {% include "combos/_measurement.html" %}
 </li>

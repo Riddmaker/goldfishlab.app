@@ -19,17 +19,19 @@ bookmark is not an attack.
 
 from dataclasses import dataclass
 
+from django.utils.translation import gettext
+
 from decks.analysis import KARSTEN_MAX, KARSTEN_MIN
 from simulation.cards import CARD_TYPES
 from simulations.engine.adapter import Reading
-from simulations.report import SEEN_ROLES
+from simulations.report import CARD_TYPE_NAMES, SEEN_ROLES
 
 #: The longest search the grid reads. A card's name and text are rarely longer
 #: than this and nothing useful searches for more.
 QUERY_MAX = 100
 
-#: What the page calls each printed type.
-TYPE_LABELS = tuple((kind, kind.title()) for kind in CARD_TYPES)
+#: What the page calls each printed type, in English (translated where shown).
+TYPE_LABELS = tuple((kind, CARD_TYPE_NAMES[kind]) for kind in CARD_TYPES)
 
 #: A common template for a 100-card Commander deck, shown as a faint band
 #: behind the bar and labelled as such - never as a verdict. From the Command
@@ -181,7 +183,7 @@ def _bar(param: str, value: str, label: str, count: int, scale: int) -> Bar:
         low, high = template
         band = (round(100 * low / scale, 1), round(100 * (high - low) / scale, 1))
         band_label = f"{low}" if low == high else f"{low}-{high}"
-    return Bar(key=key, label=label, count=count, param=param, value=value,
+    return Bar(key=key, label=gettext(label), count=count, param=param, value=value,
                width=round(100 * count / scale, 1), band=band, band_label=band_label)
 
 

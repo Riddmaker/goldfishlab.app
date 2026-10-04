@@ -1,13 +1,14 @@
 {% extends "account/email/base_message.html" %}
-{% block preheader %}One click and your Goldfish Lab account is ready.{% endblock preheader %}
-{% block heading %}Confirm your email{% endblock heading %}
+{% load i18n %}
+{% block preheader %}{% translate "One click and your Goldfish Lab account is ready." %}{% endblock preheader %}
+{% block heading %}{% translate "Confirm your email" %}{% endblock heading %}
 {% block content %}
-<p style="margin:0 0 16px;">One click and your Goldfish Lab account is ready.</p>
+<p style="margin:0 0 16px;">{% translate "One click and your Goldfish Lab account is ready." %}</p>
 {% if code %}
-  <p style="margin:0 0 16px;">Your code - type it into the page you have open:</p>
+  <p style="margin:0 0 16px;">{% translate "Your code - type it into the page you have open:" %}</p>
   {% include "account/email/snippets/code.html" %}
 {% else %}
-  {% include "account/email/snippets/button.html" with url=activate_url label="Confirm my email" %}
+  {% include "account/email/snippets/button.html" with url=activate_url label=_("Confirm my email") %}
 {% endif %}
-<p style="margin:0;font-size:13px;line-height:20px;color:#5d564a;">Didn't sign up? Then someone typed your address by mistake. Ignore this mail - without the click, nothing happens.</p>
+<p style="margin:0;font-size:13px;line-height:20px;color:#5d564a;">{% translate "Didn't sign up? Then someone typed your address by mistake. Ignore this mail - without the click, nothing happens." %}</p>
 {% endblock content %}

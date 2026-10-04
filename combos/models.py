@@ -29,8 +29,10 @@ the present that nobody checked.
 import uuid
 
 from django.db import models
+from django.utils.translation import gettext
 
 from cards.models import OracleCard
+from core.l10n import percent
 from decks.models import Deck
 
 
@@ -319,10 +321,10 @@ class ComboMeasurement(models.Model):
         anyway.
         """
         if self.never:
-            return "never"
+            return gettext("never")
         if self.share < 1:
-            return "under 1%"
-        return f"{self.share:.0f}%"
+            return gettext("under %(percent)s") % {"percent": percent(1)}
+        return percent(self.share)
 
     @property
     def never(self) -> bool:

@@ -28,6 +28,8 @@ import re
 from collections import Counter
 from dataclasses import dataclass, field
 
+from django.utils.translation import gettext_noop
+
 from cards.models import DerivedProfile, OracleCard
 
 # --- source labels, as they appear in DerivedProfile.source_map --------------
@@ -385,11 +387,12 @@ def _enters_tapped(card: OracleCard) -> tuple[bool, str]:
 
     if re.search(pattern, text, re.IGNORECASE):
         if _UNLESS.search(text):
-            return True, "enters tapped only conditionally ('unless')"
+            return True, gettext_noop("enters tapped only conditionally ('unless')")
         return True, ""
 
     if _TAPPED_MENTION.search(text):
-        return False, "text mentions entering tapped, but the condition was not readable"
+        return False, gettext_noop(
+            "text mentions entering tapped, but the condition was not readable")
 
     return False, ""
 
@@ -460,7 +463,8 @@ def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
             clause.sacrifices_self = True
             continue
         if _SYMBOL_RUN.fullmatch(part):
-            clause.problem = "a mana ability with a coloured cost (a filter) is not modelled"
+            clause.problem = gettext_noop(
+                "a mana ability with a coloured cost (a filter) is not modelled")
         else:
             clause.problem = f"a mana ability that costs '{part}' is not modelled"[:120]
         return
@@ -475,19 +479,20 @@ def _read_produced(clause: ManaClause, after: str) -> None:
         rest = after[run.end():]
         rest_sentence = rest.split(".", 1)[0]
         if any(symbol not in _MANA_SOURCES for symbol in symbols):
-            clause.problem = "makes a kind of mana the engine does not model"
+            clause.problem = gettext_noop("makes a kind of mana the engine does not model")
             return
         if re.match(r"\s*,\s*then\b", rest):
             # Rite of Flame: "Add {R}{R}, then add {R} for each ...". The base
             # is fixed; only the rider grows, and it is not counted.
-            clause.note = "the part of its mana that grows with the board is not counted"
+            clause.note = gettext_noop(
+                "the part of its mana that grows with the board is not counted")
         elif _SCALING.search(rest_sentence):
-            clause.problem = "mana amount scales with the board"
+            clause.problem = gettext_noop("mana amount scales with the board")
             return
         if "instead" in rest_sentence:
             # Cabal Ritual's threshold: a replacement that needs a full
             # graveyard, which the early turns being measured do not have.
-            clause.problem = "a conditional replacement ('instead') is not counted"
+            clause.problem = gettext_noop("a conditional replacement ('instead') is not counted")
             return
         choice = bool(re.match(r"\s*(?:,\s*)?(?:or\s+)?\{", rest))
         clause.amount = len(symbols)
@@ -500,15 +505,15 @@ def _read_produced(clause: ManaClause, after: str) -> None:
         clause.amount = int(token) if token.isdigit() else _WORD_NUMBERS[token]
         tail = after[words.end():].split(".", 1)[0]
         if _OPPONENT_SOURCE.search(tail):
-            clause.problem = "needs an opponent's lands; a goldfish has none"
+            clause.problem = gettext_noop("needs an opponent's lands; a goldfish has none")
         elif _SCALING.search(tail):
-            clause.problem = "mana amount scales with the board"
+            clause.problem = gettext_noop("mana amount scales with the board")
         return
 
     if _SCALES_UP_FRONT.match(after):
-        clause.problem = "mana amount scales with the board"
+        clause.problem = gettext_noop("mana amount scales with the board")
     else:
-        clause.problem = "an 'Add' clause whose amount could not be read"
+        clause.problem = gettext_noop("an 'Add' clause whose amount could not be read")
 
 
 def _mana_clauses(card: OracleCard, *, is_spell: bool) -> list[ManaClause]:
@@ -530,15 +535,17 @@ def _mana_clauses(card: OracleCard, *, is_spell: bool) -> list[ManaClause]:
                 prefix = _ABILITY_WORD.sub("", before)
                 clause = ManaClause(is_ability=False)
                 if not is_spell:
-                    clause.problem = "makes mana only from a triggered or static ability"
+                    clause.problem = gettext_noop(
+                        "makes mana only from a triggered or static ability")
             if prefix.strip() and not clause.problem:
                 # Deathrite Shaman: "{T}: Exile target land card from a
                 # graveyard. Add ..." - the mana needs a target first.
-                clause.problem = "makes mana only as part of another effect"
+                clause.problem = gettext_noop("makes mana only as part of another effect")
             if not clause.problem:
                 _read_produced(clause, after)
             if not clause.problem and _RESTRICTED.search(after):
-                clause.problem = "its mana is restricted to certain spells or moments"
+                clause.problem = gettext_noop(
+                    "its mana is restricted to certain spells or moments")
             found.append(clause)
     return found
 
@@ -586,16 +593,17 @@ def _mana_production(card: OracleCard) -> ManaReading:
     notes = {clause.problem for clause in clauses if clause.problem}
     notes |= {clause.note for clause in usable if clause.note}
     if _ENTERS_BY_DISCARD.search(text):
-        notes.add("enters only by discarding a land card, which the engine does not do")
+        notes.add(gettext_noop(
+            "enters only by discarding a land card, which the engine does not do"))
 
     if not clauses:
         # Scryfall says it makes mana but no `Add` clause of its own was found:
         # either every one is inside quotes, or it is a replacement effect or a
         # face this text does not cover.
         reading.notes = [
-            "only grants a mana ability to another permanent"
+            gettext_noop("only grants a mana ability to another permanent")
             if _ADD_WORD.search(text)
-            else "produces mana, but no readable 'Add' clause"
+            else gettext_noop("produces mana, but no readable 'Add' clause")
         ]
         return reading
 
@@ -621,16 +629,17 @@ def _mana_production(card: OracleCard) -> ManaReading:
         same = all(clause.produces == chosen.produces for clause in top)
         reading.produces = chosen.produces if same else None
         if any(clause.net <= 0 for clause in tapping):
-            notes.add("an ability that only converts mana is not modelled")
+            notes.add(gettext_noop("an ability that only converts mana is not modelled"))
     elif one_shots and "Creature" not in type_line:
         chosen = one_shots[0]
         reading.amount, reading.produces = chosen.amount, chosen.produces
         reading.one_shot = True
     else:
         if one_shots:
-            notes.add("sacrifices itself for mana, which is not modelled on a creature")
+            notes.add(gettext_noop(
+                "sacrifices itself for mana, which is not modelled on a creature"))
         if tapping:
-            notes.add("its mana ability costs as much as it makes")
+            notes.add(gettext_noop("its mana ability costs as much as it makes"))
 
     reading.notes = sorted(notes)
     return reading
@@ -679,34 +688,38 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
     text = card.oracle_text or ""
 
     if len(_SEARCH_CLAUSE.findall(text)) > 1:
-        return Tutor(reason="searches the library more than once; not modelled")
+        return Tutor(reason=gettext_noop("searches the library more than once; not modelled"))
     if not _SEARCH_YOUR_LIBRARY.search(text):
         # Either the search is somebody else's ("target player searches their
         # library") or it is worded in a way this pattern does not cover. The
         # tag says the card is a tutor, so the honest answer is to say we could
         # not read it rather than to drop it silently.
-        return Tutor(reason="tutors, but no readable 'search your library' clause")
+        return Tutor(reason=gettext_noop("tutors, but no readable 'search your library' clause"))
 
     count = _first_number(_SEARCH_YOUR_LIBRARY, text)
     if not zones:
-        return Tutor(count=count, reason="tutors, but to which zone could not be read")
+        return Tutor(count=count,
+                     reason=gettext_noop("tutors, but to which zone could not be read"))
     if len(zones) > 1:
-        return Tutor(count=count, reason="tutors to more than one zone; not modelled")
+        return Tutor(count=count,
+                     reason=gettext_noop("tutors to more than one zone; not modelled"))
 
     zone = zones.pop()
     if zone == "battlefield":
         return Tutor(zone=zone, count=count,
-                     reason="tutors onto the battlefield, which the engine cannot do")
+                     reason=gettext_noop(
+                         "tutors onto the battlefield, which the engine cannot do"))
     if tags & TUTOR_UNEXPRESSIBLE_TAGS:
         return Tutor(zone=zone, count=count,
-                     reason="tutors for something the engine cannot describe")
+                     reason=gettext_noop("tutors for something the engine cannot describe"))
     if len(kinds) > 1:
         return Tutor(zone=zone, count=count,
-                     reason="tutors for more than one card kind; not modelled")
+                     reason=gettext_noop("tutors for more than one card kind; not modelled"))
 
     if _RANDOM_DISCARD.search(text):
         return Tutor(zone=zone, count=count,
-                     reason="searches, then discards at random; the discard is not modelled")
+                     reason=gettext_noop(
+                         "searches, then discards at random; the discard is not modelled"))
 
     return Tutor(zone=zone, count=count, kind=kinds.pop() if kinds else "")
 
@@ -767,20 +780,20 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         if note:
             reasons.append(note)
     if tutor.zone and tutor.count is None:
-        reasons.append("tutors, but how many cards it finds could not be read")
+        reasons.append(gettext_noop("tutors, but how many cards it finds could not be read"))
     # The community says this makes more than one mana and we read exactly one.
     # Not a value - a contradiction, and the honest response to a contradiction
     # is to report it rather than to pick a side. Sol Ring is the shape: the
     # `Add {C}{C}` clause is readable, but the cards this catches are the ones
     # where it is not and a single mana slipped through looking correct.
     if MULTIPLE_MANA_TAG in tags and amount == 1:
-        reasons.append("tagged as adding more than one mana; only one was read")
+        reasons.append(gettext_noop("tagged as adding more than one mana; only one was read"))
     if _ADDITIONAL_COST.search(text):
-        reasons.append("has an additional casting cost the engine does not pay")
+        reasons.append(gettext_noop("has an additional casting cost the engine does not pay"))
     if cost.hybrid:
-        reasons.append("hybrid pips: payment flexibility is not modelled")
+        reasons.append(gettext_noop("hybrid pips: payment flexibility is not modelled"))
     if cost.has_x:
-        reasons.append("cost contains X")
+        reasons.append(gettext_noop("cost contains X"))
 
     profile = DerivedProfile(
         oracle_card=card,

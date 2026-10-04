@@ -25,7 +25,8 @@
   button.addEventListener("click", () => {
     paused = !paused;
     button.setAttribute("aria-pressed", String(paused));
-    button.textContent = paused ? "Resume" : "Pause";
+    // Both words come from the page, in its language (phase 12).
+    button.textContent = paused ? button.dataset.resume : button.dataset.pause;
   });
 
   box.addEventListener("htmx:confirm", (event) => {

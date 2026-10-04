@@ -1,7 +1,8 @@
 {% extends "account/email/base_message.txt" %}
-{% block content %}Someone - probably you - tried to create a Goldfish Lab account with {{ email }}. There already is one with this address.
+{% load i18n %}
+{% block content %}{% blocktranslate %}Someone - probably you - tried to create a Goldfish Lab account with {{ email }}. There already is one with this address.{% endblocktranslate %}
 
-Forgot your password? Choose a new one:
+{% translate "Forgot your password? Choose a new one:" %}
 {{ password_reset_url }}
 
-Wasn't you? Ignore this mail - nothing has changed.{% endblock content %}
+{% translate "Wasn't you? Ignore this mail - nothing has changed." %}{% endblock content %}

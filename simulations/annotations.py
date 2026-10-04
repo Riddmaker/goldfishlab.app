@@ -27,10 +27,16 @@ the card it is. `apply` is the one function that enforces that, and
 
 from dataclasses import dataclass
 
+from django.utils.text import format_lazy
+from django.utils.translation import gettext, gettext_lazy, gettext_noop
+
 from cards.models import DerivedProfile
 from cards.profiles import ROLE_FROM_TAG
 from simulations.engine import runner
 from simulations.models import MANA_SOURCES
+from simulations.report import SEEN_ROLES, SEEN_STRATEGY_ROLES
+
+_ = gettext_lazy
 
 #: Roles a card may be given. The community tag vocabulary, plus the three the
 #: deriver adds itself, plus the ones the analysis reads for its milestone
@@ -39,13 +45,29 @@ from simulations.models import MANA_SOURCES
 #: on 1,667 cards, it agrees with the reference deck's author six times out of
 #: six, and Phase 5b mapped it - which is what finally let that milestone fire
 #: for a deck somebody imported rather than only for the fixture.
+ROLE_KEYS = sorted(
+    set(ROLE_FROM_TAG.values())
+    | {"gamechanger", "creature", "land"}
+    | set(runner.ENGINE_ROLE_TAGS)
+)
+
+#: What a page calls each role, in English (translated where shown). The
+#: report's categories and strategies keep their names; the rest are the
+#: engine's own.
+ROLE_NAMES = {
+    **dict(SEEN_ROLES + SEEN_STRATEGY_ROLES),
+    "creature": gettext_noop("Creature"),
+    "draw_engine": gettext_noop("Draw engine"),
+    "gamechanger": gettext_noop("Game Changer"),
+    "land": gettext_noop("Land"),
+    "mana_rock": gettext_noop("Mana rock"),
+    "recursive": gettext_noop("Recursive creature"),
+    "ritual": gettext_noop("Ritual"),
+}
+
 ROLE_CHOICES = tuple(
-    (role, role.replace("_", " "))
-    for role in sorted(
-        set(ROLE_FROM_TAG.values())
-        | {"gamechanger", "creature", "land"}
-        | set(runner.ENGINE_ROLE_TAGS)
-    )
+    (role, gettext_lazy(ROLE_NAMES[role]) if role in ROLE_NAMES else role.replace("_", " "))
+    for role in ROLE_KEYS
 )
 
 #: Engine card kinds. The same nine values as `DerivedProfile.Kind`, which is
@@ -60,7 +82,8 @@ KIND_CHOICES = DerivedProfile.Kind.choices
 #: mana. The same types are what Cabal Coffers counts and what Crypt Ghast
 #: doubles, and the help text says so.
 SUBTYPE_CHOICES = tuple(
-    (subtype, f"{subtype.title()} (taps for {color})")
+    # The land type keeps its English name, like the type line it is read from.
+    (subtype, format_lazy(_("{type} (taps for {color})"), type=subtype.title(), color=color))
     for subtype, color in sorted(runner.LAND_SUBTYPE_COLORS.items())
 )
 
@@ -86,74 +109,75 @@ class Judgement:
 JUDGEMENTS = (
     Judgement(
         "priority",
-        "How early to cast it",
-        "Higher goes first. The engine's own rule is 40 minus the mana value, "
-        "so a two-drop it has no opinion about sits at 38.",
+        _("How early to cast it"),
+        _("Higher goes first. The engine's own rule is 40 minus the mana value, "
+          "so a two-drop it has no opinion about sits at 38."),
     ),
     Judgement(
         "accelerant",
-        "Counts as acceleration",
-        "Whether this card makes a one-land opening hand worth keeping. It "
-        "changes the mulligan decision and therefore every number below it.",
+        _("Counts as acceleration"),
+        _("Whether this card makes a one-land opening hand worth keeping. It "
+          "changes the mulligan decision and therefore every number below it."),
     ),
     Judgement(
         "goldfish_castable",
-        "Can be cast against nobody",
-        "Say no for a card with no legal target in an empty game - removal, a "
-        "board wipe, anything that needs an opponent. The engine will hold it "
-        "rather than pretend it did something.",
+        _("Can be cast against nobody"),
+        _("Say no for a card with no legal target in an empty game - removal, a "
+          "board wipe, anything that needs an opponent. The engine will hold it "
+          "rather than pretend it did something."),
     ),
     Judgement(
         "kind",
-        "What the engine treats it as",
-        "Rituals add their mana when cast; rocks add it when tapped. The type "
-        "line cannot always tell the two apart.",
+        _("What the engine treats it as"),
+        _("Rituals add their mana when cast; rocks add it when tapped. The type "
+          "line cannot always tell the two apart."),
     ),
     Judgement(
         "mana_produces",
-        "Taps for",
-        "Letters for the colours, with a number where it makes more than one: "
-        f"B, 2B, B C. Write “{NOTHING}” for a card that makes no mana the "
-        "engine can use.",
+        _("Taps for"),
+        # "nothing" is the word the box reads (`NOTHING`), in every language.
+        _("Letters for the colours, with a number where it makes more than one: "
+          "B, 2B, B C. Write “nothing” for a card that makes no mana the "
+          "engine can use."),
     ),
     Judgement(
         "subtypes",
-        "Land types",
-        "What the land counts as. This is what a basic land taps for, what "
-        "Cabal Coffers counts and what Crypt Ghast doubles — so a land with a "
-        "type here taps for that colour whatever “Taps for” says above.",
+        _("Land types"),
+        _("What the land counts as. This is what a basic land taps for, what "
+          "Cabal Coffers counts and what Crypt Ghast doubles — so a land with a "
+          "type here taps for that colour whatever “Taps for” says above."),
     ),
     Judgement(
         "enters_tapped",
-        "Enters tapped",
-        "Read off the card text by a regular expression, which is the weakest "
-        "reading this application makes. Worth checking on anything unusual.",
+        _("Enters tapped"),
+        _("Read off the card text by a regular expression, which is the weakest "
+          "reading this application makes. Worth checking on anything unusual."),
     ),
     Judgement(
         "tags",
-        "Roles",
-        "What the card does, in the vocabulary the report's milestone table "
-        "counts. Replacing them overrides the community tags completely.",
+        _("Roles"),
+        _("What the card does, in the vocabulary the report's milestone table "
+          "counts. Replacing them overrides the community tags completely."),
     ),
     Judgement(
         "mana_activation",
-        "Costs to tap for mana",
-        "Generic mana its mana ability costs on top of tapping - the {1} on a "
-        "Signet. Write 0 for a card that only has to tap.",
+        _("Costs to tap for mana"),
+        _("Generic mana its mana ability costs on top of tapping - the {1} on a "
+          "Signet. Write 0 for a card that only has to tap."),
     ),
     Judgement(
         "untaps",
-        "Untaps every turn",
-        "Say no for Mana Vault, Grim Monolith and anything else that stays tapped "
-        "once it has been used. The engine then takes its mana once, not every turn.",
+        _("Untaps every turn"),
+        _("Say no for Mana Vault, Grim Monolith and anything else that stays tapped "
+          "once it has been used. The engine then takes its mana once, not every turn."),
     ),
     Judgement(
         "tutor_count",
-        "Cards it searches up",
-        "How many cards this finds in your library. The community tags say "
-        "which zone it searches to and can never say how many, so the number "
-        "is read off the card text and is often missing. Write 0 for a card "
-        "the engine should not treat as a tutor at all.",
+        _("Cards it searches up"),
+        _("How many cards this finds in your library. The community tags say "
+          "which zone it searches to and can never say how many, so the number "
+          "is read off the card text and is often missing. Write 0 for a card "
+          "the engine should not treat as a tutor at all."),
     ),
 )
 
@@ -195,10 +219,11 @@ def parse_mana(text: str) -> dict[str, int] | None:
         count, letters = _split_count(token)
         for letter in letters:
             if letter not in MANA_SOURCES:
-                raise ManaTextError(
-                    f"{letter!r} is not a mana colour. Use letters from "
-                    f"{', '.join(sorted(MANA_SOURCES))}, or “{NOTHING}”."
-                )
+                raise ManaTextError(gettext(
+                    "%(letter)s is not a mana colour. Use letters from %(letters)s, "
+                    "or “%(nothing)s”."
+                ) % {"letter": repr(letter), "letters": ", ".join(sorted(MANA_SOURCES)),
+                     "nothing": NOTHING})
             produced[letter] = produced.get(letter, 0) + count
     return produced
 
@@ -210,9 +235,9 @@ def _split_count(token: str) -> tuple[int, str]:
         digits, token = digits + token[0], token[1:]
     letters = token.upper()
     if not letters:
-        raise ManaTextError(
-            f"“{digits}” names an amount but no colour. Write 2B rather than 2."
-        )
+        raise ManaTextError(gettext(
+            "“%(amount)s” names an amount but no colour. Write 2B rather than 2."
+        ) % {"amount": digits})
     return int(digits or 1), letters
 
 

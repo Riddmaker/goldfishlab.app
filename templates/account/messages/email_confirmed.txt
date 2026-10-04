@@ -1,1 +1,1 @@
-{% comment %}Shown on the page the confirmation link ends on - signed in, or the sign-in page when the link was opened in another browser.{% endcomment %}✓ Email confirmed: {{ email }}
+{% comment %}Shown on the page the confirmation link ends on - signed in, or the sign-in page when the link was opened in another browser.{% endcomment %}{% load i18n %}✓ {% blocktranslate %}Email confirmed: {{ email }}{% endblocktranslate %}

@@ -1,17 +1,33 @@
 {% extends "base.html" %}
-{% block title %}Which column is which? — Goldfish Lab{% endblock %}
-{% block description %}Confirm what each column of your export means before anything is imported.{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Which column is which?" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "Confirm what each column of your export means before anything is imported." %}{% endblock %}
 {% block content %}
-  <h1 class="font-display text-3xl text-parchment-100">Which column is which?</h1>
+  <h1 class="font-display text-3xl text-parchment-100">{% translate "Which column is which?" %}</h1>
   <p class="mt-3 max-w-2xl text-parchment-200">
-    {{ pending.filename|default:"Your file" }} — {{ headers|length }} column{{ headers|length|pluralize }},
-    separated by {{ table.delimiter_label }}s{% if table.skip %}, with {{ table.skip }} line{{ table.skip|pluralize }} skipped above the header{% endif %}.
-    Nothing has been imported yet.
+    {% if pending.filename %}{{ pending.filename }}{% else %}{% translate "Your file" %}{% endif %} —
+    {% blocktranslate count count=headers|length %}{{ count }} column{% plural %}{{ count }} columns{% endblocktranslate %},
+    {% if table.delimiter_label == "comma" %}
+      {% translate "separated by commas" %}
+    {% elif table.delimiter_label == "semicolon" %}
+      {% translate "separated by semicolons" %}
+    {% elif table.delimiter_label == "tab" %}
+      {% translate "separated by tabs" %}
+    {% else %}
+      {% translate "with a separator we do not know" %}
+    {% endif %}{% if table.skip %},
+      {% blocktranslate trimmed count count=table.skip %}
+        with {{ count }} line skipped above the header
+      {% plural %}
+        with {{ count }} lines skipped above the header
+      {% endblocktranslate %}
+    {% endif %}.
+    {% translate "Nothing has been imported yet." %}
   </p>
 
   <section class="surface-parchment mt-8 p-6">
-    <h2 class="font-display text-2xl text-ink-900">The first rows of your file</h2>
-    <p class="mt-2 text-sm text-ink-700">Exactly as they are, so you can see what you are choosing between.</p>
+    <h2 class="font-display text-2xl text-ink-900">{% translate "The first rows of your file" %}</h2>
+    <p class="mt-2 text-sm text-ink-700">{% translate "Exactly as they are, so you can see what you are choosing between." %}</p>
     <div class="mt-4 overflow-x-auto">
       <table class="w-full text-left text-sm text-ink-900">
         <thead>
@@ -49,9 +65,9 @@
              hx-include="closest form"
              hx-target="#mapping-preview"
              hx-swap="innerHTML">
-      <h2 class="font-display text-2xl text-ink-900">What each column means</h2>
+      <h2 class="font-display text-2xl text-ink-900">{% translate "What each column means" %}</h2>
       <p class="mt-2 text-sm text-ink-700">
-        Only the card name is required.
+        {% translate "Only the card name is required." %}
       </p>
       <div class="mt-5 grid gap-x-4 gap-y-4 sm:grid-cols-2">
         {% for field in form %}
@@ -69,28 +85,32 @@
     </section>
 
     <section class="surface-parchment mt-8 p-6">
-      <h2 class="font-display text-2xl text-ink-900">How your rows will be read</h2>
-      <p class="mt-2 text-sm text-ink-700">This updates as you choose. Check the quantities before importing.</p>
+      <h2 class="font-display text-2xl text-ink-900">{% translate "How your rows will be read" %}</h2>
+      <p class="mt-2 text-sm text-ink-700">{% translate "This updates as you choose. Check the quantities before importing." %}</p>
       <div id="mapping-preview" class="mt-4">
         {% include "decks/_mapping_preview.html" %}
       </div>
     </section>
 
-    <button type="submit" class="mt-8">Import with this mapping</button>
+    <button type="submit" class="mt-8">{% translate "Import with this mapping" %}</button>
   </form>
 
   <details class="mt-8 max-w-2xl border-l-2 border-parchment-600 pl-5">
-    <summary class="cursor-pointer font-display text-xl text-parchment-100">Why you are being asked</summary>
+    <summary class="cursor-pointer font-display text-xl text-parchment-100">{% translate "Why you are being asked" %}</summary>
     <p class="mt-3 text-parchment-200">
-      Most exports let you choose which columns to include, so the same site produces a
-      different file for every person. Reading this one by guessing would not fail loudly —
-      it would import the wrong cards and say nothing.
+      {% blocktranslate trimmed %}
+        Most exports let you choose which columns to include, so the same site produces a
+        different file for every person. Reading this one by guessing would not fail loudly —
+        it would import the wrong cards and say nothing.
+      {% endblocktranslate %}
     </p>
     <p class="mt-3 text-parchment-200">
-      The case that proved it: an export with the quantity column left out once imported a
-      28-Swamp deck as a 28-card deck with <strong class="text-parchment-100">one</strong>
-      Swamp in it. Every test passed. That is why this screen will not let you past a
-      quantity column it cannot find without you saying what to do about it.
+      {% blocktranslate trimmed %}
+        The case that proved it: an export with the quantity column left out once imported a
+        28-Swamp deck as a 28-card deck with <strong class="text-parchment-100">one</strong>
+        Swamp in it. Every test passed. That is why this screen will not let you past a
+        quantity column it cannot find without you saying what to do about it.
+      {% endblocktranslate %}
     </p>
   </details>
 {% endblock %}

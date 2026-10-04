@@ -2,6 +2,7 @@
 
 from allauth.account.forms import SignupForm
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 
 class SaveDeckForm(SignupForm):
@@ -12,7 +13,7 @@ class SaveDeckForm(SignupForm):
     allauth's, unchanged.
     """
 
-    deck_name = forms.CharField(max_length=120, label="Deck name")
+    deck_name = forms.CharField(max_length=120, label=_("Deck name"))
 
     #: allauth applies it (`set_form_field_order`); the honeypot, if one is
     #: ever configured, keeps its own place.

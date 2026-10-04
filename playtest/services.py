@@ -20,6 +20,7 @@ from dataclasses import asdict
 
 from django.db import transaction
 from django.db.models import Max
+from django.utils.translation import gettext
 
 from playtest.models import PlaytestAction, PlaytestSession
 from simulation import actions, serial
@@ -135,8 +136,9 @@ def record(session: PlaytestSession, action: actions.Action) -> Game:
     session.actions.filter(undone=True).delete()
     seq = (session.actions.aggregate(highest=Max("seq"))["highest"] or 0) + 1
     if seq > MAX_ACTIONS:
-        raise PlaytestFull(
-            f"a session holds at most {MAX_ACTIONS} actions; start a new one")
+        raise PlaytestFull(gettext(
+            "a session holds at most %(limit)s actions; start a new one") % {
+            "limit": MAX_ACTIONS})
 
     PlaytestAction.objects.create(
         session=session, seq=seq, kind=action.kind, payload=action.payload(),

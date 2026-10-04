@@ -20,6 +20,9 @@ which runs on a 128 MiB cloudlet.
 from dataclasses import dataclass
 from math import comb, sqrt
 
+from django.utils.translation import gettext, gettext_noop, ngettext
+
+from core.l10n import number
 from simulations import charts
 from simulations.engine import runner
 
@@ -36,13 +39,30 @@ NOISE_FLOOR_PCT = 0.05
 #: The word a report uses for each mana letter. Presentation, so it lives here
 #: rather than in the engine - and spelled the way the rest of the site spells
 #: things, which is British.
+#:
+#: Every label in this module is English and marked with `gettext_noop`
+#: (phase 12): the English text is also a key - matched against Mistral's
+#: answer, sent to it in the facts - so it is translated only where a page
+#: shows it, with `gettext(label)`.
 COLOR_NAMES = {
-    "W": "White",
-    "U": "Blue",
-    "B": "Black",
-    "R": "Red",
-    "G": "Green",
-    "C": "Colourless",
+    "W": gettext_noop("White"),
+    "U": gettext_noop("Blue"),
+    "B": gettext_noop("Black"),
+    "R": gettext_noop("Red"),
+    "G": gettext_noop("Green"),
+    "C": gettext_noop("Colourless"),
+}
+
+#: What a page calls each printed card type (`simulation.cards.CARD_TYPES`).
+CARD_TYPE_NAMES = {
+    "creature": gettext_noop("Creature"),
+    "planeswalker": gettext_noop("Planeswalker"),
+    "battle": gettext_noop("Battle"),
+    "artifact": gettext_noop("Artifact"),
+    "enchantment": gettext_noop("Enchantment"),
+    "instant": gettext_noop("Instant"),
+    "sorcery": gettext_noop("Sorcery"),
+    "land": gettext_noop("Land"),
 }
 
 
@@ -212,7 +232,8 @@ def color_columns(result: dict) -> list[tuple[str, str]]:
         # colour's histogram, so a colour the deck never made has a histogram
         # full of zeroes - which is a perfectly non-empty histogram.
         if any(_histogram_total(stats.get(field)) for stats in result["turn_stats"]):
-            columns.append((color, COLOR_NAMES.get(color, color)))
+            columns.append((color, gettext(COLOR_NAMES[color]) if color in COLOR_NAMES
+                            else color))
     return columns
 
 
@@ -254,15 +275,15 @@ def _histogram_total(histogram) -> int:
 #: rather than in the template so that the wording is testable and so that a
 #: metric cannot quietly appear on screen with no explanation of what it counts.
 MILESTONES = (
-    ("commander", "Commander on the battlefield"),
-    ("draw_engine", "A card-advantage engine in play"),
-    ("ramp_engine", "Two or more scaling mana sources"),
-    ("sac_outlet", "A sacrifice outlet in play"),
-    ("recursive", "A recursive creature in play"),
-    ("engine_online", "Sacrifice outlet and recursion together"),
-    ("drain", "A drain payoff in play"),
-    ("necropotence", "Trading the draw step for cards"),
-    ("sol_ring", "A mana source that made more than it cost"),
+    ("commander", gettext_noop("Commander on the battlefield")),
+    ("draw_engine", gettext_noop("A card-advantage engine in play")),
+    ("ramp_engine", gettext_noop("Two or more scaling mana sources")),
+    ("sac_outlet", gettext_noop("A sacrifice outlet in play")),
+    ("recursive", gettext_noop("A recursive creature in play")),
+    ("engine_online", gettext_noop("Sacrifice outlet and recursion together")),
+    ("drain", gettext_noop("A drain payoff in play")),
+    ("necropotence", gettext_noop("Trading the draw step for cards")),
+    ("sol_ring", gettext_noop("A mana source that made more than it cost")),
 )
 
 
@@ -270,17 +291,21 @@ MILESTONES = (
 #: T5.2). Kept beside the labels so a new milestone cannot arrive without one;
 #: a test holds the two together.
 MILESTONE_INFO = {
-    "commander": "Your commander has been cast and is on the battlefield.",
-    "draw_engine": "A permanent that keeps drawing you cards, such as Phyrexian Arena.",
-    "ramp_engine": "Two mana sources that make more as your board grows, such as Cabal "
-                   "Coffers and Crypt Ghast.",
-    "sac_outlet": "A permanent that lets you sacrifice creatures again and again.",
-    "recursive": "A creature that comes back from your graveyard by itself.",
-    "engine_online": "A sacrifice outlet and a recursive creature at once: a loop.",
-    "drain": "A permanent that makes your opponents lose life when something happens.",
-    "necropotence": "A card that trades your draw step for something better, such as "
-                    "Necropotence.",
-    "sol_ring": "An artifact that made more mana than it cost, such as Sol Ring.",
+    "commander": gettext_noop("Your commander has been cast and is on the battlefield."),
+    "draw_engine": gettext_noop(
+        "A permanent that keeps drawing you cards, such as Phyrexian Arena."),
+    "ramp_engine": gettext_noop("Two mana sources that make more as your board grows, "
+                                "such as Cabal Coffers and Crypt Ghast."),
+    "sac_outlet": gettext_noop(
+        "A permanent that lets you sacrifice creatures again and again."),
+    "recursive": gettext_noop("A creature that comes back from your graveyard by itself."),
+    "engine_online": gettext_noop(
+        "A sacrifice outlet and a recursive creature at once: a loop."),
+    "drain": gettext_noop(
+        "A permanent that makes your opponents lose life when something happens."),
+    "necropotence": gettext_noop("A card that trades your draw step for something better, "
+                                 "such as Necropotence."),
+    "sol_ring": gettext_noop("An artifact that made more mana than it cost, such as Sol Ring."),
 }
 
 #: The share of games that makes a turn the "typical" one: half of them. It
@@ -303,27 +328,42 @@ def milestone_chart(rows: list[dict], turns: int) -> charts.LineChart | None:
     series = [(row["key"], row["label"], row["shares"]) for row in rows if row["key"] in shown]
     infos = {
         row["key"]: " ".join(filter(None, (
-            MILESTONE_INFO.get(row["key"], ""),
-            _typical_sentence(row["shares"], "get there", turns))))
+            gettext(MILESTONE_INFO[row["key"]]) if row["key"] in MILESTONE_INFO else "",
+            _typical_sentence(row["shares"], GET_THERE, turns))))
         for row in rows
     }
     return charts.line_chart(series, [str(turn) for turn in range(1, turns + 1)],
-                             top_value=charts.PERCENT_TOP, y_ticks=charts.PERCENT_TICKS,
+                             top_value=charts.PERCENT_TOP, y_ticks=charts.percent_ticks(),
                              infos=infos)
+
+
+#: The two things `_typical_sentence` says a game did: a milestone it got to,
+#: a category it had a card of. Whole sentences each, so a language can put
+#: the verb where it belongs.
+GET_THERE = "get there"
+HAVE_ONE = "have one"
 
 
 def _typical_sentence(shares, verb: str, turns: int) -> str:
     """"Half your games have one by turn 4." - or the honest negative."""
     for turn, share in enumerate(shares, start=1):
         if share >= TYPICAL_SHARE:
-            return f"Half your games {verb} by turn {turn}."
-    return f"Fewer than half your games {verb} by turn {turns}."
+            text = (gettext("Half your games get there by turn %(turn)s.") if verb == GET_THERE
+                    else gettext("Half your games have one by turn %(turn)s."))
+            return text % {"turn": turn}
+    text = (gettext("Fewer than half your games get there by turn %(turn)s.")
+            if verb == GET_THERE
+            else gettext("Fewer than half your games have one by turn %(turn)s."))
+    return text % {"turn": turns}
 
 
 def _average_sentence(spread: "Spread", turns: int) -> str:
     """"On average 0.8 ± 0.7 drawn by turn 6." - the ± only when it was counted."""
-    plus = f" ± {spread.sd:.1f}" if spread.sd is not None else ""
-    return f"On average {spread.mean:.1f}{plus} drawn by turn {turns}."
+    mean = number(spread.mean, 1)
+    if spread.sd is not None:
+        mean = f"{mean} ± {number(spread.sd, 1)}"
+    return gettext("On average %(mean)s drawn by turn %(turn)s.") % {"mean": mean,
+                                                                    "turn": turns}
 
 
 def milestones(result: dict) -> list[dict]:
@@ -340,7 +380,7 @@ def milestones(result: dict) -> list[dict]:
         if not any(shares):
             # A metric that never fires for this deck is noise on the page.
             continue
-        rows.append({"key": key, "label": label, "shares": shares})
+        rows.append({"key": key, "label": gettext(label), "shares": shares})
     return rows
 
 
@@ -349,30 +389,31 @@ def milestones(result: dict) -> list[dict]:
 #: vocabulary"). The keys are `simulation.analysis.SEEN_CATEGORIES`, and a test
 #: holds the two lists together.
 SEEN_ROLES = (
-    ("ramp", "Ramp"),
-    ("draw", "Card draw"),
-    ("removal", "Removal"),
-    ("wipe", "Board wipe"),
-    ("tutor", "Tutor"),
-    ("counterspell", "Counterspell"),
-    ("protection", "Protection"),
-    ("recursion", "Recursion"),
+    ("ramp", gettext_noop("Ramp")),
+    ("draw", gettext_noop("Card draw")),
+    ("removal", gettext_noop("Removal")),
+    ("wipe", gettext_noop("Board wipe")),
+    ("tutor", gettext_noop("Tutor")),
+    ("counterspell", gettext_noop("Counterspell")),
+    ("protection", gettext_noop("Protection")),
+    ("recursion", gettext_noop("Recursion")),
 )
 
 #: What each category means (phase 10, F5 in the user test report, approved).
 #: The categories are Scryfall Tagger's community tags, or the user's own.
 SEEN_ROLE_INFO = {
-    "ramp": "More mana, now or on later turns: mana rocks, mana creatures, extra lands, "
-            "rituals.",
-    "draw": "Cards that draw you cards.",
-    "removal": "Gets something off the table: destroy, exile, bounce, damage. Board wipes "
-               "count too.",
-    "wipe": "Removes many things at once.",
-    "tutor": "Searches your library for a card.",
-    "counterspell": "Counters a spell.",
-    "protection": "Keeps your permanents alive: hexproof, indestructible, phasing …",
-    "recursion": "Gets cards back from your graveyard: to your hand, the battlefield or "
-                 "your library.",
+    "ramp": gettext_noop("More mana, now or on later turns: mana rocks, mana creatures, "
+                         "extra lands, rituals."),
+    "draw": gettext_noop("Cards that draw you cards."),
+    "removal": gettext_noop("Gets something off the table: destroy, exile, bounce, damage. "
+                            "Board wipes count too."),
+    "wipe": gettext_noop("Removes many things at once."),
+    "tutor": gettext_noop("Searches your library for a card."),
+    "counterspell": gettext_noop("Counters a spell."),
+    "protection": gettext_noop("Keeps your permanents alive: hexproof, indestructible, "
+                               "phasing …"),
+    "recursion": gettext_noop("Gets cards back from your graveyard: to your hand, the "
+                              "battlefield or your library."),
 }
 
 #: What else a deck can be built around (phase 11 K17), and what the page calls
@@ -380,38 +421,41 @@ SEEN_ROLE_INFO = {
 #: role names (`cards.profiles.ROLE_FROM_TAG`) - and a test holds the two lists
 #: together. The deck summary's chips use the same labels.
 SEEN_STRATEGY_ROLES = (
-    ("sac_outlet", "Sacrifice outlet"),
-    ("reanimate", "Reanimate"),
-    ("drain_payoff", "Drain"),
-    ("steal", "Theft"),
-    ("discard", "Discard"),
-    ("cost_reducer", "Cost reducer"),
-    ("evasion", "Evasion"),
+    ("sac_outlet", gettext_noop("Sacrifice outlet")),
+    ("reanimate", gettext_noop("Reanimate")),
+    ("drain_payoff", gettext_noop("Drain")),
+    ("steal", gettext_noop("Theft")),
+    ("discard", gettext_noop("Discard")),
+    ("cost_reducer", gettext_noop("Cost reducer")),
+    ("evasion", gettext_noop("Evasion")),
 )
 
 #: What each strategy means (phase 11 P2), checked against the definitions of
 #: the Scryfall Tagger tags they come from.
 SEEN_STRATEGY_INFO = {
-    "sac_outlet": "Lets you sacrifice your own permanents again and again: an engine, "
-                  "not a one-off.",
-    "reanimate": "Puts creature cards from a graveyard onto the battlefield.",
-    "drain_payoff": "Opponents lose life and you gain it.",
-    "steal": "Takes control of something an opponent owns, or plays their cards.",
-    "discard": "Makes a player discard cards.",
-    "cost_reducer": "Makes your spells cheaper to cast.",
-    "evasion": "Helps your creatures get past blockers: flying, menace, unblockable …",
+    "sac_outlet": gettext_noop("Lets you sacrifice your own permanents again and again: "
+                               "an engine, not a one-off."),
+    "reanimate": gettext_noop("Puts creature cards from a graveyard onto the battlefield."),
+    "drain_payoff": gettext_noop("Opponents lose life and you gain it."),
+    "steal": gettext_noop(
+        "Takes control of something an opponent owns, or plays their cards."),
+    "discard": gettext_noop("Makes a player discard cards."),
+    "cost_reducer": gettext_noop("Makes your spells cheaper to cast."),
+    "evasion": gettext_noop(
+        "Helps your creatures get past blockers: flying, menace, unblockable …"),
 }
 
 #: What each card type line counts. A card with two types counts in both.
 SEEN_TYPE_INFO = {
-    "creature": "Creature cards, artifact and enchantment creatures included.",
-    "planeswalker": "Planeswalker cards.",
-    "battle": "Battle cards.",
-    "artifact": "Artifact cards: mana rocks, equipment, artifact creatures.",
-    "enchantment": "Enchantment cards, auras and enchantment creatures included.",
-    "instant": "Instants: spells you can cast at any time.",
-    "sorcery": "Sorceries: spells for your own main phase.",
-    "land": "Lands, basic and nonbasic.",
+    "creature": gettext_noop("Creature cards, artifact and enchantment creatures included."),
+    "planeswalker": gettext_noop("Planeswalker cards."),
+    "battle": gettext_noop("Battle cards."),
+    "artifact": gettext_noop("Artifact cards: mana rocks, equipment, artifact creatures."),
+    "enchantment": gettext_noop(
+        "Enchantment cards, auras and enchantment creatures included."),
+    "instant": gettext_noop("Instants: spells you can cast at any time."),
+    "sorcery": gettext_noop("Sorceries: spells for your own main phase."),
+    "land": gettext_noop("Lands, basic and nonbasic."),
 }
 
 
@@ -488,11 +532,11 @@ def seen(result: dict) -> dict | None:
     def means(key):
         return [count / games if games else 0.0 for count in groups[key]["cards"]]
 
-    role_series = [(key, label, shares(f"role:{key}"))
+    role_series = [(key, gettext(label), shares(f"role:{key}"))
                    for key, label in SEEN_ROLES if f"role:{key}" in groups]
-    strategy_series = [(key, label, shares(f"role:{key}"))
+    strategy_series = [(key, gettext(label), shares(f"role:{key}"))
                        for key, label in SEEN_STRATEGY_ROLES if f"role:{key}" in groups]
-    type_series = [(kind, kind.title(), means(f"type:{kind}"))
+    type_series = [(kind, gettext(CARD_TYPE_NAMES[kind]), means(f"type:{kind}"))
                    for kind in runner.SEEN_CARD_TYPES if f"type:{kind}" in groups]
     type_spreads = {kind: _spreads(groups[f"type:{kind}"], games)
                     for kind, _, _ in type_series}
@@ -504,8 +548,8 @@ def seen(result: dict) -> dict | None:
 
     def share_infos(series, texts):
         return {
-            key: " ".join((texts[key],
-                           _typical_sentence(values, "have one", turns),
+            key: " ".join((gettext(texts[key]),
+                           _typical_sentence(values, HAVE_ONE, turns),
                            _average_sentence(_spreads(groups[f"role:{key}"], games)[-1],
                                              turns)))
             for key, _, values in series
@@ -513,11 +557,12 @@ def seen(result: dict) -> dict | None:
 
     def share_chart(series, texts):
         return charts.line_chart(series, x_labels, top_value=charts.PERCENT_TOP,
-                                 y_ticks=charts.PERCENT_TICKS,
+                                 y_ticks=charts.percent_ticks(),
                                  infos=share_infos(series, texts))
 
     type_infos = {
-        kind: f"{SEEN_TYPE_INFO[kind]} {_average_sentence(type_spreads[kind][-1], turns)}"
+        kind: f"{gettext(SEEN_TYPE_INFO[kind])} "
+              f"{_average_sentence(type_spreads[kind][-1], turns)}"
         for kind, _, _ in type_series
     }
     bands = {kind: [spread.sd for spread in spreads]
@@ -640,8 +685,9 @@ def _pct(count: int, total: int) -> float:
 
 def _mulligan_label(taken: int) -> str:
     if taken == 0:
-        return "Kept the first seven"
+        return gettext("Kept the first seven")
     # The first mulligan is free in multiplayer Commander, so the hand size
     # only starts shrinking with the second.
     kept = HAND_SIZE - max(0, taken - 1)
-    return f"{taken} mulligan{'s' if taken > 1 else ''} (keep {kept})"
+    return ngettext("%(count)s mulligan (keep %(kept)s)", "%(count)s mulligans (keep %(kept)s)",
+                    taken) % {"count": taken, "kept": kept}

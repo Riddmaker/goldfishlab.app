@@ -1,24 +1,27 @@
 {% extends "base.html" %}
-{% block title %}Plan limit reached — Goldfish Lab{% endblock %}
-{% block description %}This account has used everything its plan allows this month.{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Plan limit reached" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "This account has used everything its plan allows this month." %}{% endblock %}
 {% block content %}
   {% comment %}
     HTTP 402, which is the one status code that means exactly this. The page
     says what ran out and offers the tier that has more of it - a quota refusal
     that dead-ends in an apology is a refusal the person cannot act on.
   {% endcomment %}
-  <h1 class="font-display text-3xl text-parchment-100">That is everything your plan allows</h1>
+  <h1 class="font-display text-3xl text-parchment-100">{% translate "That is everything your plan allows" %}</h1>
 
   <section class="surface-parchment mt-6 p-6">
     <p class="text-ink-900">{{ message }}</p>
     <p class="mt-3 text-sm text-ink-700">
-      Nothing was started and nothing was charged. The counter resets on the
-      first of the month.
+      {% blocktranslate trimmed %}
+        Nothing was started and nothing was charged. The counter resets on the
+        first of the month.
+      {% endblocktranslate %}
     </p>
     <p class="mt-4">
       <a href="{% url 'billing:plans' %}"
          class="inline-block border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
-        See what the other tiers allow
+        {% translate "See what the other tiers allow" %}
       </a>
     </p>
   </section>

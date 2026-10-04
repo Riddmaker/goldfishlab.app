@@ -1,35 +1,35 @@
-{% load humanize i18n %}
+{% load humanize i18n l10n %}
 {% comment %}
   The report. Every chart here is server-rendered from the run's own numbers:
   a bar is a div with a width, which needs no charting library, no JavaScript,
   and works in a browser with both switched off.
 {% endcomment %}
 <section id="seen" class="surface-parchment mt-6 p-6">
-  <h2 class="font-display text-2xl text-ink-900">What you drew</h2>
+  <h2 class="font-display text-2xl text-ink-900">{% translate "What you drew" %}</h2>
   {% if report.seen %}
-    <p class="mt-1 text-sm text-ink-700">Your opening hand and every card you drew.</p>
+    <p class="mt-1 text-sm text-ink-700">{% translate "Your opening hand and every card you drew." %}</p>
     {% if report.seen.roles.lines %}
-      <h3 class="font-display mt-5 text-lg text-ink-900">By category</h3>
-      <p class="text-sm text-ink-700">Games with at least one, by the end of each turn.</p>
-      {% include "simulations/_line_chart.html" with chart=report.seen.roles name="seen-role" title="Share of games with at least one card of each category, by turn" %}
+      <h3 class="font-display mt-5 text-lg text-ink-900">{% translate "By category" %}</h3>
+      <p class="text-sm text-ink-700">{% translate "Games with at least one, by the end of each turn." %}</p>
+      {% include "simulations/_line_chart.html" with chart=report.seen.roles name="seen-role" title=_("Share of games with at least one card of each category, by turn") %}
       {% if missing_roles %}
         <p class="mt-2 text-sm text-ink-700">{% blocktranslate with labels=missing_roles|join:", " %}None in the deck: {{ labels }}.{% endblocktranslate %}</p>
       {% endif %}
     {% endif %}
     {% if report.seen.strategies.lines %}
-      <h3 class="font-display mt-6 text-lg text-ink-900">By strategy</h3>
-      <p class="text-sm text-ink-700">Games with at least one, by the end of each turn.</p>
-      {% include "simulations/_line_chart.html" with chart=report.seen.strategies name="seen-strategy" title="Share of games with at least one card of each strategy, by turn" %}
+      <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "By strategy" %}</h3>
+      <p class="text-sm text-ink-700">{% translate "Games with at least one, by the end of each turn." %}</p>
+      {% include "simulations/_line_chart.html" with chart=report.seen.strategies name="seen-strategy" title=_("Share of games with at least one card of each strategy, by turn") %}
     {% endif %}
     {% if report.seen.types.lines %}
-      <h3 class="font-display mt-6 text-lg text-ink-900">By card type</h3>
-      <p class="text-sm text-ink-700">Cards drawn per game, on average. Point at a line for the spread.</p>
-      {% include "simulations/_line_chart.html" with chart=report.seen.types name="seen-type" title="Average number of cards of each type seen, by turn" %}
+      <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "By card type" %}</h3>
+      <p class="text-sm text-ink-700">{% translate "Cards drawn per game, on average. Point at a line for the spread." %}</p>
+      {% include "simulations/_line_chart.html" with chart=report.seen.types name="seen-type" title=_("Average number of cards of each type seen, by turn") %}
     {% endif %}
-    <h3 class="font-display mt-6 text-lg text-ink-900">Mana value of the spells you drew</h3>
-    <p class="text-sm text-ink-700">Spells per game, on average. A bump on the right is a hand that waits.</p>
+    <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "Mana value of the spells you drew" %}</h3>
+    <p class="text-sm text-ink-700">{% translate "Spells per game, on average. A bump on the right is a hand that waits." %}</p>
     <div class="seen-curve mt-3">
-      <div class="seen-chips" role="radiogroup" aria-label="By the end of turn">
+      <div class="seen-chips" role="radiogroup" aria-label="{% translate "By the end of turn" %}">
         {% for step in report.seen.curve %}
           <input type="radio"
                  name="seen-curve-turn"
@@ -37,17 +37,17 @@
                  class="seen-toggle seen-pick-{{ step.turn }}"
                  {% if forloop.first %}checked{% endif %}
                  autocomplete="off">
-          <label for="seen-turn-{{ step.turn }}" class="seen-chip">Turn {{ step.turn }}</label>
+          <label for="seen-turn-{{ step.turn }}" class="seen-chip">{% blocktranslate with turn=step.turn %}Turn {{ turn }}{% endblocktranslate %}</label>
         {% endfor %}
       </div>
       {% for step in report.seen.curve %}
         <div class="seen-bars seen-bars-{{ step.turn }}"
              role="img"
-             aria-label="Spells seen by mana value, by the end of turn {{ step.turn }}">
+             aria-label="{% blocktranslate with turn=step.turn %}Spells seen by mana value, by the end of turn {{ turn }}{% endblocktranslate %}">
           {% for bar in step.bars %}
             <div class="seen-bar">
               <span class="tabular seen-bar-value">{{ bar.mean|floatformat:"1" }}</span>
-              <span class="seen-bar-track"><span class="seen-bar-fill" style="height: {{ bar.height|floatformat:"0" }}%"></span></span>
+              <span class="seen-bar-track"><span class="seen-bar-fill" style="height: {{ bar.height|floatformat:"0"|unlocalize }}%"></span></span>
               <span class="tabular seen-bar-label">{{ bar.label }}</span>
             </div>
           {% endfor %}
@@ -55,17 +55,19 @@
       {% endfor %}
     </div>
     <details class="mt-5 text-sm">
-      <summary class="cursor-pointer text-ink-900 underline">The numbers</summary>
+      <summary class="cursor-pointer text-ink-900 underline">{% translate "The numbers" %}</summary>
       <p class="mt-3 text-ink-700">
-        By the end of each turn: how many games had drawn at least one card of a
-        category, and how many cards of each type a game had drawn - the average,
-        and ± how far a typical game was from it.
+        {% blocktranslate trimmed %}
+          By the end of each turn: how many games had drawn at least one card of a
+          category, and how many cards of each type a game had drawn - the average,
+          and ± how far a typical game was from it.
+        {% endblocktranslate %}
       </p>
       <div class="mt-3 overflow-x-auto">
         <table class="w-full text-left text-sm">
           <thead>
             <tr class="border-b border-parchment-600 text-ink-700">
-              <th scope="col" class="py-1.5 pr-3">By end of turn</th>
+              <th scope="col" class="py-1.5 pr-3">{% translate "By end of turn" %}</th>
               {% for turn in report.seen.turns %}
                 <th scope="col" class="tabular py-1.5 pr-3">{{ turn }}</th>
               {% endfor %}
@@ -76,13 +78,13 @@
               <tr>
                 <th scope="colgroup"
                     colspan="{{ report.seen.turns|length|add:1 }}"
-                    class="pt-3 pb-1 font-semibold text-ink-900">% of games with at least one</th>
+                    class="pt-3 pb-1 font-semibold text-ink-900">{% translate "% of games with at least one" %}</th>
               </tr>
               {% for line in report.seen.roles.lines|add:report.seen.strategies.lines %}
                 <tr class="border-b border-parchment-300">
                   <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ line.label }}</th>
                   {% for value in line.values %}
-                    <td class="tabular py-1.5 pr-3 text-ink-700">{{ value|floatformat:"0" }}%</td>
+                    <td class="tabular py-1.5 pr-3 text-ink-700">{% blocktranslate with number=value|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
                   {% endfor %}
                 </tr>
               {% endfor %}
@@ -93,7 +95,7 @@
               <tr>
                 <th scope="colgroup"
                     colspan="{{ report.seen.turns|length|add:1 }}"
-                    class="pt-3 pb-1 font-semibold text-ink-900">Cards per game, average ± spread</th>
+                    class="pt-3 pb-1 font-semibold text-ink-900">{% translate "Cards per game, average ± spread" %}</th>
               </tr>
               {% for row in report.seen.type_spreads %}
                 <tr class="border-b border-parchment-300">
@@ -112,33 +114,39 @@
     </details>
   {% else %}
     <p class="mt-2 text-ink-700">
-      This run is older than this chart.
-      <a href="{{ run.deck.get_absolute_url }}#play"
-         class="text-ink-900 underline">Run the deck again</a>
-      to see what it draws.
+      {% blocktranslate trimmed with deck_url=run.deck.get_absolute_url %}
+        This run is older than this chart.
+        <a href="{{ deck_url }}#play"
+           class="text-ink-900 underline">Run the deck again</a>
+        to see what it draws.
+      {% endblocktranslate %}
     </p>
   {% endif %}
 </section>
 {% if report.milestone_chart %}
   <section id="milestones" class="surface-parchment mt-6 p-6">
-    <h2 class="font-display text-2xl text-ink-900">Milestones</h2>
+    <h2 class="font-display text-2xl text-ink-900">{% translate "Milestones" %}</h2>
     <p class="mt-1 text-sm text-ink-700">
-      Share of games where it was true by the end of each turn.
+      {% translate "Share of games where it was true by the end of each turn." %}
       {% include "core/_why.html" with anchor="report-milestones" %}
     </p>
-    {% include "simulations/_line_chart.html" with chart=report.milestone_chart name="milestone" title="Share of games where each milestone was reached, by turn" %}
+    {% include "simulations/_line_chart.html" with chart=report.milestone_chart name="milestone" title=_("Share of games where each milestone was reached, by turn") %}
     {% if report.milestones_hidden %}
       <p class="mt-2 text-sm text-ink-700">
-        {{ report.milestones_hidden }} more, rarer milestone{{ report.milestones_hidden|pluralize }} in the numbers below.
+        {% blocktranslate trimmed count count=report.milestones_hidden %}
+          {{ count }} more, rarer milestone in the numbers below.
+        {% plural %}
+          {{ count }} more, rarer milestones in the numbers below.
+        {% endblocktranslate %}
       </p>
     {% endif %}
     <details class="mt-5 text-sm">
-      <summary class="cursor-pointer text-ink-900 underline">The numbers</summary>
+      <summary class="cursor-pointer text-ink-900 underline">{% translate "The numbers" %}</summary>
       <div class="mt-3 overflow-x-auto">
         <table class="w-full text-left text-sm">
           <thead>
             <tr class="border-b border-parchment-600 text-ink-700">
-              <th scope="col" class="py-1.5 pr-3">% of games, by end of turn</th>
+              <th scope="col" class="py-1.5 pr-3">{% translate "% of games, by end of turn" %}</th>
               {% for row in report.turn_rows %}
                 <th scope="col" class="tabular py-1.5 pr-3">{{ row.turn }}</th>
               {% endfor %}
@@ -149,7 +157,7 @@
               <tr class="border-b border-parchment-300">
                 <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ milestone.label }}</th>
                 {% for share in milestone.shares %}
-                  <td class="tabular py-1.5 pr-3 text-ink-700">{{ share|floatformat:"0" }}%</td>
+                  <td class="tabular py-1.5 pr-3 text-ink-700">{% blocktranslate with number=share|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
                 {% endfor %}
               </tr>
             {% endfor %}
@@ -160,21 +168,21 @@
   </section>
 {% endif %}
 <section class="surface-parchment mt-6 p-6">
-  <h2 class="font-display text-2xl text-ink-900">Mulligans</h2>
+  <h2 class="font-display text-2xl text-ink-900">{% translate "Mulligans" %}</h2>
   <table class="mt-4 w-full text-left text-sm">
     <thead>
       <tr class="border-b border-parchment-600 text-ink-700">
-        <th scope="col" class="py-1.5 pr-3">Opening hand</th>
-        <th scope="col" class="py-1.5 pr-3">Share</th>
-        <th scope="col" class="py-1.5 pr-3">Games</th>
-        <th scope="col" class="py-1.5"><span class="sr-only">Share as a bar</span></th>
+        <th scope="col" class="py-1.5 pr-3">{% translate "Opening hand" %}</th>
+        <th scope="col" class="py-1.5 pr-3">{% translate "Share" %}</th>
+        <th scope="col" class="py-1.5 pr-3">{% translate "Games" %}</th>
+        <th scope="col" class="py-1.5"><span class="sr-only">{% translate "Share as a bar" %}</span></th>
       </tr>
     </thead>
     <tbody>
       {% for row in report.mulligans %}
         <tr class="border-b border-parchment-300">
           <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
-          <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.share|floatformat:"1" }}%</td>
+          <td class="tabular py-1.5 pr-3 text-ink-900">{% blocktranslate with number=row.share|floatformat:"1" %}{{ number }}%{% endblocktranslate %}</td>
           <td class="tabular py-1.5 pr-3 text-ink-700">{{ row.count }}</td>
           <td class="py-1.5">
             <span class="inline-block h-3 bg-ink-800 align-middle"
@@ -188,19 +196,19 @@
 </section>
 {% if report.color_rows %}
   <section class="surface-parchment mt-6 p-6">
-    <h2 class="font-display text-2xl text-ink-900">What the mana was made of</h2>
+    <h2 class="font-display text-2xl text-ink-900">{% translate "What the mana was made of" %}</h2>
     <p class="mt-1 text-sm text-ink-700">
-      The same mana, split by colour — means only.
+      {% translate "The same mana, split by colour — means only." %}
       {% include "core/_why.html" with anchor="report-colour" %}
     </p>
     <table class="mt-5 w-full text-left text-sm">
       <thead>
         <tr class="border-b border-parchment-600 text-ink-700">
-          <th scope="col" class="py-1.5 pr-3">Turn</th>
+          <th scope="col" class="py-1.5 pr-3">{% translate "Turn" %}</th>
           {% for letter, label in report.color_columns %}
             <th scope="col" class="py-1.5 pr-3">{{ label }}</th>
           {% endfor %}
-          <th scope="col" class="py-1.5">Total</th>
+          <th scope="col" class="py-1.5">{% translate "Total" %}</th>
         </tr>
       </thead>
       <tbody>

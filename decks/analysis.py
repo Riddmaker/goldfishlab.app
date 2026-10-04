@@ -12,12 +12,14 @@ source (Karsten) rather than inventing a threshold.
 from collections import Counter
 from dataclasses import dataclass, field
 
+from django.utils.translation import gettext, gettext_noop, ngettext
+
 # Frank Karsten's published Commander guidance: 35-38 lands for a typical
 # 99-card deck. Quoted, not invented - and shown to the user with his name on
 # it, because a bare "too few lands" is an opinion pretending to be a fact.
 KARSTEN_MIN = 35
 KARSTEN_MAX = 38
-KARSTEN_SOURCE = "Frank Karsten's mana-base guidance for Commander"
+KARSTEN_SOURCE = gettext_noop("Frank Karsten's mana-base guidance for Commander")
 
 #: Bracket 3 ("upgraded") allows at most three cards from the Game Changer list.
 BRACKET_3_GAME_CHANGERS = 3
@@ -118,34 +120,33 @@ def analyse(deck) -> DeckAnalysis:
 
 
 def _judge_lands(count: int) -> Verdict:
+    lands = ngettext("%(count)s land", "%(count)s lands", count) % {"count": count}
+    band = {"low": KARSTEN_MIN, "high": KARSTEN_MAX, "source": gettext(KARSTEN_SOURCE)}
     if KARSTEN_MIN <= count <= KARSTEN_MAX:
-        return Verdict(
-            True,
-            f"{count} lands",
-            f"Within the {KARSTEN_MIN}-{KARSTEN_MAX} band of {KARSTEN_SOURCE}.",
-        )
-    direction = "below" if count < KARSTEN_MIN else "above"
+        return Verdict(True, lands,
+                       gettext("Within the %(low)s-%(high)s band of %(source)s.") % band)
+    side = (gettext("Below the %(low)s-%(high)s band of %(source)s.") if count < KARSTEN_MIN
+            else gettext("Above the %(low)s-%(high)s band of %(source)s.")) % band
     return Verdict(
         False,
-        f"{count} lands",
-        f"{direction.capitalize()} the {KARSTEN_MIN}-{KARSTEN_MAX} band of {KARSTEN_SOURCE}. "
-        "Rituals and mana rocks can justify the low end; this count does not know about them yet.",
+        lands,
+        side + " " + gettext("Rituals and mana rocks can justify the low end; this count "
+                             "does not know about them yet."),
     )
 
 
 def _judge_bracket(game_changers: list[str]) -> Verdict:
     count = len(game_changers)
+    found = ngettext("%(count)s Game Changer", "%(count)s Game Changers", count) % {
+        "count": count}
     if count <= BRACKET_3_GAME_CHANGERS:
-        return Verdict(
-            True,
-            f"{count} Game Changers",
-            f"Bracket 3 allows up to {BRACKET_3_GAME_CHANGERS}.",
-        )
+        return Verdict(True, found, gettext("Bracket 3 allows up to %(limit)s.") % {
+            "limit": BRACKET_3_GAME_CHANGERS})
     return Verdict(
         False,
-        f"{count} Game Changers",
-        f"Bracket 3 allows {BRACKET_3_GAME_CHANGERS}. This deck reads as Bracket 4: "
-        + ", ".join(sorted(game_changers)),
+        found,
+        gettext("Bracket 3 allows %(limit)s. This deck reads as Bracket 4: %(cards)s") % {
+            "limit": BRACKET_3_GAME_CHANGERS, "cards": ", ".join(sorted(game_changers))},
     )
 
 
@@ -157,8 +158,9 @@ def _check_legality(deck, entries, analysis: DeckAnalysis) -> list[Verdict]:
     verdicts.append(
         Verdict(
             total == COMMANDER_DECK_SIZE,
-            f"{total} cards",
-            f"Commander decks are exactly {COMMANDER_DECK_SIZE}, commander included.",
+            ngettext("%(count)s card", "%(count)s cards", total) % {"count": total},
+            gettext("Commander decks are exactly %(size)s, commander included.") % {
+                "size": COMMANDER_DECK_SIZE},
         )
     )
 
@@ -167,12 +169,16 @@ def _check_legality(deck, entries, analysis: DeckAnalysis) -> list[Verdict]:
         for entry in entries
         if entry.quantity > 1 and not _unlimited(entry.oracle_card)
     ]
+    exempt = gettext("Basic lands and cards that say otherwise are exempt.")
     verdicts.append(
         Verdict(
             not offenders,
-            "Singleton" if not offenders else f"{len(offenders)} cards over the limit",
-            "Basic lands and cards that say otherwise are exempt."
-            + ("" if not offenders else " Over the limit: " + ", ".join(sorted(offenders)[:5])),
+            gettext("Singleton") if not offenders
+            else ngettext("%(count)s card over the limit", "%(count)s cards over the limit",
+                          len(offenders)) % {"count": len(offenders)},
+            exempt if not offenders
+            else exempt + " " + gettext("Over the limit: %(cards)s") % {
+                "cards": ", ".join(sorted(offenders)[:5])},
         )
     )
 
@@ -185,26 +191,33 @@ def _check_legality(deck, entries, analysis: DeckAnalysis) -> list[Verdict]:
                 if not set(entry.oracle_card.color_identity) <= allowed
             }
         )
+        identity = gettext("The commander's identity is %(colours)s.") % {
+            "colours": "".join(sorted(allowed)) or gettext("colourless")}
         verdicts.append(
             Verdict(
                 not outside,
-                "Colour identity" if not outside else f"{len(outside)} cards outside the identity",
-                f"The commander's identity is {''.join(sorted(allowed)) or 'colourless'}."
-                + ("" if not outside else " Outside it: " + ", ".join(outside[:5])),
+                gettext("Colour identity") if not outside
+                else ngettext("%(count)s card outside the identity",
+                              "%(count)s cards outside the identity",
+                              len(outside)) % {"count": len(outside)},
+                identity if not outside
+                else identity + " " + gettext("Outside it: %(cards)s") % {
+                    "cards": ", ".join(outside[:5])},
             )
         )
 
         verdicts.append(
             Verdict(
                 deck.commander.legalities.get("commander") == "legal",
-                "Commander is legal"
+                gettext("Commander is legal")
                 if deck.commander.is_commander_legal
-                else "Commander is banned",
+                else gettext("Commander is banned"),
                 deck.commander.name,
             )
         )
     else:
-        verdicts.append(Verdict(False, "No commander set", "A Commander deck needs one."))
+        verdicts.append(Verdict(False, gettext("No commander set"),
+                                gettext("A Commander deck needs one.")))
 
     verdicts.append(_legal_cards(entries))
     return verdicts
@@ -227,21 +240,25 @@ def _legal_cards(entries) -> Verdict:
         e.oracle_card.name for e in entries if status(e) not in ("legal", "banned")
     })
     problems = [
-        f"{label}: {_listed(names)}"
-        for label, names in (("Banned", banned), ("Not legal in Commander", not_legal))
+        text % {"cards": _listed(names)}
+        for text, names in ((gettext("Banned: %(cards)s"), banned),
+                            (gettext("Not legal in Commander: %(cards)s"), not_legal))
         if names
     ]
+    checked = gettext("Checked against Scryfall's Commander legality for each card.")
+    count = len(banned) + len(not_legal)
     return Verdict(
         not problems,
-        "Every card is legal" if not problems
-        else f"{len(banned) + len(not_legal)} cards not allowed",
-        "Checked against Scryfall's Commander legality for each card."
-        + ("" if not problems else " " + ". ".join(problems) + "."),
+        gettext("Every card is legal") if not problems
+        else ngettext("%(count)s card not allowed", "%(count)s cards not allowed",
+                      count) % {"count": count},
+        checked if not problems else checked + " " + ". ".join(problems) + ".",
     )
 
 
 def _listed(names: list[str], shown: int = 5) -> str:
-    return ", ".join(names[:shown]) + (" and more" if len(names) > shown else "")
+    listed = ", ".join(names[:shown])
+    return gettext("%(cards)s and more") % {"cards": listed} if len(names) > shown else listed
 
 
 def _unlimited(card) -> bool:

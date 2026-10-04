@@ -1,1 +1,1 @@
-You already have a Goldfish Lab account
+{% load i18n %}{% translate "You already have a Goldfish Lab account" %}

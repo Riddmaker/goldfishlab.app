@@ -24,6 +24,13 @@ updates:
       minor-patch:
         patterns: ["*"]
         update-types: ["minor", "patch"]
+    # Django stays on the 5.2 LTS (security fixes until April 2028). The next
+    # LTS, 6.2 (April 2027), is its own phase: Django's built-in CSP replaces
+    # django-csp then, and allauth, django-ratelimit and django-celery-results
+    # are checked against it. Until then every 6.x would be a short-lived step.
+    ignore:
+      - dependency-name: "django"
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 5
     commit-message:
       prefix: "deps"

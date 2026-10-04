@@ -3,7 +3,8 @@
   "Deck summary" (phase 10 H, phase 11 D, T6.1-T6.5, K15): the last block
   before the combos - title and tagline, feel, strengths (+), weaknesses (−),
   tactics. All of it is Mistral's (`written`, from summary.state), checked
-  before it was stored and escaped here like any text.
+  before it was stored and escaped here like any text. It carries its own
+  `lang` (phase 12 G): it stays in the language it was written in.
 
   The "Mechanisms" chips of phase 10 G are gone (K15): their numbers live in
   "By strategy", and "None in the deck" moved under "By category" (P3). A
@@ -21,34 +22,34 @@
     {% include "simulations/_summary_pending.html" %}
   {% endif %}
   {% if written.content.title %}
-    <p class="summary-name mt-4">{{ written.content.title }}</p>
+    <p class="summary-name mt-4" lang="{{ written.language }}">{{ written.content.title }}</p>
   {% endif %}
   {% if written.content.tagline %}
-    <p class="max-w-3xl text-ink-700 italic">{{ written.content.tagline }}</p>
+    <p class="max-w-3xl text-ink-700 italic" lang="{{ written.language }}">{{ written.content.tagline }}</p>
   {% endif %}
   {% if written.content.feel %}
     <h3 class="summary-title summary-title-feel mt-4">{% translate "Feel" %}</h3>
-    <p class="max-w-3xl text-ink-900">{{ written.content.feel }}</p>
+    <p class="max-w-3xl text-ink-900" lang="{{ written.language }}">{{ written.content.feel }}</p>
   {% endif %}
   {% if written.content.strengths %}
-    <h3 class="summary-title summary-title-strengths mt-5">Strengths</h3>
-    <ul class="max-w-3xl text-ink-900">
+    <h3 class="summary-title summary-title-strengths mt-5">{% translate "Strengths" %}</h3>
+    <ul class="max-w-3xl text-ink-900" lang="{{ written.language }}">
       {% for point in written.content.strengths %}
         <li class="summary-point"><span class="summary-sign summary-sign-plus" aria-hidden="true">+</span>{{ point }}</li>
       {% endfor %}
     </ul>
   {% endif %}
   {% if written.content.weaknesses %}
-    <h3 class="summary-title summary-title-weaknesses mt-4">Weaknesses</h3>
-    <ul class="max-w-3xl text-ink-900">
+    <h3 class="summary-title summary-title-weaknesses mt-4">{% translate "Weaknesses" %}</h3>
+    <ul class="max-w-3xl text-ink-900" lang="{{ written.language }}">
       {% for point in written.content.weaknesses %}
         <li class="summary-point"><span class="summary-sign summary-sign-minus" aria-hidden="true">−</span>{{ point }}</li>
       {% endfor %}
     </ul>
   {% endif %}
   {% if written.content.tactics %}
-    <h3 class="summary-title summary-title-closing mt-4">Tactics</h3>
-    <p class="max-w-3xl text-ink-900">{{ written.content.tactics }}</p>
+    <h3 class="summary-title summary-title-closing mt-4">{% translate "Tactics" %}</h3>
+    <p class="max-w-3xl text-ink-900" lang="{{ written.language }}">{{ written.content.tactics }}</p>
   {% endif %}
   <div class="mt-5 border-t border-parchment-400 pt-3 text-sm text-ink-700">
     {% if written.content.feel %}
@@ -56,20 +57,28 @@
     {% endif %}
     {% if not written.pending and not written.current %}
       {% if written.failed %}
-        <p class="mt-1">The summary could not be written this time. Nothing was taken from your runs.</p>
+        <p class="mt-1">{% translate "The summary could not be written this time. Nothing was taken from your runs." %}</p>
       {% elif written.content.feel %}
-        <p class="mt-1">Written for an earlier version of this deck.</p>
+        <p class="mt-1">{% translate "Written for an earlier version of this deck." %}</p>
       {% endif %}
       {% if written.offer %}
         <form method="post" action="{% url 'simulations:write_summary' run.id %}" class="mt-2">
           {% csrf_token %}
           <button type="submit" class="text-ink-900 underline">
-            Write a summary for this deck{% if written.remaining is not None %} - uses 1 of your {{ written.remaining }} run{{ written.remaining|pluralize }}{% endif %}
+            {% if written.remaining is not None %}
+              {% blocktranslate trimmed count count=written.remaining %}
+                Write a summary for this deck - uses 1 of your {{ count }} run
+              {% plural %}
+                Write a summary for this deck - uses 1 of your {{ count }} runs
+              {% endblocktranslate %}
+            {% else %}
+              {% translate "Write a summary for this deck" %}
+            {% endif %}
           </button>
         </form>
       {% elif written.short %}
         <p class="mt-1">
-          Not enough runs left this month for a new summary.{% if written.content.feel %} The last one is shown.{% endif %}
+          {% translate "Not enough runs left this month for a new summary." %}{% if written.content.feel %} {% translate "The last one is shown." %}{% endif %}
         </p>
       {% endif %}
     {% endif %}
@@ -77,7 +86,7 @@
       {% csrf_token %}
       <input type="hidden" name="on" value="0">
       <input type="hidden" name="next" value="{{ run.get_absolute_url }}">
-      <button type="submit" class="text-ink-700 underline hover:text-ink-900">Hide summaries</button>
+      <button type="submit" class="text-ink-700 underline hover:text-ink-900">{% translate "Hide summaries" %}</button>
     </form>
   </div>
 </section>

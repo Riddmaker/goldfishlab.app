@@ -6,11 +6,12 @@
   in the message above the page (account/messages/email_confirmation_sent.txt):
   this view's context does not carry it.
 {% endcomment %}
+{% load i18n %}
 {% block head_title %}
-  Check your inbox
+  {% translate "Check your inbox" %}
 {% endblock head_title %}
 {% block content %}
-  <h1>Check your inbox</h1>
-  <p>We sent you a link. Click it and you're in.</p>
-  <p class="text-sm text-ink-600">Nothing there after a few minutes? Look in the spam or junk folder.</p>
+  <h1>{% translate "Check your inbox" %}</h1>
+  <p>{% translate "We sent you a link. Click it and you're in." %}</p>
+  <p class="text-sm text-ink-600">{% translate "Nothing there after a few minutes? Look in the spam or junk folder." %}</p>
 {% endblock content %}

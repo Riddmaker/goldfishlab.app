@@ -326,7 +326,7 @@ def write_summary(summary_id: str) -> str:
     try:
         readings = adapter.readings(deck)
         deck_facts = summary.facts(deck, readings)
-        completion = mistral.complete(summary.messages(deck_facts),
+        completion = mistral.complete(summary.messages(deck_facts, row.language),
                                       max_tokens=summary.MAX_TOKENS)
         content = summary.parse(completion.content, deck_facts["strategies"])
     except (mistral.MistralError, ValueError) as exc:

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
-{% load humanize %}
-{% block title %}Thank you — Goldfish Lab{% endblock %}
-{% block description %}Your payment went to Stripe. This page reflects what has been confirmed so far.{% endblock %}
+{% load humanize i18n %}
+{% block title %}{% translate "Thank you" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "Your payment went to Stripe. This page reflects what has been confirmed so far." %}{% endblock %}
 {% block content %}
   {% comment %}
     This page grants nothing. Anybody can reach it by typing the URL, and it
@@ -9,30 +9,35 @@
     already written and is honest about the gap, rather than congratulating
     somebody on a plan they may not have yet.
   {% endcomment %}
-  <h1 class="font-display text-3xl text-parchment-100">Thank you</h1>
+  <h1 class="font-display text-3xl text-parchment-100">{% translate "Thank you" %}</h1>
 
   <section class="surface-parchment mt-6 p-6">
     {% if subscription.is_paid %}
       <p class="text-ink-900">
-        You are on <strong>{{ subscription.plan.name }}</strong>, with
-        <strong class="tabular">{{ subscription.plan.max_turns }}</strong> turns
-        a simulation and
-        <strong class="tabular">{{ subscription.plan.max_games_per_run|intcomma }}</strong>
-        games a run.
+        {% blocktranslate trimmed with plan=subscription.plan.display_name turns=subscription.plan.max_turns games=subscription.plan.max_games_per_run|intcomma %}
+          You are on <strong>{{ plan }}</strong>, with
+          <strong class="tabular">{{ turns }}</strong> turns
+          a simulation and
+          <strong class="tabular">{{ games }}</strong>
+          games a run.
+        {% endblocktranslate %}
       </p>
     {% else %}
       <p class="text-ink-900">
-        Stripe has your payment; your plan changes within a few seconds.
+        {% translate "Stripe has your payment; your plan changes within a few seconds." %}
       </p>
       <p class="mt-3 text-sm text-ink-700">
-        You can close this. Reload
-        <a href="{% url 'billing:plans' %}" class="text-ink-900 underline">your plan</a>
-        in a moment to see it.
+        {% url 'billing:plans' as plans_url %}
+        {% blocktranslate trimmed %}
+          You can close this. Reload
+          <a href="{{ plans_url }}" class="text-ink-900 underline">your plan</a>
+          in a moment to see it.
+        {% endblocktranslate %}
       </p>
     {% endif %}
 
     <p class="mt-4">
-      <a href="{% url 'decks:list' %}" class="text-ink-900 underline">Back to your decks</a>
+      <a href="{% url 'decks:list' %}" class="text-ink-900 underline">{% translate "Back to your decks" %}</a>
     </p>
   </section>
 {% endblock %}

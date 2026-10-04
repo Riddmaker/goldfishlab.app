@@ -34,6 +34,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from cards.models import OracleCard
 from decks.models import Deck
@@ -214,11 +215,11 @@ class SimulationRun(models.Model):
     """
 
     class Status(models.TextChoices):
-        PENDING = "pending", "Pending"
-        RUNNING = "running", "Running"
-        DONE = "done", "Done"
-        FAILED = "failed", "Failed"
-        CANCELLED = "cancelled", "Cancelled"
+        PENDING = "pending", _("Pending")
+        RUNNING = "running", _("Running")
+        DONE = "done", _("Done")
+        FAILED = "failed", _("Failed")
+        CANCELLED = "cancelled", _("Cancelled")
 
     #: Statuses from which nothing further will happen. The progress fragment
     #: stops polling on these, and the quota refund happens on the way in.
@@ -393,12 +394,16 @@ class DeckSummary(models.Model):
 
     `charged` is whether a run was taken from the owner's monthly allowance
     for it, so a failure gives back exactly what was taken, once.
+
+    `language` is the language of whoever started it (phase 12 G, Q3), a key
+    of `settings.LANGUAGE_NAMES`. It is not in the fingerprint: a language
+    change alone would otherwise rewrite the summary and charge for it.
     """
 
     class Status(models.TextChoices):
-        PENDING = "pending", "Being written"
-        DONE = "done", "Written"
-        FAILED = "failed", "Could not be written"
+        PENDING = "pending", _("Being written")
+        DONE = "done", _("Written")
+        FAILED = "failed", _("Could not be written")
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     deck = models.OneToOneField(Deck, on_delete=models.CASCADE, related_name="summary")
@@ -409,6 +414,7 @@ class DeckSummary(models.Model):
     content = models.JSONField(default=dict, blank=True)
     model_name = models.CharField(max_length=64, blank=True)
     prompt_version = models.PositiveSmallIntegerField(default=0)
+    language = models.CharField(max_length=8, default="en")
     prompt_tokens = models.PositiveIntegerField(default=0)
     completion_tokens = models.PositiveIntegerField(default=0)
     charged = models.BooleanField(default=False)

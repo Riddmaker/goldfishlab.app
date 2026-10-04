@@ -1,1 +1,1 @@
-An email was removed from your Goldfish Lab account
+{% load i18n %}{% translate "An email was removed from your Goldfish Lab account" %}

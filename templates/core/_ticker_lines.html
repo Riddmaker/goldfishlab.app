@@ -4,6 +4,7 @@
   asking. ticker.js holds the asking while "Pause" is pressed and marks the
   lines it has not seen before. Takes: ticker (core.ticker.lines_for).
 {% endcomment %}
+{% load i18n %}
 <ul id="ticker-lines"
     class="space-y-2 text-sm leading-snug text-ink-900"
     hx-get="{% url 'ticker' %}"
@@ -12,6 +13,6 @@
   {% for event in ticker %}
     <li data-key="{{ event.key }}">{{ event.text }}</li>
   {% empty %}
-    <li class="text-ink-700">Quiet right now. The lab is waiting for your deck.</li>
+    <li class="text-ink-700">{% translate "Quiet right now. The lab is waiting for your deck." %}</li>
   {% endfor %}
 </ul>

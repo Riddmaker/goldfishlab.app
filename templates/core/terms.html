@@ -1,6 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Terms of service — Goldfish Lab{% endblock %}
-{% block description %}The terms you agree to by using Goldfish Lab: accounts, paid plans, cancelling, refunds, and what the simulations do and do not promise.{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Terms of service" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "The terms you agree to by using Goldfish Lab: accounts, paid plans, cancelling, refunds, and what the simulations do and do not promise." %}{% endblock %}
 {% block content %}
   {% comment %}
     Swiss law, a Swiss consumer's mandatory protections kept intact: Art. 32 and
@@ -16,202 +17,278 @@
     `sold_through_link` is STRIPE_MANAGED_PAYMENTS: with it on, Stripe's "Sold
     through Link" is the merchant of record for the payment, and the paying
     section says so. Both states must stay true - the operator's VAT notes.
-  {% endcomment %}
-  <section class="max-w-3xl">
-    <h1 class="font-display text-4xl leading-tight text-parchment-100">Terms of service</h1>
-    <p class="mt-4 text-sm text-ink-300">Last updated 29 September 2026.</p>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Who you are agreeing with</h2>
+    Translated (phase 12 I, Q4 a): the English text binds, as the note at the
+    top and "Law and courts" say. Every condition is a sentence of its own,
+    because a translate block cannot hold an `if`. The date comes from the view.
+  {% endcomment %}
+  {% include "core/_translated_note.html" %}
+  {% url 'privacy' as privacy_url %}
+  {% url 'methodology' as methodology_url %}
+  {% url 'accounts:data' as data_url %}
+  {% url 'billing:plans' as plans_url %}
+  <section class="max-w-3xl">
+    <h1 class="font-display text-4xl leading-tight text-parchment-100">{% translate "Terms of service" %}</h1>
+    <p class="mt-4 text-sm text-ink-300">
+      {% blocktranslate trimmed with date=updated|date:"DATE_FORMAT" %}Last updated {{ date }}.{% endblocktranslate %}
+    </p>
+
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Who you are agreeing with" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        Goldfish Lab is run by a private individual in Switzerland. These terms
-        are an agreement between you and:
+        {% blocktranslate trimmed %}
+          Goldfish Lab is run by a private individual in Switzerland. These terms
+          are an agreement between you and:
+        {% endblocktranslate %}
       </p>
       <div class="mt-4">{% include "core/_operator.html" %}</div>
       <p class="mt-4 text-ink-900">
-        You accept them when you create an account, and again, by ticking the
-        box, when you buy a plan. How we handle your data is in the
-        <a href="{% url 'privacy' %}" class="underline hover:text-ink-700">privacy policy</a>.
+        {% blocktranslate trimmed %}
+          You accept them when you create an account, and again, by ticking the
+          box, when you buy a plan. How we handle your data is in the
+          <a href="{{ privacy_url }}" class="underline hover:text-ink-700">privacy policy</a>.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">What this service is</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "What this service is" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        Goldfish Lab simulates Magic: The Gathering decks against no opponent
-        and reports what happened. It is an analysis tool. It is
-        <strong>not</strong> a game, not a deck-building authority, and not
-        affiliated with Wizards of the Coast, Scryfall or Commander Spellbook.
+        {% blocktranslate trimmed %}
+          Goldfish Lab simulates Magic: The Gathering decks against no opponent
+          and reports what happened. It is an analysis tool. It is
+          <strong>not</strong> a game, not a deck-building authority, and not
+          affiliated with Wizards of the Coast, Scryfall or Commander Spellbook.
+        {% endblocktranslate %}
       </p>
       <p class="mt-4 text-ink-900">
-        Its output is a measurement of a model, and the model is deliberately
-        incomplete - <a href="{% url 'methodology' %}" class="underline hover:text-ink-700">the
-        methodology page</a> says exactly how. Decisions you make about your deck,
-        including which cards to buy, are yours.
+        {% blocktranslate trimmed %}
+          Its output is a measurement of a model, and the model is deliberately
+          incomplete - <a href="{{ methodology_url }}" class="underline hover:text-ink-700">the
+          methodology page</a> says exactly how. Decisions you make about your deck,
+          including which cards to buy, are yours.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Your account</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Your account" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <ul class="space-y-2 text-ink-900">
-        <li>• You must be at least 13 years old. To buy a plan you must be an adult, or have a parent's or guardian's permission.</li>
-        <li>• One person per account. Keep your password to yourself, and tell us if you think somebody else has got into your account.</li>
-        <li>• One account per person: several accounts to get around a plan's limits are not allowed.</li>
-        <li>• You can <a href="{% url 'accounts:data' %}" class="underline hover:text-ink-700">delete your account</a> at any time, yourself, immediately.</li>
+        <li>• {% translate "You must be at least 13 years old. To buy a plan you must be an adult, or have a parent's or guardian's permission." %}</li>
+        <li>• {% translate "One person per account. Keep your password to yourself, and tell us if you think somebody else has got into your account." %}</li>
+        <li>• {% translate "One account per person: several accounts to get around a plan's limits are not allowed." %}</li>
+        <li>• {% blocktranslate trimmed %}You can <a href="{{ data_url }}" class="underline hover:text-ink-700">delete your account</a> at any time, yourself, immediately.{% endblocktranslate %}</li>
       </ul>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">What you upload</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "What you upload" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        Your decks and annotations stay yours. You allow us to store
-        and process them only as far as running the service for you needs. We do
-        not publish them, sell them, or train anything on them.
+        {% blocktranslate trimmed %}
+          Your decks and annotations stay yours. You allow us to store
+          and process them only as far as running the service for you needs. We do
+          not publish them, sell them, or train anything on them.
+        {% endblocktranslate %}
       </p>
-      <p class="mt-4 text-ink-900">In return, please do not:</p>
+      <p class="mt-4 text-ink-900">{% translate "In return, please do not:" %}</p>
       <ul class="mt-2 space-y-2 text-ink-900">
-        <li>• upload anything you have no right to upload, or anything unlawful;</li>
-        <li>• attack, overload or probe the service, or work around its rate limits, size limits or plan limits;</li>
-        <li>• read the site with scripts or bots, or resell access to it.</li>
+        <li>• {% translate "upload anything you have no right to upload, or anything unlawful;" %}</li>
+        <li>• {% translate "attack, overload or probe the service, or work around its rate limits, size limits or plan limits;" %}</li>
+        <li>• {% translate "read the site with scripts or bots, or resell access to it." %}</li>
       </ul>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Plans and paying</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Plans and paying" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        The free plan is a complete service, not a trial: every feature and all
-        card and combo data are available on it. Paid plans buy
-        <strong>more simulation capacity</strong> - more turns per game, more
-        games per run, more runs a month, more decks. What each plan includes
-        and what it costs is on <a href="{% url 'billing:plans' %}" class="underline hover:text-ink-700">the plans page</a>;
-        {% if local_prices %}prices are shown in Swiss francs, euros or US
-        dollars, depending on where you visit from, and include any taxes that
-        apply; checkout charges the price in the currency the plans page
-        showed.{% elif sold_through_link %}prices are set in Swiss francs and include
-        any taxes that apply; the checkout page may show them converted into
-        your own currency.{% else %}prices are in Swiss francs and include any
-        taxes that apply.{% endif %}
+        {% blocktranslate trimmed %}
+          The free plan is a complete service, not a trial: every feature and all
+          card and combo data are available on it. Paid plans buy
+          <strong>more simulation capacity</strong> - more turns per game, more
+          games per run, more runs a month, more decks. What each plan includes
+          and what it costs is on <a href="{{ plans_url }}" class="underline hover:text-ink-700">the plans page</a>.
+        {% endblocktranslate %}
+        {% if local_prices %}
+          {% blocktranslate trimmed %}
+            Prices are shown in Swiss francs, euros or US dollars, depending on
+            where you visit from, and include any taxes that apply; checkout
+            charges the price in the currency the plans page showed.
+          {% endblocktranslate %}
+        {% elif sold_through_link %}
+          {% blocktranslate trimmed %}
+            Prices are set in Swiss francs and include any taxes that apply; the
+            checkout page may show them converted into your own currency.
+          {% endblocktranslate %}
+        {% else %}
+          {% translate "Prices are in Swiss francs and include any taxes that apply." %}
+        {% endif %}
       </p>
       {% if sold_through_link %}
         <p class="mt-4 text-ink-900">
-          <strong>Who sells you the plan.</strong> Paid plans are sold through
-          Link: <strong>Sold through Link, LLC, a Stripe company</strong>, is the
-          reseller (the "merchant of record") for the payment. Link charges you,
-          works out and pays the VAT or sales tax, sends the receipts and
-          invoices, and handles questions about the payment itself under
-          <a href="https://link.com/terms" class="underline hover:text-ink-700" rel="noopener">Link's own terms</a>. Your card
-          statement shows <em>LINK.COM*</em>. The service you get for the plan
-          is provided by us, under these terms.
+          {% blocktranslate trimmed %}
+            <strong>Who sells you the plan.</strong> Paid plans are sold through
+            Link: <strong>Sold through Link, LLC, a Stripe company</strong>, is the
+            reseller (the "merchant of record") for the payment. Link charges you,
+            works out and pays the VAT or sales tax, sends the receipts and
+            invoices, and handles questions about the payment itself under
+            <a href="https://link.com/terms" class="underline hover:text-ink-700" rel="noopener">Link's own terms</a>. Your card
+            statement shows <em>LINK.COM*</em>. The service you get for the plan
+            is provided by us, under these terms.
+          {% endblocktranslate %}
         </p>
       {% endif %}
       <ul class="mt-4 space-y-2 text-ink-900">
-        <li>• <strong>Paying.</strong> On Stripe's secure page, by card or another method Stripe offers. We never see your card details.</li>
-        <li>• <strong>Renewal.</strong> A plan is billed monthly in advance and renews every month until you cancel it.</li>
-        <li>• <strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked from your plan page{% if sold_through_link %}, or in your orders at <a href="https://link.com" class="underline hover:text-ink-700" rel="noopener">link.com</a>{% endif %}. The plan then runs to the end of the month you have paid for and does not renew. There is no notice period and no fee.</li>
-        <li>• <strong>Changing plan.</strong> Also in the portal. Stripe credits what is left of the old plan against the new one.</li>
-        <li>• <strong>A failed payment.</strong> Stripe retries for about two weeks. Your plan keeps working meanwhile and the site tells you. If the payment never succeeds, the account moves to the free plan - nothing is deleted.</li>
+        <li>• {% blocktranslate trimmed %}<strong>Paying.</strong> On Stripe's secure page, by card or another method Stripe offers. We never see your card details.{% endblocktranslate %}</li>
+        <li>• {% blocktranslate trimmed %}<strong>Renewal.</strong> A plan is billed monthly in advance and renews every month until you cancel it.{% endblocktranslate %}</li>
+        <li>•
+          {% if sold_through_link %}
+            {% blocktranslate trimmed %}<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked from your plan page, or in your orders at <a href="https://link.com" class="underline hover:text-ink-700" rel="noopener">link.com</a>. The plan then runs to the end of the month you have paid for and does not renew. There is no notice period and no fee.{% endblocktranslate %}
+          {% else %}
+            {% blocktranslate trimmed %}<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked from your plan page. The plan then runs to the end of the month you have paid for and does not renew. There is no notice period and no fee.{% endblocktranslate %}
+          {% endif %}
+        </li>
+        <li>• {% blocktranslate trimmed %}<strong>Changing plan.</strong> Also in the portal. Stripe credits what is left of the old plan against the new one.{% endblocktranslate %}</li>
+        <li>• {% blocktranslate trimmed %}<strong>A failed payment.</strong> Stripe retries for about two weeks. Your plan keeps working meanwhile and the site tells you. If the payment never succeeds, the account moves to the free plan - nothing is deleted.{% endblocktranslate %}</li>
       </ul>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Refunds - 14 days, no questions</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Refunds - 14 days, no questions" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        <strong>If a plan is not what you expected, write to the contact
-        address within 14 days of your first payment for it, and you get that
-        payment back in full.</strong> No reason needed, and the plan ends when
-        the refund is made. The plan starts immediately when you pay, at your
-        request - this refund is what replaces a right to withdraw, and it is
-        worth at least as much as any statutory right of withdrawal you may
-        have.
+        {% blocktranslate trimmed %}
+          <strong>If a plan is not what you expected, write to the contact
+          address within 14 days of your first payment for it, and you get that
+          payment back in full.</strong> No reason needed, and the plan ends when
+          the refund is made. The plan starts immediately when you pay, at your
+          request - this refund is what replaces a right to withdraw, and it is
+          worth at least as much as any statutory right of withdrawal you may
+          have.
+        {% endblocktranslate %}
       </p>
       {% if sold_through_link %}
         <p class="mt-4 text-ink-900">
-          We make the refund through Link, which sold you the plan, and it
-          includes the tax you paid. You can also ask
-          <a href="https://support.link.com/topics/sold-through-link" class="underline hover:text-ink-700" rel="noopener">Link's support</a>
-          about a payment; Link may refund under its own terms as well.
+          {% blocktranslate trimmed %}
+            We make the refund through Link, which sold you the plan, and it
+            includes the tax you paid. You can also ask
+            <a href="https://support.link.com/topics/sold-through-link" class="underline hover:text-ink-700" rel="noopener">Link's support</a>
+            about a payment; Link may refund under its own terms as well.
+          {% endblocktranslate %}
         </p>
       {% endif %}
       <p class="mt-4 text-ink-900">
-        Later payments are not refunded for the part of a month you did not
-        use; cancelling stops the next one. Where the law gives you more than
-        this, the law applies.
+        {% blocktranslate trimmed %}
+          Later payments are not refunded for the part of a month you did not
+          use; cancelling stops the next one. Where the law gives you more than
+          this, the law applies.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">When we change something</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "When we change something" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <ul class="space-y-2 text-ink-900">
-        <li>• <strong>Prices and plan limits</strong> of a plan you pay for change only from a new billing period, and we email you at least 30 days before. If you do not want the new terms, cancel before they apply.</li>
-        <li>• <strong>These terms.</strong> A change that matters is emailed to account holders at least 30 days before it takes effect, and the date at the top changes. Continuing to use the service after that date means accepting the change; if you do not accept it, you can cancel and delete your account, and a paid plan's unused prepaid days are refunded.</li>
-        <li>• <strong>The service itself</strong> keeps improving, and a feature may change or go. We will not take away what makes a paid plan worth paying for in the middle of a period you have paid for.</li>
+        <li>• {% blocktranslate trimmed %}<strong>Prices and plan limits</strong> of a plan you pay for change only from a new billing period, and we email you at least 30 days before. If you do not want the new terms, cancel before they apply.{% endblocktranslate %}</li>
+        <li>• {% blocktranslate trimmed %}<strong>These terms.</strong> A change that matters is emailed to account holders at least 30 days before it takes effect, and the date at the top changes. Continuing to use the service after that date means accepting the change; if you do not accept it, you can cancel and delete your account, and a paid plan's unused prepaid days are refunded.{% endblocktranslate %}</li>
+        <li>• {% blocktranslate trimmed %}<strong>The service itself</strong> keeps improving, and a feature may change or go. We will not take away what makes a paid plan worth paying for in the middle of a period you have paid for.{% endblocktranslate %}</li>
       </ul>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Availability, and the honest disclaimer</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Availability, and the honest disclaimer" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        The service is run with care by one person, but it is provided as it
-        is. We do not promise it will be available without interruption, and
-        we do not promise its results are right for any particular purpose - it
-        is a simulation of a simplified model, and the methodology page lists
-        the ways it is simplified.
+        {% blocktranslate trimmed %}
+          The service is run with care by one person, but it is provided as it
+          is. We do not promise it will be available without interruption, and
+          we do not promise its results are right for any particular purpose - it
+          is a simulation of a simplified model, and the methodology page lists
+          the ways it is simplified.
+        {% endblocktranslate %}
       </p>
       <p class="mt-4 text-ink-900">
-        We are fully liable for damage we cause intentionally or through gross
-        negligence, and for injury to life, body or health. For slight
-        negligence we are not liable, as far as the law allows; where the law
-        does not allow that, liability is limited to what you paid us in the
-        twelve months before the damage. Nothing here limits a liability that
-        mandatory law does not let us limit.
+        {% blocktranslate trimmed %}
+          We are fully liable for damage we cause intentionally or through gross
+          negligence, and for injury to life, body or health. For slight
+          negligence we are not liable, as far as the law allows; where the law
+          does not allow that, liability is limited to what you paid us in the
+          twelve months before the damage. Nothing here limits a liability that
+          mandatory law does not let us limit.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Ending it</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Ending it" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        You can leave whenever you like: cancel a paid plan, then delete your
-        account. We may suspend or close an account that attacks the service,
-        breaks the law or breaks these terms, and we say why unless saying so
-        would itself be unlawful or unsafe. If we close an account without
-        such a reason - or shut the service down - we tell you at least 30 days
-        before and refund the unused prepaid part of a paid plan.
+        {% blocktranslate trimmed %}
+          You can leave whenever you like: cancel a paid plan, then delete your
+          account. We may suspend or close an account that attacks the service,
+          breaks the law or breaks these terms, and we say why unless saying so
+          would itself be unlawful or unsafe. If we close an account without
+          such a reason - or shut the service down - we tell you at least 30 days
+          before and refund the unused prepaid part of a paid plan.
+        {% endblocktranslate %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Magic: The Gathering, card data and combos</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Magic: The Gathering, card data and combos" %}</h2>
     <div class="mt-4 surface-parchment p-6">
-      <p class="text-ink-900">
+      {% comment %}
+        The Fan Content Policy asks for this notice in these words, and the
+        policy exists in English only: it stays English, as in the footer.
+      {% endcomment %}
+      <p class="text-ink-900" lang="en">
         Goldfish Lab is unofficial Fan Content permitted under the
         <a href="https://company.wizards.com/en/legal/fancontentpolicy" class="underline hover:text-ink-700" rel="noopener">Fan Content Policy</a>.
         Not approved/endorsed by Wizards. Portions of the materials used are
         property of Wizards of the Coast. ©Wizards of the Coast LLC.
       </p>
       <p class="mt-4 text-sm text-ink-700">
-        Card data and images come from <a href="https://scryfall.com" class="underline hover:text-ink-700" rel="noopener">Scryfall</a>
-        and remain free to use on every plan; images are shown from Scryfall's
-        servers, never copied here. Combo data comes from
-        <a href="https://commanderspellbook.com" class="underline hover:text-ink-700" rel="noopener">Commander Spellbook</a>.
-        The application's source code is free software under the
-        <a href="https://www.gnu.org/licenses/agpl-3.0.html" class="underline hover:text-ink-700" rel="noopener">GNU Affero General Public License, version 3</a>{% if source_code_url %},
-        published at <a href="{{ source_code_url }}" class="underline hover:text-ink-700" rel="noopener">{{ source_code_url }}</a>{% endif %}.
-        The licence covers the code, not the name Goldfish Lab.
+        {% blocktranslate trimmed %}
+          Card data and images come from <a href="https://scryfall.com" class="underline hover:text-ink-700" rel="noopener">Scryfall</a>
+          and remain free to use on every plan; images are shown from Scryfall's
+          servers, never copied here. Combo data comes from
+          <a href="https://commanderspellbook.com" class="underline hover:text-ink-700" rel="noopener">Commander Spellbook</a>.
+        {% endblocktranslate %}
+        {% if source_code_url %}
+          {% blocktranslate trimmed %}
+            The application's source code is free software under the
+            <a href="https://www.gnu.org/licenses/agpl-3.0.html" class="underline hover:text-ink-700" rel="noopener">GNU Affero General Public License, version 3</a>,
+            published at <a href="{{ source_code_url }}" class="underline hover:text-ink-700" rel="noopener">{{ source_code_url }}</a>.
+          {% endblocktranslate %}
+        {% else %}
+          {% blocktranslate trimmed %}
+            The application's source code is free software under the
+            <a href="https://www.gnu.org/licenses/agpl-3.0.html" class="underline hover:text-ink-700" rel="noopener">GNU Affero General Public License, version 3</a>.
+          {% endblocktranslate %}
+        {% endif %}
+        {% translate "The licence covers the code, not the name Goldfish Lab." %}
       </p>
     </div>
 
-    <h2 class="mt-10 font-display text-2xl text-parchment-100">Law and courts</h2>
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Law and courts" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
-        Swiss law applies. If you are a consumer, you keep the protection of
-        the mandatory law of the country you live in, and you can always take
-        a dispute to the courts where you live. Otherwise the courts at the
-        operator's place of residence in Switzerland decide. Before any of
-        that, please write to us - most things are faster to fix than to argue
-        about.
+        {% blocktranslate trimmed %}
+          Swiss law applies. If you are a consumer, you keep the protection of
+          the mandatory law of the country you live in, and you can always take
+          a dispute to the courts where you live. Otherwise the courts at the
+          operator's place of residence in Switzerland decide. Before any of
+          that, please write to us - most things are faster to fix than to argue
+          about.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          These terms are written in English. Translations into other languages
+          are made automatically and offered for convenience; if a translation
+          differs from the English text, the English text applies.
+        {% endblocktranslate %}
       </p>
       <p class="mt-4 text-sm text-ink-700">
-        If one clause of these terms turns out to be invalid, the rest still
-        apply.
+        {% blocktranslate trimmed %}
+          If one clause of these terms turns out to be invalid, the rest still
+          apply.
+        {% endblocktranslate %}
       </p>
     </div>
   </section>

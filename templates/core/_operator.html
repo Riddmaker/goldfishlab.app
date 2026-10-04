@@ -10,7 +10,8 @@
     <a href="mailto:{{ operator.email }}" class="underline hover:text-ink-700">{{ operator.email }}</a>
   </address>
 {% else %}
-  <p class="text-blood-800">
+  {# Development only (see above), so not translated. #}
+  <p class="text-blood-800" lang="en">
     <strong>Not configured in this installation:</strong> LEGAL_OPERATOR_NAME,
     LEGAL_OPERATOR_ADDRESS and LEGAL_CONTACT_EMAIL. Production does not start
     without them.

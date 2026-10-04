@@ -16,3 +16,8 @@ PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 # the client must fail on "not configured", not spend money and send a deck
 # list to a third party. Tests that need it set their own fake value.
 MISTRAL_API_KEY = ""
+
+# English alone, whatever .env switches on for local browsing: a test that
+# needs another language sets `LANGUAGES` itself (tests/test_i18n.py).
+LANGUAGES_ON = []
+LANGUAGES = LANGUAGES[:1]  # noqa: F405

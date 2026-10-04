@@ -19,6 +19,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.utils.translation import gettext, ngettext
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View
 
@@ -71,9 +72,10 @@ def _usage_rows(user) -> list[dict]:
 
     rows = []
     for metric, label, period in (
-        (UsageRecord.Metric.RUNS_STARTED, "Simulations started", "this month"),
+        (UsageRecord.Metric.RUNS_STARTED, gettext("Simulations started"),
+         gettext("this month")),
         # Decks you have, not decks made this month: deleting one frees a slot.
-        (quotas.DECKS_OWNED, "Decks", "right now"),
+        (quotas.DECKS_OWNED, gettext("Decks"), gettext("right now")),
     ):
         decision = quotas.check(user, metric, amount=0, raise_on_fail=False)
         # The bar's width; capped, because a plan changed mid-month can leave
@@ -113,8 +115,8 @@ class StartCheckoutView(LoginRequiredMixin, View):
             # The message is deliberately not Stripe's. Its text can name a
             # price id or an account, and this page is shown to a stranger.
             logger.exception("stripe checkout failed for user %s", request.user.pk)
-            messages.error(request, "Stripe could not start a checkout just now. "
-                                    "Nothing was charged. Please try again.")
+            messages.error(request, gettext("Stripe could not start a checkout just now. "
+                                            "Nothing was charged. Please try again."))
             return redirect("billing:plans")
 
         return redirect(url)
@@ -140,7 +142,8 @@ class PortalView(LoginRequiredMixin, View):
             return redirect("billing:plans")
         except stripe_api.StripeError:
             logger.exception("stripe portal failed for user %s", request.user.pk)
-            messages.error(request, "Stripe could not open the billing portal just now.")
+            messages.error(request,
+                           gettext("Stripe could not open the billing portal just now."))
             return redirect("billing:plans")
 
         return redirect(url)
@@ -199,7 +202,7 @@ class WebhookView(View):
         return HttpResponse(outcome, content_type="text/plain")
 
 
-def upgrade_prompt(request, message: str):
+def upgrade_prompt(request, exc: quotas.QuotaExceeded):
     """A quota refusal, pointed at the page that can fix it.
 
     Imported by the deck and simulation views so that "you have used all twenty
@@ -207,6 +210,29 @@ def upgrade_prompt(request, message: str):
     than a dead end with an apology.
     """
     return render(request, "billing/blocked.html", {
-        "message": message,
+        "message": refusal(exc),
         "subscription": services.subscription_for(request.user),
     }, status=402)
+
+
+def refusal(exc: quotas.QuotaExceeded) -> str:
+    """What ran out, as a sentence in the page's language (phase 12).
+
+    Built from the exception's numbers rather than its message, which is a
+    log line ("runs_started: 20/20 used on the Free plan").
+    """
+    from billing.models import UsageRecord
+
+    numbers = {"used": exc.used, "limit": exc.limit}
+    if exc.metric == UsageRecord.Metric.RUNS_STARTED:
+        return ngettext("You have started %(used)s of %(limit)s simulation this month.",
+                        "You have started %(used)s of %(limit)s simulations this month.",
+                        exc.limit) % numbers
+    if exc.metric == quotas.DECKS_OWNED:
+        return ngettext("You have %(used)s of %(limit)s deck.",
+                        "You have %(used)s of %(limit)s decks.", exc.limit) % numbers
+    if exc.metric == UsageRecord.Metric.IMPORTS:
+        return ngettext("You have imported %(used)s of %(limit)s deck list this month.",
+                        "You have imported %(used)s of %(limit)s deck lists this month.",
+                        exc.limit) % numbers
+    return gettext("Your plan's limit is reached.")

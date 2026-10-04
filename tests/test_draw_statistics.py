@@ -307,7 +307,7 @@ def test_only_the_users_own_roles_replace_the_community_ones(tags, scope, expect
 
 def test_a_line_runs_from_the_first_turn_to_the_last():
     chart = charts.line_chart([("a", "A", [0, 50, 100])], ["1", "2", "3"],
-                              top_value=100, y_ticks=charts.PERCENT_TICKS)
+                              top_value=100, y_ticks=charts.percent_ticks())
     points = [tuple(map(float, point.split(","))) for point in chart.lines[0].points.split()]
 
     assert points[0] == (chart.left, chart.bottom)

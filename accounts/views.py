@@ -14,6 +14,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.translation import gettext
 from django.views.generic import TemplateView, View
 from django_ratelimit.decorators import ratelimit
 
@@ -77,7 +78,7 @@ class AccountDeleteView(LoginRequiredMixin, View):
         if typed != request.user.email.lower():
             messages.error(
                 request,
-                "That is not the address this account uses, so nothing was deleted.",
+                gettext("That is not the address this account uses, so nothing was deleted."),
             )
             return redirect("accounts:data")
 
@@ -90,7 +91,7 @@ class AccountDeleteView(LoginRequiredMixin, View):
 
         messages.success(
             request,
-            "Your account and everything in it have been deleted. "
-            "Nothing was kept.",
+            gettext("Your account and everything in it have been deleted. "
+                    "Nothing was kept."),
         )
         return redirect("home")

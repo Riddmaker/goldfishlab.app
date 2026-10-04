@@ -1,25 +1,29 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Playtest · {{ deck.name }} · Goldfish Lab{% endblock %}
-{% block description %}Play one game of {{ deck.name }} by hand, take it back, and branch it.{% endblock %}
+{% block title %}{% translate "Playtest" %} · {{ deck.name }} · Goldfish Lab{% endblock %}
+{% block description %}{% blocktranslate with name=deck.name %}Play one game of {{ name }} by hand, take it back, and branch it.{% endblocktranslate %}{% endblock %}
 
 {% block content %}
   <div class="flex flex-wrap items-baseline gap-4">
-    <h1 class="font-display text-3xl text-parchment-100">Playtest</h1>
+    <h1 class="font-display text-3xl text-parchment-100">{% translate "Playtest" %}</h1>
     <span class="tabular text-parchment-200">{{ deck.name }}</span>
     <a href="{{ deck.get_absolute_url }}"
-       class="ml-auto text-sm text-parchment-200 underline">Back to {{ deck.name }}</a>
+       class="ml-auto text-sm text-parchment-200 underline">{% blocktranslate with name=deck.name %}Back to {{ name }}{% endblocktranslate %}</a>
   </div>
 
   <p class="mt-2 text-parchment-200">
-    One game by hand, against nobody. Take moves back, or branch to play the same draw twice.
+    {% translate "One game by hand, against nobody. Take moves back, or branch to play the same draw twice." %}
   </p>
 
   {% if session.forked_from_id %}
     <p class="mt-3 text-sm text-parchment-200">
-      Branched from
-      <a href="{% url 'playtest:detail' session.forked_from_id %}" class="underline">an earlier game</a>
-      at action {{ session.forked_at_seq }}.
+      {% url 'playtest:detail' session.forked_from_id as earlier_url %}
+      {% blocktranslate trimmed with seq=session.forked_at_seq %}
+        Branched from
+        <a href="{{ earlier_url }}" class="underline">an earlier game</a>
+        at action {{ seq }}.
+      {% endblocktranslate %}
     </p>
   {% endif %}
 

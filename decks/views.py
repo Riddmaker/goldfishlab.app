@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.cache import patch_vary_headers
 from django.utils.decorators import method_decorator
+from django.utils.translation import gettext, gettext_noop, ngettext
 from django.views.generic import DeleteView, DetailView, FormView, ListView, View
 from django_ratelimit.decorators import ratelimit
 
@@ -155,12 +156,12 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
 #: the reader to go and re-export their file with the quantity column ticked.
 #: That is sound advice *there* and absurd *here*, on the screen that exists so
 #: they do not have to. The screenshot pass caught it; no test could have.
-UNANSWERED_PREVIEW = (
+UNANSWERED_PREVIEW = gettext_noop(
     "Choose a column above for each of card name and quantity - or say the "
     "file has not got one - and your own rows will appear here."
 )
 
-UNKNOWN_FORMAT_HELP = (
+UNKNOWN_FORMAT_HELP = gettext_noop(
     "That file was not recognised, so nothing has been assumed about it. "
     "Choose “CSV or TSV export (any tool)” as the format and you will be "
     "asked which column is which - it takes about thirty seconds and works "
@@ -194,7 +195,7 @@ class ImportFlowMixin:
         try:
             preparation = services.prepare(raw, chosen_format)
         except services.UnknownFormat:
-            form.add_error("format", UNKNOWN_FORMAT_HELP)
+            form.add_error("format", gettext(UNKNOWN_FORMAT_HELP))
             return self.form_invalid(form)
         except services.ImportError_ as exc:
             form.add_error(source_field, str(exc))
@@ -238,17 +239,25 @@ class ImportFlowMixin:
 
 def imported(request, outcome):
     """The deck page for a clean import, the review for one with gaps."""
+    record = outcome.record
     if outcome.clean:
         messages.success(
             request,
-            f"Imported {outcome.record.rows_resolved} rows into {outcome.deck.name}.",
+            ngettext("Imported %(rows)s row into %(deck)s.",
+                     "Imported %(rows)s rows into %(deck)s.",
+                     record.rows_resolved) % {"rows": record.rows_resolved,
+                                              "deck": outcome.deck.name},
         )
         return redirect(outcome.deck.get_absolute_url())
 
     messages.warning(
         request,
-        f"{outcome.record.rows_unresolved} of {outcome.record.rows_total} rows "
-        "could not be matched. Nothing was dropped - they are listed below.",
+        ngettext("%(missing)s of %(rows)s row could not be matched. Nothing was dropped "
+                 "- it is listed below.",
+                 "%(missing)s of %(rows)s rows could not be matched. Nothing was dropped "
+                 "- they are listed below.",
+                 record.rows_total) % {"missing": record.rows_unresolved,
+                                       "rows": record.rows_total},
     )
     return redirect(reverse("decks:review", args=[outcome.record.id]))
 
@@ -309,7 +318,7 @@ class ImportMappingView(LoginRequiredMixin, View):
         except QuotaExceeded as exc:
             # A 402 that links to the tier with more, rather than a red
             # sentence on a form nobody can act on.
-            return upgrade_prompt(request, str(exc))
+            return upgrade_prompt(request, exc)
         except services.ImportError_ as exc:
             form.add_error(None, str(exc))
             return self.page(request, pending, preparation, form, overrides)
@@ -361,7 +370,7 @@ class ImportMappingView(LoginRequiredMixin, View):
         """
         rows, problem = services.preview(pending.text, pending.parser, overrides)
         if problem and overrides is None:
-            return rows, UNANSWERED_PREVIEW
+            return rows, gettext(UNANSWERED_PREVIEW)
         return rows, problem
 
 
@@ -413,7 +422,7 @@ class ImportReviewView(LoginRequiredMixin, DetailView):
         # How exact the import was, rung by rung. The honest answer to
         # "did it work" is this table, not a green tick.
         context["rungs"] = [
-            (RUNG_LABELS[rung], self.object.rung_counts.get(rung, 0))
+            (gettext(RUNG_LABELS[rung]), self.object.rung_counts.get(rung, 0))
             for rung in [*RUNG_ORDER, RUNG_UNRESOLVED]
             if self.object.rung_counts.get(rung)
         ]
@@ -428,11 +437,12 @@ class SetCommanderView(LoginRequiredMixin, View):
         card = get_object_or_404(OracleCard, pk=request.POST.get("oracle_id"))
 
         if not deck.entries.filter(oracle_card=card).exists():
-            messages.error(request, "That card is not in this deck.")
+            messages.error(request, gettext("That card is not in this deck."))
             return redirect(deck.get_absolute_url())
 
         services.set_commander(deck, card)
-        messages.success(request, f"{card.name} is now the commander.")
+        messages.success(request, gettext("%(card)s is now the commander.") % {
+            "card": card.name})
         return redirect(deck.get_absolute_url())
 
 

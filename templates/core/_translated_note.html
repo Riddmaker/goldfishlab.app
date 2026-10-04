@@ -1,0 +1,21 @@
+{% load i18n %}
+{% comment %}
+  Phase 12 I (Q4 changed to a by the user): privacy, terms and the legal notice
+  are translated, and only the English text binds. This note says so in the
+  reader's language, with a way back to the English page, and only for a
+  language that is not English. The button is the footer's language form with
+  English fixed: no script, so the CSP stays as it is.
+{% endcomment %}
+{% get_current_language as current_language %}
+{% if current_language != "en" %}
+  <div class="mb-6 max-w-3xl border border-parchment-600 bg-ink-900 px-4 py-3 text-parchment-100"
+       role="note">
+    <p>{% translate "This page was translated automatically from English. Only the English version is legally binding." %}</p>
+    <form method="post" action="{% url 'set_language' %}" class="mt-2">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <input type="hidden" name="language" value="en">
+      <button type="submit" class="underline hover:text-parchment-50">{% translate "Read the English version" %}</button>
+    </form>
+  </div>
+{% endif %}

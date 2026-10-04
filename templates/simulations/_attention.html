@@ -12,37 +12,47 @@
   copy (phase 10 B), and the way into the cards it could not read. Needs `run`,
   `report` and `open_questions` (simulations.review.open_questions).
 {% endcomment %}
+{% load i18n %}
 <section id="attention" class="surface-parchment mt-6 p-6">
-  <h2 class="font-display text-2xl text-ink-900">Cards that need your attention</h2>
+  <h2 class="font-display text-2xl text-ink-900">{% translate "Cards that need your attention" %}</h2>
   {% if open_questions %}
     <p class="mt-3">
       <a href="{% url 'simulations:review' run.deck.id %}"
-         class="deck-status deck-status-open">! {{ open_questions }} card{{ open_questions|pluralize }} need{{ open_questions|pluralize:"s," }} you</a>
+         class="deck-status deck-status-open">! {% blocktranslate count count=open_questions %}{{ count }} card needs you{% plural %}{{ count }} cards need you{% endblocktranslate %}</a>
     </p>
     <p class="mt-2 text-sm text-ink-700">
-      The engine could not read {{ open_questions|pluralize:"it,them" }}. Say what {{ open_questions|pluralize:"it does,they do" }},
-      or that the engine's reading is right.
+      {% blocktranslate trimmed count count=open_questions %}
+        The engine could not read it. Say what it does,
+        or that the engine's reading is right.
+      {% plural %}
+        The engine could not read them. Say what they do,
+        or that the engine's reading is right.
+      {% endblocktranslate %}
     </p>
   {% elif report.annotations_changed %}
     <p class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-      <span class="deck-status deck-status-ready">✓ All answered</span>
+      <span class="deck-status deck-status-ready">✓ {% translate "All answered" %}</span>
       <span class="text-ink-900">
-        A card was answered after this run.
-        <a href="{{ run.deck.get_absolute_url }}#play" class="underline">Run the deck again</a>
-        to see the difference.
+        {% blocktranslate trimmed with deck_url=run.deck.get_absolute_url %}
+          A card was answered after this run.
+          <a href="{{ deck_url }}#play" class="underline">Run the deck again</a>
+          to see the difference.
+        {% endblocktranslate %}
       </span>
     </p>
   {% else %}
     <p class="mt-3">
-      <span class="deck-status deck-status-ready">✓ Nothing needs you</span>
+      <span class="deck-status deck-status-ready">✓ {% translate "Nothing needs you" %}</span>
     </p>
   {% endif %}
   <p class="mt-4 text-sm text-ink-700">
-    The engine read <strong class="tabular text-ink-900">{{ run.coverage_read }}</strong>
-    of {{ run.coverage_total }} cards in full —
-    <strong class="tabular text-ink-900">{{ run.readable_pct|floatformat:"0" }}%</strong>.
+    {% blocktranslate trimmed with read=run.coverage_read total=run.coverage_total pct=run.readable_pct|floatformat:"0" %}
+      The engine read <strong class="tabular text-ink-900">{{ read }}</strong>
+      of {{ total }} cards in full —
+      <strong class="tabular text-ink-900">{{ pct }}%</strong>.
+    {% endblocktranslate %}
     {% if run.reading_gaps %}
-      <a href="{% url 'simulations:review' run.deck.id %}" class="text-ink-900 underline">See what it could not read</a>
+      <a href="{% url 'simulations:review' run.deck.id %}" class="text-ink-900 underline">{% translate "See what it could not read" %}</a>
     {% endif %}
     {% include "core/_why.html" with anchor="reading" %}
   </p>

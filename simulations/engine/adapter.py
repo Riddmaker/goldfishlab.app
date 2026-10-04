@@ -24,6 +24,8 @@ invented the missing half of its input would be worse than no simulation.
 from collections import Counter
 from dataclasses import dataclass, field
 
+from django.utils.translation import gettext, gettext_noop, ngettext
+
 from decks.models import Deck
 from simulation import ENGINE_VERSION, agent
 from simulation.cards import (
@@ -70,7 +72,20 @@ class Gap:
 
     card: str
     field: str
+    #: In English, as every stored run and session keeps it. Marked with
+    #: `gettext_noop` where it is written, and translated by `text`.
     reason: str
+    #: For a reason with values in it (phase 12): the sentence with its
+    #: placeholders, and the values. `reason` is the same sentence filled in.
+    template: str = ""
+    params: dict = field(default_factory=dict)
+
+    @property
+    def text(self) -> str:
+        """The reason in the page's language."""
+        if self.template:
+            return gettext(self.template) % self.params
+        return gettext(self.reason)
 
     @property
     def kind(self) -> str:
@@ -231,7 +246,7 @@ class Reading:
         which is what an Ornithopter costs and is a different statement.
         """
         if self.card.is_land:
-            return "no cost"
+            return gettext("no cost")
         return str(self.card.mana_cost)
 
     @property
@@ -249,15 +264,26 @@ class Reading:
         """
         spec = self.card.tutor
         if spec is None:
-            return "nothing"
-        what = f"{spec.count} {spec.kind or 'card'}{'s' if spec.count != 1 else ''}"
-        where = "to hand" if spec.to_hand else "to the graveyard"
-        cost = f", paying {spec.life} life" if spec.life else ""
-        return f"{what} {where}{cost}"
+            return gettext("nothing")
+        if spec.kind:
+            from cards.models import DerivedProfile
+
+            kinds = dict(DerivedProfile.Kind.choices)
+            what = gettext("%(count)s × %(kind)s") % {
+                "count": spec.count, "kind": kinds.get(spec.kind, spec.kind)}
+        else:
+            what = ngettext("%(count)s card", "%(count)s cards", spec.count) % {
+                "count": spec.count}
+        text = (gettext("%(what)s to hand") if spec.to_hand
+                else gettext("%(what)s to the graveyard")) % {"what": what}
+        if spec.life:
+            text = gettext("%(search)s, paying %(life)s life") % {"search": text,
+                                                                 "life": spec.life}
+        return text
 
     @property
     def skips_draw_step(self) -> str:
-        return "yes" if self.card.skips_draw_step else "no"
+        return gettext("yes") if self.card.skips_draw_step else gettext("no")
 
     @property
     def effective_priority(self) -> int:
@@ -282,12 +308,12 @@ class Reading:
         """
         basic = land_color(self.card, frozenset()) if self.card.is_land else None
         if basic is not None:
-            return f"1 {basic} (as a basic land)"
+            return gettext("1 %(color)s (as a basic land)") % {"color": basic}
         if not self.card.mana_abilities:
-            return "nothing"
+            return gettext("nothing")
         text = "; ".join(_ability_text(ability) for ability in self.card.mana_abilities)
         if not self.card.untaps:
-            text += " - once, then it stays tapped"
+            text = gettext("%(mana)s - once, then it stays tapped") % {"mana": text}
         return text
 
     @property
@@ -298,7 +324,7 @@ class Reading:
             for ability in self.card.mana_abilities
             if ability.rule == FLAT
         )
-        return f"{{{cost}}}" if cost else "nothing beyond tapping"
+        return f"{{{cost}}}" if cost else gettext("nothing beyond tapping")
 
     @property
     def untaps(self) -> bool:
@@ -308,9 +334,9 @@ class Reading:
 #: How each scaling rule reads on the provenance panel. The engine's constants
 #: are not words a user should have to learn.
 RULE_TEXT = {
-    PER_CONTROLLED: "one {color} for each {subtype} you control",
-    DOUBLE_SUBTYPE: "one extra {color} whenever a {subtype} is tapped",
-    TYPE_ADDING: "makes every land a {subtype}",
+    PER_CONTROLLED: gettext_noop("one %(color)s for each %(subtype)s you control"),
+    DOUBLE_SUBTYPE: gettext_noop("one extra %(color)s whenever a %(subtype)s is tapped"),
+    TYPE_ADDING: gettext_noop("makes every land a %(subtype)s"),
 }
 
 
@@ -319,17 +345,24 @@ def _ability_text(ability) -> str:
     if ability.rule == FLAT:
         produced = " + ".join(
             f"{amount} {color}" for color, amount in ability.produces
-        ) or "nothing"
+        ) or gettext("nothing")
         if ability.activation_generic:
-            return f"for {{{ability.activation_generic}}}, {produced}"
+            return _for_cost(ability.activation_generic, produced)
         return produced
 
-    text = RULE_TEXT.get(ability.rule, str(ability.rule)).format(
-        color=ability.scaling_color, subtype=ability.subtype or "land"
-    )
+    if ability.rule in RULE_TEXT:
+        text = gettext(RULE_TEXT[ability.rule]) % {
+            "color": ability.scaling_color, "subtype": ability.subtype or "land"}
+    else:
+        text = str(ability.rule)
     if ability.activation_generic:
-        return f"for {{{ability.activation_generic}}}, {text}"
+        return _for_cost(ability.activation_generic, text)
     return text
+
+
+def _for_cost(generic: int, mana: str) -> str:
+    """"for {1}, 2 B": a mana ability that costs mana beside the tap."""
+    return gettext("for %(cost)s, %(mana)s") % {"cost": f"{{{generic}}}", "mana": mana}
 
 
 def readings(deck: Deck) -> list[Reading]:
@@ -636,9 +669,10 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
         return (ManaAbility(FLAT, {colors[0]: amount}, activation_generic=activation),)
 
     chosen = _pick_color(colors, deck_colors)
-    gaps.append(Gap(name, "mana_abilities",
-                    f"makes one of {'/'.join(sorted(colors))}; the engine cannot hold a "
-                    f"choice and reads it as {chosen}"))
+    template = gettext_noop("makes one of %(colors)s; the engine cannot hold a choice and "
+                            "reads it as %(color)s")
+    params = {"colors": "/".join(sorted(colors)), "color": chosen}
+    gaps.append(Gap(name, "mana_abilities", template % params, template, params))
     return (ManaAbility(FLAT, {chosen: amount}, activation_generic=activation),)
 
 
@@ -876,8 +910,8 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap]) -> None:
         # Only worth reporting for cards the agent might actually cast. Removal
         # and wipes have no legal target against no opponent, so their casting
         # order is not a gap in what we know - it never comes up.
-        gaps.append(Gap(card.name, "priority",
-                        "no one said how early to cast it; the default rule applies"))
+        gaps.append(Gap(card.name, "priority", gettext_noop(
+            "no one said how early to cast it; the default rule applies")))
 
     if profile.needs_review:
         for reason in profile.review_reasons:
@@ -885,8 +919,8 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap]) -> None:
 
     if profile.produces_mana and profile.mana_amount is None and not card.mana_abilities:
         gaps.append(Gap(card.name, "mana_abilities",
-                        "makes mana, but how much could not be read"))
+                        gettext_noop("makes mana, but how much could not be read")))
 
     if card.is_land and not card.mana_abilities:
         gaps.append(Gap(card.name, "mana_abilities",
-                        "a land that taps for nothing the engine can see"))
+                        gettext_noop("a land that taps for nothing the engine can see")))

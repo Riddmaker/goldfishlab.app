@@ -24,6 +24,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.translation import gettext, gettext_noop
 from django.views.generic import DetailView, View
 from django_ratelimit.decorators import ratelimit
 
@@ -73,11 +74,11 @@ class RunCreateView(LoginRequiredMixin, View):
         form = RunForm(request.POST, plan=quotas.plan_for(request.user), trim=False)
 
         if not form.is_valid():
-            messages.error(request, "That is not a size this application runs.")
+            messages.error(request, gettext("That is not a size this application runs."))
             return redirect(deck.get_absolute_url())
 
         if not deck.entries.exists():
-            messages.error(request, "There is nothing in this deck to simulate yet.")
+            messages.error(request, gettext("There is nothing in this deck to simulate yet."))
             return redirect(deck.get_absolute_url())
 
         try:
@@ -92,7 +93,7 @@ class RunCreateView(LoginRequiredMixin, View):
             # Not a message on the deck page. A refusal the person cannot act
             # on is a dead end, and the one thing that answers "you have used
             # all twenty runs" is the page listing the tier with three hundred.
-            return billing_views.upgrade_prompt(request, str(exc))
+            return billing_views.upgrade_prompt(request, exc)
         except services.SimulationRefused as exc:
             messages.error(request, str(exc))
             return redirect(deck.get_absolute_url())
@@ -137,7 +138,7 @@ class RunDetailView(OwnedRunsMixin, DetailView):
             readings = adapter.readings(run.deck)
             context["blindspots"] = blindspots.find(readings)
             # "None in the deck: ..." under "By category" (phase 11 D, P3).
-            context["missing_roles"] = summary.missing(readings)
+            context["missing_roles"] = [gettext(label) for label in summary.missing(readings)]
             # The written part (phase 10 H), unless the viewer switched it off.
             if self.request.user.deck_summaries:
                 context["written"] = summary.state(self.request.user, run.deck)
@@ -221,7 +222,7 @@ class SummaryWriteView(OwnedRunsMixin, View):
         try:
             quotas.check(user, UsageRecord.Metric.RUNS_STARTED)
         except QuotaExceeded as exc:
-            return billing_views.upgrade_prompt(request, str(exc))
+            return billing_views.upgrade_prompt(request, exc)
         with transaction.atomic():
             if summary.claim(user, run.deck):
                 quotas.consume(user, UsageRecord.Metric.RUNS_STARTED)
@@ -240,9 +241,10 @@ class SummarySwitchView(LoginRequiredMixin, View):
         request.user.deck_summaries = request.POST.get("on") == "1"
         request.user.save(update_fields=["deck_summaries"])
         if request.user.deck_summaries:
-            messages.success(request, "Deck summaries are on again.")
+            messages.success(request, gettext("Deck summaries are on again."))
         else:
-            messages.success(request, "Deck summaries are off. Switch them on again on Your plan.")
+            messages.success(request, gettext(
+                "Deck summaries are off. Switch them on again on Your plan."))
         target = request.POST.get("next", "")
         if not url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()},
                                                require_https=request.is_secure()):
@@ -258,11 +260,11 @@ class RunCancelView(OwnedRunsMixin, View):
         if services.request_cancel(run):
             messages.success(
                 request,
-                "Cancelling. The chunk already in flight finishes first, so this "
-                "takes a few seconds.",
+                gettext("Cancelling. The chunk already in flight finishes first, so this "
+                        "takes a few seconds."),
             )
         else:
-            messages.info(request, "That run had already finished.")
+            messages.info(request, gettext("That run had already finished."))
         return redirect(run.get_absolute_url())
 
 
@@ -336,13 +338,13 @@ class DeckReviewView(DeckScopedView):
         questions = review.queue(deck)
         first = next((question for question in questions if not question.answered), None)
         if first is None:
-            messages.success(request, READY)
+            messages.success(request, gettext(READY))
             return redirect(deck.get_absolute_url())
         return redirect(reverse("simulations:annotate", args=[deck.pk, first.oracle_card.pk]))
 
 
 #: What the deck page says once every card the engine could not read is answered.
-READY = "Ready. Every card the engine could not read has an answer."
+READY = gettext_noop("Ready. Every card the engine could not read has an answer.")
 
 
 class CardAnnotateView(DeckScopedView):
@@ -375,7 +377,8 @@ class CardAnnotateView(DeckScopedView):
         if request.POST.get("action") == "confirm":
             scope = self._scope(request.POST.get("scope"))
             services.confirm_annotation(deck=deck, oracle_card=card, scope=scope)
-            messages.success(request, f"Noted: {card.front_name} looks right to you.")
+            messages.success(request, gettext("Noted: %(card)s looks right to you.")
+                             % {"card": card.front_name})
             return self._onwards(request, deck, card, scope)
 
         form = AnnotationForm(request.POST)
@@ -394,9 +397,9 @@ class CardAnnotateView(DeckScopedView):
             else:
                 messages.success(
                     request,
-                    f"Saved. {card.front_name} will be read that way from the "
-                    "next run onwards — this one does not change a result that "
-                    "has already been computed.",
+                    gettext("Saved. %(card)s will be read that way from the next run "
+                            "onwards — this one does not change a result that has "
+                            "already been computed.") % {"card": card.front_name},
                 )
                 return self._onwards(request, deck, card, scope)
 
@@ -423,7 +426,7 @@ class CardAnnotateView(DeckScopedView):
         for question in questions[here + 1:] + questions[:here]:
             if not question.answered:
                 return redirect(self._url(deck, question.oracle_card, scope))
-        messages.success(request, READY)
+        messages.success(request, gettext(READY))
         return redirect(deck.get_absolute_url())
 
     @staticmethod
@@ -485,8 +488,9 @@ class AnnotationDeleteView(DeckScopedView):
         if services.delete_annotation(deck=deck, oracle_card=card, scope=scope):
             messages.success(
                 request,
-                f"Removed. {card.front_name} is back to what the card data says.",
+                gettext("Removed. %(card)s is back to what the card data says.")
+                % {"card": card.front_name},
             )
         else:
-            messages.info(request, "There was nothing recorded for that card.")
+            messages.info(request, gettext("There was nothing recorded for that card."))
         return redirect(_cards_of(deck))

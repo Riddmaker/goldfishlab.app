@@ -18,6 +18,8 @@ than a clever parser that is confidently wrong about `(FDN) 123`.
 import re
 from collections.abc import Iterator
 
+from django.utils.translation import gettext_noop
+
 from decks.importers.base import ParsedRow, Parser
 
 # "1 Sol Ring", "1x Sol Ring", "4 x Sol Ring", or a bare "Sol Ring".
@@ -41,7 +43,7 @@ _PRINTING_SUFFIX = re.compile(r"\s*[(\[][A-Za-z0-9]{2,6}[)\]](?:\s+\S+)?\s*$")
 
 class PlainTextParser(Parser):
     name = "text"
-    label = "Plain text list (one card per line)"
+    label = gettext_noop("Plain text list (one card per line)")
 
     #: "1 Sol Ring" or "1x Sol Ring" - a quantity followed by a name is the
     #: one shape no other supported format produces on its first line.

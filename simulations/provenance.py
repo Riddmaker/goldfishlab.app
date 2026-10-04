@@ -28,37 +28,41 @@ simulation uses - so a panel and a run cannot drift apart.
 
 from dataclasses import dataclass
 
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+
+from cards.models import DerivedProfile
 from simulations import gaps as gaps_module
-from simulations.annotations import BY_KEY, format_mana
+from simulations.annotations import BY_KEY, ROLE_NAMES, format_mana
 from simulations.engine import adapter
 
 #: Source keys, in descending confidence, with the words the panel shows.
 SOURCES = {
     "scryfall": (
-        "Scryfall field",
-        "Structured data straight off the card. As close to ground truth as "
-        "this application gets.",
+        _("Scryfall field"),
+        _("Structured data straight off the card. As close to ground truth as "
+          "this application gets."),
     ),
     "tags": (
-        "Community tagger",
-        "Rolled up from the Scryfall Tagger project. Community-maintained, "
-        "deliberately broad, and occasionally an opinion rather than a fact.",
+        _("Community tagger"),
+        _("Rolled up from the Scryfall Tagger project. Community-maintained, "
+          "deliberately broad, and occasionally an opinion rather than a fact."),
     ),
     "regex": (
-        "Read from the card text",
-        "A pattern matched against English prose. The weakest reading this "
-        "application makes, and the one most worth checking.",
+        _("Read from the card text"),
+        _("A pattern matched against English prose. The weakest reading this "
+          "application makes, and the one most worth checking."),
     ),
     "builtin": (
-        "Built in",
-        "A default that ships with the application and applies to every deck.",
+        _("Built in"),
+        _("A default that ships with the application and applies to every deck."),
     ),
-    "user": ("You, for all your decks", "A judgement you recorded."),
-    "deck": ("You, for this deck", "A judgement you recorded for this deck only."),
+    "user": (_("You, for all your decks"), _("A judgement you recorded.")),
+    "deck": (_("You, for this deck"), _("A judgement you recorded for this deck only.")),
     "engine": (
-        "Nobody — the engine's own rule",
-        "No one said, so the engine's fallback applies. Worth a look if the "
-        "card matters to how the deck plays.",
+        _("Nobody — the engine's own rule"),
+        _("No one said, so the engine's fallback applies. Worth a look if the "
+          "card matters to how the deck plays."),
     ),
 }
 
@@ -101,35 +105,35 @@ class FieldSpec:
 #: value cannot appear on screen with nothing saying what it is; a test walks
 #: this table against the editable vocabulary in both directions.
 FIELDS = (
-    FieldSpec("cost", "Mana cost", ("pips", "generic"), "scryfall"),
-    FieldSpec("kind", "Engine treats it as", ("kind",), "scryfall"),
+    FieldSpec("cost", _("Mana cost"), ("pips", "generic"), "scryfall"),
+    FieldSpec("kind", _("Engine treats it as"), ("kind",), "scryfall"),
     FieldSpec(
         "taps_for",
-        "Taps for",
+        _("Taps for"),
         # The amount comes from a regex when one could read it; the *colours*
         # are always a Scryfall field, which is what answers for a card that
         # makes no mana at all.
         ("mana_amount", "produces_mana", "mana_colors"),
         "scryfall",
     ),
-    FieldSpec("activation", "Costs to tap for mana", ("mana_activation",), "regex",
+    FieldSpec("activation", _("Costs to tap for mana"), ("mana_activation",), "regex",
               mana_only=True),
-    FieldSpec("untaps", "Untaps every turn", ("mana_untaps",), "regex", mana_only=True),
-    FieldSpec("subtypes", "Land types", ("is_basic_swamp",), "scryfall",
+    FieldSpec("untaps", _("Untaps every turn"), ("mana_untaps",), "regex", mana_only=True),
+    FieldSpec("subtypes", _("Land types"), ("is_basic_swamp",), "scryfall",
               lands_only=True),
-    FieldSpec("enters_tapped", "Enters tapped", ("enters_tapped",), "regex"),
-    FieldSpec("roles", "Roles", ("role_tags",), "scryfall"),
+    FieldSpec("enters_tapped", _("Enters tapped"), ("enters_tapped",), "regex"),
+    FieldSpec("roles", _("Roles"), ("role_tags",), "scryfall"),
     # Two sources on one row, and the row says so: the zone is a community tag,
     # the number is a pattern over the printed text. `source_of` takes the
     # weakest of the two, which is the honest summary of a value that is only
     # as good as its worst half.
-    FieldSpec("searches", "Searches your library for",
+    FieldSpec("searches", _("Searches your library for"),
               ("tutor_count", "tutor_to"), "engine", applies_to_lands=False),
-    FieldSpec("skips_draw_step", "Skips the draw step", ("skips_draw_step",),
+    FieldSpec("skips_draw_step", _("Skips the draw step"), ("skips_draw_step",),
               "regex", applies_to_lands=False),
-    FieldSpec("effective_priority", "Cast priority", applies_to_lands=False),
-    FieldSpec("accelerant", "Counts as acceleration"),
-    FieldSpec("goldfish_castable", "Can be cast against nobody",
+    FieldSpec("effective_priority", _("Cast priority"), applies_to_lands=False),
+    FieldSpec("accelerant", _("Counts as acceleration")),
+    FieldSpec("goldfish_castable", _("Can be cast against nobody"),
               applies_to_lands=False),
 )
 
@@ -267,7 +271,7 @@ def _rows(reading: adapter.Reading, scopes: dict) -> list[Row]:
         Row(
             key=spec.attribute,
             label=spec.label,
-            value=_display(_value_of(reading, spec.attribute)),
+            value=_display(_value_of(reading, spec.attribute), spec.attribute),
             source=_source_for(spec, card_scopes, source_map),
         )
         for spec in FIELDS
@@ -305,19 +309,24 @@ def _source_for(spec: FieldSpec, card_scopes: dict, source_map: dict | None) -> 
     return spec.fallback
 
 
-def _display(value) -> str:
+def _display(value, attribute: str = "") -> str:
     """One field's value as a short piece of text.
 
     Booleans become yes/no rather than True/False, and an empty list becomes a
     word: a blank cell in a provenance table reads as a missing measurement
-    when what it means is "none of them".
+    when what it means is "none of them". Roles and the card kind are the
+    engine's keys, shown by their names in the page's language.
     """
     if isinstance(value, bool):
-        return "yes" if value else "no"
+        return gettext("yes") if value else gettext("no")
     if isinstance(value, dict):
         return format_mana(value)
+    if attribute == "roles" and isinstance(value, (list, tuple, frozenset, set)):
+        value = [gettext(ROLE_NAMES[role]) if role in ROLE_NAMES else role for role in value]
     if isinstance(value, (list, tuple, frozenset, set)):
-        return ", ".join(str(item) for item in sorted(value)) or "none"
+        return ", ".join(str(item) for item in sorted(value)) or gettext("none")
     if value is None:
-        return "not set"
+        return gettext("not set")
+    if attribute == "kind":
+        return str(dict(DerivedProfile.Kind.choices).get(value, value))
     return str(value)

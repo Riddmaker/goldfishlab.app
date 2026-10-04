@@ -2,8 +2,8 @@
 -r requirements.txt
 pytest==9.1.1
 pytest-django==4.14.0
-ruff==0.16.8
-djlint==1.46.1
+ruff==0.16.9
+djlint==1.46.2
 playwright==1.63.0
 # scipy is used ONLY by tests/test_statistics.py (hypergeometric validation).
 # It must never enter the production image: ~90 MB on a 128 MiB cloudlet.
@@ -14,3 +14,6 @@ pip-audit==2.10.1
 # Reads the GitHub workflow and issue-form YAML in tests/test_open_source.py.
 # djlint already pulls it in; pinned here so the tests do not hang on that.
 pyyaml==6.0.3
+# Compiles the translation catalogues (scripts/compilemessages.py, phase 12):
+# Django's compilemessages needs GNU msgfmt, which Windows and the image lack.
+polib==1.2.0

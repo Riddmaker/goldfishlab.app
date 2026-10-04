@@ -1,3 +1,4 @@
 {% extends "account/email/base_notification.txt" %}
-{% block notification_message %}The email of your Goldfish Lab account was changed from {{ from_email }} to {{ to_email }}.{% endblock notification_message %}
-{% block if_not_you %}If it wasn't you, write to us{% if operator.email %} at {{ operator.email }}{% endif %} right away - a new password would go to the new address.{% endblock if_not_you %}
+{% load i18n %}
+{% block notification_message %}{% blocktranslate %}The email of your Goldfish Lab account was changed from {{ from_email }} to {{ to_email }}.{% endblocktranslate %}{% endblock notification_message %}
+{% block if_not_you %}{% if operator.email %}{% blocktranslate with address=operator.email %}If it wasn't you, write to us at {{ address }} right away - a new password would go to the new address.{% endblocktranslate %}{% else %}{% translate "If it wasn't you, write to us right away - a new password would go to the new address." %}{% endif %}{% endblock if_not_you %}

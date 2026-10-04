@@ -5,14 +5,16 @@
   allauth's, rendered the way allauth renders it - the fields come from
   ACCOUNT_SIGNUP_FIELDS (email and one password).
 {% endcomment %}
-{% load allauth %}
+{% load allauth i18n %}
 {% block head_title %}
-  Create a free account
+  {% translate "Create a free account" %}
 {% endblock head_title %}
 {% block content %}
-  <h1>Create a free account</h1>
+  <h1>{% translate "Create a free account" %}</h1>
   <p>
-    Just an email and a password. Already have an account? <a href="{{ login_url }}">Sign in</a>.
+    {% blocktranslate trimmed %}
+      Just an email and a password. Already have an account? <a href="{{ login_url }}">Sign in</a>.
+    {% endblocktranslate %}
   </p>
   {% url 'account_signup' as action_url %}
   {% element form form=form method="post" action=action_url tags="entrance,signup" %}
@@ -24,7 +26,7 @@
     {% endslot %}
     {% slot actions %}
       {% element button tags="prominent,signup" type="submit" %}
-        Create my account
+        {% translate "Create my account" %}
       {% endelement %}
     {% endslot %}
   {% endelement %}

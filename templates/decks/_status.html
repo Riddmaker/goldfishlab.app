@@ -3,9 +3,10 @@
   read and nobody has answered. The view counts `deck.open_questions` before
   the page renders. Never colour alone - each state is a word too.
 {% endcomment %}
+{% load i18n %}
 {% if deck.open_questions %}
   <a href="{% url 'simulations:review' deck.id %}"
-     class="deck-status deck-status-open">! {{ deck.open_questions }} card{{ deck.open_questions|pluralize }} need{{ deck.open_questions|pluralize:"s," }} you</a>
+     class="deck-status deck-status-open">! {% blocktranslate count count=deck.open_questions %}{{ count }} card needs you{% plural %}{{ count }} cards need you{% endblocktranslate %}</a>
 {% else %}
-  <span class="deck-status deck-status-ready">✓ Ready</span>
+  <span class="deck-status deck-status-ready">✓ {% translate "Ready" %}</span>
 {% endif %}

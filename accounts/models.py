@@ -49,6 +49,11 @@ class User(AbstractUser):
     #: by "Hide summaries" on the run page and on again on "Your plan". Off,
     #: the summary block is not shown and nothing is written or charged.
     deck_summaries = models.BooleanField(default=True)
+    #: The language this person picked (phase 12), a code from
+    #: `settings.LANGUAGE_NAMES`. Blank: follow the cookie and the browser.
+    #: No `choices`: a language switched off later must not make the row
+    #: invalid; `AccountLanguageMiddleware` ignores a code that is not on.
+    language = models.CharField(max_length=10, blank=True, default="")
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

@@ -3,13 +3,13 @@
   Saving a guest's deck (phase 9 G): allauth's sign-up form plus the deck's
   name, on allauth's own layout, so it looks and validates like sign-up.
 {% endcomment %}
-{% load allauth %}
+{% load allauth i18n %}
 {% block head_title %}
-  Save your deck
+  {% translate "Save your deck" %}
 {% endblock head_title %}
 {% block content %}
-  <h1>Save {{ deck.name }}</h1>
-  <p>A free account keeps it. Just an email and a password.</p>
+  <h1>{% blocktranslate with name=deck.name %}Save {{ name }}{% endblocktranslate %}</h1>
+  <p>{% translate "A free account keeps it. Just an email and a password." %}</p>
   {% url 'guests:save' as action_url %}
   {% element form form=form method="post" action=action_url tags="entrance,signup" %}
     {% slot body %}
@@ -19,11 +19,13 @@
     {% endslot %}
     {% slot actions %}
       {% element button tags="prominent,signup" type="submit" %}
-        Save my deck
+        {% translate "Save my deck" %}
       {% endelement %}
     {% endslot %}
   {% endelement %}
   <p class="text-sm text-ink-600">
-    We send you a link. Click it and you're in, with this deck. Unsaved, it is deleted after 24 hours.
+    {% blocktranslate trimmed %}
+      We send you a link. Click it and you're in, with this deck. Unsaved, it is deleted after 24 hours.
+    {% endblocktranslate %}
   </p>
 {% endblock content %}

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Not yours — Goldfish Lab{% endblock %}
-{% block description %}This page belongs to another account.{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Not yours" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "This page belongs to another account." %}{% endblock %}
 {% block content %}
   {% comment %}
     The ordinary 403. Being too quick is NOT this page - that is 429.html, and
@@ -10,15 +11,17 @@
     playtest that belongs to somebody else are 404s by design, because "this
     exists and is not yours" tells a stranger that it exists.
   {% endcomment %}
-  <h1 class="font-display text-3xl text-parchment-100">That is not yours to open</h1>
+  <h1 class="font-display text-3xl text-parchment-100">{% translate "That is not yours to open" %}</h1>
 
   <section class="surface-parchment mt-6 p-6">
     <p class="text-ink-900">
-      This account is not allowed to see that page. If you have more than one
-      account, you may be signed in as the other one.
+      {% blocktranslate trimmed %}
+        This account is not allowed to see that page. If you have more than one
+        account, you may be signed in as the other one.
+      {% endblocktranslate %}
     </p>
     <p class="mt-4">
-      <a href="{% url 'home' %}" class="underline hover:text-ink-700">Back to the start</a>
+      <a href="{% url 'home' %}" class="underline hover:text-ink-700">{% translate "Back to the start" %}</a>
     </p>
   </section>
 {% endblock %}

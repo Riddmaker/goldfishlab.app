@@ -15,7 +15,10 @@ every card it was never asked about.
 """
 
 from django import forms
+from django.utils.translation import gettext, ngettext
+from django.utils.translation import gettext_lazy as _
 
+from core.l10n import number
 from simulations.annotations import (
     BY_KEY,
     JUDGEMENTS,
@@ -32,13 +35,23 @@ from simulations.engine.adapter import DECK_SCOPE, USER_SCOPE
 #: points at 95% confidence, which is why the interface meters turns rather
 #: than iterations - selling a bigger number would sell precision the answer
 #: does not gain.
-GAME_CHOICES = (
-    (1_000, "1,000 games - quick look"),
-    (10_000, "10,000 games - the usual answer"),
-    (50_000, "50,000 games - for small differences"),
-)
+GAME_SIZES = (1_000, 10_000, 50_000)
+TURN_SIZES = (3, 4, 5, 6, 8, 10)
 
-TURN_CHOICES = tuple((turns, f"{turns} turns") for turns in (3, 4, 5, 6, 8, 10))
+
+def games_label(games: int) -> str:
+    """"10,000 games - the usual answer", in the page's language."""
+    notes = {
+        1_000: gettext("%(games)s games - quick look"),
+        10_000: gettext("%(games)s games - the usual answer"),
+        50_000: gettext("%(games)s games - for small differences"),
+    }
+    text = notes.get(games) or ngettext("%(games)s game", "%(games)s games", games)
+    return text % {"games": number(games)}
+
+
+def turns_label(turns: int) -> str:
+    return ngettext("%(turns)s turn", "%(turns)s turns", turns) % {"turns": turns}
 
 
 class RunForm(forms.Form):
@@ -51,11 +64,14 @@ class RunForm(forms.Form):
     is refused by `services.start_run` with a sentence naming the limit.
     """
 
+    # The choices' words are filled in per form, in the page's language.
     games = forms.TypedChoiceField(
-        choices=GAME_CHOICES, coerce=int, initial=10_000, label="Games",
+        choices=[(games, games) for games in GAME_SIZES], coerce=int, initial=10_000,
+        label=_("Games"),
     )
     turns = forms.TypedChoiceField(
-        choices=TURN_CHOICES, coerce=int, initial=6, label="Turns per game",
+        choices=[(turns, turns) for turns in TURN_SIZES], coerce=int, initial=6,
+        label=_("Turns per game"),
     )
     # Stored as `on_the_play`, and True still means "skip the first draw" -
     # every stored run and the golden snapshot are keyed on it. Only the words
@@ -66,13 +82,13 @@ class RunForm(forms.Form):
     # every seat. Skipping it is the two-player rule, for a 1-v-1 game.
     on_the_play = forms.TypedChoiceField(
         choices=(
-            (0, "Multiplayer - everyone draws on turn one"),
-            (1, "1-v-1 - you start and skip your first draw"),
+            (0, _("Multiplayer - everyone draws on turn one")),
+            (1, _("1-v-1 - you start and skip your first draw")),
         ),
         coerce=lambda value: bool(int(value)),
         initial=0,
-        label="First draw",
-        help_text=(
+        label=_("First draw"),
+        help_text=_(
             "In a multiplayer Commander game nobody skips the draw on their first "
             "turn (Comprehensive Rules 103.8c). Only a two-player game makes the "
             "starting player skip it."
@@ -81,19 +97,21 @@ class RunForm(forms.Form):
 
     def __init__(self, *args, plan=None, trim=True, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["games"].choices = [(games, games_label(games)) for games in GAME_SIZES]
+        self.fields["turns"].choices = [(turns, turns_label(turns)) for turns in TURN_SIZES]
         if plan is not None:
-            _fit(self.fields["games"], plan.max_games_per_run, "{:,} games", trim)
-            _fit(self.fields["turns"], plan.max_turns, "{} turns", trim)
+            _fit(self.fields["games"], plan.max_games_per_run, games_label, trim)
+            _fit(self.fields["turns"], plan.max_turns, turns_label, trim)
 
 
-def _fit(field, limit, label: str, trim: bool) -> None:
+def _fit(field, limit, label, trim: bool) -> None:
     """Offer `limit` itself, and with `trim` nothing above it."""
     if limit is None:
         return
     choices = [(value, text) for value, text in field.choices
                if value <= limit or not trim]
-    if all(value != limit for value, _ in choices):
-        choices.append((limit, label.format(limit)))
+    if all(value != limit for value, _text in choices):
+        choices.append((limit, label(limit)))
     field.choices = sorted(choices)
     field.initial = min(field.initial, limit)
 
@@ -104,16 +122,16 @@ def _fit(field, limit, label: str, trim: bool) -> None:
 #: and a form that offered it would let one user's judgement about one deck
 #: change everybody else's numbers.
 SCOPE_CHOICES = (
-    (DECK_SCOPE, "This deck only"),
-    (USER_SCOPE, "All of my decks"),
+    (DECK_SCOPE, _("This deck only")),
+    (USER_SCOPE, _("All of my decks")),
 )
 
 #: Yes, no, and the one a checkbox cannot say.
 NO_OPINION = ""
 TRISTATE_CHOICES = (
-    (NO_OPINION, "Nobody has said"),
-    ("1", "Yes"),
-    ("0", "No"),
+    (NO_OPINION, _("Nobody has said")),
+    ("1", _("Yes")),
+    ("0", _("No")),
 )
 
 
@@ -160,8 +178,8 @@ class AnnotationForm(forms.Form):
     scope = forms.ChoiceField(
         choices=SCOPE_CHOICES,
         initial=DECK_SCOPE,
-        label="Applies to",
-        help_text=(
+        label=_("Applies to"),
+        help_text=_(
             "A deck-scoped judgement wins over one you set for every deck, "
             "which wins over the application's own default."
         ),
@@ -172,7 +190,7 @@ class AnnotationForm(forms.Form):
         label=BY_KEY["priority"].label, help_text=BY_KEY["priority"].help,
     )
     kind = forms.ChoiceField(
-        choices=((NO_OPINION, "Nobody has said"), *KIND_CHOICES),
+        choices=((NO_OPINION, _("Nobody has said")), *KIND_CHOICES),
         required=False,
         label=BY_KEY["kind"].label, help_text=BY_KEY["kind"].help,
     )
@@ -183,8 +201,8 @@ class AnnotationForm(forms.Form):
 
     replace_tags = forms.BooleanField(
         required=False,
-        label="Replace the roles below",
-        help_text=(
+        label=_("Replace the roles below"),
+        help_text=_(
             "Leave this alone to keep the community roles. Tick it and the "
             "selection below becomes the complete list - including an empty "
             "one, which is how you say a card has no role at all."
@@ -197,8 +215,8 @@ class AnnotationForm(forms.Form):
 
     replace_subtypes = forms.BooleanField(
         required=False,
-        label="Replace the land types below",
-        help_text=(
+        label=_("Replace the land types below"),
+        help_text=_(
             "Same rule as the roles: leave it alone to keep what the type line "
             "says, tick it to state the complete list. Ticking it with nothing "
             "selected is how you stop a land tapping for a colour at all."
@@ -220,8 +238,8 @@ class AnnotationForm(forms.Form):
 
     note = forms.CharField(
         required=False, max_length=500, widget=forms.Textarea(attrs={"rows": 2}),
-        label="Why",
-        help_text="Shown beside the value on the provenance panel. Optional, and worth it.",
+        label=_("Why"),
+        help_text=_("Shown beside the value on the provenance panel. Optional, and worth it."),
     )
 
     def __init__(self, *args, **kwargs):

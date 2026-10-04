@@ -1,6 +1,7 @@
 {% extends "account/email/base_message.txt" %}
-{% block content %}Type this code into the page you have open:
+{% load i18n %}
+{% block content %}{% translate "Type this code into the page you have open:" %}
 
 {{ code }}
 
-Didn't try to sign in? Ignore this mail - nobody gets in without the code.{% endblock content %}
+{% translate "Didn't try to sign in? Ignore this mail - nobody gets in without the code." %}{% endblock content %}

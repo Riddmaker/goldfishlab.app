@@ -3,8 +3,8 @@
 One file per phase. Each phase is independently shippable and testable, and leaves the
 application more useful than it was before.
 
-These documents are **English**, because they belong to the application (which is English-only),
-not to the German deck-purchase project. They move to the new repository together with
+These documents are **English**, because they belong to the application (written in English and
+translated since Phase 12), not to the German deck-purchase project. They move to the new repository together with
 `simulation/` once it exists.
 
 The German summary and all product decisions live in `../../instructions.md`, section
@@ -28,10 +28,12 @@ these files describe execution.
 | 5 | [phase-5-playtest.md](phase-5-playtest.md) | **Complete** (2026-09-18); the engine split, and the three bugs it surfaced |
 | 5b | [phase-5b-effects.md](phase-5b-effects.md) | **Complete** (2026-09-18); the coverage score split in two, and 442 tutors that used to do nothing |
 | 6 | [phase-6-billing.md](phase-6-billing.md) | **Complete** (2026-09-20): collection, printing catalogue and prices, Stripe, and §2 closed by replacing seven planned parsers with one generic CSV importer — [importers.md](importers.md) |
-| 7 | [phase-7-combos.md](phase-7-combos.md) | **§1 and §2 complete** (2026-09-21): combos looked up per deck and cached, **no bulk mirror** — 656.8 MB, no gzip, 70% image URLs; then **turns-to-assemble** for both the combos a deck holds and the ones it is one card short of, the second measured on the deck **plus** that card. §3 and §4 need an API key nobody has |
+| 7 | [phase-7-combos.md](phase-7-combos.md) | **§1 and §2 complete** (2026-09-21): combos looked up per deck and cached, **no bulk mirror** — 656.8 MB, no gzip, 70% image URLs; then **turns-to-assemble** for both the combos a deck holds and the ones it is one card short of, the second measured on the deck **plus** that card. §3 and §4 not built (deliberately later) |
 | 8 | phase-8-launch.md (operator-only) | **Local half complete (2026-09-22); live at goldfishlab.app since 2026-09-28** (a few checks and Stripe still open) — **the only phase that touches production** |
 | 9 | [phase-9-ux-overhaul.md](phase-9-ux-overhaul.md) | **Complete** (2026-09-28 to 30, ten batches, one PR each): decks only, fewer words, more pictures, a guest trial. A (favicon, header, import page), A2 (mails, confirmation link), B (collection out), C (casting priority out of the UI), E (what was drawn), C2 (red marker, card review), D (deck page as pictures), F (playtest board), G (guest trial), H (text pass), I (clean-up: printings and the card-list page out, tests twice as fast) |
-| 10 | phase-10-test-findings.md (operator-only) | **Started 2026-10-02**: the findings of the first user test - honest numbers (tutor targets, draws only, coverage over every copy), a calmer report with an "Advanced" fold, line charts that explain themselves, a smoothed progress bar, a living logo, and a deck summary. Eight batches A-H |
+| 10 | phase-10-test-findings.md (operator-only) | **Complete, live 2026-10-02**: the findings of the first user test - honest numbers (tutor targets, draws only, coverage over every copy), a calmer report with an "Advanced" fold, line charts that explain themselves, a smoothed progress bar, a living logo, and a deck summary. Eight batches A-H |
+| 11 | phase-11-test-findings-2.md (operator-only) | **Complete, live 2026-10-03**: the findings of the second user test - a chart per strategy, the home page ticker, a summary with a title, the deck's strategies and catalogue cards for each, prices per currency (built, off until payments). Seven batches A-G |
+| 12 | phase-12-i18n.md (operator-only) | **Complete 2026-10-04**: the site in German, French, Italian, Spanish, Portuguese (Brazil) and Japanese - pages, mails, allauth, error pages, the methodology and the legal pages (English binding), the deck summary in the reader's language. Each language switched on per deployment (`LANGUAGES_ON`). Batches A-I, then J (the open tasks) |
 
 **Update the status column when a phase starts and when it finishes.** Phases 0–4 are detailed
 and each ends with a "What actually happened" account of where the plan met reality; phases

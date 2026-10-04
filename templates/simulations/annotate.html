@@ -1,16 +1,19 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block title %}{{ card.front_name }} — {{ deck.name }} — Goldfish Lab{% endblock %}
 {% block description %}
-  What the simulation engine reads off {{ card.front_name }}, and how to correct it.
+  {% blocktranslate trimmed with card=card.front_name %}
+    What the simulation engine reads off {{ card }}, and how to correct it.
+  {% endblocktranslate %}
 {% endblock %}
 {% block content %}
   <div class="flex flex-wrap items-baseline gap-4">
     <h1 class="font-display text-3xl text-parchment-100">{{ card.front_name }}</h1>
     {% if step %}
-      <span class="tabular text-parchment-200">{{ step.position }} of {{ step.total }}</span>
+      <span class="tabular text-parchment-200">{% blocktranslate with position=step.position total=step.total %}{{ position }} of {{ total }}{% endblocktranslate %}</span>
     {% endif %}
     <a href="{{ deck.get_absolute_url }}#cards"
-       class="ml-auto text-sm text-parchment-200 underline">All cards of {{ deck.name }}</a>
+       class="ml-auto text-sm text-parchment-200 underline">{% blocktranslate with name=deck.name %}All cards of {{ name }}{% endblocktranslate %}</a>
   </div>
   <div class="mt-6 grid gap-6 md:grid-cols-2">
     {% comment %}
@@ -22,35 +25,36 @@
         <img src="{{ card.image_uri }}" alt="{{ card.front_name }}"
              width="488" height="680" class="mx-auto h-auto w-full max-w-xs rounded-lg">
       {% endif %}
-      <p class="tabular mt-4 text-ink-700">
+      {# The card as printed: English, like its name (phase 12, Q6). #}
+      <p class="tabular mt-4 text-ink-700" lang="en">
         {% if card.mana_cost %}{{ card.mana_cost }} · {% endif %}{{ card.type_line }}
       </p>
       {% if card.oracle_text %}
-        <p class="mt-2 whitespace-pre-line text-ink-900">{{ card.oracle_text }}</p>
+        <p class="mt-2 whitespace-pre-line text-ink-900" lang="en">{{ card.oracle_text }}</p>
       {% endif %}
       {% if card.scryfall_uri %}
         <p class="mt-3 text-sm">
           <a href="{{ card.scryfall_uri }}" rel="noopener noreferrer" target="_blank"
-             class="text-ink-700 underline">See it on Scryfall</a>
+             class="text-ink-700 underline">{% translate "See it on Scryfall" %}</a>
         </p>
       {% endif %}
     </section>
     <section class="surface-parchment p-6">
-      <h2 class="font-display text-2xl text-ink-900">What does this card do?</h2>
+      <h2 class="font-display text-2xl text-ink-900">{% translate "What does this card do?" %}</h2>
       {% if entry.reading_gaps %}
         <ul class="mt-3 space-y-1 border-l-2 border-blood-600 pl-4 text-sm text-blood-700">
-          {% for gap in entry.reading_gaps %}<li>{{ gap.reason }}</li>{% endfor %}
+          {% for gap in entry.reading_gaps %}<li>{{ gap.text }}</li>{% endfor %}
         </ul>
       {% endif %}
       <p class="mt-3 text-sm text-ink-700">
-        Blank means you have not said, and the engine keeps its own reading.
-        For:
+        {% translate "Blank means you have not said, and the engine keeps its own reading." %}
+        {% translate "For:" %}
         {% if scope == "deck" %}
-          <strong class="text-ink-900">this deck</strong> ·
-          <a href="?scope=user" class="underline">all my decks</a>
+          <strong class="text-ink-900">{% translate "this deck" %}</strong> ·
+          <a href="?scope=user" class="underline">{% translate "all my decks" %}</a>
         {% else %}
-          <strong class="text-ink-900">all my decks</strong> ·
-          <a href="?scope=deck" class="underline">this deck</a>
+          <strong class="text-ink-900">{% translate "all my decks" %}</strong> ·
+          <a href="?scope=deck" class="underline">{% translate "this deck" %}</a>
         {% endif %}
       </p>
       {% if form.non_field_errors %}
@@ -65,7 +69,7 @@
           {% include "simulations/_annotation_field.html" %}
         {% endfor %}
         <details {% if not first_fields %}open{% endif %}>
-          <summary class="cursor-pointer text-ink-900 underline">More</summary>
+          <summary class="cursor-pointer text-ink-900 underline">{% translate "More" %}</summary>
           <div class="mt-4 space-y-5">
             {% for field in more_fields %}
               {% include "simulations/_annotation_field.html" %}
@@ -75,21 +79,21 @@
         <div class="flex flex-wrap items-center gap-3">
           <button type="submit"
                   class="border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
-            {% if step %}Save and next{% else %}Save{% endif %}
+            {% if step %}{% translate "Save and next" %}{% else %}{% translate "Save" %}{% endif %}
           </button>
           {% if step %}
             <button type="submit" name="action" value="confirm"
                     class="border border-verdigris-800 px-4 py-2 font-display text-verdigris-800 hover:bg-parchment-300">
-              Looks right
+              {% translate "Looks right" %}
             </button>
           {% endif %}
         </div>
       </form>
       {% if step %}
         <p class="mt-4 flex flex-wrap gap-4 text-sm">
-          {% if step.back %}<a href="{{ step.back }}" class="text-ink-900 underline">Back</a>{% endif %}
-          <a href="{{ step.skip }}" class="text-ink-900 underline">Skip</a>
-          <span class="tabular text-ink-700">{{ step.open }} still open</span>
+          {% if step.back %}<a href="{{ step.back }}" class="text-ink-900 underline">{% translate "Back" %}</a>{% endif %}
+          <a href="{{ step.skip }}" class="text-ink-900 underline">{% translate "Skip" %}</a>
+          <span class="tabular text-ink-700">{% blocktranslate with count=step.open %}{{ count }} still open{% endblocktranslate %}</span>
         </p>
       {% endif %}
       {% if annotation %}
@@ -98,21 +102,28 @@
           {% csrf_token %}
           <input type="hidden" name="scope" value="{{ scope }}">
           <p class="text-sm text-ink-700">
-            {% if annotation.confirmed %}You said it looks right. {% endif %}Recorded {{ annotation.updated_at|date:"j M Y, H:i" }}{% if annotation.note %} — “{{ annotation.note }}”{% endif %}.
+            {% if annotation.confirmed %}{% translate "You said it looks right." %} {% endif %}
+            {% if annotation.note %}
+              {% blocktranslate trimmed with date=annotation.updated_at|date:"SHORT_DATETIME_FORMAT" note=annotation.note %}
+                Recorded {{ date }} — “{{ note }}”.
+              {% endblocktranslate %}
+            {% else %}
+              {% blocktranslate with date=annotation.updated_at|date:"SHORT_DATETIME_FORMAT" %}Recorded {{ date }}.{% endblocktranslate %}
+            {% endif %}
           </p>
-          <button type="submit" class="mt-2 text-sm text-blood-700 underline">Forget this and go back to the card data</button>
+          <button type="submit" class="mt-2 text-sm text-blood-700 underline">{% translate "Forget this and go back to the card data" %}</button>
         </form>
       {% endif %}
     </section>
   </div>
   <details class="surface-parchment mt-6 p-6">
-    <summary class="cursor-pointer font-display text-xl text-ink-900">Why does the engine think this?</summary>
+    <summary class="cursor-pointer font-display text-xl text-ink-900">{% translate "Why does the engine think this?" %}</summary>
     <table class="mt-5 w-full text-left text-sm">
       <thead>
         <tr class="border-b border-parchment-600 text-ink-700">
-          <th scope="col" class="py-1.5 pr-3">Field</th>
-          <th scope="col" class="py-1.5 pr-3">Value</th>
-          <th scope="col" class="py-1.5">Source</th>
+          <th scope="col" class="py-1.5 pr-3">{% translate "Field" %}</th>
+          <th scope="col" class="py-1.5 pr-3">{% translate "Value" %}</th>
+          <th scope="col" class="py-1.5">{% translate "Source" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -122,7 +133,7 @@
             <td class="py-1.5 pr-3 text-ink-900">{{ row.value }}</td>
             <td class="py-1.5 text-ink-700">
               {{ row.source_label }}
-              {% if row.is_weak %}<span class="text-blood-700">— worth checking</span>{% endif %}
+              {% if row.is_weak %}<span class="text-blood-700">— {% translate "worth checking" %}</span>{% endif %}
               {% if row.is_yours %}<span class="text-verdigris-800">✓</span>{% endif %}
               <span class="block text-xs">{{ row.source_detail }}</span>
             </td>
@@ -132,7 +143,9 @@
     </table>
   </details>
   <p class="mt-8 text-sm text-parchment-200">
-    An answer applies from the next run onwards. It never changes a result
-    already computed.
+    {% blocktranslate trimmed %}
+      An answer applies from the next run onwards. It never changes a result
+      already computed.
+    {% endblocktranslate %}
   </p>
 {% endblock %}

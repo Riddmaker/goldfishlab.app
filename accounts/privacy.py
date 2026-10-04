@@ -19,6 +19,7 @@ What deletion does NOT do is cancel a subscription. See `deletion_blockers`.
 
 from django.apps import apps
 from django.db import transaction
+from django.utils.translation import gettext
 
 #: Models to walk, in the order a person would want to read them. Each entry is
 #: a label and the ORM path from a user to those rows.
@@ -89,11 +90,12 @@ def export(user) -> dict:
             "first_name": user.first_name,
             "last_name": user.last_name,
             "deck_summaries": user.deck_summaries,
+            "language": user.language,
         },
         "exported_at": _now(),
         # Named in the file itself, because a person who opens an export and
         # finds no decks deserves to know whether that is the whole answer.
-        "about_this_file": (
+        "about_this_file": gettext(
             "Everything Goldfish Lab stores about your account. Card and combo "
             "data is not included: it is public reference data from Scryfall "
             "and Commander Spellbook, identical for every account, and is not "
@@ -140,11 +142,11 @@ def deletion_blockers(user) -> list[str]:
 
     live = {Subscription.Status.ACTIVE, Subscription.Status.PAST_DUE}
     if subscription.status in live and subscription.is_paid:
-        blockers.append(
+        blockers.append(gettext(
             "You have a paid subscription. Cancel it first in the billing "
             "portal - deleting this account here would not stop Stripe "
             "charging your card, and afterwards nobody could sign in to stop it."
-        )
+        ))
     return blockers
 
 

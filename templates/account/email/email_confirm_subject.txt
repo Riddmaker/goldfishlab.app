@@ -1,1 +1,1 @@
-Your email for Goldfish Lab is confirmed
+{% load i18n %}{% translate "Your email for Goldfish Lab is confirmed" %}

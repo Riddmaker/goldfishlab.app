@@ -1,48 +1,59 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %}Import a deck — Goldfish Lab{% endblock %}
-{% block description %}Import a deck from any CSV export or a pasted list.{% endblock %}
+{% load static i18n %}
+{% block title %}{% translate "Import a deck" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "Import a deck from any CSV export or a pasted list." %}{% endblock %}
 {% block head %}
   <script src="{% static 'js/import.js' %}" defer></script>
 {% endblock %}
 {% block content %}
-  <h1 class="font-display text-3xl text-parchment-100">Import a deck</h1>
+  <h1 class="font-display text-3xl text-parchment-100">{% translate "Import a deck" %}</h1>
   <p class="mt-2 text-parchment-200">
-    <strong class="text-parchment-100">Any CSV works.</strong>
-    It only needs a column with the card name - a quantity column is optional.
+    {% blocktranslate trimmed %}
+      <strong class="text-parchment-100">Any CSV works.</strong>
+      It only needs a column with the card name - a quantity column is optional.
+    {% endblocktranslate %}
   </p>
   <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
     <div class="surface-parchment p-6">
-      {% include "decks/_import_form.html" with submit_label="Import" %}
+      {% include "decks/_import_form.html" with submit_label=_("Import") %}
     </div>
     <div class="space-y-6 text-parchment-200">
       <div>
-        <h2 class="font-display text-xl text-parchment-100">This is enough</h2>
-        <pre class="mt-2 border border-ink-800 bg-ink-900 px-4 py-3 font-mono text-sm text-parchment-100">Quantity,Name
+        <h2 class="font-display text-xl text-parchment-100">{% translate "This is enough" %}</h2>
+        {# The header words the importer reads in any language, and card names stay English (Q6). #}
+        <pre lang="en" class="mt-2 border border-ink-800 bg-ink-900 px-4 py-3 font-mono text-sm text-parchment-100">Quantity,Name
 1,Sol Ring
 1,Arcane Signet
 36,Swamp</pre>
       </div>
       <div>
-        <h2 class="font-display text-xl text-parchment-100">Where to get it</h2>
+        <h2 class="font-display text-xl text-parchment-100">{% translate "Where to get it" %}</h2>
         <ul class="mt-2 space-y-1 text-sm">
           <li>
-            <strong class="text-parchment-100">Archidekt:</strong> open the deck → More → Export → CSV
+            {% blocktranslate trimmed %}
+              <strong class="text-parchment-100">Archidekt:</strong> open the deck → More → Export → CSV
+            {% endblocktranslate %}
           </li>
           <li>
-            <strong class="text-parchment-100">Moxfield:</strong> open the deck → More → Export → copy, then paste it here
+            {% blocktranslate trimmed %}
+              <strong class="text-parchment-100">Moxfield:</strong> open the deck → More → Export → copy, then paste it here
+            {% endblocktranslate %}
           </li>
           <li>
-            <strong class="text-parchment-100">ManaBox:</strong> open the deck → ⋮ → Export
+            {% blocktranslate trimmed %}
+              <strong class="text-parchment-100">ManaBox:</strong> open the deck → ⋮ → Export
+            {% endblocktranslate %}
           </li>
         </ul>
       </div>
       <details class="text-sm text-ink-300">
-        <summary class="cursor-pointer">Why not an Excel file?</summary>
+        <summary class="cursor-pointer">{% translate "Why not an Excel file?" %}</summary>
         <p class="mt-2">
-          An .xlsx file is a zip archive and an .xls file can carry macros - a large parser run
-          over a stranger's upload for no benefit you would notice. Every tool that exports a
-          spreadsheet also exports a CSV.
+          {% blocktranslate trimmed %}
+            An .xlsx file is a zip archive and an .xls file can carry macros - a large parser run
+            over a stranger's upload for no benefit you would notice. Every tool that exports a
+            spreadsheet also exports a CSV.
+          {% endblocktranslate %}
         </p>
       </details>
     </div>

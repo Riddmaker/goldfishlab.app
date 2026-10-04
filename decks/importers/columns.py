@@ -55,6 +55,8 @@ quantity. A person is allowed to tell it there is not one.**
 
 from dataclasses import dataclass, field
 
+from django.utils.translation import gettext, gettext_noop
+
 from decks.importers.base import MissingColumn
 
 
@@ -110,8 +112,10 @@ class Column:
 
 #: Every alias below is a header some tool actually writes. Sources in the
 #: module docstring; the Archidekt ones are the only ones read off a real file.
+#: Each column's label is English, marked for the catalogues and translated
+#: where a page shows it: imports store it (`DeckImport.column_mapping`).
 QUANTITY = Column(
-    "quantity", "quantity",
+    "quantity", gettext_noop("quantity"),
     ("Quantity", "Count", "Qty", "Amount", "Card Count", "groupCount", "QUANTITY"),
     field_name="quantity",
 )
@@ -124,38 +128,38 @@ QUANTITY = Column(
 #: list it first would have read a whole collection as untradeable, which is to
 #: say as empty. Nothing would have errored.
 NAME = Column(
-    "name", "card name",
+    "name", gettext_noop("card name"),
     ("Name", "Card Name", "Card", "Simple Name", "CardName", "NAME"),
     required=True, field_name="name",
 )
 SET_CODE = Column(
-    "set_code", "set code",
+    "set_code", gettext_noop("set code"),
     ("Edition Code", "Set Code", "Set code", "Edition", "Set ID", "Set",
      "SETCODE", "Set Name"),
     field_name="set_code",
 )
 COLLECTOR_NUMBER = Column(
-    "collector_number", "collector number",
+    "collector_number", gettext_noop("collector number"),
     ("Collector Number", "Collector number", "Card Number", "Collector #",
      "Number", "COLLECTOR NUMBER"),
     field_name="collector_number",
 )
 SCRYFALL_ID = Column(
-    "scryfall_id", "Scryfall printing id",
+    "scryfall_id", gettext_noop("Scryfall printing id"),
     ("Scryfall ID", "Scryfall Id", "ScryfallId", "scryfall_id"),
     field_name="scryfall_id",
 )
 FINISH = Column(
-    "finish", "finish",
+    "finish", gettext_noop("finish"),
     ("Finish", "Foil", "Printing", "Premium", "FINISH", "isFoil"),
 )
-CONDITION = Column("condition", "condition", ("Condition", "CONDITION"))
-LANGUAGE = Column("language", "language", ("Language", "LANGUAGE", "Lang"))
+CONDITION = Column("condition", gettext_noop("condition"), ("Condition", "CONDITION"))
+LANGUAGE = Column("language", gettext_noop("language"), ("Language", "LANGUAGE", "Lang"))
 #: Not an identifier - the only column that can say which card is the general.
 #: Archidekt writes it into a free-text `Tags` cell, which is why the test is a
 #: substring search and not equality: a real cell reads `Commander,Ramp`.
 TAGS = Column(
-    "tags", "tags or category",
+    "tags", gettext_noop("tags or category"),
     ("Tags", "Tag", "Category", "Categories"),
 )
 
@@ -240,8 +244,10 @@ class Mapping:
         if self.has(column):
             return
         raise MissingColumn(
-            f"this file has no {column.label} column. "
-            + (hint or f"Re-export it with {column.aliases[0]} included.")
+            gettext("this file has no %(column)s column.") % {"column": gettext(column.label)}
+            + " "
+            + (hint or gettext("Re-export it with %(header)s included.") % {
+                "header": column.aliases[0]})
         )
 
 

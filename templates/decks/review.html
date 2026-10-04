@@ -1,34 +1,41 @@
 {% extends "base.html" %}
-{% block title %}Import review — Goldfish Lab{% endblock %}
-{% block description %}The rows the importer could not match, and what it matched the rest on.{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Import review" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "The rows the importer could not match, and what it matched the rest on." %}{% endblock %}
 {% block content %}
-  <h1 class="font-display text-3xl text-parchment-100">Import review</h1>
+  <h1 class="font-display text-3xl text-parchment-100">{% translate "Import review" %}</h1>
   <p class="mt-3 text-parchment-200">
-    {{ record.filename|default:"Uploaded file" }} — read as
-    <strong class="text-parchment-100">{{ record.get_parser_display|default:record.parser }}</strong>.
+    {% if record.filename %}{{ record.filename }}{% else %}{% translate "Uploaded file" %}{% endif %} —
+    {% blocktranslate trimmed with parser=record.parser_label %}
+      read as <strong class="text-parchment-100">{{ parser }}</strong>.
+    {% endblocktranslate %}
   </p>
   {% if record.column_mapping %}
     {# Which column meant what. Most imports never see the mapping screen,    #}
     {# because most files answer the question themselves - so this is where   #}
     {# that answer becomes visible instead of never.                          #}
     <p class="mt-1 text-sm text-ink-300">
-      Columns:
-      {% for label, header in record.column_mapping %}
-        {{ label }} from <span class="tabular">{{ header }}</span>{% if not forloop.last %}, {% endif %}
+      {% translate "Columns:" %}
+      {% for label, header in record.columns_shown %}
+        {% blocktranslate trimmed %}
+          {{ label }} from <span class="tabular">{{ header }}</span>
+        {% endblocktranslate %}{% if not forloop.last %}, {% endif %}
       {% endfor %}.
     </p>
   {% endif %}
   <section class="surface-parchment mt-8 p-6">
-    <h2 class="font-display text-2xl text-ink-900">How exact the match was</h2>
+    <h2 class="font-display text-2xl text-ink-900">{% translate "How exact the match was" %}</h2>
     <p class="mt-2 text-sm text-ink-700">
-      Higher rungs are stronger claims. A row matched on its name is the right card, but not
-      necessarily the printing you own.
+      {% blocktranslate trimmed %}
+        Higher rungs are stronger claims. A row matched on its name is the right card, but not
+        necessarily the printing you own.
+      {% endblocktranslate %}
     </p>
     <table class="mt-4 w-full text-left text-ink-900">
       <thead>
         <tr class="border-b border-parchment-600">
-          <th scope="col" class="py-2 pr-4 font-display font-normal">Matched by</th>
-          <th scope="col" class="py-2 text-right font-display font-normal">Rows</th>
+          <th scope="col" class="py-2 pr-4 font-display font-normal">{% translate "Matched by" %}</th>
+          <th scope="col" class="py-2 text-right font-display font-normal">{% translate "Rows" %}</th>
         </tr>
       </thead>
       <tbody>
@@ -39,7 +46,7 @@
           </tr>
         {% endfor %}
         <tr>
-          <td class="py-2 pr-4 font-display">Total rows in the file</td>
+          <td class="py-2 pr-4 font-display">{% translate "Total rows in the file" %}</td>
           <td class="tabular py-2 text-right font-display">{{ record.rows_total }}</td>
         </tr>
       </tbody>
@@ -48,19 +55,19 @@
   {% if unresolved %}
     <section class="mt-8 border-l-2 border-blood-600 pl-5">
       <h2 class="font-display text-2xl text-parchment-100">
-        {{ unresolved|length }} row{{ unresolved|length|pluralize }} not matched
+        {% blocktranslate count count=unresolved|length %}{{ count }} row not matched{% plural %}{{ count }} rows not matched{% endblocktranslate %}
       </h2>
-      <p class="mt-2 text-parchment-200">These were kept, not dropped. The deck below does not contain them.</p>
+      <p class="mt-2 text-parchment-200">{% translate "These were kept, not dropped. The deck below does not contain them." %}</p>
       <ul class="mt-5 space-y-4">
         {% for row in unresolved %}
           <li class="surface-parchment p-4">
             <p class="font-display text-lg text-ink-900">
               <span class="tabular">{{ row.quantity }}×</span> {{ row.raw_name }}
             </p>
-            <p class="mt-1 text-sm text-ink-700">Line {{ row.line_number }} — {{ row.reason }}</p>
+            <p class="mt-1 text-sm text-ink-700">{% translate row.reason as reason %}{% blocktranslate with line=row.line_number %}Line {{ line }} — {{ reason }}{% endblocktranslate %}</p>
             {% if row.suggestions %}
               <p class="mt-2 text-sm text-ink-900">
-                Did you mean:
+                {% translate "Did you mean:" %}
                 {% for suggestion in row.suggestions %}
                   <span class="border border-parchment-600 px-2 py-0.5">{{ suggestion }}</span>
                 {% endfor %}
@@ -71,13 +78,13 @@
       </ul>
     </section>
   {% else %}
-    <p class="mt-8 border-l-2 border-verdigris-600 pl-5 text-parchment-200">Every row matched. Nothing needed review.</p>
+    <p class="mt-8 border-l-2 border-verdigris-600 pl-5 text-parchment-200">{% translate "Every row matched. Nothing needed review." %}</p>
   {% endif %}
   {% if record.deck %}
     <p class="mt-10">
       <a href="{{ record.deck.get_absolute_url }}"
          class="inline-block border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
-        Open {{ record.deck.name }}
+        {% blocktranslate with name=record.deck.name %}Open {{ name }}{% endblocktranslate %}
       </a>
     </p>
   {% endif %}

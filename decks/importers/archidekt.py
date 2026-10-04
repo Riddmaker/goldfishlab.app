@@ -33,6 +33,8 @@ not the format's. Before that was understood, an export with Quantity unticked
 sniffed at 0.75, parsed without complaint, and turned 28 Swamps into 1.
 """
 
+from django.utils.translation import gettext_noop
+
 from decks.importers.tabular import TabularParser
 
 #: Columns that, taken together, no other export we have seen produces. Note
@@ -44,7 +46,7 @@ REQUIRED = {"name"}
 
 class ArchidektParser(TabularParser):
     name = "archidekt"
-    label = "Archidekt CSV (deck or collection export)"
+    label = gettext_noop("Archidekt CSV (deck or collection export)")
 
     @classmethod
     def sniff(cls, header: str, preamble: str = "") -> float:

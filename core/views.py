@@ -1,6 +1,7 @@
 """Core views: landing page, styleguide and health check."""
 
 import logging
+from datetime import date
 
 from django.conf import settings
 from django.db import connection
@@ -79,12 +80,15 @@ class TermsView(TemplateView):
     """Terms of service."""
 
     template_name = "core/terms.html"
+    # A date, not text: each language writes it its own way (phase 12 I).
+    extra_context = {"updated": date(2026, 10, 4)}
 
 
 class PrivacyView(TemplateView):
     """Privacy policy: what is stored, why, for how long, and how to end it."""
 
     template_name = "core/privacy.html"
+    extra_context = {"updated": date(2026, 10, 4)}
 
 
 class ImprintView(TemplateView):

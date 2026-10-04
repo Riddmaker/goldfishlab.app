@@ -31,6 +31,8 @@ question, a named card, and a link to the field that answers it.
 import re
 from dataclasses import dataclass, field
 
+from django.utils.translation import gettext
+
 #: A card whose *trigger* is something an opponent does. In a goldfish the
 #: trigger never fires, so the card is a permanent that cost mana.
 _OPPONENT_TRIGGER = re.compile(
@@ -130,26 +132,26 @@ def opponent_dependent(readings) -> BlindSpot:
     """
     spot = BlindSpot(
         key="opponent_dependent",
-        heading="Cards that need an opponent",
-        detail=(
+        heading=gettext("Cards that need an opponent"),
+        detail=gettext(
             "A goldfish game has no opponents, so nothing these cards react to "
             "ever happens. They cost mana and then do nothing else. A deck "
             "built around them plays considerably better than it simulates — "
             "and no number on this page can tell you by how much."
         ),
-        fix="Can be cast against nobody",
+        fix=gettext("Can be cast against nobody"),
     )
     for reading in readings:
         text = reading.oracle_card.oracle_text or ""
         if _OPPONENT_TRIGGER.search(text):
-            reason = "triggers on something an opponent does"
+            reason = gettext("triggers on something an opponent does")
         elif _OPPONENT_SUBJECT.search(text):
             # Deliberately hedged: the pattern proves the card *mentions* an
             # opponent, not that the whole card is dead without one. Bloodghast
             # is a fine creature whose enters-with-a-counter clause never
             # fires. Claiming more than the pattern shows would be the same
             # overreach this module exists to warn about.
-            reason = "part of what it does needs an opponent"
+            reason = gettext("part of what it does needs an opponent")
         else:
             continue
         spot.suspects.append(
@@ -167,18 +169,18 @@ def unresolved_mana(readings) -> BlindSpot:
     """
     spot = BlindSpot(
         key="unresolved_mana",
-        heading="Mana sources nobody has pinned down",
-        detail=(
+        heading=gettext("Mana sources nobody has pinned down"),
+        detail=gettext(
             "Scryfall records which colours a card can make, never how much or "
             "at what cost. Where a pattern could not read the amount off the "
             "card text, the engine was told nothing rather than guessing at "
             "one — so these cards are currently making less mana in the "
             "simulation than they do on a table."
         ),
-        fix="Taps for",
+        fix=gettext("Taps for"),
     )
     for reading in readings:
-        reasons = [gap.reason for gap in reading.gaps if gap.field == "mana_abilities"]
+        reasons = [gap.text for gap in reading.gaps if gap.field == "mana_abilities"]
         if reasons:
             spot.suspects.append(
                 Suspect(
@@ -201,15 +203,15 @@ def mislabelled_removal(readings) -> BlindSpot:
     """
     spot = BlindSpot(
         key="mislabelled_removal",
-        heading="Roles worth a second look",
-        detail=(
+        heading=gettext("Roles worth a second look"),
+        detail=gettext(
             "The role vocabulary comes from the Scryfall Tagger community, "
             "which is broad by design: “destroy target creature you control” "
             "is filed under removal alongside “destroy target creature”. The "
             "first is an engine piece and the second answers a threat, and the "
             "report's milestone table counts them the same way."
         ),
-        fix="Roles",
+        fix=gettext("Roles"),
     )
     for reading in readings:
         if REMOVAL_ROLE not in reading.card.tags:
@@ -220,7 +222,7 @@ def mislabelled_removal(readings) -> BlindSpot:
                 Suspect(
                     reading.oracle_card.pk,
                     reading.oracle_card.front_name,
-                    "tagged as removal, but it destroys something you control",
+                    gettext("tagged as removal, but it destroys something you control"),
                 )
             )
     return spot

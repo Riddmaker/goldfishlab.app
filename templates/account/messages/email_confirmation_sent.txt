@@ -1,1 +1,1 @@
-{% comment %}After sign-up; the page under it (verification_sent.html) does not know the address.{% endcomment %}We sent a link to {{ email }}.
+{% comment %}After sign-up; the page under it (verification_sent.html) does not know the address.{% endcomment %}{% load i18n %}{% blocktranslate %}We sent a link to {{ email }}.{% endblocktranslate %}

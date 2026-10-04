@@ -15,6 +15,16 @@ Design rules:
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext, gettext_noop
+
+#: The names the plans are seeded with (migrations 0002, 0005), marked so the
+#: catalogues carry them (phase 12). `Plan.display_name` translates a plan's
+#: name when it is one of these; a name the operator changed shows as typed.
+SEEDED_NAMES = (gettext_noop("Free"), gettext_noop("Guest"), gettext_noop("Planeswalker"),
+                gettext_noop("Archmage"))
+
+#: What a page calls each billing interval.
+INTERVALS = {"month": gettext_noop("month"), "year": gettext_noop("year")}
 
 
 class Plan(models.Model):
@@ -55,6 +65,16 @@ class Plan(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def display_name(self) -> str:
+        """The name in the page's language; `name` stays what the record says."""
+        return gettext(self.name) if self.name in SEEDED_NAMES else self.name
+
+    @property
+    def interval_label(self) -> str:
+        """"month", in the page's language."""
+        return gettext(INTERVALS[self.interval]) if self.interval in INTERVALS else self.interval
 
     @property
     def price_chf(self):

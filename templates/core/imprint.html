@@ -1,13 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Legal notice — Goldfish Lab{% endblock %}
-{% block description %}Who runs Goldfish Lab and how to reach them.{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Legal notice" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "Who runs Goldfish Lab and how to reach them." %}{% endblock %}
 {% block content %}
   {% comment %}
     The identity and contact address the Swiss UWG (Art. 3 para. 1 lit. s)
     requires of anyone offering services online: name, a postal address that
     delivers, and an email address. Read from settings; see _operator.html.
   {% endcomment %}
-  <section class="max-w-3xl">
+  {% include "core/_english_only.html" %}
+  <section class="max-w-3xl" lang="en">
     <h1 class="font-display text-4xl leading-tight text-parchment-100">Legal notice</h1>
 
     <h2 class="mt-10 font-display text-2xl text-parchment-100">Who runs this site</h2>

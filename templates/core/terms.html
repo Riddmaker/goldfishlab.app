@@ -1,6 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Terms of service — Goldfish Lab{% endblock %}
-{% block description %}The terms you agree to by using Goldfish Lab: accounts, paid plans, cancelling, refunds, and what the simulations do and do not promise.{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Terms of service" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "The terms you agree to by using Goldfish Lab: accounts, paid plans, cancelling, refunds, and what the simulations do and do not promise." %}{% endblock %}
 {% block content %}
   {% comment %}
     Swiss law, a Swiss consumer's mandatory protections kept intact: Art. 32 and
@@ -17,7 +18,8 @@
     through Link" is the merchant of record for the payment, and the paying
     section says so. Both states must stay true - the operator's VAT notes.
   {% endcomment %}
-  <section class="max-w-3xl">
+  {% include "core/_english_only.html" %}
+  <section class="max-w-3xl" lang="en">
     <h1 class="font-display text-4xl leading-tight text-parchment-100">Terms of service</h1>
     <p class="mt-4 text-sm text-ink-300">Last updated 29 September 2026.</p>
 

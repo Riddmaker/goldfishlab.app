@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Goldfish Lab\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 21:46+0200\n"
+"POT-Creation-Date: 2026-10-04 09:01+0200\n"
 "PO-Revision-Date: 2026-10-03 22:00+0200\n"
 "Last-Translator: Claude\n"
 "Language-Team: \n"
@@ -130,8 +130,8 @@ msgstr ""
 #, python-format
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
-"used.  Please request a <a href=\"%(passwd_reset_url)s\">new password reset</"
-"a>."
+"used.  Please request a <a href=\"%(passwd_reset_url)s\">new password "
+"reset</a>."
 msgstr ""
 
 #: accounts/allauth_tone.py
@@ -181,8 +181,8 @@ msgstr ""
 
 #: accounts/allauth_tone.py
 msgid ""
-"You currently do not have any email address set up. You should really add an "
-"email address so you can receive notifications, reset your password, etc."
+"You currently do not have any email address set up. You should really add an"
+" email address so you can receive notifications, reset your password, etc."
 msgstr ""
 
 #: accounts/allauth_tone.py
@@ -213,15 +213,13 @@ msgstr ""
 msgid ""
 "Everything Goldfish Lab stores about your account. Card and combo data is "
 "not included: it is public reference data from Scryfall and Commander "
-"Spellbook, identical for every account, and is not about you. Stripe payment "
-"identifiers are deliberately left out - your invoices live in Stripe's own "
+"Spellbook, identical for every account, and is not about you. Stripe payment"
+" identifiers are deliberately left out - your invoices live in Stripe's own "
 "portal, linked from your plan page."
 msgstr ""
-"Goldfish Lab があなたのアカウントについて保存しているすべてのデータです。カー"
-"ドとコンボのデータは含まれません。これは Scryfall と Commander Spellbook の公"
-"開参照データで、どのアカウントでも同じであり、あなたに関する情報ではありませ"
-"ん。Stripe の支払い ID は意図的に除外しています。請求書は Stripe のポータルに"
-"あり、プランのページからリンクしています。"
+"Goldfish Lab があなたのアカウントについて保存しているすべてのデータです。カードとコンボのデータは含まれません。これは Scryfall と"
+" Commander Spellbook の公開参照データで、どのアカウントでも同じであり、あなたに関する情報ではありません。Stripe の支払い "
+"ID は意図的に除外しています。請求書は Stripe のポータルにあり、プランのページからリンクしています。"
 
 #: accounts/privacy.py
 msgid ""
@@ -229,14 +227,12 @@ msgid ""
 "deleting this account here would not stop Stripe charging your card, and "
 "afterwards nobody could sign in to stop it."
 msgstr ""
-"有料のサブスクリプションがあります。先に請求ポータルで解約してください。ここ"
-"でアカウントを削除しても Stripe によるカードへの請求は止まらず、その後は誰も"
-"ログインして止めることができなくなります。"
+"有料のサブスクリプションがあります。先に請求ポータルで解約してください。ここでアカウントを削除しても Stripe "
+"によるカードへの請求は止まらず、その後は誰もログインして止めることができなくなります。"
 
 #: accounts/views.py
 msgid "That is not the address this account uses, so nothing was deleted."
-msgstr ""
-"このアカウントのメールアドレスと一致しないため、何も削除されませんでした。"
+msgstr "このアカウントのメールアドレスと一致しないため、何も削除されませんでした。"
 
 #: accounts/views.py
 msgid "Your account and everything in it have been deleted. Nothing was kept."
@@ -270,18 +266,14 @@ msgstr "年"
 msgid ""
 "This installation cannot take payments yet: no Stripe key, or the plan has "
 "no price configured."
-msgstr ""
-"このインストールではまだ支払いを受け付けられません。Stripe キーがないか、プラ"
-"ンに価格が設定されていません。"
+msgstr "このインストールではまだ支払いを受け付けられません。Stripe キーがないか、プランに価格が設定されていません。"
 
 #: billing/services.py
 #, python-format
 msgid ""
 "You are already on %(plan)s. Switching plans happens in the billing portal, "
 "so that you are never charged for two at once."
-msgstr ""
-"すでに %(plan)s をご利用中です。プランの変更は請求ポータルで行います。二重に"
-"請求されることはありません。"
+msgstr "すでに %(plan)s をご利用中です。プランの変更は請求ポータルで行います。二重に請求されることはありません。"
 
 #: billing/services.py
 msgid "This account has never been to Stripe."
@@ -307,9 +299,7 @@ msgstr "現在"
 msgid ""
 "Stripe could not start a checkout just now. Nothing was charged. Please try "
 "again."
-msgstr ""
-"Stripe で今すぐ決済を開始できませんでした。請求は発生していません。もう一度お"
-"試しください。"
+msgstr "Stripe で今すぐ決済を開始できませんでした。請求は発生していません。もう一度お試しください。"
 
 #: billing/views.py
 msgid "Stripe could not open the billing portal just now."
@@ -435,8 +425,7 @@ msgstr "マナを変換するだけの能力はモデル化されていません
 
 #: cards/profiles.py
 msgid "sacrifices itself for mana, which is not modelled on a creature"
-msgstr ""
-"マナのために自身を生け贄に捧げる（クリーチャーではモデル化されていません）"
+msgstr "マナのために自身を生け贄に捧げる（クリーチャーではモデル化されていません）"
 
 #: cards/profiles.py
 msgid "its mana ability costs as much as it makes"
@@ -498,49 +487,37 @@ msgstr "コストに X を含む"
 msgid ""
 "No timing for this one: it needs a kind of card rather than a named one, "
 "which is a search and not a simulation."
-msgstr ""
-"このコンボのタイミングはありません。名前のあるカードではなく、ある種類のカー"
-"ドが必要です。それはシミュレーションではなくサーチの問題です。"
+msgstr "このコンボのタイミングはありません。名前のあるカードではなく、ある種類のカードが必要です。それはシミュレーションではなくサーチの問題です。"
 
 #: combos/measure.py
 msgid ""
 "No timing for this one: it names a card this application has not got in its "
 "catalogue."
-msgstr ""
-"このコンボのタイミングはありません。このアプリケーションのカタログにないカー"
-"ドが含まれています。"
+msgstr "このコンボのタイミングはありません。このアプリケーションのカタログにないカードが含まれています。"
 
 #: combos/measure.py
 msgid ""
 "No timing for this one: it asks for a card to be somewhere this simulator "
 "does not model."
-msgstr ""
-"このコンボのタイミングはありません。このシミュレーターがモデル化していない場"
-"所にカードがあることを求めています。"
+msgstr "このコンボのタイミングはありません。このシミュレーターがモデル化していない場所にカードがあることを求めています。"
 
 #: combos/measure.py
 msgid ""
-"No timing for this one: it is more than one card away once this deck is read "
-"our way."
-msgstr ""
-"このコンボのタイミングはありません。このデッキを私たちの方法で読むと、カード"
-"が2枚以上足りません。"
+"No timing for this one: it is more than one card away once this deck is read"
+" our way."
+msgstr "このコンボのタイミングはありません。このデッキを私たちの方法で読むと、カードが2枚以上足りません。"
 
 #: combos/measure.py
 msgid ""
 "No timing for this one: it is one this deck turns out not to hold, once it "
 "is read our way."
-msgstr ""
-"このコンボのタイミングはありません。私たちの方法で読むと、このデッキには含ま"
-"れていないことがわかりました。"
+msgstr "このコンボのタイミングはありません。私たちの方法で読むと、このデッキには含まれていないことがわかりました。"
 
 #: combos/measure.py
 msgid ""
 "No timing for this one: it was not among the most-played few this run had "
 "room to measure."
-msgstr ""
-"このコンボのタイミングはありません。今回の実行で計測できた、よく揃う上位のコ"
-"ンボに入っていませんでした。"
+msgstr "このコンボのタイミングはありません。今回の実行で計測できた、よく揃う上位のコンボに入っていませんでした。"
 
 #: combos/models.py
 msgid "never"
@@ -565,9 +542,7 @@ msgid ""
 msgid_plural ""
 "Try again in about %(wait)s seconds - Commander Spellbook is a free service "
 "and this is the polite thing to do."
-msgstr[0] ""
-"約 %(wait)s 秒後にもう一度お試しください。Commander Spellbook は無料のサービ"
-"スなので、これが礼儀です。"
+msgstr[0] "約 %(wait)s 秒後にもう一度お試しください。Commander Spellbook は無料のサービスなので、これが礼儀です。"
 
 #: combos/services.py
 msgid "There are no cards in this deck to look up."
@@ -588,9 +563,7 @@ msgstr "新しいユーザーが参加しました。"
 msgid "Another guest simulated a deck led by %(commander)s: %(games)s game."
 msgid_plural ""
 "Another guest simulated a deck led by %(commander)s: %(games)s games."
-msgstr[0] ""
-"別のゲストが %(commander)s のデッキをシミュレーションしました：%(games)s ゲー"
-"ム。"
+msgstr[0] "別のゲストが %(commander)s のデッキをシミュレーションしました：%(games)s ゲーム。"
 
 #: core/ticker.py
 #, python-format
@@ -603,9 +576,7 @@ msgstr[0] "別のゲストがデッキをシミュレーションしました：
 msgid "Another user simulated a deck led by %(commander)s: %(games)s game."
 msgid_plural ""
 "Another user simulated a deck led by %(commander)s: %(games)s games."
-msgstr[0] ""
-"別のユーザーが %(commander)s のデッキをシミュレーションしました：%(games)s "
-"ゲーム。"
+msgstr[0] "別のユーザーが %(commander)s のデッキをシミュレーションしました：%(games)s ゲーム。"
 
 #: core/ticker.py
 #, python-format
@@ -678,9 +649,7 @@ msgstr "%(source)s の %(low)s～%(high)s の範囲を上回っています。"
 msgid ""
 "Rituals and mana rocks can justify the low end; this count does not know "
 "about them yet."
-msgstr ""
-"儀式やマナ・ロックがあれば少なめでも問題ありませんが、この数はまだそれらを考"
-"慮していません。"
+msgstr "儀式やマナ・ロックがあれば少なめでも問題ありませんが、この数はまだそれらを考慮していません。"
 
 #: decks/analysis.py
 #, python-format
@@ -696,9 +665,7 @@ msgstr "ブラケット 3 では %(limit)s 枚まで使えます。"
 #: decks/analysis.py
 #, python-format
 msgid "Bracket 3 allows %(limit)s. This deck reads as Bracket 4: %(cards)s"
-msgstr ""
-"ブラケット 3 では %(limit)s 枚までです。このデッキはブラケット 4 と判定されま"
-"す：%(cards)s"
+msgstr "ブラケット 3 では %(limit)s 枚までです。このデッキはブラケット 4 と判定されます：%(cards)s"
 
 #: decks/analysis.py simulations/engine/adapter.py
 #: templates/decks/_card_grid.html templates/decks/detail.html
@@ -842,18 +809,14 @@ msgstr "ファイルが認識されない場合のみ必要です。"
 msgid ""
 "That file is %(size)s KB. The limit is %(limit)s KB - a deck list is a few "
 "dozen."
-msgstr ""
-"このファイルは %(size)s KB です。上限は %(limit)s KB です。デッキリストは数"
-"十 KB 程度です。"
+msgstr "このファイルは %(size)s KB です。上限は %(limit)s KB です。デッキリストは数十 KB 程度です。"
 
 #: decks/forms.py
 #, python-format
 msgid ""
 "That list is %(size)s KB. The limit is %(limit)s KB - a deck list is a few "
 "dozen."
-msgstr ""
-"このリストは %(size)s KB です。上限は %(limit)s KB です。デッキリストは数十 "
-"KB 程度です。"
+msgstr "このリストは %(size)s KB です。上限は %(limit)s KB です。デッキリストは数十 KB 程度です。"
 
 #: decks/forms.py
 msgid "Paste your deck list first."
@@ -875,9 +838,7 @@ msgstr "列を選択"
 #, python-format
 msgid ""
 "Choose which column holds the %(column)s, or say the file has not got one."
-msgstr ""
-"%(column)s が入っている列を選ぶか、ファイルにその列がないことを指定してくださ"
-"い。"
+msgstr "%(column)s が入っている列を選ぶか、ファイルにその列がないことを指定してください。"
 
 #: decks/importers/archidekt.py
 msgid "Archidekt CSV (deck or collection export)"
@@ -937,19 +898,16 @@ msgstr "CSV または TSV のエクスポート（任意のツール）"
 msgid ""
 "Nothing can be read from a file with no card name in it. Re-export it with "
 "the card name included, or map a column to it by hand."
-msgstr ""
-"カード名のないファイルからは何も読み取れません。カード名を含めてもう一度エク"
-"スポートするか、列を手動で割り当ててください。"
+msgstr "カード名のないファイルからは何も読み取れません。カード名を含めてもう一度エクスポートするか、列を手動で割り当ててください。"
 
 #: decks/importers/tabular.py
 msgid ""
-"Re-export it with Quantity ticked - without it every card would be read as a "
-"single copy, and a 28-Swamp deck would import as a 28-card deck with one "
+"Re-export it with Quantity ticked - without it every card would be read as a"
+" single copy, and a 28-Swamp deck would import as a 28-card deck with one "
 "Swamp in it. You can also map the column by hand."
 msgstr ""
-"Quantity にチェックを入れてもう一度エクスポートしてください。これがないとすべ"
-"てのカードが1枚として読まれ、Swamp 28枚のデッキは Swamp 1枚の28枚デッキとして"
-"インポートされます。列を手動で割り当てることもできます。"
+"Quantity にチェックを入れてもう一度エクスポートしてください。これがないとすべてのカードが1枚として読まれ、Swamp 28枚のデッキは "
+"Swamp 1枚の28枚デッキとしてインポートされます。列を手動で割り当てることもできます。"
 
 #: decks/importers/tabular.py
 #, python-format
@@ -957,8 +915,8 @@ msgid ""
 "that file has more than %(limit)s card rows. The largest real collection "
 "export is a few thousand, so this is almost certainly not a deck list."
 msgstr ""
-"このファイルには %(limit)s 行を超えるカードの行があります。実際のコレクション"
-"のエクスポートでも数千行なので、これはほぼ確実にデッキリストではありません。"
+"このファイルには %(limit)s "
+"行を超えるカードの行があります。実際のコレクションのエクスポートでも数千行なので、これはほぼ確実にデッキリストではありません。"
 
 #: decks/importers/tabular.py
 #, python-format
@@ -969,9 +927,7 @@ msgstr "このファイルは有効な CSV ではありません：%(error)s"
 msgid ""
 "that file is not a table - no line in it splits into columns consistently. "
 "If it is a plain list of card names, choose 'Plain text list' as the format."
-msgstr ""
-"このファイルは表形式ではありません。どの行も一貫して列に分かれません。カード"
-"名だけのリストなら、形式に「テキストリスト」を選んでください。"
+msgstr "このファイルは表形式ではありません。どの行も一貫して列に分かれません。カード名だけのリストなら、形式に「テキストリスト」を選んでください。"
 
 #: decks/importers/text.py
 msgid "Plain text list (one card per line)"
@@ -1029,11 +985,10 @@ msgstr "ファイルをテキストとして読み込めませんでした"
 #: decks/services.py
 #, python-format
 msgid ""
-"file has about %(rows)s lines; the limit is %(limit)s. That is far more than "
-"a deck or a collection - is it the right file?"
+"file has about %(rows)s lines; the limit is %(limit)s. That is far more than"
+" a deck or a collection - is it the right file?"
 msgstr ""
-"ファイルは約 %(rows)s 行あります。上限は %(limit)s 行です。デッキやコレクショ"
-"ンとしては多すぎます。正しいファイルですか？"
+"ファイルは約 %(rows)s 行あります。上限は %(limit)s 行です。デッキやコレクションとしては多すぎます。正しいファイルですか？"
 
 #: decks/services.py
 msgid "the file contained no card rows"
@@ -1055,9 +1010,7 @@ msgstr "このファイルを認識できるパーサーがありませんでし
 msgid ""
 "Choose a column above for each of card name and quantity - or say the file "
 "has not got one - and your own rows will appear here."
-msgstr ""
-"上でカード名と枚数それぞれの列を選ぶか、ファイルにその列がないことを指定する"
-"と、あなたの行がここに表示されます。"
+msgstr "上でカード名と枚数それぞれの列を選ぶか、ファイルにその列がないことを指定すると、あなたの行がここに表示されます。"
 
 #: decks/views.py
 msgid ""
@@ -1066,10 +1019,8 @@ msgid ""
 "column is which - it takes about thirty seconds and works for any export. "
 "Choose “Plain text list” if it is simply one card name per line."
 msgstr ""
-"このファイルは認識されなかったため、何も推測していません。形式に「CSV または "
-"TSV のエクスポート（任意のツール）」を選ぶと、どの列が何かを尋ねられます。30"
-"秒ほどで済み、どのエクスポートでも使えます。1行に1枚のカード名だけなら「テキ"
-"ストリスト」を選んでください。"
+"このファイルは認識されなかったため、何も推測していません。形式に「CSV または TSV "
+"のエクスポート（任意のツール）」を選ぶと、どの列が何かを尋ねられます。30秒ほどで済み、どのエクスポートでも使えます。1行に1枚のカード名だけなら「テキストリスト」を選んでください。"
 
 #: decks/views.py
 #, python-format
@@ -1085,9 +1036,7 @@ msgid ""
 msgid_plural ""
 "%(missing)s of %(rows)s rows could not be matched. Nothing was dropped - "
 "they are listed below."
-msgstr[0] ""
-"一致しなかった行：%(rows)s 行中 %(missing)s 行。削除はしていません。下に一覧"
-"があります。"
+msgstr[0] "一致しなかった行：%(rows)s 行中 %(missing)s 行。削除はしていません。下に一覧があります。"
 
 #: decks/views.py
 msgid "That card is not in this deck."
@@ -1101,9 +1050,7 @@ msgstr "%(card)s を統率者に設定しました。"
 #: playtest/services.py
 #, python-format
 msgid "a session holds at most %(limit)s actions; start a new one"
-msgstr ""
-"1つのセッションで行える操作は最大 %(limit)s 回です。新しいセッションを開始し"
-"てください"
+msgstr "1つのセッションで行える操作は最大 %(limit)s 回です。新しいセッションを開始してください"
 
 #: playtest/views.py templates/decks/detail.html
 msgid "Lands"
@@ -1226,9 +1173,7 @@ msgstr "唱える優先度"
 msgid ""
 "Higher goes first. The engine's own rule is 40 minus the mana value, so a "
 "two-drop it has no opinion about sits at 38."
-msgstr ""
-"数値が高いほど先に唱えます。エンジン自身のルールは 40 からマナ総量を引いた値"
-"なので、特に判断のない2マナ域は 38 になります。"
+msgstr "数値が高いほど先に唱えます。エンジン自身のルールは 40 からマナ総量を引いた値なので、特に判断のない2マナ域は 38 になります。"
 
 #: simulations/annotations.py simulations/provenance.py
 msgid "Counts as acceleration"
@@ -1238,9 +1183,7 @@ msgstr "加速として数える"
 msgid ""
 "Whether this card makes a one-land opening hand worth keeping. It changes "
 "the mulligan decision and therefore every number below it."
-msgstr ""
-"このカードがあれば土地1枚の初手をキープする価値があるかどうか。マリガンの判断"
-"が変わり、その下のすべての数値も変わります。"
+msgstr "このカードがあれば土地1枚の初手をキープする価値があるかどうか。マリガンの判断が変わり、その下のすべての数値も変わります。"
 
 #: simulations/annotations.py simulations/blindspots.py
 #: simulations/provenance.py
@@ -1253,9 +1196,7 @@ msgid ""
 "wipe, anything that needs an opponent. The engine will hold it rather than "
 "pretend it did something."
 msgstr ""
-"空のゲームで適正な対象がないカード（除去、全体除去、対戦相手を必要とするも"
-"の）には「いいえ」を選んでください。エンジンは何かをしたふりをせず、手札に"
-"持ったままにします。"
+"空のゲームで適正な対象がないカード（除去、全体除去、対戦相手を必要とするもの）には「いいえ」を選んでください。エンジンは何かをしたふりをせず、手札に持ったままにします。"
 
 #: simulations/annotations.py
 msgid "What the engine treats it as"
@@ -1265,9 +1206,7 @@ msgstr "エンジンでの扱い"
 msgid ""
 "Rituals add their mana when cast; rocks add it when tapped. The type line "
 "cannot always tell the two apart."
-msgstr ""
-"儀式は唱えたときにマナを加え、マナ・ロックはタップしたときに加えます。タイプ"
-"行だけでは区別できないこともあります。"
+msgstr "儀式は唱えたときにマナを加え、マナ・ロックはタップしたときに加えます。タイプ行だけでは区別できないこともあります。"
 
 #: simulations/annotations.py simulations/blindspots.py
 #: simulations/provenance.py
@@ -1279,8 +1218,7 @@ msgid ""
 "Letters for the colours, with a number where it makes more than one: B, 2B, "
 "B C. Write “nothing” for a card that makes no mana the engine can use."
 msgstr ""
-"色を表す文字で、2つ以上生み出す場合は数字を付けます：B、2B、B C。エンジンが使"
-"えるマナを生み出さないカードには「nothing」と書いてください。"
+"色を表す文字で、2つ以上生み出す場合は数字を付けます：B、2B、B C。エンジンが使えるマナを生み出さないカードには「nothing」と書いてください。"
 
 #: simulations/annotations.py simulations/provenance.py
 msgid "Land types"
@@ -1292,9 +1230,8 @@ msgid ""
 "Coffers counts and what Crypt Ghast doubles — so a land with a type here "
 "taps for that colour whatever “Taps for” says above."
 msgstr ""
-"その土地が何として数えられるか。基本土地がタップして生み出す色、Cabal "
-"Coffers が数えるもの、Crypt Ghast が倍にするものです。ここにタイプがある土地"
-"は、上の「生み出すマナ」に関係なくその色を生み出します。"
+"その土地が何として数えられるか。基本土地がタップして生み出す色、Cabal Coffers が数えるもの、Crypt Ghast "
+"が倍にするものです。ここにタイプがある土地は、上の「生み出すマナ」に関係なくその色を生み出します。"
 
 #: simulations/annotations.py simulations/provenance.py
 msgid "Enters tapped"
@@ -1302,11 +1239,9 @@ msgstr "タップ状態で戦場に出る"
 
 #: simulations/annotations.py
 msgid ""
-"Read off the card text by a regular expression, which is the weakest reading "
-"this application makes. Worth checking on anything unusual."
-msgstr ""
-"カードの文章から正規表現で読み取っています。このアプリケーションで最も弱い読"
-"み取り方です。変わったカードは確認する価値があります。"
+"Read off the card text by a regular expression, which is the weakest reading"
+" this application makes. Worth checking on anything unusual."
+msgstr "カードの文章から正規表現で読み取っています。このアプリケーションで最も弱い読み取り方です。変わったカードは確認する価値があります。"
 
 #: simulations/annotations.py simulations/blindspots.py
 #: simulations/provenance.py
@@ -1317,9 +1252,7 @@ msgstr "役割"
 msgid ""
 "What the card does, in the vocabulary the report's milestone table counts. "
 "Replacing them overrides the community tags completely."
-msgstr ""
-"カードが何をするか。レポートのマイルストーン表が数える語彙で表します。置き換"
-"えるとコミュニティのタグは完全に上書きされます。"
+msgstr "カードが何をするか。レポートのマイルストーン表が数える語彙で表します。置き換えるとコミュニティのタグは完全に上書きされます。"
 
 #: simulations/annotations.py simulations/provenance.py
 msgid "Costs to tap for mana"
@@ -1328,11 +1261,9 @@ msgstr "マナのためのタップのコスト"
 #: simulations/annotations.py
 #, python-brace-format
 msgid ""
-"Generic mana its mana ability costs on top of tapping - the {1} on a Signet. "
-"Write 0 for a card that only has to tap."
-msgstr ""
-"タップに加えてマナ能力に必要な不特定マナ（Signet の {1}）。タップするだけの"
-"カードには 0 と書いてください。"
+"Generic mana its mana ability costs on top of tapping - the {1} on a Signet."
+" Write 0 for a card that only has to tap."
+msgstr "タップに加えてマナ能力に必要な不特定マナ（Signet の {1}）。タップするだけのカードには 0 と書いてください。"
 
 #: simulations/annotations.py simulations/provenance.py
 msgid "Untaps every turn"
@@ -1343,9 +1274,8 @@ msgid ""
 "Say no for Mana Vault, Grim Monolith and anything else that stays tapped "
 "once it has been used. The engine then takes its mana once, not every turn."
 msgstr ""
-"Mana Vault や Grim Monolith など、一度使うとタップ状態のままになるカードには"
-"「いいえ」を選んでください。エンジンはそのマナを毎ターンではなく一度だけ使い"
-"ます。"
+"Mana Vault や Grim Monolith "
+"など、一度使うとタップ状態のままになるカードには「いいえ」を選んでください。エンジンはそのマナを毎ターンではなく一度だけ使います。"
 
 #: simulations/annotations.py
 msgid "Cards it searches up"
@@ -1353,31 +1283,25 @@ msgstr "サーチするカードの枚数"
 
 #: simulations/annotations.py
 msgid ""
-"How many cards this finds in your library. The community tags say which zone "
-"it searches to and can never say how many, so the number is read off the "
+"How many cards this finds in your library. The community tags say which zone"
+" it searches to and can never say how many, so the number is read off the "
 "card text and is often missing. Write 0 for a card the engine should not "
 "treat as a tutor at all."
 msgstr ""
-"このカードがライブラリーから見つけるカードの枚数。コミュニティのタグはどの領"
-"域にサーチするかはわかっても、何枚かはわからないため、枚数はカードの文章から"
-"読み取られ、欠けていることがよくあります。エンジンにサーチカードとして扱わせ"
-"たくないカードには 0 と書いてください。"
+"このカードがライブラリーから見つけるカードの枚数。コミュニティのタグはどの領域にサーチするかはわかっても、何枚かはわからないため、枚数はカードの文章から読み取られ、欠けていることがよくあります。エンジンにサーチカードとして扱わせたくないカードには"
+" 0 と書いてください。"
 
 #: simulations/annotations.py
 #, python-format
 msgid ""
 "%(letter)s is not a mana colour. Use letters from %(letters)s, or "
 "“%(nothing)s”."
-msgstr ""
-"%(letter)s はマナの色ではありません。%(letters)s の文字か「%(nothing)s」を"
-"使ってください。"
+msgstr "%(letter)s はマナの色ではありません。%(letters)s の文字か「%(nothing)s」を使ってください。"
 
 #: simulations/annotations.py
 #, python-format
 msgid "“%(amount)s” names an amount but no colour. Write 2B rather than 2."
-msgstr ""
-"「%(amount)s」は量を示していますが、色がありません。2 ではなく 2B と書いてく"
-"ださい。"
+msgstr "「%(amount)s」は量を示していますが、色がありません。2 ではなく 2B と書いてください。"
 
 #: simulations/blindspots.py
 msgid "Cards that need an opponent"
@@ -1387,13 +1311,10 @@ msgstr "対戦相手が必要なカード"
 msgid ""
 "A goldfish game has no opponents, so nothing these cards react to ever "
 "happens. They cost mana and then do nothing else. A deck built around them "
-"plays considerably better than it simulates — and no number on this page can "
-"tell you by how much."
+"plays considerably better than it simulates — and no number on this page can"
+" tell you by how much."
 msgstr ""
-"ゴールドフィッシュのゲームには対戦相手がいないため、これらのカードが反応する"
-"出来事は起こりません。マナを使うだけで、ほかには何もしません。これらを中心に"
-"組んだデッキは、シミュレーションよりかなり強く動きます。どれほどかは、この"
-"ページのどの数値にもわかりません。"
+"ゴールドフィッシュのゲームには対戦相手がいないため、これらのカードが反応する出来事は起こりません。マナを使うだけで、ほかには何もしません。これらを中心に組んだデッキは、シミュレーションよりかなり強く動きます。どれほどかは、このページのどの数値にもわかりません。"
 
 #: simulations/blindspots.py
 msgid "triggers on something an opponent does"
@@ -1414,10 +1335,8 @@ msgid ""
 "engine was told nothing rather than guessing at one — so these cards are "
 "currently making less mana in the simulation than they do on a table."
 msgstr ""
-"Scryfall はカードが生み出せる色を記録していますが、量やコストは記録していませ"
-"ん。カードの文章から量を読み取れなかったものについて、エンジンには推測させず"
-"何も伝えていません。そのため、これらのカードは現在、実際の卓よりも少ないマナ"
-"しかシミュレーションで生み出していません。"
+"Scryfall "
+"はカードが生み出せる色を記録していますが、量やコストは記録していません。カードの文章から量を読み取れなかったものについて、エンジンには推測させず何も伝えていません。そのため、これらのカードは現在、実際の卓よりも少ないマナしかシミュレーションで生み出していません。"
 
 #: simulations/blindspots.py
 msgid "Roles worth a second look"
@@ -1425,17 +1344,14 @@ msgstr "見直す価値のある役割"
 
 #: simulations/blindspots.py
 msgid ""
-"The role vocabulary comes from the Scryfall Tagger community, which is broad "
-"by design: “destroy target creature you control” is filed under removal "
+"The role vocabulary comes from the Scryfall Tagger community, which is broad"
+" by design: “destroy target creature you control” is filed under removal "
 "alongside “destroy target creature”. The first is an engine piece and the "
 "second answers a threat, and the report's milestone table counts them the "
 "same way."
 msgstr ""
-"役割の語彙は Scryfall Tagger のコミュニティによるもので、意図的に広く分類され"
-"ています。「あなたがコントロールするクリーチャー1体を対象とし、それを破壊す"
-"る」は「クリーチャー1体を対象とし、それを破壊する」と同じく除去に分類されま"
-"す。前者はエンジンの部品、後者は脅威への対処ですが、レポートのマイルストーン"
-"表はどちらも同じように数えます。"
+"役割の語彙は Scryfall Tagger "
+"のコミュニティによるもので、意図的に広く分類されています。「あなたがコントロールするクリーチャー1体を対象とし、それを破壊する」は「クリーチャー1体を対象とし、それを破壊する」と同じく除去に分類されます。前者はエンジンの部品、後者は脅威への対処ですが、レポートのマイルストーン表はどちらも同じように数えます。"
 
 #: simulations/blindspots.py
 msgid "tagged as removal, but it destroys something you control"
@@ -1516,9 +1432,7 @@ msgstr "%(cost)s で %(mana)s"
 msgid ""
 "makes one of %(colors)s; the engine cannot hold a choice and reads it as "
 "%(color)s"
-msgstr ""
-"%(colors)s のうち1つを生み出す。エンジンは選択を保持できないため %(color)s と"
-"して読みます"
+msgstr "%(colors)s のうち1つを生み出す。エンジンは選択を保持できないため %(color)s として読みます"
 
 #: simulations/engine/adapter.py
 msgid "no one said how early to cast it; the default rule applies"
@@ -1585,8 +1499,7 @@ msgid ""
 "(Comprehensive Rules 103.8c). Only a two-player game makes the starting "
 "player skip it."
 msgstr ""
-"多人数の統率者戦では、誰も最初のターンのドローを飛ばしません（総合ルール "
-"103.8c）。最初のドローを飛ばすのは2人戦の先攻プレイヤーだけです。"
+"多人数の統率者戦では、誰も最初のターンのドローを飛ばしません（総合ルール 103.8c）。最初のドローを飛ばすのは2人戦の先攻プレイヤーだけです。"
 
 #: simulations/forms.py
 msgid "This deck only"
@@ -1616,9 +1529,7 @@ msgstr "適用範囲"
 msgid ""
 "A deck-scoped judgement wins over one you set for every deck, which wins "
 "over the application's own default."
-msgstr ""
-"デッキ単位の判断は、すべてのデッキ向けに設定した判断より優先され、それはアプ"
-"リケーションの既定値より優先されます。"
+msgstr "デッキ単位の判断は、すべてのデッキ向けに設定した判断より優先され、それはアプリケーションの既定値より優先されます。"
 
 #: simulations/forms.py
 msgid "Replace the roles below"
@@ -1630,9 +1541,7 @@ msgid ""
 "below becomes the complete list - including an empty one, which is how you "
 "say a card has no role at all."
 msgstr ""
-"コミュニティの役割を使う場合はそのままにしてください。チェックを入れると、下"
-"の選択がすべての役割になります。空のままにすれば、そのカードに役割がないこと"
-"を示せます。"
+"コミュニティの役割を使う場合はそのままにしてください。チェックを入れると、下の選択がすべての役割になります。空のままにすれば、そのカードに役割がないことを示せます。"
 
 #: simulations/forms.py
 msgid "Replace the land types below"
@@ -1640,22 +1549,20 @@ msgstr "下の土地タイプで置き換える"
 
 #: simulations/forms.py
 msgid ""
-"Same rule as the roles: leave it alone to keep what the type line says, tick "
-"it to state the complete list. Ticking it with nothing selected is how you "
+"Same rule as the roles: leave it alone to keep what the type line says, tick"
+" it to state the complete list. Ticking it with nothing selected is how you "
 "stop a land tapping for a colour at all."
 msgstr ""
-"役割と同じルールです。タイプ行のとおりにする場合はそのまま、すべての土地タイ"
-"プを指定する場合はチェックを入れてください。何も選ばずにチェックを入れると、"
-"その土地が色マナを生み出さないようにできます。"
+"役割と同じルールです。タイプ行のとおりにする場合はそのまま、すべての土地タイプを指定する場合はチェックを入れてください。何も選ばずにチェックを入れると、その土地が色マナを生み出さないようにできます。"
 
 #: simulations/forms.py
 msgid "Why"
 msgstr "理由"
 
 #: simulations/forms.py
-msgid "Shown beside the value on the provenance panel. Optional, and worth it."
-msgstr ""
-"出所パネルの値の横に表示されます。任意ですが、書いておく価値があります。"
+msgid ""
+"Shown beside the value on the provenance panel. Optional, and worth it."
+msgstr "出所パネルの値の横に表示されます。任意ですが、書いておく価値があります。"
 
 #: simulations/models.py
 msgid "Pending"
@@ -1697,9 +1604,7 @@ msgstr "Scryfall のフィールド"
 msgid ""
 "Structured data straight off the card. As close to ground truth as this "
 "application gets."
-msgstr ""
-"カードから直接取得した構造化データです。このアプリケーションで最も事実に近い"
-"情報です。"
+msgstr "カードから直接取得した構造化データです。このアプリケーションで最も事実に近い情報です。"
 
 #: simulations/provenance.py
 msgid "Community tagger"
@@ -1710,8 +1615,7 @@ msgid ""
 "Rolled up from the Scryfall Tagger project. Community-maintained, "
 "deliberately broad, and occasionally an opinion rather than a fact."
 msgstr ""
-"Scryfall Tagger プロジェクトからまとめたものです。コミュニティが管理し、意図"
-"的に広く分類されており、事実ではなく意見の場合もあります。"
+"Scryfall Tagger プロジェクトからまとめたものです。コミュニティが管理し、意図的に広く分類されており、事実ではなく意見の場合もあります。"
 
 #: simulations/provenance.py
 msgid "Read from the card text"
@@ -1721,9 +1625,7 @@ msgstr "カードの文章から読み取り"
 msgid ""
 "A pattern matched against English prose. The weakest reading this "
 "application makes, and the one most worth checking."
-msgstr ""
-"英語の文章にパターンを当てたものです。このアプリケーションで最も弱い読み取り"
-"方で、最も確認する価値があります。"
+msgstr "英語の文章にパターンを当てたものです。このアプリケーションで最も弱い読み取り方で、最も確認する価値があります。"
 
 #: simulations/provenance.py
 msgid "Built in"
@@ -1757,9 +1659,7 @@ msgstr "なし ― エンジン自身のルール"
 msgid ""
 "No one said, so the engine's fallback applies. Worth a look if the card "
 "matters to how the deck plays."
-msgstr ""
-"誰も指定していないため、エンジンの代替ルールを適用します。デッキの動きに関わ"
-"るカードなら確認する価値があります。"
+msgstr "誰も指定していないため、エンジンの代替ルールを適用します。デッキの動きに関わるカードなら確認する価値があります。"
 
 #: simulations/provenance.py
 msgid "Mana cost"
@@ -1865,9 +1765,7 @@ msgstr "Phyrexian Arena のように、カードを引かせ続けるパーマ�
 msgid ""
 "Two mana sources that make more as your board grows, such as Cabal Coffers "
 "and Crypt Ghast."
-msgstr ""
-"Cabal Coffers と Crypt Ghast のように、盤面が増えるほど多くのマナを生み出す2"
-"つのマナ源。"
+msgstr "Cabal Coffers と Crypt Ghast のように、盤面が増えるほど多くのマナを生み出す2つのマナ源。"
 
 #: simulations/report.py
 msgid "A permanent that lets you sacrifice creatures again and again."
@@ -1882,14 +1780,15 @@ msgid "A sacrifice outlet and a recursive creature at once: a loop."
 msgstr "生け贄の手段と再利用できるクリーチャーが同時に揃う：ループ。"
 
 #: simulations/report.py
-msgid "A permanent that makes your opponents lose life when something happens."
+msgid ""
+"A permanent that makes your opponents lose life when something happens."
 msgstr "何かが起こるたびに対戦相手のライフを失わせるパーマネント。"
 
 #: simulations/report.py
 msgid ""
-"A card that trades your draw step for something better, such as Necropotence."
-msgstr ""
-"Necropotence のように、ドロー・ステップをもっと良いものと交換するカード。"
+"A card that trades your draw step for something better, such as "
+"Necropotence."
+msgstr "Necropotence のように、ドロー・ステップをもっと良いものと交換するカード。"
 
 #: simulations/report.py
 msgid "An artifact that made more mana than it cost, such as Sol Ring."
@@ -1956,9 +1855,7 @@ msgstr "回収"
 msgid ""
 "More mana, now or on later turns: mana rocks, mana creatures, extra lands, "
 "rituals."
-msgstr ""
-"今または後のターンにマナを増やすもの：マナ・ロック、マナ・クリーチャー、追加"
-"の土地、儀式。"
+msgstr "今または後のターンにマナを増やすもの：マナ・ロック、マナ・クリーチャー、追加の土地、儀式。"
 
 #: simulations/report.py
 msgid "Cards that draw you cards."
@@ -1968,9 +1865,7 @@ msgstr "カードを引かせてくれるカード。"
 msgid ""
 "Gets something off the table: destroy, exile, bounce, damage. Board wipes "
 "count too."
-msgstr ""
-"何かを場から取り除くもの：破壊、追放、バウンス、ダメージ。全体除去も含みま"
-"す。"
+msgstr "何かを場から取り除くもの：破壊、追放、バウンス、ダメージ。全体除去も含みます。"
 
 #: simulations/report.py
 msgid "Removes many things at once."
@@ -2024,11 +1919,9 @@ msgstr "回避能力"
 
 #: simulations/report.py
 msgid ""
-"Lets you sacrifice your own permanents again and again: an engine, not a one-"
-"off."
-msgstr ""
-"自分のパーマネントを何度でも生け贄に捧げられるもの。一度きりではなくエンジン"
-"です。"
+"Lets you sacrifice your own permanents again and again: an engine, not a "
+"one-off."
+msgstr "自分のパーマネントを何度でも生け贄に捧げられるもの。一度きりではなくエンジンです。"
 
 #: simulations/report.py
 msgid "Puts creature cards from a graveyard onto the battlefield."
@@ -2040,9 +1933,7 @@ msgstr "対戦相手がライフを失い、あなたが得ます。"
 
 #: simulations/report.py
 msgid "Takes control of something an opponent owns, or plays their cards."
-msgstr ""
-"対戦相手がオーナーのパーマネントのコントロールを得るか、そのカードをプレイし"
-"ます。"
+msgstr "対戦相手がオーナーのパーマネントのコントロールを得るか、そのカードをプレイします。"
 
 #: simulations/report.py
 msgid "Makes a player discard cards."
@@ -2054,14 +1945,11 @@ msgstr "呪文を安く唱えられるようにします。"
 
 #: simulations/report.py
 msgid "Helps your creatures get past blockers: flying, menace, unblockable …"
-msgstr ""
-"クリーチャーがブロックをすり抜ける手助け：飛行、威迫、ブロックされない…"
+msgstr "クリーチャーがブロックをすり抜ける手助け：飛行、威迫、ブロックされない…"
 
 #: simulations/report.py
 msgid "Creature cards, artifact and enchantment creatures included."
-msgstr ""
-"クリーチャー・カード。アーティファクト・クリーチャーとエンチャント・クリー"
-"チャーを含みます。"
+msgstr "クリーチャー・カード。アーティファクト・クリーチャーとエンチャント・クリーチャーを含みます。"
 
 #: simulations/report.py
 msgid "Planeswalker cards."
@@ -2073,9 +1961,7 @@ msgstr "バトル・カード。"
 
 #: simulations/report.py
 msgid "Artifact cards: mana rocks, equipment, artifact creatures."
-msgstr ""
-"アーティファクト・カード：マナ・ロック、装備品、アーティファクト・クリー"
-"チャー。"
+msgstr "アーティファクト・カード：マナ・ロック、装備品、アーティファクト・クリーチャー。"
 
 #: simulations/report.py
 msgid "Enchantment cards, auras and enchantment creatures included."
@@ -2108,8 +1994,8 @@ msgid ""
 "A lot of people are trying Goldfish Lab right now. Try again in a minute - "
 "or save your deck with a free account, which does not wait for guests."
 msgstr ""
-"今、多くの人が Goldfish Lab を試しています。1分後にもう一度お試しください。無"
-"料アカウントでデッキを保存すれば、ゲスト用の待ち時間はありません。"
+"今、多くの人が Goldfish Lab "
+"を試しています。1分後にもう一度お試しください。無料アカウントでデッキを保存すれば、ゲスト用の待ち時間はありません。"
 
 #: simulations/services.py
 #, python-format
@@ -2119,9 +2005,7 @@ msgid ""
 msgid_plural ""
 "You already have %(count)s simulations running. Wait for one to finish, or "
 "cancel it."
-msgstr[0] ""
-"すでに %(count)s 件のシミュレーションを実行中です。終わるまで待つか、キャンセ"
-"ルしてください。"
+msgstr[0] "すでに %(count)s 件のシミュレーションを実行中です。終わるまで待つか、キャンセルしてください。"
 
 #: simulations/services.py
 msgid "A run needs at least one game."
@@ -2137,9 +2021,7 @@ msgid ""
 "Your plan allows at most %(limit)s game per run; you asked for %(value)s."
 msgid_plural ""
 "Your plan allows at most %(limit)s games per run; you asked for %(value)s."
-msgstr[0] ""
-"お使いのプランでは1回の実行は最大 %(limit)s ゲームです。指定は %(value)s ゲー"
-"ムでした。"
+msgstr[0] "お使いのプランでは1回の実行は最大 %(limit)s ゲームです。指定は %(value)s ゲームでした。"
 
 #: simulations/services.py
 #, python-format
@@ -2147,15 +2029,11 @@ msgid ""
 "Your plan allows at most %(limit)s turn per run; you asked for %(value)s."
 msgid_plural ""
 "Your plan allows at most %(limit)s turns per run; you asked for %(value)s."
-msgstr[0] ""
-"お使いのプランでは1回の実行は最大 %(limit)s ターンです。指定は %(value)s ター"
-"ンでした。"
+msgstr[0] "お使いのプランでは1回の実行は最大 %(limit)s ターンです。指定は %(value)s ターンでした。"
 
 #: simulations/services.py
 msgid "Simulations are unavailable at the moment. Please try again shortly."
-msgstr ""
-"現在シミュレーションを利用できません。しばらくしてからもう一度お試しくださ"
-"い。"
+msgstr "現在シミュレーションを利用できません。しばらくしてからもう一度お試しください。"
 
 #: simulations/strategies.py
 #, python-format
@@ -2176,8 +2054,7 @@ msgstr "デッキの要約を再びオンにしました。"
 
 #: simulations/views.py
 msgid "Deck summaries are off. Switch them on again on Your plan."
-msgstr ""
-"デッキの要約をオフにしました。「あなたのプラン」でもう一度オンにできます。"
+msgstr "デッキの要約をオフにしました。「あなたのプラン」でもう一度オンにできます。"
 
 #: simulations/views.py
 msgid ""
@@ -2191,8 +2068,7 @@ msgstr "その実行はすでに終了していました。"
 
 #: simulations/views.py
 msgid "Ready. Every card the engine could not read has an answer."
-msgstr ""
-"準備完了です。エンジンが読み取れなかったすべてのカードに答えがあります。"
+msgstr "準備完了です。エンジンが読み取れなかったすべてのカードに答えがあります。"
 
 #: simulations/views.py
 #, python-format
@@ -2204,9 +2080,7 @@ msgstr "記録しました：%(card)s はこのままで正しいとのことで
 msgid ""
 "Saved. %(card)s will be read that way from the next run onwards — this one "
 "does not change a result that has already been computed."
-msgstr ""
-"保存しました。次回の実行から %(card)s はこのように読まれます。すでに計算済み"
-"の今回の結果は変わりません。"
+msgstr "保存しました。次回の実行から %(card)s はこのように読まれます。すでに計算済みの今回の結果は変わりません。"
 
 #: simulations/views.py
 #, python-format
@@ -2233,9 +2107,7 @@ msgstr "このページは開けません"
 msgid ""
 "This account is not allowed to see that page. If you have more than one "
 "account, you may be signed in as the other one."
-msgstr ""
-"このアカウントではこのページを表示できません。複数のアカウントをお持ちの場"
-"合、別のアカウントでログインしているかもしれません。"
+msgstr "このアカウントではこのページを表示できません。複数のアカウントをお持ちの場合、別のアカウントでログインしているかもしれません。"
 
 #: templates/403.html templates/404.html templates/429.html templates/500.html
 msgid "Back to the start"
@@ -2255,11 +2127,9 @@ msgstr "ここには何もありません"
 
 #: templates/404.html
 msgid ""
-"There is no page at this address. The link may be old, or the deck behind it "
-"was deleted."
-msgstr ""
-"このアドレスにページはありません。リンクが古いか、リンク先のデッキが削除され"
-"た可能性があります。"
+"There is no page at this address. The link may be old, or the deck behind it"
+" was deleted."
+msgstr "このアドレスにページはありません。リンクが古いか、リンク先のデッキが削除された可能性があります。"
 
 #: templates/429.html
 msgid "Too many requests"
@@ -2277,16 +2147,12 @@ msgstr "少々お待ちください"
 msgid ""
 "That came through faster than this site accepts. Nothing was lost and "
 "nothing was charged — wait about a minute and try again."
-msgstr ""
-"このサイトが受け付ける速さを超えました。何も失われておらず、請求も発生してい"
-"ません。1分ほど待ってからもう一度お試しください。"
+msgstr "このサイトが受け付ける速さを超えました。何も失われておらず、請求も発生していません。1分ほど待ってからもう一度お試しください。"
 
 #: templates/429.html
 msgid ""
 "Seeing this while doing something ordinary? That is a bug worth reporting."
-msgstr ""
-"普通の操作をしていてこの画面が出ましたか？それは報告する価値のある不具合で"
-"す。"
+msgstr "普通の操作をしていてこの画面が出ましたか？それは報告する価値のある不具合です。"
 
 #: templates/500.html
 msgid "Something went wrong"
@@ -2310,8 +2176,8 @@ msgid ""
 "Someone - probably you - tried to create a Goldfish Lab account with "
 "<strong>%(email)s</strong>. There already is one with this address."
 msgstr ""
-"誰か（おそらくあなた）が <strong>%(email)s</strong> で Goldfish Lab のアカウ"
-"ントを作成しようとしました。このアドレスのアカウントはすでにあります。"
+"誰か（おそらくあなた）が <strong>%(email)s</strong> で Goldfish Lab "
+"のアカウントを作成しようとしました。このアドレスのアカウントはすでにあります。"
 
 #: templates/account/email/account_already_exists_message.html
 #: templates/account/email/account_already_exists_message.txt
@@ -2325,8 +2191,7 @@ msgstr "パスワードを再設定"
 #: templates/account/email/account_already_exists_message.html
 #: templates/account/email/account_already_exists_message.txt
 msgid "Wasn't you? Ignore this mail - nothing has changed."
-msgstr ""
-"心当たりがない場合は、このメールを無視してください。何も変更されていません。"
+msgstr "心当たりがない場合は、このメールを無視してください。何も変更されていません。"
 
 #: templates/account/email/account_already_exists_message.txt
 #, python-format
@@ -2334,8 +2199,8 @@ msgid ""
 "Someone - probably you - tried to create a Goldfish Lab account with "
 "%(email)s. There already is one with this address."
 msgstr ""
-"誰か（おそらくあなた）が %(email)s で Goldfish Lab のアカウントを作成しようと"
-"しました。このアドレスのアカウントはすでにあります。"
+"誰か（おそらくあなた）が %(email)s で Goldfish Lab "
+"のアカウントを作成しようとしました。このアドレスのアカウントはすでにあります。"
 
 #: templates/account/email/account_already_exists_subject.txt
 msgid "You already have a Goldfish Lab account"
@@ -2346,6 +2211,7 @@ msgid "A mail from Goldfish Lab"
 msgstr "Goldfish Lab からのメール"
 
 #: templates/account/email/base_message.html templates/base.html
+#: templates/core/imprint.html
 msgid "Legal notice"
 msgstr "運営者情報"
 
@@ -2366,9 +2232,9 @@ msgid ""
 "password</a> right away and write to us at <a href=\"mailto:%(address)s\" "
 "style=\"color:#86231d;\">%(address)s</a>."
 msgstr ""
-"心当たりがない場合は、すぐに<a href=\"%(url)s\" style=\"color:#86231d;\">新し"
-"いパスワードを設定</a>し、<a href=\"mailto:%(address)s\" style=\"color:"
-"#86231d;\">%(address)s</a> までご連絡ください。"
+"心当たりがない場合は、すぐに<a href=\"%(url)s\" "
+"style=\"color:#86231d;\">新しいパスワードを設定</a>し、<a href=\"mailto:%(address)s\" "
+"style=\"color:#86231d;\">%(address)s</a> までご連絡ください。"
 
 #: templates/account/email/base_notification.html
 #, python-format
@@ -2376,8 +2242,8 @@ msgid ""
 "If it wasn't you, <a href=\"%(url)s\" style=\"color:#86231d;\">choose a new "
 "password</a> right away."
 msgstr ""
-"心当たりがない場合は、すぐに<a href=\"%(url)s\" style=\"color:#86231d;\">新し"
-"いパスワードを設定</a>してください。"
+"心当たりがない場合は、すぐに<a href=\"%(url)s\" "
+"style=\"color:#86231d;\">新しいパスワードを設定</a>してください。"
 
 #: templates/account/email/base_notification.html
 msgid "When"
@@ -2426,8 +2292,8 @@ msgid ""
 "The email of your Goldfish Lab account was changed from "
 "<strong>%(from_email)s</strong> to <strong>%(to_email)s</strong>."
 msgstr ""
-"Goldfish Lab アカウントのメールアドレスが <strong>%(from_email)s</strong> か"
-"ら <strong>%(to_email)s</strong> に変更されました。"
+"Goldfish Lab アカウントのメールアドレスが <strong>%(from_email)s</strong> から "
+"<strong>%(to_email)s</strong> に変更されました。"
 
 #: templates/account/email/email_changed_message.html
 #, python-format
@@ -2436,36 +2302,30 @@ msgid ""
 "style=\"color:#86231d;\">%(address)s</a> right away - a new password would "
 "go to the new address."
 msgstr ""
-"心当たりがない場合は、すぐに <a href=\"mailto:%(address)s\" style=\"color:"
-"#86231d;\">%(address)s</a> までご連絡ください。新しいパスワードは新しいアドレ"
-"スに送られてしまいます。"
+"心当たりがない場合は、すぐに <a href=\"mailto:%(address)s\" "
+"style=\"color:#86231d;\">%(address)s</a> "
+"までご連絡ください。新しいパスワードは新しいアドレスに送られてしまいます。"
 
 #: templates/account/email/email_changed_message.html
 #: templates/account/email/email_changed_message.txt
 msgid ""
 "If it wasn't you, write to us right away - a new password would go to the "
 "new address."
-msgstr ""
-"心当たりがない場合は、すぐにご連絡ください。新しいパスワードは新しいアドレス"
-"に送られてしまいます。"
+msgstr "心当たりがない場合は、すぐにご連絡ください。新しいパスワードは新しいアドレスに送られてしまいます。"
 
 #: templates/account/email/email_changed_message.txt
 #, python-format
 msgid ""
 "The email of your Goldfish Lab account was changed from %(from_email)s to "
 "%(to_email)s."
-msgstr ""
-"Goldfish Lab アカウントのメールアドレスが %(from_email)s から %(to_email)s に"
-"変更されました。"
+msgstr "Goldfish Lab アカウントのメールアドレスが %(from_email)s から %(to_email)s に変更されました。"
 
 #: templates/account/email/email_changed_message.txt
 #, python-format
 msgid ""
 "If it wasn't you, write to us at %(address)s right away - a new password "
 "would go to the new address."
-msgstr ""
-"心当たりがない場合は、すぐに %(address)s までご連絡ください。新しいパスワード"
-"は新しいアドレスに送られてしまいます。"
+msgstr "心当たりがない場合は、すぐに %(address)s までご連絡ください。新しいパスワードは新しいアドレスに送られてしまいます。"
 
 #: templates/account/email/email_changed_subject.txt
 msgid "The email of your Goldfish Lab account was changed"
@@ -2483,9 +2343,7 @@ msgstr "メールアドレスが確認されました"
 #, python-format
 msgid ""
 "<strong>%(email)s</strong> is now confirmed for your Goldfish Lab account."
-msgstr ""
-"<strong>%(email)s</strong> が Goldfish Lab アカウントのアドレスとして確認され"
-"ました。"
+msgstr "<strong>%(email)s</strong> が Goldfish Lab アカウントのアドレスとして確認されました。"
 
 #: templates/account/email/email_confirm_message.txt
 #, python-format
@@ -2510,8 +2368,7 @@ msgid ""
 "Click the button to use <strong>%(email)s</strong> for your Goldfish Lab "
 "account."
 msgstr ""
-"ボタンをクリックすると、<strong>%(email)s</strong> を Goldfish Lab アカウント"
-"で使えるようになります。"
+"ボタンをクリックすると、<strong>%(email)s</strong> を Goldfish Lab アカウントで使えるようになります。"
 
 #: templates/account/email/email_confirmation_message.html
 #: templates/account/email/email_confirmation_message.txt
@@ -2524,16 +2381,12 @@ msgstr "コードです。開いているページに入力してください：
 #: templates/account/email/email_confirmation_message.txt
 msgid ""
 "Didn't ask for this? Ignore this mail - without the click, nothing changes."
-msgstr ""
-"心当たりがない場合は、このメールを無視してください。クリックしなければ何も変"
-"わりません。"
+msgstr "心当たりがない場合は、このメールを無視してください。クリックしなければ何も変わりません。"
 
 #: templates/account/email/email_confirmation_message.txt
 #, python-format
 msgid "Click the link to use %(email)s for your Goldfish Lab account."
-msgstr ""
-"リンクをクリックすると、%(email)s を Goldfish Lab アカウントで使えるようにな"
-"ります。"
+msgstr "リンクをクリックすると、%(email)s を Goldfish Lab アカウントで使えるようになります。"
 
 #: templates/account/email/email_confirmation_signup_message.html
 #: templates/account/email/email_confirmation_signup_message.txt
@@ -2553,11 +2406,10 @@ msgstr "メールアドレスを確認"
 #: templates/account/email/email_confirmation_signup_message.html
 #: templates/account/email/email_confirmation_signup_message.txt
 msgid ""
-"Didn't sign up? Then someone typed your address by mistake. Ignore this mail "
-"- without the click, nothing happens."
+"Didn't sign up? Then someone typed your address by mistake. Ignore this mail"
+" - without the click, nothing happens."
 msgstr ""
-"登録した覚えがない場合は、誰かが誤ってあなたのアドレスを入力したのでしょう。"
-"このメールを無視してください。クリックしなければ何も起こりません。"
+"登録した覚えがない場合は、誰かが誤ってあなたのアドレスを入力したのでしょう。このメールを無視してください。クリックしなければ何も起こりません。"
 
 #: templates/account/email/email_confirmation_signup_message.txt
 msgid "Click the link to confirm your email:"
@@ -2581,9 +2433,7 @@ msgstr "メールアドレスが削除されました"
 msgid ""
 "<strong>%(deleted_email)s</strong> was removed from your Goldfish Lab "
 "account."
-msgstr ""
-"<strong>%(deleted_email)s</strong> が Goldfish Lab アカウントから削除されまし"
-"た。"
+msgstr "<strong>%(deleted_email)s</strong> が Goldfish Lab アカウントから削除されました。"
 
 #: templates/account/email/email_deleted_message.txt
 #, python-format
@@ -2614,9 +2464,7 @@ msgstr "開いているページにこのコードを入力してください：
 #: templates/account/email/login_code_message.txt
 msgid ""
 "Didn't try to sign in? Ignore this mail - nobody gets in without the code."
-msgstr ""
-"ログインしようとした覚えがない場合は、このメールを無視してください。コードが"
-"なければ誰もログインできません。"
+msgstr "ログインしようとした覚えがない場合は、このメールを無視してください。コードがなければ誰もログインできません。"
 
 #: templates/account/email/login_code_subject.txt
 msgid "Your Goldfish Lab sign-in code"
@@ -2648,9 +2496,7 @@ msgstr "パスワード再設定コード"
 #: templates/account/email/password_reset_key_message.html
 #: templates/account/email/password_reset_key_message.txt
 msgid "Didn't ask for this? Ignore this mail - your password stays as it is."
-msgstr ""
-"心当たりがない場合は、このメールを無視してください。パスワードはそのままで"
-"す。"
+msgstr "心当たりがない場合は、このメールを無視してください。パスワードはそのままです。"
 
 #: templates/account/email/password_reset_code_subject.txt
 msgid "Your Goldfish Lab password reset code"
@@ -2667,19 +2513,16 @@ msgstr "パスワードの再設定"
 #: templates/account/email/password_reset_key_message.html
 msgid ""
 "Click the button and choose a new password for your Goldfish Lab account."
-msgstr ""
-"ボタンをクリックして、Goldfish Lab アカウントの新しいパスワードを設定してくだ"
-"さい。"
+msgstr "ボタンをクリックして、Goldfish Lab アカウントの新しいパスワードを設定してください。"
 
 #: templates/account/email/password_reset_key_message.html
 msgid "Choose a new password"
 msgstr "新しいパスワードを設定"
 
 #: templates/account/email/password_reset_key_message.txt
-msgid "Click the link and choose a new password for your Goldfish Lab account:"
-msgstr ""
-"リンクをクリックして、Goldfish Lab アカウントの新しいパスワードを設定してくだ"
-"さい："
+msgid ""
+"Click the link and choose a new password for your Goldfish Lab account:"
+msgstr "リンクをクリックして、Goldfish Lab アカウントの新しいパスワードを設定してください："
 
 #: templates/account/email/password_reset_key_subject.txt
 msgid "Reset your Goldfish Lab password"
@@ -2738,9 +2581,8 @@ msgid ""
 "Lab with <strong>%(email)s</strong>. There is no account with this address. "
 "Maybe you signed up with a different one?"
 msgstr ""
-"誰か（おそらくあなた）が <strong>%(email)s</strong> で Goldfish Lab にログイ"
-"ンまたはパスワードの再設定をしようとしました。このアドレスのアカウントはあり"
-"ません。別のアドレスで登録したのかもしれません。"
+"誰か（おそらくあなた）が <strong>%(email)s</strong> で Goldfish Lab "
+"にログインまたはパスワードの再設定をしようとしました。このアドレスのアカウントはありません。別のアドレスで登録したのかもしれません。"
 
 #: templates/account/email/unknown_account_message.html
 #: templates/account/signup.html templates/core/home.html
@@ -2759,9 +2601,8 @@ msgid ""
 "Lab with %(email)s. There is no account with this address. Maybe you signed "
 "up with a different one?"
 msgstr ""
-"誰か（おそらくあなた）が %(email)s で Goldfish Lab にログインまたはパスワード"
-"の再設定をしようとしました。このアドレスのアカウントはありません。別のアドレ"
-"スで登録したのかもしれません。"
+"誰か（おそらくあなた）が %(email)s で Goldfish Lab "
+"にログインまたはパスワードの再設定をしようとしました。このアドレスのアカウントはありません。別のアドレスで登録したのかもしれません。"
 
 #: templates/account/email/unknown_account_message.txt
 msgid "Or create a free account:"
@@ -2807,8 +2648,7 @@ msgid ""
 "<a href=\"%(login_url)s\">Sign in</a> - if your email is not confirmed yet, "
 "we send you a fresh link."
 msgstr ""
-"<a href=\"%(login_url)s\">ログイン</a>してください。メールアドレスがまだ確認"
-"されていなければ、新しいリンクをお送りします。"
+"<a href=\"%(login_url)s\">ログイン</a>してください。メールアドレスがまだ確認されていなければ、新しいリンクをお送りします。"
 
 #: templates/account/messages/email_confirmation_sent.txt
 #, python-format
@@ -2852,9 +2692,7 @@ msgstr "あなたのデータ"
 #: templates/accounts/data.html
 msgid ""
 "Download everything Goldfish Lab holds about you, or delete your account."
-msgstr ""
-"Goldfish Lab が保存しているあなたのデータをすべてダウンロードするか、アカウン"
-"トを削除できます。"
+msgstr "Goldfish Lab が保存しているあなたのデータをすべてダウンロードするか、アカウントを削除できます。"
 
 #: templates/accounts/data.html
 #, python-format
@@ -2867,9 +2705,7 @@ msgstr "すべてダウンロード"
 
 #: templates/accounts/data.html
 msgid "One JSON file: your account, decks, simulations, playtests and plan."
-msgstr ""
-"JSON ファイル1つ：アカウント、デッキ、シミュレーション、テストプレイ、プラ"
-"ン。"
+msgstr "JSON ファイル1つ：アカウント、デッキ、シミュレーション、テストプレイ、プラン。"
 
 #: templates/accounts/data.html
 msgid "What is not in the file?"
@@ -2885,12 +2721,11 @@ msgid ""
 "href=\"%(plans_url)s\" class=\"underline hover:text-ink-900\">Stripe's "
 "portal</a>."
 msgstr ""
-"カードとコンボのデータです。これは Scryfall と Commander Spellbook の公開参照"
-"データで、どのアカウントでも同じであり、あなたに関する情報ではありません。"
-"Stripe の支払い ID は意図的に除外しています。それを含むダウンロード可能なファ"
-"イルは、盗む価値のあるファイルになってしまうからです。請求書は <a "
-"href=\"%(plans_url)s\" class=\"underline hover:text-ink-900\">Stripe のポータ"
-"ル</a>にあります。"
+"カードとコンボのデータです。これは Scryfall と Commander Spellbook "
+"の公開参照データで、どのアカウントでも同じであり、あなたに関する情報ではありません。Stripe の支払い ID "
+"は意図的に除外しています。それを含むダウンロード可能なファイルは、盗む価値のあるファイルになってしまうからです。請求書は <a "
+"href=\"%(plans_url)s\" class=\"underline hover:text-ink-900\">Stripe "
+"のポータル</a>にあります。"
 
 #: templates/accounts/data.html
 msgid "Download my data"
@@ -2913,8 +2748,7 @@ msgid ""
 "Your account and everything in it goes, immediately. <strong>There is no "
 "undo</strong> — download a copy above first if you want one."
 msgstr ""
-"アカウントとその中のすべてのデータがすぐに削除されます。<strong>元に戻すこと"
-"はできません</strong>。必要なら先に上でコピーをダウンロードしてください。"
+"アカウントとその中のすべてのデータがすぐに削除されます。<strong>元に戻すことはできません</strong>。必要なら先に上でコピーをダウンロードしてください。"
 
 #: templates/accounts/data.html
 #, python-format
@@ -2931,8 +2765,8 @@ msgid ""
 "What we store and why is set out in the <a href=\"%(privacy_url)s\" "
 "class=\"underline hover:text-ink-200\">privacy policy</a>."
 msgstr ""
-"保存するデータとその理由は<a href=\"%(privacy_url)s\" class=\"underline "
-"hover:text-ink-200\">プライバシーポリシー</a>に記載しています。"
+"保存するデータとその理由は<a href=\"%(privacy_url)s\" class=\"underline hover:text-"
+"ink-200\">プライバシーポリシー</a>に記載しています。"
 
 #: templates/allauth/layouts/base.html
 msgid "Account"
@@ -2942,9 +2776,7 @@ msgstr "アカウント"
 msgid ""
 "Goldfish Lab actually plays your Commander deck, thousands of times, and "
 "tells you what happens."
-msgstr ""
-"Goldfish Lab は統率者デッキを実際に何千回もプレイし、何が起こるかをお伝えしま"
-"す。"
+msgstr "Goldfish Lab は統率者デッキを実際に何千回もプレイし、何が起こるかをお伝えします。"
 
 #: templates/base.html
 msgid "Skip to content"
@@ -2983,7 +2815,7 @@ msgstr "ログアウト"
 msgid "Create account"
 msgstr "アカウント作成"
 
-#: templates/base.html
+#: templates/base.html templates/core/methodology.html
 msgid "How this works"
 msgstr "仕組み"
 
@@ -3014,17 +2846,17 @@ msgstr "変更"
 
 #: templates/base.html
 msgid ""
-"Card data and images from <a href=\"https://scryfall.com\" class=\"underline "
-"hover:text-ink-300\" rel=\"noopener\">Scryfall</a>; combos from <a "
+"Card data and images from <a href=\"https://scryfall.com\" class=\"underline"
+" hover:text-ink-300\" rel=\"noopener\">Scryfall</a>; combos from <a "
 "href=\"https://commanderspellbook.com\" class=\"underline hover:text-"
 "ink-300\" rel=\"noopener\">Commander Spellbook</a>. Neither is affiliated "
 "with Goldfish Lab."
 msgstr ""
-"カードデータと画像は <a href=\"https://scryfall.com\" class=\"underline "
-"hover:text-ink-300\" rel=\"noopener\">Scryfall</a>、コンボは <a "
+"カードデータと画像は <a href=\"https://scryfall.com\" class=\"underline hover:text-"
+"ink-300\" rel=\"noopener\">Scryfall</a>、コンボは <a "
 "href=\"https://commanderspellbook.com\" class=\"underline hover:text-"
-"ink-300\" rel=\"noopener\">Commander Spellbook</a> から提供されています。どち"
-"らも Goldfish Lab とは提携していません。"
+"ink-300\" rel=\"noopener\">Commander Spellbook</a> から提供されています。どちらも Goldfish "
+"Lab とは提携していません。"
 
 #: templates/billing/blocked.html
 msgid "Plan limit reached"
@@ -3040,11 +2872,9 @@ msgstr "プランで使える分はここまでです"
 
 #: templates/billing/blocked.html
 msgid ""
-"Nothing was started and nothing was charged. The counter resets on the first "
-"of the month."
-msgstr ""
-"何も開始されておらず、請求も発生していません。カウンターは毎月1日にリセットさ"
-"れます。"
+"Nothing was started and nothing was charged. The counter resets on the first"
+" of the month."
+msgstr "何も開始されておらず、請求も発生していません。カウンターは毎月1日にリセットされます。"
 
 #: templates/billing/blocked.html
 msgid "See what the other tiers allow"
@@ -3058,9 +2888,7 @@ msgstr "ありがとうございます"
 msgid ""
 "Your payment went to Stripe. This page reflects what has been confirmed so "
 "far."
-msgstr ""
-"お支払いは Stripe に送られました。このページには、これまでに確認された内容が"
-"表示されます。"
+msgstr "お支払いは Stripe に送られました。このページには、これまでに確認された内容が表示されます。"
 
 #: templates/billing/done.html
 #, python-format
@@ -3069,8 +2897,8 @@ msgid ""
 "class=\"tabular\">%(turns)s</strong> turns a simulation and <strong "
 "class=\"tabular\">%(games)s</strong> games a run."
 msgstr ""
-"現在のプランは <strong>%(plan)s</strong> です。シミュレーションごとに "
-"<strong class=\"tabular\">%(turns)s</strong> ターン、1回の実行で <strong "
+"現在のプランは <strong>%(plan)s</strong> です。シミュレーションごとに <strong "
+"class=\"tabular\">%(turns)s</strong> ターン、1回の実行で <strong "
 "class=\"tabular\">%(games)s</strong> ゲームです。"
 
 #: templates/billing/done.html
@@ -3083,9 +2911,8 @@ msgid ""
 "You can close this. Reload <a href=\"%(plans_url)s\" class=\"text-ink-900 "
 "underline\">your plan</a> in a moment to see it."
 msgstr ""
-"このページは閉じてかまいません。少ししてから<a href=\"%(plans_url)s\" "
-"class=\"text-ink-900 underline\">あなたのプラン</a>を再読み込みすると確認でき"
-"ます。"
+"このページは閉じてかまいません。少ししてから<a href=\"%(plans_url)s\" class=\"text-ink-900 "
+"underline\">あなたのプラン</a>を再読み込みすると確認できます。"
 
 #: templates/billing/done.html
 msgid "Back to your decks"
@@ -3108,18 +2935,15 @@ msgid ""
 "while the card is retried. Update it in the billing portal below, or the "
 "subscription will end and the account will return to Free."
 msgstr ""
-"<strong>お支払いが完了しませんでした。</strong>カードの再試行中もプランは有効"
-"です。下の請求ポータルでカードを更新してください。更新しないとサブスクリプ"
-"ションが終了し、アカウントは無料プランに戻ります。"
+"<strong>お支払いが完了しませんでした。</strong>カードの再試行中もプランは有効です。下の請求ポータルでカードを更新してください。更新しないとサブスクリプションが終了し、アカウントは無料プランに戻ります。"
 
 #: templates/billing/plans.html
 #, python-format
 msgid ""
-"<strong>This plan ends on %(date)s.</strong> You keep everything until then, "
-"and the account returns to Free afterwards."
+"<strong>This plan ends on %(date)s.</strong> You keep everything until then,"
+" and the account returns to Free afterwards."
 msgstr ""
-"<strong>このプランは %(date)s に終了します。</strong>それまではすべて使え、そ"
-"の後アカウントは無料プランに戻ります。"
+"<strong>このプランは %(date)s に終了します。</strong>それまではすべて使え、その後アカウントは無料プランに戻ります。"
 
 #: templates/billing/plans.html
 msgid "What you have used"
@@ -3144,8 +2968,7 @@ msgid ""
 "<strong>Deck summaries are on.</strong> A new one is written when you run a "
 "changed deck, and uses one simulation."
 msgstr ""
-"<strong>デッキの要約はオンです。</strong>変更したデッキを実行すると新しい要約"
-"が作成され、シミュレーション1回分を使います。"
+"<strong>デッキの要約はオンです。</strong>変更したデッキを実行すると新しい要約が作成され、シミュレーション1回分を使います。"
 
 #: templates/billing/plans.html
 msgid "Deck summaries are off."
@@ -3159,9 +2982,7 @@ msgstr "デッキの要約を再び表示"
 msgid ""
 "<strong>Payments are not switched on in this installation</strong> — "
 "everyone is on Free."
-msgstr ""
-"<strong>このインストールでは支払いが有効になっていません</strong>。全員が無料"
-"プランです。"
+msgstr "<strong>このインストールでは支払いが有効になっていません</strong>。全員が無料プランです。"
 
 #: templates/billing/plans.html
 msgid "The tiers"
@@ -3232,12 +3053,11 @@ msgstr "まだご利用いただけません。"
 #: templates/billing/plans.html
 msgid ""
 "Paid plans are <strong>sold through Link</strong>, Stripe's reseller "
-"service: Link takes the payment, handles the VAT and sends the receipts, and "
-"your statement shows <em>LINK.COM*</em>."
+"service: Link takes the payment, handles the VAT and sends the receipts, and"
+" your statement shows <em>LINK.COM*</em>."
 msgstr ""
-"有料プランは Stripe の再販サービス <strong>Link を通じて販売</strong>されま"
-"す。Link が支払いを受け取り、VAT を処理し、領収書を送ります。明細には "
-"<em>LINK.COM*</em> と表示されます。"
+"有料プランは Stripe の再販サービス <strong>Link を通じて販売</strong>されます。Link が支払いを受け取り、VAT "
+"を処理し、領収書を送ります。明細には <em>LINK.COM*</em> と表示されます。"
 
 #: templates/billing/plans.html
 msgid "Checkout may show the price in your own currency."
@@ -3246,11 +3066,11 @@ msgstr "決済画面ではお住まいの通貨で価格が表示されること
 #: templates/billing/plans.html
 #, python-format
 msgid ""
-"The details are in the <a href=\"%(terms_url)s\" class=\"underline hover:"
-"text-ink-900\">terms</a>."
+"The details are in the <a href=\"%(terms_url)s\" class=\"underline "
+"hover:text-ink-900\">terms</a>."
 msgstr ""
-"詳しくは<a href=\"%(terms_url)s\" class=\"underline hover:text-ink-900\">利用"
-"規約</a>をご覧ください。"
+"詳しくは<a href=\"%(terms_url)s\" class=\"underline hover:text-"
+"ink-900\">利用規約</a>をご覧ください。"
 
 #: templates/billing/plans.html
 msgid "Card, invoices and cancelling"
@@ -3258,21 +3078,18 @@ msgstr "カード、請求書、解約"
 
 #: templates/billing/plans.html
 msgid ""
-"All three live in Stripe's own portal; your orders at <a href=\"https://link."
-"com\" class=\"underline hover:text-ink-900\" rel=\"noopener\">link.com</a> "
-"can cancel too."
+"All three live in Stripe's own portal; your orders at <a "
+"href=\"https://link.com\" class=\"underline hover:text-ink-900\" "
+"rel=\"noopener\">link.com</a> can cancel too."
 msgstr ""
-"3つとも Stripe のポータルで行えます。<a href=\"https://link.com\" "
-"class=\"underline hover:text-ink-900\" rel=\"noopener\">link.com</a> の注文か"
-"らも解約できます。"
+"3つとも Stripe のポータルで行えます。<a href=\"https://link.com\" class=\"underline "
+"hover:text-ink-900\" rel=\"noopener\">link.com</a> の注文からも解約できます。"
 
 #: templates/billing/plans.html
 msgid ""
 "All three live in Stripe's own portal — no card number ever reaches this "
 "site."
-msgstr ""
-"3つとも Stripe のポータルで行えます。カード番号がこのサイトに届くことはありま"
-"せん。"
+msgstr "3つとも Stripe のポータルで行えます。カード番号がこのサイトに届くことはありません。"
 
 #: templates/billing/plans.html
 msgid "Open the billing portal"
@@ -3283,15 +3100,12 @@ msgstr "請求ポータルを開く"
 msgid ""
 "Even with %(card)s in the deck, it never came together within %(turns)s "
 "turns, across %(games)s games."
-msgstr ""
-"%(card)s をデッキに入れても、%(games)s ゲームを通じて %(turns)s ターン以内に"
-"一度も揃いませんでした。"
+msgstr "%(card)s をデッキに入れても、%(games)s ゲームを通じて %(turns)s ターン以内に一度も揃いませんでした。"
 
 #: templates/combos/_measurement.html
 #, python-format
 msgid "It never came together within %(turns)s turns, across %(games)s games."
-msgstr ""
-"%(games)s ゲームを通じて %(turns)s ターン以内に一度も揃いませんでした。"
+msgstr "%(games)s ゲームを通じて %(turns)s ターン以内に一度も揃いませんでした。"
 
 #: templates/combos/_measurement.html
 #, python-format
@@ -3299,17 +3113,15 @@ msgid ""
 "Add <strong>%(card)s</strong> and it comes together by turn %(turns)s in "
 "<strong class=\"tabular\">%(share)s</strong> of games"
 msgstr ""
-"<strong>%(card)s</strong> を加えると、<strong class=\"tabular\">%(share)s</"
-"strong> のゲームで %(turns)s ターン目までに揃います"
+"<strong>%(card)s</strong> を加えると、<strong class=\"tabular\">%(share)s</strong>"
+" のゲームで %(turns)s ターン目までに揃います"
 
 #: templates/combos/_measurement.html
 #, python-format
 msgid ""
-"Comes together by turn %(turns)s in <strong class=\"tabular\">%(share)s</"
-"strong> of games"
-msgstr ""
-"<strong class=\"tabular\">%(share)s</strong> のゲームで %(turns)s ターン目ま"
-"でに揃います"
+"Comes together by turn %(turns)s in <strong "
+"class=\"tabular\">%(share)s</strong> of games"
+msgstr "<strong class=\"tabular\">%(share)s</strong> のゲームで %(turns)s ターン目までに揃います"
 
 #: templates/combos/_measurement.html
 #, python-format
@@ -3319,14 +3131,12 @@ msgstr "そのうち半数は %(turn)s ターン目まで"
 #: templates/combos/_measurement.html
 #, python-format
 msgid ""
-"Measured over %(games)s game of this deck with that one card added — nothing "
-"was cut to make room."
+"Measured over %(games)s game of this deck with that one card added — nothing"
+" was cut to make room."
 msgid_plural ""
 "Measured over %(games)s games of this deck with that one card added — "
 "nothing was cut to make room."
-msgstr[0] ""
-"このデッキにそのカード1枚を加えて %(games)s ゲームで計測しました。代わりに抜"
-"いたカードはありません。"
+msgstr[0] "このデッキにそのカード1枚を加えて %(games)s ゲームで計測しました。代わりに抜いたカードはありません。"
 
 #: templates/combos/_measurement.html
 #, python-format
@@ -3343,8 +3153,8 @@ msgstr "持っていないカード"
 msgid "and any %(template)s"
 msgstr "および任意の %(template)s"
 
-#: templates/combos/_panel.html templates/decks/detail.html
-#: templates/simulations/_combos.html
+#: templates/combos/_panel.html templates/core/methodology.html
+#: templates/decks/detail.html templates/simulations/_combos.html
 msgid "Combos"
 msgstr "コンボ"
 
@@ -3368,9 +3178,7 @@ msgstr "このデッキに既知のコンボはありません。"
 msgid ""
 "A normal result and not a fault: a deck built to grind rather than to combo "
 "off has none."
-msgstr ""
-"正常な結果で、不具合ではありません。コンボではなく粘り強く戦うデッキにはコン"
-"ボがありません。"
+msgstr "正常な結果で、不具合ではありません。コンボではなく粘り強く戦うデッキにはコンボがありません。"
 
 #: templates/combos/_panel.html
 #, python-format
@@ -3405,9 +3213,8 @@ msgid ""
 "<strong class=\"text-ink-900\">Nothing has timed these yet.</strong> "
 "Simulate %(games)s games or more to see how often each one comes together."
 msgstr ""
-"<strong class=\"text-ink-900\">まだどのコンボも計測されていません。</"
-"strong>%(games)s ゲーム以上シミュレーションすると、それぞれがどれくらいの頻度"
-"で揃うかがわかります。"
+"<strong class=\"text-ink-900\">まだどのコンボも計測されていません。</strong>%(games)s "
+"ゲーム以上シミュレーションすると、それぞれがどれくらいの頻度で揃うかがわかります。"
 
 #: templates/combos/_panel.html
 #, python-format
@@ -3419,9 +3226,7 @@ msgstr "%(date)s の実行によるタイミング：%(games)s ゲーム、%(tur
 msgid ""
 "It timed %(timed)s of the combos above: all this deck holds, and the most-"
 "played it is a card short of."
-msgstr ""
-"上のコンボのうち %(timed)s 件を計測しました。このデッキにあるものすべてと、1"
-"枚足りないもののうちよく使われているものです。"
+msgstr "上のコンボのうち %(timed)s 件を計測しました。このデッキにあるものすべてと、1枚足りないもののうちよく使われているものです。"
 
 #: templates/combos/_panel.html
 #, python-format
@@ -3431,9 +3236,7 @@ msgid ""
 msgid_plural ""
 "%(count)s further combos would need colours outside your commander's "
 "identity, so they are not listed."
-msgstr[0] ""
-"ほかに %(count)s 件のコンボは統率者の固有色以外の色が必要なため、表示していま"
-"せん。"
+msgstr[0] "ほかに %(count)s 件のコンボは統率者の固有色以外の色が必要なため、表示していません。"
 
 #: templates/combos/_panel.html
 msgid "Check again"
@@ -3446,14 +3249,18 @@ msgstr "コンボを探す"
 #: templates/combos/_panel.html
 #, python-format
 msgid ""
-"Looked up %(date)s — your deck has changed, or this is more than a fortnight "
-"old."
+"Looked up %(date)s — your deck has changed, or this is more than a fortnight"
+" old."
 msgstr "%(date)s に調べました。デッキが変更されたか、2週間以上前の情報です。"
 
 #: templates/combos/_panel.html
 #, python-format
 msgid "Looked up %(date)s."
 msgstr "%(date)s に調べました。"
+
+#: templates/core/_english_only.html
+msgid "This page is only in English for now."
+msgstr "このページは現在、英語のみです。"
 
 #: templates/core/_ticker_lines.html
 msgid "Quiet right now. The lab is waiting for your deck."
@@ -3472,9 +3279,7 @@ msgstr "ゲームの夜の前に、デッキを知ろう。"
 msgid ""
 "Upload your Commander deck. Goldfish Lab plays it thousands of times and "
 "shows you what happens."
-msgstr ""
-"統率者デッキをアップロードしてください。Goldfish Lab が何千回もプレイして、何"
-"が起こるかをお見せします。"
+msgstr "統率者デッキをアップロードしてください。Goldfish Lab が何千回もプレイして、何が起こるかをお見せします。"
 
 #: templates/core/home.html
 msgid "Back to your deck"
@@ -3499,8 +3304,8 @@ msgstr "今すぐ試す（アカウント不要）"
 
 #: templates/core/home.html
 msgid ""
-"An opening hand of seven cards on the playtest table, with Mulligan and Keep "
-"above it"
+"An opening hand of seven cards on the playtest table, with Mulligan and Keep"
+" above it"
 msgstr "テストプレイの卓に並んだ7枚の初手と、その上のマリガンとキープのボタン"
 
 #: templates/core/home.html
@@ -3511,9 +3316,7 @@ msgstr "手札を引いて、プレイしてみましょう。"
 msgid ""
 "A report chart: how often the deck has drawn ramp, card draw and removal by "
 "each turn"
-msgstr ""
-"レポートのグラフ：各ターンまでにランプ、ドロー、除去をどれくらいの頻度で引い"
-"たか"
+msgstr "レポートのグラフ：各ターンまでにランプ、ドロー、除去をどれくらいの頻度で引いたか"
 
 #: templates/core/home.html
 msgid "Or get the odds from thousands of games."
@@ -3534,6 +3337,492 @@ msgstr "再開"
 #: templates/core/home.html templates/guests/_steps.html
 msgid "How it works"
 msgstr "仕組み"
+
+#: templates/core/imprint.html
+msgid "Who runs Goldfish Lab and how to reach them."
+msgstr "Goldfish Lab の運営者と連絡先。"
+
+#: templates/core/methodology.html
+msgid "Methodology"
+msgstr "方法論"
+
+#: templates/core/methodology.html
+msgid ""
+"Exactly what Goldfish Lab simulates, what it does not, and how the numbers "
+"were checked."
+msgstr "Goldfish Lab が何をシミュレーションし、何をしないのか、そして数値をどう検証したのかを正確に説明します。"
+
+#: templates/core/methodology.html
+msgid ""
+"Goldfish Lab does not score your deck. It plays it — shuffles, mulligans, "
+"makes land drops and casts spells, thousands of times — and reports what "
+"happened. This page says exactly what that means, and just as importantly "
+"what it leaves out."
+msgstr ""
+"Goldfish Lab "
+"はデッキを採点しません。実際にプレイします。シャッフルし、マリガンし、土地を置き、呪文を唱えることを何千回も繰り返し、その結果を報告します。このページでは、それが正確に何を意味するのか、そして同じくらい大切なこととして、何を含まないのかを説明します。"
+
+#: templates/core/methodology.html
+msgid "What a goldfish is"
+msgstr "ゴールドフィッシュとは"
+
+#: templates/core/methodology.html
+msgid ""
+"A <em>goldfish</em> is a game against nobody. There is no opponent, so there"
+" is no removal, no counterspell, no blocker and no clock. That is a "
+"limitation and it is also the point: it isolates the one question your deck "
+"can answer on its own — <strong>how reliably does it do the thing it is "
+"built to do, and by which turn?</strong>"
+msgstr ""
+"<em>ゴールドフィッシュ</em>とは、誰とも対戦しないゲームのことです。対戦相手がいないので、除去も打ち消し呪文もブロッカーもクロックもありません。これは制約ですが、同時に狙いでもあります。デッキが単独で答えられるただ一つの問いを切り出せるからです。<strong>デッキは、作られた目的をどれだけ確実に、何ターン目までに果たせるのか？</strong>"
+
+#: templates/core/methodology.html
+msgid "Concretely, the engine does not model:"
+msgstr "具体的には、エンジンは次のものをモデル化していません："
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Opponents and interaction.</strong> Nothing is countered, killed or "
+"discarded."
+msgstr "<strong>対戦相手と相互作用。</strong>打ち消されることも、除去されることも、捨てさせられることもありません。"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Combat.</strong> Nothing attacks or blocks, so nobody takes combat "
+"damage and no creature dies. Your own life still moves: Necropotence, Dark "
+"Confidant and Phyrexian mana are paid for."
+msgstr ""
+"<strong>戦闘。</strong>攻撃もブロックも行われないため、誰も戦闘ダメージを受けず、クリーチャーも死亡しません。ただし自分のライフは変動します。Necropotence、Dark"
+" Confidant、ファイレクシア・マナの支払いは行われます。"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Printed keywords.</strong> Flying, deathtouch and trample are shown "
+"on a card because a person reads them. They change no number here, and we "
+"never count them as if they did."
+msgstr ""
+"<strong>印刷されたキーワード能力。</strong>飛行、接死、トランプルは、人が読むためにカードに表示しています。ここではどの数値も変えず、変えるかのように数えることも決してありません。"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Politics and table dynamics</strong>, which are most of what a "
+"Commander game is."
+msgstr "<strong>政治と卓の駆け引き</strong>。統率者戦のゲームの大部分はこれです。"
+
+#: templates/core/methodology.html
+msgid ""
+"So a deck that goldfishes beautifully can still lose every game. What this "
+"tells you is whether the deck's own plan is reliable — not whether the plan "
+"is good."
+msgstr ""
+"つまり、ゴールドフィッシュで見事に回るデッキでも、すべてのゲームに負けることはあり得ます。ここでわかるのは、デッキ自身のプランが確実に機能するかどうかであり、そのプランが良いかどうかではありません。"
+
+#: templates/core/methodology.html
+msgid "The opening hand, and how we know it is right"
+msgstr "初手と、それが正しいとわかる理由"
+
+#: templates/core/methodology.html
+msgid ""
+"A Monte Carlo simulation is only worth reading if it agrees with mathematics"
+" wherever mathematics has an answer. For the first seven cards it does: the "
+"number of lands in an opening seven follows the <strong>hypergeometric "
+"distribution</strong>, which has a closed form."
+msgstr ""
+"モンテカルロ・シミュレーションは、数学に答えがあるところではどこでも数学と一致して初めて、読む価値があります。最初の7枚については答えがあります。初手7枚に含まれる土地の枚数は<strong>超幾何分布</strong>に従い、これには閉じた式があります。"
+
+#: templates/core/methodology.html
+msgid ""
+"The simulated distribution is checked against the exact one, computed with "
+"<code>math.comb</code>: the test suite draws <strong>200,000</strong> "
+"opening hands on every run and fails if they diverge beyond sampling error. "
+"The report used to print both side by side; it left the page because it "
+"answered a question nobody had asked, and the check did not leave with it."
+msgstr ""
+"シミュレーションした分布は、<code>math.comb</code> "
+"で計算した厳密な分布と照合しています。テストスイートは実行のたびに<strong>200,000</strong>回の初手を引き、サンプリング誤差を超えてずれると失敗します。以前はレポートに両方を並べて表示していましたが、誰も尋ねていない問いに答えていたためページから外しました。検証のほうは残っています。"
+
+#: templates/core/methodology.html
+msgid ""
+"The <em>kept</em> hand has <strong>no exact answer</strong>, because no "
+"closed form describes it — the mulligan rule throws the tails back and "
+"reshapes the distribution. The report's \"Mulligans\" shows what the rule "
+"did instead."
+msgstr ""
+"<em>キープした</em>手札には<strong>厳密な答えがありません</strong>。それを表す閉じた式がないからです。マリガンのルールが分布の両端を戻し、分布の形を変えてしまいます。代わりに、レポートの「マリガン」がルールの結果を示しています。"
+
+#: templates/core/methodology.html
+msgid "The mulligan rule"
+msgstr "マリガンのルール"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>London mulligan</strong>: draw a fresh seven, then put cards on the "
+"bottom. In multiplayer Commander the <strong>first mulligan is "
+"free</strong>, so the first one bottoms nothing."
+msgstr ""
+"<strong>ロンドン・マリガン</strong>：新たに7枚引き、それからカードをライブラリーの一番下に置きます。多人数戦の統率者戦では<strong>最初のマリガンはフリー</strong>なので、1回目は1枚も下に置きません。"
+
+#: templates/core/methodology.html
+msgid "A hand is kept when:"
+msgstr "次の場合に手札をキープします："
+
+#: templates/core/methodology.html
+msgid "it has <strong>2 to 5 lands</strong>; or"
+msgstr "<strong>土地が2～5枚</strong>ある。または"
+
+#: templates/core/methodology.html
+msgid ""
+"it has <strong>exactly 1 land</strong> and at least two cheap accelerants."
+msgstr "<strong>土地がちょうど1枚</strong>で、軽いマナ加速が2枚以上ある。"
+
+#: templates/core/methodology.html
+msgid ""
+"A hand with <strong>0 or 6 or more lands</strong> goes back. We stop after "
+"three mulligans, at five cards."
+msgstr "<strong>土地が0枚、または6枚以上</strong>の手札は戻します。マリガンは3回、5枚までで止めます。"
+
+#: templates/core/methodology.html
+msgid ""
+"This heuristic decides every number that follows it, which is why it is "
+"written here in full rather than described as \"a sensible keep rule\". It "
+"is deliberately simpler than a good player: it cannot read your hand's plan,"
+" only its shape. One consequence is worth knowing — <strong>a land-heavy "
+"deck mulligans more, not less</strong>, because forty-five lands flood into "
+"the 6+ rule far more often than twenty lands miss into the 0 rule."
+msgstr ""
+"このヒューリスティックはその後のすべての数値を左右します。だからこそ「妥当なキープ基準」と説明するのではなく、ここに全文を書いています。意図的に上手なプレイヤーより単純にしてあり、手札のプランは読めず、形しか見ません。知っておく価値のある結果が一つあります。<strong>土地の多いデッキほど、マリガンは減るのではなく増えます</strong>。45枚の土地が6枚以上のルールに引っかかる頻度は、20枚の土地が0枚のルールに引っかかる頻度よりはるかに高いからです。"
+
+#: templates/core/methodology.html
+msgid "The first draw, and how a turn makes mana"
+msgstr "最初のドローと、ターンごとのマナの出し方"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>In multiplayer Commander nobody skips the draw on their first "
+"turn</strong> (Comprehensive Rules 103.8c), so that is the default. Skipping"
+" it is the two-player rule, and it is there as an option for a 1-v-1 game."
+msgstr ""
+"<strong>多人数戦の統率者戦では、最初のターンにドローを飛ばすプレイヤーはいません</strong>（総合ルール "
+"103.8c）。そのため、これが既定です。ドローを飛ばすのは2人対戦のルールで、1対1のゲーム用のオプションとして用意しています。"
+
+#: templates/core/methodology.html
+msgid ""
+"Every mana source is tapped once, at the start of the main phase: lands, "
+"mana rocks and creatures that tap for mana. A creature cast this turn is not"
+" in that pool yet, which is also what summoning sickness says - and so is a "
+"rock cast this turn, which in a real game could often be tapped at once. "
+"That second part makes the early turns read slightly lower than they play."
+msgstr ""
+"すべてのマナ源は、メイン・フェイズの開始時に1回タップされます。土地、マナ・ロック、マナを出すためにタップするクリーチャーです。このターンに唱えたクリーチャーはまだそのプールに入りません。これは召喚酔いのルールどおりです。このターンに唱えたマナ・ロックも同様ですが、実際のゲームではすぐにタップできることがよくあります。この後者のせいで、序盤のターンの数値は実際のプレイより少し低く出ます。"
+
+#: templates/core/methodology.html
+msgid ""
+"A source's cost is paid: a Signet turns one mana into its two colours, so it"
+" nets one. A card that does not untap (Mana Vault) makes its mana once. One "
+"that sacrifices itself (Lotus Petal) is used once, when it lets something be"
+" cast that otherwise could not. Phyrexian mana is paid with 2 life only when"
+" the mana is needed elsewhere, and never below 25 life."
+msgstr ""
+"マナ源のコストは支払われます。Signet は1マナを2色のマナに変えるので、差し引き1マナです。アンタップしないカード（Mana "
+"Vault）はマナを1回だけ出します。自身を生け贄に捧げるカード（Lotus "
+"Petal）は、それがなければ唱えられないものを唱えられるときに1回だけ使います。ファイレクシア・マナは、そのマナが他で必要なときにだけ2点のライフで支払い、ライフが25点を下回るときは決して支払いません。"
+
+#: templates/core/methodology.html templates/simulations/_report.html
+msgid "What you drew"
+msgstr "引いたカード"
+
+#: templates/core/methodology.html
+msgid ""
+"After every turn of every game, the engine counts the cards you have drawn "
+"so far: the opening hand you kept and each draw. A card a tutor found is not"
+" a draw and is not counted, and neither is a land a spell fetched. Cards a "
+"mulligan put on the bottom are not counted, and neither is your commander. "
+"Counting draws no random number, so the games are exactly the games they "
+"would have been without it."
+msgstr ""
+"各ゲームの各ターンの後に、エンジンはそれまでに引いたカードを数えます。キープした初手と、毎回のドローです。サーチ・カードで見つけたカードはドローではないので数えません。呪文で持ってきた土地も同様です。マリガンでライブラリーの一番下に置いたカードは数えず、統率者も数えません。数えるときに乱数は一切引かないので、ゲームは数えなかった場合とまったく同じゲームになります。"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Categories</strong> — ramp, card draw, removal and the rest — come "
+"from the community's card tags, or from what you said about a card. A spell "
+"that can only fetch lands, such as Cultivate, is ramp rather than a tutor. "
+"The chart shows the share of games with <em>at least one</em> by each turn, "
+"because that is the question a deck is built around: do I see ramp by turn "
+"two. <strong>Card types</strong> are shown as an average count instead: "
+"almost every game sees a creature by turn one, and how many is the part that"
+" differs between decks. The <strong>mana value</strong> bars count spells "
+"only — every land is mana value zero and would drown the curve."
+msgstr ""
+"<strong>カテゴリー</strong>（ランプ、ドロー、除去など）は、コミュニティのカード・タグ、またはあなたがカードについて回答した内容から決まります。Cultivate"
+" "
+"のように土地しか持ってこられない呪文は、サーチ・カードではなくランプです。グラフは各ターンまでに<em>少なくとも1枚</em>引いたゲームの割合を示します。「2ターン目までにランプを引けるか」こそが、デッキを組むときの問いだからです。一方、<strong>カード・タイプ</strong>は平均枚数で示します。ほぼすべてのゲームで1ターン目までにクリーチャーを引くので、デッキごとに違うのはその枚数だからです。<strong>マナ総量</strong>の棒グラフは呪文だけを数えます。土地はすべてマナ総量0なので、含めるとカーブが埋もれてしまいます。"
+
+#: templates/core/methodology.html
+#, python-format
+msgid ""
+"The deck page's bars and filters sort the cards the same way, so a card you "
+"moved to another category moves there too. The faint band beside a bar is a "
+"common template for a hundred-card deck — about ten ramp, ten card draw, "
+"eight to ten removal, two to four board wipes, and Frank Karsten's "
+"%(karsten_min)s to %(karsten_max)s lands. It is a starting point many "
+"players use, not a rule, and no deck is marked for leaving it."
+msgstr ""
+"デッキのページの棒グラフとフィルターも同じ方法でカードを分類するので、別のカテゴリーに移したカードはそちらにも移ります。棒の横の薄い帯は、100枚のデッキによくある目安です。ランプ約10枚、ドロー10枚、除去8～10枚、全体除去2～4枚、そして"
+" Frank Karsten の %(karsten_min)s～%(karsten_max)s "
+"枚の土地。多くのプレイヤーが使う出発点であって規則ではなく、そこから外れてもデッキに印が付くことはありません。"
+
+#: templates/core/methodology.html
+msgid "Reading the report"
+msgstr "レポートの読み方"
+
+#: templates/core/methodology.html templates/simulations/_advanced.html
+msgid "Mana and lands, turn by turn"
+msgstr "ターンごとのマナと土地"
+
+#: templates/core/methodology.html
+msgid ""
+"The median is what usually happens. The tenth percentile (p10) is the game "
+"that goes wrong — which is the one a deck gets rebuilt for, and the one an "
+"average hides completely."
+msgstr ""
+"中央値は、たいてい起こることです。10パーセンタイル（p10）はうまくいかないゲームです。デッキを組み直すきっかけになるのはこのゲームで、平均値では完全に隠れてしまいます。"
+
+#: templates/core/methodology.html templates/simulations/_report.html
+msgid "What the mana was made of"
+msgstr "マナの内訳"
+
+#: templates/core/methodology.html
+msgid ""
+"The same mana, split by colour. This is the column that says whether a mana "
+"base works: five mana on turn three is a good turn, and five mana of which "
+"four is the wrong colour is a turn spent doing nothing."
+msgstr ""
+"同じマナを色別に分けたものです。マナ基盤が機能しているかどうかを示すのはこの列です。3ターン目に5マナなら良いターンですが、5マナのうち4マナが違う色なら、何もできずに終わるターンです。"
+
+#: templates/core/methodology.html
+msgid ""
+"Means, and only means — the engine's pool counts mana rather than holding "
+"the sources that made it, so a card that could have made one of several "
+"colours was read as making one fixed colour. Every card that happened to is "
+"among the cards the engine could not read, under “Cards that need your "
+"attention”."
+msgstr ""
+"平均値のみです。エンジンのプールはマナを生み出した発生源を保持せずにマナの量を数えるため、複数の色のいずれかを出せるカードは、決まった1色を出すものとして読み取りました。そうなったカードはすべて、エンジンが読み取れなかったカードとして「確認が必要なカード」に挙がっています。"
+
+#: templates/core/methodology.html templates/simulations/_report.html
+msgid "Milestones"
+msgstr "マイルストーン"
+
+#: templates/core/methodology.html
+msgid ""
+"The share of games in which each milestone was true by the end of that turn."
+" They are read from the cards' own category tags, so a deck built "
+"differently gets the same chart without anything here changing. The chart "
+"draws the eight most frequent; a rarer ninth stays in the numbers under it."
+msgstr ""
+"各マイルストーンがそのターンの終わりまでに達成されていたゲームの割合です。マイルストーンはカード自身のカテゴリー・タグから読み取るので、異なる構成のデッキでも、ここを何も変えずに同じグラフが得られます。グラフは頻度の高い上位8つを描きます。それより稀な9つ目は、グラフの下の数値に残ります。"
+
+#: templates/core/methodology.html
+msgid "What a simulation does not model"
+msgstr "シミュレーションがモデル化しないもの"
+
+#: templates/core/methodology.html
+msgid ""
+"Some limits are not bugs and more games will not fix them. They are the "
+"difference between a goldfish game and a real one, so the report names which"
+" of your cards they touch, and the field on each card that answers them. The"
+" list is read from the deck as it stands now rather than from the run: these"
+" are properties of the cards, not measurements a simulation made."
+msgstr ""
+"限界の中には、バグではなく、ゲーム数を増やしても解消しないものがあります。それはゴールドフィッシュのゲームと実際のゲームとの違いなので、レポートはそれがあなたのどのカードに関わるか、そして各カードのどの項目がそれに答えるかを示します。この一覧は実行結果からではなく、現在のデッキから読み取ります。これらはカードの性質であり、シミュレーションによる計測値ではありません。"
+
+#: templates/core/methodology.html
+msgid ""
+"When a card's reading is changed after a run, that run is not recalculated —"
+" its numbers are a record of what the engine actually saw — so the report "
+"says so, and running the deck again shows the difference. Magic has enormous"
+" variance: differences below about one percentage point are noise, whatever "
+"the number of games."
+msgstr ""
+"実行後にカードの読み取り内容を変更しても、その実行は再計算されません。その数値はエンジンが実際に見たものの記録だからです。そのためレポートにはその旨が表示され、デッキをもう一度実行すると違いがわかります。マジックの分散は非常に大きく、ゲーム数にかかわらず、約1パーセントポイント未満の差はノイズです。"
+
+#: templates/core/methodology.html
+msgid "What the engine could not read"
+msgstr "エンジンが読み取れなかったもの"
+
+#: templates/core/methodology.html
+msgid ""
+"Every result says <strong>how much of the deck the engine could "
+"read</strong> from the cards themselves, counting every copy: thirty Swamps "
+"are thirty of a hundred cards. A gap there is <em>ours</em> — a card whose "
+"text we could not turn into behaviour — and the result lists every one."
+msgstr ""
+"どの結果にも、<strong>エンジンがデッキのどれだけをカード自体から読み取れたか</strong>が、すべての枚数を数えて表示されます。30枚の沼は100枚中の30枚です。そこに欠けがあれば、それは<em>私たちの</em>落ち度です。テキストを動作に変換できなかったカードであり、結果にはそれがすべて一覧表示されます。"
+
+#: templates/core/methodology.html
+msgid ""
+"What it counts is only that. When several spells are affordable, the engine "
+"casts the <strong>cheapest first</strong> — its own rule, not a reading of "
+"your deck's plan, with a built-in order for a few dozen well-known cards "
+"such as rituals and fast mana. We used to ask for a casting order card by "
+"card and scored decks on how much of it had been given; on the deck we "
+"measured, <strong>161 of 217 gaps were that question</strong>, so the score "
+"mostly reported how much hand-annotation a deck had received. We stopped "
+"asking: this is a tool for statistics about a deck, not for steering a game."
+msgstr ""
+"数えているのはそれだけです。複数の呪文を唱えられるとき、エンジンは<strong>最も軽いものから</strong>唱えます。これはエンジン自身のルールで、あなたのデッキのプランを読み取ったものではありません。儀式やファストマナなど、よく知られた数十枚のカードには組み込みの順序があります。以前はカードごとに唱える順序を尋ね、その回答がどれだけあるかでデッキを採点していました。計測したデッキでは<strong>217件の欠けのうち161件がその質問</strong>で、スコアは主にデッキにどれだけ手作業の注釈が付けられたかを表していました。そこで尋ねるのをやめました。これはデッキの統計のためのツールであって、ゲームを操作するためのものではありません。"
+
+#: templates/core/methodology.html
+msgid ""
+"A tutor is the exception, because the cheapest card in a library is a land. "
+"A tutor takes a spell: first a piece of one of the deck's combos or a card-"
+"advantage engine, then the biggest spell it can cast by next turn. Only a "
+"search that can find nothing but lands takes a land."
+msgstr ""
+"サーチ・カードは例外です。ライブラリーで最も軽いカードは土地だからです。サーチ・カードは呪文を持ってきます。まずデッキのコンボのパーツかカード・アドバンテージのエンジン、次に次のターンまでに唱えられる最も重い呪文です。土地しか探せないサーチだけが土地を持ってきます。"
+
+#: templates/core/methodology.html
+msgid ""
+"Wherever nothing could be established, the answer is a stated gap rather "
+"than a guess. A deriver that defaults a missing number is right often enough"
+" to look correct and silent when it is not."
+msgstr ""
+"何も確定できなかったところでは、推測ではなく欠けとして明示します。足りない数値に既定値を入れる導出処理は、正しく見える程度にはよく当たり、外れたときは何も言いません。"
+
+#: templates/core/methodology.html
+msgid ""
+"A card the engine could not read marks its deck red — “3 cards need you” — "
+"until you have looked at each one: correct what it reads, or say it looks "
+"right. Either way the deck turns “Ready”. Simulating never waits for it. "
+"Every value on a card's page says where it came from:"
+msgstr ""
+"エンジンが読み取れなかったカードがあると、そのデッキは赤く表示されます（「要確認のカード 3 "
+"枚」）。各カードを確認するまでその状態が続きます。読み取り内容を修正するか、正しいと回答してください。どちらでもデッキは「準備完了」になります。シミュレーションがこれを待つことはありません。カードのページの各値には、その出どころが示されています："
+
+#: templates/core/methodology.html
+msgid ""
+"Combos come from <strong>Commander Spellbook</strong>, looked up for your "
+"actual deck. We never guess a combo by reading card text."
+msgstr ""
+"コンボは<strong>Commander "
+"Spellbook</strong>から、あなたの実際のデッキに合わせて取得します。カードのテキストを読んでコンボを推測することは決してありません。"
+
+#: templates/core/methodology.html
+msgid ""
+"What the simulator adds is the part nobody else can: <strong>how often a "
+"combo actually comes together, and by which turn</strong>. A combo counts as"
+" assembled only when every card is in the zone the combo needs it in — on "
+"the battlefield, in the graveyard, in hand. Not \"drawn\", and not \"seen\"."
+" Measuring drawn cards would be easier and would inflate every number on the"
+" page."
+msgstr ""
+"シミュレーターが加えるのは、他の誰にもできない部分です。<strong>コンボが実際にどれくらいの頻度で、何ターン目までに揃うか</strong>。コンボは、すべてのカードがコンボの必要とする領域（戦場、墓地、手札）にあるときにだけ揃ったとみなします。「引いた」でも「見た」でもありません。引いたカードを数えるほうが簡単ですが、それではページ上のすべての数値が水増しされてしまいます。"
+
+#: templates/core/methodology.html
+msgid ""
+"For a combo your deck is <em>one card short of</em>, the question is "
+"hypothetical, so we say so and measure it honestly: on a second deck that is"
+" yours <strong>plus that card</strong>, nothing cut, and the page names the "
+"card. Choosing which card your deck can spare is not a judgement this "
+"application makes."
+msgstr ""
+"デッキに<em>あと1枚足りない</em>コンボについては、問いが仮定のものなので、そう明記したうえで誠実に計測します。あなたのデッキに<strong>そのカードを加えた</strong>2つ目のデッキで、何も抜かずに計測し、ページにはそのカードの名前を示します。デッキからどのカードを抜けるかの判断は、このアプリケーションでは行いません。"
+
+#: templates/core/methodology.html
+#, python-format
+msgid ""
+"Expect small numbers, and read them carefully. Two specific cards in a "
+"99-card singleton deck is about 1.6%% before anything has to be cast. A "
+"result under one percent is printed as \"under 1%%\" rather than rounded to "
+"\"0%%\", because 0%% reads as <em>never</em> next to a combo that did come "
+"together."
+msgstr ""
+"小さな数値を想定し、注意して読んでください。99枚のシングルトン・デッキで特定のカード2枚が揃う確率は、何かを唱える必要が生じる前の時点で約1.6%%です。1%%未満の結果は「0%%」に丸めずに「1%%"
+" 未満」と表示します。実際に揃ったコンボの横に 0%% とあると、<em>一度もない</em>と読めてしまうからです。"
+
+#: templates/core/methodology.html
+msgid "How many games is enough"
+msgstr "何ゲームあれば十分か"
+
+#: templates/core/methodology.html
+#, python-format
+msgid ""
+"Ten thousand games gives roughly <strong>±0.5 percentage points at 95%% "
+"confidence</strong>. Past that you are buying decimal places that do not "
+"change a decision, which is why this application meters <strong>turns "
+"simulated</strong> rather than selling you iteration counts."
+msgstr ""
+"1万ゲームで、<strong>信頼度95%%で約±0.5パーセントポイント</strong>の精度が得られます。それ以上は、判断を変えない小数点以下の桁を買うことになります。だからこのアプリケーションは、反復回数を売るのではなく<strong>シミュレーションするターン数</strong>で計量しています。"
+
+#: templates/core/methodology.html
+msgid ""
+"A run is split into chunks across background workers. A chunked run is "
+"deliberately not bit-identical to a single run of the same seed; it replays "
+"exactly and agrees with one within sampling error, and both halves of that "
+"are asserted by tests."
+msgstr ""
+"1回の実行は、バックグラウンドのワーカーにまとまりごとに分割されます。分割した実行は、同じシードの単一の実行とビット単位では一致しないよう、意図的にしています。分割した実行は正確に再現でき、単一の実行とはサンプリング誤差の範囲内で一致します。その両方をテストで検証しています。"
+
+#: templates/core/methodology.html
+msgid "Where this comes from"
+msgstr "出典"
+
+#: templates/core/methodology.html
+#, python-format
+msgid ""
+"<strong>Frank Karsten</strong> — the standard reference for Magic manabase "
+"mathematics, and the source of the hypergeometric \"cast on curve at ~90%% "
+"consistency\" approach this engine is checked against."
+msgstr ""
+"<strong>Frank "
+"Karsten</strong>：マジックのマナ基盤の数学における標準的な参考文献であり、このエンジンの検証に使っている、超幾何分布による「約90%%の安定性でカーブどおりに唱える」手法の出典です。"
+
+#: templates/core/methodology.html
+msgid ""
+"why counting lands in an opening hand is not the same question as counting "
+"<em>mana available on turn four</em>."
+msgstr "初手の土地を数えることが、<em>4ターン目に使えるマナ</em>を数えることと同じ問いではない理由。"
+
+#: templates/core/methodology.html
+msgid "on what goldfishing answers and what it cannot."
+msgstr "ゴールドフィッシュで何がわかり、何がわからないかについて。"
+
+#: templates/core/methodology.html
+#, python-format
+msgid ""
+"Card data from %(scryfall)s; combos from %(spellbook)s. Card images are "
+"linked from Scryfall and never rehosted."
+msgstr ""
+"カード・データは %(scryfall)s、コンボは %(spellbook)s から取得しています。カード画像は Scryfall "
+"からリンクしており、再ホストすることはありません。"
+
+#: templates/core/methodology.html
+msgid ""
+"If a number on this site ever disagrees with this page, the page is the bug."
+" Say so and it gets fixed."
+msgstr "このサイトの数値がこのページと食い違うことがあれば、バグはこのページの方です。お知らせいただければ修正します。"
+
+#: templates/core/privacy.html
+msgid "Privacy policy"
+msgstr "プライバシーポリシー"
+
+#: templates/core/privacy.html
+msgid ""
+"What Goldfish Lab stores about you, why, for how long, who else sees it, and"
+" how to get it back or delete it."
+msgstr "Goldfish Lab があなたについて何を保存するか、その理由、保存期間、ほかに誰が見るか、そしてデータを受け取る方法や削除する方法。"
+
+#: templates/core/terms.html
+msgid "Terms of service"
+msgstr "利用規約"
+
+#: templates/core/terms.html
+msgid ""
+"The terms you agree to by using Goldfish Lab: accounts, paid plans, "
+"cancelling, refunds, and what the simulations do and do not promise."
+msgstr ""
+"Goldfish Lab を利用することで同意する規約：アカウント、有料プラン、解約、返金、そしてシミュレーションが約束することとしないこと。"
 
 #: templates/decks/_card_grid.html
 #, python-format
@@ -3573,9 +3862,7 @@ msgstr "または<span class=\"underline\">クリックして選択</span>"
 msgid ""
 "Only the card names are needed. Quantities and set codes work too. A CSV, "
 "TSV or text file, up to 1&nbsp;MB."
-msgstr ""
-"必要なのはカード名だけです。枚数やセットコードにも対応しています。CSV、TSV、"
-"テキストファイル、1&nbsp;MB まで。"
+msgstr "必要なのはカード名だけです。枚数やセットコードにも対応しています。CSV、TSV、テキストファイル、1&nbsp;MB まで。"
 
 #: templates/decks/_import_form.html
 msgid ""
@@ -3583,9 +3870,8 @@ msgid ""
 "The commander goes under <code class=\"font-mono whitespace-nowrap\">// "
 "Commander</code> - or pick it later."
 msgstr ""
-"1行に1枚。名前だけで十分で、枚数やセットコードにも対応しています。統率者は "
-"<code class=\"font-mono whitespace-nowrap\">// Commander</code> の下に書く"
-"か、後で選んでください。"
+"1行に1枚。名前だけで十分で、枚数やセットコードにも対応しています。統率者は <code class=\"font-mono whitespace-"
+"nowrap\">// Commander</code> の下に書くか、後で選んでください。"
 
 #: templates/decks/_import_form.html
 msgid "More options"
@@ -3677,9 +3963,7 @@ msgid ""
 msgid_plural ""
 "This removes the deck and its %(count)s cards, along with its import "
 "history. The card catalogue is untouched. This cannot be undone."
-msgstr[0] ""
-"デッキとその %(count)s 枚のカード、インポート履歴を削除します。カードのカタロ"
-"グはそのままです。元に戻すことはできません。"
+msgstr[0] "デッキとその %(count)s 枚のカード、インポート履歴を削除します。カードのカタログはそのままです。元に戻すことはできません。"
 
 #: templates/decks/confirm_delete.html
 msgid "Delete permanently"
@@ -3691,9 +3975,9 @@ msgstr "残す"
 
 #: templates/decks/detail.html
 #, python-format
-msgid "Mana curve, card types, categories and Commander legality for %(name)s."
-msgstr ""
-"%(name)s のマナ・カーブ、カード・タイプ、カテゴリー、統率者戦での使用可否。"
+msgid ""
+"Mana curve, card types, categories and Commander legality for %(name)s."
+msgstr "%(name)s のマナ・カーブ、カード・タイプ、カテゴリー、統率者戦での使用可否。"
 
 #: templates/decks/detail.html
 #, python-format
@@ -3742,9 +4026,7 @@ msgstr "手札を引く：1対1、最初のドローを飛ばす"
 msgid ""
 "Simulate plays the deck out thousands of times against no opponent. Draw a "
 "hand is one game by hand, with undo."
-msgstr ""
-"シミュレーションは対戦相手なしでデッキを何千回もプレイします。「手札を引く」"
-"は手動で1ゲームをプレイし、取り消しもできます。"
+msgstr "シミュレーションは対戦相手なしでデッキを何千回もプレイします。「手札を引く」は手動で1ゲームをプレイし、取り消しもできます。"
 
 #: templates/decks/detail.html
 msgid "The deck at a glance"
@@ -3797,9 +4079,7 @@ msgstr "ブラケット：%(detail)s"
 #: templates/decks/detail.html
 msgid ""
 "Every count is exact arithmetic over the list - nothing here is simulated."
-msgstr ""
-"すべての数値はリストから正確に計算したもので、シミュレーションではありませ"
-"ん。"
+msgstr "すべての数値はリストから正確に計算したもので、シミュレーションではありません。"
 
 #: templates/decks/detail.html
 msgid "Mana curve"
@@ -3815,9 +4095,7 @@ msgstr "デッキの中身"
 
 #: templates/decks/detail.html
 msgid "a common template, not a rule. Click a row to see its cards."
-msgstr ""
-"一般的な目安で、ルールではありません。行をクリックするとカードが表示されま"
-"す。"
+msgstr "一般的な目安で、ルールではありません。行をクリックするとカードが表示されます。"
 
 #: templates/decks/detail.html
 msgid "Cards"
@@ -3861,11 +4139,9 @@ msgid ""
 "%(some)s of %(count)s card has something the card reader could not resolve "
 "on its own."
 msgid_plural ""
-"%(some)s of %(count)s cards have something the card reader could not resolve "
-"on its own."
-msgstr[0] ""
-"カード読み取りで自動的に解決できなかった点があるカード：%(count)s 枚中 "
-"%(some)s 枚。"
+"%(some)s of %(count)s cards have something the card reader could not resolve"
+" on its own."
+msgstr[0] "カード読み取りで自動的に解決できなかった点があるカード：%(count)s 枚中 %(some)s 枚。"
 
 #: templates/decks/detail.html
 msgid "The red marker at the top takes you through them."
@@ -3878,9 +4154,9 @@ msgid ""
 "<span class=\"tabular\">%(total)s</span> rows matched. <a "
 "href=\"%(review_url)s\" class=\"underline\">See how exact the match was</a>."
 msgstr ""
-"%(filename)s からインポート：<span class=\"tabular\">%(total)s</span> 行中 "
-"<span class=\"tabular\">%(matched)s</span> 行が一致しました。<a "
-"href=\"%(review_url)s\" class=\"underline\">一致の正確さを見る</a>。"
+"%(filename)s からインポート：<span class=\"tabular\">%(total)s</span> 行中 <span "
+"class=\"tabular\">%(matched)s</span> 行が一致しました。<a href=\"%(review_url)s\" "
+"class=\"underline\">一致の正確さを見る</a>。"
 
 #: templates/decks/detail.html
 #, python-format
@@ -3890,8 +4166,8 @@ msgid ""
 "class=\"underline\">See how exact the match was</a>."
 msgstr ""
 "ファイルからインポート：<span class=\"tabular\">%(total)s</span> 行中 <span "
-"class=\"tabular\">%(matched)s</span> 行が一致しました。<a "
-"href=\"%(review_url)s\" class=\"underline\">一致の正確さを見る</a>。"
+"class=\"tabular\">%(matched)s</span> 行が一致しました。<a href=\"%(review_url)s\" "
+"class=\"underline\">一致の正確さを見る</a>。"
 
 #: templates/decks/detail.html
 msgid "Earlier runs and games"
@@ -3935,16 +4211,15 @@ msgstr "このデッキを削除"
 
 #: templates/decks/import.html
 msgid "Import a deck from any CSV export or a pasted list."
-msgstr ""
-"任意の CSV エクスポートや貼り付けたリストからデッキをインポートします。"
+msgstr "任意の CSV エクスポートや貼り付けたリストからデッキをインポートします。"
 
 #: templates/decks/import.html
 msgid ""
-"<strong class=\"text-parchment-100\">Any CSV works.</strong> It only needs a "
-"column with the card name - a quantity column is optional."
+"<strong class=\"text-parchment-100\">Any CSV works.</strong> It only needs a"
+" column with the card name - a quantity column is optional."
 msgstr ""
-"<strong class=\"text-parchment-100\">どんな CSV でも使えます。</strong>カード"
-"名の列さえあれば十分で、枚数の列は任意です。"
+"<strong class=\"text-parchment-100\">どんな CSV "
+"でも使えます。</strong>カード名の列さえあれば十分で、枚数の列は任意です。"
 
 #: templates/decks/import.html
 msgid "Import"
@@ -3963,24 +4238,22 @@ msgid ""
 "<strong class=\"text-parchment-100\">Archidekt:</strong> open the deck → "
 "More → Export → CSV"
 msgstr ""
-"<strong class=\"text-parchment-100\">Archidekt：</strong>デッキを開く → More "
-"→ Export → CSV"
+"<strong class=\"text-parchment-100\">Archidekt：</strong>デッキを開く → More → "
+"Export → CSV"
 
 #: templates/decks/import.html templates/guests/try.html
 msgid ""
-"<strong class=\"text-parchment-100\">Moxfield:</strong> open the deck → More "
-"→ Export → copy, then paste it here"
+"<strong class=\"text-parchment-100\">Moxfield:</strong> open the deck → More"
+" → Export → copy, then paste it here"
 msgstr ""
-"<strong class=\"text-parchment-100\">Moxfield：</strong>デッキを開く → More "
-"→ Export → コピーして、ここに貼り付け"
+"<strong class=\"text-parchment-100\">Moxfield：</strong>デッキを開く → More → "
+"Export → コピーして、ここに貼り付け"
 
 #: templates/decks/import.html templates/guests/try.html
 msgid ""
 "<strong class=\"text-parchment-100\">ManaBox:</strong> open the deck → ⋮ → "
 "Export"
-msgstr ""
-"<strong class=\"text-parchment-100\">ManaBox：</strong>デッキを開く → ⋮ → "
-"Export"
+msgstr "<strong class=\"text-parchment-100\">ManaBox：</strong>デッキを開く → ⋮ → Export"
 
 #: templates/decks/import.html
 msgid "Why not an Excel file?"
@@ -3992,10 +4265,9 @@ msgid ""
 "parser run over a stranger's upload for no benefit you would notice. Every "
 "tool that exports a spreadsheet also exports a CSV."
 msgstr ""
-".xlsx ファイルは zip アーカイブで、.xls ファイルにはマクロを含めることができ"
-"ます。見知らぬ人のアップロードに大きなパーサーを走らせても、あなたにわかる利"
-"点はありません。表計算ファイルを出力できるツールは、どれも CSV も出力できま"
-"す。"
+".xlsx ファイルは zip アーカイブで、.xls "
+"ファイルにはマクロを含めることができます。見知らぬ人のアップロードに大きなパーサーを走らせても、あなたにわかる利点はありません。表計算ファイルを出力できるツールは、どれも"
+" CSV も出力できます。"
 
 #: templates/decks/list.html
 msgid "Every deck you have imported, with its commander and card count."
@@ -4106,9 +4378,7 @@ msgid ""
 "produces a different file for every person. Reading this one by guessing "
 "would not fail loudly — it would import the wrong cards and say nothing."
 msgstr ""
-"ほとんどのエクスポートでは含める列を選べるため、同じサイトでも人によって違う"
-"ファイルになります。推測で読み取ると、失敗しても気づけません。間違ったカード"
-"を黙ってインポートしてしまいます。"
+"ほとんどのエクスポートでは含める列を選べるため、同じサイトでも人によって違うファイルになります。推測で読み取ると、失敗しても気づけません。間違ったカードを黙ってインポートしてしまいます。"
 
 #: templates/decks/map.html
 msgid ""
@@ -4118,17 +4388,17 @@ msgid ""
 "this screen will not let you past a quantity column it cannot find without "
 "you saying what to do about it."
 msgstr ""
-"それが証明された例：枚数の列を外したエクスポートで、Swamp 28枚のデッキが "
-"<strong class=\"text-parchment-100\">1枚</strong> の Swamp を含む28枚のデッキ"
-"としてインポートされました。テストはすべて通っていました。だからこの画面で"
-"は、見つからない枚数の列について、どうするか指定しない限り先に進めません。"
+"それが証明された例：枚数の列を外したエクスポートで、Swamp 28枚のデッキが <strong class=\"text-"
+"parchment-100\">1枚</strong> の Swamp "
+"を含む28枚のデッキとしてインポートされました。テストはすべて通っていました。だからこの画面では、見つからない枚数の列について、どうするか指定しない限り先に進めません。"
 
 #: templates/decks/review.html
 msgid "Import review"
 msgstr "インポートの確認"
 
 #: templates/decks/review.html
-msgid "The rows the importer could not match, and what it matched the rest on."
+msgid ""
+"The rows the importer could not match, and what it matched the rest on."
 msgstr "インポートで一致しなかった行と、それ以外の行が何で一致したか。"
 
 #: templates/decks/review.html
@@ -4138,9 +4408,7 @@ msgstr "アップロードしたファイル"
 #: templates/decks/review.html
 #, python-format
 msgid "read as <strong class=\"text-parchment-100\">%(parser)s</strong>."
-msgstr ""
-"<strong class=\"text-parchment-100\">%(parser)s</strong> として読み取りまし"
-"た。"
+msgstr "<strong class=\"text-parchment-100\">%(parser)s</strong> として読み取りました。"
 
 #: templates/decks/review.html
 msgid "Columns:"
@@ -4159,9 +4427,7 @@ msgstr "一致の正確さ"
 msgid ""
 "Higher rungs are stronger claims. A row matched on its name is the right "
 "card, but not necessarily the printing you own."
-msgstr ""
-"上の段ほど確実な一致です。名前で一致した行は正しいカードですが、お持ちの印刷"
-"版とは限りません。"
+msgstr "上の段ほど確実な一致です。名前で一致した行は正しいカードですが、お持ちの印刷版とは限りません。"
 
 #: templates/decks/review.html
 msgid "Matched by"
@@ -4226,8 +4492,7 @@ msgstr "%(name)s を保存"
 
 #: templates/guests/save.html
 msgid "A free account keeps it. Just an email and a password."
-msgstr ""
-"無料アカウントで保存できます。メールアドレスとパスワードだけで登録できます。"
+msgstr "無料アカウントで保存できます。メールアドレスとパスワードだけで登録できます。"
 
 #: templates/guests/save.html
 msgid "Save my deck"
@@ -4237,9 +4502,7 @@ msgstr "デッキを保存"
 msgid ""
 "We send you a link. Click it and you're in, with this deck. Unsaved, it is "
 "deleted after 24 hours."
-msgstr ""
-"リンクをお送りします。クリックすれば、このデッキと一緒にログインできます。保"
-"存しない場合、24時間後に削除されます。"
+msgstr "リンクをお送りします。クリックすれば、このデッキと一緒にログインできます。保存しない場合、24時間後に削除されます。"
 
 #: templates/guests/try.html
 msgid "Try it with your deck"
@@ -4259,8 +4522,8 @@ msgid ""
 "Trying another deck replaces <strong>%(name)s</strong>. <a "
 "href=\"%(save_url)s\" class=\"underline\">Save it first</a> - free."
 msgstr ""
-"別のデッキを試すと <strong>%(name)s</strong> は置き換えられます。<a "
-"href=\"%(save_url)s\" class=\"underline\">先に保存</a>してください（無料）。"
+"別のデッキを試すと <strong>%(name)s</strong> は置き換えられます。<a href=\"%(save_url)s\" "
+"class=\"underline\">先に保存</a>してください（無料）。"
 
 #: templates/guests/try.html
 msgid "Simulate it"
@@ -4280,14 +4543,13 @@ msgid ""
 "The engine could not read <strong>%(unreadable)s</strong> of "
 "<strong>%(total)s</strong> cards in this deck (%(pct)s%% read). Those cards "
 "still move, but what they <em>do</em> is up to you — <a "
-"href=\"%(review_url)s\" class=\"underline\">tell the engine what they mean</"
-"a>."
+"href=\"%(review_url)s\" class=\"underline\">tell the engine what they "
+"mean</a>."
 msgstr ""
-"このデッキの <strong>%(total)s</strong> 枚のうち、エンジンが読み取れなかった"
-"カードは <strong>%(unreadable)s</strong> 枚です（%(pct)s%% 読み取り済み）。こ"
-"れらのカードも動かせますが、何を<em>する</em>かはあなた次第です。<a "
-"href=\"%(review_url)s\" class=\"underline\">カードの意味をエンジンに教える</"
-"a>。"
+"このデッキの <strong>%(total)s</strong> 枚のうち、エンジンが読み取れなかったカードは "
+"<strong>%(unreadable)s</strong> 枚です（%(pct)s%% "
+"読み取り済み）。これらのカードも動かせますが、何を<em>する</em>かはあなた次第です。<a href=\"%(review_url)s\" "
+"class=\"underline\">カードの意味をエンジンに教える</a>。"
 
 #: templates/playtest/_board.html templates/simulations/_report.html
 #, python-format
@@ -4337,9 +4599,7 @@ msgstr "やり直し"
 msgid ""
 "Play your land now: the mana for this turn is counted when the main phase "
 "opens."
-msgstr ""
-"土地は今プレイしてください。このターンのマナはメイン・フェイズの開始時に数え"
-"られます。"
+msgstr "土地は今プレイしてください。このターンのマナはメイン・フェイズの開始時に数えられます。"
 
 #: templates/playtest/_board.html
 msgid "Keep"
@@ -4351,9 +4611,7 @@ msgid ""
 "Keeping puts %(count)s card on the bottom - the engine picks the weakest."
 msgid_plural ""
 "Keeping puts %(count)s cards on the bottom - the engine picks the weakest."
-msgstr[0] ""
-"キープすると %(count)s 枚をライブラリーの一番下に置きます。エンジンが最も弱い"
-"カードを選びます。"
+msgstr[0] "キープすると %(count)s 枚をライブラリーの一番下に置きます。エンジンが最も弱いカードを選びます。"
 
 #: templates/playtest/_board.html
 msgid "Command zone"
@@ -4396,11 +4654,9 @@ msgstr "手札 <span class=\"tabular\">%(count)s</span>"
 
 #: templates/playtest/_board.html
 msgid ""
-"click a card to play it. A glowing card is one the mana can pay for; nothing "
-"is blocked."
-msgstr ""
-"カードをクリックするとプレイします。光っているカードは今のマナで支払えるカー"
-"ドです。何も制限されません。"
+"click a card to play it. A glowing card is one the mana can pay for; nothing"
+" is blocked."
+msgstr "カードをクリックするとプレイします。光っているカードは今のマナで支払えるカードです。何も制限されません。"
 
 #: templates/playtest/_board.html
 msgid "Play land"
@@ -4426,9 +4682,7 @@ msgstr "ここから分岐"
 msgid ""
 "Keeps this game as it is and plays on from the action you pick - the way to "
 "ask \"what if I had kept the land instead\"."
-msgstr ""
-"このゲームはそのまま残し、選んだ手から続きをプレイします。「代わりに土地を残"
-"していたら？」を試す方法です。"
+msgstr "このゲームはそのまま残し、選んだ手から続きをプレイします。「代わりに土地を残していたら？」を試す方法です。"
 
 #: templates/playtest/_board.html
 msgid "Replay up to action"
@@ -4461,9 +4715,7 @@ msgstr "%(name)s に戻る"
 msgid ""
 "One game by hand, against nobody. Take moves back, or branch to play the "
 "same draw twice."
-msgstr ""
-"対戦相手なしで、手動で1ゲーム。手を取り消したり、分岐して同じドローを2回プレ"
-"イしたりできます。"
+msgstr "対戦相手なしで、手動で1ゲーム。手を取り消したり、分岐して同じドローを2回プレイしたりできます。"
 
 #: templates/playtest/detail.html
 #, python-format
@@ -4471,8 +4723,8 @@ msgid ""
 "Branched from <a href=\"%(earlier_url)s\" class=\"underline\">an earlier "
 "game</a> at action %(seq)s."
 msgstr ""
-"<a href=\"%(earlier_url)s\" class=\"underline\">以前のゲーム</a>の %(seq)s 手"
-"目から分岐しました。"
+"<a href=\"%(earlier_url)s\" class=\"underline\">以前のゲーム</a>の %(seq)s "
+"手目から分岐しました。"
 
 #: templates/simulations/_advanced.html
 msgid "Advanced"
@@ -4482,13 +4734,7 @@ msgstr "詳細"
 msgid ""
 "Mana and lands turn by turn, what the simulation does not model, engine and "
 "seed"
-msgstr ""
-"ターンごとのマナと土地、シミュレーションがモデル化しないもの、エンジンとシー"
-"ド"
-
-#: templates/simulations/_advanced.html
-msgid "Mana and lands, turn by turn"
-msgstr "ターンごとのマナと土地"
+msgstr "ターンごとのマナと土地、シミュレーションがモデル化しないもの、エンジンとシード"
 
 #: templates/simulations/_advanced.html
 msgid "p10 is the game that goes wrong."
@@ -4516,9 +4762,7 @@ msgstr "土地（平均）"
 msgid ""
 "Engine v%(version)s, seed %(seed)s. Differences below about one percentage "
 "point are noise."
-msgstr ""
-"エンジン v%(version)s、シード %(seed)s。約1パーセントポイント未満の差はノイズ"
-"です。"
+msgstr "エンジン v%(version)s、シード %(seed)s。約1パーセントポイント未満の差はノイズです。"
 
 #: templates/simulations/_attention.html
 msgid "Cards that need your attention"
@@ -4526,14 +4770,12 @@ msgstr "確認が必要なカード"
 
 #: templates/simulations/_attention.html
 msgid ""
-"The engine could not read it. Say what it does, or that the engine's reading "
-"is right."
+"The engine could not read it. Say what it does, or that the engine's reading"
+" is right."
 msgid_plural ""
 "The engine could not read them. Say what they do, or that the engine's "
 "reading is right."
-msgstr[0] ""
-"エンジンが読み取れなかったカードです。何をするカードか、またはエンジンの読み"
-"取りが正しいかを教えてください。"
+msgstr[0] "エンジンが読み取れなかったカードです。何をするカードか、またはエンジンの読み取りが正しいかを教えてください。"
 
 #: templates/simulations/_attention.html
 msgid "All answered"
@@ -4545,9 +4787,8 @@ msgid ""
 "A card was answered after this run. <a href=\"%(deck_url)s#play\" "
 "class=\"underline\">Run the deck again</a> to see the difference."
 msgstr ""
-"この実行の後にカードへの回答がありました。違いを見るには<a "
-"href=\"%(deck_url)s#play\" class=\"underline\">デッキをもう一度実行</a>してく"
-"ださい。"
+"この実行の後にカードへの回答がありました。違いを見るには<a href=\"%(deck_url)s#play\" "
+"class=\"underline\">デッキをもう一度実行</a>してください。"
 
 #: templates/simulations/_attention.html
 msgid "Nothing needs you"
@@ -4557,11 +4798,11 @@ msgstr "確認が必要なものはありません"
 #, python-format
 msgid ""
 "The engine read <strong class=\"tabular text-ink-900\">%(read)s</strong> of "
-"%(total)s cards in full — <strong class=\"tabular text-ink-900\">%(pct)s%%</"
-"strong>."
+"%(total)s cards in full — <strong class=\"tabular text-"
+"ink-900\">%(pct)s%%</strong>."
 msgstr ""
-"エンジンが完全に読み取ったカード：%(total)s 枚中 <strong class=\"tabular "
-"text-ink-900\">%(read)s</strong> 枚（<strong class=\"tabular text-"
+"エンジンが完全に読み取ったカード：%(total)s 枚中 <strong class=\"tabular text-"
+"ink-900\">%(read)s</strong> 枚（<strong class=\"tabular text-"
 "ink-900\">%(pct)s%%</strong>）。"
 
 #: templates/simulations/_attention.html
@@ -4587,9 +4828,7 @@ msgstr[0] "%(heading)s ― <span class=\"tabular\">%(count)s</span> 枚"
 msgid ""
 "Answered by the <strong class=\"text-parchment-100\">“%(field)s”</strong> "
 "field on each card."
-msgstr ""
-"各カードの<strong class=\"text-parchment-100\">「%(field)s」</strong>欄で回答"
-"できます。"
+msgstr "各カードの<strong class=\"text-parchment-100\">「%(field)s」</strong>欄で回答できます。"
 
 #: templates/simulations/_combos.html
 #, python-format
@@ -4628,8 +4867,7 @@ msgid ""
 "A <strong>missing card</strong> is measured on this deck <em>plus</em> that "
 "card, nothing cut."
 msgstr ""
-"<strong>足りないカード</strong>は、このデッキにそのカードを<em>加えた</em>状"
-"態で計測しています。抜いたカードはありません。"
+"<strong>足りないカード</strong>は、このデッキにそのカードを<em>加えた</em>状態で計測しています。抜いたカードはありません。"
 
 #: templates/simulations/_keep_deck.html
 msgid "Keep this deck"
@@ -4642,8 +4880,7 @@ msgstr "ソーサリー ― 無料"
 #: templates/simulations/_keep_deck.html
 msgid ""
 "Save your deck and every run, and come back to it after your next change."
-msgstr ""
-"デッキとすべての実行結果を保存して、次に変更した後にまた戻ってきましょう。"
+msgstr "デッキとすべての実行結果を保存して、次に変更した後にまた戻ってきましょう。"
 
 #: templates/simulations/_keep_deck.html
 #, python-format
@@ -4660,9 +4897,7 @@ msgstr "表示する線"
 
 #: templates/simulations/_line_chart.html
 msgid "Point at a line or a name, or tap it, to see what it counts."
-msgstr ""
-"線や名前にポインターを合わせるかタップすると、何を数えているかが表示されま"
-"す。"
+msgstr "線や名前にポインターを合わせるかタップすると、何を数えているかが表示されます。"
 
 #: templates/simulations/_progress.html
 msgid "Queued"
@@ -4708,8 +4943,7 @@ msgstr "シミュレーションの進行状況"
 msgid ""
 "Cancelling. The batch already in flight finishes first — a few seconds at "
 "most."
-msgstr ""
-"キャンセル中です。処理中のバッチが先に終わるため、最大で数秒かかります。"
+msgstr "キャンセル中です。処理中のバッチが先に終わるため、最大で数秒かかります。"
 
 #: templates/simulations/_progress.html
 msgid "This run did not finish:"
@@ -4727,17 +4961,11 @@ msgstr "今月の利用枠は戻されました。"
 msgid ""
 "Stopped before it finished, so there are no numbers to show. Your monthly "
 "quota was given back."
-msgstr ""
-"完了前に停止したため、表示できる数値はありません。今月の利用枠は戻されまし"
-"た。"
+msgstr "完了前に停止したため、表示できる数値はありません。今月の利用枠は戻されました。"
 
 #: templates/simulations/_progress.html
 msgid "This page updates itself — you can close it and come back."
 msgstr "このページは自動で更新されます。閉じて後で戻ってきても大丈夫です。"
-
-#: templates/simulations/_report.html
-msgid "What you drew"
-msgstr "引いたカード"
 
 #: templates/simulations/_report.html
 msgid "Your opening hand and every card you drew."
@@ -4774,9 +5002,7 @@ msgstr "カード・タイプ別"
 
 #: templates/simulations/_report.html
 msgid "Cards drawn per game, on average. Point at a line for the spread."
-msgstr ""
-"1ゲームあたりに引いたカードの平均枚数。線にポインターを合わせるとばらつきが表"
-"示されます。"
+msgstr "1ゲームあたりに引いたカードの平均枚数。線にポインターを合わせるとばらつきが表示されます。"
 
 #: templates/simulations/_report.html
 msgid "Average number of cards of each type seen, by turn"
@@ -4788,8 +5014,7 @@ msgstr "引いた呪文のマナ総量"
 
 #: templates/simulations/_report.html
 msgid "Spells per game, on average. A bump on the right is a hand that waits."
-msgstr ""
-"1ゲームあたりの呪文の平均数。右側の盛り上がりは、待つことになる手札です。"
+msgstr "1ゲームあたりの呪文の平均数。右側の盛り上がりは、待つことになる手札です。"
 
 #: templates/simulations/_report.html
 msgid "By the end of turn"
@@ -4810,9 +5035,7 @@ msgid ""
 "category, and how many cards of each type a game had drawn - the average, "
 "and ± how far a typical game was from it."
 msgstr ""
-"各ターンの終わりまでに、各カテゴリーのカードを1枚以上引いたゲームの数と、各タ"
-"イプのカードを1ゲームで引いた枚数。平均と、典型的なゲームがそこからどれだけ離"
-"れているか（±）を示します。"
+"各ターンの終わりまでに、各カテゴリーのカードを1枚以上引いたゲームの数と、各タイプのカードを1ゲームで引いた枚数。平均と、典型的なゲームがそこからどれだけ離れているか（±）を示します。"
 
 #: templates/simulations/_report.html
 msgid "By end of turn"
@@ -4831,15 +5054,11 @@ msgstr "1ゲームあたりの枚数、平均 ± ばらつき"
 #, python-format
 msgid ""
 "This run is older than this chart. <a href=\"%(deck_url)s#play\" "
-"class=\"text-ink-900 underline\">Run the deck again</a> to see what it draws."
+"class=\"text-ink-900 underline\">Run the deck again</a> to see what it "
+"draws."
 msgstr ""
-"この実行はこのグラフより古いものです。何を引くかを見るには<a "
-"href=\"%(deck_url)s#play\" class=\"text-ink-900 underline\">デッキをもう一度"
-"実行</a>してください。"
-
-#: templates/simulations/_report.html
-msgid "Milestones"
-msgstr "マイルストーン"
+"この実行はこのグラフより古いものです。何を引くかを見るには<a href=\"%(deck_url)s#play\" class=\"text-"
+"ink-900 underline\">デッキをもう一度実行</a>してください。"
 
 #: templates/simulations/_report.html
 msgid "Share of games where it was true by the end of each turn."
@@ -4873,10 +5092,6 @@ msgid "Share as a bar"
 msgstr "割合のグラフ"
 
 #: templates/simulations/_report.html
-msgid "What the mana was made of"
-msgstr "マナの内訳"
-
-#: templates/simulations/_report.html
 msgid "The same mana, split by colour — means only."
 msgstr "同じマナを色別に分けたもの（平均のみ）。"
 
@@ -4890,10 +5105,9 @@ msgstr "あなたの戦略と、それを支えるカード"
 
 #: templates/simulations/_strategies.html
 msgid ""
-"Cards that fit your colours, are legal in Commander and are not in your deck "
-"yet."
-msgstr ""
-"あなたの色に合い、統率者戦で使用可能で、まだデッキに入っていないカード。"
+"Cards that fit your colours, are legal in Commander and are not in your deck"
+" yet."
+msgstr "あなたの色に合い、統率者戦で使用可能で、まだデッキに入っていないカード。"
 
 #: templates/simulations/_strategies.html
 msgid "The most played first."
@@ -4909,27 +5123,24 @@ msgstr[0] "デッキ内のカード %(cards)s 枚"
 #, python-format
 msgid ""
 "At least one by turn %(turn)s: %(now)s now, %(more)s with %(extra)s more."
-msgstr ""
-"%(turn)s ターン目までに1枚以上：現在 %(now)s、あと %(extra)s 枚加えると "
-"%(more)s。"
+msgstr "%(turn)s ターン目までに1枚以上：現在 %(now)s、あと %(extra)s 枚加えると %(more)s。"
 
 #: templates/simulations/_strategies.html
 msgid "No card in your colours left to suggest."
 msgstr "あなたの色で提案できるカードは残っていません。"
 
 #: templates/simulations/_strategies.html
-msgid "Picked by Mistral AI from cards that fit your colours. It can be wrong."
-msgstr ""
-"Mistral AI があなたの色に合うカードから選びました。間違っている可能性がありま"
-"す。"
+msgid ""
+"Picked by Mistral AI from cards that fit your colours. It can be wrong."
+msgstr "Mistral AI があなたの色に合うカードから選びました。間違っている可能性があります。"
 
 #: templates/simulations/_strategies.html
 msgid ""
 "The odds are calculated from your list: a hand of 7, one draw a turn, no "
-"mulligan. What this run measured is in “By category” and “By strategy” above."
+"mulligan. What this run measured is in “By category” and “By strategy” "
+"above."
 msgstr ""
-"確率はリストから計算しています：手札7枚、毎ターン1枚ドロー、マリガンなし。こ"
-"の実行で計測した結果は上の「カテゴリー別」と「戦略別」にあります。"
+"確率はリストから計算しています：手札7枚、毎ターン1枚ドロー、マリガンなし。この実行で計測した結果は上の「カテゴリー別」と「戦略別」にあります。"
 
 #: templates/simulations/_summary.html
 msgid "Deck summary"
@@ -4953,15 +5164,14 @@ msgstr "戦術"
 
 #: templates/simulations/_summary.html
 msgid ""
-"Written by Mistral AI. It can be wrong. Its numbers are calculated from your "
-"list, not measured by this run."
-msgstr ""
-"Mistral AI が作成しました。間違っている可能性があります。数値はこの実行で計測"
-"したものではなく、リストから計算したものです。"
+"Written by Mistral AI. It can be wrong. Its numbers are calculated from your"
+" list, not measured by this run."
+msgstr "Mistral AI が作成しました。間違っている可能性があります。数値はこの実行で計測したものではなく、リストから計算したものです。"
 
 #: templates/simulations/_summary.html
 msgid ""
-"The summary could not be written this time. Nothing was taken from your runs."
+"The summary could not be written this time. Nothing was taken from your "
+"runs."
 msgstr "今回は要約を作成できませんでした。実行回数は消費されていません。"
 
 #: templates/simulations/_summary.html
@@ -5065,8 +5275,7 @@ msgstr "すべて記録しています。金魚は覚えていないので。"
 #: templates/simulations/annotate.html
 #, python-format
 msgid "What the simulation engine reads off %(card)s, and how to correct it."
-msgstr ""
-"シミュレーション・エンジンが %(card)s から読み取る内容と、その修正方法。"
+msgstr "シミュレーション・エンジンが %(card)s から読み取る内容と、その修正方法。"
 
 #: templates/simulations/annotate.html
 #, python-format
@@ -5088,8 +5297,7 @@ msgstr "このカードは何をしますか？"
 
 #: templates/simulations/annotate.html
 msgid "Blank means you have not said, and the engine keeps its own reading."
-msgstr ""
-"空欄はまだ指定していないという意味で、エンジンは独自の読み取りを使います。"
+msgstr "空欄はまだ指定していないという意味で、エンジンは独自の読み取りを使います。"
 
 #: templates/simulations/annotate.html
 msgid "For:"

@@ -58,8 +58,9 @@ raise SystemExit(1 if executor.migration_plan(executor.loader.graph.leaf_nodes()
     echo "Schema ready."
     # CELERY_BEAT=1 embeds the beat scheduler in THIS worker. Exactly one node
     # may set it (the manifest sets it on worker-short, which has one node):
-    # two beats would schedule every periodic task twice. Its only job today
-    # is Celery's own result cleanup - see CELERY_RESULT_EXPIRES in base.py.
+    # two beats would schedule every periodic task twice. Its jobs are in
+    # CELERY_BEAT_SCHEDULE in base.py, plus Celery's own result cleanup
+    # (CELERY_RESULT_EXPIRES).
     BEAT=""
     if [ "${CELERY_BEAT:-0}" = "1" ]; then
       BEAT="--beat --schedule /tmp/celerybeat-schedule"

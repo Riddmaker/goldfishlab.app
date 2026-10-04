@@ -35,6 +35,7 @@ from django.conf import settings
 from django.utils.dateparse import parse_datetime
 
 BULK_ENDPOINT = "https://api.scryfall.com/bulk-data"
+SETS_ENDPOINT = "https://api.scryfall.com/sets"
 
 # Scryfall's documented ceiling is 10 requests/second; they ask for 50-100 ms
 # of delay. We take the slow end of their own advice.
@@ -139,6 +140,29 @@ def bulk_metadata(kind: str) -> BulkMeta:
 
     available = [entry.get("type") for entry in payload.get("data", [])]
     raise ScryfallError(f"no bulk data of type {kind!r}; available: {available}")
+
+
+def sets_fingerprint() -> str:
+    """How many sets and printings Scryfall knows, as "sets:printings".
+
+    The nightly job's cheap pre-check (phase 12 J18). Every bulk file is
+    regenerated daily, so its `updated_at` changes even when no card did; one
+    request to `/sets` (about 70 KB on the wire) tells whether a set was added
+    or a set's `card_count` grew, which is what new cards and previews do.
+    Errata and bans change neither number - the weekly full run is for those.
+    """
+    with _open(SETS_ENDPOINT, accept="application/json") as response:
+        payload = json.load(response)
+
+    sets = payload.get("data") or []
+    if not sets or payload.get("has_more"):
+        # One page has always held every set; a paged answer would make the
+        # count wrong in a way nobody notices, so it is an error instead.
+        raise ScryfallError(
+            f"unexpected /sets answer: {len(sets)} sets, has_more={payload.get('has_more')}"
+        )
+    printings = sum(int(entry.get("card_count") or 0) for entry in sets)
+    return f"{len(sets)}:{printings}"
 
 
 def stream_jsonl(source: str | Path, *, timeout: int = 300) -> Iterator[dict]:

@@ -93,7 +93,10 @@ def test_a_rollback_goes_through_the_same_verification():
 BACKUP = ROOT / "scripts" / "backup"
 
 
-@pytest.mark.parametrize("script", ["backup.sh", "restore.sh", "rotate.sh"])
+SCRIPTS = ["dump.sh", "restore.sh"]
+
+
+@pytest.mark.parametrize("script", SCRIPTS)
 def test_the_backup_scripts_are_strict_and_keep_secrets_off_command_lines(script):
     text = (BACKUP / script).read_text(encoding="utf-8")
     assert "set -euo pipefail" in text
@@ -103,19 +106,25 @@ def test_the_backup_scripts_are_strict_and_keep_secrets_off_command_lines(script
 
 
 def test_the_backups_keep_the_privacy_policys_thirty_days():
-    backup = (BACKUP / "backup.sh").read_text(encoding="utf-8")
-    rotate = (BACKUP / "rotate.sh").read_text(encoding="utf-8")
-    assert "CLASS=monthly" not in backup
-    assert "rotate_class monthly" not in rotate
-    keep_weekly = int(re.search(r"BACKUP_KEEP_WEEKLY:-(\d+)", rotate).group(1))
-    assert keep_weekly * 7 <= 30
+    """The node keeps one dump; the history is the Swiss Backup add-on's, set
+    to days: 23. Its deletion runs up to a week late, which still ends inside
+    the 30 days the privacy policy promises (phase 12 J11)."""
+    dump = (BACKUP / "dump.sh").read_text(encoding="utf-8")
+    assert 'TARGET="${BACKUP_DIR}/${PGDATABASE}.dump"' in dump
+    days = int(re.search(r"keeps it for days: (\d+)", dump).group(1))
+    assert days + 7 <= 30
+
+
+def test_a_failed_dump_never_replaces_the_last_good_one():
+    dump = (BACKUP / "dump.sh").read_text(encoding="utf-8")
+    assert dump.index("pg_restore --list") < dump.index('mv -f "${PARTIAL}"')
 
 
 BASH = shutil.which("bash")
 
 
 @pytest.mark.skipif(BASH is None, reason="needs bash")
-@pytest.mark.parametrize("script", ["backup.sh", "restore.sh", "rotate.sh"])
+@pytest.mark.parametrize("script", SCRIPTS)
 def test_the_backup_scripts_parse(script):
     # The resolved path, not "bash": on Windows a bare "bash" can start WSL's
     # System32 launcher instead of the Git Bash that `which` found.

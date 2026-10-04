@@ -10,8 +10,8 @@ source, so the strings are named here - never called, only read by
 Each language overrides only its own list. In every other catalogue the entry
 stays empty: an empty entry is not compiled, and allauth's own text shows.
 The lists came from the allauth pages and messages a visitor can meet
-(allauth 65.19.4); after an allauth upgrade, check them again. Japanese needs
-none: allauth's Japanese is already polite.
+(allauth 65.19.4, checked again for 65.19.7); after an allauth upgrade, check
+them again. Japanese needs none: allauth's Japanese is already polite.
 """
 
 from itertools import chain

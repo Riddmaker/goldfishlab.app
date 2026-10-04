@@ -11,6 +11,7 @@ import pytest
 from django.urls import reverse
 
 from accounts import allauth_tone
+from core import month_names
 from tests.test_i18n import GERMAN, LOCALE, deck, finished_run, owner  # noqa: F401
 
 pytestmark = pytest.mark.django_db
@@ -23,8 +24,8 @@ _SIE = re.compile(r"\b(Ihnen|Ihre[mnrs]?)\b|\b\w+en Sie\b|\bIhr (Konto|Passwort)
 
 
 def test_every_string_has_a_german_translation():
-    # Other languages' allauth overrides stay empty here (test_i18n_languages).
-    others = allauth_tone.OVERRIDDEN - set(allauth_tone.OVERRIDES["de"])
+    # Other languages' allauth and month overrides stay empty here (test_i18n_languages).
+    others = (allauth_tone.OVERRIDDEN | month_names.OVERRIDDEN) - set(allauth_tone.OVERRIDES["de"])
     untranslated = [entry.msgid for entry in polib.pofile(str(CATALOGUE))
                     if not entry.translated() and not entry.obsolete
                     and entry.msgid not in others]

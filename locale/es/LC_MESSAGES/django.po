@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Goldfish Lab\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-04 09:36+0200\n"
+"POT-Creation-Date: 2026-10-04 11:30+0200\n"
 "PO-Revision-Date: 2026-10-03 22:00+0200\n"
 "Last-Translator: Claude\n"
 "Language-Team: \n"
@@ -609,6 +609,54 @@ msgstr "No hay cartas en este mazo que consultar."
 #, python-format
 msgid "%(number)s%%"
 msgstr "%(number)s %%"
+
+#: core/month_names.py
+msgid "January"
+msgstr ""
+
+#: core/month_names.py
+msgid "February"
+msgstr ""
+
+#: core/month_names.py
+msgid "March"
+msgstr ""
+
+#: core/month_names.py
+msgid "April"
+msgstr ""
+
+#: core/month_names.py
+msgid "May"
+msgstr ""
+
+#: core/month_names.py
+msgid "June"
+msgstr ""
+
+#: core/month_names.py
+msgid "July"
+msgstr ""
+
+#: core/month_names.py
+msgid "August"
+msgstr ""
+
+#: core/month_names.py
+msgid "September"
+msgstr ""
+
+#: core/month_names.py
+msgid "October"
+msgstr ""
+
+#: core/month_names.py
+msgid "November"
+msgstr ""
+
+#: core/month_names.py
+msgid "December"
+msgstr ""
 
 #: core/ticker.py
 msgid "A new user joined."
@@ -3098,6 +3146,10 @@ msgstr "Código fuente (AGPL)"
 #: templates/base.html
 msgid "Email us"
 msgstr "Escríbenos"
+
+#: templates/base.html
+msgid "Translation wrong? Tell us"
+msgstr "¿Traducción incorrecta? Escríbenos"
 
 #: templates/base.html
 msgid "Language"

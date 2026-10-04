@@ -7,16 +7,20 @@ Portuguese "você", Japanese is polite (Q8). Production switches languages on
 with LANGUAGES_ON; the tests switch each on for themselves.
 """
 
+import datetime
 import re
 
 import polib
 import pytest
 from django.conf import settings as django_settings
 from django.urls import reverse
+from django.utils import translation
+from django.utils.formats import date_format
 from django.utils.html import escape
 from django.utils.translation import to_locale
 
 from accounts import allauth_tone
+from core import month_names
 from simulations.annotations import NOTHING
 from tests.test_i18n import LOCALE, deck, finished_run, owner  # noqa: F401
 
@@ -34,6 +38,12 @@ WRONG_TONE = {
 }
 
 
+def _others(lang):
+    """Another language's overrides of allauth's or Django's text: empty in `lang`."""
+    mine = set(allauth_tone.OVERRIDES.get(lang, ())) | set(month_names.OVERRIDES.get(lang, ()))
+    return (allauth_tone.OVERRIDDEN | month_names.OVERRIDDEN) - mine
+
+
 def _catalogue(lang):
     return polib.pofile(str(LOCALE / to_locale(lang) / "LC_MESSAGES" / "django.po"))
 
@@ -41,7 +51,7 @@ def _catalogue(lang):
 @pytest.mark.parametrize("lang", WRONG_TONE)
 def test_every_string_has_a_translation(lang):
     # Another language's allauth overrides stay empty: allauth's own text shows.
-    others = allauth_tone.OVERRIDDEN - set(allauth_tone.OVERRIDES.get(lang, ()))
+    others = _others(lang)
     untranslated = [entry.msgid for entry in _catalogue(lang)
                     if not entry.translated() and not entry.obsolete
                     and entry.msgid not in others]
@@ -57,9 +67,9 @@ def test_the_allauth_overrides_are_translated_in_the_right_tone(lang):
 
 
 @pytest.mark.parametrize("lang", [code for code in django_settings.LANGUAGE_NAMES if code != "en"])
-def test_no_catalogue_overrides_another_languages_allauth_strings(lang):
-    # Filled, it would replace allauth's own (right) text in this language.
-    others = allauth_tone.OVERRIDDEN - set(allauth_tone.OVERRIDES.get(lang, ()))
+def test_no_catalogue_overrides_another_languages_allauth_or_django_strings(lang):
+    # Filled, it would replace allauth's or Django's own (right) text in this language.
+    others = _others(lang)
     filled = [entry.msgid for entry in _catalogue(lang)
               if entry.msgid in others and entry.translated()]
     assert filled == []
@@ -116,3 +126,13 @@ def test_allauths_pages(client, lang):
         body = client.get(reverse(name)).content.decode()
         assert f'<html lang="{lang}">' in body, name
         assert _wrong_tone(lang, body) == [], name
+
+
+@pytest.mark.parametrize(("lang", "expected"), [
+    ("it", "4 ottobre 2026"),  # Django's own: "04 Ottobre 2026" (phase 12 J6)
+    ("de", "4. Oktober 2026"),  # German keeps Django's capital month
+    ("en", "4 October 2026"),
+])
+def test_a_date_reads_the_way_the_language_writes_it(lang, expected):
+    with translation.override(lang):
+        assert date_format(datetime.date(2026, 10, 4), "DATE_FORMAT") == expected

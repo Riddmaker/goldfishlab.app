@@ -153,6 +153,19 @@ def test_with_a_second_language_the_footer_offers_each_in_its_own_name(client, g
     assert "Deutsch" in body
 
 
+@pytest.mark.parametrize("language", ["en", "de"])
+def test_only_a_translated_page_asks_for_corrections(client, german, settings, language):
+    """English has nothing translated; a German reader gets a mail naming language and page."""
+    settings.LEGAL_CONTACT_EMAIL = "hello@example.ch"
+    client.cookies["django_language"] = language
+
+    body = client.get(reverse("methodology")).content.decode()
+
+    link = ('href="mailto:hello@example.ch'
+            '?subject=Translation%20(de)%3A%20%2Fabout%2Fmethodology%2F"')
+    assert (link in body) is (language == "de")
+
+
 def test_on_a_german_page_english_is_still_called_english(client, german):
     """Django's own tag would print "Englisch" here, from its catalogue."""
     client.cookies["django_language"] = "de"

@@ -136,6 +136,11 @@
           {% endif %}
           {% if operator.email %}
             <a href="mailto:{{ operator.email }}" class="underline hover:text-ink-300">{% translate "Email us" %}</a>
+            {% if current_language != "en" %}
+              {# Phase 12 Q2: most languages have had no native reader yet. The subject names the language and the page. #}
+              <a href="mailto:{{ operator.email }}?subject=Translation%20({{ current_language }})%3A%20{{ request.path|urlencode:'' }}"
+                 class="underline hover:text-ink-300">{% translate "Translation wrong? Tell us" %}</a>
+            {% endif %}
           {% endif %}
         </p>
         {% if site_languages|length > 1 %}

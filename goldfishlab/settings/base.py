@@ -259,7 +259,23 @@ CELERY_BEAT_SCHEDULE = {
         "task": "guests.expire",
         "schedule": crontab(minute="15"),
     },
+    # Phase 12 J18: new cards without a hand-run ingest. Fetches only when
+    # Scryfall's sets changed, or on Tuesdays (cards/refresh.py). On the long
+    # queue, so guest runs never wait for it (cards/tasks.py).
+    "cards-refresh": {
+        "task": "cards.refresh",
+        "schedule": crontab(minute="30", hour="0"),
+        "options": {"queue": "sim_long"},
+    },
+    # Phase 12 J12: hourly; at most one mail per kind of problem a day.
+    "alerts": {
+        "task": "core.alerts",
+        "schedule": crontab(minute="45"),
+    },
 }
+#: Who `core.alerts` mails (phase 12 J12). Empty: a log line instead. It needs
+#: the SMTP settings on worker-short, the node that runs the beat.
+ALERT_EMAIL = env("ALERT_EMAIL", default="")
 
 # --- i18n / static --------------------------------------------------------
 # Phase 12 (Z1.1, K10). English is the source and always on; every other

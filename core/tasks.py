@@ -54,3 +54,11 @@ def housekeeping() -> dict:
     counts = run()
     logger.info("housekeeping %s", counts)
     return counts
+
+
+@shared_task(name="core.alerts")
+def alerts() -> list[str]:
+    """Phase 12 J12: hourly, mails the operator what is broken (core/alerts.py)."""
+    from core import alerts as checks
+
+    return checks.check()

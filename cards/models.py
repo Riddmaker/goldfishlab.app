@@ -52,6 +52,9 @@ class BulkImport(models.Model):
     # streaming somewhere and is quietly buffering the whole file.
     peak_memory_kb = models.PositiveIntegerField(null=True, blank=True)
     message = models.TextField(blank=True)
+    # Scryfall's "sets:printings" when the nightly job last loaded the cards
+    # (phase 12 J18, `cards/refresh.py`). Unchanged means nothing new to fetch.
+    sets_fingerprint = models.CharField(max_length=32, blank=True)
 
     class Meta:
         ordering = ["-started_at"]

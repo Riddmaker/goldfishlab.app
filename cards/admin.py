@@ -21,6 +21,7 @@ class BulkImportAdmin(admin.ModelAdmin):
         "rows_written",
         "rows_skipped",
         "peak_memory_mb",
+        "sets_fingerprint",
         "started_at",
     )
     list_filter = ("kind", "status")

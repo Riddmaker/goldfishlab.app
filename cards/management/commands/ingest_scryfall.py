@@ -23,17 +23,10 @@ the deriver but not the bulk files needs.
 
 from django.core.management.base import BaseCommand, CommandError
 
-from cards import ingest, profiles
-from cards.models import BulkImport, DerivedProfile, OracleCard
+from cards import refresh
 from cards.scryfall import ScryfallError
-from decks.models import Deck
-from decks.services import recount_later
 
-#: The kinds whose rows a profile is derived from.
-PROFILE_INPUTS = {BulkImport.Kind.ORACLE_CARDS, BulkImport.Kind.ORACLE_TAGS}
-
-#: What `--kind all` means, in dependency order.
-KINDS = [BulkImport.Kind.ORACLE_CARDS, BulkImport.Kind.ORACLE_TAGS]
+KINDS = refresh.KINDS
 
 
 class Command(BaseCommand):
@@ -76,7 +69,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options["profiles"]:
-            self._rebuild_profiles("asked for")
+            self._profiles("asked for")
+            self._derived(refresh.rebuild_profiles())
             return
 
         kinds = KINDS if options["kind"] == "all" else [options["kind"]]
@@ -84,38 +78,29 @@ class Command(BaseCommand):
         if options["source"] and len(kinds) > 1:
             raise CommandError("--source needs an explicit --kind")
 
-        changed = False
-        for kind in kinds:
-            self.stdout.write(f"{kind}: checking...")
-            try:
-                result = self._ingest(kind, options)
-            except ScryfallError as exc:
-                raise CommandError(str(exc)) from exc
+        # The work itself is shared with the nightly task (cards/refresh.py).
+        try:
+            loaded = refresh.load(
+                kinds,
+                source=options["source"],
+                force=options["force"],
+                limit=options["limit"],
+                measure=options["measure"],
+                on_result=self._result,
+                on_profiles=self._profiles,
+            )
+        except ScryfallError as exc:
+            raise CommandError(str(exc)) from exc
 
-            style = self.style.WARNING if result.skipped else self.style.SUCCESS
-            self.stdout.write(style(f"  {result}"))
-            changed |= kind in PROFILE_INPUTS and not result.skipped
+        if loaded.profiles_reason:
+            self._derived(loaded.profiles_written)
 
-        missing = OracleCard.objects.count() - DerivedProfile.objects.count()
-        if changed:
-            self._rebuild_profiles("cards or tags changed")
-        elif missing:
-            self._rebuild_profiles(f"{missing} cards had no profile")
+    def _result(self, result) -> None:
+        style = self.style.WARNING if result.skipped else self.style.SUCCESS
+        self.stdout.write(style(f"  {result}"))
 
-    def _rebuild_profiles(self, reason: str) -> None:
+    def _profiles(self, reason: str) -> None:
         self.stdout.write(f"profiles: rebuilding ({reason})...")
-        written = profiles.rebuild()
-        # A profile is what decides which cards the engine can read, so every
-        # deck's red marker has to be counted again (Phase 9 C2).
-        recount_later(Deck.objects.all())
-        self.stdout.write(self.style.SUCCESS(f"  {written} profiles derived"))
 
-    def _ingest(self, kind: str, options) -> ingest.IngestResult:
-        common = {
-            "source": options["source"],
-            "force": options["force"],
-            "measure": options["measure"],
-        }
-        if kind == BulkImport.Kind.ORACLE_CARDS:
-            return ingest.ingest_cards(limit=options["limit"], **common)
-        return ingest.ingest_tags(**common)
+    def _derived(self, written: int) -> None:
+        self.stdout.write(self.style.SUCCESS(f"  {written} profiles derived"))

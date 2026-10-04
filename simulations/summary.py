@@ -148,11 +148,12 @@ WRITE_IN = {
     "es": "Spanish, addressing the reader informally (tú)",
     "pt-br": "Brazilian Portuguese, addressing the reader as você",
     # Without these, shroud became a "shout" (シャウト) and Chainer チャイナー.
-    # Tutors still turn into チュートリアル now and then: the category name in
-    # the facts is English. Open until Japanese goes on (Q5).
+    # The category "Tutor" reaches the model in English and came back as
+    # チュートリアル (a tutorial), hence the category named outright (phase 12 J4).
     "ja": "Japanese, in the polite style (です・ます), with the terms printed on Japanese "
-          "cards (速攻 haste, 呪禁 hexproof, 被覆 shroud; a tutor is a サーチ card) and every "
-          "card name, the commander's too, in its English spelling",
+          "cards (速攻 haste, 呪禁 hexproof, 被覆 shroud) and every card name, the "
+          "commander's too, in its English spelling. The category Tutor is サーチ in "
+          "Japanese (a card that searches the library), never チュートリアル",
 }
 
 

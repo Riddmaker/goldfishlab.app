@@ -1,5 +1,7 @@
 """Core pages, the health probe and the design-token reader."""
 
+from pathlib import Path
+
 import pytest
 from django.contrib.staticfiles import finders
 from django.urls import reverse
@@ -74,6 +76,23 @@ def test_the_old_favicon_address_points_at_the_icon(client):
     response = client.get("/favicon.ico")
     assert response.status_code == 302
     assert "img/favicon" in response["Location"]
+
+
+def test_a_phone_home_screen_gets_a_180_pixel_icon(client):
+    """Phase 12 J30: iOS asks for /apple-touch-icon.png at the root, linked or not."""
+    import struct
+
+    body = client.get(reverse("home")).content.decode()
+    assert '<link rel="apple-touch-icon" href="/static/img/apple-touch-icon' in body
+
+    for name in ("apple-touch-icon.png", "apple-touch-icon-precomposed.png"):
+        response = client.get(f"/{name}")
+        assert response.status_code == 302
+        assert "img/apple-touch-icon" in response["Location"]
+
+    png = Path(finders.find("img/apple-touch-icon.png")).read_bytes()
+    assert png.startswith(b"\x89PNG\r\n\x1a\n")
+    assert struct.unpack(">II", png[16:24]) == (180, 180)  # IHDR width, height
 
 
 def test_the_header_is_about_decks(client, django_user_model):

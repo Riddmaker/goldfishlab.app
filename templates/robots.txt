@@ -1,0 +1,10 @@
+# Goldfish Lab. The pages worth finding are in the sitemap; every other page
+# says noindex itself, so it is not blocked here (core/views.py RobotsView).
+User-agent: *
+Disallow: /admin/
+Disallow: /i18n/
+Disallow: /ticker/
+Disallow: /healthz/
+Disallow: /billing/webhook/
+
+Sitemap: {{ sitemap_url }}

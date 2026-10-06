@@ -6,6 +6,7 @@ variables always take precedence.
 """
 
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import environ
 from celery.schedules import crontab
@@ -33,6 +34,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.postgres",
+    # P3: /sitemap.xml. Its template lives in the app; contrib.sites is not
+    # needed, the sitemap takes its host from SITE_URL (core.seo).
+    "django.contrib.sitemaps",
     "allauth",
     "allauth.account",
     "csp",
@@ -86,6 +90,7 @@ TEMPLATES = [
                 "core.context_processors.source_code",
                 "core.context_processors.dev_tools",
                 "core.context_processors.languages",
+                "core.context_processors.seo",
             ],
         },
     },
@@ -176,6 +181,18 @@ LEGAL_DETAILS_REQUIRED = False
 # fork sets its own repository here. The footer then links the code and the
 # issue tracker ("Report a problem"); blank hides both links.
 SOURCE_CODE_URL = env("SOURCE_CODE_URL", default="").rstrip("/")
+
+# The address search engines and link previews should name (P3), e.g.
+# "https://goldfishlab.app": canonical links, Open Graph tags, the sitemap and
+# robots.txt are written against it, so a page reached on www. or on the
+# hoster's own domain still points at the one real address. Blank (development,
+# a fork that has not set it) uses the host of the request; core.W001 warns
+# when production runs without it.
+SITE_URL = env("SITE_URL", default="").rstrip("/")
+_site = urlsplit(SITE_URL)
+if SITE_URL and (_site.scheme not in ("http", "https") or not _site.netloc
+                 or _site.path or _site.query or _site.fragment):
+    raise ImproperlyConfigured(f"SITE_URL must be http(s)://host with no path: {SITE_URL!r}")
 
 AUTH_USER_MODEL = "accounts.User"
 

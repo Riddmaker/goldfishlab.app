@@ -41,24 +41,57 @@ class PlansView(LoginRequiredMixin, TemplateView):
     template_name = "billing/plans.html"
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = {**super().get_context_data(**kwargs), **_tiers(self.request)}
         subscription = services.subscription_for(self.request.user)
         context["subscription"] = subscription
-        plans = list(Plan.objects.filter(is_active=True).order_by("price_chf_cents"))
-        shown = currency.for_request(self.request)
-        for plan in plans:
-            # Phase 11 G: "CHF 4", "€4" or "$4" while LOCAL_PRICES is on.
-            cents = plan.price_cents(shown)
-            plan.price_label = currency.label(cents, shown) if cents else ""
-        context["plans"] = plans
-        context["purchasable"] = {plan.pk for plan in services.purchasable_plans()}
-        context["can_pay"] = stripe_api.is_configured()
         context["usage"] = _usage_rows(self.request.user)
         # The deck summary's switch (phase 10 H, T6.5) is turned on again here.
         from simulations import mistral
 
         context["summaries_available"] = mistral.is_configured()
         return context
+
+
+class PricingView(TemplateView):
+    """The tiers for anybody, signed in or not (P3).
+
+    /billing/ is the signed-in account's own page and a guest is sent away from
+    it, so until P3 a visitor - or a search engine - could not see what the
+    tiers cost. This page shows the same cards from the same rows (`_tiers`),
+    so the two cannot disagree - the free plan, and each paid one as soon as
+    it can be bought. A member is sent to their own page, which has the
+    buttons.
+    """
+
+    template_name = "billing/pricing.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        user = request.user
+        if user.is_authenticated and not user.is_guest:
+            return redirect("billing:plans")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        tiers = _tiers(self.request)
+        # A paid tier is shown in public once it can be bought, not before:
+        # until then its name, price and limits are still being decided.
+        tiers["plans"] = [plan for plan in tiers["plans"]
+                          if plan.is_default or plan.pk in tiers["purchasable"]]
+        return {**super().get_context_data(**kwargs), **tiers}
+
+
+def _tiers(request) -> dict:
+    """The active plans with their price in this visitor's currency, and
+    which of them can be bought right now."""
+    plans = list(Plan.objects.filter(is_active=True).order_by("price_chf_cents"))
+    shown = currency.for_request(request)
+    for plan in plans:
+        # Phase 11 G: "CHF 4", "€4" or "$4" while LOCAL_PRICES is on.
+        cents = plan.price_cents(shown)
+        plan.price_label = currency.label(cents, shown) if cents else ""
+    return {"plans": plans,
+            "purchasable": {plan.pk for plan in services.purchasable_plans()},
+            "can_pay": stripe_api.is_configured()}
 
 
 def _usage_rows(user) -> list[dict]:

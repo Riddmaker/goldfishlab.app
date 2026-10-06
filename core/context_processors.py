@@ -2,6 +2,8 @@
 
 from django.conf import settings
 
+from core import seo as search
+
 
 def operator(request):
     """Who runs this installation, for the legal pages and the footer.
@@ -64,3 +66,8 @@ def languages(request):
     """
     return {"site_languages": [(code, settings.LANGUAGE_NAMES[code])
                                for code, _ in settings.LANGUAGES]}
+
+
+def seo(request):
+    """Canonical link, robots and Open Graph tags for base.html (P3, core.seo)."""
+    return search.context(request)

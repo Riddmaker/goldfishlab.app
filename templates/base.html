@@ -1,13 +1,36 @@
-{% load static i18n %}
+{% load static i18n capture %}
 {% get_current_language as current_language %}
+{% comment %}
+  P3: the title and the description are each wanted three times (the page,
+  Open Graph, Twitter cards), and a block can only appear once - so they are
+  captured. `core.seo` decides the rest: one address for canonical and
+  og:url, and `noindex` on every page that is not in PUBLIC_PAGES.
+{% endcomment %}
+{% capture as page_title %}{% block title %}Goldfish Lab{% endblock %}{% endcapture %}
+{% capture as page_description %}{% block description %}{% translate "Goldfish Lab actually plays your Commander deck, thousands of times, and tells you what happens." %}{% endblock %}{% endcapture %}
 <!DOCTYPE html>
 <html lang="{{ current_language }}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Goldfish Lab{% endblock %}</title>
-    <meta name="description"
-          content="{% block description %}{% translate "Goldfish Lab actually plays your Commander deck, thousands of times, and tells you what happens." %}{% endblock %}">
+    <title>{{ page_title }}</title>
+    <meta name="description" content="{{ page_description }}">
+    {% if indexable %}
+      <link rel="canonical" href="{{ canonical_url }}">
+    {% else %}
+      <meta name="robots" content="noindex">
+    {% endif %}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Goldfish Lab">
+    <meta property="og:title" content="{{ page_title }}">
+    <meta property="og:description" content="{{ page_description }}">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:locale" content="{{ og_locale }}">
+    <meta property="og:image" content="{{ og_image_url }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Goldfish Lab — {% translate "it actually plays your deck" %}">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     {% comment %}
@@ -120,6 +143,7 @@
       <div class="mx-auto max-w-5xl px-4 py-6 text-xs leading-relaxed text-ink-400">
         <p class="flex flex-wrap gap-x-4 gap-y-1">
           <a href="{% url 'methodology' %}" class="underline hover:text-ink-300">{% translate "How this works" %}</a>
+          <a href="{% url 'pricing' %}" class="underline hover:text-ink-300">{% translate "Pricing" %}</a>
           <a href="{% url 'terms' %}" class="underline hover:text-ink-300">{% translate "Terms" %}</a>
           <a href="{% url 'privacy' %}" class="underline hover:text-ink-300">{% translate "Privacy" %}</a>
           <a href="{% url 'imprint' %}" class="underline hover:text-ink-300">{% translate "Legal notice" %}</a>

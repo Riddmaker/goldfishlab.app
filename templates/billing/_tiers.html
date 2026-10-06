@@ -1,0 +1,85 @@
+{% load humanize i18n %}
+{% comment %}
+  The tier cards, shared by the account's own page (/billing/) and the public
+  one (/pricing/, P3), so the two always show the same rows the same way.
+  Without a `subscription` the visitor has no account to buy with yet.
+{% endcomment %}
+<div class="mt-5 grid gap-5 lg:grid-cols-3">
+  {% for plan in plans %}
+    <div class="flex flex-col border {% if plan == subscription.plan %}border-2 border-ink-900{% else %}border-parchment-600{% endif %} p-4">
+      <h3 class="font-display text-xl text-ink-900">{{ plan.display_name }}</h3>
+      <p class="tabular mt-1 text-ink-700">
+        {% if local_prices and plan.price_label %}
+          {# Phase 11 G: the same round number in each currency (billing.currency). #}
+          {% blocktranslate with price=plan.price_label interval=plan.interval_label %}{{ price }} / {{ interval }}{% endblocktranslate %}
+        {% elif plan.price_chf_cents %}
+          {% blocktranslate with price=plan.price_chf|floatformat:"2" interval=plan.interval_label %}CHF {{ price }} / {{ interval }}{% endblocktranslate %}
+        {% else %}
+          {% translate "Free" %}
+        {% endif %}
+      </p>
+      <ul class="mt-3 space-y-1 text-sm text-ink-700">
+        <li class="tabular">{% blocktranslate trimmed with turns=plan.max_turns %}Turns simulated: <strong>{{ turns }}</strong>{% endblocktranslate %}</li>
+        <li class="tabular">
+          {% blocktranslate trimmed with games=plan.max_games_per_run|intcomma %}Games per run: <strong>{{ games }}</strong>{% endblocktranslate %}
+        </li>
+        <li class="tabular">
+          {% translate "Runs a month:" %}
+          <strong>{% if plan.max_runs_per_month %}{{ plan.max_runs_per_month }}{% else %}{% translate "no limit" %}{% endif %}</strong>
+        </li>
+        <li class="tabular">
+          {% translate "Decks:" %}
+          <strong>{% if plan.max_decks %}{{ plan.max_decks }}{% else %}{% translate "no limit" %}{% endif %}</strong>
+        </li>
+        <li class="tabular">{% blocktranslate trimmed with runs=plan.max_concurrent_runs %}At once: <strong>{{ runs }}</strong>{% endblocktranslate %}</li>
+      </ul>
+
+      <div class="mt-auto pt-4">
+        {% if not subscription %}
+          {% if plan.is_default %}
+            <p class="text-sm text-ink-700">{% translate "Where every account starts." %}</p>
+          {% elif plan.pk in purchasable %}
+            <p class="text-sm text-ink-700">{% translate "Create a free account, then choose it." %}</p>
+          {% else %}
+            <p class="text-sm text-ink-700">{% translate "Not available yet." %}</p>
+          {% endif %}
+        {% elif plan == subscription.plan %}
+          <p class="text-sm text-ink-900">{% translate "This is your plan." %}</p>
+        {% elif plan.pk in purchasable and subscription.is_live_paid %}
+          {% comment %}
+            Not a checkout button. Stripe's hosted Checkout always starts a
+            NEW subscription, so a paying customer pressing it would be
+            billed for two plans at once. Switching lives in the portal.
+          {% endcomment %}
+          <p class="text-sm text-ink-700">{% translate "Switch to it in the billing portal below." %}</p>
+        {% elif plan.pk in purchasable %}
+          <form method="post" action="{% url 'billing:checkout' plan.slug %}">
+            {% csrf_token %}
+            <button type="submit"
+                    class="w-full border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
+              {% blocktranslate with plan=plan.display_name %}Choose {{ plan }}{% endblocktranslate %}
+            </button>
+          </form>
+        {% elif plan.is_default %}
+          <p class="text-sm text-ink-700">{% translate "Where every account starts." %}</p>
+        {% else %}
+          <p class="text-sm text-ink-700">{% translate "Not available yet." %}</p>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% if sold_through_link and purchasable %}
+  <p class="mt-5 text-sm text-ink-700">
+    {% blocktranslate trimmed %}
+      Paid plans are <strong>sold through Link</strong>, Stripe's reseller
+      service: Link takes the payment, handles the VAT and sends the receipts,
+      and your statement shows <em>LINK.COM*</em>.
+    {% endblocktranslate %}
+    {% if not local_prices %}{% translate "Checkout may show the price in your own currency." %}{% endif %}
+    {% url 'terms' as terms_url %}
+    {% blocktranslate trimmed %}
+      The details are in the <a href="{{ terms_url }}" class="underline hover:text-ink-900">terms</a>.
+    {% endblocktranslate %}
+  </p>
+{% endif %}

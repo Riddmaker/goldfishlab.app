@@ -2,6 +2,11 @@
 {% load i18n %}
 {% block title %}{% translate "Not yours" %} — Goldfish Lab{% endblock %}
 {% block description %}{% translate "This page belongs to another account." %}{% endblock %}
+{% comment %}
+  An error page is never indexed, also when the view it came from is one
+  that may be (a stopped share link, P4).
+{% endcomment %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
 {% block content %}
   {% comment %}
     The ordinary 403. Being too quick is NOT this page - that is 429.html, and

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "combos",
     "core",
     "guests",
+    "sharing",
 ]
 
 MIDDLEWARE = [

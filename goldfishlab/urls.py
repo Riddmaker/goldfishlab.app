@@ -39,6 +39,8 @@ urlpatterns = [
     path("try/", include("guests.urls")),
     path("", include("simulations.urls")),
     path("", include("playtest.urls")),
+    # P4: /runs/<id>/share/ for the owner, /r/<token>/ for everybody.
+    path("", include("sharing.urls")),
     path("combos/", include("combos.urls")),
     path("billing/", include("billing.urls")),
     path("styleguide/", StyleguideView.as_view(), name="styleguide"),

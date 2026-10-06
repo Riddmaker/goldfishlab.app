@@ -21,36 +21,7 @@
   {% if written.pending %}
     {% include "simulations/_summary_pending.html" %}
   {% endif %}
-  {% if written.content.title %}
-    <p class="summary-name mt-4" lang="{{ written.language }}">{{ written.content.title }}</p>
-  {% endif %}
-  {% if written.content.tagline %}
-    <p class="max-w-3xl text-ink-700 italic" lang="{{ written.language }}">{{ written.content.tagline }}</p>
-  {% endif %}
-  {% if written.content.feel %}
-    <h3 class="summary-title summary-title-feel mt-4">{% translate "Feel" %}</h3>
-    <p class="max-w-3xl text-ink-900" lang="{{ written.language }}">{{ written.content.feel }}</p>
-  {% endif %}
-  {% if written.content.strengths %}
-    <h3 class="summary-title summary-title-strengths mt-5">{% translate "Strengths" %}</h3>
-    <ul class="max-w-3xl text-ink-900" lang="{{ written.language }}">
-      {% for point in written.content.strengths %}
-        <li class="summary-point"><span class="summary-sign summary-sign-plus" aria-hidden="true">+</span>{{ point }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-  {% if written.content.weaknesses %}
-    <h3 class="summary-title summary-title-weaknesses mt-4">{% translate "Weaknesses" %}</h3>
-    <ul class="max-w-3xl text-ink-900" lang="{{ written.language }}">
-      {% for point in written.content.weaknesses %}
-        <li class="summary-point"><span class="summary-sign summary-sign-minus" aria-hidden="true">−</span>{{ point }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-  {% if written.content.tactics %}
-    <h3 class="summary-title summary-title-closing mt-4">{% translate "Tactics" %}</h3>
-    <p class="max-w-3xl text-ink-900" lang="{{ written.language }}">{{ written.content.tactics }}</p>
-  {% endif %}
+  {% include "simulations/_summary_text.html" with content=written.content language=written.language %}
   <div class="mt-5 border-t border-parchment-400 pt-3 text-sm text-ink-700">
     {% if written.content.feel %}
       <p>{% translate "Written by Mistral AI. It can be wrong. Its numbers are calculated from your list, not measured by this run." %}</p>

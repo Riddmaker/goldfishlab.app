@@ -35,6 +35,7 @@ from billing.quotas import QuotaExceeded
 from cards.models import OracleCard
 from decks.models import Deck
 from guests.services import LIFETIME as GUEST_LIFETIME
+from sharing import services as sharing
 from simulations import (
     blindspots,
     provenance,
@@ -156,6 +157,8 @@ class RunDetailView(OwnedRunsMixin, DetailView):
             # your attention" is about what a person can still do.
             context["open_questions"] = review.open_questions(run.deck)
             context["guest_hours"] = int(GUEST_LIFETIME.total_seconds() // 3600)
+            # "Share this report" (P4).
+            context["share"] = sharing.panel(self.request, run, context["report"])
         return context
 
 

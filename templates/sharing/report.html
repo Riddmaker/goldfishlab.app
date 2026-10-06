@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load humanize i18n static %}
+{% comment %}
+  /r/<token>/ (P4): a report its owner shared. Indexable, but not in the
+  sitemap (core.seo). The title leads with the commander - a card name -
+  rather than the deck's name, which anybody can set to anything.
+{% endcomment %}
+{% block title %}{{ page_heading }} — Goldfish Lab{% endblock %}
+{% block description %}{{ share_description }}{% endblock %}
+{% block head %}
+  <script src="{% static 'js/share.js' %}" defer></script>
+{% endblock %}
+{% block content %}
+  {% if is_owner %}
+    <p class="mb-6 border border-parchment-600 bg-ink-900 px-4 py-3 text-sm text-parchment-100">
+      {% blocktranslate trimmed with run_url=run.get_absolute_url %}
+        This is how others see your shared report.
+        <a href="{{ run_url }}#share" class="underline">Back to your run</a>
+      {% endblocktranslate %}
+    </p>
+  {% endif %}
+  <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+    <h1 class="font-display text-3xl text-parchment-100">{{ shared_report.deck_name }}</h1>
+    {% if shared_report.commander %}
+      <span class="text-parchment-200">{{ shared_report.commander }}</span>
+    {% endif %}
+  </div>
+  <p class="tabular mt-1 text-parchment-200">
+    {% blocktranslate trimmed with games=run.games_total|intcomma turns=run.turns %}
+      {{ games }} games · {{ turns }} turns ·
+    {% endblocktranslate %}
+    {% if run.on_the_play %}{% translate "1-v-1, first draw skipped" %}{% else %}{% translate "multiplayer draw rule" %}{% endif %}
+  </p>
+  <p class="mt-1 text-sm text-ink-300">
+    {% blocktranslate trimmed with date=run.finished_at|date:"DATE_FORMAT" %}
+      Simulated by Goldfish Lab on {{ date }}. A goldfish is a deck played
+      alone: it measures what the deck does, not how a table answers it.
+    {% endblocktranslate %}
+    {% include "core/_why.html" with anchor="games" dark=True %}
+  </p>
+  {{ body }}
+  <section class="surface-parchment mt-6 p-6">
+    <details class="text-sm">
+      <summary class="cursor-pointer text-ink-900 underline">{% translate "Copy as text" %}</summary>
+      <label for="share-text" class="sr-only">{% translate "The report as text" %}</label>
+      <textarea id="share-text"
+                readonly
+                rows="8"
+                class="mt-2 block w-full max-w-2xl border border-parchment-600 bg-parchment-50 px-3 py-2 font-mono text-xs text-ink-900">{{ share_text }}</textarea>
+      <button type="button"
+              data-copy="share-text"
+              data-copied="{% translate "Copied" %}"
+              hidden
+              class="mt-2 border border-ink-800 px-4 py-2 text-ink-900 hover:bg-parchment-200">
+        {% translate "Copy text" %}
+      </button>
+    </details>
+  </section>
+  <section class="mt-10 max-w-3xl">
+    <h2 class="font-display text-2xl text-parchment-100">{% translate "What does your deck do?" %}</h2>
+    <p class="mt-2 text-parchment-200">
+      {% translate "Upload your list and Goldfish Lab plays it thousands of times. Free, and no account needed to try." %}
+    </p>
+    <p class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
+      <a href="{% url 'guests:try' %}"
+         class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
+        {% translate "Try it now - no account" %}
+      </a>
+      <a href="{% url 'methodology' %}"
+         class="text-parchment-200 underline hover:text-parchment-50">{% translate "How this works" %}</a>
+    </p>
+  </section>
+{% endblock %}

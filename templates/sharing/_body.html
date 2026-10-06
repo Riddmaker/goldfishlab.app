@@ -1,0 +1,50 @@
+{% load i18n %}
+{% comment %}
+  A shared report's numbers (P4), rendered once per link and language and
+  kept in the cache (sharing.views.CACHE_SECONDS) - so nothing here may
+  depend on who is looking. The same partials as the run page, with `shared`
+  switching off what belongs to the owner; the deck as it was shared comes
+  from `shared_report`, never from the deck as it is today.
+{% endcomment %}
+<section class="surface-parchment mt-6 p-6">
+  <h2 class="font-display text-2xl text-ink-900">{% translate "How much of the deck was read" %}</h2>
+  <p class="mt-2 text-sm text-ink-700">
+    {% blocktranslate trimmed with read=run.coverage_read total=run.coverage_total pct=run.readable_pct|floatformat:"0" %}
+      The engine read <strong class="tabular text-ink-900">{{ read }}</strong>
+      of {{ total }} cards in full —
+      <strong class="tabular text-ink-900">{{ pct }}%</strong>.
+    {% endblocktranslate %}
+    {% include "core/_why.html" with anchor="reading" %}
+  </p>
+</section>
+{% include "simulations/_report.html" %}
+{% if shared_report.summary %}
+  <section id="summary" class="surface-parchment mt-6 p-6">
+    <h2 class="font-display text-2xl text-ink-900">{% translate "Deck summary" %}</h2>
+    {% include "simulations/_summary_text.html" with content=shared_report.summary language=shared_report.summary_language %}
+    <p class="mt-5 border-t border-parchment-400 pt-3 text-sm text-ink-700">
+      {% translate "Written by Mistral AI about this exact deck. It can be wrong. Its numbers are calculated from the list, not measured by this run." %}
+    </p>
+  </section>
+{% endif %}
+{% if report.combos %}
+  <section class="surface-parchment mt-6 p-6">
+    {% include "simulations/_combos.html" %}
+  </section>
+{% endif %}
+<section id="cards" class="surface-parchment mt-6 p-6">
+  <h2 class="font-display text-2xl text-ink-900">{% translate "The deck" %}</h2>
+  <p class="mt-1 text-sm text-ink-700">
+    {% blocktranslate trimmed count count=shared_report.card_count %}
+      {{ count }} card besides the commander, as it was simulated.
+    {% plural %}
+      {{ count }} cards besides the commander, as they were simulated.
+    {% endblocktranslate %}
+  </p>
+  <ul class="mt-4 columns-1 gap-8 text-sm text-ink-900 sm:columns-2 lg:columns-3">
+    {% for card in shared_report.cards %}
+      <li class="break-inside-avoid py-0.5"><span class="tabular text-ink-700">{{ card.quantity }}</span> {{ card.name }}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% include "simulations/_advanced.html" %}

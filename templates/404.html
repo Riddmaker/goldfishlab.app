@@ -2,6 +2,11 @@
 {% load i18n %}
 {% block title %}{% translate "Not found" %} — Goldfish Lab{% endblock %}
 {% block description %}{% translate "There is no page at this address." %}{% endblock %}
+{% comment %}
+  An error page is never indexed, also when the view it came from is one
+  that may be (a stopped share link, P4).
+{% endcomment %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
 {% block content %}
   {% comment %}
     Phase 12: Django's own 404 is one English line ("Not Found") without the

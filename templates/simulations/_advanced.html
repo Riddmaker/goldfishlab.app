@@ -9,7 +9,7 @@
 <details id="advanced" class="report-advanced mt-10">
   <summary class="report-advanced-summary">
     <span class="font-display text-2xl text-parchment-100">{% translate "Advanced" %}</span>
-    <span class="text-sm text-parchment-200">{% translate "Mana and lands turn by turn, what the simulation does not model, engine and seed" %}</span>
+    <span class="text-sm text-parchment-200">{% if shared %}{% translate "Mana and lands turn by turn, engine and seed" %}{% else %}{% translate "Mana and lands turn by turn, what the simulation does not model, engine and seed" %}{% endif %}</span>
   </summary>
   <section class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">{% translate "Mana and lands, turn by turn" %}</h2>
@@ -42,7 +42,10 @@
       </tbody>
     </table>
   </section>
-  {% include "simulations/_blindspots.html" with deck=run.deck %}
+  {% if not shared %}
+    {# Read off the deck as it is today, which a shared report never shows (P4). #}
+    {% include "simulations/_blindspots.html" with deck=run.deck %}
+  {% endif %}
   <p class="mt-6 text-xs text-parchment-200">
     {% blocktranslate trimmed with version=run.engine_version seed=run.seed %}
       Engine v{{ version }}, seed {{ seed }}. Differences below about

@@ -2,7 +2,8 @@
 {% comment %}
   The report. Every chart here is server-rendered from the run's own numbers:
   a bar is a div with a width, which needs no charting library, no JavaScript,
-  and works in a browser with both switched off.
+  and works in a browser with both switched off. `shared` (P4): on a shared
+  report, which offers its reader nothing of the owner's.
 {% endcomment %}
 <section id="seen" class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">{% translate "What you drew" %}</h2>
@@ -112,7 +113,7 @@
         </table>
       </div>
     </details>
-  {% else %}
+  {% elif not shared %}
     <p class="mt-2 text-ink-700">
       {% blocktranslate trimmed with deck_url=run.deck.get_absolute_url %}
         This run is older than this chart.

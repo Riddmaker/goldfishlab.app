@@ -9,6 +9,8 @@
 {% block head %}
   {% if not run.is_finished %}
     <script src="{% static 'js/run-progress.js' %}" defer></script>
+  {% elif share %}
+    <script src="{% static 'js/share.js' %}" defer></script>
   {% endif %}
 {% endblock %}
 {% block content %}
@@ -52,12 +54,14 @@
       there at all for somebody who switched summaries off; the combos come
       after it (phase 11 Z5.4) as the last part of "Your strategies, and what
       would feed them" (phase 11 E), which shows whether summaries are on or
-      not; last before "Advanced".
+      not; last before "Advanced". Sharing (P4) follows the attention block:
+      it is something a person can do, and says what becomes public.
     {% endcomment %}
     {% if user.is_guest %}
       {% include "simulations/_keep_deck.html" %}
     {% endif %}
     {% include "simulations/_attention.html" %}
+    {% include "simulations/_share.html" %}
     {% include "simulations/_report.html" %}
     {% if user.deck_summaries %}
       {% include "simulations/_summary.html" %}

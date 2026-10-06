@@ -170,6 +170,9 @@ class UsageRecord(models.Model):
         GAMES_SIMULATED = "games_simulated", "Games simulated"
         IMPORTS = "imports", "Imports"
         DECKS_CREATED = "decks_created", "Decks created"
+        #: Recorded for guests only (P1): their one free summary, counted
+        #: where a new upload cannot delete it with the deck.
+        SUMMARIES_WRITTEN = "summaries_written", "Summaries written"
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="usage"

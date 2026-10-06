@@ -51,3 +51,11 @@ htmlcov/
 /docs/phases/phase-11-test-findings-2.md
 /docs/phases/phase-12-i18n.md
 /docs/phases/phase-12-allauth-strings.md
+
+# Local leftovers: dependencies are pinned in requirements*.txt, so an
+# empty uv.lock from a stray `uv` call is noise, and yt.html is a saved web
+# page with nothing to do with the project.
+/uv.lock
+/yt.html
+# Claude Code's per-machine settings (the push guard for dev and main).
+/.claude/settings.local.json

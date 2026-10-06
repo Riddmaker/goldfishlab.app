@@ -10,7 +10,9 @@ There are exactly FIVE call sites for `check()` in the finished application:
   5. "Write a summary"    (phase 10 H: one deck summary, one run)
 
 `simulations.summary.state` also asks, with `raise_on_fail=False`, only to word
-the button - it decides nothing.
+the button - it decides nothing. So does `guests.views.TryView`, only to keep a
+guest's deck when the import is going to be refused (P1); call site 3 still
+refuses it.
 
 Quota logic anywhere else is a bug. Keeping the count of call sites small is
 what makes the limits auditable.

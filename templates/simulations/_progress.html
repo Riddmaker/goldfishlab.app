@@ -49,6 +49,13 @@
         {% endif %}
       {% elif run.status == "pending" %}
         {% blocktranslate with games=run.games_total|intcomma %}{{ games }} games, waiting for a free table{% endblocktranslate %}
+        {% if pace.ahead %}·
+          {% blocktranslate trimmed count ahead=pace.ahead with minutes=pace.wait_minutes %}
+            {{ ahead }} run ahead of yours, about {{ minutes }} min
+          {% plural %}
+            {{ ahead }} runs ahead of yours, about {{ minutes }} min
+          {% endblocktranslate %}
+        {% endif %}
       {% else %}
         {# The heading already says "Playing your deck". #}
         {% blocktranslate with games=run.games_total|intcomma %}{{ games }} games{% endblocktranslate %}

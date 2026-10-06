@@ -418,9 +418,31 @@ class DeckSummary(models.Model):
     prompt_tokens = models.PositiveIntegerField(default=0)
     completion_tokens = models.PositiveIntegerField(default=0)
     charged = models.BooleanField(default=False)
+    #: The day whose budget it was counted against (P1, `simulations.budget`),
+    #: so a failure gives back that day's slot, not today's. None: written
+    #: before the budget existed, or not counted.
+    budget_day = models.DateField(null=True, blank=True)
+    budget_guest = models.BooleanField(default=False)
     error = models.CharField(max_length=200, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
         return f"Summary of {self.deck_id} ({self.status})"
+
+
+class SummaryDay(models.Model):
+    """How many deck summaries were started on one day (P1, load protection).
+
+    One row a day, Europe/Zurich, counted up by a conditional update so that
+    two runs started together cannot both take the last slot
+    (`simulations.budget`). Guests and members are counted apart: guests may
+    take only their share. Nothing about a person is in it.
+    """
+
+    day = models.DateField(unique=True)
+    guests = models.PositiveIntegerField(default=0)
+    members = models.PositiveIntegerField(default=0)
+
+    def __str__(self) -> str:
+        return f"{self.day}: {self.guests} guest + {self.members} member summaries"

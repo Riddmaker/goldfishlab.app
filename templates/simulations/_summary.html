@@ -61,7 +61,9 @@
       {% elif written.content.feel %}
         <p class="mt-1">{% translate "Written for an earlier version of this deck." %}</p>
       {% endif %}
-      {% if written.offer %}
+      {% if written.paused %}
+        <p class="mt-1">{% translate "So many summaries were written today that they are paused until midnight. Your run is not affected." %}</p>
+      {% elif written.offer %}
         <form method="post" action="{% url 'simulations:write_summary' run.id %}" class="mt-2">
           {% csrf_token %}
           <button type="submit" class="text-ink-900 underline">

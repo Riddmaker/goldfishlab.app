@@ -23,6 +23,8 @@ from django_ratelimit.core import is_ratelimited
 from django_ratelimit.decorators import ratelimit
 from django_ratelimit.exceptions import Ratelimited
 
+from billing import quotas
+from billing.models import UsageRecord
 from billing.quotas import QuotaExceeded
 from billing.views import refusal
 from decks.views import ImportFlowMixin, imported
@@ -85,9 +87,13 @@ class TryView(ImportFlowMixin, FormView):
         return context
 
     def import_owner(self):
-        if services.is_guest(self.request.user):
-            services.reset(self.request.user)
-            return self.request.user
+        guest = self.request.user
+        if services.is_guest(guest):
+            # Only an import that will be allowed clears the old deck: a
+            # refused one used to delete it all the same (P1).
+            if quotas.check(guest, UsageRecord.Metric.IMPORTS, raise_on_fail=False).allowed:
+                services.reset(guest)
+            return guest
         if is_ratelimited(self.request, group="guests.create", key="ip",
                           rate=self.NEW_GUESTS_RATE, increment=True):
             raise Ratelimited()

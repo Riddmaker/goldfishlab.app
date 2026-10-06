@@ -30,9 +30,11 @@ from django.conf import settings
 ENDPOINT = "https://api.mistral.ai/v1/chat/completions"
 
 #: One attempt's socket timeout. The call runs in a Celery task, not a web
-#: request, so it may take longer than Spellbook's; a summary that has not
-#: come back in a minute is not coming.
-TIMEOUT_SECONDS = 60
+#: request, so it may take longer than Spellbook's. Two attempts and the
+#: pause between them must end well inside the task's soft time limit
+#: (CELERY_TASK_SOFT_TIME_LIMIT, 120 s): at 60 s they did not, and a slow
+#: answer left the summary "being written" for good (P1).
+TIMEOUT_SECONDS = 45
 
 #: One retry, on the statuses that mean "try again later", after this pause.
 RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})

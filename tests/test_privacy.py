@@ -343,6 +343,8 @@ def test_the_privacy_policy_names_every_service_that_sees_data(client):
     for country in ("Switzerland", "Ireland", "USA"):
         assert country in content
     assert "FDPIC" in content
+    # Cloudflare's analytics and security events, Free plan (phase 12 J13).
+    assert "for up to 31 days" in content
 
 
 def test_the_retention_periods_stated_are_the_ones_enforced(client):

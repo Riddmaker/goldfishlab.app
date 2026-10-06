@@ -28,6 +28,7 @@ import logging
 import time
 
 from celery import chord, shared_task
+from celery.exceptions import SoftTimeLimitExceeded
 from django.db.models import F
 from django.utils import timezone
 
@@ -305,6 +306,14 @@ def _close(run: SimulationRun, status: str, *, error: str = "", fields=None) -> 
 # --- the deck summary (phase 10 H) ---------------------------------------------
 
 
+@shared_task(name="simulations.close_stale_summaries")
+def close_stale_summaries() -> int:
+    """P1: every ten minutes, close summaries whose worker died mid-call."""
+    from simulations import summary
+
+    return summary.close_stale()
+
+
 @shared_task(name="simulations.write_summary")
 def write_summary(summary_id: str) -> str:
     """Have Mistral write a deck's summary, check it, and keep it.
@@ -328,16 +337,14 @@ def write_summary(summary_id: str) -> str:
         deck_facts = summary.facts(deck, readings)
         completion = mistral.complete(summary.messages(deck_facts, row.language),
                                       max_tokens=summary.MAX_TOKENS)
+    except (mistral.MistralError, SoftTimeLimitExceeded) as exc:
+        # No answer, so nothing billed: today's budget gets its slot back.
+        return summary.fail(row, f"{type(exc).__name__}: {exc}", answered=False)
+    try:
         content = summary.parse(completion.content, deck_facts["strategies"])
-    except (mistral.MistralError, ValueError) as exc:
-        # The message names what went wrong, never the request: no key, no deck.
-        logger.warning("summary %s not written: %s", summary_id, exc)
-        closed = DeckSummary.objects.filter(
-            pk=row.pk, status=DeckSummary.Status.PENDING,
-        ).update(status=DeckSummary.Status.FAILED, error=str(exc)[:200], charged=False)
-        if closed and row.charged:
-            quotas.refund(deck.owner, UsageRecord.Metric.RUNS_STARTED)
-        return DeckSummary.Status.FAILED
+    except ValueError as exc:
+        # An answer that does not check out was billed all the same.
+        return summary.fail(row, str(exc), answered=True)
 
     DeckSummary.objects.filter(pk=row.pk, status=DeckSummary.Status.PENDING).update(
         status=DeckSummary.Status.DONE,

@@ -121,7 +121,28 @@ def failed_catalogue(now) -> Problem | None:
     return Problem("catalogue", "the card catalogue job failed", lines)
 
 
-CHECKS = (failed_runs, stuck_runs, failed_catalogue)
+#: Mail when this share of the day's summary budget is used (P1).
+BUDGET_WARNING = 0.8
+
+
+def summary_budget(now) -> Problem | None:
+    """Today's deck summaries near or at their ceiling (`simulations.budget`)."""
+    from simulations import budget
+
+    total, guest_share = budget.limits()
+    guests, members = budget.counts(timezone.localdate(now))
+    if total <= 0 or guests + members < BUDGET_WARNING * total:
+        return None
+    lines = [
+        f"- {guests + members} of {total} summaries started today "
+        f"({guests} by guests, whose share is {guest_share}).",
+        "At the ceiling, summaries pause until midnight and nobody is charged.",
+        "Raise SUMMARIES_PER_DAY / GUEST_SUMMARIES_PER_DAY if the bill allows it.",
+    ]
+    return Problem("summary_budget", "the daily summary budget is nearly spent", lines)
+
+
+CHECKS = (failed_runs, stuck_runs, failed_catalogue, summary_budget)
 
 
 def check(now=None) -> list[str]:

@@ -85,7 +85,8 @@ def test_the_checks_gate_dev_pull_requests_and_the_deploy():
     # PyYAML reads the bare key `on` as the boolean True (YAML 1.1).
     triggers = checks[True]
     assert triggers["push"]["branches"] == ["dev"]
-    assert triggers["pull_request"]["branches"] == ["main"]
+    # Feature branches reach dev by pull request, and main only by one.
+    assert triggers["pull_request"]["branches"] == ["dev", "main"]
     assert "workflow_call" in triggers
     assert "test" in checks["jobs"]
 

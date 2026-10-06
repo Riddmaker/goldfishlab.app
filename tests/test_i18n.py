@@ -330,3 +330,18 @@ def test_no_translation_breaks_a_placeholder_or_adds_markup(po_path):
                 faults.append(f"markup: {source!r}")
 
     assert faults == []
+
+
+@pytest.mark.parametrize("po_path", CATALOGUES, ids=lambda path: path.parts[-3])
+def test_every_plural_fills_all_of_its_languages_forms(po_path):
+    """Spanish has three plural forms: a translation with two shows English
+    for every count that lands on the third (found in P1)."""
+    import polib
+
+    catalogue = polib.pofile(str(po_path))
+    forms = int(re.search(r"nplurals=(\d+)", catalogue.metadata["Plural-Forms"]).group(1))
+    short = [entry.msgid for entry in _entries(po_path)
+             if entry.msgid_plural
+             and sorted(i for i, text in entry.msgstr_plural.items() if text) != list(range(forms))]
+
+    assert short == []

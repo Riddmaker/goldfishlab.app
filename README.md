@@ -188,6 +188,23 @@ The mails are templates in `templates/account/email/`, one text and one HTML ver
 sample contexts live in `accounts/mail_samples.py`. A browser shows the layout and the words -
 a real phone mail app is still the test that counts.
 
+### Landing in the inbox
+
+Production sends through `core.mail.EmailBackend`, Django's SMTP backend plus three headers,
+each only where the caller set none: a `Message-ID` on the From domain (not the node's host
+name), `Reply-To: DJANGO_EMAIL_REPLY_TO` (the From address, `noreply@`, is no mailbox; the
+default is `hello@`) and `Auto-Submitted: auto-generated` (RFC 3834). Every link in a mail
+points at the host the request came in on. `tests/test_mail_backend.py` holds all of it.
+
+The domain's side is DNS, not code: an SPF record that allows the SMTP provider, DKIM signing
+switched on at the provider with its key published, and a DMARC record whose reports someone
+reads. To check one mail end to end, send it to a [mail-tester.com](https://www.mail-tester.com)
+address, or to a Hotmail address and read the headers: `Authentication-Results` should say
+`spf=pass`, `dkim=pass` (`header.d=` the From domain), `dmarc=pass` and `compauth=pass`;
+`X-MS-Exchange-Organization-SCL` is Microsoft's spam score (5 and up goes to Junk). With all
+four passing, a young domain on a shared sending IP can still land in Junk until it has a
+history; that is reputation, which only time, volume and "Not junk" clicks build.
+
 ## Adding translations
 
 ```bash

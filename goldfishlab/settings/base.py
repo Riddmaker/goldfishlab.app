@@ -176,6 +176,11 @@ LEGAL_OPERATOR_ADDRESS = env.list("LEGAL_OPERATOR_ADDRESS", default=[])
 LEGAL_CONTACT_EMAIL = env("LEGAL_CONTACT_EMAIL", default="")
 LEGAL_DETAILS_REQUIRED = False
 
+# Where a reply to an application mail goes (P6, core/mail.py). The From
+# address is noreply@, which is no mailbox. Empty: no Reply-To; production
+# defaults to hello@ (settings/prod.py).
+EMAIL_REPLY_TO = env("DJANGO_EMAIL_REPLY_TO", default="")
+
 # Where this installation's source code is published, e.g.
 # "https://github.com/Riddmaker/goldfishlab.app". The code is AGPL-3.0: whoever runs
 # a modified copy as a website must offer its users that copy's source, so a

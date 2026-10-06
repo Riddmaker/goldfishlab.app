@@ -90,13 +90,18 @@ EMAIL_USE_TLS = env.bool("DJANGO_EMAIL_USE_TLS", default=True)  # noqa: F405
 EMAIL_USE_SSL = env.bool("DJANGO_EMAIL_USE_SSL", default=False)  # noqa: F405
 EMAIL_TIMEOUT = 10
 
-# The address confirmations and password resets come FROM. A real mailbox on
-# the sending domain, or SPF/DKIM will not line up and the mail goes to spam -
+# The address confirmations and password resets come FROM. An address on the
+# sending domain, or SPF/DKIM will not line up and the mail goes to spam -
 # which for a mandatory confirmation is indistinguishable from being broken.
+# noreply@ is not a mailbox; replies go to EMAIL_REPLY_TO below.
 DEFAULT_FROM_EMAIL = env(  # noqa: F405
     "DJANGO_DEFAULT_FROM_EMAIL", default="Goldfish Lab <noreply@goldfishlab.app>"
 )
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
+# noreply@ is no mailbox: a reply goes to one that is read (core/mail.py, P6).
+EMAIL_REPLY_TO = env(  # noqa: F405
+    "DJANGO_EMAIL_REPLY_TO", default="Goldfish Lab <hello@goldfishlab.app>"
+)
 
 # --- Sentry -----------------------------------------------------------------
 # Inert unless a DSN is set. `sentry_sdk.init` with an empty DSN is a no-op by

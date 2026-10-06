@@ -10,9 +10,13 @@
   the phases and the mana; the table with the commander, the battlefield rows
   and the stacks; the hand as a fan at the bottom. The log and the branching
   are folded, because they are what you look for, not what you look at.
+
+  `hx-sync="this:drop"`: every form in here syncs on the board, so a click
+  while a request is in flight is dropped (a double click, phase 12 J30). The
+  server locks the session as well, for the forms sent without JavaScript.
 {% endcomment %}
 {% load i18n l10n %}
-<div id="board" class="space-y-4">
+<div id="board" class="space-y-4" hx-sync="this:drop">
 
   {% if board_messages %}
     {% for message in messages %}

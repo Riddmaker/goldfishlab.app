@@ -251,7 +251,8 @@ makes "all the old tests still pass" mean anything.
 .venv/Scripts/python scripts/home_pictures.py path/to/a-deck.csv
 
 # The link preview every page shares (1200 x 630 PNG), drawn from the logo and
-# EB Garamond. Writes INTO static/img/og-default.png; look at it before committing.
+# EB Garamond, and the home-screen icon (180 x 180 PNG). Writes INTO
+# static/img/og-default.png and apple-touch-icon.png; look at both before committing.
 .venv/Scripts/python scripts/og_image.py
 ```
 

@@ -187,3 +187,15 @@ def test_the_main_phase_shows_the_pool_as_pips(signed_in, session):
 
     assert response.context["pips"]
     assert 'class="pip pip-' in response.content.decode()
+
+
+def test_the_board_drops_a_click_while_one_is_in_flight(signed_in, session):
+    """Phase 12 J30: hx-sync is inherited, and `this` is the board itself, so
+    every form in it syncs on one element (htmx 2.0.10 resolves `this` to the
+    element that declares the attribute)."""
+    body = board(signed_in, session).content.decode()
+    swapped = act(signed_in, session, headers={"HX-Request": "true"},
+                  kind="keep_hand").content.decode()
+
+    for html in (body, swapped):
+        assert '<div id="board" class="space-y-4" hx-sync="this:drop">' in html

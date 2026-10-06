@@ -1,6 +1,14 @@
-"""Draw static/img/og-default.png, the link preview every page shares (P3).
+"""Draw the two pictures drawn from the logo rather than from a page.
 
 Usage:  python scripts/og_image.py
+
+* static/img/og-default.png, the link preview every page shares (P3).
+* static/img/apple-touch-icon.png, the home-screen icon (phase 12 J30): 180 x
+  180, the size iOS asks for, full bleed on the logo's own background. iOS
+  rounds the corners itself and turns transparency black, so the corners are
+  not cut here.
+
+Link preview:
 
 1200 x 630 is the size Open Graph and Twitter cards show without cropping.
 A PNG, because not every chat app shows WebP in a preview. Drawn from the
@@ -18,6 +26,8 @@ ROOT = Path(__file__).resolve().parent.parent
 FONT = ROOT / "static/fonts/eb-garamond-var-normal-latin.woff2"
 LOGO = ROOT / "static/img/favicon.svg"
 OUT = ROOT / "static/img/og-default.png"
+TOUCH_ICON = ROOT / "static/img/apple-touch-icon.png"
+TOUCH_SIZE = 180
 
 PAGE = """<!doctype html>
 <html><head><meta charset="utf-8"><style>
@@ -46,19 +56,34 @@ p {{ margin: 0; }}
 """
 
 
+TOUCH_PAGE = """<!doctype html>
+<html><head><meta charset="utf-8"><style>
+html, body {{ margin: 0; width: {size}px; height: {size}px; background: #12100d; }}
+svg {{ display: block; width: {size}px; height: {size}px; }}
+</style></head><body>{logo}</body></html>
+"""
+
+
+def _draw(browser, html: str, width: int, height: int, out: Path) -> None:
+    page = browser.new_page(viewport={"width": width, "height": height})
+    page.set_content(html, wait_until="networkidle")
+    page.evaluate("document.fonts.ready")
+    page.screenshot(path=str(out), type="png")
+    page.close()
+    print(f"wrote {out.relative_to(ROOT)}")
+
+
 def main() -> None:
     # Inline, not file:// - a page set from a string is about:blank, which
     # may not load local files, and the screenshot came out without both.
     font = "data:font/woff2;base64," + base64.b64encode(FONT.read_bytes()).decode()
-    html = PAGE.format(font=font, logo=LOGO.read_text(encoding="utf-8"))
+    logo = LOGO.read_text(encoding="utf-8")
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch()
-        page = browser.new_page(viewport={"width": 1200, "height": 630})
-        page.set_content(html, wait_until="networkidle")
-        page.evaluate("document.fonts.ready")
-        page.screenshot(path=str(OUT), type="png")
+        _draw(browser, PAGE.format(font=font, logo=logo), 1200, 630, OUT)
+        _draw(browser, TOUCH_PAGE.format(size=TOUCH_SIZE, logo=logo),
+              TOUCH_SIZE, TOUCH_SIZE, TOUCH_ICON)
         browser.close()
-    print(f"wrote {OUT.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

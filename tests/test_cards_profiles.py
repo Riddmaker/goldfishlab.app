@@ -481,3 +481,64 @@ def test_the_branches_are_read_from_the_tag_tree():
     assert "tutor" not in profiles.derive(CULTIVATE, LAND_FETCHER_TAGS).role_tags
     assert "tutor" in profiles.derive(
         CULTIVATE, LAND_FETCHER_TAGS | {"tutor-brand-new-branch"}).role_tags
+
+
+# --- phase 12 J29: "Reanimate" brings back creatures ----------------------------
+
+CRUCIBLE = OracleCard(
+    name="Crucible of Worlds", front_name="Crucible of Worlds",
+    search_name="crucible of worlds", type_line="Artifact", mana_cost="{3}",
+    oracle_text="You may play lands from your graveyard.",
+)
+REVIVALS = frozenset({"reanimate-creature", "reanimate-land", "reanimate-self",
+                      "reanimate-cast", "reanimate-nonland", "mass-reanimation",
+                      "reanimate-permanent"})
+REANIMATE = {"recursion", "reanimate"}
+
+
+@pytest.mark.parametrize(
+    ("branches", "reanimates"),
+    [
+        # Crucible of Worlds: lands only.
+        ({"reanimate-land", "crucible-of-worlds"}, False),
+        # Bloodghast: only itself.
+        ({"reanimate-self"}, False),
+        # Splendid Reclamation: all at once, but lands.
+        ({"mass-reanimation", "reanimate-land"}, False),
+        # Underworld Breach: casts nonland cards, puts nothing onto the battlefield.
+        ({"reanimate-cast", "reanimate-nonland"}, False),
+        # Animate Dead.
+        ({"reanimate-creature"}, True),
+        # Living Death: all at once, creatures.
+        ({"mass-reanimation", "reanimate-creature"}, True),
+        # Restoration Seminar: any nonland permanent, creatures included.
+        ({"reanimate-nonland"}, True),
+        # Muldrotha: casts from the graveyard, permanents included.
+        ({"reanimate-cast", "reanimate-land", "reanimate-permanent"}, True),
+        # Tagged reanimate and nothing more: the tagger is not doubted.
+        (set(), True),
+    ],
+)
+def test_reanimate_means_a_creature_can_come_back(branches, reanimates):
+    roles = profiles.derive(CRUCIBLE, REANIMATE | branches, revivals=REVIVALS).role_tags
+
+    assert ("reanimate" in roles) is reanimates
+    assert "recursion" in roles
+
+
+def test_the_reanimate_branches_are_read_from_the_tag_tree():
+    from uuid import uuid4
+
+    from cards.models import Tag, TagEdge
+
+    def tag(slug):
+        return Tag.objects.create(id=uuid4(), slug=slug, label=slug)
+
+    root = tag("reanimate")
+    for slug in ("reanimate-land", "reanimate-creature"):
+        TagEdge.objects.create(parent=root, child=tag(slug))
+
+    assert profiles.reanimate_branches() == {"reanimate-land", "reanimate-creature"}
+    assert "reanimate" not in profiles.derive(CRUCIBLE, REANIMATE | {"reanimate-land"}).role_tags
+    assert "reanimate" in profiles.derive(
+        CRUCIBLE, REANIMATE | {"reanimate-land", "reanimate-creature"}).role_tags

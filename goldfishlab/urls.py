@@ -53,6 +53,10 @@ urlpatterns = [
     # because the hashed file name is only known once the manifest is loaded,
     # and temporary, because that name changes whenever the icon does.
     path("favicon.ico", RedirectView.as_view(url=lazy(static, str)("img/favicon.svg"))),
+    # The same for iOS, which asks for both names at the root whether a page
+    # links the icon or not (phase 12 J30; they were 404s).
+    *[path(name, RedirectView.as_view(url=lazy(static, str)("img/apple-touch-icon.png")))
+      for name in ("apple-touch-icon.png", "apple-touch-icon-precomposed.png")],
     # The methodology page is a competitive asset rather than boilerplate:
     # saying plainly what is simulated and what is not is the thing no
     # "AI power level: 7.3" competitor can write. (Phase 8.)

@@ -1,0 +1,85 @@
+{% load i18n %}
+{% comment %}
+  "Share this report" (P4): the owner's way to a link anybody can open.
+  Four states - shared (the link, its text, stop); a guest (save first: a
+  guest's report is deleted after a day, and its link with it); a run that
+  cannot be shared (why); and the offer, which says what becomes public before
+  anything does. Needs `run` and `share` (sharing.services.panel).
+
+  The copy buttons are hidden until static/js/share.js shows them; without
+  script the link and the text are plain fields to select.
+{% endcomment %}
+<section id="share" class="surface-parchment mt-6 p-6">
+  <h2 class="font-display text-2xl text-ink-900">{% translate "Share this report" %}</h2>
+  {% if share.shared %}
+    <p class="mt-2 max-w-3xl text-ink-900">
+      {% translate "Anybody with this link can read the report - the deck's name, its commander, its card list and these numbers - without an account. Search engines may list it." %}
+    </p>
+    <div class="mt-4 flex flex-wrap items-center gap-3">
+      <label for="share-url" class="sr-only">{% translate "Link to this report" %}</label>
+      <input id="share-url"
+             type="text"
+             readonly
+             value="{{ share.url }}"
+             class="w-full max-w-md border border-parchment-600 bg-parchment-50 px-3 py-2 text-ink-900">
+      <button type="button"
+              data-copy="share-url"
+              data-copied="{% translate "Copied" %}"
+              hidden
+              class="border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
+        {% translate "Copy link" %}
+      </button>
+    </div>
+    <p class="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-700">
+      <a href="{{ share.url }}" class="text-ink-900 underline">{% translate "See it as others do" %}</a>
+      <span class="tabular">
+        {% blocktranslate trimmed count count=share.shared.views %}
+          Opened {{ count }} time by others
+        {% plural %}
+          Opened {{ count }} times by others
+        {% endblocktranslate %}
+      </span>
+    </p>
+    <details class="mt-4 text-sm">
+      <summary class="cursor-pointer text-ink-900 underline">{% translate "Copy as text" %}</summary>
+      <p class="mt-2 text-ink-700">{% translate "For a post or a chat: the main numbers and the link." %}</p>
+      <label for="share-text" class="sr-only">{% translate "The report as text" %}</label>
+      <textarea id="share-text"
+                readonly
+                rows="8"
+                class="mt-2 block w-full max-w-2xl border border-parchment-600 bg-parchment-50 px-3 py-2 font-mono text-xs text-ink-900">{{ share.text }}</textarea>
+      <button type="button"
+              data-copy="share-text"
+              data-copied="{% translate "Copied" %}"
+              hidden
+              class="mt-2 border border-ink-800 px-4 py-2 text-ink-900 hover:bg-parchment-200">
+        {% translate "Copy text" %}
+      </button>
+    </details>
+    <form method="post" action="{% url 'sharing:stop' run.id %}" class="mt-4">
+      {% csrf_token %}
+      <button type="submit" class="text-sm text-ink-700 underline hover:text-ink-900">
+        {% translate "Stop sharing" %}
+      </button>
+    </form>
+  {% elif user.is_guest %}
+    <p class="mt-2 max-w-3xl text-ink-900">{{ share.refusal }}</p>
+    <p class="mt-3">
+      <a href="{% url 'guests:save' %}"
+         class="inline-block border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">{% translate "Save your deck - free" %}</a>
+    </p>
+  {% elif share.refusal %}
+    <p class="mt-2 max-w-3xl text-ink-900">{{ share.refusal }}</p>
+  {% else %}
+    <p class="mt-2 max-w-3xl text-ink-900">
+      {% translate "Make a link anybody can open, without an account. It shows the deck's name, its commander, its card list and this report - never who you are. Search engines may list it. You can stop sharing at any time." %}
+    </p>
+    <form method="post" action="{% url 'sharing:share' run.id %}" class="mt-4">
+      {% csrf_token %}
+      <button type="submit"
+              class="border border-blood-800 bg-blood-700 px-5 py-2 font-display text-lg text-parchment-100 hover:bg-blood-800">
+        {% translate "Share this report" %}
+      </button>
+    </form>
+  {% endif %}
+</section>

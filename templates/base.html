@@ -15,12 +15,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ page_title }}</title>
     <meta name="description" content="{{ page_description }}">
-    {% if indexable %}
-      <link rel="canonical" href="{{ canonical_url }}">
-    {% else %}
-      <meta name="robots" content="noindex">
-    {% endif %}
-    <meta property="og:type" content="website">
+    {% block robots %}
+      {% if indexable %}
+        <link rel="canonical" href="{{ canonical_url }}">
+      {% else %}
+        <meta name="robots" content="noindex">
+      {% endif %}
+    {% endblock %}
+    <meta property="og:type" content="{{ og_type|default:"website" }}">
     <meta property="og:site_name" content="Goldfish Lab">
     <meta property="og:title" content="{{ page_title }}">
     <meta property="og:description" content="{{ page_description }}">

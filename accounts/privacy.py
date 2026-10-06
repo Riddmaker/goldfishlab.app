@@ -38,6 +38,7 @@ EXPORTED = [
     ("simulation_runs", "simulations.SimulationRun", "owner"),
     ("card_annotations", "simulations.CardAnnotation", "owner"),
     ("deck_summaries", "simulations.DeckSummary", "deck__owner"),
+    ("shared_reports", "sharing.SharedReport", "run__owner"),
     ("playtest_sessions", "playtest.PlaytestSession", "owner"),
     ("playtest_actions", "playtest.PlaytestAction", "session__owner"),
     ("subscription", "billing.Subscription", "user"),

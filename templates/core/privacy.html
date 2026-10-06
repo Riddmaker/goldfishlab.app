@@ -108,6 +108,11 @@
               <td class="py-2 align-top">{% translate "Until you delete the deck or the account" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
+              <td class="py-2 pr-4 align-top">{% translate "Shared reports: the link, a copy of the deck's name, commander, card list and summary as they were when you shared it, and how often others opened the link (a number, nothing about who)" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "To show the report to anybody with the link, because you asked us to (contract)" %}</td>
+              <td class="py-2 align-top">{% translate "Until you stop sharing, or delete the run, the deck or the account" %}</td>
+            </tr>
+            <tr class="border-b border-ink-200">
               <td class="py-2 pr-4 align-top">{% translate "Usage counters (simulations started per month)" %}</td>
               <td class="py-2 pr-4 align-top">{% translate "To apply the limits of your plan (contract)" %}</td>
               <td class="py-2 align-top">{% translate "Until you delete the account" %}</td>
@@ -191,6 +196,17 @@
         {% endblocktranslate %}
       </p>
       <ul class="mt-4 space-y-3 text-ink-900">
+        <li>
+          •
+          {% blocktranslate trimmed %}
+            <strong>Anybody, for a report you share.</strong> "Share this report"
+            makes a link that opens without an account. It shows the deck's
+            name, its commander, its card list, the report and its summary -
+            never your email or your account - and search engines may list it.
+            "Stop sharing" ends the link at once; copies others made in the
+            meantime are out of our hands. Nothing is shared unless you ask.
+          {% endblocktranslate %}
+        </li>
         <li>
           •
           {% blocktranslate trimmed %}

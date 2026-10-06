@@ -1,0 +1,37 @@
+{% load i18n %}
+{% comment %}
+  The written part of a deck summary - title, tagline, feel, strengths,
+  weaknesses, tactics - in the language it was written in. Shared by the run
+  page (_summary.html) and a shared report (P4), which keeps a copy of it.
+  Needs `content` (DeckSummary.content) and `language`.
+{% endcomment %}
+{% if content.title %}
+  <p class="summary-name mt-4" lang="{{ language }}">{{ content.title }}</p>
+{% endif %}
+{% if content.tagline %}
+  <p class="max-w-3xl text-ink-700 italic" lang="{{ language }}">{{ content.tagline }}</p>
+{% endif %}
+{% if content.feel %}
+  <h3 class="summary-title summary-title-feel mt-4">{% translate "Feel" %}</h3>
+  <p class="max-w-3xl text-ink-900" lang="{{ language }}">{{ content.feel }}</p>
+{% endif %}
+{% if content.strengths %}
+  <h3 class="summary-title summary-title-strengths mt-5">{% translate "Strengths" %}</h3>
+  <ul class="max-w-3xl text-ink-900" lang="{{ language }}">
+    {% for point in content.strengths %}
+      <li class="summary-point"><span class="summary-sign summary-sign-plus" aria-hidden="true">+</span>{{ point }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% if content.weaknesses %}
+  <h3 class="summary-title summary-title-weaknesses mt-4">{% translate "Weaknesses" %}</h3>
+  <ul class="max-w-3xl text-ink-900" lang="{{ language }}">
+    {% for point in content.weaknesses %}
+      <li class="summary-point"><span class="summary-sign summary-sign-minus" aria-hidden="true">−</span>{{ point }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% if content.tactics %}
+  <h3 class="summary-title summary-title-closing mt-4">{% translate "Tactics" %}</h3>
+  <p class="max-w-3xl text-ink-900" lang="{{ language }}">{{ content.tactics }}</p>
+{% endif %}

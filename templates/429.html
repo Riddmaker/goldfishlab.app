@@ -2,6 +2,11 @@
 {% load i18n %}
 {% block title %}{% translate "Too many requests" %} — Goldfish Lab{% endblock %}
 {% block description %}{% translate "This account or address has made too many requests in a short time." %}{% endblock %}
+{% comment %}
+  An error page is never indexed, also when the view it came from is one
+  that may be (a stopped share link, P4).
+{% endcomment %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
 {% block content %}
   {% comment %}
     Reached from BOTH limiters: allauth renders this file by name, and

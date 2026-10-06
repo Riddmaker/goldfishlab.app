@@ -30,6 +30,8 @@ from accounts import mail_samples
 from cards.models import OracleCard
 from decks import services as deck_services
 from playtest import services as playtest_services
+from sharing import services as sharing_services
+from simulations import summary, tasks
 from simulations.models import SimulationRun
 from tests.test_i18n import GERMAN, LOCALE, deck, finished_run, owner  # noqa: F401
 from tests.test_i18n_templates import NAMES, WORD, _Reader
@@ -113,6 +115,10 @@ def pages(client, owner, deck, finished_run, marked):  # noqa: F811
                                            seed=8)
     session = playtest_services.start(deck, owner, seed=3, on_the_play=True)
     card = deck.entries.select_related("oracle_card").first().oracle_card
+    # `finished_run` has no fingerprint, so its page shows why it cannot be
+    # shared; these two show the offer and the shared panel (P4).
+    shareable, shared_run = (_finished(owner, deck, seed) for seed in (11, 12))
+    shared = sharing_services.share(shared_run)
 
     client.force_login(owner)
     client.cookies["django_language"] = "de"
@@ -129,13 +135,30 @@ def pages(client, owner, deck, finished_run, marked):  # noqa: F811
         "review": reverse("decks:review", args=[unresolved.pk]),
         "data": reverse("accounts:data"),
         "delete": reverse("decks:delete", args=[deck.pk]),
+        "share offer": reverse("simulations:detail", args=[shareable.pk]),
+        "share panel": reverse("simulations:detail", args=[shared_run.pk]),
+        "shared, owner": shared.get_absolute_url(),
     }
     rendered = {}
     for name, url in urls.items():
         response = client.get(url)
         assert response.status_code == 200, name
         rendered[name] = response.content.decode()
+    client.logout()
+    client.cookies["django_language"] = "de"
+    response = client.get(shared.get_absolute_url())
+    assert response.status_code == 200
+    rendered["shared, reader"] = response.content.decode()
     return rendered
+
+
+def _finished(owner, deck, seed):  # noqa: F811
+    run = SimulationRun.objects.create(owner=owner, deck=deck, games_total=40, turns=4,
+                                       seed=seed, deck_print=summary.fingerprint(deck))
+    tasks.finalize_run([tasks.simulate_chunk(str(run.pk), index, 20) for index in range(2)],
+                       str(run.pk))
+    run.refresh_from_db()
+    return run
 
 
 def _allowed(owner):  # noqa: F811
@@ -145,8 +168,14 @@ def _allowed(owner):  # noqa: F811
                             owner.email}
 
 
+#: A share link, as the copy-as-text field carries it (P4): an address, not words.
+_SHARE_LINK = re.compile(r"https?://testserver/r/[\w-]+/")
+
+
 def test_no_page_shows_a_word_that_never_went_through_a_catalogue(pages, owner):  # noqa: F811
-    allowed = _allowed(owner)
+    links = {link for body in pages.values() for link in _SHARE_LINK.findall(body)}
+    assert links, "the shared pages carry their link"
+    allowed = _allowed(owner) | links
     found = {name: english_on(body, allowed) for name, body in pages.items()}
     assert {name: words for name, words in found.items() if words} == {}
 

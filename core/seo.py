@@ -12,6 +12,7 @@ was the real one, and a link pasted into Discord showed a bare URL. Now:
   sitemap name it, so a page reached on www. or on the hoster's own domain
   still points at goldfishlab.app. Blank, the request's own host is used:
   development and a fork that has not set it keep working.
+* **A shared report** (P4) is indexable too, but not in the sitemap.
 * **Language is not in the URL** yet (launch plan, phase 3), so every page has
   one English address and no hreflang; `og:locale` says which language a
   preview was rendered in.
@@ -38,6 +39,11 @@ PUBLIC_PAGES = (
     "privacy",
     "imprint",
 )
+
+#: Pages that may be indexed but are not in the sitemap: a shared report (P4)
+#: is public by its owner's choice, and a search engine should find it where
+#: somebody posted its link - never by us listing every link there is.
+INDEXABLE_UNLISTED = ("sharing:report",)
 
 #: Open Graph wants language_TERRITORY. The territory is the one most readers
 #: of each language live in; Brazilian Portuguese names its own.
@@ -70,9 +76,10 @@ def absolute(request, path: str) -> str:
 
 def is_public(request) -> bool:
     """Is this response one of the public pages? Error pages, which match no
-    view, are not."""
+    view, are not. One that does - a stopped share link's 404, a 429 on a
+    public page - says noindex through its own `robots` block in base.html."""
     match = getattr(request, "resolver_match", None)
-    return match is not None and match.view_name in PUBLIC_PAGES
+    return match is not None and match.view_name in PUBLIC_PAGES + INDEXABLE_UNLISTED
 
 
 def context(request) -> dict:

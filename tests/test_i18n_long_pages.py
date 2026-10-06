@@ -89,4 +89,4 @@ def test_the_english_text_says_it_prevails(client, name):
     body = client.get(reverse(name)).content.decode()
 
     assert PRECEDENCE in body
-    assert "Last updated 4 October 2026." in body
+    assert "Last updated 6 October 2026." in body

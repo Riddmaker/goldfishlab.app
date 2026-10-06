@@ -56,6 +56,11 @@ a summary whose worker died is closed and refunded, and a waiting run says how m
 **Search basics (P3)** followed: `robots.txt`, `sitemap.xml` with the public pages, a canonical
 address on each of them (`SITE_URL`) and `noindex` on every other page, Open Graph and Twitter
 card tags with a shared preview image, and a public pricing page at `/pricing/`.
+**Shareable reports (P4)**: the owner of a finished run can share it as `/r/<token>/`, a page
+anybody can read without an account (indexable, but not in the sitemap). It freezes the deck's
+name, commander and card list as they were run, and the written summary only if it was written
+about exactly that deck. The owner sees how often others opened it, can copy it as text, and can
+stop sharing, which kills the link. A guest is asked to save the deck first.
 Product decisions live in the sibling `magic-project` repository's `instructions.md`, section
 "Teil 2".
 
@@ -183,6 +188,19 @@ The mails are templates in `templates/account/email/`, one text and one HTML ver
 sample contexts live in `accounts/mail_samples.py`. A browser shows the layout and the words -
 a real phone mail app is still the test that counts.
 
+## Adding translations
+
+```bash
+# New strings and their six translations from one JSON file, checked like
+# tests/test_i18n.py checks the catalogues, then compiled. The file format is
+# in the script's docstring.
+.venv/Scripts/python scripts/add_translations.py strings.json --dry-run
+.venv/Scripts/python scripts/add_translations.py strings.json
+```
+
+Not `makemessages`: a local GNU xgettext rewraps thousands of catalogue lines. Render each new
+string in every language before calling it done.
+
 ## The reference deck, and the odd ones
 
 ```bash
@@ -283,6 +301,7 @@ msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
 | `simulations/` | Runs: the engine boundary, Celery tasks, reports, annotations |
 | `combos/` | Commander Spellbook lookups, cached per deck. **No bulk mirror** — see `combos/spellbook.py` |
 | `billing/` | Plans, subscriptions, usage records, quota enforcement |
+| `sharing/` | Shared reports at `/r/<token>/`: the frozen deck snapshot, the owner's share and stop buttons, the reader count and the copy-as-text version |
 | `guests/` | Trying it without an account: a temporary guest user per browser, its limits and fence, saving (claiming) and hourly expiry |
 | `DESIGN.md` | **Normative design rules** |
 | `STYLEGUIDE.html` | Binding rendered reference, standalone, print CSS included |

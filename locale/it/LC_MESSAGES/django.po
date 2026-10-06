@@ -7382,3 +7382,254 @@ msgstr ""
 #: templates/billing/_tiers.html:42
 msgid "Create a free account, then choose it."
 msgstr "Crea un account gratuito, poi sceglilo."
+
+#: sharing/services.py
+msgid "Only a finished report can be shared."
+msgstr "Si può condividere solo un report finito."
+
+#: sharing/services.py
+msgid "Save your deck with a free account to share its report."
+msgstr "Salva il tuo deck con un account gratuito per condividerne il report."
+
+#: sharing/services.py
+msgid ""
+"The deck has changed since this run, so its card list is no longer the one "
+"these numbers came from. Run it again to share it."
+msgstr ""
+"Il deck è cambiato da questa simulazione, quindi la sua lista non è più "
+"quella da cui vengono questi numeri. Simulalo di nuovo per condividerlo."
+
+#: sharing/views.py
+msgid ""
+"Shared. Anybody with the link can read this report, and search engines may "
+"list it."
+msgstr ""
+"Condiviso. Chiunque abbia il link può leggere questo report, e i motori di "
+"ricerca possono elencarlo."
+
+#: sharing/views.py
+msgid "Stopped. The link no longer works."
+msgstr "Fatto. Il link non funziona più."
+
+#: sharing/text.py
+#, python-format
+msgid "%(commander)s: %(games)s games simulated"
+msgstr "%(commander)s: %(games)s partite simulate"
+
+#: sharing/text.py
+#, python-format
+msgid "A Commander deck: %(games)s games simulated"
+msgstr "Un deck Commander: %(games)s partite simulate"
+
+#: sharing/text.py
+#, python-format
+msgid "Commander out by turn %(turn)s: %(percent)s"
+msgstr "Comandante in campo entro il turno %(turn)s: %(percent)s"
+
+#: sharing/text.py
+#, python-format
+msgid "Kept the first seven: %(percent)s"
+msgstr "Tenute le prime sette: %(percent)s"
+
+#: sharing/text.py
+#, python-format
+msgid "%(milestone)s by turn %(turn)s: %(percent)s"
+msgstr "%(milestone)s entro il turno %(turn)s: %(percent)s"
+
+#: sharing/text.py
+#, python-format
+msgid "%(combo)s together by turn %(turn)s: %(percent)s"
+msgstr "%(combo)s insieme entro il turno %(turn)s: %(percent)s"
+
+#: sharing/text.py
+#, python-format
+msgid "The engine read %(read)s of %(total)s card in full."
+msgid_plural "The engine read %(read)s of %(total)s cards in full."
+msgstr[0] "Il motore ha letto per intero %(read)s carta su %(total)s."
+msgstr[1] "Il motore ha letto per intero %(read)s carte su %(total)s."
+
+#: sharing/text.py
+#, python-format
+msgid "%(title)s, %(turns)s turns, %(rule)s (Goldfish Lab)"
+msgstr "%(title)s, %(turns)s turni, %(rule)s (Goldfish Lab)"
+
+#: templates/simulations/_share.html
+msgid "Share this report"
+msgstr "Condividi questo report"
+
+#: templates/simulations/_share.html
+msgid ""
+"Anybody with this link can read the report - the deck's name, its commander,"
+" its card list and these numbers - without an account. Search engines may "
+"list it."
+msgstr ""
+"Chiunque abbia questo link può leggere il report (il nome del deck, il suo "
+"comandante, la sua lista e questi numeri) senza account. I motori di ricerca"
+" possono elencarlo."
+
+#: templates/simulations/_share.html
+msgid "Link to this report"
+msgstr "Link a questo report"
+
+#: templates/simulations/_share.html
+msgid "Copied"
+msgstr "Copiato"
+
+#: templates/simulations/_share.html
+msgid "Copy link"
+msgstr "Copia il link"
+
+#: templates/simulations/_share.html
+msgid "See it as others do"
+msgstr "Guardalo come gli altri"
+
+#: templates/simulations/_share.html
+#, python-format
+msgid "Opened %(count)s time by others"
+msgid_plural "Opened %(count)s times by others"
+msgstr[0] "Aperto %(count)s volta da altri"
+msgstr[1] "Aperto %(count)s volte da altri"
+
+#: templates/simulations/_share.html
+msgid "Copy as text"
+msgstr "Copia come testo"
+
+#: templates/simulations/_share.html
+msgid "For a post or a chat: the main numbers and the link."
+msgstr "Per un post o una chat: i numeri principali e il link."
+
+#: templates/simulations/_share.html
+msgid "The report as text"
+msgstr "Il report come testo"
+
+#: templates/simulations/_share.html
+msgid "Copy text"
+msgstr "Copia il testo"
+
+#: templates/simulations/_share.html
+msgid "Stop sharing"
+msgstr "Smetti di condividere"
+
+#: templates/simulations/_share.html
+msgid ""
+"Make a link anybody can open, without an account. It shows the deck's name, "
+"its commander, its card list and this report - never who you are. Search "
+"engines may list it. You can stop sharing at any time."
+msgstr ""
+"Crea un link che chiunque può aprire, senza account. Mostra il nome del "
+"deck, il suo comandante, la sua lista e questo report, mai chi sei. I motori"
+" di ricerca possono elencarlo. Puoi smettere di condividere quando vuoi."
+
+#: templates/simulations/_advanced.html
+msgid "Mana and lands turn by turn, engine and seed"
+msgstr "Mana e terre turno per turno, motore e seed"
+
+#: templates/sharing/_body.html
+msgid "How much of the deck was read"
+msgstr "Quanto del deck è stato letto"
+
+#: templates/sharing/_body.html
+msgid ""
+"Written by Mistral AI about this exact deck. It can be wrong. Its numbers "
+"are calculated from the list, not measured by this run."
+msgstr ""
+"Scritto da Mistral AI proprio su questo deck. Può sbagliare. I suoi numeri "
+"sono calcolati dalla lista, non misurati da questa simulazione."
+
+#: templates/sharing/_body.html
+msgid "The deck"
+msgstr "Il deck"
+
+#: templates/sharing/_body.html
+#, python-format
+msgid "%(count)s card besides the commander, as it was simulated."
+msgid_plural "%(count)s cards besides the commander, as they were simulated."
+msgstr[0] "%(count)s carta oltre al comandante, così come è stata simulata."
+msgstr[1] ""
+"%(count)s carte oltre al comandante, così come sono state simulate."
+
+#: templates/sharing/report.html
+#, python-format
+msgid ""
+"This is how others see your shared report. <a href=\"%(run_url)s#share\" "
+"class=\"underline\">Back to your run</a>"
+msgstr ""
+"Ecco come gli altri vedono il tuo report condiviso. <a "
+"href=\"%(run_url)s#share\" class=\"underline\">Torna alla tua "
+"simulazione</a>"
+
+#: templates/sharing/report.html
+#, python-format
+msgid ""
+"Simulated by Goldfish Lab on %(date)s. A goldfish is a deck played alone: it"
+" measures what the deck does, not how a table answers it."
+msgstr ""
+"Simulato da Goldfish Lab il %(date)s. Un goldfish è un deck giocato da solo:"
+" misura cosa fa il deck, non come gli risponde un tavolo."
+
+#: templates/sharing/report.html
+msgid "What does your deck do?"
+msgstr "Cosa fa il tuo deck?"
+
+#: templates/sharing/report.html
+msgid ""
+"Upload your list and Goldfish Lab plays it thousands of times. Free, and no "
+"account needed to try."
+msgstr ""
+"Carica la tua lista e Goldfish Lab la gioca migliaia di volte. Gratis, e per"
+" provare non serve un account."
+
+#: templates/core/privacy.html
+msgid ""
+"Shared reports: the link, a copy of the deck's name, commander, card list "
+"and summary as they were when you shared it, and how often others opened the"
+" link (a number, nothing about who)"
+msgstr ""
+"Report condivisi: il link, una copia di nome, comandante, lista e riassunto "
+"del deck com'erano quando l'hai condiviso, e quante volte altri hanno aperto"
+" il link (un numero, niente su chi)"
+
+#: templates/core/privacy.html
+msgid ""
+"To show the report to anybody with the link, because you asked us to "
+"(contract)"
+msgstr ""
+"Per mostrare il report a chiunque abbia il link, perché ce l'hai chiesto tu "
+"(contratto)"
+
+#: templates/core/privacy.html
+msgid "Until you stop sharing, or delete the run, the deck or the account"
+msgstr ""
+"Finché non smetti di condividere o non elimini la simulazione, il deck o "
+"l'account"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Anybody, for a report you share.</strong> \"Share this report\" "
+"makes a link that opens without an account. It shows the deck's name, its "
+"commander, its card list, the report and its summary - never your email or "
+"your account - and search engines may list it. \"Stop sharing\" ends the "
+"link at once; copies others made in the meantime are out of our hands. "
+"Nothing is shared unless you ask."
+msgstr ""
+"<strong>Chiunque, per un report che condividi.</strong> «Condividi questo "
+"report» crea un link che si apre senza account. Mostra il nome del deck, il "
+"suo comandante, la sua lista, il report e il suo riassunto (mai la tua email"
+" o il tuo account) e i motori di ricerca possono elencarlo. «Smetti di "
+"condividere» chiude subito il link; le copie fatte nel frattempo da altri "
+"sono fuori dal nostro controllo. Niente viene condiviso se non lo chiedi tu."
+
+#: templates/core/terms.html
+msgid ""
+"Your decks and annotations stay yours. You allow us to store and process "
+"them only as far as running the service for you needs. We do not publish "
+"them - unless you share a report: then we show it, with the deck's name and "
+"card list, to anybody with its link until you stop sharing. We do not sell "
+"them or train anything on them."
+msgstr ""
+"I tuoi deck e le tue annotazioni restano tuoi. Ci permetti di conservarli e "
+"trattarli solo nella misura necessaria a far funzionare il servizio per te. "
+"Non li pubblichiamo, a meno che tu non condivida un report: in quel caso lo "
+"mostriamo, con il nome e la lista del deck, a chiunque abbia il suo link, "
+"finché non smetti di condividerlo. Non li vendiamo e non ci addestriamo "
+"nulla."

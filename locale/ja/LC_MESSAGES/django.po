@@ -6613,3 +6613,223 @@ msgstr "<strong>有料プランはまもなく開始します。</strong>現在�
 #: templates/billing/_tiers.html:42
 msgid "Create a free account, then choose it."
 msgstr "無料アカウントを作成してから選択してください。"
+
+#: sharing/services.py
+msgid "Only a finished report can be shared."
+msgstr "共有できるのは完了したレポートだけです。"
+
+#: sharing/services.py
+msgid "Save your deck with a free account to share its report."
+msgstr "レポートを共有するには、無料アカウントでデッキを保存してください。"
+
+#: sharing/services.py
+msgid ""
+"The deck has changed since this run, so its card list is no longer the one "
+"these numbers came from. Run it again to share it."
+msgstr ""
+"この実行の後でデッキが変更されたため、カードリストはこの数値のもとになったものではありません。共有するにはもう一度シミュレーションしてください。"
+
+#: sharing/views.py
+msgid ""
+"Shared. Anybody with the link can read this report, and search engines may "
+"list it."
+msgstr "共有しました。リンクを知っている人は誰でもこのレポートを読めます。検索エンジンに表示されることもあります。"
+
+#: sharing/views.py
+msgid "Stopped. The link no longer works."
+msgstr "共有を停止しました。リンクはもう使えません。"
+
+#: sharing/text.py
+#, python-format
+msgid "%(commander)s: %(games)s games simulated"
+msgstr "%(commander)s：%(games)s ゲームをシミュレーション"
+
+#: sharing/text.py
+#, python-format
+msgid "A Commander deck: %(games)s games simulated"
+msgstr "統率者デッキ：%(games)s ゲームをシミュレーション"
+
+#: sharing/text.py
+#, python-format
+msgid "Commander out by turn %(turn)s: %(percent)s"
+msgstr "%(turn)s ターン目までに統率者が戦場に：%(percent)s"
+
+#: sharing/text.py
+#, python-format
+msgid "Kept the first seven: %(percent)s"
+msgstr "初手7枚をキープ：%(percent)s"
+
+#: sharing/text.py
+#, python-format
+msgid "%(milestone)s by turn %(turn)s: %(percent)s"
+msgstr "%(turn)s ターン目までに%(milestone)s：%(percent)s"
+
+#: sharing/text.py
+#, python-format
+msgid "%(combo)s together by turn %(turn)s: %(percent)s"
+msgstr "%(turn)s ターン目までに %(combo)s がそろう：%(percent)s"
+
+#: sharing/text.py
+#, python-format
+msgid "The engine read %(read)s of %(total)s card in full."
+msgid_plural "The engine read %(read)s of %(total)s cards in full."
+msgstr[0] "エンジンは %(total)s 枚中 %(read)s 枚を完全に読み取りました。"
+
+#: sharing/text.py
+#, python-format
+msgid "%(title)s, %(turns)s turns, %(rule)s (Goldfish Lab)"
+msgstr "%(title)s、%(turns)s ターン、%(rule)s（Goldfish Lab）"
+
+#: templates/simulations/_share.html
+msgid "Share this report"
+msgstr "このレポートを共有"
+
+#: templates/simulations/_share.html
+msgid ""
+"Anybody with this link can read the report - the deck's name, its commander,"
+" its card list and these numbers - without an account. Search engines may "
+"list it."
+msgstr ""
+"このリンクを知っている人は、アカウントなしでレポート（デッキ名、統率者、カードリスト、これらの数値）を読めます。検索エンジンに表示されることもあります。"
+
+#: templates/simulations/_share.html
+msgid "Link to this report"
+msgstr "このレポートへのリンク"
+
+#: templates/simulations/_share.html
+msgid "Copied"
+msgstr "コピーしました"
+
+#: templates/simulations/_share.html
+msgid "Copy link"
+msgstr "リンクをコピー"
+
+#: templates/simulations/_share.html
+msgid "See it as others do"
+msgstr "ほかの人に見える形で表示"
+
+#: templates/simulations/_share.html
+#, python-format
+msgid "Opened %(count)s time by others"
+msgid_plural "Opened %(count)s times by others"
+msgstr[0] "ほかの人が %(count)s 回開きました"
+
+#: templates/simulations/_share.html
+msgid "Copy as text"
+msgstr "テキストとしてコピー"
+
+#: templates/simulations/_share.html
+msgid "For a post or a chat: the main numbers and the link."
+msgstr "投稿やチャット用：主な数値とリンク。"
+
+#: templates/simulations/_share.html
+msgid "The report as text"
+msgstr "テキストのレポート"
+
+#: templates/simulations/_share.html
+msgid "Copy text"
+msgstr "テキストをコピー"
+
+#: templates/simulations/_share.html
+msgid "Stop sharing"
+msgstr "共有を停止"
+
+#: templates/simulations/_share.html
+msgid ""
+"Make a link anybody can open, without an account. It shows the deck's name, "
+"its commander, its card list and this report - never who you are. Search "
+"engines may list it. You can stop sharing at any time."
+msgstr ""
+"アカウントなしで誰でも開けるリンクを作成します。デッキ名、統率者、カードリスト、このレポートが表示されますが、あなたが誰かは表示されません。検索エンジンに表示されることもあります。共有はいつでも停止できます。"
+
+#: templates/simulations/_advanced.html
+msgid "Mana and lands turn by turn, engine and seed"
+msgstr "ターンごとのマナと土地、エンジンとシード"
+
+#: templates/sharing/_body.html
+msgid "How much of the deck was read"
+msgstr "デッキをどれだけ読み取れたか"
+
+#: templates/sharing/_body.html
+msgid ""
+"Written by Mistral AI about this exact deck. It can be wrong. Its numbers "
+"are calculated from the list, not measured by this run."
+msgstr ""
+"Mistral AI がこのデッキについて作成しました。間違っている可能性があります。数値はこの実行で計測したものではなく、リストから計算したものです。"
+
+#: templates/sharing/_body.html
+msgid "The deck"
+msgstr "デッキ"
+
+#: templates/sharing/_body.html
+#, python-format
+msgid "%(count)s card besides the commander, as it was simulated."
+msgid_plural "%(count)s cards besides the commander, as they were simulated."
+msgstr[0] "統率者のほかに %(count)s 枚（シミュレーションしたとおり）。"
+
+#: templates/sharing/report.html
+#, python-format
+msgid ""
+"This is how others see your shared report. <a href=\"%(run_url)s#share\" "
+"class=\"underline\">Back to your run</a>"
+msgstr ""
+"ほかの人には、共有したレポートがこう見えます。<a href=\"%(run_url)s#share\" "
+"class=\"underline\">実行結果に戻る</a>"
+
+#: templates/sharing/report.html
+#, python-format
+msgid ""
+"Simulated by Goldfish Lab on %(date)s. A goldfish is a deck played alone: it"
+" measures what the deck does, not how a table answers it."
+msgstr ""
+"%(date)s に Goldfish Lab "
+"でシミュレーション。ゴールドフィッシュとはデッキを一人で回すことで、卓がどう対応するかではなく、デッキ自体が何をするかを測ります。"
+
+#: templates/sharing/report.html
+msgid "What does your deck do?"
+msgstr "あなたのデッキは何をする？"
+
+#: templates/sharing/report.html
+msgid ""
+"Upload your list and Goldfish Lab plays it thousands of times. Free, and no "
+"account needed to try."
+msgstr "リストをアップロードすると、Goldfish Lab が何千回もプレイします。無料で、試すだけならアカウントは不要です。"
+
+#: templates/core/privacy.html
+msgid ""
+"Shared reports: the link, a copy of the deck's name, commander, card list "
+"and summary as they were when you shared it, and how often others opened the"
+" link (a number, nothing about who)"
+msgstr ""
+"共有したレポート：リンク、共有した時点のデッキ名・統率者・カードリスト・要約のコピー、ほかの人がリンクを開いた回数（数のみで、誰が開いたかは記録しません）"
+
+#: templates/core/privacy.html
+msgid ""
+"To show the report to anybody with the link, because you asked us to "
+"(contract)"
+msgstr "リンクを知っている人にレポートを表示するため。あなたの依頼によるものです（契約）"
+
+#: templates/core/privacy.html
+msgid "Until you stop sharing, or delete the run, the deck or the account"
+msgstr "共有を停止するか、実行結果・デッキ・アカウントを削除するまで"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Anybody, for a report you share.</strong> \"Share this report\" "
+"makes a link that opens without an account. It shows the deck's name, its "
+"commander, its card list, the report and its summary - never your email or "
+"your account - and search engines may list it. \"Stop sharing\" ends the "
+"link at once; copies others made in the meantime are out of our hands. "
+"Nothing is shared unless you ask."
+msgstr ""
+"<strong>あなたが共有したレポートは誰でも。</strong>「このレポートを共有」は、アカウントなしで開けるリンクを作成します。デッキ名、統率者、カードリスト、レポートとその要約が表示されますが、あなたのメールアドレスやアカウントは表示されません。検索エンジンに表示されることもあります。「共有を停止」でリンクはすぐに無効になります。その間にほかの人が作ったコピーは私たちの管理外です。あなたが求めない限り、何も共有されません。"
+
+#: templates/core/terms.html
+msgid ""
+"Your decks and annotations stay yours. You allow us to store and process "
+"them only as far as running the service for you needs. We do not publish "
+"them - unless you share a report: then we show it, with the deck's name and "
+"card list, to anybody with its link until you stop sharing. We do not sell "
+"them or train anything on them."
+msgstr ""
+"あなたのデッキと注釈はあなたのものです。保存と処理は、あなたのためにサービスを運営するのに必要な範囲に限って許可されます。公開はしません。ただし、レポートを共有した場合は、共有を停止するまで、デッキ名とカードリストとともに、そのリンクを知っている人に表示します。販売することも、何かの学習に使うこともありません。"

@@ -10,7 +10,7 @@ and does not need to be here.
 """
 
 from django.conf import settings
-from django.core.checks import Error, register
+from django.core.checks import Error, Warning, register
 
 #: Backends that send nothing anywhere, and are therefore fine without a host.
 _HOSTLESS_BACKENDS = (
@@ -109,5 +109,28 @@ def check_operator_is_named(app_configs, **kwargs):
                 "LEGAL_CONTACT_EMAIL on the web node."
             ),
             id="core.E003",
+        )
+    ]
+
+
+@register("seo")
+def check_site_url_is_set(app_configs, **kwargs):
+    """Production names its one address (P3).
+
+    Without SITE_URL the canonical links, Open Graph URLs and the sitemap name
+    whatever host the request came in on - www., or the hoster's own domain -
+    and search engines index the same page twice. Nothing breaks, which is why
+    this warns rather than refusing to boot.
+    """
+    if settings.DEBUG or settings.SITE_URL:
+        return []
+    return [
+        Warning(
+            "SITE_URL is not set.",
+            hint=(
+                "Set SITE_URL=https://goldfishlab.app (no trailing slash) on the "
+                "web node, so canonical links and the sitemap name one address."
+            ),
+            id="core.W001",
         )
     ]

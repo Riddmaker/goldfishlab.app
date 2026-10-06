@@ -53,6 +53,9 @@ reader's language. Each language is switched on per deployment (`LANGUAGES_ON`).
 often it uploads, at most `SUMMARIES_PER_DAY` summaries a day (guests at most
 `GUEST_SUMMARIES_PER_DAY` of them; at the ceiling they pause until midnight and nobody is charged),
 a summary whose worker died is closed and refunded, and a waiting run says how many are ahead.
+**Search basics (P3)** followed: `robots.txt`, `sitemap.xml` with the public pages, a canonical
+address on each of them (`SITE_URL`) and `noindex` on every other page, Open Graph and Twitter
+card tags with a shared preview image, and a public pricing page at `/pricing/`.
 Product decisions live in the sibling `magic-project` repository's `instructions.md`, section
 "Teil 2".
 
@@ -228,6 +231,10 @@ makes "all the old tests still pass" mean anything.
 # The two pictures on the home page are real pages of a guest trial. This one
 # writes INTO static/img/ (720 x 540 WebP each); look at both before committing.
 .venv/Scripts/python scripts/home_pictures.py path/to/a-deck.csv
+
+# The link preview every page shares (1200 x 630 PNG), drawn from the logo and
+# EB Garamond. Writes INTO static/img/og-default.png; look at it before committing.
+.venv/Scripts/python scripts/og_image.py
 ```
 
 Before a launch or a post that could bring a crowd, play one against the local stack (gunicorn

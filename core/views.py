@@ -6,9 +6,10 @@ from datetime import date
 from django.conf import settings
 from django.db import connection
 from django.http import Http404, JsonResponse
+from django.urls import reverse
 from django.views.generic import TemplateView
 
-from core import ticker
+from core import seo, ticker
 from core.tokens import color_families
 from decks.analysis import KARSTEN_MAX, KARSTEN_MIN
 from goldfishlab import celery_app
@@ -31,6 +32,23 @@ class TickerView(HomeView):
     """The ticker's lines alone, for the home page to ask for every 30 s."""
 
     template_name = "core/_ticker_lines.html"
+
+
+class RobotsView(TemplateView):
+    """/robots.txt (P3): every crawler welcome, AI crawlers included.
+
+    Only what is never worth fetching is blocked. Private pages are left open
+    on purpose: they say `noindex`, and a crawler that is blocked from a page
+    never reads that, so a blocked page linked from elsewhere can still turn up
+    in results as a bare address.
+    """
+
+    template_name = "robots.txt"
+    content_type = "text/plain; charset=utf-8"
+
+    def get_context_data(self, **kwargs):
+        return {**super().get_context_data(**kwargs),
+                "sitemap_url": seo.absolute(self.request, reverse("sitemap"))}
 
 
 class StyleguideView(TemplateView):

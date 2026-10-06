@@ -6589,3 +6589,27 @@ msgstr "今日は要約の作成数が上限に達したため、深夜0時ま�
 msgid "%(ahead)s run ahead of yours, about %(minutes)s min"
 msgid_plural "%(ahead)s runs ahead of yours, about %(minutes)s min"
 msgstr[0] "あなたの前に%(ahead)s件の実行、約%(minutes)s分"
+
+#: templates/base.html:146 templates/billing/pricing.html:3
+msgid "Pricing"
+msgstr "料金"
+
+#: templates/billing/pricing.html:4
+msgid ""
+"What each Goldfish Lab tier costs and what it allows. Free to start, no card"
+" needed."
+msgstr "Goldfish Lab の各プランの料金と内容。無料で始められ、カードは不要です。"
+
+#: templates/billing/pricing.html:15
+msgid ""
+"Try it with your deck without an account. A free account keeps your decks "
+"and runs."
+msgstr "アカウントなしであなたのデッキで試せます。無料アカウントならデッキと実行結果を保存できます。"
+
+#: templates/billing/pricing.html:37
+msgid "<strong>Paid plans start soon.</strong> For now everyone is on Free."
+msgstr "<strong>有料プランはまもなく開始します。</strong>現在は全員が無料プランです。"
+
+#: templates/billing/_tiers.html:42
+msgid "Create a free account, then choose it."
+msgstr "無料アカウントを作成してから選択してください。"

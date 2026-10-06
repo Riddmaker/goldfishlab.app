@@ -7443,3 +7443,33 @@ msgid "%(ahead)s run ahead of yours, about %(minutes)s min"
 msgid_plural "%(ahead)s runs ahead of yours, about %(minutes)s min"
 msgstr[0] "%(ahead)s simulation avant la vôtre, environ %(minutes)s min"
 msgstr[1] "%(ahead)s simulations avant la vôtre, environ %(minutes)s min"
+
+#: templates/base.html:146 templates/billing/pricing.html:3
+msgid "Pricing"
+msgstr "Tarifs"
+
+#: templates/billing/pricing.html:4
+msgid ""
+"What each Goldfish Lab tier costs and what it allows. Free to start, no card"
+" needed."
+msgstr ""
+"Ce que coûte chaque formule de Goldfish Lab et ce qu’elle permet. Gratuit "
+"pour commencer, sans carte."
+
+#: templates/billing/pricing.html:15
+msgid ""
+"Try it with your deck without an account. A free account keeps your decks "
+"and runs."
+msgstr ""
+"Essayez avec votre deck sans compte. Un compte gratuit garde vos decks et "
+"vos simulations."
+
+#: templates/billing/pricing.html:37
+msgid "<strong>Paid plans start soon.</strong> For now everyone is on Free."
+msgstr ""
+"<strong>Les formules payantes arrivent bientôt.</strong> Pour l’instant, "
+"tout le monde est en Gratuit."
+
+#: templates/billing/_tiers.html:42
+msgid "Create a free account, then choose it."
+msgstr "Créez un compte gratuit, puis choisissez-la."

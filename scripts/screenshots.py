@@ -56,6 +56,9 @@ PUBLIC_SHOTS = [
     # The widest table on any prose page - what is stored, why, and for how
     # long - and a table is the thing that breaks at 390px.
     ("privacy-phone", "/privacy/", PHONE),
+    # P3: the tiers for a visitor; three cards side by side become a column.
+    ("pricing-desktop", "/pricing/", DESKTOP),
+    ("pricing-phone", "/pricing/", PHONE),
 ]
 
 #: (slug, path-template, viewport). `{deck}`, `{review}` and `{pending}` are filled in from

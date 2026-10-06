@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Pricing" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "What each Goldfish Lab tier costs and what it allows. Free to start, no card needed." %}{% endblock %}
+{% block content %}
+  {% comment %}
+    P3: the tiers for anybody, signed in or not - /billing/ is the account's
+    own page and closed to guests. The cards are the same partial from the
+    same rows (billing.views._tiers), paid ones only once they can be bought;
+    members are sent to /billing/.
+  {% endcomment %}
+  <section class="max-w-3xl">
+    <h1 class="font-display text-4xl leading-tight text-parchment-100">{% translate "Pricing" %}</h1>
+    <p class="mt-4 text-lg leading-relaxed text-parchment-200">
+      {% translate "Try it with your deck without an account. A free account keeps your decks and runs." %}
+    </p>
+    <p class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+      {% if user.is_guest %}
+        <a href="{% url 'decks:list' %}"
+           class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
+          {% translate "Back to your deck" %}
+        </a>
+        <a href="{% url 'guests:save' %}"
+           class="text-parchment-200 underline hover:text-parchment-50">{% translate "Save it - free account" %}</a>
+      {% else %}
+        <a href="{% url 'guests:try' %}"
+           class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
+          {% translate "Try it now - no account" %}
+        </a>
+        <a href="{% url 'account_signup' %}"
+           class="text-parchment-200 underline hover:text-parchment-50">{% translate "Create a free account" %}</a>
+      {% endif %}
+    </p>
+  </section>
+
+  {% if not purchasable %}
+    <p class="mt-8 border border-parchment-600 bg-ink-900 px-4 py-3 text-sm text-parchment-100">
+      {% blocktranslate trimmed %}<strong>Paid plans start soon.</strong> For now everyone is on Free.{% endblocktranslate %}
+    </p>
+  {% endif %}
+
+  <section class="surface-parchment mt-6 p-6">
+    <h2 class="font-display text-2xl text-ink-900">{% translate "The tiers" %}</h2>
+    {% if plans|length > 1 %}
+      <p class="mt-1 text-sm text-ink-700">
+        {% blocktranslate trimmed %}The tiers differ mainly in <strong>turns simulated</strong>.{% endblocktranslate %}
+        {% include "core/_why.html" with anchor="games" %}
+      </p>
+    {% endif %}
+    {% include "billing/_tiers.html" %}
+  </section>
+{% endblock %}

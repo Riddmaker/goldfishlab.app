@@ -1,6 +1,7 @@
 """Root URL configuration."""
 
 from django.contrib import admin
+from django.contrib.sitemaps.views import sitemap
 from django.templatetags.static import static
 from django.urls import include, path
 from django.utils.functional import lazy
@@ -8,11 +9,14 @@ from django.views.generic import RedirectView
 from django_ratelimit.decorators import ratelimit
 
 from accounts.language import set_language
+from billing.views import PricingView
+from core.seo import PublicPagesSitemap
 from core.views import (
     HomeView,
     ImprintView,
     MethodologyView,
     PrivacyView,
+    RobotsView,
     StyleguideView,
     TermsView,
     TickerView,
@@ -39,6 +43,9 @@ urlpatterns = [
     path("billing/", include("billing.urls")),
     path("styleguide/", StyleguideView.as_view(), name="styleguide"),
     path("healthz/", healthz, name="healthz"),
+    # P3, search basics: core.seo has the list of public pages behind both.
+    path("robots.txt", RobotsView.as_view(), name="robots"),
+    path("sitemap.xml", sitemap, {"sitemaps": {"pages": PublicPagesSitemap}}, name="sitemap"),
     # Pages carry `<link rel="icon">`; this is for whatever asks the old way
     # (the admin, a feed reader, a browser opening a JSON response). Lazy,
     # because the hashed file name is only known once the manifest is loaded,
@@ -48,6 +55,8 @@ urlpatterns = [
     # saying plainly what is simulated and what is not is the thing no
     # "AI power level: 7.3" competitor can write. (Phase 8.)
     path("about/methodology/", MethodologyView.as_view(), name="methodology"),
+    # Outside /billing/, which is the account's own page and closed to guests.
+    path("pricing/", PricingView.as_view(), name="pricing"),
     path("terms/", TermsView.as_view(), name="terms"),
     path("privacy/", PrivacyView.as_view(), name="privacy"),
     path("imprint/", ImprintView.as_view(), name="imprint"),

@@ -4,7 +4,7 @@
 **Status:** **§1 and §2 complete (2026-09-21).** §1 was built against the API rather than the
 bulk file — the measurement in §1 says why. §2's scope was decided the same day, after §1
 measured something that undercut the original plan; read "§2, decided 2026-09-21" for the
-argument and "§2 as built" for what is on disk. **§3 and §4 need an API key nobody has yet.**
+argument and "§2 as built" for what is on disk. **§3 and §4 needed an API key nobody had then.** Update 2026-10-06: §4 (AI prose) was built differently, as the deck summary by Mistral (phase 10 H, 11 D, 12 G; not Pro-only, guests get one). §3 (LLM tagging) stays deliberately later (phase 12 J-F).
 
 ---
 

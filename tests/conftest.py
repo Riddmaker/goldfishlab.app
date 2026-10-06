@@ -9,6 +9,7 @@ drifting, "all 65 tests still green" stops meaning anything.
 
 import pytest
 from django.core.cache import cache
+from django.utils import translation
 
 from tests.support import load_catalogue
 
@@ -35,6 +36,16 @@ def _isolate_cache():
     cache.clear()
     yield
     cache.clear()
+
+
+@pytest.fixture(autouse=True)
+def _english_between_tests():
+    """Start every test in the default language. A request leaves its language
+    active in the thread, and since P10 `reverse()` of a public page depends on
+    it: /pricing/ after an English request, /de/pricing/ after a German one."""
+    translation.deactivate()
+    yield
+    translation.deactivate()
 
 
 # --- the card catalogue (the loader lives in tests/support.py) ---------------

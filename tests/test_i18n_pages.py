@@ -141,12 +141,13 @@ def pages(client, owner, deck, finished_run, marked):  # noqa: F811
     }
     rendered = {}
     for name, url in urls.items():
-        response = client.get(url)
+        # The public ones send a German reader on to /de/... (P10).
+        response = client.get(url, follow=True)
         assert response.status_code == 200, name
         rendered[name] = response.content.decode()
     client.logout()
     client.cookies["django_language"] = "de"
-    response = client.get(shared.get_absolute_url())
+    response = client.get(shared.get_absolute_url(), follow=True)
     assert response.status_code == 200
     rendered["shared, reader"] = response.content.decode()
     return rendered

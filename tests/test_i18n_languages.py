@@ -114,16 +114,16 @@ def test_the_main_pages(client, owner, deck, finished_run, lang):  # noqa: F811
     for url in (reverse("home"), reverse("decks:list"), reverse("decks:detail", args=[deck.pk]),
                 reverse("simulations:detail", args=[finished_run.pk]),
                 reverse("billing:plans"), reverse("decks:import"), reverse("accounts:data")):
-        body = client.get(url).content.decode()
+        body = client.get(url, follow=True).content.decode()
         assert f'<html lang="{lang}">' in body, url
         assert _wrong_tone(lang, body) == [], url
     heading = _catalogue(lang).find("Know your deck before game night.").msgstr
-    assert escape(heading) in client.get(reverse("home")).content.decode()
+    assert escape(heading) in client.get(reverse("home"), follow=True).content.decode()
 
 
 def test_allauths_pages(client, lang):
     for name in ("account_login", "account_signup", "account_reset_password"):
-        body = client.get(reverse(name)).content.decode()
+        body = client.get(reverse(name), follow=True).content.decode()
         assert f'<html lang="{lang}">' in body, name
         assert _wrong_tone(lang, body) == [], name
 

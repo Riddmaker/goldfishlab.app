@@ -58,14 +58,16 @@ MIDDLEWARE = [
     "csp.middleware.CSPMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    # After the session, before CommonMiddleware (Django's i18n docs). It picks
-    # the language from the cookie, then the browser; `accounts` below puts a
-    # signed-in person's own choice first.
-    "django.middleware.locale.LocaleMiddleware",
+    # After the session, before CommonMiddleware (Django's i18n docs), in place
+    # of Django's LocaleMiddleware. It picks the language from the address (P10),
+    # then the cookie, then the browser; `accounts` below puts a signed-in
+    # person's own choice before the cookie.
+    "accounts.middleware.LanguageMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    # After authentication: it reads request.user.language.
+    # After authentication: it reads request.user.language, and sends a person
+    # from a public page's English address to the one in their language.
     "accounts.middleware.AccountLanguageMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -316,8 +318,10 @@ ALERT_EMAIL = env("ALERT_EMAIL", default="")
 # --- i18n / static --------------------------------------------------------
 # Phase 12 (Z1.1, K10). English is the source and always on; every other
 # language is switched on by name once its catalogue is done and checked, like
-# LOCAL_PRICES. No language in the URL (Q1): a signed-in person's own choice,
-# then the cookie the footer switcher sets, then the browser, then English.
+# LOCAL_PRICES. The public pages carry their language in the URL (P10,
+# goldfishlab.urls); everywhere else a signed-in person's own choice, then the
+# cookie the footer switcher sets, then the browser, then English
+# (accounts.middleware).
 LANGUAGE_CODE = "en"
 TIME_ZONE = "Europe/Zurich"
 USE_I18N = True

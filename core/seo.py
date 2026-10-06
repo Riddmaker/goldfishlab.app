@@ -13,8 +13,11 @@ was the real one, and a link pasted into Discord showed a bare URL. Now:
   still points at goldfishlab.app. Blank, the request's own host is used:
   development and a fork that has not set it keep working.
 * **A shared report** (P4) is indexable too, but not in the sitemap.
-* **Language is not in the URL** yet (launch plan, phase 3), so every page has
-  one English address and no hreflang; `og:locale` says which language a
+* **Each language at its own address** (P10). A public page is at /pricing/
+  in English and /de/pricing/ in German (`goldfishlab.urls`), and names every
+  version of itself in hreflang links, its English address also as
+  `x-default`; the sitemap lists every version with the same links. Each
+  version's canonical link is itself. `og:locale` says which language a
   preview was rendered in.
 """
 
@@ -23,7 +26,7 @@ from urllib.parse import urlsplit
 from django.conf import settings
 from django.contrib.sitemaps import Sitemap
 from django.templatetags.static import static
-from django.urls import reverse
+from django.urls import reverse, translate_url
 from django.utils.encoding import escape_uri_path
 from django.utils.translation import get_language
 
@@ -43,7 +46,7 @@ PUBLIC_PAGES = (
 #: Pages that may be indexed but are not in the sitemap: a shared report (P4)
 #: is public by its owner's choice, and a search engine should find it where
 #: somebody posted its link - never by us listing every link there is.
-INDEXABLE_UNLISTED = ("sharing:report",)
+INDEXABLE_UNLISTED = ("shared:report",)
 
 #: Open Graph wants language_TERRITORY. The territory is the one most readers
 #: of each language live in; Brazilian Portuguese names its own.
@@ -82,10 +85,25 @@ def is_public(request) -> bool:
     return match is not None and match.view_name in PUBLIC_PAGES + INDEXABLE_UNLISTED
 
 
+def alternates(request) -> list[tuple[str, str]]:
+    """[(hreflang, absolute URL)] for every language this page is in, then
+    `x-default`, the English address (P10). Empty for a page that is not
+    public, and while English is the only language switched on.
+
+    `translate_url` reads the address in the active language, which is the
+    page's own (accounts.middleware), and writes it in each of the others."""
+    if not is_public(request) or len(settings.LANGUAGES) < 2:
+        return []
+    links = [(code, absolute(request, translate_url(request.path, code)))
+             for code, _ in settings.LANGUAGES]
+    return [*links, ("x-default", dict(links)[settings.LANGUAGE_CODE])]
+
+
 def context(request) -> dict:
-    """What base.html needs for canonical, robots and Open Graph tags."""
+    """What base.html needs for canonical, hreflang, robots and Open Graph tags."""
     return {
         "canonical_url": absolute(request, request.path),
+        "alternates": alternates(request),
         "indexable": is_public(request),
         "og_image_url": absolute(request, static(OG_IMAGE)),
         "og_locale": OG_LOCALES.get(get_language() or "en", "en_US"),
@@ -93,11 +111,17 @@ def context(request) -> dict:
 
 
 class PublicPagesSitemap(Sitemap):
-    """/sitemap.xml: the public pages on `SITE_URL`.
+    """/sitemap.xml: the public pages on `SITE_URL`, each in every language
+    switched on, with the same hreflang links as the page (P10). Django's
+    own `i18n` does it: `location` is called with each language active.
 
     No `lastmod`, `changefreq` or `priority`: Google ignores the last two, and
     a `lastmod` that is not kept true does more harm than none.
     """
+
+    i18n = True
+    alternates = True
+    x_default = True
 
     def items(self):
         return list(PUBLIC_PAGES)

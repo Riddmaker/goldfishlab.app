@@ -18,8 +18,10 @@ the owner, link-preview robots left out. Nothing about who opened it is kept.
 
 import secrets
 
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
+from django.utils import translation
 
 from simulations.models import SimulationRun
 
@@ -56,7 +58,11 @@ class SharedReport(models.Model):
         return f"{self.deck_name} ({self.token[:6]}…)"
 
     def get_absolute_url(self) -> str:
-        return reverse("sharing:report", args=[self.token])
+        """The address to pass on: the English one, which names no language,
+        whatever language the owner shares it in. A reader is sent on to the
+        address in theirs (P10, accounts.middleware)."""
+        with translation.override(settings.LANGUAGE_CODE):
+            return reverse("shared:report", args=[self.token])
 
     @property
     def card_count(self) -> int:

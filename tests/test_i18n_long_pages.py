@@ -25,7 +25,7 @@ PRECEDENCE = "if a translation differs from the English text, the English text a
 
 
 def test_the_methodology_in_every_language(client, lang):  # noqa: F811
-    response = client.get(reverse("methodology"))
+    response = client.get(reverse("methodology"), follow=True)
     body = response.content.decode()
 
     assert response.status_code == 200
@@ -40,7 +40,7 @@ def test_the_methodology_in_every_language(client, lang):  # noqa: F811
 
 @pytest.mark.parametrize("name", LEGAL)
 def test_a_legal_page_in_every_language(client, lang, name):  # noqa: F811
-    response = client.get(reverse(name))
+    response = client.get(reverse(name), follow=True)
     body = response.content.decode()
     catalogue = _catalogue(lang)
 
@@ -58,7 +58,7 @@ def test_a_legal_page_in_every_language(client, lang, name):  # noqa: F811
 
 @pytest.mark.parametrize("name", ["privacy", "terms"])
 def test_the_date_is_written_the_readers_way(client, lang, name):  # noqa: F811
-    body = client.get(reverse(name)).content.decode()
+    body = client.get(reverse(name), follow=True).content.decode()
 
     assert "October" not in body
     assert "2026" in body
@@ -71,14 +71,14 @@ def test_the_button_goes_back_to_the_same_page_in_english(client, lang, name):  
     response = client.post(reverse("set_language"), {"language": "en", "next": url})
 
     assert response.status_code == 302 and response["Location"] == url
-    body = client.get(url).content.decode()
+    body = client.get(url, follow=True).content.decode()
     assert '<html lang="en">' in body
     assert NOTE not in body
 
 
 @pytest.mark.parametrize("name", LEGAL)
 def test_an_english_reader_sees_no_note(client, name):
-    body = client.get(reverse(name)).content.decode()
+    body = client.get(reverse(name), follow=True).content.decode()
 
     assert NOTE not in body
     assert 'role="note"' not in body
@@ -86,7 +86,7 @@ def test_an_english_reader_sees_no_note(client, name):
 
 @pytest.mark.parametrize("name", ["privacy", "terms"])
 def test_the_english_text_says_it_prevails(client, name):
-    body = client.get(reverse(name)).content.decode()
+    body = client.get(reverse(name), follow=True).content.decode()
 
     assert PRECEDENCE in body
     assert "Last updated 6 October 2026." in body

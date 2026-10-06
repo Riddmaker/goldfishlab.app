@@ -4,7 +4,8 @@
   P3: the title and the description are each wanted three times (the page,
   Open Graph, Twitter cards), and a block can only appear once - so they are
   captured. `core.seo` decides the rest: one address for canonical and
-  og:url, and `noindex` on every page that is not in PUBLIC_PAGES.
+  og:url, hreflang naming the page in every language (P10), and `noindex` on
+  every page that is not in PUBLIC_PAGES.
 {% endcomment %}
 {% capture as page_title %}{% block title %}Goldfish Lab{% endblock %}{% endcapture %}
 {% capture as page_description %}{% block description %}{% translate "Goldfish Lab actually plays your Commander deck, thousands of times, and tells you what happens." %}{% endblock %}{% endcapture %}
@@ -18,6 +19,9 @@
     {% block robots %}
       {% if indexable %}
         <link rel="canonical" href="{{ canonical_url }}">
+        {% for hreflang, url in alternates %}
+          <link rel="alternate" hreflang="{{ hreflang }}" href="{{ url }}">
+        {% endfor %}
       {% else %}
         <meta name="robots" content="noindex">
       {% endif %}

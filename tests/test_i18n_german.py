@@ -60,16 +60,17 @@ def test_the_main_pages_in_german(client, owner, deck, finished_run, german):  #
     for url in (reverse("home"), reverse("decks:list"), reverse("decks:detail", args=[deck.pk]),
                 reverse("simulations:detail", args=[finished_run.pk]),
                 reverse("billing:plans"), reverse("decks:import"), reverse("accounts:data")):
-        body = client.get(url).content.decode()
+        body = client.get(url, follow=True).content.decode()
         assert '<html lang="de">' in body, url
         assert _polite(body) == [], url
-    assert "Kenne dein Deck vor dem Spieleabend." in client.get(reverse("home")).content.decode()
+    home = client.get(reverse("home"), follow=True).content.decode()
+    assert "Kenne dein Deck vor dem Spieleabend." in home
 
 
 def test_allauths_pages_say_du(client, german):
     client.cookies["django_language"] = "de"
     for name in ("account_login", "account_signup", "account_reset_password"):
-        body = client.get(reverse(name)).content.decode()
+        body = client.get(reverse(name), follow=True).content.decode()
         assert _polite(body) == [], name
     login = client.get(reverse("account_login")).content.decode()
     assert "Anmeldung" not in login

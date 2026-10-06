@@ -1,5 +1,6 @@
 """Root URL configuration."""
 
+from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
 from django.templatetags.static import static
@@ -22,6 +23,7 @@ from core.views import (
     TickerView,
     healthz,
 )
+from sharing.urls import report_patterns
 
 # The admin's login is Django's own view, so neither allauth's limits nor ours
 # ever saw it: until the 2026-09-25 review /admin/login/ took password guesses
@@ -33,13 +35,11 @@ admin.site.login = ratelimit(key="ip", rate="10/m", method="POST", block=True)(
 )
 
 urlpatterns = [
-    path("", HomeView.as_view(), name="home"),
     path("ticker/", TickerView.as_view(), name="ticker"),
     path("decks/", include("decks.urls")),
-    path("try/", include("guests.urls")),
     path("", include("simulations.urls")),
     path("", include("playtest.urls")),
-    # P4: /runs/<id>/share/ for the owner, /r/<token>/ for everybody.
+    # P4: /runs/<id>/share/ for the owner; /r/<token>/ is below.
     path("", include("sharing.urls")),
     path("combos/", include("combos.urls")),
     path("billing/", include("billing.urls")),
@@ -57,6 +57,28 @@ urlpatterns = [
     # links the icon or not (phase 12 J30; they were 404s).
     *[path(name, RedirectView.as_view(url=lazy(static, str)("img/apple-touch-icon.png")))
       for name in ("apple-touch-icon.png", "apple-touch-icon-precomposed.png")],
+    # `/account/` is ours; `/accounts/` below is allauth's.
+    path("account/", include("accounts.urls")),
+    path("accounts/", include("allauth.urls")),
+    path("admin/", admin.site.urls),
+    # The footer's language switcher (phase 12). Outside `/account/`, which the
+    # guest fence closes, so a guest can switch as well.
+    path("i18n/", set_language, name="set_language"),
+]
+
+# P10: the pages a search engine should find carry their language in the
+# address - /pricing/ in English, /de/pricing/ in German - so each language
+# version is a page of its own that Google can index, with hreflang naming the
+# others (core.seo). Only these: the app, the account screens, allauth, the
+# webhooks and the admin keep one address, so no link in a mail, at Stripe or
+# in a bookmark moves. Which language a page is in, and who is sent from the
+# English address to their own: accounts.middleware.
+urlpatterns += i18n_patterns(
+    path("", HomeView.as_view(), name="home"),
+    path("try/", include("guests.urls")),
+    # P4: a shared report, for everybody. Its link is the English address and
+    # names no language (sharing.models); a reader is sent to theirs.
+    path("", include(report_patterns)),
     # The methodology page is a competitive asset rather than boilerplate:
     # saying plainly what is simulated and what is not is the thing no
     # "AI power level: 7.3" competitor can write. (Phase 8.)
@@ -66,14 +88,8 @@ urlpatterns = [
     path("terms/", TermsView.as_view(), name="terms"),
     path("privacy/", PrivacyView.as_view(), name="privacy"),
     path("imprint/", ImprintView.as_view(), name="imprint"),
-    # `/account/` is ours; `/accounts/` below is allauth's.
-    path("account/", include("accounts.urls")),
-    path("accounts/", include("allauth.urls")),
-    path("admin/", admin.site.urls),
-    # The footer's language switcher (phase 12). Outside `/account/`, which the
-    # guest fence closes, so a guest can switch as well.
-    path("i18n/", set_language, name="set_language"),
-]
+    prefix_default_language=False,
+)
 
 # Two limiters, one page. django-ratelimit raises `Ratelimited`, which is a
 # `PermissionDenied` and therefore arrives as a 403; `permission_denied` sorts

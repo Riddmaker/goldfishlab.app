@@ -74,8 +74,10 @@ X_FRAME_OPTIONS = "DENY"
 #
 # `check_email_is_configured` in core/checks.py turns that into a refusal to
 # boot rather than a 500 an hour later.
+# Django's SMTP backend with a Message-ID on the From domain instead of the
+# node's host name (core/mail.py, phase 12 J30).
 EMAIL_BACKEND = env(  # noqa: F405
-    "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend"
+    "DJANGO_EMAIL_BACKEND", default="core.mail.EmailBackend"
 )
 EMAIL_HOST = env("DJANGO_EMAIL_HOST", default="")  # noqa: F405
 EMAIL_PORT = env.int("DJANGO_EMAIL_PORT", default=587)  # noqa: F405

@@ -35,6 +35,25 @@
   </div>
 
   <div class="module">
+    <h2>Gate G3: "Compare two versions"</h2>
+    <p>
+      <strong>{{ gate.clicks }}</strong> clicks on <strong>{{ gate.views }}</strong> reports viewed
+      {% if gate.percent is not None %}= <strong>{{ gate.percent }}%</strong>{% endif %}.
+      {% if not gate.judged %}
+        Too early to judge: {{ gate.views_needed }} views needed.
+      {% elif gate.passed %}
+        Passed.
+      {% else %}
+        Not passed.
+      {% endif %}
+    </p>
+    <p class="help">
+      Passes at {{ gate.percent_needed }}% or more of {{ gate.views_needed }}+ views, counted since P9 went live.
+      A view is a finished report opened by its owner, once per report and session; a click counts once per session.
+    </p>
+  </div>
+
+  <div class="module">
     <h2>The last 12 weeks</h2>
     {# Wider than a phone: the table scrolls, not the page. style-src-attr allows this (settings CSP). #}
     <div style="overflow-x: auto">

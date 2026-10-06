@@ -1,0 +1,30 @@
+{% load i18n %}
+{% comment %}
+  "Compare two versions" (P9): a fake door. The feature is not built; the
+  button counts who would want it, with its price in view, and the answer
+  says so plainly. Needs `run` and `compare` (simulations.views, metrics.doors).
+{% endcomment %}
+<section id="compare" class="surface-parchment mt-6 p-6">
+  <h2 class="font-display text-2xl text-ink-900">{% translate "Compare two versions" %}</h2>
+  {% if compare.asked %}
+    <p class="mt-2 max-w-3xl text-ink-900">
+      {% translate "Not built yet - thank you for asking. We count who wants it, and build it once enough people do. Nothing was charged, and you have not signed up for anything." %}
+    </p>
+  {% else %}
+    <p class="mt-2 max-w-3xl text-ink-900">
+      {% translate "Play this deck against a second version of itself - one card swapped, or two more lands - and see which does better, turn by turn." %}
+    </p>
+    <p class="mt-2 max-w-3xl text-sm text-ink-700">
+      {% blocktranslate trimmed with price=compare.price %}
+        Small comparisons free; large series with a plan at CHF {{ price }} a month.
+      {% endblocktranslate %}
+    </p>
+    <form method="post" action="{% url 'metrics:compare' run.id %}" class="mt-4">
+      {% csrf_token %}
+      <button type="submit"
+              class="border border-ink-800 px-5 py-2 font-display text-lg text-ink-900 hover:bg-parchment-200">
+        {% translate "Compare two versions" %}
+      </button>
+    </form>
+  {% endif %}
+</section>

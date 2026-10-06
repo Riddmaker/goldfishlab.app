@@ -14,6 +14,8 @@ Weeks run Monday to Sunday in the site's time zone (settings.TIME_ZONE).
   with its runs, and an account that deleted the deck of its first run starts
   later than it did. A week shows its share only once all of its people have
   had the whole 7 or 30 days.
+* **Gate G3** (P9) - clicks on "Compare two versions" against reports viewed,
+  since counting began.
 """
 
 from collections import defaultdict
@@ -22,9 +24,11 @@ from datetime import date, timedelta
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
+from django.db.models import Sum
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 
+from metrics import doors
 from metrics.counts import Name, week_start
 from metrics.models import DailyCount
 
@@ -53,6 +57,8 @@ COLUMNS = (
     Name.RUN_GUEST,
     Name.RUN_MEMBER,
     Name.REPORT_OPENED,
+    Name.REPORT_VIEWED,
+    Name.COMPARE_CLICKED,
 )
 
 #: Days after the first simulation that count as coming back.
@@ -173,3 +179,34 @@ def cohorts(today: date | None = None, count: int = 12) -> list[Cohort]:
             if any(gap <= window for gap in later):
                 cohort.back[window] += 1
     return list(result.values())
+
+
+@dataclass
+class Gate:
+    """The fake door against its gate (launch plan G3)."""
+
+    views: int
+    clicks: int
+
+    @property
+    def percent(self) -> float | None:
+        return round(100 * self.clicks / self.views, 1) if self.views else None
+
+    @property
+    def judged(self) -> bool:
+        """Enough views for the share to mean something."""
+        return self.views >= doors.GATE_VIEWS
+
+    @property
+    def passed(self) -> bool:
+        return self.judged and self.percent >= doors.GATE_PERCENT
+
+    views_needed = doors.GATE_VIEWS
+    percent_needed = doors.GATE_PERCENT
+
+
+def gate() -> Gate:
+    totals = dict(DailyCount.objects.filter(name__in=[Name.REPORT_VIEWED, Name.COMPARE_CLICKED])
+                  .values("name").annotate(total=Sum("value")).values_list("name", "total"))
+    return Gate(views=totals.get(Name.REPORT_VIEWED, 0),
+                clicks=totals.get(Name.COMPARE_CLICKED, 0))

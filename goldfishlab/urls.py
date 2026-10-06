@@ -42,6 +42,8 @@ urlpatterns = [
     path("", include("playtest.urls")),
     # P4: /runs/<id>/share/ for the owner; /r/<token>/ is below.
     path("", include("sharing.urls")),
+    # P9: the "Compare two versions" fake door, also under /runs/<id>/.
+    path("", include("metrics.urls")),
     path("combos/", include("combos.urls")),
     path("billing/", include("billing.urls")),
     path("styleguide/", StyleguideView.as_view(), name="styleguide"),

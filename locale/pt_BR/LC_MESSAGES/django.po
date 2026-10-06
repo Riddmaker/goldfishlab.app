@@ -7583,20 +7583,6 @@ msgstr ""
 
 #: templates/core/privacy.html
 msgid ""
-"Daily counts of how the site is used: guests started and saved, accounts "
-"opened, simulations started, shared reports opened, and how many different "
-"people simulated in a week - totals only, with no name, address or account. "
-"To count you once a week, your account notes the week of your last "
-"simulation"
-msgstr ""
-"Contagens diárias de como o site é usado: convidados criados e salvos, "
-"contas abertas, simulações iniciadas, relatórios compartilhados abertos e "
-"quantas pessoas diferentes simularam em uma semana — apenas totais, sem "
-"nome, endereço ou conta. Para contar você uma vez por semana, a sua conta "
-"anota a semana da sua última simulação"
-
-#: templates/core/privacy.html
-msgid ""
 "To see whether the site is useful and what to improve. How many accounts "
 "come back to simulate again is worked out from the simulation runs above, as"
 " totals only (legitimate interest, Art. 6(1)(f))"
@@ -7612,3 +7598,48 @@ msgid ""
 msgstr ""
 "As contagens: enquanto o site funcionar, pois não se referem a ninguém. A "
 "semana da sua última simulação: até você excluir a conta"
+
+#: templates/simulations/_compare.html
+msgid "Compare two versions"
+msgstr "Comparar duas versões"
+
+#: templates/simulations/_compare.html
+msgid ""
+"Not built yet - thank you for asking. We count who wants it, and build it "
+"once enough people do. Nothing was charged, and you have not signed up for "
+"anything."
+msgstr ""
+"Ainda não existe — obrigado por pedir. Contamos quem quer e vamos construir "
+"assim que pessoas suficientes quiserem. Nada foi cobrado e você não se "
+"inscreveu em nada."
+
+#: templates/simulations/_compare.html
+msgid ""
+"Play this deck against a second version of itself - one card swapped, or two"
+" more lands - and see which does better, turn by turn."
+msgstr ""
+"Coloque este deck contra uma segunda versão dele mesmo — um card trocado, ou"
+" dois terrenos a mais — e veja, turno a turno, qual se sai melhor."
+
+#: templates/simulations/_compare.html
+#, python-format
+msgid ""
+"Small comparisons free; large series with a plan at CHF %(price)s a month."
+msgstr ""
+"Comparações pequenas grátis; séries grandes com um plano de CHF %(price)s "
+"por mês."
+
+#: templates/core/privacy.html
+msgid ""
+"Daily counts of how the site is used: guests started and saved, accounts "
+"opened, simulations started, reports viewed, shared reports opened, clicks "
+"on features we are considering, and how many different people simulated in a"
+" week - totals only, with no name, address or account. To count you once a "
+"week, your account notes the week of your last simulation"
+msgstr ""
+"Contagens diárias de como o site é usado: convidados criados e salvos, "
+"contas abertas, simulações iniciadas, relatórios vistos, relatórios "
+"compartilhados abertos, cliques em funções que estamos considerando e "
+"quantas pessoas diferentes simularam em uma semana — apenas totais, sem "
+"nome, endereço ou conta. Para contar você uma vez por semana, a sua conta "
+"anota a semana da sua última simulação"

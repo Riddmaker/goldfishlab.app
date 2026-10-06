@@ -24,6 +24,11 @@ class DailyCount(models.Model):
         SIMULATOR_GUEST = "simulator_guest", "Guests who simulated"
         SIMULATOR_MEMBER = "simulator_member", "Accounts that simulated"
         REPORT_OPENED = "report_opened", "Shared reports opened"
+        #: P9: a finished report opened by its owner (a guest or an account),
+        #: once per report and browser session - the fake door's denominator.
+        REPORT_VIEWED = "report_viewed", "Reports viewed"
+        #: P9: "Compare two versions" clicked, once per browser session.
+        COMPARE_CLICKED = "compare_clicked", "Compare two versions clicked"
 
     #: In the site's time zone (settings.TIME_ZONE), as the stats page reads it.
     day = models.DateField()

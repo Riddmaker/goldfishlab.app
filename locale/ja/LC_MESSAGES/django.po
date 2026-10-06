@@ -6838,16 +6838,6 @@ msgstr ""
 
 #: templates/core/privacy.html
 msgid ""
-"Daily counts of how the site is used: guests started and saved, accounts "
-"opened, simulations started, shared reports opened, and how many different "
-"people simulated in a week - totals only, with no name, address or account. "
-"To count you once a week, your account notes the week of your last "
-"simulation"
-msgstr ""
-"サイトの利用状況の日ごとのカウント：開始・保存されたゲスト、開設されたアカウント、開始されたシミュレーション、開かれた共有レポート、1週間にシミュレーションを行った人数。合計の数のみで、名前・アドレス・アカウントは含みません。1週間に1回だけ数えるため、アカウントには最後にシミュレーションを行った週を記録します"
-
-#: templates/core/privacy.html
-msgid ""
 "To see whether the site is useful and what to improve. How many accounts "
 "come back to simulate again is worked out from the simulation runs above, as"
 " totals only (legitimate interest, Art. 6(1)(f))"
@@ -6859,3 +6849,38 @@ msgid ""
 "The counts: as long as the site runs, as they are about nobody. The week of "
 "your last simulation: until you delete the account"
 msgstr "カウント：誰にも関わらないため、サイトの運営を続ける限り。最後にシミュレーションを行った週：アカウントを削除するまで"
+
+#: templates/simulations/_compare.html
+msgid "Compare two versions"
+msgstr "2つのバージョンを比較"
+
+#: templates/simulations/_compare.html
+msgid ""
+"Not built yet - thank you for asking. We count who wants it, and build it "
+"once enough people do. Nothing was charged, and you have not signed up for "
+"anything."
+msgstr ""
+"まだ作られていません。ご関心をありがとうございます。希望する人の数を数え、十分な数になったら作ります。料金は発生しておらず、何にも申し込まれていません。"
+
+#: templates/simulations/_compare.html
+msgid ""
+"Play this deck against a second version of itself - one card swapped, or two"
+" more lands - and see which does better, turn by turn."
+msgstr ""
+"このデッキを、1枚入れ替えた版や土地を2枚増やした版など、もうひとつのバージョンと比べ、どちらが良い結果になるかをターンごとに確認できます。"
+
+#: templates/simulations/_compare.html
+#, python-format
+msgid ""
+"Small comparisons free; large series with a plan at CHF %(price)s a month."
+msgstr "小規模な比較は無料。大規模なシリーズは月額 CHF %(price)s のプランで利用できます。"
+
+#: templates/core/privacy.html
+msgid ""
+"Daily counts of how the site is used: guests started and saved, accounts "
+"opened, simulations started, reports viewed, shared reports opened, clicks "
+"on features we are considering, and how many different people simulated in a"
+" week - totals only, with no name, address or account. To count you once a "
+"week, your account notes the week of your last simulation"
+msgstr ""
+"サイトの利用状況の日ごとのカウント：開始・保存されたゲスト、開設されたアカウント、開始されたシミュレーション、閲覧されたレポート、開かれた共有レポート、検討中の機能へのクリック、1週間にシミュレーションを行った人数。合計の数のみで、名前・アドレス・アカウントは含みません。1週間に1回だけ数えるため、アカウントには最後にシミュレーションを行った週を記録します"

@@ -34,6 +34,12 @@ class Command(BaseCommand):
         else:
             write("Every target date has passed.")
 
+        gate = report.gate()
+        verdict = ("too early" if not gate.judged else "passed" if gate.passed else "not passed")
+        share = f" = {gate.percent}%" if gate.percent is not None else ""
+        write(f"Gate G3: {gate.clicks} clicks on {gate.views} reports viewed{share} ({verdict}; "
+              f"needs {gate.percent_needed}% of {gate.views_needed}+)")
+
         labels = ["week of", "people", *(name.label for name in report.COLUMNS)]
         rows = [[f"{week.start}{'' if week.complete else '*'}", week.simulators, *week.cells]
                 for week in recent]

@@ -29,7 +29,7 @@ from sharing import services as sharing_services
 from simulations import services as simulations
 from simulations.models import SimulationRun
 from tests.test_guests import PASSWORD, FakeRedis, save, the_guest, upload
-from tests.test_sharing import BROWSER, deck, owner, run  # noqa: F401
+from tests.test_sharing import BROWSER, _finish, deck, owner, run  # noqa: F401
 
 pytestmark = pytest.mark.django_db
 
@@ -355,3 +355,102 @@ def test_the_privacy_policy_names_the_counts_in_every_language(client, settings,
         assert expected[0] != "The counts: as long as the site runs, as they are about " \
             "nobody. The week of your last simulation: until you delete the account"
     assert "there are no analytics or third-party trackers" not in body
+
+
+# --- P9: the "Compare two versions" fake door --------------------------------------------
+
+
+def test_a_report_shows_the_door_with_its_price(client, run):  # noqa: F811
+    client.force_login(run.owner)
+
+    body = client.get(run.get_absolute_url()).content.decode()
+
+    assert 'id="compare"' in body
+    assert reverse("metrics:compare", args=[run.pk]) in body
+    assert "CHF 9 a month" in body
+
+
+def test_a_report_view_counts_once_per_report_and_session(client, run):  # noqa: F811
+    client.force_login(run.owner)
+
+    client.get(run.get_absolute_url())
+    client.get(run.get_absolute_url())  # a reload
+
+    assert today_counts() == {Name.REPORT_VIEWED: 1}
+
+
+def test_a_run_still_playing_is_no_report_view(client, owner, deck):  # noqa: F811
+    playing = SimulationRun.objects.create(owner=owner, deck=deck, games_total=40, seed=1)
+    client.force_login(owner)
+
+    body = client.get(playing.get_absolute_url()).content.decode()
+
+    assert 'id="compare"' not in body
+    assert today_counts() == {}
+
+
+def test_a_click_counts_once_and_says_it_is_not_built(client, run):  # noqa: F811
+    client.force_login(run.owner)
+    url = reverse("metrics:compare", args=[run.pk])
+
+    response = client.post(url)
+    client.post(url)
+
+    assert response.status_code == 302
+    assert response.url == f"{run.get_absolute_url()}#compare"
+    assert today_counts()[Name.COMPARE_CLICKED] == 1
+    body = client.get(run.get_absolute_url()).content.decode()
+    assert "Not built yet" in body
+    assert url not in body
+
+
+def test_only_the_owner_can_click(client, run):  # noqa: F811
+    url = reverse("metrics:compare", args=[run.pk])
+    assert client.post(url).status_code == 302  # to the sign-in
+
+    stranger = User.objects.create_user(email="x@example.com", password=PASSWORD)
+    client.force_login(stranger)
+    assert client.post(url).status_code == 404
+    client.force_login(run.owner)
+    assert client.get(url).status_code == 405
+    assert Name.COMPARE_CLICKED not in today_counts()
+
+
+def test_a_guest_sees_the_door_too(client, catalogue):
+    upload(client)
+    guest_run = _finish(SimulationRun.objects.get(owner=the_guest()))
+
+    body = client.get(guest_run.get_absolute_url()).content.decode()
+
+    assert 'id="compare"' in body
+    assert today_counts()[Name.REPORT_VIEWED] == 1
+
+
+@pytest.mark.parametrize(("views", "clicks", "judged", "passed"), [
+    (0, 0, False, False),
+    (199, 50, False, False),
+    (200, 9, True, False),
+    (200, 10, True, True),
+])
+def test_the_gate_wants_five_percent_of_two_hundred(views, clicks, judged, passed):
+    DailyCount.objects.create(day=date(2026, 12, 1), name=Name.REPORT_VIEWED, value=views)
+    DailyCount.objects.create(day=date(2026, 12, 2), name=Name.COMPARE_CLICKED, value=clicks)
+
+    gate = report.gate()
+
+    assert (gate.views, gate.clicks, gate.judged, gate.passed) == (views, clicks, judged, passed)
+
+
+def test_the_stats_page_and_command_show_the_gate(client):
+    DailyCount.objects.create(day=date(2026, 12, 1), name=Name.REPORT_VIEWED, value=40)
+    DailyCount.objects.create(day=date(2026, 12, 1), name=Name.COMPARE_CLICKED, value=3)
+    staff = User.objects.create_user(email="s@example.com", password=PASSWORD, is_staff=True)
+    client.force_login(staff)
+    out = StringIO()
+
+    body = client.get(reverse("stats")).content.decode()
+    call_command("stats", stdout=out)
+
+    assert "<strong>3</strong> clicks on <strong>40</strong> reports viewed" in body
+    assert "Too early to judge" in body
+    assert "Gate G3: 3 clicks on 40 reports viewed = 7.5% (too early" in out.getvalue()

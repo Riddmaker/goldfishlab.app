@@ -253,3 +253,50 @@ def test_two_actions_cannot_share_a_sequence_number(session):
 def test_a_session_knows_where_to_be_found(session):
     assert str(session.id) in session.get_absolute_url()
     assert PlaytestSession.objects.filter(pk=session.pk).exists()
+
+
+@pytest.mark.django_db(transaction=True)
+def test_a_double_click_writes_two_actions_and_no_error(session, monkeypatch):
+    """Two POSTs at once (phase 12 J30): the second waits for the first's lock
+    instead of taking the same `seq` and failing on the unique constraint.
+
+    The race is forced, not hoped for: each click waits just before writing
+    its row until the other has got that far too, at most a second. Without
+    the lock both get there with the same `seq`; with it, the second is still
+    waiting for the lock when the first gives up waiting and writes.
+    """
+    import threading
+
+    from django.db import connection
+
+    services.state(session)  # a current cache, as between two real clicks
+    both_counted = threading.Barrier(2)
+    create = PlaytestAction.objects.create
+
+    def create_when_both_counted(**fields):
+        try:
+            both_counted.wait(timeout=1)
+        except threading.BrokenBarrierError:
+            pass
+        return create(**fields)
+
+    monkeypatch.setattr(PlaytestAction.objects, "create", create_when_both_counted)
+    errors = []
+
+    def click():
+        try:
+            services.record(PlaytestSession.objects.get(pk=session.pk), actions.Draw(count=1))
+        except Exception as exc:  # noqa: BLE001 - any failure is the finding
+            errors.append(exc)
+        finally:
+            connection.close()
+
+    threads = [threading.Thread(target=click) for _ in range(2)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert errors == []
+    assert list(session.actions.order_by("seq").values_list("seq", flat=True)) == [1, 2]
+    assert len(services.state(session).hand) == 9

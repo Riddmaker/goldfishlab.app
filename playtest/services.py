@@ -117,6 +117,20 @@ def _remember(session: PlaytestSession, game: Game, seq: int) -> None:
 
 # --- Doing something -------------------------------------------------------
 
+def _lock(session: PlaytestSession) -> None:
+    """Hold the session's row until the transaction ends, and read it again.
+
+    A double click sends two POSTs at once. Without the lock both read the same
+    highest `seq`, both write the next one, and the second meets the
+    `(session, seq)` constraint as a 500 (phase 12 J30). With it, the second
+    waits, then sees the first one's action - and is applied to that game, or
+    refused by it like any other illegal action. The board also drops a click
+    while a request is in flight (`hx-sync`), but a form without JavaScript
+    can still be sent twice.
+    """
+    session.refresh_from_db(from_queryset=PlaytestSession.objects.select_for_update())
+
+
 @transaction.atomic
 def record(session: PlaytestSession, action: actions.Action) -> Game:
     """Carry out one action and write it down.
@@ -130,6 +144,7 @@ def record(session: PlaytestSession, action: actions.Action) -> Game:
     a divergent action would replay into a different game than it was recorded
     in.
     """
+    _lock(session)
     game = state(session)
     actions.apply(game, action, None)
 
@@ -150,6 +165,7 @@ def record(session: PlaytestSession, action: actions.Action) -> Game:
 @transaction.atomic
 def undo(session: PlaytestSession, count: int = 1) -> Game:
     """Take back the last `count` actions."""
+    _lock(session)
     tail = list(live_actions(session).reverse()[:count])
     if tail:
         session.actions.filter(pk__in=[row.pk for row in tail]).update(undone=True)
@@ -161,6 +177,7 @@ def undo(session: PlaytestSession, count: int = 1) -> Game:
 @transaction.atomic
 def redo(session: PlaytestSession, count: int = 1) -> Game:
     """Put back what `undo` took, oldest first."""
+    _lock(session)
     queued = list(session.actions.filter(undone=True).order_by("seq")[:count])
     if queued:
         session.actions.filter(pk__in=[row.pk for row in queued]).update(undone=False)

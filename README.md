@@ -61,6 +61,12 @@ anybody can read without an account (indexable, but not in the sitemap). It free
 name, commander and card list as they were run, and the written summary only if it was written
 about exactly that deck. The owner sees how often others opened it, can copy it as text, and can
 stop sharing, which kills the link. A guest is asked to save the deck first.
+**Language in the URL (P10)**: the public pages (home, `/try/`, pricing, methodology, the legal
+pages and shared reports) have an address per language - `/pricing/` in English, `/de/pricing/`
+in German - with hreflang links between them (`x-default` is the English one) and every version
+in the sitemap. The English address sends a person whose account, cookie or browser asks for
+another language on to that one; a search engine stays. The app keeps one address per page, and
+a share link names no language (`accounts/middleware.py`, `core/seo.py`).
 Product decisions live in the sibling `magic-project` repository's `instructions.md`, section
 "Teil 2".
 

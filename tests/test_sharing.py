@@ -185,7 +185,7 @@ def test_deleting_the_run_deck_or_account_takes_the_link(client, run, shared, de
 
 
 def test_an_unknown_token_is_a_404_and_says_noindex(client, shared):
-    response = client.get(reverse("sharing:report", args=["x" * 22]))
+    response = client.get(reverse("shared:report", args=["x" * 22]))
 
     assert response.status_code == 404
     head = _head(response)

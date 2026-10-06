@@ -6,9 +6,11 @@ coordinate, a CSS width or an `aria-valuenow` it breaks the chart without an
 error. Django ships German formats, so German is switched on here (with our
 German catalogue, phase 12 D) and the pages with charts and bars are rendered in it.
 
-**The switch.** No language in the URL (Q1): the account's choice, then the
-cookie the footer sets, then the browser, then English. Only a language that is
-switched on (`LANGUAGES_ON`) is accepted anywhere.
+**The switch.** The public pages carry their language in the URL (P10,
+tests/test_language_urls.py); elsewhere the account's choice, then the cookie
+the footer sets, then the browser, then English (Q1) - and a public page's
+English address sends a reader on to the one in that language. Only a
+language that is switched on (`LANGUAGES_ON`) is accepted anywhere.
 """
 
 import re
@@ -159,10 +161,10 @@ def test_only_a_translated_page_asks_for_corrections(client, german, settings, l
     settings.LEGAL_CONTACT_EMAIL = "hello@example.ch"
     client.cookies["django_language"] = language
 
-    body = client.get(reverse("methodology")).content.decode()
+    body = client.get(reverse("methodology"), follow=True).content.decode()
 
     link = ('href="mailto:hello@example.ch'
-            '?subject=Translation%20(de)%3A%20%2Fabout%2Fmethodology%2F"')
+            '?subject=Translation%20(de)%3A%20%2Fde%2Fabout%2Fmethodology%2F"')
     assert (link in body) is (language == "de")
 
 
@@ -170,17 +172,23 @@ def test_on_a_german_page_english_is_still_called_english(client, german):
     """Django's own tag would print "Englisch" here, from its catalogue."""
     client.cookies["django_language"] = "de"
 
-    body = client.get(reverse("home")).content.decode()
+    body = client.get(reverse("home"), follow=True).content.decode()
 
     assert '<option value="en" lang="en"' in body
     assert "Englisch" not in body
 
 
 def test_the_browser_decides_when_nothing_was_picked(client, german):
-    response = client.get(reverse("home"), headers={"Accept-Language": "de-CH,de;q=0.9"})
+    browser = {"Accept-Language": "de-CH,de;q=0.9"}
+    login, home = reverse("account_login"), reverse("home")  # before a request makes it German
 
-    assert response.headers["Content-Language"] == "de"
-    assert "Accept-Language" in response.headers["Vary"]
+    page = client.get(login, headers=browser)
+    public = client.get(home, headers=browser)
+
+    assert page.headers["Content-Language"] == "de"
+    assert "Accept-Language" in page.headers["Vary"]
+    assert public.status_code == 302 and public.url == "/de/"
+    assert "Accept-Language" in public.headers["Vary"]
 
 
 def test_a_language_that_is_off_is_never_served(client):
@@ -197,7 +205,7 @@ def test_switching_sets_a_year_long_cookie_and_goes_back(client, german):
                            {"language": "de", "next": "/about/methodology/"})
 
     assert response.status_code == 302
-    assert response.url == "/about/methodology/"
+    assert response.url == "/de/about/methodology/"
     cookie = response.cookies["django_language"]
     assert cookie.value == "de"
     assert cookie["max-age"] == 365 * 24 * 60 * 60
@@ -209,7 +217,7 @@ def test_switching_never_sends_anybody_to_another_site(client, german):
     response = client.post(reverse("set_language"),
                            {"language": "de", "next": "https://evil.example/"})
 
-    assert response.url == "/"
+    assert response.url == "/de/"  # the home page, in the language just picked
 
 
 def test_a_language_that_is_off_cannot_be_picked(client, owner):
@@ -238,8 +246,9 @@ def test_a_signed_in_choice_is_saved_and_wins_over_the_browser(client, owner, ge
     # Another browser: no cookie, an English one.
     client.cookies.clear()
     client.force_login(owner)
-    response = client.get(reverse("home"), headers={"Accept-Language": "en"})
+    response = client.get(reverse("home"), headers={"Accept-Language": "en"}, follow=True)
 
+    assert response.redirect_chain == [("/de/", 302)]
     assert response.headers["Content-Language"] == "de"
 
 

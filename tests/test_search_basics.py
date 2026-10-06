@@ -169,7 +169,7 @@ def test_a_page_shares_its_title_description_and_image(client, site):
 def test_og_locale_follows_the_language(client, settings):
     settings.LANGUAGES = [("en", "English"), ("pt-br", "Português (Brasil)")]
 
-    head = _head(client.get("/", HTTP_ACCEPT_LANGUAGE="pt-br"))
+    head = _head(client.get("/", HTTP_ACCEPT_LANGUAGE="pt-br", follow=True))
 
     assert head.meta["og:locale"] == "pt_BR"
 

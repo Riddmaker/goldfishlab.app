@@ -1,8 +1,9 @@
 name: Checks
 
 # The gate every change passes: lint, dependency audit, CSS build and the FULL
-# test suite. It runs on every push to dev and on every pull request into main
-# - the branch protection on main requires it green - and deploy-prod.yml runs
+# test suite. It runs on every push to dev and on every pull request into dev
+# (feature branches) or main - the branch protection on main requires it
+# green - and deploy-prod.yml runs
 # it once more on main before an image may ship. `workflow_dispatch` is the
 # "Run workflow" button: the very first push into the empty repository created
 # the branches without a push event, so nothing ran until something re-ran it.
@@ -10,7 +11,7 @@ on:
   push:
     branches: [dev]
   pull_request:
-    branches: [main]
+    branches: [dev, main]
   workflow_call:
   workflow_dispatch:
 

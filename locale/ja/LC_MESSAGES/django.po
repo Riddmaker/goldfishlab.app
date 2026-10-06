@@ -3924,19 +3924,6 @@ msgid "The short version"
 msgstr "要点"
 
 #: templates/core/privacy.html
-msgid ""
-"We store your email address, the decks you upload, and the results of the "
-"simulations you run - on servers in Switzerland. Connections reach those "
-"servers through Cloudflare's network. We do not sell any of it, we do not "
-"advertise, and there are no analytics or third-party trackers on this site. "
-"You can download everything we hold at any time, and you can delete your "
-"account yourself. Both of those are buttons, not requests."
-msgstr ""
-"私たちは、あなたのメールアドレス、アップロードしたデッキ、実行したシミュレーションの結果を、スイスのサーバーに保存します。これらのサーバーへの接続は "
-"Cloudflare "
-"のネットワークを経由します。私たちはこれらを一切販売せず、広告も行わず、このサイトにはアクセス解析もサードパーティのトラッカーもありません。保存しているすべてのデータはいつでもダウンロードでき、アカウントはご自身で削除できます。どちらも依頼ではなく、ボタンひとつで行えます。"
-
-#: templates/core/privacy.html
 msgid "Your data and account deletion →"
 msgstr "あなたのデータとアカウントの削除 →"
 
@@ -4391,14 +4378,6 @@ msgid ""
 "unless that is forbidden."
 msgstr ""
 "当局へのデータの開示は、スイス法で義務付けられている場合に限り、その義務を満たす最小限の範囲で行い、禁止されていない限りそのことをあなたにお知らせします。"
-
-#: templates/core/privacy.html
-msgid ""
-"No analytics, no advertising, no error-reporting service and no third-party "
-"scripts. If we ever add a service that processes anything about you, it is "
-"named here before it is switched on."
-msgstr ""
-"アクセス解析、広告、エラー報告サービス、サードパーティのスクリプトはありません。あなたに関する情報を処理するサービスを追加する場合は、有効にする前にここに記載します。"
 
 #: templates/core/privacy.html
 msgid "On the home page"
@@ -6833,3 +6812,50 @@ msgid ""
 "them or train anything on them."
 msgstr ""
 "あなたのデッキと注釈はあなたのものです。保存と処理は、あなたのためにサービスを運営するのに必要な範囲に限って許可されます。公開はしません。ただし、レポートを共有した場合は、共有を停止するまで、デッキ名とカードリストとともに、そのリンクを知っている人に表示します。販売することも、何かの学習に使うこともありません。"
+
+#: templates/core/privacy.html
+msgid ""
+"We store your email address, the decks you upload, and the results of the "
+"simulations you run - on servers in Switzerland. Connections reach those "
+"servers through Cloudflare's network. We do not sell any of it, we do not "
+"advertise, and there are no analytics services or third-party trackers on "
+"this site: we only count, in totals that name nobody, how the site is used. "
+"You can download everything we hold at any time, and you can delete your "
+"account yourself. Both of those are buttons, not requests."
+msgstr ""
+"私たちは、あなたのメールアドレス、アップロードしたデッキ、実行したシミュレーションの結果を、スイスのサーバーに保存します。これらのサーバーへの接続は "
+"Cloudflare "
+"のネットワークを経由します。私たちはこれらを一切販売せず、広告も行わず、このサイトにはアクセス解析サービスもサードパーティのトラッカーもありません。サイトの利用状況は、誰も特定しない合計の数としてのみ数えています。保存しているすべてのデータはいつでもダウンロードでき、アカウントはご自身で削除できます。どちらも依頼ではなく、ボタンひとつで行えます。"
+
+#: templates/core/privacy.html
+msgid ""
+"No analytics service, no advertising, no error-reporting service and no "
+"third-party scripts. The usage counts described above are our own and name "
+"nobody. If we ever add a service that processes anything about you, it is "
+"named here before it is switched on."
+msgstr ""
+"アクセス解析サービス、広告、エラー報告サービス、サードパーティのスクリプトはありません。上で説明した利用状況のカウントは私たち自身のもので、誰も特定しません。あなたに関する情報を処理するサービスを追加する場合は、有効にする前にここに記載します。"
+
+#: templates/core/privacy.html
+msgid ""
+"Daily counts of how the site is used: guests started and saved, accounts "
+"opened, simulations started, shared reports opened, and how many different "
+"people simulated in a week - totals only, with no name, address or account. "
+"To count you once a week, your account notes the week of your last "
+"simulation"
+msgstr ""
+"サイトの利用状況の日ごとのカウント：開始・保存されたゲスト、開設されたアカウント、開始されたシミュレーション、開かれた共有レポート、1週間にシミュレーションを行った人数。合計の数のみで、名前・アドレス・アカウントは含みません。1週間に1回だけ数えるため、アカウントには最後にシミュレーションを行った週を記録します"
+
+#: templates/core/privacy.html
+msgid ""
+"To see whether the site is useful and what to improve. How many accounts "
+"come back to simulate again is worked out from the simulation runs above, as"
+" totals only (legitimate interest, Art. 6(1)(f))"
+msgstr ""
+"サイトが役に立っているか、何を改善すべきかを知るため。再びシミュレーションを行うアカウントの数は、上記のシミュレーション実行から合計としてのみ算出します（正当な利益、第6条第1項(f)）"
+
+#: templates/core/privacy.html
+msgid ""
+"The counts: as long as the site runs, as they are about nobody. The week of "
+"your last simulation: until you delete the account"
+msgstr "カウント：誰にも関わらないため、サイトの運営を続ける限り。最後にシミュレーションを行った週：アカウントを削除するまで"

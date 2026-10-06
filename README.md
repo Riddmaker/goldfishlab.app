@@ -67,6 +67,13 @@ in German - with hreflang links between them (`x-default` is the English one) an
 in the sitemap. The English address sends a person whose account, cookie or browser asks for
 another language on to that one; a search engine stays. The app keeps one address per page, and
 a share link names no language (`accounts/middleware.py`, `core/seo.py`).
+**Measurement (P2)**: daily counts that name nobody (`metrics/`): guests started and saved,
+accounts opened, simulations by guests and by accounts, shared reports opened, and each person
+once per week they simulate - the launch plan's lead metric. `/admin/stats/` (staff only, linked
+from the admin's home) and `python manage.py stats` show the last 12 weeks, the last full week
+against the next target (250 a week by 31 Dec 2026, 400 by 31 Mar 2027, 800 by 30 Sep 2027), and
+how many accounts simulated again within 7 and 30 days of their first simulation. The privacy
+policy describes the counts.
 Product decisions live in the sibling `magic-project` repository's `instructions.md`, section
 "Teil 2".
 
@@ -327,6 +334,7 @@ msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
 | `billing/` | Plans, subscriptions, usage records, quota enforcement |
 | `sharing/` | Shared reports at `/r/<token>/`: the frozen deck snapshot, the owner's share and stop buttons, the reader count and the copy-as-text version |
 | `guests/` | Trying it without an account: a temporary guest user per browser, its limits and fence, saving (claiming) and hourly expiry |
+| `metrics/` | Daily usage counts with no user attached, the staff stats page at `/admin/stats/` and `manage.py stats` |
 | `DESIGN.md` | **Normative design rules** |
 | `STYLEGUIDE.html` | Binding rendered reference, standalone, print CSS included |
 | `assets/css/input.css` | **Design-token source of truth** |

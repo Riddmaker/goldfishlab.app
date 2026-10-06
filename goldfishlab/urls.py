@@ -23,6 +23,7 @@ from core.views import (
     TickerView,
     healthz,
 )
+from metrics.views import stats
 from sharing.urls import report_patterns
 
 # The admin's login is Django's own view, so neither allauth's limits nor ours
@@ -60,6 +61,9 @@ urlpatterns = [
     # `/account/` is ours; `/accounts/` below is allauth's.
     path("account/", include("accounts.urls")),
     path("accounts/", include("allauth.urls")),
+    # P2: how the site is used, staff only. Before admin/, which would
+    # otherwise answer it with its own 404.
+    path("admin/stats/", admin.site.admin_view(stats), name="stats"),
     path("admin/", admin.site.urls),
     # The footer's language switcher (phase 12). Outside `/account/`, which the
     # guest fence closes, so a guest can switch as well.

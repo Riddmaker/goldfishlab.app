@@ -1,0 +1,91 @@
+{% extends "admin/base_site.html" %}
+{# P2: staff only (metrics.views). Counts name nobody; see metrics/report.py for what each number means. #}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a> › Stats
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+  <div class="module">
+    <h2>People who simulated a deck, last full week</h2>
+    {% if lead.week %}
+      <p>
+        <strong>{{ lead.week.simulators }}</strong>
+        in the week of {{ lead.week.start|date:"j M Y" }} to {{ lead.week.end|date:"j M Y" }}
+        ({{ lead.week.counts.simulator_guest|default:0 }} guests, {{ lead.week.counts.simulator_member|default:0 }} accounts).
+      </p>
+    {% endif %}
+    {% if lead.target %}
+      <p>
+        Next target: <strong>{{ lead.target.people }}</strong> a week by {{ lead.target.by|date:"j M Y" }}
+        {% if lead.percent is not None %}— <strong>{{ lead.percent }}%</strong> of the way{% endif %}.
+      </p>
+    {% else %}
+      <p>Every target date has passed.</p>
+    {% endif %}
+    <p class="help">
+      Targets from the launch plan:
+      {% for target in targets %}{{ target.people }} by {{ target.by|date:"j M Y" }}{% if not forloop.last %}, {% endif %}{% endfor %}.
+      Weeks run Monday to Sunday, {{ time_zone }} time. Today is {{ today|date:"D j M Y" }}.
+    </p>
+  </div>
+
+  <div class="module">
+    <h2>The last 12 weeks</h2>
+    {# Wider than a phone: the table scrolls, not the page. style-src-attr allows this (settings CSP). #}
+    <div style="overflow-x: auto">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Week of</th>
+          <th scope="col">People who simulated</th>
+          {% for label in columns %}<th scope="col">{{ label }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for week in weeks %}
+          <tr>
+            <th scope="row">{{ week.start|date:"j M Y" }}{% if not week.complete %} (so far){% endif %}</th>
+            <td><strong>{{ week.simulators }}</strong></td>
+            {% for cell in week.cells %}<td>{{ cell }}</td>{% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="module">
+    <h2>Coming back</h2>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">First simulation in the week of</th>
+          <th scope="col">Accounts</th>
+          <th scope="col">Simulated again within 7 days</th>
+          <th scope="col">Within 30 days</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cohort in cohorts %}
+          <tr>
+            <th scope="row">{{ cohort.start|date:"j M Y" }}</th>
+            <td>{{ cohort.people }}</td>
+            <td>{% if cohort.percent_7 is not None %}{{ cohort.percent_7 }}% ({{ cohort.back_7 }}){% else %}–{% endif %}</td>
+            <td>{% if cohort.percent_30 is not None %}{{ cohort.percent_30 }}% ({{ cohort.back_30 }}){% else %}–{% endif %}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="help">
+      Accounts only, from the simulations that still exist: a guest who never saved is deleted with its runs.
+      "Again" means on a later day. A dash: too early to say, or nobody started that week.
+    </p>
+  </div>
+
+</div>
+{% endblock %}

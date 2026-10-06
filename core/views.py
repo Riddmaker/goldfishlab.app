@@ -107,7 +107,7 @@ class PrivacyView(TemplateView):
     """Privacy policy: what is stored, why, for how long, and how to end it."""
 
     template_name = "core/privacy.html"
-    # 2026-10-06: shared reports (P4).
+    # 2026-10-06: shared reports (P4); usage counts (P2).
     extra_context = {"updated": date(2026, 10, 6)}
 
 

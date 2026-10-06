@@ -35,6 +35,7 @@ from redis.exceptions import RedisError
 from billing import quotas
 from billing.models import UsageRecord
 from core.l10n import number
+from metrics import counts
 from simulations.engine import runner
 from simulations.models import SimulationRun
 
@@ -125,6 +126,8 @@ def start_run(*, owner, deck, games: int, turns: int, on_the_play: bool = True,
                 if charge_summary:
                     quotas.consume(owner, UsageRecord.Metric.RUNS_STARTED)
                 summary.begin(deck, charged=charge_summary, budget_day=budget_day)
+            # P2. In the same transaction, so a run that is not made is not counted.
+            counts.run_started(owner)
             run = SimulationRun.objects.create(
                 owner=owner,
                 deck=deck,

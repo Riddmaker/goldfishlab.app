@@ -54,6 +54,10 @@ class User(AbstractUser):
     #: No `choices`: a language switched off later must not make the row
     #: invalid; `AccountLanguageMiddleware` ignores a code that is not on.
     language = models.CharField(max_length=10, blank=True, default="")
+    #: The Monday of the last week this person started a simulation (P2), so
+    #: the week's count of people who simulated counts them once
+    #: (`metrics.counts.run_started`). Nothing else reads it.
+    simulated_week = models.DateField(null=True, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

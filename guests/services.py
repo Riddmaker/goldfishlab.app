@@ -26,6 +26,7 @@ from django.utils import timezone
 
 from accounts import privacy
 from billing.models import Plan, Subscription
+from metrics import counts
 
 #: The plan row every guest runs on (billing migration 0005).
 GUEST_PLAN = "guest"
@@ -71,6 +72,7 @@ def create(request):
         user=user, defaults={"plan": Plan.objects.get(slug=GUEST_PLAN)}
     )
     login(request, user, backend=BACKEND)
+    counts.add(counts.Name.GUEST_STARTED)
     return user
 
 
@@ -121,13 +123,22 @@ def claim(guest, user, *, deck_name: str = "") -> None:
         raise ValueError("only a guest can be claimed")
     if deck_name:
         guest.decks.update(name=deck_name)
+    changed = []
     if guest.language and not user.language:
         # The language picked while trying the site (phase 12).
         user.language = guest.language
-        user.save(update_fields=["language"])
+        changed.append("language")
+    if guest.simulated_week and (not user.simulated_week
+                                 or guest.simulated_week > user.simulated_week):
+        # Counted as somebody who simulated this week already (P2).
+        user.simulated_week = guest.simulated_week
+        changed.append("simulated_week")
+    if changed:
+        user.save(update_fields=changed)
     for model, path in _owned():
         model.objects.filter(**{path: guest}).update(**{path: user})
     guest.delete()
+    counts.add(counts.Name.GUEST_SAVED)
 
 
 def expire(now=None) -> int:

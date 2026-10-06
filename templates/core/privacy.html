@@ -34,7 +34,8 @@
           the results of the simulations you run - on servers in Switzerland.
           Connections reach those servers through Cloudflare's network. We
           do not sell any of it, we do not advertise, and there are no analytics
-          or third-party trackers on this site. You can download everything we
+          services or third-party trackers on this site: we only count, in totals
+          that name nobody, how the site is used. You can download everything we
           hold at any time, and you can delete your account yourself. Both of
           those are buttons, not requests.
         {% endblocktranslate %}
@@ -116,6 +117,11 @@
               <td class="py-2 pr-4 align-top">{% translate "Usage counters (simulations started per month)" %}</td>
               <td class="py-2 pr-4 align-top">{% translate "To apply the limits of your plan (contract)" %}</td>
               <td class="py-2 align-top">{% translate "Until you delete the account" %}</td>
+            </tr>
+            <tr class="border-b border-ink-200">
+              <td class="py-2 pr-4 align-top">{% translate "Daily counts of how the site is used: guests started and saved, accounts opened, simulations started, shared reports opened, and how many different people simulated in a week - totals only, with no name, address or account. To count you once a week, your account notes the week of your last simulation" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "To see whether the site is useful and what to improve. How many accounts come back to simulate again is worked out from the simulation runs above, as totals only (legitimate interest, Art. 6(1)(f))" %}</td>
+              <td class="py-2 align-top">{% translate "The counts: as long as the site runs, as they are about nobody. The week of your last simulation: until you delete the account" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
               <td class="py-2 pr-4 align-top">{% translate "Your plan, its status, and the Stripe identifiers of your customer record and subscription" %}</td>
@@ -331,8 +337,9 @@
       </p>
       <p class="mt-4 text-sm text-ink-700">
         {% blocktranslate trimmed %}
-          No analytics, no advertising, no error-reporting service and no
-          third-party scripts. If we ever add a service that processes anything
+          No analytics service, no advertising, no error-reporting service and no
+          third-party scripts. The usage counts described above are our own and
+          name nobody. If we ever add a service that processes anything
           about you, it is named here before it is switched on.
         {% endblocktranslate %}
       </p>

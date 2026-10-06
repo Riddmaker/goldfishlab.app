@@ -46,9 +46,16 @@ HAND_WRITTEN = {
 SKIP_PREFIXES = ("hover:", "focus:", "sm:", "md:", "lg:", "focus-visible:", "last:")
 
 
+#: Pages inside the Django admin (P2's stats page): styled by the admin's own
+#: stylesheet, not by main.css.
+ADMIN = TEMPLATES / "admin"
+
+
 def _used_classes() -> set[str]:
     classes: set[str] = set()
     for template in TEMPLATES.rglob("*.html"):
+        if template.is_relative_to(ADMIN):
+            continue
         for attribute in _CLASS_ATTR.findall(template.read_text(encoding="utf-8")):
             # Skip anything holding a template tag; the rendered value is not
             # knowable from the source.

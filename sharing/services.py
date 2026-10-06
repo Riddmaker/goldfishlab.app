@@ -6,6 +6,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import F
 from django.utils.translation import gettext, gettext_noop
 
+from metrics import counts
 from sharing.models import SharedReport
 from simulation.cards import CARD_TYPES
 from simulations import summary
@@ -119,3 +120,4 @@ def count_view(shared: SharedReport, request) -> None:
     if not agent or ROBOTS.search(agent):
         return
     SharedReport.objects.filter(pk=shared.pk).update(views=F("views") + 1)
+    counts.add(counts.Name.REPORT_OPENED)

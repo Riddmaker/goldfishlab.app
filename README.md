@@ -49,6 +49,10 @@ cards for each from the catalogue. **Phase 12 (2026-10-04)** translated the site
 French, Italian, Spanish, Portuguese (Brazil) and Japanese, the mails, allauth's pages, the
 methodology and the legal pages (English stays binding), and the deck summary is written in the
 reader's language. Each language is switched on per deployment (`LANGUAGES_ON`).
+**Load protection (2026-10-06)** came before the launch: a guest gets one free summary however
+often it uploads, at most `SUMMARIES_PER_DAY` summaries a day (guests at most
+`GUEST_SUMMARIES_PER_DAY` of them; at the ceiling they pause until midnight and nobody is charged),
+a summary whose worker died is closed and refunded, and a waiting run says how many are ahead.
 Product decisions live in the sibling `magic-project` repository's `instructions.md`, section
 "Teil 2".
 
@@ -224,6 +228,14 @@ makes "all the old tests still pass" mean anything.
 # The two pictures on the home page are real pages of a guest trial. This one
 # writes INTO static/img/ (720 x 540 WebP each); look at both before committing.
 .venv/Scripts/python scripts/home_pictures.py path/to/a-deck.csv
+```
+
+Before a launch or a post that could bring a crowd, play one against the local stack (gunicorn
+with two workers, a short worker at concurrency 1, a long one at 2): it counts the runs that
+finished, the guests turned away and how long both took. Never against production.
+
+```bash
+.venv/Scripts/python scripts/loadtest.py --guests 40 --spread 10
 ```
 
 After a change to `simulation/`, compare the engine's speed before and after with

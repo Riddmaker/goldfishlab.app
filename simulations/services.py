@@ -23,9 +23,11 @@ keep remembering them.
 """
 
 import secrets
+from dataclasses import dataclass
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Q
 from django.utils.translation import gettext, ngettext
 from redis import Redis
 from redis.exceptions import RedisError
@@ -45,9 +47,10 @@ SHORT_QUEUE = "sim_short"
 LONG_QUEUE = "sim_long"
 
 #: How many chunks of one run play side by side: the short queue has a worker
-#: process of its own, the long queue two (docker-compose.yml; production runs
-#: one worker for both at CELERY_CONCURRENCY=2, start.sh). Only the pace of the
-#: progress bar reads this, so erring on the slow side costs nothing.
+#: process of its own, the long queue two (docker-compose.yml; production, too,
+#: has a worker node per queue, worker-short and worker - the manifest outside
+#: this repository). Only the pace of the progress bar and the queue's wait
+#: read this, so erring on the slow side costs nothing.
 PARALLEL_CHUNKS = {SHORT_QUEUE: 1, LONG_QUEUE: 2}
 #: From pressing the button to the first chunk playing, on an empty queue: the
 #: dispatcher task and the broker round trips.
@@ -117,10 +120,11 @@ def start_run(*, owner, deck, games: int, turns: int, on_the_play: bool = True,
     try:
         with transaction.atomic():
             quotas.consume(owner, UsageRecord.Metric.RUNS_STARTED)
-            if write_summary and summary.claim(owner, deck):
+            budget_day = write_summary and summary.claim(owner, deck)
+            if budget_day:
                 if charge_summary:
                     quotas.consume(owner, UsageRecord.Metric.RUNS_STARTED)
-                summary.begin(deck, charged=charge_summary)
+                summary.begin(deck, charged=charge_summary, budget_day=budget_day)
             run = SimulationRun.objects.create(
                 owner=owner,
                 deck=deck,
@@ -193,6 +197,40 @@ def expected_seconds(run: SimulationRun) -> float:
     chunks = run.chunks_total or len(runner.chunk_plan(games, run.turns, rate))
     parallel = min(PARALLEL_CHUNKS[queue_for(games)], chunks)
     return QUEUE_SECONDS + games * rate / 1_000_000 / parallel
+
+
+@dataclass(frozen=True)
+class Queue:
+    """Where a waiting run stands (P1): the runs before it on its queue."""
+
+    ahead: int
+    seconds: float
+
+
+def queue_ahead(run: SimulationRun) -> Queue:
+    """The runs on this run's queue that a worker takes before it, and about
+    how long they keep the workers busy (P1).
+
+    `expected_seconds` assumed an empty queue, so a crowd saw "waiting for a
+    free table" with no idea for how long. The guess uses the engine's own
+    estimate per game - not each run's measured rate, which would cost a
+    query a run on every poll.
+    """
+    short = queue_for(run.games_total) == SHORT_QUEUE
+    size = ({"games_total__lte": SHORT_QUEUE_MAX_GAMES} if short
+            else {"games_total__gt": SHORT_QUEUE_MAX_GAMES})
+    before = SimulationRun.objects.filter(
+        Q(status=SimulationRun.Status.RUNNING)
+        | Q(status=SimulationRun.Status.PENDING, created_at__lt=run.created_at),
+        **size,
+    ).exclude(pk=run.pk).values_list("games_total", "games_done", "turns")
+    ahead = 0
+    usec = 0.0
+    for total, done, turns in before:
+        ahead += 1
+        usec += max(0, total - done) * runner.default_usec_per_game(turns)
+    parallel = PARALLEL_CHUNKS[SHORT_QUEUE if short else LONG_QUEUE]
+    return Queue(ahead=ahead, seconds=usec / 1_000_000 / parallel)
 
 
 def request_cancel(run: SimulationRun) -> bool:

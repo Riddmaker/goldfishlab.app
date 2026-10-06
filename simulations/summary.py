@@ -38,14 +38,19 @@ The text is Mistral's, through `simulations.mistral`:
 
 import hashlib
 import json
+import logging
 import re
+from datetime import timedelta
 
 from django.conf import settings
 from django.db import transaction
+from django.utils import timezone
 from django.utils.translation import get_language
 
-from simulations import mistral
+from simulations import budget, mistral
 from simulations.report import SEEN_ROLES, SEEN_STRATEGY_ROLES, hypergeometric
+
+logger = logging.getLogger(__name__)
 
 #: The turn the "at least one by turn N" odds in the facts are worked out for.
 BY_TURN = 4
@@ -440,9 +445,19 @@ def _stored(deck):
 
 
 def guest_has_had_one(owner) -> bool:
-    """A guest gets exactly one summary (K8), and it is free (P7)."""
+    """A guest gets exactly one summary (K8), and it is free (P7).
+
+    Counted in the guest's usage (P1), not only read from its decks: a new
+    upload deletes the old deck with its summary, and used to hand out
+    another one each time. A failed summary is given back, so it does not
+    count.
+    """
+    from billing import quotas
+    from billing.models import UsageRecord
     from simulations.models import DeckSummary
 
+    if quotas.used(owner, UsageRecord.Metric.SUMMARIES_WRITTEN) > 0:
+        return True
     return (DeckSummary.objects.filter(deck__owner=owner)
             .exclude(status=DeckSummary.Status.FAILED).exists())
 
@@ -452,7 +467,8 @@ def due(owner, deck, print_: str | None = None) -> bool:
 
     Not when Mistral is not configured or the owner switched summaries off;
     not while one is being written; not when the stored one is about this
-    exact deck. A guest only ever gets one.
+    exact deck. A guest only ever gets one. Not when today's budget is spent
+    (P1): then nobody is charged for one.
     """
     from simulations.models import DeckSummary
 
@@ -463,28 +479,42 @@ def due(owner, deck, print_: str | None = None) -> bool:
         return False
     if owner.is_guest and guest_has_had_one(owner):
         return False
-    if stored is None or stored.status == DeckSummary.Status.FAILED:
-        return True
-    return stored.fingerprint != (print_ or fingerprint(deck))
+    if (stored is not None and stored.status != DeckSummary.Status.FAILED
+            and stored.fingerprint == (print_ or fingerprint(deck))):
+        return False
+    return budget.available(owner.is_guest)
 
 
-def claim(owner, deck) -> bool:
+def claim(owner, deck):
     """`due`, asked again with the deck row locked - inside the transaction
     that charges for it, so two runs started together, or a double click,
-    write and charge one summary rather than two."""
+    write and charge one summary rather than two.
+
+    Takes the summary's slot in today's budget too (P1), and counts a
+    guest's one free summary. Returns the budget's day - pass it to `begin` -
+    or None when no summary is to be written.
+    """
+    from billing import quotas
+    from billing.models import UsageRecord
     from decks.models import Deck
 
     Deck.objects.select_for_update().filter(pk=deck.pk).first()
-    return due(owner, deck)
+    if not due(owner, deck):
+        return None
+    day = budget.reserve(owner.is_guest)
+    if day is not None and owner.is_guest:
+        quotas.consume(owner, UsageRecord.Metric.SUMMARIES_WRITTEN)
+    return day
 
 
-def begin(deck, *, charged: bool, print_: str | None = None):
+def begin(deck, *, charged: bool, budget_day=None, print_: str | None = None):
     """Mark the deck's summary as being written, and queue the writing.
 
     Call inside the transaction that charged for it: the task is sent on
     commit, so a worker never looks for a row that is not there yet. The old
     text stays in the row until a new one replaces it. It is written in the
     language active now - the request of whoever started it (Q3).
+    `budget_day` is what `claim` returned.
     """
     from simulations import tasks
     from simulations.models import DeckSummary
@@ -495,6 +525,8 @@ def begin(deck, *, charged: bool, print_: str | None = None):
             "fingerprint": print_ or fingerprint(deck),
             "status": DeckSummary.Status.PENDING,
             "charged": charged,
+            "budget_day": budget_day,
+            "budget_guest": deck.owner.is_guest,
             "language": language(),
             "error": "",
         },
@@ -503,12 +535,63 @@ def begin(deck, *, charged: bool, print_: str | None = None):
     return summary
 
 
+#: A summary "being written" for longer than this lost its worker (P1).
+STALE_AFTER = timedelta(minutes=10)
+
+
+def fail(row, error: str, *, answered: bool) -> str:
+    """Close a summary as failed and give back what it took - **once**.
+
+    The row is closed by a conditional update, and only the call that closed
+    it gives anything back, the way `_close` settles a run: the owner's run if
+    one was charged, a guest's one free summary, and - when Mistral never
+    answered, so nothing was billed - its slot in that day's budget.
+    """
+    from billing import quotas
+    from billing.models import UsageRecord
+    from simulations.models import DeckSummary
+
+    # The message names what went wrong, never the request: no key, no deck.
+    logger.warning("summary %s not written: %s", row.pk, error)
+    closed = DeckSummary.objects.filter(
+        pk=row.pk, status=DeckSummary.Status.PENDING,
+    ).update(status=DeckSummary.Status.FAILED, error=error[:200], charged=False)
+    if closed:
+        owner = row.deck.owner
+        if row.charged:
+            quotas.refund(owner, UsageRecord.Metric.RUNS_STARTED)
+        if owner.is_guest and row.budget_day is not None:
+            quotas.refund(owner, UsageRecord.Metric.SUMMARIES_WRITTEN)
+        if not answered:
+            budget.release(row.budget_day, row.budget_guest)
+    return DeckSummary.Status.FAILED
+
+
+def close_stale(now=None) -> int:
+    """Fail every summary whose worker died mid-call. Returns how many.
+
+    Without this a killed worker left the summary "being written" for good:
+    the page polled for ever and the charged run never came back. Whether
+    Mistral billed the call is unknown, so its budget slot stays taken.
+    """
+    from simulations.models import DeckSummary
+
+    cutoff = (now or timezone.now()) - STALE_AFTER
+    stale = DeckSummary.objects.select_related("deck__owner").filter(
+        status=DeckSummary.Status.PENDING, updated_at__lt=cutoff)
+    closed = 0
+    for row in stale:
+        fail(row, "no answer in time", answered=True)
+        closed += 1
+    return closed
+
+
 def state(user, deck) -> dict:
     """What the summary block shows about the written part, for this viewer.
 
     `offer` is the "Write a summary" button (P8): a member's deck whose summary
     is missing, out of date or failed, with a run left to pay for it. `short`
-    is the same deck with no run left.
+    is the same deck with no run left. `paused`: today's budget is spent.
     """
     from billing import quotas
     from billing.models import UsageRecord
@@ -521,7 +604,11 @@ def state(user, deck) -> dict:
                and stored.fingerprint == fingerprint(deck))
     remaining = None
     offer = short = False
-    if configured and not pending and not current and not user.is_guest:
+    # Today's budget is spent (P1): say so, and offer nothing to pay for.
+    paused = (configured and not pending and not current
+              and not (user.is_guest and guest_has_had_one(user))
+              and not budget.available(user.is_guest))
+    if configured and not pending and not current and not user.is_guest and not paused:
         decision = quotas.check(user, UsageRecord.Metric.RUNS_STARTED, raise_on_fail=False)
         remaining = decision.remaining
         offer = decision.allowed
@@ -536,6 +623,7 @@ def state(user, deck) -> dict:
         "failed": stored is not None and stored.status == DeckSummary.Status.FAILED,
         "offer": offer,
         "short": short,
+        "paused": paused,
         "remaining": remaining,
     }
 

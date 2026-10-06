@@ -7428,3 +7428,18 @@ msgstr "Retour au deck"
 #: templates/simulations/detail.html
 msgid "Progress"
 msgstr "Progression"
+
+#: templates/simulations/_summary.html
+msgid ""
+"So many summaries were written today that they are paused until midnight. "
+"Your run is not affected."
+msgstr ""
+"Tant de résumés ont été rédigés aujourd'hui qu'ils sont en pause jusqu'à "
+"minuit. Votre simulation n'est pas concernée."
+
+#: templates/simulations/_progress.html
+#, python-format
+msgid "%(ahead)s run ahead of yours, about %(minutes)s min"
+msgid_plural "%(ahead)s runs ahead of yours, about %(minutes)s min"
+msgstr[0] "%(ahead)s simulation avant la vôtre, environ %(minutes)s min"
+msgstr[1] "%(ahead)s simulations avant la vôtre, environ %(minutes)s min"

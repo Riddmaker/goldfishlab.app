@@ -113,10 +113,16 @@ def _pace(run: SimulationRun) -> dict | None:
     if run.is_finished:
         return None
     since = run.started_at or run.created_at
+    queued = run.started_at is None
+    # P1: while it waits, the runs before it and about how long they take.
+    queue = services.queue_ahead(run) if queued else None
+    expected = services.expected_seconds(run) + (queue.seconds if queue else 0)
     return {
         "elapsed": (timezone.now() - since).total_seconds(),
-        "expected": services.expected_seconds(run),
-        "queued": run.started_at is None,
+        "expected": expected,
+        "queued": queued,
+        "ahead": queue.ahead if queue else 0,
+        "wait_minutes": max(1, round(queue.seconds / 60)) if queue else 0,
     }
 
 
@@ -224,9 +230,10 @@ class SummaryWriteView(OwnedRunsMixin, View):
         except QuotaExceeded as exc:
             return billing_views.upgrade_prompt(request, exc)
         with transaction.atomic():
-            if summary.claim(user, run.deck):
+            budget_day = summary.claim(user, run.deck)
+            if budget_day:
                 quotas.consume(user, UsageRecord.Metric.RUNS_STARTED)
-                summary.begin(run.deck, charged=True)
+                summary.begin(run.deck, charged=True, budget_day=budget_day)
         return redirect(back)
 
 

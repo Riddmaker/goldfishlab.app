@@ -6577,3 +6577,15 @@ msgstr "デッキに戻る"
 #: templates/simulations/detail.html
 msgid "Progress"
 msgstr "進行状況"
+
+#: templates/simulations/_summary.html
+msgid ""
+"So many summaries were written today that they are paused until midnight. "
+"Your run is not affected."
+msgstr "今日は要約の作成数が上限に達したため、深夜0時まで一時停止しています。実行には影響ありません。"
+
+#: templates/simulations/_progress.html
+#, python-format
+msgid "%(ahead)s run ahead of yours, about %(minutes)s min"
+msgid_plural "%(ahead)s runs ahead of yours, about %(minutes)s min"
+msgstr[0] "あなたの前に%(ahead)s件の実行、約%(minutes)s分"

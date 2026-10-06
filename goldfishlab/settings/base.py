@@ -146,6 +146,13 @@ MISTRAL_API_KEY = env("MISTRAL_API_KEY", default="")
 # Chosen by F7 (docs/phases/phase-10-test-findings.md): the test decks were
 # summarised by each candidate and checked against their lists.
 MISTRAL_MODEL = env("MISTRAL_MODEL", default="mistral-medium-2604")
+# Load protection (P1): at most this many summaries are started a day,
+# Europe/Zurich, and guests take at most GUEST_SUMMARIES_PER_DAY of them, so
+# a crowd of visitors never spends the members' share. A day's ceiling is the
+# bill's: at mistral-medium about CHF 0.004 a summary, 200 cost under CHF 1.
+# `simulations.budget` counts them; core.alerts mails at 80 %.
+SUMMARIES_PER_DAY = env.int("SUMMARIES_PER_DAY", default=200)
+GUEST_SUMMARIES_PER_DAY = env.int("GUEST_SUMMARIES_PER_DAY", default=100)
 
 # --- The operator, for the legal pages ---------------------------------------
 # Who runs this installation: the controller in the privacy policy, the
@@ -266,6 +273,12 @@ CELERY_BEAT_SCHEDULE = {
         "task": "cards.refresh",
         "schedule": crontab(minute="30", hour="0"),
         "options": {"queue": "sim_long"},
+    },
+    # P1: a summary whose worker died mid-call is closed, and its run given
+    # back, instead of showing "being written" for ever.
+    "summaries-close-stale": {
+        "task": "simulations.close_stale_summaries",
+        "schedule": crontab(minute="*/10"),
     },
     # Phase 12 J12: hourly; at most one mail per kind of problem a day.
     "alerts": {

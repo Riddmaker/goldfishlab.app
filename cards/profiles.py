@@ -131,16 +131,64 @@ LAND_TUTOR_TAG = "tutor-land"
 TUTOR_DESTINATION_TAG = "tutor-to"
 
 
+#: Tagger's `reanimate` is anything that comes back from a graveyard onto the
+#: battlefield: lands (Crucible of Worlds), artifacts (Goblin Welder), a card
+#: returning itself (Bloodghast) - 26 branches. Our category says "Puts creature
+#: cards from a graveyard onto the battlefield", and a player who builds
+#: around Reanimate means exactly that (phase 12 J29: Crucible of Worlds was
+#: offered as a Reanimate card). So the role needs one of these branches, which
+#: can bring a creature back. A list of the creature branches rather than of
+#: the others, as at `draw-engine`: a branch nobody has read yet does not get
+#: to put cards into the category. 1,102 cards carried the role, 683 do.
+REANIMATE_TAG = "reanimate"
+REANIMATE_CREATURE_TAGS = frozenset({
+    "reanimate-creature", "reanimate-artifact-creature", "reanimate-permanent",
+    "reanimate-from-opponent", "reanimate-from-any", "reanimate-face-down",
+    "reanimate-nonland",
+})
+#: Casting from the graveyard, not putting onto the battlefield. Next to it,
+#: `reanimate-nonland` describes what is cast: Underworld Breach, Six.
+REANIMATE_CAST_TAG = "reanimate-cast"
+
+
+def tag_children(parent: str) -> frozenset[str]:
+    """The direct children of `parent` in the tag tree, read from the database."""
+    from cards.models import TagEdge
+
+    return frozenset(TagEdge.objects.filter(parent__slug=parent)
+                     .values_list("child__slug", flat=True))
+
+
 def tutor_branches() -> frozenset[str]:
     """The direct children of `tutor` in the tag tree, read from the database.
 
     Read rather than written down, because the tree is Scryfall's and grows: a
     list here would quietly file a card under a new branch as a land fetcher.
     """
-    from cards.models import TagEdge
+    return tag_children(TUTOR_TAG)
 
-    return frozenset(TagEdge.objects.filter(parent__slug=TUTOR_TAG)
-                     .values_list("child__slug", flat=True))
+
+def reanimate_branches() -> frozenset[str]:
+    """The direct children of `reanimate`: whether a card wears any at all."""
+    return tag_children(REANIMATE_TAG)
+
+
+def _returns_no_creature(tags: set[str], branches: frozenset[str] | None) -> bool:
+    """Whether the card's reanimation can bring back no creature.
+
+    A card wearing `reanimate` and no branch at all keeps the role: the tagger
+    said reanimate and nothing more, which is not a reason to doubt it (twelve
+    cards, as at `TUTOR_TAG`).
+    """
+    if branches is None:
+        branches = reanimate_branches()
+    worn = tags & branches
+    if not worn:
+        return False
+    creature = worn & REANIMATE_CREATURE_TAGS
+    if REANIMATE_CAST_TAG in worn:
+        creature -= {"reanimate-nonland"}
+    return not creature
 
 
 def _finds_only_lands(tags: set[str], branches: frozenset[str] | None) -> bool:
@@ -736,11 +784,13 @@ def _first_number(pattern: re.Pattern, text: str) -> int | None:
 
 
 def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
-           branches: frozenset[str] | None = None) -> DerivedProfile:
+           branches: frozenset[str] | None = None,
+           revivals: frozenset[str] | None = None) -> DerivedProfile:
     """Build (not save) the profile for one card.
 
-    `branches` is `tutor_branches()`, passed in by `rebuild` so that a pass over
-    the catalogue reads the tag tree once rather than once per land fetcher.
+    `branches` is `tutor_branches()` and `revivals` is `reanimate_branches()`,
+    passed in by `rebuild` so that a pass over the catalogue reads the tag tree
+    once rather than once per land fetcher or reanimator.
     """
     tags = tag_slugs if tag_slugs is not None else set(card.tags.values_list("slug", flat=True))
     text = card.oracle_text or ""
@@ -750,6 +800,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     roles = sorted({ROLE_FROM_TAG[slug] for slug in tags if slug in ROLE_FROM_TAG})
     if "tutor" in roles and _finds_only_lands(tags, branches):
         roles.remove("tutor")
+    if "reanimate" in roles and _returns_no_creature(tags, revivals):
+        roles.remove("reanimate")
     if card.game_changer:
         roles.append("gamechanger")
     if kind == DerivedProfile.Kind.CREATURE and "creature" not in roles:
@@ -885,21 +937,23 @@ def rebuild(queryset=None, *, batch_size: int = 1_000) -> int:
 
     cards = queryset if queryset is not None else OracleCard.objects.all()
     branches = tutor_branches()
+    revivals = reanimate_branches()
     written = 0
     batch: list[OracleCard] = []
 
     for card in cards.iterator(chunk_size=batch_size):
         batch.append(card)
         if len(batch) >= batch_size:
-            written += _flush_profiles(batch, OracleCardTag, branches)
+            written += _flush_profiles(batch, OracleCardTag, branches, revivals)
             batch = []
             reset_queries()
 
-    written += _flush_profiles(batch, OracleCardTag, branches)
+    written += _flush_profiles(batch, OracleCardTag, branches, revivals)
     return written
 
 
-def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str]) -> int:
+def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str],
+                    revivals: frozenset[str]) -> int:
     if not batch:
         return 0
 
@@ -910,7 +964,8 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
     for card_id, slug in links:
         slugs_by_card.setdefault(str(card_id), set()).add(slug)
 
-    profiles = [derive(card, slugs_by_card.get(str(card.pk), set()), branches=branches)
+    profiles = [derive(card, slugs_by_card.get(str(card.pk), set()), branches=branches,
+                       revivals=revivals)
                 for card in batch]
     DerivedProfile.objects.bulk_create(
         profiles,

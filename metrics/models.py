@@ -29,6 +29,9 @@ class DailyCount(models.Model):
         REPORT_VIEWED = "report_viewed", "Reports viewed"
         #: P9: "Compare two versions" clicked, once per browser session.
         COMPARE_CLICKED = "compare_clicked", "Compare two versions clicked"
+        #: P11: a data page opened (the precon table or a precon), robots
+        #: left out - is anybody finding them?
+        DATA_PAGE_OPENED = "data_page_opened", "Data pages opened"
 
     #: In the site's time zone (settings.TIME_ZONE), as the stats page reads it.
     day = models.DateField()

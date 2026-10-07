@@ -1,0 +1,637 @@
+{
+"meta": {
+"version": "test"
+},
+"data": {
+"name": "Grim Knights",
+"code": "TST",
+"releaseDate": "2026-03-06",
+"type": "Commander Deck",
+"commander": [
+{
+"name": "Syr Konrad, the Grim",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "14c3ff84-1e82-4606-a433-869fc52cc382"
+}
+}
+],
+"mainBoard": [
+{
+"name": "Gravecrawler",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "09ff28b1-b6c9-48e6-b12e-2f0e644f709f"
+}
+},
+{
+"name": "Arcane Signet",
+"count": 1,
+"types": [
+"Artifact"
+],
+"identifiers": {
+"scryfallOracleId": "0bc7f093-bef0-4f1a-852c-4b75ebf54838"
+}
+},
+{
+"name": "Charcoal Diamond",
+"count": 1,
+"types": [
+"Artifact"
+],
+"identifiers": {
+"scryfallOracleId": "1386d111-a2a7-4df1-91d7-947664126989"
+}
+},
+{
+"name": "Smothering Tithe",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "153376c9-dffd-458c-8ce3-a4c8269bc4e9"
+}
+},
+{
+"name": "Dread Presence",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "1690a782-9e54-4231-9a72-abae5ed7050c"
+}
+},
+{
+"name": "Greed",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "1ff62220-be95-4901-b8d8-812b9a1a1b0a"
+}
+},
+{
+"name": "Dark Confidant",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "2068185c-1b50-47d0-aa3f-bf505d199428"
+}
+},
+{
+"name": "Victimize",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "240e85d3-e495-4877-8609-4b4056c402f7"
+}
+},
+{
+"name": "Blood Artist",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "310f141c-7f37-4729-aed6-dd9c09db448d"
+}
+},
+{
+"name": "Morbid Opportunist",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "322f44f0-e6da-4ee0-b474-e7d5e9a461c5"
+}
+},
+{
+"name": "Snuff Out",
+"count": 1,
+"types": [
+"Instant"
+],
+"identifiers": {
+"scryfallOracleId": "324824cb-f938-401c-b9b5-d8908b431ef0"
+}
+},
+{
+"name": "Wrath of God",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "34515b16-c9a4-4f98-8c77-416a7a523407"
+}
+},
+{
+"name": "Brainstorm",
+"count": 1,
+"types": [
+"Instant"
+],
+"identifiers": {
+"scryfallOracleId": "36cd2364-d113-47d1-b2c4-b088d9eb88dd"
+}
+},
+{
+"name": "Gray Merchant of Asphodel",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "38f3b157-0df4-409b-89cc-086e1531cd5b"
+}
+},
+{
+"name": "Lightning Bolt",
+"count": 1,
+"types": [
+"Instant"
+],
+"identifiers": {
+"scryfallOracleId": "4457ed35-7c10-48c8-9776-456485fdf070"
+}
+},
+{
+"name": "Fleshbag Marauder",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "4b1bf05e-753e-4350-a913-894cf3cecc0c"
+}
+},
+{
+"name": "Ashnod's Altar",
+"count": 1,
+"types": [
+"Artifact"
+],
+"identifiers": {
+"scryfallOracleId": "4d18bcba-a346-445e-a182-6cc30b7e066d"
+}
+},
+{
+"name": "Rhystic Study",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "53236dd7-845a-444c-96d5-f41ed7325d8f"
+}
+},
+{
+"name": "Dark Ritual",
+"count": 1,
+"types": [
+"Instant"
+],
+"identifiers": {
+"scryfallOracleId": "53f7c868-b03e-4fc2-8dcf-a75bbfa3272b"
+}
+},
+{
+"name": "Feed the Swarm",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "5825997b-10d7-4a36-972c-a80ddd90b8ed"
+}
+},
+{
+"name": "Cabal Ritual",
+"count": 1,
+"types": [
+"Instant"
+],
+"identifiers": {
+"scryfallOracleId": "5b5bf1fa-6502-4790-b66b-f0f8504ebc7c"
+}
+},
+{
+"name": "Esper Sentinel",
+"count": 1,
+"types": [
+"Creature",
+"Artifact"
+],
+"identifiers": {
+"scryfallOracleId": "5def9f38-0a0b-4e8d-9f9d-29dcb46520b4"
+}
+},
+{
+"name": "Phyrexian Reclamation",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "647ca69e-cc01-4b2b-b376-bee2a98331e8"
+}
+},
+{
+"name": "Innocent Blood",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "6791ec3c-c397-4087-8c8c-84d3797df415"
+}
+},
+{
+"name": "Llanowar Elves",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "68954295-54e3-4303-a6bc-fc4547a4e3a3"
+}
+},
+{
+"name": "Mutilate",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "698e79ec-c2bc-4973-a095-f3c57b50e39c"
+}
+},
+{
+"name": "Necromancy",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "699b192c-f3f2-4ac5-9ca9-e35bcf08ad8a"
+}
+},
+{
+"name": "Sol Ring",
+"count": 1,
+"types": [
+"Artifact"
+],
+"identifiers": {
+"scryfallOracleId": "6ad8011d-3471-4369-9d68-b264cc027487"
+}
+},
+{
+"name": "Nether Traitor",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "6f16c3ac-a9b8-47e6-b18b-ae37c74d44a0"
+}
+},
+{
+"name": "Grave Pact",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "6f4ac4a4-53ec-4bc9-8f5c-d4b801d867b2"
+}
+},
+{
+"name": "Hypnotic Specter",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "759af941-f6a3-4726-91f2-9b1e4e55ea71"
+}
+},
+{
+"name": "Helm of Possession",
+"count": 1,
+"types": [
+"Artifact"
+],
+"identifiers": {
+"scryfallOracleId": "78f22413-4e61-4191-9d30-7b5d6538446e"
+}
+},
+{
+"name": "Night's Whisper",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "7ffae8f8-3006-4969-a339-6d30678f87ea"
+}
+},
+{
+"name": "Demonic Tutor",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "82004860-e589-4e38-8d61-8c0210e4ea39"
+}
+},
+{
+"name": "Buried Alive",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "8203c621-a1a0-4865-8c9a-0d4064c86107"
+}
+},
+{
+"name": "Rite of Flame",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "8a2e53f9-8100-488f-8504-b59e9bd1cc29"
+}
+},
+{
+"name": "Mystic Remora",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "8a52f3c0-2552-4425-b2e3-5496eb2232a7"
+}
+},
+{
+"name": "Cultivate",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "8b755881-a72d-4e21-a369-d2924eb4585a"
+}
+},
+{
+"name": "Exquisite Blood",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "8f933fae-6c0c-42d7-a817-14760d8285cd"
+}
+},
+{
+"name": "Bottomless Pit",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "91e6fb47-59e4-4616-b8dd-3a7e30070074"
+}
+},
+{
+"name": "Necropotence",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "94a844d2-0574-45a7-b347-e0e329767c42"
+}
+},
+{
+"name": "Infernal Grasp",
+"count": 1,
+"types": [
+"Instant"
+],
+"identifiers": {
+"scryfallOracleId": "94f0a572-e91c-4b56-a5d1-6cbbeabd210d"
+}
+},
+{
+"name": "Hymn to Tourach",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "992d9a72-d34d-47d7-96fb-37f0efb515ef"
+}
+},
+{
+"name": "Reassembling Skeleton",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "9dbc3530-b278-4c8d-b2cc-a09dfac9d5e5"
+}
+},
+{
+"name": "Living Death",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "9e6a3df4-67a3-452e-a6ef-f04dbadb21ef"
+}
+},
+{
+"name": "Reanimate",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "a044474a-cd72-4e9d-bd8d-a08f2de9cdc0"
+}
+},
+{
+"name": "Carrion Feeder",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "a1cc5e37-b09a-4b7f-afd5-77c1c35aa425"
+}
+},
+{
+"name": "Crypt Ghast",
+"count": 1,
+"types": [
+"Creature"
+],
+"identifiers": {
+"scryfallOracleId": "a3c8d817-7949-4dae-b9f5-f9d952479270"
+}
+},
+{
+"name": "Liliana's Caress",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "a4aec0d6-13fa-4709-b1a9-2f483f032744"
+}
+},
+{
+"name": "Tainted Aether",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "a61ceda1-5993-479e-945f-15753eeb7049"
+}
+},
+{
+"name": "Toxic Deluge",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "afaef788-34d1-460b-b884-9d7ae6ddeb18"
+}
+},
+{
+"name": "Swords to Plowshares",
+"count": 1,
+"types": [
+"Instant"
+],
+"identifiers": {
+"scryfallOracleId": "b1544f21-7e98-461b-aed5-e748b0168c52"
+}
+},
+{
+"name": "Dauthi Embrace",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "b19a7ae7-3af5-4aa6-80e1-8888054427de"
+}
+},
+{
+"name": "Terror",
+"count": 1,
+"types": [
+"Instant"
+],
+"identifiers": {
+"scryfallOracleId": "b81f041d-98db-4408-9472-c483e4a502bc"
+}
+},
+{
+"name": "Gate to Phyrexia",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "bbb005de-bbba-458e-87c1-912a004e80da"
+}
+},
+{
+"name": "Jet Medallion",
+"count": 1,
+"types": [
+"Artifact"
+],
+"identifiers": {
+"scryfallOracleId": "bccb06f1-8839-4104-9ffa-c79a817f8378"
+}
+},
+{
+"name": "Ritual of the Machine",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "bccd8298-e056-4b91-b090-408c75467b92"
+}
+},
+{
+"name": "Phyrexian Tribute",
+"count": 1,
+"types": [
+"Sorcery"
+],
+"identifiers": {
+"scryfallOracleId": "c06b993b-a36a-412a-a732-d678a4179791"
+}
+},
+{
+"name": "Animate Dead",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "c0d8fef4-65f4-4769-982d-b397d2b7e977"
+}
+},
+{
+"name": "Painful Quandary",
+"count": 1,
+"types": [
+"Enchantment"
+],
+"identifiers": {
+"scryfallOracleId": "c37051cc-6683-4dbb-b5ff-5c3a5bdab1df"
+}
+},
+{
+"name": "Swamp",
+"count": 39,
+"types": [
+"Land"
+],
+"identifiers": {
+"scryfallOracleId": "56719f6a-1a6c-4c0a-8d21-18f7d7350b68"
+}
+}
+],
+"sideBoard": []
+}
+}

@@ -1,0 +1,49 @@
+{
+"meta": {
+"version": "test"
+},
+"data": [
+{
+"code": "TST",
+"fileName": "GrimKnights_TST",
+"name": "Grim Knights",
+"releaseDate": "2026-03-06",
+"type": "Commander Deck"
+},
+{
+"code": "TST",
+"fileName": "OddOneOut_TST",
+"name": "Odd One Out",
+"releaseDate": "2026-03-06",
+"type": "Commander Deck"
+},
+{
+"code": "TST",
+"fileName": "GrimKnightsCollectorSEdition_TST",
+"name": "Grim Knights Collector's Edition",
+"releaseDate": "2026-03-06",
+"type": "Commander Deck"
+},
+{
+"code": "SLD",
+"fileName": "SecretDeck_SLD",
+"name": "Secret Deck",
+"releaseDate": "2026-05-01",
+"type": "Commander Deck"
+},
+{
+"code": "OLD",
+"fileName": "OldDeck_OLD",
+"name": "Old Deck",
+"releaseDate": "2024-11-15",
+"type": "Commander Deck"
+},
+{
+"code": "TST",
+"fileName": "StarterKit_TST",
+"name": "Starter Kit",
+"releaseDate": "2026-03-06",
+"type": "Starter Kit"
+}
+]
+}

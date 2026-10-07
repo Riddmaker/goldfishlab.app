@@ -13,6 +13,8 @@ was the real one, and a link pasted into Discord showed a bare URL. Now:
   still points at goldfishlab.app. Blank, the request's own host is used:
   development and a fork that has not set it keep working.
 * **A shared report** (P4) is indexable too, but not in the sitemap.
+* **The data pages** (P11): the precon table is a public page, and each
+  published precon is in the sitemap too (`datapages.sitemaps`).
 * **Each language at its own address** (P10). A public page is at /pricing/
   in English and /de/pricing/ in German (`goldfishlab.urls`), and names every
   version of itself in hreflang links, its English address also as
@@ -38,6 +40,8 @@ PUBLIC_PAGES = (
     "guests:try",
     "pricing",
     "methodology",
+    "datapages:precons",
+    "datapages:lands",
     "terms",
     "privacy",
     "imprint",
@@ -47,6 +51,10 @@ PUBLIC_PAGES = (
 #: is public by its owner's choice, and a search engine should find it where
 #: somebody posted its link - never by us listing every link there is.
 INDEXABLE_UNLISTED = ("shared:report",)
+
+#: Indexable and in the sitemap, but one page per row: every published precon
+#: (P11, `datapages.sitemaps`).
+INDEXABLE_ROWS = ("datapages:precon",)
 
 #: Open Graph wants language_TERRITORY. The territory is the one most readers
 #: of each language live in; Brazilian Portuguese names its own.
@@ -82,7 +90,8 @@ def is_public(request) -> bool:
     view, are not. One that does - a stopped share link's 404, a 429 on a
     public page - says noindex through its own `robots` block in base.html."""
     match = getattr(request, "resolver_match", None)
-    return match is not None and match.view_name in PUBLIC_PAGES + INDEXABLE_UNLISTED
+    return match is not None and match.view_name in (
+        PUBLIC_PAGES + INDEXABLE_UNLISTED + INDEXABLE_ROWS)
 
 
 def alternates(request) -> list[tuple[str, str]]:
@@ -110,8 +119,8 @@ def context(request) -> dict:
     }
 
 
-class PublicPagesSitemap(Sitemap):
-    """/sitemap.xml: the public pages on `SITE_URL`, each in every language
+class SiteSitemap(Sitemap):
+    """A part of /sitemap.xml on `SITE_URL`, each page in every language
     switched on, with the same hreflang links as the page (P10). Django's
     own `i18n` does it: `location` is called with each language active.
 
@@ -123,12 +132,6 @@ class PublicPagesSitemap(Sitemap):
     alternates = True
     x_default = True
 
-    def items(self):
-        return list(PUBLIC_PAGES)
-
-    def location(self, item):
-        return reverse(item)
-
     def get_protocol(self, protocol=None):
         if settings.SITE_URL:
             return urlsplit(settings.SITE_URL).scheme
@@ -138,3 +141,13 @@ class PublicPagesSitemap(Sitemap):
         if settings.SITE_URL:
             return urlsplit(settings.SITE_URL).netloc
         return super().get_domain(site)
+
+
+class PublicPagesSitemap(SiteSitemap):
+    """The public pages, by view name."""
+
+    def items(self):
+        return list(PUBLIC_PAGES)
+
+    def location(self, item):
+        return reverse(item)

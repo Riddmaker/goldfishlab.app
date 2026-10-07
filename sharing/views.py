@@ -19,6 +19,7 @@ from django.views.generic import TemplateView, View
 from django_ratelimit.decorators import ratelimit
 
 from core import seo
+from datapages.models import Precon
 from sharing import services, text
 from sharing.models import SharedReport
 from simulations import report
@@ -60,11 +61,37 @@ class StopView(LoginRequiredMixin, View):
         return redirect(f"{run.get_absolute_url()}#share")
 
 
+def rendered(request, shared: SharedReport, url: str) -> dict:
+    """The report's body, description and text, from the cache when it is
+    there. Also the precon pages' (P11), which are shared reports too."""
+    key = f"sharing:report:{shared.token}:{get_language()}"
+    parts = cache.get(key)
+    if parts is None:
+        run = shared.run
+        built = report.build(run)
+        parts = {
+            "body": render_to_string("sharing/_body.html", {
+                "run": run, "report": built, "shared_report": shared, "shared": True,
+            }, request=request),
+            "description": text.description(built, run),
+            "text": text.plain(shared, built, run, url),
+        }
+        cache.set(key, parts, CACHE_SECONDS)
+    return parts
+
+
 @method_decorator(ratelimit(key="ip", rate="60/m", method="GET", block=True), name="get")
 class SharedReportView(TemplateView):
     """/r/<token>/: one shared report, for anybody."""
 
     template_name = "sharing/report.html"
+
+    def get(self, request, *args, **kwargs):
+        # A precon's report has its own page (P11); one address for it.
+        precon = Precon.objects.filter(deck__runs__share__token=kwargs["token"]).first()
+        if precon is not None:
+            return redirect(precon, permanent=True)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -73,18 +100,7 @@ class SharedReportView(TemplateView):
         run = shared.run
         services.count_view(shared, self.request)
         url = seo.absolute(self.request, shared.get_absolute_url())
-        key = f"sharing:report:{shared.token}:{get_language()}"
-        parts = cache.get(key)
-        if parts is None:
-            built = report.build(run)
-            parts = {
-                "body": render_to_string("sharing/_body.html", {
-                    "run": run, "report": built, "shared_report": shared, "shared": True,
-                }, request=self.request),
-                "description": text.description(built, run),
-                "text": text.plain(shared, built, run, url),
-            }
-            cache.set(key, parts, CACHE_SECONDS)
+        parts = rendered(self.request, shared, url)
         context.update({
             "shared_report": shared,
             "run": run,

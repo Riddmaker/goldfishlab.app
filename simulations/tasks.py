@@ -82,7 +82,7 @@ def run_simulation(run_id: str) -> str:
     # 100,000-game run would put two hundred chunks in front of every free
     # user's 1,000-game run, defeating the one mechanism that exists to stop
     # exactly that. Verified by watching which worker picks the chunks up.
-    queue = services.queue_for(run.games_total)
+    queue = services.queue_of(run)
     header = [
         simulate_chunk.s(str(run.pk), index, games).set(queue=queue)
         for index, games in enumerate(plan)

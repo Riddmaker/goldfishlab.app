@@ -58,6 +58,11 @@ class User(AbstractUser):
     #: the week's count of people who simulated counts them once
     #: (`metrics.counts.run_started`). Nothing else reads it.
     simulated_week = models.DateField(null=True, blank=True)
+    #: The site's own account (P11), which owns the precon decks and their
+    #: runs: it cannot sign in, and it is nobody, so the counts on
+    #: /admin/stats/ leave it out and its runs go on the long queue
+    #: (`datapages.lab`). There is one, made when it is first needed.
+    is_system = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

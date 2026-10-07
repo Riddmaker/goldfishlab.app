@@ -1,0 +1,16 @@
+{% load i18n %}
+{% comment %}Where the lists come from, and what the numbers are not (P11).{% endcomment %}
+{% url "methodology" as methodology_url %}
+<section class="mt-8 max-w-3xl text-sm text-parchment-200">
+  <p>
+    {% blocktranslate trimmed %}
+      A goldfish is a deck played alone: these numbers measure what a deck does,
+      not how a table answers it. <a href="{{ methodology_url }}" class="underline hover:text-parchment-50">How this works</a>
+    {% endblocktranslate %}
+  </p>
+  <p class="mt-2">
+    {% blocktranslate trimmed %}
+      Decklists from <a href="https://mtgjson.com/" class="underline hover:text-parchment-50" rel="noopener">MTGJSON</a>.
+    {% endblocktranslate %}
+  </p>
+</section>

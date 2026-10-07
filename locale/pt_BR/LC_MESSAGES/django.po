@@ -7629,17 +7629,345 @@ msgstr ""
 "Comparações pequenas grátis; séries grandes com um plano de CHF %(price)s "
 "por mês."
 
+#: templates/datapages/precons.html templates/core/home.html
+msgid "Every Commander precon, simulated"
+msgstr "Cada precon de Commander, simulado"
+
+#: templates/datapages/precons.html
+#, python-format
+msgid ""
+"Every Commander precon since 2025, each played %(games)s times: land drops, "
+"mulligans and mana by turn 4, side by side."
+msgstr ""
+"Cada precon de Commander desde 2025, jogado %(games)s vezes: terrenos "
+"baixados, mulligans e mana até o turno 4, lado a lado."
+
+#: templates/datapages/precons.html
+#, python-format
+msgid ""
+"Each preconstructed Commander deck since 2025, played %(games)s times for "
+"%(turns)s turns, the same way for every deck: drawing on the first turn, as "
+"at a multiplayer table, with the same mulligan rule. Pick a deck to see "
+"everything it did."
+msgstr ""
+"Cada deck pré-construído de Commander desde 2025, jogado %(games)s vezes por"
+" %(turns)s turnos, igual para todos os decks: comprando no primeiro turno, "
+"como numa mesa multijogador, com a mesma regra de mulligan. Escolha um deck "
+"para ver tudo o que ele fez."
+
+#: templates/datapages/precons.html
+msgid "Deck"
+msgstr "Deck"
+
+#: templates/datapages/precons.html
+msgid "Released"
+msgstr "Lançamento"
+
+#: templates/datapages/precons.html
+#, python-format
+msgid "4 lands by turn %(turn)s"
+msgstr "4 terrenos até o turno %(turn)s"
+
+#: templates/datapages/precons.html
+msgid "Kept seven"
+msgstr "Sete mantidas"
+
+#: templates/datapages/precons.html
+#, python-format
+msgid "Mana on turn %(turn)s"
+msgstr "Mana no turno %(turn)s"
+
+#: templates/datapages/precons.html
+msgid "Cards read"
+msgstr "Cartas lidas"
+
+#: templates/datapages/precons.html
+#, python-format
+msgid ""
+"\"4 lands by turn %(turn)s\": games with four lands in play on turn "
+"%(turn)s. \"Kept seven\": games that kept the first seven cards. \"Cards "
+"read\": how much of the deck the engine could read from the cards "
+"themselves; the lower it is, the less the other numbers tell."
+msgstr ""
+"“4 terrenos até o turno %(turn)s”: partidas com quatro terrenos em jogo no "
+"turno %(turn)s. “Sete mantidas”: partidas que mantiveram as sete primeiras "
+"cartas. “Cartas lidas”: quanto do deck o motor conseguiu ler das próprias "
+"cartas; quanto mais baixo, menos os outros números dizem."
+
+#: templates/datapages/precons.html
+msgid "The precons are being simulated. Come back in a few minutes."
+msgstr "Os precons estão sendo simulados. Volte em alguns minutos."
+
+#: templates/datapages/_credits.html
+#, python-format
+msgid ""
+"A goldfish is a deck played alone: these numbers measure what a deck does, "
+"not how a table answers it. <a href=\"%(methodology_url)s\" "
+"class=\"underline hover:text-parchment-50\">How this works</a>"
+msgstr ""
+"Um goldfish é um deck jogado sozinho: estes números medem o que um deck faz,"
+" não como uma mesa responde a ele. <a href=\"%(methodology_url)s\" "
+"class=\"underline hover:text-parchment-50\">Como funciona</a>"
+
+#: templates/datapages/_credits.html
+msgid ""
+"Decklists from <a href=\"https://mtgjson.com/\" class=\"underline "
+"hover:text-parchment-50\" rel=\"noopener\">MTGJSON</a>."
+msgstr ""
+"Listas de decks do <a href=\"https://mtgjson.com/\" class=\"underline "
+"hover:text-parchment-50\" rel=\"noopener\">MTGJSON</a>."
+
+#: templates/datapages/precon.html
+#, python-format
+msgid "%(name)s precon, simulated"
+msgstr "Precon %(name)s, simulado"
+
+#: templates/datapages/precon.html templates/base.html
+msgid "Every Commander precon"
+msgstr "Todos os precons de Commander"
+
+#: templates/datapages/precon.html
+#, python-format
+msgid ""
+"Played %(games)s times for %(turns)s turns, with the multiplayer draw rule. "
+"Simulated by Goldfish Lab on %(date)s."
+msgstr ""
+"Jogado %(games)s vezes por %(turns)s turnos, com a regra de compra "
+"multijogador. Simulado pelo Goldfish Lab em %(date)s."
+
+#: templates/datapages/precon.html
+msgid "In short"
+msgstr "Em resumo"
+
+#: templates/datapages/precon.html
+msgid "Changed a few cards?"
+msgstr "Trocou algumas cartas?"
+
+#: templates/datapages/precon.html
+msgid ""
+"Upload your version and Goldfish Lab plays it thousands of times. Free, and "
+"no account needed to try."
+msgstr ""
+"Envie sua versão e o Goldfish Lab a joga milhares de vezes. Grátis, e sem "
+"conta para experimentar."
+
+#: templates/datapages/precon.html
+msgid "Compare every precon"
+msgstr "Comparar todos os precons"
+
+#: datapages/numbers.py
+#, python-format
+msgid "In %(share)s of games it has four lands in play on turn 4."
+msgstr ""
+"Em %(share)s das partidas, ele tem quatro terrenos em jogo no turno 4."
+
+#: datapages/numbers.py
+#, python-format
+msgid "It keeps its first seven cards in %(share)s of games."
+msgstr "Ele mantém as sete primeiras cartas em %(share)s das partidas."
+
+#: datapages/numbers.py
+#, python-format
+msgid "On turn 4 it has %(mana)s mana on average."
+msgstr "No turno 4, ele tem em média %(mana)s de mana."
+
 #: templates/core/privacy.html
 msgid ""
 "Daily counts of how the site is used: guests started and saved, accounts "
-"opened, simulations started, reports viewed, shared reports opened, clicks "
-"on features we are considering, and how many different people simulated in a"
-" week - totals only, with no name, address or account. To count you once a "
-"week, your account notes the week of your last simulation"
+"opened, simulations started, reports viewed, shared reports and data pages "
+"opened, clicks on features we are considering, and how many different people"
+" simulated in a week - totals only, with no name, address or account. To "
+"count you once a week, your account notes the week of your last simulation"
 msgstr ""
 "Contagens diárias de como o site é usado: convidados criados e salvos, "
 "contas abertas, simulações iniciadas, relatórios vistos, relatórios "
-"compartilhados abertos, cliques em funções que estamos considerando e "
-"quantas pessoas diferentes simularam em uma semana — apenas totais, sem "
-"nome, endereço ou conta. Para contar você uma vez por semana, a sua conta "
-"anota a semana da sua última simulação"
+"compartilhados e páginas de dados abertos, cliques em funções que estamos "
+"considerando e quantas pessoas diferentes simularam em uma semana — apenas "
+"totais, sem nome, endereço ou conta. Para contar você uma vez por semana, a "
+"sua conta anota a semana da sua última simulação"
+
+#: templates/datapages/lands.html
+msgid "How many lands in Commander?"
+msgstr "Quantos terrenos no Commander?"
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"Commander precons rebuilt with %(low)s to %(high)s lands and played "
+"thousands of times: what one land more or less changes."
+msgstr ""
+"Precons de Commander reconstruídos com %(low)s a %(high)s terrenos e jogados"
+" milhares de vezes: o que muda um terreno a mais ou a menos."
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"Each land from %(low)s to %(high)s makes a Commander deck about %(gain)s "
+"points more likely to have four lands on turn 4, and costs it about %(cost)s"
+" spells seen by turn %(turns)s. There is no corner where lands stop helping:"
+" each one buys and costs about as much as the one before. The usual 35 to 38"
+" is a trade between land drops and spells, not a threshold."
+msgstr ""
+"Cada terreno de %(low)s a %(high)s deixa um deck de Commander cerca de "
+"%(gain)s pontos mais propenso a ter quatro terrenos no turno 4, e custa "
+"cerca de %(cost)s mágicas vistas até o turno %(turns)s. Não há um ponto em "
+"que os terrenos deixam de ajudar: cada um rende e custa mais ou menos o "
+"mesmo que o anterior. Os 35 a 38 de sempre são uma troca entre terrenos "
+"baixados e mágicas, não um limite."
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"We rebuilt %(decks)s precon with every land count from %(low)s to %(high)s "
+"and played each version %(games)s times. The same deck at eight land counts "
+"shows what a land does, which comparing different decks cannot."
+msgid_plural ""
+"We rebuilt %(decks)s precons with every land count from %(low)s to %(high)s "
+"and played each version %(games)s times. The same deck at eight land counts "
+"shows what a land does, which comparing different decks cannot."
+msgstr[0] ""
+"Reconstruímos %(decks)s precon com cada número de terrenos de %(low)s a "
+"%(high)s e jogamos cada versão %(games)s vezes. O mesmo deck com oito "
+"números de terrenos mostra o que um terreno faz, algo que comparar decks "
+"diferentes não consegue."
+msgstr[1] ""
+"Reconstruímos %(decks)s precons com cada número de terrenos de %(low)s a "
+"%(high)s e jogamos cada versão %(games)s vezes. O mesmo deck com oito "
+"números de terrenos mostra o que um terreno faz, algo que comparar decks "
+"diferentes não consegue."
+
+#: templates/datapages/lands.html
+msgid "What one more land buys"
+msgstr "O que um terreno a mais traz"
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"Games with four lands in play on turn %(turn)s: %(on_low)s at %(low)s lands,"
+" %(on_high)s at %(high)s, on average over the decks below."
+msgstr ""
+"Partidas com quatro terrenos em jogo no turno %(turn)s: %(on_low)s com "
+"%(low)s terrenos, %(on_high)s com %(high)s, em média nos decks abaixo."
+
+#: templates/datapages/lands.html
+#, python-format
+msgid "Share of games with four lands on turn %(turn)s, by number of lands"
+msgstr ""
+"Parcela de partidas com quatro terrenos no turno %(turn)s, por número de "
+"terrenos"
+
+#: templates/datapages/lands.html
+msgid "Number of lands in the deck, left to right."
+msgstr "Número de terrenos no deck, da esquerda para a direita."
+
+#: templates/datapages/lands.html
+msgid "What it costs"
+msgstr "O que custa"
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"Every land is a card that is not a spell. By turn %(turns)s a deck with "
+"%(low)s lands has seen %(spells_low)s spells on average, one with %(high)s "
+"lands %(spells_high)s. A deck that floods draws lands when it needs "
+"something to cast."
+msgstr ""
+"Cada terreno é uma carta que não é uma mágica. Até o turno %(turns)s, um "
+"deck com %(low)s terrenos viu em média %(spells_low)s mágicas; um com "
+"%(high)s terrenos, %(spells_high)s. Um deck que inunda compra terrenos "
+"quando precisa de algo para conjurar."
+
+#: templates/datapages/lands.html
+#, python-format
+msgid "Spells seen by turn %(turns)s, by number of lands"
+msgstr "Mágicas vistas até o turno %(turns)s, por número de terrenos"
+
+#: templates/datapages/lands.html
+msgid ""
+"The decks for this article are being simulated. Come back in a few minutes."
+msgstr "Os decks deste artigo estão sendo simulados. Volte em alguns minutos."
+
+#: templates/datapages/lands.html
+msgid "What the precons run"
+msgstr "O que os precons usam"
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"The %(decks)s Commander precon since 2025 runs %(fewest)s to %(most)s lands,"
+" %(usual)s most often."
+msgid_plural ""
+"The %(decks)s Commander precons since 2025 run %(fewest)s to %(most)s lands,"
+" %(usual)s most often."
+msgstr[0] ""
+"O %(decks)s precon de Commander desde 2025 usa de %(fewest)s a %(most)s "
+"terrenos, %(usual)s com mais frequência."
+msgstr[1] ""
+"Os %(decks)s precons de Commander desde 2025 usam de %(fewest)s a %(most)s "
+"terrenos, %(usual)s com mais frequência."
+
+#: templates/datapages/lands.html
+msgid ""
+"They differ in much more than lands, so read this table as what was built, "
+"not as cause and effect."
+msgstr ""
+"Eles diferem em muito mais que os terrenos, então leia esta tabela como o "
+"que foi construído, não como causa e efeito."
+
+#: templates/datapages/lands.html
+msgid "Precons"
+msgstr "Precons"
+
+#: templates/datapages/lands.html
+msgid "Ramp counts, a little"
+msgstr "O ramp conta, um pouco"
+
+#: templates/datapages/lands.html
+msgid ""
+"These numbers count lands only. Cheap ramp - a two-mana rock, a spell that "
+"fetches a land - makes mana too, but it has to be drawn and cast first, and "
+"it cannot be your land for the turn. Decks with a lot of it are often built "
+"with a land or two fewer. Whether that holds for yours is a question a "
+"simulation answers better than a rule."
+msgstr ""
+"Estes números contam só terrenos. Ramp barato – uma pedra de dois manas, uma"
+" mágica que busca um terreno – também gera mana, mas precisa ser comprado e "
+"conjurado antes, e não pode ser o seu terreno do turno. Decks com muito ramp"
+" costumam ser montados com um ou dois terrenos a menos. Se isso vale para o "
+"seu, uma simulação responde melhor que uma regra."
+
+#: templates/datapages/lands.html
+msgid "How this was measured"
+msgstr "Como foi medido"
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"Each version was played %(games)s times for %(turns)s turns with the "
+"multiplayer draw rule and the site's usual mulligan rule. The precons are "
+"the ones the engine reads best, so their spells are played as written. For "
+"more lands, the most expensive cards that are not lands left and basic lands"
+" came in, in the deck's own proportion. For fewer lands, basic lands left "
+"and second copies of the deck's own two- and three-mana spells came in - a "
+"shortcut that breaks the one-copy rule but keeps the deck's curve."
+msgstr ""
+"Cada versão foi jogada %(games)s vezes por %(turns)s turnos, com a regra de "
+"compra multijogador e a regra de mulligan de sempre do site. Os precons são "
+"os que o motor lê melhor, para que suas mágicas sejam jogadas como estão "
+"escritas. Para mais terrenos, saíram as cartas mais caras que não são "
+"terrenos e entraram terrenos básicos, na proporção do deck. Para menos "
+"terrenos, saíram terrenos básicos e entraram segundas cópias das mágicas de "
+"dois e três manas do próprio deck – um atalho que quebra a regra de cópia "
+"única, mas mantém a curva do deck."
+
+#: datapages/article.py
+#, python-format
+msgid "From %(low)s of games at %(first)s lands to %(high)s at %(last)s."
+msgstr ""
+"De %(low)s das partidas com %(first)s terrenos a %(high)s com %(last)s."
+
+#: datapages/article.py
+#, python-format
+msgid "From %(low)s spells seen at %(first)s lands to %(high)s at %(last)s."
+msgstr ""
+"De %(low)s mágicas vistas com %(first)s terrenos a %(high)s com %(last)s."

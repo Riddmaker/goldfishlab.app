@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load humanize i18n %}
+{% comment %}
+  /data/commander-precons/ (P11): every Commander precon since 2025, played
+  the same way, side by side. Public and in the sitemap (core.seo). Deck and
+  set names are the products' own, in English, in every language.
+{% endcomment %}
+{% block title %}{% translate "Every Commander precon, simulated" %} — Goldfish Lab{% endblock %}
+{% block description %}{% blocktranslate trimmed with games=games|intcomma %}Every Commander precon since 2025, each played {{ games }} times: land drops, mulligans and mana by turn 4, side by side.{% endblocktranslate %}{% endblock %}
+{% block content %}
+  <section class="max-w-3xl">
+    <h1 class="font-display text-4xl leading-tight text-parchment-100">{% translate "Every Commander precon, simulated" %}</h1>
+    <p class="mt-4 text-lg leading-relaxed text-parchment-200">
+      {% blocktranslate trimmed with games=games|intcomma turns=turns %}
+        Each preconstructed Commander deck since 2025, played {{ games }} times
+        for {{ turns }} turns, the same way for every deck: drawing on the first
+        turn, as at a multiplayer table, with the same mulligan rule. Pick a deck
+        to see everything it did.
+      {% endblocktranslate %}
+    </p>
+    <p class="mt-3">
+      <a href="{% url 'datapages:lands' %}" class="text-parchment-100 underline hover:text-parchment-50">{% translate "How many lands in Commander?" %}</a>
+    </p>
+  </section>
+  <section class="surface-parchment mt-8 p-4 sm:p-6">
+    {% if rows %}
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[40rem] text-left text-sm">
+          <thead>
+            <tr class="border-b border-parchment-600 text-ink-700">
+              {% translate "Deck" as label %}{% include "datapages/_sort.html" with key="name" %}
+              {% translate "Released" as label %}{% include "datapages/_sort.html" with key="released" %}
+              {% translate "Lands" as label %}{% include "datapages/_sort.html" with key="lands" %}
+              {% blocktranslate trimmed asvar label with turn=turn %}4 lands by turn {{ turn }}{% endblocktranslate %}{% include "datapages/_sort.html" with key="on_curve" %}
+              {% translate "Kept seven" as label %}{% include "datapages/_sort.html" with key="kept_seven" %}
+              {% blocktranslate trimmed asvar label with turn=turn %}Mana on turn {{ turn }}{% endblocktranslate %}{% include "datapages/_sort.html" with key="mana" %}
+              {% translate "Cards read" as label %}{% include "datapages/_sort.html" with key="read" %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr class="border-b border-parchment-300">
+                <th scope="row" class="py-2 pr-3 font-normal">
+                  <a href="{{ row.precon.get_absolute_url }}" class="text-ink-900 underline">{{ row.precon.name }}</a>
+                  <span class="block text-xs text-ink-700">{{ row.precon.set_name|default:row.precon.set_code }}</span>
+                </th>
+                <td class="tabular whitespace-nowrap py-2 pr-3 text-ink-900">{{ row.precon.released|date:"M Y" }}</td>
+                <td class="tabular py-2 pr-3 text-ink-900">{{ row.numbers.lands }}</td>
+                <td class="tabular py-2 pr-3 text-ink-900">{{ row.on_curve }}</td>
+                <td class="tabular py-2 pr-3 text-ink-900">{{ row.kept_seven }}</td>
+                <td class="tabular py-2 pr-3 text-ink-900">{{ row.mana }}</td>
+                <td class="tabular py-2 pr-3 text-ink-900">{{ row.read }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-4 text-sm text-ink-700">
+        {% blocktranslate trimmed with turn=turn %}
+          "4 lands by turn {{ turn }}": games with four lands in play on turn {{ turn }}.
+          "Kept seven": games that kept the first seven cards. "Cards read": how
+          much of the deck the engine could read from the cards themselves; the
+          lower it is, the less the other numbers tell.
+        {% endblocktranslate %}
+        {% include "core/_why.html" with anchor="reading" %}
+      </p>
+    {% else %}
+      <p class="text-ink-900">{% translate "The precons are being simulated. Come back in a few minutes." %}</p>
+    {% endif %}
+  </section>
+  {% include "datapages/_credits.html" %}
+{% endblock %}

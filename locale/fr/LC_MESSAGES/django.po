@@ -7940,3 +7940,191 @@ msgstr ""
 "semaine — uniquement des totaux, sans nom, adresse ni compte. Pour vous "
 "compter une fois par semaine, votre compte note la semaine de votre dernière"
 " simulation"
+
+#: templates/datapages/lands.html
+msgid "How many lands in Commander?"
+msgstr "Combien de terrains en Commander ?"
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"Commander precons rebuilt with %(low)s to %(high)s lands and played "
+"thousands of times: what one land more or less changes."
+msgstr ""
+"Des précons Commander reconstruits avec %(low)s à %(high)s terrains et joués"
+" des milliers de fois : ce que change un terrain de plus ou de moins."
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"Each land from %(low)s to %(high)s makes a Commander deck about %(gain)s "
+"points more likely to have four lands on turn 4, and costs it about %(cost)s"
+" spells seen by turn %(turns)s. There is no corner where lands stop helping:"
+" each one buys and costs about as much as the one before. The usual 35 to 38"
+" is a trade between land drops and spells, not a threshold."
+msgstr ""
+"Chaque terrain de %(low)s à %(high)s rend un deck Commander environ %(gain)s"
+" points plus susceptible d'avoir quatre terrains au tour 4, et lui coûte "
+"environ %(cost)s sorts vus au tour %(turns)s. Il n'y a pas de point où les "
+"terrains cessent d'aider : chacun rapporte et coûte à peu près autant que le"
+" précédent. Les 35 à 38 habituels sont un compromis entre poses de terrain "
+"et sorts, pas un seuil."
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"We rebuilt %(decks)s precon with every land count from %(low)s to %(high)s "
+"and played each version %(games)s times. The same deck at eight land counts "
+"shows what a land does, which comparing different decks cannot."
+msgid_plural ""
+"We rebuilt %(decks)s precons with every land count from %(low)s to %(high)s "
+"and played each version %(games)s times. The same deck at eight land counts "
+"shows what a land does, which comparing different decks cannot."
+msgstr[0] ""
+"Nous avons reconstruit %(decks)s précon avec chaque nombre de terrains de "
+"%(low)s à %(high)s et joué chaque version %(games)s fois. Le même deck à "
+"huit nombres de terrains montre ce que fait un terrain, ce que la "
+"comparaison de decks différents ne peut pas montrer."
+msgstr[1] ""
+"Nous avons reconstruit %(decks)s précons avec chaque nombre de terrains de "
+"%(low)s à %(high)s et joué chaque version %(games)s fois. Le même deck à "
+"huit nombres de terrains montre ce que fait un terrain, ce que la "
+"comparaison de decks différents ne peut pas montrer."
+
+#: templates/datapages/lands.html
+msgid "What one more land buys"
+msgstr "Ce qu'un terrain de plus rapporte"
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"Games with four lands in play on turn %(turn)s: %(on_low)s at %(low)s lands,"
+" %(on_high)s at %(high)s, on average over the decks below."
+msgstr ""
+"Parties avec quatre terrains en jeu au tour %(turn)s : %(on_low)s à %(low)s "
+"terrains, %(on_high)s à %(high)s, en moyenne sur les decks ci-dessous."
+
+#: templates/datapages/lands.html
+#, python-format
+msgid "Share of games with four lands on turn %(turn)s, by number of lands"
+msgstr ""
+"Part des parties avec quatre terrains au tour %(turn)s, selon le nombre de "
+"terrains"
+
+#: templates/datapages/lands.html
+msgid "Number of lands in the deck, left to right."
+msgstr "Nombre de terrains dans le deck, de gauche à droite."
+
+#: templates/datapages/lands.html
+msgid "What it costs"
+msgstr "Ce que ça coûte"
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"Every land is a card that is not a spell. By turn %(turns)s a deck with "
+"%(low)s lands has seen %(spells_low)s spells on average, one with %(high)s "
+"lands %(spells_high)s. A deck that floods draws lands when it needs "
+"something to cast."
+msgstr ""
+"Chaque terrain est une carte qui n'est pas un sort. Au tour %(turns)s, un "
+"deck à %(low)s terrains a vu en moyenne %(spells_low)s sorts, un deck à "
+"%(high)s terrains %(spells_high)s. Un deck qui flood pioche des terrains "
+"quand il lui faut quelque chose à lancer."
+
+#: templates/datapages/lands.html
+#, python-format
+msgid "Spells seen by turn %(turns)s, by number of lands"
+msgstr "Sorts vus au tour %(turns)s, selon le nombre de terrains"
+
+#: templates/datapages/lands.html
+msgid ""
+"The decks for this article are being simulated. Come back in a few minutes."
+msgstr ""
+"Les decks de cet article sont en cours de simulation. Revenez dans quelques "
+"minutes."
+
+#: templates/datapages/lands.html
+msgid "What the precons run"
+msgstr "Ce que jouent les précons"
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"The %(decks)s Commander precon since 2025 runs %(fewest)s to %(most)s lands,"
+" %(usual)s most often."
+msgid_plural ""
+"The %(decks)s Commander precons since 2025 run %(fewest)s to %(most)s lands,"
+" %(usual)s most often."
+msgstr[0] ""
+"Le %(decks)s précon Commander depuis 2025 joue de %(fewest)s à %(most)s "
+"terrains, le plus souvent %(usual)s."
+msgstr[1] ""
+"Les %(decks)s précons Commander depuis 2025 jouent de %(fewest)s à %(most)s "
+"terrains, le plus souvent %(usual)s."
+
+#: templates/datapages/lands.html
+msgid ""
+"They differ in much more than lands, so read this table as what was built, "
+"not as cause and effect."
+msgstr ""
+"Ils diffèrent par bien plus que leurs terrains : lisez ce tableau comme ce "
+"qui a été construit, pas comme une cause et un effet."
+
+#: templates/datapages/lands.html
+msgid "Precons"
+msgstr "Précons"
+
+#: templates/datapages/lands.html
+msgid "Ramp counts, a little"
+msgstr "La rampe compte, un peu"
+
+#: templates/datapages/lands.html
+msgid ""
+"These numbers count lands only. Cheap ramp - a two-mana rock, a spell that "
+"fetches a land - makes mana too, but it has to be drawn and cast first, and "
+"it cannot be your land for the turn. Decks with a lot of it are often built "
+"with a land or two fewer. Whether that holds for yours is a question a "
+"simulation answers better than a rule."
+msgstr ""
+"Ces chiffres ne comptent que les terrains. La rampe bon marché – un caillou "
+"à deux manas, un sort qui va chercher un terrain – produit aussi du mana, "
+"mais il faut d'abord la piocher et la lancer, et elle ne peut pas être votre"
+" terrain du tour. Les decks qui en jouent beaucoup sont souvent construits "
+"avec un ou deux terrains de moins. Si c'est vrai pour le vôtre, une "
+"simulation le dit mieux qu'une règle."
+
+#: templates/datapages/lands.html
+msgid "How this was measured"
+msgstr "Comment c'est mesuré"
+
+#: templates/datapages/lands.html
+#, python-format
+msgid ""
+"Each version was played %(games)s times for %(turns)s turns with the "
+"multiplayer draw rule and the site's usual mulligan rule. The precons are "
+"the ones the engine reads best, so their spells are played as written. For "
+"more lands, the most expensive cards that are not lands left and basic lands"
+" came in, in the deck's own proportion. For fewer lands, basic lands left "
+"and second copies of the deck's own two- and three-mana spells came in - a "
+"shortcut that breaks the one-copy rule but keeps the deck's curve."
+msgstr ""
+"Chaque version a été jouée %(games)s fois sur %(turns)s tours, avec la règle"
+" de pioche multijoueur et la règle de mulligan habituelle du site. Les "
+"précons sont ceux que le moteur lit le mieux, pour que leurs sorts soient "
+"joués tels qu'ils sont écrits. Pour plus de terrains, les cartes non-terrain"
+" les plus chères sont sorties et des terrains de base sont entrés, dans la "
+"proportion du deck. Pour moins de terrains, des terrains de base sont sortis"
+" et des secondes copies des sorts à deux et trois manas du deck sont entrées"
+" – un raccourci qui enfreint la règle de l'exemplaire unique mais garde la "
+"courbe du deck."
+
+#: datapages/article.py
+#, python-format
+msgid "From %(low)s of games at %(first)s lands to %(high)s at %(last)s."
+msgstr "De %(low)s des parties à %(first)s terrains à %(high)s à %(last)s."
+
+#: datapages/article.py
+#, python-format
+msgid "From %(low)s spells seen at %(first)s lands to %(high)s at %(last)s."
+msgstr "De %(low)s sorts vus à %(first)s terrains à %(high)s à %(last)s."

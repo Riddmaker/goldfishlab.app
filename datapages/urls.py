@@ -10,4 +10,5 @@ app_name = "datapages"
 urlpatterns = [
     path("commander-precons/", views.PreconListView.as_view(), name="precons"),
     path("commander-precons/<slug:slug>/", views.PreconView.as_view(), name="precon"),
+    path("how-many-lands-in-commander/", views.LandsArticleView.as_view(), name="lands"),
 ]

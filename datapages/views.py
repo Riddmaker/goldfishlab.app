@@ -121,3 +121,21 @@ class PreconView(TemplateView):
             "og_type": "article",
         })
         return context
+
+
+@method_decorator(ratelimit(key="ip", rate="60/m", method="GET", block=True), name="get")
+class LandsArticleView(TemplateView):
+    """/data/how-many-lands-in-commander/: the land sweep, written up."""
+
+    template_name = "datapages/lands.html"
+
+    def get_context_data(self, **kwargs):
+        from datapages import article, sweep
+
+        context = super().get_context_data(**kwargs)
+        count_open(self.request)
+        context.update(article.context())
+        context.update({"games": services.GAMES, "turns": services.TURNS,
+                        "turn": numbers.TURN, "sweep_decks": sweep.PRECONS,
+                        "og_type": "article"})
+        return context

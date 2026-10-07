@@ -83,6 +83,8 @@ clicks against reports viewed: gate G3 passes at 5 % of 200 or more.
 turns, the multiplayer draw rule) and public in every language: a sortable table at
 `/data/commander-precons/` and one page per precon with its full report, both in the sitemap.
 The lists come from MTGJSON, matched to the catalogue by oracle id; see "The data pages" below.
+The article `/data/how-many-lands-in-commander/` rebuilds the best-read precons with 33 to 40
+lands and shows what one land more or less changes, every number worked out from the runs.
 Product decisions live in the sibling `magic-project` repository's `instructions.md`, section
 "Teil 2".
 
@@ -398,10 +400,13 @@ python manage.py precons                 # new precons and changed lists from MT
 python manage.py precons --dry-run       # what would happen; changes nothing
 python manage.py precons --rerun         # simulate every precon again (after an engine change)
 python manage.py precons --source DIR    # MTGJSON's files from a directory instead of the web
+python manage.py precons --sweep         # and the land sweep behind the article
 python manage.py precons --from-text deck.txt --name "Deck Name" --set ABC --released 2026-11-13
 ```
 
-The beat runs the first form on Tuesdays at 02:30. A list with a card the catalogue does not know
+The beat runs the first form on Tuesdays at 02:30, and then the land sweep for whatever is missing
+or changed: the three precons the engine reads best, each at 33 to 40 lands, rebuilt by the rules
+in `datapages/sweep.py` and stated on the article. A list with a card the catalogue does not know
 yet (a set days old) is held and tried again; the admin shows what is held, and its "unpublish"
 action takes a page down. `MTGJSON_URL` changes the source.
 

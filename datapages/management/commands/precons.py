@@ -4,6 +4,7 @@
     manage.py precons --rerun         and simulate every precon again
     manage.py precons --dry-run       say what would happen, change nothing
     manage.py precons --source DIR    read MTGJSON's files from DIR
+    manage.py precons --sweep         and build the land sweep for the article
     manage.py precons --from-text deck.txt --name "…" --set ABC --released 2026-11-13
                                       one deck from a plain list, before MTGJSON has it
 
@@ -17,7 +18,7 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from datapages import mtgjson, services
+from datapages import mtgjson, services, sweep
 
 
 class DryRun(Exception):
@@ -32,6 +33,9 @@ class Command(BaseCommand):
                             help="Simulate every precon again, e.g. after an engine change.")
         parser.add_argument("--dry-run", action="store_true",
                             help="Report what would happen and change nothing.")
+        parser.add_argument("--sweep", action="store_true",
+                            help="Also build the land sweep (missing or changed variants; "
+                                 "all of them with --rerun).")
         parser.add_argument("--source", type=Path,
                             help="A directory with DeckList.json, SetList.json and decks/.")
         parser.add_argument("--from-text", type=Path, metavar="FILE",
@@ -69,4 +73,7 @@ class Command(BaseCommand):
                 released=options["released"], set_name=options["set_name"])
             return [(what, str(precon))]
         outcome = services.refresh(source=options["source"], rerun=options["rerun"])
-        return outcome.lines
+        lines = outcome.lines
+        if options["sweep"]:
+            lines += sweep.run(rerun=options["rerun"])
+        return lines

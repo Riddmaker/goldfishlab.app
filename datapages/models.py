@@ -56,3 +56,24 @@ class Precon(models.Model):
     def get_absolute_url(self) -> str:
         return reverse("datapages:precon", args=[self.slug])
 
+
+
+class LandSweep(models.Model):
+    """One precon rebuilt with another number of lands, for the article "How
+    many lands in Commander?" (P11, `datapages.sweep`). Its deck is the system
+    account's and never public: only its run's numbers are shown."""
+
+    precon = models.ForeignKey(Precon, on_delete=models.CASCADE, related_name="sweeps")
+    lands = models.PositiveSmallIntegerField()
+    deck = models.OneToOneField(Deck, on_delete=models.CASCADE, related_name="land_sweep")
+    #: The precon's `list_print` the variant was built from: a changed precon
+    #: is built again.
+    list_print = models.CharField(max_length=64)
+
+    class Meta:
+        ordering = ["precon", "lands"]
+        constraints = [models.UniqueConstraint(fields=["precon", "lands"],
+                                               name="one_sweep_per_land_count")]
+
+    def __str__(self) -> str:
+        return f"{self.precon.name}, {self.lands} lands"

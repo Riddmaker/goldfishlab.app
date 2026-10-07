@@ -41,6 +41,7 @@ PUBLIC_PAGES = (
     "pricing",
     "methodology",
     "datapages:precons",
+    "datapages:lands",
     "terms",
     "privacy",
     "imprint",

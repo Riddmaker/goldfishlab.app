@@ -7,7 +7,7 @@ import logging
 
 from celery import shared_task
 
-from datapages import mtgjson, services
+from datapages import mtgjson, services, sweep
 
 logger = logging.getLogger(__name__)
 
@@ -24,5 +24,9 @@ def refresh() -> str:
         # Nothing was changed; next week tries again, or the command by hand.
         logger.warning("precon refresh: %s", exc)
         return "mtgjson unreachable"
+    # The article's sweep follows the precons: a new best-read precon, or a
+    # changed list, gets its variants; the others are left as they are.
+    built = [what for what, _ in sweep.run()]
     return ", ".join(f"{outcome.count(what)} {what}" for what in
-                     (services.CREATED, services.CHANGED, services.HELD))
+                     (services.CREATED, services.CHANGED, services.HELD)) + (
+        f"; sweep: {len(built) - built.count(services.UNCHANGED)} built")

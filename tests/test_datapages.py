@@ -12,10 +12,13 @@
   precon's /r/ link sends to its page; unpublished is 404.
 * The system account is nobody on /admin/stats/; a page opened is counted,
   a robot's visit is not.
+* The land sweep rebuilds the best-read precons at every land count by the
+  stated rules, once per list; the article shows it when every run is done.
 """
 
 import json
 import shutil
+from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
@@ -28,9 +31,9 @@ from django.utils import translation
 
 from billing.models import UsageRecord
 from cards.models import OracleCard
-from datapages import mtgjson, numbers, services
+from datapages import mtgjson, numbers, services, sweep
 from datapages import tasks as datapage_tasks
-from datapages.models import Precon
+from datapages.models import LandSweep, Precon
 from metrics import report as metrics_report
 from metrics.models import DailyCount
 from sharing.models import SharedReport
@@ -350,3 +353,126 @@ def test_the_system_account_is_nobody_on_the_stats_page(precon):
     cohorts = metrics_report.cohorts()
 
     assert sum(cohort.people for cohort in cohorts) == 0
+
+
+# --- the land sweep and the article (P11b) ------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Card:
+    name: str
+    cmc: float = 0
+    type_line: str = "Creature"
+
+    @property
+    def is_land(self) -> bool:
+        return "Land" in self.type_line
+
+
+SWAMP = Card("Swamp", type_line="Basic Land — Swamp")
+MOUNTAIN = Card("Mountain", type_line="Basic Land — Mountain")
+TOWER = Card("Command Tower", type_line="Land")
+
+
+def _deck():
+    """36 lands (24 Swamps, 11 Mountains, a Tower) and 63 spells, 0 to 6 mana."""
+    counts = {SWAMP: 24, MOUNTAIN: 11, TOWER: 1}
+    for index in range(63):
+        counts[Card(f"Spell {index:02}", cmc=index % 7)] = 1
+    return counts
+
+
+def _lands(counts):
+    return sum(copies for card, copies in counts.items() if card.is_land)
+
+
+@pytest.mark.parametrize("lands", list(sweep.LANDS))
+def test_a_rebuilt_deck_has_its_lands_and_still_99_cards(lands):
+    rebuilt = sweep.rebuild(_deck(), lands)
+
+    assert _lands(rebuilt) == lands
+    assert sum(rebuilt.values()) == 99
+    assert rebuilt[TOWER] == 1
+
+
+def test_more_lands_cut_the_most_expensive_spells_and_add_basics_in_proportion():
+    rebuilt = sweep.rebuild(_deck(), 39)
+
+    cut = [card for card in _deck() if card not in rebuilt]
+    assert {card.cmc for card in cut} == {6}
+    assert (rebuilt[SWAMP], rebuilt[MOUNTAIN]) == (26, 12)
+
+
+def test_fewer_lands_cut_basics_and_add_second_copies_of_cheap_spells():
+    rebuilt = sweep.rebuild(_deck(), 33)
+
+    assert rebuilt[SWAMP] + rebuilt[MOUNTAIN] == 32
+    doubled = [card for card, copies in rebuilt.items() if copies == 2 and not card.is_land]
+    assert len(doubled) == 3
+    assert {card.cmc for card in doubled} <= set(sweep.FILLER_MANA)
+
+
+def test_a_deck_without_basics_is_not_rebuilt():
+    counts = {TOWER: 36, **{Card(f"Spell {i}", cmc=2): 1 for i in range(63)}}
+
+    with pytest.raises(sweep.SweepError):
+        sweep.rebuild(counts, 38)
+
+
+@pytest.fixture
+def swept(precon):
+    lines = sweep.run()
+    for variant in LandSweep.objects.all():
+        _finish(variant.deck.runs.get())
+    return lines
+
+
+def test_the_sweep_builds_every_land_count_of_the_chosen_precon(swept, precon):
+    assert sweep.chosen() == [precon]
+    assert [what for what, _ in swept] == ["created"] * len(sweep.LANDS)
+    for variant in LandSweep.objects.select_related("deck"):
+        run = variant.deck.runs.get()
+        assert run.lands_total == variant.lands
+        assert variant.deck.card_count == 99
+        assert variant.deck.commander == precon.deck.commander
+        assert run_services.queue_of(run) == run_services.LONG_QUEUE
+        assert not SharedReport.objects.filter(run=run).exists()
+
+
+def test_the_sweep_is_built_once_until_its_precon_changes(swept, precon):
+    assert {what for what, _ in sweep.run()} == {"unchanged"}
+
+    Precon.objects.filter(pk=precon.pk).update(list_print="changed")
+    assert {what for what, _ in sweep.run()} == {"changed"}
+    assert LandSweep.objects.count() == len(sweep.LANDS)
+
+
+def test_the_article_waits_for_its_decks(client, precon):
+    sweep.run()
+
+    page = _get(client, reverse("datapages:lands")).content.decode()
+
+    assert "being simulated" in page
+    assert "What the precons run" in page
+
+
+def test_the_article_shows_the_sweep(client, swept):
+    response = _get(client, reverse("datapages:lands"))
+
+    page = response.content.decode()
+    assert response.status_code == 200
+    assert "points more likely to have four lands on turn 4" in page
+    assert page.count('class="seen-chart') == 2
+    assert "Grim Knights" in page
+
+
+@pytest.mark.parametrize("language", [code for code, _ in ALL_LANGUAGES])
+def test_the_article_answers_in_every_language(client, settings, swept, language):
+    settings.LANGUAGES = ALL_LANGUAGES
+    with translation.override(language):
+        url = reverse("datapages:lands")
+
+    response = _get(client, url)
+
+    assert response.status_code == 200
+    assert f'lang="{language}"' in response.content.decode()

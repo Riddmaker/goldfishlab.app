@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load humanize i18n %}
+{% comment %}
+  /data/how-many-lands-in-commander/ (P11): the land sweep, written up. The
+  prose is fixed; every number comes from datapages.article, worked out from
+  the finished runs, so it follows the precons and the engine. Charts are
+  the report's own (simulations/_line_chart.html): no script, 0-100 % scale.
+{% endcomment %}
+{% block title %}{% translate "How many lands in Commander?" %} — Goldfish Lab{% endblock %}
+{% block description %}{% blocktranslate trimmed with low=low high=high %}Commander precons rebuilt with {{ low }} to {{ high }} lands and played thousands of times: what one land more or less changes.{% endblocktranslate %}{% endblock %}
+{% block content %}
+  <article class="max-w-3xl">
+    <p class="text-sm text-parchment-200">
+      <a href="{% url 'datapages:precons' %}" class="underline hover:text-parchment-50">{% translate "Every Commander precon" %}</a>
+    </p>
+    <h1 class="mt-2 font-display text-4xl leading-tight text-parchment-100">{% translate "How many lands in Commander?" %}</h1>
+    {% if lines %}
+      <p class="mt-6 text-lg leading-relaxed text-parchment-200">
+        {% blocktranslate trimmed with low=low high=high gain=gain_per_land cost=cost_per_land turns=turns %}
+          Each land from {{ low }} to {{ high }} makes a Commander deck about
+          {{ gain }} points more likely to have four lands on turn 4, and costs
+          it about {{ cost }} spells seen by turn {{ turns }}. There is no corner where
+          lands stop helping: each one buys and costs about as much as the one
+          before. The usual 35 to 38 is a trade between land drops and spells,
+          not a threshold.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-parchment-200">
+        {% blocktranslate trimmed count decks=sweep_decks with low=low high=high games=games|intcomma %}
+          We rebuilt {{ decks }} precon with every land count from {{ low }} to {{ high }}
+          and played each version {{ games }} times. The same deck at eight land
+          counts shows what a land does, which comparing different decks cannot.
+        {% plural %}
+          We rebuilt {{ decks }} precons with every land count from {{ low }} to {{ high }}
+          and played each version {{ games }} times. The same deck at eight land
+          counts shows what a land does, which comparing different decks cannot.
+        {% endblocktranslate %}
+      </p>
+
+      <h2 class="mt-12 font-display text-2xl text-parchment-100">{% translate "What one more land buys" %}</h2>
+      <div class="surface-parchment mt-4 p-6">
+        <p class="text-ink-900">
+          {% blocktranslate trimmed with low=low high=high on_low=on_low on_high=on_high turn=turn %}
+            Games with four lands in play on turn {{ turn }}: {{ on_low }} at {{ low }}
+            lands, {{ on_high }} at {{ high }}, on average over the decks below.
+          {% endblocktranslate %}
+        </p>
+        {% blocktranslate trimmed asvar chart_title with turn=turn %}Share of games with four lands on turn {{ turn }}, by number of lands{% endblocktranslate %}
+        {% include "simulations/_line_chart.html" with chart=on_curve_chart name="lands-on-curve" title=chart_title %}
+        <p class="mt-2 text-sm text-ink-700">{% translate "Number of lands in the deck, left to right." %}</p>
+      </div>
+
+      <h2 class="mt-12 font-display text-2xl text-parchment-100">{% translate "What it costs" %}</h2>
+      <div class="surface-parchment mt-4 p-6">
+        <p class="text-ink-900">
+          {% blocktranslate trimmed with low=low high=high spells_low=spells_low spells_high=spells_high turns=turns %}
+            Every land is a card that is not a spell. By turn {{ turns }} a deck
+            with {{ low }} lands has seen {{ spells_low }} spells on average, one with
+            {{ high }} lands {{ spells_high }}. A deck that floods draws lands
+            when it needs something to cast.
+          {% endblocktranslate %}
+        </p>
+        {% blocktranslate trimmed asvar chart_title with turns=turns %}Spells seen by turn {{ turns }}, by number of lands{% endblocktranslate %}
+        {% include "simulations/_line_chart.html" with chart=spells_chart name="lands-spells" title=chart_title %}
+        <p class="mt-2 text-sm text-ink-700">{% translate "Number of lands in the deck, left to right." %}</p>
+      </div>
+    {% else %}
+      <p class="mt-6 text-lg text-parchment-200">{% translate "The decks for this article are being simulated. Come back in a few minutes." %}</p>
+    {% endif %}
+
+    {% if groups %}
+      <h2 class="mt-12 font-display text-2xl text-parchment-100">{% translate "What the precons run" %}</h2>
+      <div class="surface-parchment mt-4 p-6">
+        <p class="text-ink-900">
+          {% blocktranslate trimmed count decks=precons with fewest=fewest most=most usual=usual %}
+            The {{ decks }} Commander precon since 2025 runs {{ fewest }} to {{ most }} lands, {{ usual }} most often.
+          {% plural %}
+            The {{ decks }} Commander precons since 2025 run {{ fewest }} to {{ most }} lands, {{ usual }} most often.
+          {% endblocktranslate %}
+          {% translate "They differ in much more than lands, so read this table as what was built, not as cause and effect." %}
+        </p>
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr class="border-b border-parchment-600 text-ink-700">
+                <th scope="col" class="py-1.5 pr-3">{% translate "Lands" %}</th>
+                <th scope="col" class="py-1.5 pr-3">{% translate "Precons" %}</th>
+                <th scope="col" class="py-1.5 pr-3">{% blocktranslate trimmed with turn=turn %}4 lands by turn {{ turn }}{% endblocktranslate %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for group in groups %}
+                <tr class="border-b border-parchment-300">
+                  <td class="tabular py-1.5 pr-3 text-ink-900">{{ group.lands }}</td>
+                  <td class="tabular py-1.5 pr-3 text-ink-900">{{ group.decks }}</td>
+                  <td class="tabular py-1.5 pr-3 text-ink-900">{{ group.share }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-3 text-sm">
+          <a href="{% url 'datapages:precons' %}" class="text-ink-900 underline">{% translate "Compare every precon" %}</a>
+        </p>
+      </div>
+    {% endif %}
+
+    <h2 class="mt-12 font-display text-2xl text-parchment-100">{% translate "Ramp counts, a little" %}</h2>
+    <p class="mt-4 text-parchment-200">
+      {% blocktranslate trimmed %}
+        These numbers count lands only. Cheap ramp - a two-mana rock, a spell
+        that fetches a land - makes mana too, but it has to be drawn and cast
+        first, and it cannot be your land for the turn. Decks with a lot of it
+        are often built with a land or two fewer. Whether that holds for yours
+        is a question a simulation answers better than a rule.
+      {% endblocktranslate %}
+    </p>
+
+    <h2 class="mt-12 font-display text-2xl text-parchment-100">{% translate "How this was measured" %}</h2>
+    <p class="mt-4 text-parchment-200">
+      {% blocktranslate trimmed with games=games|intcomma turns=turns %}
+        Each version was played {{ games }} times for {{ turns }} turns with the
+        multiplayer draw rule and the site's usual mulligan rule. The precons
+        are the ones the engine reads best, so their spells are played as
+        written. For more lands, the most expensive cards that are not lands
+        left and basic lands came in, in the deck's own proportion. For fewer
+        lands, basic lands left and second copies of the deck's own two- and
+        three-mana spells came in - a shortcut that breaks the one-copy rule
+        but keeps the deck's curve.
+      {% endblocktranslate %}
+      {% include "core/_why.html" with anchor="games" dark=True %}
+    </p>
+  </article>
+  <section class="mt-10 max-w-3xl">
+    <h2 class="font-display text-2xl text-parchment-100">{% translate "What does your deck do?" %}</h2>
+    <p class="mt-2 text-parchment-200">
+      {% translate "Upload your list and Goldfish Lab plays it thousands of times. Free, and no account needed to try." %}
+    </p>
+    <p class="mt-4">
+      <a href="{% url 'guests:try' %}"
+         class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
+        {% translate "Try it now - no account" %}
+      </a>
+    </p>
+  </section>
+  {% include "datapages/_credits.html" %}
+{% endblock %}

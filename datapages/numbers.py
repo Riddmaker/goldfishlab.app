@@ -7,7 +7,9 @@ mean over them:
 - `on_curve`: games with at least four lands in play on turn 4 - every land
   drop made, the commonest way a Commander deck stumbles early;
 - `kept_seven`: games that kept the first seven cards, no mulligan;
-- `mana_turn_4`: mana available on turn 4, on average.
+- `mana_turn_4`: mana available on turn 4, on average;
+- `spells_seen`: cards that are not lands seen by the last turn, on average
+  (the land sweep's cost of a land: `datapages.sweep`).
 """
 
 from dataclasses import dataclass
@@ -29,6 +31,7 @@ class Numbers:
     on_curve: float
     kept_seven: float
     mana_turn_4: float
+    spells_seen: float
 
 
 def _share(part: int, whole: int) -> float:
@@ -48,7 +51,17 @@ def of(run) -> Numbers:
         on_curve=_share(sum(times for value, times in lands.items() if value >= TURN), games),
         kept_seven=_share(mulligans.get(0, 0), sum(mulligans.values())),
         mana_turn_4=turn["mana"].mean,
+        spells_seen=_spells_seen(result),
     )
+
+
+def _spells_seen(result: dict) -> float:
+    """The spells seen by the last turn, from the report's curve counts
+    (`seen` "mv:<n>" groups, spells only); 0 on a run from before them."""
+    groups = result.get("seen") or {}
+    games = result["iterations"]
+    total = sum(group["cards"][-1] for key, group in groups.items() if key.startswith("mv:"))
+    return total / games if games else 0.0
 
 
 def sentences(numbers: Numbers) -> list[str]:

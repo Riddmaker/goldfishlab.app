@@ -6875,12 +6875,143 @@ msgid ""
 "Small comparisons free; large series with a plan at CHF %(price)s a month."
 msgstr "小規模な比較は無料。大規模なシリーズは月額 CHF %(price)s のプランで利用できます。"
 
+#: templates/datapages/precons.html templates/core/home.html
+msgid "Every Commander precon, simulated"
+msgstr "すべての統率者構築済みデッキをシミュレーション"
+
+#: templates/datapages/precons.html
+#, python-format
+msgid ""
+"Every Commander precon since 2025, each played %(games)s times: land drops, "
+"mulligans and mana by turn 4, side by side."
+msgstr ""
+"2025年以降のすべての統率者構築済みデッキを各%(games)s回プレイ。4ターン目までの土地のセット、マリガン、マナを並べて比較します。"
+
+#: templates/datapages/precons.html
+#, python-format
+msgid ""
+"Each preconstructed Commander deck since 2025, played %(games)s times for "
+"%(turns)s turns, the same way for every deck: drawing on the first turn, as "
+"at a multiplayer table, with the same mulligan rule. Pick a deck to see "
+"everything it did."
+msgstr ""
+"2025年以降の統率者構築済みデッキを、それぞれ%(turns)sターンまで%(games)s回プレイしました。どのデッキも同じ条件です。多人数戦の卓と同じく1ターン目にドローし、マリガンのルールも共通です。デッキを選ぶと、その結果をすべて見られます。"
+
+#: templates/datapages/precons.html
+msgid "Deck"
+msgstr "デッキ"
+
+#: templates/datapages/precons.html
+msgid "Released"
+msgstr "発売"
+
+#: templates/datapages/precons.html
+#, python-format
+msgid "4 lands by turn %(turn)s"
+msgstr "%(turn)sターン目に土地4枚"
+
+#: templates/datapages/precons.html
+msgid "Kept seven"
+msgstr "7枚キープ"
+
+#: templates/datapages/precons.html
+#, python-format
+msgid "Mana on turn %(turn)s"
+msgstr "%(turn)sターン目のマナ"
+
+#: templates/datapages/precons.html
+msgid "Cards read"
+msgstr "読み取れたカード"
+
+#: templates/datapages/precons.html
+#, python-format
+msgid ""
+"\"4 lands by turn %(turn)s\": games with four lands in play on turn "
+"%(turn)s. \"Kept seven\": games that kept the first seven cards. \"Cards "
+"read\": how much of the deck the engine could read from the cards "
+"themselves; the lower it is, the less the other numbers tell."
+msgstr ""
+"「%(turn)sターン目に土地4枚」：%(turn)sターン目に土地が4枚以上戦場にあったゲーム。「7枚キープ」：最初の7枚をキープしたゲーム。「読み取れたカード」：エンジンがカード自体から読み取れたデッキの割合。低いほど、ほかの数字が示すことは少なくなります。"
+
+#: templates/datapages/precons.html
+msgid "The precons are being simulated. Come back in a few minutes."
+msgstr "構築済みデッキをシミュレーション中です。数分後にもう一度ご覧ください。"
+
+#: templates/datapages/_credits.html
+#, python-format
+msgid ""
+"A goldfish is a deck played alone: these numbers measure what a deck does, "
+"not how a table answers it. <a href=\"%(methodology_url)s\" "
+"class=\"underline hover:text-parchment-50\">How this works</a>"
+msgstr ""
+"ゴールドフィッシュとはデッキを一人で回すことです。これらの数字は、卓がどう対応するかではなく、デッキ自体が何をするかを測ります。<a "
+"href=\"%(methodology_url)s\" class=\"underline hover:text-"
+"parchment-50\">仕組み</a>"
+
+#: templates/datapages/_credits.html
+msgid ""
+"Decklists from <a href=\"https://mtgjson.com/\" class=\"underline "
+"hover:text-parchment-50\" rel=\"noopener\">MTGJSON</a>."
+msgstr ""
+"デッキリストの出典：<a href=\"https://mtgjson.com/\" class=\"underline hover:text-"
+"parchment-50\" rel=\"noopener\">MTGJSON</a>。"
+
+#: templates/datapages/precon.html
+#, python-format
+msgid "%(name)s precon, simulated"
+msgstr "構築済みデッキ「%(name)s」のシミュレーション"
+
+#: templates/datapages/precon.html templates/base.html
+msgid "Every Commander precon"
+msgstr "統率者構築済みデッキ一覧"
+
+#: templates/datapages/precon.html
+#, python-format
+msgid ""
+"Played %(games)s times for %(turns)s turns, with the multiplayer draw rule. "
+"Simulated by Goldfish Lab on %(date)s."
+msgstr ""
+"多人数戦のドロー・ルールで%(turns)sターンまで%(games)s回プレイ。%(date)s に Goldfish Lab でシミュレーション。"
+
+#: templates/datapages/precon.html
+msgid "In short"
+msgstr "要点"
+
+#: templates/datapages/precon.html
+msgid "Changed a few cards?"
+msgstr "カードを何枚か入れ替えましたか？"
+
+#: templates/datapages/precon.html
+msgid ""
+"Upload your version and Goldfish Lab plays it thousands of times. Free, and "
+"no account needed to try."
+msgstr "あなたのバージョンをアップロードすると、Goldfish Lab が何千回もプレイします。無料で、試すだけならアカウントは不要です。"
+
+#: templates/datapages/precon.html
+msgid "Compare every precon"
+msgstr "すべての構築済みデッキを比較"
+
+#: datapages/numbers.py
+#, python-format
+msgid "In %(share)s of games it has four lands in play on turn 4."
+msgstr "%(share)sのゲームで、4ターン目に土地が4枚戦場にあります。"
+
+#: datapages/numbers.py
+#, python-format
+msgid "It keeps its first seven cards in %(share)s of games."
+msgstr "%(share)sのゲームで最初の7枚をキープします。"
+
+#: datapages/numbers.py
+#, python-format
+msgid "On turn 4 it has %(mana)s mana on average."
+msgstr "4ターン目のマナは平均%(mana)sです。"
+
 #: templates/core/privacy.html
 msgid ""
 "Daily counts of how the site is used: guests started and saved, accounts "
-"opened, simulations started, reports viewed, shared reports opened, clicks "
-"on features we are considering, and how many different people simulated in a"
-" week - totals only, with no name, address or account. To count you once a "
-"week, your account notes the week of your last simulation"
+"opened, simulations started, reports viewed, shared reports and data pages "
+"opened, clicks on features we are considering, and how many different people"
+" simulated in a week - totals only, with no name, address or account. To "
+"count you once a week, your account notes the week of your last simulation"
 msgstr ""
-"サイトの利用状況の日ごとのカウント：開始・保存されたゲスト、開設されたアカウント、開始されたシミュレーション、閲覧されたレポート、開かれた共有レポート、検討中の機能へのクリック、1週間にシミュレーションを行った人数。合計の数のみで、名前・アドレス・アカウントは含みません。1週間に1回だけ数えるため、アカウントには最後にシミュレーションを行った週を記録します"
+"サイトの利用状況の日ごとのカウント：開始・保存されたゲスト、開設されたアカウント、開始されたシミュレーション、閲覧されたレポート、開かれた共有レポートとデータページ、検討中の機能へのクリック、1週間にシミュレーションを行った人数。合計の数のみで、名前・アドレス・アカウントは含みません。1週間に1回だけ数えるため、アカウントには最後にシミュレーションを行った週を記録します"

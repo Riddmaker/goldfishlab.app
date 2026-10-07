@@ -78,6 +78,11 @@ policy describes the counts.
 comparisons free, large series with a plan at CHF 9 a month). The feature is not built; a click
 is counted once per session and answered honestly (`metrics/doors.py`). The stats page holds the
 clicks against reports viewed: gate G3 passes at 5 % of 200 or more.
+
+**Data pages (P11)**: every Commander precon since 2025, simulated the same way (10,000 games, 6
+turns, the multiplayer draw rule) and public in every language: a sortable table at
+`/data/commander-precons/` and one page per precon with its full report, both in the sitemap.
+The lists come from MTGJSON, matched to the catalogue by oracle id; see "The data pages" below.
 Product decisions live in the sibling `magic-project` repository's `instructions.md`, section
 "Teil 2".
 
@@ -338,6 +343,7 @@ msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
 | `billing/` | Plans, subscriptions, usage records, quota enforcement |
 | `sharing/` | Shared reports at `/r/<token>/`: the frozen deck snapshot, the owner's share and stop buttons, the reader count and the copy-as-text version |
 | `guests/` | Trying it without an account: a temporary guest user per browser, its limits and fence, saving (claiming) and hourly expiry |
+| `datapages/` | The data pages: Commander precons from MTGJSON, simulated by the site's own (system) account, the table and a page per precon, `manage.py precons` and the weekly refresh |
 | `metrics/` | Daily usage counts with no user attached, the staff stats page at `/admin/stats/` and `manage.py stats`, and the "Compare two versions" fake door |
 | `DESIGN.md` | **Normative design rules** |
 | `STYLEGUIDE.html` | Binding rendered reference, standalone, print CSS included |
@@ -379,6 +385,25 @@ strategy, card type and mana value (`analysis.seen_groups`, Phase 9 E; strategie
 before the strategies simply has no "By strategy" chart.
 The little hand-written JavaScript there is (`static/js/`: the import drop zone and the
 self-submitting email confirmation) only improves pages that already work without it.
+
+## The data pages
+
+The precons belong to a system account (`User.is_system`): it cannot sign in, it is left out of
+the counts on `/admin/stats/`, and its runs go on the long queue with no quota or summary
+(`simulations.services.start_lab_run`). Each precon's report is frozen as a shared report is, so
+its page shows exactly the list that was played; its `/r/` link sends to that page.
+
+```bash
+python manage.py precons                 # new precons and changed lists from MTGJSON
+python manage.py precons --dry-run       # what would happen; changes nothing
+python manage.py precons --rerun         # simulate every precon again (after an engine change)
+python manage.py precons --source DIR    # MTGJSON's files from a directory instead of the web
+python manage.py precons --from-text deck.txt --name "Deck Name" --set ABC --released 2026-11-13
+```
+
+The beat runs the first form on Tuesdays at 02:30. A list with a card the catalogue does not know
+yet (a set days old) is held and tried again; the admin shows what is held, and its "unpublish"
+action takes a page down. `MTGJSON_URL` changes the source.
 
 ## Checking the numbers
 

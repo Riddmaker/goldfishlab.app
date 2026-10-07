@@ -155,11 +155,35 @@ def start_run(*, owner, deck, games: int, turns: int, on_the_play: bool = True,
     return run
 
 
+def start_lab_run(*, owner, deck, games: int, turns: int, on_the_play: bool,
+                  seed: int) -> SimulationRun:
+    """A run for the site's own pages (P11, `datapages`), owned by the system
+    account: no plan limits, quota, slot, summary or count, because nobody
+    asked for it. It goes on the long queue (`queue_of`), so a guest never
+    waits behind a precon."""
+    if not owner.is_system:
+        raise ValueError("start_lab_run is for the system account only")
+    from simulations import summary, tasks
+
+    run = SimulationRun.objects.create(
+        owner=owner, deck=deck, games_total=games, turns=turns,
+        on_the_play=on_the_play, seed=seed, deck_print=summary.fingerprint(deck),
+    )
+    transaction.on_commit(lambda: _dispatch(run, tasks))
+    return run
+
+
 def _dispatch(run: SimulationRun, tasks) -> None:
     async_result = tasks.run_simulation.apply_async(
-        args=[str(run.pk)], queue=queue_for(run.games_total)
+        args=[str(run.pk)], queue=queue_of(run)
     )
     SimulationRun.objects.filter(pk=run.pk).update(task_id=async_result.id)
+
+
+def queue_of(run: SimulationRun) -> str:
+    """The queue this run and its chunks go on: the system account's on the
+    long one whatever their size (P11), everybody else's by size."""
+    return LONG_QUEUE if run.owner.is_system else queue_for(run.games_total)
 
 
 def queue_for(games: int) -> str:

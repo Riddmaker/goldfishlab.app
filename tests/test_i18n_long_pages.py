@@ -84,9 +84,10 @@ def test_an_english_reader_sees_no_note(client, name):
     assert 'role="note"' not in body
 
 
-@pytest.mark.parametrize("name", ["privacy", "terms"])
-def test_the_english_text_says_it_prevails(client, name):
+@pytest.mark.parametrize(("name", "updated"), [("privacy", "7 October 2026"),
+                                               ("terms", "6 October 2026")])
+def test_the_english_text_says_it_prevails(client, name, updated):
     body = client.get(reverse(name), follow=True).content.decode()
 
     assert PRECEDENCE in body
-    assert "Last updated 6 October 2026." in body
+    assert f"Last updated {updated}." in body

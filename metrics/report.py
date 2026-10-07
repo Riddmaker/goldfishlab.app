@@ -59,6 +59,7 @@ COLUMNS = (
     Name.REPORT_OPENED,
     Name.REPORT_VIEWED,
     Name.COMPARE_CLICKED,
+    Name.DATA_PAGE_OPENED,
 )
 
 #: Days after the first simulation that count as coming back.
@@ -162,7 +163,8 @@ def cohorts(today: date | None = None, count: int = 12) -> list[Cohort]:
 
     zone = ZoneInfo(settings.TIME_ZONE)
     days_by_owner = defaultdict(set)
-    owner_days = (SimulationRun.objects.filter(owner__is_guest=False)
+    # Not the site's own account (P11), whose precon runs are nobody's.
+    owner_days = (SimulationRun.objects.filter(owner__is_guest=False, owner__is_system=False)
                   .annotate(day=TruncDate("created_at", tzinfo=zone))
                   .values_list("owner_id", "day").distinct())
     for owner, day in owner_days:

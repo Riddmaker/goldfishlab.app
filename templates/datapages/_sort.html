@@ -1,0 +1,7 @@
+{% load i18n %}{% comment %}
+  One sortable column head (P11). A link, no script: ?sort=<key>. The column
+  the table is sorted by says so to a screen reader (aria-sort).
+  Takes: key, label, sort (the current one).
+{% endcomment %}<th scope="col" class="py-1.5 pr-3 align-bottom"{% if sort == key %} aria-sort="{% if key == 'name' %}ascending{% else %}descending{% endif %}"{% endif %}>
+  {% if sort == key %}<span class="text-ink-900">{{ label }}</span>{% else %}<a href="?sort={{ key }}" class="underline hover:text-ink-900">{{ label }}</a>{% endif %}
+</th>

@@ -82,7 +82,8 @@
       </figcaption>
     </figure>
   </div>
-  <p class="mt-8 text-sm text-ink-400">
+  <p class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-400">
     <a href="{% url 'methodology' %}" class="underline hover:text-ink-300">{% translate "How it works" %}</a>
+    <a href="{% url 'datapages:precons' %}" class="underline hover:text-ink-300">{% translate "Every Commander precon, simulated" %}</a>
   </p>
 {% endblock %}

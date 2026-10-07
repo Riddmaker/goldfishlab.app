@@ -23,6 +23,7 @@ from core.views import (
     TickerView,
     healthz,
 )
+from datapages.sitemaps import PreconSitemap
 from metrics.views import stats
 from sharing.urls import report_patterns
 
@@ -50,7 +51,9 @@ urlpatterns = [
     path("healthz/", healthz, name="healthz"),
     # P3, search basics: core.seo has the list of public pages behind both.
     path("robots.txt", RobotsView.as_view(), name="robots"),
-    path("sitemap.xml", sitemap, {"sitemaps": {"pages": PublicPagesSitemap}}, name="sitemap"),
+    # P11: and every published precon.
+    path("sitemap.xml", sitemap,
+         {"sitemaps": {"pages": PublicPagesSitemap, "precons": PreconSitemap}}, name="sitemap"),
     # Pages carry `<link rel="icon">`; this is for whatever asks the old way
     # (the admin, a feed reader, a browser opening a JSON response). Lazy,
     # because the hashed file name is only known once the manifest is loaded,
@@ -89,6 +92,8 @@ urlpatterns += i18n_patterns(
     # saying plainly what is simulated and what is not is the thing no
     # "AI power level: 7.3" competitor can write. (Phase 8.)
     path("about/methodology/", MethodologyView.as_view(), name="methodology"),
+    # P11: every Commander precon, simulated - the pages a search finds.
+    path("data/", include("datapages.urls")),
     # Outside /billing/, which is the account's own page and closed to guests.
     path("pricing/", PricingView.as_view(), name="pricing"),
     path("terms/", TermsView.as_view(), name="terms"),

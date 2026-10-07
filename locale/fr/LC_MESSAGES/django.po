@@ -7782,17 +7782,161 @@ msgstr ""
 "Petites comparaisons gratuites ; grandes séries avec une formule à CHF "
 "%(price)s par mois."
 
+#: templates/datapages/precons.html templates/core/home.html
+msgid "Every Commander precon, simulated"
+msgstr "Chaque précon Commander, simulé"
+
+#: templates/datapages/precons.html
+#, python-format
+msgid ""
+"Every Commander precon since 2025, each played %(games)s times: land drops, "
+"mulligans and mana by turn 4, side by side."
+msgstr ""
+"Chaque précon Commander depuis 2025, joué %(games)s fois : poses de terrain,"
+" mulligans et mana au tour 4, côte à côte."
+
+#: templates/datapages/precons.html
+#, python-format
+msgid ""
+"Each preconstructed Commander deck since 2025, played %(games)s times for "
+"%(turns)s turns, the same way for every deck: drawing on the first turn, as "
+"at a multiplayer table, with the same mulligan rule. Pick a deck to see "
+"everything it did."
+msgstr ""
+"Chaque deck Commander préconstruit depuis 2025, joué %(games)s fois sur "
+"%(turns)s tours, de la même façon pour chaque deck : en piochant au premier "
+"tour, comme à une table multijoueur, avec la même règle de mulligan. "
+"Choisissez un deck pour voir tout ce qu'il a fait."
+
+#: templates/datapages/precons.html
+msgid "Deck"
+msgstr "Deck"
+
+#: templates/datapages/precons.html
+msgid "Released"
+msgstr "Sortie"
+
+#: templates/datapages/precons.html
+#, python-format
+msgid "4 lands by turn %(turn)s"
+msgstr "4 terrains au tour %(turn)s"
+
+#: templates/datapages/precons.html
+msgid "Kept seven"
+msgstr "Sept gardées"
+
+#: templates/datapages/precons.html
+#, python-format
+msgid "Mana on turn %(turn)s"
+msgstr "Mana au tour %(turn)s"
+
+#: templates/datapages/precons.html
+msgid "Cards read"
+msgstr "Cartes lues"
+
+#: templates/datapages/precons.html
+#, python-format
+msgid ""
+"\"4 lands by turn %(turn)s\": games with four lands in play on turn "
+"%(turn)s. \"Kept seven\": games that kept the first seven cards. \"Cards "
+"read\": how much of the deck the engine could read from the cards "
+"themselves; the lower it is, the less the other numbers tell."
+msgstr ""
+"« 4 terrains au tour %(turn)s » : parties avec quatre terrains en jeu au "
+"tour %(turn)s. « Sept gardées » : parties où les sept premières cartes ont "
+"été gardées. « Cartes lues » : la part du deck que le moteur a pu lire sur "
+"les cartes elles-mêmes ; plus elle est basse, moins les autres chiffres en "
+"disent."
+
+#: templates/datapages/precons.html
+msgid "The precons are being simulated. Come back in a few minutes."
+msgstr ""
+"Les précons sont en cours de simulation. Revenez dans quelques minutes."
+
+#: templates/datapages/_credits.html
+#, python-format
+msgid ""
+"A goldfish is a deck played alone: these numbers measure what a deck does, "
+"not how a table answers it. <a href=\"%(methodology_url)s\" "
+"class=\"underline hover:text-parchment-50\">How this works</a>"
+msgstr ""
+"Un goldfish est un deck joué seul : ces chiffres mesurent ce que fait un "
+"deck, pas comment une table y répond. <a href=\"%(methodology_url)s\" "
+"class=\"underline hover:text-parchment-50\">Comment ça marche</a>"
+
+#: templates/datapages/_credits.html
+msgid ""
+"Decklists from <a href=\"https://mtgjson.com/\" class=\"underline "
+"hover:text-parchment-50\" rel=\"noopener\">MTGJSON</a>."
+msgstr ""
+"Listes de decks issues de <a href=\"https://mtgjson.com/\" class=\"underline"
+" hover:text-parchment-50\" rel=\"noopener\">MTGJSON</a>."
+
+#: templates/datapages/precon.html
+#, python-format
+msgid "%(name)s precon, simulated"
+msgstr "Précon %(name)s, simulé"
+
+#: templates/datapages/precon.html templates/base.html
+msgid "Every Commander precon"
+msgstr "Tous les précons Commander"
+
+#: templates/datapages/precon.html
+#, python-format
+msgid ""
+"Played %(games)s times for %(turns)s turns, with the multiplayer draw rule. "
+"Simulated by Goldfish Lab on %(date)s."
+msgstr ""
+"Joué %(games)s fois sur %(turns)s tours, avec la règle de pioche "
+"multijoueur. Simulé par Goldfish Lab le %(date)s."
+
+#: templates/datapages/precon.html
+msgid "In short"
+msgstr "En bref"
+
+#: templates/datapages/precon.html
+msgid "Changed a few cards?"
+msgstr "Vous avez changé quelques cartes ?"
+
+#: templates/datapages/precon.html
+msgid ""
+"Upload your version and Goldfish Lab plays it thousands of times. Free, and "
+"no account needed to try."
+msgstr ""
+"Importez votre version et Goldfish Lab la joue des milliers de fois. "
+"Gratuit, et sans compte pour essayer."
+
+#: templates/datapages/precon.html
+msgid "Compare every precon"
+msgstr "Comparer tous les précons"
+
+#: datapages/numbers.py
+#, python-format
+msgid "In %(share)s of games it has four lands in play on turn 4."
+msgstr "Dans %(share)s des parties, il a quatre terrains en jeu au tour 4."
+
+#: datapages/numbers.py
+#, python-format
+msgid "It keeps its first seven cards in %(share)s of games."
+msgstr "Il garde ses sept premières cartes dans %(share)s des parties."
+
+#: datapages/numbers.py
+#, python-format
+msgid "On turn 4 it has %(mana)s mana on average."
+msgstr "Au tour 4, il a en moyenne %(mana)s mana."
+
 #: templates/core/privacy.html
 msgid ""
 "Daily counts of how the site is used: guests started and saved, accounts "
-"opened, simulations started, reports viewed, shared reports opened, clicks "
-"on features we are considering, and how many different people simulated in a"
-" week - totals only, with no name, address or account. To count you once a "
-"week, your account notes the week of your last simulation"
+"opened, simulations started, reports viewed, shared reports and data pages "
+"opened, clicks on features we are considering, and how many different people"
+" simulated in a week - totals only, with no name, address or account. To "
+"count you once a week, your account notes the week of your last simulation"
 msgstr ""
 "Des comptes quotidiens de l'utilisation du site : invités créés et "
 "enregistrés, comptes ouverts, simulations lancées, rapports consultés, "
-"rapports partagés ouverts, clics sur des fonctions que nous envisageons, et "
-"nombre de personnes différentes ayant simulé dans la semaine — uniquement "
-"des totaux, sans nom, adresse ni compte. Pour vous compter une fois par "
-"semaine, votre compte note la semaine de votre dernière simulation"
+"rapports partagés et pages de données ouverts, clics sur des fonctions que "
+"nous envisageons, et nombre de personnes différentes ayant simulé dans la "
+"semaine — uniquement des totaux, sans nom, adresse ni compte. Pour vous "
+"compter une fois par semaine, votre compte note la semaine de votre dernière"
+" simulation"

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "guests",
     "sharing",
     "metrics",
+    "datapages",
 ]
 
 MIDDLEWARE = [
@@ -118,6 +119,11 @@ DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 SCRYFALL_USER_AGENT = env(
     "SCRYFALL_USER_AGENT", default="GoldfishLab/0.1 (+https://goldfishlab.app)"
 )
+
+# --- MTGJSON (P11) ----------------------------------------------------------
+# Where the precon decklists come from (datapages.mtgjson). Sent the same
+# User-Agent as Scryfall. A setting only so a mirror can stand in.
+MTGJSON_URL = env("MTGJSON_URL", default="https://mtgjson.com/api/v5/")
 
 # --- Stripe -----------------------------------------------------------------
 # Empty by default and empty everywhere but production. `billing.stripe_api`
@@ -298,6 +304,14 @@ CELERY_BEAT_SCHEDULE = {
     "cards-refresh": {
         "task": "cards.refresh",
         "schedule": crontab(minute="30", hour="0"),
+        "options": {"queue": "sim_long"},
+    },
+    # P11: new Commander precons and changed lists, simulated for the data
+    # pages. Tuesdays, after the night's card refresh (00:30) has had time to
+    # load a new set's cards - a precon whose cards are not in yet is held.
+    "precons-refresh": {
+        "task": "datapages.refresh",
+        "schedule": crontab(minute="30", hour="2", day_of_week="2"),
         "options": {"queue": "sim_long"},
     },
     # P1: a summary whose worker died mid-call is closed, and its run given

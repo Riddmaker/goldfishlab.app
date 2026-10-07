@@ -291,6 +291,15 @@ def import_deck(
     return ImportOutcome(deck=deck, record=record, report=report)
 
 
+def fill(deck: Deck, report: resolve.ResolutionReport) -> None:
+    """Make `deck` the list `report` resolved, commander included - what an
+    import writes, for a list that did not come from a person's upload and
+    is therefore not metered or recorded (the site's own precons, P11)."""
+    _write_entries(deck, report, commander=_commander_for(deck, report))
+    _set_commander(deck, report)
+    recount_later(Deck.objects.filter(pk=deck.pk))
+
+
 def _commander_for(deck: Deck, report: resolve.ResolutionReport):
     """The card this import leaves in the command zone, if any.
 

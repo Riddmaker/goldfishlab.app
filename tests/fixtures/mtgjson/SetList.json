@@ -1,0 +1,13 @@
+{
+"meta": {
+"version": "test"
+},
+"data": [
+{
+"code": "TST",
+"name": "Test Set Commander",
+"type": "commander",
+"releaseDate": "2026-03-06"
+}
+]
+}

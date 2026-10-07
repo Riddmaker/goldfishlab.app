@@ -1,0 +1,12 @@
+{% extends "admin/index.html" %}
+{# Django's admin index, with a way to the stats page (P2) above the apps. #}
+
+{% block content %}
+<div class="module">
+  <table>
+    <caption>Goldfish Lab</caption>
+    <tr><th scope="row"><a href="{% url 'stats' %}">Stats</a></th><td>People who simulated each week, the funnel, coming back</td></tr>
+  </table>
+</div>
+{{ block.super }}
+{% endblock %}

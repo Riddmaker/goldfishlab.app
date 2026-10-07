@@ -55,13 +55,16 @@
       after it (phase 11 Z5.4) as the last part of "Your strategies, and what
       would feed them" (phase 11 E), which shows whether summaries are on or
       not; last before "Advanced". Sharing (P4) follows the attention block:
-      it is something a person can do, and says what becomes public.
+      it is something a person can do, and says what becomes public. The
+      "Compare two versions" fake door (P9) follows it, still above the numbers,
+      so every report view has seen it.
     {% endcomment %}
     {% if user.is_guest %}
       {% include "simulations/_keep_deck.html" %}
     {% endif %}
     {% include "simulations/_attention.html" %}
     {% include "simulations/_share.html" %}
+    {% include "simulations/_compare.html" %}
     {% include "simulations/_report.html" %}
     {% if user.deck_summaries %}
       {% include "simulations/_summary.html" %}

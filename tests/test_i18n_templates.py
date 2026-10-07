@@ -27,6 +27,9 @@ LATER = {
     # Only with DEBUG; nobody but us sees it.
     "core/styleguide.html": "dev only",
 }
+#: Pages inside the Django admin (P2's stats page and the link to it): staff
+#: only, and in English like the admin around them.
+STAFF_ONLY = "admin/"
 #: Plain-text templates read too: the mails' text halves, subjects and allauth
 #: messages are text a person reads (phase 12 C).
 TEXT_DIRS = ("account/",)
@@ -125,7 +128,8 @@ def _checked():
     for path in sorted(TEMPLATES.rglob("*")):
         name = path.relative_to(TEMPLATES).as_posix()
         text = path.suffix == ".txt" and name.startswith(TEXT_DIRS)
-        if (path.suffix == ".html" or text) and name not in LATER:
+        if (path.suffix == ".html" or text) and name not in LATER \
+                and not name.startswith(STAFF_ONLY):
             yield name
 
 

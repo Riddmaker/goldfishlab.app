@@ -35,6 +35,7 @@ from billing.quotas import QuotaExceeded
 from cards.models import OracleCard
 from decks.models import Deck
 from guests.services import LIFETIME as GUEST_LIFETIME
+from metrics import doors
 from sharing import services as sharing
 from simulations import (
     blindspots,
@@ -159,6 +160,10 @@ class RunDetailView(OwnedRunsMixin, DetailView):
             context["guest_hours"] = int(GUEST_LIFETIME.total_seconds() // 3600)
             # "Share this report" (P4).
             context["share"] = sharing.panel(self.request, run, context["report"])
+            # "Compare two versions" (P9): a fake door, counted against views.
+            doors.report_viewed(self.request, run)
+            context["compare"] = {"asked": doors.asked(self.request),
+                                  "price": doors.COMPARE_PRICE_CHF}
         return context
 
 

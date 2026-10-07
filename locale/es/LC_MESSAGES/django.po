@@ -4395,23 +4395,6 @@ msgid "The short version"
 msgstr "La versión corta"
 
 #: templates/core/privacy.html
-msgid ""
-"We store your email address, the decks you upload, and the results of the "
-"simulations you run - on servers in Switzerland. Connections reach those "
-"servers through Cloudflare's network. We do not sell any of it, we do not "
-"advertise, and there are no analytics or third-party trackers on this site. "
-"You can download everything we hold at any time, and you can delete your "
-"account yourself. Both of those are buttons, not requests."
-msgstr ""
-"Guardamos tu dirección de correo electrónico, los mazos que subes y los "
-"resultados de las simulaciones que ejecutas, en servidores en Suiza. Las "
-"conexiones llegan a esos servidores a través de la red de Cloudflare. No "
-"vendemos nada de ello, no hacemos publicidad y en este sitio no hay "
-"analítica ni rastreadores de terceros. Puedes descargar en cualquier momento"
-" todo lo que tenemos y puedes borrar tu cuenta tú mismo. Ambas cosas son "
-"botones, no solicitudes."
-
-#: templates/core/privacy.html
 msgid "Your data and account deletion →"
 msgstr "Tus datos y el borrado de la cuenta →"
 
@@ -4951,16 +4934,6 @@ msgstr ""
 "Comunicamos datos a las autoridades solo cuando el derecho suizo nos obliga "
 "a ello, comunicamos lo mínimo que cumple la obligación y te lo decimos, "
 "salvo que esté prohibido."
-
-#: templates/core/privacy.html
-msgid ""
-"No analytics, no advertising, no error-reporting service and no third-party "
-"scripts. If we ever add a service that processes anything about you, it is "
-"named here before it is switched on."
-msgstr ""
-"Sin analítica, sin publicidad, sin servicio de notificación de errores y sin"
-" scripts de terceros. Si algún día añadimos un servicio que trate algo sobre"
-" ti, se nombrará aquí antes de activarse."
 
 #: templates/core/privacy.html
 msgid "On the home page"
@@ -7702,3 +7675,97 @@ msgstr ""
 " publicamos, salvo que compartas un informe: entonces lo mostramos, con el "
 "nombre y la lista del mazo, a cualquiera con su enlace hasta que dejes de "
 "compartirlo. No los vendemos ni entrenamos nada con ellos."
+
+#: templates/core/privacy.html
+msgid ""
+"We store your email address, the decks you upload, and the results of the "
+"simulations you run - on servers in Switzerland. Connections reach those "
+"servers through Cloudflare's network. We do not sell any of it, we do not "
+"advertise, and there are no analytics services or third-party trackers on "
+"this site: we only count, in totals that name nobody, how the site is used. "
+"You can download everything we hold at any time, and you can delete your "
+"account yourself. Both of those are buttons, not requests."
+msgstr ""
+"Guardamos tu dirección de correo electrónico, los mazos que subes y los "
+"resultados de las simulaciones que ejecutas, en servidores en Suiza. Las "
+"conexiones llegan a esos servidores a través de la red de Cloudflare. No "
+"vendemos nada de ello, no hacemos publicidad y en este sitio no hay "
+"servicios de analítica ni rastreadores de terceros: solo contamos, en "
+"totales que no identifican a nadie, cómo se usa el sitio. Puedes descargar "
+"en cualquier momento todo lo que tenemos y puedes borrar tu cuenta tú mismo."
+" Ambas cosas son botones, no solicitudes."
+
+#: templates/core/privacy.html
+msgid ""
+"No analytics service, no advertising, no error-reporting service and no "
+"third-party scripts. The usage counts described above are our own and name "
+"nobody. If we ever add a service that processes anything about you, it is "
+"named here before it is switched on."
+msgstr ""
+"Sin servicio de analítica, sin publicidad, sin servicio de notificación de "
+"errores y sin scripts de terceros. Los recuentos de uso descritos arriba son"
+" nuestros y no identifican a nadie. Si algún día añadimos un servicio que "
+"trate algo sobre ti, se nombrará aquí antes de activarse."
+
+#: templates/core/privacy.html
+msgid ""
+"To see whether the site is useful and what to improve. How many accounts "
+"come back to simulate again is worked out from the simulation runs above, as"
+" totals only (legitimate interest, Art. 6(1)(f))"
+msgstr ""
+"Para saber si el sitio es útil y qué mejorar. Cuántas cuentas vuelven a "
+"simular se calcula a partir de las simulaciones de arriba, solo como totales"
+" (interés legítimo, art. 6.1.f)"
+
+#: templates/core/privacy.html
+msgid ""
+"The counts: as long as the site runs, as they are about nobody. The week of "
+"your last simulation: until you delete the account"
+msgstr ""
+"Los recuentos: mientras el sitio funcione, ya que no se refieren a nadie. La"
+" semana de tu última simulación: hasta que borres la cuenta"
+
+#: templates/simulations/_compare.html
+msgid "Compare two versions"
+msgstr "Comparar dos versiones"
+
+#: templates/simulations/_compare.html
+msgid ""
+"Not built yet - thank you for asking. We count who wants it, and build it "
+"once enough people do. Nothing was charged, and you have not signed up for "
+"anything."
+msgstr ""
+"Todavía no existe; gracias por pedirlo. Contamos quién lo quiere y lo "
+"construiremos cuando lo quiera suficiente gente. No se ha cobrado nada y no "
+"te has apuntado a nada."
+
+#: templates/simulations/_compare.html
+msgid ""
+"Play this deck against a second version of itself - one card swapped, or two"
+" more lands - and see which does better, turn by turn."
+msgstr ""
+"Enfrenta este mazo a una segunda versión de sí mismo (una carta cambiada, o "
+"dos tierras más) y mira, turno a turno, cuál funciona mejor."
+
+#: templates/simulations/_compare.html
+#, python-format
+msgid ""
+"Small comparisons free; large series with a plan at CHF %(price)s a month."
+msgstr ""
+"Comparaciones pequeñas gratis; series grandes con un plan de CHF %(price)s "
+"al mes."
+
+#: templates/core/privacy.html
+msgid ""
+"Daily counts of how the site is used: guests started and saved, accounts "
+"opened, simulations started, reports viewed, shared reports opened, clicks "
+"on features we are considering, and how many different people simulated in a"
+" week - totals only, with no name, address or account. To count you once a "
+"week, your account notes the week of your last simulation"
+msgstr ""
+"Recuentos diarios de cómo se usa el sitio: invitados creados y guardados, "
+"cuentas abiertas, simulaciones iniciadas, informes vistos, informes "
+"compartidos abiertos, clics en funciones que estamos considerando y cuántas "
+"personas distintas simularon en una semana; solo totales, sin nombre, "
+"dirección ni cuenta. Para contarte una vez por semana, tu cuenta anota la "
+"semana de tu última simulación"

@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "sharing",
     "metrics",
     "datapages",
+    "changelog",
 ]
 
 MIDDLEWARE = [
@@ -108,6 +109,7 @@ TEMPLATES = [
                 "core.context_processors.dev_tools",
                 "core.context_processors.languages",
                 "core.context_processors.seo",
+                "changelog.context_processors.mail_wanted",
             ],
         },
     },
@@ -208,6 +210,15 @@ LEGAL_EU_REP_EMAIL = env("LEGAL_EU_REP_EMAIL", default="")
 # address is noreply@, which is no mailbox. Empty: no Reply-To; production
 # defaults to hello@ (settings/prod.py).
 EMAIL_REPLY_TO = env("DJANGO_EMAIL_REPLY_TO", default="")
+
+# The changelog's monthly mail (C7) and who sends it. Blank: no mail, and
+# /changelog/ offers its feed alone. A sender of its own, so the one mail
+# that goes to many can have its own mailbox. Its
+# own SMTP login when that mailbox needs one; blank uses DJANGO_EMAIL_HOST_*.
+# Replies go to DJANGO_EMAIL_REPLY_TO, like every other mail (core/mail.py).
+CHANGELOG_FROM_EMAIL = env("CHANGELOG_FROM_EMAIL", default="")
+CHANGELOG_EMAIL_HOST_USER = env("CHANGELOG_EMAIL_HOST_USER", default="")
+CHANGELOG_EMAIL_HOST_PASSWORD = env("CHANGELOG_EMAIL_HOST_PASSWORD", default="")
 
 # Where this installation's source code is published, e.g.
 # "https://github.com/Riddmaker/goldfishlab.app". The code is AGPL-3.0: whoever runs
@@ -349,6 +360,12 @@ CELERY_BEAT_SCHEDULE = {
     "alerts": {
         "task": "core.alerts",
         "schedule": crontab(minute="45"),
+    },
+    # C7: last month's changelog, to whoever asked for it - on the first of
+    # the month, and only when the month had an entry (changelog.tasks).
+    "changelog-digest": {
+        "task": "changelog.digest",
+        "schedule": crontab(minute="0", hour="9", day_of_month="1"),
     },
 }
 #: Who `core.alerts` mails (phase 12 J12). Empty: a log line instead. It needs

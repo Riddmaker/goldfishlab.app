@@ -4659,19 +4659,6 @@ msgid "Email we send you"
 msgstr "E-Mails, die wir dir schicken"
 
 #: templates/core/privacy.html
-msgid ""
-"Only what the account needs: the message that confirms your address, "
-"password resets, and - rarely - a notice about a change to these documents "
-"or to a plan you pay for. No newsletter and no marketing, ever. The mail is "
-"sent through a mailbox at Infomaniak, in Switzerland."
-msgstr ""
-"Nur, was das Konto braucht: die Nachricht, die deine Adresse bestätigt, "
-"Passwort-Zurücksetzungen und – selten – ein Hinweis auf eine Änderung dieser"
-" Dokumente oder eines Abos, für das du bezahlst. Kein Newsletter und kein "
-"Marketing, niemals. Die Mails werden über ein Postfach bei Infomaniak in der"
-" Schweiz verschickt."
-
-#: templates/core/privacy.html
 msgid "Who else sees what"
 msgstr "Wer sonst was sieht"
 
@@ -8388,3 +8375,434 @@ msgstr ""
 " nicht nutzen kann, nicht mitgezählt wird. Und gezählt wird in jedem Spiel "
 "deines Laufs statt in einer Stichprobe, damit die Anteile so genau sind, wie"
 " der Lauf groß ist."
+
+#: changelog
+msgid "What's new, by feed or by mail"
+msgstr "Neu: per Feed oder per Mail"
+
+#: changelog
+msgid ""
+"This page. Follow it in your feed reader, or get one mail a month when there"
+" is something new."
+msgstr ""
+"Diese Seite. Folge ihr in deinem Feedreader oder bekomm einmal im Monat eine"
+" Mail, wenn es Neues gibt."
+
+#: changelog
+msgid ""
+"The report times every combo in your deck that ends the game and says which "
+"Commander Brackets that speed fits."
+msgstr ""
+"Der Report misst, wann jede Combo deines Decks, die das Spiel beendet, "
+"zusammen ist, und sagt, zu welchen Commander-Brackets dieses Tempo passt."
+
+#: changelog
+msgid "Three plans: Goldfish, Koi and Kraken"
+msgstr "Drei Abos: Goldfish, Koi und Kraken"
+
+#: changelog
+msgid ""
+"Goldfish is free. Koi and Kraken simulate more turns and more games, by the "
+"month or by the year."
+msgstr ""
+"Goldfish ist kostenlos. Koi und Kraken simulieren mehr Züge und mehr Spiele,"
+" monatlich oder jährlich."
+
+#: changelog
+msgid ""
+"We rebuilt precons with eight different land counts and played each version "
+"thousands of times: what one land more or less changes."
+msgstr ""
+"Wir haben Precons mit acht verschiedenen Länderzahlen umgebaut und jede "
+"Version tausende Male gespielt: was ein Land mehr oder weniger ändert."
+
+#: changelog
+msgid ""
+"Each Commander precon since 2025 has its own page, played thousands of times"
+" - how fast it gets going and what it draws."
+msgstr ""
+"Jedes Commander-Precon seit 2025 hat seine eigene Seite, tausende Male "
+"gespielt – wie schnell es in Gang kommt und was es zieht."
+
+#: changelog
+msgid "Share a report"
+msgstr "Einen Report teilen"
+
+#: changelog
+msgid ""
+"A finished run can be shared by link, and copied as text for a forum or a "
+"chat. Only you decide which runs are shared."
+msgstr ""
+"Ein fertiger Lauf lässt sich per Link teilen und als Text für ein Forum oder"
+" einen Chat kopieren. Nur du entscheidest, welche Läufe geteilt werden."
+
+#: changelog
+msgid "Your place in the queue"
+msgstr "Dein Platz in der Warteschlange"
+
+#: changelog
+msgid ""
+"When many runs come in at once, the run page shows how many are ahead of "
+"yours instead of a bar that does not move."
+msgstr ""
+"Wenn viele Läufe auf einmal kommen, zeigt die Laufseite, wie viele vor "
+"deinem sind, statt eines Balkens, der sich nicht bewegt."
+
+#: changelog
+msgid "Small fixes"
+msgstr "Kleine Korrekturen"
+
+#: changelog
+msgid ""
+"An icon for your phone's home screen. A double click in the playtest no "
+"longer ends in an error. \"Reanimate\" now means a creature can come back."
+msgstr ""
+"Ein Icon für den Startbildschirm deines Handys. Ein Doppelklick im Testspiel"
+" endet nicht mehr mit einem Fehler. „Reanimation“ heißt jetzt, dass eine "
+"Kreatur zurückkommen kann."
+
+#: changelog
+msgid "New cards every night"
+msgstr "Jede Nacht neue Karten"
+
+#: changelog
+msgid ""
+"The card data is refreshed every night, so a new set can be simulated as "
+"soon as its cards are out."
+msgstr ""
+"Die Kartendaten werden jede Nacht aktualisiert, damit ein neues Set "
+"simuliert werden kann, sobald seine Karten draußen sind."
+
+#: changelog
+msgid "Goldfish Lab in seven languages"
+msgstr "Goldfish Lab in sieben Sprachen"
+
+#: changelog
+msgid ""
+"German, French, Italian, Spanish, Portuguese (Brazil) and Japanese join "
+"English. Pick yours at the bottom of any page."
+msgstr ""
+"Deutsch, Französisch, Italienisch, Spanisch, Portugiesisch (Brasilien) und "
+"Japanisch kommen zu Englisch dazu. Wähl deine Sprache unten auf jeder Seite."
+
+#: changelog
+msgid "A written deck summary"
+msgstr "Eine geschriebene Deck-Zusammenfassung"
+
+#: changelog
+msgid ""
+"A short text says what your deck does and how it wins, read from the "
+"simulation. Don't want it? Switch it off on the run page."
+msgstr ""
+"Ein kurzer Text sagt, was dein Deck macht und wie es gewinnt, gelesen aus "
+"der Simulation. Willst du ihn nicht? Schalt ihn auf der Laufseite aus."
+
+#: changelog
+msgid "What you drew, by strategy"
+msgstr "Was du gezogen hast, nach Strategie"
+
+#: changelog
+msgid ""
+"\"What you drew\" also groups your cards by the strategy they serve, so you "
+"see whether a plan shows up in time."
+msgstr ""
+"„Was du gezogen hast“ ordnet deine Karten auch nach der Strategie, der sie "
+"dienen – so siehst du, ob ein Plan rechtzeitig auftaucht."
+
+#: changelog
+msgid "A clearer report"
+msgstr "Ein übersichtlicherer Report"
+
+#: changelog
+msgid ""
+"The report is in a new order, its line charts explain themselves, and the "
+"last run is on the deck page."
+msgstr ""
+"Der Report hat eine neue Reihenfolge, seine Liniendiagramme erklären sich "
+"selbst, und der letzte Lauf steht auf der Deckseite."
+
+#: changelog
+msgid "Numbers that are right"
+msgstr "Zahlen, die stimmen"
+
+#: changelog
+msgid ""
+"A new version of the simulation counts a few things more carefully. Run a "
+"deck again to get the new numbers."
+msgstr ""
+"Eine neue Version der Simulation zählt ein paar Dinge genauer. Lass ein Deck"
+" noch einmal laufen, um die neuen Zahlen zu bekommen."
+
+#: changelog
+msgid "A new deck page"
+msgstr "Eine neue Deckseite"
+
+#: changelog
+msgid ""
+"What you can do with the deck comes first, then its numbers and a card grid "
+"you can filter."
+msgstr ""
+"Was du mit dem Deck tun kannst, steht zuerst, dann seine Zahlen und ein "
+"Kartenraster, das du filtern kannst."
+
+#: changelog
+msgid "The playtest as a card table"
+msgstr "Das Testspiel als Kartentisch"
+
+#: changelog
+msgid ""
+"Your hand is a fan, the battlefield a table, and the mana a card needs is "
+"shown on it."
+msgstr ""
+"Deine Hand ist ein Fächer, das Spielfeld ein Tisch, und das Mana, das eine "
+"Karte braucht, steht auf ihr."
+
+#: changelog
+msgid "Try it without an account"
+msgstr "Ausprobieren ohne Konto"
+
+#: changelog
+msgid ""
+"Paste a deck list and run it straight away. Save the deck when you want to "
+"keep it."
+msgstr ""
+"Füg eine Deckliste ein und lass sie sofort laufen. Speicher das Deck, wenn "
+"du es behalten willst."
+
+#: changelog
+msgid "Check what your cards do"
+msgstr "Prüf, was deine Karten tun"
+
+#: changelog
+msgid ""
+"Each card's role - ramp, removal, draw and the rest - can be checked and "
+"confirmed, and the deck page counts what is still open."
+msgstr ""
+"Die Rolle jeder Karte – Ramp, Removal, Ziehen und der Rest – lässt sich "
+"prüfen und bestätigen, und die Deckseite zählt, was noch offen ist."
+
+#: changelog
+msgid ""
+"The report shows what the deck drew by each turn: by card type, by role and "
+"by mana value."
+msgstr ""
+"Der Report zeigt, was das Deck bis zu jedem Zug gezogen hat: nach Kartentyp,"
+" nach Rolle und nach Manawert."
+
+#: changelog
+msgid "A run starts without questions"
+msgstr "Ein Lauf startet ohne Fragen"
+
+#: changelog
+msgid ""
+"Goldfish Lab no longer asks which spell to cast first. It plays the deck the"
+" way the methodology describes and reports one score."
+msgstr ""
+"Goldfish Lab fragt nicht mehr, welchen Spruch es zuerst wirken soll. Es "
+"spielt das Deck so, wie es die Methodik beschreibt, und meldet einen Wert."
+
+#: changelog
+msgid "An account in two fields"
+msgstr "Ein Konto in zwei Feldern"
+
+#: changelog
+msgid ""
+"An email address and one password. The confirmation link signs you in, and "
+"every mail we send is in plain words."
+msgstr ""
+"Eine E-Mail-Adresse und ein Passwort. Der Bestätigungslink meldet dich an, "
+"und jede Mail von uns ist in klaren Worten geschrieben."
+
+#: changelog
+msgid "Goldfish Lab: what's new"
+msgstr "Goldfish Lab: Was ist neu"
+
+#: changelog
+msgid "What changed on Goldfish Lab, newest first."
+msgstr "Was sich bei Goldfish Lab geändert hat, das Neueste zuerst."
+
+#: changelog
+msgid ""
+"You're subscribed: the changelog comes by mail once a month, when there is "
+"something new."
+msgstr ""
+"Du hast abonniert: Das Changelog kommt einmal im Monat per Mail, wenn es "
+"Neues gibt."
+
+#: changelog
+msgid "Unsubscribed. No more changelog mails."
+msgstr "Abgemeldet. Keine Changelog-Mails mehr."
+
+#: changelog
+msgid "What's new"
+msgstr "Was ist neu"
+
+#: changelog
+msgid ""
+"What changed on Goldfish Lab, newest first. Follow it by feed, or get one "
+"mail a month."
+msgstr ""
+"Was sich bei Goldfish Lab geändert hat, das Neueste zuerst. Folge per Feed "
+"oder bekomm eine Mail im Monat."
+
+#: changelog
+msgid "Follow along"
+msgstr "Auf dem Laufenden bleiben"
+
+#: changelog
+msgid "In your feed reader: no account, and we don't learn who reads it."
+msgstr ""
+"In deinem Feedreader: kein Konto, und wir erfahren nicht, wer mitliest."
+
+#: changelog
+msgid "RSS feed"
+msgstr "RSS-Feed"
+
+#: changelog
+msgid "The feed's address"
+msgstr "Die Adresse des Feeds"
+
+#: changelog
+msgid ""
+"<strong>You get it by mail</strong>, once a month when there is something "
+"new."
+msgstr ""
+"<strong>Du bekommst es per Mail</strong>, einmal im Monat, wenn es Neues "
+"gibt."
+
+#: changelog
+msgid "Unsubscribe"
+msgstr "Abmelden"
+
+#: changelog
+msgid "Or by mail, once a month when there is something new."
+msgstr "Oder per Mail, einmal im Monat, wenn es Neues gibt."
+
+#: changelog
+msgid "Subscribe by email"
+msgstr "Per Mail abonnieren"
+
+#: changelog
+msgid ""
+"The mail needs a free account: you sign up, and come back here subscribed."
+msgstr ""
+"Für die Mail brauchst du ein kostenloses Konto: Du registrierst dich und "
+"kommst abonniert hierher zurück."
+
+#: changelog
+#, python-format
+msgid ""
+"Questions or ideas? Talk to us on <a href=\"%(discord_url)s\" "
+"class=\"underline hover:text-ink-900\" rel=\"noopener\">Discord</a>."
+msgstr ""
+"Fragen oder Ideen? Sprich mit uns auf <a href=\"%(discord_url)s\" "
+"class=\"underline hover:text-ink-900\" rel=\"noopener\">Discord</a>."
+
+#: changelog
+msgid "See it"
+msgstr "Ansehen"
+
+#: changelog
+msgid "The changelog by mail"
+msgstr "Das Changelog per Mail"
+
+#: changelog
+#, python-format
+msgid "<strong>Unsubscribed.</strong> %(email)s gets no more changelog mails."
+msgstr ""
+"<strong>Abgemeldet.</strong> %(email)s bekommt keine Changelog-Mails mehr."
+
+#: changelog
+#, python-format
+msgid ""
+"Changed your mind? Subscribe again on <a href=\"%(changelog_url)s\" "
+"class=\"underline hover:text-ink-900\">What's new</a>."
+msgstr ""
+"Umentschieden? Abonnier wieder auf <a href=\"%(changelog_url)s\" "
+"class=\"underline hover:text-ink-900\">Was ist neu</a>."
+
+#: changelog
+#, python-format
+msgid "Stop the monthly changelog mail to <strong>%(email)s</strong>?"
+msgstr ""
+"Die monatliche Changelog-Mail an <strong>%(email)s</strong> abbestellen?"
+
+#: changelog
+#, python-format
+msgid "%(entries)s change on Goldfish Lab."
+msgid_plural "%(entries)s changes on Goldfish Lab."
+msgstr[0] "%(entries)s Änderung bei Goldfish Lab."
+msgstr[1] "%(entries)s Änderungen bei Goldfish Lab."
+
+#: changelog
+#, python-format
+msgid "What's new: %(month)s"
+msgstr "Was ist neu: %(month)s"
+
+#: changelog
+msgid "You get this mail because you asked for it."
+msgstr "Du bekommst diese Mail, weil du sie bestellt hast."
+
+#: changelog
+msgid "Unsubscribe with one click"
+msgstr "Mit einem Klick abmelden"
+
+#: changelog
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: changelog
+msgid "<strong>On:</strong> one mail a month, when there is something new."
+msgstr "<strong>An:</strong> eine Mail im Monat, wenn es Neues gibt."
+
+#: changelog
+#, python-format
+msgid ""
+"<strong>Off.</strong> What changed on Goldfish Lab, once a month: <a "
+"href=\"%(changelog_url)s\" class=\"underline\">What's new</a>."
+msgstr ""
+"<strong>Aus.</strong> Was sich bei Goldfish Lab geändert hat, einmal im "
+"Monat: <a href=\"%(changelog_url)s\" class=\"underline\">Was ist neu</a>."
+
+#: changelog
+msgid ""
+"Only what the account needs: the message that confirms your address, "
+"password resets, and - rarely - a notice about a change to these documents "
+"or to a plan you pay for. One mail is optional: the changelog, once a month "
+"when something changed. It is off until you switch it on yourself, on What's"
+" new or on Your plan; we keep the date you did, as the record of your "
+"consent, and every one of those mails stops with one click. No marketing, "
+"ever. The mail is sent through a mailbox at Infomaniak, in Switzerland."
+msgstr ""
+"Nur was das Konto braucht: die Nachricht, die deine Adresse bestätigt, "
+"Passwort-Resets und – selten – einen Hinweis auf eine Änderung dieser "
+"Dokumente oder eines Abos, für das du bezahlst. Eine Mail ist freiwillig: "
+"das Changelog, einmal im Monat, wenn sich etwas geändert hat. Es ist aus, "
+"bis du es selbst einschaltest, auf „Was ist neu“ oder auf „Dein Abo“; wir "
+"speichern das Datum, an dem du das getan hast, als Nachweis deiner "
+"Einwilligung, und jede dieser Mails lässt sich mit einem Klick abbestellen. "
+"Nie Werbung. Die Mails werden über ein Postfach bei Infomaniak in der "
+"Schweiz verschickt."
+
+#: changelog
+msgid ""
+"Once your address is confirmed, the changelog comes by mail once a month."
+msgstr ""
+"Sobald deine Adresse bestätigt ist, kommt das Changelog einmal im Monat per "
+"Mail."
+
+#: templates/changelog/email/digest_subject.txt
+#, python-format
+msgid "What's new on Goldfish Lab: %(month)s"
+msgstr "Neu bei Goldfish Lab: %(month)s"
+
+#: templates/changelog/email/digest_message.txt
+#, python-format
+msgid "What changed on Goldfish Lab in %(month)s:"
+msgstr "Was sich bei Goldfish Lab im %(month)s geändert hat:"
+
+#: templates/changelog/email/digest_message.txt
+msgid ""
+"You get this mail because you asked for it. Unsubscribe with one click:"
+msgstr ""
+"Du bekommst diese Mail, weil du sie bestellt hast. Mit einem Klick abmelden:"

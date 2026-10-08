@@ -28,6 +28,7 @@ from django.views.defaults import server_error
 
 from accounts import mail_samples
 from cards.models import OracleCard
+from changelog import services as changelog_services
 from decks import services as deck_services
 from playtest import services as playtest_services
 from sharing import services as sharing_services
@@ -106,8 +107,9 @@ def test_the_check_finds_a_word_that_was_never_marked():
 
 
 @pytest.fixture
-def pages(client, owner, deck, finished_run, marked):  # noqa: F811
+def pages(client, owner, deck, finished_run, marked, settings):  # noqa: F811
     """Every main page, signed in, in the pseudo language."""
+    settings.CHANGELOG_FROM_EMAIL = "noreply@goldfishlab.test"  # the mail's switches show
     unresolved = deck_services.import_deck(
         owner=owner, raw=b"1 Sol Ring\n1 Nosuch Cardname\n", name="Lost", filename="list.txt",
     ).record
@@ -138,6 +140,8 @@ def pages(client, owner, deck, finished_run, marked):  # noqa: F811
         "share offer": reverse("simulations:detail", args=[shareable.pk]),
         "share panel": reverse("simulations:detail", args=[shared_run.pk]),
         "shared, owner": shared.get_absolute_url(),
+        "changelog": reverse("changelog"),
+        "unsubscribe": changelog_services.unsubscribe_path(owner),
     }
     rendered = {}
     for name, url in urls.items():

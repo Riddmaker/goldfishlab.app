@@ -38,6 +38,14 @@ infinite-mana loop does not count — counts each game once at the first such co
 games have such a combo together before its turn (`simulations/report.py`, `BRACKETS`). A run too
 short for a bracket says so, and the page says speed is one rule among several.
 
+**The changelog (C7)**: `/changelog/` lists what changed, newest first, in every language, with an
+RSS feed per language (`/changelog/feed/`, `/de/changelog/feed/`, ...). The entries are code
+(`changelog/entries.py`), each title and text a catalogue string: **a change a person would notice
+brings its entry, and its translations, in the same pull request.** An entry dated in the future
+waits for its day. Below the feed the page offers one mail a month - off for every account until
+it is asked for there or on "Your plan", and stopped with one click in the mail, on the page or on
+"Your plan" (see "The changelog mail" below).
+
 Every result says **how much of the deck the engine could read** - this application's limit to fix, with every gap listed. It used to be two numbers, the second being how much of the deck somebody had given a casting order; three quarters of every gap turned out to be that question, and since Phase 9 C nobody is asked it any more: the engine casts the cheapest affordable spell first (plus a built-in order for a few dozen well-known cards), because the product is statistics about a deck, not steering a game.
 See [docs/phases/](docs/phases/README.md) for how it was built, phase by phase.
 
@@ -249,6 +257,21 @@ address, or to a Hotmail address and read the headers: `Authentication-Results` 
 `X-MS-Exchange-Organization-SCL` is Microsoft's spam score (5 and up goes to Junk). With all
 four passing, a young domain on a shared sending IP can still land in Junk until it has a
 history; that is reputation, which only time, volume and "Not junk" clicks build.
+
+### The changelog mail
+
+`changelog.digest` runs from beat on the first of each month at 09:00 and mails the month before's
+entries - nothing, when the month had none - to every account that switched the mail on and has a
+confirmed address, in its own language, in batches of 50 (`changelog.send`). `User.changelog_mailed`
+makes a retried batch skip who already has it; `changelog_mail_since` is the record of consent.
+Every mail carries `List-Unsubscribe` and `List-Unsubscribe-Post` (RFC 8058) to a signed link that
+can only switch the mail off; opening it shows a button and changes nothing, because mail services
+open every link to scan it. Without a visitor account the click on "Subscribe by email" is kept in
+the session for a day and applied when the account is made or signs in (`changelog.services`).
+
+It is off without `CHANGELOG_FROM_EMAIL` (the page then offers the feed alone). The sender may
+have its own SMTP login, `CHANGELOG_EMAIL_HOST_USER`/`_PASSWORD`; blank uses the site's
+(`.env.example`). `preview_mails` writes a sample as `changelog_digest.html`.
 
 ## Adding translations
 

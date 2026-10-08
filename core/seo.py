@@ -42,6 +42,7 @@ PUBLIC_PAGES = (
     "methodology",
     "datapages:precons",
     "datapages:lands",
+    "changelog",
     "terms",
     "privacy",
     "imprint",

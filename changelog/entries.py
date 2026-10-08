@@ -1,0 +1,192 @@
+"""What changed on Goldfish Lab, newest first (C7).
+
+The entries are code, not rows: each title and text is a string for the
+translation catalogues like every other one on the site, so an entry is in all
+seven languages the moment its catalogues are, and a change that a person
+would notice brings its entry in the same pull request.
+
+Written for the person using the site - what they can now do or will see -
+never in the words of the code. An entry dated in the future is held back
+until its day, so one can be written before the release it belongs to.
+"""
+
+from dataclasses import dataclass
+from datetime import date
+
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+
+#: The first entry's day: the launch, 2026-09-28.
+FIRST_DAY = date(2026, 9, 28)
+
+
+@dataclass(frozen=True)
+class Entry:
+    day: date
+    #: The entry's anchor on the page and the last part of its feed id. Never
+    #: changed once published: a feed reader would show it again as new.
+    slug: str
+    title: str
+    text: str
+    #: Where to see it: a view name, and an anchor on that page.
+    url_name: str = ""
+    anchor: str = ""
+
+    @property
+    def link(self) -> str:
+        if not self.url_name:
+            return ""
+        url = reverse(self.url_name)
+        return f"{url}#{self.anchor}" if self.anchor else url
+
+
+ENTRIES = (
+    Entry(
+        date(2026, 10, 8), "whats-new",
+        _("What's new, by feed or by mail"),
+        _("This page. Follow it in your feed reader, or get one mail a month "
+          "when there is something new."),
+    ),
+    Entry(
+        date(2026, 10, 8), "bracket-speed",
+        _("Speed and the Commander Brackets"),
+        _("The report times every combo in your deck that ends the game and "
+          "says which Commander Brackets that speed fits."),
+        "methodology", "report-brackets",
+    ),
+    Entry(
+        date(2026, 10, 8), "plans",
+        _("Three plans: Goldfish, Koi and Kraken"),
+        _("Goldfish is free. Koi and Kraken simulate more turns and more "
+          "games, by the month or by the year."),
+        "pricing",
+    ),
+    Entry(
+        date(2026, 10, 7), "lands",
+        _("How many lands in Commander?"),
+        _("We rebuilt precons with eight different land counts and played "
+          "each version thousands of times: what one land more or less changes."),
+        "datapages:lands",
+    ),
+    Entry(
+        date(2026, 10, 7), "precons",
+        _("Every Commander precon, simulated"),
+        _("Each Commander precon since 2025 has its own page, played thousands "
+          "of times - how fast it gets going and what it draws."),
+        "datapages:precons",
+    ),
+    Entry(
+        date(2026, 10, 6), "share",
+        _("Share a report"),
+        _("A finished run can be shared by link, and copied as text for a "
+          "forum or a chat. Only you decide which runs are shared."),
+    ),
+    Entry(
+        date(2026, 10, 6), "queue",
+        _("Your place in the queue"),
+        _("When many runs come in at once, the run page shows how many are "
+          "ahead of yours instead of a bar that does not move."),
+    ),
+    Entry(
+        date(2026, 10, 6), "small-fixes",
+        _("Small fixes"),
+        _("An icon for your phone's home screen. A double click in the "
+          "playtest no longer ends in an error. \"Reanimate\" now means a "
+          "creature can come back."),
+    ),
+    Entry(
+        date(2026, 10, 4), "new-cards",
+        _("New cards every night"),
+        _("The card data is refreshed every night, so a new set can be "
+          "simulated as soon as its cards are out."),
+    ),
+    Entry(
+        date(2026, 10, 4), "languages",
+        _("Goldfish Lab in seven languages"),
+        _("German, French, Italian, Spanish, Portuguese (Brazil) and Japanese "
+          "join English. Pick yours at the bottom of any page."),
+    ),
+    Entry(
+        date(2026, 10, 2), "deck-summary",
+        _("A written deck summary"),
+        _("A short text says what your deck does and how it wins, read from "
+          "the simulation. Don't want it? Switch it off on the run page."),
+    ),
+    Entry(
+        date(2026, 10, 2), "by-strategy",
+        _("What you drew, by strategy"),
+        _("\"What you drew\" also groups your cards by the strategy they "
+          "serve, so you see whether a plan shows up in time."),
+    ),
+    Entry(
+        date(2026, 10, 2), "clearer-report",
+        _("A clearer report"),
+        _("The report is in a new order, its line charts explain themselves, "
+          "and the last run is on the deck page."),
+    ),
+    Entry(
+        date(2026, 10, 2), "engine-4",
+        _("Numbers that are right"),
+        _("A new version of the simulation counts a few things more "
+          "carefully. Run a deck again to get the new numbers."),
+        "methodology",
+    ),
+    Entry(
+        date(2026, 9, 30), "deck-page",
+        _("A new deck page"),
+        _("What you can do with the deck comes first, then its numbers and "
+          "a card grid you can filter."),
+    ),
+    Entry(
+        date(2026, 9, 30), "playtest-table",
+        _("The playtest as a card table"),
+        _("Your hand is a fan, the battlefield a table, and the mana a card "
+          "needs is shown on it."),
+    ),
+    Entry(
+        date(2026, 9, 30), "try",
+        _("Try it without an account"),
+        _("Paste a deck list and run it straight away. Save the deck when you "
+          "want to keep it."),
+        "guests:try",
+    ),
+    Entry(
+        date(2026, 9, 29), "card-roles",
+        _("Check what your cards do"),
+        _("Each card's role - ramp, removal, draw and the rest - can be "
+          "checked and confirmed, and the deck page counts what is still open."),
+    ),
+    Entry(
+        date(2026, 9, 29), "what-you-drew",
+        _("What you drew"),
+        _("The report shows what the deck drew by each turn: by card type, "
+          "by role and by mana value."),
+    ),
+    Entry(
+        date(2026, 9, 29), "no-questions",
+        _("A run starts without questions"),
+        _("Goldfish Lab no longer asks which spell to cast first. It plays "
+          "the deck the way the methodology describes and reports one score."),
+        "methodology",
+    ),
+    Entry(
+        date(2026, 9, 28), "sign-up",
+        _("An account in two fields"),
+        _("An email address and one password. The confirmation link signs "
+          "you in, and every mail we send is in plain words."),
+    ),
+)
+
+
+def published(today: date | None = None) -> list[Entry]:
+    """Every entry up to and including `today`, newest first."""
+    from django.utils import timezone
+
+    today = today or timezone.localdate()
+    return [entry for entry in ENTRIES if entry.day <= today]
+
+
+def of_month(month: date) -> list[Entry]:
+    """The entries of the month `month` falls in, newest first."""
+    return [entry for entry in ENTRIES
+            if (entry.day.year, entry.day.month) == (month.year, month.month)]

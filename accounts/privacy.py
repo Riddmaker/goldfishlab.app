@@ -92,6 +92,8 @@ def export(user) -> dict:
             "last_name": user.last_name,
             "deck_summaries": user.deck_summaries,
             "language": user.language,
+            "changelog_mail": user.changelog_mail,
+            "changelog_mail_since": user.changelog_mail_since,
         },
         "exported_at": _now(),
         # Named in the file itself, because a person who opens an export and

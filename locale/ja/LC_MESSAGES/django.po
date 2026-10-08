@@ -4188,16 +4188,6 @@ msgid "Email we send you"
 msgstr "私たちがお送りするメール"
 
 #: templates/core/privacy.html
-msgid ""
-"Only what the account needs: the message that confirms your address, "
-"password resets, and - rarely - a notice about a change to these documents "
-"or to a plan you pay for. No newsletter and no marketing, ever. The mail is "
-"sent through a mailbox at Infomaniak, in Switzerland."
-msgstr ""
-"アカウントに必要なものだけです。メールアドレスを確認するメッセージ、パスワードの再設定、そしてごくまれに、これらの文書や有料プランの変更に関するお知らせです。ニュースレターやマーケティングメールは一切送りません。メールはスイスの"
-" Infomaniak のメールボックスから送信されます。"
-
-#: templates/core/privacy.html
 msgid "Who else sees what"
 msgstr "誰が何を見るか"
 
@@ -7420,3 +7410,375 @@ msgid ""
 "run is large."
 msgstr ""
 "このように作っている理由：各ブラケットは平均的な勝利ターンではなく、それぞれのターンと照らし合わせて確認します。数値を読み解かなくても、どのブラケットに合うかが分かるようにするためです。割合はターンごとに示します。3分の1のゲームで早く勝つデッキと、まったく早く勝たないデッキとでは、プレイの感触が違うからです。コンボは、カードが必要な場所に揃ったときにだけ数えます。盤面でまだ使えないコンボを数えないためです。また、サンプルではなくシミュレーションのすべてのゲームで数えます。シミュレーションが大きいほど、割合が正確になるようにするためです。"
+
+#: changelog
+msgid "What's new, by feed or by mail"
+msgstr "新着情報をフィードやメールで"
+
+#: changelog
+msgid ""
+"This page. Follow it in your feed reader, or get one mail a month when there"
+" is something new."
+msgstr "このページです。フィードリーダーで購読するか、新着がある月に1通のメールで受け取れます。"
+
+#: changelog
+msgid ""
+"The report times every combo in your deck that ends the game and says which "
+"Commander Brackets that speed fits."
+msgstr "レポートは、ゲームを終わらせるデッキ内のコンボがそろう速さを計り、その速さに合う統率者ブラケットを示します。"
+
+#: changelog
+msgid "Three plans: Goldfish, Koi and Kraken"
+msgstr "3つのプラン：Goldfish、Koi、Kraken"
+
+#: changelog
+msgid ""
+"Goldfish is free. Koi and Kraken simulate more turns and more games, by the "
+"month or by the year."
+msgstr "Goldfish は無料です。Koi と Kraken はより多くのターンとゲームをシミュレートします。月払いと年払いがあります。"
+
+#: changelog
+msgid ""
+"We rebuilt precons with eight different land counts and played each version "
+"thousands of times: what one land more or less changes."
+msgstr "構築済みデッキを8通りの土地枚数で組み直し、それぞれを何千回もプレイしました。土地が1枚増減すると何が変わるかがわかります。"
+
+#: changelog
+msgid ""
+"Each Commander precon since 2025 has its own page, played thousands of times"
+" - how fast it gets going and what it draws."
+msgstr "2025年以降の統率者構築済みデッキそれぞれに専用ページがあり、何千回もプレイした結果として、立ち上がりの速さと引くカードがわかります。"
+
+#: changelog
+msgid "Share a report"
+msgstr "レポートを共有"
+
+#: changelog
+msgid ""
+"A finished run can be shared by link, and copied as text for a forum or a "
+"chat. Only you decide which runs are shared."
+msgstr ""
+"終わったシミュレーションはリンクで共有でき、フォーラムやチャット用にテキストとしてコピーできます。どれを共有するかを決めるのはあなただけです。"
+
+#: changelog
+msgid "Your place in the queue"
+msgstr "待ち行列での順番"
+
+#: changelog
+msgid ""
+"When many runs come in at once, the run page shows how many are ahead of "
+"yours instead of a bar that does not move."
+msgstr "多くのシミュレーションが同時に来たときは、止まったままのバーではなく、あなたの前に何件あるかを表示します。"
+
+#: changelog
+msgid "Small fixes"
+msgstr "細かな修正"
+
+#: changelog
+msgid ""
+"An icon for your phone's home screen. A double click in the playtest no "
+"longer ends in an error. \"Reanimate\" now means a creature can come back."
+msgstr ""
+"スマートフォンのホーム画面用アイコンを追加しました。テストプレイでのダブルクリックがエラーにならなくなりました。「リアニメイト」は、クリーチャーが戻ってこられることを意味するようになりました。"
+
+#: changelog
+msgid "New cards every night"
+msgstr "毎晩新しいカード"
+
+#: changelog
+msgid ""
+"The card data is refreshed every night, so a new set can be simulated as "
+"soon as its cards are out."
+msgstr "カードデータは毎晩更新されるので、新しいセットもカードが出ればすぐにシミュレートできます。"
+
+#: changelog
+msgid "Goldfish Lab in seven languages"
+msgstr "Goldfish Lab が7言語に"
+
+#: changelog
+msgid ""
+"German, French, Italian, Spanish, Portuguese (Brazil) and Japanese join "
+"English. Pick yours at the bottom of any page."
+msgstr ""
+"英語に加えて、ドイツ語、フランス語、イタリア語、スペイン語、ポルトガル語（ブラジル）、日本語に対応しました。どのページでも下部で言語を選べます。"
+
+#: changelog
+msgid "A written deck summary"
+msgstr "文章によるデッキの要約"
+
+#: changelog
+msgid ""
+"A short text says what your deck does and how it wins, read from the "
+"simulation. Don't want it? Switch it off on the run page."
+msgstr "シミュレーションから読み取って、デッキが何をしてどう勝つかを短い文章で示します。不要なら、シミュレーションのページでオフにできます。"
+
+#: changelog
+msgid "What you drew, by strategy"
+msgstr "引いたカードを戦略別に"
+
+#: changelog
+msgid ""
+"\"What you drew\" also groups your cards by the strategy they serve, so you "
+"see whether a plan shows up in time."
+msgstr "「引いたカード」では、カードを役立つ戦略ごとにもまとめるので、プランが間に合って揃うかがわかります。"
+
+#: changelog
+msgid "A clearer report"
+msgstr "わかりやすくなったレポート"
+
+#: changelog
+msgid ""
+"The report is in a new order, its line charts explain themselves, and the "
+"last run is on the deck page."
+msgstr "レポートの並び順を変え、折れ線グラフに説明を添え、最新のシミュレーションをデッキページに表示するようにしました。"
+
+#: changelog
+msgid "Numbers that are right"
+msgstr "正しい数字"
+
+#: changelog
+msgid ""
+"A new version of the simulation counts a few things more carefully. Run a "
+"deck again to get the new numbers."
+msgstr ""
+"シミュレーションの新しいバージョンで、いくつかの数え方をより丁寧にしました。新しい数字を見るには、デッキをもう一度シミュレートしてください。"
+
+#: changelog
+msgid "A new deck page"
+msgstr "新しいデッキページ"
+
+#: changelog
+msgid ""
+"What you can do with the deck comes first, then its numbers and a card grid "
+"you can filter."
+msgstr "デッキでできることを先頭に、続いて数字と、絞り込めるカード一覧を並べました。"
+
+#: changelog
+msgid "The playtest as a card table"
+msgstr "テストプレイをカードテーブルのように"
+
+#: changelog
+msgid ""
+"Your hand is a fan, the battlefield a table, and the mana a card needs is "
+"shown on it."
+msgstr "手札は扇形に、戦場はテーブルのように並び、カードに必要なマナはカードの上に表示されます。"
+
+#: changelog
+msgid "Try it without an account"
+msgstr "アカウントなしで試す"
+
+#: changelog
+msgid ""
+"Paste a deck list and run it straight away. Save the deck when you want to "
+"keep it."
+msgstr "デッキリストを貼り付ければ、すぐにシミュレートできます。残したくなったらデッキを保存してください。"
+
+#: changelog
+msgid "Check what your cards do"
+msgstr "カードの役割を確認"
+
+#: changelog
+msgid ""
+"Each card's role - ramp, removal, draw and the rest - can be checked and "
+"confirmed, and the deck page counts what is still open."
+msgstr "各カードの役割（ランプ、除去、ドローなど）を確認・承認でき、デッキページには未確認の数が表示されます。"
+
+#: changelog
+msgid ""
+"The report shows what the deck drew by each turn: by card type, by role and "
+"by mana value."
+msgstr "レポートには、各ターンまでにデッキが引いたカードが、カードタイプ別、役割別、マナ総量別に表示されます。"
+
+#: changelog
+msgid "A run starts without questions"
+msgstr "質問なしでシミュレーション開始"
+
+#: changelog
+msgid ""
+"Goldfish Lab no longer asks which spell to cast first. It plays the deck the"
+" way the methodology describes and reports one score."
+msgstr ""
+"Goldfish Lab は、どの呪文を先に唱えるかを尋ねなくなりました。仕組みのページに書かれたとおりにデッキをプレイし、スコアを1つだけ示します。"
+
+#: changelog
+msgid "An account in two fields"
+msgstr "2つの項目だけでアカウント作成"
+
+#: changelog
+msgid ""
+"An email address and one password. The confirmation link signs you in, and "
+"every mail we send is in plain words."
+msgstr ""
+"メールアドレスとパスワード1つだけです。確認リンクを開くとそのままログインでき、こちらから送るメールはどれもわかりやすい言葉で書いています。"
+
+#: changelog
+msgid "Goldfish Lab: what's new"
+msgstr "Goldfish Lab：新着情報"
+
+#: changelog
+msgid "What changed on Goldfish Lab, newest first."
+msgstr "Goldfish Lab の変更点を、新しい順に掲載しています。"
+
+#: changelog
+msgid ""
+"You're subscribed: the changelog comes by mail once a month, when there is "
+"something new."
+msgstr "購読しました。新着がある月に1回、変更履歴をメールでお届けします。"
+
+#: changelog
+msgid "Unsubscribed. No more changelog mails."
+msgstr "購読を解除しました。変更履歴のメールは届かなくなります。"
+
+#: changelog
+msgid "What's new"
+msgstr "新着情報"
+
+#: changelog
+msgid ""
+"What changed on Goldfish Lab, newest first. Follow it by feed, or get one "
+"mail a month."
+msgstr "Goldfish Lab の変更点を新しい順に掲載しています。フィードで購読するか、月に1通のメールで受け取れます。"
+
+#: changelog
+msgid "Follow along"
+msgstr "最新情報を受け取る"
+
+#: changelog
+msgid "In your feed reader: no account, and we don't learn who reads it."
+msgstr "フィードリーダーなら、アカウントは不要で、誰が読んでいるかもこちらにはわかりません。"
+
+#: changelog
+msgid "RSS feed"
+msgstr "RSSフィード"
+
+#: changelog
+msgid "The feed's address"
+msgstr "フィードのURL"
+
+#: changelog
+msgid ""
+"<strong>You get it by mail</strong>, once a month when there is something "
+"new."
+msgstr "<strong>メールで受け取っています</strong>。新着がある月に1回届きます。"
+
+#: changelog
+msgid "Unsubscribe"
+msgstr "購読を解除"
+
+#: changelog
+msgid "Or by mail, once a month when there is something new."
+msgstr "またはメールで。新着がある月に1回届きます。"
+
+#: changelog
+msgid "Subscribe by email"
+msgstr "メールで購読"
+
+#: changelog
+msgid ""
+"The mail needs a free account: you sign up, and come back here subscribed."
+msgstr "メールには無料アカウントが必要です。登録すると、購読済みの状態でこのページに戻ります。"
+
+#: changelog
+#, python-format
+msgid ""
+"Questions or ideas? Talk to us on <a href=\"%(discord_url)s\" "
+"class=\"underline hover:text-ink-900\" rel=\"noopener\">Discord</a>."
+msgstr ""
+"質問やアイデアは <a href=\"%(discord_url)s\" class=\"underline hover:text-ink-900\" "
+"rel=\"noopener\">Discord</a> でお寄せください。"
+
+#: changelog
+msgid "See it"
+msgstr "見る"
+
+#: changelog
+msgid "The changelog by mail"
+msgstr "変更履歴のメール"
+
+#: changelog
+#, python-format
+msgid "<strong>Unsubscribed.</strong> %(email)s gets no more changelog mails."
+msgstr "<strong>購読を解除しました。</strong>%(email)s に変更履歴のメールは届かなくなります。"
+
+#: changelog
+#, python-format
+msgid ""
+"Changed your mind? Subscribe again on <a href=\"%(changelog_url)s\" "
+"class=\"underline hover:text-ink-900\">What's new</a>."
+msgstr ""
+"気が変わったら、<a href=\"%(changelog_url)s\" class=\"underline hover:text-"
+"ink-900\">新着情報</a>からもう一度購読できます。"
+
+#: changelog
+#, python-format
+msgid "Stop the monthly changelog mail to <strong>%(email)s</strong>?"
+msgstr "<strong>%(email)s</strong> への毎月の変更履歴メールを停止しますか？"
+
+#: changelog
+#, python-format
+msgid "%(entries)s change on Goldfish Lab."
+msgid_plural "%(entries)s changes on Goldfish Lab."
+msgstr[0] "Goldfish Lab の変更が%(entries)s件あります。"
+
+#: changelog
+#, python-format
+msgid "What's new: %(month)s"
+msgstr "新着情報：%(month)s"
+
+#: changelog
+msgid "You get this mail because you asked for it."
+msgstr "このメールは、ご自身で購読を申し込まれたためお送りしています。"
+
+#: changelog
+msgid "Unsubscribe with one click"
+msgstr "ワンクリックで購読を解除"
+
+#: changelog
+msgid "Settings"
+msgstr "設定"
+
+#: changelog
+msgid "<strong>On:</strong> one mail a month, when there is something new."
+msgstr "<strong>オン：</strong>新着がある月に1通届きます。"
+
+#: changelog
+#, python-format
+msgid ""
+"<strong>Off.</strong> What changed on Goldfish Lab, once a month: <a "
+"href=\"%(changelog_url)s\" class=\"underline\">What's new</a>."
+msgstr ""
+"<strong>オフ。</strong>Goldfish Lab の変更点を月に1回お届けします：<a "
+"href=\"%(changelog_url)s\" class=\"underline\">新着情報</a>"
+
+#: changelog
+msgid ""
+"Only what the account needs: the message that confirms your address, "
+"password resets, and - rarely - a notice about a change to these documents "
+"or to a plan you pay for. One mail is optional: the changelog, once a month "
+"when something changed. It is off until you switch it on yourself, on What's"
+" new or on Your plan; we keep the date you did, as the record of your "
+"consent, and every one of those mails stops with one click. No marketing, "
+"ever. The mail is sent through a mailbox at Infomaniak, in Switzerland."
+msgstr ""
+"アカウントに必要なものだけです。アドレスを確認するメール、パスワードの再設定、そしてまれに、これらの文書やお支払い中のプランの変更のお知らせです。任意のメールは1種類だけで、変更があった月に1回届く変更履歴です。ご自身で「新着情報」または「あなたのプラン」でオンにするまではオフのままです。オンにした日付は同意の記録として保存し、これらのメールはどれもワンクリックで停止できます。宣伝メールは一切送りません。メールはスイスの"
+" Infomaniak のメールボックスから送信しています。"
+
+#: changelog
+msgid ""
+"Once your address is confirmed, the changelog comes by mail once a month."
+msgstr "アドレスの確認が済むと、変更履歴が月に1回メールで届きます。"
+
+#: templates/changelog/email/digest_subject.txt
+#, python-format
+msgid "What's new on Goldfish Lab: %(month)s"
+msgstr "Goldfish Lab の新着情報：%(month)s"
+
+#: templates/changelog/email/digest_message.txt
+#, python-format
+msgid "What changed on Goldfish Lab in %(month)s:"
+msgstr "%(month)s の Goldfish Lab の変更点："
+
+#: templates/changelog/email/digest_message.txt
+msgid ""
+"You get this mail because you asked for it. Unsubscribe with one click:"
+msgstr "このメールは、ご自身で購読を申し込まれたためお送りしています。ワンクリックで解除できます："

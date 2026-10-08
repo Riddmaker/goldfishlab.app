@@ -70,6 +70,15 @@ class User(AbstractUser):
     #: account, and set by the OK on the page that shows a change. Blank for
     #: the accounts made before D2, so they are asked.
     privacy_accepted = models.DateField(null=True, blank=True, default=consent.current)
+    #: The monthly changelog mail (C7): off unless this person asked for it,
+    #: on /changelog/ or on "Your plan". `changelog_mail_since` is when they
+    #: did - the consent we must be able to show (Art. 7(1) GDPR) - and goes
+    #: with the switch; `changelog_mailed` is the first day of the month whose
+    #: mail they last got, so a retried send never sends it twice
+    #: (`changelog.tasks`).
+    changelog_mail = models.BooleanField(default=False)
+    changelog_mail_since = models.DateTimeField(null=True, blank=True)
+    changelog_mailed = models.DateField(null=True, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

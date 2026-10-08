@@ -1,0 +1,1 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate trimmed with month=month|date:"YEAR_MONTH_FORMAT" %}What's new on Goldfish Lab: {{ month }}{% endblocktranslate %}{% endautoescape %}

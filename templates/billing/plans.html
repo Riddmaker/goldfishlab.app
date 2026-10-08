@@ -91,6 +91,71 @@
     {% endif %}
   </section>
 
+  {% if site_languages|length > 1 or changelog_mail_on %}
+    {% comment %}
+      C7: the account's own settings, side by side (a guest never gets here:
+      guests.middleware). The language is the
+      footer's switcher, saved on the account (accounts.language); the
+      changelog mail is off until asked for, and on /changelog/ as well.
+    {% endcomment %}
+    <section id="settings" class="surface-parchment mt-6 p-6">
+      <h2 class="font-display text-2xl text-ink-900">{% translate "Settings" %}</h2>
+      <dl class="mt-4 space-y-4 text-sm">
+        {% if site_languages|length > 1 %}
+          {% get_current_language as current_language %}
+          <div>
+            <dt class="font-display text-base text-ink-900">{% translate "Language" %}</dt>
+            <dd class="mt-1">
+              <form method="post" action="{% url 'set_language' %}" class="flex flex-wrap items-center gap-2">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'billing:plans' %}#settings">
+                <label for="settings-language" class="sr-only">{% translate "Language" %}</label>
+                <select id="settings-language"
+                        name="language"
+                        class="rounded border border-parchment-600 bg-parchment-50 px-2 py-1 text-ink-900">
+                  {% for code, name in site_languages %}
+                    <option value="{{ code }}" lang="{{ code }}" {% if code == current_language %}selected{% endif %}>
+                      {{ name }}
+                    </option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="text-ink-900 underline">{% translate "Change" context "language switch" %}</button>
+              </form>
+            </dd>
+          </div>
+        {% endif %}
+        {% if changelog_mail_on %}
+          <div id="changelog-mail">
+            <dt class="font-display text-base text-ink-900">{% translate "The changelog by mail" %}</dt>
+            <dd class="mt-1">
+              {% url 'billing:plans' as plans_url %}
+              {% if user.changelog_mail %}
+                <form method="post" action="{% url 'changelog_unsubscribe_account' %}" class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{{ plans_url }}#settings">
+                  <span class="text-ink-900">
+                    {% blocktranslate trimmed %}<strong>On:</strong> one mail a month, when there is something new.{% endblocktranslate %}
+                  </span>
+                  <button type="submit" class="text-ink-900 underline">{% translate "Unsubscribe" %}</button>
+                </form>
+              {% else %}
+                <form method="post" action="{% url 'changelog_subscribe' %}" class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{{ plans_url }}#settings">
+                  <span class="text-ink-900">
+                    {% url 'changelog' as changelog_url %}
+                    {% blocktranslate trimmed %}<strong>Off.</strong> What changed on Goldfish Lab, once a month: <a href="{{ changelog_url }}" class="underline">What's new</a>.{% endblocktranslate %}
+                  </span>
+                  <button type="submit" class="text-ink-900 underline">{% translate "Subscribe by email" %}</button>
+                </form>
+              {% endif %}
+            </dd>
+          </div>
+        {% endif %}
+      </dl>
+    </section>
+  {% endif %}
+
   {% if not can_pay %}
     <p class="mt-6 border border-parchment-600 bg-ink-900 px-4 py-3 text-sm text-parchment-100">
       {% blocktranslate trimmed %}<strong>Payments are not switched on in this installation</strong> — everyone is on the free plan.{% endblocktranslate %}

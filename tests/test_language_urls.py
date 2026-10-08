@@ -52,7 +52,8 @@ class _Alternates(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
-        if tag == "link" and attrs.get("rel") == "alternate":
+        # A feed is an alternate too (C7, /changelog/), but of another type.
+        if tag == "link" and attrs.get("rel") == "alternate" and "hreflang" in attrs:
             self.found.append((attrs["hreflang"], attrs["href"]))
         elif tag == "link" and attrs.get("rel") == "canonical":
             self.canonical = attrs["href"]

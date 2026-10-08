@@ -400,6 +400,7 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
     }
     if watcher is not None:
         measured["combos"] = watcher.first
+        measured["win"] = watcher.first_win
     return measured
 
 
@@ -436,6 +437,11 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
     } for _ in range(turns)]
 
     assembled = {watched.key: [0] * turns for watched in watch}
+    # P8: by each turn, the games in which any game-ending combo was together.
+    # Counted whenever combos are watched, zeroes included: "none of these
+    # combos ends the game" is an answer, and a missing key would read like a
+    # run from before the count existed.
+    won = [0] * turns if watch else None
 
     for _ in range(iterations):
         result = simulate_game(rng, on_the_play=on_the_play, turns=turns,
@@ -449,6 +455,9 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
                 continue
             for index in range(first - 1, turns):
                 assembled[key][index] += 1
+        if won is not None and result.get("win"):
+            for index in range(result["win"] - 1, turns):
+                won[index] += 1
         for field in COUNTER_FIELDS:
             counters[field][result[field]] += 1
 
@@ -504,6 +513,8 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
             key: {"games": iterations, "by_turn": counts}
             for key, counts in assembled.items()
         }
+    if won is not None:
+        summary["wins"] = {"games": iterations, "by_turn": won}
     return summary
 
 
@@ -602,6 +613,8 @@ def as_json(result: dict) -> dict:
             key: {"games": int(entry["games"]), "by_turn": list(entry["by_turn"])}
             for key, entry in result["combos"].items()
         }
+    if "wins" in result:
+        payload["wins"] = _copy_wins(result["wins"])
     return payload
 
 
@@ -633,6 +646,8 @@ def from_json(data: dict) -> dict:
             key: {"games": int(entry["games"]), "by_turn": list(entry["by_turn"])}
             for key, entry in data["combos"].items()
         }
+    if "wins" in data:
+        result["wins"] = _copy_wins(data["wins"])
     return result
 
 
@@ -668,6 +683,7 @@ def merge(chunks) -> dict:
         other = from_json(chunk)
         merged["iterations"] += other["iterations"]
         _merge_combos(merged, other)
+        _merge_wins(merged, other)
         _merge_seen(merged, other)
         for field in COUNTER_FIELDS:
             merged[field].update(other[field])
@@ -742,6 +758,31 @@ def _merge_combos(merged: dict, other: dict) -> None:
         held["by_turn"] = [
             a + b for a, b in zip(held["by_turn"], entry["by_turn"], strict=True)
         ]
+
+
+def _copy_wins(wins: dict) -> dict:
+    """The ``wins`` block (P8), as fresh plain integers."""
+    return {"games": int(wins["games"]), "by_turn": [int(n) for n in wins["by_turn"]]}
+
+
+def _merge_wins(merged: dict, other: dict) -> None:
+    """Add one chunk's game-ending-combo counts into another's, in place.
+
+    Like a combo, and for the same reason: ``games`` travels with the counts,
+    so a chunk that watched no game-ending combo - the lookup moved while the
+    run was in flight - adds nothing rather than a denominator without
+    numerators.
+    """
+    if "wins" not in other:
+        return
+    held = merged.get("wins")
+    if held is None:
+        merged["wins"] = _copy_wins(other["wins"])
+        return
+    held["games"] += other["wins"]["games"]
+    held["by_turn"] = [
+        a + b for a, b in zip(held["by_turn"], other["wins"]["by_turn"], strict=True)
+    ]
 
 
 def pct(count: int, total: int) -> float:

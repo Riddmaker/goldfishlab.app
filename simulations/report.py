@@ -384,6 +384,111 @@ def milestones(result: dict) -> list[dict]:
     return rows
 
 
+#: The Commander Brackets and the fewest turns Wizards expects a game in each
+#: to last (Commander Brackets update, 21 October 2025: "expect to be able to
+#: play at least" nine, eight, six and four turns). Bracket 5, cEDH, "could end
+#: on any turn" and has no row. The names are Wizards' and stay in English.
+BRACKETS = (
+    (1, "Exhibition", 9),
+    (2, "Core", 8),
+    (3, "Upgraded", 6),
+    (4, "Optimized", 4),
+)
+CEDH = (5, "cEDH")
+BRACKETS_SOURCE = ("https://magic.wizards.com/en/news/announcements/"
+                   "commander-brackets-beta-update-october-21-2025")
+
+#: A bracket fits while fewer than half the games have a game-ending combo
+#: together before its turn - Wizards says "expect", and half is what the rest
+#: of the report calls typical. A constant, so a stricter reading is one edit.
+BRACKET_FITS_BELOW = TYPICAL_SHARE
+
+
+@dataclass(frozen=True)
+class BracketRow:
+    """One bracket, and how often this deck's games would have ended too soon."""
+
+    number: int
+    name: str
+    #: The fewest turns a game in this bracket is expected to last.
+    turns: int
+    #: % of games with a game-ending combo together before `turns`; None when
+    #: the run did not play the turns it takes to know.
+    share: float | None
+
+    @property
+    def fits(self) -> bool | None:
+        return None if self.share is None else self.share < BRACKET_FITS_BELOW
+
+    @property
+    def needs_turns(self) -> int:
+        """The turns a run has to play to check this bracket."""
+        return self.turns - 1
+
+
+def bracket_tempo(result: dict, timed_combos: bool) -> dict | None:
+    """How fast a game-ending combo comes together, against the brackets (P8).
+
+    A combo that is together at the end of turn N is read as ending the game on
+    turn N: a game in a six-turn bracket is cut short by one that is together
+    by turn five. "Together" is all the simulator knows - it does not play the
+    combo out - so the page says so.
+
+    Args:
+        timed_combos: whether this run measured any combo at all. A result with
+            no ``wins`` block but with timed combos is from before P8 and gets
+            "run it again"; one with neither timed nothing.
+
+    Returns None for a result with nothing to say and nothing to ask, which is
+    a run that timed no combo: the section is then left off the page.
+    """
+    wins = result.get("wins")
+    if wins is None:
+        return {"rerun": True} if timed_combos else None
+    games, by_turn, turns = wins["games"], wins["by_turn"], result["turns"]
+
+    rows = []
+    for number_, name, least in BRACKETS:
+        index = least - 2  # together by the end of the turn before
+        share = _pct(by_turn[index], games) if index < len(by_turn) else None
+        rows.append(BracketRow(number=number_, name=name, turns=least, share=share))
+
+    # The lowest bracket that fits. Brackets nest - a deck that ends games
+    # too soon for six turns ends them too soon for eight - so when every
+    # measured one is too slow, so would the unmeasured ones be, and only cEDH
+    # is left. A run too short to check any bracket says nothing either way.
+    measured = [row for row in rows if row.share is not None]
+    verdict = next((row for row in measured if row.fits), None)
+    cedh = bool(measured) and verdict is None
+    unchecked = [] if cedh else [
+        row for row in rows
+        if row.share is None and (verdict is None or row.number < verdict.number)
+    ]
+    return {
+        "rerun": False,
+        "rows": rows,
+        "verdict": verdict,
+        "cedh": CEDH if cedh else None,
+        "unchecked": unchecked,
+        "needs_turns": max((row.needs_turns for row in unchecked), default=0),
+        "typical": _typical_win_sentence(by_turn, games, turns),
+        "source": BRACKETS_SOURCE,
+    }
+
+
+def _typical_win_sentence(by_turn, games: int, turns: int) -> str:
+    """"Half your games have a game-ending combo together by turn 5." - or not."""
+    if not any(by_turn):
+        return gettext("No game-ending combo came together in %(turns)s turns.") % {
+            "turns": turns}
+    for turn, count in enumerate(by_turn, start=1):
+        if _pct(count, games) >= TYPICAL_SHARE:
+            return gettext("Half your games have a game-ending combo together by turn "
+                           "%(turn)s.") % {"turn": turn}
+    return gettext("Fewer than half your games have a game-ending combo together by turn "
+                   "%(turn)s.") % {"turn": turns}
+
+
 #: The categories a Commander deck is sorted into, in the order a deck list
 #: sorts them, and what the page calls each (Phase 9, "The category
 #: vocabulary"). The keys are `simulation.analysis.SEEN_CATEGORIES`, and a test
@@ -644,6 +749,7 @@ def build(run) -> dict:
     result = runner.read(run.result)
     columns = color_columns(result)
     milestone_rows = milestones(result)
+    measured = combo_measurements(run)
     return {
         "annotations_changed": annotations_changed_since(run),
         "iterations": result["iterations"],
@@ -657,7 +763,9 @@ def build(run) -> dict:
         "milestone_chart": milestone_chart(milestone_rows, result["turns"]),
         "milestones_hidden": max(0, len(milestone_rows) - MAX_LINES),
         "seen": seen(result),
-        "combos": combo_measurements(run),
+        "combos": measured,
+        "brackets": bracket_tempo(
+            result, timed_combos=any(not row.hypothetical for row in measured)),
         "percentiles": PERCENTILES,
     }
 

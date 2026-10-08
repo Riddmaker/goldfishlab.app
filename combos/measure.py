@@ -354,7 +354,8 @@ def _watch_for(combo):
             return UNWATCHABLE
 
     try:
-        return runner.Watch(key=combo.spellbook_id, requirements=tuple(requirements))
+        return runner.Watch(key=combo.spellbook_id, requirements=tuple(requirements),
+                            wins=combo.ends_the_game)
     except runner.Unmeasurable:
         return UNWATCHABLE
 

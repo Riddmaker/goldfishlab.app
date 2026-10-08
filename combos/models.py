@@ -26,6 +26,7 @@ prices are. A cached answer that does not say when it was true is a claim about
 the present that nobody checked.
 """
 
+import re
 import uuid
 
 from django.db import models
@@ -34,6 +35,32 @@ from django.utils.translation import gettext
 from cards.models import OracleCard
 from core.l10n import percent
 from decks.models import Deck
+
+#: What a combo has to produce to end the game (P8), matched against
+#: Spellbook's feature names. Read off their feature list on 2026-10-08: "Win
+#: the game", "Infinite damage to one opponent", "Near-infinite lifeloss",
+#: "Infinite turns", "Each opponent loses the game" ... Infinite mana, tokens
+#: or untaps are not here: they win nothing until another card spends them.
+GAME_ENDING = re.compile(
+    r"^win the game"
+    r"|^(near-)?infinite (damage|lifeloss|combat damage|combat phases|turns|mill)\b"
+    r"|\blose(s)? the game",
+    re.IGNORECASE,
+)
+
+#: The features the pattern above would catch and must not: milling yourself
+#: needs a second card to win, damage to creatures or to you wins nothing,
+#: extra turns for the opponents are theirs, and "you don't lose the game" is
+#: the opposite of winning it.
+NOT_GAME_ENDING = re.compile(
+    r"self-mill|creatures|damage to you\b|for each opponent|n't lose|unable to lose",
+    re.IGNORECASE,
+)
+
+
+def ends_the_game(feature: str) -> bool:
+    """Whether one of Spellbook's feature names, on its own, ends the game."""
+    return bool(GAME_ENDING.search(feature)) and not NOT_GAME_ENDING.search(feature)
 
 
 class Combo(models.Model):
@@ -76,6 +103,11 @@ class Combo(models.Model):
 
     def __str__(self) -> str:
         return f"{self.spellbook_id} ({self.card_names})"
+
+    @property
+    def ends_the_game(self) -> bool:
+        """Whether what this combo produces wins the game on its own (P8)."""
+        return any(ends_the_game(feature) for feature in self.produces)
 
     @property
     def card_names(self) -> str:

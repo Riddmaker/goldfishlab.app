@@ -8,6 +8,8 @@ will grow user-owned decks, simulation runs and playtests.
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
+from accounts import consent
+
 
 class UserManager(BaseUserManager):
     """Manager for a user identified by email rather than username."""
@@ -63,6 +65,11 @@ class User(AbstractUser):
     #: /admin/stats/ leave it out and its runs go on the long queue
     #: (`datapages.lab`). There is one, made when it is first needed.
     is_system = models.BooleanField(default=False)
+    #: The version of the privacy policy this person last agreed to
+    #: (`accounts.consent.CONSENT_VERSION`): the current one for a new
+    #: account, and set by the OK on the page that shows a change. Blank for
+    #: the accounts made before D2, so they are asked.
+    privacy_accepted = models.DateField(null=True, blank=True, default=consent.current)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

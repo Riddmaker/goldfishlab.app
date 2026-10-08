@@ -166,6 +166,13 @@
             <a href="{{ report_url }}" class="underline hover:text-ink-300" rel="noopener">{% translate "Report a problem" %}</a>
             <a href="{{ source_code_url }}" class="underline hover:text-ink-300" rel="noopener">{% translate "Source code (AGPL)" %}</a>
           {% endif %}
+          {% if discord_url %}
+            {# A name, the same in every language. #}
+            <a href="{{ discord_url }}" class="underline hover:text-ink-300" rel="noopener" lang="en">Discord</a>
+          {% endif %}
+          {% if kofi_url %}
+            <a href="{{ kofi_url }}" class="underline hover:text-ink-300" rel="noopener">{% translate "Support us on Ko-fi" %}</a>
+          {% endif %}
           {% if operator.email %}
             <a href="mailto:{{ operator.email }}" class="underline hover:text-ink-300">{% translate "Email us" %}</a>
             {% if current_language != "en" %}

@@ -109,7 +109,9 @@ class PrivacyView(TemplateView):
     template_name = "core/privacy.html"
     # 2026-10-06: shared reports (P4); usage counts (P2).
     # 2026-10-07: data pages opened are counted too (P11).
-    extra_context = {"updated": date(2026, 10, 7)}
+    # 2026-10-08: sponsors and shop links, Discord, Ko-fi, the EU
+    # representative (D2, C1, M3, M4); accounts.consent.CONSENT_VERSION.
+    extra_context = {"updated": date(2026, 10, 8)}
 
 
 class ImprintView(TemplateView):

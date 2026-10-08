@@ -341,7 +341,7 @@ def test_the_privacy_policy_names_the_counts_in_every_language(client, settings,
         expected = [translation.gettext(text) for text in (
             "The counts: as long as the site runs, as they are about nobody. The week of "
             "your last simulation: until you delete the account",
-            "No analytics service, no advertising, no error-reporting service and no "
+            "No analytics service, no ad network, no error-reporting service and no "
             "third-party scripts. The usage counts described above are our own and name "
             "nobody. If we ever add a service that processes anything about you, it is "
             "named here before it is switched on.",

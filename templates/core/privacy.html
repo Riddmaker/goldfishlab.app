@@ -33,9 +33,10 @@
           We store your email address, the decks you upload, and
           the results of the simulations you run - on servers in Switzerland.
           Connections reach those servers through Cloudflare's network. We
-          do not sell any of it, we do not advertise, and there are no analytics
+          do not sell any of it, and there are no ad networks, analytics
           services or third-party trackers on this site: we only count, in totals
-          that name nobody, how the site is used. You can download everything we
+          that name nobody, how the site is used. A sponsor or a shop link, if we
+          show one, is labelled and learns nothing about you from us. You can download everything we
           hold at any time, and you can delete your account yourself. Both of
           those are buttons, not requests.
         {% endblocktranslate %}
@@ -56,6 +57,19 @@
         {% endblocktranslate %}
       </p>
       <div class="mt-4">{% include "core/_operator.html" %}</div>
+      {% if operator.eu_rep.name %}
+        <p class="mt-4 text-ink-900">
+          {% blocktranslate trimmed %}
+            Our representative in the European Union under Art. 27 GDPR, whom you
+            can also contact about your data:
+          {% endblocktranslate %}
+        </p>
+        <address class="mt-2 not-italic text-ink-900">
+          {{ operator.eu_rep.name }}<br>
+          {% for line in operator.eu_rep.address %}{{ line }}<br>{% endfor %}
+          {% if operator.eu_rep.email %}<a href="mailto:{{ operator.eu_rep.email }}" class="underline hover:text-ink-700">{{ operator.eu_rep.email }}</a>{% endif %}
+        </address>
+      {% endif %}
       <p class="mt-4 text-sm text-ink-700">
         {% blocktranslate trimmed %}
           Every question about your data goes to that address and reaches the
@@ -327,6 +341,30 @@
             {% endblocktranslate %}
           </li>
         {% endif %}
+        {% if discord_url %}
+          <li>
+            •
+            {% blocktranslate trimmed %}
+              <strong>Discord</strong> (Discord Inc., USA) - only if you join our
+              server. What you post there is seen by its members and handled by
+              Discord under its own terms. We send Discord nothing about you.
+              <a href="https://discord.com/privacy" class="underline hover:text-ink-700" rel="noopener">Discord's privacy policy</a>.
+            {% endblocktranslate %}
+          </li>
+        {% endif %}
+        {% if kofi_url %}
+          <li>
+            •
+            {% blocktranslate trimmed %}
+              <strong>Ko-fi</strong> (Ko-fi Labs Limited, United Kingdom) - only if
+              you send us a donation there. Ko-fi and its payment provider handle
+              the payment; Ko-fi passes us the name you give, your message, the
+              amount and your email address, which we use only to thank you and to
+              answer you. It is not linked to your account here.
+              <a href="https://more.ko-fi.com/privacy" class="underline hover:text-ink-700" rel="noopener">Ko-fi's privacy policy</a>.
+            {% endblocktranslate %}
+          </li>
+        {% endif %}
       </ul>
       <p class="mt-4 text-ink-900">
         {% blocktranslate trimmed %}
@@ -337,10 +375,30 @@
       </p>
       <p class="mt-4 text-sm text-ink-700">
         {% blocktranslate trimmed %}
-          No analytics service, no advertising, no error-reporting service and no
+          No analytics service, no ad network, no error-reporting service and no
           third-party scripts. The usage counts described above are our own and
           name nobody. If we ever add a service that processes anything
           about you, it is named here before it is switched on.
+        {% endblocktranslate %}
+      </p>
+    </div>
+
+    <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "Sponsors and shop links" %}</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">
+        {% blocktranslate trimmed %}
+          We may show one sponsor and links to shops that sell the cards in a
+          deck. Each is labelled as a sponsor or as an affiliate link. They are
+          plain links: the page loads nothing from the sponsor or the shop, and
+          we tell them nothing about you. What you see does not depend on who you
+          are.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          If you follow such a link, the shop sees that you came from Goldfish Lab
+          and may pay us a share of what you buy. From then on you are on the
+          shop's site, and its own privacy policy applies.
         {% endblocktranslate %}
       </p>
     </div>
@@ -449,7 +507,9 @@
         {% blocktranslate trimmed %}
           When this policy changes, the date at the top changes. If the change
           matters - a new service that sees your data, a longer retention period -
-          we email account holders before it takes effect.
+          we email account holders before it takes effect. If it changes what we
+          may show on these pages, we show you the change the next time you visit
+          and ask for your OK.
         {% endblocktranslate %}
       </p>
       <p class="mt-4 text-ink-900">

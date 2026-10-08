@@ -15,4 +15,5 @@ urlpatterns = [
     path("data/", views.PrivacyDataView.as_view(), name="data"),
     path("data/export/", views.DataExportView.as_view(), name="export"),
     path("delete/", views.AccountDeleteView.as_view(), name="delete"),
+    path("privacy-update/", views.PrivacyUpdateView.as_view(), name="privacy_update"),
 ]

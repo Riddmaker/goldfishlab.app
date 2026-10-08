@@ -16,6 +16,14 @@ from django.core.exceptions import ImproperlyConfigured
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env = environ.Env(DJANGO_DEBUG=(bool, False))
+
+
+def https_or_blank(url: str) -> str:
+    """`url` if it is an https address, else blank: a link a page shows to
+    everyone must not point at plain http or a `javascript:` address."""
+    parts = urlsplit(url.strip())
+    return url.strip() if parts.scheme == "https" and parts.netloc else ""
+
 environ.Env.read_env(BASE_DIR / ".env")
 
 SECRET_KEY = env("DJANGO_SECRET_KEY")
@@ -76,6 +84,9 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     # After authentication: it reads request.user.
     "guests.middleware.GuestFenceMiddleware",
+    # After the fence: an account that has not seen the newest privacy change
+    # is shown it once before going on (D2, accounts.consent).
+    "accounts.consent.ConsentMiddleware",
 ]
 
 ROOT_URLCONF = "goldfishlab.urls"
@@ -93,6 +104,7 @@ TEMPLATES = [
                 "core.context_processors.operator",
                 "core.context_processors.payments",
                 "core.context_processors.source_code",
+                "core.context_processors.community",
                 "core.context_processors.dev_tools",
                 "core.context_processors.languages",
                 "core.context_processors.seo",
@@ -185,6 +197,13 @@ LEGAL_OPERATOR_ADDRESS = env.list("LEGAL_OPERATOR_ADDRESS", default=[])
 LEGAL_CONTACT_EMAIL = env("LEGAL_CONTACT_EMAIL", default="")
 LEGAL_DETAILS_REQUIRED = False
 
+# The EU representative under Art. 27 GDPR (M4), named in the privacy policy
+# once appointed. Optional: the section shows only while the name is set.
+# The address is comma separated, like the operator's.
+LEGAL_EU_REP_NAME = env("LEGAL_EU_REP_NAME", default="")
+LEGAL_EU_REP_ADDRESS = env.list("LEGAL_EU_REP_ADDRESS", default=[])
+LEGAL_EU_REP_EMAIL = env("LEGAL_EU_REP_EMAIL", default="")
+
 # Where a reply to an application mail goes (P6, core/mail.py). The From
 # address is noreply@, which is no mailbox. Empty: no Reply-To; production
 # defaults to hello@ (settings/prod.py).
@@ -196,6 +215,12 @@ EMAIL_REPLY_TO = env("DJANGO_EMAIL_REPLY_TO", default="")
 # fork sets its own repository here. The footer then links the code and the
 # issue tracker ("Report a problem"); blank hides both links.
 SOURCE_CODE_URL = env("SOURCE_CODE_URL", default="").rstrip("/")
+
+# The community links in the footer (C1, M3): the Discord server's invite and
+# the Ko-fi page. Plain links, never a widget, so no third-party script loads.
+# Blank, or anything but an https address, hides the link.
+DISCORD_URL = https_or_blank(env("DISCORD_URL", default=""))
+KOFI_URL = https_or_blank(env("KOFI_URL", default=""))
 
 # The address search engines and link previews should name (P3), e.g.
 # "https://goldfishlab.app": canonical links, Open Graph tags, the sitemap and

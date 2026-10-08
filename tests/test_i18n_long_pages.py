@@ -84,7 +84,7 @@ def test_an_english_reader_sees_no_note(client, name):
     assert 'role="note"' not in body
 
 
-@pytest.mark.parametrize(("name", "updated"), [("privacy", "7 October 2026"),
+@pytest.mark.parametrize(("name", "updated"), [("privacy", "8 October 2026"),
                                                ("terms", "6 October 2026")])
 def test_the_english_text_says_it_prevails(client, name, updated):
     body = client.get(reverse(name), follow=True).content.decode()

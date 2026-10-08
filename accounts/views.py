@@ -12,13 +12,15 @@ from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext
 from django.views.generic import TemplateView, View
 from django_ratelimit.decorators import ratelimit
 
-from accounts import privacy
+from accounts import consent, privacy
 
 
 class PrivacyDataView(LoginRequiredMixin, TemplateView):
@@ -95,3 +97,32 @@ class AccountDeleteView(LoginRequiredMixin, View):
                     "Nothing was kept."),
         )
         return redirect("home")
+
+
+class PrivacyUpdateView(LoginRequiredMixin, TemplateView):
+    """What changed in the privacy policy, and the OK that lets a person go on
+    (D2, `accounts.consent`)."""
+
+    template_name = "accounts/privacy_update.html"
+
+    def _next(self, value: str) -> str:
+        if value and url_has_allowed_host_and_scheme(
+                value, allowed_hosts={self.request.get_host()},
+                require_https=self.request.is_secure()):
+            return value
+        return reverse("home")
+
+    def get(self, request, *args, **kwargs):
+        if not consent.needs_consent(request.user):
+            return redirect(self._next(request.GET.get("next", "")))
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["next"] = self._next(self.request.GET.get("next", ""))
+        context["version"] = consent.CONSENT_VERSION
+        return context
+
+    def post(self, request):
+        consent.accept(request.user)
+        return redirect(self._next(request.POST.get("next", "")))

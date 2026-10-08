@@ -361,6 +361,18 @@ CELERY_BEAT_SCHEDULE = {
         "task": "core.alerts",
         "schedule": crontab(minute="45"),
     },
+    # P19a: the cards the engine could not read in uploaded decks. Closed
+    # nightly once it reads them - after the 00:30 catalogue refresh, which
+    # may re-derive a profile - and the new ones mailed to ALERT_EMAIL on
+    # Monday mornings (simulations.unread).
+    "unread-recheck": {
+        "task": "simulations.recheck_unread",
+        "schedule": crontab(minute="30", hour="3"),
+    },
+    "unread-mail": {
+        "task": "simulations.mail_unread",
+        "schedule": crontab(minute="0", hour="8", day_of_week="1"),
+    },
     # C7: last month's changelog, to whoever asked for it - on the first of
     # the month, and only when the month had an entry (changelog.tasks).
     "changelog-digest": {

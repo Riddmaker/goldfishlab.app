@@ -7782,3 +7782,21 @@ msgstr "%(month)s の Goldfish Lab の変更点："
 msgid ""
 "You get this mail because you asked for it. Unsubscribe with one click:"
 msgstr "このメールは、ご自身で購読を申し込まれたためお送りしています。ワンクリックで解除できます："
+
+#: templates/core/privacy.html
+msgid ""
+"Cards the engine could not read in a deck you uploaded: the card, why it "
+"could not be read, and how often it came up - not the deck, and not who "
+"uploaded it"
+msgstr ""
+"アップロードされたデッキの中でエンジンが読み取れなかったカード: カード、読み取れなかった理由、出現回数のみです - "
+"デッキやアップロードした人の情報は含みません"
+
+#: templates/core/privacy.html
+msgid ""
+"To teach the engine to read those cards (legitimate interest, Art. 6(1)(f))"
+msgstr "エンジンがそれらのカードを読み取れるようにするため（正当な利益、第6条第1項(f)）"
+
+#: templates/core/privacy.html
+msgid "As long as the site runs, as they are about nobody"
+msgstr "サイトの運営中は保存します。特定の人に関する情報ではないためです"

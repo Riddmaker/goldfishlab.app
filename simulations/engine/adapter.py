@@ -410,6 +410,33 @@ def readings(deck: Deck) -> list[Reading]:
     return found
 
 
+def engine_gaps(oracle_cards) -> dict:
+    """What the engine alone cannot read about each card, by oracle id (P19a).
+
+    Built-in annotations only: a player's own answer makes the card work on
+    their deck, but the engine still could not read it, and that is what the
+    operator's queue (`simulations.unread`) is about. No deck colours either -
+    they only pick which colour a choice is read as, never whether the choice
+    is a gap.
+    """
+    from simulations.models import CardAnnotation
+
+    cards = list(oracle_cards)
+    merged: dict = {}
+    for oracle_id, overrides in CardAnnotation.objects.filter(
+        owner__isnull=True, deck__isnull=True, oracle_card__in=cards
+    ).values_list("oracle_card_id", "overrides"):
+        merged.setdefault(oracle_id, {}).update(overrides or {})
+    annotations = Annotations(overrides=merged, scopes={})
+
+    found = {}
+    for oracle_card in cards:
+        gaps: list[Gap] = []
+        _card_from(oracle_card, annotations, gaps)
+        found[oracle_card.pk] = gaps
+    return found
+
+
 def _deck_colors(entries, deck: Deck) -> frozenset[str]:
     """Which colours this deck's rainbow sources should make.
 

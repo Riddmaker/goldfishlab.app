@@ -8844,3 +8844,22 @@ msgid ""
 "You get this mail because you asked for it. Unsubscribe with one click:"
 msgstr ""
 "Recibes este correo porque lo pediste. Cancela la suscripción con un clic:"
+
+#: templates/core/privacy.html
+msgid ""
+"Cards the engine could not read in a deck you uploaded: the card, why it "
+"could not be read, and how often it came up - not the deck, and not who "
+"uploaded it"
+msgstr ""
+"Las cartas que el motor no pudo leer en un mazo que subiste: la carta, por "
+"qué no se pudo leer y cuántas veces apareció - ni el mazo ni quién lo subió"
+
+#: templates/core/privacy.html
+msgid ""
+"To teach the engine to read those cards (legitimate interest, Art. 6(1)(f))"
+msgstr ""
+"Para enseñar al motor a leer esas cartas (interés legítimo, art. 6.1.f)"
+
+#: templates/core/privacy.html
+msgid "As long as the site runs, as they are about nobody"
+msgstr "Mientras el sitio funcione, ya que no tratan de nadie"

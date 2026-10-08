@@ -273,6 +273,18 @@ It is off without `CHANGELOG_FROM_EMAIL` (the page then offers the feed alone). 
 have its own SMTP login, `CHANGELOG_EMAIL_HOST_USER`/`_PASSWORD`; blank uses the site's
 (`.env.example`). `preview_mails` writes a sample as `changelog_digest.html`.
 
+### Cards the engine could not read (P19a)
+
+The player answers an unreadable card on their own deck, as before. The operator learns about it
+too: after every upload (`decks.services.import_deck`, not the site's own precons) the worker
+reads the deck once more with the built-in annotations only, and counts each card the engine alone
+could not read on an `UnreadCard` row - card, reasons, how often, engine version; no deck, no
+account. Admin → *Unread cards* lists them by how often they came up, with the card text and what
+players answered for them, in aggregate. Beat closes the ones the engine reads now every night at
+03:30 (`simulations.recheck_unread`) and mails the new ones to `ALERT_EMAIL` on Mondays at 08:00
+(`simulations.mail_unread`); no new cards, no mail. A card set to *Won't fix* (it needs an
+opponent) is still counted and no longer mailed. The plan behind it is issue #36.
+
 ## Adding translations
 
 ```bash

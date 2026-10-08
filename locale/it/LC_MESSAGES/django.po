@@ -8758,3 +8758,24 @@ msgid ""
 msgstr ""
 "Ricevi questa mail perché l'hai chiesta tu. Annulla l'iscrizione con un "
 "clic:"
+
+#: templates/core/privacy.html
+msgid ""
+"Cards the engine could not read in a deck you uploaded: the card, why it "
+"could not be read, and how often it came up - not the deck, and not who "
+"uploaded it"
+msgstr ""
+"Le carte che il motore non è riuscito a leggere in un mazzo che hai "
+"caricato: la carta, perché non è stato possibile leggerla e quante volte è "
+"comparsa - non il mazzo, né chi l'ha caricato"
+
+#: templates/core/privacy.html
+msgid ""
+"To teach the engine to read those cards (legitimate interest, Art. 6(1)(f))"
+msgstr ""
+"Per insegnare al motore a leggere quelle carte (legittimo interesse, art. 6 "
+"par. 1 lett. f)"
+
+#: templates/core/privacy.html
+msgid "As long as the site runs, as they are about nobody"
+msgstr "Finché il sito è attivo, perché non riguardano nessuno"

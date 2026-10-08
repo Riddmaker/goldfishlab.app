@@ -356,3 +356,32 @@ def write_summary(summary_id: str) -> str:
         updated_at=timezone.now(),
     )
     return DeckSummary.Status.DONE
+
+
+@shared_task(name="simulations.record_unread")
+def record_unread(deck_id: str) -> int:
+    """P19a: count the cards of a just-uploaded deck the engine could not read."""
+    from decks.models import Deck
+    from simulations import unread
+
+    deck = Deck.objects.filter(pk=deck_id).first()
+    if deck is None:
+        # Deleted before the worker got to it (a guest's deck can be).
+        return 0
+    return unread.record(deck)
+
+
+@shared_task(name="simulations.recheck_unread")
+def recheck_unread() -> int:
+    """P19a: nightly, close the unread cards the engine reads now."""
+    from simulations import unread
+
+    return unread.recheck()
+
+
+@shared_task(name="simulations.mail_unread")
+def mail_unread() -> int:
+    """P19a: on Mondays, mail the operator the unread cards new since last time."""
+    from simulations import unread
+
+    return unread.weekly_mail()

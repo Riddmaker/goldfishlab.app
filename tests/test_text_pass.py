@@ -37,7 +37,7 @@ def test_the_pages_link_into_the_methodology_page():
     """Guards the guard: a regex that matched nothing would pass every page."""
     # Phase 10 took "opening" and "mulligan" off the run page with the opening
     # hands; the sections stay on the methodology page.
-    assert {"reading", "report-milestones", "report-mana", "blind-spots",
+    assert {"reading", "report-milestones", "report-brackets", "report-mana", "blind-spots",
             "games"} <= _referenced_anchors()
 
 

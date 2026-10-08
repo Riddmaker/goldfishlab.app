@@ -7277,3 +7277,133 @@ msgstr "<strong>このインストールでは支払いが有効になってい�
 #, python-format
 msgid "or CHF %(price)s a year"
 msgstr "または年額 CHF %(price)s"
+
+#: templates/simulations/_brackets.html
+msgid "Speed and the Commander Brackets"
+msgstr "速さと統率者ブラケット"
+
+#: templates/simulations/_brackets.html
+msgid ""
+"This run is older than the bracket check. Run the deck again to see how fast"
+" its combos end a game."
+msgstr ""
+"このシミュレーションはブラケットのチェックより前のものです。デッキをもう一度シミュレートすると、コンボがどれだけ早くゲームを終わらせるかが分かります。"
+
+#: templates/simulations/_brackets.html
+msgid ""
+"Wizards expects a game to last at least a number of turns in each bracket. "
+"Here: how often a combo of this deck that ends the game was together before "
+"then."
+msgstr ""
+"Wizards "
+"は、各ブラケットでゲームが最低何ターン続くかを想定しています。ここでは、このデッキのゲームを終わらせるコンボがそれより前に揃った割合を示します。"
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid ""
+"This run was too short to check a bracket. Run at least %(turns)s turns."
+msgstr "このシミュレーションはブラケットを確かめるには短すぎました。%(turns)s ターン以上でシミュレートしてください。"
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid "The brackets below it need a run of %(turns)s turns to check."
+msgstr "それより下のブラケットを確かめるには、%(turns)s ターンのシミュレーションが必要です。"
+
+#: templates/simulations/_brackets.html
+msgid "A game lasts at least"
+msgstr "ゲームの最低ターン数"
+
+#: templates/simulations/_brackets.html
+msgid "Your games with a game-ending combo before then"
+msgstr "それより前に決着コンボが揃ったゲーム"
+
+#: templates/simulations/_brackets.html
+msgid "Fits"
+msgstr "合う"
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid "Needs a run of %(turns)s turns"
+msgstr "%(turns)s ターンのシミュレーションが必要です"
+
+#: templates/simulations/_brackets.html
+msgid "too fast"
+msgstr "早すぎます"
+
+#: templates/simulations/_brackets.html
+msgid "any turn"
+msgstr "どのターンでも"
+
+#: templates/simulations/_brackets.html
+msgid ""
+"Speed is one part of the brackets. Game Changers, mass land denial and extra"
+" turns count as well; the deck page counts the Game Changers. “Together” "
+"means the cards were where the combo needs them at the end of a turn: the "
+"simulator does not play the combo out, and it counts only combos that end "
+"the game on their own."
+msgstr ""
+"速さはブラケットの一要素にすぎません。Game Changer、土地の大量破壊、追加ターンも関係します。Game Changer "
+"の数はデッキのページで数えています。「揃った」とは、ターン終了時にカードがコンボに必要な場所にあったことを指します。シミュレーターはコンボを実行せず、それだけでゲームを終わらせるコンボのみを数えます。"
+
+#: templates/simulations/_brackets.html
+msgid "The bracket rules, from Wizards of the Coast"
+msgstr "Wizards of the Coast によるブラケットのルール"
+
+#: templates/core/methodology.html
+msgid ""
+"Since October 2025, Wizards of the Coast describes each Commander Bracket by"
+" how long a game is expected to last: at least nine turns in Bracket 1, "
+"eight in Bracket 2, six in Bracket 3 and four in Bracket 4; a Bracket 5 game"
+" can end on any turn. For every combo of your deck that ends the game on its"
+" own - a win, infinite damage, life loss or mill, endless turns - the "
+"simulation notes the first turn its cards were all where they need to be. A "
+"combo together by the end of turn five ends a six-turn game too soon."
+msgstr ""
+"2025年10月から、Wizards of the Coast は各統率者ブラケットを、ゲームが続くと想定されるターン数で説明しています。ブラケット 1"
+" は最低9ターン、ブラケット 2 は8ターン、ブラケット 3 は6ターン、ブラケット 4 は4ターンで、ブラケット 5 "
+"のゲームはどのターンでも終わり得ます。デッキ内でそれだけでゲームを終わらせるコンボ(勝利、無限ダメージ、無限のライフ減少やライブラリー破壊、無限ターンなど)ごとに、シミュレーションはすべてのカードが必要な場所に揃った最初のターンを記録します。5ターン目の終わりに揃うコンボは、6ターン続くはずのゲームを早く終わらせすぎます。"
+
+#: templates/core/methodology.html
+msgid ""
+"A bracket fits when fewer than half your games have such a combo together "
+"before its turn. Only combos your deck already holds count, never one a card"
+" is missing for, and only the turns the run played: a short run leaves the "
+"lower brackets unchecked. Speed is one rule among several - Game Changers, "
+"mass land denial and extra turns decide a bracket as well - so this is a "
+"check, not a rating."
+msgstr ""
+"そのブラケットのターンより前にこうしたコンボが揃ったゲームが半分未満なら、そのブラケットに合っていると判断します。数えるのはデッキにすでにあるコンボだけで、カードが1枚足りないコンボは数えません。また、シミュレートしたターンだけが対象です。短いシミュレーションでは下のブラケットは未確認のままになります。速さは複数あるルールの一つで、Game"
+" Changer、土地の大量破壊、追加ターンもブラケットを左右します。そのため、これは格付けではなくチェックです。"
+
+#: simulations/report.py
+#, python-format
+msgid "No game-ending combo came together in %(turns)s turns."
+msgstr "%(turns)s ターンの間に、ゲームを終わらせるコンボは揃いませんでした。"
+
+#: simulations/report.py
+#, python-format
+msgid "Half your games have a game-ending combo together by turn %(turn)s."
+msgstr "半分のゲームで、%(turn)s ターン目までにゲームを終わらせるコンボが揃います。"
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"Fewer than half your games have a game-ending combo together by turn "
+"%(turn)s."
+msgstr "%(turn)s ターン目までにゲームを終わらせるコンボが揃うのは、半分未満のゲームです。"
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid ""
+"By speed alone, this deck fits Bracket %(number)s (%(name)s) and every "
+"bracket above it."
+msgstr "速さだけで見ると、このデッキはブラケット %(number)s (%(name)s) 以上のすべてのブラケットに合っています。"
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid ""
+"By speed alone, this deck reads as Bracket %(number)s (%(name)s): a game-"
+"ending combo is together too early for every other bracket."
+msgstr ""
+"速さだけで見ると、このデッキはブラケット %(number)s (%(name)s) "
+"に見えます。ゲームを終わらせるコンボが、ほかのどのブラケットにも早すぎるタイミングで揃います。"

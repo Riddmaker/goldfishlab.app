@@ -91,6 +91,10 @@ class Watch:
 
     key: str
     requirements: tuple[Requirement, ...]
+    #: Whether the combo ends the game once it is together (P8): the bracket
+    #: check times these and only these. A loop that makes mana or tokens and
+    #: wins nothing on its own would make a deck look faster than it is.
+    wins: bool = False
 
     def __post_init__(self):
         if not self.requirements:
@@ -129,6 +133,17 @@ class Watcher:
 
     def __bool__(self) -> bool:
         return bool(self.watches)
+
+    @property
+    def first_win(self) -> int:
+        """The first turn a game-ending combo was together; zero if none was.
+
+        The earliest over the combos rather than per combo: two combos that
+        each come together in half the games can between them come together
+        in all of them, and only the game knows which.
+        """
+        return min((self.first[watch.key] for watch in self.watches
+                    if watch.wins and self.first[watch.key]), default=0)
 
     def look(self, game, turn: int) -> None:
         """Record any watch that has just come together, at the end of `turn`."""

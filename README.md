@@ -30,6 +30,14 @@ combo needs it in, the added card is named on the page because the simulated dec
 larger than the real one, and a combo that needs *any creature with persist* gets the requirement
 in words and no percentage at all.
 
+**The bracket check (P8)**: Wizards describes each Commander Bracket by how long a game should
+last (at least 9, 8, 6 and 4 turns; cEDH any turn). Every run report times the combos the deck
+holds that end the game on their own — `Combo.ends_the_game` reads Spellbook's feature names, so an
+infinite-mana loop does not count — counts each game once at the first such combo
+(`result["wins"]`), and says which brackets that speed fits: one fits while fewer than half the
+games have such a combo together before its turn (`simulations/report.py`, `BRACKETS`). A run too
+short for a bracket says so, and the page says speed is one rule among several.
+
 Every result says **how much of the deck the engine could read** - this application's limit to fix, with every gap listed. It used to be two numbers, the second being how much of the deck somebody had given a casting order; three quarters of every gap turned out to be that question, and since Phase 9 C nobody is asked it any more: the engine casts the cheapest affordable spell first (plus a built-in order for a few dozen well-known cards), because the product is statistics about a deck, not steering a game.
 See [docs/phases/](docs/phases/README.md) for how it was built, phase by phase.
 

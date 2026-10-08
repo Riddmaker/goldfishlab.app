@@ -8165,3 +8165,158 @@ msgstr ""
 #, python-format
 msgid "or CHF %(price)s a year"
 msgstr "oppure CHF %(price)s all'anno"
+
+#: templates/simulations/_brackets.html
+msgid "Speed and the Commander Brackets"
+msgstr "La velocità e i Commander Bracket"
+
+#: templates/simulations/_brackets.html
+msgid ""
+"This run is older than the bracket check. Run the deck again to see how fast"
+" its combos end a game."
+msgstr ""
+"Questa simulazione è precedente al controllo dei bracket. Rilancia il mazzo "
+"per vedere quanto in fretta le sue combo chiudono una partita."
+
+#: templates/simulations/_brackets.html
+msgid ""
+"Wizards expects a game to last at least a number of turns in each bracket. "
+"Here: how often a combo of this deck that ends the game was together before "
+"then."
+msgstr ""
+"Wizards si aspetta che in ogni bracket una partita duri almeno un certo "
+"numero di turni. Qui: quanto spesso una combo di questo mazzo che chiude la "
+"partita era già pronta prima."
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid ""
+"This run was too short to check a bracket. Run at least %(turns)s turns."
+msgstr ""
+"Questa simulazione era troppo breve per controllare un bracket. Simula "
+"almeno %(turns)s turni."
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid "The brackets below it need a run of %(turns)s turns to check."
+msgstr "I bracket inferiori richiedono una simulazione di %(turns)s turni."
+
+#: templates/simulations/_brackets.html
+msgid "A game lasts at least"
+msgstr "Una partita dura almeno"
+
+#: templates/simulations/_brackets.html
+msgid "Your games with a game-ending combo before then"
+msgstr "Le tue partite con una combo finale prima"
+
+#: templates/simulations/_brackets.html
+msgid "Fits"
+msgstr "Adatto"
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid "Needs a run of %(turns)s turns"
+msgstr "Richiede una simulazione di %(turns)s turni"
+
+#: templates/simulations/_brackets.html
+msgid "too fast"
+msgstr "troppo veloce"
+
+#: templates/simulations/_brackets.html
+msgid "any turn"
+msgstr "qualsiasi turno"
+
+#: templates/simulations/_brackets.html
+msgid ""
+"Speed is one part of the brackets. Game Changers, mass land denial and extra"
+" turns count as well; the deck page counts the Game Changers. “Together” "
+"means the cards were where the combo needs them at the end of a turn: the "
+"simulator does not play the combo out, and it counts only combos that end "
+"the game on their own."
+msgstr ""
+"La velocità è solo una parte dei bracket. Contano anche i Game Changer, la "
+"distruzione di massa delle terre e i turni extra; la pagina del mazzo conta "
+"i Game Changer. «Pronta» significa che le carte erano dove la combo ne ha "
+"bisogno alla fine di un turno: il simulatore non gioca la combo fino in "
+"fondo e conta solo le combo che chiudono la partita da sole."
+
+#: templates/simulations/_brackets.html
+msgid "The bracket rules, from Wizards of the Coast"
+msgstr "Le regole dei bracket, da Wizards of the Coast"
+
+#: templates/core/methodology.html
+msgid ""
+"Since October 2025, Wizards of the Coast describes each Commander Bracket by"
+" how long a game is expected to last: at least nine turns in Bracket 1, "
+"eight in Bracket 2, six in Bracket 3 and four in Bracket 4; a Bracket 5 game"
+" can end on any turn. For every combo of your deck that ends the game on its"
+" own - a win, infinite damage, life loss or mill, endless turns - the "
+"simulation notes the first turn its cards were all where they need to be. A "
+"combo together by the end of turn five ends a six-turn game too soon."
+msgstr ""
+"Da ottobre 2025 Wizards of the Coast descrive ogni Commander Bracket in base"
+" a quanto dovrebbe durare una partita: almeno nove turni nel Bracket 1, otto"
+" nel Bracket 2, sei nel Bracket 3 e quattro nel Bracket 4; una partita di "
+"Bracket 5 può finire in qualsiasi turno. Per ogni combo del tuo mazzo che "
+"chiude la partita da sola – una vittoria, danni, perdita di vita o macina "
+"infiniti, turni senza fine – la simulazione annota il primo turno in cui "
+"tutte le sue carte erano al loro posto. Una combo pronta alla fine del turno"
+" cinque chiude troppo presto una partita che dovrebbe durare sei turni."
+
+#: templates/core/methodology.html
+msgid ""
+"A bracket fits when fewer than half your games have such a combo together "
+"before its turn. Only combos your deck already holds count, never one a card"
+" is missing for, and only the turns the run played: a short run leaves the "
+"lower brackets unchecked. Speed is one rule among several - Game Changers, "
+"mass land denial and extra turns decide a bracket as well - so this is a "
+"check, not a rating."
+msgstr ""
+"Un bracket è adatto quando in meno della metà delle tue partite una combo "
+"del genere è pronta prima del suo turno. Contano solo le combo che il tuo "
+"mazzo contiene già, mai una a cui manca una carta, e solo i turni simulati: "
+"una simulazione breve lascia i bracket inferiori senza controllo. La "
+"velocità è una regola tra tante – anche i Game Changer, la distruzione di "
+"massa delle terre e i turni extra decidono un bracket –, quindi è un "
+"controllo, non una classificazione."
+
+#: simulations/report.py
+#, python-format
+msgid "No game-ending combo came together in %(turns)s turns."
+msgstr ""
+"Nessuna combo che chiude la partita è stata pronta in %(turns)s turni."
+
+#: simulations/report.py
+#, python-format
+msgid "Half your games have a game-ending combo together by turn %(turn)s."
+msgstr ""
+"Metà delle tue partite ha una combo che chiude la partita pronta entro il "
+"turno %(turn)s."
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"Fewer than half your games have a game-ending combo together by turn "
+"%(turn)s."
+msgstr ""
+"Meno della metà delle tue partite ha una combo che chiude la partita pronta "
+"entro il turno %(turn)s."
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid ""
+"By speed alone, this deck fits Bracket %(number)s (%(name)s) and every "
+"bracket above it."
+msgstr ""
+"In base alla sola velocità, questo mazzo è adatto al Bracket %(number)s "
+"(%(name)s) e a ogni bracket superiore."
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid ""
+"By speed alone, this deck reads as Bracket %(number)s (%(name)s): a game-"
+"ending combo is together too early for every other bracket."
+msgstr ""
+"In base alla sola velocità, questo mazzo sembra di Bracket %(number)s "
+"(%(name)s): una combo che chiude la partita è pronta troppo presto per ogni "
+"altro bracket."

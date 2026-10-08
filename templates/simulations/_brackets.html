@@ -1,0 +1,106 @@
+{% comment %}
+  P8: how fast a game-ending combo comes together, against the turns Wizards
+  expects a game to last in each Commander Bracket. `tempo` is
+  `report.bracket_tempo`. The bracket names are Wizards' and stay in English.
+{% endcomment %}
+{% load i18n %}
+<section id="brackets" class="surface-parchment mt-6 p-6">
+  <h2 class="font-display text-2xl text-ink-900">{% translate "Speed and the Commander Brackets" %}</h2>
+  {% if tempo.rerun %}
+    <p class="mt-2 text-sm text-ink-700">
+      {% blocktranslate trimmed %}
+        This run is older than the bracket check. Run the deck again to see how
+        fast its combos end a game.
+      {% endblocktranslate %}
+    </p>
+  {% else %}
+    <p class="mt-1 text-sm text-ink-700">
+      {% blocktranslate trimmed %}
+        Wizards expects a game to last at least a number of turns in each bracket.
+        Here: how often a combo of this deck that ends the game was together before
+        then.
+      {% endblocktranslate %}
+      {% include "core/_why.html" with anchor="report-brackets" %}
+    </p>
+    <p class="mt-4 text-lg text-ink-900" data-verdict>
+      {% if tempo.verdict %}
+        {% blocktranslate trimmed with number=tempo.verdict.number name=tempo.verdict.name %}
+          By speed alone, this deck fits Bracket {{ number }} ({{ name }}) and every bracket above it.
+        {% endblocktranslate %}
+      {% elif tempo.cedh %}
+        {% blocktranslate trimmed with number=tempo.cedh.0 name=tempo.cedh.1 %}
+          By speed alone, this deck reads as Bracket {{ number }} ({{ name }}): a game-ending
+          combo is together too early for every other bracket.
+        {% endblocktranslate %}
+      {% else %}
+        {% blocktranslate trimmed with turns=tempo.needs_turns %}
+          This run was too short to check a bracket. Run at least {{ turns }} turns.
+        {% endblocktranslate %}
+      {% endif %}
+    </p>
+    <p class="mt-1 text-sm text-ink-700">{{ tempo.typical }}</p>
+    {% if tempo.unchecked and tempo.verdict %}
+      <p class="mt-1 text-sm text-ink-700">
+        {% blocktranslate trimmed with turns=tempo.needs_turns %}
+          The brackets below it need a run of {{ turns }} turns to check.
+        {% endblocktranslate %}
+      </p>
+    {% endif %}
+    <div class="mt-4 overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead>
+          <tr class="border-b border-parchment-600 text-ink-700">
+            <th scope="col" class="py-1.5 pr-3">{% translate "Bracket" %}</th>
+            <th scope="col" class="py-1.5 pr-3">{% translate "A game lasts at least" %}</th>
+            <th scope="col" class="py-1.5 pr-3">{% translate "Your games with a game-ending combo before then" %}</th>
+            <th scope="col" class="py-1.5">{% translate "Fits" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in tempo.rows %}
+            <tr class="border-b border-parchment-300">
+              <th scope="row" class="whitespace-nowrap py-1.5 pr-3 font-normal text-ink-900">{{ row.number }} <span lang="en">{{ row.name }}</span></th>
+              <td class="tabular whitespace-nowrap py-1.5 pr-3 text-ink-700">
+                {% blocktranslate trimmed count turns=row.turns %}
+                  {{ turns }} turn
+                {% plural %}
+                  {{ turns }} turns
+                {% endblocktranslate %}
+              </td>
+              {% if row.share is None %}
+                <td class="py-1.5 pr-3 text-ink-700" colspan="2">
+                  {% blocktranslate trimmed with turns=row.needs_turns %}
+                    Needs a run of {{ turns }} turns
+                  {% endblocktranslate %}
+                </td>
+              {% else %}
+                <td class="tabular py-1.5 pr-3 text-ink-700">{% blocktranslate with number=row.share|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
+                <td class="py-1.5">
+                  {% if row.fits %}
+                    <span class="text-verdigris-800">✓ {% translate "yes" %}</span>
+                  {% else %}
+                    <span class="text-blood-700">! {% translate "too fast" %}</span>
+                  {% endif %}
+                </td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+          <tr>
+            <th scope="row" class="whitespace-nowrap py-1.5 pr-3 font-normal text-ink-900">5 <span lang="en">cEDH</span></th>
+            <td class="py-1.5 pr-3 text-ink-700" colspan="3">{% translate "any turn" %}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-4 text-sm text-ink-700">
+      {% blocktranslate trimmed %}
+        Speed is one part of the brackets. Game Changers, mass land denial and extra
+        turns count as well; the deck page counts the Game Changers. “Together” means
+        the cards were where the combo needs them at the end of a turn: the simulator
+        does not play the combo out, and it counts only combos that end the game on
+        their own.
+      {% endblocktranslate %}
+      <a href="{{ tempo.source }}" class="underline" rel="noopener">{% translate "The bracket rules, from Wizards of the Coast" %}</a>
+    </p>
+  {% endif %}
+</section>

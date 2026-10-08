@@ -253,6 +253,17 @@
           check, not a rating.
         {% endblocktranslate %}
       </p>
+      <p class="mt-4 text-sm text-ink-700">
+        {% blocktranslate trimmed %}
+          Why it is built this way: each bracket is checked against its own turn rather
+          than one average win turn, so you see which brackets fit instead of a number
+          to interpret. The share is given for every turn, because a deck that wins
+          early in a third of its games plays differently from one that never does. A
+          combo counts only when its cards are in the zones it needs, so a combo the
+          board cannot use yet is not credited. And it is counted in every game of your
+          run rather than in a sample, so the shares are as exact as the run is large.
+        {% endblocktranslate %}
+      </p>
       <h3 id="blind-spots" class="mt-6 font-display text-lg text-ink-900">{% translate "What a simulation does not model" %}</h3>
       <p class="mt-2 text-ink-900">
         {% blocktranslate trimmed %}

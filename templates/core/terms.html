@@ -141,12 +141,12 @@
       {% endif %}
       <ul class="mt-4 space-y-2 text-ink-900">
         <li>• {% blocktranslate trimmed %}<strong>Paying.</strong> On Stripe's secure page, by card or another method Stripe offers. We never see your card details.{% endblocktranslate %}</li>
-        <li>• {% blocktranslate trimmed %}<strong>Renewal.</strong> A plan is billed monthly in advance and renews every month until you cancel it.{% endblocktranslate %}</li>
+        <li>• {% blocktranslate trimmed %}<strong>Renewal.</strong> A plan is billed in advance, monthly or yearly as you choose at checkout, and renews for the same period until you cancel it. Before a yearly plan renews, we remind you by email.{% endblocktranslate %}</li>
         <li>•
           {% if sold_through_link %}
-            {% blocktranslate trimmed %}<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked from your plan page, or in your orders at <a href="https://link.com" class="underline hover:text-ink-700" rel="noopener">link.com</a>. The plan then runs to the end of the month you have paid for and does not renew. There is no notice period and no fee.{% endblocktranslate %}
+            {% blocktranslate trimmed %}<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked from your plan page, or in your orders at <a href="https://link.com" class="underline hover:text-ink-700" rel="noopener">link.com</a>. The plan then runs to the end of the month or year you have paid for and does not renew. There is no notice period and no fee.{% endblocktranslate %}
           {% else %}
-            {% blocktranslate trimmed %}<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked from your plan page. The plan then runs to the end of the month you have paid for and does not renew. There is no notice period and no fee.{% endblocktranslate %}
+            {% blocktranslate trimmed %}<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked from your plan page. The plan then runs to the end of the month or year you have paid for and does not renew. There is no notice period and no fee.{% endblocktranslate %}
           {% endif %}
         </li>
         <li>• {% blocktranslate trimmed %}<strong>Changing plan.</strong> Also in the portal. Stripe credits what is left of the old plan against the new one.{% endblocktranslate %}</li>
@@ -179,9 +179,11 @@
       {% endif %}
       <p class="mt-4 text-ink-900">
         {% blocktranslate trimmed %}
-          Later payments are not refunded for the part of a month you did not
-          use; cancelling stops the next one. Where the law gives you more than
-          this, the law applies.
+          Later payments are not refunded for the part of a month or year you
+          did not use; cancelling stops the next one. A yearly plan's renewal is
+          the exception: write within 14 days of it and you get that payment
+          back in full as well. Where the law gives you more than this, the law
+          applies.
         {% endblocktranslate %}
       </p>
     </div>

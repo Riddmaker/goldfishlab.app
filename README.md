@@ -85,6 +85,13 @@ turns, the multiplayer draw rule) and public in every language: a sortable table
 The lists come from MTGJSON, matched to the catalogue by oracle id; see "The data pages" below.
 The article `/data/how-many-lands-in-commander/` rebuilds the best-read precons with 33 to 40
 lands and shows what one land more or less changes, every number worked out from the runs.
+
+**Community links and the privacy change (C1, M3, D2)**: the footer links the Discord server and
+the Ko-fi page once `DISCORD_URL` and `KOFI_URL` are set (plain links, no widget). The privacy
+policy allows one labelled sponsor and labelled shop links, names Discord and Ko-fi while they
+are linked, and names the EU representative once `LEGAL_EU_REP_*` is set. An account that agreed
+to an older version is shown the change once and asked for an OK (`accounts/consent.py`; bump
+`CONSENT_VERSION` only for a change people must see).
 Product decisions live in the sibling `magic-project` repository's `instructions.md`, section
 "Teil 2".
 
@@ -187,6 +194,12 @@ person clicks.
 production. The plans page then says so and offers nothing to buy; the limits are still
 enforced and everyone is on Free. That is also how the whole integration is tested: no keys, no
 mocking, no network.
+
+**The plans (P5)**: Goldfish (free, 9 turns), Koi (CHF 4 a month or 36 a year, 12 turns) and
+Kraken (CHF 9 a month or 84 a year, 15 turns); guests stay at 6 turns. A plan is bought by the
+month on `stripe_price_id` and by the year on `stripe_annual_price_id`; both buy the same limits,
+and a plan without the annual id offers no year. Both ids are set in the admin once the prices
+exist in Stripe.
 
 With keys set, upgrading goes through **hosted Stripe Checkout** and everything afterwards —
 card, invoices, cancelling — through the **hosted Customer Portal**. No card number reaches this
@@ -337,7 +350,7 @@ msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
 | `simulation/` | **The engine. Pure Python; never imports Django.** |
 | `goldfishlab/` | Settings (split base/dev/prod), URLs, Celery app |
 | `core/` | Landing page and its ticker of what others are doing (`core/ticker.py`, cached a minute, never the viewer's own), `/styleguide/`, `/healthz/`, `/about/methodology/`, terms, privacy, design-token reader, the rate-limit address rule and the production log formatter |
-| `accounts/` | Custom user identified by email, plus the data export and account deletion (`privacy.py`) |
+| `accounts/` | Custom user identified by email, plus the data export and account deletion (`privacy.py`) and the one-time "privacy policy changed" page (`consent.py`) |
 | `cards/` | The Scryfall catalogue, role tags and the derived card profiles |
 | `decks/` | Decks, the importer and the per-deck analysis screens |
 | `simulations/` | Runs: the engine boundary, Celery tasks, reports, annotations |

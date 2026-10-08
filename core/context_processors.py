@@ -18,6 +18,11 @@ def operator(request):
             "name": settings.LEGAL_OPERATOR_NAME,
             "address": settings.LEGAL_OPERATOR_ADDRESS,
             "email": settings.LEGAL_CONTACT_EMAIL,
+            "eu_rep": {
+                "name": settings.LEGAL_EU_REP_NAME,
+                "address": settings.LEGAL_EU_REP_ADDRESS,
+                "email": settings.LEGAL_EU_REP_EMAIL,
+            },
         }
     }
 
@@ -46,6 +51,11 @@ def source_code(request):
         "source_code_url": url,
         "report_url": f"{url}/issues/new/choose" if url else "",
     }
+
+
+def community(request):
+    """The Discord server and the Ko-fi page (C1, M3), each blank until set."""
+    return {"discord_url": settings.DISCORD_URL, "kofi_url": settings.KOFI_URL}
 
 
 def dev_tools(request):

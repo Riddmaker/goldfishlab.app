@@ -23,6 +23,14 @@
       {% element fields form=form unlabeled=True %}
       {% endelement %}
       {{ redirect_field }}
+      {% url 'terms' as terms_url %}
+      {% url 'privacy' as privacy_url %}
+      {# A div: `.auth-form form > p` lays each field out as a column. #}
+      <div class="mb-4 text-sm">
+        {% blocktranslate trimmed %}
+          By creating an account you accept the <a href="{{ terms_url }}">terms</a> and confirm that you have read the <a href="{{ privacy_url }}">privacy policy</a>.
+        {% endblocktranslate %}
+      </div>
     {% endslot %}
     {% slot actions %}
       {% element button tags="prominent,signup" type="submit" %}

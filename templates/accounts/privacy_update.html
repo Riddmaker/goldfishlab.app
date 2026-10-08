@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Our privacy policy has changed" %} — Goldfish Lab{% endblock %}
+{% block content %}
+  {% comment %}
+    D2 (accounts.consent): shown once to an account that agreed to an older
+    version. The change is the highlighted box; everything else is the way
+    out - the full text, the data download and the deletion.
+  {% endcomment %}
+  <section class="max-w-3xl">
+    <h1 class="font-display text-4xl leading-tight text-parchment-100">{% translate "Our privacy policy has changed" %}</h1>
+    <p class="mt-4 text-parchment-200">
+      {% blocktranslate trimmed with date=version|date:"DATE_FORMAT" %}
+        Before you go on, please read what changed on {{ date }}. It is one change, and it is only about sponsors and labelled links.
+      {% endblocktranslate %}
+    </p>
+
+    <div class="mt-6 border-l-4 border-blood-700 surface-parchment p-6" data-change>
+      <h2 class="font-display text-xl text-ink-900">{% translate "What changed" %}</h2>
+      <p class="mt-3 text-ink-900">
+        {% blocktranslate trimmed %}
+          We may now show <strong>one sponsor</strong> and <strong>links to card shops</strong>, each clearly labelled as such. They are plain links: the page loads nothing from the sponsor or the shop, and we tell them nothing about you. If you follow one, the shop sees that you came from Goldfish Lab and may pay us a small share of what you buy there.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-3 text-ink-900">
+        {% blocktranslate trimmed %}
+          Everything else stays as it was: no ad networks, no analytics, no trackers, no newsletter, and nobody buys your data.
+        {% endblocktranslate %}
+      </p>
+    </div>
+
+    <form method="post" class="mt-6">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit"
+              class="border border-blood-800 bg-blood-700 px-5 py-2 font-display text-parchment-100 hover:bg-blood-800">
+        {% translate "OK, continue" %}
+      </button>
+    </form>
+
+    <p class="mt-6 text-sm text-parchment-200">
+      {% url 'privacy' as privacy_url %}
+      {% url 'accounts:data' as data_url %}
+      {% blocktranslate trimmed %}
+        The <a href="{{ privacy_url }}" class="underline hover:text-parchment-100">full privacy policy</a>. If you do not agree, you can <a href="{{ data_url }}" class="underline hover:text-parchment-100">download your data and delete your account</a>.
+      {% endblocktranslate %}
+    </p>
+  </section>
+{% endblock %}

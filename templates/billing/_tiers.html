@@ -18,6 +18,16 @@
           {% translate "Free" %}
         {% endif %}
       </p>
+      {% if plan.annual_label %}
+        {# P5: the same plan, paid once a year. #}
+        <p class="tabular text-sm text-ink-700">
+          {% if local_prices %}
+            {% blocktranslate with price=plan.annual_label %}or {{ price }} a year{% endblocktranslate %}
+          {% else %}
+            {% blocktranslate with price=plan.annual_chf %}or CHF {{ price }} a year{% endblocktranslate %}
+          {% endif %}
+        </p>
+      {% endif %}
       <ul class="mt-3 space-y-1 text-sm text-ink-700">
         <li class="tabular">{% blocktranslate trimmed with turns=plan.max_turns %}Turns simulated: <strong>{{ turns }}</strong>{% endblocktranslate %}</li>
         <li class="tabular">
@@ -60,6 +70,16 @@
               {% blocktranslate with plan=plan.display_name %}Choose {{ plan }}{% endblocktranslate %}
             </button>
           </form>
+          {% if plan.stripe_annual_price_id and plan.annual_label %}
+            <form method="post" action="{% url 'billing:checkout' plan.slug %}" class="mt-2">
+              {% csrf_token %}
+              <input type="hidden" name="interval" value="year">
+              <button type="submit"
+                      class="w-full border border-blood-800 px-4 py-2 font-display text-blood-800 hover:bg-parchment-200">
+                {% blocktranslate with price=plan.annual_label %}Pay yearly: {{ price }}{% endblocktranslate %}
+              </button>
+            </form>
+          {% endif %}
         {% elif plan.is_default %}
           <p class="text-sm text-ink-700">{% translate "Where every account starts." %}</p>
         {% else %}

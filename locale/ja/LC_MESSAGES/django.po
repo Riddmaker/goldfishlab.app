@@ -246,14 +246,6 @@ msgstr "無料"
 msgid "Guest"
 msgstr "ゲスト"
 
-#: billing/models.py cards/models.py simulations/report.py
-msgid "Planeswalker"
-msgstr "Planeswalker"
-
-#: billing/models.py
-msgid "Archmage"
-msgstr "Archmage"
-
 #: billing/models.py
 msgid "month"
 msgstr "月"
@@ -3031,12 +3023,6 @@ msgid "Show deck summaries again"
 msgstr "デッキの要約を再び表示"
 
 #: templates/billing/plans.html
-msgid ""
-"<strong>Payments are not switched on in this installation</strong> — "
-"everyone is on Free."
-msgstr "<strong>このインストールでは支払いが有効になっていません</strong>。全員が無料プランです。"
-
-#: templates/billing/plans.html
 msgid "The tiers"
 msgstr "プラン"
 
@@ -4545,14 +4531,6 @@ msgstr "変更"
 
 #: templates/core/privacy.html
 msgid ""
-"When this policy changes, the date at the top changes. If the change matters"
-" - a new service that sees your data, a longer retention period - we email "
-"account holders before it takes effect."
-msgstr ""
-"このポリシーが変更されると、冒頭の日付が変わります。重要な変更（あなたのデータを見る新しいサービスや、より長い保存期間など）の場合は、その変更が発効する前にアカウント保有者にメールでお知らせします。"
-
-#: templates/core/privacy.html
-msgid ""
 "This policy is written in English. Translations into other languages are "
 "made automatically and offered for convenience; if a translation differs "
 "from the English text, the English text applies."
@@ -4744,33 +4722,6 @@ msgstr ""
 
 #: templates/core/terms.html
 msgid ""
-"<strong>Renewal.</strong> A plan is billed monthly in advance and renews "
-"every month until you cancel it."
-msgstr "<strong>更新。</strong>プランは毎月前払いで請求され、解約するまで毎月更新されます。"
-
-#: templates/core/terms.html
-msgid ""
-"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
-"from your plan page, or in your orders at <a href=\"https://link.com\" "
-"class=\"underline hover:text-ink-700\" rel=\"noopener\">link.com</a>. The "
-"plan then runs to the end of the month you have paid for and does not renew."
-" There is no notice period and no fee."
-msgstr ""
-"<strong>解約。</strong>いつでも、プランのページからリンクされている Stripe の請求ポータル、または<a "
-"href=\"https://link.com\" class=\"underline hover:text-ink-700\" "
-"rel=\"noopener\">link.com</a>の注文履歴から解約できます。解約後、プランは支払い済みの月の終わりまで有効で、更新されません。解約予告期間も手数料もありません。"
-
-#: templates/core/terms.html
-msgid ""
-"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
-"from your plan page. The plan then runs to the end of the month you have "
-"paid for and does not renew. There is no notice period and no fee."
-msgstr ""
-"<strong>解約。</strong>いつでも、プランのページからリンクされている Stripe "
-"の請求ポータルで解約できます。解約後、プランは支払い済みの月の終わりまで有効で、更新されません。解約予告期間も手数料もありません。"
-
-#: templates/core/terms.html
-msgid ""
 "<strong>Changing plan.</strong> Also in the portal. Stripe credits what is "
 "left of the old plan against the new one."
 msgstr "<strong>プランの変更。</strong>これもポータルで行えます。Stripe は旧プランの残り分を新プランの料金に充当します。"
@@ -4811,14 +4762,6 @@ msgstr ""
 "href=\"https://support.link.com/topics/sold-through-link\" class=\"underline"
 " hover:text-ink-700\" rel=\"noopener\">Link のサポート</a>に問い合わせることもできます。Link "
 "も独自の規約に基づいて返金する場合があります。"
-
-#: templates/core/terms.html
-msgid ""
-"Later payments are not refunded for the part of a month you did not use; "
-"cancelling stops the next one. Where the law gives you more than this, the "
-"law applies."
-msgstr ""
-"2回目以降の支払いについては、利用しなかった月の残り分は返金されません。解約すると次回の支払いは発生しません。法律でこれ以上の権利が認められている場合は、法律が適用されます。"
 
 #: templates/core/terms.html
 msgid "When we change something"
@@ -6585,10 +6528,6 @@ msgid ""
 "and runs."
 msgstr "アカウントなしであなたのデッキで試せます。無料アカウントならデッキと実行結果を保存できます。"
 
-#: templates/billing/pricing.html:37
-msgid "<strong>Paid plans start soon.</strong> For now everyone is on Free."
-msgstr "<strong>有料プランはまもなく開始します。</strong>現在は全員が無料プランです。"
-
 #: templates/billing/_tiers.html:42
 msgid "Create a free account, then choose it."
 msgstr "無料アカウントを作成してから選択してください。"
@@ -6812,29 +6751,6 @@ msgid ""
 "them or train anything on them."
 msgstr ""
 "あなたのデッキと注釈はあなたのものです。保存と処理は、あなたのためにサービスを運営するのに必要な範囲に限って許可されます。公開はしません。ただし、レポートを共有した場合は、共有を停止するまで、デッキ名とカードリストとともに、そのリンクを知っている人に表示します。販売することも、何かの学習に使うこともありません。"
-
-#: templates/core/privacy.html
-msgid ""
-"We store your email address, the decks you upload, and the results of the "
-"simulations you run - on servers in Switzerland. Connections reach those "
-"servers through Cloudflare's network. We do not sell any of it, we do not "
-"advertise, and there are no analytics services or third-party trackers on "
-"this site: we only count, in totals that name nobody, how the site is used. "
-"You can download everything we hold at any time, and you can delete your "
-"account yourself. Both of those are buttons, not requests."
-msgstr ""
-"私たちは、あなたのメールアドレス、アップロードしたデッキ、実行したシミュレーションの結果を、スイスのサーバーに保存します。これらのサーバーへの接続は "
-"Cloudflare "
-"のネットワークを経由します。私たちはこれらを一切販売せず、広告も行わず、このサイトにはアクセス解析サービスもサードパーティのトラッカーもありません。サイトの利用状況は、誰も特定しない合計の数としてのみ数えています。保存しているすべてのデータはいつでもダウンロードでき、アカウントはご自身で削除できます。どちらも依頼ではなく、ボタンひとつで行えます。"
-
-#: templates/core/privacy.html
-msgid ""
-"No analytics service, no advertising, no error-reporting service and no "
-"third-party scripts. The usage counts described above are our own and name "
-"nobody. If we ever add a service that processes anything about you, it is "
-"named here before it is switched on."
-msgstr ""
-"アクセス解析サービス、広告、エラー報告サービス、サードパーティのスクリプトはありません。上で説明した利用状況のカウントは私たち自身のもので、誰も特定しません。あなたに関する情報を処理するサービスを追加する場合は、有効にする前にここに記載します。"
 
 #: templates/core/privacy.html
 msgid ""
@@ -7161,3 +7077,203 @@ msgstr "土地%(first)s枚で%(low)s、%(last)s枚で%(high)s。"
 #, python-format
 msgid "From %(low)s spells seen at %(first)s lands to %(high)s at %(last)s."
 msgstr "見た呪文は土地%(first)s枚で%(low)s枚、%(last)s枚で%(high)s枚。"
+
+#: templates/base.html
+msgid "Support us on Ko-fi"
+msgstr "Ko-fiで応援する"
+
+msgid ""
+"We store your email address, the decks you upload, and the results of the "
+"simulations you run - on servers in Switzerland. Connections reach those "
+"servers through Cloudflare's network. We do not sell any of it, and there "
+"are no ad networks, analytics services or third-party trackers on this site:"
+" we only count, in totals that name nobody, how the site is used. A sponsor "
+"or a shop link, if we show one, is labelled and learns nothing about you "
+"from us. You can download everything we hold at any time, and you can delete"
+" your account yourself. Both of those are buttons, not requests."
+msgstr ""
+"私たちは、あなたのメールアドレス、アップロードしたデッキ、実行したシミュレーションの結果を、スイスのサーバーに保存します。これらのサーバーへの接続は "
+"Cloudflare "
+"のネットワークを経由します。私たちはこれらを一切販売せず、このサイトには広告ネットワークもアクセス解析サービスもサードパーティのトラッカーもありません。サイトの利用状況は、誰も特定しない合計の数としてのみ数えています。スポンサーやショップへのリンクを表示する場合は、その旨を明示し、私たちからあなたの情報が伝わることはありません。保存しているすべてのデータはいつでもダウンロードでき、アカウントはご自身で削除できます。どちらも依頼ではなく、ボタンひとつで行えます。"
+
+msgid ""
+"Our representative in the European Union under Art. 27 GDPR, whom you can "
+"also contact about your data:"
+msgstr "GDPR 第27条に基づく EU 域内の代理人です。あなたのデータについて、こちらにもお問い合わせいただけます："
+
+msgid ""
+"<strong>Discord</strong> (Discord Inc., USA) - only if you join our server. "
+"What you post there is seen by its members and handled by Discord under its "
+"own terms. We send Discord nothing about you. <a "
+"href=\"https://discord.com/privacy\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">Discord's privacy policy</a>."
+msgstr ""
+"<strong>Discord</strong>（Discord Inc.、米国）- "
+"私たちのサーバーに参加した場合のみ。そこで投稿した内容はメンバーに表示され、Discord が自社の規約に従って取り扱います。私たちがあなたの情報を "
+"Discord に送ることはありません。<a href=\"https://discord.com/privacy\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">Discord "
+"のプライバシーポリシー</a>。"
+
+msgid ""
+"<strong>Ko-fi</strong> (Ko-fi Labs Limited, United Kingdom) - only if you "
+"send us a donation there. Ko-fi and its payment provider handle the payment;"
+" Ko-fi passes us the name you give, your message, the amount and your email "
+"address, which we use only to thank you and to answer you. It is not linked "
+"to your account here. <a href=\"https://more.ko-fi.com/privacy\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">Ko-fi's privacy "
+"policy</a>."
+msgstr ""
+"<strong>Ko-fi</strong>（Ko-fi Labs Limited、英国）- そこで私たちに寄付をした場合のみ。支払いは Ko-fi "
+"とその決済代行会社が処理します。Ko-fi "
+"からは、あなたが入力した名前、メッセージ、金額、メールアドレスが私たちに伝えられ、お礼と返信のためだけに使います。ここでのアカウントとは結び付けません。<a"
+" href=\"https://more.ko-fi.com/privacy\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Ko-fi のプライバシーポリシー</a>。"
+
+msgid ""
+"No analytics service, no ad network, no error-reporting service and no "
+"third-party scripts. The usage counts described above are our own and name "
+"nobody. If we ever add a service that processes anything about you, it is "
+"named here before it is switched on."
+msgstr ""
+"アクセス解析サービス、広告ネットワーク、エラー報告サービス、サードパーティのスクリプトはありません。上で説明した利用状況のカウントは私たち自身のもので、誰も特定しません。あなたに関する情報を処理するサービスを追加する場合は、有効にする前にここに記載します。"
+
+msgid "Sponsors and shop links"
+msgstr "スポンサーとショップへのリンク"
+
+msgid ""
+"We may show one sponsor and links to shops that sell the cards in a deck. "
+"Each is labelled as a sponsor or as an affiliate link. They are plain links:"
+" the page loads nothing from the sponsor or the shop, and we tell them "
+"nothing about you. What you see does not depend on who you are."
+msgstr ""
+"私たちは、スポンサーをひとつと、デッキのカードを販売するショップへのリンクを表示することがあります。それぞれスポンサーまたはアフィリエイトリンクとして明示します。これらは単なるリンクです。ページがスポンサーやショップから何かを読み込むことはなく、私たちがあなたについて何かを伝えることもありません。表示される内容が、あなたが誰かによって変わることはありません。"
+
+msgid ""
+"If you follow such a link, the shop sees that you came from Goldfish Lab and"
+" may pay us a share of what you buy. From then on you are on the shop's "
+"site, and its own privacy policy applies."
+msgstr ""
+"このようなリンクをたどると、ショップはあなたが Goldfish Lab "
+"から来たことを知り、購入額の一部を私たちに支払うことがあります。その先はショップのサイトであり、ショップ自身のプライバシーポリシーが適用されます。"
+
+msgid ""
+"When this policy changes, the date at the top changes. If the change matters"
+" - a new service that sees your data, a longer retention period - we email "
+"account holders before it takes effect. If it changes what we may show on "
+"these pages, we show you the change the next time you visit and ask for your"
+" OK."
+msgstr ""
+"このポリシーが変更されると、冒頭の日付が変わります。重要な変更（あなたのデータを見る新しいサービスや、より長い保存期間など）の場合は、その変更が発効する前にアカウント保有者にメールでお知らせします。これらのページに表示できる内容が変わる場合は、次回のご訪問時に変更点をお見せし、同意をお願いします。"
+
+msgid "Our privacy policy has changed"
+msgstr "プライバシーポリシーが変更されました"
+
+#, python-format
+msgid ""
+"Before you go on, please read what changed on %(date)s. It is one change, "
+"and it is only about sponsors and labelled links."
+msgstr "続ける前に、%(date)s に変更された内容をお読みください。変更は一点のみで、スポンサーと明示されたリンクに関するものだけです。"
+
+msgid "What changed"
+msgstr "変更点"
+
+msgid ""
+"We may now show <strong>one sponsor</strong> and <strong>links to card "
+"shops</strong>, each clearly labelled as such. They are plain links: the "
+"page loads nothing from the sponsor or the shop, and we tell them nothing "
+"about you. If you follow one, the shop sees that you came from Goldfish Lab "
+"and may pay us a small share of what you buy there."
+msgstr ""
+"今後、<strong>スポンサーをひとつ</strong>と<strong>カードショップへのリンク</strong>を、それぞれその旨を明示したうえで表示することがあります。これらは単なるリンクです。ページがスポンサーやショップから何かを読み込むことはなく、私たちがあなたについて何かを伝えることもありません。リンクをたどると、ショップはあなたが"
+" Goldfish Lab から来たことを知り、そこでの購入額のごく一部を私たちに支払うことがあります。"
+
+msgid ""
+"Everything else stays as it was: no ad networks, no analytics, no trackers, "
+"no newsletter, and nobody buys your data."
+msgstr "それ以外は何も変わりません。広告ネットワーク、アクセス解析、トラッカー、ニュースレターはなく、誰もあなたのデータを買いません。"
+
+msgid "OK, continue"
+msgstr "OK、続ける"
+
+#, python-format
+msgid ""
+"The <a href=\"%(privacy_url)s\" class=\"underline hover:text-"
+"parchment-100\">full privacy policy</a>. If you do not agree, you can <a "
+"href=\"%(data_url)s\" class=\"underline hover:text-parchment-100\">download "
+"your data and delete your account</a>."
+msgstr ""
+"<a href=\"%(privacy_url)s\" class=\"underline hover:text-"
+"parchment-100\">プライバシーポリシーの全文</a>。同意いただけない場合は、<a href=\"%(data_url)s\" "
+"class=\"underline hover:text-parchment-100\">データをダウンロードしてアカウントを削除</a>できます。"
+
+#, python-format
+msgid ""
+"By creating an account you accept the <a href=\"%(terms_url)s\">terms</a> "
+"and confirm that you have read the <a href=\"%(privacy_url)s\">privacy "
+"policy</a>."
+msgstr ""
+"アカウントを作成すると、<a href=\"%(terms_url)s\">利用規約</a>に同意し、<a "
+"href=\"%(privacy_url)s\">プライバシーポリシー</a>を読んだことを確認したものとみなされます。"
+
+#, python-format
+msgid "or %(price)s a year"
+msgstr "または年額 %(price)s"
+
+#, python-format
+msgid "Pay yearly: %(price)s"
+msgstr "年払い：%(price)s"
+
+msgid ""
+"<strong>Renewal.</strong> A plan is billed in advance, monthly or yearly as "
+"you choose at checkout, and renews for the same period until you cancel it. "
+"Before a yearly plan renews, we remind you by email."
+msgstr ""
+"<strong>更新。</strong>プランは前払いで、お支払い時に選んだ月払いまたは年払いで請求され、解約するまで同じ期間で更新されます。年払いのプランが更新される前には、メールでお知らせします。"
+
+msgid ""
+"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
+"from your plan page, or in your orders at <a href=\"https://link.com\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">link.com</a>. The "
+"plan then runs to the end of the month or year you have paid for and does "
+"not renew. There is no notice period and no fee."
+msgstr ""
+"<strong>解約。</strong>いつでも、プランのページからリンクされている Stripe の請求ポータル、または<a "
+"href=\"https://link.com\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">link.com</a>の注文履歴から解約できます。解約後、プランは支払い済みの月または年の終わりまで有効で、更新されません。解約予告期間も手数料もありません。"
+
+msgid ""
+"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
+"from your plan page. The plan then runs to the end of the month or year you "
+"have paid for and does not renew. There is no notice period and no fee."
+msgstr ""
+"<strong>解約。</strong>いつでも、プランのページからリンクされている Stripe "
+"の請求ポータルで解約できます。解約後、プランは支払い済みの月または年の終わりまで有効で、更新されません。解約予告期間も手数料もありません。"
+
+msgid ""
+"Later payments are not refunded for the part of a month or year you did not "
+"use; cancelling stops the next one. A yearly plan's renewal is the "
+"exception: write within 14 days of it and you get that payment back in full "
+"as well. Where the law gives you more than this, the law applies."
+msgstr ""
+"2回目以降の支払いについては、利用しなかった月または年の残り分は返金されません。解約すると次回の支払いは発生しません。ただし年払いプランの更新は例外で、更新から14日以内にご連絡いただければ、その支払いも全額返金します。法律でこれ以上の権利が認められている場合は、法律が適用されます。"
+
+msgid "Goldfish"
+msgstr "金魚"
+
+#: cards/models.py simulations/report.py
+msgid "Planeswalker"
+msgstr "Planeswalker"
+
+msgid ""
+"<strong>Paid plans start soon.</strong> For now everyone is on the free "
+"plan."
+msgstr "<strong>有料プランはまもなく開始します。</strong>現在は全員が無料プランです。"
+
+msgid ""
+"<strong>Payments are not switched on in this installation</strong> — "
+"everyone is on the free plan."
+msgstr "<strong>このインストールでは支払いが有効になっていません</strong>。全員が無料プランです。"
+
+#, python-format
+msgid "or CHF %(price)s a year"
+msgstr "または年額 CHF %(price)s"

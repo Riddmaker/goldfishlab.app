@@ -31,7 +31,7 @@ def test_free_plan_limits_match_the_documented_tiers():
     free = Plan.objects.get(slug="free")
     assert free.max_decks == 3
     assert free.max_games_per_run == 10_000
-    assert free.max_turns == 6
+    assert free.max_turns == 9  # P5: a bracket check needs 9
 
 
 def test_paid_tiers_increase_turns_not_just_games():
@@ -41,9 +41,9 @@ def test_paid_tiers_increase_turns_not_just_games():
     are not what a paid tier should really be selling.
     """
     free = Plan.objects.get(slug="free")
-    pw = Plan.objects.get(slug="planeswalker")
-    archmage = Plan.objects.get(slug="archmage")
-    assert free.max_turns < pw.max_turns < archmage.max_turns
+    pw = Plan.objects.get(slug="koi")
+    kraken = Plan.objects.get(slug="kraken")
+    assert free.max_turns < pw.max_turns < kraken.max_turns
 
 
 def test_plan_for_returns_the_users_plan(user):
@@ -88,7 +88,7 @@ def test_refund_gives_usage_back(user):
 
 
 def test_unlimited_plan_is_never_blocked(user):
-    user.subscription.plan = Plan.objects.get(slug="planeswalker")
+    user.subscription.plan = Plan.objects.get(slug="koi")
     user.subscription.save()
     quotas.consume(user, METRIC, 10_000)
     decision = quotas.check(user, METRIC, 1)

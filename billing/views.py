@@ -89,6 +89,8 @@ def _tiers(request) -> dict:
         # Phase 11 G: "CHF 4", "€4" or "$4" while LOCAL_PRICES is on.
         cents = plan.price_cents(shown)
         plan.price_label = currency.label(cents, shown) if cents else ""
+        annual = plan.annual_cents(shown)
+        plan.annual_label = currency.label(annual, shown) if annual else ""
     return {"plans": plans,
             "purchasable": {plan.pk for plan in services.purchasable_plans()},
             "can_pay": stripe_api.is_configured()}
@@ -137,6 +139,7 @@ class StartCheckoutView(LoginRequiredMixin, View):
                 cancel_url=base(reverse("billing:plans")),
                 terms_url=base(reverse("terms")),
                 currency=currency.for_request(request),
+                interval="year" if request.POST.get("interval") == "year" else "month",
             )
         except services.BillingNotConfigured as exc:
             messages.error(request, str(exc))

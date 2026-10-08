@@ -11,6 +11,7 @@ from django.contrib.auth import logout
 from django.shortcuts import redirect
 from django.urls import reverse
 
+from changelog import services as changelog_services
 from guests import services
 
 #: Path prefixes a guest is sent away from, and where to.
@@ -38,7 +39,8 @@ class GuestFenceMiddleware:
         if services.is_guest(request.user):
             path = request.path
             if path.startswith(SIGN_IN):
-                logout(request)
+                # A wish to get the changelog by mail (C7) outlives the guest.
+                changelog_services.keep_across(request, logout)
             else:
                 for prefix, target in FENCED:
                     if path.startswith(prefix):

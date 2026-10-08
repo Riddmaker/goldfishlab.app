@@ -68,6 +68,17 @@ SAMPLES = {
 }
 
 
+def changelog_digest():
+    """The changelog's monthly mail (C7), for October 2026, to EMAIL. Not
+    allauth's: `changelog.tasks.message` builds it without a request."""
+    from datetime import date
+
+    from accounts.models import User
+    from changelog import tasks
+
+    return tasks.message(User(pk=1, email=EMAIL, changelog_mail=True), date(2026, 10, 1))
+
+
 def render(prefix, request):
     """Render one mail the way allauth's adapter would send it to EMAIL."""
     ctx = {

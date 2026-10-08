@@ -11,6 +11,8 @@ from django_ratelimit.decorators import ratelimit
 
 from accounts.language import set_language
 from billing.views import PricingView
+from changelog.urls import page_patterns as changelog_pages
+from changelog.urls import switch_patterns as changelog_switches
 from core.seo import PublicPagesSitemap
 from core.views import (
     HomeView,
@@ -73,6 +75,9 @@ urlpatterns = [
     # The footer's language switcher (phase 12). Outside `/account/`, which the
     # guest fence closes, so a guest can switch as well.
     path("i18n/", set_language, name="set_language"),
+    # C7: subscribing to the changelog by mail and stopping it. The mail's
+    # link to stop must keep its address, like every link in a mail.
+    *changelog_switches,
 ]
 
 # P10: the pages a search engine should find carry their language in the
@@ -99,6 +104,8 @@ urlpatterns += i18n_patterns(
     path("terms/", TermsView.as_view(), name="terms"),
     path("privacy/", PrivacyView.as_view(), name="privacy"),
     path("imprint/", ImprintView.as_view(), name="imprint"),
+    # C7: what changed, and its feed, in every language.
+    *changelog_pages,
     prefix_default_language=False,
 )
 

@@ -112,6 +112,8 @@ class PrivacyView(TemplateView):
     # 2026-10-07: data pages opened are counted too (P11).
     # 2026-10-08: sponsors and shop links, Discord, Ko-fi, the EU
     # representative (D2, C1, M3, M4); accounts.consent.CONSENT_VERSION.
+    # Also 2026-10-08: the changelog mail, opt-in (C7) - not a change anybody
+    # must agree to again: nothing changes for whoever does not switch it on.
     extra_context = {"updated": date(2026, 10, 8)}
 
 

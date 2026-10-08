@@ -4,7 +4,8 @@
     py -3.13 manage.py preview_mails --out screenshots/mails
 
 One `<prefix>.html` and one `<prefix>.txt` per mail, each headed by its
-subject, plus an index.html linking them all. The samples live in
+subject, plus an index.html linking them all - and the changelog's monthly
+mail (C7), which is not an account mail but wears the same frame. The samples live in
 `accounts/mail_samples.py`, which tests/test_mails.py renders too. A mail
 client is not a browser - this shows the layout and the words; the real test
 is one sign-up read on a phone (docs/phases/phase-9-ux-overhaul.md, A2.5).
@@ -30,8 +31,11 @@ class Command(BaseCommand):
         out.mkdir(parents=True, exist_ok=True)
         request = RequestFactory().get("/", SERVER_NAME="localhost", SERVER_PORT="8000")
         links = []
-        for prefix in mail_samples.SAMPLES:
-            msg = mail_samples.render(prefix, request)
+        mails = [(prefix, lambda prefix=prefix: mail_samples.render(prefix, request))
+                 for prefix in mail_samples.SAMPLES]
+        mails.append(("changelog_digest", mail_samples.changelog_digest))
+        for prefix, build in mails:
+            msg = build()
             html = next(body for body, mimetype in msg.alternatives if mimetype == "text/html")
             (out / f"{prefix}.html").write_text(html, encoding="utf-8")
             (out / f"{prefix}.txt").write_text(

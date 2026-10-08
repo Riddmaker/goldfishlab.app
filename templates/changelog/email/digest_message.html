@@ -1,0 +1,19 @@
+{% extends "account/email/base_message.html" %}
+{% load i18n %}
+{% comment %}
+  The changelog's monthly mail (C7, changelog.tasks): last month's entries,
+  each linking its anchor on /changelog/, and the one-click way out.
+{% endcomment %}
+{% block preheader %}{% blocktranslate trimmed count entries=entries|length %}{{ entries }} change on Goldfish Lab.{% plural %}{{ entries }} changes on Goldfish Lab.{% endblocktranslate %}{% endblock preheader %}
+{% block heading %}{% blocktranslate trimmed with month=month|date:"YEAR_MONTH_FORMAT" %}What's new: {{ month }}{% endblocktranslate %}{% endblock heading %}
+{% block content %}
+{% for entry in entries %}
+<p style="margin:0 0 4px;font-size:13px;line-height:20px;color:#5d564a;">{{ entry.day|date:"SHORT_DATE_FORMAT" }}</p>
+<p style="margin:0 0 4px;font-weight:bold;"><a href="{{ site_url }}{% url 'changelog' %}#{{ entry.slug }}" style="color:#12100d;">{{ entry.title }}</a></p>
+<p style="margin:0 0 20px;">{{ entry.text }}</p>
+{% endfor %}
+<p style="margin:24px 0 0;font-size:13px;line-height:20px;color:#5d564a;">
+  {% translate "You get this mail because you asked for it." %}
+  <a href="{{ unsubscribe_url }}" style="color:#5d564a;">{% translate "Unsubscribe with one click" %}</a>
+</p>
+{% endblock content %}

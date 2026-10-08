@@ -10,6 +10,9 @@
 {% block content %}
   <h1>{% blocktranslate with name=deck.name %}Save {{ name }}{% endblocktranslate %}</h1>
   <p>{% translate "A free account keeps it. Just an email and a password." %}</p>
+  {% if changelog_wanted %}
+    <p data-changelog-wanted>{% translate "Once your address is confirmed, the changelog comes by mail once a month." %}</p>
+  {% endif %}
   {% url 'guests:save' as action_url %}
   {% element form form=form method="post" action=action_url tags="entrance,signup" %}
     {% slot body %}

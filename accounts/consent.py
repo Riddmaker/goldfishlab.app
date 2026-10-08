@@ -33,9 +33,10 @@ def current() -> date:
 
 #: Pages that open without the OK: the documents themselves, the account's
 #: data and deletion (`accounts:`), signing out, the admin, the language
-#: switcher.
+#: switcher, and the link in a changelog mail that stops it (C7).
 OPEN_NAMESPACES = frozenset({"accounts", "admin"})
-OPEN_NAMES = frozenset({"privacy", "terms", "imprint", "account_logout", "set_language"})
+OPEN_NAMES = frozenset({"privacy", "terms", "imprint", "account_logout", "set_language",
+                        "changelog_unsubscribe"})
 
 
 def needs_consent(user) -> bool:

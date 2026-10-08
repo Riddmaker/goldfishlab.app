@@ -56,6 +56,9 @@ PUBLIC_SHOTS = [
     # The widest table on any prose page - what is stored, why, and for how
     # long - and a table is the thing that breaks at 390px.
     ("privacy-phone", "/privacy/", PHONE),
+    # C7: what changed; the feed's box and its address field at phone width.
+    ("changelog-desktop", "/changelog/", DESKTOP),
+    ("changelog-phone", "/changelog/", PHONE),
     # P3: the tiers for a visitor; three cards side by side become a column.
     ("pricing-desktop", "/pricing/", DESKTOP),
     ("pricing-phone", "/pricing/", PHONE),

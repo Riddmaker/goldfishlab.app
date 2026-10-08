@@ -1,0 +1,10 @@
+{% extends "account/email/base_message.txt" %}
+{% load i18n %}
+{% block content %}{% blocktranslate trimmed with month=month|date:"YEAR_MONTH_FORMAT" %}What changed on Goldfish Lab in {{ month }}:{% endblocktranslate %}
+{% for entry in entries %}
+* {{ entry.title }} ({{ entry.day|date:"SHORT_DATE_FORMAT" }})
+  {{ entry.text }}
+  {{ site_url }}{% url 'changelog' %}#{{ entry.slug }}
+{% endfor %}
+{% translate "You get this mail because you asked for it. Unsubscribe with one click:" %}
+{{ unsubscribe_url }}{% endblock content %}

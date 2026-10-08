@@ -49,6 +49,10 @@ class PlansView(LoginRequiredMixin, TemplateView):
         from simulations import mistral
 
         context["summaries_available"] = mistral.is_configured()
+        # C7: the changelog mail's switch, beside the language.
+        from changelog import services as changelog
+
+        context["changelog_mail_on"] = changelog.mail_on()
         return context
 
 

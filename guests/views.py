@@ -27,6 +27,7 @@ from billing import quotas
 from billing.models import UsageRecord
 from billing.quotas import QuotaExceeded
 from billing.views import refusal
+from changelog import services as changelog_services
 from decks.views import ImportFlowMixin, imported
 from guests import services
 from guests.forms import SaveDeckForm
@@ -142,7 +143,8 @@ class SaveDeckView(FormView):
 
     def form_valid(self, form):
         guest, deck = self.request.user, self.deck
-        logout(self.request)
+        # A wish to get the changelog by mail (C7) outlives the guest.
+        changelog_services.keep_across(self.request, logout)
         try:
             with transaction.atomic():
                 user, response = form.try_save(self.request)

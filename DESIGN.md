@@ -141,6 +141,9 @@ Every account mail is a pair under `templates/account/email/`: plain text, and H
 - **Words:** what happened and what to do, in one or two sentences, and what to do if it was not
   you. No "user x@y", no bracketed domain in the subject. `manage.py preview_mails` writes them
   all to files for a look.
+- **The changelog mail (C7)** wears the same frame (`templates/changelog/email/`) but has no
+  button: a list of entries, each title linking its anchor on /changelog/, and at the foot, in
+  small type, why it came and "Unsubscribe with one click". The subject names the month.
 
 ---
 

@@ -108,13 +108,16 @@ def keep_across(request, sign_out) -> None:
 
 
 def unsubscribe_token(user) -> str:
-    return signing.dumps(user.pk, salt=SALT)
+    """The same for an account every time: a plain `Signer`, not
+    `signing.dumps`, whose timestamp would make every mail's link differ and
+    is no use to a link that never expires."""
+    return signing.Signer(salt=SALT).sign(str(user.pk))
 
 
 def user_for(token: str):
     """The account a token was made for, or None."""
     try:
-        pk = signing.loads(token, salt=SALT)
+        pk = signing.Signer(salt=SALT).unsign(token)
     except signing.BadSignature:
         return None
     return get_user_model().objects.filter(pk=pk).first()

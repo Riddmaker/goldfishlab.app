@@ -339,6 +339,11 @@ def test_the_link_page_is_in_the_accounts_language(client, subscribed, settings)
     assert '<html lang="de">' in body
 
 
+def test_the_link_is_the_same_in_every_mail(subscribed):
+    """No timestamp in it: a mail sent a second later carries the same link."""
+    assert services.unsubscribe_token(subscribed) == services.unsubscribe_token(subscribed)
+
+
 def test_a_forged_link_does_nothing(client, subscribed):
     token = services.unsubscribe_token(subscribed)
 

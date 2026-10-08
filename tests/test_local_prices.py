@@ -29,9 +29,9 @@ def signed_in(client):
 
 @pytest.fixture
 def sold(monkeypatch):
-    """Planeswalker with a Stripe price, and the Stripe call recorded instead of made."""
-    plan = Plan.objects.get(slug="planeswalker")
-    plan.stripe_price_id = "price_planeswalker_test"
+    """Koi with a Stripe price, and the Stripe call recorded instead of made."""
+    plan = Plan.objects.get(slug="koi")
+    plan.stripe_price_id = "price_koi_test"
     plan.save(update_fields=["stripe_price_id"])
     monkeypatch.setattr(stripe_api, "is_configured", lambda: True)
     sent = {}
@@ -70,8 +70,8 @@ def test_a_price_reads_as_a_round_number(cents, code, text):
 def test_every_paid_plan_has_the_same_number_in_each_currency():
     for plan in Plan.objects.exclude(price_chf_cents=0):
         assert plan.prices == {code: plan.price_chf_cents for code in currency.CURRENCIES}
-    assert Plan.objects.get(slug="planeswalker").price_cents("eur") == 400
-    assert Plan.objects.get(slug="archmage").price_cents("usd") == 1200
+    assert Plan.objects.get(slug="koi").price_cents("eur") == 400
+    assert Plan.objects.get(slug="kraken").price_cents("usd") == 900
     assert Plan.objects.get(slug="free").prices == {}
 
 
@@ -80,7 +80,7 @@ def test_switched_off_everyone_sees_francs_and_checkout_sends_no_currency(
     settings.LOCAL_PRICES = False
 
     body = signed_in.get(reverse("billing:plans"), headers={"CF-IPCountry": "DE"}).content.decode()
-    signed_in.post(reverse("billing:checkout", args=["planeswalker"]),
+    signed_in.post(reverse("billing:checkout", args=["koi"]),
                    headers={"CF-IPCountry": "DE"})
 
     assert "CHF 4.00 / month" in body
@@ -98,7 +98,7 @@ def test_switched_on_the_page_and_checkout_agree(signed_in, sold, settings,
     headers = {"CF-IPCountry": country} if country else {}
 
     body = signed_in.get(reverse("billing:plans"), headers=headers).content.decode()
-    signed_in.post(reverse("billing:checkout", args=["planeswalker"]), headers=headers)
+    signed_in.post(reverse("billing:checkout", args=["koi"]), headers=headers)
 
     assert shown in body
     assert sold["currency"] == code

@@ -46,13 +46,13 @@ PASSWORD = "pw-for-test-only"
 
 CUSTOMER = "cus_test_123"
 SUBSCRIPTION = "sub_test_123"
-PRICE = "price_planeswalker_test"
+PRICE = "price_koi_test"
 
 
 @pytest.fixture
 def paid_plan():
-    """The Planeswalker tier, with a price id as if somebody had made it in Stripe."""
-    plan = Plan.objects.get(slug="planeswalker")
+    """The Koi tier, with a price id as if somebody had made it in Stripe."""
+    plan = Plan.objects.get(slug="koi")
     plan.stripe_price_id = PRICE
     plan.save(update_fields=["stripe_price_id"])
     return plan
@@ -118,7 +118,7 @@ def subscription_event(kind, user, *, status="active", price=PRICE,
             "customer": CUSTOMER,
             "status": status,
             "cancel_at_period_end": cancel_at_period_end,
-            "metadata": {"user_id": str(user.pk), "plan_slug": "planeswalker"},
+            "metadata": {"user_id": str(user.pk), "plan_slug": "koi"},
             "items": {"data": [{"price": {"id": price},
                                 "current_period_end": period_end or 1800000000}]},
         }},
@@ -142,7 +142,7 @@ def test_a_replayed_event_changes_nothing_the_second_time(subscription, paid_pla
     """Stripe retries until it gets a 2xx. Both deliveries must land once."""
     event = subscription_event("customer.subscription.created", user)
 
-    assert services.apply_event(event) == "set to planeswalker (active)"
+    assert services.apply_event(event) == "set to koi (active)"
     subscription.refresh_from_db()
     first = (subscription.plan_id, subscription.status)
 
@@ -179,12 +179,12 @@ def test_paying_raises_the_limits_the_application_enforces(subscription, paid_pl
     """Through `quotas`, not by reading a field. The field only matters if the
     thing that refuses work agrees with it."""
     free = quotas.plan_for(user)
-    assert free.max_turns == 6
+    assert free.max_turns == 9
 
     services.apply_event(subscription_event("customer.subscription.created", user))
 
     user.refresh_from_db()
-    assert quotas.plan_for(user).max_turns == 10
+    assert quotas.plan_for(user).max_turns == 12
     assert quotas.plan_for(user).max_runs_per_month == 300
 
 
@@ -192,7 +192,7 @@ def test_a_cancelled_subscription_reduces_the_quota_again(subscription, paid_pla
     """The downgrade the phase asks about, end to end."""
     services.apply_event(subscription_event("customer.subscription.created", user))
     user.refresh_from_db()
-    assert quotas.plan_for(user).max_turns == 10
+    assert quotas.plan_for(user).max_turns == 12
 
     services.apply_event(subscription_event(
         "customer.subscription.deleted", user, event_id="evt_gone"))
@@ -201,7 +201,7 @@ def test_a_cancelled_subscription_reduces_the_quota_again(subscription, paid_pla
     subscription.refresh_from_db()
     assert subscription.plan.is_default
     assert subscription.status == Subscription.Status.CANCELED
-    assert quotas.plan_for(user).max_turns == 6
+    assert quotas.plan_for(user).max_turns == 9
 
 
 def test_cancelling_at_period_end_changes_nothing_yet(subscription, paid_plan, user):
@@ -215,7 +215,7 @@ def test_cancelling_at_period_end_changes_nothing_yet(subscription, paid_plan, u
     subscription.refresh_from_db()
     assert subscription.cancel_at_period_end
     assert subscription.ends_soon
-    assert quotas.plan_for(user).max_turns == 10, "cancelling is not the same as ending"
+    assert quotas.plan_for(user).max_turns == 12, "cancelling is not the same as ending"
 
 
 def test_a_cancelled_status_never_entitles_anybody(subscription, paid_plan, user):
@@ -263,7 +263,7 @@ def test_a_failed_payment_is_never_silent(subscription, paid_plan, user):
     subscription.refresh_from_db()
     assert subscription.status == Subscription.Status.PAST_DUE
     assert subscription.needs_attention
-    assert subscription.plan.slug == "planeswalker"
+    assert subscription.plan.slug == "koi"
 
 
 def test_a_failed_payment_that_is_never_fixed_ends_in_a_downgrade(
@@ -349,7 +349,7 @@ def test_a_signed_event_is_accepted_and_applied(client, subscription, paid_plan,
     response = post_signed(client, subscription_event("customer.subscription.created", user))
     assert response.status_code == 200
     subscription.refresh_from_db()
-    assert subscription.plan.slug == "planeswalker"
+    assert subscription.plan.slug == "koi"
     assert StripeEvent.objects.get().payload["type"] == "customer.subscription.created"
 
 
@@ -408,7 +408,7 @@ def test_a_subscription_event_arriving_first_still_finds_its_user(
     services.apply_event(subscription_event("customer.subscription.created", user))
 
     subscription.refresh_from_db()
-    assert subscription.plan.slug == "planeswalker"
+    assert subscription.plan.slug == "koi"
     assert subscription.stripe_customer_id == CUSTOMER
 
 
@@ -450,7 +450,7 @@ def test_the_plans_page_shows_the_tiers_and_this_months_usage(signed_in, user):
     response = signed_in.get(reverse("billing:plans"))
     assert response.status_code == 200
     body = response.content.decode()
-    for name in ("Free", "Planeswalker", "Archmage"):
+    for name in ("Goldfish", "Koi", "Kraken"):
         assert name in body
     assert "Simulations started" in body
 
@@ -463,7 +463,7 @@ def test_an_installation_with_no_keys_offers_nothing_to_buy(signed_in):
     """
     body = signed_in.get(reverse("billing:plans")).content.decode()
     assert "not switched on" in body
-    assert reverse("billing:checkout", args=["planeswalker"]) not in body
+    assert reverse("billing:checkout", args=["koi"]) not in body
 
 
 def test_nothing_is_purchasable_without_a_price_id(settings, monkeypatch):
@@ -471,14 +471,14 @@ def test_nothing_is_purchasable_without_a_price_id(settings, monkeypatch):
     monkeypatch.setattr(stripe_api, "is_configured", lambda: True)
     assert not services.purchasable_plans().exists()
 
-    plan = Plan.objects.get(slug="archmage")
-    plan.stripe_price_id = "price_archmage"
+    plan = Plan.objects.get(slug="kraken")
+    plan.stripe_price_id = "price_kraken"
     plan.save(update_fields=["stripe_price_id"])
-    assert [p.slug for p in services.purchasable_plans()] == ["archmage"]
+    assert [p.slug for p in services.purchasable_plans()] == ["kraken"]
 
 
 def test_checkout_without_configuration_says_so_rather_than_breaking(signed_in):
-    response = signed_in.post(reverse("billing:checkout", args=["planeswalker"]))
+    response = signed_in.post(reverse("billing:checkout", args=["koi"]))
     assert response.status_code == 302
     assert response["Location"] == reverse("billing:plans")
 
@@ -550,21 +550,21 @@ def test_a_paying_customer_is_not_sent_through_checkout_again(signed_in, subscri
                                                              paid_plan, user, monkeypatch):
     """Checkout always starts a NEW subscription: a second one bills twice."""
     monkeypatch.setattr(stripe_api, "is_configured", lambda: True)
-    archmage = Plan.objects.get(slug="archmage")
-    archmage.stripe_price_id = "price_archmage_test"
-    archmage.save(update_fields=["stripe_price_id"])
+    kraken = Plan.objects.get(slug="kraken")
+    kraken.stripe_price_id = "price_kraken_test"
+    kraken.save(update_fields=["stripe_price_id"])
     services.apply_event(subscription_event("customer.subscription.created", user))
 
     def _no_checkout(**params):
         raise AssertionError("a second checkout session was created")
 
     monkeypatch.setattr(stripe_api, "checkout_session", _no_checkout)
-    response = signed_in.post(reverse("billing:checkout", args=["archmage"]))
+    response = signed_in.post(reverse("billing:checkout", args=["kraken"]))
 
     assert response.status_code == 302
     assert response["Location"] == reverse("billing:plans")
     page = signed_in.get(reverse("billing:plans")).content.decode()
-    assert reverse("billing:checkout", args=["archmage"]) not in page
+    assert reverse("billing:checkout", args=["kraken"]) not in page
     assert "billing portal" in page
 
 
@@ -579,7 +579,7 @@ def test_checkout_asks_for_the_terms_and_says_it_subscribes(signed_in, subscript
         return SimpleNamespace(url="https://checkout.stripe.com/c/pay/cs_test")
 
     monkeypatch.setattr(stripe_api, "checkout_session", _checkout)
-    response = signed_in.post(reverse("billing:checkout", args=["planeswalker"]))
+    response = signed_in.post(reverse("billing:checkout", args=["koi"]))
 
     assert response.status_code == 302
     assert sent["submit_type"] == "subscribe"
@@ -613,7 +613,7 @@ def test_managed_payments_is_asked_for_only_when_switched_on(
     settings.STRIPE_MANAGED_PAYMENTS = switched_on
     sent = _capture_checkout(monkeypatch)
 
-    signed_in.post(reverse("billing:checkout", args=["planeswalker"]))
+    signed_in.post(reverse("billing:checkout", args=["koi"]))
 
     if switched_on:
         assert sent["managed_payments"] == {"enabled": True}
@@ -634,7 +634,7 @@ def test_a_managed_payments_session_sends_nothing_stripe_forbids(
         subscription.save(update_fields=["stripe_customer_id"])
     sent = _capture_checkout(monkeypatch)
 
-    signed_in.post(reverse("billing:checkout", args=["planeswalker"]))
+    signed_in.post(reverse("billing:checkout", args=["koi"]))
 
     assert sent["managed_payments"] == {"enabled": True}
     assert not set(sent) & set(services.MANAGED_PAYMENTS_FORBIDDEN)
@@ -666,7 +666,7 @@ def test_the_end_of_some_other_subscription_ends_nothing_here(subscription, paid
 
     subscription.refresh_from_db()
     assert "different subscription" in outcome
-    assert subscription.plan.slug == "planeswalker"
+    assert subscription.plan.slug == "koi"
 
 
 def test_a_stale_update_cannot_bring_a_cancelled_plan_back(subscription, paid_plan, user):

@@ -39,6 +39,7 @@ import logging
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Q
 from django.utils.translation import gettext
 
 from billing import stripe_api
@@ -116,7 +117,8 @@ def purchasable_plans():
 
 
 def start_checkout(user, plan: Plan, *, success_url: str, cancel_url: str,
-                   terms_url: str, currency: str | None = None) -> str:
+                   terms_url: str, currency: str | None = None,
+                   interval: str = "month") -> str:
     """A hosted Checkout page for this user and plan. Returns its URL.
 
     The user id travels twice on purpose: as `client_reference_id`, which comes
@@ -134,8 +136,12 @@ def start_checkout(user, plan: Plan, *, success_url: str, cancel_url: str,
     Stripe price carries chf, eur and usd as `currency_options`; a fixed
     currency wins over the visitor's location and over Adaptive Pricing).
     Off, nothing is sent and Checkout behaves as before.
+
+    `interval` is "month" or "year" (P5): the year is the same plan on its
+    annual Stripe price.
     """
-    if not stripe_api.is_configured() or not plan.stripe_price_id:
+    price_id = plan.stripe_price_for(interval)
+    if not stripe_api.is_configured() or not price_id:
         raise BillingNotConfigured(gettext(
             "This installation cannot take payments yet: no Stripe key, or the "
             "plan has no price configured."
@@ -152,7 +158,7 @@ def start_checkout(user, plan: Plan, *, success_url: str, cancel_url: str,
                        else "in the billing portal")
     params = {
         "mode": "subscription",
-        "line_items": [{"price": plan.stripe_price_id, "quantity": 1}],
+        "line_items": [{"price": price_id, "quantity": 1}],
         "success_url": success_url,
         "cancel_url": cancel_url,
         "client_reference_id": str(user.pk),
@@ -168,7 +174,8 @@ def start_checkout(user, plan: Plan, *, success_url: str, cancel_url: str,
         # binding in English, and the box links to them.
         "custom_text": {"terms_of_service_acceptance": {"message": (
             f"I agree to the [Terms of service]({terms_url}) and ask for the plan to start "
-            f"immediately. It renews every month until I cancel it {where_to_cancel}. "
+            f"immediately. It renews every {'year' if interval == 'year' else 'month'} "
+            f"until I cancel it {where_to_cancel}. "
             "I can ask for a full refund within 14 days of my first payment."
         )}},
         # Let a returning customer keep one Stripe customer record rather than
@@ -408,7 +415,10 @@ def _plan_from(obj) -> Plan | None:
     """The plan whose price this subscription is actually on."""
     for item in (obj.get("items") or {}).get("data") or []:
         price_id = (item.get("price") or {}).get("id")
-        plan = Plan.objects.filter(stripe_price_id=price_id).first() if price_id else None
+        # The month's price or the year's (P5): both buy the same plan.
+        plan = (Plan.objects.filter(Q(stripe_price_id=price_id)
+                                    | Q(stripe_annual_price_id=price_id)).first()
+                if price_id else None)
         if plan is not None:
             return plan
 

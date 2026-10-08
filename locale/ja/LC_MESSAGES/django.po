@@ -246,14 +246,6 @@ msgstr "無料"
 msgid "Guest"
 msgstr "ゲスト"
 
-#: billing/models.py cards/models.py simulations/report.py
-msgid "Planeswalker"
-msgstr "Planeswalker"
-
-#: billing/models.py
-msgid "Archmage"
-msgstr "Archmage"
-
 #: billing/models.py
 msgid "month"
 msgstr "月"
@@ -3031,12 +3023,6 @@ msgid "Show deck summaries again"
 msgstr "デッキの要約を再び表示"
 
 #: templates/billing/plans.html
-msgid ""
-"<strong>Payments are not switched on in this installation</strong> — "
-"everyone is on Free."
-msgstr "<strong>このインストールでは支払いが有効になっていません</strong>。全員が無料プランです。"
-
-#: templates/billing/plans.html
 msgid "The tiers"
 msgstr "プラン"
 
@@ -4736,33 +4722,6 @@ msgstr ""
 
 #: templates/core/terms.html
 msgid ""
-"<strong>Renewal.</strong> A plan is billed monthly in advance and renews "
-"every month until you cancel it."
-msgstr "<strong>更新。</strong>プランは毎月前払いで請求され、解約するまで毎月更新されます。"
-
-#: templates/core/terms.html
-msgid ""
-"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
-"from your plan page, or in your orders at <a href=\"https://link.com\" "
-"class=\"underline hover:text-ink-700\" rel=\"noopener\">link.com</a>. The "
-"plan then runs to the end of the month you have paid for and does not renew."
-" There is no notice period and no fee."
-msgstr ""
-"<strong>解約。</strong>いつでも、プランのページからリンクされている Stripe の請求ポータル、または<a "
-"href=\"https://link.com\" class=\"underline hover:text-ink-700\" "
-"rel=\"noopener\">link.com</a>の注文履歴から解約できます。解約後、プランは支払い済みの月の終わりまで有効で、更新されません。解約予告期間も手数料もありません。"
-
-#: templates/core/terms.html
-msgid ""
-"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
-"from your plan page. The plan then runs to the end of the month you have "
-"paid for and does not renew. There is no notice period and no fee."
-msgstr ""
-"<strong>解約。</strong>いつでも、プランのページからリンクされている Stripe "
-"の請求ポータルで解約できます。解約後、プランは支払い済みの月の終わりまで有効で、更新されません。解約予告期間も手数料もありません。"
-
-#: templates/core/terms.html
-msgid ""
 "<strong>Changing plan.</strong> Also in the portal. Stripe credits what is "
 "left of the old plan against the new one."
 msgstr "<strong>プランの変更。</strong>これもポータルで行えます。Stripe は旧プランの残り分を新プランの料金に充当します。"
@@ -4803,14 +4762,6 @@ msgstr ""
 "href=\"https://support.link.com/topics/sold-through-link\" class=\"underline"
 " hover:text-ink-700\" rel=\"noopener\">Link のサポート</a>に問い合わせることもできます。Link "
 "も独自の規約に基づいて返金する場合があります。"
-
-#: templates/core/terms.html
-msgid ""
-"Later payments are not refunded for the part of a month you did not use; "
-"cancelling stops the next one. Where the law gives you more than this, the "
-"law applies."
-msgstr ""
-"2回目以降の支払いについては、利用しなかった月の残り分は返金されません。解約すると次回の支払いは発生しません。法律でこれ以上の権利が認められている場合は、法律が適用されます。"
 
 #: templates/core/terms.html
 msgid "When we change something"
@@ -6577,10 +6528,6 @@ msgid ""
 "and runs."
 msgstr "アカウントなしであなたのデッキで試せます。無料アカウントならデッキと実行結果を保存できます。"
 
-#: templates/billing/pricing.html:37
-msgid "<strong>Paid plans start soon.</strong> For now everyone is on Free."
-msgstr "<strong>有料プランはまもなく開始します。</strong>現在は全員が無料プランです。"
-
 #: templates/billing/_tiers.html:42
 msgid "Create a free account, then choose it."
 msgstr "無料アカウントを作成してから選択してください。"
@@ -7267,3 +7214,66 @@ msgid ""
 msgstr ""
 "アカウントを作成すると、<a href=\"%(terms_url)s\">利用規約</a>に同意し、<a "
 "href=\"%(privacy_url)s\">プライバシーポリシー</a>を読んだことを確認したものとみなされます。"
+
+#, python-format
+msgid "or %(price)s a year"
+msgstr "または年額 %(price)s"
+
+#, python-format
+msgid "Pay yearly: %(price)s"
+msgstr "年払い：%(price)s"
+
+msgid ""
+"<strong>Renewal.</strong> A plan is billed in advance, monthly or yearly as "
+"you choose at checkout, and renews for the same period until you cancel it. "
+"Before a yearly plan renews, we remind you by email."
+msgstr ""
+"<strong>更新。</strong>プランは前払いで、お支払い時に選んだ月払いまたは年払いで請求され、解約するまで同じ期間で更新されます。年払いのプランが更新される前には、メールでお知らせします。"
+
+msgid ""
+"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
+"from your plan page, or in your orders at <a href=\"https://link.com\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">link.com</a>. The "
+"plan then runs to the end of the month or year you have paid for and does "
+"not renew. There is no notice period and no fee."
+msgstr ""
+"<strong>解約。</strong>いつでも、プランのページからリンクされている Stripe の請求ポータル、または<a "
+"href=\"https://link.com\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">link.com</a>の注文履歴から解約できます。解約後、プランは支払い済みの月または年の終わりまで有効で、更新されません。解約予告期間も手数料もありません。"
+
+msgid ""
+"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
+"from your plan page. The plan then runs to the end of the month or year you "
+"have paid for and does not renew. There is no notice period and no fee."
+msgstr ""
+"<strong>解約。</strong>いつでも、プランのページからリンクされている Stripe "
+"の請求ポータルで解約できます。解約後、プランは支払い済みの月または年の終わりまで有効で、更新されません。解約予告期間も手数料もありません。"
+
+msgid ""
+"Later payments are not refunded for the part of a month or year you did not "
+"use; cancelling stops the next one. A yearly plan's renewal is the "
+"exception: write within 14 days of it and you get that payment back in full "
+"as well. Where the law gives you more than this, the law applies."
+msgstr ""
+"2回目以降の支払いについては、利用しなかった月または年の残り分は返金されません。解約すると次回の支払いは発生しません。ただし年払いプランの更新は例外で、更新から14日以内にご連絡いただければ、その支払いも全額返金します。法律でこれ以上の権利が認められている場合は、法律が適用されます。"
+
+msgid "Goldfish"
+msgstr "金魚"
+
+#: cards/models.py simulations/report.py
+msgid "Planeswalker"
+msgstr "Planeswalker"
+
+msgid ""
+"<strong>Paid plans start soon.</strong> For now everyone is on the free "
+"plan."
+msgstr "<strong>有料プランはまもなく開始します。</strong>現在は全員が無料プランです。"
+
+msgid ""
+"<strong>Payments are not switched on in this installation</strong> — "
+"everyone is on the free plan."
+msgstr "<strong>このインストールでは支払いが有効になっていません</strong>。全員が無料プランです。"
+
+#, python-format
+msgid "or CHF %(price)s a year"
+msgstr "または年額 CHF %(price)s"

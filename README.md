@@ -195,6 +195,12 @@ production. The plans page then says so and offers nothing to buy; the limits ar
 enforced and everyone is on Free. That is also how the whole integration is tested: no keys, no
 mocking, no network.
 
+**The plans (P5)**: Goldfish (free, 9 turns), Koi (CHF 4 a month or 36 a year, 12 turns) and
+Kraken (CHF 9 a month or 84 a year, 15 turns); guests stay at 6 turns. A plan is bought by the
+month on `stripe_price_id` and by the year on `stripe_annual_price_id`; both buy the same limits,
+and a plan without the annual id offers no year. Both ids are set in the admin once the prices
+exist in Stripe.
+
 With keys set, upgrading goes through **hosted Stripe Checkout** and everything afterwards —
 card, invoices, cancelling — through the **hosted Customer Portal**. No card number reaches this
 application, and the signed webhook at `/billing/webhook/` is the only thing that may change

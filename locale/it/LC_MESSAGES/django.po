@@ -253,14 +253,6 @@ msgstr "Gratis"
 msgid "Guest"
 msgstr "Ospite"
 
-#: billing/models.py cards/models.py simulations/report.py
-msgid "Planeswalker"
-msgstr "Planeswalker"
-
-#: billing/models.py
-msgid "Archmage"
-msgstr "Archmage"
-
 #: billing/models.py
 msgid "month"
 msgstr "mese"
@@ -3270,14 +3262,6 @@ msgid "Show deck summaries again"
 msgstr "Mostra di nuovo i riassunti del deck"
 
 #: templates/billing/plans.html
-msgid ""
-"<strong>Payments are not switched on in this installation</strong> — "
-"everyone is on Free."
-msgstr ""
-"<strong>I pagamenti non sono attivi in questa installazione</strong>: tutti "
-"hanno il piano Gratis."
-
-#: templates/billing/plans.html
 msgid "The tiers"
 msgstr "I livelli"
 
@@ -5317,39 +5301,6 @@ msgstr ""
 
 #: templates/core/terms.html
 msgid ""
-"<strong>Renewal.</strong> A plan is billed monthly in advance and renews "
-"every month until you cancel it."
-msgstr ""
-"<strong>Rinnovo.</strong> Un piano è fatturato mensilmente in anticipo e si "
-"rinnova ogni mese finché non lo disdici."
-
-#: templates/core/terms.html
-msgid ""
-"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
-"from your plan page, or in your orders at <a href=\"https://link.com\" "
-"class=\"underline hover:text-ink-700\" rel=\"noopener\">link.com</a>. The "
-"plan then runs to the end of the month you have paid for and does not renew."
-" There is no notice period and no fee."
-msgstr ""
-"<strong>Disdetta.</strong> In qualsiasi momento, nel portale di fatturazione"
-" di Stripe, raggiungibile dalla pagina del tuo piano, oppure nei tuoi ordini"
-" su <a href=\"https://link.com\" class=\"underline hover:text-ink-700\" "
-"rel=\"noopener\">link.com</a>. Il piano resta attivo fino alla fine del mese"
-" che hai pagato e non si rinnova. Non c'è alcun preavviso e nessun costo."
-
-#: templates/core/terms.html
-msgid ""
-"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
-"from your plan page. The plan then runs to the end of the month you have "
-"paid for and does not renew. There is no notice period and no fee."
-msgstr ""
-"<strong>Disdetta.</strong> In qualsiasi momento, nel portale di fatturazione"
-" di Stripe, raggiungibile dalla pagina del tuo piano. Il piano resta attivo "
-"fino alla fine del mese che hai pagato e non si rinnova. Non c'è alcun "
-"preavviso e nessun costo."
-
-#: templates/core/terms.html
-msgid ""
 "<strong>Changing plan.</strong> Also in the portal. Stripe credits what is "
 "left of the old plan against the new one."
 msgstr ""
@@ -5401,16 +5352,6 @@ msgstr ""
 "href=\"https://support.link.com/topics/sold-through-link\" class=\"underline"
 " hover:text-ink-700\" rel=\"noopener\">supporto di Link</a> per un "
 "pagamento; anche Link può effettuare rimborsi secondo i propri termini."
-
-#: templates/core/terms.html
-msgid ""
-"Later payments are not refunded for the part of a month you did not use; "
-"cancelling stops the next one. Where the law gives you more than this, the "
-"law applies."
-msgstr ""
-"I pagamenti successivi non vengono rimborsati per la parte di mese che non "
-"hai usato; la disdetta blocca il successivo. Se la legge ti concede di più, "
-"vale la legge."
 
 #: templates/core/terms.html
 msgid "When we change something"
@@ -7334,12 +7275,6 @@ msgstr ""
 "Provalo con il tuo deck senza account. Un account gratuito conserva i tuoi "
 "deck e le tue simulazioni."
 
-#: templates/billing/pricing.html:37
-msgid "<strong>Paid plans start soon.</strong> For now everyone is on Free."
-msgstr ""
-"<strong>I piani a pagamento arrivano presto.</strong> Per ora tutti hanno il"
-" piano Gratis."
-
 #: templates/billing/_tiers.html:42
 msgid "Create a free account, then choose it."
 msgstr "Crea un account gratuito, poi sceglilo."
@@ -8152,3 +8087,81 @@ msgstr ""
 "Creando un account accetti i <a href=\"%(terms_url)s\">termini di "
 "servizio</a> e confermi di aver letto l'<a "
 "href=\"%(privacy_url)s\">informativa sulla privacy</a>."
+
+#, python-format
+msgid "or %(price)s a year"
+msgstr "oppure %(price)s all'anno"
+
+#, python-format
+msgid "Pay yearly: %(price)s"
+msgstr "Paga annualmente: %(price)s"
+
+msgid ""
+"<strong>Renewal.</strong> A plan is billed in advance, monthly or yearly as "
+"you choose at checkout, and renews for the same period until you cancel it. "
+"Before a yearly plan renews, we remind you by email."
+msgstr ""
+"<strong>Rinnovo.</strong> Un piano è fatturato in anticipo, mensilmente o "
+"annualmente come scegli al pagamento, e si rinnova per lo stesso periodo "
+"finché non lo disdici. Prima che un piano annuale si rinnovi, te lo "
+"ricordiamo via email."
+
+msgid ""
+"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
+"from your plan page, or in your orders at <a href=\"https://link.com\" "
+"class=\"underline hover:text-ink-700\" rel=\"noopener\">link.com</a>. The "
+"plan then runs to the end of the month or year you have paid for and does "
+"not renew. There is no notice period and no fee."
+msgstr ""
+"<strong>Disdetta.</strong> In qualsiasi momento, nel portale di fatturazione"
+" di Stripe, raggiungibile dalla pagina del tuo piano, oppure nei tuoi ordini"
+" su <a href=\"https://link.com\" class=\"underline hover:text-ink-700\" "
+"rel=\"noopener\">link.com</a>. Il piano resta attivo fino alla fine del mese"
+" o dell'anno che hai pagato e non si rinnova. Non c'è alcun preavviso e "
+"nessun costo."
+
+msgid ""
+"<strong>Cancelling.</strong> Any time, in Stripe's billing portal, linked "
+"from your plan page. The plan then runs to the end of the month or year you "
+"have paid for and does not renew. There is no notice period and no fee."
+msgstr ""
+"<strong>Disdetta.</strong> In qualsiasi momento, nel portale di fatturazione"
+" di Stripe, raggiungibile dalla pagina del tuo piano. Il piano resta attivo "
+"fino alla fine del mese o dell'anno che hai pagato e non si rinnova. Non c'è"
+" alcun preavviso e nessun costo."
+
+msgid ""
+"Later payments are not refunded for the part of a month or year you did not "
+"use; cancelling stops the next one. A yearly plan's renewal is the "
+"exception: write within 14 days of it and you get that payment back in full "
+"as well. Where the law gives you more than this, the law applies."
+msgstr ""
+"I pagamenti successivi non vengono rimborsati per la parte di mese o di anno"
+" che non hai usato; la disdetta blocca il successivo. Fa eccezione il "
+"rinnovo di un piano annuale: scrivici entro 14 giorni e riavrai per intero "
+"anche quel pagamento. Se la legge ti concede di più, vale la legge."
+
+msgid "Goldfish"
+msgstr "Pesce rosso"
+
+#: cards/models.py simulations/report.py
+msgid "Planeswalker"
+msgstr "Planeswalker"
+
+msgid ""
+"<strong>Paid plans start soon.</strong> For now everyone is on the free "
+"plan."
+msgstr ""
+"<strong>I piani a pagamento arrivano presto.</strong> Per ora tutti hanno il"
+" piano gratuito."
+
+msgid ""
+"<strong>Payments are not switched on in this installation</strong> — "
+"everyone is on the free plan."
+msgstr ""
+"<strong>I pagamenti non sono attivi in questa installazione</strong>: tutti "
+"hanno il piano gratuito."
+
+#, python-format
+msgid "or CHF %(price)s a year"
+msgstr "oppure CHF %(price)s all'anno"

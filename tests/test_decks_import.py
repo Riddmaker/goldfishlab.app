@@ -387,7 +387,7 @@ def test_a_paid_plan_imports_without_limit(catalogue, user):
     from billing import quotas
     from billing.models import Plan
 
-    paid = Plan.objects.get(slug="archmage")
+    paid = Plan.objects.get(slug="kraken")
     assert paid.max_imports_per_month is None
 
     user.subscription.plan = paid

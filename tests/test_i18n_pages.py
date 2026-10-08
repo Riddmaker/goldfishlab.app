@@ -165,8 +165,9 @@ def _finished(owner, deck, seed):  # noqa: F811
 def _allowed(owner):  # noqa: F811
     names = {name for pair in OracleCard.objects.values_list("name", "front_name")
              for name in pair if name}
-    return NAMES | names | {"Chainer", "Lost", "list.txt", "sample.csv", "Nosuch Cardname",
-                            owner.email}
+    # Koi and Kraken are plan names, the same in every language (P5).
+    return NAMES | names | {"Koi", "Kraken", "Chainer", "Lost", "list.txt", "sample.csv",
+                            "Nosuch Cardname", owner.email}
 
 
 #: A share link, as the copy-as-text field carries it (P4): an address, not words.

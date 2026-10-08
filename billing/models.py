@@ -20,8 +20,8 @@ from django.utils.translation import gettext, gettext_noop
 #: The names the plans are seeded with (migrations 0002, 0005), marked so the
 #: catalogues carry them (phase 12). `Plan.display_name` translates a plan's
 #: name when it is one of these; a name the operator changed shows as typed.
-SEEDED_NAMES = (gettext_noop("Free"), gettext_noop("Guest"), gettext_noop("Planeswalker"),
-                gettext_noop("Archmage"))
+#: Koi and Kraken read the same in every language and are not in the list.
+SEEDED_NAMES = (gettext_noop("Goldfish"), gettext_noop("Guest"))
 
 #: What a page calls each billing interval.
 INTERVALS = {"month": gettext_noop("month"), "year": gettext_noop("year")}
@@ -40,6 +40,10 @@ class Plan(models.Model):
     #: as its `currency_options`, so Checkout charges what this page showed.
     prices = models.JSONField(default=dict, blank=True)
     interval = models.CharField(max_length=16, default="month")
+    #: P5: the same plan paid once a year, in cents per currency
+    #: ({"chf": 3600, ...}); empty means no annual price. The year buys the
+    #: same limits as the month - the interval changes the bill, not the plan.
+    annual_prices = models.JSONField(default=dict, blank=True)
     is_default = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
@@ -62,6 +66,9 @@ class Plan(models.Model):
 
     # Phase 6. Empty until Stripe ships.
     stripe_price_id = models.CharField(max_length=64, blank=True)
+    #: P5: the Stripe price that bills `annual_prices` once a year. Empty:
+    #: the plan cannot be bought by the year.
+    stripe_annual_price_id = models.CharField(max_length=64, blank=True)
 
     def __str__(self) -> str:
         return self.name
@@ -88,6 +95,20 @@ class Plan(models.Model):
         from decimal import Decimal
 
         return Decimal(self.price_chf_cents) / 100
+
+    @property
+    def annual_chf(self) -> str:
+        """A year's price in francs for display, "36" or "36.50"; "" without one."""
+        whole, rest = divmod(self.annual_cents("chf"), 100)
+        return "" if not (whole or rest) else (f"{whole}" if not rest else f"{whole}.{rest:02d}")
+
+    def annual_cents(self, currency: str) -> int:
+        """The price of a year in cents in this currency, 0 without one."""
+        return int((self.annual_prices or {}).get(currency) or 0)
+
+    def stripe_price_for(self, interval: str) -> str:
+        """The Stripe price id that bills this plan by `interval`."""
+        return self.stripe_annual_price_id if interval == "year" else self.stripe_price_id
 
     def price_cents(self, currency: str) -> int:
         """The price in cents in this currency; francs fall back to `price_chf_cents`."""

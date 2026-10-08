@@ -100,7 +100,8 @@ class TermsView(TemplateView):
     template_name = "core/terms.html"
     # A date, not text: each language writes it its own way (phase 12 I).
     # 2026-10-06: shared reports (P4) are published at their owner's choice.
-    extra_context = {"updated": date(2026, 10, 6)}
+    # 2026-10-08: plans paid monthly or yearly (P5).
+    extra_context = {"updated": date(2026, 10, 8)}
 
 
 class PrivacyView(TemplateView):

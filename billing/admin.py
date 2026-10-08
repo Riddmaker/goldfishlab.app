@@ -7,7 +7,7 @@ from billing.models import Plan, StripeEvent, Subscription, UsageRecord
 
 @admin.register(Plan)
 class PlanAdmin(admin.ModelAdmin):
-    list_display = ("name", "slug", "price_chf_cents", "prices", "max_turns",
+    list_display = ("name", "slug", "price_chf_cents", "prices", "annual_prices", "max_turns",
                     "max_games_per_run", "is_default", "is_active")
 
 

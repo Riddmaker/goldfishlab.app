@@ -410,8 +410,12 @@ def readings(deck: Deck) -> list[Reading]:
     return found
 
 
-def engine_gaps(oracle_cards) -> dict:
-    """What the engine alone cannot read about each card, by oracle id (P19a).
+def engine_readings(oracle_cards, *, builtin: bool = True) -> dict:
+    """Each card as the engine alone reads it, by oracle id: `(Card, gaps)`.
+
+    `builtin=False` leaves the built-in annotations out as well: the reader
+    and the engine and nothing else, which is what `simulations.coverage`
+    snapshots - built-in rows are data a database may or may not hold.
 
     Built-in annotations only: a player's own answer makes the card work on
     their deck, but the engine still could not read it, and that is what the
@@ -423,18 +427,24 @@ def engine_gaps(oracle_cards) -> dict:
 
     cards = list(oracle_cards)
     merged: dict = {}
-    for oracle_id, overrides in CardAnnotation.objects.filter(
+    rows = CardAnnotation.objects.filter(
         owner__isnull=True, deck__isnull=True, oracle_card__in=cards
-    ).values_list("oracle_card_id", "overrides"):
+    ).values_list("oracle_card_id", "overrides") if builtin else ()
+    for oracle_id, overrides in rows:
         merged.setdefault(oracle_id, {}).update(overrides or {})
     annotations = Annotations(overrides=merged, scopes={})
 
     found = {}
     for oracle_card in cards:
         gaps: list[Gap] = []
-        _card_from(oracle_card, annotations, gaps)
-        found[oracle_card.pk] = gaps
+        card = _card_from(oracle_card, annotations, gaps)
+        found[oracle_card.pk] = (card, gaps)
     return found
+
+
+def engine_gaps(oracle_cards) -> dict:
+    """What the engine alone cannot read about each card, by oracle id (P19a)."""
+    return {pk: gaps for pk, (_card, gaps) in engine_readings(oracle_cards).items()}
 
 
 def _deck_colors(entries, deck: Deck) -> frozenset[str]:

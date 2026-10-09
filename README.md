@@ -285,6 +285,23 @@ players answered for them, in aggregate. Beat closes the ones the engine reads n
 (`simulations.mail_unread`); no new cards, no mail. A card set to *Won't fix* (it needs an
 opponent) is still counted and no longer mailed. The plan behind it is issue #36.
 
+### Teaching the engine more cards (P19)
+
+Each round of issue #36 teaches the engine a class of cards it could not read, and
+`tests/test_engine_coverage.py` makes sure nothing else reads worse on the way. It loads a fixed
+slice of the catalogue (`tests/fixtures/coverage_cards.json.gz`: the 2,000 most-played Commander
+cards and every card of the development decks), reads each card with the reader and the engine
+alone, and simulates four real three-colour precons with a fixed seed. Both must equal the
+committed snapshots (`coverage_snapshot.json`, `coverage_numbers.json`); a failure names every
+card and number that changed. A card under LOST is a bug. Anything else, once looked at, is
+written with `COVERAGE_WRITE=1 pytest tests/test_engine_coverage.py` and committed with the change.
+
+```bash
+python manage.py engine_coverage                  # coverage of today's catalogue and decks
+python manage.py engine_coverage --check          # today's catalogue against the snapshot
+python manage.py engine_coverage --export-fixture # rebuild the slice (full catalogue + precons)
+```
+
 ## Adding translations
 
 ```bash

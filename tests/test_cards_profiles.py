@@ -235,18 +235,22 @@ def test_the_amount_is_read_whether_it_is_written_in_symbols_or_words(text, expe
     assert (reading.produces_mana, reading.amount, reading.notes) == (True, expected, [])
 
 
-def test_a_source_that_needs_an_opponent_makes_nothing_here():
+def test_a_source_that_copies_an_opponents_lands_is_one_mana():
     """Exotic Orchard copies *an opponent's* lands. A goldfish has no opponent.
 
-    The opening words are identical to Arcane Signet's, which is exactly why
-    this one is worth a test: reading it as one mana would hand the deck a
-    source that produces nothing in the game being simulated.
+    Until engine version 9 it made nothing here. Since P19 R5 it is one mana
+    of the deck's colours: three opponents nearly always have the lands. The
+    adapter states that assumption on the card page; the reader only says how
+    much. Mana that needs an opponent in any other way still makes nothing.
     """
     reading = _production(
         "{T}: Add one mana of any color that a land an opponent controls could produce."
     )
-    assert (reading.produces_mana, reading.amount) == (True, None)
-    assert "opponent" in " ".join(reading.notes)
+    assert (reading.produces_mana, reading.amount, reading.notes) == (True, 1, [])
+
+    other = _production("{T}: Add one mana of any color an opponent chose this turn.")
+    assert other.amount is None
+    assert "opponent" in " ".join(other.notes)
 
 
 def test_an_ability_the_card_grants_away_is_not_its_own():

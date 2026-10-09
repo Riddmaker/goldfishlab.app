@@ -62,6 +62,11 @@ DOUBLE_SUBTYPE = "double_subtype"
 #: Every land counts as a <subtype> as well - Urborg, Yavimaya.
 TYPE_ADDING = "type_adding"
 
+#: One mana of any colour a land you control could produce - Reflecting Pool,
+#: Incubation Druid (P19 R5). Which colours is the board's answer, so the
+#: game works it out each turn (`Game.mana_ability`).
+LANDS_COULD_PRODUCE = "lands_could_produce"
+
 #: The subtype the mono-black rules are written against.
 SWAMP_SUBTYPE = "swamp"
 

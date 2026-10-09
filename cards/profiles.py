@@ -257,13 +257,18 @@ _MANA_SOURCES = frozenset("WUBRGC")
 # card actually makes is a property of the deck it sits in, and `produced_mana`
 # already lists the candidates.
 _ANY_COLOR = re.compile(
-    r"(a|an|one|two|three|four|five|\d+) mana of any (?:one )?colou?r", re.IGNORECASE
+    r"(a|an|one|two|three|four|five|\d+) mana of any (?:one )?(?:colou?r|type)", re.IGNORECASE
 )
-# Exotic Orchard is "Add one mana of any color **that a land an opponent
-# controls could produce**". Same opening words, and in a goldfish it makes
-# nothing at all, because there is no opponent and therefore no lands to copy.
-# Reading it as one mana would hand the deck a source it does not have.
+# Mana that depends on what an opponent has or does: "each player", "an
+# opponent". A goldfish has no opponent, so none of it can be read - with one
+# exception below.
 _OPPONENT_SOURCE = re.compile(r"\ban opponent\b|\bopponents\b|\beach player\b", re.IGNORECASE)
+# Since engine version 9 (P19 R5) Exotic Orchard and Fellwar Stone make the
+# deck's colours: three opponents at a Commander table nearly always have the
+# lands for them. An assumption, shown on the card page, and a player who
+# knows their table better says what it taps for instead.
+_OPPONENT_LANDS = re.compile(r"\s*that a land an opponent controls could produce\s*$",
+                             re.IGNORECASE)
 # Quoted text is an ability this card GRANTS to something else: a token it
 # creates, a land it enchants, creatures it pumps. The grantee is the mana
 # source; this card is not. Curly quotes included because Oracle text uses both.
@@ -477,6 +482,11 @@ _DOUBLER = re.compile(
 _PER_CONTROLLED = re.compile(
     rf"\{{(?P<cost>\d+)\}}, \{{T\}}: Add \{{(?P<color>[WUBRG])\}} for each "
     rf"(?P<type>{_BASIC_TYPE}) you control\.")
+#: "{T}: Add one mana of any type that a land you control could produce."
+#: (Reflecting Pool, Incubation Druid; Horizon of Progress pays 1 life.)
+_LANDS_COULD_PRODUCE = re.compile(
+    r"^\{T\}(?:, Pay 1 life)?: Add one mana of any (?:type|colou?r) that a land you "
+    r"control could produce\.", re.MULTILINE | re.IGNORECASE)
 #: What a read mana rule explains, and so is no longer a reason to review.
 _RULE_EXPLAINS = frozenset({
     "produces mana, but no readable 'Add' clause",
@@ -530,6 +540,8 @@ def _mana_rule(card: OracleCard, kind: str) -> dict | None:
         subtype = (found.group("type") or found.group("other")).lower()
         return {"rule": "double_subtype", "subtype": subtype, "activation": 0,
                 "color": found.group("color")}
+    if _LANDS_COULD_PRODUCE.search(text):
+        return {"rule": "lands_could_produce", "subtype": "", "activation": 0, "color": ""}
     if kind == DerivedProfile.Kind.LAND and (found := _PER_CONTROLLED.fullmatch(text)):
         return {"rule": "per_controlled", "subtype": found.group("type").lower(),
                 "activation": int(found.group("cost")), "color": found.group("color")}
@@ -707,6 +719,8 @@ def _read_produced(clause: ManaClause, after: str) -> None:
         token = words.group(1).lower()
         clause.amount = int(token) if token.isdigit() else _WORD_NUMBERS[token]
         tail = after[words.end():].split(".", 1)[0]
+        if _OPPONENT_LANDS.match(tail):
+            return
         if _OPPONENT_SOURCE.search(tail):
             clause.problem = gettext_noop("needs an opponent's lands; a goldfish has none")
         elif _SCALING.search(tail):

@@ -9025,3 +9025,37 @@ msgstr ""
 "Tainted et les Verges, le produisent désormais dès que c'est le cas. Urborg,"
 " Yavimaya, Crypt Ghast et Cabal Coffers suivent désormais leurs règles, et "
 "Path to Exile et Maze of Ith n'ont plus besoin de vous."
+
+#: simulations/engine/adapter.py
+msgid "one mana of a colour your other lands could make"
+msgstr "un mana d'une couleur que vos autres terrains pourraient produire"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s - assuming your opponents' lands make these colours"
+msgstr ""
+"%(mana)s - en supposant que les terrains de vos adversaires produisent ces "
+"couleurs"
+
+#: simulations/engine/adapter.py
+msgid "makes your deck's colours, assuming your opponents' lands make them"
+msgstr ""
+"produit les couleurs de votre deck, en supposant que les terrains de vos "
+"adversaires les produisent"
+
+#: changelog/entries.py
+msgid "Exotic Orchard and Reflecting Pool make mana"
+msgstr "Exotic Orchard et Reflecting Pool produisent du mana"
+
+#: changelog/entries.py
+msgid ""
+"Reflecting Pool and Incubation Druid make a colour your other lands make. "
+"Exotic Orchard and Fellwar Stone make your deck's colours, assuming your "
+"opponents' lands make them; the card page says so, and you can say what they"
+" make at your table."
+msgstr ""
+"Reflecting Pool et Incubation Druid produisent une couleur que produisent "
+"vos autres terrains. Exotic Orchard et Fellwar Stone produisent les couleurs"
+" de votre deck, en supposant que les terrains de vos adversaires les "
+"produisent ; la page de la carte l'indique, et vous pouvez dire ce qu'elles "
+"produisent à votre table."

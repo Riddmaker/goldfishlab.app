@@ -13,17 +13,29 @@ The rules this rests on (see CLAUDE.md for the sources):
 import random
 from collections import Counter
 
-from simulation.cards import ARTIFACT, CREATURE, ENCHANTMENT, FLAT, PLANESWALKER, RITUAL, ROCK
+from simulation.cards import (
+    ARTIFACT,
+    CREATURE,
+    ENCHANTMENT,
+    FLAT,
+    LANDS_COULD_PRODUCE,
+    PLANESWALKER,
+    RITUAL,
+    ROCK,
+    ManaAbility,
+)
 from simulation.mana import (
     ManaPool,
     applicable_reduction,
     available_mana,
     doublers,
     effective_mana_cost,
+    granted_subtypes,
+    land_color,
     land_colors,
     reductions_from,
 )
-from simulation.manacost import PHYREXIAN_LIFE_FLOOR
+from simulation.manacost import COLORLESS, COLORS, PHYREXIAN_LIFE_FLOOR, choice
 
 STARTING_LIFE = 40
 STARTING_HAND_SIZE = 7
@@ -231,7 +243,7 @@ class Game:
         untapped_lands = self._untapped(self.lands[self.tapped_lands:])
         untapped_rocks = self._untapped(self.rocks[self.tapped_rocks:])
         dorks = self._untapped(
-            [card for card in self.creatures if card.ability(FLAT) is not None]
+            [card for card in self.creatures if self.mana_ability(card) is not None]
         )
         return available_mana(self.lands, untapped_lands, untapped_rocks + dorks,
                               doublers(self.battlefield), ability_of=self.mana_ability)
@@ -258,7 +270,7 @@ class Game:
         sources = (
             self._untapped(self.lands[self.tapped_lands:])
             + self._untapped(self.rocks[self.tapped_rocks:])
-            + self._untapped([c for c in self.creatures if c.ability(FLAT) is not None])
+            + self._untapped([c for c in self.creatures if self.mana_ability(c) is not None])
         )
         pool = self.mana()
         for card in sources:
@@ -341,11 +353,43 @@ class Game:
         to nothing.
         """
         for ability in card.mana_abilities:
+            if ability.rule == LANDS_COULD_PRODUCE:
+                colors = self.lands_could_produce(card)
+                if not colors:
+                    continue
+                return ManaAbility(FLAT, {colors: 1},
+                                   activation_generic=ability.activation_generic)
             if ability.rule != FLAT:
                 continue
             if ability.only_if is None or self.holds(ability.only_if, card, entering=entering):
                 return ability
         return None
+
+    def lands_could_produce(self, card) -> str:
+        """The mana the other lands could make, as one pool key (P19 R5).
+
+        A choice of their colours - or {C} when they make only colourless -
+        and "" when there is nothing to copy. Another Reflecting Pool adds
+        nothing: two of them alone make no mana, as on a table.
+        """
+        granted = granted_subtypes(self.lands)
+        found: set[str] = set()
+        for land in self.lands:
+            if land is card or any(a.rule == LANDS_COULD_PRODUCE for a in land.mana_abilities):
+                continue
+            basic = land_color(land, granted)
+            if basic is not None:
+                found.update(basic)
+                continue
+            for ability in land.mana_abilities:
+                if ability.rule == FLAT and (ability.only_if is None
+                                             or self.holds(ability.only_if, land)):
+                    for source, _amount in ability.produces:
+                        found.update(source)
+        colors = [color for color in COLORS if color in found]
+        if colors:
+            return choice(colors)
+        return COLORLESS if COLORLESS in found else ""
 
     def _enters_tapped(self, land) -> bool:
         """Whether this land enters tapped, paying a shock land's life if not."""

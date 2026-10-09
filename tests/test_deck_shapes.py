@@ -167,7 +167,7 @@ def test_a_deck_the_engine_cannot_read_shouts_about_it(client, owner, build):
     assert "Mana sources nobody has pinned down" in body
     assert "Cards that need an opponent" in body
     # And the cards themselves, by name.
-    for name in ("Exotic Orchard", "Gaea's Cradle", "Rhystic Study", "Mystic Remora"):
+    for name in ("Toxic Deluge", "Gaea's Cradle", "Rhystic Study", "Mystic Remora"):
         assert name in body, f"{name} is a blind spot and is not on the page"
 
 
@@ -216,7 +216,7 @@ def test_coverage_is_never_negative(owner):
         [
             DeckCard(deck=deck, oracle_card=card, quantity=1)
             for card in OracleCard.objects.filter(
-                front_name__in=["Phyrexian Tower", "Exotic Orchard"]
+                front_name__in=["Phyrexian Tower", "Gaea's Cradle"]
             )
         ]
     )

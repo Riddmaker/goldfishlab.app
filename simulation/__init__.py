@@ -68,6 +68,10 @@ boundary, not the symptom.
 #:    Tainted land for {C} without its land type, Mox Opal only beside two
 #:    more artifacts. Urborg, Yavimaya, Crypt Ghast and Cabal Coffers play by
 #:    the rules that until now only a built-in annotation could give them.
-ENGINE_VERSION = 8
+#: 9: P19 R5. Reflecting Pool and Incubation Druid make a colour the other
+#:    lands could make, worked out each turn. Exotic Orchard and Fellwar Stone
+#:    make the deck's colours - an assumption that three opponents have the
+#:    lands for them, stated on the card page - where they made nothing.
+ENGINE_VERSION = 9
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

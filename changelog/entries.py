@@ -42,6 +42,13 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "other-lands",
+        _("Exotic Orchard and Reflecting Pool make mana"),
+        _("Reflecting Pool and Incubation Druid make a colour your other lands make. Exotic "
+          "Orchard and Fellwar Stone make your deck's colours, assuming your opponents' lands "
+          "make them; the card page says so, and you can say what they make at your table."),
+    ),
+    Entry(
         date(2026, 10, 9), "activate-only-if",
         _("Temple of the False God, Urborg and Cabal Coffers"),
         _("Lands that make mana only when you control enough lands or a land type, such as "

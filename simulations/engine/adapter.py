@@ -33,6 +33,7 @@ from simulation.cards import (
     CARD_TYPES,
     DOUBLE_SUBTYPE,
     FLAT,
+    LANDS_COULD_PRODUCE,
     PER_CONTROLLED,
     TYPE_ADDING,
     Card,
@@ -58,12 +59,16 @@ ONE_SHOT_KINDS = frozenset({"instant", "sorcery", "ritual"})
 #: Vesuva, Thespian's Stage: a land that becomes a copy of another makes
 #: that land's mana, which the engine cannot know. Not "makes none".
 _COPIES = re.compile(r"\bcopy of\b", re.IGNORECASE)
+#: Exotic Orchard, Fellwar Stone: read as the deck's colours since engine
+#: version 9, which is an assumption about the opponents (P19 R5).
+_OPPONENTS_LANDS = re.compile(r"that a land an opponent controls could produce", re.IGNORECASE)
 
 #: Scaling rules an annotation may name, mapped to the engine's constants.
 SCALING_RULES = {
     "per_controlled": PER_CONTROLLED,
     "double_subtype": DOUBLE_SUBTYPE,
     "type_adding": TYPE_ADDING,
+    "lands_could_produce": LANDS_COULD_PRODUCE,
 }
 
 #: Fields a human has to supply, because nothing in the card text implies them.
@@ -321,6 +326,9 @@ class Reading:
         if not self.card.mana_abilities:
             return gettext("nothing")
         text = "; ".join(_ability_text(ability) for ability in self.card.mana_abilities)
+        if any(gap.field == "assumed_mana" for gap in self.gaps):
+            text = gettext("%(mana)s - assuming your opponents' lands make these colours") % {
+                "mana": text}
         if not self.card.untaps:
             text = gettext("%(mana)s - once, then it stays tapped") % {"mana": text}
         return text
@@ -346,6 +354,7 @@ RULE_TEXT = {
     PER_CONTROLLED: gettext_noop("one %(color)s for each %(subtype)s you control"),
     DOUBLE_SUBTYPE: gettext_noop("one extra %(color)s whenever a %(subtype)s is tapped"),
     TYPE_ADDING: gettext_noop("makes every land a %(subtype)s"),
+    LANDS_COULD_PRODUCE: gettext_noop("one mana of a colour your other lands could make"),
 }
 
 
@@ -1076,6 +1085,11 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
     if profile.produces_mana and profile.mana_amount is None and not card.mana_abilities:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("makes mana, but how much could not be read")))
+
+    if card.mana_abilities and _OPPONENTS_LANDS.search(card_text) \
+            and not _overrides_mana(overrides):
+        gaps.append(Gap(card.name, "assumed_mana", gettext_noop(
+            "makes your deck's colours, assuming your opponents' lands make them")))
 
     fetches = card.land_search is not None and card.land_search.when == "play"
     # A land with a basic land type taps for its colour (Dryad Arbor), and one

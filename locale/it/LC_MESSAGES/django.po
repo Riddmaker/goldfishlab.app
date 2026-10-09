@@ -8901,3 +8901,36 @@ msgstr ""
 "producono non appena è vero. Urborg, Yavimaya, Crypt Ghast e Cabal Coffers "
 "ora seguono le loro regole, e Path to Exile e Maze of Ith non hanno più "
 "bisogno di te."
+
+#: simulations/engine/adapter.py
+msgid "one mana of a colour your other lands could make"
+msgstr "un mana di un colore che le tue altre terre potrebbero produrre"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s - assuming your opponents' lands make these colours"
+msgstr ""
+"%(mana)s - supponendo che le terre dei tuoi avversari producano questi "
+"colori"
+
+#: simulations/engine/adapter.py
+msgid "makes your deck's colours, assuming your opponents' lands make them"
+msgstr ""
+"produce i colori del tuo mazzo, supponendo che le terre dei tuoi avversari "
+"li producano"
+
+#: changelog/entries.py
+msgid "Exotic Orchard and Reflecting Pool make mana"
+msgstr "Exotic Orchard e Reflecting Pool producono mana"
+
+#: changelog/entries.py
+msgid ""
+"Reflecting Pool and Incubation Druid make a colour your other lands make. "
+"Exotic Orchard and Fellwar Stone make your deck's colours, assuming your "
+"opponents' lands make them; the card page says so, and you can say what they"
+" make at your table."
+msgstr ""
+"Reflecting Pool e Incubation Druid producono un colore che producono le tue "
+"altre terre. Exotic Orchard e Fellwar Stone producono i colori del tuo "
+"mazzo, supponendo che le terre dei tuoi avversari li producano; la pagina "
+"della carta lo dice, e puoi indicare cosa producono al tuo tavolo."

@@ -7912,3 +7912,31 @@ msgstr ""
 "Temple of the False "
 "God、Tainted土地、Vergeのように、十分な数の土地や特定の土地タイプをコントロールしているときだけマナを出す土地が、条件を満たした時点でマナを出すようになりました。Urborg、Yavimaya、Crypt"
 " Ghast、Cabal Coffersはそれぞれのルール通りに動き、Path to ExileとMaze of Ithは確認が不要になりました。"
+
+#: simulations/engine/adapter.py
+msgid "one mana of a colour your other lands could make"
+msgstr "あなたの他の土地が生み出せる色のマナ1つ"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s - assuming your opponents' lands make these colours"
+msgstr "%(mana)s - 対戦相手の土地がこれらの色を生み出すと仮定"
+
+#: simulations/engine/adapter.py
+msgid "makes your deck's colours, assuming your opponents' lands make them"
+msgstr "対戦相手の土地が生み出すと仮定して、デッキの色のマナを生み出す"
+
+#: changelog/entries.py
+msgid "Exotic Orchard and Reflecting Pool make mana"
+msgstr "Exotic OrchardとReflecting Poolがマナを出すように"
+
+#: changelog/entries.py
+msgid ""
+"Reflecting Pool and Incubation Druid make a colour your other lands make. "
+"Exotic Orchard and Fellwar Stone make your deck's colours, assuming your "
+"opponents' lands make them; the card page says so, and you can say what they"
+" make at your table."
+msgstr ""
+"Reflecting PoolとIncubation Druidは、あなたの他の土地が生み出す色のマナを出します。Exotic "
+"OrchardとFellwar "
+"Stoneは、対戦相手の土地がデッキの色を生み出すと仮定してその色のマナを出します。カードページにそう表示され、あなたの卓で実際に何を出すかを指定できます。"

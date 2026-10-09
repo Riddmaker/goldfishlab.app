@@ -590,6 +590,7 @@ _LANDS_COULD_PRODUCE = re.compile(
 _COUNTS = re.compile(
     r"^(?:\{(?P<cost>\d+)\}, )?\{T\}: Add \{(?P<color>[WUBRG])\} for each "
     r"(?:(?P<creature>creature) you control|(?P<elf>Elf) (?:you control|on the battlefield)"
+    r"|(?P<defender>creature you control with defender)"
     rf"|basic (?P<basic>{_BASIC_TYPE}) you control"
     r"|(?P<dead>white|blue|black|red|green) creature card in your graveyard)\.$",
     re.MULTILINE)
@@ -606,9 +607,72 @@ _TRON = re.compile(
 #: The cards the Urza land types are printed on.
 _URZA_NAMES = {"Mine": "Urza's Mine", "Power-Plant": "Urza's Power Plant",
                "Tower": "Urza's Tower"}
+#: P19 R13: mana on top of what a source makes. "Whenever enchanted land is
+#: tapped for mana, its controller adds an additional {G}." (Wild Growth,
+#: Overgrowth, Fertile Ground, Utopia Sprawl's chosen colour, Market
+#: Festival's two in any combination.)
+_ENCHANTED_EXTRA = re.compile(
+    r"^Whenever enchanted (?P<what>land|Forest) is tapped for mana, its controller adds an "
+    r"additional (?:(?P<symbols>(?:\{[WUBRG]\})+)|(?P<n>one|two) mana (?:of any color|in any "
+    r"combination of colors)|(?P<chosen>one mana of the chosen color))\.$", re.MULTILINE)
+#: "Enchant land" / "Enchant Forest": what the Aura needs to be cast.
+_ENCHANT = re.compile(r"^Enchant (?P<what>land|Forest)$", re.MULTILINE)
+#: "Whenever you tap a land for mana, add one mana of any type that land
+#: produced." (Mirari's Wake, Vorinclex, Zendikar Resurgent; "a player taps"
+#: for Mana Flare and Heartbeat of Spring - in a goldfish, only you do;
+#: "a nonland permanent" for Kinnan.)
+_SAME_TYPE_EXTRA = re.compile(
+    r"^Whenever (?:you tap|a player taps) an? (?P<what>land|nonland permanent|permanent) for "
+    r"mana, (?:that player )?adds? one mana of any type that (?:land|permanent) produced\.",
+    re.MULTILINE)
+#: "Whenever you tap a creature for mana, add an additional {G}." (Badgermole
+#: Cub, Leyline of Abundance) and "Whenever you tap a permanent for {C}, add an
+#: additional {C}." (Forsaken Monument).
+_SOURCE_EXTRA = re.compile(
+    r"^Whenever you tap a (?P<what>creature for mana|permanent for \{C\}), add an additional "
+    r"\{(?P<color>[WUBRGC])\}\.$", re.MULTILINE)
+#: Caged Sun and Gauntlet of Power: a bonus in the colour chosen as it enters.
+_CHOSEN_EXTRA = re.compile(
+    r"^Whenever (?:a land's ability causes you to add one or more mana of the chosen color, add"
+    r"|(?P<basic>a basic land is tapped for mana of the chosen color, its controller adds)) "
+    r"an additional one mana of that color\.$", re.MULTILINE)
+#: "If you tap a permanent for mana, it produces twice as much of that mana
+#: instead." (Mana Reflection; Nyxbloom Ancient three times.)
+_MULTIPLY = re.compile(
+    r"^If you tap a permanent for mana, it produces (?P<times>twice|three times) as much of "
+    r"that mana instead\.$", re.MULTILINE)
+#: "Creatures you control have "{T}: Add one mana of any color."" (Cryptolith
+#: Rite, Enduring Vitality, Elven Chorus; Citanul Hierophants' {G}) and
+#: "Enchanted land has "{T}: Add one mana of any color."" (Abundant Growth).
+_GRANT = re.compile(
+    r"^(?P<who>Creatures you control have|Enchanted land has) \"\{T\}: Add "
+    r"(?:(?P<any>one mana of any color)|\{(?P<color>[WUBRG])\})\.\"$", re.MULTILINE)
+#: "{T}: For each color among permanents you control, add one mana of that
+#: color." (Bloom Tender - after its "Vivid -" - and Faeburrow Elder.)
+_COLORS_AMONG = re.compile(
+    r"^(?:[^\n:]* — )?\{T\}: For each color among permanents you control, add one mana of "
+    r"that color\.$", re.MULTILINE)
+#: "{T}: Add X mana of any one color, where X is the number of enchantments
+#: you control." (Sanctum Weaver) and "{T}: Add X mana in any combination of
+#: colors, where X is the number of creatures you control with defender."
+#: (Axebane Guardian).
+_COUNTS_X = re.compile(
+    r"^\{T\}: Add X mana (?:(?P<one>of any one color)|in any combination of colors), where X "
+    r"is the number of (?:(?P<enchantments>enchantments you control)"
+    r"|creatures you control with defender)\.$", re.MULTILINE)
+#: Rituals that count the board as they resolve: "Add {R} for each creature
+#: you control." (Battle Hymn) and "Until end of turn, whenever a player taps
+#: an Island for mana, that player adds an additional {U}." (High Tide).
+_RITUAL_CREATURES = re.compile(
+    r"^Add \{(?P<color>[WUBRG])\} for each creature you control\.$", re.MULTILINE)
+_RITUAL_TAPPED = re.compile(
+    rf"^Until end of turn, whenever (?:a player taps|you tap) an? (?P<type>{_BASIC_TYPE}) for "
+    r"mana, (?:that player )?adds? an additional \{(?P<color>[WUBRG])\}\.$", re.MULTILINE)
+_WORD_TIMES = {"twice": 2, "three times": 3}
 #: What a read mana rule explains, and so is no longer a reason to review.
 _RULE_EXPLAINS = frozenset({
     "produces mana, but no readable 'Add' clause",
+    "only grants a mana ability to another permanent",
     "mana amount scales with the board",
     "makes mana only as part of another effect",
     "a conditional replacement ('instead') is not counted",
@@ -678,6 +742,8 @@ def _mana_rule(card: OracleCard, kind: str) -> dict | None:
                 "color": found.group("color")}
     if _LANDS_COULD_PRODUCE.search(text):
         return {"rule": "lands_could_produce", "subtype": "", "activation": 0, "color": ""}
+    if (found := _extra_rule(text, kind)) is not None:
+        return found
     if kind == DerivedProfile.Kind.LAND and (found := _PER_CONTROLLED.fullmatch(text)):
         return {"rule": "per_controlled", "subtype": found.group("type").lower(),
                 "activation": int(found.group("cost")), "color": found.group("color")}
@@ -688,11 +754,75 @@ def _mana_rule(card: OracleCard, kind: str) -> dict | None:
     return _counting_rule(text)
 
 
+def _extra_rule(text: str, kind: str) -> dict | None:
+    """Mana on top, a granted ability or a counting ritual (P19 R13), or None."""
+    if kind == DerivedProfile.Kind.RITUAL:
+        if (found := _RITUAL_CREATURES.search(text)) is not None:
+            return {"rule": "ritual", "subtype": "creature", "color": found.group("color"),
+                    "activation": 0}
+        if (found := _RITUAL_TAPPED.search(text)) is not None:
+            return {"rule": "ritual", "subtype": "tapped:" + found.group("type").lower(),
+                    "color": found.group("color"), "activation": 0}
+        return None
+    if (found := _ENCHANTED_EXTRA.search(text)) is not None:
+        enchant = _ENCHANT.search(text)
+        if enchant is None or enchant.group("what") != found.group("what"):
+            return None
+        what = found.group("what").lower()
+        rule = {"rule": "extra", "activation": 0, "color": "", "enchants": what,
+                "subtype": "enchanted" if what == "land" else "enchanted:" + what}
+        if found.group("symbols"):
+            symbols = re.findall(r"[WUBRG]", found.group("symbols"))
+            rule["produces"] = {symbols[0]: len(symbols)} if len(set(symbols)) == 1 else None
+            if rule["produces"] is None:
+                return None
+        elif found.group("n"):
+            rule["produces"] = {"WUBRG": _word_number(found.group("n"))}
+        else:
+            rule["color"] = "chosen"
+        return rule
+    if (found := _SAME_TYPE_EXTRA.search(text)) is not None:
+        scope = {"land": "land", "nonland permanent": "nonland",
+                 "permanent": "permanent"}[found.group("what")]
+        return {"rule": "extra", "subtype": scope, "activation": 0, "color": ""}
+    if (found := _SOURCE_EXTRA.search(text)) is not None:
+        scope = "creature" if found.group("what").startswith("creature") else "colorless"
+        return {"rule": "extra", "subtype": scope, "activation": 0, "color": "",
+                "produces": {found.group("color"): 1}}
+    if (found := _CHOSEN_EXTRA.search(text)) is not None:
+        return {"rule": "extra", "subtype": "chosen_basic" if found.group("basic") else
+                "chosen_land", "activation": 0, "color": "chosen"}
+    if (found := _MULTIPLY.search(text)) is not None:
+        return {"rule": "multiply", "subtype": "permanent", "activation": 0, "color": "",
+                "times": _WORD_TIMES[found.group("times")]}
+    if (found := _GRANT.search(text)) is not None:
+        if found.group("who").startswith("Enchanted"):
+            if not found.group("any") or (enchant := _ENCHANT.search(text)) is None \
+                    or enchant.group("what") != "land":
+                return None
+            return {"rule": "grant", "subtype": "enchanted", "activation": 0, "color": "",
+                    "enchants": "land", "produces": {"WUBRG": 1}}
+        return {"rule": "grant", "subtype": "creature", "activation": 0, "color": "",
+                "produces": {"WUBRG" if found.group("any") else found.group("color"): 1}}
+    return None
+
+
 def _counting_rule(text: str) -> dict | None:
     """Mana that counts the board, as a ``counts`` rule (P19 R11), or None."""
+    if _COLORS_AMONG.search(text):
+        # P19 R13: Bloom Tender. The colours are the board's to say.
+        return {"rule": "counts", "subtype": "colors_among", "color": "", "activation": 0}
+    if (found := _COUNTS_X.search(text)) is not None:
+        if found.group("enchantments"):
+            return {"rule": "counts", "subtype": "enchantment", "activation": 0,
+                    "color": "" if found.group("one") else "WUBRG"}
+        return {"rule": "counts", "subtype": "creature:defender", "activation": 0,
+                "color": "" if found.group("one") else "WUBRG"}
     if (found := _COUNTS.search(text)) is not None:
         if found.group("creature"):
             subtype = "creature"
+        elif found.group("defender"):
+            subtype = "creature:defender"
         elif found.group("elf"):
             subtype = "elf"
         elif found.group("basic"):

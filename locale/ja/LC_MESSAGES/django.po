@@ -8128,3 +8128,104 @@ msgid ""
 "enters untapped from your fourth turn, assuming each opponent plays a land a"
 " turn"
 msgstr "各対戦相手が毎ターン土地を1枚出すと仮定し、あなたの4ターン目からアンタップ状態で出る"
+
+#: changelog/entries.py
+msgid "Wild Growth, Mirari's Wake and Cryptolith Rite"
+msgstr "Wild Growth、Mirari's Wake、Cryptolith Rite"
+
+#: changelog/entries.py
+msgid ""
+"Auras such as Wild Growth, Fertile Ground and Utopia Sprawl now add their "
+"mana when the land they enchant is tapped, and Mirari's Wake, Vorinclex, "
+"Kinnan, Forsaken Monument, Caged Sun, Mana Reflection and Nyxbloom Ancient "
+"add theirs to what you tap. With Cryptolith Rite or Enduring Vitality your "
+"creatures tap for any colour from the turn after they arrive. Bloom Tender, "
+"Sanctum Weaver and Overgrown Battlement count your board, and Battle Hymn "
+"and High Tide make their mana."
+msgstr ""
+"Wild Growth、Fertile Ground、Utopia Sprawl "
+"などのオーラは、エンチャントしている土地がタップされたときにマナを加えるようになりました。Mirari's "
+"Wake、Vorinclex、Kinnan、Forsaken Monument、Caged Sun、Mana Reflection、Nyxbloom "
+"Ancient は、あなたがタップしたものにマナを上乗せします。Cryptolith Rite や Enduring Vitality "
+"があれば、クリーチャーは戦場に出た次のターンから任意の色のマナを出せます。Bloom Tender、Sanctum Weaver、Overgrown "
+"Battlement は盤面を数え、Battle Hymn と High Tide はマナを生み出します。"
+
+#: simulations/engine/adapter.py
+msgid "1 of the chosen colour"
+msgstr "選んだ色を1つ"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "a permanent tapped for mana makes %(times)s times as much"
+msgstr "マナのためにタップしたパーマネントは%(times)s倍のマナを生む"
+
+#: simulations/engine/adapter.py
+msgid "the enchanted land taps for one mana of any colour"
+msgstr "エンチャントされている土地は任意の色のマナ1点を出す"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your creatures tap for %(mana)s"
+msgstr "あなたのクリーチャーはタップして%(mana)sを出す"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more when the enchanted land is tapped for mana"
+msgstr "エンチャントされている土地がマナのためにタップされると%(mana)s追加"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more when the enchanted Forest is tapped for mana"
+msgstr "エンチャントされているForestがマナのためにタップされると%(mana)s追加"
+
+#: simulations/engine/adapter.py
+msgid "one more mana of a type it made, whenever a land is tapped for mana"
+msgstr "土地がマナのためにタップされるたび、それが出した種類のマナを1点追加"
+
+#: simulations/engine/adapter.py
+msgid ""
+"one more mana of a type it made, whenever a nonland permanent is tapped for "
+"mana"
+msgstr "土地でないパーマネントがマナのためにタップされるたび、それが出した種類のマナを1点追加"
+
+#: simulations/engine/adapter.py
+msgid ""
+"one more mana of a type it made, whenever a permanent is tapped for mana"
+msgstr "パーマネントがマナのためにタップされるたび、それが出した種類のマナを1点追加"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more whenever a creature is tapped for mana"
+msgstr "クリーチャーがマナのためにタップされるたび%(mana)s追加"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more whenever a permanent is tapped for {C}"
+msgstr "パーマネントが{C}のためにタップされるたび%(mana)s追加"
+
+#: simulations/engine/adapter.py
+msgid "one more mana of the chosen colour, whenever a land makes that colour"
+msgstr "土地が選んだ色のマナを出すたび、その色のマナを1点追加"
+
+#: simulations/engine/adapter.py
+msgid ""
+"one more mana of the chosen colour, whenever a basic land makes that colour"
+msgstr "基本土地が選んだ色のマナを出すたび、その色のマナを1点追加"
+
+#: simulations/engine/adapter.py
+msgid "one of each colour among your permanents"
+msgstr "あなたのパーマネントの色それぞれにつき1点"
+
+#: simulations/engine/adapter.py
+msgid "one mana of one colour for each enchantment you control"
+msgstr "あなたがコントロールするエンチャント1つにつき単一の色のマナ1点"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each enchantment you control"
+msgstr "あなたがコントロールするエンチャント1つにつき%(color)s1点"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each creature you control with defender"
+msgstr "あなたがコントロールする防衛を持つクリーチャー1体につき%(color)s1点"

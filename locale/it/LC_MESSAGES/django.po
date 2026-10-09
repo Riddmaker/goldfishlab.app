@@ -9140,3 +9140,116 @@ msgid ""
 msgstr ""
 "entra STAPpata dal tuo quarto turno, assumendo che ogni avversario giochi "
 "una terra per turno"
+
+#: changelog/entries.py
+msgid "Wild Growth, Mirari's Wake and Cryptolith Rite"
+msgstr "Wild Growth, Mirari's Wake e Cryptolith Rite"
+
+#: changelog/entries.py
+msgid ""
+"Auras such as Wild Growth, Fertile Ground and Utopia Sprawl now add their "
+"mana when the land they enchant is tapped, and Mirari's Wake, Vorinclex, "
+"Kinnan, Forsaken Monument, Caged Sun, Mana Reflection and Nyxbloom Ancient "
+"add theirs to what you tap. With Cryptolith Rite or Enduring Vitality your "
+"creatures tap for any colour from the turn after they arrive. Bloom Tender, "
+"Sanctum Weaver and Overgrown Battlement count your board, and Battle Hymn "
+"and High Tide make their mana."
+msgstr ""
+"Le aure come Wild Growth, Fertile Ground e Utopia Sprawl ora aggiungono il "
+"loro mana quando la terra che incantano viene TAPpata, e Mirari's Wake, "
+"Vorinclex, Kinnan, Forsaken Monument, Caged Sun, Mana Reflection e Nyxbloom "
+"Ancient aggiungono il loro a ciò che TAPpi. Con Cryptolith Rite o Enduring "
+"Vitality le tue creature si TAPpano per mana di qualsiasi colore dal turno "
+"dopo il loro arrivo. Bloom Tender, Sanctum Weaver e Overgrown Battlement "
+"contano il tuo campo di battaglia, e Battle Hymn e High Tide producono il "
+"loro mana."
+
+#: simulations/engine/adapter.py
+msgid "1 of the chosen colour"
+msgstr "1 del colore scelto"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "a permanent tapped for mana makes %(times)s times as much"
+msgstr "un permanente TAPpato per mana ne produce %(times)s volte tanto"
+
+#: simulations/engine/adapter.py
+msgid "the enchanted land taps for one mana of any colour"
+msgstr "la terra incantata si TAPpa per un mana di qualsiasi colore"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your creatures tap for %(mana)s"
+msgstr "le tue creature si TAPpano per %(mana)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more when the enchanted land is tapped for mana"
+msgstr "%(mana)s in più quando la terra incantata viene TAPpata per mana"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more when the enchanted Forest is tapped for mana"
+msgstr "%(mana)s in più quando la Forest incantata viene TAPpata per mana"
+
+#: simulations/engine/adapter.py
+msgid "one more mana of a type it made, whenever a land is tapped for mana"
+msgstr ""
+"un mana in più di un tipo che ha prodotto, ogni volta che una terra viene "
+"TAPpata per mana"
+
+#: simulations/engine/adapter.py
+msgid ""
+"one more mana of a type it made, whenever a nonland permanent is tapped for "
+"mana"
+msgstr ""
+"un mana in più di un tipo che ha prodotto, ogni volta che un permanente non "
+"terra viene TAPpato per mana"
+
+#: simulations/engine/adapter.py
+msgid ""
+"one more mana of a type it made, whenever a permanent is tapped for mana"
+msgstr ""
+"un mana in più di un tipo che ha prodotto, ogni volta che un permanente "
+"viene TAPpato per mana"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more whenever a creature is tapped for mana"
+msgstr "%(mana)s in più ogni volta che una creatura viene TAPpata per mana"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more whenever a permanent is tapped for {C}"
+msgstr "%(mana)s in più ogni volta che un permanente viene TAPpato per {C}"
+
+#: simulations/engine/adapter.py
+msgid "one more mana of the chosen colour, whenever a land makes that colour"
+msgstr ""
+"un mana in più del colore scelto, ogni volta che una terra produce quel "
+"colore"
+
+#: simulations/engine/adapter.py
+msgid ""
+"one more mana of the chosen colour, whenever a basic land makes that colour"
+msgstr ""
+"un mana in più del colore scelto, ogni volta che una terra base produce quel"
+" colore"
+
+#: simulations/engine/adapter.py
+msgid "one of each colour among your permanents"
+msgstr "uno di ogni colore tra i tuoi permanenti"
+
+#: simulations/engine/adapter.py
+msgid "one mana of one colour for each enchantment you control"
+msgstr "un mana di un unico colore per ogni incantesimo che controlli"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each enchantment you control"
+msgstr "un %(color)s per ogni incantesimo che controlli"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each creature you control with defender"
+msgstr "un %(color)s per ogni creatura con difensore che controlli"

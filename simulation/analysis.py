@@ -195,12 +195,15 @@ def _scaling_mana_sources(cards) -> int:
     This is the general form of what used to be the name list
     ``{Cabal Coffers, Urborg, Crypt Ghast}``: anything that makes **no** fixed
     amount but depends on how many permanents are controlled. Two of them
-    together are the deck's actual ramp engine.
+    together are the deck's actual ramp engine. An Aura's bonus on its one
+    land (Wild Growth, Abundant Growth; P19 R13) is a fixed amount, and does
+    not count.
     """
     return sum(
         1
         for card in cards
-        if any(ability.rule != FLAT for ability in card.mana_abilities)
+        if any(ability.rule != FLAT and not ability.subtype.startswith("enchanted")
+               for ability in card.mana_abilities)
     )
 
 

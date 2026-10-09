@@ -19,6 +19,7 @@ from simulation.cards import (
     CREATURE,
     FILTER,
     FLAT,
+    MULTIPLY,
     PER_CONTROLLED,
     Card,
     CostReduction,
@@ -56,6 +57,7 @@ EVERYTHING = Card(
         ManaAbility(rule=FLAT, produces=(("C", 2),),
                     only_if=TappedUnless(kind="artifacts", count=3)),
         ManaAbility(rule=FILTER, produces=(("WB", 2),), pays_with="WB"),
+        ManaAbility(rule=MULTIPLY, subtype="permanent", times=2),
     ),
     ritual_gain=3,
     ritual_color="R",
@@ -92,6 +94,10 @@ EVERYTHING = Card(
     draws_x=True,
     creature_types=frozenset({"elf"}),
     legendary=True,
+    colors=frozenset({"B", "G"}),
+    defender=True,
+    enchants="forest",
+    ritual_counts="tapped:island",
 )
 
 
@@ -232,3 +238,13 @@ def test_a_state_cached_before_version_three_still_loads():
     data = json.loads(json.dumps(serial.dump_game(game)))
     del data["stays_tapped"]
     assert serial.load_game(data, chainer.DECK).stays_tapped == []
+
+
+def test_a_chosen_colour_survives_the_trip():
+    """Caged Sun chose once (P19 R13); a reload must not choose again."""
+    game = Game(random.Random(3), deck=chainer.DECK)
+    game.chosen_colors = {"Caged Sun": "G"}
+    assert restored(game).chosen_colors == {"Caged Sun": "G"}
+    data = json.loads(json.dumps(serial.dump_game(game)))
+    del data["chosen_colors"]
+    assert serial.load_game(data, chainer.DECK).chosen_colors == {}

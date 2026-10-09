@@ -75,6 +75,25 @@ LANDS_COULD_PRODUCE = "lands_could_produce"
 #: works the amount out each turn (`Game.mana_ability`).
 COUNTS = "counts"
 
+#: Mana on top of what a source makes as it is tapped (P19 R13). ``subtype``
+#: says which sources: ``enchanted`` (the land an Aura is on - Wild Growth;
+#: ``enchanted:forest`` for Utopia Sprawl), ``land`` (every land - Mirari's
+#: Wake), ``nonland`` (Kinnan), ``creature`` (Badgermole Cub), ``colorless``
+#: (a source tapped for {C} - Forsaken Monument), ``chosen_land`` (a land
+#: making the chosen colour - Caged Sun) and ``chosen_basic`` (Gauntlet of
+#: Power). ``produces`` is the bonus; empty means one mana of a type the
+#: source made, and ``color="chosen"`` the colour chosen as it entered.
+EXTRA = "extra"
+
+#: A permanent that taps for ``times`` as much (P19 R13): Mana Reflection
+#: twice, Nyxbloom Ancient three times.
+MULTIPLY = "multiply"
+
+#: Other permanents have a mana ability (P19 R13): ``subtype`` ``creature``
+#: (Cryptolith Rite: each creature taps for ``produces``) or ``enchanted``
+#: (Abundant Growth: the enchanted land taps for any colour instead).
+GRANT = "grant"
+
 #: ``{W/B}, {T}: Add {W}{W}, {W}{B}, or {B}{B}`` - a filter land - and
 #: ``{1}, {T}: Add one mana of any color`` - a converter, Study Hall (P19 R6).
 #: One mana goes in (``pays_with``: the colours it may be; empty = any) and
@@ -185,6 +204,8 @@ class ManaAbility:
     #: A ``FILTER``'s one mana of input: the colours it may be paid with,
     #: "WB" for {W/B}; empty for {1}, any mana (P19 R6).
     pays_with: str = ""
+    #: A ``MULTIPLY``'s factor: 2 for twice as much (P19 R13).
+    times: int = 1
 
     def __post_init__(self):
         # Canonicalise, so that two abilities making the same mana compare
@@ -453,6 +474,18 @@ class Card:
     creature_types: frozenset[str] = field(default_factory=frozenset)
     #: P19 R12: "Legendary" on the front face - what Minas Tirith asks for.
     legendary: bool = False
+    #: P19 R13: the card's colours (Scryfall's, not its cost's: a Devoid card
+    #: is colourless) - what Bloom Tender counts.
+    colors: frozenset[str] = field(default_factory=frozenset)
+    #: P19 R13: it has defender - what Overgrown Battlement counts.
+    defender: bool = False
+    #: P19 R13: an Aura's target: ``land`` or a land type (``forest``). It
+    #: cannot be cast without one.
+    enchants: str = ""
+    #: P19 R13: a ritual whose mana counts the board when it resolves:
+    #: ``creature`` (Battle Hymn) or ``tapped:<land type>`` (High Tide: each
+    #: such land in this turn's pool, less the one that paid for it).
+    ritual_counts: str = ""
 
     @property
     def mana_cost(self) -> ManaCost:
@@ -474,7 +507,7 @@ class Card:
     @property
     def produces_mana(self) -> bool:
         """Does the card make mana, whether tapped or cast?"""
-        return bool(self.mana_abilities) or self.ritual_gain > 0
+        return bool(self.mana_abilities) or self.ritual_gain > 0 or bool(self.ritual_counts)
 
     @property
     def is_accelerant(self) -> bool:

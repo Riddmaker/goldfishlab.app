@@ -185,6 +185,7 @@ def dump_game(game: Game) -> dict:
         state["pool_converters"] = list(game.pool.converters)
         state["pool_treasures"] = list(game.pool.treasures)
     state["treasures"] = list(game.treasures)
+    state["chosen_colors"] = dict(game.chosen_colors)
     state["rng"] = dump(game.rng.getstate())
     return state
 
@@ -211,6 +212,8 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
         game.pool.converters = list(data.get("pool_converters", []))
         game.pool.treasures = list(data.get("pool_treasures", []))
     game.treasures = list(data.get("treasures", []))
+    # P19 R13: Caged Sun's colour, chosen once.
+    game.chosen_colors = dict(data.get("chosen_colors", {}))
     return game
 
 

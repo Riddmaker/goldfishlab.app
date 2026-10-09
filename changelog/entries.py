@@ -42,6 +42,16 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "mana-on-top",
+        _("Wild Growth, Mirari's Wake and Cryptolith Rite"),
+        _("Auras such as Wild Growth, Fertile Ground and Utopia Sprawl now add their mana "
+          "when the land they enchant is tapped, and Mirari's Wake, Vorinclex, Kinnan, "
+          "Forsaken Monument, Caged Sun, Mana Reflection and Nyxbloom Ancient add theirs to "
+          "what you tap. With Cryptolith Rite or Enduring Vitality your creatures tap for any "
+          "colour from the turn after they arrive. Bloom Tender, Sanctum Weaver and Overgrown "
+          "Battlement count your board, and Battle Hymn and High Tide make their mana."),
+    ),
+    Entry(
         date(2026, 10, 9), "tutor-to-top",
         _("Vampiric Tutor, Minas Tirith and the battle lands"),
         _("Vampiric, Mystical, Enlightened and Worldly Tutor now put the card they find on "

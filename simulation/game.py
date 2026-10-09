@@ -18,14 +18,20 @@ from simulation.cards import (
     COUNTS,
     CREATURE,
     ENCHANTMENT,
+    EXTRA,
     FLAT,
+    GRANT,
     LANDS_COULD_PRODUCE,
+    MULTIPLY,
     PLANESWALKER,
     RITUAL,
     ROCK,
     ManaAbility,
 )
 from simulation.mana import (
+    CHOSEN_SCOPES,
+    ENCHANTED_SCOPES,
+    Extra,
     ManaPool,
     applicable_reduction,
     available_mana,
@@ -35,6 +41,7 @@ from simulation.mana import (
     land_color,
     land_colors,
     reductions_from,
+    subtypes_of,
 )
 from simulation.manacost import COLORLESS, COLORS, PHYREXIAN_LIFE_FLOOR, choice
 
@@ -121,6 +128,9 @@ class Game:
         #: Kept from turn to turn; the pool borrows them and gives back the
         #: ones a payment did not sacrifice.
         self.treasures: list[str] = []
+        #: The colour each permanent chose as it entered, by name (P19 R13):
+        #: Caged Sun, Utopia Sprawl. Kept, because the choice is made once.
+        self.chosen_colors: dict[str, str] = {}
         self.log = []
 
     @property
@@ -283,7 +293,68 @@ class Game:
             [card for card in self.creatures if self.mana_ability(card) is not None]
         )
         return available_mana(self.lands, untapped_lands, untapped_rocks + dorks,
-                              doublers(self.battlefield), ability_of=self.mana_ability)
+                              doublers(self.battlefield), ability_of=self.mana_ability,
+                              extras=self.mana_extras())
+
+    def mana_extras(self, *, per_source: bool = False) -> list[Extra]:
+        """The mana on top that the permanents in play add (P19 R13).
+
+        ``per_source`` leaves out what an Aura gives its one land: a land put
+        onto the battlefield in the middle of the turn is not that land.
+        """
+        found = []
+        for permanent in self.battlefield:
+            for ability in permanent.mana_abilities:
+                if ability.rule == EXTRA:
+                    if per_source and ability.subtype in ENCHANTED_SCOPES:
+                        continue
+                    if ability.color == "chosen":
+                        mana, amount = self.chosen_color(permanent, ability), 1
+                    else:
+                        mana, amount = ability.produces[0] if ability.produces else ("", 1)
+                    found.append(Extra(ability.subtype, mana, amount))
+                elif ability.rule == MULTIPLY:
+                    found.append(Extra("permanent", times=ability.times))
+                elif ability.rule == GRANT and ability.subtype == "enchanted" \
+                        and not per_source:
+                    found.append(Extra("enchanted", fixes=True))
+        return found
+
+    def deck_colors(self) -> frozenset[str]:
+        """The colours the deck's costs ask for: what a colour is chosen from."""
+        cards = [*self.deck.library, *([self.deck.commander] if self.deck.commander else [])]
+        found = frozenset().union(*(card.mana_cost.colors for card in cards))
+        return found & frozenset(COLORS) or frozenset(COLORS)
+
+    def chosen_color(self, card, ability) -> str:
+        """The colour a permanent chose as it entered, chosen the first time asked.
+
+        A bonus for lands that make the colour (Caged Sun) takes the colour
+        most lands make; a bonus that fixes (Utopia Sprawl) the one fewest
+        make. Ties go in WUBRG order.
+        """
+        if card.name not in self.chosen_colors:
+            granted = granted_subtypes(self.lands)
+            made = {color: sum(1 for land in self.lands if color in land_colors(land, granted))
+                    for color in COLORS if color in self.deck_colors()}
+            most = ability.subtype in CHOSEN_SCOPES
+            self.chosen_colors[card.name] = min(
+                made, key=lambda color: (-made[color] if most else made[color],
+                                         COLORS.index(color)))
+        return self.chosen_colors[card.name]
+
+    def wanted_color(self, card) -> str:
+        """One colour for "X mana of any one color": the one the hand asks most.
+
+        Sanctum Weaver (P19 R13). The pool cannot hold X mana that must all be
+        one colour, chosen later, and X separate choices would be more than
+        the card makes. Ties go to the card's own colour, then WUBRG.
+        """
+        wanted = self.deck_colors()
+        asked = {color: sum(other.mana_cost.colored.get(color, 0) for other in self.hand)
+                 for color in COLORS if color in wanted}
+        return min(asked, key=lambda color: (-asked[color], color not in card.colors,
+                                             COLORS.index(color)))
 
     def _untapped(self, cards) -> list:
         """These permanents, without the ones that stayed tapped from before."""
@@ -321,6 +392,8 @@ class Game:
         """Is the card playable from this pool, conditions included?"""
         if card.is_land or not card.goldfish_castable:
             return False
+        if card.enchants and not self._has_target(card.enchants):
+            return False
         if card.needs_creature_in_yard and not any(
                 c.kind == CREATURE for c in self.graveyard):
             return False
@@ -333,6 +406,13 @@ class Game:
         return pool.can_pay_cost(
             effective_mana_cost(card, reductions_from(self.battlefield)), life=self.life
         )
+
+    def _has_target(self, enchants: str) -> bool:
+        """An Aura's land is there: any land, or one of a type (P19 R13)."""
+        if enchants == "land":
+            return bool(self.lands)
+        granted = granted_subtypes(self.lands)
+        return any(enchants in subtypes_of(land, granted) for land in self.lands)
 
     #: More X than this is never tried: the most mana a goldfish makes in a
     #: turn is far below it, and the search stays a loop of a few steps.
@@ -423,6 +503,36 @@ class Game:
     def mana_ability(self, card, *, entering: bool = False):
         """The ``FLAT`` ability this card taps for on this board, or None.
 
+        A creature under Cryptolith Rite has its ability as well (P19 R13),
+        and taps for its own when that makes more. Summoning sickness needs
+        no check: the pool is opened before anything is cast.
+        """
+        own = self._own_mana_ability(card, entering=entering)
+        if card.kind != CREATURE:
+            return own
+        granted = self._granted_to_creatures()
+        if granted is None or (own is not None
+                               and own.total - own.activation_generic > granted.total):
+            return own
+        return granted
+
+    def _granted_to_creatures(self):
+        """The mana ability creatures have from a permanent in play, or None.
+
+        The widest, when there are several: Cryptolith Rite's any colour over
+        Citanul Hierophants' {G}.
+        """
+        best = None
+        for permanent in self.battlefield:
+            for ability in permanent.mana_abilities:
+                if ability.rule == GRANT and ability.subtype == "creature" and (
+                        best is None or len(ability.produces[0][0]) > len(best.produces[0][0])):
+                    best = ability
+        return None if best is None else ManaAbility(FLAT, best.produces)
+
+    def _own_mana_ability(self, card, *, entering: bool = False):
+        """The card's own ``FLAT`` ability on this board, or None.
+
         The first one whose condition holds: a card lists its conditional
         ability before its plain one (P19 R4), so a Tainted Wood without a
         Swamp falls back to {C}, and Temple of the False God with four lands
@@ -430,6 +540,12 @@ class Game:
         """
         counted = None
         for ability in card.mana_abilities:
+            if ability.rule == COUNTS and ability.subtype == "colors_among":
+                # Bloom Tender: one of each colour among your permanents.
+                colors = frozenset().union(*(each.colors for each in self.battlefield))
+                if counted is None and colors:
+                    counted = ManaAbility(FLAT, {color: 1 for color in colors})
+                continue
             if ability.rule == COUNTS:
                 # The best of a counting ability and the plain one after it:
                 # Cabal Stronghold with three basic Swamps nets nothing, and
@@ -473,6 +589,11 @@ class Game:
             devotion = {each: self.devotion(each) for each in COLORS}
             best = max(COLORS, key=lambda each: (devotion[each], each == color))
             return devotion[best], best
+        if what == "enchantment":
+            return (sum(1 for each in self.battlefield if ENCHANTMENT in each.types),
+                    color or self.wanted_color(card))
+        if what == "creature:defender":
+            return sum(1 for creature in self.creatures if creature.defender), color
         if what.startswith("names:"):
             needed = set(what.split(":", 1)[1].split("|"))
             here = {land.name for land in self.lands if land is not card}
@@ -594,7 +715,8 @@ class Game:
         otherwise never see it.
         """
         if not tapped and self.pool is not None:
-            made = available_mana(self.lands + [land], [land], [], doublers(self.battlefield))
+            made = available_mana(self.lands + [land], [land], [], doublers(self.battlefield),
+                                  extras=self.mana_extras(per_source=True))
             for source, amount in made.by_color().items():
                 self.pool.add(source, amount)
             tapped = True
@@ -625,9 +747,10 @@ class Game:
     def _resolve(self, card, pool: ManaPool) -> None:
         """Put the card in the right zone and apply its immediate effects."""
         if card.kind == RITUAL:
-            pool.add(card.ritual_color, card.ritual_gain)
+            color, gain = self.ritual_mana(card)
+            pool.add(color, gain)
             self.graveyard.append(card)
-            self.note(f"{card.name} -> +{card.ritual_gain}{card.ritual_color} mana")
+            self.note(f"{card.name} -> +{gain}{color} mana")
             return
         if card.kind == ROCK:
             self.rocks.append(card)
@@ -653,6 +776,24 @@ class Game:
         # Sorcery / instant
         self.graveyard.append(card)
         self.note(f"{card.name}")
+
+    def ritual_mana(self, card) -> tuple[str, int]:
+        """What a ritual adds if it resolves now: a colour and an amount.
+
+        Battle Hymn counts the creatures (P19 R13). High Tide counts the
+        Islands in this turn's pool, less one: the pool is opened at once, and
+        a player casts High Tide first, with one of them.
+        """
+        what = card.ritual_counts
+        if what == "creature":
+            return card.ritual_color, len(self.creatures)
+        if what.startswith("tapped:"):
+            wanted = what.split(":", 1)[1]
+            granted = granted_subtypes(self.lands)
+            lands = self._untapped(self.lands[self.tapped_lands:])
+            found = sum(1 for land in lands if wanted in subtypes_of(land, granted))
+            return card.ritual_color, max(found - 1, 0)
+        return card.ritual_color, card.ritual_gain
 
     def cast_commander(self, pool: ManaPool) -> None:
         """Cast the commander from the command zone, commander tax included."""

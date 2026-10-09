@@ -25,9 +25,10 @@ The function names and signatures are unchanged, because the four engine test
 files have to stay byte-identical.
 """
 
-from dataclasses import replace
+from dataclasses import dataclass, replace
 
 from simulation.cards import (
+    CREATURE,
     DOUBLE_SUBTYPE,
     FILTER,
     FLAT,
@@ -447,6 +448,127 @@ def _doubler_bonus(subtypes: frozenset[str], extra: dict[str, int]):
     ]
 
 
+# --- Mana on top (P19 R13) -------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Extra:
+    """One effect that adds mana as a source is tapped, resolved by the game.
+
+    ``scope`` is an ``EXTRA`` rule's subtype, or ``permanent`` for a
+    ``MULTIPLY``. ``mana`` is the pool key of the bonus: a colour, a choice
+    (Fertile Ground's ``"WUBRG"``), or empty for one mana of a type the source
+    made. ``fixes``: Abundant Growth - one land taps for any colour instead.
+    """
+
+    scope: str
+    mana: str = ""
+    amount: int = 1
+    times: int = 1
+    fixes: bool = False
+
+
+#: Scopes that ask whether a source made the chosen colour.
+CHOSEN_SCOPES = frozenset({"chosen_land", "chosen_basic"})
+#: Scopes for the one land an Aura is on: added once, not per source.
+ENCHANTED_SCOPES = frozenset({"enchanted", "enchanted:forest"})
+
+
+def _same_type(made: dict[str, int]) -> str:
+    """One mana "of any type that land produced", as a pool key.
+
+    A source of fixed colours gives one of them - Kinnan on a Signet that
+    made {U}{B} adds {U} or {B}, a choice the pool can hold. A source that
+    made a choice of its own gives {C}: Blood Crypt under Mirari's Wake makes
+    {B}{B} or {R}{R}, and two independent choices would also pay {B}{R},
+    which it cannot. Colour lost, never mana invented.
+    """
+    keys = [key for key, amount in made.items() if amount > 0]
+    colors = {key for key in keys if key in COLORS}
+    if colors and len(colors) == len(keys):
+        return choice(colors)
+    return COLORLESS
+
+
+def _applies(extra: Extra, source, made: dict[str, int]) -> bool:
+    """Whether this extra fires for this source, tapped for this mana."""
+    scope = extra.scope
+    if scope in ("land", "chosen_land"):
+        hit = source.is_land
+    elif scope == "chosen_basic":
+        hit = source.is_land and source.basic
+    elif scope == "nonland":
+        hit = not source.is_land
+    elif scope == "creature":
+        hit = source.kind == CREATURE
+    elif scope == "colorless":
+        hit = made.get(COLORLESS, 0) > 0
+    else:
+        hit = scope == "permanent"
+    if hit and scope in CHOSEN_SCOPES:
+        hit = any(extra.mana in key and amount > 0 for key, amount in made.items())
+    return hit
+
+
+def _tap(pool: "ManaPool", source, made, extras, tapped: list) -> None:
+    """Put what a source made into the pool, and what the extras add to it.
+
+    In the order a player gets it: a land that could make the chosen colour
+    makes it (Caged Sun - its other colours are given up for the bonus), a
+    multiplier multiplies the source's own mana (Mana Reflection), and then
+    each trigger adds its one mana (Mirari's Wake).
+    """
+    made = {key: amount for key, amount in dict(made).items() if amount > 0}
+    if not made:
+        return
+    for extra in extras:
+        if extra.scope in CHOSEN_SCOPES and _applies(extra, source, made) \
+                and not made.get(extra.mana):
+            key = next(key for key, amount in made.items() if extra.mana in key and amount)
+            made[key] -= 1
+            made[extra.mana] = made.get(extra.mana, 0) + 1
+    own = {key: amount for key, amount in made.items() if amount > 0}
+    for extra in extras:
+        if extra.times > 1 and _applies(extra, source, own):
+            for key, amount in own.items():
+                bonus = COLORLESS if is_choice(key) else key
+                made[bonus] = made.get(bonus, 0) + amount * (extra.times - 1)
+    for key, amount in made.items():
+        if amount:
+            pool.add(key, amount)
+    for extra in extras:
+        if extra.times > 1 or extra.fixes or extra.scope in ENCHANTED_SCOPES:
+            continue
+        if _applies(extra, source, own):
+            pool.add(extra.mana or _same_type(own), extra.amount)
+    tapped.append((source, own))
+
+
+def _enchanted_lands(pool: "ManaPool", tapped: list, extras, granted: frozenset[str]) -> None:
+    """The Auras on a land: Wild Growth's {G}, Abundant Growth's any colour.
+
+    Which land is not tracked: one that was tapped for mana this turn, and a
+    Forest for Utopia Sprawl. An Aura cast this turn adds nothing until the
+    next, because the pool was opened before it arrived.
+    """
+    lands = [(source, made) for source, made in tapped if source.is_land]
+    for extra in extras:
+        if extra.scope not in ENCHANTED_SCOPES or extra.fixes:
+            continue
+        wanted = extra.scope.partition(":")[2]
+        if any(not wanted or wanted in subtypes_of(land, granted) for land, _ in lands):
+            pool.add(extra.mana, extra.amount)
+    fixes = sum(1 for extra in extras if extra.fixes)
+    # On a land that makes one mana of a single colour, a colourless one first.
+    plain = sorted(
+        (key for _, made in lands for key in made
+         if len(made) == 1 and made[key] == 1 and not is_choice(key)),
+        key=lambda key: key != COLORLESS)
+    for key in plain[:fixes]:
+        pool.add(key, -1)
+        pool.add(choice(COLORS), 1)
+
+
 # --- Costs -----------------------------------------------------------------
 
 
@@ -542,7 +664,7 @@ def effective_mana_cost(card, reductions: dict[str, int] | None = None,
 
 
 def available_mana(all_lands, untapped_lands, untapped_rocks,
-                   crypt_ghast, *, ability_of=None) -> ManaPool:
+                   crypt_ghast, *, ability_of=None, extras=()) -> ManaPool:
     """The most mana available this turn.
 
     Args:
@@ -555,6 +677,8 @@ def available_mana(all_lands, untapped_lands, untapped_rocks,
         ability_of: Which ``FLAT`` ability a source taps for. The game passes
             :meth:`Game.mana_ability`, which checks "Activate only if ..."
             against its board (P19 R4); without it, the first one.
+        extras: The :class:`Extra` effects in play (P19 R13), resolved by
+            the game: Wild Growth, Mirari's Wake, Kinnan, Mana Reflection.
 
     Returns:
         ManaPool: The best possible pool, optimal use of Coffers included.
@@ -568,6 +692,8 @@ def available_mana(all_lands, untapped_lands, untapped_rocks,
     #: FLAT abilities that cost generic mana to use - Signets. Activated
     #: after every free source has put its mana in, so they can be paid for.
     activated = []
+    #: Every source tapped, with what it made: where an Aura's land is.
+    tapped = []
 
     scaling_land = None
     for land in untapped_lands:
@@ -581,23 +707,23 @@ def available_mana(all_lands, untapped_lands, untapped_rocks,
         if color is not None:
             # Tapped as a basic land. Its own FLAT ability goes unused in that
             # case - a land taps only once.
-            pool.add(color, 1)
+            _tap(pool, land, {color: 1}, extras, tapped)
             for bonus_color, amount in _doubler_bonus(subtypes_of(land, granted), extra):
                 pool.add(bonus_color, amount)
             continue
         flat = ability_of(land)
         if flat is not None:
-            _use(pool, flat, activated)
+            _use(pool, land, flat, activated, extras, tapped)
 
     for rock in untapped_rocks:
         flat = ability_of(rock)
         if flat is not None:
-            _use(pool, flat, activated)
+            _use(pool, rock, flat, activated, extras, tapped)
 
     # Before the scaling line on purpose: a Signet nets mana, and that mana
     # can then help pay Cabal Coffers' {2}.
-    for ability in activated:
-        _activate(pool, ability)
+    for source, ability in activated:
+        _activate(pool, source, ability, extras, tapped)
 
     # Filters and converters, on sources that did tap for their plain {C}
     # (P19 R6): a filter now, where it is never worse; a converter is left
@@ -615,8 +741,10 @@ def available_mana(all_lands, untapped_lands, untapped_rocks,
                                    for _ in range(amount))
 
     if scaling_land is not None:
-        pool = _best_scaling_line(pool, scaling_land, all_lands, granted, extra)
+        pool = _best_scaling_line(pool, scaling_land, all_lands, granted, extra,
+                                  extras, tapped)
 
+    _enchanted_lands(pool, tapped, extras, granted)
     return pool
 
 
@@ -626,15 +754,15 @@ def _add_produced(pool: ManaPool, ability) -> None:
         pool.add(color, amount)
 
 
-def _use(pool: ManaPool, ability, activated: list) -> None:
+def _use(pool: ManaPool, source, ability, activated: list, extras, tapped: list) -> None:
     """A free ability adds its mana now; a costed one waits for the pool."""
     if ability.activation_generic:
-        activated.append(ability)
+        activated.append((source, ability))
     else:
-        _add_produced(pool, ability)
+        _tap(pool, source, dict(ability.produces), extras, tapped)
 
 
-def _activate(pool: ManaPool, ability) -> None:
+def _activate(pool: ManaPool, source, ability, extras, tapped: list) -> None:
     """Pay a ``FLAT`` ability's generic cost out of the pool, if it is worth it.
 
     A Signet takes {1} and gives back {U}{B}: one more mana, and the colours
@@ -647,11 +775,11 @@ def _activate(pool: ManaPool, ability) -> None:
     if ability.total <= cost or pool.total < cost:
         return
     pool.pay(0, cost)
-    _add_produced(pool, ability)
+    _tap(pool, source, dict(ability.produces), extras, tapped)
 
 
 def _best_scaling_line(pool: ManaPool, land, all_lands, granted: frozenset[str],
-                       extra: dict[str, int]) -> ManaPool:
+                       extra: dict[str, int], extras=(), tapped=None) -> ManaPool:
     """Pick the better of the two Cabal Coffers lines.
 
     Line A: tap Coffers as a swamp for {B} (only possible with Urborg).
@@ -687,7 +815,7 @@ def _best_scaling_line(pool: ManaPool, land, all_lands, granted: frozenset[str],
     if gain_b > gain_a and gain_b >= 0:
         result = pool.copy()
         result.pay(0, activation)
-        result.add(scaling_color, matching)
+        _tap(result, land, {scaling_color: matching}, extras, [] if tapped is None else tapped)
         if itself_matches:
             for bonus_color, amount in bonus:
                 result.add(bonus_color, amount)
@@ -695,7 +823,7 @@ def _best_scaling_line(pool: ManaPool, land, all_lands, granted: frozenset[str],
 
     if gain_a > 0:
         result = pool.copy()
-        result.add(own_color, 1)
+        _tap(result, land, {own_color: 1}, extras, [] if tapped is None else tapped)
         for bonus_color, amount in bonus:
             result.add(bonus_color, amount)
         return result

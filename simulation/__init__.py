@@ -102,6 +102,11 @@ boundary, not the symptom.
 #:    land a turn) and "a player has 13 or less life" (your own life) are
 #:    checked against the game. A battle land no longer counts itself among
 #:    the basic lands it asks for, so it entered untapped beside one.
-ENGINE_VERSION = 16
+#: 17: P19 R13. Mana on top of what a source makes: Wild Growth, Utopia
+#:    Sprawl, Mirari's Wake, Kinnan, Forsaken Monument, Caged Sun, Mana
+#:    Reflection; Cryptolith Rite and Abundant Growth give a mana ability;
+#:    Bloom Tender, Sanctum Weaver and Overgrown Battlement count the board,
+#:    Battle Hymn and High Tide are rituals that do.
+ENGINE_VERSION = 17
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

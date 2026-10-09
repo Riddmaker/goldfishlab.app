@@ -115,6 +115,18 @@ def test_the_backups_keep_the_privacy_policys_thirty_days():
     assert days + 7 <= 30
 
 
+def test_the_backup_scripts_fit_sqldb():
+    """J-U1 (2026-10-09): sqldb's web SSH is `postgres`, not root, and its
+    pg_hba.conf answers TCP from 127.0.0.1 with `ident`. So the dump talks to
+    the socket (`md5`, ~/.pgpass), and the cron line names nothing root owns."""
+    dump = (BACKUP / "dump.sh").read_text(encoding="utf-8")
+    restore = (BACKUP / "restore.sh").read_text(encoding="utf-8")
+    for text in (dump, restore):
+        assert "PGHOST:-127.0.0.1" not in text
+        assert "PGHOST:?" not in text
+    assert "/usr/local/sbin" not in dump and "/var/log/" not in dump
+
+
 def test_a_failed_dump_never_replaces_the_last_good_one():
     dump = (BACKUP / "dump.sh").read_text(encoding="utf-8")
     assert dump.index("pg_restore --list") < dump.index('mv -f "${PARTIAL}"')

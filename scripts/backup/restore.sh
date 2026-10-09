@@ -10,7 +10,8 @@
 #   restore.sh ./goldfishlab.dump
 #
 # Environment:
-#   PGHOST PGPORT PGUSER PGDATABASE   where to restore to
+#   PGHOST PGPORT PGUSER PGDATABASE   where to restore to (no PGHOST:
+#                                     the local socket, as on sqldb)
 #   PGPASSWORD or ~/.pgpass           read by libpq, never a command line
 
 set -euo pipefail
@@ -23,14 +24,14 @@ die() {
 
 case "${1:-}" in
   "" | --help | -h)
-    sed -n '3,13p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '3,15p' "$0" | sed 's/^# \{0,1\}//'
     exit 1
     ;;
 esac
 DUMP="$1"
 
 [ -r "${DUMP}" ] || die "File ${DUMP} is not readable."
-: "${PGHOST:?missing}" "${PGUSER:?missing}" "${PGDATABASE:?missing}"
+: "${PGUSER:?missing}" "${PGDATABASE:?missing}"
 command -v pg_restore > /dev/null || die "pg_restore is not installed here."
 
 # Check the content BEFORE writing anything: pg_restore --list reads only the
@@ -40,7 +41,7 @@ entries="$(pg_restore --list "${DUMP}" | grep -vc '^;')" \
   || die "The dump cannot be read; nothing was restored."
 log "Table of contents read: ${entries} entries"
 
-log "Restoring into ${PGDATABASE} on ${PGHOST} (existing objects are replaced)."
+log "Restoring into ${PGDATABASE} on ${PGHOST:-the local socket} (existing objects are replaced)."
 pg_restore --clean --if-exists --no-owner --no-privileges \
   --dbname "${PGDATABASE}" "${DUMP}"
 

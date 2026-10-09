@@ -3,7 +3,10 @@
 # Nightly dump of the production database into ONE file on the PostgreSQL
 # node (phase 12 J11). Runs from cron on sqldb at 19:30 UTC:
 #
-#   30 19 * * * bash /usr/local/sbin/goldfishlab-dump.sh >> /var/log/goldfishlab-dump.log 2>&1
+#   30 19 * * * bash $HOME/bin/goldfishlab-dump.sh >> $HOME/goldfishlab-dump.log 2>&1
+#
+# In the crontab of `postgres`, the user sqldb's web SSH logs in as: it is not
+# root, so the script and its log live in its home, not /usr/local or /var/log.
 #
 # Offsite is not this script's job. Infomaniak's "Swiss Backup" Jelastic
 # add-on (restic: encrypted on this node, stored in Switzerland) backs up
@@ -23,8 +26,12 @@
 # line and in no crontab (CLAUDE.md HABIT 1). The defaults below fit the
 # manifest (infra/jelastic.jps): database and role `goldfishlab` on this node.
 #
+# No PGHOST by default: libpq then uses the Unix socket. sqldb's pg_hba.conf
+# (Jelastic's) answers TCP from 127.0.0.1 with `ident`, which fails without
+# an ident server; the socket's line is `md5`, which takes ~/.pgpass.
+#
 # Environment (all optional):
-#   PGHOST=127.0.0.1  PGPORT=5432  PGUSER=goldfishlab  PGDATABASE=goldfishlab
+#   PGHOST (unset: the socket)  PGPORT=5432  PGUSER=goldfishlab  PGDATABASE=goldfishlab
 #   BACKUP_DIR=/var/lib/pgsql/backup   the folder the add-on backs up
 
 set -euo pipefail
@@ -35,7 +42,6 @@ die() {
   exit 1
 }
 
-export PGHOST="${PGHOST:-127.0.0.1}"
 export PGPORT="${PGPORT:-5432}"
 export PGUSER="${PGUSER:-goldfishlab}"
 export PGDATABASE="${PGDATABASE:-goldfishlab}"
@@ -52,7 +58,7 @@ mkdir -p "${BACKUP_DIR}"
 PARTIAL="$(mktemp "${BACKUP_DIR}/.${PGDATABASE}.XXXXXX")"
 trap 'rm -f "${PARTIAL}"' EXIT
 
-log "Dumping ${PGDATABASE} from ${PGHOST}:${PGPORT}"
+log "Dumping ${PGDATABASE} from ${PGHOST:-the local socket}:${PGPORT}"
 pg_dump --format=custom --no-owner --no-privileges --file "${PARTIAL}"
 
 entries="$(pg_restore --list "${PARTIAL}" | grep -vc '^;')" \

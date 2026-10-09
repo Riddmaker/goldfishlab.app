@@ -297,8 +297,17 @@ class Reading:
         else:
             what = ngettext("%(count)s card", "%(count)s cards", spec.count) % {
                 "count": spec.count}
-        text = (gettext("%(what)s to hand") if spec.to_hand
-                else gettext("%(what)s to the graveyard")) % {"what": what}
+        if spec.to_battlefield:
+            if spec.color:
+                what = gettext("%(what)s (%(color)s)") % {"what": what,
+                                                          "color": mana_label(spec.color)}
+            if spec.max_mv_x or spec.max_mv is not None:
+                what = gettext("%(what)s with mana value %(limit)s or less") % {
+                    "what": what, "limit": "X" if spec.max_mv_x else spec.max_mv}
+            text = gettext("%(what)s onto the battlefield") % {"what": what}
+        else:
+            text = (gettext("%(what)s to hand") if spec.to_hand
+                    else gettext("%(what)s to the graveyard")) % {"what": what}
         if spec.life:
             text = gettext("%(search)s, paying %(life)s life") % {"search": text,
                                                                  "life": spec.life}
@@ -962,11 +971,10 @@ def _x_count(oracle_card, profile) -> int:
     return (oracle_card.mana_cost or "").upper().count("{X}") or 1
 
 
-#: The two zones a `TutorSpec` can search to. `battlefield` is deliberately
-#: absent: the engine puts a found card in the hand or in the graveyard and has
-#: no third move, so a tutor that fetches onto the battlefield is a gap rather
-#: than a tutor quietly redirected somewhere it does not go.
-TUTOR_ZONES = {"hand": True, "graveyard": False}
+#: The zones a `TutorSpec` can search to, and whether that is the hand. The
+#: battlefield joined in P19 R10, read whole off the text (`tutor_filter`); a
+#: battlefield tutor the reader could not read stays a gap.
+TUTOR_ZONES = {"hand": True, "graveyard": False, "battlefield": False}
 
 
 def _tapped_unless(profile, overrides: dict) -> TappedUnless | None:
@@ -1022,8 +1030,18 @@ def _tutor(profile, overrides: dict) -> TutorSpec | None:
 
     if profile.tutor_to not in TUTOR_ZONES or profile.tutor_count is None:
         return None
+    limit = getattr(profile, "tutor_filter", None)
+    if profile.tutor_to == "battlefield" and limit is None:
+        return None
 
+    battlefield = {}
+    if limit is not None:
+        max_mv = limit.get("max_mv")
+        battlefield = {"to_battlefield": True, "color": limit.get("color") or "",
+                       "max_mv_x": max_mv == "X",
+                       "max_mv": max_mv if isinstance(max_mv, int) else None}
     return TutorSpec(
+        **battlefield,
         to_hand=TUTOR_ZONES[profile.tutor_to],
         count=int(profile.tutor_count),
         # Grim Tutor's three life is already derived, by the same pronoun check

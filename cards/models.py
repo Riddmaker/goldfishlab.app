@@ -404,6 +404,10 @@ class DerivedProfile(models.Model):
         max_length=16, blank=True,
         help_text="Engine card kind the search is restricted to. Blank means any.",
     )
+    #: P19 R10: what else a search onto the battlefield is limited to - {"color":
+    #: "G" for "a green creature card", "max_mv": "X" or a number for "with mana
+    #: value X or less"}. Green Sun's Zenith, Chord of Calling. Null: nothing.
+    tutor_filter = models.JSONField(null=True, blank=True)
     #: P19 R2: a search for lands that puts them onto the battlefield - a ramp
     #: spell, a fetch land, Wood Elves - read whole off the text, or null.
     #: Keys: battlefield, hand (how many go where), tapped, basic, types (land

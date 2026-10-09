@@ -88,6 +88,9 @@ boundary, not the symptom.
 #:    with everything left as X (at least ``x_min``), and "draw X cards"
 #:    draws them. Until now X was 0 and the spell was cast early, for
 #:    nothing.
-ENGINE_VERSION = 13
+#: 14: P19 R10. Green Sun's Zenith, Chord of Calling, Finale of Devastation,
+#:    Natural Order and Whir of Invention put the card they find onto the
+#:    battlefield, mana value X or less where the card says so.
+ENGINE_VERSION = 14
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

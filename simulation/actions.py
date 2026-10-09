@@ -457,22 +457,48 @@ def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
     if card.tutor is not None:
         spec = card.tutor
         game.life -= spec.life
-        predicate = (lambda c: c.kind == spec.kind) if spec.kind else None
+        if spec.to_battlefield:
+            predicate = _battlefield_predicate(spec, x)
+        else:
+            predicate = (lambda c: c.kind == spec.kind) if spec.kind else None
         found = 0
         for _ in range(spec.count):
             target = _search(game, policy, predicate)
             if target is None:
                 break
             game.library.remove(target)
-            if spec.to_hand:
+            if spec.to_battlefield:
+                game.note(f"  -> puts {target.name} onto the battlefield")
+                game.enter_battlefield(target)
+                _arrival(game, target, policy)
+            elif spec.to_hand:
                 game.hand.append(target)
                 game.note(f"  -> searches up {target.name}")
             else:
                 game.graveyard.append(target)
             found += 1
-        if not spec.to_hand and found:
+        if not spec.to_hand and not spec.to_battlefield and found:
             game.note(f"  -> {found} cards to the graveyard")
 
+    _arrival(game, card, policy)
+
+    drawn = card.draw_on_cast + (x if card.draws_x else 0)
+    if drawn:
+        game.draw(drawn)
+        game.life -= card.life_on_cast
+        game.note(f"  -> {drawn} cards, {card.life_on_cast} life")
+    if card.discard_on_cast:
+        game.discard(card.discard_on_cast)
+    if card.put_back_on_cast:
+        game.put_back(card.put_back_on_cast)
+
+
+def _arrival(game, card, policy) -> None:
+    """What a card does as it resolves or enters: its land search, its Treasure.
+
+    Shared by a cast card and a card a tutor put onto the battlefield (P19
+    R10): Wood Elves found by Green Sun's Zenith still fetch their Forest.
+    """
     search = card.land_search
     if search is not None and search.when in ("cast", "enters"):
         game.search_lands(card, _land_chooser(policy))
@@ -484,15 +510,20 @@ def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
 
     game.make_treasures(card)
 
-    drawn = card.draw_on_cast + (x if card.draws_x else 0)
-    if drawn:
-        game.draw(drawn)
-        game.life -= card.life_on_cast
-        game.note(f"  -> {drawn} cards, {card.life_on_cast} life")
-    if card.discard_on_cast:
-        game.discard(card.discard_on_cast)
-    if card.put_back_on_cast:
-        game.put_back(card.put_back_on_cast)
+
+def _battlefield_predicate(spec, x: int):
+    """Which library cards a search onto the battlefield may find (P19 R10)."""
+    limit = x if spec.max_mv_x else spec.max_mv
+
+    def matches(card) -> bool:
+        types = card.types or frozenset({card.kind})
+        if spec.kind and spec.kind not in types:
+            return False
+        if spec.color and spec.color not in card.mana_cost.colors:
+            return False
+        return limit is None or card.mv <= limit
+
+    return matches
 
 
 def _land_chooser(policy):

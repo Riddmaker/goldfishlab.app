@@ -222,6 +222,11 @@ class Game:
             self.graveyard.append(worst)
             self.note(f"  -> discards {worst.name}")
 
+    def enter_battlefield(self, card) -> None:
+        """Put a permanent onto the battlefield without casting it - what a
+        tutor such as Green Sun's Zenith does (P19 R10)."""
+        self._resolve(card, self.pool)
+
     def put_back(self, count: int) -> None:
         """Put the weakest cards from hand on top of the library - Brainstorm
         (P19 R8). They are drawn again, so the draw itself was only a look."""

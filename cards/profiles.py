@@ -342,6 +342,17 @@ _SEARCH_YOUR_LIBRARY = re.compile(
 #: for a creature card and a land card" - is a shape `TutorSpec` cannot hold,
 #: and reading only the first would import half a card.
 _SEARCH_CLAUSE = re.compile(r"Search your library for", re.IGNORECASE)
+#: P19 R10: one creature or artifact straight onto the battlefield - Green
+#: Sun's Zenith, Chord of Calling, Finale of Devastation (its graveyard is not
+#: searched: a goldfish's graveyard rarely holds the card, and the library
+#: alone can only under-read it), Whir of Invention, Natural Order.
+_TO_BATTLEFIELD = re.compile(
+    r"Search your library(?: and/or graveyard)? for an? "
+    r"(?:(?P<color>white|blue|black|red|green) )?(?P<what>creature|artifact) card"
+    r"(?: with mana value (?P<mv>X|\d+) or less)?"
+    r"(?:,| and) put (?:it|that card) onto the battlefield",
+    re.IGNORECASE)
+_COLOR_LETTER = {"white": "W", "blue": "U", "black": "B", "red": "R", "green": "G"}
 
 #: "As an additional cost to cast this spell, sacrifice a creature." The engine
 #: pays mana and nothing else, so it casts Diabolic Intent for {2}{B} and gets a
@@ -1019,6 +1030,8 @@ class Tutor:
     count: int | None = None
     kind: str = ""
     reason: str = ""
+    #: P19 R10: {"color", "max_mv"} of a search onto the battlefield, or None.
+    filter: dict | None = None
 
 
 def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
@@ -1044,6 +1057,20 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
 
     if len(_SEARCH_CLAUSE.findall(text)) > 1:
         return Tutor(reason=gettext_noop("searches the library more than once; not modelled"))
+    found = _TO_BATTLEFIELD.search(text)
+    line_start = text.rfind("\n", 0, found.start()) + 1 if found else 0
+    if found is not None and ":" not in text[line_start:found.start()] and (
+            (found.group("mv") or "").upper() != "X" or "{X}" in (card.mana_cost or "")):
+        # Read whole off the text, so the tags' "battlefield" and "a mana value
+        # limit" (`tutor-mv`) are both answered, not unexpressible (P19 R10).
+        # Not an ability's search (Tezzeret's "-X:"): the engine plays what a
+        # card does as it is cast or enters, and X is the X of its own cost.
+        color = (found.group("color") or "").lower()
+        limit = found.group("mv")
+        return Tutor(zone="battlefield", count=1, kind=found.group("what").lower(),
+                     filter={"color": _COLOR_LETTER.get(color, ""),
+                             "max_mv": None if limit is None else
+                             ("X" if limit.upper() == "X" else int(limit))})
     if not _SEARCH_YOUR_LIBRARY.search(text) and _THEIR_LIBRARY.search(text):
         # Path to Exile: the search is the target's controller's, and the
         # target is an opponent's creature or land a goldfish does not have.
@@ -1380,6 +1407,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         tutor_to=tutor.zone,
         tutor_count=tutor.count,
         tutor_kind=tutor.kind,
+        tutor_filter=tutor.filter,
         land_search=land.spec,
         tapped_unless=tapped_unless,
         skips_draw_step=bool(_SKIPS_DRAW_STEP.search(text)),
@@ -1489,7 +1517,8 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "mv", "pips", "generic", "colorless", "has_x", "kind", "is_basic_swamp",
             "role_tags", "enters_tapped", "produces_mana", "mana_colors", "mana_amount",
             "cost_reduction", "draws_cards", "self_life_loss", "opponent_life_loss",
-            "tutor_to", "tutor_count", "tutor_kind", "land_search", "tapped_unless",
+            "tutor_to", "tutor_count", "tutor_kind", "tutor_filter", "land_search",
+            "tapped_unless",
             "skips_draw_step",
             "mana_produces", "mana_activation", "mana_untaps", "mana_condition", "mana_rule",
             "mana_filter", "treasures", "discard_cost", "discards_after", "puts_back", "draws_x",

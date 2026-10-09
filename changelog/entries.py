@@ -42,6 +42,13 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "tutor-onto-battlefield",
+        _("Green Sun's Zenith and Chord of Calling find their creature"),
+        _("Green Sun's Zenith, Chord of Calling, Finale of Devastation, Nature's Rhythm and "
+          "Whir of Invention now put the card they find onto the battlefield, with mana value "
+          "X or less. Before, they found nothing."),
+    ),
+    Entry(
         date(2026, 10, 9), "x-costs",
         _("Spells with X are paid with everything left"),
         _("Stroke of Genius, Blue Sun's Zenith, Walking Ballista and every other card with X "

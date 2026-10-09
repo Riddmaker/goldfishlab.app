@@ -265,6 +265,15 @@ class TutorSpec:
     count: int = 1
     life: int = 0
     kind: str = ""
+    #: P19 R10: straight onto the battlefield (Green Sun's Zenith); then
+    #: ``to_hand`` says nothing. ``kind`` is matched against the card's types
+    #: there, so Whir of Invention finds a mana rock as well as an artifact.
+    to_battlefield: bool = False
+    #: P19 R10: "a green creature card": the colour its cost must have.
+    color: str = ""
+    #: P19 R10: "with mana value 3 or less", or with ``max_mv_x`` "X or less".
+    max_mv: int | None = None
+    max_mv_x: bool = False
 
 
 @dataclass(frozen=True)

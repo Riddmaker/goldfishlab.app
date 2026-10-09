@@ -8978,3 +8978,27 @@ msgstr ""
 #: templates/playtest/_board.html
 msgid "X to pay"
 msgstr "X a pagar"
+
+#: changelog/entries.py
+msgid "Green Sun's Zenith and Chord of Calling find their creature"
+msgstr "Green Sun's Zenith e Chord of Calling encontram sua criatura"
+
+#: changelog/entries.py
+msgid ""
+"Green Sun's Zenith, Chord of Calling, Finale of Devastation, Nature's Rhythm"
+" and Whir of Invention now put the card they find onto the battlefield, with"
+" mana value X or less. Before, they found nothing."
+msgstr ""
+"Green Sun's Zenith, Chord of Calling, Finale of Devastation, Nature's Rhythm"
+" e Whir of Invention agora colocam a carta encontrada no campo de batalha, "
+"com valor de mana X ou menos. Antes não encontravam nada."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s (%(color)s)"
+msgstr "%(what)s (%(color)s)"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s with mana value %(limit)s or less"
+msgstr "%(what)s com valor de mana %(limit)s ou menos"

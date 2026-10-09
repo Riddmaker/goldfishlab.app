@@ -67,6 +67,14 @@ TYPE_ADDING = "type_adding"
 #: game works it out each turn (`Game.mana_ability`).
 LANDS_COULD_PRODUCE = "lands_could_produce"
 
+#: ``{T}: Add {G} for each creature you control`` - mana that counts the
+#: board (P19 R11). ``subtype`` says what is counted: ``creature``, a creature
+#: type (``elf``), ``basic:swamp``, ``graveyard:B`` (black creature cards in
+#: the graveyard), ``devotion`` (Nykthos: the colour with most), or
+#: ``names:A|B`` (Tron: ``produces`` once every named land is there). The game
+#: works the amount out each turn (`Game.mana_ability`).
+COUNTS = "counts"
+
 #: ``{W/B}, {T}: Add {W}{W}, {W}{B}, or {B}{B}`` - a filter land - and
 #: ``{1}, {T}: Add one mana of any color`` - a converter, Study Hall (P19 R6).
 #: One mana goes in (``pays_with``: the colours it may be; empty = any) and
@@ -427,6 +435,9 @@ class Card:
     #: P19 R9: it draws X cards (Stroke of Genius, Blue Sun's Zenith), on
     #: top of ``draw_on_cast``.
     draws_x: bool = False
+    #: P19 R11: the creature types on the front face, lower case - what
+    #: Elvish Archdruid counts. Empty for everything else.
+    creature_types: frozenset[str] = field(default_factory=frozenset)
 
     @property
     def mana_cost(self) -> ManaCost:

@@ -31,6 +31,7 @@ from decks.models import Deck
 from simulation import ENGINE_VERSION, agent
 from simulation.cards import (
     CARD_TYPES,
+    COUNTS,
     DOUBLE_SUBTYPE,
     FILTER,
     FLAT,
@@ -70,6 +71,7 @@ SCALING_RULES = {
     "double_subtype": DOUBLE_SUBTYPE,
     "type_adding": TYPE_ADDING,
     "lands_could_produce": LANDS_COULD_PRODUCE,
+    "counts": COUNTS,
 }
 
 #: Fields a human has to supply, because nothing in the card text implies them.
@@ -417,7 +419,9 @@ def _ability_text(ability) -> str:
         cost = "{" + "/".join(ability.pays_with) + "}" if ability.pays_with else "{1}"
         return gettext("for %(cost)s, %(mana)s") % {"cost": cost, "mana": produced}
 
-    if ability.rule in RULE_TEXT:
+    if ability.rule == COUNTS:
+        text = _counts_text(ability)
+    elif ability.rule in RULE_TEXT:
         text = gettext(RULE_TEXT[ability.rule]) % {
             "color": ability.scaling_color, "subtype": ability.subtype or "land"}
     else:
@@ -425,6 +429,28 @@ def _ability_text(ability) -> str:
     if ability.activation_generic:
         return _for_cost(ability.activation_generic, text)
     return text
+
+
+def _counts_text(ability) -> str:
+    """What a counting ability makes, in words (P19 R11)."""
+    what, color = ability.subtype, mana_label(ability.color) if ability.color else ""
+    if what == "creature":
+        return gettext("one %(color)s for each creature you control") % {"color": color}
+    if what.startswith("basic:"):
+        return gettext("one %(color)s for each basic %(type)s you control") % {
+            "color": color, "type": what.split(":", 1)[1].title()}
+    if what.startswith("graveyard:"):
+        return gettext("one %(color)s for each %(dead)s creature card in your graveyard") % {
+            "color": color, "dead": mana_label(what.split(":", 1)[1])}
+    if what == "devotion":
+        return gettext("as much as your devotion to your best colour, in that colour")
+    if what.startswith("names:"):
+        produced = " + ".join(f"{amount} {mana_label(source)}"
+                              for source, amount in ability.produces)
+        return gettext("%(mana)s while you control %(names)s") % {
+            "mana": produced, "names": " + ".join(what.split(":", 1)[1].split("|"))}
+    return gettext("one %(color)s for each %(type)s you control") % {
+        "color": color, "type": what.title()}
 
 
 def _condition_text(condition: TappedUnless) -> str:
@@ -717,6 +743,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         x_min=int(overrides.get("x_min", 1)),
         draws_x=(kind in ONE_SHOT_KINDS and "draw_on_cast" not in overrides
                  and bool(getattr(profile, "draws_x", False))),
+        creature_types=creature_types(oracle_card),
         life_on_cast=int(overrides.get("life_on_cast", 0)),
         tutor=_tutor(profile, overrides),
         upkeep=_upkeep(overrides),
@@ -764,9 +791,16 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
             )
     read_rule = getattr(profile, "mana_rule", None)
     if read_rule and not _overrides_mana(overrides):
-        return (ManaAbility(SCALING_RULES[read_rule["rule"]], subtype=read_rule["subtype"],
-                            activation_generic=int(read_rule.get("activation") or 0),
-                            color=read_rule.get("color", "")),)
+        rule = ManaAbility(SCALING_RULES[read_rule["rule"]], read_rule.get("produces") or (),
+                           subtype=read_rule["subtype"],
+                           activation_generic=int(read_rule.get("activation") or 0),
+                           color=read_rule.get("color", ""))
+        if read_rule["rule"] != "counts" or not profile.mana_amount:
+            return (rule,)
+        # Cabal Stronghold, Urza's Mine: the counting ability and the plain
+        # {C} beside it; the game taps for the better (P19 R11).
+        return (rule, _flat(getattr(profile, "mana_produces", None), profile.mana_colors,
+                            profile.mana_amount, 0, deck_colors, None))
 
     # What using the ability costs beside {T}: a Signet's {1}. Read off the
     # card by the deriver since the 2026-09-25 review, and an annotation can
@@ -1147,6 +1181,18 @@ def card_types(oracle_card) -> frozenset[str]:
         front = front.split(separator, 1)[0]
     words = {word.casefold() for word in front.split()}
     return frozenset(kind for kind in CARD_TYPES if kind in words)
+
+
+def creature_types(oracle_card) -> frozenset[str]:
+    """The creature types on the front face, lower case (P19 R11): what a
+    "for each Elf" counts. Empty for a card that is not a creature."""
+    front = (oracle_card.type_line or "").split("//", 1)[0]
+    if "Creature" not in front:
+        return frozenset()
+    for separator in TYPE_SEPARATORS:
+        if separator in front:
+            return frozenset(word.casefold() for word in front.split(separator, 1)[1].split())
+    return frozenset()
 
 
 def _subtypes(oracle_card, profile, overrides: dict) -> frozenset[str]:

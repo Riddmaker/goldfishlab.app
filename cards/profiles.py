@@ -545,10 +545,37 @@ _PER_CONTROLLED = re.compile(
 _LANDS_COULD_PRODUCE = re.compile(
     r"^\{T\}(?:, Pay 1 life)?: Add one mana of any (?:type|colou?r) that a land you "
     r"control could produce\.", re.MULTILINE | re.IGNORECASE)
+#: P19 R11: mana that counts the board. "{T}: Add {G} for each creature you
+#: control." (Gaea's Cradle, Circle of Dreams Druid), "... for each Elf you
+#: control / on the battlefield" (Elvish Archdruid, Priest of Titania), "{3},
+#: {T}: Add {B} for each basic Swamp you control." (Cabal Stronghold), "{2},
+#: {T}: Add {B} for each black creature card in your graveyard." (Crypt of
+#: Agadeem). On a goldfish's table every Elf is yours.
+_COUNTS = re.compile(
+    r"^(?:\{(?P<cost>\d+)\}, )?\{T\}: Add \{(?P<color>[WUBRG])\} for each "
+    r"(?:(?P<creature>creature) you control|(?P<elf>Elf) (?:you control|on the battlefield)"
+    rf"|basic (?P<basic>{_BASIC_TYPE}) you control"
+    r"|(?P<dead>white|blue|black|red|green) creature card in your graveyard)\.$",
+    re.MULTILINE)
+#: Nykthos: "{2}, {T}: Choose a color. Add an amount of mana of that color equal
+#: to your devotion to that color."
+_DEVOTION = re.compile(
+    r"^\{(?P<cost>\d+)\}, \{T\}: Choose a color\. Add an amount of mana of that color "
+    r"equal to your devotion to that color\.", re.MULTILINE)
+#: Tron: "{T}: Add {C}. If you control an Urza's Power-Plant and an Urza's
+#: Tower, add {C}{C} instead."
+_TRON = re.compile(
+    r"^\{T\}: Add \{C\}\. If you control an Urza's (?P<a>[\w-]+) and an Urza's "
+    r"(?P<b>[\w-]+), add (?P<more>(?:\{C\}){2,3}) instead\.$", re.MULTILINE)
+#: The cards the Urza land types are printed on.
+_URZA_NAMES = {"Mine": "Urza's Mine", "Power-Plant": "Urza's Power Plant",
+               "Tower": "Urza's Tower"}
 #: What a read mana rule explains, and so is no longer a reason to review.
 _RULE_EXPLAINS = frozenset({
     "produces mana, but no readable 'Add' clause",
     "mana amount scales with the board",
+    "makes mana only as part of another effect",
+    "a conditional replacement ('instead') is not counted",
 })
 #: Somebody else's search: "Its controller may search their library" (Path to
 #: Exile, Ghost Quarter), "Each player searches their library" (Field of Ruin,
@@ -618,6 +645,36 @@ def _mana_rule(card: OracleCard, kind: str) -> dict | None:
     if kind == DerivedProfile.Kind.LAND and (found := _PER_CONTROLLED.fullmatch(text)):
         return {"rule": "per_controlled", "subtype": found.group("type").lower(),
                 "activation": int(found.group("cost")), "color": found.group("color")}
+    if "//" in (card.name or ""):
+        # Itlimoc counts creatures on its back face, which this engine never
+        # reaches: the front is an enchantment that makes no mana.
+        return None
+    return _counting_rule(text)
+
+
+def _counting_rule(text: str) -> dict | None:
+    """Mana that counts the board, as a ``counts`` rule (P19 R11), or None."""
+    if (found := _COUNTS.search(text)) is not None:
+        if found.group("creature"):
+            subtype = "creature"
+        elif found.group("elf"):
+            subtype = "elf"
+        elif found.group("basic"):
+            subtype = "basic:" + found.group("basic").lower()
+        else:
+            subtype = "graveyard:" + {"white": "W", "blue": "U", "black": "B", "red": "R",
+                                      "green": "G"}[found.group("dead").lower()]
+        return {"rule": "counts", "subtype": subtype, "color": found.group("color"),
+                "activation": int(found.group("cost") or 0)}
+    if (found := _DEVOTION.search(text)) is not None:
+        return {"rule": "counts", "subtype": "devotion", "color": "",
+                "activation": int(found.group("cost"))}
+    if (found := _TRON.search(text)) is not None:
+        names = [_URZA_NAMES.get(found.group(key)) for key in ("a", "b")]
+        if None in names:
+            return None
+        return {"rule": "counts", "subtype": "names:" + "|".join(names), "color": "C",
+                "activation": 0, "produces": {"C": found.group("more").count("{C}")}}
     return None
 
 
@@ -1359,7 +1416,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     # is to report it rather than to pick a side. Sol Ring is the shape: the
     # `Add {C}{C}` clause is readable, but the cards this catches are the ones
     # where it is not and a single mana slipped through looking correct.
-    if MULTIPLE_MANA_TAG in tags and amount == 1:
+    counts = mana_rule is not None and mana_rule["rule"] == "counts"
+    if MULTIPLE_MANA_TAG in tags and amount == 1 and not counts:
         reasons.append(gettext_noop("tagged as adding more than one mana; only one was read"))
     if _ADDITIONAL_COST.search(text) and not discard:
         reasons.append(gettext_noop("has an additional casting cost the engine does not pay"))

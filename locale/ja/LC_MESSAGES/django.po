@@ -8051,3 +8051,49 @@ msgstr "%(what)s（%(color)s）"
 #, python-format
 msgid "%(what)s with mana value %(limit)s or less"
 msgstr "マナ総量%(limit)s以下の%(what)s"
+
+#: changelog/entries.py
+msgid "Gaea's Cradle, Elvish Archdruid, Nykthos and Tron"
+msgstr "Gaea's Cradle、Elvish Archdruid、Nykthos、Tron"
+
+#: changelog/entries.py
+msgid ""
+"Mana that counts your board now makes what it counts: Gaea's Cradle and "
+"Circle of Dreams Druid one green for each creature, Elvish Archdruid and "
+"Priest of Titania one for each Elf, Cabal Stronghold one black for each "
+"basic Swamp, Crypt of Agadeem one for each black creature card in your "
+"graveyard, Nykthos your devotion, and the Urza lands seven together."
+msgstr ""
+"戦場を数えるマナは、数えた分だけ出すようになりました。Gaea's CradleとCircle of Dreams "
+"Druidはクリーチャー1体につき緑1つ、Elvish ArchdruidとPriest of Titaniaはエルフ1体につき1つ、Cabal "
+"Strongholdは基本Swamp1つにつき黒1つ、Crypt of "
+"Agadeemは墓地の黒のクリーチャー・カード1枚につき1つ、Nykthosは信心の分、ウルザの土地は3つそろうと7つです。"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each creature you control"
+msgstr "あなたがコントロールするクリーチャー1体につき%(color)s 1つ"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each basic %(type)s you control"
+msgstr "あなたがコントロールする基本%(type)s 1つにつき%(color)s 1つ"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each %(dead)s creature card in your graveyard"
+msgstr "あなたの墓地の%(dead)sのクリーチャー・カード1枚につき%(color)s 1つ"
+
+#: simulations/engine/adapter.py
+msgid "as much as your devotion to your best colour, in that colour"
+msgstr "最も高い色への信心の分だけ、その色で"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s while you control %(names)s"
+msgstr "%(names)sをコントロールしている間は%(mana)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each %(type)s you control"
+msgstr "あなたがコントロールする%(type)s 1体につき%(color)s 1つ"

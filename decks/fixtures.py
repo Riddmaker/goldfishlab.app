@@ -273,10 +273,10 @@ UNMODELLABLE = DeckShape(
         # Ith stood here until engine version 8 read it as a land that really
         # makes no mana (P19 R4).
         (4, "Phyrexian Tower"),
-        # Scales on devotion and on creature count. The engine's PER_CONTROLLED
-        # counts lands carrying a subtype, so neither is expressible - and
-        # nobody has annotated them into something that is.
-        (4, "Nykthos, Shrine to Nyx"), (4, "Gaea's Cradle"),
+        # A ritual whose extra mana grows with the board. Nykthos and Gaea's
+        # Cradle stood here until engine version 15 counted devotion and
+        # creatures (P19 R11).
+        (4, "Rite of Flame"),
         # Black mana "instead" with a full graveyard. Cabal Coffers stood here
         # until the reader learned its rule (P19 R4).
         (4, "Cabal Ritual"),

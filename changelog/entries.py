@@ -42,6 +42,15 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "board-counts",
+        _("Gaea's Cradle, Elvish Archdruid, Nykthos and Tron"),
+        _("Mana that counts your board now makes what it counts: Gaea's Cradle and Circle of "
+          "Dreams Druid one green for each creature, Elvish Archdruid and Priest of Titania "
+          "one for each Elf, Cabal Stronghold one black for each basic Swamp, Crypt of "
+          "Agadeem one for each black creature card in your graveyard, Nykthos your devotion, "
+          "and the Urza lands seven together."),
+    ),
+    Entry(
         date(2026, 10, 9), "tutor-onto-battlefield",
         _("Green Sun's Zenith and Chord of Calling find their creature"),
         _("Green Sun's Zenith, Chord of Calling, Finale of Devastation, Nature's Rhythm and "

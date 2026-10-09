@@ -15,6 +15,7 @@ from collections import Counter
 
 from simulation.cards import (
     ARTIFACT,
+    COUNTS,
     CREATURE,
     ENCHANTMENT,
     FLAT,
@@ -411,7 +412,17 @@ class Game:
         Swamp falls back to {C}, and Temple of the False God with four lands
         to nothing.
         """
+        counted = None
         for ability in card.mana_abilities:
+            if ability.rule == COUNTS:
+                # The best of a counting ability and the plain one after it:
+                # Cabal Stronghold with three basic Swamps nets nothing, and
+                # taps for {C} instead (P19 R11).
+                amount, color = self.board_count(ability, card)
+                if counted is None and amount - ability.activation_generic > 0:
+                    counted = ManaAbility(FLAT, {color: amount},
+                                          activation_generic=ability.activation_generic)
+                continue
             if ability.rule == LANDS_COULD_PRODUCE:
                 colors = self.lands_could_produce(card)
                 if not colors:
@@ -421,8 +432,49 @@ class Game:
             if ability.rule != FLAT:
                 continue
             if ability.only_if is None or self.holds(ability.only_if, card, entering=entering):
+                if counted is not None and (counted.total - counted.activation_generic
+                                            >= ability.total - ability.activation_generic):
+                    return counted
                 return ability
-        return None
+        return counted
+
+    def board_count(self, ability, card) -> tuple[int, str]:
+        """How much a counting ability makes on this board, and of what (P19 R11)."""
+        what, color = ability.subtype, ability.color
+        if what == "creature":
+            return len(self.creatures), color
+        if what.startswith("basic:"):
+            kind = what.split(":", 1)[1]
+            return sum(1 for land in self.lands
+                       if (land.basic and kind in land.subtypes)
+                       or (kind == "swamp" and land.is_swamp)), color
+        if what.startswith("graveyard:"):
+            wanted = what.split(":", 1)[1]
+            return sum(1 for found in self.graveyard
+                       if CREATURE in (found.types or {found.kind})
+                       and wanted in found.mana_cost.colors), color
+        if what == "devotion":
+            devotion = {each: self.devotion(each) for each in COLORS}
+            best = max(COLORS, key=lambda each: (devotion[each], each == color))
+            return devotion[best], best
+        if what.startswith("names:"):
+            needed = set(what.split(":", 1)[1].split("|"))
+            here = {land.name for land in self.lands if land is not card}
+            full = sum(amount for _, amount in ability.produces)
+            return (full if needed <= here else 0), COLORLESS
+        return sum(1 for creature in self.creatures if what in creature.creature_types), color
+
+    def devotion(self, color: str) -> int:
+        """Mana symbols of a colour among the costs of your permanents (Nykthos)."""
+        total = 0
+        for permanent in self.battlefield:
+            if permanent.is_land:
+                continue
+            cost = permanent.mana_cost
+            total += cost.colored.get(color, 0)
+            total += sum(1 for symbol in cost.hybrid if color in symbol.colors)
+            total += sum(1 for symbol in cost.phyrexian if symbol == color)
+        return total
 
     def lands_could_produce(self, card) -> str:
         """The mana the other lands could make, as one pool key (P19 R5).

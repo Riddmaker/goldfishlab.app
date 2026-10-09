@@ -88,6 +88,7 @@ EVERYTHING = Card(
     x_count=3,
     x_min=2,
     draws_x=True,
+    creature_types=frozenset({"elf"}),
 )
 
 

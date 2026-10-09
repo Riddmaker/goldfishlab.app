@@ -9002,3 +9002,50 @@ msgstr "%(what)s (%(color)s)"
 #, python-format
 msgid "%(what)s with mana value %(limit)s or less"
 msgstr "%(what)s com valor de mana %(limit)s ou menos"
+
+#: changelog/entries.py
+msgid "Gaea's Cradle, Elvish Archdruid, Nykthos and Tron"
+msgstr "Gaea's Cradle, Elvish Archdruid, Nykthos e Tron"
+
+#: changelog/entries.py
+msgid ""
+"Mana that counts your board now makes what it counts: Gaea's Cradle and "
+"Circle of Dreams Druid one green for each creature, Elvish Archdruid and "
+"Priest of Titania one for each Elf, Cabal Stronghold one black for each "
+"basic Swamp, Crypt of Agadeem one for each black creature card in your "
+"graveyard, Nykthos your devotion, and the Urza lands seven together."
+msgstr ""
+"Mana que conta seu campo de batalha agora produz o que conta: Gaea's Cradle "
+"e Circle of Dreams Druid um verde por criatura, Elvish Archdruid e Priest of"
+" Titania um por Elfo, Cabal Stronghold um preto por Swamp básico, Crypt of "
+"Agadeem um por card de criatura preta no seu cemitério, Nykthos sua devoção,"
+" e os terrenos de Urza sete juntos."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each creature you control"
+msgstr "um %(color)s para cada criatura que você controla"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each basic %(type)s you control"
+msgstr "um %(color)s para cada %(type)s básico que você controla"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each %(dead)s creature card in your graveyard"
+msgstr "um %(color)s para cada card de criatura %(dead)s no seu cemitério"
+
+#: simulations/engine/adapter.py
+msgid "as much as your devotion to your best colour, in that colour"
+msgstr "tanto quanto sua devoção à sua melhor cor, nessa cor"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s while you control %(names)s"
+msgstr "%(mana)s enquanto você controlar %(names)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each %(type)s you control"
+msgstr "um %(color)s para cada %(type)s que você controla"

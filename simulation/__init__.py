@@ -91,6 +91,10 @@ boundary, not the symptom.
 #: 14: P19 R10. Green Sun's Zenith, Chord of Calling, Finale of Devastation,
 #:    Natural Order and Whir of Invention put the card they find onto the
 #:    battlefield, mana value X or less where the card says so.
-ENGINE_VERSION = 14
+#: 15: P19 R11. Mana that counts the board: Gaea's Cradle and Circle of
+#:    Dreams Druid per creature, Elvish Archdruid and Priest of Titania per
+#:    Elf, Cabal Stronghold per basic Swamp, Crypt of Agadeem per black
+#:    creature card in the graveyard, Nykthos by devotion, Tron together.
+ENGINE_VERSION = 15
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

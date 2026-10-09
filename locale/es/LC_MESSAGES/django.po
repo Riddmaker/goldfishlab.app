@@ -9143,3 +9143,50 @@ msgstr "%(what)s (%(color)s)"
 #, python-format
 msgid "%(what)s with mana value %(limit)s or less"
 msgstr "%(what)s con valor de maná %(limit)s o menos"
+
+#: changelog/entries.py
+msgid "Gaea's Cradle, Elvish Archdruid, Nykthos and Tron"
+msgstr "Gaea's Cradle, Elvish Archdruid, Nykthos y Tron"
+
+#: changelog/entries.py
+msgid ""
+"Mana that counts your board now makes what it counts: Gaea's Cradle and "
+"Circle of Dreams Druid one green for each creature, Elvish Archdruid and "
+"Priest of Titania one for each Elf, Cabal Stronghold one black for each "
+"basic Swamp, Crypt of Agadeem one for each black creature card in your "
+"graveyard, Nykthos your devotion, and the Urza lands seven together."
+msgstr ""
+"El maná que cuenta tu campo de batalla ahora produce lo que cuenta: Gaea's "
+"Cradle y Circle of Dreams Druid uno verde por cada criatura, Elvish "
+"Archdruid y Priest of Titania uno por cada Elfo, Cabal Stronghold uno negro "
+"por cada Swamp básico, Crypt of Agadeem uno por cada carta de criatura negra"
+" en tu cementerio, Nykthos tu devoción, y las tierras de Urza siete juntas."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each creature you control"
+msgstr "un %(color)s por cada criatura que controlas"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each basic %(type)s you control"
+msgstr "un %(color)s por cada %(type)s básico que controlas"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each %(dead)s creature card in your graveyard"
+msgstr "un %(color)s por cada carta de criatura %(dead)s en tu cementerio"
+
+#: simulations/engine/adapter.py
+msgid "as much as your devotion to your best colour, in that colour"
+msgstr "tanto como tu devoción a tu mejor color, de ese color"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s while you control %(names)s"
+msgstr "%(mana)s mientras controles %(names)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each %(type)s you control"
+msgstr "un %(color)s por cada %(type)s que controlas"

@@ -7863,3 +7863,15 @@ msgid ""
 msgstr ""
 "Rampant Growth、Cultivate、Wood Elves、Solemn "
 "Simulacrum、フェッチランドが、見つけた土地を戦場に出すようになりました。あなたの土地に足りない色を選びます。緑のランプデッキは統率者をより早く唱えられます。"
+
+#: changelog/entries.py
+msgid "Lands that enter tapped unless ..."
+msgstr "「〜でない限りタップ状態で戦場に出る」土地"
+
+#: changelog/entries.py
+msgid ""
+"Check lands, fast and slow lands, snarls and shock lands now enter untapped "
+"whenever their condition holds in the game, and shock lands pay their 2 life"
+" for it."
+msgstr ""
+"チェックランド、ファストランド、スローランド、スナール、ショックランドが、ゲーム中で条件を満たすたびにアンタップ状態で戦場に出るようになりました。ショックランドはそのために2点のライフを支払います。"

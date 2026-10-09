@@ -8891,3 +8891,17 @@ msgstr ""
 "Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum und Fetchländer "
 "bringen das gefundene Land jetzt ins Spiel und wählen die Farbe, die deinen "
 "Ländern fehlt. Grüne Ramp-Decks bringen ihren Commander früher ins Spiel."
+
+#: changelog/entries.py
+msgid "Lands that enter tapped unless ..."
+msgstr "Länder, die getappt ins Spiel kommen, außer …"
+
+#: changelog/entries.py
+msgid ""
+"Check lands, fast and slow lands, snarls and shock lands now enter untapped "
+"whenever their condition holds in the game, and shock lands pay their 2 life"
+" for it."
+msgstr ""
+"Check-Länder, Fast- und Slow-Lands, Snarls und Shocklands kommen jetzt "
+"ungetappt ins Spiel, wann immer ihre Bedingung im Spiel erfüllt ist, und "
+"Shocklands zahlen dafür ihre 2 Leben."

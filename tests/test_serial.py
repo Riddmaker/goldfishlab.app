@@ -25,6 +25,7 @@ from simulation.cards import (
     EndStepSpec,
     LandSearch,
     ManaAbility,
+    TappedUnless,
     TutorSpec,
     UpkeepSpec,
 )
@@ -72,6 +73,8 @@ EVERYTHING = Card(
                            types=frozenset({"forest", "island"}), life=1, when="play",
                            sacrifice=True, untap_at=4),
     basic=True,
+    tapped_unless=TappedUnless(kind="lands", types=frozenset({"island"}), count=3,
+                               at_least=False, other=True, basic=True, type="island"),
 )
 
 

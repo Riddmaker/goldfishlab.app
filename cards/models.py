@@ -379,6 +379,10 @@ class DerivedProfile(models.Model):
     #: sacrifice (the card itself goes), untap_at (Fabled Passage: untapped
     #: once you control that many lands). See `cards.profiles._land_search`.
     land_search = models.JSONField(null=True, blank=True)
+    #: P19 R3: when `enters_tapped`, the condition under which it does not -
+    #: {"kind": control_type | lands | opponents | reveal | pay_life, ...}.
+    #: See `cards.profiles._tapped_unless`. Null: none, or none it could read.
+    tapped_unless = models.JSONField(null=True, blank=True)
 
     #: Necropotence. A static "Skip your draw step." on the card itself - not
     #: Fatigue, which makes somebody *else* skip one, and not Ivory Gargoyle,

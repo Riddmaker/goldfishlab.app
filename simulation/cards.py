@@ -246,6 +246,32 @@ class LandSearch:
     untap_at: int = 0
 
 
+@dataclass(frozen=True)
+class TappedUnless:
+    """When a land that enters tapped does not (P19 R3, engine version 7).
+
+    ``kind`` says which question is asked of the game:
+
+    * ``control_type`` - you control a land of one of ``types`` (check lands)
+    * ``lands`` - you control ``count`` or more (``at_least``) or at most
+      ``count`` lands, ``other`` than this one, ``basic`` ones, or of ``type``
+      (fast, slow and battle lands, Mystic Sanctuary)
+    * ``opponents`` - you have ``count`` or more opponents: a Commander table
+      has three
+    * ``reveal`` - you can reveal a card of one of ``types`` from your hand
+    * ``pay_life`` - you pay ``count`` life (shock lands), never below the
+      Phyrexian life floor
+    """
+
+    kind: str
+    types: frozenset[str] = field(default_factory=frozenset)
+    count: int = 0
+    at_least: bool = True
+    other: bool = False
+    basic: bool = False
+    type: str = ""
+
+
 #: A card with no mana production of its own.
 NO_ABILITIES: tuple[ManaAbility, ...] = ()
 
@@ -339,6 +365,8 @@ class Card:
     land_search: LandSearch | None = None
     #: A basic land - what "search for a basic land card" may find.
     basic: bool = False
+    #: P19 R3: with ``enters_tapped``, the condition under which it does not.
+    tapped_unless: TappedUnless | None = None
 
     @property
     def mana_cost(self) -> ManaCost:

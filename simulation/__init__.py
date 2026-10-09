@@ -56,6 +56,13 @@ boundary, not the symptom.
 #:    the turn they are played for the land they find. The land picked is the
 #:    one that adds the most colours the lands in play cannot make. Until now
 #:    each was a gap and did nothing; a fetch land was a land with no mana.
-ENGINE_VERSION = 6
+#: 7: P19 R3 (issue #36). A land that enters tapped unless something holds is
+#:    checked against the game: check lands (a land type you control), fast,
+#:    slow and battle lands (how many lands), Battlebond lands (a Commander
+#:    table has three opponents), snarls and reveal lands (a card in hand) and
+#:    shock lands (2 life, paid while above the Phyrexian floor). Until now the
+#:    first kinds always entered tapped and a shock land always untapped, for
+#:    free.
+ENGINE_VERSION = 7
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

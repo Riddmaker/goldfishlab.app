@@ -130,7 +130,7 @@ def _land_score(card, game) -> int:
         untapped = not search.tapped or (search.untap_at
                                          and lands_out + 1 >= search.untap_at)
         return 79 if untapped else 25
-    if card.enters_tapped:
+    if card.enters_tapped and not game.untaps_on_entering(card):
         return 20          # useless this turn
     flat = card.ability(FLAT)
     if flat is not None:

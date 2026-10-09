@@ -8846,3 +8846,17 @@ msgstr ""
 " mettono sul campo di battaglia la terra che trovano, scegliendo il colore "
 "che manca alle tue terre. I mazzi ramp verdi lanciano prima il loro "
 "comandante."
+
+#: changelog/entries.py
+msgid "Lands that enter tapped unless ..."
+msgstr "Le terre che entrano TAPpate a meno che …"
+
+#: changelog/entries.py
+msgid ""
+"Check lands, fast and slow lands, snarls and shock lands now enter untapped "
+"whenever their condition holds in the game, and shock lands pay their 2 life"
+" for it."
+msgstr ""
+"Check land, fast land, slow land, snarl e shock land ora entrano STAPpate "
+"ogni volta che la loro condizione è soddisfatta nella partita, e le shock "
+"land pagano i loro 2 punti vita per farlo."

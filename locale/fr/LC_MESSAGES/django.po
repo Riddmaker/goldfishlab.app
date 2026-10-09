@@ -8970,3 +8970,17 @@ msgstr ""
 "mettent désormais le terrain trouvé sur le champ de bataille, en choisissant"
 " la couleur qui manque à vos terrains. Les decks de rampe verts lancent leur"
 " commandant plus tôt."
+
+#: changelog/entries.py
+msgid "Lands that enter tapped unless ..."
+msgstr "Les terrains qui arrivent engagés, sauf si …"
+
+#: changelog/entries.py
+msgid ""
+"Check lands, fast and slow lands, snarls and shock lands now enter untapped "
+"whenever their condition holds in the game, and shock lands pay their 2 life"
+" for it."
+msgstr ""
+"Les check lands, fast lands, slow lands, snarls et shock lands arrivent "
+"désormais dégagés dès que leur condition est remplie dans la partie, et les "
+"shock lands paient leurs 2 points de vie pour cela."

@@ -40,6 +40,7 @@ from simulation.cards import (
     EndStepSpec,
     LandSearch,
     ManaAbility,
+    TappedUnless,
     TutorSpec,
     UpkeepSpec,
 )
@@ -670,6 +671,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
                                annotations.scope_of(oracle_card.pk, "tags")),
         land_search=_land_search(profile),
         basic=oracle_card.type_line.startswith("Basic"),
+        tapped_unless=_tapped_unless(profile, overrides),
     )
 
     _record_gaps(card, profile, overrides, gaps)
@@ -819,6 +821,23 @@ def _draw_on_cast(profile, overrides: dict, kind: str) -> int:
 #: no third move, so a tutor that fetches onto the battlefield is a gap rather
 #: than a tutor quietly redirected somewhere it does not go.
 TUTOR_ZONES = {"hand": True, "graveyard": False}
+
+
+def _tapped_unless(profile, overrides: dict) -> TappedUnless | None:
+    """When a land that enters tapped does not, as the reader read it (P19 R3).
+
+    Only while nobody said otherwise: an annotation that sets `enters_tapped`
+    is a person's answer about this land, and it stands as given.
+    """
+    found = getattr(profile, "tapped_unless", None)
+    if not found or "enters_tapped" in overrides:
+        return None
+    return TappedUnless(
+        kind=found["kind"], types=frozenset(found.get("types", ())),
+        count=int(found.get("count") or found.get("life") or 0),
+        at_least=bool(found.get("at_least", True)), other=bool(found.get("other", False)),
+        basic=bool(found.get("basic", False)), type=found.get("type", ""),
+    )
 
 
 def _land_search(profile) -> LandSearch | None:

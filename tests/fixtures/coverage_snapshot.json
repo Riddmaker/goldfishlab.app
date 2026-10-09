@@ -1470,6 +1470,7 @@
      ]
     ]
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -1492,12 +1493,21 @@
     "reanimate",
     "recursion"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "sorcery"
    ]
   },
   "unread": [
-   "text mentions entering tapped, but the condition was not readable",
    "cost contains X"
   ]
  },
@@ -4684,13 +4694,23 @@
     "cost_reducer",
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "island"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Ardbert, Warrior of Darkness": {
   "id": "a9243760-b9b1-4d43-8550-3528b5571dae",
@@ -4796,12 +4816,23 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "mountain"
+    ]
+   },
    "types": [
     "land"
    ]
   },
   "unread": [
-   "enters tapped only conditionally ('unless')",
    "a mana ability with a coloured cost (a filter) is not modelled"
   ]
  },
@@ -9437,13 +9468,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": false,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Blade of Selves": {
   "id": "9c329f3d-4d0a-4012-8aa6-92afdd120a52",
@@ -9958,6 +9997,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -9980,13 +10020,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Blood Money": {
   "id": "75f5d372-4ff9-430c-8302-72472439e0d2",
@@ -10389,13 +10437,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": false,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Blossoming Bogbeast": {
   "id": "30f3c3be-0fe9-463d-a245-e44701aec7f2",
@@ -10594,6 +10650,7 @@
      ]
     ]
    },
+   "enters_tapped": true,
    "generic": 2,
    "mana_abilities": [
     {
@@ -10615,13 +10672,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "creature"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Bojuka Bog": {
   "id": "04b7362d-0490-4cb0-b5d7-2a7732f659ce",
@@ -11258,13 +11323,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": false,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Bountiful Landscape": {
   "id": "2eb69a8f-9456-4852-b868-85ae609d3441",
@@ -11358,13 +11431,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "opponents",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Bovine Intervention": {
   "id": "7402d98f-6d58-4ff2-a0db-9eec4417a75f",
@@ -12013,6 +12094,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -12036,13 +12118,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Breena, the Demagogue": {
   "id": "d11e627b-8a48-411d-a261-2c9a02a758ba",
@@ -12108,6 +12198,7 @@
      ]
     ]
    },
+   "enters_tapped": true,
    "generic": 2,
    "mana_abilities": [
     {
@@ -12130,13 +12221,21 @@
     "land",
     "removal"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "sorcery"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Brightclimb Pathway // Grimclimb Pathway": {
   "id": "1c633e02-95ef-445e-b4e0-fbfbc5ed9cc9",
@@ -13307,13 +13406,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": true,
+    "count": 2,
+    "kind": "lands",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Canyon Slough": {
   "id": "2031b17c-0536-446f-a9aa-b46fe79b7ea7",
@@ -14023,13 +14130,23 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "plains"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Castle Embereth": {
   "id": "91fbb25b-8521-483f-88b0-77778d25f7fd",
@@ -14066,13 +14183,23 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "mountain"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Castle Garenbrig": {
   "id": "de75e5dd-8a52-406c-b55c-96d686885500",
@@ -14111,12 +14238,23 @@
     "land",
     "ramp"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "forest"
+    ]
+   },
    "types": [
     "land"
    ]
   },
   "unread": [
-   "enters tapped only conditionally ('unless')",
    "a mana ability with a coloured cost (a filter) is not modelled",
    "tagged as adding more than one mana; only one was read"
   ]
@@ -14159,13 +14297,23 @@
     "draw_engine",
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "swamp"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Castle Vantress": {
   "id": "cdf41cf4-4e77-453d-be5b-0abbbd358934",
@@ -14202,13 +14350,23 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "island"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Casualties of War": {
   "id": "5c6c8fe7-3520-423b-a224-1c0af516871a",
@@ -15719,6 +15877,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -15738,13 +15897,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "reveal",
+    "other": false,
+    "type": "",
+    "types": [
+     "island",
+     "swamp"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Chord of Calling": {
   "id": "6789a170-f2c5-4fc0-8a45-2b2361e67410",
@@ -16052,13 +16222,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": true,
+    "count": 2,
+    "kind": "lands",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Circle of Dreams Druid": {
   "id": "1c857fa4-e823-494d-9ea4-7eb9e719c9b6",
@@ -16548,13 +16726,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "mountain",
+     "plains"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Clock of Omens": {
   "id": "5d0f4665-aa10-4251-b590-129b59274fb3",
@@ -17821,13 +18010,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": false,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Concordant Crossroads": {
   "id": "ff01b408-6d17-40a3-9efd-a1b341ec1307",
@@ -18493,13 +18690,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": false,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Cordial Vampire": {
   "id": "d61fb9e8-d05a-481a-a90f-5def300c9abb",
@@ -21312,13 +21517,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": false,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Darksteel Angel": {
   "id": "d0259f7d-9bd7-4722-8fb9-439768308516",
@@ -22010,13 +22223,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Deathrite Shaman": {
   "id": "22f1a4a4-c423-4d1c-8775-0ed604a9fa51",
@@ -23301,13 +23522,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Deserted Temple": {
   "id": "9f12bf9a-6e1a-4377-b4af-e8cabd3ee58a",
@@ -24319,6 +24548,7 @@
      ]
     ]
    },
+   "enters_tapped": true,
    "generic": 3,
    "mana_abilities": [
     {
@@ -24341,13 +24571,21 @@
     "draw",
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "creature"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Disenchant": {
   "id": "a7e97fa9-4b72-4548-b854-5be5f18a6f1a",
@@ -25547,13 +25785,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "mountain",
+     "swamp"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Dragonspeaker Shaman": {
   "id": "6a29f36b-7911-4d84-a3ae-546b131d5159",
@@ -25977,13 +26226,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Dreamstone Hedron": {
   "id": "0e2575be-c596-4c8c-bf07-7941ca065721",
@@ -26169,13 +26426,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "island",
+     "swamp"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Drownyard Temple": {
   "id": "c30f9be4-c274-4ad0-b5d7-7d3421aa4277",
@@ -26756,13 +27024,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": true,
+    "count": 2,
+    "kind": "lands",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Edgar, Master Machinist": {
   "id": "75348d55-99cd-4dab-97be-1f818c43a69d",
@@ -32545,6 +32821,7 @@
      ]
     ]
    },
+   "enters_tapped": true,
    "generic": 2,
    "mana_abilities": [
     {
@@ -32567,13 +32844,21 @@
     "land",
     "removal"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "instant"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Fellwar Stone": {
   "id": "95560508-7ac9-4be9-8a3f-3c7d5b52807b",
@@ -35034,6 +35319,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -35052,13 +35338,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "reveal",
+    "other": false,
+    "type": "",
+    "types": [
+     "mountain",
+     "swamp"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Forensic Gadgeteer": {
   "id": "9d5917d5-4fb3-4f37-9278-e08c1f73aae5",
@@ -35438,6 +35735,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -35457,13 +35755,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "reveal",
+    "other": false,
+    "type": "",
+    "types": [
+     "forest",
+     "plains"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Forum Filibuster": {
   "id": "6a9cc11b-a223-46f0-bf58-c1e08ad1253d",
@@ -35947,6 +36256,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -35966,13 +36276,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "reveal",
+    "other": false,
+    "type": "",
+    "types": [
+     "island",
+     "mountain"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Frostcliff Siege": {
   "id": "e7af31ff-fa1b-4225-b3bc-fde80ac72d0a",
@@ -36147,6 +36468,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -36166,13 +36488,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "reveal",
+    "other": false,
+    "type": "",
+    "types": [
+     "mountain",
+     "plains"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Furygale Flocking": {
   "id": "943fc88d-c281-46bb-9dc7-1052f789362b",
@@ -36673,6 +37006,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -36692,13 +37026,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "reveal",
+    "other": false,
+    "type": "",
+    "types": [
+     "forest",
+     "mountain"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Ganax, Astral Hunter": {
   "id": "a3112971-3af4-46e8-b2d6-a8759b39d0d1",
@@ -38191,13 +38536,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "island",
+     "plains"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Glaring Fleshraker": {
   "id": "0ffce5e0-6b1d-4d1a-9318-1a1a219df532",
@@ -39006,6 +39362,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -39029,13 +39386,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Gogo, Mysterious Mime": {
   "id": "6fdcb563-9279-4365-8a78-26e75fbfd917",
@@ -41542,6 +41907,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -41565,13 +41931,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Halo Fountain": {
   "id": "36a9de4c-8073-475d-8679-e50844eef09e",
@@ -42215,13 +42589,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Haunting Voyage": {
   "id": "334c284e-7bc3-4c18-9f8d-4d846f80008e",
@@ -44021,13 +44403,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "forest",
+     "island"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Hit the Mother Lode": {
   "id": "a49900b3-cc34-428f-806d-71861dc8059d",
@@ -45009,6 +45402,7 @@
      ]
     ]
    },
+   "enters_tapped": true,
    "generic": 2,
    "mana_abilities": [
     {
@@ -45031,13 +45425,21 @@
     "land",
     "protection"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "creature"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Hydroid Krasis": {
   "id": "6bd872b2-5c40-4e11-9a7f-0136a51b0642",
@@ -46766,13 +47168,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": false,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Inspirit, Flagship Vessel": {
   "id": "554df866-3dbb-4811-8573-6033481591aa",
@@ -47732,13 +48142,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "plains",
+     "swamp"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Isshin, Two Heavens as One": {
   "id": "65114758-9a75-43a7-96e8-0aa68faa6b24",
@@ -55415,13 +55836,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "opponents",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Lyra Dawnbringer": {
   "id": "592c91fc-6430-4c76-9460-65f047350f67",
@@ -59445,13 +59874,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "forest",
+     "mountain"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Mistvault Bridge": {
   "id": "33ee23bc-6327-4a54-a704-dfd83be36bb5",
@@ -60204,13 +60644,23 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "plains"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Moon-Blessed Cleric": {
   "id": "89ed0598-a3ee-4d14-9a35-25e0dd80d9fb",
@@ -60488,13 +60938,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "opponents",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Mortality Spear": {
   "id": "544acde0-850d-4c4f-8389-e22930d87345",
@@ -61873,13 +62331,21 @@
     "land",
     "recursion"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "lands",
+    "other": true,
+    "type": "island",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Mystical Tutor": {
   "id": "fb81f95c-70f8-4eb7-8d15-15d0ae23ec03",
@@ -62354,6 +62820,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -62372,13 +62839,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "reveal",
+    "other": false,
+    "type": "",
+    "types": [
+     "forest",
+     "swamp"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Necromancy": {
   "id": "699b192c-f3f2-4ac5-9ca9-e35bcf08ad8a",
@@ -66265,13 +66743,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Overgrown Tomb": {
   "id": "975ec9a3-6f20-4177-8211-82526e092538",
@@ -66288,6 +66774,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -66310,13 +66797,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Overlord of the Hauntwoods": {
   "id": "4669e8c7-fc37-4b97-9cb7-8d29b43d9176",
@@ -68580,6 +69075,7 @@
      ]
     ]
    },
+   "enters_tapped": true,
    "generic": 3,
    "mana_abilities": [
     {
@@ -68602,13 +69098,21 @@
     "land",
     "recursion"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "creature"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Pirate's Pillage": {
   "id": "7a2e866b-9642-495e-b47f-5b13a24373cc",
@@ -69324,6 +69828,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -69343,13 +69848,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "reveal",
+    "other": false,
+    "type": "",
+    "types": [
+     "island",
+     "plains"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Portal to Phyrexia": {
   "id": "301d1d8e-d3fc-4010-8b29-4724fa0b31cd",
@@ -69576,13 +70092,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": true,
+    "count": 2,
+    "kind": "lands",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Preordain": {
   "id": "ac641490-ca14-48d7-8cc4-b69ce984befa",
@@ -71680,13 +72204,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": true,
+    "count": 2,
+    "kind": "lands",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Raffine's Guidance": {
   "id": "ad3bf726-e0c2-4038-a66e-9a9dff439563",
@@ -72829,6 +73361,7 @@
      ]
     ]
    },
+   "enters_tapped": true,
    "generic": 1,
    "mana_abilities": [
     {
@@ -72851,13 +73384,21 @@
     "land",
     "removal"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "instant"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Razorkin Needlehead": {
   "id": "a78f981a-bf8a-42a4-b171-d655cc2cc1a2",
@@ -72999,13 +73540,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": false,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Read the Bones": {
   "id": "5bf4d8d9-a2b2-4dba-ac05-9d4470a89db2",
@@ -73896,13 +74445,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "opponents",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Release the Dogs": {
   "id": "b97d21b4-d730-479f-872f-3e1645b66751",
@@ -76238,13 +76795,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Rocksteady, Mutant Marauder": {
   "id": "506a972d-d226-44dc-95b7-a6e7a63d76cd",
@@ -76510,13 +77075,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "forest",
+     "mountain"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Rootha, Mastering the Moment": {
   "id": "348c67ef-9ccc-4651-9038-efdf1ad1b36a",
@@ -77240,6 +77816,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -77263,13 +77840,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Sacred Peaks": {
   "id": "fb69bc57-f05a-41c2-9b7b-9a9761ef0cd3",
@@ -78401,13 +78986,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": true,
+    "count": 2,
+    "kind": "lands",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Scoured Barrens": {
   "id": "d37f858e-03c8-4594-9b92-cd03699a1591",
@@ -78908,6 +79501,7 @@
      ]
     ]
    },
+   "enters_tapped": true,
    "generic": 4,
    "mana_abilities": [
     {
@@ -78930,13 +79524,21 @@
     "draw",
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "sorcery"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Sea of Clouds": {
   "id": "672e190d-8ea0-4a2e-b74f-5d35304631e4",
@@ -78973,13 +79575,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "opponents",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Seachrome Coast": {
   "id": "9e7a240d-dc33-47ac-9f17-77fab4c1c340",
@@ -79016,13 +79626,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": false,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Search for Tomorrow": {
   "id": "9cdc9f99-c6fa-40cd-90b0-e47d43a8cc3c",
@@ -81134,13 +81752,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Shatterskull Smashing // Shatterskull, the Hammer Pass": {
   "id": "78301998-fd9b-4cd5-afad-dbcb43cac2a7",
@@ -81163,6 +81789,7 @@
      ]
     ]
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -81184,12 +81811,21 @@
     "land",
     "removal"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "sorcery"
    ]
   },
   "unread": [
-   "text mentions entering tapped, but the condition was not readable",
    "cost contains X"
   ]
  },
@@ -81595,13 +82231,23 @@
     "land",
     "recursion"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "forest"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Shigeki, Jukai Visionary": {
   "id": "cbad3570-5417-42e6-b3ef-f42194098314",
@@ -81804,6 +82450,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -81823,13 +82470,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "reveal",
+    "other": false,
+    "type": "",
+    "types": [
+     "plains",
+     "swamp"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Shinka, the Bloodsoaked Keep": {
   "id": "255b937f-c9c9-4ae9-815e-17418eba0602",
@@ -81942,13 +82600,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Shivan Devastator": {
   "id": "b7daa74c-6142-4107-9355-be98af6ccf13",
@@ -83169,6 +83835,7 @@
      ]
     ]
    },
+   "enters_tapped": true,
    "generic": 1,
    "mana_abilities": [
     {
@@ -83192,13 +83859,21 @@
     "land",
     "removal"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "instant"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Siren Stormtamer": {
   "id": "59c7496b-19a2-478b-b28f-6f153c2458ae",
@@ -84051,13 +84726,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": true,
+    "count": 2,
+    "kind": "lands",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Smothering Abomination": {
   "id": "c3db28e5-6162-4642-a1c9-a7ace0737950",
@@ -84498,13 +85181,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": true,
+    "count": 2,
+    "kind": "lands",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Sokenzan, Crucible of Defiance": {
   "id": "c5ee72d5-3a9e-4fe5-8802-3286ee612055",
@@ -85473,13 +86164,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "opponents",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Spectral Sailor": {
   "id": "a8fdbcdf-479d-4582-9ad5-9fbd4c740c29",
@@ -85841,13 +86540,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "opponents",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Spire Golem": {
   "id": "bfdc6bbc-7402-40ae-91be-658afca2f145",
@@ -85962,13 +86669,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": false,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Spirit Mantle": {
   "id": "81a51328-b995-4f3b-90bc-a20ae21dd254",
@@ -86460,13 +87175,23 @@
     "draw",
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "swamp"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Squee, Goblin Nabob": {
   "id": "0ef760f4-bbec-4735-8d60-fc24d973452a",
@@ -86861,6 +87586,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -86884,13 +87610,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Steel Hellkite": {
   "id": "6e64f1e0-ddd6-4ee7-8797-086e234b02e8",
@@ -87367,6 +88101,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -87390,13 +88125,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Stonecoil Serpent": {
   "id": "78124cd1-2658-43f3-a339-0755d84154d2",
@@ -87650,13 +88393,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Stormcatch Mentor": {
   "id": "b2252471-01ca-4d58-aa99-4ab0aa5eae12",
@@ -88373,13 +89124,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "island",
+     "mountain"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Sulfurous Springs": {
   "id": "f5c38c01-4a40-469f-91a0-7479daf4e8e7",
@@ -89068,6 +89830,7 @@
      ]
     ]
    },
+   "enters_tapped": true,
    "generic": 2,
    "mana_abilities": [
     {
@@ -89090,12 +89853,21 @@
     "land",
     "removal"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "sorcery"
    ]
   },
   "unread": [
-   "text mentions entering tapped, but the condition was not readable",
    "tutors, but no readable 'search your library' clause"
   ]
  },
@@ -89134,13 +89906,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "lands",
+    "other": true,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Sunfall": {
   "id": "fb3f5097-0da0-458c-8508-60823567e2da",
@@ -89298,13 +90078,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": true,
+    "count": 2,
+    "kind": "lands",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Sunken Ruins": {
   "id": "e6415ffb-8b7a-41c3-bedf-0d4112b7b795",
@@ -89428,13 +90216,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "forest",
+     "plains"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Sunscorch Regent": {
   "id": "c8ff464f-0059-4055-a2f2-556fe6db8fbf",
@@ -92547,6 +93346,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -92570,13 +93370,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Temple of Abandon": {
   "id": "3baa8e38-ef93-435d-b63e-f781d5bfcc68",
@@ -98872,13 +99680,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "opponents",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Training Grounds": {
   "id": "8de3eabe-9a8f-4865-beef-a4888c081d39",
@@ -101699,13 +102515,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "opponents",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Underworld Breach": {
   "id": "27e0948b-9916-473b-8d8c-a51bdfbc7457",
@@ -103757,13 +104581,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "opponents",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Vault of Whispers": {
   "id": "09496421-74e4-466a-9546-56f2a0c8eef4",
@@ -104422,13 +105254,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": true,
+    "count": 2,
+    "kind": "lands",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Vernal Sovereign": {
   "id": "bf30b8ae-0125-4a00-bae8-ac1aa7703a08",
@@ -105011,6 +105851,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -105030,13 +105871,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "reveal",
+    "other": false,
+    "type": "",
+    "types": [
+     "forest",
+     "island"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Viridescent Bog": {
   "id": "6bd6d259-1af7-4dff-a79c-48a616d2a36e",
@@ -106639,6 +107491,7 @@
     "phyrexian": [],
     "pips": []
    },
+   "enters_tapped": true,
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -106662,13 +107515,21 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 2,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Wave Goodbye": {
   "id": "06ef46c6-00ba-40e6-b866-d0095ab83749",
@@ -108730,6 +109591,7 @@
      ]
     ]
    },
+   "enters_tapped": true,
    "generic": 3,
    "mana_abilities": [
     {
@@ -108752,13 +109614,21 @@
     "land",
     "removal"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "pay_life",
+    "other": false,
+    "type": "",
+    "types": []
+   },
    "types": [
     "creature"
    ]
   },
-  "unread": [
-   "text mentions entering tapped, but the condition was not readable"
-  ]
+  "unread": []
  },
  "Witch of the Moors": {
   "id": "7ad97dd9-1342-4ed4-bea9-1bb21d748e04",
@@ -108875,13 +109745,21 @@
     "land",
     "recursion"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 3,
+    "kind": "lands",
+    "other": true,
+    "type": "swamp",
+    "types": []
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "Witherbloom Campus": {
   "id": "6cd58a88-6434-4c55-bf93-a739b5ed9bc1",
@@ -109465,13 +110343,24 @@
    "tags": [
     "land"
    ],
+   "tapped_unless": {
+    "_type": "TappedUnless",
+    "at_least": true,
+    "basic": false,
+    "count": 0,
+    "kind": "control_type",
+    "other": false,
+    "type": "",
+    "types": [
+     "forest",
+     "swamp"
+    ]
+   },
    "types": [
     "land"
    ]
   },
-  "unread": [
-   "enters tapped only conditionally ('unless')"
-  ]
+  "unread": []
  },
  "World Breaker": {
   "id": "deeb7e22-b207-42de-b9d4-f790403d52a9",

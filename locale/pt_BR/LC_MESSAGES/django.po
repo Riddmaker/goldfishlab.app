@@ -8792,3 +8792,17 @@ msgstr ""
 "agora colocam no campo de batalha o terreno que encontram, escolhendo a cor "
 "que falta aos seus terrenos. Decks verdes de rampa jogam o comandante mais "
 "cedo."
+
+#: changelog/entries.py
+msgid "Lands that enter tapped unless ..."
+msgstr "Terrenos que entram virados, a menos que …"
+
+#: changelog/entries.py
+msgid ""
+"Check lands, fast and slow lands, snarls and shock lands now enter untapped "
+"whenever their condition holds in the game, and shock lands pay their 2 life"
+" for it."
+msgstr ""
+"Check lands, fast lands, slow lands, snarls e shock lands agora entram "
+"desviradas sempre que a condição delas é cumprida no jogo, e as shock lands "
+"pagam suas 2 vidas para isso."

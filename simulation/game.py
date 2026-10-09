@@ -23,6 +23,7 @@ from simulation.mana import (
     land_colors,
     reductions_from,
 )
+from simulation.manacost import PHYREXIAN_LIFE_FLOOR
 
 STARTING_LIFE = 40
 STARTING_HAND_SIZE = 7
@@ -281,18 +282,58 @@ class Game:
 
     # --- Playing cards -----------------------------------------------------
 
+    #: A Commander game: three opponents, for "unless you have two or more".
+    OPPONENTS = 3
+
+    def untaps_on_entering(self, land) -> bool:
+        """Whether a land that would enter tapped meets its condition not to.
+
+        Asked before the land is on the battlefield, so "other lands" are all
+        of them. Pure: a shock land's life is paid by :meth:`_enters_tapped`.
+        """
+        condition = land.tapped_unless
+        if condition is None:
+            return False
+        kind = condition.kind
+        if kind == "control_type":
+            return any(other.subtypes & condition.types for other in self.lands)
+        if kind == "lands":
+            counted = [other for other in self.lands
+                       if (not condition.basic or other.basic)
+                       and (not condition.type or condition.type in other.subtypes)]
+            have = len(counted) + (0 if condition.other else 1)
+            return have >= condition.count if condition.at_least else have <= condition.count
+        if kind == "opponents":
+            return self.OPPONENTS >= condition.count
+        if kind == "reveal":
+            return any(card is not land and card.subtypes & condition.types
+                       for card in self.hand)
+        if kind == "pay_life":
+            return self.life - condition.count >= PHYREXIAN_LIFE_FLOOR
+        return False
+
+    def _enters_tapped(self, land) -> bool:
+        """Whether this land enters tapped, paying a shock land's life if not."""
+        if not land.enters_tapped:
+            return False
+        if not self.untaps_on_entering(land):
+            return True
+        if land.tapped_unless.kind == "pay_life":
+            self.life -= land.tapped_unless.count
+        return False
+
     def play_land(self, card) -> None:
         """Play a land from hand."""
         self.hand.remove(card)
+        tapped = self._enters_tapped(card)
         self.lands.append(card)
         self.land_drop_used = True
-        if card.enters_tapped:
+        if tapped:
             # Entered tapped: not a mana source this turn.
             self.lands.remove(card)
             self.lands.insert(0, card)
             self.tapped_lands += 1
-        self.note(f"Land: {card.name}"
-                  + (" (tapped)" if card.enters_tapped else ""))
+        self.note(f"Land: {card.name}" + (" (tapped)" if tapped else ""))
 
     def play_fetch(self, card, choose=None) -> None:
         """A fetch land played this turn: sacrificed at once for what it finds.
@@ -331,10 +372,11 @@ class Game:
                 self.hand.append(land)
                 self.note(f"  -> {land.name} to hand")
                 continue
-            tapped = spec.tapped or land.enters_tapped
+            tapped = spec.tapped
             if spec.untap_at and len(self.lands) + 1 >= spec.untap_at:
-                tapped = land.enters_tapped
-            self._enter_land(land, tapped)
+                tapped = False
+            # `tapped` first: a land the search puts in tapped pays no life.
+            self._enter_land(land, tapped or self._enters_tapped(land))
         return found
 
     def _enter_land(self, land, tapped: bool) -> None:

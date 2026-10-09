@@ -9,7 +9,7 @@ first, then the card-advantage engines, then the sacrifice motor.
 """
 
 from simulation import actions
-from simulation.cards import FLAT, PER_CONTROLLED, RITUAL, TYPE_ADDING
+from simulation.cards import PER_CONTROLLED, RITUAL, TYPE_ADDING
 from simulation.mana import ManaPool, effective_mana_cost, reductions_from
 from simulation.manacost import SUBTYPE_COLORS
 
@@ -132,7 +132,9 @@ def _land_score(card, game) -> int:
         return 79 if untapped else 25
     if card.enters_tapped and not game.untaps_on_entering(card):
         return 20          # useless this turn
-    flat = card.ability(FLAT)
+    # What it would tap for once played: Temple of the False God taps for
+    # nothing before the fifth land, a Tainted land for {C} without its type.
+    flat = game.mana_ability(card, entering=True)
     if flat is not None:
         # Colour beats colourless. This used to drop a coloured land with no
         # basic land type to 50, which put it *below* the colourless one - never

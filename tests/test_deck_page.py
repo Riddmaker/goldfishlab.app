@@ -258,6 +258,13 @@ def test_the_deck_page_and_its_grid_do_not_query_per_card(client_in, deck):
     from decks.models import DeckCard
 
     url = deck.get_absolute_url()
+    # One card the engine cannot read, so both decks have open questions:
+    # the page notes their count in the session, and that costs a query
+    # whatever the deck's size. Cabal Coffers did this until engine version 8
+    # read it (P19 R4).
+    DeckCard.objects.create(deck=deck, quantity=1,
+                            oracle_card=OracleCard.objects.get(name="Phyrexian Tower"))
+    type(deck).objects.filter(pk=deck.pk).update(open_questions=None)
     before = (_queries(client_in, url), _queries(client_in, url, **HTMX))
 
     held = deck.entries.values_list("oracle_card_id", flat=True)

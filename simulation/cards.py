@@ -83,6 +83,39 @@ CARD_TYPES = (
 
 
 @dataclass(frozen=True)
+class TappedUnless:
+    """When a land that enters tapped does not (P19 R3, engine version 7).
+
+    ``kind`` says which question is asked of the game:
+
+    * ``control_type`` - you control a land of one of ``types`` (check lands)
+    * ``lands`` - you control ``count`` or more (``at_least``) or at most
+      ``count`` lands, ``other`` than this one, ``basic`` ones, or of ``type``
+      (fast, slow and battle lands, Mystic Sanctuary)
+    * ``opponents`` - you have ``count`` or more opponents: a Commander table
+      has three
+    * ``reveal`` - you can reveal a card of one of ``types`` from your hand
+    * ``pay_life`` - you pay ``count`` life (shock lands), never below the
+      Phyrexian life floor
+    * ``artifacts`` - you control ``count`` or more artifacts (Mox Opal,
+      Spire of Industry)
+
+    Since engine version 8 the same question also guards a mana ability
+    (P19 R4): "Activate only if you control five or more lands" is a
+    ``ManaAbility`` whose ``only_if`` is ``TappedUnless("lands", count=5)``.
+    The name stays because R3 put it into stored games.
+    """
+
+    kind: str
+    types: frozenset[str] = field(default_factory=frozenset)
+    count: int = 0
+    at_least: bool = True
+    other: bool = False
+    basic: bool = False
+    type: str = ""
+
+
+@dataclass(frozen=True)
 class ManaAbility:
     """A mana ability as a rule rather than as a card name.
 
@@ -108,6 +141,10 @@ class ManaAbility:
         color: The colour the scaling rules (``PER_CONTROLLED``,
             ``DOUBLE_SUBTYPE``) make. Empty means the subtype's colour, so
             black for swamps and green for forests.
+        only_if: A condition the game checks before the ability counts. A
+            card may carry a conditional ``FLAT`` ability first and an
+            unconditional one after it: a Tainted land's {B}/{G} needs a
+            Swamp, its {C} does not.
     """
 
     rule: str
@@ -115,6 +152,9 @@ class ManaAbility:
     activation_generic: int = 0
     subtype: str = ""
     color: str = ""
+    #: The ability can be activated only while this holds (P19 R4): Temple
+    #: of the False God, a Tainted land, Mox Opal. None: always.
+    only_if: TappedUnless | None = None
 
     def __post_init__(self):
         # Canonicalise, so that two abilities making the same mana compare
@@ -244,32 +284,6 @@ class LandSearch:
     when: str = "cast"
     sacrifice: bool = False
     untap_at: int = 0
-
-
-@dataclass(frozen=True)
-class TappedUnless:
-    """When a land that enters tapped does not (P19 R3, engine version 7).
-
-    ``kind`` says which question is asked of the game:
-
-    * ``control_type`` - you control a land of one of ``types`` (check lands)
-    * ``lands`` - you control ``count`` or more (``at_least``) or at most
-      ``count`` lands, ``other`` than this one, ``basic`` ones, or of ``type``
-      (fast, slow and battle lands, Mystic Sanctuary)
-    * ``opponents`` - you have ``count`` or more opponents: a Commander table
-      has three
-    * ``reveal`` - you can reveal a card of one of ``types`` from your hand
-    * ``pay_life`` - you pay ``count`` life (shock lands), never below the
-      Phyrexian life floor
-    """
-
-    kind: str
-    types: frozenset[str] = field(default_factory=frozenset)
-    count: int = 0
-    at_least: bool = True
-    other: bool = False
-    basic: bool = False
-    type: str = ""
 
 
 #: A card with no mana production of its own.

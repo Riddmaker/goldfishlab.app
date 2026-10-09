@@ -21,6 +21,7 @@ rule applies and `coverage()` reports the gap. A simulation that quietly
 invented the missing half of its input would be worse than no simulation.
 """
 
+import re
 from collections import Counter
 from dataclasses import dataclass, field
 
@@ -53,6 +54,10 @@ from simulations import gaps as gaps_module
 #: a triggered ability, and reading Phyrexian Arena as a cast-trigger would
 #: hand the deck a free card every game it is drawn rather than every upkeep.
 ONE_SHOT_KINDS = frozenset({"instant", "sorcery", "ritual"})
+
+#: Vesuva, Thespian's Stage: a land that becomes a copy of another makes
+#: that land's mana, which the engine cannot know. Not "makes none".
+_COPIES = re.compile(r"\bcopy of\b", re.IGNORECASE)
 
 #: Scaling rules an annotation may name, mapped to the engine's constants.
 SCALING_RULES = {
@@ -373,7 +378,10 @@ def _ability_text(ability) -> str:
             f"{amount} {mana_label(color)}" for color, amount in ability.produces
         ) or gettext("nothing")
         if ability.activation_generic:
-            return _for_cost(ability.activation_generic, produced)
+            produced = _for_cost(ability.activation_generic, produced)
+        if ability.only_if is not None:
+            produced = gettext("%(mana)s if you control %(what)s") % {
+                "mana": produced, "what": _condition_text(ability.only_if)}
         return produced
 
     if ability.rule in RULE_TEXT:
@@ -384,6 +392,18 @@ def _ability_text(ability) -> str:
     if ability.activation_generic:
         return _for_cost(ability.activation_generic, text)
     return text
+
+
+def _condition_text(condition: TappedUnless) -> str:
+    """What "Activate only if you control ..." asks for, in words (P19 R4)."""
+    if condition.kind == "lands":
+        return ngettext("%(count)s or more land", "%(count)s or more lands",
+                        condition.count) % {"count": condition.count}
+    if condition.kind == "artifacts":
+        return ngettext("%(count)s or more artifact", "%(count)s or more artifacts",
+                        condition.count) % {"count": condition.count}
+    types = " / ".join(sorted(subtype.capitalize() for subtype in condition.types))
+    return gettext("a land of type %(types)s") % {"types": types}
 
 
 def _for_cost(generic: int, mana: str) -> str:
@@ -674,7 +694,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         tapped_unless=_tapped_unless(profile, overrides),
     )
 
-    _record_gaps(card, profile, overrides, gaps)
+    _record_gaps(card, profile, overrides, gaps, oracle_card.oracle_text or "")
     return card
 
 
@@ -682,9 +702,10 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
                     gaps: list[Gap], deck_colors: frozenset[str]) -> tuple[ManaAbility, ...]:
     """The card's mana abilities, from an annotation or from the profile.
 
-    A scaling rule can only come from an annotation: Scryfall's `produced_mana`
-    gives colour and nothing else, so nothing in the derived data can tell
-    Cabal Coffers from a Swamp.
+    A scaling rule comes from an annotation or, since engine version 8, from
+    the reader (P19 R4): `produced_mana` gives colour and nothing else, so
+    it is the printed sentence that tells Cabal Coffers from a Swamp. An
+    annotation still wins.
     """
     if overrides.get("scaling_rule"):
         rule = SCALING_RULES.get(overrides["scaling_rule"])
@@ -697,6 +718,11 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
                     color=overrides.get("scaling_color", ""),
                 ),
             )
+    read_rule = getattr(profile, "mana_rule", None)
+    if read_rule and not _overrides_mana(overrides):
+        return (ManaAbility(SCALING_RULES[read_rule["rule"]], subtype=read_rule["subtype"],
+                            activation_generic=int(read_rule.get("activation") or 0),
+                            color=read_rule.get("color", "")),)
 
     # What using the ability costs beside {T}: a Signet's {1}. Read off the
     # card by the deriver since the 2026-09-25 review, and an annotation can
@@ -718,11 +744,31 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
     if not profile.produces_mana or profile.mana_amount is None:
         return ()
 
+    # "Activate only if you control ..." (P19 R4): the ability carries the
+    # condition, and what the card taps for without it follows as a second,
+    # plain ability - the game takes the first one whose condition holds.
+    condition = getattr(profile, "mana_condition", None)
+    if condition and "mana_activation" not in overrides:
+        only_if = _condition(condition["if"])
+        main = _flat(profile.mana_produces, profile.mana_colors, profile.mana_amount,
+                     activation, deck_colors, only_if)
+        otherwise = condition.get("otherwise")
+        if not otherwise:
+            return (main,)
+        return (main, _flat(otherwise["produces"], profile.mana_colors, otherwise["amount"],
+                            int(otherwise.get("activation") or 0), deck_colors, None))
+
+    return (_flat(getattr(profile, "mana_produces", None), profile.mana_colors,
+                  profile.mana_amount, activation, deck_colors, None),)
+
+
+def _flat(exact: dict | None, mana_colors, amount: int, activation: int,
+          deck_colors: frozenset[str], only_if: TappedUnless | None) -> ManaAbility:
+    """One ``FLAT`` ability: the exact mana the text names, or a choice."""
     # The text named every symbol - a Signet's {U}{B} is one of EACH, not a
     # choice between them, so there is no colour to pick and nothing to report.
-    exact = getattr(profile, "mana_produces", None)
     if exact:
-        return (ManaAbility(FLAT, exact, activation_generic=activation),)
+        return ManaAbility(FLAT, exact, activation_generic=activation, only_if=only_if)
 
     # `mana_colors` is Scryfall's `produced_mana`: it lists every colour the
     # card can make, without saying whether that is a choice or all of them at
@@ -732,12 +778,28 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
     # Tower and Arcane Signet name all five, and make only the commander's.
     # Several mana of a choice are each chosen on their own, which is right
     # for "any combination of colours" and generous for "any one colour".
-    colors = [color for color in profile.mana_colors or [] if color in COLORS]
-    amount = profile.mana_amount
+    colors = [color for color in mana_colors or [] if color in COLORS]
     if not colors:
-        return (ManaAbility(FLAT, {COLORLESS: amount}, activation_generic=activation),)
+        return ManaAbility(FLAT, {COLORLESS: amount}, activation_generic=activation,
+                           only_if=only_if)
     offered = [color for color in colors if color in deck_colors] or colors
-    return (ManaAbility(FLAT, {choice(offered): amount}, activation_generic=activation),)
+    return ManaAbility(FLAT, {choice(offered): amount}, activation_generic=activation,
+                       only_if=only_if)
+
+
+def _overrides_mana(overrides: dict) -> bool:
+    """Whether an annotation says what this card taps for."""
+    return _annotated_production(overrides) is not None
+
+
+def _condition(found: dict) -> TappedUnless:
+    """A condition the reader read, as the engine's (P19 R3 and R4)."""
+    return TappedUnless(
+        kind=found["kind"], types=frozenset(found.get("types", ())),
+        count=int(found.get("count") or found.get("life") or 0),
+        at_least=bool(found.get("at_least", True)), other=bool(found.get("other", False)),
+        basic=bool(found.get("basic", False)), type=found.get("type", ""),
+    )
 
 
 def _annotated_production(overrides: dict) -> dict | None:
@@ -832,12 +894,7 @@ def _tapped_unless(profile, overrides: dict) -> TappedUnless | None:
     found = getattr(profile, "tapped_unless", None)
     if not found or "enters_tapped" in overrides:
         return None
-    return TappedUnless(
-        kind=found["kind"], types=frozenset(found.get("types", ())),
-        count=int(found.get("count") or found.get("life") or 0),
-        at_least=bool(found.get("at_least", True)), other=bool(found.get("other", False)),
-        basic=bool(found.get("basic", False)), type=found.get("type", ""),
-    )
+    return _condition(found)
 
 
 def _land_search(profile) -> LandSearch | None:
@@ -1002,7 +1059,8 @@ def _subtypes(oracle_card, profile, overrides: dict) -> frozenset[str]:
     return frozenset({"swamp"}) if profile.is_basic_swamp else frozenset()
 
 
-def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap]) -> None:
+def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
+                 card_text: str = "") -> None:
     """Note everything a human would still have to decide about this card."""
     if card.priority is None and card.goldfish_castable and not card.is_land:
         # Only worth reporting for cards the agent might actually cast. Removal
@@ -1020,6 +1078,12 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap]) -> None:
                         gettext_noop("makes mana, but how much could not be read")))
 
     fetches = card.land_search is not None and card.land_search.when == "play"
-    if card.is_land and not card.mana_abilities and not fetches:
+    # A land with a basic land type taps for its colour (Dryad Arbor), and one
+    # whose text adds no mana and lists none really makes none: Maze of Ith,
+    # Dark Depths. Neither is something the engine failed to read (P19 R4).
+    typed = land_color(card, frozenset()) is not None
+    makes_none = not profile.produces_mana and not _COPIES.search(card_text)
+    if card.is_land and not card.mana_abilities and not fetches and not typed \
+            and not makes_none:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("a land that taps for nothing the engine can see")))

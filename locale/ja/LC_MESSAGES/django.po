@@ -7875,3 +7875,40 @@ msgid ""
 " for it."
 msgstr ""
 "チェックランド、ファストランド、スローランド、スナール、ショックランドが、ゲーム中で条件を満たすたびにアンタップ状態で戦場に出るようになりました。ショックランドはそのために2点のライフを支払います。"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s if you control %(what)s"
+msgstr "%(what)sをコントロールしていれば%(mana)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s or more land"
+msgid_plural "%(count)s or more lands"
+msgstr[0] "%(count)s つ以上の土地"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s or more artifact"
+msgid_plural "%(count)s or more artifacts"
+msgstr[0] "%(count)s つ以上のアーティファクト"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "a land of type %(types)s"
+msgstr "%(types)sの土地"
+
+#: changelog/entries.py
+msgid "Temple of the False God, Urborg and Cabal Coffers"
+msgstr "Temple of the False God、Urborg、Cabal Coffers"
+
+#: changelog/entries.py
+msgid ""
+"Lands that make mana only when you control enough lands or a land type, such"
+" as Temple of the False God, the Tainted lands and the Verges, now make it "
+"once that holds. Urborg, Yavimaya, Crypt Ghast and Cabal Coffers now play by"
+" their rules, and Path to Exile and Maze of Ith no longer need you."
+msgstr ""
+"Temple of the False "
+"God、Tainted土地、Vergeのように、十分な数の土地や特定の土地タイプをコントロールしているときだけマナを出す土地が、条件を満たした時点でマナを出すようになりました。Urborg、Yavimaya、Crypt"
+" Ghast、Cabal Coffersはそれぞれのルール通りに動き、Path to ExileとMaze of Ithは確認が不要になりました。"

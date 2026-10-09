@@ -193,7 +193,9 @@ def test_a_deck_the_engine_can_read_stays_quiet_by_comparison(build):
     quiet = {spot.key: spot.count for spot in blindspots.find(quiet_reads)}
 
     assert "unresolved_mana" not in quiet
-    assert loud["unresolved_mana"] >= 5
+    # Each P19 round teaches the engine some of these cards (Cabal Coffers and
+    # Maze of Ith left in engine version 8); what stays must still be named.
+    assert loud["unresolved_mana"] >= 3
 
     assert adapter.convert(build(UNMODELLABLE)).readable < adapter.convert(
         build(LAND_HEAVY)
@@ -214,7 +216,7 @@ def test_coverage_is_never_negative(owner):
         [
             DeckCard(deck=deck, oracle_card=card, quantity=1)
             for card in OracleCard.objects.filter(
-                front_name__in=["Maze of Ith", "Exotic Orchard"]
+                front_name__in=["Phyrexian Tower", "Exotic Orchard"]
             )
         ]
     )

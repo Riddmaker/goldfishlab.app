@@ -8860,3 +8860,44 @@ msgstr ""
 "Check land, fast land, slow land, snarl e shock land ora entrano STAPpate "
 "ogni volta che la loro condizione è soddisfatta nella partita, e le shock "
 "land pagano i loro 2 punti vita per farlo."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s if you control %(what)s"
+msgstr "%(mana)s se controlli %(what)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s or more land"
+msgid_plural "%(count)s or more lands"
+msgstr[0] "%(count)s o più terre"
+msgstr[1] "%(count)s o più terre"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s or more artifact"
+msgid_plural "%(count)s or more artifacts"
+msgstr[0] "%(count)s o più artefatti"
+msgstr[1] "%(count)s o più artefatti"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "a land of type %(types)s"
+msgstr "una terra di tipo %(types)s"
+
+#: changelog/entries.py
+msgid "Temple of the False God, Urborg and Cabal Coffers"
+msgstr "Temple of the False God, Urborg e Cabal Coffers"
+
+#: changelog/entries.py
+msgid ""
+"Lands that make mana only when you control enough lands or a land type, such"
+" as Temple of the False God, the Tainted lands and the Verges, now make it "
+"once that holds. Urborg, Yavimaya, Crypt Ghast and Cabal Coffers now play by"
+" their rules, and Path to Exile and Maze of Ith no longer need you."
+msgstr ""
+"Le terre che producono mana solo se controlli abbastanza terre o un tipo di "
+"terra, come Temple of the False God, le terre Tainted e le Verge, ora lo "
+"producono non appena è vero. Urborg, Yavimaya, Crypt Ghast e Cabal Coffers "
+"ora seguono le loro regole, e Path to Exile e Maze of Ith non hanno più "
+"bisogno di te."

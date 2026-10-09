@@ -42,6 +42,14 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "activate-only-if",
+        _("Temple of the False God, Urborg and Cabal Coffers"),
+        _("Lands that make mana only when you control enough lands or a land type, such as "
+          "Temple of the False God, the Tainted lands and the Verges, now make it once that "
+          "holds. Urborg, Yavimaya, Crypt Ghast and Cabal Coffers now play by their rules, "
+          "and Path to Exile and Maze of Ith no longer need you."),
+    ),
+    Entry(
         date(2026, 10, 9), "tapped-unless",
         _("Lands that enter tapped unless ..."),
         _("Check lands, fast and slow lands, snarls and shock lands now enter untapped "

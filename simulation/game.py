@@ -234,7 +234,7 @@ class Game:
             [card for card in self.creatures if card.ability(FLAT) is not None]
         )
         return available_mana(self.lands, untapped_lands, untapped_rocks + dorks,
-                              doublers(self.battlefield))
+                              doublers(self.battlefield), ability_of=self.mana_ability)
 
     def _untapped(self, cards) -> list:
         """These permanents, without the ones that stayed tapped from before."""
@@ -262,7 +262,7 @@ class Game:
         )
         pool = self.mana()
         for card in sources:
-            flat = card.ability(FLAT)
+            flat = self.mana_ability(card)
             if not card.untaps and flat is not None and not flat.activation_generic:
                 self.stays_tapped.append(card)
         return pool
@@ -294,6 +294,17 @@ class Game:
         condition = land.tapped_unless
         if condition is None:
             return False
+        return self.holds(condition, land, entering=True)
+
+    def holds(self, condition, card, *, entering: bool = False) -> bool:
+        """Whether a condition about this board is met (P19 R3 and R4).
+
+        ``entering`` means the card is asked about before it is on the
+        battlefield - a land deciding whether it enters tapped, a land the
+        agent thinks of playing - and so counts itself in. Otherwise it is
+        already among the permanents: Temple of the False God is one of the
+        five lands it asks for.
+        """
         kind = condition.kind
         if kind == "control_type":
             return any(other.subtypes & condition.types for other in self.lands)
@@ -301,16 +312,40 @@ class Game:
             counted = [other for other in self.lands
                        if (not condition.basic or other.basic)
                        and (not condition.type or condition.type in other.subtypes)]
-            have = len(counted) + (0 if condition.other else 1)
+            if entering:
+                have = len(counted) + (0 if condition.other else 1)
+            else:
+                itself = any(other is card for other in counted)
+                have = len(counted) - (1 if condition.other and itself else 0)
             return have >= condition.count if condition.at_least else have <= condition.count
+        if kind == "artifacts":
+            have = sum(1 for permanent in self.battlefield if ARTIFACT in permanent.types)
+            if entering and ARTIFACT in card.types:
+                have += 1
+            return have >= condition.count
         if kind == "opponents":
             return self.OPPONENTS >= condition.count
         if kind == "reveal":
-            return any(card is not land and card.subtypes & condition.types
-                       for card in self.hand)
+            return any(other is not card and other.subtypes & condition.types
+                       for other in self.hand)
         if kind == "pay_life":
             return self.life - condition.count >= PHYREXIAN_LIFE_FLOOR
         return False
+
+    def mana_ability(self, card, *, entering: bool = False):
+        """The ``FLAT`` ability this card taps for on this board, or None.
+
+        The first one whose condition holds: a card lists its conditional
+        ability before its plain one (P19 R4), so a Tainted Wood without a
+        Swamp falls back to {C}, and Temple of the False God with four lands
+        to nothing.
+        """
+        for ability in card.mana_abilities:
+            if ability.rule != FLAT:
+                continue
+            if ability.only_if is None or self.holds(ability.only_if, card, entering=entering):
+                return ability
+        return None
 
     def _enters_tapped(self, land) -> bool:
         """Whether this land enters tapped, paying a shock land's life if not."""

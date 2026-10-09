@@ -78,21 +78,35 @@ def test_sol_ring_resolves_the_amount_scryfall_does_not_give(catalogue):
     assert sol_ring.mana_amount == 2
 
 
-def test_cabal_coffers_admits_it_cannot_be_resolved(catalogue):
+def test_cabal_coffers_is_a_rule_not_a_number(catalogue):
     """'Add {B} for each Swamp you control' has no fixed answer.
 
-    The wrong behaviour here is not crashing - it is quietly storing 1.
+    The wrong behaviour here is not crashing - it is quietly storing 1. Since
+    engine version 8 the sentence is read as the rule the engine plays it by
+    (P19 R4), and the amount stays None.
     """
     coffers = catalogue["Cabal Coffers"]
     assert coffers.produces_mana
     assert coffers.mana_amount is None
-    assert coffers.needs_review
-    assert any("scales" in reason for reason in coffers.review_reasons)
+    assert coffers.mana_rule == {"rule": "per_controlled", "subtype": "swamp",
+                                 "activation": 2, "color": "B"}
+    assert not coffers.needs_review
+
+
+def test_urborg_and_crypt_ghast_are_read_as_rules(catalogue):
+    assert catalogue["Urborg, Tomb of Yawgmoth"].mana_rule["rule"] == "type_adding"
+    assert catalogue["Yavimaya, Cradle of Growth"].mana_rule["subtype"] == "forest"
+    ghast = catalogue["Crypt Ghast"]
+    assert ghast.mana_rule == {"rule": "double_subtype", "subtype": "swamp",
+                               "activation": 0, "color": "B"}
+    assert not ghast.needs_review
 
 
 def test_every_unresolved_mana_source_is_flagged(catalogue):
-    """No silent holes: unresolved amount implies needs_review."""
-    unresolved = DerivedProfile.objects.filter(produces_mana=True, mana_amount=None)
+    """No silent holes: unresolved amount implies needs_review - unless a rule
+    says how the mana is made."""
+    unresolved = DerivedProfile.objects.filter(produces_mana=True, mana_amount=None,
+                                               mana_rule__isnull=True)
     assert unresolved.exists()
     assert not unresolved.filter(needs_review=False).exists()
 

@@ -430,7 +430,7 @@ def effective_mana_cost(card, reductions: dict[str, int] | None = None) -> ManaC
 
 
 def available_mana(all_lands, untapped_lands, untapped_rocks,
-                   crypt_ghast) -> ManaPool:
+                   crypt_ghast, *, ability_of=None) -> ManaPool:
     """The most mana available this turn.
 
     Args:
@@ -440,10 +440,16 @@ def available_mana(all_lands, untapped_lands, untapped_rocks,
         crypt_ghast: The ``DOUBLE_SUBTYPE`` effects in play, either as a
             subtype -> count mapping or as a bare number. A number means "this
             many swamp doublers", so ``True``/``False`` still work.
+        ability_of: Which ``FLAT`` ability a source taps for. The game passes
+            :meth:`Game.mana_ability`, which checks "Activate only if ..."
+            against its board (P19 R4); without it, the first one.
 
     Returns:
         ManaPool: The best possible pool, optimal use of Coffers included.
     """
+    if ability_of is None:
+        def ability_of(card):
+            return card.ability(FLAT)
     granted = granted_subtypes(all_lands)
     extra = _doubler_map(crypt_ghast)
     pool = ManaPool()
@@ -467,12 +473,12 @@ def available_mana(all_lands, untapped_lands, untapped_rocks,
             for bonus_color, amount in _doubler_bonus(subtypes_of(land, granted), extra):
                 pool.add(bonus_color, amount)
             continue
-        flat = land.ability(FLAT)
+        flat = ability_of(land)
         if flat is not None:
             _use(pool, flat, activated)
 
     for rock in untapped_rocks:
-        flat = rock.ability(FLAT)
+        flat = ability_of(rock)
         if flat is not None:
             _use(pool, flat, activated)
 

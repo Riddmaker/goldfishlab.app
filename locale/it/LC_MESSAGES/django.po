@@ -9253,3 +9253,83 @@ msgstr "un %(color)s per ogni incantesimo che controlli"
 #, python-format
 msgid "one %(color)s for each creature you control with defender"
 msgstr "un %(color)s per ogni creatura con difensore che controlli"
+
+#: changelog/entries.py
+msgid "Wayfarer's Bauble, Myriad Landscape and Lander tokens"
+msgstr "Wayfarer's Bauble, Myriad Landscape e le pedine Lander"
+
+#: changelog/entries.py
+msgid ""
+"Wayfarer's Bauble, Burnished Hart, Myriad Landscape, Urza's Cave, the "
+"Panoramas and Lander tokens now find their lands: a simulated game activates"
+" them with the mana left once its spells are cast, and in the playtest a "
+"button does. Knight of the White Orchid searches while an opponent has more "
+"lands, assuming each plays one a turn. The report no longer counts filter "
+"lands or Reflecting Pool among the mana sources that grow with your board."
+msgstr ""
+"Wayfarer's Bauble, Burnished Hart, Myriad Landscape, Urza's Cave, i Panorama"
+" e le pedine Lander ora trovano le loro terre: una partita simulata li "
+"attiva con il mana rimasto dopo aver lanciato le magie, e nel playtest lo fa"
+" un pulsante. Knight of the White Orchid cerca finché un avversario ha più "
+"terre, supponendo che ognuno ne giochi una per turno. Il report non conta "
+"più le terre filtro né Reflecting Pool tra le fonti di mana che crescono con"
+" il tuo campo."
+
+#: cards/profiles.py
+msgid "searches for lands in combat, which the engine does not play"
+msgstr "cerca terre in combattimento, che il motore non gioca"
+
+#: cards/profiles.py
+msgid "makes a Lander token at a moment the engine does not play"
+msgstr "crea una pedina Lander in un momento che il motore non gioca"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s of one land type"
+msgstr "%(what)s di uno stesso tipo di terra"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, one of each"
+msgstr "%(what)s, uno per tipo"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(cost)s, sacrifice it: %(search)s"
+msgstr "%(cost)s, sacrificarla: %(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, if an opponent controls more lands"
+msgstr "%(search)s, se un avversario controlla più terre"
+
+#: simulations/engine/adapter.py
+msgid ""
+"searches when you have fewer lands than turns gone by, assuming each "
+"opponent plays a land a turn"
+msgstr ""
+"cerca quando hai meno terre dei turni trascorsi, supponendo che ogni "
+"avversario giochi una terra per turno"
+
+#: playtest/views.py
+msgid "Land search activated"
+msgstr "Ricerca di terra attivata"
+
+#: playtest/views.py
+msgid "Lander activated"
+msgstr "Lander attivato"
+
+#: templates/playtest/_board.html
+msgid "Activate"
+msgstr "Attiva"
+
+#: templates/playtest/_board.html
+msgid "Activate a Lander: {2}, a basic land"
+msgstr "Attiva un Lander: {2}, una terra base"
+
+#: templates/playtest/_board.html
+#, python-format
+msgid "%(count)s Lander token"
+msgid_plural "%(count)s Lander tokens"
+msgstr[0] "%(count)s pedina Lander"
+msgstr[1] "%(count)s pedine Lander"

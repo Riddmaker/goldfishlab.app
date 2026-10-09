@@ -79,13 +79,16 @@ EVERYTHING = Card(
     untaps=False,
     land_search=LandSearch(battlefield=2, hand=1, tapped=False, basic=False,
                            types=frozenset({"forest", "island"}), life=1, when="play",
-                           sacrifice=True, untap_at=4),
+                           sacrifice=True, untap_at=4,
+                           cost=ManaCost(pips=(("G", 1),), generic=2), taps=True,
+                           share_type=True, each=True, condition="opponent_more_lands"),
     basic=True,
     tapped_unless=TappedUnless(kind="lands", types=frozenset({"island"}), count=3,
                                at_least=False, other=True, basic=True, type="island",
                                legendary=True),
     treasures=2,
     treasure_mana="RG",
+    landers=1,
     discard_cost=1,
     discard_on_cast=2,
     put_back_on_cast=2,
@@ -248,3 +251,13 @@ def test_a_chosen_colour_survives_the_trip():
     data = json.loads(json.dumps(serial.dump_game(game)))
     del data["chosen_colors"]
     assert serial.load_game(data, chainer.DECK).chosen_colors == {}
+
+
+def test_a_lander_survives_the_trip():
+    """Lander tokens wait for their mana (P19 R14); a reload keeps them."""
+    game = Game(random.Random(3), deck=chainer.DECK)
+    game.landers = 2
+    assert restored(game).landers == 2
+    data = json.loads(json.dumps(serial.dump_game(game)))
+    del data["landers"]
+    assert serial.load_game(data, chainer.DECK).landers == 0

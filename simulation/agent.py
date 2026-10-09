@@ -9,8 +9,8 @@ first, then the card-advantage engines, then the sacrifice motor.
 """
 
 from simulation import actions
-from simulation.cards import PER_CONTROLLED, RITUAL, TYPE_ADDING
-from simulation.mana import ManaPool, effective_mana_cost, reductions_from
+from simulation.cards import LANDER, PER_CONTROLLED, RITUAL, TYPE_ADDING
+from simulation.mana import ManaPool, effective_mana_cost, land_colors, reductions_from
 from simulation.manacost import SUBTYPE_COLORS
 
 # From this priority upwards it is worth burning a ritual. A setting of the
@@ -219,11 +219,68 @@ def _cast_best(game, pool: ManaPool) -> bool:
         return True
 
     if x_spells:
+        # A land search first: X takes everything that is left (P19 R14).
+        if _try_activation(game, pool):
+            return True
         spell = max(x_spells, key=priority)
         _do(game, actions.CastSpell(index=game.hand.index(spell), x=game.max_x(spell, pool)))
         return True
 
     return False
+
+
+# --- Activated land searches (P19 R14) ---------------------------------------
+
+def _activation_gain(game, card):
+    """What activating ``card``'s land search (None: a Lander) is worth, or
+    None when it is worth nothing: lands gained, then a colour the lands lack.
+
+    Worth it is one land more than it costs - Wayfarer's Bauble, Myriad
+    Landscape - or a colour the lands cannot make yet: Urza's Cave trades
+    itself for a land of the colour that is missing.
+    """
+    spec = card.land_search if card is not None else LANDER
+    if spec.condition == "opponent_more_lands" and not game.opponent_has_more_lands():
+        return None
+    options = [land for land in game.library if land.is_land
+               and (land.basic or not spec.basic)
+               and (not spec.types or land.subtypes & spec.types)]
+    if not options:
+        return None
+    wanted = spec.battlefield + spec.hand
+    if spec.each:
+        found = sum(1 for kind in spec.types if any(kind in land.subtypes for land in options))
+    elif spec.share_type:
+        found = max(min(wanted, sum(1 for other in options if other.subtypes & land.subtypes))
+                    for land in options)
+    else:
+        found = min(wanted, len(options))
+    lost = 1 if card is not None and card in game.lands else 0
+    have = frozenset().union(*(land_colors(land) for land in game.lands if land != card))
+    new_colour = any(land_colors(land) - have for land in options)
+    if found <= lost and not new_colour:
+        return None
+    return found - lost, new_colour
+
+
+def _try_activation(game, pool: ManaPool) -> bool:
+    """Activate the land search worth most, with mana nothing else wants.
+
+    Called once spells and rituals are done and before an X spell takes the
+    rest. The lands come in tapped, so this is as good as waiting for an
+    opponent's end step.
+    """
+    best = None
+    for action in actions.activations(game, pool):
+        card = (None if isinstance(action, actions.ActivateLander)
+                else actions.zone_of(game, action.zone)[action.index])
+        gain = _activation_gain(game, card)
+        if gain is not None and (best is None or gain > best[0]):
+            best = (gain, action)
+    if best is None:
+        return False
+    _do(game, best[1])
+    return True
 
 
 def _do(game, action) -> None:
@@ -258,6 +315,8 @@ def take_turn(game) -> None:
         if _cast_best(game, pool):
             continue
         if _try_ritual_line(game, pool):
+            continue
+        if _try_activation(game, pool):
             continue
         break
 

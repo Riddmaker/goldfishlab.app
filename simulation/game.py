@@ -21,6 +21,7 @@ from simulation.cards import (
     EXTRA,
     FLAT,
     GRANT,
+    LANDER,
     LANDS_COULD_PRODUCE,
     MULTIPLY,
     PLANESWALKER,
@@ -43,7 +44,14 @@ from simulation.mana import (
     reductions_from,
     subtypes_of,
 )
-from simulation.manacost import COLORLESS, COLORS, PHYREXIAN_LIFE_FLOOR, choice
+from simulation.manacost import (
+    COLORLESS,
+    COLORS,
+    PHYREXIAN_LIFE_FLOOR,
+    ManaCost,
+    choice,
+    is_choice,
+)
 
 STARTING_LIFE = 40
 STARTING_HAND_SIZE = 7
@@ -128,6 +136,9 @@ class Game:
         #: Kept from turn to turn; the pool borrows them and gives back the
         #: ones a payment did not sacrifice.
         self.treasures: list[str] = []
+        #: Lander tokens on the battlefield (P19 R14): each a ``LANDER``
+        #: search, activated when the mana is there.
+        self.landers = 0
         #: The colour each permanent chose as it entered, by name (P19 R13):
         #: Caged Sun, Utopia Sprawl. Kept, because the choice is made once.
         self.chosen_colors: dict[str, str] = {}
@@ -256,6 +267,96 @@ class Game:
         if self.pool is not None:
             self.pool.treasures.extend(made)
         self.note(f"  -> {card.treasures} Treasure")
+
+    def make_landers(self, card) -> None:
+        """The Lander tokens a card makes as it resolves or enters (P19 R14)."""
+        if card.landers:
+            self.landers += card.landers
+            self.note(f"  -> {card.landers} Lander")
+
+    # --- Activated land searches (P19 R14) ---------------------------------
+
+    def activation_cost(self, card) -> ManaCost | None:
+        """What activating ``card``'s land search costs out of the open pool,
+        or None when it cannot be activated now. ``None`` for ``card`` is a
+        Lander token.
+
+        A land whose cost holds {T} gives up the mana it made: the pool was
+        opened with every untapped land in it, so that mana is paid back as
+        part of the cost - {C} as generic, a colour as itself, the mana on
+        top included. A land that entered tapped this turn cannot pay {T}.
+        """
+        if card is None:
+            return LANDER.cost if self.landers else None
+        spec = card.land_search
+        if spec is None or spec.when != "activate" or card not in self.battlefield:
+            return None
+        cost = spec.cost or ManaCost()
+        if not spec.taps or card not in self.lands:
+            # A creature's {T} would need to know when it arrived; the reader
+            # leaves such a card unread.
+            return None if spec.taps and card in self.creatures else cost
+        if card not in self.lands[self.tapped_lands:]:
+            return None
+        made = available_mana(self.lands, [card], [], doublers(self.battlefield),
+                              ability_of=self.mana_ability,
+                              extras=self.mana_extras(per_source=True)).by_color()
+        if any(is_choice(source) for source in made):
+            return None
+        pips = dict(cost.pips)
+        for source, amount in made.items():
+            if source != COLORLESS:
+                pips[source] = pips.get(source, 0) + amount
+        return ManaCost(pips=tuple(sorted(pips.items())),
+                        generic=cost.generic + made.get(COLORLESS, 0),
+                        colorless=cost.colorless, hybrid=cost.hybrid)
+
+    def can_activate(self, card, pool: ManaPool) -> bool:
+        """Can ``card``'s land search (None: a Lander) be paid for now?"""
+        cost = self.activation_cost(card)
+        return cost is not None and pool.can_pay_cost(cost, life=self.life)
+
+    def activate(self, card, pool: ManaPool, choose=None) -> int:
+        """Pay for a land search, sacrifice its source, search. Returns how
+        many lands it found. ``card`` None is a Lander token."""
+        cost = self.activation_cost(card)
+        payment = None if cost is None else pool.pay_cost(cost, life=self.life)
+        if payment is None:
+            raise ValueError(f"{card.name if card else 'Lander'} cannot be activated from {pool}")
+        self.life -= payment.life
+        self.treasures = list(pool.treasures)
+        if card is None:
+            self.landers -= 1
+            self.note("Lander (activated)")
+            return self.search_lands(None, choose, LANDER)
+        self._sacrifice(card)
+        self.note(f"{card.name} (activated)")
+        return self.search_lands(card, choose)
+
+    def _sacrifice(self, card) -> None:
+        """Put a permanent into the graveyard; of two equal lands, the
+        untapped one."""
+        if card in self.lands:
+            index = len(self.lands) - 1 - self.lands[::-1].index(card)
+            if index < self.tapped_lands:
+                self.tapped_lands -= 1
+            self.lands.pop(index)
+        elif card in self.rocks:
+            index = len(self.rocks) - 1 - self.rocks[::-1].index(card)
+            if index < self.tapped_rocks:
+                self.tapped_rocks -= 1
+            self.rocks.pop(index)
+        elif card in self.creatures:
+            self.creatures.remove(card)
+        else:
+            self.other_permanents.remove(card)
+        self.graveyard.append(card)
+
+    def opponent_has_more_lands(self) -> bool:
+        """Does an opponent control more lands than you? On the assumption
+        the card page states: each opponent has played a land in each of
+        their turns before this one of yours (P19 R14, as in R12)."""
+        return max(self.turn - 1, 0) > len(self.lands)
 
     def take_opening_hand(self) -> None:
         """Draw the opening hand, mulligans included."""
@@ -675,24 +776,46 @@ class Game:
         self.graveyard.append(card)
         self.search_lands(card, choose)
 
-    def search_lands(self, card, choose=None) -> int:
-        """Carry out ``card.land_search``. Returns how many lands it found.
+    def search_lands(self, card, choose=None, spec=None) -> int:
+        """Carry out ``card.land_search`` (or ``spec``, a Lander's). Returns
+        how many lands it found.
 
         ``choose(game, options)`` picks each land; without it, the one that
         adds the most colours the lands in play cannot make yet
         (:func:`best_land`). The library is not shuffled afterwards: its order
         is random already, and taking cards out of it does not change that.
         """
-        spec = card.land_search
+        spec = spec or card.land_search
+        if spec.condition == "opponent_more_lands" and not self.opponent_has_more_lands():
+            self.note("  -> no opponent has more lands")
+            return 0
         self.life -= spec.life
         found = 0
+        each = sorted(spec.types) if spec.each else ()
+        shared = None
         for index in range(spec.battlefield + spec.hand):
             options = [land for land in self.library if land.is_land
                        and (land.basic or not spec.basic)
                        and (not spec.types or land.subtypes & spec.types)]
+            if each:
+                if index >= len(each):
+                    break
+                options = [land for land in options if each[index] in land.subtypes]
+            if shared is not None:
+                options = [land for land in options if land.subtypes & shared]
+            elif spec.share_type:
+                # Myriad Landscape: a type there is enough of, where there is one.
+                total = spec.battlefield + spec.hand
+                plenty = [land for land in options
+                          if sum(1 for other in options if other.subtypes & land.subtypes) >= total]
+                options = plenty or options
             if not options:
+                if each:
+                    continue
                 break
             land = (choose or best_land)(self, options)
+            if spec.share_type and shared is None:
+                shared = land.subtypes
             self.library.remove(land)
             found += 1
             if index >= spec.battlefield:

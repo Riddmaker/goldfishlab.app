@@ -217,6 +217,20 @@
                 {% else %}
                   <span class="board-card board-card-text">{{ tile.card.name }}</span>
                 {% endif %}
+                {% if tile.activatable %}
+                  <form method="post" action="{% url 'playtest:act' session.id %}"
+                        hx-post="{% url 'playtest:act' session.id %}"
+                        hx-target="#board" hx-swap="outerHTML" class="mt-1">
+                    {% csrf_token %}
+                    <input type="hidden" name="kind" value="activate_search">
+                    <input type="hidden" name="zone" value="{{ tile.zone }}">
+                    <input type="hidden" name="index" value="{{ tile.index }}">
+                    <button type="submit"
+                            class="w-full border border-ink-800 bg-ink-900 px-2 py-1 text-xs text-parchment-100 hover:bg-ink-800">
+                      {% translate "Activate" %}
+                    </button>
+                  </form>
+                {% endif %}
               </li>
             {% empty %}
               <li class="board-card-empty" aria-hidden="true"></li>
@@ -224,6 +238,25 @@
           </ul>
         </div>
       {% endfor %}
+      {% if landers %}
+        <div class="playtest-row flex flex-wrap items-center gap-2">
+          <p class="text-xs uppercase tracking-wide text-ink-700">
+            {% blocktranslate trimmed count count=landers %}{{ count }} Lander token{% plural %}{{ count }} Lander tokens{% endblocktranslate %}
+          </p>
+          {% if lander_ready %}
+            <form method="post" action="{% url 'playtest:act' session.id %}"
+                  hx-post="{% url 'playtest:act' session.id %}"
+                  hx-target="#board" hx-swap="outerHTML">
+              {% csrf_token %}
+              <input type="hidden" name="kind" value="activate_lander">
+              <button type="submit"
+                      class="border border-ink-800 bg-ink-900 px-2 py-1 text-xs text-parchment-100 hover:bg-ink-800">
+                {% translate "Activate a Lander: {2}, a basic land" %}
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      {% endif %}
     </div>
 
     <div class="playtest-side">

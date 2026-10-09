@@ -364,6 +364,8 @@ class DerivedProfile(models.Model):
     #: P19 R7: Treasure tokens it makes as it resolves (a spell's sentence, a
     #: permanent's "When this creature enters"). See `cards.profiles._treasures`.
     treasures = models.PositiveSmallIntegerField(default=0)
+    #: P19 R14: Lander tokens it makes the same way. See `cards.profiles._landers`.
+    landers = models.PositiveSmallIntegerField(default=0)
     #: P19 R7: "As an additional cost to cast this spell, discard a card."
     discard_cost = models.PositiveSmallIntegerField(default=0)
     cost_reduction = models.PositiveSmallIntegerField(null=True, blank=True)

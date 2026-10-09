@@ -391,6 +391,19 @@ _TREASURE_ON_ENTER = re.compile(
     re.IGNORECASE | re.MULTILINE)
 _TREASURE_IN_SPELL = re.compile(r"\bcreate (a|one|two|three|four) Treasure tokens?\.$",
                                 re.IGNORECASE)
+#: Lander tokens (P19 R14), read like Treasure: "When this creature enters,
+#: create a Lander token." or a spell's "Create a Lander token."
+_LANDER_ON_ENTER = re.compile(
+    r"^When (?:this [\w ]+?|~) enters, create (a|one|two|three) Lander tokens?\.",
+    re.IGNORECASE | re.MULTILINE)
+_LANDER_IN_SPELL = re.compile(r"\bcreate (a|one|two|three) Lander tokens?\.$", re.IGNORECASE)
+_LANDER_SACRIFICED = re.compile(r"sacrifice (?:that|those) tokens?", re.IGNORECASE)
+#: A Lander's reminder text: its search is the token's, not the card's.
+_LANDER_REMINDER = re.compile(
+    r"\((?:It's an artifact|A Lander token is an artifact) with \"\{2\}, \{T\}, "
+    r"Sacrifice this token: Search your library for a basic land card, put it onto the "
+    r"battlefield tapped, then shuffle\.\"\)")
+_LANDER = re.compile(r"\bLander tokens?\b")
 #: A sentence that makes it under a condition, or an ability's cost before it
 #: (Magma Opus: "Discard this card: Create a Treasure token.").
 _CONDITIONAL_SENTENCE = re.compile(r"^(?:For each|When|Whenever|If|At|Until)\b", re.IGNORECASE)
@@ -712,15 +725,32 @@ def _activation_condition(text: str) -> dict | None:
 
 def _treasures(card: OracleCard, kind: str) -> int:
     """How many Treasure tokens the card makes as it resolves, or 0 (P19 R7)."""
-    text = _GRANTED.sub("", _TREASURE_REMINDER.sub("", card.oracle_text or ""))
+    return _made_tokens(card, kind, _TREASURE_ON_ENTER, _TREASURE_IN_SPELL)
+
+
+def _landers(card: OracleCard, kind: str) -> int:
+    """How many Lander tokens the card makes as it resolves, or 0 (P19 R14).
+
+    Not one sacrificed again at a later end step (Kav Landseeker).
+    """
+    if _LANDER_SACRIFICED.search(card.oracle_text or ""):
+        return 0
+    return _made_tokens(card, kind, _LANDER_ON_ENTER, _LANDER_IN_SPELL)
+
+
+def _made_tokens(card: OracleCard, kind: str, on_enter: re.Pattern,
+                 in_spell: re.Pattern) -> int:
+    """Tokens a spell's own sentence or a permanent's arrival makes."""
+    text = _GRANTED.sub("", _TREASURE_REMINDER.sub("", _LANDER_REMINDER.sub(
+        "", card.oracle_text or "")))
     if kind not in (DerivedProfile.Kind.INSTANT, DerivedProfile.Kind.SORCERY):
-        found = _TREASURE_ON_ENTER.search(text)
+        found = on_enter.search(text)
         return (_word_number(found.group(1)) or 0) if found else 0
     for sentence in re.split(r"(?<=\.)\s+|\n", text):
         sentence = sentence.strip()
         if _CONDITIONAL_SENTENCE.match(sentence) or ":" in sentence:
             continue
-        if (found := _TREASURE_IN_SPELL.search(sentence)) is not None:
+        if (found := in_spell.search(sentence)) is not None:
             return _word_number(found.group(1)) or 0
     return 0
 
@@ -1375,7 +1405,7 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
 #: about English the reader would have to keep.
 _LAND_SEARCH = re.compile(
     r"(?P<lead>[^.\n]*?)Search your library for (?:up to )?(?P<n>a|an|one|two|three|\d+) "
-    r"(?P<what>[A-Za-z ,]+?) cards?(?: that share a land type)?, "
+    r"(?P<what>[A-Za-z ,]+?) cards?(?P<share> that share a land type)?, "
     r"(?:reveal (?:those cards|them|it), )?(?:and )?put (?P<put>[^.]+?)"
     r"(?:, then shuffle|\. Shuffle)"
     r"(?:\. Then if you control (?P<untap>\w+) or more lands, untap that land)?",
@@ -1394,6 +1424,22 @@ _SACRIFICED_ON_ENTERING = re.compile(
     r"When this land enters, sacrifice it\. When you do, search your library", re.IGNORECASE)
 _FETCH = re.compile(r"^\{t\}, (?:pay (?P<life>\w+) life, )?sacrifice this land: $")
 _SACRIFICE_SELF = re.compile(r"^sacrifice this creature: $")
+#: P19 R14: "{2}, {T}, Sacrifice this land: " - Wayfarer's Bauble, Myriad
+#: Landscape, Burnished Hart (no {T}), the Panoramas.
+_ACTIVATED = re.compile(
+    r"^(?P<cost>(?:\{(?:\d+|[wubrg])\})+), (?P<tap>\{t\}, )?"
+    r"sacrifice this (?P<what>land|artifact|creature|enchantment): $")
+#: P19 R14: "When this creature enters, if an opponent controls more lands
+#: than you, (you may) search ..." - Knight of the White Orchid.
+_ENTERS_IF_BEHIND = re.compile(
+    r"^(?:[\w' ]+ — )?when (?:this|~) (?:creature|artifact|enchantment|permanent) enters, "
+    r"if an opponent controls more lands than you, (?:you may )?$")
+#: P19 R14: a Saga's first chapter, which happens as it enters.
+_FIRST_CHAPTER = re.compile(r"^i — (?:[^—]+ — )?$")
+#: P19 R14: a search in combat - the engine plays none.
+_IN_COMBAT = re.compile(r"\battacks\b|\bcombat damage\b")
+#: Krosan Verge: "a Forest card and a Plains card".
+_ONE_OF_EACH = re.compile(r"^(\w+) card and an? (\w+)$")
 
 
 @dataclass
@@ -1461,7 +1507,7 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     Not a card with no such search: that is an empty `LandSearch`, and the
     general tutor reading (`_tutor`) goes on as before.
     """
-    text = card.oracle_text or ""
+    text = _LANDER_REMINDER.sub("", card.oracle_text or "")
     if len(_SEARCH_CLAUSE.findall(text)) != 1:
         return LandSearch()
     match = _LAND_SEARCH.search(text)
@@ -1472,8 +1518,11 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     what = match.group("what").strip().lower()
     basic = what.startswith("basic ")
     names = what.removeprefix("basic ")
+    each = _ONE_OF_EACH.match(names)
     if names == "land":
         types: list[str] = []
+    elif each is not None and {each.group(1), each.group(2)} <= _LAND_TYPES and count == 1:
+        types, count = [each.group(1), each.group(2)], 2
     else:
         types = [name for name in re.split(r",? or |, ", names) if name]
         if not types or not set(types) <= _LAND_TYPES:
@@ -1492,11 +1541,21 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     lead = match.group("lead").strip().lower()
     lead = f"{lead} " if lead else ""
     life, sacrifice = 0, False
+    cost, taps, condition = "", False, ""
     spell = kind in (DerivedProfile.Kind.SORCERY, DerivedProfile.Kind.INSTANT)
+    activated = _ACTIVATED.match(lead)
     if not lead and spell:
         when = "cast"
-    elif _ENTERS.match(lead):
+    elif _ENTERS.match(lead) or _FIRST_CHAPTER.match(lead):
         when = "enters"
+    elif _ENTERS_IF_BEHIND.match(lead):
+        when, condition = "enters", "opponent_more_lands"
+    elif activated is not None and (
+            (activated.group("what") == "land") == (kind == DerivedProfile.Kind.LAND)
+            and not (activated.group("tap") and activated.group("what") == "creature")):
+        # A creature's {T} would need to know when it arrived: left unread.
+        when, sacrifice = "activate", True
+        cost, taps = activated.group("cost").upper(), bool(activated.group("tap"))
     elif (lead == "when you do, " and kind == DerivedProfile.Kind.LAND
           and _SACRIFICED_ON_ENTERING.search(text)):
         when, sacrifice = "play", True
@@ -1512,6 +1571,9 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     elif "{" in lead:
         return LandSearch(reason=gettext_noop(
             "searches for lands at a cost the engine does not pay"))
+    elif _IN_COMBAT.search(lead):
+        return LandSearch(reason=gettext_noop(
+            "searches for lands in combat, which the engine does not play"))
     else:
         return LandSearch(reason=gettext_noop(
             "searches for lands under a condition the engine cannot read"))
@@ -1526,7 +1588,9 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     return LandSearch(spec={
         "battlefield": battlefield, "hand": hand, "tapped": tapped, "basic": basic,
         "types": sorted(types), "life": life, "when": when, "sacrifice": sacrifice,
-        "untap_at": untap_at,
+        "untap_at": untap_at, "cost": cost, "taps": taps,
+        "share_type": bool(match.group("share")), "each": each is not None and bool(types),
+        "condition": condition,
     })
 
 
@@ -1595,6 +1659,12 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         # more specific than what the general tutor reading says about it
         # ("tutors onto the battlefield, which the engine cannot do").
         tutor = Tutor(reason=land.reason)
+    landers = _landers(card, kind)
+    if _LANDER.search(text) and not _SEARCH_CLAUSE.search(_LANDER_REMINDER.sub("", text)):
+        # The only search is the Lander's own (P19 R14): played as a token
+        # when the card makes it as it resolves, a gap when it is made later.
+        tutor = Tutor(reason="" if landers else gettext_noop(
+            "makes a Lander token at a moment the engine does not play"))
 
     opponent_loss = _first_number(_OPPONENT_LOSS, text)
     if opponent_loss and "drain_payoff" not in roles:
@@ -1649,6 +1719,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana_rule=mana_rule,
         mana_filter=mana.filter,
         treasures=treasures,
+        landers=landers,
         discard_cost=_word_number(discard.group(1)) if discard else 0,
         cost_reduction=_first_number(_COST_REDUCTION, text),
         draws_cards=draw.cards,
@@ -1776,7 +1847,8 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "tapped_unless",
             "skips_draw_step",
             "mana_produces", "mana_activation", "mana_untaps", "mana_condition", "mana_rule",
-            "mana_filter", "treasures", "discard_cost", "discards_after", "puts_back", "draws_x",
+            "mana_filter", "treasures", "landers", "discard_cost", "discards_after", "puts_back",
+            "draws_x",
             "extra_cost",
             "needs_review", "review_reasons", "source_map", "derived_at",
         ],

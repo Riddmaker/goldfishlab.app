@@ -103,6 +103,8 @@ ACTION_NAMES = {
     "set_life": gettext_noop("Life changed"),
     "move_card": gettext_noop("Card moved"),
     "tap_permanent": gettext_noop("Permanent tapped"),
+    "activate_search": gettext_noop("Land search activated"),
+    "activate_lander": gettext_noop("Lander activated"),
 }
 
 #: The message tag that marks an engine refusal, so the page can say it is
@@ -114,13 +116,15 @@ PIP_ORDER = (*COLORS, COLORLESS)
 
 
 def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
-           x_max=None) -> list[dict]:
+           x_max=None, zone="", activatable=()) -> list[dict]:
     """One zone, as the flat rows a template can loop over without thinking.
 
     The alternative is a custom filter for `images[card.name]` and another for
     `index in castable`. Both would put logic in the template, where it cannot
     be tested. `x_max` gives a castable card with {X} the largest X the pool
     pays (P19 R9), which the board fills in for the player to change.
+    `activatable` are the permanents in `zone` whose land search the pool
+    pays for now (P19 R14).
     """
     return [
         {
@@ -131,6 +135,8 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
             "castable": index in castable,
             "playable": index in playable,
             "x_max": x_max(card) if x_max and index in castable and card.x_count else None,
+            "zone": zone,
+            "activatable": index in activatable,
         }
         for index, card in enumerate(cards)
     ]
@@ -180,9 +186,14 @@ def board_context(session: PlaytestSession, game) -> dict:
         "battlefield": [
             {"key": key, "label": gettext(label),
              "tiles": [tile for zone in zones
-                       for tile in _tiles(getattr(game, zone), images, keywords)]}
+                       for tile in _tiles(getattr(game, zone), images, keywords, zone=zone,
+                                          activatable={a.index for a in legal
+                                                       if isinstance(a, actions.ActivateSearch)
+                                                       and a.zone == zone})]}
             for key, label, zones in BATTLEFIELD_ROWS
         ],
+        "landers": getattr(game, "landers", 0),
+        "lander_ready": any(isinstance(a, actions.ActivateLander) for a in legal),
         "graveyard": _tiles(game.graveyard, images),
         "exiled": _tiles(game.exiled, images),
         "pips": pips(getattr(game, "pool", None)),

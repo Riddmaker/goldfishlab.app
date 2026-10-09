@@ -332,12 +332,22 @@ class LandSearch:
         types: The land types it may find (Farseek: plains, island, swamp,
             mountain); empty means any land.
         life: Life paid (a fetch land: 1).
-        when: ``cast`` (a spell), ``enters`` (a permanent's arrival) or
-            ``play`` (a fetch land, the moment it is played).
+        when: ``cast`` (a spell), ``enters`` (a permanent's arrival),
+            ``play`` (a fetch land, the moment it is played) or ``activate``
+            (Wayfarer's Bauble, Myriad Landscape: an ability paid for with
+            ``cost``; P19 R14).
         sacrifice: The card itself goes to the graveyard (a fetch land,
             Sakura-Tribe Elder).
         untap_at: Fabled Passage: the land is untapped once you control at
             least this many lands. 0: never.
+        cost: What activating it costs, the card's own sacrifice aside.
+        taps: ``{T}`` is part of that cost: a land that pays it makes no
+            mana this turn.
+        share_type: Myriad Landscape: every land found shares a land type.
+        each: Krosan Verge: one land of each of ``types``.
+        condition: ``opponent_more_lands`` - Knight of the White Orchid:
+            only if an opponent controls more lands than you, which rests on
+            the assumption that each opponent plays a land a turn.
     """
 
     battlefield: int = 1
@@ -349,6 +359,16 @@ class LandSearch:
     when: str = "cast"
     sacrifice: bool = False
     untap_at: int = 0
+    cost: ManaCost | None = None
+    taps: bool = False
+    share_type: bool = False
+    each: bool = False
+    condition: str = ""
+
+
+#: What a Lander token does (P19 R14): "{2}, {T}, Sacrifice this token: Search
+#: your library for a basic land card, put it onto the battlefield tapped".
+LANDER = LandSearch(when="activate", cost=ManaCost(generic=2), taps=True, sacrifice=True)
 
 
 #: A card with no mana production of its own.
@@ -451,6 +471,9 @@ class Card:
     #: Dragon: 2). Each is one mana of ``treasure_mana``, sacrificed when spent.
     treasures: int = 0
     treasure_mana: str = ""
+    #: P19 R14: Lander tokens it makes as it resolves or enters, each a
+    #: :data:`LANDER` search to activate later.
+    landers: int = 0
     #: P19 R7: "As an additional cost to cast this spell, discard a card."
     discard_cost: int = 0
     #: P19 R8: cards discarded right after ``draw_on_cast`` - Faithless

@@ -399,6 +399,10 @@ def _land_search_text(search: LandSearch) -> str:
                         search.battlefield) % {"count": search.battlefield}
     if types:
         what = f"{what} ({types})"
+    if search.share_type:
+        what = gettext("%(what)s of one land type") % {"what": what}
+    elif search.each:
+        what = gettext("%(what)s, one of each") % {"what": what}
     text = (gettext("%(what)s onto the battlefield, tapped") if search.tapped
             else gettext("%(what)s onto the battlefield")) % {"what": what}
     if search.hand:
@@ -407,6 +411,12 @@ def _land_search_text(search: LandSearch) -> str:
     if search.life:
         text = gettext("%(search)s, paying %(life)s life") % {"search": text,
                                                              "life": search.life}
+    if search.when == "activate":
+        cost = str(search.cost or "") + (", {T}" if search.taps else "")
+        text = gettext("%(cost)s, sacrifice it: %(search)s") % {
+            "cost": cost.lstrip(", "), "search": text}
+    if search.condition == "opponent_more_lands":
+        text = gettext("%(search)s, if an opponent controls more lands") % {"search": text}
     return text
 
 
@@ -822,6 +832,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         tapped_unless=_tapped_unless(profile, overrides),
         treasures=int(getattr(profile, "treasures", 0) or 0),
         treasure_mana=_any_colour(deck_colors) if getattr(profile, "treasures", 0) else "",
+        landers=int(getattr(profile, "landers", 0) or 0),
         discard_cost=int(getattr(profile, "discard_cost", 0) or 0),
     )
 
@@ -1112,6 +1123,9 @@ def _land_search(profile) -> LandSearch | None:
         tapped=bool(found["tapped"]), basic=bool(found["basic"]),
         types=frozenset(found["types"]), life=int(found["life"]), when=found["when"],
         sacrifice=bool(found["sacrifice"]), untap_at=int(found.get("untap_at", 0)),
+        cost=parse(found["cost"]) if found.get("cost") else None,
+        taps=bool(found.get("taps")), share_type=bool(found.get("share_type")),
+        each=bool(found.get("each")), condition=found.get("condition", ""),
     )
 
 
@@ -1304,6 +1318,11 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
             and not card.treasures and not card.ritual_counts:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("makes mana, but how much could not be read")))
+
+    if card.land_search is not None and card.land_search.condition == "opponent_more_lands":
+        gaps.append(Gap(card.name, "assumed_lands", gettext_noop(
+            "searches when you have fewer lands than turns gone by, assuming each opponent "
+            "plays a land a turn")))
 
     if card.tapped_unless is not None and card.tapped_unless.kind == "opponent_lands":
         gaps.append(Gap(card.name, "assumed_lands", gettext_noop(

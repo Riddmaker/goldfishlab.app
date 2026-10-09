@@ -220,6 +220,36 @@ class CastCommander(Action):
 
 
 @dataclass(frozen=True)
+class ActivateSearch(Action):
+    """Activate the land search of the permanent at ``index`` in ``zone``:
+    Wayfarer's Bauble, Myriad Landscape (P19 R14). Paid out of the pool."""
+
+    kind = "activate_search"
+    zone: str = LANDS
+    index: int = 0
+
+    def run(self, game, policy) -> None:
+        card = _at(game, self.zone, self.index)
+        pool = _pool(game)
+        if not game.can_activate(card, pool):
+            raise IllegalAction(f"{card.name} cannot be activated now; the floating mana is {pool}")
+        game.activate(card, pool, _land_chooser(policy))
+
+
+@dataclass(frozen=True)
+class ActivateLander(Action):
+    """Sacrifice a Lander token for a basic land, tapped (P19 R14)."""
+
+    kind = "activate_lander"
+
+    def run(self, game, policy) -> None:
+        pool = _pool(game)
+        if not game.can_activate(None, pool):
+            raise IllegalAction(f"no Lander can be activated; the floating mana is {pool}")
+        game.activate(None, pool, _land_chooser(policy))
+
+
+@dataclass(frozen=True)
 class EndStep(Action):
     """The end step triggers - Necropotence and friends."""
 
@@ -357,6 +387,7 @@ BY_KIND = {
     for action in (
         BeginTurn, PlayLand, OpenMainPhase, CastSpell, CastCommander, EndStep,
         AdvancePhase, Mulligan, KeepHand, Draw, SetLife, MoveCard, TapPermanent,
+        ActivateSearch, ActivateLander,
     )
 }
 
@@ -404,8 +435,23 @@ def legal_actions(game) -> list[Action]:
                     if game.can_cast(card, pool)]
         if game.can_cast_commander(pool):
             allowed.append(CastCommander())
+        allowed += activations(game, pool)
 
     return allowed
+
+
+def activations(game, pool) -> list[Action]:
+    """The land searches that can be activated now (P19 R14)."""
+    found: list[Action] = [
+        ActivateSearch(zone=zone, index=index)
+        for zone in (LANDS, ROCKS, CREATURES, OTHER)
+        for index, card in enumerate(zone_of(game, zone))
+        if card.land_search is not None and card.land_search.when == "activate"
+        and game.can_activate(card, pool)
+    ]
+    if game.can_activate(None, pool):
+        found.append(ActivateLander())
+    return found
 
 
 def castable_cost(game, card, x: int = 0):
@@ -514,6 +560,7 @@ def _arrival(game, card, policy) -> None:
             game.graveyard.append(card)
 
     game.make_treasures(card)
+    game.make_landers(card)
 
 
 def _battlefield_predicate(spec, x: int):

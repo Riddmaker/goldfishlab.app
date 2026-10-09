@@ -8229,3 +8229,78 @@ msgstr "あなたがコントロールするエンチャント1つにつき%(col
 #, python-format
 msgid "one %(color)s for each creature you control with defender"
 msgstr "あなたがコントロールする防衛を持つクリーチャー1体につき%(color)s1点"
+
+#: changelog/entries.py
+msgid "Wayfarer's Bauble, Myriad Landscape and Lander tokens"
+msgstr "Wayfarer's Bauble、Myriad Landscape、Landerトークン"
+
+#: changelog/entries.py
+msgid ""
+"Wayfarer's Bauble, Burnished Hart, Myriad Landscape, Urza's Cave, the "
+"Panoramas and Lander tokens now find their lands: a simulated game activates"
+" them with the mana left once its spells are cast, and in the playtest a "
+"button does. Knight of the White Orchid searches while an opponent has more "
+"lands, assuming each plays one a turn. The report no longer counts filter "
+"lands or Reflecting Pool among the mana sources that grow with your board."
+msgstr ""
+"Wayfarer's Bauble、Burnished Hart、Myriad Landscape、Urza's "
+"Cave、Panoramaの土地、Landerトークンが土地を見つけるようになりました。シミュレーションでは呪文を唱えた後に残ったマナで起動し、プレイテストではボタンで起動できます。Knight"
+" of the White "
+"Orchidは、各対戦相手が毎ターン土地を1枚プレイすると仮定し、対戦相手の方が土地が多い間はサーチします。レポートは、フィルターランドとReflecting"
+" Poolを、盤面とともに増えるマナ源に数えなくなりました。"
+
+#: cards/profiles.py
+msgid "searches for lands in combat, which the engine does not play"
+msgstr "戦闘中に土地をサーチするが、エンジンは戦闘をプレイしない"
+
+#: cards/profiles.py
+msgid "makes a Lander token at a moment the engine does not play"
+msgstr "エンジンがプレイしないタイミングでLanderトークンを生成する"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s of one land type"
+msgstr "同じ土地タイプの%(what)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, one of each"
+msgstr "%(what)s（各1枚）"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(cost)s, sacrifice it: %(search)s"
+msgstr "%(cost)s、これを生け贄に捧げる：%(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, if an opponent controls more lands"
+msgstr "%(search)s（対戦相手の方が多くの土地をコントロールしている場合）"
+
+#: simulations/engine/adapter.py
+msgid ""
+"searches when you have fewer lands than turns gone by, assuming each "
+"opponent plays a land a turn"
+msgstr "各対戦相手が毎ターン土地を1枚プレイすると仮定し、経過したターン数より土地が少ないときにサーチする"
+
+#: playtest/views.py
+msgid "Land search activated"
+msgstr "土地サーチを起動"
+
+#: playtest/views.py
+msgid "Lander activated"
+msgstr "Landerを起動"
+
+#: templates/playtest/_board.html
+msgid "Activate"
+msgstr "起動"
+
+#: templates/playtest/_board.html
+msgid "Activate a Lander: {2}, a basic land"
+msgstr "Landerを起動：{2}、基本土地1枚"
+
+#: templates/playtest/_board.html
+#, python-format
+msgid "%(count)s Lander token"
+msgid_plural "%(count)s Lander tokens"
+msgstr[0] "Landerトークン%(count)s個"

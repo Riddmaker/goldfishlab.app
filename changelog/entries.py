@@ -42,6 +42,16 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "activated-land-search",
+        _("Wayfarer's Bauble, Myriad Landscape and Lander tokens"),
+        _("Wayfarer's Bauble, Burnished Hart, Myriad Landscape, Urza's Cave, the Panoramas and "
+          "Lander tokens now find their lands: a simulated game activates them with the mana "
+          "left once its spells are cast, and in the playtest a button does. Knight of the "
+          "White Orchid searches while an opponent has more lands, assuming each plays one a "
+          "turn. The report no longer counts filter lands or Reflecting Pool among the mana "
+          "sources that grow with your board."),
+    ),
+    Entry(
         date(2026, 10, 9), "mana-on-top",
         _("Wild Growth, Mirari's Wake and Cryptolith Rite"),
         _("Auras such as Wild Growth, Fertile Ground and Utopia Sprawl now add their mana "

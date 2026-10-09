@@ -372,6 +372,17 @@ class DerivedProfile(models.Model):
         max_length=16, blank=True,
         help_text="Engine card kind the search is restricted to. Blank means any.",
     )
+    #: P19 R2: a search for lands that puts them onto the battlefield - a ramp
+    #: spell, a fetch land, Wood Elves - read whole off the text, or null.
+    #: Keys: battlefield, hand (how many go where), tapped, basic, types (land
+    #: subtypes it may find; empty = any), life, when (cast | enters | play),
+    #: sacrifice (the card itself goes), untap_at (Fabled Passage: untapped
+    #: once you control that many lands). See `cards.profiles._land_search`.
+    land_search = models.JSONField(null=True, blank=True)
+    #: P19 R3: when `enters_tapped`, the condition under which it does not -
+    #: {"kind": control_type | lands | opponents | reveal | pay_life, ...}.
+    #: See `cards.profiles._tapped_unless`. Null: none, or none it could read.
+    tapped_unless = models.JSONField(null=True, blank=True)
 
     #: Necropotence. A static "Skip your draw step." on the card itself - not
     #: Fatigue, which makes somebody *else* skip one, and not Ivory Gargoyle,

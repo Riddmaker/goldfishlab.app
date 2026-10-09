@@ -20,8 +20,10 @@ from simulation.mana import (
     available_mana,
     doublers,
     effective_mana_cost,
+    land_colors,
     reductions_from,
 )
+from simulation.manacost import PHYREXIAN_LIFE_FLOOR
 
 STARTING_LIFE = 40
 STARTING_HAND_SIZE = 7
@@ -79,7 +81,9 @@ class Game:
         # before anything is cast, or Crypt Ghast would count himself in the
         # very turn he arrives.
         self.mana_available = 0
-        #: The same mana, split by colour - ``{"B": 3, "C": 2}``. Recorded
+        #: The same mana, by colour - ``{"B": 3, "C": 2}`` - as much of each
+        #: as the pool could pay (`ManaPool.reach`): a dual land's mana counts
+        #: for both of its colours, so the colours may add up to more. Recorded
         #: beside the total because the total on its own is the number that
         #: flatters a deck: five mana of which four is the wrong colour plays
         #: like one. Colours the pool did not hold are absent rather than
@@ -278,18 +282,122 @@ class Game:
 
     # --- Playing cards -----------------------------------------------------
 
+    #: A Commander game: three opponents, for "unless you have two or more".
+    OPPONENTS = 3
+
+    def untaps_on_entering(self, land) -> bool:
+        """Whether a land that would enter tapped meets its condition not to.
+
+        Asked before the land is on the battlefield, so "other lands" are all
+        of them. Pure: a shock land's life is paid by :meth:`_enters_tapped`.
+        """
+        condition = land.tapped_unless
+        if condition is None:
+            return False
+        kind = condition.kind
+        if kind == "control_type":
+            return any(other.subtypes & condition.types for other in self.lands)
+        if kind == "lands":
+            counted = [other for other in self.lands
+                       if (not condition.basic or other.basic)
+                       and (not condition.type or condition.type in other.subtypes)]
+            have = len(counted) + (0 if condition.other else 1)
+            return have >= condition.count if condition.at_least else have <= condition.count
+        if kind == "opponents":
+            return self.OPPONENTS >= condition.count
+        if kind == "reveal":
+            return any(card is not land and card.subtypes & condition.types
+                       for card in self.hand)
+        if kind == "pay_life":
+            return self.life - condition.count >= PHYREXIAN_LIFE_FLOOR
+        return False
+
+    def _enters_tapped(self, land) -> bool:
+        """Whether this land enters tapped, paying a shock land's life if not."""
+        if not land.enters_tapped:
+            return False
+        if not self.untaps_on_entering(land):
+            return True
+        if land.tapped_unless.kind == "pay_life":
+            self.life -= land.tapped_unless.count
+        return False
+
     def play_land(self, card) -> None:
         """Play a land from hand."""
         self.hand.remove(card)
+        tapped = self._enters_tapped(card)
         self.lands.append(card)
         self.land_drop_used = True
-        if card.enters_tapped:
+        if tapped:
             # Entered tapped: not a mana source this turn.
             self.lands.remove(card)
             self.lands.insert(0, card)
             self.tapped_lands += 1
-        self.note(f"Land: {card.name}"
-                  + (" (tapped)" if card.enters_tapped else ""))
+        self.note(f"Land: {card.name}" + (" (tapped)" if tapped else ""))
+
+    def play_fetch(self, card, choose=None) -> None:
+        """A fetch land played this turn: sacrificed at once for what it finds.
+
+        A goldfish has no reason to hold a fetch land back, and "at once" is
+        also when its land is most use - untapped, it is in this turn's pool.
+        """
+        index = self.lands.index(card)
+        if index < self.tapped_lands:
+            self.tapped_lands -= 1
+        self.lands.pop(index)
+        self.graveyard.append(card)
+        self.search_lands(card, choose)
+
+    def search_lands(self, card, choose=None) -> int:
+        """Carry out ``card.land_search``. Returns how many lands it found.
+
+        ``choose(game, options)`` picks each land; without it, the one that
+        adds the most colours the lands in play cannot make yet
+        (:func:`best_land`). The library is not shuffled afterwards: its order
+        is random already, and taking cards out of it does not change that.
+        """
+        spec = card.land_search
+        self.life -= spec.life
+        found = 0
+        for index in range(spec.battlefield + spec.hand):
+            options = [land for land in self.library if land.is_land
+                       and (land.basic or not spec.basic)
+                       and (not spec.types or land.subtypes & spec.types)]
+            if not options:
+                break
+            land = (choose or best_land)(self, options)
+            self.library.remove(land)
+            found += 1
+            if index >= spec.battlefield:
+                self.hand.append(land)
+                self.note(f"  -> {land.name} to hand")
+                continue
+            tapped = spec.tapped
+            if spec.untap_at and len(self.lands) + 1 >= spec.untap_at:
+                tapped = False
+            # `tapped` first: a land the search puts in tapped pays no life.
+            self._enter_land(land, tapped or self._enters_tapped(land))
+        return found
+
+    def _enter_land(self, land, tapped: bool) -> None:
+        """A land put onto the battlefield, not played: no land drop used.
+
+        Tapped ones join the tapped lands at the front of the list. An
+        untapped one in a main phase whose pool is already open is tapped for
+        its mana straight away - the pool is opened once a turn, and would
+        otherwise never see it.
+        """
+        if not tapped and self.pool is not None:
+            made = available_mana(self.lands + [land], [land], [], doublers(self.battlefield))
+            for source, amount in made.by_color().items():
+                self.pool.add(source, amount)
+            tapped = True
+        if tapped:
+            self.lands.insert(0, land)
+            self.tapped_lands += 1
+        else:
+            self.lands.append(land)
+        self.note(f"  -> {land.name} onto the battlefield" + (" (tapped)" if tapped else ""))
 
     def cast(self, card, pool: ManaPool) -> None:
         """Cast a card and take the cost out of the pool."""
@@ -432,3 +540,19 @@ class Game:
                 self.life -= pay
                 self.draw(pay)
                 self.note(f"{card.name}: {pay} life -> {pay} cards")
+
+
+def best_land(game, options):
+    """The land a search takes when nobody says which: the most new colours.
+
+    New against the colours the lands in play can already make; then the most
+    colours at all; then one that can enter untapped; then by name, so the same
+    game always finds the same land.
+    """
+    have = frozenset().union(*(land_colors(land) for land in game.lands))
+
+    def score(land):
+        colors = land_colors(land)
+        return (-len(colors - have), -len(colors), land.enters_tapped, land.name)
+
+    return min(options, key=score)

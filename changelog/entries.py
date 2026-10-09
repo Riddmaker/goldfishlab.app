@@ -42,6 +42,28 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "tapped-unless",
+        _("Lands that enter tapped unless ..."),
+        _("Check lands, fast and slow lands, snarls and shock lands now enter untapped "
+          "whenever their condition holds in the game, and shock lands pay their 2 life "
+          "for it."),
+    ),
+    Entry(
+        date(2026, 10, 9), "land-search",
+        _("Ramp spells and fetch lands find their lands"),
+        _("Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum and fetch lands now "
+          "put the land they find onto the battlefield, picking the colour your lands "
+          "lack. Green ramp decks reach their commander sooner."),
+    ),
+    Entry(
+        date(2026, 10, 9), "dual-lands",
+        _("Dual lands make either colour"),
+        _("Dual lands, Talismans, Command Tower and Arcane Signet now make any "
+          "of their colours, chosen when you pay. Three-colour commanders come "
+          "down much more often, and these cards no longer need you."),
+        "methodology", "report-colour",
+    ),
+    Entry(
         date(2026, 10, 8), "whats-new",
         _("What's new, by feed or by mail"),
         _("This page. Follow it in your feed reader, or get one mail a month "

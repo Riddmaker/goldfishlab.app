@@ -260,19 +260,18 @@ def test_every_basic_land_taps_for_its_own_colour(build):
         assert mana.land_color(card, frozenset()) == color
 
 
-def test_a_rainbow_land_records_the_choice_it_was_forced_to_make(build):
+def test_a_rainbow_land_offers_the_commanders_colours_as_a_choice(build):
     """Command Tower makes one mana of any colour in the commander's identity.
 
-    The pool counts mana rather than holding sources, so it cannot hold "either
-    colour"; the adapter picks one and must report having done so. With a
-    five-colour commander there is no defensible pick, which is what makes this
-    the right deck to assert it on.
+    Until engine version 5 the pool could not hold "either colour": the adapter
+    picked one and reported a gap. Now the choice itself goes into the pool
+    (P19 R1) and is settled when the mana is spent - so there is nothing left
+    to report, and with a five-colour commander all five are on offer.
     """
     reading = _by_name(build(FIVE_COLOUR))["Command Tower"]
 
-    reasons = [gap.reason for gap in reading.gaps if gap.field == "mana_abilities"]
-    assert reasons, "the engine picked a colour and said nothing about it"
-    assert "makes one of" in reasons[0]
+    assert not reading.unreadable
+    assert [ability.produces for ability in reading.card.mana_abilities] == [(("WUBRG", 1),)]
 
 
 def test_the_simulation_reports_more_than_one_colour(build):
@@ -389,12 +388,12 @@ def test_the_scaling_rules_reach_the_engine_from_annotation_rows(build):
 
 
 def test_two_type_adders_make_every_land_both_types(build):
-    """The documented ambiguity in `mana.land_color`, as a deck.
+    """Two type-adders, as a deck: every land makes a choice of both colours.
 
-    With Urborg and Yavimaya both out, every land is a swamp *and* a forest, and
-    the pool cannot hold "either colour". `land_color` resolves it in WUBRG
-    order, which is deterministic and traceable rather than right - and that is
-    a limitation worth having a deck for, because it is invisible in any deck
+    With Urborg and Yavimaya both out, every land is a swamp *and* a forest.
+    Until engine version 5 the pool could not hold "either colour" and
+    `land_color` picked the first in WUBRG order; now the land offers both, and
+    paying a cost settles it. Worth a deck, because it is invisible in any deck
     with one type-adder.
     """
     readings = _by_name(build(SCALING_RAMP))
@@ -406,9 +405,8 @@ def test_two_type_adders_make_every_land_both_types(build):
     assert granted == frozenset({"swamp", "forest"})
 
     assert mana.subtypes_of(forest, granted) == frozenset({"forest", "swamp"})
-    # B before G in WUBRG order. The Forest is now also a Swamp, and the engine
-    # picks the earlier colour.
-    assert mana.land_color(forest, granted) == "B"
+    # The Forest is now also a Swamp, and makes either.
+    assert mana.land_color(forest, granted) == "BG"
 
 
 def test_cabal_coffers_counts_swamps_it_learned_about_from_the_database(build):

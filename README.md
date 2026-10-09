@@ -273,6 +273,44 @@ It is off without `CHANGELOG_FROM_EMAIL` (the page then offers the feed alone). 
 have its own SMTP login, `CHANGELOG_EMAIL_HOST_USER`/`_PASSWORD`; blank uses the site's
 (`.env.example`). `preview_mails` writes a sample as `changelog_digest.html`.
 
+### Cards the engine could not read (P19a)
+
+The player answers an unreadable card on their own deck, as before. The operator learns about it
+too: after every upload (`decks.services.import_deck`, not the site's own precons) the worker
+reads the deck once more with the built-in annotations only, and counts each card the engine alone
+could not read on an `UnreadCard` row - card, reasons, how often, engine version; no deck, no
+account. Admin → *Unread cards* lists them by how often they came up, with the card text and what
+players answered for them, in aggregate. Beat closes the ones the engine reads now every night at
+03:30 (`simulations.recheck_unread`) and mails the new ones to `ALERT_EMAIL` on Mondays at 08:00
+(`simulations.mail_unread`); no new cards, no mail. A card set to *Won't fix* (it needs an
+opponent) is still counted and no longer mailed. The plan behind it is issue #36.
+
+### Teaching the engine more cards (P19)
+
+Each round of issue #36 teaches the engine a class of cards it could not read, and
+`tests/test_engine_coverage.py` makes sure nothing else reads worse on the way. It loads a fixed
+slice of the catalogue (`tests/fixtures/coverage_cards.json.gz`: the 2,000 most-played Commander
+cards and every card of the development decks), reads each card with the reader and the engine
+alone, and simulates four real three-colour precons with a fixed seed. Both must equal the
+committed snapshots (`coverage_snapshot.json`, `coverage_numbers.json`); a failure names every
+card and number that changed. A card under LOST is a bug. Anything else, once looked at, is
+written with `COVERAGE_WRITE=1 pytest tests/test_engine_coverage.py` and committed with the change.
+
+```bash
+python manage.py engine_coverage                  # coverage of today's catalogue and decks
+python manage.py engine_coverage --check          # today's catalogue against the snapshot
+python manage.py engine_coverage --export-fixture # rebuild the slice (full catalogue + precons)
+# One turn of the loop, against the local server only: a deck of the most-played cards the
+# engine cannot read, uploaded through /decks/import/ as a local test account, the review
+# walk followed to the end and checked against the engine (report in /tmp).
+python scripts/coverage_loop.py --colours URG [--skip 60]
+```
+
+A round that changes `cards/profiles.py` needs the profiles derived again after its deploy
+(`python manage.py ingest_scryfall --profiles`), and every round changes the engine's numbers, so
+the precon pages are simulated again (`python manage.py precons --rerun --sweep`), both on the
+worker node.
+
 ## Adding translations
 
 ```bash

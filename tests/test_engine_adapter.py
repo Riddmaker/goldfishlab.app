@@ -161,9 +161,10 @@ def test_the_deck_definitions_are_equal(converted):
         # `types` and `categories` are left out: the hand-written deck never
         # had a type line or community tags, and both are read by the draw
         # statistics only, never by a rule (Phase 9 E) - the identical
-        # aggregates below are the proof of that.
+        # aggregates below are the proof of that. `basic` likewise: only a
+        # land search reads it (engine version 6), and this deck has none.
         return replace(card, name=normalise(card.name), cost=card.mana_cost,
-                       types=frozenset(), categories=frozenset())
+                       types=frozenset(), categories=frozenset(), basic=False)
 
     def fold(definition):
         return tuple(
@@ -310,16 +311,30 @@ def test_a_rainbow_source_makes_the_deck_s_colour():
     )
 
     assert abilities[0].produces == (("B", 1),)
-    assert [gap.field for gap in gaps] == ["mana_abilities"], "the choice must be reported"
+    # One colour on offer is no choice, and since engine version 5 a choice
+    # is no gap either: the pool holds it (P19 R1).
+    assert gaps == []
 
 
-def test_a_source_of_colours_the_deck_does_not_play_is_still_deterministic():
+def test_a_rainbow_source_offers_every_colour_of_the_deck():
+    """In a Temur deck Arcane Signet makes one of U, R or G - not white or black."""
+    gaps = []
+    abilities = adapter._mana_abilities(
+        _profile(produces_mana=True, mana_amount=1, mana_colors=list("WUBRG")),
+        {}, "rock", "Arcane Signet", gaps, frozenset({"U", "R", "G"}),
+    )
+    assert abilities[0].produces == (("URG", 1),)
+    assert gaps == []
+
+
+def test_a_source_of_colours_the_deck_does_not_play_offers_all_of_them():
     gaps = []
     abilities = adapter._mana_abilities(
         _profile(produces_mana=True, mana_amount=1, mana_colors=["U", "W"]),
         {}, "land", "Tundra", gaps, frozenset({"B"}),
     )
-    assert abilities[0].produces == (("W", 1),), "WUBRG order breaks the tie"
+    assert abilities[0].produces == (("WU", 1),)
+    assert gaps == []
 
 
 def test_one_colour_is_not_a_choice_and_reports_no_gap():
@@ -458,10 +473,10 @@ def test_the_signet_still_makes_black_in_this_deck(converted):
     assert signet.mana_abilities == (ManaAbility(FLAT, {"B": 1}),)
 
 
-def test_the_choice_it_could_not_model_is_reported(converted):
-    """Coverage must never imply the engine modelled a choice it guessed at."""
+def test_a_choice_of_colours_is_no_longer_a_gap(converted):
+    """Until engine version 5 the reader picked a colour and had to say so."""
     signet_gaps = [g for g in converted.gaps if g.card == "Arcane Signet"]
-    assert any(g.field == "mana_abilities" for g in signet_gaps)
+    assert not any(g.field == "mana_abilities" for g in signet_gaps)
 
 
 # --- a Signet's cost, and permanents that stay tapped (engine version 3) ----

@@ -38,12 +38,14 @@ from simulation.cards import (
     CostReduction,
     DeckDefinition,
     EndStepSpec,
+    LandSearch,
     ManaAbility,
+    TappedUnless,
     TutorSpec,
     UpkeepSpec,
 )
 from simulation.mana import land_color
-from simulation.manacost import COLORLESS, COLORS, ManaCost, parse
+from simulation.manacost import COLORLESS, COLORS, ManaCost, choice, mana_label, parse
 from simulations import gaps as gaps_module
 
 #: Engine kinds that are one-shot spells. Only these may take `draw_on_cast`
@@ -263,6 +265,8 @@ class Reading:
         printed text - so a person checking it needs to see both at once.
         """
         spec = self.card.tutor
+        if spec is None and self.card.land_search is not None:
+            return _land_search_text(self.card.land_search)
         if spec is None:
             return gettext("nothing")
         if spec.kind:
@@ -308,7 +312,7 @@ class Reading:
         """
         basic = land_color(self.card, frozenset()) if self.card.is_land else None
         if basic is not None:
-            return gettext("1 %(color)s (as a basic land)") % {"color": basic}
+            return gettext("1 %(color)s (as a basic land)") % {"color": mana_label(basic)}
         if not self.card.mana_abilities:
             return gettext("nothing")
         text = "; ".join(_ability_text(ability) for ability in self.card.mana_abilities)
@@ -340,11 +344,33 @@ RULE_TEXT = {
 }
 
 
+def _land_search_text(search: LandSearch) -> str:
+    """A land search, in words: what, how many, where, at what price."""
+    types = " / ".join(sorted(subtype.capitalize() for subtype in search.types))
+    if search.basic:
+        what = ngettext("%(count)s basic land", "%(count)s basic lands",
+                        search.battlefield) % {"count": search.battlefield}
+    else:
+        what = ngettext("%(count)s land", "%(count)s lands",
+                        search.battlefield) % {"count": search.battlefield}
+    if types:
+        what = f"{what} ({types})"
+    text = (gettext("%(what)s onto the battlefield, tapped") if search.tapped
+            else gettext("%(what)s onto the battlefield")) % {"what": what}
+    if search.hand:
+        text = gettext("%(search)s, and %(count)s to hand") % {"search": text,
+                                                              "count": search.hand}
+    if search.life:
+        text = gettext("%(search)s, paying %(life)s life") % {"search": text,
+                                                             "life": search.life}
+    return text
+
+
 def _ability_text(ability) -> str:
     """One mana ability, in words."""
     if ability.rule == FLAT:
         produced = " + ".join(
-            f"{amount} {color}" for color, amount in ability.produces
+            f"{amount} {mana_label(color)}" for color, amount in ability.produces
         ) or gettext("nothing")
         if ability.activation_generic:
             return _for_cost(ability.activation_generic, produced)
@@ -410,6 +436,43 @@ def readings(deck: Deck) -> list[Reading]:
     return found
 
 
+def engine_readings(oracle_cards, *, builtin: bool = True) -> dict:
+    """Each card as the engine alone reads it, by oracle id: `(Card, gaps)`.
+
+    `builtin=False` leaves the built-in annotations out as well: the reader
+    and the engine and nothing else, which is what `simulations.coverage`
+    snapshots - built-in rows are data a database may or may not hold.
+
+    Built-in annotations only: a player's own answer makes the card work on
+    their deck, but the engine still could not read it, and that is what the
+    operator's queue (`simulations.unread`) is about. No deck colours either -
+    they only pick which colour a choice is read as, never whether the choice
+    is a gap.
+    """
+    from simulations.models import CardAnnotation
+
+    cards = list(oracle_cards)
+    merged: dict = {}
+    rows = CardAnnotation.objects.filter(
+        owner__isnull=True, deck__isnull=True, oracle_card__in=cards
+    ).values_list("oracle_card_id", "overrides") if builtin else ()
+    for oracle_id, overrides in rows:
+        merged.setdefault(oracle_id, {}).update(overrides or {})
+    annotations = Annotations(overrides=merged, scopes={})
+
+    found = {}
+    for oracle_card in cards:
+        gaps: list[Gap] = []
+        card = _card_from(oracle_card, annotations, gaps)
+        found[oracle_card.pk] = (card, gaps)
+    return found
+
+
+def engine_gaps(oracle_cards) -> dict:
+    """What the engine alone cannot read about each card, by oracle id (P19a)."""
+    return {pk: gaps for pk, (_card, gaps) in engine_readings(oracle_cards).items()}
+
+
 def _deck_colors(entries, deck: Deck) -> frozenset[str]:
     """Which colours this deck's rainbow sources should make.
 
@@ -441,12 +504,12 @@ def _deck_colors(entries, deck: Deck) -> frozenset[str]:
 
 
 def _pick_color(colors, deck_colors: frozenset[str]) -> str | None:
-    """One colour out of several a source could make.
+    """One colour out of several a ritual could make.
 
     The deck's own colours first, then WUBRG order, so the same deck always
-    reads the same way. The caller records the choice as a gap: the engine
-    cannot hold "one mana of either colour", and a result must not pretend it
-    modelled the choice.
+    reads the same way. Only rituals still pick: a mana *source* offers its
+    choice to the pool since engine version 5 (`_mana_abilities`), while a
+    ritual's mana goes in when it resolves, as one colour.
     """
     usable = [color for color in COLORS if color in set(colors) & deck_colors]
     if usable:
@@ -606,6 +669,9 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         types=card_types(oracle_card),
         categories=_categories(profile, overrides,
                                annotations.scope_of(oracle_card.pk, "tags")),
+        land_search=_land_search(profile),
+        basic=oracle_card.type_line.startswith("Basic"),
+        tapped_unless=_tapped_unless(profile, overrides),
     )
 
     _record_gaps(card, profile, overrides, gaps)
@@ -660,20 +726,18 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
 
     # `mana_colors` is Scryfall's `produced_mana`: it lists every colour the
     # card can make, without saying whether that is a choice or all of them at
-    # once. Nearly always it is a choice, and the pool cannot hold one.
+    # once. Nearly always it is a choice - a dual land, a Talisman, Command
+    # Tower - and since engine version 5 the pool holds one (P19 R1), settled
+    # when the mana is spent. Only the deck's own colours are offered: Command
+    # Tower and Arcane Signet name all five, and make only the commander's.
+    # Several mana of a choice are each chosen on their own, which is right
+    # for "any combination of colours" and generous for "any one colour".
     colors = [color for color in profile.mana_colors or [] if color in COLORS]
     amount = profile.mana_amount
     if not colors:
         return (ManaAbility(FLAT, {COLORLESS: amount}, activation_generic=activation),)
-    if len(colors) == 1:
-        return (ManaAbility(FLAT, {colors[0]: amount}, activation_generic=activation),)
-
-    chosen = _pick_color(colors, deck_colors)
-    template = gettext_noop("makes one of %(colors)s; the engine cannot hold a choice and "
-                            "reads it as %(color)s")
-    params = {"colors": "/".join(sorted(colors)), "color": chosen}
-    gaps.append(Gap(name, "mana_abilities", template % params, template, params))
-    return (ManaAbility(FLAT, {chosen: amount}, activation_generic=activation),)
+    offered = [color for color in colors if color in deck_colors] or colors
+    return (ManaAbility(FLAT, {choice(offered): amount}, activation_generic=activation),)
 
 
 def _annotated_production(overrides: dict) -> dict | None:
@@ -757,6 +821,40 @@ def _draw_on_cast(profile, overrides: dict, kind: str) -> int:
 #: no third move, so a tutor that fetches onto the battlefield is a gap rather
 #: than a tutor quietly redirected somewhere it does not go.
 TUTOR_ZONES = {"hand": True, "graveyard": False}
+
+
+def _tapped_unless(profile, overrides: dict) -> TappedUnless | None:
+    """When a land that enters tapped does not, as the reader read it (P19 R3).
+
+    Only while nobody said otherwise: an annotation that sets `enters_tapped`
+    is a person's answer about this land, and it stands as given.
+    """
+    found = getattr(profile, "tapped_unless", None)
+    if not found or "enters_tapped" in overrides:
+        return None
+    return TappedUnless(
+        kind=found["kind"], types=frozenset(found.get("types", ())),
+        count=int(found.get("count") or found.get("life") or 0),
+        at_least=bool(found.get("at_least", True)), other=bool(found.get("other", False)),
+        basic=bool(found.get("basic", False)), type=found.get("type", ""),
+    )
+
+
+def _land_search(profile) -> LandSearch | None:
+    """The land search the reader read whole, or nothing (P19 R2).
+
+    No annotation reaches it yet: the reader either has every value or none,
+    and a card it could not read keeps its gap.
+    """
+    found = getattr(profile, "land_search", None)
+    if not found:
+        return None
+    return LandSearch(
+        battlefield=int(found["battlefield"]), hand=int(found["hand"]),
+        tapped=bool(found["tapped"]), basic=bool(found["basic"]),
+        types=frozenset(found["types"]), life=int(found["life"]), when=found["when"],
+        sacrifice=bool(found["sacrifice"]), untap_at=int(found.get("untap_at", 0)),
+    )
 
 
 def _tutor(profile, overrides: dict) -> TutorSpec | None:
@@ -921,6 +1019,7 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap]) -> None:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("makes mana, but how much could not be read")))
 
-    if card.is_land and not card.mana_abilities:
+    fetches = card.land_search is not None and card.land_search.when == "play"
+    if card.is_land and not card.mana_abilities and not fetches:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("a land that taps for nothing the engine can see")))

@@ -106,22 +106,20 @@ def test_enters_tapped_is_read_from_the_card_text(catalogue):
     assert not catalogue["Swamp"].enters_tapped
 
 
-def test_conditional_enters_tapped_is_flagged_rather_than_asserted(catalogue):
-    """'enters tapped unless you control two or fewer other lands' is sometimes true.
+def test_a_shock_lands_condition_is_read_rather_than_guessed(catalogue):
+    """'As Blood Crypt enters, you may pay 2 life. If you don't, it enters tapped.'
 
-    The engine models no board state, so it cannot tell when. Claiming either
-    answer flatly would be a quiet lie.
+    Until engine version 7 nothing could know whether the player paid, so the
+    deriver flagged it and claimed neither answer. Now the condition itself is
+    read (P19 R3) and the engine decides in the game, where the life is.
     """
     crypt = catalogue.get("Blood Crypt")
     if crypt is None:
         pytest.skip("Blood Crypt not in fixture")
 
-    # "As Blood Crypt enters, you may pay 2 life. If you don't, it enters
-    # tapped." Nothing here can know whether the player paid, so the deriver
-    # must not claim either answer silently.
-    assert not crypt.enters_tapped
-    assert crypt.needs_review
-    assert any("tapped" in reason for reason in crypt.review_reasons)
+    assert crypt.enters_tapped
+    assert crypt.tapped_unless == {"kind": "pay_life", "life": 2}
+    assert not any("tapped" in reason for reason in crypt.review_reasons)
 
 
 def test_a_card_that_taps_other_permanents_does_not_enter_tapped_itself(catalogue):

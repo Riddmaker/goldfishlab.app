@@ -122,7 +122,15 @@ def _land_score(card, game) -> int:
         return 96 if scaling_out else 90
     if any(subtype in SUBTYPE_COLORS for subtype in card.subtypes):
         return 80          # a basic land type: makes colour and can be counted
-    if card.enters_tapped:
+    search = card.land_search
+    if search is not None and search.when == "play":
+        # A fetch land: as good as the land it finds, a little less for the
+        # life it may cost; a tapped one like any land that enters tapped,
+        # with the colour it fixes on top (P19 R2).
+        untapped = not search.tapped or (search.untap_at
+                                         and lands_out + 1 >= search.untap_at)
+        return 79 if untapped else 25
+    if card.enters_tapped and not game.untaps_on_entering(card):
         return 20          # useless this turn
     flat = card.ability(FLAT)
     if flat is not None:

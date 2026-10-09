@@ -213,6 +213,65 @@ class TutorSpec:
     kind: str = ""
 
 
+@dataclass(frozen=True)
+class LandSearch:
+    """A search that puts lands onto the battlefield (P19 R2, engine version 6).
+
+    Rampant Growth, Cultivate, a fetch land, Wood Elves, Sakura-Tribe Elder.
+
+    Attributes:
+        battlefield: How many lands go onto the battlefield.
+        hand: How many go to hand after them (Cultivate: one).
+        tapped: Whether the ones on the battlefield enter tapped.
+        basic: Only basic lands.
+        types: The land types it may find (Farseek: plains, island, swamp,
+            mountain); empty means any land.
+        life: Life paid (a fetch land: 1).
+        when: ``cast`` (a spell), ``enters`` (a permanent's arrival) or
+            ``play`` (a fetch land, the moment it is played).
+        sacrifice: The card itself goes to the graveyard (a fetch land,
+            Sakura-Tribe Elder).
+        untap_at: Fabled Passage: the land is untapped once you control at
+            least this many lands. 0: never.
+    """
+
+    battlefield: int = 1
+    hand: int = 0
+    tapped: bool = True
+    basic: bool = True
+    types: frozenset[str] = field(default_factory=frozenset)
+    life: int = 0
+    when: str = "cast"
+    sacrifice: bool = False
+    untap_at: int = 0
+
+
+@dataclass(frozen=True)
+class TappedUnless:
+    """When a land that enters tapped does not (P19 R3, engine version 7).
+
+    ``kind`` says which question is asked of the game:
+
+    * ``control_type`` - you control a land of one of ``types`` (check lands)
+    * ``lands`` - you control ``count`` or more (``at_least``) or at most
+      ``count`` lands, ``other`` than this one, ``basic`` ones, or of ``type``
+      (fast, slow and battle lands, Mystic Sanctuary)
+    * ``opponents`` - you have ``count`` or more opponents: a Commander table
+      has three
+    * ``reveal`` - you can reveal a card of one of ``types`` from your hand
+    * ``pay_life`` - you pay ``count`` life (shock lands), never below the
+      Phyrexian life floor
+    """
+
+    kind: str
+    types: frozenset[str] = field(default_factory=frozenset)
+    count: int = 0
+    at_least: bool = True
+    other: bool = False
+    basic: bool = False
+    type: str = ""
+
+
 #: A card with no mana production of its own.
 NO_ABILITIES: tuple[ManaAbility, ...] = ()
 
@@ -301,6 +360,13 @@ class Card:
     #: ones; ``simulations/engine/adapter.py`` decides which. Empty for the
     #: hand-written fixture decks. Last, and defaulted, like ``types``.
     categories: frozenset[str] = field(default_factory=frozenset)
+
+    #: P19 R2: lands this card puts onto the battlefield, and when.
+    land_search: LandSearch | None = None
+    #: A basic land - what "search for a basic land card" may find.
+    basic: bool = False
+    #: P19 R3: with ``enters_tapped``, the condition under which it does not.
+    tapped_unless: TappedUnless | None = None
 
     @property
     def mana_cost(self) -> ManaCost:

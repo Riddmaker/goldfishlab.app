@@ -41,6 +41,28 @@ boundary, not the symptom.
 #:    only the opening hand and the draws (``Game.drawn``), no longer the cards
 #:    a tutor found, and carries the sum of squares for a spread. The reference
 #:    deck has a priority list, so the golden snapshot is unchanged.
-ENGINE_VERSION = 4
+#: 5: P19 R1 (issue #36). A source that makes one mana of a choice of colours
+#:    - dual and tri lands, Talismans, Command Tower, Arcane Signet - puts that
+#:    choice into the pool, and paying a cost settles it (an exact search, like
+#:    hybrid symbols). Until now the reader fixed one colour and reported a
+#:    gap, and a land with two basic types (Blood Crypt) silently made its
+#:    first colour in WUBRG order. Per-colour mana counts a choice toward each
+#:    colour it offers. The mono-black reference deck has no such source, so
+#:    the golden snapshot is unchanged.
+#: 6: P19 R2 (issue #36). A search that puts lands onto the battlefield is
+#:    played: ramp spells (Rampant Growth, Cultivate's one-to-play and
+#:    one-to-hand), permanents that fetch on arrival (Wood Elves, Solemn
+#:    Simulacrum, Sakura-Tribe Elder) and fetch lands, which are sacrificed
+#:    the turn they are played for the land they find. The land picked is the
+#:    one that adds the most colours the lands in play cannot make. Until now
+#:    each was a gap and did nothing; a fetch land was a land with no mana.
+#: 7: P19 R3 (issue #36). A land that enters tapped unless something holds is
+#:    checked against the game: check lands (a land type you control), fast,
+#:    slow and battle lands (how many lands), Battlebond lands (a Commander
+#:    table has three opponents), snarls and reveal lands (a card in hand) and
+#:    shock lands (2 life, paid while above the Phyrexian floor). Until now the
+#:    first kinds always entered tapped and a shock land always untapped, for
+#:    free.
+ENGINE_VERSION = 7
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

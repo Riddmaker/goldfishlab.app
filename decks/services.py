@@ -287,8 +287,20 @@ def import_deck(
         deck.save(update_fields=["name"])
     recount_later(Deck.objects.filter(pk=deck.pk))
     deck.open_questions = None
+    _count_unread_later(deck)
 
     return ImportOutcome(deck=deck, record=record, report=report)
+
+
+def _count_unread_later(deck: Deck) -> None:
+    """P19a: once the upload is saved, count the cards the engine could not
+    read (`simulations.unread`) - on the worker, so the upload does not wait,
+    and without who uploaded them. The site's own precons (`fill`) are not
+    counted: nobody brought them."""
+    from simulations.tasks import record_unread
+
+    deck_id = str(deck.pk)
+    transaction.on_commit(lambda: record_unread.delay(deck_id))
 
 
 def fill(deck: Deck, report: resolve.ResolutionReport) -> None:

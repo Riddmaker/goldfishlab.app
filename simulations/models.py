@@ -446,3 +446,44 @@ class SummaryDay(models.Model):
 
     def __str__(self) -> str:
         return f"{self.day}: {self.guests} guest + {self.members} member summaries"
+
+
+class UnreadCard(models.Model):
+    """A card the engine could not read in a deck somebody uploaded (P19a).
+
+    The operator's queue of what to teach the engine next
+    (`simulations.unread`): which card, why, how often. **Nothing here points
+    at a person** - no deck, no account, no address - like the P2 counters;
+    the player still answers the card on their own deck as before, and never
+    sees this.
+    """
+
+    class Status(models.TextChoices):
+        OPEN = "open", "Open"
+        #: The engine reads it now - `read_since` says from which version.
+        READ = "read", "Read now"
+        #: Out of a goldfish's reach (it needs an opponent); stays a blind spot.
+        WONT_FIX = "wont_fix", "Won't fix"
+
+    oracle_card = models.OneToOneField(
+        OracleCard, on_delete=models.CASCADE, related_name="unread", primary_key=True
+    )
+    #: What the reader said at the last sighting, in English as gaps are kept.
+    reasons = models.JSONField(default=list, blank=True)
+    #: Uploads it was in, counted - a refilled deck counts again.
+    seen = models.PositiveIntegerField(default=0)
+    first_seen = models.DateTimeField(auto_now_add=True)
+    last_seen = models.DateTimeField()
+    #: The engine that could not read it, at the last sighting.
+    engine_version = models.PositiveSmallIntegerField()
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.OPEN)
+    read_since = models.PositiveSmallIntegerField(null=True, blank=True)
+    #: When the weekly mail named it; None: not yet, or open again since.
+    mailed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ("-seen",)
+        indexes = [models.Index(fields=["status", "mailed_at"])]
+
+    def __str__(self) -> str:
+        return f"{self.oracle_card.front_name} ({self.status}, seen {self.seen}x)"

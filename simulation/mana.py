@@ -38,6 +38,8 @@ from simulation.manacost import (
     SOURCES,
     SUBTYPE_COLORS,
     ManaCost,
+    choice,
+    is_choice,
     normalised,
     plan_payment,
 )
@@ -131,8 +133,25 @@ class ManaPool:
     # --- the general surface -----------------------------------------------
 
     def amount(self, color: str) -> int:
-        """How much mana of this colour is in the pool."""
+        """How much mana of exactly this source is in the pool - a choice such
+        as ``"UR"`` counts under its own key, not under ``U`` or ``R``."""
         return self._pool.get(color, 0)
+
+    def reach(self) -> dict[str, int]:
+        """How much of each colour the pool could pay, empties left out.
+
+        A choice counts toward every colour it offers: one ``"UR"`` is a blue
+        mana *or* a red one, and a deck's blue is what it could spend on a
+        blue spell. So the colours together can add up to more than
+        :attr:`total` - each says "up to". Colourless is only ever itself.
+        """
+        found: dict[str, int] = {}
+        for source, amount in self._pool.items():
+            if not amount:
+                continue
+            for color in (source if is_choice(source) else (source,)):
+                found[color] = found.get(color, 0) + amount
+        return {source: found[source] for source in SOURCES if found.get(source)}
 
     def add(self, color: str, amount: int = 1) -> None:
         """Put mana of one colour into the pool."""
@@ -219,22 +238,32 @@ def subtypes_of(land, granted: frozenset[str]) -> frozenset[str]:
 
 
 def land_color(land, granted: frozenset[str]) -> str | None:
-    """Which colour this land can tap for as a basic land.
+    """Which mana this land can tap for as a basic land.
 
-    ``None`` means none - and then only its own ``FLAT`` ability counts.
-
-    **Known limitation:** a land with several coloured subtypes (under Urborg
-    *and* Yavimaya, say) could choose which colour it makes. The pool is a count
-    and not a store of individual sources, so it cannot hold that choice; the
-    first colour in WUBRG order is picked deterministically. That is
-    conservative and traceable - but it is a simplification, and it belongs in
-    the result display.
+    ``None`` means none - and then only its own ``FLAT`` ability counts. A land
+    with several coloured subtypes - Blood Crypt is a Swamp Mountain, or any
+    land under Urborg *and* Yavimaya - makes one mana of either: a choice key
+    such as ``"BR"`` (:func:`~simulation.manacost.choice`), settled when it is
+    spent. Until engine version 5 the pool could not hold that, and the first
+    colour in WUBRG order was picked: every shock land made only its first
+    colour, without a word in the report.
     """
     subtypes = subtypes_of(land, granted)
-    for color in COLORS:
-        if any(SUBTYPE_COLORS.get(subtype) == color for subtype in subtypes):
-            return color
-    return None
+    colors = {SUBTYPE_COLORS[subtype] for subtype in subtypes if subtype in SUBTYPE_COLORS}
+    if not colors:
+        return None
+    return choice(colors)
+
+
+def land_colors(land, granted: frozenset[str] = frozenset()) -> frozenset[str]:
+    """Every colour this land can make, as a basic land type or by its own
+    ``FLAT`` ability - what a land search weighs when it picks one."""
+    found = set(land_color(land, granted) or "")
+    for ability in land.mana_abilities:
+        if ability.rule == FLAT:
+            for source, _amount in ability.produces:
+                found.update(letter for letter in source if letter in COLORS)
+    return frozenset(found)
 
 
 def has_urborg(lands) -> bool:

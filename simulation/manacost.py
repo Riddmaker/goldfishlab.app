@@ -77,6 +77,56 @@ SUBTYPE_COLORS = {
 }
 
 
+def choice(colors) -> str:
+    """The pool key of one mana that may be any of these colours: ``"UR"``.
+
+    A dual land, a Talisman, Command Tower: the colour is chosen when the mana
+    is spent, not when the source is tapped (engine version 5, P19 R1). The
+    pool opens every source at once, so it keeps the choice open as a key of
+    its own - the colours in WUBRG order - and :func:`plan_payment` settles it
+    for each cost. One colour is just that colour, never a key of one letter.
+    """
+    letters = "".join(color for color in COLORS if color in set(colors))
+    if not letters:
+        raise ValueError(f"no colour to choose from in {colors!r}")
+    return letters
+
+
+def mana_label(source: str) -> str:
+    """A pool key as a person reads it: ``"U/R"`` for a choice, else as is."""
+    return "/".join(source) if is_choice(source) else source
+
+
+def is_choice(source: str) -> bool:
+    """A pool key holding a choice of colours, as :func:`choice` writes them."""
+    return len(source) > 1 and all(letter in COLORS for letter in source)
+
+
+def can_pay_with(source: str, color: str) -> bool:
+    """Whether mana from `source` may be spent as `color`."""
+    return source == color or (is_choice(source) and color in source)
+
+
+def _source_key(key) -> str:
+    """One spelling of a pool key, from a letter, a colour name or a choice."""
+    named = NAMED_COLORS.get(str(key).lower())
+    if named is not None:
+        return named
+    upper = str(key).upper()
+    if upper in SOURCES:
+        return upper
+    if len(upper) > 1 and all(letter in COLORS for letter in upper):
+        return choice(upper)
+    raise ValueError(f"unknown mana source {key!r}; expected one of {SOURCES} or a choice")
+
+
+def _key_order(source: str) -> tuple:
+    """Single sources in WUBRG-C order first, then choices, narrowest first."""
+    if source in SOURCES:
+        return (0, SOURCES.index(source), "")
+    return (1, len(source), "".join(str(COLORS.index(letter)) for letter in source))
+
+
 def normalised(amounts) -> tuple[tuple[str, int], ...]:
     """Canonical form for an amount of mana: `(("B", 2), ("C", 1))`.
 
@@ -89,11 +139,10 @@ def normalised(amounts) -> tuple[tuple[str, int], ...]:
     pairs = amounts.items() if hasattr(amounts, "items") else amounts
     totals: dict[str, int] = {}
     for key, amount in pairs:
-        source = NAMED_COLORS.get(str(key).lower(), str(key).upper())
-        if source not in SOURCES:
-            raise ValueError(f"unknown mana source {key!r}; expected one of {SOURCES}")
+        source = _source_key(key)
         totals[source] = totals.get(source, 0) + int(amount)
-    return tuple((source, totals[source]) for source in SOURCES if totals.get(source, 0) > 0)
+    return tuple((source, totals[source]) for source in sorted(totals, key=_key_order)
+                 if totals[source] > 0)
 
 
 @dataclass(frozen=True)
@@ -253,119 +302,151 @@ class Payment:
 def plan_payment(available: dict[str, int], cost: ManaCost, *, life: int = 40) -> Payment | None:
     """Work out one exact way to pay `cost` from `available`, or `None`.
 
-    `available` maps colour (and ``C``) to how much is in the pool. The return
+    `available` maps a source - a colour, ``C``, or a choice of colours such
+    as ``"UR"`` (:func:`choice`) - to how much of it is in the pool. The return
     value says how much of each was spent, so the caller can subtract it
     without re-deriving the assignment.
 
     The order is what makes it exact:
 
-    1. **Coloured pips** are forced - no choice to make.
+    1. **Coloured pips** take their own colour first - never worse than taking
+       a choice, which could pay for more. Only what is left over is a
+       question.
     2. **Colourless ``{C}``** can only come from colourless mana.
-    3. **Hybrid symbols** are searched, hardest first: a symbol with one
-       payable option must take it, so resolving those first prunes the tree.
+    3. **The questions** - a pip short of its own colour, which a choice must
+       cover, and every hybrid symbol - are searched together, hardest first:
+       a requirement with one payable option must take it, so resolving those
+       first prunes the tree. A choice spent on a pip may be the one a hybrid
+       needed, which is why they are one search and not two.
     4. **Phyrexian** prefers mana and falls back to life, never below the floor.
-    5. **Generic** takes colourless first, then the most abundant colour, so
-       that scarce colours stay available for later spells in the same turn.
+    5. **Generic** takes colourless first, then the most abundant colour, then
+       the narrowest choice, so that scarce and flexible mana stays available
+       for later spells in the same turn.
     """
     pool = {key: value for key, value in available.items() if value}
     spent: dict[str, int] = {}
 
-    def take(source: str, amount: int) -> bool:
-        if pool.get(source, 0) < amount:
-            return False
+    def take(source: str, amount: int) -> None:
         pool[source] -= amount
         spent[source] = spent.get(source, 0) + amount
-        return True
 
+    short: list[str] = []
     for color, count in cost.pips:
-        if count and not take(color, count):
+        own = min(count, pool.get(color, 0))
+        if own:
+            take(color, own)
+        short.extend([color] * (count - own))
+
+    if cost.colorless:
+        if pool.get(COLORLESS, 0) < cost.colorless:
             return None
+        take(COLORLESS, cost.colorless)
 
-    if cost.colorless and not take(COLORLESS, cost.colorless):
-        return None
+    questions = [("pip", color) for color in short] + [("hybrid", symbol)
+                                                       for symbol in cost.hybrid]
+    return _answer(pool, spent, questions, cost, life)
 
-    if not _pay_hybrids(pool, spent, list(cost.hybrid)):
-        return None
 
-    # Mana may go to a Phyrexian symbol only while enough is left for the
-    # generic part. Until engine version 3 every symbol took mana whenever its
-    # colour was in the pool, before generic was looked at: three blue paid
-    # Phyrexian Metamorph's {U/P} with a blue and then could not pay its {3},
-    # and the spell read as uncastable when two life would have cast it - the
-    # greedy payer the module docstring warns about. Generic can be paid with
-    # anything, so the whole question is how much mana it needs.
+def _sources_for(pool: dict[str, int], color: str) -> list[str]:
+    """Where a mana of `color` can come from: its own colour, then the
+    narrowest choices, so the widest are kept for what only they can pay."""
+    return sorted((source for source, amount in pool.items()
+                   if amount and can_pay_with(source, color)), key=_key_order)
+
+
+def _options(pool: dict[str, int], question) -> list[tuple[str, int]]:
+    """Every way to answer one question: (source, amount) pairs.
+
+    The empty source stands for "generic", a {2/W} symbol paid with any two.
+    """
+    kind, need = question
+    if kind == "pip":
+        return [(source, 1) for source in _sources_for(pool, need)]
+    found = [(source, 1) for color in need.colors for source in _sources_for(pool, color)]
+    found = list(dict.fromkeys(found))
+    if need.generic and sum(pool.values()) >= need.generic:
+        found.append(("", need.generic))
+    return found
+
+
+def _answer(pool: dict[str, int], spent: dict[str, int], questions: list,
+            cost: ManaCost, life: int) -> Payment | None:
+    """Answer the questions, backtracking when a choice dead-ends, then finish."""
+    if not questions:
+        return _finish(dict(pool), dict(spent), cost, life)
+
+    ordered = sorted(questions, key=lambda question: len(_options(pool, question)))
+    first, rest = ordered[0], ordered[1:]
+    for source, amount in _options(pool, first):
+        taken = [source] * amount if source else []
+        if not source:
+            for _ in range(amount):
+                cheapest = _cheapest_generic_source(pool)
+                if cheapest is None:
+                    break
+                pool[cheapest] -= 1
+                taken.append(cheapest)
+            if len(taken) < amount:
+                for back in taken:
+                    pool[back] += 1
+                continue
+        else:
+            pool[source] -= amount
+        for used in taken:
+            spent[used] = spent.get(used, 0) + 1
+        payment = _answer(pool, spent, rest, cost, life)
+        for used in taken:
+            pool[used] += 1
+            spent[used] -= 1
+        if payment is not None:
+            return payment
+    return None
+
+
+def _finish(pool: dict[str, int], spent: dict[str, int], cost: ManaCost,
+            life: int) -> Payment | None:
+    """Phyrexian symbols and the generic part, once every colour is settled.
+
+    Mana may go to a Phyrexian symbol only while enough is left for the
+    generic part. Until engine version 3 every symbol took mana whenever its
+    colour was in the pool, before generic was looked at: three blue paid
+    Phyrexian Metamorph's {U/P} with a blue and then could not pay its {3},
+    and the spell read as uncastable when two life would have cast it - the
+    greedy payer the module docstring warns about. Generic can be paid with
+    anything, so the whole question is how much mana it needs.
+    """
+    def take(source: str) -> None:
+        pool[source] -= 1
+        spent[source] = spent.get(source, 0) + 1
+
     spare = sum(pool.values()) - cost.generic
     life_paid = 0
     for color in cost.phyrexian:
-        if pool.get(color, 0) and spare > 0:
-            take(color, 1)
+        sources = _sources_for(pool, color)
+        if sources and spare > 0:
+            take(sources[0])
             spare -= 1
             continue
         if life - life_paid - PHYREXIAN_LIFE < PHYREXIAN_LIFE_FLOOR:
             return None
         life_paid += PHYREXIAN_LIFE
 
-    remaining = cost.generic
-    while remaining:
+    for _ in range(cost.generic):
         source = _cheapest_generic_source(pool)
         if source is None:
             return None
-        take(source, 1)
-        remaining -= 1
+        take(source)
 
-    return Payment(spent=spent, life=life_paid)
-
-
-def _pay_hybrids(pool: dict[str, int], spent: dict[str, int], hybrids: list[Hybrid]) -> bool:
-    """Assign every hybrid symbol, backtracking when a choice dead-ends.
-
-    Ordered by how few options each symbol has, so forced assignments happen
-    first. With at most five colours this is exhaustive and still instant.
-    """
-    if not hybrids:
-        return True
-
-    def options(symbol: Hybrid) -> list[tuple[str, int]]:
-        choices = [(color, 1) for color in symbol.colors if pool.get(color, 0)]
-        if symbol.generic and sum(pool.values()) >= symbol.generic:
-            choices.append((COLORLESS if pool.get(COLORLESS, 0) else "", symbol.generic))
-        return choices
-
-    hybrids = sorted(hybrids, key=lambda symbol: len(options(symbol)))
-    first, rest = hybrids[0], hybrids[1:]
-
-    for color in first.colors:
-        if pool.get(color, 0):
-            pool[color] -= 1
-            spent[color] = spent.get(color, 0) + 1
-            if _pay_hybrids(pool, spent, rest):
-                return True
-            pool[color] += 1
-            spent[color] -= 1
-
-    if first.generic:
-        taken = []
-        for _ in range(first.generic):
-            source = _cheapest_generic_source(pool)
-            if source is None:
-                break
-            pool[source] -= 1
-            spent[source] = spent.get(source, 0) + 1
-            taken.append(source)
-        if len(taken) == first.generic and _pay_hybrids(pool, spent, rest):
-            return True
-        for source in taken:
-            pool[source] += 1
-            spent[source] -= 1
-
-    return False
+    return Payment(spent={source: amount for source, amount in spent.items() if amount},
+                   life=life_paid)
 
 
 def _cheapest_generic_source(pool: dict[str, int]) -> str | None:
     """Which mana to spend on a generic cost.
 
     Colourless first - it can pay nothing else. Then the colour there is most
-    of, so the scarce colours survive for the rest of the turn.
+    of, so the scarce colours survive for the rest of the turn. A choice last,
+    and the narrowest of them: it is the mana that could have paid the most.
     """
     if pool.get(COLORLESS, 0):
         return COLORLESS
@@ -374,4 +455,9 @@ def _cheapest_generic_source(pool: dict[str, int]) -> str | None:
         count = pool.get(color, 0)
         if count > best_count:
             best, best_count = color, count
-    return best
+    if best is not None:
+        return best
+    choices = sorted((source for source, amount in pool.items()
+                      if amount and is_choice(source)),
+                     key=lambda source: (len(source), -pool[source], _key_order(source)))
+    return choices[0] if choices else None

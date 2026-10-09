@@ -153,16 +153,19 @@ def test_the_doubler_makes_its_own_colour_not_the_land_s():
     dual = Card("Godless Shrine", 0, 0, 0, LAND,
                 subtypes=frozenset({"plains", SWAMP_SUBTYPE}))
     pool = available_mana([dual], [dual], [], doublers([BLACK_GHAST]))
-    assert (pool.amount("W"), pool.amount("B")) == (1, 1)
+    # The land itself makes a choice of W or B (engine version 5); the
+    # doubler's bonus is black whatever the land was spent as.
+    assert (pool.amount("WB"), pool.amount("B")) == (1, 1)
+    assert pool.reach() == {"W": 1, "B": 2}
 
 
-def test_the_first_colour_in_wubrg_wins_a_tie():
-    """A land that is two basic types could choose; the pool cannot hold that.
+def test_a_land_of_two_types_makes_a_choice():
+    """A land that is two basic types makes either colour (engine version 5).
 
-    Deterministic and documented beats arbitrary. The choice is a known
-    simplification, not a modelled one.
+    Until then the pool could not hold a choice and the first colour in WUBRG
+    order won - which made every shock land a mono-coloured land, silently.
     """
-    assert land_color(FOREST, frozenset({SWAMP_SUBTYPE})) == "B"
+    assert land_color(FOREST, frozenset({SWAMP_SUBTYPE})) == "BG"
 
 
 def test_a_green_coffers_scales_in_green():

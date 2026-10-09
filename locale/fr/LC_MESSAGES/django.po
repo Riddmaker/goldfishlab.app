@@ -4073,30 +4073,6 @@ msgstr ""
 msgid "What the mana was made of"
 msgstr "De quoi était fait le mana"
 
-#: templates/core/methodology.html
-msgid ""
-"The same mana, split by colour. This is the column that says whether a mana "
-"base works: five mana on turn three is a good turn, and five mana of which "
-"four is the wrong colour is a turn spent doing nothing."
-msgstr ""
-"Le même mana, réparti par couleur. C'est la colonne qui dit si une base de "
-"mana fonctionne : cinq manas au tour trois, c'est un bon tour ; cinq manas "
-"dont quatre de la mauvaise couleur, c'est un tour passé à ne rien faire."
-
-#: templates/core/methodology.html
-msgid ""
-"Means, and only means — the engine's pool counts mana rather than holding "
-"the sources that made it, so a card that could have made one of several "
-"colours was read as making one fixed colour. Every card that happened to is "
-"among the cards the engine could not read, under “Cards that need your "
-"attention”."
-msgstr ""
-"Des moyennes, et seulement des moyennes — la réserve du moteur compte le "
-"mana au lieu de garder les sources qui l'ont produit ; une carte qui pouvait"
-" produire une couleur parmi plusieurs a donc été lue comme produisant une "
-"seule couleur fixe. Chaque carte concernée figure parmi les cartes que le "
-"moteur n'a pas pu lire, sous « Cartes qui demandent votre attention »."
-
 #: templates/core/methodology.html templates/simulations/_report.html
 msgid "Milestones"
 msgstr "Étapes"
@@ -6973,10 +6949,6 @@ msgid "Share as a bar"
 msgstr "Part en barre"
 
 #: templates/simulations/_report.html
-msgid "The same mana, split by colour — means only."
-msgstr "Le même mana, réparti par couleur — moyennes uniquement."
-
-#: templates/simulations/_report.html
 msgid "Total"
 msgstr "Total"
 
@@ -8879,3 +8851,136 @@ msgid ""
 msgstr ""
 "Vous recevez cet e-mail parce que vous l'avez demandé. Se désabonner en un "
 "clic :"
+
+#: templates/core/privacy.html
+msgid ""
+"Cards the engine could not read in a deck you uploaded: the card, why it "
+"could not be read, and how often it came up - not the deck, and not who "
+"uploaded it"
+msgstr ""
+"Les cartes que le moteur n'a pas pu lire dans un deck que vous avez importé "
+": la carte, la raison, et combien de fois elle est apparue - ni le deck, ni "
+"qui l'a importé"
+
+#: templates/core/privacy.html
+msgid ""
+"To teach the engine to read those cards (legitimate interest, Art. 6(1)(f))"
+msgstr ""
+"Pour apprendre au moteur à lire ces cartes (intérêt légitime, art. 6, par. "
+"1, let. f)"
+
+#: templates/core/privacy.html
+msgid "As long as the site runs, as they are about nobody"
+msgstr "Tant que le site existe, car elles ne concernent personne"
+
+#: templates/simulations/_report.html
+msgid "How much of each colour the mana could pay — means only."
+msgstr ""
+"Combien de chaque couleur le mana pouvait payer — moyennes uniquement."
+
+#: templates/core/methodology.html
+msgid ""
+"How much of each colour the mana could pay. This is the column that says "
+"whether a mana base works: five mana on turn three is a good turn, and five "
+"mana of which four is the wrong colour is a turn spent doing nothing."
+msgstr ""
+"Combien de chaque couleur le mana pouvait payer. C'est la colonne qui dit si"
+" une base de mana fonctionne : cinq manas au tour trois, c'est un bon tour ;"
+" cinq manas dont quatre de la mauvaise couleur, c'est un tour passé à ne "
+"rien faire."
+
+#: templates/core/methodology.html
+msgid ""
+"Means, and only means. A land or a rock that makes one of several colours — "
+"a dual land, Command Tower — counts toward every colour it offers, because "
+"the engine keeps that choice open until a spell is paid. So the colours of a"
+" turn can add up to more than its total."
+msgstr ""
+"Des moyennes, et seulement des moyennes. Un terrain ou un artefact qui "
+"produit une couleur parmi plusieurs — un terrain bicolore, Command Tower — "
+"compte pour chaque couleur qu'il propose, car le moteur garde ce choix "
+"ouvert jusqu'à ce qu'un sort soit payé. Les couleurs d'un tour peuvent donc "
+"dépasser son total."
+
+#: changelog/entries.py
+msgid "Dual lands make either colour"
+msgstr "Les terrains bicolores produisent l'une ou l'autre couleur"
+
+#: changelog/entries.py
+msgid ""
+"Dual lands, Talismans, Command Tower and Arcane Signet now make any of their"
+" colours, chosen when you pay. Three-colour commanders come down much more "
+"often, and these cards no longer need you."
+msgstr ""
+"Les terrains bicolores, les Talismans, Command Tower et Arcane Signet "
+"produisent désormais n'importe laquelle de leurs couleurs, choisie au moment"
+" de payer. Les commandants tricolores arrivent bien plus souvent en jeu, et "
+"ces cartes n'ont plus besoin de vous."
+
+#: cards/profiles.py
+msgid "searches for lands the engine cannot describe"
+msgstr "cherche des terrains que le moteur ne sait pas décrire"
+
+#: cards/profiles.py
+msgid "searches for lands, but where they go could not be read"
+msgstr "cherche des terrains, mais où ils vont n'a pas pu être lu"
+
+#: cards/profiles.py
+msgid "searches for lands at a cost the engine does not pay"
+msgstr "cherche des terrains pour un coût que le moteur ne paie pas"
+
+#: cards/profiles.py
+msgid "searches for lands under a condition the engine cannot read"
+msgstr ""
+"cherche des terrains sous une condition que le moteur ne sait pas lire"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s basic land"
+msgid_plural "%(count)s basic lands"
+msgstr[0] "%(count)s terrain de base"
+msgstr[1] "%(count)s terrains de base"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield, tapped"
+msgstr "%(what)s sur le champ de bataille, engagé"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield"
+msgstr "%(what)s sur le champ de bataille"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, and %(count)s to hand"
+msgstr "%(search)s, et %(count)s en main"
+
+#: changelog/entries.py
+msgid "Ramp spells and fetch lands find their lands"
+msgstr "Les sorts de rampe et les fetchlands trouvent leurs terrains"
+
+#: changelog/entries.py
+msgid ""
+"Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum and fetch lands now"
+" put the land they find onto the battlefield, picking the colour your lands "
+"lack. Green ramp decks reach their commander sooner."
+msgstr ""
+"Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum et les fetchlands "
+"mettent désormais le terrain trouvé sur le champ de bataille, en choisissant"
+" la couleur qui manque à vos terrains. Les decks de rampe verts lancent leur"
+" commandant plus tôt."
+
+#: changelog/entries.py
+msgid "Lands that enter tapped unless ..."
+msgstr "Les terrains qui arrivent engagés, sauf si …"
+
+#: changelog/entries.py
+msgid ""
+"Check lands, fast and slow lands, snarls and shock lands now enter untapped "
+"whenever their condition holds in the game, and shock lands pay their 2 life"
+" for it."
+msgstr ""
+"Les check lands, fast lands, slow lands, snarls et shock lands arrivent "
+"désormais dégagés dès que leur condition est remplie dans la partie, et les "
+"shock lands paient leurs 2 points de vie pour cela."

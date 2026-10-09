@@ -395,6 +395,13 @@ class Card:
     basic: bool = False
     #: P19 R3: with ``enters_tapped``, the condition under which it does not.
     tapped_unless: TappedUnless | None = None
+    #: P19 R7: Treasure tokens it makes as it resolves - a spell, or a
+    #: permanent's "When this creature enters" (Big Score: 2, Rapacious
+    #: Dragon: 2). Each is one mana of ``treasure_mana``, sacrificed when spent.
+    treasures: int = 0
+    treasure_mana: str = ""
+    #: P19 R7: "As an additional cost to cast this spell, discard a card."
+    discard_cost: int = 0
 
     @property
     def mana_cost(self) -> ManaCost:

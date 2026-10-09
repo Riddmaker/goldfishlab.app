@@ -8948,3 +8948,18 @@ msgstr ""
 "Le terre filtro come Fetid Heath e Rugged Prairie trasformano un mana dei "
 "loro colori in due. Study Hall, Opal Palace e Prismatic Lens trasformano un "
 "mana in un colore che ti manca quando una magia ne ha bisogno."
+
+#: changelog/entries.py
+msgid "Treasure, and discarding a card to cast"
+msgstr "I Tesori, e scartare una carta per lanciare"
+
+#: changelog/entries.py
+msgid ""
+"Big Score, Seize the Spoils, Rapacious Dragon and the like now make their "
+"Treasure, which pays for a later spell when your lands fall short. Spells "
+"that ask you to discard a card to cast them discard your weakest one."
+msgstr ""
+"Big Score, Seize the Spoils, Rapacious Dragon e simili ora creano i loro "
+"Tesori, che pagano una magia successiva quando le tue terre non bastano. Le "
+"magie che chiedono di scartare una carta per essere lanciate scartano la tua"
+" carta più debole."

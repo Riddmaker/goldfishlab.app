@@ -361,6 +361,11 @@ class DerivedProfile(models.Model):
     #: choice ("" = any), "produces": exact mana or null}. Fetid Heath, Study
     #: Hall. See `cards.profiles._mana_production`.
     mana_filter = models.JSONField(null=True, blank=True)
+    #: P19 R7: Treasure tokens it makes as it resolves (a spell's sentence, a
+    #: permanent's "When this creature enters"). See `cards.profiles._treasures`.
+    treasures = models.PositiveSmallIntegerField(default=0)
+    #: P19 R7: "As an additional cost to cast this spell, discard a card."
+    discard_cost = models.PositiveSmallIntegerField(default=0)
     cost_reduction = models.PositiveSmallIntegerField(null=True, blank=True)
     draws_cards = models.PositiveSmallIntegerField(null=True, blank=True)
 

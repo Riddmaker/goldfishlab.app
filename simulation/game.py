@@ -116,6 +116,10 @@ class Game:
         #: outside a main phase - and a cast with nothing floating is a bug,
         #: not a free spell.
         self.pool = None
+        #: Treasure tokens on the battlefield, by the mana each makes (P19 R7).
+        #: Kept from turn to turn; the pool borrows them and gives back the
+        #: ones a payment did not sacrifice.
+        self.treasures: list[str] = []
         self.log = []
 
     @property
@@ -193,22 +197,40 @@ class Game:
         """
         return max(0, mulligans - 1)
 
-    def _bottom_worst(self, count: int) -> None:
-        """Put the weakest cards on the bottom of the library.
+    def _worst_in_hand(self):
+        """The card in hand worth least: a surplus land (beyond 4), else the
+        most expensive card, which does nothing in the early turns."""
+        lands = [card for card in self.hand if card.is_land]
+        if len(lands) > 4:
+            return lands[0]
+        return max(self.hand, key=lambda card: (card.mv, card.name))
 
-        In order: surplus lands (beyond 4) first, then the most expensive
-        cards, because those do nothing in the early turns.
-        """
+    def _bottom_worst(self, count: int) -> None:
+        """Put the weakest cards on the bottom of the library."""
         for _ in range(count):
-            lands = [card for card in self.hand if card.is_land]
-            if len(lands) > 4:
-                worst = lands[0]
-            else:
-                worst = max(self.hand, key=lambda card: (card.mv, card.name))
+            worst = self._worst_in_hand()
             self.hand.remove(worst)
             if worst in self.drawn:
                 self.drawn.remove(worst)
             self.library.append(worst)
+
+    def discard(self, count: int) -> None:
+        """Discard the weakest cards - the additional cost of Big Score (P19 R7)."""
+        for _ in range(min(count, len(self.hand))):
+            worst = self._worst_in_hand()
+            self.hand.remove(worst)
+            self.graveyard.append(worst)
+            self.note(f"  -> discards {worst.name}")
+
+    def make_treasures(self, card) -> None:
+        """The Treasure tokens a card makes as it resolves (P19 R7)."""
+        if not card.treasures:
+            return
+        made = [card.treasure_mana or "WUBRG"] * card.treasures
+        self.treasures.extend(made)
+        if self.pool is not None:
+            self.pool.treasures.extend(made)
+        self.note(f"  -> {card.treasures} Treasure")
 
     def take_opening_hand(self) -> None:
         """Draw the opening hand, mulligans included."""
@@ -273,6 +295,7 @@ class Game:
             + self._untapped([c for c in self.creatures if self.mana_ability(c) is not None])
         )
         pool = self.mana()
+        pool.treasures = list(self.treasures)
         for card in sources:
             flat = self.mana_ability(card)
             if not card.untaps and flat is not None and not flat.activation_generic:
@@ -287,6 +310,8 @@ class Game:
                 c.kind == CREATURE for c in self.graveyard):
             return False
         if card.needs_creature_on_bf and not self.creatures:
+            return False
+        if card.discard_cost and len([c for c in self.hand if c is not card]) < card.discard_cost:
             return False
         return pool.can_pay_cost(
             effective_mana_cost(card, reductions_from(self.battlefield)), life=self.life
@@ -486,8 +511,11 @@ class Game:
             raise ValueError(f"{card.name} ({cost}) cannot be paid from {pool}")
         # Phyrexian mana: whatever was not paid with mana is paid with life.
         self.life -= payment.life
+        self.treasures = list(pool.treasures)
         if card in self.hand:
             self.hand.remove(card)
+        if card.discard_cost:
+            self.discard(card.discard_cost)
         self._resolve(card, pool)
 
     def _resolve(self, card, pool: ManaPool) -> None:
@@ -530,6 +558,7 @@ class Game:
         if payment is None:
             raise ValueError(f"{commander.name} ({cost}) cannot be paid from {pool}")
         self.life -= payment.life
+        self.treasures = list(pool.treasures)
         self.commander_casts += 1
         self.creatures.append(commander)
         self.note(f"{commander.name} (commander)")

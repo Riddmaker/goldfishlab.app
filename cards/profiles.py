@@ -325,6 +325,27 @@ _SEARCH_CLAUSE = re.compile(r"Search your library for", re.IGNORECASE)
 #: is what made it matter, because before this phase most of them did nothing at
 #: all and an unpaid cost on a card that does nothing costs nothing.
 _ADDITIONAL_COST = re.compile(r"As an additional cost to cast", re.IGNORECASE)
+#: The one additional cost the engine pays since version 11 (P19 R7):
+#: "As an additional cost to cast this spell, discard a card."
+_DISCARD_COST = re.compile(
+    r"^As an additional cost to cast this spell, discard (a|one|two|three) cards?\.$",
+    re.IGNORECASE | re.MULTILINE)
+#: Treasure a card makes as it resolves (P19 R7): a spell's own sentence
+#: ("Draw two cards and create two Treasure tokens.") or a permanent's arrival
+#: ("When this creature enters, create two Treasure tokens."). Not a trigger
+#: on anything else, not "for each", not a tapped one.
+_TREASURE_ON_ENTER = re.compile(
+    r"^When (?:this [\w ]+?|~) enters, create (a|one|two|three|four) Treasure tokens?\.",
+    re.IGNORECASE | re.MULTILINE)
+_TREASURE_IN_SPELL = re.compile(r"\bcreate (a|one|two|three|four) Treasure tokens?\.$",
+                                re.IGNORECASE)
+#: A sentence that makes it under a condition, or an ability's cost before it
+#: (Magma Opus: "Discard this card: Create a Treasure token.").
+_CONDITIONAL_SENTENCE = re.compile(r"^(?:For each|When|Whenever|If|At|Until)\b", re.IGNORECASE)
+#: A Treasure's reminder text, which quotes its mana ability.
+_TREASURE_REMINDER = re.compile(r"\((?:It's an artifact|They're artifacts) with \"\{T\}, "
+                                r"Sacrifice this (?:token|artifact): Add one mana of any "
+                                r"color\.\"\)")
 
 #: Gamble's tax. Same first sentence as Demonic Tutor, and the difference is the
 #: whole card - the engine would search up the best card in the library and then
@@ -525,6 +546,21 @@ def _activation_condition(text: str) -> dict | None:
             return None
         return {"kind": found.group("what").lower(), "count": count}
     return {"kind": "control_type", "types": _land_types(found.group("types"))}
+
+
+def _treasures(card: OracleCard, kind: str) -> int:
+    """How many Treasure tokens the card makes as it resolves, or 0 (P19 R7)."""
+    text = _GRANTED.sub("", _TREASURE_REMINDER.sub("", card.oracle_text or ""))
+    if kind not in (DerivedProfile.Kind.INSTANT, DerivedProfile.Kind.SORCERY):
+        found = _TREASURE_ON_ENTER.search(text)
+        return (_word_number(found.group(1)) or 0) if found else 0
+    for sentence in re.split(r"(?<=\.)\s+|\n", text):
+        sentence = sentence.strip()
+        if _CONDITIONAL_SENTENCE.match(sentence) or ":" in sentence:
+            continue
+        if (found := _TREASURE_IN_SPELL.search(sentence)) is not None:
+            return _word_number(found.group(1)) or 0
+    return 0
 
 
 def _mana_rule(card: OracleCard, kind: str) -> dict | None:
@@ -1185,6 +1221,13 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     mana_rule = _mana_rule(card, kind)
     if mana_rule is not None:
         mana.notes = [note for note in mana.notes if note not in _RULE_EXPLAINS]
+    treasures = _treasures(card, kind)
+    if treasures and not _GRANTED.search(_TREASURE_REMINDER.sub("", text)):
+        # The quoted ability was only the Treasure's own reminder text, and
+        # the Treasure is read now (P19 R7).
+        mana.notes = [note for note in mana.notes
+                      if note != "only grants a mana ability to another permanent"]
+    discard = _DISCARD_COST.search(text)
     amount = mana.amount
     if mana.one_shot and kind in (DerivedProfile.Kind.ARTIFACT, DerivedProfile.Kind.ROCK):
         # Lotus Petal: "{T}, Sacrifice this artifact: Add one mana of any
@@ -1220,7 +1263,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     # where it is not and a single mana slipped through looking correct.
     if MULTIPLE_MANA_TAG in tags and amount == 1:
         reasons.append(gettext_noop("tagged as adding more than one mana; only one was read"))
-    if _ADDITIONAL_COST.search(text):
+    if _ADDITIONAL_COST.search(text) and not discard:
         reasons.append(gettext_noop("has an additional casting cost the engine does not pay"))
     if cost.hybrid:
         reasons.append(gettext_noop("hybrid pips: payment flexibility is not modelled"))
@@ -1247,6 +1290,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana_condition=mana.condition,
         mana_rule=mana_rule,
         mana_filter=mana.filter,
+        treasures=treasures,
+        discard_cost=_word_number(discard.group(1)) if discard else 0,
         cost_reduction=_first_number(_COST_REDUCTION, text),
         draws_cards=_first_number(_DRAW, text),
         self_life_loss=_first_number(_SELF_LOSS, text),
@@ -1363,7 +1408,7 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "tutor_to", "tutor_count", "tutor_kind", "land_search", "tapped_unless",
             "skips_draw_step",
             "mana_produces", "mana_activation", "mana_untaps", "mana_condition", "mana_rule",
-            "mana_filter",
+            "mana_filter", "treasures", "discard_cost",
             "needs_review", "review_reasons", "source_map", "derived_at",
         ],
         unique_fields=["oracle_card"],

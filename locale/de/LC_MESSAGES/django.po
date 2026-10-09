@@ -8992,3 +8992,18 @@ msgstr ""
 "Filterländer wie Fetid Heath und Rugged Prairie machen aus einem Mana ihrer "
 "Farben zwei. Study Hall, Opal Palace und Prismatic Lens machen aus einem "
 "Mana eine Farbe, die dir fehlt, wenn ein Zauber sie braucht."
+
+#: changelog/entries.py
+msgid "Treasure, and discarding a card to cast"
+msgstr "Treasure, und eine Karte abwerfen, um zu wirken"
+
+#: changelog/entries.py
+msgid ""
+"Big Score, Seize the Spoils, Rapacious Dragon and the like now make their "
+"Treasure, which pays for a later spell when your lands fall short. Spells "
+"that ask you to discard a card to cast them discard your weakest one."
+msgstr ""
+"Big Score, Seize the Spoils, Rapacious Dragon und ähnliche Karten erzeugen "
+"jetzt ihre Treasures, die einen späteren Zauber bezahlen, wenn deine Länder "
+"nicht reichen. Zauber, für die du eine Karte abwerfen musst, werfen deine "
+"schwächste ab."

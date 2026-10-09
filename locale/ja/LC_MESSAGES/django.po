@@ -7953,3 +7953,16 @@ msgid ""
 msgstr ""
 "Fetid HeathやRugged Prairieのようなフィルターランドは、その色のマナ1つを2つに変えます。Study Hall、Opal "
 "Palace、Prismatic Lensは、呪文に必要なときに足りない色のマナを作ります。"
+
+#: changelog/entries.py
+msgid "Treasure, and discarding a card to cast"
+msgstr "宝物と、唱えるためのカードの捨て札"
+
+#: changelog/entries.py
+msgid ""
+"Big Score, Seize the Spoils, Rapacious Dragon and the like now make their "
+"Treasure, which pays for a later spell when your lands fall short. Spells "
+"that ask you to discard a card to cast them discard your weakest one."
+msgstr ""
+"Big Score、Seize the Spoils、Rapacious "
+"Dragonなどが宝物を生成するようになり、土地が足りないときに後の呪文の支払いに使われます。唱えるためにカードを捨てる必要がある呪文は、最も弱いカードを捨てます。"

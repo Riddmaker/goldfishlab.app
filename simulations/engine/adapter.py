@@ -708,6 +708,9 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         land_search=_land_search(profile),
         basic=oracle_card.type_line.startswith("Basic"),
         tapped_unless=_tapped_unless(profile, overrides),
+        treasures=int(getattr(profile, "treasures", 0) or 0),
+        treasure_mana=_any_colour(deck_colors) if getattr(profile, "treasures", 0) else "",
+        discard_cost=int(getattr(profile, "discard_cost", 0) or 0),
     )
 
     _record_gaps(card, profile, overrides, gaps, oracle_card.oracle_text or "")
@@ -820,6 +823,11 @@ def _flat(exact: dict | None, mana_colors, amount: int, activation: int,
     offered = [color for color in colors if color in deck_colors] or colors
     return ManaAbility(FLAT, {choice(offered): amount}, activation_generic=activation,
                        only_if=only_if)
+
+
+def _any_colour(deck_colors: frozenset[str]) -> str:
+    """"One mana of any color", as the deck spends it: a choice of its colours."""
+    return choice([color for color in COLORS if color in deck_colors] or COLORS)
 
 
 def _overrides_mana(overrides: dict) -> bool:
@@ -1108,7 +1116,8 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
         for reason in profile.review_reasons:
             gaps.append(Gap(card.name, "profile", reason))
 
-    if profile.produces_mana and profile.mana_amount is None and not card.mana_abilities:
+    if profile.produces_mana and profile.mana_amount is None and not card.mana_abilities \
+            and not card.treasures:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("makes mana, but how much could not be read")))
 

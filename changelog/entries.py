@@ -42,6 +42,13 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "treasure",
+        _("Treasure, and discarding a card to cast"),
+        _("Big Score, Seize the Spoils, Rapacious Dragon and the like now make their Treasure, "
+          "which pays for a later spell when your lands fall short. Spells that ask you to "
+          "discard a card to cast them discard your weakest one."),
+    ),
+    Entry(
         date(2026, 10, 9), "filter-lands",
         _("Filter lands and Study Hall fix your colours"),
         _("Filter lands such as Fetid Heath and Rugged Prairie turn one mana of their colours "

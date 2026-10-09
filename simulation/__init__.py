@@ -76,6 +76,10 @@ boundary, not the symptom.
 #:    colours into two of their colours, when that narrows nothing; converters
 #:    (Study Hall, Prismatic Lens) turn their {C} and one more mana into a
 #:    colour when a payment would otherwise fail.
-ENGINE_VERSION = 10
+#: 11: P19 R7. Treasure tokens: Big Score, Rapacious Dragon and the like make
+#:    them as they resolve, and a payment sacrifices one only when it would
+#:    fail without; the rest wait for a later turn. "As an additional cost,
+#:    discard a card" is paid with the weakest card in hand.
+ENGINE_VERSION = 11
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

@@ -59,13 +59,16 @@ class ManaPool:
     to keep working, while underneath sits a full WUBRG pool.
     """
 
-    __slots__ = ("_pool", "converters")
+    __slots__ = ("_pool", "converters", "treasures")
 
     def __init__(self, black: int = 0, colorless: int = 0, **colors: int):
         #: Converters tapped for {C} that could instead turn that {C} and one
         #: more mana into one of these (P19 R6): Study Hall, Prismatic Lens.
         #: Worth it only when a colour is missing, so payment decides.
         self.converters: list[str] = []
+        #: Treasure tokens the game lends the pool, by the mana each makes
+        #: (P19 R7). Sacrificed only when a payment needs them.
+        self.treasures: list[str] = []
         self._pool = dict.fromkeys(SOURCES, 0)
         self._pool[COLORLESS] = colorless
         self._pool["B"] = black
@@ -180,28 +183,50 @@ class ManaPool:
             life and the caller has to deduct that life; a bare ``True`` would
             have kept quiet about it.
         """
-        payment, pool, used = self._plan(cost, life)
+        payment, pool, used, sacrificed = self._plan(cost, life)
         if payment is None:
             return None
         self._pool = pool
         del self.converters[:used]
+        del self.treasures[:sacrificed]
         for color, amount in payment.spent.items():
             self._pool[color] -= amount
         return payment
 
     def _plan(self, cost: ManaCost, life: int):
-        """A payment, the pool it is paid from, and how many converters it used.
+        """A payment, the pool it is paid from, and the converters and
+        Treasures it used.
 
         The pool as it stands first. Only when that fails are converters
         used - one, then two - each turning its own {C} and one other mana
         into a mana of its colours, every way that can be done (P19 R6).
         Using one costs a mana, which is why it is never done to no purpose.
+        Treasures come last, one at a time: they stay for the next turn if
+        nothing needs them (P19 R7).
         """
-        payment = plan_payment(dict(self._pool), cost, life=life)
+        if self.treasures:
+            # Not even with every Treasure: the common answer, given at once
+            # rather than after trying each count in turn.
+            everything = dict(self._pool)
+            for key in self.treasures:
+                everything[key] = everything.get(key, 0) + 1
+            if self._plan_converting(everything, cost, life)[0] is None:
+                return None, self._pool, 0, 0
+        for sacrificed in range(len(self.treasures) + 1):
+            start = dict(self._pool)
+            for key in self.treasures[:sacrificed]:
+                start[key] = start.get(key, 0) + 1
+            payment, pool, used = self._plan_converting(start, cost, life)
+            if payment is not None:
+                return payment, pool, used, sacrificed
+        return None, self._pool, 0, 0
+
+    def _plan_converting(self, start: dict, cost: ManaCost, life: int):
+        payment = plan_payment(dict(start), cost, life=life)
         if payment is not None or not self.converters:
-            return payment, self._pool, 0
-        seen = {_frozen(self._pool)}
-        layer = [dict(self._pool)]
+            return payment, start, 0
+        seen = {_frozen(start)}
+        layer = [start]
         for used, output in enumerate(self.converters, start=1):
             layer = [converted for pool in layer for converted in _convert(pool, output)
                      if _frozen(converted) not in seen and not seen.add(_frozen(converted))]
@@ -209,13 +234,14 @@ class ManaPool:
                 payment = plan_payment(dict(pool), cost, life=life)
                 if payment is not None:
                     return payment, pool, used
-        return None, self._pool, 0
+        return None, start, 0
 
     def copy(self) -> "ManaPool":
         """A shallow copy."""
         clone = ManaPool()
         clone._pool = dict(self._pool)
         clone.converters = list(self.converters)
+        clone.treasures = list(self.treasures)
         return clone
 
     def __eq__(self, other) -> bool:

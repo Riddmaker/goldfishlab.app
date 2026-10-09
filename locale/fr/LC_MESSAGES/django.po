@@ -9074,3 +9074,18 @@ msgstr ""
 "mana de leurs couleurs en deux. Study Hall, Opal Palace et Prismatic Lens "
 "transforment un mana en une couleur qui vous manque quand un sort en a "
 "besoin."
+
+#: changelog/entries.py
+msgid "Treasure, and discarding a card to cast"
+msgstr "Les Trésors, et défausser une carte pour lancer un sort"
+
+#: changelog/entries.py
+msgid ""
+"Big Score, Seize the Spoils, Rapacious Dragon and the like now make their "
+"Treasure, which pays for a later spell when your lands fall short. Spells "
+"that ask you to discard a card to cast them discard your weakest one."
+msgstr ""
+"Big Score, Seize the Spoils, Rapacious Dragon et consorts créent désormais "
+"leurs Trésors, qui paient un sort plus tard quand vos terrains ne suffisent "
+"pas. Les sorts qui demandent de défausser une carte pour être lancés "
+"défaussent votre carte la plus faible."

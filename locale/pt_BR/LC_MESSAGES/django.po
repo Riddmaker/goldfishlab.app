@@ -4000,30 +4000,6 @@ msgstr ""
 msgid "What the mana was made of"
 msgstr "De que a mana era feita"
 
-#: templates/core/methodology.html
-msgid ""
-"The same mana, split by colour. This is the column that says whether a mana "
-"base works: five mana on turn three is a good turn, and five mana of which "
-"four is the wrong colour is a turn spent doing nothing."
-msgstr ""
-"A mesma mana, separada por cor. Esta é a coluna que diz se uma base de mana "
-"funciona: cinco manas no turno três é um bom turno, e cinco manas das quais "
-"quatro são da cor errada é um turno gasto sem fazer nada."
-
-#: templates/core/methodology.html
-msgid ""
-"Means, and only means — the engine's pool counts mana rather than holding "
-"the sources that made it, so a card that could have made one of several "
-"colours was read as making one fixed colour. Every card that happened to is "
-"among the cards the engine could not read, under “Cards that need your "
-"attention”."
-msgstr ""
-"Médias, e só médias — a reserva do motor conta mana em vez de guardar as "
-"fontes que a geraram, então um card que podia gerar uma de várias cores foi "
-"lido como gerando uma cor fixa. Todo card com que isso aconteceu está entre "
-"os cards que o motor não conseguiu ler, em “Cards que precisam da sua "
-"atenção”."
-
 #: templates/core/methodology.html templates/simulations/_report.html
 msgid "Milestones"
 msgstr "Marcos"
@@ -6832,10 +6808,6 @@ msgid "Share as a bar"
 msgstr "Proporção em barra"
 
 #: templates/simulations/_report.html
-msgid "The same mana, split by colour — means only."
-msgstr "A mesma mana, dividida por cor — só médias."
-
-#: templates/simulations/_report.html
 msgid "Total"
 msgstr "Total"
 
@@ -8726,3 +8698,44 @@ msgstr ""
 #: templates/core/privacy.html
 msgid "As long as the site runs, as they are about nobody"
 msgstr "Enquanto o site estiver no ar, pois não dizem respeito a ninguém"
+
+#: templates/simulations/_report.html
+msgid "How much of each colour the mana could pay — means only."
+msgstr "Quanto de cada cor a mana podia pagar — só médias."
+
+#: templates/core/methodology.html
+msgid ""
+"How much of each colour the mana could pay. This is the column that says "
+"whether a mana base works: five mana on turn three is a good turn, and five "
+"mana of which four is the wrong colour is a turn spent doing nothing."
+msgstr ""
+"Quanto de cada cor a mana podia pagar. Esta é a coluna que diz se uma base "
+"de mana funciona: cinco manas no turno três é um bom turno, e cinco manas "
+"das quais quatro são da cor errada é um turno gasto sem fazer nada."
+
+#: templates/core/methodology.html
+msgid ""
+"Means, and only means. A land or a rock that makes one of several colours — "
+"a dual land, Command Tower — counts toward every colour it offers, because "
+"the engine keeps that choice open until a spell is paid. So the colours of a"
+" turn can add up to more than its total."
+msgstr ""
+"Médias, e só médias. Um terreno ou artefato que gera uma de várias cores — "
+"um terreno duplo, Command Tower — conta para cada cor que oferece, porque o "
+"motor deixa essa escolha em aberto até um feitiço ser pago. Por isso as "
+"cores de um turno podem somar mais que o total."
+
+#: changelog/entries.py
+msgid "Dual lands make either colour"
+msgstr "Terrenos duplos geram qualquer uma das suas cores"
+
+#: changelog/entries.py
+msgid ""
+"Dual lands, Talismans, Command Tower and Arcane Signet now make any of their"
+" colours, chosen when you pay. Three-colour commanders come down much more "
+"often, and these cards no longer need you."
+msgstr ""
+"Terrenos duplos, Talismãs, Command Tower e Arcane Signet agora geram "
+"qualquer uma das suas cores, escolhida na hora de pagar. Comandantes de três"
+" cores entram em jogo com muito mais frequência, e essas cartas não precisam"
+" mais de você."

@@ -208,18 +208,17 @@
       <h3 id="report-colour" class="mt-6 font-display text-lg text-ink-900">{% translate "What the mana was made of" %}</h3>
       <p class="mt-2 text-ink-900">
         {% blocktranslate trimmed %}
-          The same mana, split by colour. This is the column that says whether a mana
-          base works: five mana on turn three is a good turn, and five mana of which
-          four is the wrong colour is a turn spent doing nothing.
+          How much of each colour the mana could pay. This is the column that says
+          whether a mana base works: five mana on turn three is a good turn, and five
+          mana of which four is the wrong colour is a turn spent doing nothing.
         {% endblocktranslate %}
       </p>
       <p class="mt-4 text-sm text-ink-700">
         {% blocktranslate trimmed %}
-          Means, and only means — the engine's pool counts mana rather than holding
-          the sources that made it, so a card that could have made one of several
-          colours was read as making one fixed colour. Every card that happened to is
-          among the cards the engine could not read, under “Cards that need your
-          attention”.
+          Means, and only means. A land or a rock that makes one of several colours —
+          a dual land, Command Tower — counts toward every colour it offers, because
+          the engine keeps that choice open until a spell is paid. So the colours of a
+          turn can add up to more than its total.
         {% endblocktranslate %}
       </p>
       <h3 id="report-milestones" class="mt-6 font-display text-lg text-ink-900">{% translate "Milestones" %}</h3>

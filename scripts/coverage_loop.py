@@ -125,6 +125,9 @@ def account() -> str:
     from allauth.account.models import EmailAddress
 
     user, _created = get_user_model().objects.get_or_create(email=EMAIL)
+    # The account's decks from earlier turns: the free plan caps how many
+    # decks one owns, and a turn needs only its own.
+    Deck.objects.filter(owner=user).delete()
     password = secrets.token_urlsafe(24)
     user.set_password(password)
     user.save()
@@ -149,6 +152,10 @@ def upload_and_walk(base: str, password: str, csv_path: Path) -> tuple[str, list
         page.click("form[enctype='multipart/form-data'] button[type=submit]")
         page.wait_for_load_state("networkidle")
         path = urlsplit(page.url).path
+        if path == "/decks/import/":
+            message = page.inner_text("main")[:400]
+            browser.close()
+            raise SystemExit(f"the upload was refused:\n{message}")
         if not path.startswith("/decks/") or path.count("/") != 3:
             # The import review (unmatched rows) comes first; its link leads on.
             page.click("a[href^='/decks/'][href$='/']:not([href='/decks/'])")

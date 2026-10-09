@@ -79,7 +79,9 @@ class Game:
         # before anything is cast, or Crypt Ghast would count himself in the
         # very turn he arrives.
         self.mana_available = 0
-        #: The same mana, split by colour - ``{"B": 3, "C": 2}``. Recorded
+        #: The same mana, by colour - ``{"B": 3, "C": 2}`` - as much of each
+        #: as the pool could pay (`ManaPool.reach`): a dual land's mana counts
+        #: for both of its colours, so the colours may add up to more. Recorded
         #: beside the total because the total on its own is the number that
         #: flatters a deck: five mana of which four is the wrong colour plays
         #: like one. Colours the pool did not hold are absent rather than

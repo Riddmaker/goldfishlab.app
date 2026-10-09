@@ -98,12 +98,13 @@ def test_the_decks_are_whole(loaded, django_db_blocker):
 
 
 def test_the_set_holds_what_the_rounds_are_about():
-    """The three gap classes P19 starts with are in the set, so a round shows up here."""
+    """The gap classes P19 still has to close are in the set, so a round shows up here."""
     unread = {reason for entry in coverage.load_snapshot().values()
               for reason in entry["unread"]}
-    assert any("cannot hold a choice" in reason for reason in unread)
     assert any("tutors onto the battlefield" in reason for reason in unread)
     assert any("conditionally" in reason for reason in unread)
+    # R1 (engine version 5) closed this one: a choice of colours is read.
+    assert not any("cannot hold a choice" in reason for reason in unread)
 
 
 def test_a_lost_card_is_told_apart_from_a_gained_one():

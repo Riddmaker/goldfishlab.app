@@ -3679,24 +3679,6 @@ msgstr ""
 msgid "What the mana was made of"
 msgstr "マナの内訳"
 
-#: templates/core/methodology.html
-msgid ""
-"The same mana, split by colour. This is the column that says whether a mana "
-"base works: five mana on turn three is a good turn, and five mana of which "
-"four is the wrong colour is a turn spent doing nothing."
-msgstr ""
-"同じマナを色別に分けたものです。マナ基盤が機能しているかどうかを示すのはこの列です。3ターン目に5マナなら良いターンですが、5マナのうち4マナが違う色なら、何もできずに終わるターンです。"
-
-#: templates/core/methodology.html
-msgid ""
-"Means, and only means — the engine's pool counts mana rather than holding "
-"the sources that made it, so a card that could have made one of several "
-"colours was read as making one fixed colour. Every card that happened to is "
-"among the cards the engine could not read, under “Cards that need your "
-"attention”."
-msgstr ""
-"平均値のみです。エンジンのプールはマナを生み出した発生源を保持せずにマナの量を数えるため、複数の色のいずれかを出せるカードは、決まった1色を出すものとして読み取りました。そうなったカードはすべて、エンジンが読み取れなかったカードとして「確認が必要なカード」に挙がっています。"
-
 #: templates/core/methodology.html templates/simulations/_report.html
 msgid "Milestones"
 msgstr "マイルストーン"
@@ -6168,10 +6150,6 @@ msgid "Share as a bar"
 msgstr "割合のグラフ"
 
 #: templates/simulations/_report.html
-msgid "The same mana, split by colour — means only."
-msgstr "同じマナを色別に分けたもの（平均のみ）。"
-
-#: templates/simulations/_report.html
 msgid "Total"
 msgstr "合計"
 
@@ -7800,3 +7778,38 @@ msgstr "エンジンがそれらのカードを読み取れるようにするた
 #: templates/core/privacy.html
 msgid "As long as the site runs, as they are about nobody"
 msgstr "サイトの運営中は保存します。特定の人に関する情報ではないためです"
+
+#: templates/simulations/_report.html
+msgid "How much of each colour the mana could pay — means only."
+msgstr "マナで各色をどれだけ支払えたか（平均のみ）。"
+
+#: templates/core/methodology.html
+msgid ""
+"How much of each colour the mana could pay. This is the column that says "
+"whether a mana base works: five mana on turn three is a good turn, and five "
+"mana of which four is the wrong colour is a turn spent doing nothing."
+msgstr ""
+"マナで各色をどれだけ支払えたかです。マナ基盤が機能しているかどうかを示すのはこの列です。3ターン目に5マナなら良いターンですが、5マナのうち4マナが違う色なら、何もできずに終わるターンです。"
+
+#: templates/core/methodology.html
+msgid ""
+"Means, and only means. A land or a rock that makes one of several colours — "
+"a dual land, Command Tower — counts toward every colour it offers, because "
+"the engine keeps that choice open until a spell is paid. So the colours of a"
+" turn can add up to more than its total."
+msgstr ""
+"平均のみです。複数の色のうち1色を生み出す土地やアーティファクト（2色土地、Command "
+"Towerなど）は、提供するすべての色に数えます。エンジンは呪文を支払うまでその選択を保留するためです。そのため、あるターンの色の合計が総量を上回ることがあります。"
+
+#: changelog/entries.py
+msgid "Dual lands make either colour"
+msgstr "2色土地がどちらの色でも出せるように"
+
+#: changelog/entries.py
+msgid ""
+"Dual lands, Talismans, Command Tower and Arcane Signet now make any of their"
+" colours, chosen when you pay. Three-colour commanders come down much more "
+"often, and these cards no longer need you."
+msgstr ""
+"2色土地、タリスマン、Command Tower、Arcane "
+"Signetが、支払う時に選んだどの色でも出せるようになりました。3色の統率者がずっと頻繁に戦場に出るようになり、これらのカードについて答える必要もなくなりました。"

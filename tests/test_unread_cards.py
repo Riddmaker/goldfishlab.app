@@ -19,7 +19,7 @@ from simulations.models import CardAnnotation, UnreadCard
 
 User = get_user_model()
 
-LIST = b"1 Command Tower\n1 Maze of Ith\n1 Sol Ring\n1 Swamp\n"
+LIST = b"1 Exotic Orchard\n1 Maze of Ith\n1 Sol Ring\n1 Swamp\n"
 
 
 @pytest.fixture
@@ -47,13 +47,13 @@ def test_an_upload_counts_the_cards_the_engine_could_not_read(
     upload(user, django_capture_on_commit_callbacks)
 
     names = set(UnreadCard.objects.values_list("oracle_card__name", flat=True))
-    assert {"Command Tower", "Maze of Ith"} <= names
+    assert {"Exotic Orchard", "Maze of Ith"} <= names
     assert "Sol Ring" not in names and "Swamp" not in names
-    tower = UnreadCard.objects.get(oracle_card__name="Command Tower")
-    assert tower.seen == 1
-    assert tower.status == UnreadCard.Status.OPEN
-    assert tower.engine_version == ENGINE_VERSION
-    assert any("cannot hold a choice" in reason for reason in tower.reasons)
+    orchard = UnreadCard.objects.get(oracle_card__name="Exotic Orchard")
+    assert orchard.seen == 1
+    assert orchard.status == UnreadCard.Status.OPEN
+    assert orchard.engine_version == ENGINE_VERSION
+    assert any("opponent" in reason for reason in orchard.reasons)
 
 
 def test_nothing_on_the_row_points_at_a_person_or_a_deck():
@@ -68,7 +68,7 @@ def test_a_second_upload_counts_again_and_outlives_the_deck(
     upload(user, django_capture_on_commit_callbacks, deck=deck)
     deck.delete()
 
-    assert UnreadCard.objects.get(oracle_card__name="Command Tower").seen == 2
+    assert UnreadCard.objects.get(oracle_card__name="Exotic Orchard").seen == 2
 
 
 def test_a_deck_deleted_before_the_worker_came_is_skipped(db):
@@ -114,29 +114,32 @@ def make_row(name, **fields):
 def test_recheck_closes_what_the_engine_reads_now_and_keeps_the_rest(catalogue):
     sol = make_row("Sol Ring")
     tower = make_row("Command Tower")
+    orchard = make_row("Exotic Orchard")
 
-    assert unread.recheck() == 1
+    assert unread.recheck() == 2
 
-    sol.refresh_from_db()
-    tower.refresh_from_db()
+    for row in (sol, tower, orchard):
+        row.refresh_from_db()
     assert sol.status == UnreadCard.Status.READ
     assert sol.read_since == ENGINE_VERSION
-    assert tower.status == UnreadCard.Status.OPEN
-    assert tower.reasons != ["old reason"]
+    # Engine version 5 reads a choice of colours (P19 R1).
+    assert tower.status == UnreadCard.Status.READ
+    assert orchard.status == UnreadCard.Status.OPEN
+    assert orchard.reasons != ["old reason"]
 
 
 def test_a_card_lost_again_opens_and_is_mailed_again(catalogue, user):
-    tower = make_row("Command Tower", status=UnreadCard.Status.READ, read_since=3,
-                     mailed_at=timezone.now())
+    maze = make_row("Maze of Ith", status=UnreadCard.Status.READ, read_since=3,
+                    mailed_at=timezone.now())
     deck = Deck.objects.create(owner=user, name="Mine")
-    deck.entries.create(oracle_card=tower.oracle_card, quantity=1)
+    deck.entries.create(oracle_card=maze.oracle_card, quantity=1)
 
     unread.record(deck)
 
-    tower.refresh_from_db()
-    assert tower.status == UnreadCard.Status.OPEN
-    assert tower.read_since is None and tower.mailed_at is None
-    assert tower.seen == 4
+    maze.refresh_from_db()
+    assert maze.status == UnreadCard.Status.OPEN
+    assert maze.read_since is None and maze.mailed_at is None
+    assert maze.seen == 4
 
 
 def test_one_set_aside_stays_set_aside(catalogue, user):

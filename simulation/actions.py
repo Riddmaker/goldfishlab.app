@@ -161,7 +161,7 @@ class OpenMainPhase(Action):
         pool = game.open_pool()
         game.pool = pool
         game.mana_available = pool.total
-        game.mana_by_color = pool.by_color()
+        game.mana_by_color = pool.reach()
         game.phase = MAIN1
 
 

@@ -43,7 +43,7 @@ from simulation.cards import (
     UpkeepSpec,
 )
 from simulation.mana import land_color
-from simulation.manacost import COLORLESS, COLORS, ManaCost, parse
+from simulation.manacost import COLORLESS, COLORS, ManaCost, choice, mana_label, parse
 from simulations import gaps as gaps_module
 
 #: Engine kinds that are one-shot spells. Only these may take `draw_on_cast`
@@ -308,7 +308,7 @@ class Reading:
         """
         basic = land_color(self.card, frozenset()) if self.card.is_land else None
         if basic is not None:
-            return gettext("1 %(color)s (as a basic land)") % {"color": basic}
+            return gettext("1 %(color)s (as a basic land)") % {"color": mana_label(basic)}
         if not self.card.mana_abilities:
             return gettext("nothing")
         text = "; ".join(_ability_text(ability) for ability in self.card.mana_abilities)
@@ -344,7 +344,7 @@ def _ability_text(ability) -> str:
     """One mana ability, in words."""
     if ability.rule == FLAT:
         produced = " + ".join(
-            f"{amount} {color}" for color, amount in ability.produces
+            f"{amount} {mana_label(color)}" for color, amount in ability.produces
         ) or gettext("nothing")
         if ability.activation_generic:
             return _for_cost(ability.activation_generic, produced)
@@ -478,12 +478,12 @@ def _deck_colors(entries, deck: Deck) -> frozenset[str]:
 
 
 def _pick_color(colors, deck_colors: frozenset[str]) -> str | None:
-    """One colour out of several a source could make.
+    """One colour out of several a ritual could make.
 
     The deck's own colours first, then WUBRG order, so the same deck always
-    reads the same way. The caller records the choice as a gap: the engine
-    cannot hold "one mana of either colour", and a result must not pretend it
-    modelled the choice.
+    reads the same way. Only rituals still pick: a mana *source* offers its
+    choice to the pool since engine version 5 (`_mana_abilities`), while a
+    ritual's mana goes in when it resolves, as one colour.
     """
     usable = [color for color in COLORS if color in set(colors) & deck_colors]
     if usable:
@@ -697,20 +697,18 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
 
     # `mana_colors` is Scryfall's `produced_mana`: it lists every colour the
     # card can make, without saying whether that is a choice or all of them at
-    # once. Nearly always it is a choice, and the pool cannot hold one.
+    # once. Nearly always it is a choice - a dual land, a Talisman, Command
+    # Tower - and since engine version 5 the pool holds one (P19 R1), settled
+    # when the mana is spent. Only the deck's own colours are offered: Command
+    # Tower and Arcane Signet name all five, and make only the commander's.
+    # Several mana of a choice are each chosen on their own, which is right
+    # for "any combination of colours" and generous for "any one colour".
     colors = [color for color in profile.mana_colors or [] if color in COLORS]
     amount = profile.mana_amount
     if not colors:
         return (ManaAbility(FLAT, {COLORLESS: amount}, activation_generic=activation),)
-    if len(colors) == 1:
-        return (ManaAbility(FLAT, {colors[0]: amount}, activation_generic=activation),)
-
-    chosen = _pick_color(colors, deck_colors)
-    template = gettext_noop("makes one of %(colors)s; the engine cannot hold a choice and "
-                            "reads it as %(color)s")
-    params = {"colors": "/".join(sorted(colors)), "color": chosen}
-    gaps.append(Gap(name, "mana_abilities", template % params, template, params))
-    return (ManaAbility(FLAT, {chosen: amount}, activation_generic=activation),)
+    offered = [color for color in colors if color in deck_colors] or colors
+    return (ManaAbility(FLAT, {choice(offered): amount}, activation_generic=activation),)
 
 
 def _annotated_production(overrides: dict) -> dict | None:

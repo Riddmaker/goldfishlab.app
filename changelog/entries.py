@@ -42,6 +42,14 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "dual-lands",
+        _("Dual lands make either colour"),
+        _("Dual lands, Talismans, Command Tower and Arcane Signet now make any "
+          "of their colours, chosen when you pay. Three-colour commanders come "
+          "down much more often, and these cards no longer need you."),
+        "methodology", "report-colour",
+    ),
+    Entry(
         date(2026, 10, 8), "whats-new",
         _("What's new, by feed or by mail"),
         _("This page. Follow it in your feed reader, or get one mail a month "

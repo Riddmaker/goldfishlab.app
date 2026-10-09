@@ -49,6 +49,13 @@ boundary, not the symptom.
 #:    first colour in WUBRG order. Per-colour mana counts a choice toward each
 #:    colour it offers. The mono-black reference deck has no such source, so
 #:    the golden snapshot is unchanged.
-ENGINE_VERSION = 5
+#: 6: P19 R2 (issue #36). A search that puts lands onto the battlefield is
+#:    played: ramp spells (Rampant Growth, Cultivate's one-to-play and
+#:    one-to-hand), permanents that fetch on arrival (Wood Elves, Solemn
+#:    Simulacrum, Sakura-Tribe Elder) and fetch lands, which are sacrificed
+#:    the turn they are played for the land they find. The land picked is the
+#:    one that adds the most colours the lands in play cannot make. Until now
+#:    each was a gap and did nothing; a fetch land was a land with no mana.
+ENGINE_VERSION = 6
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

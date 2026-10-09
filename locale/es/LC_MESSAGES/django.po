@@ -8876,3 +8876,57 @@ msgstr ""
 "producen cualquiera de sus colores, elegido al pagar. Los comandantes de "
 "tres colores entran en juego mucho más a menudo, y estas cartas ya no te "
 "necesitan."
+
+#: cards/profiles.py
+msgid "searches for lands the engine cannot describe"
+msgstr "busca tierras que el motor no sabe describir"
+
+#: cards/profiles.py
+msgid "searches for lands, but where they go could not be read"
+msgstr "busca tierras, pero no se pudo leer adónde van"
+
+#: cards/profiles.py
+msgid "searches for lands at a cost the engine does not pay"
+msgstr "busca tierras a un coste que el motor no paga"
+
+#: cards/profiles.py
+msgid "searches for lands under a condition the engine cannot read"
+msgstr "busca tierras bajo una condición que el motor no sabe leer"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s basic land"
+msgid_plural "%(count)s basic lands"
+msgstr[0] "%(count)s tierra básica"
+msgstr[1] "%(count)s tierras básicas"
+msgstr[2] "%(count)s tierras básicas"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield, tapped"
+msgstr "%(what)s al campo de batalla, girado"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield"
+msgstr "%(what)s al campo de batalla"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, and %(count)s to hand"
+msgstr "%(search)s, y %(count)s a la mano"
+
+#: changelog/entries.py
+msgid "Ramp spells and fetch lands find their lands"
+msgstr "Los hechizos de rampa y las fetch lands encuentran sus tierras"
+
+#: changelog/entries.py
+msgid ""
+"Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum and fetch lands now"
+" put the land they find onto the battlefield, picking the colour your lands "
+"lack. Green ramp decks reach their commander sooner."
+msgstr ""
+"Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum y las fetch lands "
+"ahora ponen en el campo de batalla la tierra que encuentran, eligiendo el "
+"color que les falta a tus tierras. Los mazos de rampa verdes juegan antes a "
+"su comandante."

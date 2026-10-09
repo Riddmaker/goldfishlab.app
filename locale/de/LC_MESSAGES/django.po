@@ -8839,3 +8839,55 @@ msgstr ""
 "Dual Lands, Talismane, Command Tower und Arcane Signet erzeugen jetzt jede "
 "ihrer Farben, gewählt beim Bezahlen. Dreifarbige Commander kommen viel öfter"
 " ins Spiel, und diese Karten brauchen dich nicht mehr."
+
+#: cards/profiles.py
+msgid "searches for lands the engine cannot describe"
+msgstr "sucht Länder, die die Engine nicht beschreiben kann"
+
+#: cards/profiles.py
+msgid "searches for lands, but where they go could not be read"
+msgstr "sucht Länder, aber wohin sie kommen, war nicht lesbar"
+
+#: cards/profiles.py
+msgid "searches for lands at a cost the engine does not pay"
+msgstr "sucht Länder gegen Kosten, die die Engine nicht bezahlt"
+
+#: cards/profiles.py
+msgid "searches for lands under a condition the engine cannot read"
+msgstr "sucht Länder unter einer Bedingung, die die Engine nicht lesen kann"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s basic land"
+msgid_plural "%(count)s basic lands"
+msgstr[0] "%(count)s Standardland"
+msgstr[1] "%(count)s Standardländer"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield, tapped"
+msgstr "%(what)s getappt ins Spiel"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield"
+msgstr "%(what)s ins Spiel"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, and %(count)s to hand"
+msgstr "%(search)s und %(count)s auf die Hand"
+
+#: changelog/entries.py
+msgid "Ramp spells and fetch lands find their lands"
+msgstr "Ramp-Zauber und Fetchländer finden ihre Länder"
+
+#: changelog/entries.py
+msgid ""
+"Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum and fetch lands now"
+" put the land they find onto the battlefield, picking the colour your lands "
+"lack. Green ramp decks reach their commander sooner."
+msgstr ""
+"Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum und Fetchländer "
+"bringen das gefundene Land jetzt ins Spiel und wählen die Farbe, die deinen "
+"Ländern fehlt. Grüne Ramp-Decks bringen ihren Commander früher ins Spiel."

@@ -213,6 +213,39 @@ class TutorSpec:
     kind: str = ""
 
 
+@dataclass(frozen=True)
+class LandSearch:
+    """A search that puts lands onto the battlefield (P19 R2, engine version 6).
+
+    Rampant Growth, Cultivate, a fetch land, Wood Elves, Sakura-Tribe Elder.
+
+    Attributes:
+        battlefield: How many lands go onto the battlefield.
+        hand: How many go to hand after them (Cultivate: one).
+        tapped: Whether the ones on the battlefield enter tapped.
+        basic: Only basic lands.
+        types: The land types it may find (Farseek: plains, island, swamp,
+            mountain); empty means any land.
+        life: Life paid (a fetch land: 1).
+        when: ``cast`` (a spell), ``enters`` (a permanent's arrival) or
+            ``play`` (a fetch land, the moment it is played).
+        sacrifice: The card itself goes to the graveyard (a fetch land,
+            Sakura-Tribe Elder).
+        untap_at: Fabled Passage: the land is untapped once you control at
+            least this many lands. 0: never.
+    """
+
+    battlefield: int = 1
+    hand: int = 0
+    tapped: bool = True
+    basic: bool = True
+    types: frozenset[str] = field(default_factory=frozenset)
+    life: int = 0
+    when: str = "cast"
+    sacrifice: bool = False
+    untap_at: int = 0
+
+
 #: A card with no mana production of its own.
 NO_ABILITIES: tuple[ManaAbility, ...] = ()
 
@@ -301,6 +334,11 @@ class Card:
     #: ones; ``simulations/engine/adapter.py`` decides which. Empty for the
     #: hand-written fixture decks. Last, and defaulted, like ``types``.
     categories: frozenset[str] = field(default_factory=frozenset)
+
+    #: P19 R2: lands this card puts onto the battlefield, and when.
+    land_search: LandSearch | None = None
+    #: A basic land - what "search for a basic land card" may find.
+    basic: bool = False
 
     @property
     def mana_cost(self) -> ManaCost:

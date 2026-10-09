@@ -42,6 +42,13 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "land-search",
+        _("Ramp spells and fetch lands find their lands"),
+        _("Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum and fetch lands now "
+          "put the land they find onto the battlefield, picking the colour your lands "
+          "lack. Green ramp decks reach their commander sooner."),
+    ),
+    Entry(
         date(2026, 10, 9), "dual-lands",
         _("Dual lands make either colour"),
         _("Dual lands, Talismans, Command Tower and Arcane Signet now make any "

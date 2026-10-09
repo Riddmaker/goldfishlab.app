@@ -34,6 +34,7 @@ from simulation.cards import (
 )
 from simulation.manacost import (
     COLORLESS,
+    COLORS,
     SOURCES,
     SUBTYPE_COLORS,
     ManaCost,
@@ -252,6 +253,17 @@ def land_color(land, granted: frozenset[str]) -> str | None:
     if not colors:
         return None
     return choice(colors)
+
+
+def land_colors(land, granted: frozenset[str] = frozenset()) -> frozenset[str]:
+    """Every colour this land can make, as a basic land type or by its own
+    ``FLAT`` ability - what a land search weighs when it picks one."""
+    found = set(land_color(land, granted) or "")
+    for ability in land.mana_abilities:
+        if ability.rule == FLAT:
+            for source, _amount in ability.produces:
+                found.update(letter for letter in source if letter in COLORS)
+    return frozenset(found)
 
 
 def has_urborg(lands) -> bool:

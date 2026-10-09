@@ -142,7 +142,10 @@ class PlayLand(Action):
     index: int = 0
 
     def run(self, game, policy) -> None:
-        game.play_land(_at(game, HAND, self.index))
+        card = _at(game, HAND, self.index)
+        game.play_land(card)
+        if card.land_search is not None and card.land_search.when == "play":
+            game.play_fetch(card, _land_chooser(policy))
 
 
 @dataclass(frozen=True)
@@ -463,10 +466,24 @@ def _apply_cast_effect(game, card, policy) -> None:
         if not spec.to_hand and found:
             game.note(f"  -> {found} cards to the graveyard")
 
+    search = card.land_search
+    if search is not None and search.when in ("cast", "enters"):
+        game.search_lands(card, _land_chooser(policy))
+        if search.sacrifice and card in game.creatures:
+            # Sakura-Tribe Elder: sacrificed for its land as soon as it is in
+            # play - nothing in a goldfish is worth keeping it around for.
+            game.creatures.remove(card)
+            game.graveyard.append(card)
+
     if card.draw_on_cast:
         game.draw(card.draw_on_cast)
         game.life -= card.life_on_cast
         game.note(f"  -> {card.draw_on_cast} cards, {card.life_on_cast} life")
+
+
+def _land_chooser(policy):
+    """The policy's pick for a land search, if it makes one (a human does)."""
+    return getattr(policy, "choose_fetched_land", None)
 
 
 def _search(game, policy, predicate):

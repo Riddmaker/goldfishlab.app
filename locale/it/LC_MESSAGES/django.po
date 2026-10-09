@@ -8793,3 +8793,56 @@ msgstr ""
 "qualsiasi dei loro colori, scelto quando paghi. I comandanti a tre colori "
 "entrano in gioco molto più spesso, e queste carte non hanno più bisogno di "
 "te."
+
+#: cards/profiles.py
+msgid "searches for lands the engine cannot describe"
+msgstr "cerca terre che il motore non sa descrivere"
+
+#: cards/profiles.py
+msgid "searches for lands, but where they go could not be read"
+msgstr "cerca terre, ma non si è potuto leggere dove vanno"
+
+#: cards/profiles.py
+msgid "searches for lands at a cost the engine does not pay"
+msgstr "cerca terre a un costo che il motore non paga"
+
+#: cards/profiles.py
+msgid "searches for lands under a condition the engine cannot read"
+msgstr "cerca terre a una condizione che il motore non sa leggere"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s basic land"
+msgid_plural "%(count)s basic lands"
+msgstr[0] "%(count)s terra base"
+msgstr[1] "%(count)s terre base"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield, tapped"
+msgstr "%(what)s sul campo di battaglia, TAPpato"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield"
+msgstr "%(what)s sul campo di battaglia"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, and %(count)s to hand"
+msgstr "%(search)s, e %(count)s in mano"
+
+#: changelog/entries.py
+msgid "Ramp spells and fetch lands find their lands"
+msgstr "Le magie di ramp e le fetch land trovano le loro terre"
+
+#: changelog/entries.py
+msgid ""
+"Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum and fetch lands now"
+" put the land they find onto the battlefield, picking the colour your lands "
+"lack. Green ramp decks reach their commander sooner."
+msgstr ""
+"Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum e le fetch land ora"
+" mettono sul campo di battaglia la terra che trovano, scegliendo il colore "
+"che manca alle tue terre. I mazzi ramp verdi lanciano prima il loro "
+"comandante."

@@ -4860,6 +4860,21 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 1,
+    "sacrifice": true,
+    "tapped": false,
+    "types": [
+     "mountain",
+     "plains"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -4867,10 +4882,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Armored Skyhunter": {
   "id": "b4dbbf56-d7df-4183-bb48-cfc6b4d0468f",
@@ -8787,7 +8799,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands under a condition the engine cannot read"
   ]
  },
  "Biogenic Ooze": {
@@ -9176,7 +9188,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands under a condition the engine cannot read"
   ]
  },
  "Black Bolt, Inhuman King": {
@@ -9755,7 +9767,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands at a cost the engine does not pay"
   ]
  },
  "Blightsteel Colossus": {
@@ -10246,6 +10258,21 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 1,
+    "sacrifice": true,
+    "tapped": false,
+    "types": [
+     "mountain",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -10253,10 +10280,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Bloodthirsty Conqueror": {
   "id": "fd505c02-c59e-476d-8e88-35da862ddc23",
@@ -11258,6 +11282,22 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [
+     "forest",
+     "island",
+     "mountain"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -11281,9 +11321,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Bountiful Promenade": {
   "id": "761cb262-f83b-4a99-9345-b773182a7671",
@@ -12187,6 +12225,22 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [
+     "forest",
+     "island",
+     "plains"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -12194,10 +12248,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Bronze Guardian": {
   "id": "922a030c-857b-4c61-93df-b70ebb32abd3",
@@ -12663,7 +12714,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands at a cost the engine does not pay"
   ]
  },
  "Bushwhack": {
@@ -12897,6 +12948,22 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [
+     "forest",
+     "mountain",
+     "plains"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -12904,10 +12971,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Caduceus, Staff of Hermes": {
   "id": "7cea5b12-9483-4142-9efa-735305581e73",
@@ -18319,6 +18383,22 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [
+     "island",
+     "plains",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -18342,9 +18422,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Continue?": {
   "id": "175c76c8-f36c-4948-aaa8-0208eac5f0d3",
@@ -19386,6 +19464,18 @@
     ]
    },
    "kind": "instant",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": false,
+    "types": [],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 1,
    "tags": [
     "gamechanger"
@@ -19395,7 +19485,6 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
    "has an additional casting cost the engine does not pay"
   ]
  },
@@ -20133,6 +20222,18 @@
    },
    "generic": 2,
    "kind": "sorcery",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 1,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 3,
    "tags": [
     "ramp"
@@ -20141,9 +20242,7 @@
     "sorcery"
    ]
   },
-  "unread": [
-   "tutors to more than one zone; not modelled"
-  ]
+  "unread": []
  },
  "Cultivator Colossus": {
   "id": "4d8505d3-c8a1-4850-95d4-5ddb8ad49770",
@@ -20608,6 +20707,18 @@
    },
    "generic": 2,
    "kind": "instant",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 2,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 3,
    "tags": [
     "ramp"
@@ -20616,9 +20727,7 @@
     "instant"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Cyclonic Rift": {
   "id": "d75b9c82-1b49-4c3e-a1b5-aeef57d6644b",
@@ -22048,6 +22157,22 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [
+     "forest",
+     "plains",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -22071,9 +22196,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Decimate": {
   "id": "a4e5693f-12a0-451e-818d-d6efc7b4ed25",
@@ -22397,7 +22520,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands the engine cannot describe"
   ]
  },
  "Defile": {
@@ -22818,7 +22941,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands under a condition the engine cannot read"
   ]
  },
  "Demonic Consultation": {
@@ -28521,6 +28644,18 @@
    },
    "generic": 3,
    "kind": "enchantment",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 2,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "enters"
+   },
    "mv": 4,
    "tags": [
     "ramp"
@@ -28529,9 +28664,7 @@
     "enchantment"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "End-Raze Forerunners": {
   "id": "69b52907-8aff-4f2a-a391-7d1ab2669b5c",
@@ -29314,6 +29447,18 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -29321,10 +29466,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Escape to the Wilds": {
   "id": "45a8c126-5396-4736-a37e-460a50706a98",
@@ -30371,6 +30513,18 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -30378,10 +30532,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Exalted Sunborn": {
   "id": "43febbcd-ecbe-4edb-ad90-7fc6dc381d05",
@@ -30984,6 +31135,18 @@
    },
    "generic": 3,
    "kind": "sorcery",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 2,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 4,
    "tags": [
     "ramp"
@@ -30992,9 +31155,7 @@
     "sorcery"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Expressive Iteration": {
   "id": "c7aecca5-2f67-4245-ab2d-e723d8b23a67",
@@ -31295,6 +31456,18 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [],
+    "untap_at": 4,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -31302,10 +31475,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Fabricate": {
   "id": "422e1869-134f-463d-9fa1-86b66a998b3e",
@@ -31811,6 +31981,18 @@
    },
    "generic": 2,
    "kind": "creature",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "enters"
+   },
    "mv": 3,
    "tags": [
     "creature",
@@ -31820,9 +32002,7 @@
     "creature"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Farseek": {
   "id": "495e52e6-4c2b-4574-9474-eadbdcc8b4ac",
@@ -31846,6 +32026,23 @@
    },
    "generic": 1,
    "kind": "sorcery",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": true,
+    "types": [
+     "island",
+     "mountain",
+     "plains",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 2,
    "tags": [
     "ramp"
@@ -31854,9 +32051,7 @@
     "sorcery"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Fast Forward": {
   "id": "c92f78c4-c8ec-4bdb-85f4-3a206b709f0f",
@@ -34207,6 +34402,21 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 1,
+    "sacrifice": true,
+    "tapped": false,
+    "types": [
+     "island",
+     "plains"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -34214,10 +34424,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Floodfarm Verge": {
   "id": "f1e9abfb-c3c8-483e-b446-5c2afc9f6394",
@@ -34771,6 +34978,22 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [
+     "forest",
+     "island",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -34794,9 +35017,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Foreboding Ruins": {
   "id": "5c87e2fa-77f1-4978-b25f-f14d227301d1",
@@ -34880,6 +35101,7 @@
  "Forest": {
   "id": "b34bb2dc-c1af-4d77-b0b3-a0fb342a5fc6",
   "read": {
+   "basic": true,
    "categories": [
     "land"
    ],
@@ -41703,6 +41925,18 @@
    },
    "generic": 2,
    "kind": "instant",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 2,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": false,
+    "types": [],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 3,
    "tags": [
     "ramp"
@@ -41712,7 +41946,6 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
    "has an additional casting cost the engine does not pay"
   ]
  },
@@ -44218,7 +44451,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands at a cost the engine does not pay"
   ]
  },
  "Horizon of Progress": {
@@ -47402,6 +47635,7 @@
  "Island": {
   "id": "b2c6aa39-2d2a-459c-a555-fb48ba993373",
   "read": {
+   "basic": true,
    "categories": [
     "land"
    ],
@@ -49800,7 +50034,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands under a condition the engine cannot read"
   ]
  },
  "Kefka, Dancing Mad": {
@@ -50793,7 +51027,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands under a condition the engine cannot read"
   ]
  },
  "Knuckles the Echidna": {
@@ -50897,7 +51131,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands under a condition the engine cannot read"
   ]
  },
  "Kodama's Reach": {
@@ -50922,6 +51156,18 @@
    },
    "generic": 2,
    "kind": "sorcery",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 1,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 3,
    "tags": [
     "ramp"
@@ -50930,9 +51176,7 @@
     "sorcery"
    ]
   },
-  "unread": [
-   "tutors to more than one zone; not modelled"
-  ]
+  "unread": []
  },
  "Kogla, the Titan Ape": {
   "id": "8b21062e-97b0-4967-96df-30e8309f4fba",
@@ -51444,7 +51688,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands the engine cannot describe"
   ]
  },
  "Kulrath Knight": {
@@ -54937,7 +55181,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands under a condition the engine cannot read"
   ]
  },
  "Lulu, Stern Guardian": {
@@ -55487,6 +55731,22 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [
+     "island",
+     "mountain",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -55494,10 +55754,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Magda, Brazen Outlaw": {
   "id": "3d268e48-3004-4384-bf52-e63243fb5e02",
@@ -55536,7 +55793,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands the engine cannot describe"
   ]
  },
  "Magda, the Hoardmaster": {
@@ -56577,6 +56834,21 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 1,
+    "sacrifice": true,
+    "tapped": false,
+    "types": [
+     "plains",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -56584,10 +56856,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Martial Coup": {
   "id": "2b7c4dab-e432-4b34-b058-3cec5c0d72df",
@@ -58119,6 +58388,18 @@
    "draw_on_cast": 1,
    "generic": 3,
    "kind": "sorcery",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 2,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 4,
    "tags": [
     "draw",
@@ -58128,9 +58409,7 @@
     "sorcery"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Miirym, Sentinel Wyrm": {
   "id": "880fcf86-e6a9-482c-b91d-750f293127b2",
@@ -59277,6 +59556,21 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 1,
+    "sacrifice": true,
+    "tapped": false,
+    "types": [
+     "forest",
+     "island"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -59284,10 +59578,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Mithril Coat": {
   "id": "3dc364f3-3094-4660-80ca-9418588c7fde",
@@ -60525,6 +60816,7 @@
  "Mountain": {
   "id": "a3fb7228-e76b-4e96-a40e-20b5fed75685",
   "read": {
+   "basic": true,
    "categories": [
     "land"
    ],
@@ -60581,6 +60873,21 @@
     "pips": []
    },
    "enters_tapped": true,
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": false,
+    "types": [
+     "forest",
+     "mountain"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -60588,10 +60895,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Mox Amber": {
   "id": "7a43bd27-fdd8-41f0-9bc4-92568f3408f1",
@@ -61352,7 +61656,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands at a cost the engine does not pay"
   ]
  },
  "Mystic Confluence": {
@@ -61920,7 +62224,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
+   "searches for lands the engine cannot describe",
    "has an additional casting cost the engine does not pay"
   ]
  },
@@ -61977,6 +62281,20 @@
    },
    "generic": 1,
    "kind": "sorcery",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": false,
+    "types": [
+     "forest"
+    ],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 2,
    "tags": [
     "ramp"
@@ -61985,9 +62303,7 @@
     "sorcery"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Nature's Rhythm": {
   "id": "0259f063-3e3f-4e07-9066-f748d4819829",
@@ -64050,6 +64366,22 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [
+     "island",
+     "plains",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -64057,10 +64389,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Obscuring Haze": {
   "id": "d0a31db0-69db-405c-99a3-945617900c54",
@@ -67602,6 +67931,22 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [
+     "island",
+     "mountain",
+     "plains"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -67625,9 +67970,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Perpetual Timepiece": {
   "id": "17b4778b-82b1-4845-ad08-00f3ff66877b",
@@ -68423,6 +68766,7 @@
  "Plains": {
   "id": "bc71ebf6-2056-41f7-be35-b2e5c34afa99",
   "read": {
+   "basic": true,
    "categories": [
     "land"
    ],
@@ -68810,6 +69154,21 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 1,
+    "sacrifice": true,
+    "tapped": false,
+    "types": [
+     "island",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -68817,10 +69176,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Pollywog Prodigy": {
   "id": "99a3cea9-f4ab-4da3-a085-c09dc93fc8cb",
@@ -69844,6 +70200,18 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 1,
+    "sacrifice": true,
+    "tapped": false,
+    "types": [],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -69851,10 +70219,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Pristine Talisman": {
   "id": "1b3d7fce-e9fe-4176-9d9a-472415826cdd",
@@ -71839,6 +72204,18 @@
    },
    "generic": 1,
    "kind": "sorcery",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 2,
    "tags": [
     "ramp"
@@ -71847,9 +72224,7 @@
     "sorcery"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Rampant Rejuvenator": {
   "id": "b5f5d6e3-e72e-40a5-a5c7-410617b6f933",
@@ -71920,7 +72295,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands under a condition the engine cannot read"
   ]
  },
  "Ramunap Excavator": {
@@ -75745,6 +76120,22 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [
+     "forest",
+     "mountain",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -75752,10 +76143,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Roadkill Rodney": {
   "id": "cd8761ef-b57b-456b-aa12-374ac825087e",
@@ -75910,6 +76298,21 @@
     "pips": []
    },
    "enters_tapped": true,
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": false,
+    "types": [
+     "mountain",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -75917,10 +76320,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Rogue Refiner": {
   "id": "b2f09e41-0a91-4fb6-8804-874b3a5166b0",
@@ -76021,6 +76421,18 @@
    },
    "generic": 2,
    "kind": "instant",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 2,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 3,
    "tags": [
     "ramp"
@@ -76029,9 +76441,7 @@
     "instant"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Rootborn Defenses": {
   "id": "04046ae4-5c51-434b-930c-f3b1d348bf4b",
@@ -77139,6 +77549,18 @@
    },
    "generic": 1,
    "kind": "creature",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "enters"
+   },
    "mv": 2,
    "tags": [
     "creature",
@@ -77148,9 +77570,7 @@
     "creature"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Sanctum Weaver": {
   "id": "acfe7ec0-0606-4d5e-b1fa-25f0c7aeec47",
@@ -77662,6 +78082,21 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 1,
+    "sacrifice": true,
+    "tapped": false,
+    "types": [
+     "island",
+     "mountain"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -77669,10 +78104,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Scapeshift": {
   "id": "c235015e-a7a9-4f8d-bf4a-cf68b3847f83",
@@ -78614,6 +79046,18 @@
    },
    "generic": 2,
    "kind": "sorcery",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": false,
+    "types": [],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 3,
    "tags": [
     "ramp"
@@ -78622,9 +79066,7 @@
     "sorcery"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Search the Premises": {
   "id": "0232418d-1c52-4573-b488-c62345ca1c8d",
@@ -79040,6 +79482,22 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [
+     "island",
+     "mountain",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -79063,9 +79521,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Seething Song": {
   "id": "64bf8929-f5f2-4d50-8667-13b1d007bcfc",
@@ -80493,6 +80949,18 @@
    },
    "generic": 1,
    "kind": "sorcery",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 2,
    "tags": [
     "ramp"
@@ -80501,9 +80969,7 @@
     "sorcery"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Shark Typhoon": {
   "id": "8c0520fa-276b-4d21-b4a9-dce1fce59f6b",
@@ -80592,6 +81058,22 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [
+     "mountain",
+     "plains",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -80615,9 +81097,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Shattered Sanctum": {
   "id": "c854ecb0-cc60-4c48-a9aa-7f2348a7a8c6",
@@ -83229,6 +83709,20 @@
    },
    "generic": 3,
    "kind": "sorcery",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 2,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": false,
+    "types": [
+     "forest"
+    ],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 4,
    "tags": [
     "ramp"
@@ -83237,9 +83731,7 @@
     "sorcery"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Skysovereign, Consul Flagship": {
   "id": "50b14338-9318-4327-a1dd-c0ef38903cc4",
@@ -84210,6 +84702,18 @@
    },
    "generic": 4,
    "kind": "creature",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "enters"
+   },
    "mv": 4,
    "tags": [
     "creature",
@@ -84221,9 +84725,7 @@
     "creature"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Solitude": {
   "id": "dcb9c2a7-ae54-4ddc-a567-640bf4bf4366",
@@ -85772,7 +86274,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands under a condition the engine cannot read"
   ]
  },
  "Springheart Nantuko": {
@@ -88033,7 +88535,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands under a condition the engine cannot read"
   ]
  },
  "Summon: Good King Mog XII": {
@@ -89351,6 +89853,7 @@
  "Swamp": {
   "id": "56719f6a-1a6c-4c0a-8d21-18f7d7350b68",
   "read": {
+   "basic": true,
    "categories": [
     "land"
    ],
@@ -89766,7 +90269,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands under a condition the engine cannot read"
   ]
  },
  "Swords to Plowshares": {
@@ -93030,6 +93533,18 @@
    },
    "generic": 3,
    "kind": "sorcery",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": false,
+    "types": [],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 4,
    "tags": [
     "ramp"
@@ -93038,9 +93553,7 @@
     "sorcery"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Terramorphic Expanse": {
   "id": "1bd3e453-aa21-4ee6-95c2-d6d920ee8e7a",
@@ -93057,6 +93570,18 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -93064,10 +93589,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Terrasymbiosis": {
   "id": "4ac94586-3ac7-4ade-af31-ad0d0e3ffc4a",
@@ -96285,6 +96807,20 @@
    },
    "generic": 1,
    "kind": "sorcery",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": false,
+    "types": [
+     "forest"
+    ],
+    "untap_at": 0,
+    "when": "cast"
+   },
    "mv": 2,
    "tags": [
     "ramp"
@@ -96293,9 +96829,7 @@
     "sorcery"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Threefold Thunderhulk": {
   "id": "b8020a8b-557b-465d-865d-b59fecd7abc1",
@@ -97802,6 +98336,18 @@
    },
    "generic": 1,
    "kind": "creature",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "enters"
+   },
    "mv": 3,
    "tags": [
     "creature",
@@ -97811,9 +98357,7 @@
     "creature"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Torbran, Thane of Red Fell": {
   "id": "8c3495bf-02e7-4ad9-949d-92eb3d2b662a",
@@ -100027,6 +100571,22 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [
+     "forest",
+     "mountain",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "mana_abilities": [
     {
      "_type": "ManaAbility",
@@ -100050,9 +100610,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Twitching Doll": {
   "id": "fd6e1967-237a-41f6-bbf4-2c869f9447c8",
@@ -102024,7 +102582,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands at a cost the engine does not pay"
   ]
  },
  "Urza's Incubator": {
@@ -103736,6 +104294,21 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 1,
+    "sacrifice": true,
+    "tapped": false,
+    "types": [
+     "forest",
+     "swamp"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -103743,10 +104316,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Verdant Sun's Avatar": {
   "id": "6ee71432-a44d-495e-86ea-d495d891c331",
@@ -104061,6 +104631,18 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": true,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": true,
+    "tapped": true,
+    "types": [],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -104068,10 +104650,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Victimize": {
   "id": "240e85d3-e495-4877-8609-4b4056c402f7",
@@ -105861,6 +106440,7 @@
  "Wastes": {
   "id": "05d24b0c-904a-46b6-b42a-96a4d91a0dd4",
   "read": {
+   "basic": true,
    "categories": [
     "land"
    ],
@@ -106184,7 +106764,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands at a cost the engine does not pay"
   ]
  },
  "Wayward Servant": {
@@ -107281,7 +107861,7 @@
    ]
   },
   "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
+   "searches for lands at a cost the engine does not pay"
   ]
  },
  "Wild Growth": {
@@ -107963,6 +108543,21 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 1,
+    "sacrifice": true,
+    "tapped": false,
+    "types": [
+     "forest",
+     "plains"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -107970,10 +108565,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Winged Boots": {
   "id": "a178a789-1f5f-46ca-a90b-574bd236a671",
@@ -108730,6 +109322,20 @@
    },
    "generic": 2,
    "kind": "creature",
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 0,
+    "sacrifice": false,
+    "tapped": false,
+    "types": [
+     "forest"
+    ],
+    "untap_at": 0,
+    "when": "enters"
+   },
    "mv": 3,
    "tags": [
     "creature",
@@ -108739,9 +109345,7 @@
     "creature"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do"
-  ]
+  "unread": []
  },
  "Wooded Foothills": {
   "id": "6587a463-a108-4854-b6d1-944e89b8c8a4",
@@ -108758,6 +109362,21 @@
     "phyrexian": [],
     "pips": []
    },
+   "land_search": {
+    "_type": "LandSearch",
+    "basic": false,
+    "battlefield": 1,
+    "hand": 0,
+    "life": 1,
+    "sacrifice": true,
+    "tapped": false,
+    "types": [
+     "forest",
+     "mountain"
+    ],
+    "untap_at": 0,
+    "when": "play"
+   },
    "tags": [
     "land"
    ],
@@ -108765,10 +109384,7 @@
     "land"
    ]
   },
-  "unread": [
-   "tutors onto the battlefield, which the engine cannot do",
-   "a land that taps for nothing the engine can see"
-  ]
+  "unread": []
  },
  "Wooded Ridgeline": {
   "id": "c2ca3e20-23ca-4d2a-88a1-5e98ff884abb",

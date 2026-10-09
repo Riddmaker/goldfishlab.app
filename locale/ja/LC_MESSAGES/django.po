@@ -7813,3 +7813,53 @@ msgid ""
 msgstr ""
 "2色土地、タリスマン、Command Tower、Arcane "
 "Signetが、支払う時に選んだどの色でも出せるようになりました。3色の統率者がずっと頻繁に戦場に出るようになり、これらのカードについて答える必要もなくなりました。"
+
+#: cards/profiles.py
+msgid "searches for lands the engine cannot describe"
+msgstr "エンジンが表現できない土地をサーチする"
+
+#: cards/profiles.py
+msgid "searches for lands, but where they go could not be read"
+msgstr "土地をサーチするが、置き場所を読み取れなかった"
+
+#: cards/profiles.py
+msgid "searches for lands at a cost the engine does not pay"
+msgstr "エンジンが支払わないコストで土地をサーチする"
+
+#: cards/profiles.py
+msgid "searches for lands under a condition the engine cannot read"
+msgstr "エンジンが読み取れない条件で土地をサーチする"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s basic land"
+msgid_plural "%(count)s basic lands"
+msgstr[0] "基本土地%(count)s枚"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield, tapped"
+msgstr "%(what)sをタップ状態で戦場に"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield"
+msgstr "%(what)sを戦場に"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, and %(count)s to hand"
+msgstr "%(search)s、%(count)s枚を手札に"
+
+#: changelog/entries.py
+msgid "Ramp spells and fetch lands find their lands"
+msgstr "ランプ呪文とフェッチランドが土地を見つけるように"
+
+#: changelog/entries.py
+msgid ""
+"Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum and fetch lands now"
+" put the land they find onto the battlefield, picking the colour your lands "
+"lack. Green ramp decks reach their commander sooner."
+msgstr ""
+"Rampant Growth、Cultivate、Wood Elves、Solemn "
+"Simulacrum、フェッチランドが、見つけた土地を戦場に出すようになりました。あなたの土地に足りない色を選びます。緑のランプデッキは統率者をより早く唱えられます。"

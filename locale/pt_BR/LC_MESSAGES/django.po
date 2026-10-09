@@ -8739,3 +8739,56 @@ msgstr ""
 "qualquer uma das suas cores, escolhida na hora de pagar. Comandantes de três"
 " cores entram em jogo com muito mais frequência, e essas cartas não precisam"
 " mais de você."
+
+#: cards/profiles.py
+msgid "searches for lands the engine cannot describe"
+msgstr "busca terrenos que o motor não sabe descrever"
+
+#: cards/profiles.py
+msgid "searches for lands, but where they go could not be read"
+msgstr "busca terrenos, mas não foi possível ler para onde vão"
+
+#: cards/profiles.py
+msgid "searches for lands at a cost the engine does not pay"
+msgstr "busca terrenos a um custo que o motor não paga"
+
+#: cards/profiles.py
+msgid "searches for lands under a condition the engine cannot read"
+msgstr "busca terrenos sob uma condição que o motor não sabe ler"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s basic land"
+msgid_plural "%(count)s basic lands"
+msgstr[0] "%(count)s terreno básico"
+msgstr[1] "%(count)s terrenos básicos"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield, tapped"
+msgstr "%(what)s no campo de batalha, virado"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield"
+msgstr "%(what)s no campo de batalha"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, and %(count)s to hand"
+msgstr "%(search)s, e %(count)s para a mão"
+
+#: changelog/entries.py
+msgid "Ramp spells and fetch lands find their lands"
+msgstr "Mágicas de rampa e fetch lands encontram seus terrenos"
+
+#: changelog/entries.py
+msgid ""
+"Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum and fetch lands now"
+" put the land they find onto the battlefield, picking the colour your lands "
+"lack. Green ramp decks reach their commander sooner."
+msgstr ""
+"Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum e as fetch lands "
+"agora colocam no campo de batalha o terreno que encontram, escolhendo a cor "
+"que falta aos seus terrenos. Decks verdes de rampa jogam o comandante mais "
+"cedo."

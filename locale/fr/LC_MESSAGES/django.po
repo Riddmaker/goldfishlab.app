@@ -8916,3 +8916,57 @@ msgstr ""
 "produisent désormais n'importe laquelle de leurs couleurs, choisie au moment"
 " de payer. Les commandants tricolores arrivent bien plus souvent en jeu, et "
 "ces cartes n'ont plus besoin de vous."
+
+#: cards/profiles.py
+msgid "searches for lands the engine cannot describe"
+msgstr "cherche des terrains que le moteur ne sait pas décrire"
+
+#: cards/profiles.py
+msgid "searches for lands, but where they go could not be read"
+msgstr "cherche des terrains, mais où ils vont n'a pas pu être lu"
+
+#: cards/profiles.py
+msgid "searches for lands at a cost the engine does not pay"
+msgstr "cherche des terrains pour un coût que le moteur ne paie pas"
+
+#: cards/profiles.py
+msgid "searches for lands under a condition the engine cannot read"
+msgstr ""
+"cherche des terrains sous une condition que le moteur ne sait pas lire"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s basic land"
+msgid_plural "%(count)s basic lands"
+msgstr[0] "%(count)s terrain de base"
+msgstr[1] "%(count)s terrains de base"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield, tapped"
+msgstr "%(what)s sur le champ de bataille, engagé"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s onto the battlefield"
+msgstr "%(what)s sur le champ de bataille"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, and %(count)s to hand"
+msgstr "%(search)s, et %(count)s en main"
+
+#: changelog/entries.py
+msgid "Ramp spells and fetch lands find their lands"
+msgstr "Les sorts de rampe et les fetchlands trouvent leurs terrains"
+
+#: changelog/entries.py
+msgid ""
+"Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum and fetch lands now"
+" put the land they find onto the battlefield, picking the colour your lands "
+"lack. Green ramp decks reach their commander sooner."
+msgstr ""
+"Rampant Growth, Cultivate, Wood Elves, Solemn Simulacrum et les fetchlands "
+"mettent désormais le terrain trouvé sur le champ de bataille, en choisissant"
+" la couleur qui manque à vos terrains. Les decks de rampe verts lancent leur"
+" commandant plus tôt."

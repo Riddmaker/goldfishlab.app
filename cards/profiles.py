@@ -772,6 +772,125 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
     return Tutor(zone=zone, count=count, kind=kinds.pop() if kinds else "")
 
 
+# --- searching for lands (P19 R2) --------------------------------------------
+
+#: One whole land search, as ramp spells, fetch lands and Wood Elves print it:
+#: "<lead>Search your library for <n> <what> card(s), [reveal ...,] put <put>,
+#: then shuffle[. Then if you control four or more lands, untap that land]".
+#: Everything outside these words stays a gap - a search for a Gate, a snow
+#: land, "a Forest card and a Plains card" - because each is one more promise
+#: about English the reader would have to keep.
+_LAND_SEARCH = re.compile(
+    r"(?P<lead>[^.\n]*?)Search your library for (?:up to )?(?P<n>a|an|one|two|three|\d+) "
+    r"(?P<what>[A-Za-z ,]+?) cards?(?: that share a land type)?, "
+    r"(?:reveal (?:those cards|them|it), )?(?:and )?put (?P<put>[^.]+?)"
+    r"(?:, then shuffle|\. Shuffle)"
+    r"(?:\. Then if you control (?P<untap>\w+) or more lands, untap that land)?",
+    re.IGNORECASE,
+)
+_LAND_TYPES = {"plains", "island", "swamp", "mountain", "forest"}
+_ALL_TO_BATTLEFIELD = re.compile(
+    r"^(?:it|that card|them|those cards) onto the battlefield(?P<tapped> tapped)?$")
+_ONE_EACH = re.compile(r"^one onto the battlefield tapped and the other into your hand$")
+_CAST = ""
+_ENTERS = re.compile(
+    r"^when (?:this|~) (?:creature|artifact|enchantment|permanent) enters, (?:you may )?$")
+#: The New Capenna lands: "When this land enters, sacrifice it. When you do,
+#: search ..." - a fetch land in two sentences.
+_SACRIFICED_ON_ENTERING = re.compile(
+    r"When this land enters, sacrifice it\. When you do, search your library", re.IGNORECASE)
+_FETCH = re.compile(r"^\{t\}, (?:pay (?P<life>\w+) life, )?sacrifice this land: $")
+_SACRIFICE_SELF = re.compile(r"^sacrifice this creature: $")
+
+
+@dataclass
+class LandSearch:
+    """A land search read whole (`spec`), or the reason it could not be."""
+
+    spec: dict | None = None
+    reason: str = ""
+
+
+def _word_number(token: str) -> int | None:
+    token = token.lower()
+    return int(token) if token.isdigit() else _WORD_NUMBERS.get(token)
+
+
+def _land_search(card: OracleCard, kind: str) -> LandSearch:
+    """Read a search that puts lands onto the battlefield, or say why not.
+
+    Not a card with no such search: that is an empty `LandSearch`, and the
+    general tutor reading (`_tutor`) goes on as before.
+    """
+    text = card.oracle_text or ""
+    if len(_SEARCH_CLAUSE.findall(text)) != 1:
+        return LandSearch()
+    match = _LAND_SEARCH.search(text)
+    if match is None or "battlefield" not in match.group("put").lower():
+        return LandSearch()
+
+    count = _word_number(match.group("n"))
+    what = match.group("what").strip().lower()
+    basic = what.startswith("basic ")
+    names = what.removeprefix("basic ")
+    if names == "land":
+        types: list[str] = []
+    else:
+        types = [name for name in re.split(r",? or |, ", names) if name]
+        if not types or not set(types) <= _LAND_TYPES:
+            return LandSearch(reason=gettext_noop(
+                "searches for lands the engine cannot describe"))
+
+    put = match.group("put").strip().lower()
+    if (found := _ALL_TO_BATTLEFIELD.match(put)) is not None:
+        battlefield, hand, tapped = count, 0, bool(found.group("tapped"))
+    elif _ONE_EACH.match(put) and count == 2:
+        battlefield, hand, tapped = 1, 1, True
+    else:
+        return LandSearch(reason=gettext_noop(
+            "searches for lands, but where they go could not be read"))
+
+    lead = match.group("lead").strip().lower()
+    lead = f"{lead} " if lead else ""
+    life, sacrifice = 0, False
+    spell = kind in (DerivedProfile.Kind.SORCERY, DerivedProfile.Kind.INSTANT)
+    if not lead and spell:
+        when = "cast"
+    elif _ENTERS.match(lead):
+        when = "enters"
+    elif (lead == "when you do, " and kind == DerivedProfile.Kind.LAND
+          and _SACRIFICED_ON_ENTERING.search(text)):
+        when, sacrifice = "play", True
+    elif (fetch := _FETCH.match(lead)) is not None and kind == DerivedProfile.Kind.LAND:
+        when, sacrifice = "play", True
+        if fetch.group("life"):
+            life = _word_number(fetch.group("life"))
+            if life is None:
+                return LandSearch(reason=gettext_noop(
+                    "searches for lands at a cost the engine does not pay"))
+    elif _SACRIFICE_SELF.match(lead) and kind == DerivedProfile.Kind.CREATURE:
+        when, sacrifice = "enters", True
+    elif "{" in lead:
+        return LandSearch(reason=gettext_noop(
+            "searches for lands at a cost the engine does not pay"))
+    else:
+        return LandSearch(reason=gettext_noop(
+            "searches for lands under a condition the engine cannot read"))
+
+    untap_at = 0
+    if match.group("untap"):
+        untap_at = _word_number(match.group("untap")) or 0
+        if not untap_at:
+            return LandSearch(reason=gettext_noop(
+                "searches for lands under a condition the engine cannot read"))
+
+    return LandSearch(spec={
+        "battlefield": battlefield, "hand": hand, "tapped": tapped, "basic": basic,
+        "types": sorted(types), "life": life, "when": when, "sacrifice": sacrifice,
+        "untap_at": untap_at,
+    })
+
+
 def _first_number(pattern: re.Pattern, text: str) -> int | None:
     match = pattern.search(text or "")
     if not match:
@@ -820,6 +939,12 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         # every turn for the rest of the game.
         kind = DerivedProfile.Kind.RITUAL
     tutor = _tutor(card, tags)
+    land = _land_search(card, kind)
+    if land.spec is not None or land.reason:
+        # A land search read whole, or the reason it could not be: either way
+        # more specific than what the general tutor reading says about it
+        # ("tutors onto the battlefield, which the engine cannot do").
+        tutor = Tutor(reason=land.reason)
 
     opponent_loss = _first_number(_OPPONENT_LOSS, text)
     if opponent_loss and "drain_payoff" not in roles:
@@ -871,6 +996,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         tutor_to=tutor.zone,
         tutor_count=tutor.count,
         tutor_kind=tutor.kind,
+        land_search=land.spec,
         skips_draw_step=bool(_SKIPS_DRAW_STEP.search(text)),
         needs_review=bool(reasons),
         review_reasons=[reason[:120] for reason in reasons],
@@ -975,7 +1101,7 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "mv", "pips", "generic", "colorless", "has_x", "kind", "is_basic_swamp",
             "role_tags", "enters_tapped", "produces_mana", "mana_colors", "mana_amount",
             "cost_reduction", "draws_cards", "self_life_loss", "opponent_life_loss",
-            "tutor_to", "tutor_count", "tutor_kind", "skips_draw_step",
+            "tutor_to", "tutor_count", "tutor_kind", "land_search", "skips_draw_step",
             "mana_produces", "mana_activation", "mana_untaps",
             "needs_review", "review_reasons", "source_map", "derived_at",
         ],

@@ -38,6 +38,7 @@ from simulation.cards import (
     CostReduction,
     DeckDefinition,
     EndStepSpec,
+    LandSearch,
     ManaAbility,
     TutorSpec,
     UpkeepSpec,
@@ -263,6 +264,8 @@ class Reading:
         printed text - so a person checking it needs to see both at once.
         """
         spec = self.card.tutor
+        if spec is None and self.card.land_search is not None:
+            return _land_search_text(self.card.land_search)
         if spec is None:
             return gettext("nothing")
         if spec.kind:
@@ -338,6 +341,28 @@ RULE_TEXT = {
     DOUBLE_SUBTYPE: gettext_noop("one extra %(color)s whenever a %(subtype)s is tapped"),
     TYPE_ADDING: gettext_noop("makes every land a %(subtype)s"),
 }
+
+
+def _land_search_text(search: LandSearch) -> str:
+    """A land search, in words: what, how many, where, at what price."""
+    types = " / ".join(sorted(subtype.capitalize() for subtype in search.types))
+    if search.basic:
+        what = ngettext("%(count)s basic land", "%(count)s basic lands",
+                        search.battlefield) % {"count": search.battlefield}
+    else:
+        what = ngettext("%(count)s land", "%(count)s lands",
+                        search.battlefield) % {"count": search.battlefield}
+    if types:
+        what = f"{what} ({types})"
+    text = (gettext("%(what)s onto the battlefield, tapped") if search.tapped
+            else gettext("%(what)s onto the battlefield")) % {"what": what}
+    if search.hand:
+        text = gettext("%(search)s, and %(count)s to hand") % {"search": text,
+                                                              "count": search.hand}
+    if search.life:
+        text = gettext("%(search)s, paying %(life)s life") % {"search": text,
+                                                             "life": search.life}
+    return text
 
 
 def _ability_text(ability) -> str:
@@ -643,6 +668,8 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         types=card_types(oracle_card),
         categories=_categories(profile, overrides,
                                annotations.scope_of(oracle_card.pk, "tags")),
+        land_search=_land_search(profile),
+        basic=oracle_card.type_line.startswith("Basic"),
     )
 
     _record_gaps(card, profile, overrides, gaps)
@@ -792,6 +819,23 @@ def _draw_on_cast(profile, overrides: dict, kind: str) -> int:
 #: no third move, so a tutor that fetches onto the battlefield is a gap rather
 #: than a tutor quietly redirected somewhere it does not go.
 TUTOR_ZONES = {"hand": True, "graveyard": False}
+
+
+def _land_search(profile) -> LandSearch | None:
+    """The land search the reader read whole, or nothing (P19 R2).
+
+    No annotation reaches it yet: the reader either has every value or none,
+    and a card it could not read keeps its gap.
+    """
+    found = getattr(profile, "land_search", None)
+    if not found:
+        return None
+    return LandSearch(
+        battlefield=int(found["battlefield"]), hand=int(found["hand"]),
+        tapped=bool(found["tapped"]), basic=bool(found["basic"]),
+        types=frozenset(found["types"]), life=int(found["life"]), when=found["when"],
+        sacrifice=bool(found["sacrifice"]), untap_at=int(found.get("untap_at", 0)),
+    )
 
 
 def _tutor(profile, overrides: dict) -> TutorSpec | None:
@@ -956,6 +1000,7 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap]) -> None:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("makes mana, but how much could not be read")))
 
-    if card.is_land and not card.mana_abilities:
+    fetches = card.land_search is not None and card.land_search.when == "play"
+    if card.is_land and not card.mana_abilities and not fetches:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("a land that taps for nothing the engine can see")))

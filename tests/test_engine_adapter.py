@@ -161,9 +161,10 @@ def test_the_deck_definitions_are_equal(converted):
         # `types` and `categories` are left out: the hand-written deck never
         # had a type line or community tags, and both are read by the draw
         # statistics only, never by a rule (Phase 9 E) - the identical
-        # aggregates below are the proof of that.
+        # aggregates below are the proof of that. `basic` likewise: only a
+        # land search reads it (engine version 6), and this deck has none.
         return replace(card, name=normalise(card.name), cost=card.mana_cost,
-                       types=frozenset(), categories=frozenset())
+                       types=frozenset(), categories=frozenset(), basic=False)
 
     def fold(definition):
         return tuple(

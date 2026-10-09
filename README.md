@@ -306,6 +306,11 @@ python manage.py engine_coverage --export-fixture # rebuild the slice (full cata
 python scripts/coverage_loop.py --colours URG [--skip 60]
 ```
 
+A round that changes `cards/profiles.py` needs the profiles derived again after its deploy
+(`python manage.py ingest_scryfall --profiles`), and every round changes the engine's numbers, so
+the precon pages are simulated again (`python manage.py precons --rerun --sweep`), both on the
+worker node.
+
 ## Adding translations
 
 ```bash

@@ -9007,3 +9007,19 @@ msgstr ""
 "jetzt ihre Treasures, die einen späteren Zauber bezahlen, wenn deine Länder "
 "nicht reichen. Zauber, für die du eine Karte abwerfen musst, werfen deine "
 "schwächste ab."
+
+#: changelog/entries.py
+msgid "Faithless Looting discards, Brainstorm puts back"
+msgstr "Faithless Looting wirft ab, Brainstorm legt zurück"
+
+#: changelog/entries.py
+msgid ""
+"Spells that draw and then discard, such as Faithless Looting, Frantic Search"
+" and Izzet Charm, now discard your weakest cards, and Brainstorm puts two "
+"back on top. Before, they only drew. Mystic Confluence now draws three, and "
+"Insatiable Avarice pays for the mode that draws."
+msgstr ""
+"Zauber, die ziehen und danach abwerfen, wie Faithless Looting, Frantic "
+"Search und Izzet Charm, werfen jetzt deine schwächsten Karten ab, und "
+"Brainstorm legt zwei oben zurück. Bisher zogen sie nur. Mystic Confluence "
+"zieht jetzt drei, und Insatiable Avarice bezahlt den Modus, der zieht."

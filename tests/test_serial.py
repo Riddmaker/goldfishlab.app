@@ -82,6 +82,8 @@ EVERYTHING = Card(
     treasures=2,
     treasure_mana="RG",
     discard_cost=1,
+    discard_on_cast=2,
+    put_back_on_cast=2,
 )
 
 

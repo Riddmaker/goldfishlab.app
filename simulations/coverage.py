@@ -181,7 +181,8 @@ def write_snapshot(found: dict, path: Path = SNAPSHOT) -> None:
     lines = [f"{json.dumps(name, ensure_ascii=False)}: "
              f"{json.dumps(entry, sort_keys=True, ensure_ascii=False, separators=(',', ':'))}"
              for name, entry in sorted(found.items())]
-    path.write_text("{\n" + ",\n".join(lines) + "\n}\n", encoding="utf-8")
+    # LF on every machine: a snapshot written on Windows must diff as cleanly.
+    path.write_text("{\n" + ",\n".join(lines) + "\n}\n", encoding="utf-8", newline="\n")
 
 
 # --- the fixed set ------------------------------------------------------------
@@ -299,7 +300,8 @@ def export_decks(path: Path = DECKS_FIXTURE) -> int:
             "cards": sorted([entry.quantity, entry.oracle_card.name]
                             for entry in deck.entries.select_related("oracle_card")),
         })
-    path.write_text(json.dumps(found, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(found, indent=1, ensure_ascii=False) + "\n", encoding="utf-8",
+                    newline="\n")
     return len(found)
 
 

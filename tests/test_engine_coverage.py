@@ -69,7 +69,7 @@ def simulated(loaded, django_db_blocker):
         found = {deck.name: coverage.numbers(deck) for deck in decks}
     if WRITE:
         coverage.NUMBERS.write_text(json.dumps(found, indent=1, sort_keys=True) + "\n",
-                                    encoding="utf-8")
+                                    encoding="utf-8", newline="\n")
     return found
 
 

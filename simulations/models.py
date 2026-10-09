@@ -71,6 +71,8 @@ ALLOWED_KEYS = {
     "scaling_activation": "Generic mana the scaling ability costs to activate.",
     "cost_reduction": "Generic reduction this permanent gives your spells.",
     "draw_on_cast": "Cards drawn when the spell resolves.",
+    "discard_on_cast": "Cards discarded right after that draw, like Faithless Looting.",
+    "put_back_on_cast": "Cards put back on top of the library after that draw, like Brainstorm.",
     "life_on_cast": "Life paid when the spell resolves.",
     "upkeep_draw": "Cards drawn each upkeep.",
     "upkeep_life": "Life paid each upkeep.",

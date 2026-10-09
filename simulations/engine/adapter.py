@@ -692,6 +692,10 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         ritual_color=_ritual_color(profile, overrides, deck_colors),
         cost_reduction=_cost_reduction(profile, overrides),
         draw_on_cast=_draw_on_cast(profile, overrides, kind),
+        discard_on_cast=_after_draw(profile, overrides, kind, "discard_on_cast",
+                                    "discards_after"),
+        put_back_on_cast=_after_draw(profile, overrides, kind, "put_back_on_cast",
+                                     "puts_back"),
         life_on_cast=int(overrides.get("life_on_cast", 0)),
         tutor=_tutor(profile, overrides),
         upkeep=_upkeep(overrides),
@@ -889,7 +893,10 @@ def _cost(oracle_card, profile, overrides: dict) -> ManaCost:
             colorless=int(profile.colorless),
             has_x=bool(profile.has_x),
         )
-    return parse(oracle_card.mana_cost or "")
+    # A spree mode the engine plays costs its own mana on top (P19 R8) - but
+    # only the derived draw's mode: a person who set the draw said what it is.
+    extra = "" if "draw_on_cast" in overrides else getattr(profile, "extra_cost", "")
+    return parse((oracle_card.mana_cost or "") + (extra or ""))
 
 
 def _ritual_color(profile, overrides: dict, deck_colors: frozenset[str]) -> str:
@@ -919,6 +926,19 @@ def _draw_on_cast(profile, overrides: dict, kind: str) -> int:
     if kind in ONE_SHOT_KINDS and profile.draws_cards:
         return int(profile.draws_cards)
     return 0
+
+
+def _after_draw(profile, overrides: dict, kind: str, key: str, field_name: str) -> int:
+    """What the derived draw gives back: a discard or a put-back (P19 R8).
+
+    A person who set the draw has said what the spell does; the derived
+    discard then no longer belongs to it unless they set that too.
+    """
+    if key in overrides:
+        return int(overrides[key])
+    if "draw_on_cast" in overrides or kind not in ONE_SHOT_KINDS or not profile.draws_cards:
+        return 0
+    return int(getattr(profile, field_name, 0) or 0)
 
 
 #: The two zones a `TutorSpec` can search to. `battlefield` is deliberately

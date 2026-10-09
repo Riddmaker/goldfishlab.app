@@ -222,6 +222,15 @@ class Game:
             self.graveyard.append(worst)
             self.note(f"  -> discards {worst.name}")
 
+    def put_back(self, count: int) -> None:
+        """Put the weakest cards from hand on top of the library - Brainstorm
+        (P19 R8). They are drawn again, so the draw itself was only a look."""
+        for _ in range(min(count, len(self.hand))):
+            worst = self._worst_in_hand()
+            self.hand.remove(worst)
+            self.library.insert(0, worst)
+            self.note(f"  -> puts {worst.name} back on top")
+
     def make_treasures(self, card) -> None:
         """The Treasure tokens a card makes as it resolves (P19 R7)."""
         if not card.treasures:

@@ -80,6 +80,10 @@ boundary, not the symptom.
 #:    them as they resolve, and a payment sacrifices one only when it would
 #:    fail without; the rest wait for a later turn. "As an additional cost,
 #:    discard a card" is paid with the weakest card in hand.
-ENGINE_VERSION = 11
+#: 12: P19 R8. A draw that comes with a discard (Faithless Looting, Frantic
+#:    Search) discards the weakest cards after it, Brainstorm puts two back
+#:    on top; Mystic Confluence draws
+#:    three; a spree mode's cost (Insatiable Avarice) is paid with its draw.
+ENGINE_VERSION = 12
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

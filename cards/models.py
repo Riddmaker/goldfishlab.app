@@ -368,6 +368,15 @@ class DerivedProfile(models.Model):
     discard_cost = models.PositiveSmallIntegerField(default=0)
     cost_reduction = models.PositiveSmallIntegerField(null=True, blank=True)
     draws_cards = models.PositiveSmallIntegerField(null=True, blank=True)
+    #: P19 R8: cards discarded right after that draw - "Draw two cards, then
+    #: discard two cards" (Faithless Looting).
+    discards_after = models.PositiveSmallIntegerField(default=0)
+    #: P19 R8: cards put back on top of the library after that draw -
+    #: Brainstorm draws three, then puts two back.
+    puts_back = models.PositiveSmallIntegerField(default=0)
+    #: P19 R8: the spree mode the draw sits in, paid on top of the printed
+    #: cost: "{B}{B}" on Insatiable Avarice. Empty: none.
+    extra_cost = models.CharField(max_length=32, blank=True, default="")
 
     # --- tutors: destination from the tags, amount from the printed text ---
     #

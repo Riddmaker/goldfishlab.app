@@ -8963,3 +8963,19 @@ msgstr ""
 "Tesori, che pagano una magia successiva quando le tue terre non bastano. Le "
 "magie che chiedono di scartare una carta per essere lanciate scartano la tua"
 " carta più debole."
+
+#: changelog/entries.py
+msgid "Faithless Looting discards, Brainstorm puts back"
+msgstr "Faithless Looting scarta, Brainstorm rimette in cima"
+
+#: changelog/entries.py
+msgid ""
+"Spells that draw and then discard, such as Faithless Looting, Frantic Search"
+" and Izzet Charm, now discard your weakest cards, and Brainstorm puts two "
+"back on top. Before, they only drew. Mystic Confluence now draws three, and "
+"Insatiable Avarice pays for the mode that draws."
+msgstr ""
+"Le magie che pescano e poi scartano, come Faithless Looting, Frantic Search "
+"e Izzet Charm, ora scartano le tue carte più deboli, e Brainstorm ne rimette"
+" due in cima. Prima pescavano soltanto. Mystic Confluence ora pesca tre "
+"carte, e Insatiable Avarice paga la modalità che pesca."

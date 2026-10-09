@@ -295,6 +295,23 @@ _COST_REDUCTION = re.compile(
     r"spells? (?:you cast )?costs? \{(\d+)\} less to cast", re.IGNORECASE
 )
 _DRAW = re.compile(r"\bdraws? (a|one|two|three|four|five|\d+) cards?", re.IGNORECASE)
+#: P19 R8: the discard a draw comes with - Faithless Looting, Frantic Search.
+#: Read as "draw two" alone, such a card played better than it does.
+_LOOT = re.compile(r"\bdraws? (a|one|two|three|four|five|\d+) cards?,? then discards? "
+                   r"(a|one|two|three|four|five|\d+) cards?", re.IGNORECASE)
+#: Brainstorm: the cards go back on top of the library rather than away.
+_PUT_BACK = re.compile(r"\bdraws? (a|one|two|three|four|five|\d+) cards?,? then put "
+                       r"(a|one|two|three|four|five|\d+) cards? from your hand on top of "
+                       r"your library", re.IGNORECASE)
+#: Mystic Confluence: a modal spell whose draw mode may be chosen every time.
+#: In a goldfish nothing else on it has a target, so all of them draw.
+_REPEATED_MODES = re.compile(
+    r"^Choose (two|three|four)\. You may choose the same mode more than once\.",
+    re.IGNORECASE | re.MULTILINE)
+_DRAW_MODE = re.compile(r"^• Draw (a|one|two|three) cards?\.$", re.IGNORECASE | re.MULTILINE)
+#: A spree mode: "+ {B}{B} — Target player draws three cards". The mode's cost
+#: is paid on top of the card's own when the engine plays that mode.
+_SPREE_MODE = re.compile(r"^\+ ((?:\{[^}]+\})+) — .*$", re.MULTILINE)
 # The pronoun check the deck research asked for: "you lose 1 life" is a cost,
 # "each opponent loses 1 life" is a payoff. Same verb, opposite meaning.
 _SELF_LOSS = re.compile(r"\byou lose (\d+|a|one|two|three) life", re.IGNORECASE)
@@ -1104,6 +1121,40 @@ def _word_number(token: str) -> int | None:
     return int(token) if token.isdigit() else _WORD_NUMBERS.get(token)
 
 
+@dataclass
+class Draw:
+    """What a card's first "draw" reads as (P19 R8).
+
+    ``extra_cost`` is the spree mode the draw sits in ("{B}{B}" on Insatiable
+    Avarice), which the engine pays on top of the printed cost.
+    """
+
+    cards: int | None = None
+    discards: int = 0
+    puts_back: int = 0
+    extra_cost: str = ""
+
+
+def _draw(text: str) -> Draw:
+    """Cards drawn, cards discarded or put back right after, a spree mode's cost."""
+    first = _DRAW.search(text)
+    if first is None:
+        return Draw()
+    draw = Draw(cards=_first_number(_DRAW, text))
+    if (loot := _LOOT.search(text)) is not None and loot.start() == first.start():
+        draw.discards = min(_word_number(loot.group(2)) or 0, _NUMBER_CEILING)
+    if (back := _PUT_BACK.search(text)) is not None and back.start() == first.start():
+        draw.puts_back = min(_word_number(back.group(2)) or 0, _NUMBER_CEILING)
+    mode = _DRAW_MODE.search(text)
+    repeated = _REPEATED_MODES.search(text)
+    if repeated and mode and mode.start() <= first.start() < mode.end():
+        draw.cards = (_word_number(mode.group(1)) or 1) * (_word_number(repeated.group(1)) or 1)
+    for spree in _SPREE_MODE.finditer(text):
+        if spree.start() <= first.start() < spree.end():
+            draw.extra_cost = spree.group(1)
+    return draw
+
+
 def _land_search(card: OracleCard, kind: str) -> LandSearch:
     """Read a search that puts lands onto the battlefield, or say why not.
 
@@ -1228,6 +1279,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana.notes = [note for note in mana.notes
                       if note != "only grants a mana ability to another permanent"]
     discard = _DISCARD_COST.search(text)
+    draw = _draw(text)
     amount = mana.amount
     if mana.one_shot and kind in (DerivedProfile.Kind.ARTIFACT, DerivedProfile.Kind.ROCK):
         # Lotus Petal: "{T}, Sacrifice this artifact: Add one mana of any
@@ -1293,7 +1345,10 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         treasures=treasures,
         discard_cost=_word_number(discard.group(1)) if discard else 0,
         cost_reduction=_first_number(_COST_REDUCTION, text),
-        draws_cards=_first_number(_DRAW, text),
+        draws_cards=draw.cards,
+        discards_after=draw.discards,
+        puts_back=draw.puts_back,
+        extra_cost=draw.extra_cost,
         self_life_loss=_first_number(_SELF_LOSS, text),
         opponent_life_loss=opponent_loss,
         tutor_to=tutor.zone,
@@ -1328,6 +1383,8 @@ def _source_map(tags: set[str], tapped: bool, mana: ManaReading,
         "role_tags": TAGS if tags else SCRYFALL,
         "cost_reduction": REGEX,
         "draws_cards": REGEX,
+        "discards_after": REGEX,
+        "puts_back": REGEX,
         "self_life_loss": REGEX,
         "opponent_life_loss": REGEX,
     }
@@ -1408,7 +1465,8 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "tutor_to", "tutor_count", "tutor_kind", "land_search", "tapped_unless",
             "skips_draw_step",
             "mana_produces", "mana_activation", "mana_untaps", "mana_condition", "mana_rule",
-            "mana_filter", "treasures", "discard_cost",
+            "mana_filter", "treasures", "discard_cost", "discards_after", "puts_back",
+            "extra_cost",
             "needs_review", "review_reasons", "source_map", "derived_at",
         ],
         unique_fields=["oracle_card"],

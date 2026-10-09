@@ -481,6 +481,10 @@ def _apply_cast_effect(game, card, policy) -> None:
         game.draw(card.draw_on_cast)
         game.life -= card.life_on_cast
         game.note(f"  -> {card.draw_on_cast} cards, {card.life_on_cast} life")
+    if card.discard_on_cast:
+        game.discard(card.discard_on_cast)
+    if card.put_back_on_cast:
+        game.put_back(card.put_back_on_cast)
 
 
 def _land_chooser(policy):

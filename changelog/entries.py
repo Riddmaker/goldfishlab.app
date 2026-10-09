@@ -42,6 +42,14 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "draw-then-discard",
+        _("Faithless Looting discards, Brainstorm puts back"),
+        _("Spells that draw and then discard, such as Faithless Looting, Frantic Search and "
+          "Izzet Charm, now discard your weakest cards, and Brainstorm puts two back on top. "
+          "Before, they only drew. Mystic Confluence now draws three, and Insatiable "
+          "Avarice pays for the mode that draws."),
+    ),
+    Entry(
         date(2026, 10, 9), "treasure",
         _("Treasure, and discarding a card to cast"),
         _("Big Score, Seize the Spoils, Rapacious Dragon and the like now make their Treasure, "

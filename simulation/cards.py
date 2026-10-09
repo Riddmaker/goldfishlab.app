@@ -402,6 +402,12 @@ class Card:
     treasure_mana: str = ""
     #: P19 R7: "As an additional cost to cast this spell, discard a card."
     discard_cost: int = 0
+    #: P19 R8: cards discarded right after ``draw_on_cast`` - Faithless
+    #: Looting draws two, then discards two.
+    discard_on_cast: int = 0
+    #: P19 R8: cards put back on top of the library after that draw -
+    #: Brainstorm draws three, then puts two back.
+    put_back_on_cast: int = 0
 
     @property
     def mana_cost(self) -> ManaCost:

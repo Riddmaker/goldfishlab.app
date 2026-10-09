@@ -8978,3 +8978,17 @@ msgstr ""
 " Decks, unter der Annahme, dass die Länder deiner Gegner sie erzeugen; die "
 "Kartenseite sagt das, und du kannst angeben, was sie an deinem Tisch "
 "erzeugen."
+
+#: changelog/entries.py
+msgid "Filter lands and Study Hall fix your colours"
+msgstr "Filterländer und Study Hall korrigieren deine Farben"
+
+#: changelog/entries.py
+msgid ""
+"Filter lands such as Fetid Heath and Rugged Prairie turn one mana of their "
+"colours into two. Study Hall, Opal Palace and Prismatic Lens turn a mana "
+"into a colour you are missing when a spell needs it."
+msgstr ""
+"Filterländer wie Fetid Heath und Rugged Prairie machen aus einem Mana ihrer "
+"Farben zwei. Study Hall, Opal Palace und Prismatic Lens machen aus einem "
+"Mana eine Farbe, die dir fehlt, wenn ein Zauber sie braucht."

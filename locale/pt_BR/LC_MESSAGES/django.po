@@ -8879,3 +8879,17 @@ msgstr ""
 " produzem. Exotic Orchard e Fellwar Stone produzem as cores do seu deck, "
 "supondo que os terrenos dos seus oponentes as produzam; a página da carta "
 "diz isso, e você pode dizer o que elas produzem na sua mesa."
+
+#: changelog/entries.py
+msgid "Filter lands and Study Hall fix your colours"
+msgstr "Terrenos filtro e Study Hall acertam suas cores"
+
+#: changelog/entries.py
+msgid ""
+"Filter lands such as Fetid Heath and Rugged Prairie turn one mana of their "
+"colours into two. Study Hall, Opal Palace and Prismatic Lens turn a mana "
+"into a colour you are missing when a spell needs it."
+msgstr ""
+"Terrenos filtro como Fetid Heath e Rugged Prairie transformam um mana de "
+"suas cores em dois. Study Hall, Opal Palace e Prismatic Lens transformam um "
+"mana em uma cor que falta quando uma mágica precisa dela."

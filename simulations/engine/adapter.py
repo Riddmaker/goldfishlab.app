@@ -32,6 +32,7 @@ from simulation import ENGINE_VERSION, agent
 from simulation.cards import (
     CARD_TYPES,
     DOUBLE_SUBTYPE,
+    FILTER,
     FLAT,
     LANDS_COULD_PRODUCE,
     PER_CONTROLLED,
@@ -392,6 +393,12 @@ def _ability_text(ability) -> str:
             produced = gettext("%(mana)s if you control %(what)s") % {
                 "mana": produced, "what": _condition_text(ability.only_if)}
         return produced
+
+    if ability.rule == FILTER:
+        produced = " + ".join(
+            f"{amount} {mana_label(color)}" for color, amount in ability.produces)
+        cost = "{" + "/".join(ability.pays_with) + "}" if ability.pays_with else "{1}"
+        return gettext("for %(cost)s, %(mana)s") % {"cost": cost, "mana": produced}
 
     if ability.rule in RULE_TEXT:
         text = gettext(RULE_TEXT[ability.rule]) % {
@@ -768,7 +775,26 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
                             int(otherwise.get("activation") or 0), deck_colors, None))
 
     return (_flat(getattr(profile, "mana_produces", None), profile.mana_colors,
-                  profile.mana_amount, activation, deck_colors, None),)
+                  profile.mana_amount, activation, deck_colors, None),
+            *_filter(profile, deck_colors))
+
+
+def _filter(profile, deck_colors: frozenset[str]) -> tuple[ManaAbility, ...]:
+    """A filter or converter beside the plain ability, if the reader found one (P19 R6).
+
+    Its output is a choice of the colours it offers - a filter land's two,
+    "any color" the deck's own - or the exact mana the text names.
+    """
+    found = getattr(profile, "mana_filter", None)
+    if not found:
+        return ()
+    if found.get("produces"):
+        produces = found["produces"]
+    else:
+        colors = list(found.get("offers") or COLORS)
+        offered = [color for color in colors if color in deck_colors] or colors
+        produces = {choice(offered): int(found["amount"])}
+    return (ManaAbility(FILTER, produces, pays_with=found.get("pays_with", "")),)
 
 
 def _flat(exact: dict | None, mana_colors, amount: int, activation: int,

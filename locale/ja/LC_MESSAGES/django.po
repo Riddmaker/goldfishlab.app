@@ -7940,3 +7940,16 @@ msgstr ""
 "Reflecting PoolとIncubation Druidは、あなたの他の土地が生み出す色のマナを出します。Exotic "
 "OrchardとFellwar "
 "Stoneは、対戦相手の土地がデッキの色を生み出すと仮定してその色のマナを出します。カードページにそう表示され、あなたの卓で実際に何を出すかを指定できます。"
+
+#: changelog/entries.py
+msgid "Filter lands and Study Hall fix your colours"
+msgstr "フィルターランドとStudy Hallが色を整えるように"
+
+#: changelog/entries.py
+msgid ""
+"Filter lands such as Fetid Heath and Rugged Prairie turn one mana of their "
+"colours into two. Study Hall, Opal Palace and Prismatic Lens turn a mana "
+"into a colour you are missing when a spell needs it."
+msgstr ""
+"Fetid HeathやRugged Prairieのようなフィルターランドは、その色のマナ1つを2つに変えます。Study Hall、Opal "
+"Palace、Prismatic Lensは、呪文に必要なときに足りない色のマナを作ります。"

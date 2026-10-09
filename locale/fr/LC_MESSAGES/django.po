@@ -9059,3 +9059,18 @@ msgstr ""
 " de votre deck, en supposant que les terrains de vos adversaires les "
 "produisent ; la page de la carte l'indique, et vous pouvez dire ce qu'elles "
 "produisent à votre table."
+
+#: changelog/entries.py
+msgid "Filter lands and Study Hall fix your colours"
+msgstr "Les terrains filtres et Study Hall corrigent vos couleurs"
+
+#: changelog/entries.py
+msgid ""
+"Filter lands such as Fetid Heath and Rugged Prairie turn one mana of their "
+"colours into two. Study Hall, Opal Palace and Prismatic Lens turn a mana "
+"into a colour you are missing when a spell needs it."
+msgstr ""
+"Les terrains filtres comme Fetid Heath et Rugged Prairie transforment un "
+"mana de leurs couleurs en deux. Study Hall, Opal Palace et Prismatic Lens "
+"transforment un mana en une couleur qui vous manque quand un sort en a "
+"besoin."

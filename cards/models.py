@@ -356,6 +356,11 @@ class DerivedProfile(models.Model):
     #: "activation", "color"}. Urborg, Crypt Ghast, Cabal Coffers. Until R4
     #: only a built-in annotation could set one. See `cards.profiles._mana_rule`.
     mana_rule = models.JSONField(null=True, blank=True)
+    #: P19 R6: a filter or converter beside the plain ability - {"pays_with":
+    #: "WB" for {W/B} or "" for {1}, "amount", "offers": the colours of a
+    #: choice ("" = any), "produces": exact mana or null}. Fetid Heath, Study
+    #: Hall. See `cards.profiles._mana_production`.
+    mana_filter = models.JSONField(null=True, blank=True)
     cost_reduction = models.PositiveSmallIntegerField(null=True, blank=True)
     draws_cards = models.PositiveSmallIntegerField(null=True, blank=True)
 

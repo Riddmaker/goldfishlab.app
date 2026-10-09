@@ -42,6 +42,13 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "filter-lands",
+        _("Filter lands and Study Hall fix your colours"),
+        _("Filter lands such as Fetid Heath and Rugged Prairie turn one mana of their colours "
+          "into two. Study Hall, Opal Palace and Prismatic Lens turn a mana into a colour you "
+          "are missing when a spell needs it."),
+    ),
+    Entry(
         date(2026, 10, 9), "other-lands",
         _("Exotic Orchard and Reflecting Pool make mana"),
         _("Reflecting Pool and Incubation Druid make a colour your other lands make. Exotic "

@@ -417,12 +417,18 @@ def test_mana_the_engine_cannot_make_is_a_gap_and_not_a_guess(name):
 
 @pytest.mark.parametrize(
     "name",
-    ["Cabal Ritual", "Sunken Ruins", "Shrine of the Forsaken Gods", "Rite of Flame",
-     "Prismatic Lens"],
+    ["Cabal Ritual", "Shrine of the Forsaken Gods", "Rite of Flame"],
 )
 def test_an_ability_that_is_not_counted_says_so(name):
     """A reading that dropped something has to say what, or it is a guess."""
     assert _real(name).notes
+
+
+@pytest.mark.parametrize("name", ["Sunken Ruins", "Prismatic Lens"])
+def test_a_filter_and_a_converter_are_counted_since_r6(name):
+    """Until engine version 10 these were notes; now the filter is read (P19 R6)."""
+    reading = _real(name)
+    assert reading.filter is not None and not reading.notes
 
 
 def test_the_petal_becomes_a_ritual():

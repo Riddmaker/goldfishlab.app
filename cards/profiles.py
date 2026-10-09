@@ -283,6 +283,8 @@ _ABILITY_WORD = re.compile(r"^[^—–:]*[—–]\s*")
 #: window that differs from its main phase.
 _RESTRICTED = re.compile(r"Spend this mana only|Activate only (?:if|during)", re.IGNORECASE)
 _LIFE_COST = re.compile(r"Pay (\d+|a|one|two|three) life", re.IGNORECASE)
+#: One mana of input to a filter: "{W/B}", or a single colour "{G}" (P19 R6).
+_ONE_MANA_INPUT = re.compile(r"\{([WUBRG]/[WUBRG]|[WUBRG])\}", re.IGNORECASE)
 #: Mox Diamond: the card arrives only if a land card is discarded for it.
 _ENTERS_BY_DISCARD = re.compile(
     r"If this [\w ]+? would enter, you may discard|As this [\w ]+? enters, you may discard",
@@ -627,12 +629,22 @@ class ManaClause:
     sacrifices_self: bool = False
     #: "Activate only if you control ..." read as a condition (P19 R4).
     condition: dict | None = None
+    #: A filter's coloured input, "WB" for {W/B} (P19 R6). Empty: none.
+    pays_with: str = ""
+    #: The colours a choice among symbols offers: "WB" for "Add {W}{W},
+    #: {W}{B}, or {B}{B}". Empty when the clause names no symbols.
+    offers: str = ""
     problem: str = ""
     note: str = ""
 
     @property
     def net(self) -> int:
-        return (self.amount or 0) - self.activation
+        return (self.amount or 0) - self.activation - (1 if self.pays_with else 0)
+
+    @property
+    def converts(self) -> bool:
+        """A filter or a converter: one mana in, the same or one more out, other colours."""
+        return bool(self.pays_with) or (self.activation == 1 and self.amount == 1)
 
 
 @dataclass
@@ -653,6 +665,9 @@ class ManaReading:
     #: The ability can be used only under a condition: {"if": ..., "otherwise":
     #: what the card taps for without it, or None} (P19 R4).
     condition: dict | None = None
+    #: A filter or converter beside the plain ability (P19 R6): {"pays_with":
+    #: "WB" or "" (any mana), "amount", "offers": colours or "" (any)}.
+    filter: dict | None = None
     notes: list[str] = field(default_factory=list)
 
 
@@ -676,6 +691,11 @@ def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
             continue
         if re.fullmatch(rf"Sacrifice {_self_reference(card)}", part, re.IGNORECASE):
             clause.sacrifices_self = True
+            continue
+        if (found := _ONE_MANA_INPUT.fullmatch(part)) is not None:
+            # {W/B} or {G}: one mana of these colours goes in (P19 R6).
+            clause.pays_with = "".join(sorted(set(found.group(1).upper()) - {"/"},
+                                              key="WUBRG".index))
             continue
         if _SYMBOL_RUN.fullmatch(part):
             clause.problem = gettext_noop(
@@ -712,6 +732,9 @@ def _read_produced(clause: ManaClause, after: str) -> None:
         choice = bool(re.match(r"\s*(?:,\s*)?(?:or\s+)?\{", rest))
         clause.amount = len(symbols)
         clause.produces = None if choice else dict(Counter(symbols))
+        if choice:
+            offered = {symbol.upper() for symbol in _SYMBOL.findall(after.split(".", 1)[0])}
+            clause.offers = "".join(color for color in "WUBRG" if color in offered)
         return
 
     words = _ANY_COLOR.match(after)
@@ -854,7 +877,22 @@ def _mana_production(card: OracleCard) -> ManaReading:
 
     tapping = [clause for clause in usable if not clause.sacrifices_self]
     one_shots = [clause for clause in usable if clause.sacrifices_self]
+    # Filters and converters ride beside the plain ability (P19 R6): Fetid
+    # Heath taps for {C}, or filters a white or black mana into two.
+    converting = [clause for clause in tapping if clause.converts and not clause.condition]
+    tapping = [clause for clause in tapping if clause not in converting]
     worth_it = [clause for clause in tapping if clause.net > 0]
+    if converting and worth_it and not any(clause.condition for clause in worth_it):
+        kinds = {(clause.pays_with, clause.amount, clause.offers,
+                  repr(clause.produces)) for clause in converting}
+        if len(kinds) == 1:
+            first = converting[0]
+            reading.filter = {"pays_with": first.pays_with, "amount": first.amount,
+                              "offers": first.offers, "produces": first.produces}
+        else:
+            notes.add(gettext_noop("an ability that only converts mana is not modelled"))
+    elif converting:
+        notes.add(gettext_noop("an ability that only converts mana is not modelled"))
 
     if worth_it:
         chosen, produces, top = _strongest(worth_it)
@@ -1208,6 +1246,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana_untaps=mana.untaps,
         mana_condition=mana.condition,
         mana_rule=mana_rule,
+        mana_filter=mana.filter,
         cost_reduction=_first_number(_COST_REDUCTION, text),
         draws_cards=_first_number(_DRAW, text),
         self_life_loss=_first_number(_SELF_LOSS, text),
@@ -1324,6 +1363,7 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "tutor_to", "tutor_count", "tutor_kind", "land_search", "tapped_unless",
             "skips_draw_step",
             "mana_produces", "mana_activation", "mana_untaps", "mana_condition", "mana_rule",
+            "mana_filter",
             "needs_review", "review_reasons", "source_map", "derived_at",
         ],
         unique_fields=["oracle_card"],

@@ -27,6 +27,7 @@ files have to stay byte-identical.
 
 from simulation.cards import (
     DOUBLE_SUBTYPE,
+    FILTER,
     FLAT,
     PER_CONTROLLED,
     SWAMP_SUBTYPE,
@@ -58,9 +59,13 @@ class ManaPool:
     to keep working, while underneath sits a full WUBRG pool.
     """
 
-    __slots__ = ("_pool",)
+    __slots__ = ("_pool", "converters")
 
     def __init__(self, black: int = 0, colorless: int = 0, **colors: int):
+        #: Converters tapped for {C} that could instead turn that {C} and one
+        #: more mana into one of these (P19 R6): Study Hall, Prismatic Lens.
+        #: Worth it only when a colour is missing, so payment decides.
+        self.converters: list[str] = []
         self._pool = dict.fromkeys(SOURCES, 0)
         self._pool[COLORLESS] = colorless
         self._pool["B"] = black
@@ -151,6 +156,11 @@ class ManaPool:
                 continue
             for color in (source if is_choice(source) else (source,)):
                 found[color] = found.get(color, 0) + amount
+        # A converter could make its colours, as many as there is {C} for.
+        for output in self.converters[:self._pool.get(COLORLESS, 0)]:
+            for color in output:
+                if color != COLORLESS:
+                    found[color] = found.get(color, 0) + 1
         return {source: found[source] for source in SOURCES if found.get(source)}
 
     def add(self, color: str, amount: int = 1) -> None:
@@ -159,7 +169,7 @@ class ManaPool:
 
     def can_pay_cost(self, cost: ManaCost, *, life: int = 40) -> bool:
         """Can this cost structure be paid exactly?"""
-        return plan_payment(dict(self._pool), cost, life=life) is not None
+        return self._plan(cost, life)[0] is not None
 
     def pay_cost(self, cost: ManaCost, *, life: int = 40):
         """Pay the cost and deduct it.
@@ -170,17 +180,42 @@ class ManaPool:
             life and the caller has to deduct that life; a bare ``True`` would
             have kept quiet about it.
         """
-        payment = plan_payment(dict(self._pool), cost, life=life)
+        payment, pool, used = self._plan(cost, life)
         if payment is None:
             return None
+        self._pool = pool
+        del self.converters[:used]
         for color, amount in payment.spent.items():
             self._pool[color] -= amount
         return payment
+
+    def _plan(self, cost: ManaCost, life: int):
+        """A payment, the pool it is paid from, and how many converters it used.
+
+        The pool as it stands first. Only when that fails are converters
+        used - one, then two - each turning its own {C} and one other mana
+        into a mana of its colours, every way that can be done (P19 R6).
+        Using one costs a mana, which is why it is never done to no purpose.
+        """
+        payment = plan_payment(dict(self._pool), cost, life=life)
+        if payment is not None or not self.converters:
+            return payment, self._pool, 0
+        seen = {_frozen(self._pool)}
+        layer = [dict(self._pool)]
+        for used, output in enumerate(self.converters, start=1):
+            layer = [converted for pool in layer for converted in _convert(pool, output)
+                     if _frozen(converted) not in seen and not seen.add(_frozen(converted))]
+            for pool in layer:
+                payment = plan_payment(dict(pool), cost, life=life)
+                if payment is not None:
+                    return payment, pool, used
+        return None, self._pool, 0
 
     def copy(self) -> "ManaPool":
         """A shallow copy."""
         clone = ManaPool()
         clone._pool = dict(self._pool)
+        clone.converters = list(self.converters)
         return clone
 
     def __eq__(self, other) -> bool:
@@ -200,6 +235,49 @@ class ManaPool:
         """
         parts = [f"{amount}{color}" for color, amount in self._pool.items() if amount]
         return " + ".join(parts) or "0"
+
+
+def _frozen(pool: dict) -> frozenset:
+    return frozenset((key, amount) for key, amount in pool.items() if amount)
+
+
+def _convert(pool: dict, output: str):
+    """Every pool one converter can make: its {C} and one other mana become one
+    mana of ``output``."""
+    if pool.get(COLORLESS, 0) < 1:
+        return
+    base = dict(pool)
+    base[COLORLESS] -= 1
+    for source, amount in base.items():
+        if amount and source != output:
+            converted = dict(base)
+            converted[source] -= 1
+            converted[output] = converted.get(output, 0) + 1
+            yield converted
+
+
+def _apply_filter(pool: ManaPool, ability) -> None:
+    """A filter land, tapped for {C}, filters instead when that is no worse.
+
+    ``{W/B}, {T}: Add {W}{W}, {W}{B}, or {B}{B}``: its {C} and one mana that is
+    white or black become two that are each white or black. Done only with a
+    mana whose colours are all among the filter's - then the two coming out
+    can pay for anything the two going in could, and nothing is narrowed
+    (a Command Tower's five colours are never traded for two). With no such
+    mana it stays the {C} it tapped for (P19 R6).
+    """
+    allowed = set(ability.pays_with)
+    if pool.amount(COLORLESS) < 1:
+        return
+    inputs = [source for source in pool._pool
+              if pool._pool[source] and source != COLORLESS and set(source) <= allowed]
+    if not inputs:
+        return
+    # The least flexible goes: a plain colour before a choice.
+    taken = min(inputs, key=lambda source: (len(source), -pool._pool[source]))
+    pool._pool[COLORLESS] -= 1
+    pool._pool[taken] -= 1
+    _add_produced(pool, ability)
 
 
 # --- Subtypes at runtime ---------------------------------------------------
@@ -486,6 +564,21 @@ def available_mana(all_lands, untapped_lands, untapped_rocks,
     # can then help pay Cabal Coffers' {2}.
     for ability in activated:
         _activate(pool, ability)
+
+    # Filters and converters, on sources that did tap for their plain {C}
+    # (P19 R6): a filter now, where it is never worse; a converter is left
+    # to the payment, which knows whether a colour is missing.
+    for source in [*untapped_lands, *untapped_rocks]:
+        filtering = source.ability(FILTER)
+        if filtering is None or source is scaling_land or land_color(source, granted):
+            continue
+        if ability_of(source) is None:
+            continue
+        if filtering.pays_with:
+            _apply_filter(pool, filtering)
+        else:
+            pool.converters.extend(color for color, amount in filtering.produces
+                                   for _ in range(amount))
 
     if scaling_land is not None:
         pool = _best_scaling_line(pool, scaling_land, all_lands, granted, extra)

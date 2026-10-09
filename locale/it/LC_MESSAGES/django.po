@@ -8934,3 +8934,17 @@ msgstr ""
 "altre terre. Exotic Orchard e Fellwar Stone producono i colori del tuo "
 "mazzo, supponendo che le terre dei tuoi avversari li producano; la pagina "
 "della carta lo dice, e puoi indicare cosa producono al tuo tavolo."
+
+#: changelog/entries.py
+msgid "Filter lands and Study Hall fix your colours"
+msgstr "Le terre filtro e Study Hall sistemano i tuoi colori"
+
+#: changelog/entries.py
+msgid ""
+"Filter lands such as Fetid Heath and Rugged Prairie turn one mana of their "
+"colours into two. Study Hall, Opal Palace and Prismatic Lens turn a mana "
+"into a colour you are missing when a spell needs it."
+msgstr ""
+"Le terre filtro come Fetid Heath e Rugged Prairie trasformano un mana dei "
+"loro colori in due. Study Hall, Opal Palace e Prismatic Lens trasformano un "
+"mana in un colore che ti manca quando una magia ne ha bisogno."

@@ -67,6 +67,12 @@ TYPE_ADDING = "type_adding"
 #: game works it out each turn (`Game.mana_ability`).
 LANDS_COULD_PRODUCE = "lands_could_produce"
 
+#: ``{W/B}, {T}: Add {W}{W}, {W}{B}, or {B}{B}`` - a filter land - and
+#: ``{1}, {T}: Add one mana of any color`` - a converter, Study Hall (P19 R6).
+#: One mana goes in (``pays_with``: the colours it may be; empty = any) and
+#: ``produces`` comes out, in place of the card's plain ``FLAT`` ability.
+FILTER = "filter"
+
 #: The subtype the mono-black rules are written against.
 SWAMP_SUBTYPE = "swamp"
 
@@ -160,6 +166,9 @@ class ManaAbility:
     #: The ability can be activated only while this holds (P19 R4): Temple
     #: of the False God, a Tainted land, Mox Opal. None: always.
     only_if: TappedUnless | None = None
+    #: A ``FILTER``'s one mana of input: the colours it may be paid with,
+    #: "WB" for {W/B}; empty for {1}, any mana (P19 R6).
+    pays_with: str = ""
 
     def __post_init__(self):
         # Canonicalise, so that two abilities making the same mana compare

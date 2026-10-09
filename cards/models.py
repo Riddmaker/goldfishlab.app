@@ -345,6 +345,27 @@ class DerivedProfile(models.Model):
     #: False for "This artifact doesn't untap during your untap step" - Mana
     #: Vault and the Monoliths make their mana once, not every turn.
     mana_untaps = models.BooleanField(default=True)
+    #: P19 R4: "Activate only if you control ..." on the ability above -
+    #: {"if": {"kind": control_type | lands | artifacts, ...}, "otherwise":
+    #: {"amount", "produces", "activation"} | null}. `otherwise` is what the
+    #: card taps for while the condition does not hold: a Tainted land's {C},
+    #: nothing for Temple of the False God. See `cards.profiles._mana_production`.
+    mana_condition = models.JSONField(null=True, blank=True)
+    #: P19 R4: a mana rule the engine already plays, read off the text -
+    #: {"rule": type_adding | double_subtype | per_controlled, "subtype",
+    #: "activation", "color"}. Urborg, Crypt Ghast, Cabal Coffers. Until R4
+    #: only a built-in annotation could set one. See `cards.profiles._mana_rule`.
+    mana_rule = models.JSONField(null=True, blank=True)
+    #: P19 R6: a filter or converter beside the plain ability - {"pays_with":
+    #: "WB" for {W/B} or "" for {1}, "amount", "offers": the colours of a
+    #: choice ("" = any), "produces": exact mana or null}. Fetid Heath, Study
+    #: Hall. See `cards.profiles._mana_production`.
+    mana_filter = models.JSONField(null=True, blank=True)
+    #: P19 R7: Treasure tokens it makes as it resolves (a spell's sentence, a
+    #: permanent's "When this creature enters"). See `cards.profiles._treasures`.
+    treasures = models.PositiveSmallIntegerField(default=0)
+    #: P19 R7: "As an additional cost to cast this spell, discard a card."
+    discard_cost = models.PositiveSmallIntegerField(default=0)
     cost_reduction = models.PositiveSmallIntegerField(null=True, blank=True)
     draws_cards = models.PositiveSmallIntegerField(null=True, blank=True)
 

@@ -17,6 +17,7 @@ import pytest
 from simulation import agent, serial
 from simulation.cards import (
     CREATURE,
+    FILTER,
     FLAT,
     PER_CONTROLLED,
     Card,
@@ -52,6 +53,9 @@ EVERYTHING = Card(
         ManaAbility(rule=FLAT, produces=(("B", 1), ("C", 1))),
         ManaAbility(rule=PER_CONTROLLED, activation_generic=2,
                     subtype="swamp", color="G"),
+        ManaAbility(rule=FLAT, produces=(("C", 2),),
+                    only_if=TappedUnless(kind="artifacts", count=3)),
+        ManaAbility(rule=FILTER, produces=(("WB", 2),), pays_with="WB"),
     ),
     ritual_gain=3,
     ritual_color="R",
@@ -75,6 +79,9 @@ EVERYTHING = Card(
     basic=True,
     tapped_unless=TappedUnless(kind="lands", types=frozenset({"island"}), count=3,
                                at_least=False, other=True, basic=True, type="island"),
+    treasures=2,
+    treasure_mana="RG",
+    discard_cost=1,
 )
 
 

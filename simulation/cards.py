@@ -62,6 +62,17 @@ DOUBLE_SUBTYPE = "double_subtype"
 #: Every land counts as a <subtype> as well - Urborg, Yavimaya.
 TYPE_ADDING = "type_adding"
 
+#: One mana of any colour a land you control could produce - Reflecting Pool,
+#: Incubation Druid (P19 R5). Which colours is the board's answer, so the
+#: game works it out each turn (`Game.mana_ability`).
+LANDS_COULD_PRODUCE = "lands_could_produce"
+
+#: ``{W/B}, {T}: Add {W}{W}, {W}{B}, or {B}{B}`` - a filter land - and
+#: ``{1}, {T}: Add one mana of any color`` - a converter, Study Hall (P19 R6).
+#: One mana goes in (``pays_with``: the colours it may be; empty = any) and
+#: ``produces`` comes out, in place of the card's plain ``FLAT`` ability.
+FILTER = "filter"
+
 #: The subtype the mono-black rules are written against.
 SWAMP_SUBTYPE = "swamp"
 
@@ -80,6 +91,39 @@ CARD_TYPES = (
     "creature", "planeswalker", "battle", "artifact", "enchantment",
     "instant", "sorcery", "land",
 )
+
+
+@dataclass(frozen=True)
+class TappedUnless:
+    """When a land that enters tapped does not (P19 R3, engine version 7).
+
+    ``kind`` says which question is asked of the game:
+
+    * ``control_type`` - you control a land of one of ``types`` (check lands)
+    * ``lands`` - you control ``count`` or more (``at_least``) or at most
+      ``count`` lands, ``other`` than this one, ``basic`` ones, or of ``type``
+      (fast, slow and battle lands, Mystic Sanctuary)
+    * ``opponents`` - you have ``count`` or more opponents: a Commander table
+      has three
+    * ``reveal`` - you can reveal a card of one of ``types`` from your hand
+    * ``pay_life`` - you pay ``count`` life (shock lands), never below the
+      Phyrexian life floor
+    * ``artifacts`` - you control ``count`` or more artifacts (Mox Opal,
+      Spire of Industry)
+
+    Since engine version 8 the same question also guards a mana ability
+    (P19 R4): "Activate only if you control five or more lands" is a
+    ``ManaAbility`` whose ``only_if`` is ``TappedUnless("lands", count=5)``.
+    The name stays because R3 put it into stored games.
+    """
+
+    kind: str
+    types: frozenset[str] = field(default_factory=frozenset)
+    count: int = 0
+    at_least: bool = True
+    other: bool = False
+    basic: bool = False
+    type: str = ""
 
 
 @dataclass(frozen=True)
@@ -108,6 +152,10 @@ class ManaAbility:
         color: The colour the scaling rules (``PER_CONTROLLED``,
             ``DOUBLE_SUBTYPE``) make. Empty means the subtype's colour, so
             black for swamps and green for forests.
+        only_if: A condition the game checks before the ability counts. A
+            card may carry a conditional ``FLAT`` ability first and an
+            unconditional one after it: a Tainted land's {B}/{G} needs a
+            Swamp, its {C} does not.
     """
 
     rule: str
@@ -115,6 +163,12 @@ class ManaAbility:
     activation_generic: int = 0
     subtype: str = ""
     color: str = ""
+    #: The ability can be activated only while this holds (P19 R4): Temple
+    #: of the False God, a Tainted land, Mox Opal. None: always.
+    only_if: TappedUnless | None = None
+    #: A ``FILTER``'s one mana of input: the colours it may be paid with,
+    #: "WB" for {W/B}; empty for {1}, any mana (P19 R6).
+    pays_with: str = ""
 
     def __post_init__(self):
         # Canonicalise, so that two abilities making the same mana compare
@@ -246,32 +300,6 @@ class LandSearch:
     untap_at: int = 0
 
 
-@dataclass(frozen=True)
-class TappedUnless:
-    """When a land that enters tapped does not (P19 R3, engine version 7).
-
-    ``kind`` says which question is asked of the game:
-
-    * ``control_type`` - you control a land of one of ``types`` (check lands)
-    * ``lands`` - you control ``count`` or more (``at_least``) or at most
-      ``count`` lands, ``other`` than this one, ``basic`` ones, or of ``type``
-      (fast, slow and battle lands, Mystic Sanctuary)
-    * ``opponents`` - you have ``count`` or more opponents: a Commander table
-      has three
-    * ``reveal`` - you can reveal a card of one of ``types`` from your hand
-    * ``pay_life`` - you pay ``count`` life (shock lands), never below the
-      Phyrexian life floor
-    """
-
-    kind: str
-    types: frozenset[str] = field(default_factory=frozenset)
-    count: int = 0
-    at_least: bool = True
-    other: bool = False
-    basic: bool = False
-    type: str = ""
-
-
 #: A card with no mana production of its own.
 NO_ABILITIES: tuple[ManaAbility, ...] = ()
 
@@ -367,6 +395,13 @@ class Card:
     basic: bool = False
     #: P19 R3: with ``enters_tapped``, the condition under which it does not.
     tapped_unless: TappedUnless | None = None
+    #: P19 R7: Treasure tokens it makes as it resolves - a spell, or a
+    #: permanent's "When this creature enters" (Big Score: 2, Rapacious
+    #: Dragon: 2). Each is one mana of ``treasure_mana``, sacrificed when spent.
+    treasures: int = 0
+    treasure_mana: str = ""
+    #: P19 R7: "As an additional cost to cast this spell, discard a card."
+    discard_cost: int = 0
 
     @property
     def mana_cost(self) -> ManaCost:

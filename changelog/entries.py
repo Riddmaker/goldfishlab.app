@@ -42,6 +42,35 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "treasure",
+        _("Treasure, and discarding a card to cast"),
+        _("Big Score, Seize the Spoils, Rapacious Dragon and the like now make their Treasure, "
+          "which pays for a later spell when your lands fall short. Spells that ask you to "
+          "discard a card to cast them discard your weakest one."),
+    ),
+    Entry(
+        date(2026, 10, 9), "filter-lands",
+        _("Filter lands and Study Hall fix your colours"),
+        _("Filter lands such as Fetid Heath and Rugged Prairie turn one mana of their colours "
+          "into two. Study Hall, Opal Palace and Prismatic Lens turn a mana into a colour you "
+          "are missing when a spell needs it."),
+    ),
+    Entry(
+        date(2026, 10, 9), "other-lands",
+        _("Exotic Orchard and Reflecting Pool make mana"),
+        _("Reflecting Pool and Incubation Druid make a colour your other lands make. Exotic "
+          "Orchard and Fellwar Stone make your deck's colours, assuming your opponents' lands "
+          "make them; the card page says so, and you can say what they make at your table."),
+    ),
+    Entry(
+        date(2026, 10, 9), "activate-only-if",
+        _("Temple of the False God, Urborg and Cabal Coffers"),
+        _("Lands that make mana only when you control enough lands or a land type, such as "
+          "Temple of the False God, the Tainted lands and the Verges, now make it once that "
+          "holds. Urborg, Yavimaya, Crypt Ghast and Cabal Coffers now play by their rules, "
+          "and Path to Exile and Maze of Ith no longer need you."),
+    ),
+    Entry(
         date(2026, 10, 9), "tapped-unless",
         _("Lands that enter tapped unless ..."),
         _("Check lands, fast and slow lands, snarls and shock lands now enter untapped "

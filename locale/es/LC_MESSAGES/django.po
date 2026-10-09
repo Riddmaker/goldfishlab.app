@@ -8944,3 +8944,108 @@ msgstr ""
 "Las check lands, fast lands, slow lands, snarls y shock lands ahora entran "
 "enderezadas siempre que su condición se cumple en la partida, y las shock "
 "lands pagan sus 2 vidas para ello."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s if you control %(what)s"
+msgstr "%(mana)s si controlas %(what)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s or more land"
+msgid_plural "%(count)s or more lands"
+msgstr[0] "%(count)s tierra o más"
+msgstr[1] "%(count)s tierras o más"
+msgstr[2] "%(count)s tierras o más"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s or more artifact"
+msgid_plural "%(count)s or more artifacts"
+msgstr[0] "%(count)s artefacto o más"
+msgstr[1] "%(count)s artefactos o más"
+msgstr[2] "%(count)s artefactos o más"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "a land of type %(types)s"
+msgstr "una tierra de tipo %(types)s"
+
+#: changelog/entries.py
+msgid "Temple of the False God, Urborg and Cabal Coffers"
+msgstr "Temple of the False God, Urborg y Cabal Coffers"
+
+#: changelog/entries.py
+msgid ""
+"Lands that make mana only when you control enough lands or a land type, such"
+" as Temple of the False God, the Tainted lands and the Verges, now make it "
+"once that holds. Urborg, Yavimaya, Crypt Ghast and Cabal Coffers now play by"
+" their rules, and Path to Exile and Maze of Ith no longer need you."
+msgstr ""
+"Las tierras que solo producen maná si controlas suficientes tierras o un "
+"tipo de tierra, como Temple of the False God, las tierras Tainted y las "
+"Verges, ahora lo producen en cuanto se cumple. Urborg, Yavimaya, Crypt Ghast"
+" y Cabal Coffers ahora siguen sus reglas, y Path to Exile y Maze of Ith ya "
+"no te necesitan."
+
+#: simulations/engine/adapter.py
+msgid "one mana of a colour your other lands could make"
+msgstr "un maná de un color que tus otras tierras podrían producir"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s - assuming your opponents' lands make these colours"
+msgstr ""
+"%(mana)s - suponiendo que las tierras de tus oponentes producen estos "
+"colores"
+
+#: simulations/engine/adapter.py
+msgid "makes your deck's colours, assuming your opponents' lands make them"
+msgstr ""
+"produce los colores de tu mazo, suponiendo que las tierras de tus oponentes "
+"los producen"
+
+#: changelog/entries.py
+msgid "Exotic Orchard and Reflecting Pool make mana"
+msgstr "Exotic Orchard y Reflecting Pool producen maná"
+
+#: changelog/entries.py
+msgid ""
+"Reflecting Pool and Incubation Druid make a colour your other lands make. "
+"Exotic Orchard and Fellwar Stone make your deck's colours, assuming your "
+"opponents' lands make them; the card page says so, and you can say what they"
+" make at your table."
+msgstr ""
+"Reflecting Pool e Incubation Druid producen un color que producen tus otras "
+"tierras. Exotic Orchard y Fellwar Stone producen los colores de tu mazo, "
+"suponiendo que las tierras de tus oponentes los producen; la página de la "
+"carta lo dice, y puedes indicar qué producen en tu mesa."
+
+#: changelog/entries.py
+msgid "Filter lands and Study Hall fix your colours"
+msgstr "Las tierras filtro y Study Hall arreglan tus colores"
+
+#: changelog/entries.py
+msgid ""
+"Filter lands such as Fetid Heath and Rugged Prairie turn one mana of their "
+"colours into two. Study Hall, Opal Palace and Prismatic Lens turn a mana "
+"into a colour you are missing when a spell needs it."
+msgstr ""
+"Las tierras filtro como Fetid Heath y Rugged Prairie convierten un maná de "
+"sus colores en dos. Study Hall, Opal Palace y Prismatic Lens convierten un "
+"maná en un color que te falta cuando un hechizo lo necesita."
+
+#: changelog/entries.py
+msgid "Treasure, and discarding a card to cast"
+msgstr "Los Tesoros, y descartar una carta para lanzar"
+
+#: changelog/entries.py
+msgid ""
+"Big Score, Seize the Spoils, Rapacious Dragon and the like now make their "
+"Treasure, which pays for a later spell when your lands fall short. Spells "
+"that ask you to discard a card to cast them discard your weakest one."
+msgstr ""
+"Big Score, Seize the Spoils, Rapacious Dragon y similares ahora crean sus "
+"Tesoros, que pagan un hechizo posterior cuando tus tierras no alcanzan. Los "
+"hechizos que piden descartar una carta para lanzarlos descartan tu carta más"
+" débil."

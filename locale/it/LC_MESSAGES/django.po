@@ -8860,3 +8860,106 @@ msgstr ""
 "Check land, fast land, slow land, snarl e shock land ora entrano STAPpate "
 "ogni volta che la loro condizione è soddisfatta nella partita, e le shock "
 "land pagano i loro 2 punti vita per farlo."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s if you control %(what)s"
+msgstr "%(mana)s se controlli %(what)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s or more land"
+msgid_plural "%(count)s or more lands"
+msgstr[0] "%(count)s o più terre"
+msgstr[1] "%(count)s o più terre"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s or more artifact"
+msgid_plural "%(count)s or more artifacts"
+msgstr[0] "%(count)s o più artefatti"
+msgstr[1] "%(count)s o più artefatti"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "a land of type %(types)s"
+msgstr "una terra di tipo %(types)s"
+
+#: changelog/entries.py
+msgid "Temple of the False God, Urborg and Cabal Coffers"
+msgstr "Temple of the False God, Urborg e Cabal Coffers"
+
+#: changelog/entries.py
+msgid ""
+"Lands that make mana only when you control enough lands or a land type, such"
+" as Temple of the False God, the Tainted lands and the Verges, now make it "
+"once that holds. Urborg, Yavimaya, Crypt Ghast and Cabal Coffers now play by"
+" their rules, and Path to Exile and Maze of Ith no longer need you."
+msgstr ""
+"Le terre che producono mana solo se controlli abbastanza terre o un tipo di "
+"terra, come Temple of the False God, le terre Tainted e le Verge, ora lo "
+"producono non appena è vero. Urborg, Yavimaya, Crypt Ghast e Cabal Coffers "
+"ora seguono le loro regole, e Path to Exile e Maze of Ith non hanno più "
+"bisogno di te."
+
+#: simulations/engine/adapter.py
+msgid "one mana of a colour your other lands could make"
+msgstr "un mana di un colore che le tue altre terre potrebbero produrre"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s - assuming your opponents' lands make these colours"
+msgstr ""
+"%(mana)s - supponendo che le terre dei tuoi avversari producano questi "
+"colori"
+
+#: simulations/engine/adapter.py
+msgid "makes your deck's colours, assuming your opponents' lands make them"
+msgstr ""
+"produce i colori del tuo mazzo, supponendo che le terre dei tuoi avversari "
+"li producano"
+
+#: changelog/entries.py
+msgid "Exotic Orchard and Reflecting Pool make mana"
+msgstr "Exotic Orchard e Reflecting Pool producono mana"
+
+#: changelog/entries.py
+msgid ""
+"Reflecting Pool and Incubation Druid make a colour your other lands make. "
+"Exotic Orchard and Fellwar Stone make your deck's colours, assuming your "
+"opponents' lands make them; the card page says so, and you can say what they"
+" make at your table."
+msgstr ""
+"Reflecting Pool e Incubation Druid producono un colore che producono le tue "
+"altre terre. Exotic Orchard e Fellwar Stone producono i colori del tuo "
+"mazzo, supponendo che le terre dei tuoi avversari li producano; la pagina "
+"della carta lo dice, e puoi indicare cosa producono al tuo tavolo."
+
+#: changelog/entries.py
+msgid "Filter lands and Study Hall fix your colours"
+msgstr "Le terre filtro e Study Hall sistemano i tuoi colori"
+
+#: changelog/entries.py
+msgid ""
+"Filter lands such as Fetid Heath and Rugged Prairie turn one mana of their "
+"colours into two. Study Hall, Opal Palace and Prismatic Lens turn a mana "
+"into a colour you are missing when a spell needs it."
+msgstr ""
+"Le terre filtro come Fetid Heath e Rugged Prairie trasformano un mana dei "
+"loro colori in due. Study Hall, Opal Palace e Prismatic Lens trasformano un "
+"mana in un colore che ti manca quando una magia ne ha bisogno."
+
+#: changelog/entries.py
+msgid "Treasure, and discarding a card to cast"
+msgstr "I Tesori, e scartare una carta per lanciare"
+
+#: changelog/entries.py
+msgid ""
+"Big Score, Seize the Spoils, Rapacious Dragon and the like now make their "
+"Treasure, which pays for a later spell when your lands fall short. Spells "
+"that ask you to discard a card to cast them discard your weakest one."
+msgstr ""
+"Big Score, Seize the Spoils, Rapacious Dragon e simili ora creano i loro "
+"Tesori, che pagano una magia successiva quando le tue terre non bastano. Le "
+"magie che chiedono di scartare una carta per essere lanciate scartano la tua"
+" carta più debole."

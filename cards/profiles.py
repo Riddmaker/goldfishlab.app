@@ -257,13 +257,18 @@ _MANA_SOURCES = frozenset("WUBRGC")
 # card actually makes is a property of the deck it sits in, and `produced_mana`
 # already lists the candidates.
 _ANY_COLOR = re.compile(
-    r"(a|an|one|two|three|four|five|\d+) mana of any (?:one )?colou?r", re.IGNORECASE
+    r"(a|an|one|two|three|four|five|\d+) mana of any (?:one )?(?:colou?r|type)", re.IGNORECASE
 )
-# Exotic Orchard is "Add one mana of any color **that a land an opponent
-# controls could produce**". Same opening words, and in a goldfish it makes
-# nothing at all, because there is no opponent and therefore no lands to copy.
-# Reading it as one mana would hand the deck a source it does not have.
+# Mana that depends on what an opponent has or does: "each player", "an
+# opponent". A goldfish has no opponent, so none of it can be read - with one
+# exception below.
 _OPPONENT_SOURCE = re.compile(r"\ban opponent\b|\bopponents\b|\beach player\b", re.IGNORECASE)
+# Since engine version 9 (P19 R5) Exotic Orchard and Fellwar Stone make the
+# deck's colours: three opponents at a Commander table nearly always have the
+# lands for them. An assumption, shown on the card page, and a player who
+# knows their table better says what it taps for instead.
+_OPPONENT_LANDS = re.compile(r"\s*that a land an opponent controls could produce\s*$",
+                             re.IGNORECASE)
 # Quoted text is an ability this card GRANTS to something else: a token it
 # creates, a land it enchants, creatures it pumps. The grantee is the mana
 # source; this card is not. Curly quotes included because Oracle text uses both.
@@ -278,6 +283,8 @@ _ABILITY_WORD = re.compile(r"^[^—–:]*[—–]\s*")
 #: window that differs from its main phase.
 _RESTRICTED = re.compile(r"Spend this mana only|Activate only (?:if|during)", re.IGNORECASE)
 _LIFE_COST = re.compile(r"Pay (\d+|a|one|two|three) life", re.IGNORECASE)
+#: One mana of input to a filter: "{W/B}", or a single colour "{G}" (P19 R6).
+_ONE_MANA_INPUT = re.compile(r"\{([WUBRG]/[WUBRG]|[WUBRG])\}", re.IGNORECASE)
 #: Mox Diamond: the card arrives only if a land card is discarded for it.
 _ENTERS_BY_DISCARD = re.compile(
     r"If this [\w ]+? would enter, you may discard|As this [\w ]+? enters, you may discard",
@@ -318,6 +325,27 @@ _SEARCH_CLAUSE = re.compile(r"Search your library for", re.IGNORECASE)
 #: is what made it matter, because before this phase most of them did nothing at
 #: all and an unpaid cost on a card that does nothing costs nothing.
 _ADDITIONAL_COST = re.compile(r"As an additional cost to cast", re.IGNORECASE)
+#: The one additional cost the engine pays since version 11 (P19 R7):
+#: "As an additional cost to cast this spell, discard a card."
+_DISCARD_COST = re.compile(
+    r"^As an additional cost to cast this spell, discard (a|one|two|three) cards?\.$",
+    re.IGNORECASE | re.MULTILINE)
+#: Treasure a card makes as it resolves (P19 R7): a spell's own sentence
+#: ("Draw two cards and create two Treasure tokens.") or a permanent's arrival
+#: ("When this creature enters, create two Treasure tokens."). Not a trigger
+#: on anything else, not "for each", not a tapped one.
+_TREASURE_ON_ENTER = re.compile(
+    r"^When (?:this [\w ]+?|~) enters, create (a|one|two|three|four) Treasure tokens?\.",
+    re.IGNORECASE | re.MULTILINE)
+_TREASURE_IN_SPELL = re.compile(r"\bcreate (a|one|two|three|four) Treasure tokens?\.$",
+                                re.IGNORECASE)
+#: A sentence that makes it under a condition, or an ability's cost before it
+#: (Magma Opus: "Discard this card: Create a Treasure token.").
+_CONDITIONAL_SENTENCE = re.compile(r"^(?:For each|When|Whenever|If|At|Until)\b", re.IGNORECASE)
+#: A Treasure's reminder text, which quotes its mana ability.
+_TREASURE_REMINDER = re.compile(r"\((?:It's an artifact|They're artifacts) with \"\{T\}, "
+                                r"Sacrifice this (?:token|artifact): Add one mana of any "
+                                r"color\.\"\)")
 
 #: Gamble's tax. Same first sentence as Demonic Tutor, and the difference is the
 #: whole card - the engine would search up the best card in the library and then
@@ -448,10 +476,114 @@ _PAY_LIFE = re.compile(
 _PLURAL_TYPES = {"plains": "plains", "islands": "island", "swamps": "swamp",
                  "mountains": "mountain", "forests": "forest"}
 
+#: P19 R4: "Activate only if you control five or more lands" (Temple of the
+#: False God), "an artifact" (Spire of Industry), "three or more artifacts"
+#: (Mox Opal), "a Swamp" (Tainted Wood), "an Island or a Mountain" (Verges).
+#: The board questions R3 already asks, plus how many artifacts.
+_ACTIVATE_IF = re.compile(
+    rf"Activate only if you control (?:{_NUMBER_WORD} or more (?P<what>lands|artifacts)"
+    rf"|(?P<artifact>an artifact)|{_TYPE_LIST})\.",
+    re.IGNORECASE)
+_SPEND_ONLY = re.compile(r"Spend this mana only", re.IGNORECASE)
+
+#: P19 R4: the three mana rules the engine has played since Phase 2, until now
+#: only through a built-in annotation. "Each land is a Swamp in addition to
+#: its other land types." (Urborg, Yavimaya)
+_TYPE_ADDING = re.compile(
+    rf"^Each land is an? (?P<type>{_BASIC_TYPE}) in addition to its other land types\.$",
+    re.MULTILINE)
+#: "Whenever you tap a Swamp for mana, add an additional {B}." (Crypt Ghast,
+#: Nirkana Revenant) and "Whenever a Forest is tapped for mana, its controller
+#: adds an additional {G}." (Vernal Bloom).
+_DOUBLER = re.compile(
+    rf"^Whenever (?:you tap an? (?P<type>{_BASIC_TYPE})|an? (?P<other>{_BASIC_TYPE}) is tapped)"
+    r" for mana, (?:its controller )?adds? an additional \{(?P<color>[WUBRG])\}\.$",
+    re.MULTILINE)
+#: "{2}, {T}: Add {B} for each Swamp you control." - the whole of Cabal
+#: Coffers. Only a land whose sole ability this is: the engine taps such a land
+#: for nothing else.
+_PER_CONTROLLED = re.compile(
+    rf"\{{(?P<cost>\d+)\}}, \{{T\}}: Add \{{(?P<color>[WUBRG])\}} for each "
+    rf"(?P<type>{_BASIC_TYPE}) you control\.")
+#: "{T}: Add one mana of any type that a land you control could produce."
+#: (Reflecting Pool, Incubation Druid; Horizon of Progress pays 1 life.)
+_LANDS_COULD_PRODUCE = re.compile(
+    r"^\{T\}(?:, Pay 1 life)?: Add one mana of any (?:type|colou?r) that a land you "
+    r"control could produce\.", re.MULTILINE | re.IGNORECASE)
+#: What a read mana rule explains, and so is no longer a reason to review.
+_RULE_EXPLAINS = frozenset({
+    "produces mana, but no readable 'Add' clause",
+    "mana amount scales with the board",
+})
+#: Somebody else's search: "Its controller may search their library" (Path to
+#: Exile, Ghost Quarter), "Each player searches their library" (Field of Ruin,
+#: whose target is an opponent's land a goldfish does not have).
+#: "Target player searches their library" stays a gap: the target may be you.
+_THEIR_LIBRARY = re.compile(
+    r"\b(?:Its controller|Each player) (?:may )?search(?:es)? their library", re.IGNORECASE)
+
 
 def _land_types(listed: str) -> list[str]:
     return sorted({word.lower() for word in re.findall(
         r"Plains|Island|Swamp|Mountain|Forest", listed, re.IGNORECASE)})
+
+
+def _activation_condition(text: str) -> dict | None:
+    """"Activate only if you control ..." as a condition the game checks, or None.
+
+    The same shapes as `_tapped_unless`, so the engine asks one question of
+    its board for both (P19 R4). Anything else - a creature with power 4 or
+    greater, a legendary creature - stays a gap.
+    """
+    found = _ACTIVATE_IF.search(text)
+    if found is None:
+        return None
+    if found.group("artifact"):
+        return {"kind": "artifacts", "count": 1}
+    if found.group("what"):
+        count = _word_number(found.group("n"))
+        if count is None:
+            return None
+        return {"kind": found.group("what").lower(), "count": count}
+    return {"kind": "control_type", "types": _land_types(found.group("types"))}
+
+
+def _treasures(card: OracleCard, kind: str) -> int:
+    """How many Treasure tokens the card makes as it resolves, or 0 (P19 R7)."""
+    text = _GRANTED.sub("", _TREASURE_REMINDER.sub("", card.oracle_text or ""))
+    if kind not in (DerivedProfile.Kind.INSTANT, DerivedProfile.Kind.SORCERY):
+        found = _TREASURE_ON_ENTER.search(text)
+        return (_word_number(found.group(1)) or 0) if found else 0
+    for sentence in re.split(r"(?<=\.)\s+|\n", text):
+        sentence = sentence.strip()
+        if _CONDITIONAL_SENTENCE.match(sentence) or ":" in sentence:
+            continue
+        if (found := _TREASURE_IN_SPELL.search(sentence)) is not None:
+            return _word_number(found.group(1)) or 0
+    return 0
+
+
+def _mana_rule(card: OracleCard, kind: str) -> dict | None:
+    """A mana rule the engine plays, read off the text, or None (P19 R4).
+
+    Urborg and Yavimaya make every land a Swamp or Forest, Crypt Ghast makes
+    each Swamp tap for one more {B}, Cabal Coffers makes {B} for each Swamp.
+    Until engine version 8 only a built-in annotation could say so.
+    """
+    text = (card.oracle_text or "").strip()
+    if (found := _TYPE_ADDING.search(text)) is not None:
+        return {"rule": "type_adding", "subtype": found.group("type").lower(),
+                "activation": 0, "color": ""}
+    if (found := _DOUBLER.search(text)) is not None:
+        subtype = (found.group("type") or found.group("other")).lower()
+        return {"rule": "double_subtype", "subtype": subtype, "activation": 0,
+                "color": found.group("color")}
+    if _LANDS_COULD_PRODUCE.search(text):
+        return {"rule": "lands_could_produce", "subtype": "", "activation": 0, "color": ""}
+    if kind == DerivedProfile.Kind.LAND and (found := _PER_CONTROLLED.fullmatch(text)):
+        return {"rule": "per_controlled", "subtype": found.group("type").lower(),
+                "activation": int(found.group("cost")), "color": found.group("color")}
+    return None
 
 
 def _tapped_unless(text: str) -> dict | None:
@@ -531,12 +663,24 @@ class ManaClause:
     #: Generic mana in the cost, beside `{T}`: the `{1}` on a Signet.
     activation: int = 0
     sacrifices_self: bool = False
+    #: "Activate only if you control ..." read as a condition (P19 R4).
+    condition: dict | None = None
+    #: A filter's coloured input, "WB" for {W/B} (P19 R6). Empty: none.
+    pays_with: str = ""
+    #: The colours a choice among symbols offers: "WB" for "Add {W}{W},
+    #: {W}{B}, or {B}{B}". Empty when the clause names no symbols.
+    offers: str = ""
     problem: str = ""
     note: str = ""
 
     @property
     def net(self) -> int:
-        return (self.amount or 0) - self.activation
+        return (self.amount or 0) - self.activation - (1 if self.pays_with else 0)
+
+    @property
+    def converts(self) -> bool:
+        """A filter or a converter: one mana in, the same or one more out, other colours."""
+        return bool(self.pays_with) or (self.activation == 1 and self.amount == 1)
 
 
 @dataclass
@@ -554,6 +698,12 @@ class ManaReading:
     #: The mana comes from sacrificing the card itself (Lotus Petal) - once,
     #: which the engine models as a ritual cast when it unlocks something.
     one_shot: bool = False
+    #: The ability can be used only under a condition: {"if": ..., "otherwise":
+    #: what the card taps for without it, or None} (P19 R4).
+    condition: dict | None = None
+    #: A filter or converter beside the plain ability (P19 R6): {"pays_with":
+    #: "WB" or "" (any mana), "amount", "offers": colours or "" (any)}.
+    filter: dict | None = None
     notes: list[str] = field(default_factory=list)
 
 
@@ -577,6 +727,11 @@ def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
             continue
         if re.fullmatch(rf"Sacrifice {_self_reference(card)}", part, re.IGNORECASE):
             clause.sacrifices_self = True
+            continue
+        if (found := _ONE_MANA_INPUT.fullmatch(part)) is not None:
+            # {W/B} or {G}: one mana of these colours goes in (P19 R6).
+            clause.pays_with = "".join(sorted(set(found.group(1).upper()) - {"/"},
+                                              key="WUBRG".index))
             continue
         if _SYMBOL_RUN.fullmatch(part):
             clause.problem = gettext_noop(
@@ -613,6 +768,9 @@ def _read_produced(clause: ManaClause, after: str) -> None:
         choice = bool(re.match(r"\s*(?:,\s*)?(?:or\s+)?\{", rest))
         clause.amount = len(symbols)
         clause.produces = None if choice else dict(Counter(symbols))
+        if choice:
+            offered = {symbol.upper() for symbol in _SYMBOL.findall(after.split(".", 1)[0])}
+            clause.offers = "".join(color for color in "WUBRG" if color in offered)
         return
 
     words = _ANY_COLOR.match(after)
@@ -620,6 +778,8 @@ def _read_produced(clause: ManaClause, after: str) -> None:
         token = words.group(1).lower()
         clause.amount = int(token) if token.isdigit() else _WORD_NUMBERS[token]
         tail = after[words.end():].split(".", 1)[0]
+        if _OPPONENT_LANDS.match(tail):
+            return
         if _OPPONENT_SOURCE.search(tail):
             clause.problem = gettext_noop("needs an opponent's lands; a goldfish has none")
         elif _SCALING.search(tail):
@@ -660,10 +820,31 @@ def _mana_clauses(card: OracleCard, *, is_spell: bool) -> list[ManaClause]:
             if not clause.problem:
                 _read_produced(clause, after)
             if not clause.problem and _RESTRICTED.search(after):
-                clause.problem = gettext_noop(
-                    "its mana is restricted to certain spells or moments")
+                condition = _activation_condition(after)
+                if (condition is not None and clause.is_ability
+                        and not clause.sacrifices_self and not _SPEND_ONLY.search(after)):
+                    # Since engine version 8 the game checks it (P19 R4).
+                    clause.condition = condition
+                else:
+                    clause.problem = gettext_noop(
+                        "its mana is restricted to certain spells or moments")
             found.append(clause)
     return found
+
+
+def _strongest(clauses: list[ManaClause]) -> tuple[ManaClause, dict | None, list[ManaClause]]:
+    """The clause a player would tap for, what it makes, and the ones tied with it.
+
+    The most net mana wins, a free one a tie. Two free abilities making
+    different colours (a Talisman's {C} or {U}/{B}, a Verge's {R} or {U}) are
+    a choice between them, which the deck's colours settle: `produces` None.
+    """
+    best = max(clause.net for clause in clauses)
+    top = [clause for clause in clauses if clause.net == best]
+    top = [clause for clause in top if not clause.activation] or top
+    chosen = top[0]
+    same = all(clause.produces == chosen.produces for clause in top)
+    return chosen, (chosen.produces if same else None), top
 
 
 def _mana_production(card: OracleCard) -> ManaReading:
@@ -732,18 +913,52 @@ def _mana_production(card: OracleCard) -> ManaReading:
 
     tapping = [clause for clause in usable if not clause.sacrifices_self]
     one_shots = [clause for clause in usable if clause.sacrifices_self]
+    # Filters and converters ride beside the plain ability (P19 R6): Fetid
+    # Heath taps for {C}, or filters a white or black mana into two.
+    converting = [clause for clause in tapping if clause.converts and not clause.condition]
+    tapping = [clause for clause in tapping if clause not in converting]
     worth_it = [clause for clause in tapping if clause.net > 0]
+    if converting and worth_it and not any(clause.condition for clause in worth_it):
+        kinds = {(clause.pays_with, clause.amount, clause.offers,
+                  repr(clause.produces)) for clause in converting}
+        if len(kinds) == 1:
+            first = converting[0]
+            reading.filter = {"pays_with": first.pays_with, "amount": first.amount,
+                              "offers": first.offers, "produces": first.produces}
+        else:
+            notes.add(gettext_noop("an ability that only converts mana is not modelled"))
+    elif converting:
+        notes.add(gettext_noop("an ability that only converts mana is not modelled"))
 
     if worth_it:
-        best = max(clause.net for clause in worth_it)
-        top = [clause for clause in worth_it if clause.net == best]
-        top = [clause for clause in top if not clause.activation] or top
-        chosen = top[0]
-        reading.amount, reading.activation = chosen.amount, chosen.activation
-        # Two free abilities making different colours (a Talisman's {C} or
-        # {U}/{B}) are a choice between them, which the deck's colours settle.
-        same = all(clause.produces == chosen.produces for clause in top)
-        reading.produces = chosen.produces if same else None
+        chosen, produces, top = _strongest(worth_it)
+        conditions = {repr(sorted(clause.condition.items())) for clause in top
+                      if clause.condition}
+        plain = [clause for clause in worth_it if not clause.condition]
+        if len(conditions) > 1:
+            # Two abilities under two different conditions: one ability with
+            # a condition is what the engine holds.
+            notes.add(gettext_noop("its mana is restricted to certain spells or moments"))
+            chosen, produces, top = _strongest(plain) if plain else (None, None, [])
+            conditions = set()
+        if chosen is not None:
+            reading.amount, reading.activation = chosen.amount, chosen.activation
+            reading.produces = produces
+        if conditions:
+            condition = next(clause.condition for clause in top if clause.condition)
+            otherwise = None
+            if plain:
+                fallback, fallback_produces, _ = _strongest(plain)
+                otherwise = {"amount": fallback.amount, "produces": fallback_produces,
+                             "activation": fallback.activation}
+            if otherwise is not None and otherwise["produces"] is None:
+                # Without the condition it would still make a choice of
+                # colours, and which ones `produced_mana` cannot say apart
+                # from the conditional ability's. Kept a gap.
+                notes.add(gettext_noop("its mana is restricted to certain spells or moments"))
+                reading.amount = None
+            else:
+                reading.condition = {"if": condition, "otherwise": otherwise}
         if any(clause.net <= 0 for clause in tapping):
             notes.add(gettext_noop("an ability that only converts mana is not modelled"))
     elif one_shots and "Creature" not in type_line:
@@ -805,6 +1020,11 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
 
     if len(_SEARCH_CLAUSE.findall(text)) > 1:
         return Tutor(reason=gettext_noop("searches the library more than once; not modelled"))
+    if not _SEARCH_YOUR_LIBRARY.search(text) and _THEIR_LIBRARY.search(text):
+        # Path to Exile: the search is the target's controller's, and the
+        # target is an opponent's creature or land a goldfish does not have.
+        # Not a tutor this deck plays, so nothing is missing (P19 R4).
+        return Tutor()
     if not _SEARCH_YOUR_LIBRARY.search(text):
         # Either the search is somebody else's ("target player searches their
         # library") or it is worded in a way this pattern does not cover. The
@@ -998,6 +1218,16 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
 
     tapped, tapped_note, tapped_unless = _enters_tapped(card)
     mana = _mana_production(card)
+    mana_rule = _mana_rule(card, kind)
+    if mana_rule is not None:
+        mana.notes = [note for note in mana.notes if note not in _RULE_EXPLAINS]
+    treasures = _treasures(card, kind)
+    if treasures and not _GRANTED.search(_TREASURE_REMINDER.sub("", text)):
+        # The quoted ability was only the Treasure's own reminder text, and
+        # the Treasure is read now (P19 R7).
+        mana.notes = [note for note in mana.notes
+                      if note != "only grants a mana ability to another permanent"]
+    discard = _DISCARD_COST.search(text)
     amount = mana.amount
     if mana.one_shot and kind in (DerivedProfile.Kind.ARTIFACT, DerivedProfile.Kind.ROCK):
         # Lotus Petal: "{T}, Sacrifice this artifact: Add one mana of any
@@ -1033,7 +1263,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     # where it is not and a single mana slipped through looking correct.
     if MULTIPLE_MANA_TAG in tags and amount == 1:
         reasons.append(gettext_noop("tagged as adding more than one mana; only one was read"))
-    if _ADDITIONAL_COST.search(text):
+    if _ADDITIONAL_COST.search(text) and not discard:
         reasons.append(gettext_noop("has an additional casting cost the engine does not pay"))
     if cost.hybrid:
         reasons.append(gettext_noop("hybrid pips: payment flexibility is not modelled"))
@@ -1057,6 +1287,11 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana_produces=mana.produces,
         mana_activation=mana.activation or None,
         mana_untaps=mana.untaps,
+        mana_condition=mana.condition,
+        mana_rule=mana_rule,
+        mana_filter=mana.filter,
+        treasures=treasures,
+        discard_cost=_word_number(discard.group(1)) if discard else 0,
         cost_reduction=_first_number(_COST_REDUCTION, text),
         draws_cards=_first_number(_DRAW, text),
         self_life_loss=_first_number(_SELF_LOSS, text),
@@ -1172,7 +1407,8 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "cost_reduction", "draws_cards", "self_life_loss", "opponent_life_loss",
             "tutor_to", "tutor_count", "tutor_kind", "land_search", "tapped_unless",
             "skips_draw_step",
-            "mana_produces", "mana_activation", "mana_untaps",
+            "mana_produces", "mana_activation", "mana_untaps", "mana_condition", "mana_rule",
+            "mana_filter", "treasures", "discard_cost",
             "needs_review", "review_reasons", "source_map", "derived_at",
         ],
         unique_fields=["oracle_card"],

@@ -258,25 +258,28 @@ UNMODELLABLE = DeckShape(
         "full of unmodelled cards shows a loud, unmissable warning; what was "
         "actually tested was the empty case and the reference deck, neither of "
         "which has the problem. Every card here is one the deriver refuses to "
-        "guess at - a land whose mana depends on what an opponent controls, a "
-        "land that taps for nothing, devotion and creature-count scaling the "
+        "guess at - a spell with a cost it does not pay, a "
+        "land that needs a sacrifice, devotion and creature-count scaling the "
         "pool cannot hold - and none of them is annotated. Coverage should be "
         "bad and the page should say so."
     ),
     commander=None,
     cards=(
-        # "Add one mana of any colour a land an opponent controls could
-        # produce." In a goldfish that is no colours at all, and it opens with
-        # the same words as Arcane Signet - trap 12, as a deck.
-        (4, "Exotic Orchard"),
-        # A land with no mana ability whatsoever.
-        (4, "Maze of Ith"),
+        # "As an additional cost, pay X life": a cost the engine does not pay.
+        # Exotic Orchard stood here until engine version 9 read it as the
+        # deck's colours, an assumption about the opponents (P19 R5).
+        (4, "Toxic Deluge"),
+        # Mana for a sacrificed creature, which the engine does not do. Maze of
+        # Ith stood here until engine version 8 read it as a land that really
+        # makes no mana (P19 R4).
+        (4, "Phyrexian Tower"),
         # Scales on devotion and on creature count. The engine's PER_CONTROLLED
         # counts lands carrying a subtype, so neither is expressible - and
         # nobody has annotated them into something that is.
         (4, "Nykthos, Shrine to Nyx"), (4, "Gaea's Cradle"),
-        # Scales per swamp, and here nobody has said so.
-        (4, "Cabal Coffers"),
+        # Black mana "instead" with a full graveyard. Cabal Coffers stood here
+        # until the reader learned its rule (P19 R4).
+        (4, "Cabal Ritual"),
         (4, "Rhystic Study"), (4, "Smothering Tithe"),
         (4, "Esper Sentinel"), (4, "Mystic Remora"),
         (4, "Ashnod's Altar"),

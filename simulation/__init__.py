@@ -63,6 +63,23 @@ boundary, not the symptom.
 #:    shock lands (2 life, paid while above the Phyrexian floor). Until now the
 #:    first kinds always entered tapped and a shock land always untapped, for
 #:    free.
-ENGINE_VERSION = 7
+#: 8: P19 R4. "Activate only if you control ..." is checked against the game:
+#:    Temple of the False God taps for nothing before the fifth land, a
+#:    Tainted land for {C} without its land type, Mox Opal only beside two
+#:    more artifacts. Urborg, Yavimaya, Crypt Ghast and Cabal Coffers play by
+#:    the rules that until now only a built-in annotation could give them.
+#: 9: P19 R5. Reflecting Pool and Incubation Druid make a colour the other
+#:    lands could make, worked out each turn. Exotic Orchard and Fellwar Stone
+#:    make the deck's colours - an assumption that three opponents have the
+#:    lands for them, stated on the card page - where they made nothing.
+#: 10: P19 R6. Filter lands (Fetid Heath) turn their {C} and a mana of their
+#:    colours into two of their colours, when that narrows nothing; converters
+#:    (Study Hall, Prismatic Lens) turn their {C} and one more mana into a
+#:    colour when a payment would otherwise fail.
+#: 11: P19 R7. Treasure tokens: Big Score, Rapacious Dragon and the like make
+#:    them as they resolve, and a payment sacrifices one only when it would
+#:    fail without; the rest wait for a later turn. "As an additional cost,
+#:    discard a card" is paid with the weakest card in hand.
+ENGINE_VERSION = 11
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

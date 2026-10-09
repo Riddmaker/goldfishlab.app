@@ -475,6 +475,8 @@ def _apply_cast_effect(game, card, policy) -> None:
             game.creatures.remove(card)
             game.graveyard.append(card)
 
+    game.make_treasures(card)
+
     if card.draw_on_cast:
         game.draw(card.draw_on_cast)
         game.life -= card.life_on_cast

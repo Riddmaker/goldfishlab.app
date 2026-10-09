@@ -45,8 +45,11 @@ JUDGEMENT = "judgement"
 
 #: Fields a human has to supply, because nothing in the card text implies them.
 #: Deriving either one mechanically changed the keep rate and every number under
-#: it - which is why both are fields rather than rules.
-JUDGEMENT_FIELDS = frozenset({"priority", "accelerant"})
+#: it - which is why both are fields rather than rules. `assumed_mana` (P19 R5)
+#: is the engine's own answer to one: Exotic Orchard makes the deck's colours,
+#: an assumption about the table that the card page states and a player can
+#: replace with what their table really gives.
+JUDGEMENT_FIELDS = frozenset({"priority", "accelerant", "assumed_mana"})
 
 
 def kind_of(field: str) -> str:

@@ -124,10 +124,16 @@ def account() -> str:
     """The local test account, with a new password that only this run knows."""
     from allauth.account.models import EmailAddress
 
+    from billing.models import UsageRecord
+
     user, _created = get_user_model().objects.get_or_create(email=EMAIL)
     # The account's decks from earlier turns: the free plan caps how many
     # decks one owns, and a turn needs only its own.
     Deck.objects.filter(owner=user).delete()
+    # And its monthly counters: the free plan allows five imports a month,
+    # and every turn is one. Only this test account's rows, in the local
+    # database this script is limited to.
+    UsageRecord.objects.filter(user=user).delete()
     password = secrets.token_urlsafe(24)
     user.set_password(password)
     user.save()

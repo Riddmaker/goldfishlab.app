@@ -78,21 +78,35 @@ def test_sol_ring_resolves_the_amount_scryfall_does_not_give(catalogue):
     assert sol_ring.mana_amount == 2
 
 
-def test_cabal_coffers_admits_it_cannot_be_resolved(catalogue):
+def test_cabal_coffers_is_a_rule_not_a_number(catalogue):
     """'Add {B} for each Swamp you control' has no fixed answer.
 
-    The wrong behaviour here is not crashing - it is quietly storing 1.
+    The wrong behaviour here is not crashing - it is quietly storing 1. Since
+    engine version 8 the sentence is read as the rule the engine plays it by
+    (P19 R4), and the amount stays None.
     """
     coffers = catalogue["Cabal Coffers"]
     assert coffers.produces_mana
     assert coffers.mana_amount is None
-    assert coffers.needs_review
-    assert any("scales" in reason for reason in coffers.review_reasons)
+    assert coffers.mana_rule == {"rule": "per_controlled", "subtype": "swamp",
+                                 "activation": 2, "color": "B"}
+    assert not coffers.needs_review
+
+
+def test_urborg_and_crypt_ghast_are_read_as_rules(catalogue):
+    assert catalogue["Urborg, Tomb of Yawgmoth"].mana_rule["rule"] == "type_adding"
+    assert catalogue["Yavimaya, Cradle of Growth"].mana_rule["subtype"] == "forest"
+    ghast = catalogue["Crypt Ghast"]
+    assert ghast.mana_rule == {"rule": "double_subtype", "subtype": "swamp",
+                               "activation": 0, "color": "B"}
+    assert not ghast.needs_review
 
 
 def test_every_unresolved_mana_source_is_flagged(catalogue):
-    """No silent holes: unresolved amount implies needs_review."""
-    unresolved = DerivedProfile.objects.filter(produces_mana=True, mana_amount=None)
+    """No silent holes: unresolved amount implies needs_review - unless a rule
+    says how the mana is made."""
+    unresolved = DerivedProfile.objects.filter(produces_mana=True, mana_amount=None,
+                                               mana_rule__isnull=True)
     assert unresolved.exists()
     assert not unresolved.filter(needs_review=False).exists()
 
@@ -221,18 +235,22 @@ def test_the_amount_is_read_whether_it_is_written_in_symbols_or_words(text, expe
     assert (reading.produces_mana, reading.amount, reading.notes) == (True, expected, [])
 
 
-def test_a_source_that_needs_an_opponent_makes_nothing_here():
+def test_a_source_that_copies_an_opponents_lands_is_one_mana():
     """Exotic Orchard copies *an opponent's* lands. A goldfish has no opponent.
 
-    The opening words are identical to Arcane Signet's, which is exactly why
-    this one is worth a test: reading it as one mana would hand the deck a
-    source that produces nothing in the game being simulated.
+    Until engine version 9 it made nothing here. Since P19 R5 it is one mana
+    of the deck's colours: three opponents nearly always have the lands. The
+    adapter states that assumption on the card page; the reader only says how
+    much. Mana that needs an opponent in any other way still makes nothing.
     """
     reading = _production(
         "{T}: Add one mana of any color that a land an opponent controls could produce."
     )
-    assert (reading.produces_mana, reading.amount) == (True, None)
-    assert "opponent" in " ".join(reading.notes)
+    assert (reading.produces_mana, reading.amount, reading.notes) == (True, 1, [])
+
+    other = _production("{T}: Add one mana of any color an opponent chose this turn.")
+    assert other.amount is None
+    assert "opponent" in " ".join(other.notes)
 
 
 def test_an_ability_the_card_grants_away_is_not_its_own():
@@ -399,12 +417,18 @@ def test_mana_the_engine_cannot_make_is_a_gap_and_not_a_guess(name):
 
 @pytest.mark.parametrize(
     "name",
-    ["Cabal Ritual", "Sunken Ruins", "Shrine of the Forsaken Gods", "Rite of Flame",
-     "Prismatic Lens"],
+    ["Cabal Ritual", "Shrine of the Forsaken Gods", "Rite of Flame"],
 )
 def test_an_ability_that_is_not_counted_says_so(name):
     """A reading that dropped something has to say what, or it is a guess."""
     assert _real(name).notes
+
+
+@pytest.mark.parametrize("name", ["Sunken Ruins", "Prismatic Lens"])
+def test_a_filter_and_a_converter_are_counted_since_r6(name):
+    """Until engine version 10 these were notes; now the filter is read (P19 R6)."""
+    reading = _real(name)
+    assert reading.filter is not None and not reading.notes
 
 
 def test_the_petal_becomes_a_ritual():

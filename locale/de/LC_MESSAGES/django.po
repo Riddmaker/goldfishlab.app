@@ -8905,3 +8905,105 @@ msgstr ""
 "Check-Länder, Fast- und Slow-Lands, Snarls und Shocklands kommen jetzt "
 "ungetappt ins Spiel, wann immer ihre Bedingung im Spiel erfüllt ist, und "
 "Shocklands zahlen dafür ihre 2 Leben."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s if you control %(what)s"
+msgstr "%(mana)s, wenn du %(what)s kontrollierst"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s or more land"
+msgid_plural "%(count)s or more lands"
+msgstr[0] "%(count)s oder mehr Land"
+msgstr[1] "%(count)s oder mehr Länder"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s or more artifact"
+msgid_plural "%(count)s or more artifacts"
+msgstr[0] "%(count)s oder mehr Artefakt"
+msgstr[1] "%(count)s oder mehr Artefakte"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "a land of type %(types)s"
+msgstr "ein Land vom Typ %(types)s"
+
+#: changelog/entries.py
+msgid "Temple of the False God, Urborg and Cabal Coffers"
+msgstr "Temple of the False God, Urborg und Cabal Coffers"
+
+#: changelog/entries.py
+msgid ""
+"Lands that make mana only when you control enough lands or a land type, such"
+" as Temple of the False God, the Tainted lands and the Verges, now make it "
+"once that holds. Urborg, Yavimaya, Crypt Ghast and Cabal Coffers now play by"
+" their rules, and Path to Exile and Maze of Ith no longer need you."
+msgstr ""
+"Länder, die nur dann Mana erzeugen, wenn du genug Länder oder einen Landtyp "
+"kontrollierst, etwa Temple of the False God, die Tainted-Länder und die "
+"Verges, erzeugen es jetzt, sobald das zutrifft. Urborg, Yavimaya, Crypt "
+"Ghast und Cabal Coffers spielen jetzt nach ihren Regeln, und Path to Exile "
+"und Maze of Ith brauchen dich nicht mehr."
+
+#: simulations/engine/adapter.py
+msgid "one mana of a colour your other lands could make"
+msgstr "ein Mana in einer Farbe, die deine anderen Länder erzeugen könnten"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s - assuming your opponents' lands make these colours"
+msgstr "%(mana)s - angenommen, die Länder deiner Gegner erzeugen diese Farben"
+
+#: simulations/engine/adapter.py
+msgid "makes your deck's colours, assuming your opponents' lands make them"
+msgstr ""
+"erzeugt die Farben deines Decks, angenommen, die Länder deiner Gegner "
+"erzeugen sie"
+
+#: changelog/entries.py
+msgid "Exotic Orchard and Reflecting Pool make mana"
+msgstr "Exotic Orchard und Reflecting Pool erzeugen Mana"
+
+#: changelog/entries.py
+msgid ""
+"Reflecting Pool and Incubation Druid make a colour your other lands make. "
+"Exotic Orchard and Fellwar Stone make your deck's colours, assuming your "
+"opponents' lands make them; the card page says so, and you can say what they"
+" make at your table."
+msgstr ""
+"Reflecting Pool und Incubation Druid erzeugen eine Farbe, die deine anderen "
+"Länder erzeugen. Exotic Orchard und Fellwar Stone erzeugen die Farben deines"
+" Decks, unter der Annahme, dass die Länder deiner Gegner sie erzeugen; die "
+"Kartenseite sagt das, und du kannst angeben, was sie an deinem Tisch "
+"erzeugen."
+
+#: changelog/entries.py
+msgid "Filter lands and Study Hall fix your colours"
+msgstr "Filterländer und Study Hall korrigieren deine Farben"
+
+#: changelog/entries.py
+msgid ""
+"Filter lands such as Fetid Heath and Rugged Prairie turn one mana of their "
+"colours into two. Study Hall, Opal Palace and Prismatic Lens turn a mana "
+"into a colour you are missing when a spell needs it."
+msgstr ""
+"Filterländer wie Fetid Heath und Rugged Prairie machen aus einem Mana ihrer "
+"Farben zwei. Study Hall, Opal Palace und Prismatic Lens machen aus einem "
+"Mana eine Farbe, die dir fehlt, wenn ein Zauber sie braucht."
+
+#: changelog/entries.py
+msgid "Treasure, and discarding a card to cast"
+msgstr "Treasure, und eine Karte abwerfen, um zu wirken"
+
+#: changelog/entries.py
+msgid ""
+"Big Score, Seize the Spoils, Rapacious Dragon and the like now make their "
+"Treasure, which pays for a later spell when your lands fall short. Spells "
+"that ask you to discard a card to cast them discard your weakest one."
+msgstr ""
+"Big Score, Seize the Spoils, Rapacious Dragon und ähnliche Karten erzeugen "
+"jetzt ihre Treasures, die einen späteren Zauber bezahlen, wenn deine Länder "
+"nicht reichen. Zauber, für die du eine Karte abwerfen musst, werfen deine "
+"schwächste ab."

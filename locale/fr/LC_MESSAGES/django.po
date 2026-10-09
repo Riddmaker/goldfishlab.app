@@ -8984,3 +8984,108 @@ msgstr ""
 "Les check lands, fast lands, slow lands, snarls et shock lands arrivent "
 "désormais dégagés dès que leur condition est remplie dans la partie, et les "
 "shock lands paient leurs 2 points de vie pour cela."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s if you control %(what)s"
+msgstr "%(mana)s si vous contrôlez %(what)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s or more land"
+msgid_plural "%(count)s or more lands"
+msgstr[0] "%(count)s terrain ou plus"
+msgstr[1] "%(count)s terrains ou plus"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s or more artifact"
+msgid_plural "%(count)s or more artifacts"
+msgstr[0] "%(count)s artefact ou plus"
+msgstr[1] "%(count)s artefacts ou plus"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "a land of type %(types)s"
+msgstr "un terrain de type %(types)s"
+
+#: changelog/entries.py
+msgid "Temple of the False God, Urborg and Cabal Coffers"
+msgstr "Temple of the False God, Urborg et Cabal Coffers"
+
+#: changelog/entries.py
+msgid ""
+"Lands that make mana only when you control enough lands or a land type, such"
+" as Temple of the False God, the Tainted lands and the Verges, now make it "
+"once that holds. Urborg, Yavimaya, Crypt Ghast and Cabal Coffers now play by"
+" their rules, and Path to Exile and Maze of Ith no longer need you."
+msgstr ""
+"Les terrains qui ne produisent du mana que si vous contrôlez assez de "
+"terrains ou un type de terrain, comme Temple of the False God, les terrains "
+"Tainted et les Verges, le produisent désormais dès que c'est le cas. Urborg,"
+" Yavimaya, Crypt Ghast et Cabal Coffers suivent désormais leurs règles, et "
+"Path to Exile et Maze of Ith n'ont plus besoin de vous."
+
+#: simulations/engine/adapter.py
+msgid "one mana of a colour your other lands could make"
+msgstr "un mana d'une couleur que vos autres terrains pourraient produire"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s - assuming your opponents' lands make these colours"
+msgstr ""
+"%(mana)s - en supposant que les terrains de vos adversaires produisent ces "
+"couleurs"
+
+#: simulations/engine/adapter.py
+msgid "makes your deck's colours, assuming your opponents' lands make them"
+msgstr ""
+"produit les couleurs de votre deck, en supposant que les terrains de vos "
+"adversaires les produisent"
+
+#: changelog/entries.py
+msgid "Exotic Orchard and Reflecting Pool make mana"
+msgstr "Exotic Orchard et Reflecting Pool produisent du mana"
+
+#: changelog/entries.py
+msgid ""
+"Reflecting Pool and Incubation Druid make a colour your other lands make. "
+"Exotic Orchard and Fellwar Stone make your deck's colours, assuming your "
+"opponents' lands make them; the card page says so, and you can say what they"
+" make at your table."
+msgstr ""
+"Reflecting Pool et Incubation Druid produisent une couleur que produisent "
+"vos autres terrains. Exotic Orchard et Fellwar Stone produisent les couleurs"
+" de votre deck, en supposant que les terrains de vos adversaires les "
+"produisent ; la page de la carte l'indique, et vous pouvez dire ce qu'elles "
+"produisent à votre table."
+
+#: changelog/entries.py
+msgid "Filter lands and Study Hall fix your colours"
+msgstr "Les terrains filtres et Study Hall corrigent vos couleurs"
+
+#: changelog/entries.py
+msgid ""
+"Filter lands such as Fetid Heath and Rugged Prairie turn one mana of their "
+"colours into two. Study Hall, Opal Palace and Prismatic Lens turn a mana "
+"into a colour you are missing when a spell needs it."
+msgstr ""
+"Les terrains filtres comme Fetid Heath et Rugged Prairie transforment un "
+"mana de leurs couleurs en deux. Study Hall, Opal Palace et Prismatic Lens "
+"transforment un mana en une couleur qui vous manque quand un sort en a "
+"besoin."
+
+#: changelog/entries.py
+msgid "Treasure, and discarding a card to cast"
+msgstr "Les Trésors, et défausser une carte pour lancer un sort"
+
+#: changelog/entries.py
+msgid ""
+"Big Score, Seize the Spoils, Rapacious Dragon and the like now make their "
+"Treasure, which pays for a later spell when your lands fall short. Spells "
+"that ask you to discard a card to cast them discard your weakest one."
+msgstr ""
+"Big Score, Seize the Spoils, Rapacious Dragon et consorts créent désormais "
+"leurs Trésors, qui paient un sort plus tard quand vos terrains ne suffisent "
+"pas. Les sorts qui demandent de défausser une carte pour être lancés "
+"défaussent votre carte la plus faible."

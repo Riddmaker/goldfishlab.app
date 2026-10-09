@@ -179,6 +179,12 @@ def dump_game(game: Game) -> dict:
     state["mana_by_color"] = dict(game.mana_by_color)
     state["log"] = list(game.log)
     state["pool"] = game.pool.by_color() if game.pool is not None else None
+    # What a pool holds beside its mana (P19 R6, R7): a cached playtest that
+    # dropped them would lose a Study Hall's colour or a Treasure on reload.
+    if game.pool is not None:
+        state["pool_converters"] = list(game.pool.converters)
+        state["pool_treasures"] = list(game.pool.treasures)
+    state["treasures"] = list(game.treasures)
     state["rng"] = dump(game.rng.getstate())
     return state
 
@@ -201,6 +207,10 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
     game.mana_by_color = dict(data["mana_by_color"])
     game.log = list(data["log"])
     game.pool = None if data["pool"] is None else ManaPool(**data["pool"])
+    if game.pool is not None:
+        game.pool.converters = list(data.get("pool_converters", []))
+        game.pool.treasures = list(data.get("pool_treasures", []))
+    game.treasures = list(data.get("treasures", []))
     return game
 
 

@@ -13,17 +13,29 @@ The rules this rests on (see CLAUDE.md for the sources):
 import random
 from collections import Counter
 
-from simulation.cards import ARTIFACT, CREATURE, ENCHANTMENT, FLAT, PLANESWALKER, RITUAL, ROCK
+from simulation.cards import (
+    ARTIFACT,
+    CREATURE,
+    ENCHANTMENT,
+    FLAT,
+    LANDS_COULD_PRODUCE,
+    PLANESWALKER,
+    RITUAL,
+    ROCK,
+    ManaAbility,
+)
 from simulation.mana import (
     ManaPool,
     applicable_reduction,
     available_mana,
     doublers,
     effective_mana_cost,
+    granted_subtypes,
+    land_color,
     land_colors,
     reductions_from,
 )
-from simulation.manacost import PHYREXIAN_LIFE_FLOOR
+from simulation.manacost import COLORLESS, COLORS, PHYREXIAN_LIFE_FLOOR, choice
 
 STARTING_LIFE = 40
 STARTING_HAND_SIZE = 7
@@ -104,6 +116,10 @@ class Game:
         #: outside a main phase - and a cast with nothing floating is a bug,
         #: not a free spell.
         self.pool = None
+        #: Treasure tokens on the battlefield, by the mana each makes (P19 R7).
+        #: Kept from turn to turn; the pool borrows them and gives back the
+        #: ones a payment did not sacrifice.
+        self.treasures: list[str] = []
         self.log = []
 
     @property
@@ -181,22 +197,40 @@ class Game:
         """
         return max(0, mulligans - 1)
 
-    def _bottom_worst(self, count: int) -> None:
-        """Put the weakest cards on the bottom of the library.
+    def _worst_in_hand(self):
+        """The card in hand worth least: a surplus land (beyond 4), else the
+        most expensive card, which does nothing in the early turns."""
+        lands = [card for card in self.hand if card.is_land]
+        if len(lands) > 4:
+            return lands[0]
+        return max(self.hand, key=lambda card: (card.mv, card.name))
 
-        In order: surplus lands (beyond 4) first, then the most expensive
-        cards, because those do nothing in the early turns.
-        """
+    def _bottom_worst(self, count: int) -> None:
+        """Put the weakest cards on the bottom of the library."""
         for _ in range(count):
-            lands = [card for card in self.hand if card.is_land]
-            if len(lands) > 4:
-                worst = lands[0]
-            else:
-                worst = max(self.hand, key=lambda card: (card.mv, card.name))
+            worst = self._worst_in_hand()
             self.hand.remove(worst)
             if worst in self.drawn:
                 self.drawn.remove(worst)
             self.library.append(worst)
+
+    def discard(self, count: int) -> None:
+        """Discard the weakest cards - the additional cost of Big Score (P19 R7)."""
+        for _ in range(min(count, len(self.hand))):
+            worst = self._worst_in_hand()
+            self.hand.remove(worst)
+            self.graveyard.append(worst)
+            self.note(f"  -> discards {worst.name}")
+
+    def make_treasures(self, card) -> None:
+        """The Treasure tokens a card makes as it resolves (P19 R7)."""
+        if not card.treasures:
+            return
+        made = [card.treasure_mana or "WUBRG"] * card.treasures
+        self.treasures.extend(made)
+        if self.pool is not None:
+            self.pool.treasures.extend(made)
+        self.note(f"  -> {card.treasures} Treasure")
 
     def take_opening_hand(self) -> None:
         """Draw the opening hand, mulligans included."""
@@ -231,10 +265,10 @@ class Game:
         untapped_lands = self._untapped(self.lands[self.tapped_lands:])
         untapped_rocks = self._untapped(self.rocks[self.tapped_rocks:])
         dorks = self._untapped(
-            [card for card in self.creatures if card.ability(FLAT) is not None]
+            [card for card in self.creatures if self.mana_ability(card) is not None]
         )
         return available_mana(self.lands, untapped_lands, untapped_rocks + dorks,
-                              doublers(self.battlefield))
+                              doublers(self.battlefield), ability_of=self.mana_ability)
 
     def _untapped(self, cards) -> list:
         """These permanents, without the ones that stayed tapped from before."""
@@ -258,11 +292,12 @@ class Game:
         sources = (
             self._untapped(self.lands[self.tapped_lands:])
             + self._untapped(self.rocks[self.tapped_rocks:])
-            + self._untapped([c for c in self.creatures if c.ability(FLAT) is not None])
+            + self._untapped([c for c in self.creatures if self.mana_ability(c) is not None])
         )
         pool = self.mana()
+        pool.treasures = list(self.treasures)
         for card in sources:
-            flat = card.ability(FLAT)
+            flat = self.mana_ability(card)
             if not card.untaps and flat is not None and not flat.activation_generic:
                 self.stays_tapped.append(card)
         return pool
@@ -275,6 +310,8 @@ class Game:
                 c.kind == CREATURE for c in self.graveyard):
             return False
         if card.needs_creature_on_bf and not self.creatures:
+            return False
+        if card.discard_cost and len([c for c in self.hand if c is not card]) < card.discard_cost:
             return False
         return pool.can_pay_cost(
             effective_mana_cost(card, reductions_from(self.battlefield)), life=self.life
@@ -294,6 +331,17 @@ class Game:
         condition = land.tapped_unless
         if condition is None:
             return False
+        return self.holds(condition, land, entering=True)
+
+    def holds(self, condition, card, *, entering: bool = False) -> bool:
+        """Whether a condition about this board is met (P19 R3 and R4).
+
+        ``entering`` means the card is asked about before it is on the
+        battlefield - a land deciding whether it enters tapped, a land the
+        agent thinks of playing - and so counts itself in. Otherwise it is
+        already among the permanents: Temple of the False God is one of the
+        five lands it asks for.
+        """
         kind = condition.kind
         if kind == "control_type":
             return any(other.subtypes & condition.types for other in self.lands)
@@ -301,16 +349,72 @@ class Game:
             counted = [other for other in self.lands
                        if (not condition.basic or other.basic)
                        and (not condition.type or condition.type in other.subtypes)]
-            have = len(counted) + (0 if condition.other else 1)
+            if entering:
+                have = len(counted) + (0 if condition.other else 1)
+            else:
+                itself = any(other is card for other in counted)
+                have = len(counted) - (1 if condition.other and itself else 0)
             return have >= condition.count if condition.at_least else have <= condition.count
+        if kind == "artifacts":
+            have = sum(1 for permanent in self.battlefield if ARTIFACT in permanent.types)
+            if entering and ARTIFACT in card.types:
+                have += 1
+            return have >= condition.count
         if kind == "opponents":
             return self.OPPONENTS >= condition.count
         if kind == "reveal":
-            return any(card is not land and card.subtypes & condition.types
-                       for card in self.hand)
+            return any(other is not card and other.subtypes & condition.types
+                       for other in self.hand)
         if kind == "pay_life":
             return self.life - condition.count >= PHYREXIAN_LIFE_FLOOR
         return False
+
+    def mana_ability(self, card, *, entering: bool = False):
+        """The ``FLAT`` ability this card taps for on this board, or None.
+
+        The first one whose condition holds: a card lists its conditional
+        ability before its plain one (P19 R4), so a Tainted Wood without a
+        Swamp falls back to {C}, and Temple of the False God with four lands
+        to nothing.
+        """
+        for ability in card.mana_abilities:
+            if ability.rule == LANDS_COULD_PRODUCE:
+                colors = self.lands_could_produce(card)
+                if not colors:
+                    continue
+                return ManaAbility(FLAT, {colors: 1},
+                                   activation_generic=ability.activation_generic)
+            if ability.rule != FLAT:
+                continue
+            if ability.only_if is None or self.holds(ability.only_if, card, entering=entering):
+                return ability
+        return None
+
+    def lands_could_produce(self, card) -> str:
+        """The mana the other lands could make, as one pool key (P19 R5).
+
+        A choice of their colours - or {C} when they make only colourless -
+        and "" when there is nothing to copy. Another Reflecting Pool adds
+        nothing: two of them alone make no mana, as on a table.
+        """
+        granted = granted_subtypes(self.lands)
+        found: set[str] = set()
+        for land in self.lands:
+            if land is card or any(a.rule == LANDS_COULD_PRODUCE for a in land.mana_abilities):
+                continue
+            basic = land_color(land, granted)
+            if basic is not None:
+                found.update(basic)
+                continue
+            for ability in land.mana_abilities:
+                if ability.rule == FLAT and (ability.only_if is None
+                                             or self.holds(ability.only_if, land)):
+                    for source, _amount in ability.produces:
+                        found.update(source)
+        colors = [color for color in COLORS if color in found]
+        if colors:
+            return choice(colors)
+        return COLORLESS if COLORLESS in found else ""
 
     def _enters_tapped(self, land) -> bool:
         """Whether this land enters tapped, paying a shock land's life if not."""
@@ -407,8 +511,11 @@ class Game:
             raise ValueError(f"{card.name} ({cost}) cannot be paid from {pool}")
         # Phyrexian mana: whatever was not paid with mana is paid with life.
         self.life -= payment.life
+        self.treasures = list(pool.treasures)
         if card in self.hand:
             self.hand.remove(card)
+        if card.discard_cost:
+            self.discard(card.discard_cost)
         self._resolve(card, pool)
 
     def _resolve(self, card, pool: ManaPool) -> None:
@@ -451,6 +558,7 @@ class Game:
         if payment is None:
             raise ValueError(f"{commander.name} ({cost}) cannot be paid from {pool}")
         self.life -= payment.life
+        self.treasures = list(pool.treasures)
         self.commander_casts += 1
         self.creatures.append(commander)
         self.note(f"{commander.name} (commander)")

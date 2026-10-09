@@ -368,6 +368,17 @@ class DerivedProfile(models.Model):
     discard_cost = models.PositiveSmallIntegerField(default=0)
     cost_reduction = models.PositiveSmallIntegerField(null=True, blank=True)
     draws_cards = models.PositiveSmallIntegerField(null=True, blank=True)
+    #: P19 R8: cards discarded right after that draw - "Draw two cards, then
+    #: discard two cards" (Faithless Looting).
+    discards_after = models.PositiveSmallIntegerField(default=0)
+    #: P19 R8: cards put back on top of the library after that draw -
+    #: Brainstorm draws three, then puts two back.
+    puts_back = models.PositiveSmallIntegerField(default=0)
+    #: P19 R9: "Draw X cards" - Stroke of Genius, Blue Sun's Zenith.
+    draws_x = models.BooleanField(default=False)
+    #: P19 R8: the spree mode the draw sits in, paid on top of the printed
+    #: cost: "{B}{B}" on Insatiable Avarice. Empty: none.
+    extra_cost = models.CharField(max_length=32, blank=True, default="")
 
     # --- tutors: destination from the tags, amount from the printed text ---
     #
@@ -393,6 +404,10 @@ class DerivedProfile(models.Model):
         max_length=16, blank=True,
         help_text="Engine card kind the search is restricted to. Blank means any.",
     )
+    #: P19 R10: what else a search onto the battlefield is limited to - {"color":
+    #: "G" for "a green creature card", "max_mv": "X" or a number for "with mana
+    #: value X or less"}. Green Sun's Zenith, Chord of Calling. Null: nothing.
+    tutor_filter = models.JSONField(null=True, blank=True)
     #: P19 R2: a search for lands that puts them onto the battlefield - a ramp
     #: spell, a fetch land, Wood Elves - read whole off the text, or null.
     #: Keys: battlefield, hand (how many go where), tapped, basic, types (land

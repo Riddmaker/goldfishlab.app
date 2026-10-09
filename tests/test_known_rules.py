@@ -89,9 +89,11 @@ def test_a_rule_the_engine_plays_is_read(text, kind, rule):
 
 
 def test_a_coffers_with_a_second_ability_is_not_coffers():
-    """Cabal Stronghold also taps for {C} and counts basic Swamps only."""
-    assert _mana_rule(oracle("{T}: Add {C}.\n{3}, {T}: Add {B} for each basic Swamp you "
-                             "control."), Kind.LAND) is None
+    """Cabal Stronghold also taps for {C} and counts basic Swamps only: not the
+    land-subtype rule Coffers plays, but a count of its own (P19 R11)."""
+    rule = _mana_rule(oracle("{T}: Add {C}.\n{3}, {T}: Add {B} for each basic Swamp you "
+                             "control."), Kind.LAND)
+    assert rule["rule"] == "counts" and rule["subtype"] == "basic:swamp"
 
 
 # --- the reader: nothing missing ------------------------------------------------

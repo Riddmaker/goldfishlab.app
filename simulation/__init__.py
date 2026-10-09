@@ -80,6 +80,21 @@ boundary, not the symptom.
 #:    them as they resolve, and a payment sacrifices one only when it would
 #:    fail without; the rest wait for a later turn. "As an additional cost,
 #:    discard a card" is paid with the weakest card in hand.
-ENGINE_VERSION = 11
+#: 12: P19 R8. A draw that comes with a discard (Faithless Looting, Frantic
+#:    Search) discards the weakest cards after it, Brainstorm puts two back
+#:    on top; Mystic Confluence draws
+#:    three; a spree mode's cost (Insatiable Avarice) is paid with its draw.
+#: 13: P19 R9. X costs are paid: an X spell is cast last in the main phase
+#:    with everything left as X (at least ``x_min``), and "draw X cards"
+#:    draws them. Until now X was 0 and the spell was cast early, for
+#:    nothing.
+#: 14: P19 R10. Green Sun's Zenith, Chord of Calling, Finale of Devastation,
+#:    Natural Order and Whir of Invention put the card they find onto the
+#:    battlefield, mana value X or less where the card says so.
+#: 15: P19 R11. Mana that counts the board: Gaea's Cradle and Circle of
+#:    Dreams Druid per creature, Elvish Archdruid and Priest of Titania per
+#:    Elf, Cabal Stronghold per basic Swamp, Crypt of Agadeem per black
+#:    creature card in the graveyard, Nykthos by devotion, Tron together.
+ENGINE_VERSION = 15
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

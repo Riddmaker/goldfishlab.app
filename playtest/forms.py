@@ -37,6 +37,9 @@ class ActionForm(forms.Form):
     )
     index = forms.IntegerField(required=False, min_value=0, max_value=500)
     count = forms.IntegerField(required=False, min_value=1, max_value=MAX_DRAW)
+    #: X for a spell with {X} in its cost (P19 R9); the engine checks that
+    #: the pool pays for it.
+    x = forms.IntegerField(required=False, min_value=0, max_value=99)
     total = forms.IntegerField(required=False, min_value=MIN_LIFE, max_value=MAX_LIFE)
     zone = forms.ChoiceField(required=False,
                              choices=[(zone, zone) for zone in actions.ZONES])

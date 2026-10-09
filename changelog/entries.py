@@ -42,6 +42,39 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "board-counts",
+        _("Gaea's Cradle, Elvish Archdruid, Nykthos and Tron"),
+        _("Mana that counts your board now makes what it counts: Gaea's Cradle and Circle of "
+          "Dreams Druid one green for each creature, Elvish Archdruid and Priest of Titania "
+          "one for each Elf, Cabal Stronghold one black for each basic Swamp, Crypt of "
+          "Agadeem one for each black creature card in your graveyard, Nykthos your devotion, "
+          "and the Urza lands seven together."),
+    ),
+    Entry(
+        date(2026, 10, 9), "tutor-onto-battlefield",
+        _("Green Sun's Zenith and Chord of Calling find their creature"),
+        _("Green Sun's Zenith, Chord of Calling, Finale of Devastation, Nature's Rhythm and "
+          "Whir of Invention now put the card they find onto the battlefield, with mana value "
+          "X or less. Before, they found nothing."),
+    ),
+    Entry(
+        date(2026, 10, 9), "x-costs",
+        _("Spells with X are paid with everything left"),
+        _("Stroke of Genius, Blue Sun's Zenith, Walking Ballista and every other card with X "
+          "in its cost were cast for X = 0 and as early as possible. Now they wait until "
+          "nothing else can be cast and take all the mana that is left as X, and draw-X "
+          "spells draw that many. On a card's page you can set the smallest X worth casting "
+          "it for, and when you play a deck by hand the board asks you for X."),
+    ),
+    Entry(
+        date(2026, 10, 9), "draw-then-discard",
+        _("Faithless Looting discards, Brainstorm puts back"),
+        _("Spells that draw and then discard, such as Faithless Looting, Frantic Search and "
+          "Izzet Charm, now discard your weakest cards, and Brainstorm puts two back on top. "
+          "Before, they only drew. Mystic Confluence now draws three, and Insatiable "
+          "Avarice pays for the mode that draws."),
+    ),
+    Entry(
         date(2026, 10, 9), "treasure",
         _("Treasure, and discarding a card to cast"),
         _("Big Score, Seize the Spoils, Rapacious Dragon and the like now make their Treasure, "

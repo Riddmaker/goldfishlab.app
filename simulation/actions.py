@@ -174,21 +174,28 @@ class CastSpell(Action):
 
     kind = "cast_spell"
     index: int = 0
+    #: What X is paid, for a card with {X} in its cost (P19 R9). None is a
+    #: game recorded before X was paid at all, and replays as it was played:
+    #: X = 0. The agent and the board both say what X is.
+    x: int | None = None
 
     def run(self, game, policy) -> None:
         card = _at(game, HAND, self.index)
         pool = _pool(game)
+        x = (self.x or 0) if card.x_count else 0
+        if x < 0:
+            raise IllegalAction(f"X cannot be {x}")
         # Payment is the one thing checked here, and it is mechanics rather
         # than legality: a cast nobody can pay for is not possible on a kitchen
         # table either. Everything else - no target, a missing creature - stays
         # the player's call. Without this the board, which offers a Cast button
         # on every card, answered an unaffordable one with a ValueError and an
         # HTTP 500 that htmx then swallowed in silence.
-        cost = castable_cost(game, card)
+        cost = castable_cost(game, card, x)
         if not pool.can_pay_cost(cost, life=game.life):
             raise IllegalAction(f"{card.name} costs {cost}; the floating mana is {pool}")
-        game.cast(card, pool)
-        _apply_cast_effect(game, card, policy)
+        game.cast(card, pool, x)
+        _apply_cast_effect(game, card, policy, x)
 
 
 @dataclass(frozen=True)
@@ -401,13 +408,13 @@ def legal_actions(game) -> list[Action]:
     return allowed
 
 
-def castable_cost(game, card):
-    """What a card would actually cost right now, reductions included.
+def castable_cost(game, card, x: int = 0):
+    """What a card would actually cost right now, reductions and X included.
 
     The UI needs this to explain *why* something is not highlighted, which is
     the honest version of greying a button out.
     """
-    return effective_mana_cost(card, reductions_from(game.battlefield))
+    return effective_mana_cost(card, reductions_from(game.battlefield), x)
 
 
 # --- Internals -------------------------------------------------------------
@@ -439,7 +446,7 @@ def _pool(game):
     return pool
 
 
-def _apply_cast_effect(game, card, policy) -> None:
+def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
     """Cast-time extras: tutors and draw-on-cast.
 
     Moved here from the agent, because *what a card does* is a mechanic and
@@ -450,22 +457,48 @@ def _apply_cast_effect(game, card, policy) -> None:
     if card.tutor is not None:
         spec = card.tutor
         game.life -= spec.life
-        predicate = (lambda c: c.kind == spec.kind) if spec.kind else None
+        if spec.to_battlefield:
+            predicate = _battlefield_predicate(spec, x)
+        else:
+            predicate = (lambda c: c.kind == spec.kind) if spec.kind else None
         found = 0
         for _ in range(spec.count):
             target = _search(game, policy, predicate)
             if target is None:
                 break
             game.library.remove(target)
-            if spec.to_hand:
+            if spec.to_battlefield:
+                game.note(f"  -> puts {target.name} onto the battlefield")
+                game.enter_battlefield(target)
+                _arrival(game, target, policy)
+            elif spec.to_hand:
                 game.hand.append(target)
                 game.note(f"  -> searches up {target.name}")
             else:
                 game.graveyard.append(target)
             found += 1
-        if not spec.to_hand and found:
+        if not spec.to_hand and not spec.to_battlefield and found:
             game.note(f"  -> {found} cards to the graveyard")
 
+    _arrival(game, card, policy)
+
+    drawn = card.draw_on_cast + (x if card.draws_x else 0)
+    if drawn:
+        game.draw(drawn)
+        game.life -= card.life_on_cast
+        game.note(f"  -> {drawn} cards, {card.life_on_cast} life")
+    if card.discard_on_cast:
+        game.discard(card.discard_on_cast)
+    if card.put_back_on_cast:
+        game.put_back(card.put_back_on_cast)
+
+
+def _arrival(game, card, policy) -> None:
+    """What a card does as it resolves or enters: its land search, its Treasure.
+
+    Shared by a cast card and a card a tutor put onto the battlefield (P19
+    R10): Wood Elves found by Green Sun's Zenith still fetch their Forest.
+    """
     search = card.land_search
     if search is not None and search.when in ("cast", "enters"):
         game.search_lands(card, _land_chooser(policy))
@@ -477,10 +510,20 @@ def _apply_cast_effect(game, card, policy) -> None:
 
     game.make_treasures(card)
 
-    if card.draw_on_cast:
-        game.draw(card.draw_on_cast)
-        game.life -= card.life_on_cast
-        game.note(f"  -> {card.draw_on_cast} cards, {card.life_on_cast} life")
+
+def _battlefield_predicate(spec, x: int):
+    """Which library cards a search onto the battlefield may find (P19 R10)."""
+    limit = x if spec.max_mv_x else spec.max_mv
+
+    def matches(card) -> bool:
+        types = card.types or frozenset({card.kind})
+        if spec.kind and spec.kind not in types:
+            return False
+        if spec.color and spec.color not in card.mana_cost.colors:
+            return False
+        return limit is None or card.mv <= limit
+
+    return matches
 
 
 def _land_chooser(policy):

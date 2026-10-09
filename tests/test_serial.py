@@ -62,7 +62,8 @@ EVERYTHING = Card(
     cost_reduction=CostReduction(amount=2, requires_pip=False, color="U"),
     draw_on_cast=2,
     life_on_cast=1,
-    tutor=TutorSpec(to_hand=False, count=3, life=3, kind=CREATURE),
+    tutor=TutorSpec(to_hand=False, count=3, life=3, kind=CREATURE, to_battlefield=True,
+                    color="G", max_mv=4, max_mv_x=True),
     upkeep=UpkeepSpec(draw=2, life=1, life_per_mv=True),
     end_step=EndStepSpec(max_hand=6, life_floor=20),
     skips_draw_step=True,
@@ -82,6 +83,12 @@ EVERYTHING = Card(
     treasures=2,
     treasure_mana="RG",
     discard_cost=1,
+    discard_on_cast=2,
+    put_back_on_cast=2,
+    x_count=3,
+    x_min=2,
+    draws_x=True,
+    creature_types=frozenset({"elf"}),
 )
 
 

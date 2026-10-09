@@ -15,6 +15,7 @@ from collections import Counter
 
 from simulation.cards import (
     ARTIFACT,
+    COUNTS,
     CREATURE,
     ENCHANTMENT,
     FLAT,
@@ -222,6 +223,20 @@ class Game:
             self.graveyard.append(worst)
             self.note(f"  -> discards {worst.name}")
 
+    def enter_battlefield(self, card) -> None:
+        """Put a permanent onto the battlefield without casting it - what a
+        tutor such as Green Sun's Zenith does (P19 R10)."""
+        self._resolve(card, self.pool)
+
+    def put_back(self, count: int) -> None:
+        """Put the weakest cards from hand on top of the library - Brainstorm
+        (P19 R8). They are drawn again, so the draw itself was only a look."""
+        for _ in range(min(count, len(self.hand))):
+            worst = self._worst_in_hand()
+            self.hand.remove(worst)
+            self.library.insert(0, worst)
+            self.note(f"  -> puts {worst.name} back on top")
+
     def make_treasures(self, card) -> None:
         """The Treasure tokens a card makes as it resolves (P19 R7)."""
         if not card.treasures:
@@ -313,9 +328,29 @@ class Game:
             return False
         if card.discard_cost and len([c for c in self.hand if c is not card]) < card.discard_cost:
             return False
+        if card.x_count:
+            return self.max_x(card, pool) >= card.x_min
         return pool.can_pay_cost(
             effective_mana_cost(card, reductions_from(self.battlefield)), life=self.life
         )
+
+    #: More X than this is never tried: the most mana a goldfish makes in a
+    #: turn is far below it, and the search stays a loop of a few steps.
+    MAX_X = 99
+
+    def max_x(self, card, pool: ManaPool) -> int:
+        """The largest X this pool pays for the card, -1 if not even X=0 (P19 R9).
+
+        Forge's AI does the same (``ComputerUtilMana.determineLeftoverMana``):
+        it tries X = 1, 2, 3 ... and stops at the first it cannot pay.
+        """
+        reductions = reductions_from(self.battlefield)
+        best = -1
+        for x in range(self.MAX_X + 1):
+            if not pool.can_pay_cost(effective_mana_cost(card, reductions, x), life=self.life):
+                break
+            best = x
+        return best
 
     # --- Playing cards -----------------------------------------------------
 
@@ -377,7 +412,17 @@ class Game:
         Swamp falls back to {C}, and Temple of the False God with four lands
         to nothing.
         """
+        counted = None
         for ability in card.mana_abilities:
+            if ability.rule == COUNTS:
+                # The best of a counting ability and the plain one after it:
+                # Cabal Stronghold with three basic Swamps nets nothing, and
+                # taps for {C} instead (P19 R11).
+                amount, color = self.board_count(ability, card)
+                if counted is None and amount - ability.activation_generic > 0:
+                    counted = ManaAbility(FLAT, {color: amount},
+                                          activation_generic=ability.activation_generic)
+                continue
             if ability.rule == LANDS_COULD_PRODUCE:
                 colors = self.lands_could_produce(card)
                 if not colors:
@@ -387,8 +432,49 @@ class Game:
             if ability.rule != FLAT:
                 continue
             if ability.only_if is None or self.holds(ability.only_if, card, entering=entering):
+                if counted is not None and (counted.total - counted.activation_generic
+                                            >= ability.total - ability.activation_generic):
+                    return counted
                 return ability
-        return None
+        return counted
+
+    def board_count(self, ability, card) -> tuple[int, str]:
+        """How much a counting ability makes on this board, and of what (P19 R11)."""
+        what, color = ability.subtype, ability.color
+        if what == "creature":
+            return len(self.creatures), color
+        if what.startswith("basic:"):
+            kind = what.split(":", 1)[1]
+            return sum(1 for land in self.lands
+                       if (land.basic and kind in land.subtypes)
+                       or (kind == "swamp" and land.is_swamp)), color
+        if what.startswith("graveyard:"):
+            wanted = what.split(":", 1)[1]
+            return sum(1 for found in self.graveyard
+                       if CREATURE in (found.types or {found.kind})
+                       and wanted in found.mana_cost.colors), color
+        if what == "devotion":
+            devotion = {each: self.devotion(each) for each in COLORS}
+            best = max(COLORS, key=lambda each: (devotion[each], each == color))
+            return devotion[best], best
+        if what.startswith("names:"):
+            needed = set(what.split(":", 1)[1].split("|"))
+            here = {land.name for land in self.lands if land is not card}
+            full = sum(amount for _, amount in ability.produces)
+            return (full if needed <= here else 0), COLORLESS
+        return sum(1 for creature in self.creatures if what in creature.creature_types), color
+
+    def devotion(self, color: str) -> int:
+        """Mana symbols of a colour among the costs of your permanents (Nykthos)."""
+        total = 0
+        for permanent in self.battlefield:
+            if permanent.is_land:
+                continue
+            cost = permanent.mana_cost
+            total += cost.colored.get(color, 0)
+            total += sum(1 for symbol in cost.hybrid if color in symbol.colors)
+            total += sum(1 for symbol in cost.phyrexian if symbol == color)
+        return total
 
     def lands_could_produce(self, card) -> str:
         """The mana the other lands could make, as one pool key (P19 R5).
@@ -503,9 +589,9 @@ class Game:
             self.lands.append(land)
         self.note(f"  -> {land.name} onto the battlefield" + (" (tapped)" if tapped else ""))
 
-    def cast(self, card, pool: ManaPool) -> None:
-        """Cast a card and take the cost out of the pool."""
-        cost = effective_mana_cost(card, reductions_from(self.battlefield))
+    def cast(self, card, pool: ManaPool, x: int = 0) -> None:
+        """Cast a card and take the cost out of the pool, ``x`` for each {X}."""
+        cost = effective_mana_cost(card, reductions_from(self.battlefield), x)
         payment = pool.pay_cost(cost, life=self.life)
         if payment is None:
             raise ValueError(f"{card.name} ({cost}) cannot be paid from {pool}")
@@ -517,6 +603,8 @@ class Game:
         if card.discard_cost:
             self.discard(card.discard_cost)
         self._resolve(card, pool)
+        if card.x_count:
+            self.note(f"  -> X = {x}")
 
     def _resolve(self, card, pool: ManaPool) -> None:
         """Put the card in the right zone and apply its immediate effects."""

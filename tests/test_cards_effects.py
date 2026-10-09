@@ -93,11 +93,17 @@ def test_a_card_nobody_tagged_a_tutor_is_not_one():
     assert (found.zone, found.count, found.reason) == ("", None, "")
 
 
-def test_tutoring_onto_the_battlefield_is_reported_not_redirected():
-    """The engine puts a found card in hand or in the graveyard. There is no
-    third move, and a tutor quietly redirected to the graveyard would be a
-    Natural Order that reanimates nothing."""
+def test_tutoring_onto_the_battlefield_is_read_or_reported_never_redirected():
+    """Since P19 R10 the engine puts one creature or artifact onto the
+    battlefield. A search it cannot read whole is still reported, never
+    redirected - a tutor quietly sent to the graveyard would be a Natural Order
+    that reanimates nothing."""
     found = _tutor("Search your library for a creature card and put it onto "
+                   "the battlefield, then shuffle.",
+                   "tutor", "tutor-to-battlefield", "tutor-creature")
+    assert (found.zone, found.count, found.kind, found.reason) == (
+        "battlefield", 1, "creature", "")
+    found = _tutor("Search your library for up to two creature cards and put them onto "
                    "the battlefield, then shuffle.",
                    "tutor", "tutor-to-battlefield", "tutor-creature")
     assert found.zone == "battlefield"

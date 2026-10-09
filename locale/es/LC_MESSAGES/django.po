@@ -9049,3 +9049,144 @@ msgstr ""
 "Tesoros, que pagan un hechizo posterior cuando tus tierras no alcanzan. Los "
 "hechizos que piden descartar una carta para lanzarlos descartan tu carta más"
 " débil."
+
+#: changelog/entries.py
+msgid "Faithless Looting discards, Brainstorm puts back"
+msgstr "Faithless Looting descarta, Brainstorm devuelve cartas"
+
+#: changelog/entries.py
+msgid ""
+"Spells that draw and then discard, such as Faithless Looting, Frantic Search"
+" and Izzet Charm, now discard your weakest cards, and Brainstorm puts two "
+"back on top. Before, they only drew. Mystic Confluence now draws three, and "
+"Insatiable Avarice pays for the mode that draws."
+msgstr ""
+"Los hechizos que roban y luego descartan, como Faithless Looting, Frantic "
+"Search e Izzet Charm, ahora descartan tus cartas más débiles, y Brainstorm "
+"devuelve dos a la parte superior. Antes solo robaban. Mystic Confluence "
+"ahora roba tres, e Insatiable Avarice paga el modo que roba."
+
+#: changelog/entries.py
+msgid "Spells with X are paid with everything left"
+msgstr "Los hechizos con X se pagan con todo lo que queda"
+
+#: changelog/entries.py
+msgid ""
+"Stroke of Genius, Blue Sun's Zenith, Walking Ballista and every other card "
+"with X in its cost were cast for X = 0 and as early as possible. Now they "
+"wait until nothing else can be cast and take all the mana that is left as X,"
+" and draw-X spells draw that many. On a card's page you can set the smallest"
+" X worth casting it for, and when you play a deck by hand the board asks you"
+" for X."
+msgstr ""
+"Stroke of Genius, Blue Sun's Zenith, Walking Ballista y todas las demás "
+"cartas con X en su coste se lanzaban con X = 0 y lo antes posible. Ahora "
+"esperan hasta que no se pueda lanzar nada más y usan todo el maná que queda "
+"como X, y los hechizos que roban X cartas roban esa cantidad. En la página "
+"de una carta puedes fijar la X más pequeña por la que vale la pena lanzarla,"
+" y cuando juegas un mazo a mano el tablero te pide la X."
+
+#: cards/profiles.py
+msgid "draws or discards by X in a way that is not modelled"
+msgstr "roba o descarta según X de una forma que no está modelada"
+
+#: cards/profiles.py
+msgid "puts lands onto the battlefield by X; not modelled"
+msgstr "pone tierras en el campo de batalla según X; no modelado"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "everything left once nothing else can be cast, at least %(min)s"
+msgstr ""
+"todo lo que queda cuando ya no se puede lanzar nada más, al menos %(min)s"
+
+#: simulations/provenance.py
+msgid "Pays X with"
+msgstr "Paga X con"
+
+#: simulations/annotations.py
+msgid "Smallest X worth casting it for"
+msgstr "La X más pequeña por la que lanzarla"
+
+#: simulations/annotations.py
+msgid ""
+"The engine casts a spell with X last in your turn, with all the mana that is"
+" left as X - but not for less than this. It starts at 1."
+msgstr ""
+"El motor lanza un hechizo con X el último en tu turno, con todo el maná que "
+"queda como X - pero no por menos de este valor. Empieza en 1."
+
+#: templates/playtest/_board.html
+msgid "X to pay"
+msgstr "X a pagar"
+
+#: changelog/entries.py
+msgid "Green Sun's Zenith and Chord of Calling find their creature"
+msgstr "Green Sun's Zenith y Chord of Calling encuentran su criatura"
+
+#: changelog/entries.py
+msgid ""
+"Green Sun's Zenith, Chord of Calling, Finale of Devastation, Nature's Rhythm"
+" and Whir of Invention now put the card they find onto the battlefield, with"
+" mana value X or less. Before, they found nothing."
+msgstr ""
+"Green Sun's Zenith, Chord of Calling, Finale of Devastation, Nature's Rhythm"
+" y Whir of Invention ahora ponen la carta que encuentran en el campo de "
+"batalla, con valor de maná X o menos. Antes no encontraban nada."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s (%(color)s)"
+msgstr "%(what)s (%(color)s)"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s with mana value %(limit)s or less"
+msgstr "%(what)s con valor de maná %(limit)s o menos"
+
+#: changelog/entries.py
+msgid "Gaea's Cradle, Elvish Archdruid, Nykthos and Tron"
+msgstr "Gaea's Cradle, Elvish Archdruid, Nykthos y Tron"
+
+#: changelog/entries.py
+msgid ""
+"Mana that counts your board now makes what it counts: Gaea's Cradle and "
+"Circle of Dreams Druid one green for each creature, Elvish Archdruid and "
+"Priest of Titania one for each Elf, Cabal Stronghold one black for each "
+"basic Swamp, Crypt of Agadeem one for each black creature card in your "
+"graveyard, Nykthos your devotion, and the Urza lands seven together."
+msgstr ""
+"El maná que cuenta tu campo de batalla ahora produce lo que cuenta: Gaea's "
+"Cradle y Circle of Dreams Druid uno verde por cada criatura, Elvish "
+"Archdruid y Priest of Titania uno por cada Elfo, Cabal Stronghold uno negro "
+"por cada Swamp básico, Crypt of Agadeem uno por cada carta de criatura negra"
+" en tu cementerio, Nykthos tu devoción, y las tierras de Urza siete juntas."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each creature you control"
+msgstr "un %(color)s por cada criatura que controlas"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each basic %(type)s you control"
+msgstr "un %(color)s por cada %(type)s básico que controlas"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each %(dead)s creature card in your graveyard"
+msgstr "un %(color)s por cada carta de criatura %(dead)s en tu cementerio"
+
+#: simulations/engine/adapter.py
+msgid "as much as your devotion to your best colour, in that colour"
+msgstr "tanto como tu devoción a tu mejor color, de ese color"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s while you control %(names)s"
+msgstr "%(mana)s mientras controles %(names)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each %(type)s you control"
+msgstr "un %(color)s por cada %(type)s que controlas"

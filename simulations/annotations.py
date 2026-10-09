@@ -172,6 +172,12 @@ JUDGEMENTS = (
           "once it has been used. The engine then takes its mana once, not every turn."),
     ),
     Judgement(
+        "x_min",
+        _("Smallest X worth casting it for"),
+        _("The engine casts a spell with X last in your turn, with all the mana "
+          "that is left as X - but not for less than this. It starts at 1."),
+    ),
+    Judgement(
         "tutor_count",
         _("Cards it searches up"),
         _("How many cards this finds in your library. The community tags say "

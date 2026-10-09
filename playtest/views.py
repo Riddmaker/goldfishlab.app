@@ -113,12 +113,14 @@ ENGINE_TAG = "engine"
 PIP_ORDER = (*COLORS, COLORLESS)
 
 
-def _tiles(cards, images, keywords=None, *, castable=(), playable=()) -> list[dict]:
+def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
+           x_max=None) -> list[dict]:
     """One zone, as the flat rows a template can loop over without thinking.
 
     The alternative is a custom filter for `images[card.name]` and another for
     `index in castable`. Both would put logic in the template, where it cannot
-    be tested.
+    be tested. `x_max` gives a castable card with {X} the largest X the pool
+    pays (P19 R9), which the board fills in for the player to change.
     """
     return [
         {
@@ -128,6 +130,7 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=()) -> list[di
             "keywords": (keywords or {}).get(card.name) or [],
             "castable": index in castable,
             "playable": index in playable,
+            "x_max": x_max(card) if x_max and index in castable and card.x_count else None,
         }
         for index, card in enumerate(cards)
     ]
@@ -171,6 +174,8 @@ def board_context(session: PlaytestSession, game) -> dict:
             game.hand, images, keywords,
             castable={a.index for a in legal if isinstance(a, actions.CastSpell)},
             playable={a.index for a in legal if isinstance(a, actions.PlayLand)},
+            x_max=(lambda card: game.max_x(card, game.pool))
+            if getattr(game, "pool", None) is not None else None,
         ),
         "battlefield": [
             {"key": key, "label": gettext(label),

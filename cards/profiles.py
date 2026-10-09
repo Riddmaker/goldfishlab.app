@@ -295,6 +295,30 @@ _COST_REDUCTION = re.compile(
     r"spells? (?:you cast )?costs? \{(\d+)\} less to cast", re.IGNORECASE
 )
 _DRAW = re.compile(r"\bdraws? (a|one|two|three|four|five|\d+) cards?", re.IGNORECASE)
+#: P19 R8: the discard a draw comes with - Faithless Looting, Frantic Search.
+#: Read as "draw two" alone, such a card played better than it does.
+_LOOT = re.compile(r"\bdraws? (a|one|two|three|four|five|\d+|X) cards?,? then discards? "
+                   r"(a|one|two|three|four|five|\d+|X) cards?", re.IGNORECASE)
+#: P19 R9: "Draw X cards" - as many as the X the spell was cast for. Not
+#: "half X", which only creatures say and the engine does not read off them.
+_DRAW_X = re.compile(r"\bdraws? X cards?\b", re.IGNORECASE)
+#: An X that puts lands into play (Animist's Awakening, Open the Way, Genesis
+#: Wave, Awaken the Woods): ramp the engine cannot play yet.
+_X_LANDS = re.compile(r"(?:land|permanent) cards?[^.]*onto the battlefield|land creature tokens",
+                      re.IGNORECASE)
+#: Brainstorm: the cards go back on top of the library rather than away.
+_PUT_BACK = re.compile(r"\bdraws? (a|one|two|three|four|five|\d+) cards?,? then put "
+                       r"(a|one|two|three|four|five|\d+) cards? from your hand on top of "
+                       r"your library", re.IGNORECASE)
+#: Mystic Confluence: a modal spell whose draw mode may be chosen every time.
+#: In a goldfish nothing else on it has a target, so all of them draw.
+_REPEATED_MODES = re.compile(
+    r"^Choose (two|three|four)\. You may choose the same mode more than once\.",
+    re.IGNORECASE | re.MULTILINE)
+_DRAW_MODE = re.compile(r"^• Draw (a|one|two|three) cards?\.$", re.IGNORECASE | re.MULTILINE)
+#: A spree mode: "+ {B}{B} — Target player draws three cards". The mode's cost
+#: is paid on top of the card's own when the engine plays that mode.
+_SPREE_MODE = re.compile(r"^\+ ((?:\{[^}]+\})+) — .*$", re.MULTILINE)
 # The pronoun check the deck research asked for: "you lose 1 life" is a cost,
 # "each opponent loses 1 life" is a payoff. Same verb, opposite meaning.
 _SELF_LOSS = re.compile(r"\byou lose (\d+|a|one|two|three) life", re.IGNORECASE)
@@ -318,6 +342,17 @@ _SEARCH_YOUR_LIBRARY = re.compile(
 #: for a creature card and a land card" - is a shape `TutorSpec` cannot hold,
 #: and reading only the first would import half a card.
 _SEARCH_CLAUSE = re.compile(r"Search your library for", re.IGNORECASE)
+#: P19 R10: one creature or artifact straight onto the battlefield - Green
+#: Sun's Zenith, Chord of Calling, Finale of Devastation (its graveyard is not
+#: searched: a goldfish's graveyard rarely holds the card, and the library
+#: alone can only under-read it), Whir of Invention, Natural Order.
+_TO_BATTLEFIELD = re.compile(
+    r"Search your library(?: and/or graveyard)? for an? "
+    r"(?:(?P<color>white|blue|black|red|green) )?(?P<what>creature|artifact) card"
+    r"(?: with mana value (?P<mv>X|\d+) or less)?"
+    r"(?:,| and) put (?:it|that card) onto the battlefield",
+    re.IGNORECASE)
+_COLOR_LETTER = {"white": "W", "blue": "U", "black": "B", "red": "R", "green": "G"}
 
 #: "As an additional cost to cast this spell, sacrifice a creature." The engine
 #: pays mana and nothing else, so it casts Diabolic Intent for {2}{B} and gets a
@@ -510,10 +545,37 @@ _PER_CONTROLLED = re.compile(
 _LANDS_COULD_PRODUCE = re.compile(
     r"^\{T\}(?:, Pay 1 life)?: Add one mana of any (?:type|colou?r) that a land you "
     r"control could produce\.", re.MULTILINE | re.IGNORECASE)
+#: P19 R11: mana that counts the board. "{T}: Add {G} for each creature you
+#: control." (Gaea's Cradle, Circle of Dreams Druid), "... for each Elf you
+#: control / on the battlefield" (Elvish Archdruid, Priest of Titania), "{3},
+#: {T}: Add {B} for each basic Swamp you control." (Cabal Stronghold), "{2},
+#: {T}: Add {B} for each black creature card in your graveyard." (Crypt of
+#: Agadeem). On a goldfish's table every Elf is yours.
+_COUNTS = re.compile(
+    r"^(?:\{(?P<cost>\d+)\}, )?\{T\}: Add \{(?P<color>[WUBRG])\} for each "
+    r"(?:(?P<creature>creature) you control|(?P<elf>Elf) (?:you control|on the battlefield)"
+    rf"|basic (?P<basic>{_BASIC_TYPE}) you control"
+    r"|(?P<dead>white|blue|black|red|green) creature card in your graveyard)\.$",
+    re.MULTILINE)
+#: Nykthos: "{2}, {T}: Choose a color. Add an amount of mana of that color equal
+#: to your devotion to that color."
+_DEVOTION = re.compile(
+    r"^\{(?P<cost>\d+)\}, \{T\}: Choose a color\. Add an amount of mana of that color "
+    r"equal to your devotion to that color\.", re.MULTILINE)
+#: Tron: "{T}: Add {C}. If you control an Urza's Power-Plant and an Urza's
+#: Tower, add {C}{C} instead."
+_TRON = re.compile(
+    r"^\{T\}: Add \{C\}\. If you control an Urza's (?P<a>[\w-]+) and an Urza's "
+    r"(?P<b>[\w-]+), add (?P<more>(?:\{C\}){2,3}) instead\.$", re.MULTILINE)
+#: The cards the Urza land types are printed on.
+_URZA_NAMES = {"Mine": "Urza's Mine", "Power-Plant": "Urza's Power Plant",
+               "Tower": "Urza's Tower"}
 #: What a read mana rule explains, and so is no longer a reason to review.
 _RULE_EXPLAINS = frozenset({
     "produces mana, but no readable 'Add' clause",
     "mana amount scales with the board",
+    "makes mana only as part of another effect",
+    "a conditional replacement ('instead') is not counted",
 })
 #: Somebody else's search: "Its controller may search their library" (Path to
 #: Exile, Ghost Quarter), "Each player searches their library" (Field of Ruin,
@@ -583,6 +645,36 @@ def _mana_rule(card: OracleCard, kind: str) -> dict | None:
     if kind == DerivedProfile.Kind.LAND and (found := _PER_CONTROLLED.fullmatch(text)):
         return {"rule": "per_controlled", "subtype": found.group("type").lower(),
                 "activation": int(found.group("cost")), "color": found.group("color")}
+    if "//" in (card.name or ""):
+        # Itlimoc counts creatures on its back face, which this engine never
+        # reaches: the front is an enchantment that makes no mana.
+        return None
+    return _counting_rule(text)
+
+
+def _counting_rule(text: str) -> dict | None:
+    """Mana that counts the board, as a ``counts`` rule (P19 R11), or None."""
+    if (found := _COUNTS.search(text)) is not None:
+        if found.group("creature"):
+            subtype = "creature"
+        elif found.group("elf"):
+            subtype = "elf"
+        elif found.group("basic"):
+            subtype = "basic:" + found.group("basic").lower()
+        else:
+            subtype = "graveyard:" + {"white": "W", "blue": "U", "black": "B", "red": "R",
+                                      "green": "G"}[found.group("dead").lower()]
+        return {"rule": "counts", "subtype": subtype, "color": found.group("color"),
+                "activation": int(found.group("cost") or 0)}
+    if (found := _DEVOTION.search(text)) is not None:
+        return {"rule": "counts", "subtype": "devotion", "color": "",
+                "activation": int(found.group("cost"))}
+    if (found := _TRON.search(text)) is not None:
+        names = [_URZA_NAMES.get(found.group(key)) for key in ("a", "b")]
+        if None in names:
+            return None
+        return {"rule": "counts", "subtype": "names:" + "|".join(names), "color": "C",
+                "activation": 0, "produces": {"C": found.group("more").count("{C}")}}
     return None
 
 
@@ -995,6 +1087,8 @@ class Tutor:
     count: int | None = None
     kind: str = ""
     reason: str = ""
+    #: P19 R10: {"color", "max_mv"} of a search onto the battlefield, or None.
+    filter: dict | None = None
 
 
 def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
@@ -1020,6 +1114,20 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
 
     if len(_SEARCH_CLAUSE.findall(text)) > 1:
         return Tutor(reason=gettext_noop("searches the library more than once; not modelled"))
+    found = _TO_BATTLEFIELD.search(text)
+    line_start = text.rfind("\n", 0, found.start()) + 1 if found else 0
+    if found is not None and ":" not in text[line_start:found.start()] and (
+            (found.group("mv") or "").upper() != "X" or "{X}" in (card.mana_cost or "")):
+        # Read whole off the text, so the tags' "battlefield" and "a mana value
+        # limit" (`tutor-mv`) are both answered, not unexpressible (P19 R10).
+        # Not an ability's search (Tezzeret's "-X:"): the engine plays what a
+        # card does as it is cast or enters, and X is the X of its own cost.
+        color = (found.group("color") or "").lower()
+        limit = found.group("mv")
+        return Tutor(zone="battlefield", count=1, kind=found.group("what").lower(),
+                     filter={"color": _COLOR_LETTER.get(color, ""),
+                             "max_mv": None if limit is None else
+                             ("X" if limit.upper() == "X" else int(limit))})
     if not _SEARCH_YOUR_LIBRARY.search(text) and _THEIR_LIBRARY.search(text):
         # Path to Exile: the search is the target's controller's, and the
         # target is an opponent's creature or land a goldfish does not have.
@@ -1102,6 +1210,52 @@ class LandSearch:
 def _word_number(token: str) -> int | None:
     token = token.lower()
     return int(token) if token.isdigit() else _WORD_NUMBERS.get(token)
+
+
+@dataclass
+class Draw:
+    """What a card's first "draw" reads as (P19 R8).
+
+    ``extra_cost`` is the spree mode the draw sits in ("{B}{B}" on Insatiable
+    Avarice), which the engine pays on top of the printed cost.
+    """
+
+    cards: int | None = None
+    discards: int = 0
+    puts_back: int = 0
+    #: P19 R9: it draws X cards; ``x_unread``: by X in a way not modelled
+    #: (Occult Epiphany discards X as well).
+    x: bool = False
+    x_unread: bool = False
+    extra_cost: str = ""
+
+
+def _draw(text: str) -> Draw:
+    """Cards drawn, cards discarded or put back right after, a spree mode's cost."""
+    numbered, by_x = _DRAW.search(text), _DRAW_X.search(text)
+    first = min((found for found in (numbered, by_x) if found is not None),
+                key=lambda found: found.start(), default=None)
+    if first is None:
+        return Draw()
+    if first is by_x:
+        draw = Draw(x=True)
+    else:
+        draw = Draw(cards=_first_number(_DRAW, text))
+    if (loot := _LOOT.search(text)) is not None and loot.start() == first.start():
+        if loot.group(2).upper() == "X":
+            draw.x, draw.x_unread = False, True
+        else:
+            draw.discards = min(_word_number(loot.group(2)) or 0, _NUMBER_CEILING)
+    if (back := _PUT_BACK.search(text)) is not None and back.start() == first.start():
+        draw.puts_back = min(_word_number(back.group(2)) or 0, _NUMBER_CEILING)
+    mode = _DRAW_MODE.search(text)
+    repeated = _REPEATED_MODES.search(text)
+    if repeated and mode and mode.start() <= first.start() < mode.end():
+        draw.cards = (_word_number(mode.group(1)) or 1) * (_word_number(repeated.group(1)) or 1)
+    for spree in _SPREE_MODE.finditer(text):
+        if spree.start() <= first.start() < spree.end():
+            draw.extra_cost = spree.group(1)
+    return draw
 
 
 def _land_search(card: OracleCard, kind: str) -> LandSearch:
@@ -1228,6 +1382,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana.notes = [note for note in mana.notes
                       if note != "only grants a mana ability to another permanent"]
     discard = _DISCARD_COST.search(text)
+    draw = _draw(text)
     amount = mana.amount
     if mana.one_shot and kind in (DerivedProfile.Kind.ARTIFACT, DerivedProfile.Kind.ROCK):
         # Lotus Petal: "{T}, Sacrifice this artifact: Add one mana of any
@@ -1261,14 +1416,20 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     # is to report it rather than to pick a side. Sol Ring is the shape: the
     # `Add {C}{C}` clause is readable, but the cards this catches are the ones
     # where it is not and a single mana slipped through looking correct.
-    if MULTIPLE_MANA_TAG in tags and amount == 1:
+    counts = mana_rule is not None and mana_rule["rule"] == "counts"
+    if MULTIPLE_MANA_TAG in tags and amount == 1 and not counts:
         reasons.append(gettext_noop("tagged as adding more than one mana; only one was read"))
     if _ADDITIONAL_COST.search(text) and not discard:
         reasons.append(gettext_noop("has an additional casting cost the engine does not pay"))
     if cost.hybrid:
         reasons.append(gettext_noop("hybrid pips: payment flexibility is not modelled"))
-    if cost.has_x:
-        reasons.append(gettext_noop("cost contains X"))
+    # Since engine version 13 an X is paid (P19 R9): all that is left, last
+    # in the main phase. What X then does is a gap only where it feeds
+    # something the engine plays and cannot read yet.
+    if cost.has_x and draw.x_unread:
+        reasons.append(gettext_noop("draws or discards by X in a way that is not modelled"))
+    if cost.has_x and _X_LANDS.search(text):
+        reasons.append(gettext_noop("puts lands onto the battlefield by X; not modelled"))
 
     profile = DerivedProfile(
         oracle_card=card,
@@ -1293,12 +1454,18 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         treasures=treasures,
         discard_cost=_word_number(discard.group(1)) if discard else 0,
         cost_reduction=_first_number(_COST_REDUCTION, text),
-        draws_cards=_first_number(_DRAW, text),
+        draws_cards=draw.cards,
+        discards_after=draw.discards,
+        puts_back=draw.puts_back,
+        # Only a cost with X says what X is; Painful Truths counts colours.
+        draws_x=draw.x and cost.has_x,
+        extra_cost=draw.extra_cost,
         self_life_loss=_first_number(_SELF_LOSS, text),
         opponent_life_loss=opponent_loss,
         tutor_to=tutor.zone,
         tutor_count=tutor.count,
         tutor_kind=tutor.kind,
+        tutor_filter=tutor.filter,
         land_search=land.spec,
         tapped_unless=tapped_unless,
         skips_draw_step=bool(_SKIPS_DRAW_STEP.search(text)),
@@ -1328,6 +1495,9 @@ def _source_map(tags: set[str], tapped: bool, mana: ManaReading,
         "role_tags": TAGS if tags else SCRYFALL,
         "cost_reduction": REGEX,
         "draws_cards": REGEX,
+        "discards_after": REGEX,
+        "puts_back": REGEX,
+        "draws_x": REGEX,
         "self_life_loss": REGEX,
         "opponent_life_loss": REGEX,
     }
@@ -1405,10 +1575,12 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "mv", "pips", "generic", "colorless", "has_x", "kind", "is_basic_swamp",
             "role_tags", "enters_tapped", "produces_mana", "mana_colors", "mana_amount",
             "cost_reduction", "draws_cards", "self_life_loss", "opponent_life_loss",
-            "tutor_to", "tutor_count", "tutor_kind", "land_search", "tapped_unless",
+            "tutor_to", "tutor_count", "tutor_kind", "tutor_filter", "land_search",
+            "tapped_unless",
             "skips_draw_step",
             "mana_produces", "mana_activation", "mana_untaps", "mana_condition", "mana_rule",
-            "mana_filter", "treasures", "discard_cost",
+            "mana_filter", "treasures", "discard_cost", "discards_after", "puts_back", "draws_x",
+            "extra_cost",
             "needs_review", "review_reasons", "source_map", "derived_at",
         ],
         unique_fields=["oracle_card"],

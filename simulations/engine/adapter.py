@@ -31,6 +31,7 @@ from decks.models import Deck
 from simulation import ENGINE_VERSION, agent
 from simulation.cards import (
     CARD_TYPES,
+    COUNTS,
     DOUBLE_SUBTYPE,
     FILTER,
     FLAT,
@@ -70,6 +71,7 @@ SCALING_RULES = {
     "double_subtype": DOUBLE_SUBTYPE,
     "type_adding": TYPE_ADDING,
     "lands_could_produce": LANDS_COULD_PRODUCE,
+    "counts": COUNTS,
 }
 
 #: Fields a human has to supply, because nothing in the card text implies them.
@@ -263,6 +265,14 @@ class Reading:
         return str(self.card.mana_cost)
 
     @property
+    def x_rule(self) -> str:
+        """How the engine picks X (P19 R9), in words; empty without an X."""
+        if not self.card.x_count:
+            return ""
+        return gettext("everything left once nothing else can be cast, at least "
+                       "%(min)s") % {"min": self.card.x_min}
+
+    @property
     def roles(self) -> list[str]:
         return sorted(self.card.tags)
 
@@ -289,8 +299,17 @@ class Reading:
         else:
             what = ngettext("%(count)s card", "%(count)s cards", spec.count) % {
                 "count": spec.count}
-        text = (gettext("%(what)s to hand") if spec.to_hand
-                else gettext("%(what)s to the graveyard")) % {"what": what}
+        if spec.to_battlefield:
+            if spec.color:
+                what = gettext("%(what)s (%(color)s)") % {"what": what,
+                                                          "color": mana_label(spec.color)}
+            if spec.max_mv_x or spec.max_mv is not None:
+                what = gettext("%(what)s with mana value %(limit)s or less") % {
+                    "what": what, "limit": "X" if spec.max_mv_x else spec.max_mv}
+            text = gettext("%(what)s onto the battlefield") % {"what": what}
+        else:
+            text = (gettext("%(what)s to hand") if spec.to_hand
+                    else gettext("%(what)s to the graveyard")) % {"what": what}
         if spec.life:
             text = gettext("%(search)s, paying %(life)s life") % {"search": text,
                                                                  "life": spec.life}
@@ -400,7 +419,9 @@ def _ability_text(ability) -> str:
         cost = "{" + "/".join(ability.pays_with) + "}" if ability.pays_with else "{1}"
         return gettext("for %(cost)s, %(mana)s") % {"cost": cost, "mana": produced}
 
-    if ability.rule in RULE_TEXT:
+    if ability.rule == COUNTS:
+        text = _counts_text(ability)
+    elif ability.rule in RULE_TEXT:
         text = gettext(RULE_TEXT[ability.rule]) % {
             "color": ability.scaling_color, "subtype": ability.subtype or "land"}
     else:
@@ -408,6 +429,28 @@ def _ability_text(ability) -> str:
     if ability.activation_generic:
         return _for_cost(ability.activation_generic, text)
     return text
+
+
+def _counts_text(ability) -> str:
+    """What a counting ability makes, in words (P19 R11)."""
+    what, color = ability.subtype, mana_label(ability.color) if ability.color else ""
+    if what == "creature":
+        return gettext("one %(color)s for each creature you control") % {"color": color}
+    if what.startswith("basic:"):
+        return gettext("one %(color)s for each basic %(type)s you control") % {
+            "color": color, "type": what.split(":", 1)[1].title()}
+    if what.startswith("graveyard:"):
+        return gettext("one %(color)s for each %(dead)s creature card in your graveyard") % {
+            "color": color, "dead": mana_label(what.split(":", 1)[1])}
+    if what == "devotion":
+        return gettext("as much as your devotion to your best colour, in that colour")
+    if what.startswith("names:"):
+        produced = " + ".join(f"{amount} {mana_label(source)}"
+                              for source, amount in ability.produces)
+        return gettext("%(mana)s while you control %(names)s") % {
+            "mana": produced, "names": " + ".join(what.split(":", 1)[1].split("|"))}
+    return gettext("one %(color)s for each %(type)s you control") % {
+        "color": color, "type": what.title()}
 
 
 def _condition_text(condition: TappedUnless) -> str:
@@ -692,6 +735,15 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         ritual_color=_ritual_color(profile, overrides, deck_colors),
         cost_reduction=_cost_reduction(profile, overrides),
         draw_on_cast=_draw_on_cast(profile, overrides, kind),
+        discard_on_cast=_after_draw(profile, overrides, kind, "discard_on_cast",
+                                    "discards_after"),
+        put_back_on_cast=_after_draw(profile, overrides, kind, "put_back_on_cast",
+                                     "puts_back"),
+        x_count=_x_count(oracle_card, profile),
+        x_min=int(overrides.get("x_min", 1)),
+        draws_x=(kind in ONE_SHOT_KINDS and "draw_on_cast" not in overrides
+                 and bool(getattr(profile, "draws_x", False))),
+        creature_types=creature_types(oracle_card),
         life_on_cast=int(overrides.get("life_on_cast", 0)),
         tutor=_tutor(profile, overrides),
         upkeep=_upkeep(overrides),
@@ -739,9 +791,16 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
             )
     read_rule = getattr(profile, "mana_rule", None)
     if read_rule and not _overrides_mana(overrides):
-        return (ManaAbility(SCALING_RULES[read_rule["rule"]], subtype=read_rule["subtype"],
-                            activation_generic=int(read_rule.get("activation") or 0),
-                            color=read_rule.get("color", "")),)
+        rule = ManaAbility(SCALING_RULES[read_rule["rule"]], read_rule.get("produces") or (),
+                           subtype=read_rule["subtype"],
+                           activation_generic=int(read_rule.get("activation") or 0),
+                           color=read_rule.get("color", ""))
+        if read_rule["rule"] != "counts" or not profile.mana_amount:
+            return (rule,)
+        # Cabal Stronghold, Urza's Mine: the counting ability and the plain
+        # {C} beside it; the game taps for the better (P19 R11).
+        return (rule, _flat(getattr(profile, "mana_produces", None), profile.mana_colors,
+                            profile.mana_amount, 0, deck_colors, None))
 
     # What using the ability costs beside {T}: a Signet's {1}. Read off the
     # card by the deriver since the 2026-09-25 review, and an annotation can
@@ -889,7 +948,10 @@ def _cost(oracle_card, profile, overrides: dict) -> ManaCost:
             colorless=int(profile.colorless),
             has_x=bool(profile.has_x),
         )
-    return parse(oracle_card.mana_cost or "")
+    # A spree mode the engine plays costs its own mana on top (P19 R8) - but
+    # only the derived draw's mode: a person who set the draw said what it is.
+    extra = "" if "draw_on_cast" in overrides else getattr(profile, "extra_cost", "")
+    return parse((oracle_card.mana_cost or "") + (extra or ""))
 
 
 def _ritual_color(profile, overrides: dict, deck_colors: frozenset[str]) -> str:
@@ -921,11 +983,32 @@ def _draw_on_cast(profile, overrides: dict, kind: str) -> int:
     return 0
 
 
-#: The two zones a `TutorSpec` can search to. `battlefield` is deliberately
-#: absent: the engine puts a found card in the hand or in the graveyard and has
-#: no third move, so a tutor that fetches onto the battlefield is a gap rather
-#: than a tutor quietly redirected somewhere it does not go.
-TUTOR_ZONES = {"hand": True, "graveyard": False}
+def _after_draw(profile, overrides: dict, kind: str, key: str, field_name: str) -> int:
+    """What the derived draw gives back: a discard or a put-back (P19 R8).
+
+    A person who set the draw has said what the spell does; the derived
+    discard then no longer belongs to it unless they set that too.
+    """
+    if key in overrides:
+        return int(overrides[key])
+    if "draw_on_cast" in overrides or kind not in ONE_SHOT_KINDS:
+        return 0
+    if not (profile.draws_cards or getattr(profile, "draws_x", False)):
+        return 0
+    return int(getattr(profile, field_name, 0) or 0)
+
+
+def _x_count(oracle_card, profile) -> int:
+    """How many {X} the cost has (P19 R9): three on Astral Cornucopia."""
+    if not profile.has_x:
+        return 0
+    return (oracle_card.mana_cost or "").upper().count("{X}") or 1
+
+
+#: The zones a `TutorSpec` can search to, and whether that is the hand. The
+#: battlefield joined in P19 R10, read whole off the text (`tutor_filter`); a
+#: battlefield tutor the reader could not read stays a gap.
+TUTOR_ZONES = {"hand": True, "graveyard": False, "battlefield": False}
 
 
 def _tapped_unless(profile, overrides: dict) -> TappedUnless | None:
@@ -981,8 +1064,18 @@ def _tutor(profile, overrides: dict) -> TutorSpec | None:
 
     if profile.tutor_to not in TUTOR_ZONES or profile.tutor_count is None:
         return None
+    limit = getattr(profile, "tutor_filter", None)
+    if profile.tutor_to == "battlefield" and limit is None:
+        return None
 
+    battlefield = {}
+    if limit is not None:
+        max_mv = limit.get("max_mv")
+        battlefield = {"to_battlefield": True, "color": limit.get("color") or "",
+                       "max_mv_x": max_mv == "X",
+                       "max_mv": max_mv if isinstance(max_mv, int) else None}
     return TutorSpec(
+        **battlefield,
         to_hand=TUTOR_ZONES[profile.tutor_to],
         count=int(profile.tutor_count),
         # Grim Tutor's three life is already derived, by the same pronoun check
@@ -1088,6 +1181,18 @@ def card_types(oracle_card) -> frozenset[str]:
         front = front.split(separator, 1)[0]
     words = {word.casefold() for word in front.split()}
     return frozenset(kind for kind in CARD_TYPES if kind in words)
+
+
+def creature_types(oracle_card) -> frozenset[str]:
+    """The creature types on the front face, lower case (P19 R11): what a
+    "for each Elf" counts. Empty for a card that is not a creature."""
+    front = (oracle_card.type_line or "").split("//", 1)[0]
+    if "Creature" not in front:
+        return frozenset()
+    for separator in TYPE_SEPARATORS:
+        if separator in front:
+            return frozenset(word.casefold() for word in front.split(separator, 1)[1].split())
+    return frozenset()
 
 
 def _subtypes(oracle_card, profile, overrides: dict) -> frozenset[str]:

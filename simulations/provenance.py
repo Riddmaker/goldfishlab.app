@@ -99,6 +99,8 @@ class FieldSpec:
     #: mana" on every creature in the deck is the noise that teaches people to
     #: stop reading the panel.
     mana_only: bool = False
+    #: A row only a card with {X} in its cost has an answer to (P19 R9).
+    x_only: bool = False
 
 
 #: The rows, in the order the panel shows them. Every one has a label, so a
@@ -106,6 +108,7 @@ class FieldSpec:
 #: this table against the editable vocabulary in both directions.
 FIELDS = (
     FieldSpec("cost", _("Mana cost"), ("pips", "generic"), "scryfall"),
+    FieldSpec("x_rule", _("Pays X with"), x_only=True),
     FieldSpec("kind", _("Engine treats it as"), ("kind",), "scryfall"),
     FieldSpec(
         "taps_for",
@@ -141,6 +144,7 @@ FIELDS = (
 #: editable vocabulary so the two cannot fall out of step.
 ANNOTATION_KEY = {
     "cost": "pips",
+    "x_rule": "x_min",
     "kind": "kind",
     "taps_for": "mana_produces",
     "activation": "mana_activation",
@@ -159,7 +163,9 @@ ANNOTATION_KEY = {
 #: the product is statistics about a deck, not steering a game), so flagging
 #: "the engine's own rule" as worth checking would nag about a question the
 #: interface no longer asks. The row still says who decided.
-SETTLED_BY_DEFAULT = frozenset({"effective_priority"})
+#: How X is paid is the same kind of answer: the rule a player follows, not a
+#: reading the engine is unsure of (P19 R9).
+SETTLED_BY_DEFAULT = frozenset({"effective_priority", "x_rule"})
 
 
 @dataclass(frozen=True)
@@ -277,6 +283,7 @@ def _rows(reading: adapter.Reading, scopes: dict) -> list[Row]:
         for spec in FIELDS
         if (spec.applies_to_lands or not is_land) and (is_land or not spec.lands_only)
         and (reading.card.mana_abilities or not spec.mana_only)
+        and (reading.card.x_count or not spec.x_only)
     ]
 
 

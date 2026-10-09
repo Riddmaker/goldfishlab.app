@@ -67,6 +67,14 @@ TYPE_ADDING = "type_adding"
 #: game works it out each turn (`Game.mana_ability`).
 LANDS_COULD_PRODUCE = "lands_could_produce"
 
+#: ``{T}: Add {G} for each creature you control`` - mana that counts the
+#: board (P19 R11). ``subtype`` says what is counted: ``creature``, a creature
+#: type (``elf``), ``basic:swamp``, ``graveyard:B`` (black creature cards in
+#: the graveyard), ``devotion`` (Nykthos: the colour with most), or
+#: ``names:A|B`` (Tron: ``produces`` once every named land is there). The game
+#: works the amount out each turn (`Game.mana_ability`).
+COUNTS = "counts"
+
 #: ``{W/B}, {T}: Add {W}{W}, {W}{B}, or {B}{B}`` - a filter land - and
 #: ``{1}, {T}: Add one mana of any color`` - a converter, Study Hall (P19 R6).
 #: One mana goes in (``pays_with``: the colours it may be; empty = any) and
@@ -265,6 +273,15 @@ class TutorSpec:
     count: int = 1
     life: int = 0
     kind: str = ""
+    #: P19 R10: straight onto the battlefield (Green Sun's Zenith); then
+    #: ``to_hand`` says nothing. ``kind`` is matched against the card's types
+    #: there, so Whir of Invention finds a mana rock as well as an artifact.
+    to_battlefield: bool = False
+    #: P19 R10: "a green creature card": the colour its cost must have.
+    color: str = ""
+    #: P19 R10: "with mana value 3 or less", or with ``max_mv_x`` "X or less".
+    max_mv: int | None = None
+    max_mv_x: bool = False
 
 
 @dataclass(frozen=True)
@@ -402,6 +419,25 @@ class Card:
     treasure_mana: str = ""
     #: P19 R7: "As an additional cost to cast this spell, discard a card."
     discard_cost: int = 0
+    #: P19 R8: cards discarded right after ``draw_on_cast`` - Faithless
+    #: Looting draws two, then discards two.
+    discard_on_cast: int = 0
+    #: P19 R8: cards put back on top of the library after that draw -
+    #: Brainstorm draws three, then puts two back.
+    put_back_on_cast: int = 0
+    #: P19 R9: how many {X} the cost has - Astral Cornucopia's {X}{X}{X} is
+    #: three. 0: no X. The agent casts such a spell last in its main phase,
+    #: with everything left as X, the way Forge's AI picks its X.
+    x_count: int = 0
+    #: P19 R9: the smallest X worth casting it for. A deck author may want
+    #: Stroke of Genius held until X is four.
+    x_min: int = 1
+    #: P19 R9: it draws X cards (Stroke of Genius, Blue Sun's Zenith), on
+    #: top of ``draw_on_cast``.
+    draws_x: bool = False
+    #: P19 R11: the creature types on the front face, lower case - what
+    #: Elvish Archdruid counts. Empty for everything else.
+    creature_types: frozenset[str] = field(default_factory=frozenset)
 
     @property
     def mana_cost(self) -> ManaCost:

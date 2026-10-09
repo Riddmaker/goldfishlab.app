@@ -300,6 +300,10 @@ written with `COVERAGE_WRITE=1 pytest tests/test_engine_coverage.py` and committ
 python manage.py engine_coverage                  # coverage of today's catalogue and decks
 python manage.py engine_coverage --check          # today's catalogue against the snapshot
 python manage.py engine_coverage --export-fixture # rebuild the slice (full catalogue + precons)
+# One turn of the loop, against the local server only: a deck of the most-played cards the
+# engine cannot read, uploaded through /decks/import/ as a local test account, the review
+# walk followed to the end and checked against the engine (report in /tmp).
+python scripts/coverage_loop.py --colours URG [--skip 60]
 ```
 
 ## Adding translations

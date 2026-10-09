@@ -177,8 +177,11 @@ def load_snapshot(path: Path = SNAPSHOT) -> dict:
 
 
 def write_snapshot(found: dict, path: Path = SNAPSHOT) -> None:
-    path.write_text(json.dumps(found, indent=1, sort_keys=True, ensure_ascii=False) + "\n",
-                    encoding="utf-8")
+    """One line per card: still JSON, and a PR's diff is the cards that changed."""
+    lines = [f"{json.dumps(name, ensure_ascii=False)}: "
+             f"{json.dumps(entry, sort_keys=True, ensure_ascii=False, separators=(',', ':'))}"
+             for name, entry in sorted(found.items())]
+    path.write_text("{\n" + ",\n".join(lines) + "\n}\n", encoding="utf-8")
 
 
 # --- the fixed set ------------------------------------------------------------
@@ -205,29 +208,55 @@ def _plain(value):
     return value
 
 
-def export_fixture(cards, path: Path = CARDS_FIXTURE) -> int:
-    """Write the cards, their tags and the whole tag tree, for `load_fixture`."""
-    from cards.models import OracleCard, OracleCardTag, Tag, TagEdge
+#: The card columns the reader and the adapter read. Everything else - the
+#: legalities, the image and Scryfall links, the prices' ranks - only chose the
+#: fixed set, and would only make the fixture bigger.
+CARD_COLUMNS = ("oracle_id", "name", "front_name", "search_name", "mana_cost", "cmc",
+                "type_line", "oracle_text", "colors", "color_identity", "produced_mana",
+                "keywords", "layout", "game_changer")
 
-    columns = [f.attname for f in OracleCard._meta.concrete_fields]
-    cards = list(cards.order_by("pk").values_list(*columns))
-    links = list(OracleCardTag.objects.filter(oracle_card__in=[row[0] for row in cards])
-                 .order_by("oracle_card_id", "tag_id")
-                 .values_list("oracle_card_id", "tag_id", "is_direct", "weight"))
-    data = {
-        "card_columns": columns,
-        "cards": [[_plain(value) for value in row] for row in cards],
-        "tags": [[str(pk), slug, label] for pk, slug, label in
-                 Tag.objects.order_by("slug").values_list("pk", "slug", "label")],
-        "edges": [[str(parent), str(child)] for parent, child in
-                  TagEdge.objects.order_by("parent_id", "child_id")
-                  .values_list("parent_id", "child_id")],
-        "links": [[str(card), str(tag), direct, weight]
-                  for card, tag, direct, weight in links],
+
+def pack(cards: list[dict], tags: dict, edges: list, links: list) -> dict:
+    """The fixture's form: cards by `CARD_COLUMNS`, tags by slug, and every
+    reference between them a position in those lists rather than a uuid.
+
+    `cards` are column -> value mappings, `tags` maps a tag id to its slug,
+    `edges` are (parent id, child id) and `links` (card id, tag id, direct,
+    weight). Only the tags a link or an edge names are kept.
+    """
+    tags = {str(tag): slug for tag, slug in tags.items()}
+    cards = sorted(cards, key=lambda card: str(card["oracle_id"]))
+    card_index = {str(card["oracle_id"]): index for index, card in enumerate(cards)}
+    used = {str(tag) for _card, tag, _direct, _weight in links}
+    used |= {str(tag) for edge in edges for tag in edge}
+    slugs = sorted(tags[tag] for tag in set(tags) & used)
+    tag_index = {slug: index for index, slug in enumerate(slugs)}
+
+    def tag(tag_id):
+        return tag_index[tags[str(tag_id)]]
+
+    return {
+        "card_columns": list(CARD_COLUMNS),
+        "cards": [[_plain(card[column]) for column in CARD_COLUMNS] for card in cards],
+        "tags": slugs,
+        "edges": sorted([tag(parent), tag(child)] for parent, child in edges),
+        "links": sorted([card_index[str(card)], tag(tag_id), direct, weight]
+                        for card, tag_id, direct, weight in links),
     }
+
+
+def export_fixture(cards, path: Path = CARDS_FIXTURE) -> int:
+    """Write the cards, their tags and the tag tree, for `load_fixture`."""
+    from cards.models import OracleCardTag, Tag, TagEdge
+
+    rows = list(cards.values(*CARD_COLUMNS))
+    links = list(OracleCardTag.objects.filter(oracle_card__in=[row["oracle_id"] for row in rows])
+                 .values_list("oracle_card_id", "tag_id", "is_direct", "weight"))
+    data = pack(rows, dict(Tag.objects.values_list("pk", "slug")),
+                list(TagEdge.objects.values_list("parent_id", "child_id")), links)
     with gzip.open(path, "wt", encoding="utf-8") as handle:
         json.dump(data, handle, separators=(",", ":"), ensure_ascii=False)
-    return len(cards)
+    return len(rows)
 
 
 @transaction.atomic
@@ -243,12 +272,12 @@ def load_fixture(path: Path = CARDS_FIXTURE) -> list:
                            for column, value in zip(data["card_columns"], row, strict=True)})
              for row in data["cards"]]
     OracleCard.objects.bulk_create(cards, batch_size=1_000)
-    Tag.objects.bulk_create([Tag(pk=pk, slug=slug, label=label)
-                             for pk, slug, label in data["tags"]], batch_size=2_000)
-    TagEdge.objects.bulk_create([TagEdge(parent_id=parent, child_id=child)
+    tags = Tag.objects.bulk_create([Tag(pk=uuid.uuid4(), slug=slug, label=slug)
+                                    for slug in data["tags"]], batch_size=2_000)
+    TagEdge.objects.bulk_create([TagEdge(parent=tags[parent], child=tags[child])
                                  for parent, child in data["edges"]], batch_size=2_000)
     OracleCardTag.objects.bulk_create(
-        [OracleCardTag(oracle_card_id=card, tag_id=tag, is_direct=direct, weight=weight)
+        [OracleCardTag(oracle_card=cards[card], tag=tags[tag], is_direct=direct, weight=weight)
          for card, tag, direct, weight in data["links"]], batch_size=5_000)
     profiles.rebuild(OracleCard.objects.filter(pk__in=[card.pk for card in cards]))
     return cards

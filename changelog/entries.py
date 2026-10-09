@@ -42,6 +42,15 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "x-costs",
+        _("Spells with X are paid with everything left"),
+        _("Stroke of Genius, Blue Sun's Zenith, Walking Ballista and every other card with X "
+          "in its cost were cast for X = 0 and as early as possible. Now they wait until "
+          "nothing else can be cast and take all the mana that is left as X, and draw-X "
+          "spells draw that many. On a card's page you can set the smallest X worth casting "
+          "it for, and when you play a deck by hand the board asks you for X."),
+    ),
+    Entry(
         date(2026, 10, 9), "draw-then-discard",
         _("Faithless Looting discards, Brainstorm puts back"),
         _("Spells that draw and then discard, such as Faithless Looting, Frantic Search and "

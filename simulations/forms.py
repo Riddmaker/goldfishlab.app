@@ -235,6 +235,10 @@ class AnnotationForm(forms.Form):
         required=False, min_value=0, max_value=10,
         label=BY_KEY["mana_activation"].label, help_text=BY_KEY["mana_activation"].help,
     )
+    x_min = forms.IntegerField(
+        required=False, min_value=0, max_value=20,
+        label=BY_KEY["x_min"].label, help_text=BY_KEY["x_min"].help,
+    )
 
     note = forms.CharField(
         required=False, max_length=500, widget=forms.Textarea(attrs={"rows": 2}),
@@ -253,16 +257,18 @@ class AnnotationForm(forms.Form):
              "replace_tags", "replace_subtypes", "note"]
         )
 
-    def split(self, gap_fields, *, is_land: bool) -> tuple[list, list]:
+    def split(self, gap_fields, *, is_land: bool, has_x: bool = False) -> tuple[list, list]:
         """The fields worth asking about this card first, and the rest.
 
         `scope` is in neither: the page carries it as a hidden field and offers
-        the other scope as a link, which is a toggle and not a question.
+        the other scope as a link, which is a toggle and not a question. Nor is
+        the X field on a card without an X (P19 R9).
         """
         wanted = [name for field in gap_fields for name in ANSWERS.get(field, ())]
         if is_land:
             wanted.extend(LAND_ANSWERS)
-        fields = [bound for bound in self if bound.name != "scope"]
+        fields = [bound for bound in self if bound.name != "scope"
+                  and (has_x or bound.name != "x_min")]
         # In the order `ANSWERS` names them, so a "Replace the roles" box sits
         # above the roles it replaces rather than after them.
         first = sorted((bound for bound in fields if bound.name in wanted),
@@ -303,6 +309,7 @@ class AnnotationForm(forms.Form):
             "tutor_count": data.get("tutor_count"),
             # Zero is a statement too: "it only has to tap".
             "mana_activation": data.get("mana_activation"),
+            "x_min": data.get("x_min"),
         }
 
     @staticmethod
@@ -329,4 +336,6 @@ class AnnotationForm(forms.Form):
                 initial[key] = "1" if overrides[key] else "0"
         if "mana_activation" in overrides:
             initial["mana_activation"] = overrides["mana_activation"]
+        if "x_min" in overrides:
+            initial["x_min"] = overrides["x_min"]
         return initial

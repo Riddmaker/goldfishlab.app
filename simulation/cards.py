@@ -408,6 +408,16 @@ class Card:
     #: P19 R8: cards put back on top of the library after that draw -
     #: Brainstorm draws three, then puts two back.
     put_back_on_cast: int = 0
+    #: P19 R9: how many {X} the cost has - Astral Cornucopia's {X}{X}{X} is
+    #: three. 0: no X. The agent casts such a spell last in its main phase,
+    #: with everything left as X, the way Forge's AI picks its X.
+    x_count: int = 0
+    #: P19 R9: the smallest X worth casting it for. A deck author may want
+    #: Stroke of Genius held until X is four.
+    x_min: int = 1
+    #: P19 R9: it draws X cards (Stroke of Genius, Blue Sun's Zenith), on
+    #: top of ``draw_on_cast``.
+    draws_x: bool = False
 
     @property
     def mana_cost(self) -> ManaCost:

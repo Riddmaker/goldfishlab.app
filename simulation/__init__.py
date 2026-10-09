@@ -84,6 +84,10 @@ boundary, not the symptom.
 #:    Search) discards the weakest cards after it, Brainstorm puts two back
 #:    on top; Mystic Confluence draws
 #:    three; a spree mode's cost (Insatiable Avarice) is paid with its draw.
-ENGINE_VERSION = 12
+#: 13: P19 R9. X costs are paid: an X spell is cast last in the main phase
+#:    with everything left as X (at least ``x_min``), and "draw X cards"
+#:    draws them. Until now X was 0 and the spell was cast early, for
+#:    nothing.
+ENGINE_VERSION = 13
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

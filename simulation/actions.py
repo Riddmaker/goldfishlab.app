@@ -174,21 +174,28 @@ class CastSpell(Action):
 
     kind = "cast_spell"
     index: int = 0
+    #: What X is paid, for a card with {X} in its cost (P19 R9). None is a
+    #: game recorded before X was paid at all, and replays as it was played:
+    #: X = 0. The agent and the board both say what X is.
+    x: int | None = None
 
     def run(self, game, policy) -> None:
         card = _at(game, HAND, self.index)
         pool = _pool(game)
+        x = (self.x or 0) if card.x_count else 0
+        if x < 0:
+            raise IllegalAction(f"X cannot be {x}")
         # Payment is the one thing checked here, and it is mechanics rather
         # than legality: a cast nobody can pay for is not possible on a kitchen
         # table either. Everything else - no target, a missing creature - stays
         # the player's call. Without this the board, which offers a Cast button
         # on every card, answered an unaffordable one with a ValueError and an
         # HTTP 500 that htmx then swallowed in silence.
-        cost = castable_cost(game, card)
+        cost = castable_cost(game, card, x)
         if not pool.can_pay_cost(cost, life=game.life):
             raise IllegalAction(f"{card.name} costs {cost}; the floating mana is {pool}")
-        game.cast(card, pool)
-        _apply_cast_effect(game, card, policy)
+        game.cast(card, pool, x)
+        _apply_cast_effect(game, card, policy, x)
 
 
 @dataclass(frozen=True)
@@ -401,13 +408,13 @@ def legal_actions(game) -> list[Action]:
     return allowed
 
 
-def castable_cost(game, card):
-    """What a card would actually cost right now, reductions included.
+def castable_cost(game, card, x: int = 0):
+    """What a card would actually cost right now, reductions and X included.
 
     The UI needs this to explain *why* something is not highlighted, which is
     the honest version of greying a button out.
     """
-    return effective_mana_cost(card, reductions_from(game.battlefield))
+    return effective_mana_cost(card, reductions_from(game.battlefield), x)
 
 
 # --- Internals -------------------------------------------------------------
@@ -439,7 +446,7 @@ def _pool(game):
     return pool
 
 
-def _apply_cast_effect(game, card, policy) -> None:
+def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
     """Cast-time extras: tutors and draw-on-cast.
 
     Moved here from the agent, because *what a card does* is a mechanic and
@@ -477,10 +484,11 @@ def _apply_cast_effect(game, card, policy) -> None:
 
     game.make_treasures(card)
 
-    if card.draw_on_cast:
-        game.draw(card.draw_on_cast)
+    drawn = card.draw_on_cast + (x if card.draws_x else 0)
+    if drawn:
+        game.draw(drawn)
         game.life -= card.life_on_cast
-        game.note(f"  -> {card.draw_on_cast} cards, {card.life_on_cast} life")
+        game.note(f"  -> {drawn} cards, {card.life_on_cast} life")
     if card.discard_on_cast:
         game.discard(card.discard_on_cast)
     if card.put_back_on_cast:

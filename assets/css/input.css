@@ -1376,6 +1376,33 @@ span.hand-card {
   outline-offset: 2px;
 }
 
+/* X for a spell with {X} in its cost, on the top of the card (above it, a
+ * phone's scrolling hand would clip it): the most the floating
+ * mana pays is filled in, and the player may lower it (P19 R9). */
+.hand-card-x {
+  position: absolute;
+  left: 50%;
+  top: 0.5rem;
+  translate: -50% 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background-color: var(--color-ink-900);
+  color: var(--color-parchment-100);
+  font-size: 0.875rem;
+}
+
+.hand-card-x input {
+  width: 3rem;
+  padding: 0 0.25rem;
+  border-radius: 0.25rem;
+  background-color: var(--color-parchment-100);
+  color: var(--color-ink-900);
+}
+
 /* What a click does, said on the card while it is raised. */
 .hand-card-action {
   position: absolute;

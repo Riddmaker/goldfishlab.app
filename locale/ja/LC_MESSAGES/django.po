@@ -7981,3 +7981,50 @@ msgstr ""
 "Faithless Looting、Frantic Search、Izzet "
 "Charmのように引いてから捨てる呪文は、最も弱いカードを捨てるようになり、Brainstormは2枚をライブラリーの一番上に戻します。以前は引くだけでした。Mystic"
 " Confluenceは3枚引くようになり、Insatiable Avariceは引くモードのコストを支払います。"
+
+#: changelog/entries.py
+msgid "Spells with X are paid with everything left"
+msgstr "Xを含む呪文は残りすべてのマナで支払われます"
+
+#: changelog/entries.py
+msgid ""
+"Stroke of Genius, Blue Sun's Zenith, Walking Ballista and every other card "
+"with X in its cost were cast for X = 0 and as early as possible. Now they "
+"wait until nothing else can be cast and take all the mana that is left as X,"
+" and draw-X spells draw that many. On a card's page you can set the smallest"
+" X worth casting it for, and when you play a deck by hand the board asks you"
+" for X."
+msgstr ""
+"Stroke of Genius、Blue Sun's Zenith、Walking BallistaなどコストにXを含むカードは、これまでX = "
+"0で、できるだけ早く唱えられていました。今後は、ほかに唱えられるものがなくなるまで待ち、残りのマナをすべてXにします。X枚引く呪文はその枚数を引きます。カードのページでは唱える価値のある最小のXを設定でき、デッキを手でプレイするときは盤面がXを尋ねます。"
+
+#: cards/profiles.py
+msgid "draws or discards by X in a way that is not modelled"
+msgstr "Xに応じて引く・捨てる方法がモデル化されていない"
+
+#: cards/profiles.py
+msgid "puts lands onto the battlefield by X; not modelled"
+msgstr "Xに応じて土地を戦場に出す（モデル化されていません）"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "everything left once nothing else can be cast, at least %(min)s"
+msgstr "ほかに唱えられるものがなくなったときの残りすべて（最低%(min)s）"
+
+#: simulations/provenance.py
+msgid "Pays X with"
+msgstr "Xの支払い"
+
+#: simulations/annotations.py
+msgid "Smallest X worth casting it for"
+msgstr "唱える価値のある最小のX"
+
+#: simulations/annotations.py
+msgid ""
+"The engine casts a spell with X last in your turn, with all the mana that is"
+" left as X - but not for less than this. It starts at 1."
+msgstr "エンジンはXを含む呪文をターンの最後に、残りのマナをすべてXにして唱えます。ただし、この値未満では唱えません。初期値は1です。"
+
+#: templates/playtest/_board.html
+msgid "X to pay"
+msgstr "支払うX"

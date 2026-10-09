@@ -84,6 +84,9 @@ EVERYTHING = Card(
     discard_cost=1,
     discard_on_cast=2,
     put_back_on_cast=2,
+    x_count=3,
+    x_min=2,
+    draws_x=True,
 )
 
 

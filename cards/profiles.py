@@ -297,8 +297,15 @@ _COST_REDUCTION = re.compile(
 _DRAW = re.compile(r"\bdraws? (a|one|two|three|four|five|\d+) cards?", re.IGNORECASE)
 #: P19 R8: the discard a draw comes with - Faithless Looting, Frantic Search.
 #: Read as "draw two" alone, such a card played better than it does.
-_LOOT = re.compile(r"\bdraws? (a|one|two|three|four|five|\d+) cards?,? then discards? "
-                   r"(a|one|two|three|four|five|\d+) cards?", re.IGNORECASE)
+_LOOT = re.compile(r"\bdraws? (a|one|two|three|four|five|\d+|X) cards?,? then discards? "
+                   r"(a|one|two|three|four|five|\d+|X) cards?", re.IGNORECASE)
+#: P19 R9: "Draw X cards" - as many as the X the spell was cast for. Not
+#: "half X", which only creatures say and the engine does not read off them.
+_DRAW_X = re.compile(r"\bdraws? X cards?\b", re.IGNORECASE)
+#: An X that puts lands into play (Animist's Awakening, Open the Way, Genesis
+#: Wave, Awaken the Woods): ramp the engine cannot play yet.
+_X_LANDS = re.compile(r"(?:land|permanent) cards?[^.]*onto the battlefield|land creature tokens",
+                      re.IGNORECASE)
 #: Brainstorm: the cards go back on top of the library rather than away.
 _PUT_BACK = re.compile(r"\bdraws? (a|one|two|three|four|five|\d+) cards?,? then put "
                        r"(a|one|two|three|four|five|\d+) cards? from your hand on top of "
@@ -1132,17 +1139,29 @@ class Draw:
     cards: int | None = None
     discards: int = 0
     puts_back: int = 0
+    #: P19 R9: it draws X cards; ``x_unread``: by X in a way not modelled
+    #: (Occult Epiphany discards X as well).
+    x: bool = False
+    x_unread: bool = False
     extra_cost: str = ""
 
 
 def _draw(text: str) -> Draw:
     """Cards drawn, cards discarded or put back right after, a spree mode's cost."""
-    first = _DRAW.search(text)
+    numbered, by_x = _DRAW.search(text), _DRAW_X.search(text)
+    first = min((found for found in (numbered, by_x) if found is not None),
+                key=lambda found: found.start(), default=None)
     if first is None:
         return Draw()
-    draw = Draw(cards=_first_number(_DRAW, text))
+    if first is by_x:
+        draw = Draw(x=True)
+    else:
+        draw = Draw(cards=_first_number(_DRAW, text))
     if (loot := _LOOT.search(text)) is not None and loot.start() == first.start():
-        draw.discards = min(_word_number(loot.group(2)) or 0, _NUMBER_CEILING)
+        if loot.group(2).upper() == "X":
+            draw.x, draw.x_unread = False, True
+        else:
+            draw.discards = min(_word_number(loot.group(2)) or 0, _NUMBER_CEILING)
     if (back := _PUT_BACK.search(text)) is not None and back.start() == first.start():
         draw.puts_back = min(_word_number(back.group(2)) or 0, _NUMBER_CEILING)
     mode = _DRAW_MODE.search(text)
@@ -1319,8 +1338,13 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         reasons.append(gettext_noop("has an additional casting cost the engine does not pay"))
     if cost.hybrid:
         reasons.append(gettext_noop("hybrid pips: payment flexibility is not modelled"))
-    if cost.has_x:
-        reasons.append(gettext_noop("cost contains X"))
+    # Since engine version 13 an X is paid (P19 R9): all that is left, last
+    # in the main phase. What X then does is a gap only where it feeds
+    # something the engine plays and cannot read yet.
+    if cost.has_x and draw.x_unread:
+        reasons.append(gettext_noop("draws or discards by X in a way that is not modelled"))
+    if cost.has_x and _X_LANDS.search(text):
+        reasons.append(gettext_noop("puts lands onto the battlefield by X; not modelled"))
 
     profile = DerivedProfile(
         oracle_card=card,
@@ -1348,6 +1372,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         draws_cards=draw.cards,
         discards_after=draw.discards,
         puts_back=draw.puts_back,
+        # Only a cost with X says what X is; Painful Truths counts colours.
+        draws_x=draw.x and cost.has_x,
         extra_cost=draw.extra_cost,
         self_life_loss=_first_number(_SELF_LOSS, text),
         opponent_life_loss=opponent_loss,
@@ -1385,6 +1411,7 @@ def _source_map(tags: set[str], tapped: bool, mana: ManaReading,
         "draws_cards": REGEX,
         "discards_after": REGEX,
         "puts_back": REGEX,
+        "draws_x": REGEX,
         "self_life_loss": REGEX,
         "opponent_life_loss": REGEX,
     }
@@ -1465,7 +1492,7 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "tutor_to", "tutor_count", "tutor_kind", "land_search", "tapped_unless",
             "skips_draw_step",
             "mana_produces", "mana_activation", "mana_untaps", "mana_condition", "mana_rule",
-            "mana_filter", "treasures", "discard_cost", "discards_after", "puts_back",
+            "mana_filter", "treasures", "discard_cost", "discards_after", "puts_back", "draws_x",
             "extra_cost",
             "needs_review", "review_reasons", "source_map", "derived_at",
         ],

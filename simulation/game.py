@@ -322,9 +322,29 @@ class Game:
             return False
         if card.discard_cost and len([c for c in self.hand if c is not card]) < card.discard_cost:
             return False
+        if card.x_count:
+            return self.max_x(card, pool) >= card.x_min
         return pool.can_pay_cost(
             effective_mana_cost(card, reductions_from(self.battlefield)), life=self.life
         )
+
+    #: More X than this is never tried: the most mana a goldfish makes in a
+    #: turn is far below it, and the search stays a loop of a few steps.
+    MAX_X = 99
+
+    def max_x(self, card, pool: ManaPool) -> int:
+        """The largest X this pool pays for the card, -1 if not even X=0 (P19 R9).
+
+        Forge's AI does the same (``ComputerUtilMana.determineLeftoverMana``):
+        it tries X = 1, 2, 3 ... and stops at the first it cannot pay.
+        """
+        reductions = reductions_from(self.battlefield)
+        best = -1
+        for x in range(self.MAX_X + 1):
+            if not pool.can_pay_cost(effective_mana_cost(card, reductions, x), life=self.life):
+                break
+            best = x
+        return best
 
     # --- Playing cards -----------------------------------------------------
 
@@ -512,9 +532,9 @@ class Game:
             self.lands.append(land)
         self.note(f"  -> {land.name} onto the battlefield" + (" (tapped)" if tapped else ""))
 
-    def cast(self, card, pool: ManaPool) -> None:
-        """Cast a card and take the cost out of the pool."""
-        cost = effective_mana_cost(card, reductions_from(self.battlefield))
+    def cast(self, card, pool: ManaPool, x: int = 0) -> None:
+        """Cast a card and take the cost out of the pool, ``x`` for each {X}."""
+        cost = effective_mana_cost(card, reductions_from(self.battlefield), x)
         payment = pool.pay_cost(cost, life=self.life)
         if payment is None:
             raise ValueError(f"{card.name} ({cost}) cannot be paid from {pool}")
@@ -526,6 +546,8 @@ class Game:
         if card.discard_cost:
             self.discard(card.discard_cost)
         self._resolve(card, pool)
+        if card.x_count:
+            self.note(f"  -> X = {x}")
 
     def _resolve(self, card, pool: ManaPool) -> None:
         """Put the card in the right zone and apply its immediate effects."""

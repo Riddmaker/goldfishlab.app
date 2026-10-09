@@ -9065,3 +9065,57 @@ msgstr ""
 "Search e Izzet Charm, ahora descartan tus cartas más débiles, y Brainstorm "
 "devuelve dos a la parte superior. Antes solo robaban. Mystic Confluence "
 "ahora roba tres, e Insatiable Avarice paga el modo que roba."
+
+#: changelog/entries.py
+msgid "Spells with X are paid with everything left"
+msgstr "Los hechizos con X se pagan con todo lo que queda"
+
+#: changelog/entries.py
+msgid ""
+"Stroke of Genius, Blue Sun's Zenith, Walking Ballista and every other card "
+"with X in its cost were cast for X = 0 and as early as possible. Now they "
+"wait until nothing else can be cast and take all the mana that is left as X,"
+" and draw-X spells draw that many. On a card's page you can set the smallest"
+" X worth casting it for, and when you play a deck by hand the board asks you"
+" for X."
+msgstr ""
+"Stroke of Genius, Blue Sun's Zenith, Walking Ballista y todas las demás "
+"cartas con X en su coste se lanzaban con X = 0 y lo antes posible. Ahora "
+"esperan hasta que no se pueda lanzar nada más y usan todo el maná que queda "
+"como X, y los hechizos que roban X cartas roban esa cantidad. En la página "
+"de una carta puedes fijar la X más pequeña por la que vale la pena lanzarla,"
+" y cuando juegas un mazo a mano el tablero te pide la X."
+
+#: cards/profiles.py
+msgid "draws or discards by X in a way that is not modelled"
+msgstr "roba o descarta según X de una forma que no está modelada"
+
+#: cards/profiles.py
+msgid "puts lands onto the battlefield by X; not modelled"
+msgstr "pone tierras en el campo de batalla según X; no modelado"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "everything left once nothing else can be cast, at least %(min)s"
+msgstr ""
+"todo lo que queda cuando ya no se puede lanzar nada más, al menos %(min)s"
+
+#: simulations/provenance.py
+msgid "Pays X with"
+msgstr "Paga X con"
+
+#: simulations/annotations.py
+msgid "Smallest X worth casting it for"
+msgstr "La X más pequeña por la que lanzarla"
+
+#: simulations/annotations.py
+msgid ""
+"The engine casts a spell with X last in your turn, with all the mana that is"
+" left as X - but not for less than this. It starts at 1."
+msgstr ""
+"El motor lanza un hechizo con X el último en tu turno, con todo el maná que "
+"queda como X - pero no por menos de este valor. Empieza en 1."
+
+#: templates/playtest/_board.html
+msgid "X to pay"
+msgstr "X a pagar"

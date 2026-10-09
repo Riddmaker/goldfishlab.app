@@ -260,6 +260,13 @@
                 {% include "playtest/_hand_face.html" %}
                 <span class="hand-card-action">{% if tile.card.is_land %}{% translate "Play land" %}{% else %}{% translate "Cast" %}{% endif %}</span>
               </button>
+              {% if tile.x_max is not None %}
+                <label class="hand-card-x">
+                  X
+                  <input type="number" name="x" min="0" max="{{ tile.x_max|unlocalize }}" value="{{ tile.x_max|unlocalize }}"
+                         aria-label="{% translate 'X to pay' %}">
+                </label>
+              {% endif %}
             </form>
           {% endif %}
         </li>

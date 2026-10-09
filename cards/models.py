@@ -374,6 +374,8 @@ class DerivedProfile(models.Model):
     #: P19 R8: cards put back on top of the library after that draw -
     #: Brainstorm draws three, then puts two back.
     puts_back = models.PositiveSmallIntegerField(default=0)
+    #: P19 R9: "Draw X cards" - Stroke of Genius, Blue Sun's Zenith.
+    draws_x = models.BooleanField(default=False)
     #: P19 R8: the spree mode the draw sits in, paid on top of the printed
     #: cost: "{B}{B}" on Insatiable Avarice. Empty: none.
     extra_cost = models.CharField(max_length=32, blank=True, default="")

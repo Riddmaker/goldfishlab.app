@@ -194,8 +194,12 @@ def _try_ritual_line(game, pool: ManaPool) -> bool:
 
 def _cast_best(game, pool: ManaPool) -> bool:
     """Cast the best playable card. Returns True when something happened."""
-    options = [card for card in game.hand
-               if card.kind != RITUAL and game.can_cast(card, pool)]
+    castable = [card for card in game.hand
+                if card.kind != RITUAL and game.can_cast(card, pool)]
+    # An X spell takes whatever is left, so it waits until nothing else can
+    # be cast - commander included (P19 R9).
+    options = [card for card in castable if not card.x_count]
+    x_spells = [card for card in castable if card.x_count]
     best_spell = max(options, key=priority) if options else None
     best_score = priority(best_spell) if best_spell else -1
 
@@ -211,6 +215,11 @@ def _cast_best(game, pool: ManaPool) -> bool:
 
     if commander_ok:
         _do(game, actions.CastCommander())
+        return True
+
+    if x_spells:
+        spell = max(x_spells, key=priority)
+        _do(game, actions.CastSpell(index=game.hand.index(spell), x=game.max_x(spell, pool)))
         return True
 
     return False

@@ -25,6 +25,8 @@ The function names and signatures are unchanged, because the four engine test
 files have to stay byte-identical.
 """
 
+from dataclasses import replace
+
 from simulation.cards import (
     DOUBLE_SUBTYPE,
     FILTER,
@@ -518,13 +520,19 @@ def applicable_reduction(cost: ManaCost, reductions: dict[str, int]) -> int:
     )
 
 
-def effective_mana_cost(card, reductions: dict[str, int] | None = None) -> ManaCost:
-    """A card's full cost after reduction.
+def effective_mana_cost(card, reductions: dict[str, int] | None = None,
+                        x: int = 0) -> ManaCost:
+    """A card's full cost after reduction, with ``x`` paid for each {X}.
 
     The path the engine takes. ``card.mana_cost`` gives the coloured form even
-    for cards still described through ``pips``/``generic``.
+    for cards still described through ``pips``/``generic``. X is generic mana,
+    so it is added before a reduction applies (P19 R9): a Medallion takes {1}
+    off Stroke of Genius at any X, as it does at the table.
     """
     cost = card.mana_cost
+    if x and getattr(card, "x_count", 0):
+        # Once X is chosen it is plain generic mana, and the cost says so.
+        cost = replace(cost, generic=cost.generic + x * card.x_count, has_x=False)
     if not reductions:
         return cost
     return cost.reduced(applicable_reduction(cost, reductions))

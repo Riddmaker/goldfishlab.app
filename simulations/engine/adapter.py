@@ -263,6 +263,14 @@ class Reading:
         return str(self.card.mana_cost)
 
     @property
+    def x_rule(self) -> str:
+        """How the engine picks X (P19 R9), in words; empty without an X."""
+        if not self.card.x_count:
+            return ""
+        return gettext("everything left once nothing else can be cast, at least "
+                       "%(min)s") % {"min": self.card.x_min}
+
+    @property
     def roles(self) -> list[str]:
         return sorted(self.card.tags)
 
@@ -696,6 +704,10 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
                                     "discards_after"),
         put_back_on_cast=_after_draw(profile, overrides, kind, "put_back_on_cast",
                                      "puts_back"),
+        x_count=_x_count(oracle_card, profile),
+        x_min=int(overrides.get("x_min", 1)),
+        draws_x=(kind in ONE_SHOT_KINDS and "draw_on_cast" not in overrides
+                 and bool(getattr(profile, "draws_x", False))),
         life_on_cast=int(overrides.get("life_on_cast", 0)),
         tutor=_tutor(profile, overrides),
         upkeep=_upkeep(overrides),
@@ -936,9 +948,18 @@ def _after_draw(profile, overrides: dict, kind: str, key: str, field_name: str) 
     """
     if key in overrides:
         return int(overrides[key])
-    if "draw_on_cast" in overrides or kind not in ONE_SHOT_KINDS or not profile.draws_cards:
+    if "draw_on_cast" in overrides or kind not in ONE_SHOT_KINDS:
+        return 0
+    if not (profile.draws_cards or getattr(profile, "draws_x", False)):
         return 0
     return int(getattr(profile, field_name, 0) or 0)
+
+
+def _x_count(oracle_card, profile) -> int:
+    """How many {X} the cost has (P19 R9): three on Astral Cornucopia."""
+    if not profile.has_x:
+        return 0
+    return (oracle_card.mana_cost or "").upper().count("{X}") or 1
 
 
 #: The two zones a `TutorSpec` can search to. `battlefield` is deliberately

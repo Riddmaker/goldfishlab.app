@@ -456,6 +456,7 @@ class CardAnnotateView(DeckScopedView):
         ids = [question.oracle_card.pk for question in questions]
         first, more = form.split(
             {gap.field for gap in entry.reading_gaps}, is_land=entry.reading.card.is_land,
+            has_x=bool(entry.reading.card.x_count),
         )
         context = {
             "deck": deck,

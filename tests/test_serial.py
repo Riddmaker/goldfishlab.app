@@ -63,7 +63,8 @@ EVERYTHING = Card(
     draw_on_cast=2,
     life_on_cast=1,
     tutor=TutorSpec(to_hand=False, count=3, life=3, kind=CREATURE, to_battlefield=True,
-                    color="G", max_mv=4, max_mv_x=True),
+                    color="G", max_mv=4, max_mv_x=True, to_top=True,
+                    types=frozenset({"artifact", "enchantment"})),
     upkeep=UpkeepSpec(draw=2, life=1, life_per_mv=True),
     end_step=EndStepSpec(max_hand=6, life_floor=20),
     skips_draw_step=True,
@@ -79,7 +80,8 @@ EVERYTHING = Card(
                            sacrifice=True, untap_at=4),
     basic=True,
     tapped_unless=TappedUnless(kind="lands", types=frozenset({"island"}), count=3,
-                               at_least=False, other=True, basic=True, type="island"),
+                               at_least=False, other=True, basic=True, type="island",
+                               legendary=True),
     treasures=2,
     treasure_mana="RG",
     discard_cost=1,
@@ -89,6 +91,7 @@ EVERYTHING = Card(
     x_min=2,
     draws_x=True,
     creature_types=frozenset({"elf"}),
+    legendary=True,
 )
 
 

@@ -8097,3 +8097,34 @@ msgstr "%(names)sをコントロールしている間は%(mana)s"
 #, python-format
 msgid "one %(color)s for each %(type)s you control"
 msgstr "あなたがコントロールする%(type)s 1体につき%(color)s 1つ"
+
+#: changelog/entries.py
+msgid "Vampiric Tutor, Minas Tirith and the battle lands"
+msgstr "Vampiric Tutor、Minas Tirith、バトルランド"
+
+#: changelog/entries.py
+msgid ""
+"Vampiric, Mystical, Enlightened and Worldly Tutor now put the card they find"
+" on top of your library, where you draw it next turn. Lands that enter "
+"tapped unless you control a legendary creature, a planeswalker or a basic "
+"land, Starting Town and the Turbulent lands now enter untapped when that "
+"holds; for the Turbulent lands we assume each opponent plays a land a turn. "
+"Battle lands such as Prairie Stream entered untapped beside a single basic "
+"land; now they wait for two."
+msgstr ""
+"Vampiric、Mystical、Enlightened、Worldly Tutor "
+"は、見つけたカードをライブラリーの一番上に置くようになり、次のターンに引けます。伝説のクリーチャー、プレインズウォーカー、基本土地をコントロールしていない限りタップ状態で戦場に出る土地、Starting"
+" Town、Turbulent 土地は、条件を満たすとアンタップ状態で出るようになりました。Turbulent "
+"土地については、各対戦相手が毎ターン土地を1枚出すと仮定しています。Prairie Stream "
+"などのバトルランドは基本土地1枚だけでもアンタップ状態で出ていましたが、今は2枚を待ちます。"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s on top of the library, drawn next turn"
+msgstr "%(what)s をライブラリーの一番上へ、次のターンに引く"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters untapped from your fourth turn, assuming each opponent plays a land a"
+" turn"
+msgstr "各対戦相手が毎ターン土地を1枚出すと仮定し、あなたの4ターン目からアンタップ状態で出る"

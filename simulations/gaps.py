@@ -48,8 +48,10 @@ JUDGEMENT = "judgement"
 #: it - which is why both are fields rather than rules. `assumed_mana` (P19 R5)
 #: is the engine's own answer to one: Exotic Orchard makes the deck's colours,
 #: an assumption about the table that the card page states and a player can
-#: replace with what their table really gives.
-JUDGEMENT_FIELDS = frozenset({"priority", "accelerant", "assumed_mana"})
+#: replace with what their table really gives. `assumed_lands` (P19 R12) is
+#: the same for the Turbulent lands: each opponent plays a land a turn, until
+#: a player says when the land enters untapped at their table.
+JUDGEMENT_FIELDS = frozenset({"priority", "accelerant", "assumed_mana", "assumed_lands"})
 
 
 def kind_of(field: str) -> str:

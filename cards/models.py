@@ -395,7 +395,7 @@ class DerivedProfile(models.Model):
     # that", not a tutor quietly redirected to the graveyard.
     tutor_to = models.CharField(
         max_length=16, blank=True,
-        help_text="hand, graveyard or battlefield. Blank means not a tutor.",
+        help_text="hand, graveyard, battlefield or top. Blank means not a tutor.",
     )
     tutor_count = models.PositiveSmallIntegerField(
         null=True, blank=True, help_text="Null means unresolved, never 'one'."
@@ -404,6 +404,8 @@ class DerivedProfile(models.Model):
         max_length=16, blank=True,
         help_text="Engine card kind the search is restricted to. Blank means any.",
     )
+    #: P19 R12: for `tutor_to` "top" (Vampiric Tutor), {"types": [...]}: the card
+    #: types it may find, any of them; empty for any card.
     #: P19 R10: what else a search onto the battlefield is limited to - {"color":
     #: "G" for "a green creature card", "max_mv": "X" or a number for "with mana
     #: value X or less"}. Green Sun's Zenith, Chord of Calling. Null: nothing.
@@ -416,7 +418,8 @@ class DerivedProfile(models.Model):
     #: once you control that many lands). See `cards.profiles._land_search`.
     land_search = models.JSONField(null=True, blank=True)
     #: P19 R3: when `enters_tapped`, the condition under which it does not -
-    #: {"kind": control_type | lands | opponents | reveal | pay_life, ...}.
+    #: {"kind": control_type | lands | opponents | reveal | pay_life | permanent |
+    #: turn | opponent_lands | life_at_most, ...} (the last four since P19 R12).
     #: See `cards.profiles._tapped_unless`. Null: none, or none it could read.
     tapped_unless = models.JSONField(null=True, blank=True)
 

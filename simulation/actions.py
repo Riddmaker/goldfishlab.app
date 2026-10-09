@@ -459,6 +459,8 @@ def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
         game.life -= spec.life
         if spec.to_battlefield:
             predicate = _battlefield_predicate(spec, x)
+        elif spec.to_top:
+            predicate = (lambda c: bool(c.types & spec.types)) if spec.types else None
         else:
             predicate = (lambda c: c.kind == spec.kind) if spec.kind else None
         found = 0
@@ -471,13 +473,16 @@ def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
                 game.note(f"  -> puts {target.name} onto the battlefield")
                 game.enter_battlefield(target)
                 _arrival(game, target, policy)
+            elif spec.to_top:
+                game.library.insert(0, target)
+                game.note(f"  -> puts {target.name} on top of the library")
             elif spec.to_hand:
                 game.hand.append(target)
                 game.note(f"  -> searches up {target.name}")
             else:
                 game.graveyard.append(target)
             found += 1
-        if not spec.to_hand and not spec.to_battlefield and found:
+        if not (spec.to_hand or spec.to_battlefield or spec.to_top) and found:
             game.note(f"  -> {found} cards to the graveyard")
 
     _arrival(game, card, policy)

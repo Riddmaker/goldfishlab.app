@@ -95,6 +95,13 @@ boundary, not the symptom.
 #:    Dreams Druid per creature, Elvish Archdruid and Priest of Titania per
 #:    Elf, Cabal Stronghold per basic Swamp, Crypt of Agadeem per black
 #:    creature card in the graveyard, Nykthos by devotion, Tron together.
-ENGINE_VERSION = 15
+#: 16: P19 R12. Vampiric, Mystical, Enlightened and Worldly Tutor put their
+#:    card on top of the library. Lands that enter tapped unless you control
+#:    a legendary creature, a planeswalker or a basic land, Starting Town
+#:    (first three turns), the Turbulent lands (assuming each opponent plays a
+#:    land a turn) and "a player has 13 or less life" (your own life) are
+#:    checked against the game. A battle land no longer counts itself among
+#:    the basic lands it asks for, so it entered untapped beside one.
+ENGINE_VERSION = 16
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

@@ -118,6 +118,13 @@ class TappedUnless:
       Phyrexian life floor
     * ``artifacts`` - you control ``count`` or more artifacts (Mox Opal,
       Spire of Industry)
+    * ``permanent`` - you control a permanent of one of ``types``, a
+      ``legendary`` one if set (Minas Tirith, Dedicated Commons; P19 R12)
+    * ``turn`` - it is your turn ``count`` or earlier (Starting Town)
+    * ``opponent_lands`` - your opponents control ``count`` or more lands,
+      assuming each of three plays one a turn (the Turbulent lands)
+    * ``life_at_most`` - you have ``count`` or less life; the opponents'
+      life is unknown, so this holds less often than at a table
 
     Since engine version 8 the same question also guards a mana ability
     (P19 R4): "Activate only if you control five or more lands" is a
@@ -132,6 +139,7 @@ class TappedUnless:
     other: bool = False
     basic: bool = False
     type: str = ""
+    legendary: bool = False
 
 
 @dataclass(frozen=True)
@@ -282,6 +290,11 @@ class TutorSpec:
     #: P19 R10: "with mana value 3 or less", or with ``max_mv_x`` "X or less".
     max_mv: int | None = None
     max_mv_x: bool = False
+    #: P19 R12: on top of the library, drawn next turn (Vampiric Tutor); then
+    #: ``to_hand`` says nothing. ``types`` limits it by card type, any of them
+    #: (Enlightened Tutor: artifact or enchantment); empty means any card.
+    to_top: bool = False
+    types: frozenset[str] = field(default_factory=frozenset)
 
 
 @dataclass(frozen=True)
@@ -438,6 +451,8 @@ class Card:
     #: P19 R11: the creature types on the front face, lower case - what
     #: Elvish Archdruid counts. Empty for everything else.
     creature_types: frozenset[str] = field(default_factory=frozenset)
+    #: P19 R12: "Legendary" on the front face - what Minas Tirith asks for.
+    legendary: bool = False
 
     @property
     def mana_cost(self) -> ManaCost:

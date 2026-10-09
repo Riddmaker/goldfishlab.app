@@ -9104,3 +9104,39 @@ msgstr "%(mana)s finché controlli %(names)s"
 #, python-format
 msgid "one %(color)s for each %(type)s you control"
 msgstr "un %(color)s per ogni %(type)s che controlli"
+
+#: changelog/entries.py
+msgid "Vampiric Tutor, Minas Tirith and the battle lands"
+msgstr "Vampiric Tutor, Minas Tirith e le terre di battaglia"
+
+#: changelog/entries.py
+msgid ""
+"Vampiric, Mystical, Enlightened and Worldly Tutor now put the card they find"
+" on top of your library, where you draw it next turn. Lands that enter "
+"tapped unless you control a legendary creature, a planeswalker or a basic "
+"land, Starting Town and the Turbulent lands now enter untapped when that "
+"holds; for the Turbulent lands we assume each opponent plays a land a turn. "
+"Battle lands such as Prairie Stream entered untapped beside a single basic "
+"land; now they wait for two."
+msgstr ""
+"Vampiric, Mystical, Enlightened e Worldly Tutor ora mettono la carta trovata"
+" in cima al tuo grimorio, e la peschi al turno successivo. Le terre che "
+"entrano TAPpate a meno che tu non controlli una creatura leggendaria, un "
+"planeswalker o una terra base, Starting Town e le terre Turbulent ora "
+"entrano STAPpate quando la condizione vale; per le terre Turbulent assumiamo"
+" che ogni avversario giochi una terra per turno. Le terre di battaglia come "
+"Prairie Stream entravano STAPpate accanto a una sola terra base; ora ne "
+"aspettano due."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s on top of the library, drawn next turn"
+msgstr "%(what)s in cima al grimorio, pescata al turno successivo"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters untapped from your fourth turn, assuming each opponent plays a land a"
+" turn"
+msgstr ""
+"entra STAPpata dal tuo quarto turno, assumendo che ogni avversario giochi "
+"una terra per turno"

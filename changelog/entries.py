@@ -42,6 +42,16 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 9), "tutor-to-top",
+        _("Vampiric Tutor, Minas Tirith and the battle lands"),
+        _("Vampiric, Mystical, Enlightened and Worldly Tutor now put the card they find on "
+          "top of your library, where you draw it next turn. Lands that enter tapped unless "
+          "you control a legendary creature, a planeswalker or a basic land, Starting Town "
+          "and the Turbulent lands now enter untapped when that holds; for the Turbulent "
+          "lands we assume each opponent plays a land a turn. Battle lands such as Prairie "
+          "Stream entered untapped beside a single basic land; now they wait for two."),
+    ),
+    Entry(
         date(2026, 10, 9), "board-counts",
         _("Gaea's Cradle, Elvish Archdruid, Nykthos and Tron"),
         _("Mana that counts your board now makes what it counts: Gaea's Cradle and Circle of "

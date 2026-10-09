@@ -290,12 +290,14 @@ class Reading:
             return _land_search_text(self.card.land_search)
         if spec is None:
             return gettext("nothing")
-        if spec.kind:
+        if spec.kind or spec.types:
             from cards.models import DerivedProfile
 
             kinds = dict(DerivedProfile.Kind.choices)
+            named = [spec.kind] if spec.kind else sorted(spec.types)
             what = gettext("%(count)s × %(kind)s") % {
-                "count": spec.count, "kind": kinds.get(spec.kind, spec.kind)}
+                "count": spec.count,
+                "kind": " / ".join(str(kinds.get(kind, kind)) for kind in named)}
         else:
             what = ngettext("%(count)s card", "%(count)s cards", spec.count) % {
                 "count": spec.count}
@@ -307,6 +309,8 @@ class Reading:
                 what = gettext("%(what)s with mana value %(limit)s or less") % {
                     "what": what, "limit": "X" if spec.max_mv_x else spec.max_mv}
             text = gettext("%(what)s onto the battlefield") % {"what": what}
+        elif spec.to_top:
+            text = gettext("%(what)s on top of the library, drawn next turn") % {"what": what}
         else:
             text = (gettext("%(what)s to hand") if spec.to_hand
                     else gettext("%(what)s to the graveyard")) % {"what": what}
@@ -744,6 +748,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         draws_x=(kind in ONE_SHOT_KINDS and "draw_on_cast" not in overrides
                  and bool(getattr(profile, "draws_x", False))),
         creature_types=creature_types(oracle_card),
+        legendary="Legendary" in (oracle_card.type_line or "").split("//", 1)[0],
         life_on_cast=int(overrides.get("life_on_cast", 0)),
         tutor=_tutor(profile, overrides),
         upkeep=_upkeep(overrides),
@@ -895,12 +900,13 @@ def _overrides_mana(overrides: dict) -> bool:
 
 
 def _condition(found: dict) -> TappedUnless:
-    """A condition the reader read, as the engine's (P19 R3 and R4)."""
+    """A condition the reader read, as the engine's (P19 R3, R4 and R12)."""
     return TappedUnless(
         kind=found["kind"], types=frozenset(found.get("types", ())),
         count=int(found.get("count") or found.get("life") or 0),
         at_least=bool(found.get("at_least", True)), other=bool(found.get("other", False)),
         basic=bool(found.get("basic", False)), type=found.get("type", ""),
+        legendary=bool(found.get("legendary", False)),
     )
 
 
@@ -1008,7 +1014,7 @@ def _x_count(oracle_card, profile) -> int:
 #: The zones a `TutorSpec` can search to, and whether that is the hand. The
 #: battlefield joined in P19 R10, read whole off the text (`tutor_filter`); a
 #: battlefield tutor the reader could not read stays a gap.
-TUTOR_ZONES = {"hand": True, "graveyard": False, "battlefield": False}
+TUTOR_ZONES = {"hand": True, "graveyard": False, "battlefield": False, "top": False}
 
 
 def _tapped_unless(profile, overrides: dict) -> TappedUnless | None:
@@ -1069,7 +1075,11 @@ def _tutor(profile, overrides: dict) -> TutorSpec | None:
         return None
 
     battlefield = {}
-    if limit is not None:
+    if profile.tutor_to == "top":
+        # P19 R12: Vampiric Tutor. `tutor_filter` holds the card types it may find.
+        battlefield = {"to_top": True,
+                       "types": frozenset((limit or {}).get("types", ()))}
+    elif limit is not None:
         max_mv = limit.get("max_mv")
         battlefield = {"to_battlefield": True, "color": limit.get("color") or "",
                        "max_mv_x": max_mv == "X",
@@ -1225,6 +1235,11 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
             and not card.treasures:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("makes mana, but how much could not be read")))
+
+    if card.tapped_unless is not None and card.tapped_unless.kind == "opponent_lands":
+        gaps.append(Gap(card.name, "assumed_lands", gettext_noop(
+            "enters untapped from your fourth turn, assuming each opponent plays a land "
+            "a turn")))
 
     if card.mana_abilities and _OPPONENTS_LANDS.search(card_text) \
             and not _overrides_mana(overrides):

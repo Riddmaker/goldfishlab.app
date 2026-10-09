@@ -273,6 +273,13 @@ _OPPONENT_LANDS = re.compile(r"\s*that a land an opponent controls could produce
 # creates, a land it enchants, creatures it pumps. The grantee is the mana
 # source; this card is not. Curly quotes included because Oracle text uses both.
 _GRANTED = re.compile(r"[\"“][^\"”]*[\"”]")
+#: P19 R12: mana made for another player, or by a target turned into a land
+#: or a Treasure: removal, not a mana source.
+_FOR_SOMEONE_ELSE = re.compile(
+    r"Its controller creates (?:\w+ )?Treasure|Target [^.:]*becomes a Treasure"
+    r"|Enchanted permanent is a colorless land", re.IGNORECASE)
+#: A land with a basic land type taps for its colour by that type alone.
+_BASIC_TYPE_LINE = re.compile(r"\bLand\b.*\b(?:Plains|Island|Swamp|Mountain|Forest)\b")
 # Anything that makes an amount depend on the board state is unresolvable here.
 _SCALING = re.compile(r"\bfor each\b|\bequal to\b|\btimes\b|\bX\b")
 _SCALES_UP_FRONT = re.compile(r"(?:an amount of|X mana|mana equal to)", re.IGNORECASE)
@@ -329,7 +336,8 @@ _OPPONENT_LOSS = re.compile(
 )
 
 _WORD_NUMBERS = {"a": 1, "an": 1, "one": 1, "two": 2, "three": 3, "four": 4,
-                 "five": 5}
+                 "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9,
+                 "ten": 10}
 
 #: "Search **your** library for up to three creature cards". The pronoun is the
 #: whole check: "target player searches their library" is a card that makes an
@@ -353,6 +361,15 @@ _TO_BATTLEFIELD = re.compile(
     r"(?:,| and) put (?:it|that card) onto the battlefield",
     re.IGNORECASE)
 _COLOR_LETTER = {"white": "W", "blue": "U", "black": "B", "red": "R", "green": "G"}
+#: P19 R12: Vampiric Tutor, Mystical Tutor, Worldly Tutor: "Search your library
+#: for a[n instant or sorcery] card, [reveal it, ]then shuffle and put that
+#: card on top." Its zone is in the text, not in a tag.
+_TO_TOP = re.compile(
+    r"Search your library for an? (?:(?P<what>[a-z]+(?: or [a-z]+)?) )?card, "
+    r"(?:reveal it, )?then shuffle and put (?:that|the) card on top\.",
+    re.IGNORECASE)
+_TOP_TYPES = frozenset({"artifact", "creature", "enchantment", "instant", "sorcery",
+                        "planeswalker", "land"})
 
 #: "As an additional cost to cast this spell, sacrifice a creature." The engine
 #: pays mana and nothing else, so it casts Diabolic Intent for {2}{B} and gets a
@@ -497,6 +514,25 @@ _UNLESS_LANDS = re.compile(
 #: Battlebond: "unless you have two or more opponents" - a Commander table has three.
 _UNLESS_OPPONENTS = re.compile(
     rf"enters(?: the battlefield)? tapped unless you have {_NUMBER_WORD} or more opponents\.",
+    re.IGNORECASE)
+#: P19 R12: "unless you control a legendary creature" (Minas Tirith, Rivendell),
+#: "a planeswalker" (Dedicated Commons), "a basic land" (Ba Sing Se).
+_UNLESS_PERMANENT = re.compile(
+    r"enters(?: the battlefield)? tapped unless you control an? "
+    r"(?P<what>legendary creature|planeswalker|basic land)\.", re.IGNORECASE)
+#: P19 R12: Starting Town.
+_UNLESS_EARLY = re.compile(
+    r"enters(?: the battlefield)? tapped unless it's your first, second, or third turn "
+    r"of the game\.", re.IGNORECASE)
+#: P19 R12: the Turbulent lands. A goldfish has no opponents' lands to count:
+#: the engine assumes each of three opponents plays one a turn.
+_UNLESS_OPPONENT_LANDS = re.compile(
+    r"enters(?: the battlefield)? tapped unless your opponents control (?P<n>\w+) or "
+    r"more lands\.", re.IGNORECASE)
+#: P19 R12: "unless a player has 13 or less life" (Abandoned Campground). Only
+#: your own life is known, so it enters tapped more often than at a real table.
+_UNLESS_LOW_LIFE = re.compile(
+    r"enters(?: the battlefield)? tapped unless a player has (?P<n>\d+) or less life\.",
     re.IGNORECASE)
 #: Snarls and Shadowmoor's reveal lands.
 _REVEAL = re.compile(
@@ -699,6 +735,18 @@ def _tapped_unless(text: str) -> dict | None:
         return {"kind": "reveal", "types": _land_types(found.group("types"))}
     if (found := _PAY_LIFE.search(text)) is not None:
         return {"kind": "pay_life", "life": _word_number(found.group("n"))}
+    if (found := _UNLESS_PERMANENT.search(text)) is not None:
+        what = found.group("what").lower()
+        if what == "basic land":
+            return {"kind": "lands", "count": 1, "basic": True}
+        return {"kind": "permanent", "types": [what.split()[-1]],
+                "legendary": what.startswith("legendary")}
+    if _UNLESS_EARLY.search(text):
+        return {"kind": "turn", "count": 3}
+    if (found := _UNLESS_OPPONENT_LANDS.search(text)) is not None:
+        return {"kind": "opponent_lands", "count": _word_number(found.group("n"))}
+    if (found := _UNLESS_LOW_LIFE.search(text)) is not None:
+        return {"kind": "life_at_most", "count": int(found.group("n"))}
     return None
 
 
@@ -985,6 +1033,15 @@ def _mana_production(card: OracleCard) -> ManaReading:
         notes.add(gettext_noop(
             "enters only by discarding a land card, which the engine does not do"))
 
+    if not clauses and (_FOR_SOMEONE_ELSE.search(text) or _BASIC_TYPE_LINE.search(type_line)):
+        # P19 R12: the mana is somebody else's - An Offer You Can't Refuse
+        # gives its Treasures to the spell's controller, Imprisoned in the Moon
+        # and Vraska turn a target into a land or a Treasure - or it is a land
+        # type's own: Dryad Arbor's "{T}: Add {G}" is reminder text for being
+        # a Forest, which the engine plays as one.
+        reading.produces_mana = False
+        return reading
+
     if not clauses:
         # Scryfall says it makes mana but no `Add` clause of its own was found:
         # either every one is inside quotes, or it is a replacement effect or a
@@ -1128,6 +1185,16 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
                      filter={"color": _COLOR_LETTER.get(color, ""),
                              "max_mv": None if limit is None else
                              ("X" if limit.upper() == "X" else int(limit))})
+    found = _TO_TOP.search(text)
+    line_start = text.rfind("\n", 0, found.start()) + 1 if found else 0
+    if found is not None and ":" not in text[line_start:found.start()] \
+            and not text[line_start:].startswith("+"):
+        # On top of the library, to be drawn next turn (P19 R12). Not Sterling
+        # Grove's "{1}, Sacrifice: Search ...", an ability the engine does not
+        # use, and not Insatiable Avarice's spree mode, whose {2} nobody pays.
+        types = (found.group("what") or "").lower().split(" or ") if found.group("what") else []
+        if all(kind in _TOP_TYPES for kind in types):
+            return Tutor(zone="top", count=1, filter={"types": sorted(types)})
     if not _SEARCH_YOUR_LIBRARY.search(text) and _THEIR_LIBRARY.search(text):
         # Path to Exile: the search is the target's controller's, and the
         # target is an opponent's creature or land a goldfish does not have.

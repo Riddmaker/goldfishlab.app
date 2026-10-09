@@ -381,11 +381,15 @@ class Game:
         if kind == "control_type":
             return any(other.subtypes & condition.types for other in self.lands)
         if kind == "lands":
-            counted = [other for other in self.lands
-                       if (not condition.basic or other.basic)
-                       and (not condition.type or condition.type in other.subtypes)]
+            def matches(other):
+                return ((not condition.basic or other.basic)
+                        and (not condition.type or condition.type in other.subtypes))
+
+            counted = [other for other in self.lands if matches(other)]
             if entering:
-                have = len(counted) + (0 if condition.other else 1)
+                # Itself only when it is one of them: a battle land is not a
+                # basic land, so it needs two others (fixed in P19 R12).
+                have = len(counted) + (0 if condition.other or not matches(card) else 1)
             else:
                 itself = any(other is card for other in counted)
                 have = len(counted) - (1 if condition.other and itself else 0)
@@ -397,6 +401,18 @@ class Game:
             return have >= condition.count
         if kind == "opponents":
             return self.OPPONENTS >= condition.count
+        if kind == "permanent":
+            return any(permanent.types & condition.types
+                       and (permanent.legendary or not condition.legendary)
+                       for permanent in self.battlefield if permanent is not card)
+        if kind == "turn":
+            return self.turn <= condition.count
+        if kind == "opponent_lands":
+            # An assumption, stated on the card page: each opponent has played
+            # a land in each of their turns before this one of yours.
+            return self.OPPONENTS * max(self.turn - 1, 0) >= condition.count
+        if kind == "life_at_most":
+            return self.life <= condition.count
         if kind == "reveal":
             return any(other is not card and other.subtypes & condition.types
                        for other in self.hand)

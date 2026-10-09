@@ -52,19 +52,20 @@ def test_the_zone_comes_from_the_tag_and_the_amount_from_the_text():
     assert found.reason == ""
 
 
-def test_a_tutor_with_no_zone_tag_is_a_gap_not_a_guess():
-    """Vampiric Tutor's shape: the count is right there, the zone is not ours.
+def test_a_tutor_to_the_top_is_never_read_as_one_to_hand():
+    """Vampiric Tutor's shape: no zone tag, the zone is in the text.
 
-    It searches to the *top of the library*, which the engine has no move for.
-    Reading it as a tutor to hand would turn a card that costs you a draw step
-    into a strictly better Demonic Tutor.
+    It searches to the *top of the library*. Reading it as a tutor to hand
+    would turn a card that costs you a draw step into a strictly better
+    Demonic Tutor; since P19 R12 the engine has the move, and the card goes
+    on top (`tests/test_tutor_to_top.py`).
     """
     found = _tutor("Search your library for a card, then shuffle and put that "
                    "card on top. You lose 2 life.",
                    "tutor", "tutor-card", "tutor-to-top")
-    assert found.zone == ""
+    assert found.zone == "top"
     assert found.count == 1
-    assert "zone" in found.reason
+    assert found.reason == ""
 
 
 def test_the_count_is_never_defaulted_to_one():

@@ -178,6 +178,13 @@ JUDGEMENTS = (
           "that is left as X - but not for less than this. It starts at 1."),
     ),
     Judgement(
+        "chosen_type",
+        _("Creature type it names"),
+        _("For Cavern of Souls and the like: the creature type you choose as it "
+          "enters, such as Elf. Left empty, the engine names the most common "
+          "creature type in your deck."),
+    ),
+    Judgement(
         "tutor_count",
         _("Cards it searches up"),
         _("How many cards this finds in your library. The community tags say "

@@ -172,7 +172,7 @@ def _try_ritual_line(game, pool: ManaPool) -> bool:
     for ritual in sorted(rituals, key=lambda c: c.mv):
         test = pool.copy()
         cost = effective_mana_cost(ritual, reductions_from(game.battlefield))
-        if test.pay_cost(cost, life=game.life) is None:
+        if test.pay_cost(cost, life=game.life, spell=ritual) is None:
             continue
         # What it makes now: Battle Hymn counts the board (P19 R13).
         test.add(*game.ritual_mana(ritual))

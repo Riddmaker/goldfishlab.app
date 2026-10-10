@@ -361,6 +361,12 @@ class DerivedProfile(models.Model):
     #: choice ("" = any), "produces": exact mana or null}. Fetid Heath, Study
     #: Hall. See `cards.profiles._mana_production`.
     mana_filter = models.JSONField(null=True, blank=True)
+    #: P19 R17: "Spend this mana only to cast ..." on the ability above -
+    #: {"spells": [{"types", "subtypes", "legendary", "colorless",
+    #: "multicolored", "noncreature", "chosen_type"}, ...] (any one of them),
+    #: "otherwise": {"amount", "produces", "activation"} | null}. Cavern of
+    #: Souls; `otherwise` is its {C}. See `cards.profiles._spend_only`.
+    mana_spend_only = models.JSONField(null=True, blank=True)
     #: P19 R7: Treasure tokens it makes as it resolves (a spell's sentence, a
     #: permanent's "When this creature enters"). See `cards.profiles._treasures`.
     treasures = models.PositiveSmallIntegerField(default=0)

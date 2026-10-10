@@ -9694,3 +9694,128 @@ msgstr ""
 "nicht hat; sie bringen deshalb einen pro Runde, angenommen ein Gegner zahlt "
 "nicht – und die Kartenliste auf deiner Deck-Seite sagt jetzt neben jeder "
 "Karte, was die Engine annimmt, um sie zu spielen."
+
+#: simulations/engine/adapter.py
+msgid ""
+"names a creature type, but no card in this deck has one: only its other mana"
+" is played"
+msgstr ""
+"nennt einen Kreaturentyp, aber keine Karte in diesem Deck hat einen: "
+"gespielt wird nur ihr anderes Mana"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"names %(type)s as its creature type, the most common one in this deck "
+"(%(count)s cards)"
+msgstr ""
+"nennt %(type)s als Kreaturentyp, den häufigsten in diesem Deck (%(count)s "
+"Karten)"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s, only for %(spells)s"
+msgstr "%(mana)s, nur für %(spells)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s spells"
+msgstr "Zauber: %(what)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(one)s or %(other)s"
+msgstr "%(one)s oder %(other)s"
+
+#: simulations/engine/adapter.py
+msgid "legendary"
+msgstr "legendär"
+
+#: simulations/engine/adapter.py
+msgid "multicoloured"
+msgstr "mehrfarbig"
+
+#: simulations/engine/adapter.py
+msgid "noncreature"
+msgstr "Nichtkreatur"
+
+#: simulations/engine/adapter.py
+msgid "artifact"
+msgstr "Artefakt"
+
+#: simulations/engine/adapter.py
+msgid "creature"
+msgstr "Kreatur"
+
+#: simulations/engine/adapter.py
+msgid "enchantment"
+msgstr "Verzauberung"
+
+#: simulations/engine/adapter.py
+msgid "instant"
+msgstr "Spontanzauber"
+
+#: simulations/engine/adapter.py
+msgid "sorcery"
+msgstr "Hexerei"
+
+#: simulations/engine/adapter.py
+msgid "planeswalker"
+msgstr "Planeswalker"
+
+#: simulations/annotations.py
+msgid "Creature type it names"
+msgstr "Kreaturentyp, den sie nennt"
+
+#: simulations/annotations.py
+msgid ""
+"For Cavern of Souls and the like: the creature type you choose as it enters,"
+" such as Elf. Left empty, the engine names the most common creature type in "
+"your deck."
+msgstr ""
+"Für Cavern of Souls und Ähnliche: der Kreaturentyp, den du wählst, wenn sie "
+"ins Spiel kommt, zum Beispiel Elf. Leer gelassen nennt die Engine den "
+"häufigsten Kreaturentyp deines Decks."
+
+#: simulations/forms.py
+msgid "One creature type, such as Elf or Dragon."
+msgstr "Ein Kreaturentyp, zum Beispiel Elf oder Dragon."
+
+#: playtest/views.py
+#, python-format
+msgid "%(mana)s for %(spells)s"
+msgstr "%(mana)s für %(spells)s"
+
+#: playtest/views.py
+#, python-format
+msgid "%(restricted)s, or %(mana)s"
+msgstr "%(restricted)s, oder %(mana)s"
+
+#: templates/playtest/_board.html
+msgid "Mana only some spells may spend"
+msgstr "Mana, das nur manche Zauber ausgeben dürfen"
+
+#: changelog/entries.py
+msgid "Cavern of Souls, Ancient Ziggurat and Plaza of Heroes"
+msgstr "Cavern of Souls, Ancient Ziggurat und Plaza of Heroes"
+
+#: changelog/entries.py
+msgid ""
+"Lands and creatures whose mana only some spells may spend now make it in a "
+"simulated game, and only those spells spend it: Ancient Ziggurat and Herd "
+"Heirloom for creatures, Plaza of Heroes and Delighted Halfling for legendary"
+" spells, your commander included, Eldrazi Temple and Shrine of the Forsaken "
+"Gods for colourless ones, Power Depot for artifacts, Haven of the Spirit "
+"Dragon for Dragons. Cavern of Souls and Unclaimed Territory name your deck's"
+" most common creature type - your deck page says which, beside the card, and"
+" you can name another. The playtest shows such mana apart from the rest."
+msgstr ""
+"Länder und Kreaturen, deren Mana nur manche Zauber ausgeben dürfen, machen "
+"es jetzt in einem simulierten Spiel, und nur diese Zauber geben es aus: "
+"Ancient Ziggurat und Herd Heirloom für Kreaturen, Plaza of Heroes und "
+"Delighted Halfling für legendäre Zauber, deinen Commander eingeschlossen, "
+"Eldrazi Temple und Shrine of the Forsaken Gods für farblose, Power Depot für"
+" Artefakte, Haven of the Spirit Dragon für Drachen. Cavern of Souls und "
+"Unclaimed Territory nennen den häufigsten Kreaturentyp deines Decks - deine "
+"Deck-Seite sagt neben der Karte, welchen, und du kannst einen anderen "
+"nennen. Der Playtest zeigt solches Mana getrennt vom übrigen."

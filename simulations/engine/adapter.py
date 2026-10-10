@@ -23,7 +23,7 @@ invented the missing half of its input would be worse than no simulation.
 
 import re
 from collections import Counter
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from django.utils.translation import gettext, gettext_noop, ngettext
 
@@ -48,6 +48,7 @@ from simulation.cards import (
     EndStepSpec,
     LandSearch,
     ManaAbility,
+    SpellFilter,
     TappedUnless,
     Trigger,
     TutorSpec,
@@ -200,15 +201,16 @@ def convert(deck: Deck, *, adding=None) -> Conversion:
     seen = set()
 
     colors = _deck_colors(entries, deck)
+    chosen = deck_creature_type(entries, deck)
 
     for entry in entries:
-        card = _card_from(entry.oracle_card, annotations, gaps, colors)
+        card = _card_from(entry.oracle_card, annotations, gaps, colors, chosen)
         seen.add(entry.oracle_card_id)
         library.extend([card] * entry.quantity)
 
     commander = None
     if deck.commander_id:
-        commander = _card_from(deck.commander, annotations, gaps, colors)
+        commander = _card_from(deck.commander, annotations, gaps, colors, chosen)
         # The commander counts toward the total, because gaps are recorded for
         # it like any other card. Leaving it out made `cards_with_gaps` able to
         # exceed `cards_total` - a two-card deck whose commander the engine
@@ -218,7 +220,7 @@ def convert(deck: Deck, *, adding=None) -> Conversion:
         seen.add(deck.commander_id)
 
     if adding is not None:
-        library.append(_card_from(adding, annotations, gaps, colors))
+        library.append(_card_from(adding, annotations, gaps, colors, chosen))
         seen.add(adding.pk)
 
     definition = DeckDefinition(
@@ -249,6 +251,12 @@ class Reading:
     gaps: list[Gap] = field(default_factory=list)
     quantity: int = 1
     is_commander: bool = False
+
+    @property
+    def names_type(self) -> bool:
+        """Its mana pays for "the chosen type" - Cavern of Souls (P19 R17)."""
+        profile = getattr(self.oracle_card, "profile", None)
+        return _chosen_type(profile, {}, ("", 0)) is not None
 
     @property
     def unreadable(self) -> bool:
@@ -535,6 +543,9 @@ def _ability_text(ability) -> str:
         if ability.only_if is not None:
             produced = gettext("%(mana)s if you control %(what)s") % {
                 "mana": produced, "what": _condition_text(ability.only_if)}
+        if ability.spend_only:
+            produced = gettext("%(mana)s, only for %(spells)s") % {
+                "mana": produced, "spells": spells_text(ability.spend_only)}
         return produced
 
     if ability.rule == FILTER:
@@ -554,6 +565,35 @@ def _ability_text(ability) -> str:
         text = str(ability.rule)
     if ability.activation_generic:
         return _for_cost(ability.activation_generic, text)
+    return text
+
+
+#: The words of a spell filter (P19 R17), translated one by one.
+_SPELL_WORDS = {
+    "legendary": gettext_noop("legendary"), "colorless": gettext_noop("colourless"),
+    "multicolored": gettext_noop("multicoloured"), "noncreature": gettext_noop("noncreature"),
+    "artifact": gettext_noop("artifact"), "creature": gettext_noop("creature"),
+    "enchantment": gettext_noop("enchantment"), "instant": gettext_noop("instant"),
+    "sorcery": gettext_noop("sorcery"), "planeswalker": gettext_noop("planeswalker"),
+}
+
+
+def spells_text(filters) -> str:
+    """The spells restricted mana pays for, in words: "legendary spells or
+    Dragon creature spells". Only spells: the engine pays no ability with it."""
+    parts = []
+    for wanted in filters:
+        words = [gettext(_SPELL_WORDS[flag]) for flag in
+                 ("legendary", "colorless", "multicolored", "noncreature")
+                 if getattr(wanted, flag)]
+        if wanted.subtypes:
+            words.append("/".join(sorted(subtype.title() for subtype in wanted.subtypes)))
+        if wanted.types:
+            words.append("/".join(gettext(_SPELL_WORDS[kind]) for kind in sorted(wanted.types)))
+        parts.append(gettext("%(what)s spells") % {"what": " ".join(words)})
+    text = parts[0] if parts else ""
+    for part in parts[1:]:
+        text = gettext("%(one)s or %(other)s") % {"one": text, "other": part}
     return text
 
 
@@ -651,13 +691,14 @@ def readings(deck: Deck) -> list[Reading]:
     )
     annotations = annotations_for(deck)
     colors = _deck_colors(entries, deck)
+    chosen = deck_creature_type(entries, deck)
 
     found: list[Reading] = []
     seen: set = set()
 
     for entry in entries:
         gaps: list[Gap] = []
-        card = _card_from(entry.oracle_card, annotations, gaps, colors)
+        card = _card_from(entry.oracle_card, annotations, gaps, colors, chosen)
         seen.add(entry.oracle_card_id)
         found.append(
             Reading(
@@ -670,7 +711,7 @@ def readings(deck: Deck) -> list[Reading]:
 
     if deck.commander_id and deck.commander_id not in seen:
         gaps = []
-        card = _card_from(deck.commander, annotations, gaps, colors)
+        card = _card_from(deck.commander, annotations, gaps, colors, chosen)
         found.append(
             Reading(
                 oracle_card=deck.commander,
@@ -748,6 +789,30 @@ def _deck_colors(entries, deck: Deck) -> frozenset[str]:
         if profile is not None:
             found.update(color for color in profile.pips or {} if color in COLORS)
     return frozenset(found)
+
+
+def deck_creature_type(entries, deck: Deck) -> tuple[str, int]:
+    """The creature type Cavern of Souls names in this deck, and how many cards have it.
+
+    "As this land enters, choose a creature type" is the player's choice;
+    the engine's answer is the type the most cards in the deck share,
+    commander included, and the commander's own type on a tie (P19 R17).
+    An assumption, stated beside every card that makes it on the deck page,
+    and one an annotation replaces. ``("", 0)`` for a deck without a
+    creature type.
+    """
+    counts: Counter = Counter()
+    for entry in entries:
+        for found in creature_types(entry.oracle_card):
+            counts[found] += entry.quantity
+    own = creature_types(deck.commander) if deck.commander_id else frozenset()
+    for found in own:
+        counts[found] += 1
+    if not counts:
+        return "", 0
+    most = max(counts.values())
+    tied = sorted(found for found, count in counts.items() if count == most)
+    return next((found for found in tied if found in own), tied[0]), most
 
 
 def _pick_color(colors, deck_colors: frozenset[str]) -> str | None:
@@ -866,8 +931,13 @@ def scope_filter(deck: Deck):
 
 
 def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
-               deck_colors: frozenset[str] = frozenset()) -> Card:
-    """One database card, as the engine sees it."""
+               deck_colors: frozenset[str] = frozenset(),
+               deck_type: tuple[str, int] | None = None) -> Card:
+    """One database card, as the engine sees it.
+
+    ``deck_type`` is :func:`deck_creature_type`; None outside a deck, where
+    no type is chosen and mana for "the chosen type" pays for nothing.
+    """
     profile = getattr(oracle_card, "profile", None)
     overrides = annotations.for_card(oracle_card.pk)
     name = oracle_card.front_name
@@ -879,7 +949,8 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
                     types=card_types(oracle_card))
 
     kind = overrides.get("kind", profile.kind)
-    mana_abilities = _mana_abilities(profile, overrides, kind, name, gaps, deck_colors)
+    chosen = _chosen_type(profile, overrides, deck_type)
+    mana_abilities = _mana_abilities(profile, overrides, kind, name, gaps, deck_colors, chosen)
 
     card = Card(
         name=name,
@@ -942,14 +1013,47 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         exiled_on_cast=bool(getattr(profile, "mana_from_hand", False)),
         **({} if _overrides_mana(overrides) else _sacrifice_mana(profile, deck_colors)),
         triggers=_triggers(profile, overrides, deck_colors),
+        printed_subtypes=printed_subtypes(oracle_card),
     )
 
     _record_gaps(card, profile, overrides, gaps, oracle_card.oracle_text or "")
+    if chosen is not None and "chosen_type" not in overrides and deck_type is not None \
+            and not _overrides_mana(overrides):
+        _record_chosen_type(name, deck_type, gaps)
     return card
 
 
+def _chosen_type(profile, overrides: dict, deck_type: tuple[str, int] | None) -> str | None:
+    """The creature type this card's restricted mana names (P19 R17).
+
+    None when it names none; "" when it does but there is no type to name -
+    outside a deck, or in a deck without creature types.
+    """
+    spend = getattr(profile, "mana_spend_only", None)
+    if not spend or not any(wanted.get("chosen_type") for wanted in spend["spells"]):
+        return None
+    if overrides.get("chosen_type"):
+        return str(overrides["chosen_type"]).strip().lower()
+    return deck_type[0] if deck_type is not None else ""
+
+
+def _record_chosen_type(name: str, deck_type: tuple[str, int], gaps: list[Gap]) -> None:
+    """The deck's creature type, as the assumption it is (P19 R17)."""
+    found, count = deck_type
+    if not found:
+        gaps.append(Gap(name, "assumed_type", gettext_noop(
+            "names a creature type, but no card in this deck has one: only its other "
+            "mana is played")))
+        return
+    template = gettext_noop("names %(type)s as its creature type, the most common one in "
+                            "this deck (%(count)s cards)")
+    params = {"type": found.title(), "count": count}
+    gaps.append(Gap(name, "assumed_type", template % params, template, params))
+
+
 def _mana_abilities(profile, overrides: dict, kind: str, name: str,
-                    gaps: list[Gap], deck_colors: frozenset[str]) -> tuple[ManaAbility, ...]:
+                    gaps: list[Gap], deck_colors: frozenset[str],
+                    chosen: str | None = None) -> tuple[ManaAbility, ...]:
     """The card's mana abilities, from an annotation or from the profile.
 
     A scaling rule comes from an annotation or, since engine version 8, from
@@ -1006,6 +1110,9 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
     # condition, and what the card taps for without it follows as a second,
     # plain ability - the game takes the first one whose condition holds.
     condition = getattr(profile, "mana_condition", None)
+    spend = getattr(profile, "mana_spend_only", None)
+    if spend and "mana_activation" not in overrides:
+        return _restricted(profile, spend, condition, deck_colors, chosen)
     if condition and "mana_activation" not in overrides:
         only_if = _condition(condition["if"])
         main = _flat(profile.mana_produces, profile.mana_colors, profile.mana_amount,
@@ -1019,6 +1126,45 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
     return (_flat(getattr(profile, "mana_produces", None), profile.mana_colors,
                   profile.mana_amount, activation, deck_colors, None),
             *_filter(profile, deck_colors))
+
+
+def _restricted(profile, spend: dict, condition: dict | None, deck_colors: frozenset[str],
+                chosen: str | None) -> tuple[ManaAbility, ...]:
+    """Mana only some spells may spend, then what the card makes instead (P19 R17).
+
+    Cavern of Souls is two abilities: one mana of the deck's colours for a
+    creature spell of the chosen type, and {C}. The pool keeps both open
+    until the mana is spent. When no spell is left that may spend it - no
+    creature type to name - only the plain ability is played.
+    """
+    otherwise = spend.get("otherwise")
+    plain = () if not otherwise else (
+        _flat(otherwise["produces"], profile.mana_colors, otherwise["amount"],
+              int(otherwise.get("activation") or 0), deck_colors, None),)
+    filters = spell_filters(spend["spells"], chosen)
+    if not filters:
+        return plain
+    only_if = _condition(condition["if"]) if condition else None
+    main = _flat(getattr(profile, "mana_produces", None), profile.mana_colors,
+                 profile.mana_amount, 0, deck_colors, only_if)
+    return (replace(main, spend_only=filters), *plain)
+
+
+def spell_filters(spells: list, chosen: str | None) -> tuple[SpellFilter, ...]:
+    """The reader's spell filters as the engine's; a "chosen type" one needs a type."""
+    found = []
+    for wanted in spells:
+        subtypes = set(wanted.get("subtypes", ()))
+        if wanted.get("chosen_type"):
+            if not chosen:
+                continue
+            subtypes.add(chosen)
+        found.append(SpellFilter(
+            types=frozenset(wanted.get("types", ())), subtypes=frozenset(subtypes),
+            legendary=bool(wanted.get("legendary")), colorless=bool(wanted.get("colorless")),
+            multicolored=bool(wanted.get("multicolored")),
+            noncreature=bool(wanted.get("noncreature"))))
+    return tuple(found)
 
 
 def _filter(profile, deck_colors: frozenset[str]) -> tuple[ManaAbility, ...]:
@@ -1456,6 +1602,16 @@ def card_types(oracle_card) -> frozenset[str]:
         front = front.split(separator, 1)[0]
     words = {word.casefold() for word in front.split()}
     return frozenset(kind for kind in CARD_TYPES if kind in words)
+
+
+def printed_subtypes(oracle_card) -> frozenset[str]:
+    """Every subtype on the front face, lower case (P19 R17): "aura",
+    "equipment", "dragon" - what restricted mana asks a spell about."""
+    front = (oracle_card.type_line or "").split("//", 1)[0]
+    for separator in TYPE_SEPARATORS:
+        if separator in front:
+            return frozenset(word.casefold() for word in front.split(separator, 1)[1].split())
+    return frozenset()
 
 
 def creature_types(oracle_card) -> frozenset[str]:

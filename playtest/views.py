@@ -24,7 +24,8 @@ from playtest.forms import ActionForm, ForkForm, StartForm
 from playtest.models import PlaytestSession
 from simulation import actions
 from simulation.game import LANDER_FODDER, TREASURE
-from simulation.manacost import COLORLESS, COLORS
+from simulation.manacost import COLORLESS, COLORS, mana_label
+from simulations.engine.adapter import spells_text
 
 #: The board fragment htmx swaps in. The whole page includes it too, so the two
 #: can never show different boards.
@@ -198,6 +199,27 @@ def pips(pool) -> list[tuple[str, int]]:
     return [(color, held[color]) for color in PIP_ORDER if held.get(color)]
 
 
+def restricted_mana(pool) -> list[str]:
+    """Mana only some spells may spend, source by source (P19 R17): "Cavern
+    of Souls: 1 B/G for Elf creature spells, or 1 C"."""
+    if pool is None:
+        return []
+    found = []
+    for each in pool.restricted:
+        made = " + ".join(f"{amount} {mana_label(key)}" for key, amount in each.made.items()
+                          if amount)
+        text = gettext("%(mana)s for %(spells)s") % {
+            "mana": made, "spells": spells_text(each.spend_only)} if made else ""
+        if each.open and each.otherwise:
+            other = " + ".join(f"{amount} {mana_label(key)}"
+                               for key, amount in each.otherwise.items())
+            text = (gettext("%(restricted)s, or %(mana)s") % {"restricted": text, "mana": other}
+                    if text else other)
+        if text:
+            found.append(f"{each.source}: {text}")
+    return found
+
+
 def deciding(game, live) -> bool:
     """Is the opening hand still being decided?
 
@@ -244,6 +266,7 @@ def board_context(session: PlaytestSession, game) -> dict:
         "graveyard": _tiles(game.graveyard, images),
         "exiled": _tiles(game.exiled, images),
         "pips": pips(getattr(game, "pool", None)),
+        "restricted": restricted_mana(getattr(game, "pool", None)),
         "deciding": deciding(game, live),
         "to_bottom": game.cards_to_bottom(game.mulligans),
         "commander": session.deck.commander,

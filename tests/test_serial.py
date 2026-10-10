@@ -28,6 +28,7 @@ from simulation.cards import (
     EndStepSpec,
     LandSearch,
     ManaAbility,
+    SpellFilter,
     TappedUnless,
     Trigger,
     TutorSpec,
@@ -60,6 +61,9 @@ EVERYTHING = Card(
                     only_if=TappedUnless(kind="artifacts", count=3)),
         ManaAbility(rule=FILTER, produces=(("WB", 2),), pays_with="WB"),
         ManaAbility(rule=MULTIPLY, subtype="permanent", times=2),
+        ManaAbility(rule=FLAT, produces=(("WUBRG", 1),), spend_only=(
+            SpellFilter(types=frozenset({"creature"}), subtypes=frozenset({"elf"}),
+                        legendary=True, colorless=True, multicolored=True, noncreature=True),)),
     ),
     ritual_gain=3,
     ritual_color="R",
@@ -117,6 +121,7 @@ EVERYTHING = Card(
     triggers=(Trigger("cast", filter="instant_sorcery", treasures=1, treasure_mana="C",
                       mana=1, mana_color="R", draw=1, life=1),),
     exiled_on_cast=True,
+    printed_subtypes=frozenset({"elf", "druid"}),
 )
 
 

@@ -163,7 +163,8 @@ class OpenMainPhase(Action):
     def run(self, game, policy) -> None:
         pool = game.open_pool()
         game.pool = pool
-        game.mana_available = pool.total
+        # Restricted mana counts: it is tapped, only spent more narrowly (P19 R17).
+        game.mana_available = pool.total + pool.restricted_total
         game.mana_by_color = pool.reach()
         game.phase = MAIN1
 

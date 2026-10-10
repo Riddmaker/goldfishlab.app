@@ -388,7 +388,8 @@ def _real_card(name, mana_cost):
         ("Cabal Ritual", 3, {"B": 3}, 0, True, False),
         # The filter is not modelled; what is left is the {T}: Add {C}.
         ("Sunken Ruins", 1, {"C": 1}, 0, True, False),
-        ("Shrine of the Forsaken Gods", 1, {"C": 1}, 0, True, False),
+        # Its {C}{C} for colourless spells, with seven lands (P19 R17).
+        ("Shrine of the Forsaken Gods", 2, {"C": 2}, 0, True, False),
         # {C} or {U}/{B}: a choice, which the deck's colours settle.
         ("Talisman of Dominance", 1, None, 0, True, False),
         ("Sol Ring", 2, {"C": 2}, 0, True, False),
@@ -419,7 +420,7 @@ def test_mana_the_engine_cannot_make_is_a_gap_and_not_a_guess(name):
 
 @pytest.mark.parametrize(
     "name",
-    ["Cabal Ritual", "Shrine of the Forsaken Gods", "Rite of Flame"],
+    ["Cabal Ritual", "Rite of Flame"],
 )
 def test_an_ability_that_is_not_counted_says_so(name):
     """A reading that dropped something has to say what, or it is a guess."""

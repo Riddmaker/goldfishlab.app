@@ -1,7 +1,7 @@
 """The P19 coverage gate, one round at a time (issue #36).
 
     .venv/bin/python scripts/coverage_gate.py save v18          # before the change
-    .venv/bin/python scripts/coverage_gate.py diff v18 [--default landers=0 ...]
+    .venv/bin/python scripts/coverage_gate.py diff v18 [--default landers=0 ...] [--ignore name]
     .venv/bin/python scripts/coverage_gate.py check             # ruff + migrations
     .venv/bin/python scripts/coverage_gate.py suite [--out FILE]
 
@@ -93,17 +93,18 @@ def save(tag: str) -> int:
     return 0
 
 
-def _strip(value, defaults: dict):
-    """The reading without the keys that only carry a new field's default."""
+def _strip(value, defaults: dict, ignored: frozenset = frozenset()):
+    """The reading without the keys that only carry a new field's default,
+    and without the ignored ones."""
     if isinstance(value, dict):
-        return {key: _strip(item, defaults) for key, item in value.items()
-                if not (key in defaults and item == defaults[key])}
+        return {key: _strip(item, defaults, ignored) for key, item in value.items()
+                if key not in ignored and not (key in defaults and item == defaults[key])}
     if isinstance(value, list):
-        return [_strip(item, defaults) for item in value]
+        return [_strip(item, defaults, ignored) for item in value]
     return value
 
 
-def diff(tag: str, defaults: dict, minimum: int) -> int:
+def diff(tag: str, defaults: dict, minimum: int, ignored: frozenset = frozenset()) -> int:
     folder = STORE / tag
     if not (folder / SNAPSHOT.name).exists():
         print(f"nothing saved as {tag!r}: run `save {tag}` first")
@@ -124,7 +125,8 @@ def diff(tag: str, defaults: dict, minimum: int) -> int:
             lost.append(name)
         elif before["unread"] and not after["unread"]:
             gained.append(name)
-        was, now = _strip(before["read"], defaults), _strip(after["read"], defaults)
+        was = _strip(before["read"], defaults, ignored)
+        now = _strip(after["read"], defaults, ignored)
         keys = sorted(key for key in set(was) | set(now) if was.get(key) != now.get(key))
         if keys or before["unread"] != after["unread"]:
             changes = {key: (was.get(key), now.get(key)) for key in keys}
@@ -164,9 +166,14 @@ def main() -> int:
     step = steps.add_parser("diff")
     step.add_argument("tag")
     step.add_argument("--default", action="append", default=[], metavar="NAME=JSON")
+    # A new field that describes every card rather than reading one - the
+    # printed subtypes of R17 - would list the whole set.
+    step.add_argument("--ignore", action="append", default=[], metavar="NAME")
     steps.add_parser("check")
     steps.add_parser("suite").add_argument("--out", type=Path)
     args = parser.parse_args()
+    # Card names carry a minus sign or an accent; a Windows console would not.
+    sys.stdout.reconfigure(encoding="utf-8")
 
     if args.step == "save":
         return save(args.tag)
@@ -175,7 +182,7 @@ def main() -> int:
         for pair in args.default:
             name, _, value = pair.partition("=")
             defaults[name] = json.loads(value)
-        return diff(args.tag, defaults, args.min_free_mb)
+        return diff(args.tag, defaults, args.min_free_mb, frozenset(args.ignore))
     if args.step == "check":
         return check()
     code = run([str(PYTHON), "-m", "pytest", "-q", "-p", "no:cacheprovider"],

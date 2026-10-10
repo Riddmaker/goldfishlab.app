@@ -62,11 +62,21 @@ def test_a_tainted_land_falls_back_to_colourless():
                                                "activation": 0}}
 
 
-def test_spend_only_mana_stays_a_gap():
+def test_spend_only_mana_is_read_with_its_condition():
+    """Since engine version 21 the spells it pays for are read too (P19 R17)."""
     reading = _mana_production(oracle(
         "{T}: Add {C}.\n{T}: Add one mana of any color. Spend this mana only to cast a "
         "creature spell. Activate only if you control a Swamp."))
-    assert reading.condition is None
+    assert reading.condition["if"] == {"kind": "control_type", "types": ["swamp"]}
+    assert reading.spend_only["spells"][0]["types"] == ["creature"]
+    assert not reading.notes
+
+
+def test_spend_only_mana_for_what_the_engine_cannot_tell_stays_a_gap():
+    reading = _mana_production(oracle(
+        "{T}: Add {C}.\n{T}: Add one mana of any color. Spend this mana only to cast "
+        "spells from your graveyard."))
+    assert reading.spend_only is None
     assert any("restricted" in note for note in reading.notes)
 
 

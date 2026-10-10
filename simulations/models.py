@@ -72,6 +72,7 @@ ALLOWED_KEYS = {
     "cost_reduction": "Generic reduction this permanent gives your spells.",
     "draw_on_cast": "Cards drawn when the spell resolves.",
     "x_min": "The smallest X the spell is cast for; it waits until then.",
+    "chosen_type": "The creature type a Cavern of Souls names, lower case: 'elf'.",
     "discard_on_cast": "Cards discarded right after that draw, like Faithless Looting.",
     "put_back_on_cast": "Cards put back on top of the library after that draw, like Brainstorm.",
     "life_on_cast": "Life paid when the spell resolves.",

@@ -68,6 +68,11 @@
         {% endfor %}
       </span>
     {% endif %}
+    {% if restricted %}
+      <ul class="text-sm text-ink-700" aria-label="{% translate "Mana only some spells may spend" %}">
+        {% for line in restricted %}<li>{{ line }}</li>{% endfor %}
+      </ul>
+    {% endif %}
 
     {% if not deciding %}
       <div class="ml-auto flex flex-wrap gap-2">

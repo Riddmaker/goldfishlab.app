@@ -162,6 +162,34 @@ class TappedUnless:
 
 
 @dataclass(frozen=True)
+class SpellFilter:
+    """One kind of spell restricted mana may be spent on (P19 R17).
+
+    "Spend this mana only to cast ..." names one or more of them, any one of
+    which will do: Master of Dark Rites' "Vampire, Cleric, and/or Demon
+    spells" is three filters of one subtype each. Within one filter every
+    field must hold: Eldrazi Temple's "colorless Eldrazi spells" is
+    ``SpellFilter(subtypes={"eldrazi"}, colorless=True)``.
+
+    Attributes:
+        types: Card types, any one of them (``CARD_TYPES``): "artifact or
+            creature spells". Empty: any type.
+        subtypes: Subtypes, any one of them, lower case: "dragon". Empty: any.
+        legendary: A legendary spell only (Plaza of Heroes).
+        colorless: A colourless spell only (Shrine of the Forsaken Gods).
+        multicolored: A spell of two or more colours (Pillar of the Paruns).
+        noncreature: Not a creature spell.
+    """
+
+    types: frozenset[str] = field(default_factory=frozenset)
+    subtypes: frozenset[str] = field(default_factory=frozenset)
+    legendary: bool = False
+    colorless: bool = False
+    multicolored: bool = False
+    noncreature: bool = False
+
+
+@dataclass(frozen=True)
 class ManaAbility:
     """A mana ability as a rule rather than as a card name.
 
@@ -206,6 +234,9 @@ class ManaAbility:
     pays_with: str = ""
     #: A ``MULTIPLY``'s factor: 2 for twice as much (P19 R13).
     times: int = 1
+    #: P19 R17: "Spend this mana only to cast ..." - the spells its mana may
+    #: pay for, any one of these will do. Empty: any spell or ability.
+    spend_only: tuple[SpellFilter, ...] = ()
 
     def __post_init__(self):
         # Canonicalise, so that two abilities making the same mana compare
@@ -638,6 +669,10 @@ class Card:
     #: P19 R15: it goes to exile rather than the graveyard once cast - a
     #: Spirit Guide, a ritual exiled from the hand for its mana.
     exiled_on_cast: bool = False
+    #: P19 R17: every subtype on the front face, lower case - "aura",
+    #: "equipment", "dragon": what restricted mana asks a spell about.
+    #: ``subtypes`` holds the basic land types only.
+    printed_subtypes: frozenset[str] = field(default_factory=frozenset)
 
     @property
     def mana_cost(self) -> ManaCost:

@@ -26,7 +26,7 @@ import typing
 
 from simulation.cards import Card, DeckDefinition
 from simulation.game import Game
-from simulation.mana import ManaPool
+from simulation.mana import ManaPool, RestrictedMana
 
 #: Dataclasses reachable from a deck, by name. Loading consults this rather
 #: than anything importable, so a crafted payload cannot name an arbitrary
@@ -184,6 +184,8 @@ def dump_game(game: Game) -> dict:
     if game.pool is not None:
         state["pool_converters"] = list(game.pool.converters)
         state["pool_treasures"] = list(game.pool.treasures)
+        # P19 R17: mana only some spells may spend, and what it would be instead.
+        state["pool_restricted"] = [dump(each) for each in game.pool.restricted]
     state["treasures"] = list(game.treasures)
     state["landers"] = game.landers
     state["arrived"] = list(game.arrived)
@@ -216,6 +218,8 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
     if game.pool is not None:
         game.pool.converters = list(data.get("pool_converters", []))
         game.pool.treasures = list(data.get("pool_treasures", []))
+        game.pool.restricted = [_load_dataclass(RestrictedMana, row)
+                                for row in data.get("pool_restricted", [])]
     game.treasures = list(data.get("treasures", []))
     game.landers = int(data.get("landers", 0))
     game.arrived = [str(name) for name in data.get("arrived", [])]

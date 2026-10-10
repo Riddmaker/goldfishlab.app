@@ -126,6 +126,13 @@ boundary, not the symptom.
 #:    Raptor), Brass's Bounty per land; an Eldrazi Spawn is a Treasure for
 #:    {C}. Smothering Tithe, Rhystic Study and Esper Sentinel get one a round
 #:    (assumed: one opponent does not pay). Warren Soultrader is an altar.
-ENGINE_VERSION = 20
+#: 21: P19 R17. Mana only some spells may spend: Cavern of Souls, Ancient
+#:    Ziggurat, Plaza of Heroes, Eldrazi Temple, Power Depot and the rest
+#:    pay only for the spells they name - a creature, legendary, colourless,
+#:    artifact spell, a subtype - and spell their mana first; what such a land
+#:    makes instead ({C}) is spent last. "The chosen type" is the deck's most
+#:    common creature type (assumed, shown on the deck page) unless an
+#:    annotation names one. Shrine of the Forsaken Gods counts seven lands.
+ENGINE_VERSION = 21
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

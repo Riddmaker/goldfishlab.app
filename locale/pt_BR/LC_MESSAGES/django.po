@@ -9586,3 +9586,128 @@ msgstr ""
 "Sentinel esperam oponentes que um goldfish não tem, então dão um por rodada,"
 " supondo que um oponente não pague – e a lista de cards da página do seu "
 "deck agora diz ao lado de cada card o que o motor supõe para jogá-lo."
+
+#: simulations/engine/adapter.py
+msgid ""
+"names a creature type, but no card in this deck has one: only its other mana"
+" is played"
+msgstr ""
+"nomeia um tipo de criatura, mas nenhuma carta deste deck tem um: só o outro "
+"mana dela é jogado"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"names %(type)s as its creature type, the most common one in this deck "
+"(%(count)s cards)"
+msgstr ""
+"nomeia %(type)s como tipo de criatura, o mais comum deste deck (%(count)s "
+"cartas)"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s, only for %(spells)s"
+msgstr "%(mana)s, só para %(spells)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s spells"
+msgstr "mágicas: %(what)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(one)s or %(other)s"
+msgstr "%(one)s ou %(other)s"
+
+#: simulations/engine/adapter.py
+msgid "legendary"
+msgstr "lendária"
+
+#: simulations/engine/adapter.py
+msgid "multicoloured"
+msgstr "multicolorida"
+
+#: simulations/engine/adapter.py
+msgid "noncreature"
+msgstr "não criatura"
+
+#: simulations/engine/adapter.py
+msgid "artifact"
+msgstr "artefato"
+
+#: simulations/engine/adapter.py
+msgid "creature"
+msgstr "criatura"
+
+#: simulations/engine/adapter.py
+msgid "enchantment"
+msgstr "encantamento"
+
+#: simulations/engine/adapter.py
+msgid "instant"
+msgstr "mágica instantânea"
+
+#: simulations/engine/adapter.py
+msgid "sorcery"
+msgstr "feitiço"
+
+#: simulations/engine/adapter.py
+msgid "planeswalker"
+msgstr "planeswalker"
+
+#: simulations/annotations.py
+msgid "Creature type it names"
+msgstr "Tipo de criatura que ela nomeia"
+
+#: simulations/annotations.py
+msgid ""
+"For Cavern of Souls and the like: the creature type you choose as it enters,"
+" such as Elf. Left empty, the engine names the most common creature type in "
+"your deck."
+msgstr ""
+"Para Cavern of Souls e semelhantes: o tipo de criatura que você escolhe "
+"quando ela entra, por exemplo Elf. Deixado vazio, o motor nomeia o tipo de "
+"criatura mais comum do seu deck."
+
+#: simulations/forms.py
+msgid "One creature type, such as Elf or Dragon."
+msgstr "Um tipo de criatura, por exemplo Elf ou Dragon."
+
+#: playtest/views.py
+#, python-format
+msgid "%(mana)s for %(spells)s"
+msgstr "%(mana)s para %(spells)s"
+
+#: playtest/views.py
+#, python-format
+msgid "%(restricted)s, or %(mana)s"
+msgstr "%(restricted)s, ou %(mana)s"
+
+#: templates/playtest/_board.html
+msgid "Mana only some spells may spend"
+msgstr "Mana que só algumas mágicas podem gastar"
+
+#: changelog/entries.py
+msgid "Cavern of Souls, Ancient Ziggurat and Plaza of Heroes"
+msgstr "Cavern of Souls, Ancient Ziggurat e Plaza of Heroes"
+
+#: changelog/entries.py
+msgid ""
+"Lands and creatures whose mana only some spells may spend now make it in a "
+"simulated game, and only those spells spend it: Ancient Ziggurat and Herd "
+"Heirloom for creatures, Plaza of Heroes and Delighted Halfling for legendary"
+" spells, your commander included, Eldrazi Temple and Shrine of the Forsaken "
+"Gods for colourless ones, Power Depot for artifacts, Haven of the Spirit "
+"Dragon for Dragons. Cavern of Souls and Unclaimed Territory name your deck's"
+" most common creature type - your deck page says which, beside the card, and"
+" you can name another. The playtest shows such mana apart from the rest."
+msgstr ""
+"Terrenos e criaturas cujo mana só algumas mágicas podem gastar agora o "
+"produzem numa partida simulada, e só essas mágicas o gastam: Ancient "
+"Ziggurat e Herd Heirloom para criaturas, Plaza of Heroes e Delighted "
+"Halfling para mágicas lendárias, seu comandante incluído, Eldrazi Temple e "
+"Shrine of the Forsaken Gods para as incolores, Power Depot para artefatos, "
+"Haven of the Spirit Dragon para Dragões. Cavern of Souls e Unclaimed "
+"Territory nomeiam o tipo de criatura mais comum do seu deck - a página do "
+"deck diz qual, ao lado da carta, e você pode nomear outro. O playtest mostra"
+" esse mana separado do resto."

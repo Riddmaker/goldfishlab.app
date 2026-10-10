@@ -29,6 +29,7 @@ from simulation.cards import (
     LandSearch,
     ManaAbility,
     SpellFilter,
+    TapMana,
     TappedUnless,
     Trigger,
     TutorSpec,
@@ -124,6 +125,10 @@ EVERYTHING = Card(
     exiled_on_cast=True,
     printed_subtypes=frozenset({"elf", "druid"}),
     power=4,
+    tap_mana=TapMana(types=frozenset({"creature"}), filter="U", mana="C", amount=2,
+                     spend_only=(SpellFilter(types=frozenset({"artifact"})),), tokens=1),
+    mox="imprint",
+    mana_mills=1,
 )
 
 

@@ -142,6 +142,12 @@ boundary, not the symptom.
 #:    Caryatid); Nimbus Maze's two conditions; Rite of Flame and Cabal
 #:    Ritual's threshold count the graveyard. Hybrid symbols are no gap: the
 #:    payer has settled them since version 5.
-ENGINE_VERSION = 22
+#: 23: P19 R19. Tapping other permanents for mana: Springleaf Drum and the
+#:    lands like it tap a creature that makes no mana, Relic of Legends a
+#:    legendary one, Urza each artifact (his Construct included), Grand
+#:    Architect each blue creature. Mox Diamond discards a spare land card,
+#:    Chrome Mox exiles the most expensive coloured card and makes its
+#:    colours; Millikin mills a card each time it taps.
+ENGINE_VERSION = 23
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

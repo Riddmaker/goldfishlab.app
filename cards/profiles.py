@@ -1324,6 +1324,13 @@ class ManaClause:
     offers: str = ""
     #: P19 R18: "one mana of the chosen color" - which one, the deck says.
     chosen_color: bool = False
+    #: P19 R19: "Tap an untapped creature you control" is part of the cost:
+    #: {"types": [...], "filter": "legendary", a colour letter or ""}.
+    taps_other: dict | None = None
+    #: P19 R19: "Mill a card" is part of the cost (Millikin).
+    mills: int = 0
+    #: P19 R19: "one mana of any of the exiled card's colors" (Chrome Mox).
+    imprint: bool = False
     problem: str = ""
     note: str = ""
 
@@ -1370,6 +1377,16 @@ class ManaReading:
     #: A filter or converter beside the plain ability (P19 R6): {"pays_with":
     #: "WB" or "" (any mana), "amount", "offers": colours or "" (any)}.
     filter: dict | None = None
+    #: P19 R19: mana for tapping other permanents, without its own {T}
+    #: (Relic of Legends, Urza): {"types", "filter", "amount", "produces",
+    #: "spend_only", "token"} - ``token`` the artifact tokens it makes as it
+    #: enters, tapped too. None: none.
+    tap_mana: dict | None = None
+    #: P19 R19: how the card enters or what it makes - "discard_land" (Mox
+    #: Diamond), "imprint" (Chrome Mox) or "".
+    mox: str = ""
+    #: P19 R19: cards milled each time it is tapped for mana (Millikin).
+    mills: int = 0
     notes: list[str] = field(default_factory=list)
 
 
@@ -1384,6 +1401,22 @@ _SACRIFICE_ANOTHER = re.compile(
     r"Sacrifice (?:an?|another) (?:(?P<filter>white|blue|black|red|green|legendary) )?"
     r"(?:(?P<t1>artifact|creature)|(?P<subtype>(?!Food|Treasure|Clue|Blood|Desert|land)"
     r"[A-Z][a-z]+))", re.IGNORECASE)
+
+
+#: P19 R19: tapping another permanent as the cost. Not "two untapped Foods"
+#: or "X untapped tokens": tokens are no cards in the engine.
+_TAP_ANOTHER = re.compile(
+    r"Tap an untapped (?:(?P<filter>legendary|nontoken|white|blue|black|red|green) )?"
+    r"(?:(?P<what>artifact or creature|creature|artifact|permanent)"
+    r"|(?P<subtype>[A-Z][a-z]+)) you control")
+_MILL_A_CARD = re.compile(r"Mill a card", re.IGNORECASE)
+#: Urza's Construct: an artifact token the card makes as it enters, tapped
+#: for the card's own ability as any other artifact (P19 R19).
+_ENTERS_WITH_ARTIFACT_TOKEN = re.compile(
+    r"When [^.]*? enters, create an? [^.]*?\bartifact\b[^.]*? token", re.IGNORECASE)
+#: Chrome Mox: the colours of the card it imprinted (P19 R19).
+_IMPRINTED_COLORS = re.compile(r"one mana of any of the exiled card's colors",
+                               re.IGNORECASE)
 
 
 def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
@@ -1423,12 +1456,34 @@ def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
             clause.pays_with = "".join(sorted(set(found.group(1).upper()) - {"/"},
                                               key="WUBRG".index))
             continue
+        if (found := _TAP_ANOTHER.fullmatch(part)) is not None:
+            # Springleaf Drum, Relic of Legends, Urza (P19 R19).
+            # "nontoken": the engine has no tokens a card could tap.
+            wanted = (found.group("filter") or "").lower().replace("nontoken", "")
+            if found.group("subtype"):
+                # Seton: "Tap an untapped Druid" - a creature of that type.
+                types, wanted = ["creature"], found.group("subtype").lower()
+            else:
+                types = found.group("what").lower().split(" or ")
+            clause.taps_other = {"types": types, "filter": _COLOR_WORDS.get(wanted, wanted)}
+            continue
+        if _MILL_A_CARD.fullmatch(part):
+            clause.mills = 1
+            continue
         if _SYMBOL_RUN.fullmatch(part):
             clause.problem = gettext_noop(
                 "a mana ability with a coloured cost (a filter) is not modelled")
         else:
             clause.problem = f"a mana ability that costs '{part}' is not modelled"[:120]
         return
+    if clause.taps and clause.taps_other is not None:
+        # Its own {T} and another's: one mana while something is there to
+        # tap - the condition the game checks, the plain ability its fallback.
+        wanted = clause.taps_other["filter"]
+        clause.condition = {"kind": "tap_fodder", "types": clause.taps_other["types"],
+                            "legendary": wanted == "legendary",
+                            "type": "" if wanted == "legendary" else wanted}
+        clause.taps_other = None
 
 
 def _read_produced(clause: ManaClause, after: str, card_text: str = "") -> None:
@@ -1484,6 +1539,11 @@ def _read_produced(clause: ManaClause, after: str, card_text: str = "") -> None:
         # P19 R18: the colour the deck settles - an assumption on its page.
         clause.amount = _WORD_NUMBERS[chosen.group(1).lower()]
         clause.chosen_color = True
+        return
+
+    if _IMPRINTED_COLORS.match(after):
+        # P19 R19: Chrome Mox - which colours, the card it exiles says.
+        clause.amount, clause.imprint = 1, True
         return
 
     if _SCALES_UP_FRONT.match(after):
@@ -1638,6 +1698,9 @@ def _read_plain(reading: ManaReading, worth_it: list[ManaClause], notes: set) ->
         reading.amount, reading.activation = chosen.amount, chosen.activation
         reading.produces = produces
         reading.chosen_color = chosen.chosen_color
+        reading.mills = chosen.mills
+        if chosen.imprint:
+            reading.mox = "imprint"
     if conditions:
         condition = next(clause.condition for clause in top if clause.condition)
         otherwise = None
@@ -1767,8 +1830,8 @@ def _mana_production(card: OracleCard) -> ManaReading:
     notes = {clause.problem for clause in clauses if clause.problem}
     notes |= {clause.note for clause in usable if clause.note}
     if _ENTERS_BY_DISCARD.search(text):
-        notes.add(gettext_noop(
-            "enters only by discarding a land card, which the engine does not do"))
+        # P19 R19: Mox Diamond - cast with a land card to spare, see the game.
+        reading.mox = "discard_land"
 
     if not clauses and (_FOR_SOMEONE_ELSE.search(text) or _BASIC_TYPE_LINE.search(type_line)):
         # P19 R12: the mana is somebody else's - An Offer You Can't Refuse
@@ -1807,6 +1870,22 @@ def _mana_production(card: OracleCard) -> ManaReading:
         else:
             reading.sacrifice = {**first.sacrifices, "amount": first.amount,
                                  "produces": first.produces, "taps": first.taps}
+    tappers = [clause for clause in usable if clause.taps_other is not None]
+    usable = [clause for clause in usable if clause.taps_other is None]
+    if tappers:
+        # P19 R19: mana for each permanent it taps - Relic of Legends' second
+        # ability, Urza, Grand Architect.
+        first = tappers[0]
+        if len(tappers) > 1 or first.amount is None or first.activation or first.condition \
+                or first.mills:
+            notes.add(f"a mana ability that costs 'Tap an untapped "
+                      f"{first.taps_other['types'][0]}' is not modelled")
+        else:
+            artifacts = "artifact" in first.taps_other["types"]
+            reading.tap_mana = {
+                **first.taps_other, "amount": first.amount, "produces": first.produces,
+                "spend_only": first.spend_only,
+                "token": 1 if artifacts and _ENTERS_WITH_ARTIFACT_TOKEN.search(text) else 0}
     from_hand = [clause for clause in usable if clause.from_hand]
     usable = [clause for clause in usable if not clause.from_hand]
     if from_hand:
@@ -2345,7 +2424,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     # where it is not and a single mana slipped through looking correct.
     counts = mana_rule is not None and mana_rule["rule"] == "counts"
     altar = mana.sacrifice is not None and (mana.sacrifice["amount"] or 0) > 1
-    if MULTIPLE_MANA_TAG in tags and amount == 1 and not counts and not altar:
+    if MULTIPLE_MANA_TAG in tags and amount == 1 and not counts and not altar \
+            and mana.tap_mana is None:
         reasons.append(gettext_noop("tagged as adding more than one mana; only one was read"))
     if additional.reason:
         reasons.append(additional.reason)
@@ -2393,6 +2473,9 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         additional_cost=additional.ways,
         sacrifice_mana=mana.sacrifice,
         mana_from_hand=mana.from_hand,
+        tap_mana=mana.tap_mana,
+        mox=mana.mox,
+        mana_mills=mana.mills,
         triggers=triggers.found,
         cost_reduction=_first_number(_COST_REDUCTION, text),
         draws_cards=draw.cards,
@@ -2524,7 +2607,7 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "mana_filter", "mana_spend_only", "mana_chosen_color", "treasures", "landers",
             "discard_cost",
             "additional_cost",
-            "sacrifice_mana", "mana_from_hand", "triggers",
+            "sacrifice_mana", "mana_from_hand", "tap_mana", "mox", "mana_mills", "triggers",
             "discards_after", "puts_back",
             "draws_x",
             "extra_cost",

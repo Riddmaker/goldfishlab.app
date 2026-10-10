@@ -9784,3 +9784,141 @@ msgstr ""
 #: simulations/forms.py
 msgid "The deck's most common colour"
 msgstr "A cor mais comum do deck"
+
+#: changelog/entries.py
+msgid "Springleaf Drum, Relic of Legends, Urza and the Moxen"
+msgstr "Springleaf Drum, Relic of Legends, Urza e os Mox"
+
+#: changelog/entries.py
+msgid ""
+"Cards that tap another of your permanents for mana now make it in a "
+"simulated game: Springleaf Drum, Survivors' Encampment and Holdout "
+"Settlement tap a creature, Relic of Legends each legendary creature - your "
+"commander included - Urza, Lord High Artificer each artifact and his "
+"Construct, Grand Architect each blue creature. Only a permanent that makes "
+"no mana of its own is tapped. Mox Diamond is cast when a land card is left "
+"in hand after your land drop and discards it, Chrome Mox exiles the most "
+"expensive coloured card in hand and makes its colours, and Millikin mills a "
+"card each time it taps. Your deck page says all of this beside each card."
+msgstr ""
+"Cartas que viram outra permanente sua para gerar mana agora o geram em uma "
+"partida simulada: Springleaf Drum, Survivors' Encampment e Holdout "
+"Settlement viram uma criatura, Relic of Legends cada criatura lendária - seu"
+" comandante incluído -, Urza, Lord High Artificer cada artefato e seu "
+"Constructo, Grand Architect cada criatura azul. Só é virada uma permanente "
+"que não gera mana por si mesma. Mox Diamond é conjurado quando sobra um card"
+" de terreno na mão depois do seu terreno do turno, e o descarta; Chrome Mox "
+"exila o card colorido mais caro da mão e gera as cores dele; Millikin "
+"tritura um card cada vez que é virado. A página do seu deck diz tudo isso ao"
+" lado de cada card."
+
+#: simulations/engine/adapter.py
+msgid "an untapped permanent to tap for it"
+msgstr "uma permanente desvirada para virar para isso"
+
+#: simulations/engine/adapter.py
+msgid "an untapped artifact or creature to tap for it"
+msgstr "um artefato ou uma criatura desvirados para virar para isso"
+
+#: simulations/engine/adapter.py
+msgid "an untapped artifact to tap for it"
+msgstr "um artefato desvirado para virar para isso"
+
+#: simulations/engine/adapter.py
+msgid "an untapped legendary creature to tap for it"
+msgstr "uma criatura lendária desvirada para virar para isso"
+
+#: simulations/engine/adapter.py
+msgid "an untapped creature to tap for it"
+msgstr "uma criatura desvirada para virar para isso"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a creature of yours that makes no mana and is not used otherwise this "
+"turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"vira uma criatura sua que não gera mana e não é usada de outro modo neste "
+"turno: o motor não joga combate, então virá-la não custa nada"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a legendary creature of yours that makes no mana and is not used "
+"otherwise this turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"vira uma criatura lendária sua que não gera mana e não é usada de outro modo"
+" neste turno: o motor não joga combate, então virá-la não custa nada"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a permanent of yours that makes no mana and is not used otherwise this "
+"turn - never a land"
+msgstr ""
+"vira uma permanente sua que não gera mana e não é usada de outro modo neste "
+"turno - nunca um terreno"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps an artifact or creature of yours that makes no mana and is not used "
+"otherwise this turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"vira um artefato ou uma criatura sua que não gera mana e não é usado de "
+"outro modo neste turno: o motor não joga combate, então virá-lo não custa "
+"nada"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each legendary creature of yours that makes no mana, your commander "
+"included, for one mana each: the engine plays no combat, so tapping them "
+"costs nothing"
+msgstr ""
+"vira cada criatura lendária sua que não gera mana, seu comandante incluído, "
+"por um mana cada: o motor não joga combate, então virá-las não custa nada"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each artifact of yours that makes no mana, for its mana; a Treasure is "
+"sacrificed for its own mana instead"
+msgstr ""
+"vira cada artefato seu que não gera mana, para o seu mana; um Tesouro é "
+"sacrificado pelo próprio mana em vez disso"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each creature of yours of the kind it names that makes no mana, itself "
+"included when it is one: the engine plays no combat, so tapping them costs "
+"nothing"
+msgstr ""
+"vira cada criatura sua do tipo que ela nomeia que não gera mana, ela mesma "
+"incluída quando for uma: o motor não joga combate, então virá-las não custa "
+"nada"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each permanent of yours that makes no mana, for its mana - never a land"
+msgstr ""
+"vira cada permanente sua que não gera mana, para o seu mana - nunca um "
+"terreno"
+
+#: simulations/engine/adapter.py
+msgid "taps the artifact token it makes as it enters too"
+msgstr "vira também a ficha de artefato que cria ao entrar"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is cast only with a land card left in hand after the turn's land drop, and "
+"discards it - one that would enter tapped first"
+msgstr ""
+"só é conjurado com um card de terreno que sobrou na mão depois do terreno do"
+" turno, e o descarta - primeiro um que entraria virado"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is cast only with a coloured nonartifact, nonland card in hand; it exiles "
+"the most expensive one, the card a discard would take, and makes its colours"
+msgstr ""
+"só é conjurado com um card colorido que não seja artefato nem terreno na "
+"mão; exila o mais caro, o que um descarte levaria, e gera as cores dele"
+
+#: simulations/engine/adapter.py
+msgid "is tapped for mana every turn, and mills a card each time"
+msgstr "é virado para gerar mana todo turno, e tritura um card a cada vez"

@@ -9893,3 +9893,148 @@ msgstr ""
 #: simulations/forms.py
 msgid "The deck's most common colour"
 msgstr "Die häufigste Farbe des Decks"
+
+#: changelog/entries.py
+msgid "Springleaf Drum, Relic of Legends, Urza and the Moxen"
+msgstr "Springleaf Drum, Relic of Legends, Urza und die Moxen"
+
+#: changelog/entries.py
+msgid ""
+"Cards that tap another of your permanents for mana now make it in a "
+"simulated game: Springleaf Drum, Survivors' Encampment and Holdout "
+"Settlement tap a creature, Relic of Legends each legendary creature - your "
+"commander included - Urza, Lord High Artificer each artifact and his "
+"Construct, Grand Architect each blue creature. Only a permanent that makes "
+"no mana of its own is tapped. Mox Diamond is cast when a land card is left "
+"in hand after your land drop and discards it, Chrome Mox exiles the most "
+"expensive coloured card in hand and makes its colours, and Millikin mills a "
+"card each time it taps. Your deck page says all of this beside each card."
+msgstr ""
+"Karten, die für Mana eine andere deiner bleibenden Karten tappen, machen es "
+"jetzt im simulierten Spiel: Springleaf Drum, Survivors' Encampment und "
+"Holdout Settlement tappen eine Kreatur, Relic of Legends jede legendäre "
+"Kreatur - auch deinen Commander -, Urza, Lord High Artificer jedes Artefakt "
+"und sein Konstrukt, Grand Architect jede blaue Kreatur. Getappt wird nur "
+"eine bleibende Karte, die selbst kein Mana macht. Mox Diamond wird gespielt,"
+" wenn nach deinem Land für den Zug noch eine Landkarte auf der Hand ist, und"
+" wirft sie ab; Chrome Mox schickt die teuerste farbige Karte auf der Hand "
+"ins Exil und macht ihre Farben; Millikin millt jedes Mal eine Karte, wenn er"
+" tappt. Deine Deckseite sagt das alles neben jeder Karte."
+
+#: simulations/engine/adapter.py
+msgid "an untapped permanent to tap for it"
+msgstr "eine ungetappte bleibende Karte, die dafür getappt wird"
+
+#: simulations/engine/adapter.py
+msgid "an untapped artifact or creature to tap for it"
+msgstr ""
+"ein ungetapptes Artefakt oder eine ungetappte Kreatur, die dafür getappt "
+"wird"
+
+#: simulations/engine/adapter.py
+msgid "an untapped artifact to tap for it"
+msgstr "ein ungetapptes Artefakt, das dafür getappt wird"
+
+#: simulations/engine/adapter.py
+msgid "an untapped legendary creature to tap for it"
+msgstr "eine ungetappte legendäre Kreatur, die dafür getappt wird"
+
+#: simulations/engine/adapter.py
+msgid "an untapped creature to tap for it"
+msgstr "eine ungetappte Kreatur, die dafür getappt wird"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a creature of yours that makes no mana and is not used otherwise this "
+"turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"tappt eine deiner Kreaturen, die kein Mana macht und in diesem Zug sonst "
+"nicht gebraucht wird: Die Engine spielt keinen Kampf, also kostet das Tappen"
+" nichts"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a legendary creature of yours that makes no mana and is not used "
+"otherwise this turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"tappt eine deiner legendären Kreaturen, die kein Mana macht und in diesem "
+"Zug sonst nicht gebraucht wird: Die Engine spielt keinen Kampf, also kostet "
+"das Tappen nichts"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a permanent of yours that makes no mana and is not used otherwise this "
+"turn - never a land"
+msgstr ""
+"tappt eine deiner bleibenden Karten, die kein Mana macht und in diesem Zug "
+"sonst nicht gebraucht wird - nie ein Land"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps an artifact or creature of yours that makes no mana and is not used "
+"otherwise this turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"tappt eines deiner Artefakte oder eine deiner Kreaturen, die kein Mana macht"
+" und in diesem Zug sonst nicht gebraucht wird: Die Engine spielt keinen "
+"Kampf, also kostet das Tappen nichts"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each legendary creature of yours that makes no mana, your commander "
+"included, for one mana each: the engine plays no combat, so tapping them "
+"costs nothing"
+msgstr ""
+"tappt jede deiner legendären Kreaturen, die kein Mana macht, auch deinen "
+"Commander, für je ein Mana: Die Engine spielt keinen Kampf, also kostet das "
+"Tappen nichts"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each artifact of yours that makes no mana, for its mana; a Treasure is "
+"sacrificed for its own mana instead"
+msgstr ""
+"tappt für sein Mana jedes deiner Artefakte, das kein Mana macht; ein Schatz "
+"wird stattdessen für sein eigenes Mana geopfert"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each creature of yours of the kind it names that makes no mana, itself "
+"included when it is one: the engine plays no combat, so tapping them costs "
+"nothing"
+msgstr ""
+"tappt jede deiner Kreaturen der genannten Art, die kein Mana macht, sich "
+"selbst eingeschlossen, wenn sie dazugehört: Die Engine spielt keinen Kampf, "
+"also kostet das Tappen nichts"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each permanent of yours that makes no mana, for its mana - never a land"
+msgstr ""
+"tappt für sein Mana jede deiner bleibenden Karten, die kein Mana macht - nie"
+" ein Land"
+
+#: simulations/engine/adapter.py
+msgid "taps the artifact token it makes as it enters too"
+msgstr ""
+"tappt auch den Artefakt-Spielstein, den sie beim Ins-Spiel-Kommen erzeugt"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is cast only with a land card left in hand after the turn's land drop, and "
+"discards it - one that would enter tapped first"
+msgstr ""
+"wird nur gespielt, wenn nach dem Land des Zuges noch eine Landkarte auf der "
+"Hand ist, und wirft sie ab - zuerst eine, die getappt ins Spiel käme"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is cast only with a coloured nonartifact, nonland card in hand; it exiles "
+"the most expensive one, the card a discard would take, and makes its colours"
+msgstr ""
+"wird nur gespielt, wenn eine farbige Karte auf der Hand ist, die weder "
+"Artefakt noch Land ist; sie schickt die teuerste davon ins Exil, die Karte, "
+"die auch ein Abwerfen nähme, und macht deren Farben"
+
+#: simulations/engine/adapter.py
+msgid "is tapped for mana every turn, and mills a card each time"
+msgstr "wird jeden Zug für Mana getappt und millt dabei jedes Mal eine Karte"

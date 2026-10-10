@@ -9983,3 +9983,147 @@ msgstr ""
 #: simulations/forms.py
 msgid "The deck's most common colour"
 msgstr "La couleur la plus fréquente du deck"
+
+#: changelog/entries.py
+msgid "Springleaf Drum, Relic of Legends, Urza and the Moxen"
+msgstr "Springleaf Drum, Relic of Legends, Urza et les Moxen"
+
+#: changelog/entries.py
+msgid ""
+"Cards that tap another of your permanents for mana now make it in a "
+"simulated game: Springleaf Drum, Survivors' Encampment and Holdout "
+"Settlement tap a creature, Relic of Legends each legendary creature - your "
+"commander included - Urza, Lord High Artificer each artifact and his "
+"Construct, Grand Architect each blue creature. Only a permanent that makes "
+"no mana of its own is tapped. Mox Diamond is cast when a land card is left "
+"in hand after your land drop and discards it, Chrome Mox exiles the most "
+"expensive coloured card in hand and makes its colours, and Millikin mills a "
+"card each time it taps. Your deck page says all of this beside each card."
+msgstr ""
+"Les cartes qui engagent un autre de vos permanents pour du mana le "
+"produisent maintenant dans une partie simulée : Springleaf Drum, Survivors' "
+"Encampment et Holdout Settlement engagent une créature, Relic of Legends "
+"chaque créature légendaire - votre commandant compris -, Urza, Lord High "
+"Artificer chaque artefact et sa Construction, Grand Architect chaque "
+"créature bleue. Seul un permanent qui ne produit pas de mana lui-même est "
+"engagé. Mox Diamond est lancé quand une carte de terrain reste en main après"
+" votre terrain du tour, et il la défausse ; Chrome Mox exile la carte "
+"colorée la plus chère de votre main et produit ses couleurs ; Millikin meule"
+" une carte chaque fois qu'il est engagé. La page de votre deck indique tout "
+"cela à côté de chaque carte."
+
+#: simulations/engine/adapter.py
+msgid "an untapped permanent to tap for it"
+msgstr "un permanent dégagé à engager pour cela"
+
+#: simulations/engine/adapter.py
+msgid "an untapped artifact or creature to tap for it"
+msgstr "un artefact ou une créature dégagé à engager pour cela"
+
+#: simulations/engine/adapter.py
+msgid "an untapped artifact to tap for it"
+msgstr "un artefact dégagé à engager pour cela"
+
+#: simulations/engine/adapter.py
+msgid "an untapped legendary creature to tap for it"
+msgstr "une créature légendaire dégagée à engager pour cela"
+
+#: simulations/engine/adapter.py
+msgid "an untapped creature to tap for it"
+msgstr "une créature dégagée à engager pour cela"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a creature of yours that makes no mana and is not used otherwise this "
+"turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"engage une de vos créatures qui ne produit pas de mana et ne sert à rien "
+"d'autre ce tour : le moteur ne joue pas de combat, donc l'engager ne coûte "
+"rien"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a legendary creature of yours that makes no mana and is not used "
+"otherwise this turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"engage une de vos créatures légendaires qui ne produit pas de mana et ne "
+"sert à rien d'autre ce tour : le moteur ne joue pas de combat, donc "
+"l'engager ne coûte rien"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a permanent of yours that makes no mana and is not used otherwise this "
+"turn - never a land"
+msgstr ""
+"engage un de vos permanents qui ne produit pas de mana et ne sert à rien "
+"d'autre ce tour - jamais un terrain"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps an artifact or creature of yours that makes no mana and is not used "
+"otherwise this turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"engage un de vos artefacts ou une de vos créatures qui ne produit pas de "
+"mana et ne sert à rien d'autre ce tour : le moteur ne joue pas de combat, "
+"donc l'engager ne coûte rien"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each legendary creature of yours that makes no mana, your commander "
+"included, for one mana each: the engine plays no combat, so tapping them "
+"costs nothing"
+msgstr ""
+"engage chacune de vos créatures légendaires qui ne produit pas de mana, "
+"votre commandant compris, pour un mana chacune : le moteur ne joue pas de "
+"combat, donc les engager ne coûte rien"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each artifact of yours that makes no mana, for its mana; a Treasure is "
+"sacrificed for its own mana instead"
+msgstr ""
+"engage chacun de vos artefacts qui ne produit pas de mana, pour son mana ; "
+"un Trésor est plutôt sacrifié pour son propre mana"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each creature of yours of the kind it names that makes no mana, itself "
+"included when it is one: the engine plays no combat, so tapping them costs "
+"nothing"
+msgstr ""
+"engage chacune de vos créatures du genre qu'elle nomme qui ne produit pas de"
+" mana, elle-même comprise si elle en est une : le moteur ne joue pas de "
+"combat, donc les engager ne coûte rien"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each permanent of yours that makes no mana, for its mana - never a land"
+msgstr ""
+"engage chacun de vos permanents qui ne produit pas de mana, pour son mana - "
+"jamais un terrain"
+
+#: simulations/engine/adapter.py
+msgid "taps the artifact token it makes as it enters too"
+msgstr "engage aussi le jeton artefact qu'elle crée en arrivant"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is cast only with a land card left in hand after the turn's land drop, and "
+"discards it - one that would enter tapped first"
+msgstr ""
+"n'est lancé qu'avec une carte de terrain restée en main après le terrain du "
+"tour, et la défausse - d'abord une qui arriverait engagée"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is cast only with a coloured nonartifact, nonland card in hand; it exiles "
+"the most expensive one, the card a discard would take, and makes its colours"
+msgstr ""
+"n'est lancé qu'avec en main une carte colorée non-artefact et non-terrain ; "
+"il exile la plus chère, celle qu'une défausse prendrait, et produit ses "
+"couleurs"
+
+#: simulations/engine/adapter.py
+msgid "is tapped for mana every turn, and mills a card each time"
+msgstr ""
+"est engagé pour du mana à chaque tour, et meule une carte à chaque fois"

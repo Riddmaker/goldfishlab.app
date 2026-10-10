@@ -21,11 +21,13 @@ from simulation.cards import (
     COUNTS,
     CREATURE,
     DIES,
+    DISCARD_LAND,
     ENCHANTMENT,
     ENTERS,
     EXTRA,
     FLAT,
     GRANT,
+    IMPRINT,
     INSTANT_OR_SORCERY,
     LANDER,
     LANDFALL,
@@ -48,6 +50,7 @@ from simulation.mana import (
     ENCHANTED_SCOPES,
     Extra,
     ManaPool,
+    RestrictedMana,
     applicable_reduction,
     available_mana,
     doublers,
@@ -73,6 +76,19 @@ TREASURE = "Treasure"
 LANDER_FODDER = "Lander"
 
 STARTING_LIFE = 40
+
+
+def _wanted(condition) -> str:
+    """What a ``tap_fodder`` condition asks the permanent to be, besides its
+    type: ``legendary``, a colour letter, a creature type or ""."""
+    return "legendary" if condition.legendary else condition.type
+
+
+def _taps_another(card) -> bool:
+    """Does the card's mana ability tap another permanent besides itself -
+    Springleaf Drum, Survivors' Encampment (P19 R19)?"""
+    return any(ability.only_if is not None and ability.only_if.kind == "tap_fodder"
+               for ability in card.mana_abilities)
 STARTING_HAND_SIZE = 7
 MAX_MULLIGANS = 3          # down to five cards
 
@@ -174,6 +190,11 @@ class Game:
         self.pending_mana: list[str] = []
         #: P19 R16: spells cast this turn, the commander included (Lotho).
         self.spells_this_turn = 0
+        #: P19 R19: the creatures tapped for another card's mana this turn,
+        #: by name - in ``tapped_creatures`` too, yet still that card's.
+        self.fodder_used: list[str] = []
+        #: P19 R19: the colours of the card each Chrome Mox exiled, by name.
+        self.imprinted: dict[str, str] = {}
         self.log = []
 
     @property
@@ -513,6 +534,7 @@ class Game:
         a cost: a player keeps the ramp - a Lotus Cobra or a Storm-Kiln
         Artist too (P19 R16)."""
         return (card.kind == ROCK or bool(card.mana_abilities) or card.sacrifice_mana is not None
+                or card.tap_mana is not None
                 or any(trigger.mana or trigger.treasures for trigger in card.triggers))
 
     @staticmethod
@@ -765,9 +787,11 @@ class Game:
         dorks = self._untapped(
             [card for card in self.creatures if self.mana_ability(card) is not None]
         )
-        return available_mana(self.lands, untapped_lands, untapped_rocks + dorks,
+        pool = available_mana(self.lands, untapped_lands, untapped_rocks + dorks,
                               doublers(self.battlefield), ability_of=self.mana_ability,
                               extras=self.mana_extras(), otherwise_of=self.plain_mana_ability)
+        self._add_tap_mana(pool)
+        return pool
 
     def mana_extras(self, *, per_source: bool = False) -> list[Extra]:
         """The mana on top that the permanents in play add (P19 R13).
@@ -854,6 +878,17 @@ class Game:
             + self._untapped([c for c in self.creatures if self.mana_ability(c) is not None])
         )
         pool = self.mana()
+        tapped, _ = self.tap_fodder()
+        for found in tapped.values():
+            for other in found:
+                if any(other is creature for creature in self.creatures) \
+                        and other.name not in self.fodder_used:
+                    # Its {T} went to another card's mana (P19 R19).
+                    self.tapped_creatures.append(other.name)
+                    self.fodder_used.append(other.name)
+        for card in sources:
+            if card.mana_mills and self.mana_ability(card) is not None:
+                self.mill(card.mana_mills, card)
         self.fire(MAIN_PHASE)
         for key in self.pending_mana:
             pool.add(key)
@@ -877,6 +912,10 @@ class Game:
         if card.needs_creature_on_bf and not self.creatures:
             return False
         if card.discard_cost and len([c for c in self.hand if c is not card]) < card.discard_cost:
+            return False
+        if card.mox == DISCARD_LAND and not any(other.is_land for other in self.hand):
+            return False
+        if card.mox == IMPRINT and not self.imprint_options(card):
             return False
         if card.x_count:
             return self.max_x(card, pool) >= card.x_min and (
@@ -980,7 +1019,96 @@ class Game:
                        for other in self.hand)
         if kind == "pay_life":
             return self.life - condition.count >= PHYREXIAN_LIFE_FLOOR
+        if kind == "tap_fodder":
+            # P19 R19: something left for it to tap, see `tap_fodder`.
+            if entering:
+                _, left = self.tap_fodder()
+                return any(self._tappable(found, condition.types, _wanted(condition))
+                           for found in left)
+            return bool(self.tap_fodder()[0].get(id(card)))
         return False
+
+    # --- Tapping other permanents for mana (P19 R19) -------------------------
+
+    def _tappable(self, card, types, wanted: str) -> bool:
+        """May ``card`` be tapped for a cost asking for ``types`` and
+        ``wanted``: ``legendary``, a colour letter, a creature type, or ""?"""
+        if "permanent" not in types and not self.types_of(card) & types:
+            return False
+        if not wanted:
+            return True
+        if wanted == "legendary":
+            return card.legendary
+        if wanted in COLORS:
+            return wanted in self._colors_of(card)
+        return wanted in card.creature_types
+
+    def _self_tappers(self) -> list:
+        """The untapped sources whose ability taps another permanent besides
+        themselves: Springleaf Drum, Survivors' Encampment."""
+        sources = (self._untapped(self.lands[self.tapped_lands:])
+                   + self._untapped(self.rocks[self.tapped_rocks:])
+                   + self._untapped(self.creatures))
+        return [card for card in sources if _taps_another(card)]
+
+    def tap_fodder(self) -> tuple[dict, list]:
+        """Which permanents each card taps for its mana, and what is left.
+
+        Returns ``({id(card): [permanents]}, left)``. Only a permanent that
+        makes no mana of its own is tapped - a mana creature taps for its
+        own - and never one whose {T} went to something else this turn. Each
+        is tapped once: the narrowest ask goes first, a legendary creature
+        before any creature and a creature before any permanent. A card that
+        taps itself as well takes one; Relic of Legends or Urza all that fit.
+        Grand Architect may tap itself.
+        """
+        if not any(card.tap_mana is not None or _taps_another(card)
+                   for card in self.battlefield):
+            return {}, []
+        tappers = [card for card in self.battlefield if card.tap_mana is not None]
+        own = self._self_tappers()
+        busy = Counter(self.tapped_creatures) - Counter(self.fodder_used)
+        left = []
+        for card in self.creatures + self.rocks + self.other_permanents:
+            if self.is_mana_source(card):
+                continue
+            if busy[card.name]:
+                busy[card.name] -= 1
+                continue
+            left.append(card)
+        asks = []
+        for card in own:
+            only_if = next(ability.only_if for ability in card.mana_abilities
+                           if ability.only_if is not None and ability.only_if.kind == "tap_fodder")
+            asks.append((card, only_if.types, _wanted(only_if), True))
+        asks += [(card, card.tap_mana.types, card.tap_mana.filter, False) for card in tappers]
+        asks.sort(key=lambda ask: (not ask[2], "permanent" in ask[1], not ask[3], ask[0].name))
+        found: dict = {}
+        for card, types, wanted, one in asks:
+            fits = [other for other in left if self._tappable(other, types, wanted)]
+            if not one and self._tappable(card, types, wanted) and not busy[card.name]:
+                # Grand Architect: a blue creature itself.
+                fits.append(card)
+            taken = fits[:1] if one else fits
+            found[id(card)] = taken
+            left = [other for other in left if not any(other is each for each in taken)]
+        return found, left
+
+    def _add_tap_mana(self, pool: ManaPool) -> None:
+        """Put the mana of Relic of Legends, Urza and the like into the pool."""
+        tapped, _ = self.tap_fodder()
+        for card in self.battlefield:
+            spec = card.tap_mana
+            if spec is None:
+                continue
+            count = len(tapped.get(id(card), ())) + spec.tokens
+            if not count:
+                continue
+            if spec.spend_only:
+                pool.restricted.append(RestrictedMana({spec.mana: spec.amount * count},
+                                                      spec.spend_only, source=card.name))
+            else:
+                pool.add(spec.mana, spec.amount * count)
 
     def mana_ability(self, card, *, entering: bool = False):
         """The ``FLAT`` ability this card taps for on this board, or None.
@@ -1029,6 +1157,10 @@ class Game:
         Swamp falls back to {C}, and Temple of the False God with four lands
         to nothing.
         """
+        if card.mox == IMPRINT:
+            # Chrome Mox (P19 R19): the colours of the card it exiled, or none.
+            colors = self.imprinted.get(card.name, "")
+            return ManaAbility(FLAT, {colors: 1}) if colors else None
         counted = None
         for ability in card.mana_abilities:
             if ability.rule == COUNTS and ability.subtype == "colors_among":
@@ -1294,6 +1426,7 @@ class Game:
             self.note(f"{card.name} -> +{gain}{color} mana")
             return
         if card.kind == ROCK:
+            self._mox(card)
             self.rocks.append(card)
             if card.enters_tapped:
                 self.rocks.remove(card)
@@ -1319,6 +1452,52 @@ class Game:
         # Sorcery / instant
         self.graveyard.append(card)
         self.note(f"{card.name}")
+
+    # --- Moxen and mill costs (P19 R19) -----------------------------------
+
+    @staticmethod
+    def _colors_of(card) -> frozenset[str]:
+        """A card's colours; a hand-written fixture card has its cost's."""
+        return frozenset(card.colors or card.mana_cost.colors) & frozenset(COLORS)
+
+    def imprint_options(self, card) -> list:
+        """What Chrome Mox may exile from the hand: a nonartifact, nonland
+        card with a colour - one without would leave it tapping for nothing."""
+        return [other for other in self.hand
+                if other is not card and not other.is_land
+                and ARTIFACT not in self.types_of(other) and self._colors_of(other)]
+
+    def _mox(self, card) -> None:
+        """Mox Diamond's land card, Chrome Mox's exiled card (P19 R19).
+
+        Mox Diamond is cast only with a land card in hand, and the land drop
+        comes first: it discards a land that would enter tapped if there is
+        one. Chrome Mox exiles the card a discard would take - the most
+        expensive - and makes its colours.
+        """
+        if card.mox == DISCARD_LAND:
+            lands = [other for other in self.hand if other.is_land]
+            if lands:
+                land = min(lands, key=lambda other: (not other.enters_tapped, other.name))
+                self.hand.remove(land)
+                self.graveyard.append(land)
+                self.note(f"  -> discards {land.name}")
+        elif card.mox == IMPRINT:
+            options = self.imprint_options(card)
+            if options:
+                exiled = max(options, key=lambda other: (other.mv, other.name))
+                self.hand.remove(exiled)
+                self.exiled.append(exiled)
+                self.imprinted[card.name] = choice(self._colors_of(exiled))
+                self.note(f"  -> exiles {exiled.name}")
+
+    def mill(self, count: int, source=None) -> None:
+        """Put the top cards of the library into the graveyard - Millikin's
+        cost, paid each time it is tapped for mana."""
+        for _ in range(min(count, len(self.library))):
+            milled = self.library.pop(0)
+            self.graveyard.append(milled)
+            self.note(f"  -> {source.name + ': ' if source else ''}mills {milled.name}")
 
     def ritual_mana(self, card) -> tuple[str, int]:
         """What a ritual adds if it resolves now: a colour and an amount.
@@ -1395,6 +1574,7 @@ class Game:
         self.land_drop_used = False
         self.arrived = []
         self.tapped_creatures = []
+        self.fodder_used = []
         self.pending_mana = []
         self.spells_this_turn = 0
         self.note(f"--- Turn {self.turn} ---")

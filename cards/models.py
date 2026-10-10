@@ -394,6 +394,17 @@ class DerivedProfile(models.Model):
     #: P19 R15: "Exile this card from your hand: Add {G}" - played as a ritual
     #: that costs nothing and goes to exile (Elvish Spirit Guide).
     mana_from_hand = models.BooleanField(default=False)
+    #: P19 R19: mana for tapping other permanents, without the card's own {T}:
+    #: Relic of Legends, Urza - {"types": ["artifact"], "filter": "legendary",
+    #: a colour letter or "", "amount": 1, "produces": {"U": 1} or null for a
+    #: choice, "spend_only": spell filters or null, "token": artifact tokens it
+    #: makes as it enters}. Null: none.
+    tap_mana = models.JSONField(null=True, blank=True, default=None)
+    #: P19 R19: "discard_land" (Mox Diamond enters only so), "imprint" (Chrome
+    #: Mox makes the exiled card's colours) or "".
+    mox = models.CharField(max_length=16, blank=True, default="")
+    #: P19 R19: cards milled each time it is tapped for mana (Millikin).
+    mana_mills = models.PositiveSmallIntegerField(default=0)
     #: P19 R16: the triggers that make Treasure, mana or cards - Lotus Cobra,
     #: Storm-Kiln Artist, Smothering Tithe: a list of {"event", "filter",
     #: "treasures", "spawn", "mana", "color", "draw", "life", "tax"}.

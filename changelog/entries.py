@@ -42,6 +42,19 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 10), "tap-costs",
+        _("Springleaf Drum, Relic of Legends, Urza and the Moxen"),
+        _("Cards that tap another of your permanents for mana now make it in a simulated "
+          "game: Springleaf Drum, Survivors' Encampment and Holdout Settlement tap a "
+          "creature, Relic of Legends each legendary creature - your commander included - "
+          "Urza, Lord High Artificer each artifact and his Construct, Grand Architect each "
+          "blue creature. Only a permanent that makes no mana of its own is tapped. Mox "
+          "Diamond is cast when a land card is left in hand after your land drop and "
+          "discards it, Chrome Mox exiles the most expensive coloured card in hand and makes "
+          "its colours, and Millikin mills a card each time it taps. Your deck page says all "
+          "of this beside each card."),
+    ),
+    Entry(
         date(2026, 10, 10), "small-readings",
         _("Heraldic Banner, Three Tree City and Fanatic of Rhonas"),
         _("More mana cards now work in a simulated game. Relic of Sauron, Gwenna and "

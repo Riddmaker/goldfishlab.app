@@ -191,6 +191,8 @@ def dump_game(game: Game) -> dict:
     state["arrived"] = list(game.arrived)
     state["tapped_creatures"] = list(game.tapped_creatures)
     state["chosen_colors"] = dict(game.chosen_colors)
+    state["fodder_used"] = list(game.fodder_used)
+    state["imprinted"] = dict(game.imprinted)
     state["pending_mana"] = list(game.pending_mana)
     state["spells_this_turn"] = game.spells_this_turn
     state["rng"] = dump(game.rng.getstate())
@@ -226,6 +228,9 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
     game.tapped_creatures = [str(name) for name in data.get("tapped_creatures", [])]
     # P19 R13: Caged Sun's colour, chosen once.
     game.chosen_colors = dict(data.get("chosen_colors", {}))
+    # P19 R19: creatures tapped for another card's mana; Chrome Mox's colours.
+    game.fodder_used = [str(name) for name in data.get("fodder_used", [])]
+    game.imprinted = dict(data.get("imprinted", {}))
     # P19 R16: mana waiting for the pool, and the spells cast this turn.
     game.pending_mana = [str(key) for key in data.get("pending_mana", [])]
     game.spells_this_turn = int(data.get("spells_this_turn", 0))

@@ -32,11 +32,13 @@ from simulation import ENGINE_VERSION, agent
 from simulation.cards import (
     CARD_TYPES,
     COUNTS,
+    DISCARD_LAND,
     DOUBLE_SUBTYPE,
     EXTRA,
     FILTER,
     FLAT,
     GRANT,
+    IMPRINT,
     LANDS_COULD_PRODUCE,
     MULTIPLY,
     PER_CONTROLLED,
@@ -49,6 +51,7 @@ from simulation.cards import (
     LandSearch,
     ManaAbility,
     SpellFilter,
+    TapMana,
     TappedUnless,
     Trigger,
     TutorSpec,
@@ -683,8 +686,23 @@ def _condition_text(condition: TappedUnless) -> str:
     if condition.kind == "power":
         return gettext("a creature with power %(count)s or greater") % {
             "count": condition.count}
+    if condition.kind == "tap_fodder":
+        return _fodder_label(condition.types, condition.legendary)
     types = " / ".join(sorted(subtype.capitalize() for subtype in condition.types))
     return gettext("a land of type %(types)s") % {"types": types}
+
+
+def _fodder_label(types, legendary: bool) -> str:
+    """What a card taps besides itself for its mana, in words (P19 R19)."""
+    if "permanent" in types:
+        return gettext("an untapped permanent to tap for it")
+    if {"artifact", "creature"} <= set(types):
+        return gettext("an untapped artifact or creature to tap for it")
+    if "artifact" in types:
+        return gettext("an untapped artifact to tap for it")
+    if legendary:
+        return gettext("an untapped legendary creature to tap for it")
+    return gettext("an untapped creature to tap for it")
 
 
 def _for_cost(generic: int, mana: str) -> str:
@@ -1076,6 +1094,10 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         triggers=_triggers(profile, overrides, deck_colors),
         printed_subtypes=printed_subtypes(oracle_card),
         power=_power(oracle_card),
+        tap_mana=(None if _overrides_mana(overrides)
+                  else _tap_mana(profile, deck_colors, chosen, color)),
+        mox="" if _overrides_mana(overrides) else str(getattr(profile, "mox", "") or ""),
+        mana_mills=int(getattr(profile, "mana_mills", 0) or 0),
     )
 
     _record_gaps(card, profile, overrides, gaps, oracle_card.oracle_text or "")
@@ -1086,6 +1108,73 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
             and deck_chosen_color is not None and not _overrides_mana(overrides):
         _record_chosen_color(name, deck_chosen_color, gaps)
     return card
+
+
+#: P19 R19: what a card that taps itself and one more permanent assumes, by
+#: what it taps - whole sentences, so each language words them its own way.
+_TAPS_ONE = {
+    "creature": gettext_noop(
+        "taps a creature of yours that makes no mana and is not used otherwise this turn: "
+        "the engine plays no combat, so tapping it costs nothing"),
+    "legendary creature": gettext_noop(
+        "taps a legendary creature of yours that makes no mana and is not used otherwise "
+        "this turn: the engine plays no combat, so tapping it costs nothing"),
+    "permanent": gettext_noop(
+        "taps a permanent of yours that makes no mana and is not used otherwise this turn "
+        "- never a land"),
+    "artifact or creature": gettext_noop(
+        "taps an artifact or creature of yours that makes no mana and is not used "
+        "otherwise this turn: the engine plays no combat, so tapping it costs nothing"),
+}
+#: ... and what a card that taps every permanent that fits assumes.
+_TAPS_EACH = {
+    "legendary creature": gettext_noop(
+        "taps each legendary creature of yours that makes no mana, your commander "
+        "included, for one mana each: the engine plays no combat, so tapping them costs "
+        "nothing"),
+    "artifact": gettext_noop(
+        "taps each artifact of yours that makes no mana, for its mana; a Treasure is "
+        "sacrificed for its own mana instead"),
+    "creature": gettext_noop(
+        "taps each creature of yours of the kind it names that makes no mana, itself "
+        "included when it is one: the engine plays no combat, so tapping them costs "
+        "nothing"),
+    "permanent": gettext_noop(
+        "taps each permanent of yours that makes no mana, for its mana - never a land"),
+}
+
+
+def _record_tapping(card: Card, gaps: list[Gap]) -> None:
+    """P19 R19: what the engine assumes about tapping other permanents, the
+    Moxen and a mill cost - stated on the card list, beside the card."""
+    tapping = next((ability.only_if for ability in card.mana_abilities
+                    if ability.only_if is not None and ability.only_if.kind == "tap_fodder"),
+                   None)
+    if tapping is not None:
+        kind = ("permanent" if "permanent" in tapping.types
+                else "artifact or creature" if "artifact" in tapping.types
+                else "legendary creature" if tapping.legendary else "creature")
+        gaps.append(Gap(card.name, "assumed_cost", _TAPS_ONE[kind]))
+    if card.tap_mana is not None:
+        types = card.tap_mana.types
+        kind = ("permanent" if "permanent" in types else "artifact" if "artifact" in types
+                else "legendary creature" if card.tap_mana.filter == "legendary"
+                else "creature")
+        gaps.append(Gap(card.name, "assumed_cost", _TAPS_EACH[kind]))
+        if card.tap_mana.tokens:
+            gaps.append(Gap(card.name, "assumed_cost", gettext_noop(
+                "taps the artifact token it makes as it enters too")))
+    if card.mox == DISCARD_LAND:
+        gaps.append(Gap(card.name, "assumed_cost", gettext_noop(
+            "is cast only with a land card left in hand after the turn's land drop, and "
+            "discards it - one that would enter tapped first")))
+    elif card.mox == IMPRINT:
+        gaps.append(Gap(card.name, "assumed_cost", gettext_noop(
+            "is cast only with a coloured nonartifact, nonland card in hand; it exiles the "
+            "most expensive one, the card a discard would take, and makes its colours")))
+    if card.mana_mills:
+        gaps.append(Gap(card.name, "assumed_cost", gettext_noop(
+            "is tapped for mana every turn, and mills a card each time")))
 
 
 def _power(oracle_card) -> int:
@@ -1554,6 +1643,30 @@ def _sacrifice_mana(profile, deck_colors: frozenset[str]) -> dict:
             "sacrifice_mana_other": bool(found.get("other"))}
 
 
+def _tap_mana(profile, deck_colors: frozenset[str], chosen: str | None,
+              color: str | None) -> TapMana | None:
+    """Mana for tapping other permanents, as the engine plays it (P19 R19):
+    "any color" the deck's, and spells only some may spend as R17 reads them."""
+    found = getattr(profile, "tap_mana", None)
+    if not found or not found.get("amount"):
+        return None
+    produces = found.get("produces")
+    if produces is None:
+        mana = _any_colour(deck_colors)
+    elif len(produces) == 1:
+        mana = next(iter(produces))
+    else:
+        return None
+    spend_only = ()
+    if found.get("spend_only"):
+        spend_only = spell_filters(found["spend_only"], chosen, color)
+        if not spend_only:
+            return None
+    return TapMana(types=frozenset(found["types"]), filter=found.get("filter", ""),
+                   mana=mana, amount=int(found["amount"]), spend_only=spend_only,
+                   tokens=int(found.get("token", 0)))
+
+
 def _triggers(profile, overrides: dict, deck_colors: frozenset[str]) -> tuple[Trigger, ...]:
     """The triggers the reader read (P19 R16), as the engine plays them.
 
@@ -1795,7 +1908,7 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
 
     if profile.produces_mana and profile.mana_amount is None and not card.mana_abilities \
             and not card.treasures and not card.ritual_counts and card.sacrifice_mana is None \
-            and not card.triggers:
+            and not card.triggers and card.tap_mana is None:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("makes mana, but how much could not be read")))
 
@@ -1814,6 +1927,8 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
                                       "does not pay %(tax)s"))
         params = {"tax": read.get("tax", "")}
         gaps.append(Gap(card.name, "assumed_trigger", template % params, template, params))
+
+    _record_tapping(card, gaps)
 
     if any(way.life_x for way in card.additional_costs):
         gaps.append(Gap(card.name, "assumed_cost", gettext_noop(

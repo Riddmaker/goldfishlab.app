@@ -9845,3 +9845,145 @@ msgstr ""
 #: simulations/forms.py
 msgid "The deck's most common colour"
 msgstr "Il colore più comune del mazzo"
+
+#: changelog/entries.py
+msgid "Springleaf Drum, Relic of Legends, Urza and the Moxen"
+msgstr "Springleaf Drum, Relic of Legends, Urza e i Mox"
+
+#: changelog/entries.py
+msgid ""
+"Cards that tap another of your permanents for mana now make it in a "
+"simulated game: Springleaf Drum, Survivors' Encampment and Holdout "
+"Settlement tap a creature, Relic of Legends each legendary creature - your "
+"commander included - Urza, Lord High Artificer each artifact and his "
+"Construct, Grand Architect each blue creature. Only a permanent that makes "
+"no mana of its own is tapped. Mox Diamond is cast when a land card is left "
+"in hand after your land drop and discards it, Chrome Mox exiles the most "
+"expensive coloured card in hand and makes its colours, and Millikin mills a "
+"card each time it taps. Your deck page says all of this beside each card."
+msgstr ""
+"Le carte che TAPpano un altro tuo permanente per produrre mana ora lo "
+"producono in una partita simulata: Springleaf Drum, Survivors' Encampment e "
+"Holdout Settlement TAPpano una creatura, Relic of Legends ogni creatura "
+"leggendaria - compreso il tuo comandante -, Urza, Lord High Artificer ogni "
+"artefatto e il suo Costrutto, Grand Architect ogni creatura blu. Viene "
+"TAPpato solo un permanente che non produce mana da sé. Mox Diamond viene "
+"lanciato quando ti resta in mano una carta terra dopo la terra del turno, e "
+"la scarta; Chrome Mox esilia la carta colorata più costosa della mano e "
+"produce i suoi colori; Millikin macina una carta ogni volta che viene "
+"TAPpato. La pagina del mazzo dice tutto questo accanto a ogni carta."
+
+#: simulations/engine/adapter.py
+msgid "an untapped permanent to tap for it"
+msgstr "un permanente STAPpato da TAPpare per questo"
+
+#: simulations/engine/adapter.py
+msgid "an untapped artifact or creature to tap for it"
+msgstr "un artefatto o una creatura STAPpati da TAPpare per questo"
+
+#: simulations/engine/adapter.py
+msgid "an untapped artifact to tap for it"
+msgstr "un artefatto STAPpato da TAPpare per questo"
+
+#: simulations/engine/adapter.py
+msgid "an untapped legendary creature to tap for it"
+msgstr "una creatura leggendaria STAPpata da TAPpare per questo"
+
+#: simulations/engine/adapter.py
+msgid "an untapped creature to tap for it"
+msgstr "una creatura STAPpata da TAPpare per questo"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a creature of yours that makes no mana and is not used otherwise this "
+"turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"TAPpa una tua creatura che non produce mana e non viene usata altrimenti in "
+"questo turno: il motore non gioca combattimenti, quindi TAPparla non costa "
+"nulla"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a legendary creature of yours that makes no mana and is not used "
+"otherwise this turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"TAPpa una tua creatura leggendaria che non produce mana e non viene usata "
+"altrimenti in questo turno: il motore non gioca combattimenti, quindi "
+"TAPparla non costa nulla"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a permanent of yours that makes no mana and is not used otherwise this "
+"turn - never a land"
+msgstr ""
+"TAPpa un tuo permanente che non produce mana e non viene usato altrimenti in"
+" questo turno - mai una terra"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps an artifact or creature of yours that makes no mana and is not used "
+"otherwise this turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"TAPpa un tuo artefatto o una tua creatura che non produce mana e non viene "
+"usato altrimenti in questo turno: il motore non gioca combattimenti, quindi "
+"TAPparlo non costa nulla"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each legendary creature of yours that makes no mana, your commander "
+"included, for one mana each: the engine plays no combat, so tapping them "
+"costs nothing"
+msgstr ""
+"TAPpa ogni tua creatura leggendaria che non produce mana, compreso il tuo "
+"comandante, per un mana ciascuna: il motore non gioca combattimenti, quindi "
+"TAPparle non costa nulla"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each artifact of yours that makes no mana, for its mana; a Treasure is "
+"sacrificed for its own mana instead"
+msgstr ""
+"TAPpa ogni tuo artefatto che non produce mana, per il suo mana; un Tesoro "
+"viene invece sacrificato per il proprio mana"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each creature of yours of the kind it names that makes no mana, itself "
+"included when it is one: the engine plays no combat, so tapping them costs "
+"nothing"
+msgstr ""
+"TAPpa ogni tua creatura del tipo che nomina che non produce mana, compresa "
+"se stessa quando lo è: il motore non gioca combattimenti, quindi TAPparle "
+"non costa nulla"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each permanent of yours that makes no mana, for its mana - never a land"
+msgstr ""
+"TAPpa ogni tuo permanente che non produce mana, per il suo mana - mai una "
+"terra"
+
+#: simulations/engine/adapter.py
+msgid "taps the artifact token it makes as it enters too"
+msgstr "TAPpa anche la pedina artefatto che crea quando entra"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is cast only with a land card left in hand after the turn's land drop, and "
+"discards it - one that would enter tapped first"
+msgstr ""
+"viene lanciato solo con una carta terra rimasta in mano dopo la terra del "
+"turno, e la scarta - prima una che entrerebbe TAPpata"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is cast only with a coloured nonartifact, nonland card in hand; it exiles "
+"the most expensive one, the card a discard would take, and makes its colours"
+msgstr ""
+"viene lanciato solo con in mano una carta colorata non artefatto e non "
+"terra; esilia la più costosa, quella che uno scarto prenderebbe, e produce i"
+" suoi colori"
+
+#: simulations/engine/adapter.py
+msgid "is tapped for mana every turn, and mills a card each time"
+msgstr "viene TAPpato per il mana ogni turno, e macina una carta ogni volta"

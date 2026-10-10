@@ -9932,3 +9932,143 @@ msgstr ""
 #: simulations/forms.py
 msgid "The deck's most common colour"
 msgstr "El color más común del mazo"
+
+#: changelog/entries.py
+msgid "Springleaf Drum, Relic of Legends, Urza and the Moxen"
+msgstr "Springleaf Drum, Relic of Legends, Urza y los Mox"
+
+#: changelog/entries.py
+msgid ""
+"Cards that tap another of your permanents for mana now make it in a "
+"simulated game: Springleaf Drum, Survivors' Encampment and Holdout "
+"Settlement tap a creature, Relic of Legends each legendary creature - your "
+"commander included - Urza, Lord High Artificer each artifact and his "
+"Construct, Grand Architect each blue creature. Only a permanent that makes "
+"no mana of its own is tapped. Mox Diamond is cast when a land card is left "
+"in hand after your land drop and discards it, Chrome Mox exiles the most "
+"expensive coloured card in hand and makes its colours, and Millikin mills a "
+"card each time it taps. Your deck page says all of this beside each card."
+msgstr ""
+"Las cartas que giran otro de tus permanentes para generar maná ahora lo "
+"generan en una partida simulada: Springleaf Drum, Survivors' Encampment y "
+"Holdout Settlement giran una criatura, Relic of Legends cada criatura "
+"legendaria - tu comandante incluido -, Urza, Lord High Artificer cada "
+"artefacto y su Constructo, Grand Architect cada criatura azul. Solo se gira "
+"un permanente que no genera maná por sí mismo. Mox Diamond se lanza cuando "
+"te queda una carta de tierra en la mano después de tu tierra del turno, y la"
+" descarta; Chrome Mox exilia la carta de color más cara de tu mano y genera "
+"sus colores; Millikin muele una carta cada vez que se gira. La página de tu "
+"mazo dice todo esto junto a cada carta."
+
+#: simulations/engine/adapter.py
+msgid "an untapped permanent to tap for it"
+msgstr "un permanente enderezado que girar para ello"
+
+#: simulations/engine/adapter.py
+msgid "an untapped artifact or creature to tap for it"
+msgstr "un artefacto o una criatura enderezados que girar para ello"
+
+#: simulations/engine/adapter.py
+msgid "an untapped artifact to tap for it"
+msgstr "un artefacto enderezado que girar para ello"
+
+#: simulations/engine/adapter.py
+msgid "an untapped legendary creature to tap for it"
+msgstr "una criatura legendaria enderezada que girar para ello"
+
+#: simulations/engine/adapter.py
+msgid "an untapped creature to tap for it"
+msgstr "una criatura enderezada que girar para ello"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a creature of yours that makes no mana and is not used otherwise this "
+"turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"gira una de tus criaturas que no genera maná y no se usa de otro modo este "
+"turno: el motor no juega combates, así que girarla no cuesta nada"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a legendary creature of yours that makes no mana and is not used "
+"otherwise this turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"gira una de tus criaturas legendarias que no genera maná y no se usa de otro"
+" modo este turno: el motor no juega combates, así que girarla no cuesta nada"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a permanent of yours that makes no mana and is not used otherwise this "
+"turn - never a land"
+msgstr ""
+"gira uno de tus permanentes que no genera maná y no se usa de otro modo este"
+" turno - nunca una tierra"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps an artifact or creature of yours that makes no mana and is not used "
+"otherwise this turn: the engine plays no combat, so tapping it costs nothing"
+msgstr ""
+"gira uno de tus artefactos o una de tus criaturas que no genera maná y no se"
+" usa de otro modo este turno: el motor no juega combates, así que girarlo no"
+" cuesta nada"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each legendary creature of yours that makes no mana, your commander "
+"included, for one mana each: the engine plays no combat, so tapping them "
+"costs nothing"
+msgstr ""
+"gira cada una de tus criaturas legendarias que no genera maná, tu comandante"
+" incluido, por un maná cada una: el motor no juega combates, así que "
+"girarlas no cuesta nada"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each artifact of yours that makes no mana, for its mana; a Treasure is "
+"sacrificed for its own mana instead"
+msgstr ""
+"gira cada uno de tus artefactos que no genera maná, para su maná; un Tesoro "
+"se sacrifica en cambio por su propio maná"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each creature of yours of the kind it names that makes no mana, itself "
+"included when it is one: the engine plays no combat, so tapping them costs "
+"nothing"
+msgstr ""
+"gira cada una de tus criaturas del tipo que nombra que no genera maná, ella "
+"misma incluida si lo es: el motor no juega combates, así que girarlas no "
+"cuesta nada"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each permanent of yours that makes no mana, for its mana - never a land"
+msgstr ""
+"gira cada uno de tus permanentes que no genera maná, para su maná - nunca "
+"una tierra"
+
+#: simulations/engine/adapter.py
+msgid "taps the artifact token it makes as it enters too"
+msgstr "gira también la ficha de artefacto que crea al entrar"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is cast only with a land card left in hand after the turn's land drop, and "
+"discards it - one that would enter tapped first"
+msgstr ""
+"solo se lanza con una carta de tierra que quede en la mano después de la "
+"tierra del turno, y la descarta - primero una que entraría girada"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is cast only with a coloured nonartifact, nonland card in hand; it exiles "
+"the most expensive one, the card a discard would take, and makes its colours"
+msgstr ""
+"solo se lanza con una carta de color que no sea artefacto ni tierra en la "
+"mano; exilia la más cara, la que se llevaría un descarte, y genera sus "
+"colores"
+
+#: simulations/engine/adapter.py
+msgid "is tapped for mana every turn, and mills a card each time"
+msgstr "se gira para generar maná cada turno, y muele una carta cada vez"

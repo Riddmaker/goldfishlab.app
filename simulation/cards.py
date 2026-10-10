@@ -146,6 +146,9 @@ class TappedUnless:
       life is unknown, so this holds less often than at a table
     * ``power`` - you control a creature with power ``count`` or greater,
       by the power printed on it (Fanatic of Rhonas; P19 R18)
+    * ``tap_fodder`` - a permanent of one of ``types`` (a ``legendary`` one
+      if set) is there for this card to tap besides itself: Springleaf
+      Drum, Survivors' Encampment (P19 R19). See ``Game.tap_fodder``.
 
     Since engine version 8 the same question also guards a mana ability
     (P19 R4): "Activate only if you control five or more lands" is a
@@ -448,6 +451,42 @@ class AdditionalCost:
     exile_from_graveyard: str = ""
 
 
+@dataclass(frozen=True)
+class TapMana:
+    """Mana for tapping other permanents, without the card's own {T} (P19 R19).
+
+    Relic of Legends taps a legendary creature for one mana of any colour,
+    Urza an artifact for {U}, Grand Architect a blue creature for {C}{C} only
+    artifact spells may spend. One activation for each permanent there is
+    to tap: only one that makes no mana of its own, which keeps the ramp it
+    is, and here no creature attacks. Grand Architect may tap itself.
+
+    Attributes:
+        types: The card types a permanent tapped may have, any of them;
+            ``permanent`` for any.
+        filter: What it must also be: ``legendary`` or a colour letter.
+        mana: What one activation adds: a colour, ``C`` or a choice key.
+        amount: How much of it.
+        spend_only: The spells it may pay for (P19 R17). Empty: any.
+        tokens: Artifact tokens the card made as it entered, tapped too:
+            Urza's Construct.
+    """
+
+    types: frozenset[str] = field(default_factory=frozenset)
+    filter: str = ""
+    mana: str = ""
+    amount: int = 1
+    spend_only: tuple[SpellFilter, ...] = ()
+    tokens: int = 0
+
+
+#: ``Card.mox``: "If this artifact would enter, you may discard a land card
+#: instead" (Mox Diamond), and "Imprint - exile a nonartifact, nonland card"
+#: whose colours it makes (Chrome Mox).
+DISCARD_LAND = "discard_land"
+IMPRINT = "imprint"
+
+
 # --- Triggers (P19 R16) ------------------------------------------------------
 #
 # What a permanent does when something happens: makes a Treasure, adds mana,
@@ -684,6 +723,12 @@ class Card:
     #: P19 R18: the power printed on it, 0 for none or "*" - what "a creature
     #: with power 4 or greater" asks. Counters and pumps are not counted.
     power: int = 0
+    #: P19 R19: mana for tapping other permanents (Relic of Legends, Urza).
+    tap_mana: TapMana | None = None
+    #: P19 R19: ``DISCARD_LAND`` or ``IMPRINT``, see there; empty for none.
+    mox: str = ""
+    #: P19 R19: cards it mills each time it is tapped for mana (Millikin).
+    mana_mills: int = 0
 
     @property
     def mana_cost(self) -> ManaCost:

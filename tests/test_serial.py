@@ -63,7 +63,8 @@ EVERYTHING = Card(
         ManaAbility(rule=MULTIPLY, subtype="permanent", times=2),
         ManaAbility(rule=FLAT, produces=(("WUBRG", 1),), spend_only=(
             SpellFilter(types=frozenset({"creature"}), subtypes=frozenset({"elf"}),
-                        legendary=True, colorless=True, multicolored=True, noncreature=True),)),
+                        legendary=True, colorless=True, multicolored=True, noncreature=True,
+                        only_color="G"),)),
     ),
     ritual_gain=3,
     ritual_color="R",
@@ -122,6 +123,7 @@ EVERYTHING = Card(
                       mana=1, mana_color="R", draw=1, life=1),),
     exiled_on_cast=True,
     printed_subtypes=frozenset({"elf", "druid"}),
+    power=4,
 )
 
 

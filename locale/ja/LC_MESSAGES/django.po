@@ -8712,3 +8712,69 @@ msgstr ""
 "Godsは無色の呪文に、Power Depotはアーティファクトに、Haven of the Spirit Dragonはドラゴンに。Cavern of"
 " SoulsとUnclaimed "
 "Territoryはデッキで最も多いクリーチャー・タイプを指定します。どのタイプかはデッキページのカードの横に表示され、別のタイプを指定することもできます。プレイテストではこのマナを他と分けて表示します。"
+
+#: changelog/entries.py
+msgid "Heraldic Banner, Three Tree City and Fanatic of Rhonas"
+msgstr "Heraldic Banner、Three Tree City、Fanatic of Rhonas"
+
+#: changelog/entries.py
+msgid ""
+"More mana cards now work in a simulated game. Relic of Sauron, Gwenna and "
+"Smokebraider make their mana in any combination of colours. Heraldic Banner,"
+" Valgavoth's Lair and Throne of Eldraine make the colour your deck's costs "
+"ask for most - your deck page says which, beside the card, and you can "
+"choose another. Three Tree City counts your deck's most common creature "
+"type. Fanatic of Rhonas, Whisperer of the Wilds and Ilysian Caryatid make "
+"more once you control a creature with power 4 or greater, and Nimbus Maze, "
+"Rite of Flame and Cabal Ritual's threshold work too. Cards with hybrid mana "
+"symbols are no longer flagged: the engine has paid them correctly for a "
+"while."
+msgstr ""
+"さらに多くのマナ・カードがシミュレーションで機能するようになりました。Relic of "
+"Sauron、Gwenna、Smokebraiderは好きな色の組み合わせでマナを生み出します。Heraldic Banner、Valgavoth's "
+"Lair、Throne of "
+"Eldraineは、デッキのコストが最も多く求める色を生み出します。どの色かはデッキページのカードの横に表示され、別の色を選ぶこともできます。Three"
+" Tree Cityはデッキで最も多いクリーチャー・タイプを数えます。Fanatic of Rhonas、Whisperer of the "
+"Wilds、Ilysian Caryatidは、パワー4以上のクリーチャーをコントロールしているとより多くのマナを生み出し、Nimbus "
+"Maze、Rite of Flame、Cabal "
+"Ritualのスレッショルドも機能します。混成マナ・シンボルを持つカードは警告されなくなりました。エンジンはしばらく前からそれらを正しく支払っています。"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "monocoloured %(color)s"
+msgstr "単色%(color)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "a creature with power %(count)s or greater"
+msgstr "パワー%(count)s以上のクリーチャー"
+
+#: simulations/engine/adapter.py
+msgid ""
+"chooses a colour, but no card in this deck has a coloured cost: it is played"
+" as a choice of its colours"
+msgstr "色を選びますが、このデッキに色付きのコストを持つカードがありません。その色から選べるものとしてプレイされます"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"chooses %(color)s, the colour most mana symbols in this deck's costs ask for"
+" (%(count)s)"
+msgstr "%(color)sを選びます（このデッキのコストで最も多くのマナ・シンボルが求める色、%(count)s個）"
+
+#: simulations/annotations.py
+msgid "Colour it chooses"
+msgstr "選ぶ色"
+
+#: simulations/annotations.py
+msgid ""
+"For Heraldic Banner, Throne of Eldraine and the like: the colour you choose "
+"as it enters. Left empty, the engine chooses the colour most mana symbols in"
+" your deck's costs ask for."
+msgstr ""
+"Heraldic Banner、Throne of "
+"Eldraineなど：戦場に出るときに選ぶ色。空欄なら、エンジンはデッキのコストで最も多くのマナ・シンボルが求める色を選びます。"
+
+#: simulations/forms.py
+msgid "The deck's most common colour"
+msgstr "デッキで最も多い色"

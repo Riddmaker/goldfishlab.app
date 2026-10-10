@@ -42,6 +42,19 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 10), "small-readings",
+        _("Heraldic Banner, Three Tree City and Fanatic of Rhonas"),
+        _("More mana cards now work in a simulated game. Relic of Sauron, Gwenna and "
+          "Smokebraider make their mana in any combination of colours. Heraldic Banner, "
+          "Valgavoth's Lair and Throne of Eldraine make the colour your deck's costs ask for "
+          "most - your deck page says which, beside the card, and you can choose another. "
+          "Three Tree City counts your deck's most common creature type. Fanatic of Rhonas, "
+          "Whisperer of the Wilds and Ilysian Caryatid make more once you control a creature "
+          "with power 4 or greater, and Nimbus Maze, Rite of Flame and Cabal Ritual's "
+          "threshold work too. Cards with hybrid mana symbols are no longer flagged: the "
+          "engine has paid them correctly for a while."),
+    ),
+    Entry(
         date(2026, 10, 10), "restricted-mana",
         _("Cavern of Souls, Ancient Ziggurat and Plaza of Heroes"),
         _("Lands and creatures whose mana only some spells may spend now make it in a "

@@ -202,15 +202,16 @@ def convert(deck: Deck, *, adding=None) -> Conversion:
 
     colors = _deck_colors(entries, deck)
     chosen = deck_creature_type(entries, deck)
+    color = deck_color(entries, deck, colors)
 
     for entry in entries:
-        card = _card_from(entry.oracle_card, annotations, gaps, colors, chosen)
+        card = _card_from(entry.oracle_card, annotations, gaps, colors, chosen, color)
         seen.add(entry.oracle_card_id)
         library.extend([card] * entry.quantity)
 
     commander = None
     if deck.commander_id:
-        commander = _card_from(deck.commander, annotations, gaps, colors, chosen)
+        commander = _card_from(deck.commander, annotations, gaps, colors, chosen, color)
         # The commander counts toward the total, because gaps are recorded for
         # it like any other card. Leaving it out made `cards_with_gaps` able to
         # exceed `cards_total` - a two-card deck whose commander the engine
@@ -220,7 +221,7 @@ def convert(deck: Deck, *, adding=None) -> Conversion:
         seen.add(deck.commander_id)
 
     if adding is not None:
-        library.append(_card_from(adding, annotations, gaps, colors, chosen))
+        library.append(_card_from(adding, annotations, gaps, colors, chosen, color))
         seen.add(adding.pk)
 
     definition = DeckDefinition(
@@ -257,6 +258,12 @@ class Reading:
         """Its mana pays for "the chosen type" - Cavern of Souls (P19 R17)."""
         profile = getattr(self.oracle_card, "profile", None)
         return _chosen_type(profile, {}, ("", 0)) is not None
+
+    @property
+    def names_color(self) -> bool:
+        """It makes, or pays for, "the chosen color" - Heraldic Banner (P19 R18)."""
+        profile = getattr(self.oracle_card, "profile", None)
+        return _names_color(profile)
 
     @property
     def unreadable(self) -> bool:
@@ -590,6 +597,10 @@ def spells_text(filters) -> str:
             words.append("/".join(sorted(subtype.title() for subtype in wanted.subtypes)))
         if wanted.types:
             words.append("/".join(gettext(_SPELL_WORDS[kind]) for kind in sorted(wanted.types)))
+        if wanted.only_color:
+            # Throne of Eldraine (P19 R18).
+            words.append(gettext("monocoloured %(color)s") % {
+                "color": mana_label(wanted.only_color)})
         parts.append(gettext("%(what)s spells") % {"what": " ".join(words)})
     text = parts[0] if parts else ""
     for part in parts[1:]:
@@ -669,6 +680,9 @@ def _condition_text(condition: TappedUnless) -> str:
     if condition.kind == "artifacts":
         return ngettext("%(count)s or more artifact", "%(count)s or more artifacts",
                         condition.count) % {"count": condition.count}
+    if condition.kind == "power":
+        return gettext("a creature with power %(count)s or greater") % {
+            "count": condition.count}
     types = " / ".join(sorted(subtype.capitalize() for subtype in condition.types))
     return gettext("a land of type %(types)s") % {"types": types}
 
@@ -692,13 +706,14 @@ def readings(deck: Deck) -> list[Reading]:
     annotations = annotations_for(deck)
     colors = _deck_colors(entries, deck)
     chosen = deck_creature_type(entries, deck)
+    color = deck_color(entries, deck, colors)
 
     found: list[Reading] = []
     seen: set = set()
 
     for entry in entries:
         gaps: list[Gap] = []
-        card = _card_from(entry.oracle_card, annotations, gaps, colors, chosen)
+        card = _card_from(entry.oracle_card, annotations, gaps, colors, chosen, color)
         seen.add(entry.oracle_card_id)
         found.append(
             Reading(
@@ -711,7 +726,7 @@ def readings(deck: Deck) -> list[Reading]:
 
     if deck.commander_id and deck.commander_id not in seen:
         gaps = []
-        card = _card_from(deck.commander, annotations, gaps, colors, chosen)
+        card = _card_from(deck.commander, annotations, gaps, colors, chosen, color)
         found.append(
             Reading(
                 oracle_card=deck.commander,
@@ -813,6 +828,47 @@ def deck_creature_type(entries, deck: Deck) -> tuple[str, int]:
     most = max(counts.values())
     tied = sorted(found for found, count in counts.items() if count == most)
     return next((found for found in tied if found in own), tied[0]), most
+
+
+def deck_color(entries, deck: Deck, deck_colors: frozenset[str]) -> tuple[str, int]:
+    """The colour Heraldic Banner chooses in this deck, and how many symbols ask for it.
+
+    "As this artifact enters, choose a color" is the player's choice; the
+    engine's answer is the colour the most coloured mana symbols in the
+    deck's costs ask for, commander included, among the deck's colours, and
+    the first of the commander's colours on a tie (P19 R18). An assumption,
+    stated beside every card that makes it on the deck page, and one an
+    annotation replaces. ``("", 0)`` for a deck without a coloured cost.
+    """
+    counts: Counter = Counter()
+    for entry in entries:
+        for found, amount in _cost_colors(entry.oracle_card).items():
+            counts[found] += amount * entry.quantity
+    own = deck.commander if deck.commander_id else None
+    if own is not None:
+        counts.update(_cost_colors(own))
+    usable = {found: count for found, count in counts.items()
+              if count and (not deck_colors or found in deck_colors)}
+    if not usable:
+        return "", 0
+    most = max(usable.values())
+    first = [found for found in COLORS if found in set(getattr(own, "colors", None) or ())]
+    tied = [found for found in COLORS if usable.get(found) == most]
+    return next((found for found in first if found in tied), tied[0]), most
+
+
+def _cost_colors(oracle_card) -> Counter:
+    """The coloured mana symbols of a card's printed cost, by colour.
+
+    A hybrid symbol counts toward each colour it offers, a Phyrexian one
+    toward its own.
+    """
+    cost = parse(oracle_card.mana_cost or "")
+    found = Counter(dict(cost.pips))
+    for symbol in cost.hybrid:
+        found.update(color for color in symbol.colors if color in COLORS)
+    found.update(color for color in cost.phyrexian if color in COLORS)
+    return found
 
 
 def _pick_color(colors, deck_colors: frozenset[str]) -> str | None:
@@ -932,11 +988,14 @@ def scope_filter(deck: Deck):
 
 def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
                deck_colors: frozenset[str] = frozenset(),
-               deck_type: tuple[str, int] | None = None) -> Card:
+               deck_type: tuple[str, int] | None = None,
+               deck_chosen_color: tuple[str, int] | None = None) -> Card:
     """One database card, as the engine sees it.
 
     ``deck_type`` is :func:`deck_creature_type`; None outside a deck, where
     no type is chosen and mana for "the chosen type" pays for nothing.
+    ``deck_chosen_color`` is :func:`deck_color` the same way: outside a deck
+    "the chosen color" is a choice of the card's colours.
     """
     profile = getattr(oracle_card, "profile", None)
     overrides = annotations.for_card(oracle_card.pk)
@@ -950,7 +1009,9 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
 
     kind = overrides.get("kind", profile.kind)
     chosen = _chosen_type(profile, overrides, deck_type)
-    mana_abilities = _mana_abilities(profile, overrides, kind, name, gaps, deck_colors, chosen)
+    color = _chosen_color(profile, overrides, deck_chosen_color)
+    mana_abilities = _mana_abilities(profile, overrides, kind, name, gaps, deck_colors, chosen,
+                                     color)
 
     card = Card(
         name=name,
@@ -1014,13 +1075,63 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         **({} if _overrides_mana(overrides) else _sacrifice_mana(profile, deck_colors)),
         triggers=_triggers(profile, overrides, deck_colors),
         printed_subtypes=printed_subtypes(oracle_card),
+        power=_power(oracle_card),
     )
 
     _record_gaps(card, profile, overrides, gaps, oracle_card.oracle_text or "")
     if chosen is not None and "chosen_type" not in overrides and deck_type is not None \
             and not _overrides_mana(overrides):
         _record_chosen_type(name, deck_type, gaps)
+    if color is not None and "chosen_color" not in overrides \
+            and deck_chosen_color is not None and not _overrides_mana(overrides):
+        _record_chosen_color(name, deck_chosen_color, gaps)
     return card
+
+
+def _power(oracle_card) -> int:
+    """The power printed on the front face, 0 for none or "*" (P19 R18)."""
+    printed = str(getattr(oracle_card, "power", "") or "").split("//", 1)[0].strip()
+    return int(printed) if printed.isdigit() else 0
+
+
+def _names_color(profile) -> bool:
+    """Its mana is "of the chosen color", or pays only for it (P19 R18)."""
+    if profile is None:
+        return False
+    if getattr(profile, "mana_chosen_color", False):
+        return True
+    spend = getattr(profile, "mana_spend_only", None) or {}
+    return any(wanted.get("chosen_color") for wanted in spend.get("spells", ()))
+
+
+def _chosen_color(profile, overrides: dict,
+                  deck_chosen_color: tuple[str, int] | None) -> str | None:
+    """The colour this card chose as it entered (P19 R18).
+
+    None when it chooses none; "" when it does but nothing says which -
+    outside a deck, or in a deck without a coloured cost.
+    """
+    if not _names_color(profile):
+        return None
+    wanted = str(overrides.get("chosen_color") or "").strip().upper()
+    if wanted in COLORS:
+        return wanted
+    return deck_chosen_color[0] if deck_chosen_color is not None else ""
+
+
+def _record_chosen_color(name: str, deck_chosen_color: tuple[str, int],
+                         gaps: list[Gap]) -> None:
+    """The deck's colour, as the assumption it is (P19 R18)."""
+    found, count = deck_chosen_color
+    if not found:
+        gaps.append(Gap(name, "assumed_color", gettext_noop(
+            "chooses a colour, but no card in this deck has a coloured cost: it is played "
+            "as a choice of its colours")))
+        return
+    template = gettext_noop("chooses %(color)s, the colour most mana symbols in this deck's "
+                            "costs ask for (%(count)s)")
+    params = {"color": "{" + found + "}", "count": count}
+    gaps.append(Gap(name, "assumed_color", template % params, template, params))
 
 
 def _chosen_type(profile, overrides: dict, deck_type: tuple[str, int] | None) -> str | None:
@@ -1030,7 +1141,10 @@ def _chosen_type(profile, overrides: dict, deck_type: tuple[str, int] | None) ->
     outside a deck, or in a deck without creature types.
     """
     spend = getattr(profile, "mana_spend_only", None)
-    if not spend or not any(wanted.get("chosen_type") for wanted in spend["spells"]):
+    rule = getattr(profile, "mana_rule", None) or {}
+    counts = rule.get("rule") == "counts" and rule.get("subtype") == "chosen_type"
+    if not counts and (not spend
+                       or not any(wanted.get("chosen_type") for wanted in spend["spells"])):
         return None
     if overrides.get("chosen_type"):
         return str(overrides["chosen_type"]).strip().lower()
@@ -1053,7 +1167,8 @@ def _record_chosen_type(name: str, deck_type: tuple[str, int], gaps: list[Gap]) 
 
 def _mana_abilities(profile, overrides: dict, kind: str, name: str,
                     gaps: list[Gap], deck_colors: frozenset[str],
-                    chosen: str | None = None) -> tuple[ManaAbility, ...]:
+                    chosen: str | None = None,
+                    color: str | None = None) -> tuple[ManaAbility, ...]:
     """The card's mana abilities, from an annotation or from the profile.
 
     A scaling rule comes from an annotation or, since engine version 8, from
@@ -1074,8 +1189,15 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
             )
     read_rule = getattr(profile, "mana_rule", None)
     if read_rule and read_rule["rule"] in SCALING_RULES and not _overrides_mana(overrides):
+        subtype = read_rule["subtype"]
+        if subtype == "chosen_type":
+            # Three Tree City (P19 R18): the deck's type, or only its {C}.
+            if not chosen:
+                return (_flat(getattr(profile, "mana_produces", None), profile.mana_colors,
+                              profile.mana_amount, 0, deck_colors, None),)
+            subtype = chosen
         rule = ManaAbility(SCALING_RULES[read_rule["rule"]], read_rule.get("produces") or (),
-                           subtype=read_rule["subtype"],
+                           subtype=subtype,
                            activation_generic=int(read_rule.get("activation") or 0),
                            color=read_rule.get("color", ""),
                            times=int(read_rule.get("times") or 1))
@@ -1111,25 +1233,39 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
     # plain ability - the game takes the first one whose condition holds.
     condition = getattr(profile, "mana_condition", None)
     spend = getattr(profile, "mana_spend_only", None)
+    exact = _produced(profile, color)
     if spend and "mana_activation" not in overrides:
-        return _restricted(profile, spend, condition, deck_colors, chosen)
+        return _restricted(profile, spend, condition, deck_colors, chosen, color)
     if condition and "mana_activation" not in overrides:
         only_if = _condition(condition["if"])
-        main = _flat(profile.mana_produces, profile.mana_colors, profile.mana_amount,
+        main = _flat(exact, profile.mana_colors, profile.mana_amount,
                      activation, deck_colors, only_if)
+        # Nimbus Maze (P19 R18): the further conditional abilities, in order.
+        also = tuple(_flat(more["produces"], profile.mana_colors, more["amount"],
+                           int(more.get("activation") or 0), deck_colors,
+                           _condition(more["if"]))
+                     for more in condition.get("also") or ())
         otherwise = condition.get("otherwise")
         if not otherwise:
-            return (main,)
-        return (main, _flat(otherwise["produces"], profile.mana_colors, otherwise["amount"],
-                            int(otherwise.get("activation") or 0), deck_colors, None))
+            return (main, *also)
+        return (main, *also, _flat(otherwise["produces"], profile.mana_colors,
+                                   otherwise["amount"], int(otherwise.get("activation") or 0),
+                                   deck_colors, None))
 
-    return (_flat(getattr(profile, "mana_produces", None), profile.mana_colors,
+    return (_flat(exact, profile.mana_colors,
                   profile.mana_amount, activation, deck_colors, None),
             *_filter(profile, deck_colors))
 
 
+def _produced(profile, color: str | None) -> dict | None:
+    """The exact mana the profile names - or the chosen colour's (P19 R18)."""
+    if color and getattr(profile, "mana_chosen_color", False) and profile.mana_amount:
+        return {color: int(profile.mana_amount)}
+    return getattr(profile, "mana_produces", None)
+
+
 def _restricted(profile, spend: dict, condition: dict | None, deck_colors: frozenset[str],
-                chosen: str | None) -> tuple[ManaAbility, ...]:
+                chosen: str | None, color: str | None = None) -> tuple[ManaAbility, ...]:
     """Mana only some spells may spend, then what the card makes instead (P19 R17).
 
     Cavern of Souls is two abilities: one mana of the deck's colours for a
@@ -1141,17 +1277,19 @@ def _restricted(profile, spend: dict, condition: dict | None, deck_colors: froze
     plain = () if not otherwise else (
         _flat(otherwise["produces"], profile.mana_colors, otherwise["amount"],
               int(otherwise.get("activation") or 0), deck_colors, None),)
-    filters = spell_filters(spend["spells"], chosen)
+    filters = spell_filters(spend["spells"], chosen, color)
     if not filters:
         return plain
     only_if = _condition(condition["if"]) if condition else None
-    main = _flat(getattr(profile, "mana_produces", None), profile.mana_colors,
+    main = _flat(_produced(profile, color), profile.mana_colors,
                  profile.mana_amount, 0, deck_colors, only_if)
     return (replace(main, spend_only=filters), *plain)
 
 
-def spell_filters(spells: list, chosen: str | None) -> tuple[SpellFilter, ...]:
-    """The reader's spell filters as the engine's; a "chosen type" one needs a type."""
+def spell_filters(spells: list, chosen: str | None,
+                  color: str | None = None) -> tuple[SpellFilter, ...]:
+    """The reader's spell filters as the engine's; a "chosen type" one needs a
+    type, a "chosen color" one a colour (P19 R18)."""
     found = []
     for wanted in spells:
         subtypes = set(wanted.get("subtypes", ()))
@@ -1159,11 +1297,14 @@ def spell_filters(spells: list, chosen: str | None) -> tuple[SpellFilter, ...]:
             if not chosen:
                 continue
             subtypes.add(chosen)
+        if wanted.get("chosen_color") and not color:
+            continue
         found.append(SpellFilter(
             types=frozenset(wanted.get("types", ())), subtypes=frozenset(subtypes),
             legendary=bool(wanted.get("legendary")), colorless=bool(wanted.get("colorless")),
             multicolored=bool(wanted.get("multicolored")),
-            noncreature=bool(wanted.get("noncreature"))))
+            noncreature=bool(wanted.get("noncreature")),
+            only_color=color if wanted.get("chosen_color") else ""))
     return tuple(found)
 
 

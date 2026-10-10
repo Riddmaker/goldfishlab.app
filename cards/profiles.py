@@ -256,9 +256,21 @@ _MANA_SOURCES = frozenset("WUBRGC")
 # *amount* is right there and is what this reader derives; which colour the
 # card actually makes is a property of the deck it sits in, and `produced_mana`
 # already lists the candidates.
+#: P19 R18: "two mana in any combination of colors" (Gwenna) and "of {U},
+#: {B}, and/or {R}" (Relic of Sauron) - each one a choice, as "any color" is.
 _ANY_COLOR = re.compile(
-    r"(a|an|one|two|three|four|five|\d+) mana of any (?:one )?(?:colou?r|type)", re.IGNORECASE
+    r"(a|an|one|two|three|four|five|\d+) mana (?:of any (?:one )?(?:colou?r|type)"
+    r"|in any combination of (?:colors|(?P<offers>(?:\{[WUBRG]\},? (?:and/or |or )?)+"
+    r"\{[WUBRG]\})))", re.IGNORECASE
 )
+#: P19 R18: "Add one mana of the chosen color." (Heraldic Banner, Valgavoth's
+#: Lair; Throne of Eldraine's four) - the colour chosen as it entered.
+_CHOSEN_COLOR_MANA = re.compile(
+    r"(one|two|three|four|five) mana of the chosen colou?r\b", re.IGNORECASE)
+#: "As this artifact enters, choose a color." - what the clause above needs.
+_CHOOSE_A_COLOR = re.compile(r"\benters, choose a colou?r\b", re.IGNORECASE)
+#: P19 R18: Jegantha's "This mana can't be spent to pay generic mana costs."
+_NOT_FOR_GENERIC = re.compile(r"can't be spent to pay generic mana costs", re.IGNORECASE)
 # Mana that depends on what an opponent has or does: "each player", "an
 # opponent". A goldfish has no opponent, so none of it can be read - with one
 # exception below.
@@ -595,6 +607,16 @@ _ACTIVATE_IF = re.compile(
     rf"Activate only if you control (?:{_NUMBER_WORD} or more (?P<what>lands|artifacts)"
     rf"|(?P<artifact>an artifact)|{_TYPE_LIST})\.",
     re.IGNORECASE)
+#: P19 R18: "Activate only if you control a creature with power 4 or greater."
+#: (Fanatic of Rhonas, Whisperer of the Wilds) - printed power, see `Card.power`.
+_ACTIVATE_IF_POWER = re.compile(
+    rf"Activate only if you control a creature with power {_NUMBER_WORD} or greater\.",
+    re.IGNORECASE)
+#: P19 R18: Ilysian Caryatid - "If you control a creature with power 4 or
+#: greater, add two mana of any one color instead."
+_INSTEAD_IF_POWER = re.compile(
+    r"^\{T\}: Add one mana of any color\. If you control a creature with power "
+    rf"{_NUMBER_WORD} or greater, add two mana of any one color instead\.$", re.MULTILINE)
 _SPEND_ONLY = re.compile(r"Spend this mana only", re.IGNORECASE)
 _ACTIVATE_ONLY = re.compile(r"Activate only (?:if|during)", re.IGNORECASE)
 
@@ -620,6 +642,8 @@ _SPEND_PART = re.compile(
     r"spells?(?P<chosen> of the chosen type)?$")
 _SPELL_NOUN = re.compile(r"\b(spells?)(?: of the chosen type)?$")
 _CHOOSE_CREATURE_TYPE = re.compile(r"\bchoose a creature type\b", re.IGNORECASE)
+#: P19 R18: "monocolored spells of that color" - Throne of Eldraine's.
+_MONOCOLORED_OF_CHOSEN = re.compile(r"monocolored spells of that colou?r")
 
 #: P19 R4: the three mana rules the engine has played since Phase 2, until now
 #: only through a built-in annotation. "Each land is a Swamp in addition to
@@ -732,6 +756,22 @@ _RITUAL_CREATURES = re.compile(
 _RITUAL_TAPPED = re.compile(
     rf"^Until end of turn, whenever (?:a player taps|you tap) an? (?P<type>{_BASIC_TYPE}) for "
     r"mana, (?:that player )?adds? an additional \{(?P<color>[WUBRG])\}\.$", re.MULTILINE)
+#: P19 R18: "Add {R}{R}, then add {R} for each card named Rite of Flame in
+#: each graveyard." - a goldfish's only graveyard is its own.
+_RITUAL_NAMED = re.compile(
+    r"^Add (?:\{[WUBRG]\})+, then add \{(?P<color>[WUBRG])\} for each card named "
+    r"(?P<name>[^.]+?) in (?:each|your) graveyard\.$", re.MULTILINE)
+#: P19 R18: "Threshold — Add {B}{B}{B}{B}{B} instead if there are seven or more
+#: cards in your graveyard." (Cabal Ritual)
+_RITUAL_THRESHOLD = re.compile(
+    r"^Threshold — Add (?P<more>(?:\{(?P<color>[WUBRG])\})+) instead if there are "
+    rf"{_NUMBER_WORD} or more cards in your graveyard\.$", re.MULTILINE)
+#: P19 R18: "{2}, {T}: Choose a color. Add an amount of mana of that color
+#: equal to the number of creatures you control of the chosen type." (Three
+#: Tree City) - the type the deck settles, as for Cavern of Souls.
+_COUNTS_CHOSEN_TYPE = re.compile(
+    r"^(?:\{(?P<cost>\d+)\}, )?\{T\}: Choose a color\. Add an amount of mana of that color "
+    r"equal to the number of creatures you control of the chosen type\.$", re.MULTILINE)
 _WORD_TIMES = {"twice": 2, "three times": 3}
 #: What a read mana rule explains, and so is no longer a reason to review.
 _RULE_EXPLAINS = frozenset({
@@ -740,6 +780,7 @@ _RULE_EXPLAINS = frozenset({
     "mana amount scales with the board",
     "makes mana only as part of another effect",
     "a conditional replacement ('instead') is not counted",
+    "the part of its mana that grows with the board is not counted",
 })
 #: Somebody else's search: "Its controller may search their library" (Path to
 #: Exile, Ghost Quarter), "Each player searches their library" (Field of Ruin,
@@ -758,9 +799,14 @@ def _activation_condition(text: str) -> dict | None:
     """"Activate only if you control ..." as a condition the game checks, or None.
 
     The same shapes as `_tapped_unless`, so the engine asks one question of
-    its board for both (P19 R4). Anything else - a creature with power 4 or
-    greater, a legendary creature - stays a gap.
+    its board for both (P19 R4), and a creature with power 4 or greater since
+    engine version 22 (P19 R18). Anything else - a legendary creature - stays
+    a gap.
     """
+    if (found := _ACTIVATE_IF_POWER.search(text)) is not None:
+        # P19 R18: the board's creatures, by their printed power.
+        count = _word_number(found.group("n"))
+        return None if count is None else {"kind": "power", "count": count}
     found = _ACTIVATE_IF.search(text)
     if found is None:
         return None
@@ -1071,6 +1117,18 @@ def _extra_rule(text: str, kind: str) -> dict | None:
         if (found := _RITUAL_TAPPED.search(text)) is not None:
             return {"rule": "ritual", "subtype": "tapped:" + found.group("type").lower(),
                     "color": found.group("color"), "activation": 0}
+        if (found := _RITUAL_NAMED.search(text)) is not None:
+            # P19 R18: Rite of Flame, on top of the {R}{R} it always adds.
+            return {"rule": "ritual", "subtype": "named:" + found.group("name"),
+                    "color": found.group("color"), "activation": 0}
+        if (found := _RITUAL_THRESHOLD.search(text)) is not None:
+            # P19 R18: Cabal Ritual - more instead, with a full graveyard.
+            symbols = _SYMBOL.findall(found.group("more"))
+            if len(set(symbols)) != 1:
+                return None
+            needed = _word_number(found.group("n"))
+            return {"rule": "ritual", "subtype": f"threshold:{needed}:{len(symbols)}",
+                    "color": found.group("color"), "activation": 0}
         return None
     if (found := _ENCHANTED_EXTRA.search(text)) is not None:
         enchant = _ENCHANT.search(text)
@@ -1139,6 +1197,11 @@ def _counting_rule(text: str) -> dict | None:
             subtype = "graveyard:" + {"white": "W", "blue": "U", "black": "B", "red": "R",
                                       "green": "G"}[found.group("dead").lower()]
         return {"rule": "counts", "subtype": subtype, "color": found.group("color"),
+                "activation": int(found.group("cost") or 0)}
+    if (found := _COUNTS_CHOSEN_TYPE.search(text)) is not None \
+            and _CHOOSE_CREATURE_TYPE.search(text):
+        # P19 R18: Three Tree City; one colour, the one the hand wants.
+        return {"rule": "counts", "subtype": "chosen_type", "color": "",
                 "activation": int(found.group("cost") or 0)}
     if (found := _DEVOTION.search(text)) is not None:
         return {"rule": "counts", "subtype": "devotion", "color": "",
@@ -1259,6 +1322,8 @@ class ManaClause:
     #: The colours a choice among symbols offers: "WB" for "Add {W}{W},
     #: {W}{B}, or {B}{B}". Empty when the clause names no symbols.
     offers: str = ""
+    #: P19 R18: "one mana of the chosen color" - which one, the deck says.
+    chosen_color: bool = False
     problem: str = ""
     note: str = ""
 
@@ -1293,6 +1358,8 @@ class ManaReading:
     #: The mana comes from sacrificing the card itself (Lotus Petal) - once,
     #: which the engine models as a ritual cast when it unlocks something.
     one_shot: bool = False
+    #: P19 R18: it makes the colour chosen as it entered (Heraldic Banner).
+    chosen_color: bool = False
     #: The ability can be used only under a condition: {"if": ..., "otherwise":
     #: what the card taps for without it, or None} (P19 R4).
     condition: dict | None = None
@@ -1364,7 +1431,7 @@ def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
         return
 
 
-def _read_produced(clause: ManaClause, after: str) -> None:
+def _read_produced(clause: ManaClause, after: str, card_text: str = "") -> None:
     """What follows `Add`: symbols, "N mana of any color", or something that scales."""
     after = after.lstrip()
     run = _SYMBOL_RUN.match(after)
@@ -1400,6 +1467,9 @@ def _read_produced(clause: ManaClause, after: str) -> None:
     if words:
         token = words.group(1).lower()
         clause.amount = int(token) if token.isdigit() else _WORD_NUMBERS[token]
+        if words.group("offers"):
+            offered = {symbol.upper() for symbol in _SYMBOL.findall(words.group("offers"))}
+            clause.offers = "".join(color for color in "WUBRG" if color in offered)
         tail = after[words.end():].split(".", 1)[0]
         if _OPPONENT_LANDS.match(tail):
             return
@@ -1407,6 +1477,13 @@ def _read_produced(clause: ManaClause, after: str) -> None:
             clause.problem = gettext_noop("needs an opponent's lands; a goldfish has none")
         elif _SCALING.search(tail):
             clause.problem = gettext_noop("mana amount scales with the board")
+        return
+
+    chosen = _CHOSEN_COLOR_MANA.match(after)
+    if chosen and _CHOOSE_A_COLOR.search(card_text):
+        # P19 R18: the colour the deck settles - an assumption on its page.
+        clause.amount = _WORD_NUMBERS[chosen.group(1).lower()]
+        clause.chosen_color = True
         return
 
     if _SCALES_UP_FRONT.match(after):
@@ -1441,9 +1518,13 @@ def _mana_clauses(card: OracleCard, *, is_spell: bool) -> list[ManaClause]:
                 # graveyard. Add ..." - the mana needs a target first.
                 clause.problem = gettext_noop("makes mana only as part of another effect")
             if not clause.problem:
-                _read_produced(clause, after)
+                _read_produced(clause, after, card.oracle_text or "")
             if not clause.problem and _RESTRICTED.search(after):
                 _restrict(clause, after, card)
+            if not clause.problem and _NOT_FOR_GENERIC.search(after):
+                # Jegantha: mana the engine's pool would spend anywhere.
+                clause.problem = gettext_noop(
+                    "its mana is restricted to certain spells or moments")
             found.append(clause)
     return found
 
@@ -1485,6 +1566,11 @@ def _spend_only(text: str, card: OracleCard) -> list | None:
     if found is None:
         return None
     spells = _SPEND_NOT_A_SPELL.sub("", found.group("spells"))
+    if _MONOCOLORED_OF_CHOSEN.fullmatch(spells) and _CHOOSE_A_COLOR.search(card.oracle_text or ""):
+        # P19 R18: Throne of Eldraine - its own chosen colour, and only that.
+        return [{"types": [], "subtypes": [], "legendary": False, "colorless": False,
+                 "multicolored": False, "noncreature": False, "chosen_type": False,
+                 "chosen_color": True}]
     parts = [part.strip() for part in _SPEND_SEPARATOR.split(spells) if part.strip()]
     filters = []
     # "Vampire, Cleric, and/or Demon spells": the last part names the noun
@@ -1540,15 +1626,18 @@ def _read_plain(reading: ManaReading, worth_it: list[ManaClause], notes: set) ->
     conditions = {repr(sorted(clause.condition.items())) for clause in top
                   if clause.condition}
     plain = [clause for clause in worth_it if not clause.condition]
+    if len(conditions) > 1 and _read_conditions(reading, top, plain):
+        return
     if len(conditions) > 1:
-        # Two abilities under two different conditions: one ability with
-        # a condition is what the engine holds.
+        # Two abilities under two different conditions, which are not each
+        # a fixed mana beside a plain one: kept a gap.
         notes.add(gettext_noop("its mana is restricted to certain spells or moments"))
         chosen, produces, top = _strongest(plain) if plain else (None, None, [])
         conditions = set()
     if chosen is not None:
         reading.amount, reading.activation = chosen.amount, chosen.activation
         reading.produces = produces
+        reading.chosen_color = chosen.chosen_color
     if conditions:
         condition = next(clause.condition for clause in top if clause.condition)
         otherwise = None
@@ -1564,6 +1653,34 @@ def _read_plain(reading: ManaReading, worth_it: list[ManaClause], notes: set) ->
             reading.amount = None
         else:
             reading.condition = {"if": condition, "otherwise": otherwise}
+
+
+def _read_conditions(reading: ManaReading, top: list[ManaClause],
+                     plain: list[ManaClause]) -> bool:
+    """Several abilities, each under its own condition, beside a plain one (P19 R18).
+
+    Nimbus Maze: {W} if you control an Island, {U} if you control a Plains,
+    else {C}. The first is the reading's condition, the others follow it in
+    ``also``; the game takes the first one that holds. Only exact mana of
+    one amount, free, beside a plain ability of exact mana - False otherwise.
+    """
+    conditional = [clause for clause in top if clause.condition]
+    if not plain or any(not clause.produces or clause.activation for clause in conditional) \
+            or len({clause.amount for clause in conditional}) != 1:
+        return False
+    fallback, fallback_produces, _ = _strongest(plain)
+    if fallback_produces is None:
+        return False
+    first, *more = conditional
+    reading.amount, reading.produces, reading.activation = first.amount, first.produces, 0
+    reading.condition = {
+        "if": first.condition,
+        "otherwise": {"amount": fallback.amount, "produces": fallback_produces,
+                      "activation": fallback.activation},
+        "also": [{"if": clause.condition, "amount": clause.amount,
+                  "produces": clause.produces, "activation": 0} for clause in more],
+    }
+    return True
 
 
 def _read_restricted(reading: ManaReading, restricted: list[ManaClause], notes: set,
@@ -1601,6 +1718,7 @@ def _read_restricted(reading: ManaReading, restricted: list[ManaClause], notes: 
         notes.add(gettext_noop("its mana is restricted to certain spells or moments"))
         return
     reading.amount, reading.produces, reading.activation = first.amount, first.produces, 0
+    reading.chosen_color = first.chosen_color
     reading.spend_only = {"spells": first.spend_only, "otherwise": otherwise}
     if first.condition:
         reading.condition = {"if": first.condition, "otherwise": otherwise}
@@ -1730,6 +1848,16 @@ def _mana_production(card: OracleCard) -> ManaReading:
             _read_restricted(reading, restricted, notes, plain)
         if any(clause.net <= 0 for clause in tapping):
             notes.add(gettext_noop("an ability that only converts mana is not modelled"))
+        if (found := _INSTEAD_IF_POWER.search(text)) is not None and len(worth_it) == 1 \
+                and reading.condition is None and reading.spend_only is None:
+            # P19 R18: Ilysian Caryatid - two instead of one, beside a big creature.
+            count = _word_number(found.group("n"))
+            if count is not None:
+                reading.condition = {"if": {"kind": "power", "count": count},
+                                     "otherwise": {"amount": reading.amount,
+                                                   "produces": reading.produces,
+                                                   "activation": reading.activation}}
+                reading.amount = 2
     elif one_shots and "Creature" not in type_line:
         chosen = one_shots[0]
         reading.amount, reading.produces = chosen.amount, chosen.produces
@@ -2227,8 +2355,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     elif (_ADDITIONAL_COST.search(text) and not discard and additional.ways is None
           and not additional.optional):
         reasons.append(gettext_noop("has an additional casting cost the engine does not pay"))
-    if cost.hybrid:
-        reasons.append(gettext_noop("hybrid pips: payment flexibility is not modelled"))
+    # Hybrid symbols are no gap: the engine's payer settles each one as the
+    # cost is paid since engine version 5 (P19 R18 took the reason away).
     # Since engine version 13 an X is paid (P19 R9): all that is left, last
     # in the main phase. What X then does is a gap only where it feeds
     # something the engine plays and cannot read yet.
@@ -2258,6 +2386,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana_rule=mana_rule,
         mana_filter=mana.filter,
         mana_spend_only=mana.spend_only,
+        mana_chosen_color=mana.chosen_color,
         treasures=treasures,
         landers=landers,
         discard_cost=_word_number(discard.group(1)) if discard else 0,
@@ -2392,7 +2521,8 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "tapped_unless",
             "skips_draw_step",
             "mana_produces", "mana_activation", "mana_untaps", "mana_condition", "mana_rule",
-            "mana_filter", "mana_spend_only", "treasures", "landers", "discard_cost",
+            "mana_filter", "mana_spend_only", "mana_chosen_color", "treasures", "landers",
+            "discard_cost",
             "additional_cost",
             "sacrifice_mana", "mana_from_hand", "triggers",
             "discards_after", "puts_back",

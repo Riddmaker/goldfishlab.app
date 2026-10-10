@@ -57,15 +57,17 @@ JUDGEMENT = "judgement"
 #: Sentinel trigger on the opponents, who are not there - played as one
 #: opponent a round not paying the tax. `assumed_type` (P19 R17): Cavern of
 #: Souls names the deck's most common creature type until an annotation names
-#: another. Every one of these is stated, in detail, beside the card on the
-#: deck page's card list.
+#: another. `assumed_color` (P19 R18): Heraldic Banner chooses the colour the
+#: deck's costs ask for most, the same way. Every one of these is stated, in
+#: detail, beside the card on the deck page's card list.
 JUDGEMENT_FIELDS = frozenset({"priority", "accelerant", "assumed_mana", "assumed_lands",
-                              "assumed_cost", "assumed_trigger", "assumed_type"})
+                              "assumed_cost", "assumed_trigger", "assumed_type",
+                              "assumed_color"})
 
 #: The judgement fields the engine answers with an assumption of its own -
 #: shown on the deck page beside the card, never only counted.
 ASSUMPTION_FIELDS = frozenset({"assumed_mana", "assumed_lands", "assumed_cost",
-                               "assumed_trigger", "assumed_type"})
+                               "assumed_trigger", "assumed_type", "assumed_color"})
 
 
 def kind_of(field: str) -> str:

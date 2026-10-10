@@ -458,6 +458,7 @@ class CardAnnotateView(DeckScopedView):
             {gap.field for gap in entry.reading_gaps}, is_land=entry.reading.card.is_land,
             has_x=bool(entry.reading.card.x_count),
             names_type=entry.reading.names_type,
+            names_color=entry.reading.names_color,
         )
         context = {
             "deck": deck,

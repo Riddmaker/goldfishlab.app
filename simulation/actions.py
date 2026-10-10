@@ -591,8 +591,8 @@ def _arrival(game, card, policy) -> None:
         if search.sacrifice and card in game.creatures:
             # Sakura-Tribe Elder: sacrificed for its land as soon as it is in
             # play - nothing in a goldfish is worth keeping it around for.
-            game.creatures.remove(card)
-            game.graveyard.append(card)
+            # It dies, which a Pitiless Plunderer sees (P19 R16).
+            game._sacrifice(card)
 
     game.make_treasures(card)
     game.make_landers(card)

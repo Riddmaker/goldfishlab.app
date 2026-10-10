@@ -29,6 +29,7 @@ from simulation.cards import (
     LandSearch,
     ManaAbility,
     TappedUnless,
+    Trigger,
     TutorSpec,
     UpkeepSpec,
 )
@@ -112,6 +113,9 @@ EVERYTHING = Card(
     sacrifice_mana_amount=2,
     sacrifice_mana_color="B",
     sacrifice_mana_taps=True,
+    sacrifice_mana_other=True,
+    triggers=(Trigger("cast", filter="instant_sorcery", treasures=1, treasure_mana="C",
+                      mana=1, mana_color="R", draw=1, life=1),),
     exiled_on_cast=True,
 )
 
@@ -271,6 +275,14 @@ def test_the_creatures_that_arrived_survive_the_trip():
     game.arrived, game.tapped_creatures = ["Wight of the Reliquary"], ["Knight"]
     back = restored(game)
     assert (back.arrived, back.tapped_creatures) == (["Wight of the Reliquary"], ["Knight"])
+
+
+def test_mana_waiting_for_the_pool_survives_the_trip():
+    """Lotus Cobra's mana for the land drop waits for the main phase (P19 R16)."""
+    game = Game(random.Random(3), deck=chainer.DECK)
+    game.pending_mana, game.spells_this_turn = ["G", "UR"], 2
+    back = restored(game)
+    assert (back.pending_mana, back.spells_this_turn) == (["G", "UR"], 2)
 
 
 def test_a_lander_survives_the_trip():

@@ -8452,3 +8452,146 @@ msgstr "生け贄に捧げるもの"
 #: templates/playtest/_board.html
 msgid "Sacrifice for mana"
 msgstr "マナのために生け贄に捧げる"
+
+#: simulations/engine/adapter.py
+msgid "whenever a land of yours enters"
+msgstr "あなたの土地が戦場に出るたび"
+
+#: simulations/engine/adapter.py
+msgid "whenever you cast a spell"
+msgstr "あなたが呪文を唱えるたび"
+
+#: simulations/engine/adapter.py
+msgid "whenever you cast an instant or sorcery"
+msgstr "あなたがインスタントかソーサリーを唱えるたび"
+
+#: simulations/engine/adapter.py
+msgid "whenever you cast a colourless spell"
+msgstr "あなたが無色の呪文を唱えるたび"
+
+#: simulations/engine/adapter.py
+msgid "on your second spell each turn"
+msgstr "各ターンのあなたの2つ目の呪文で"
+
+#: simulations/engine/adapter.py
+msgid "each upkeep"
+msgstr "毎アップキープ"
+
+#: simulations/engine/adapter.py
+msgid "at each first main phase"
+msgstr "毎第1メイン・フェイズ"
+
+#: simulations/engine/adapter.py
+msgid "whenever another creature of yours dies"
+msgstr "あなたの他のクリーチャーが死亡するたび"
+
+#: simulations/engine/adapter.py
+msgid "whenever it or another creature of yours dies"
+msgstr "これかあなたの他のクリーチャーが死亡するたび"
+
+#: simulations/engine/adapter.py
+msgid "as it resolves, for each land you control"
+msgstr "解決時に、あなたがコントロールする土地1つにつき"
+
+#: simulations/engine/adapter.py
+msgid "once a round, when one opponent does not pay"
+msgstr "1巡に1回、対戦相手1人が支払わないとき"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "whenever it or another %(type)s of yours enters"
+msgstr "これかあなたの他の%(type)sが戦場に出るたび"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s Eldrazi Spawn (one {C})"
+msgid_plural "%(count)s Eldrazi Spawn (one {C} each)"
+msgstr[0] "エルドラージ・落とし子%(count)s体（それぞれ{C}1点）"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s Treasure"
+msgid_plural "%(count)s Treasures"
+msgstr[0] "宝物%(count)s個"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(count)s × %(color)s mana"
+msgstr "%(color)sマナ × %(count)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "draws %(count)s card"
+msgid_plural "draws %(count)s cards"
+msgstr[0] "カードを%(count)s枚引く"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "costs %(life)s life"
+msgstr "ライフを%(life)s点失う"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(when)s: %(what)s"
+msgstr "%(when)s：%(what)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"makes a Treasure once a round, assuming one opponent a round does not pay "
+"%(tax)s"
+msgstr "1巡に1回宝物を生成する（1巡ごとに対戦相手1人が%(tax)sを支払わないと仮定）"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"draws a card once a round, assuming one opponent a round does not pay "
+"%(tax)s"
+msgstr "1巡に1回カードを1枚引く（1巡ごとに対戦相手1人が%(tax)sを支払わないと仮定）"
+
+#: cards/profiles.py
+msgid "makes Treasure or mana in combat, which the engine does not play"
+msgstr "戦闘中に宝物やマナを生み出すが、エンジンは戦闘をプレイしない"
+
+#: simulations/provenance.py
+msgid "Triggers"
+msgstr "誘発"
+
+#: simulations/blindspots.py
+msgid "Cards played on an assumption"
+msgstr "仮定のもとでプレイされるカード"
+
+#: simulations/blindspots.py
+msgid ""
+"A goldfish game has no opponents. Where a card needs them, the engine plays "
+"it on the assumption named beside it. Judge it against your own table: if "
+"yours plays differently, so does the card."
+msgstr ""
+"ゴールドフィッシュのゲームには対戦相手がいません。カードが対戦相手を必要とする場合、エンジンは横に記した仮定のもとでそれをプレイします。あなたの卓と照らし合わせてください。卓のプレイが違えば、カードの働きも違います。"
+
+#: templates/decks/_card_grid.html
+msgid "Assumed:"
+msgstr "仮定："
+
+#: changelog/entries.py
+msgid "Smothering Tithe, Lotus Cobra and Storm-Kiln Artist"
+msgstr "Smothering Tithe、Lotus Cobra、Storm-Kiln Artist"
+
+#: changelog/entries.py
+msgid ""
+"Cards that make Treasure, mana or a card when something happens now do it in"
+" a simulated game: Lotus Cobra and Tireless Provisioner when a land enters, "
+"Birgi, Storm-Kiln Artist and Lotho when you cast a spell, Pitiless Plunderer"
+" and Pawn of Ulamog when a creature dies, Ganax when a Dragon arrives, "
+"Awakening Zone and Hulking Raptor every turn, Brass's Bounty once for each "
+"land. Smothering Tithe, Rhystic Study and Esper Sentinel wait on opponents a"
+" goldfish does not have, so they give one a round, assuming one opponent "
+"does not pay - and the card list on your deck page now says beside every "
+"card what the engine assumes to play it."
+msgstr ""
+"何かが起きたときに宝物・マナ・カードを生み出すカードが、シミュレーションでもそう働くようになりました。土地が出たときのLotus "
+"CobraとTireless Provisioner、呪文を唱えたときのBirgi、Storm-Kiln "
+"Artist、Lotho、クリーチャーが死亡したときのPitiless PlundererとPawn of "
+"Ulamog、ドラゴンが出たときのGanax、毎ターンのAwakening ZoneとHulking Raptor、土地1つにつき1回のBrass's "
+"Bounty。Smothering Tithe、Rhystic Study、Esper "
+"Sentinelはゴールドフィッシュにはいない対戦相手を待つため、対戦相手1人が支払わないと仮定して1巡に1回働きます。またデッキページのカード一覧では、エンジンが各カードをプレイするために置いている仮定がカードの横に表示されるようになりました。"

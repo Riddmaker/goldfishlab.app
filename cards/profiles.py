@@ -837,6 +837,161 @@ def _landers(card: OracleCard, kind: str) -> int:
     return _made_tokens(card, kind, _LANDER_ON_ENTER, _LANDER_IN_SPELL)
 
 
+#: P19 R16: what a trigger waits for, read off the start of its line. Each
+#: names an event the goldfish game has; the group gives the filter.
+_TRIGGER_EVENTS = (
+    ("landfall", "", re.compile(r"Whenever a land you control enters")),
+    ("cast", "instant_sorcery", re.compile(
+        r"Whenever you cast (?:or copy )?an instant or sorcery spell")),
+    ("cast", "colorless", re.compile(r"Whenever you cast a colorless spell")),
+    ("cast", "", re.compile(r"Whenever you cast a spell")),
+    ("cast", "second", re.compile(r"Whenever a player casts their second spell each turn")),
+    ("upkeep", "", re.compile(r"At the beginning of your upkeep")),
+    ("main", "", re.compile(r"At the beginning of your (?:first|precombat) main phase")),
+    ("dies", "another", re.compile(r"Whenever another creature you control dies")),
+    ("dies", "", re.compile(
+        r"Whenever (?P<self>[\w,' ]+?) or another nontoken creature you control dies")),
+    ("enters", "", re.compile(
+        r"Whenever (?P<self>[\w,' ]+?) or another (?P<type>[A-Z][a-z]+) you control enters")),
+)
+#: What the trigger does, the rest of its line.
+_TRIGGER_EFFECT = re.compile(
+    r", (?:you )?(?:may )?(?:"
+    r"(?:create (?P<treasures>a|one|two|three) Treasure tokens?"
+    r"|create a Food token or a Treasure token)"
+    r"|lose (?P<life>\d+) life and create a Treasure token"
+    r"|create a 0/1 colorless Eldrazi Spawn creature token(?P<spawn>)"
+    r"(?: with \"Sacrifice this token: Add \{C\}\.\"|\. It has \"Sacrifice this token: Add "
+    r"\{C\}\.\")"
+    r"|add (?:(?P<any>one mana of any color)|(?P<pips>(?:\{[WUBRGC]\})+)))"
+    # The Spawn's quoted ability ends the line itself.
+    r"(?:\.(?P<keep> Until end of turn, you don't lose this mana as steps and phases end\.)?)?$")
+#: P19 R16: what the opponents do in a round, played on an assumption the card
+#: list states: one of them a round does not pay the tax.
+_OPPONENT_TREASURE = re.compile(
+    r"^Whenever an opponent draws a card, that player may pay (?P<tax>\{\d+\})\. If the "
+    r"player doesn't, you create a Treasure token\.$")
+_OPPONENT_DRAW = re.compile(
+    r"^Whenever an opponent casts (?:a spell|their first noncreature spell each turn), "
+    r"(?:you may )?draw a card unless that player pays (?P<tax>\{\d+\}|\{X\})"
+    r"(?:, where X is this creature's power)?\.$")
+#: A Treasure or mana made in combat, which the engine does not play:
+#: Goldspan Dragon, Captain Lannery Storm, Curse of Opulence, Diamond Pick-Axe.
+_COMBAT_TREASURE = re.compile(
+    r"Whenever [^.\"]*?(?:attacks|is attacked|becomes blocked|deals? combat damage)\b[^.\"]*?, "
+    r"(?:you )?(?:create (?:a|one|two) (?:Treasure|Gold) tokens?|add \{)", re.IGNORECASE)
+#: A line that makes mana or a mana token, outside its reminder text.
+_MANA_LINE = re.compile(r"\badd\b|\bcreate\b[^.]*\b(?:Treasure|Eldrazi Spawn|Gold)\b",
+                        re.IGNORECASE)
+_REMINDER = re.compile(r"\s*\([^)]*\)")
+#: "For each land you control, create a Treasure token." (Brass's Bounty.)
+_TREASURE_PER_LAND = re.compile(r"^For each land you control, create a Treasure token\.$")
+#: Warren Soultrader (P19 R16): an altar whose mana is a Treasure.
+_TREASURE_ALTAR = re.compile(
+    r"^(?:Pay (?P<life>\d+) life, )?Sacrifice (?P<another>another )?(?P<what>creature|artifact)"
+    r": Create a Treasure token\.$")
+#: Notes a read trigger explains: the only mana the card has is its trigger's.
+_TRIGGER_EXPLAINS = frozenset({
+    "produces mana, but no readable 'Add' clause",
+    "only grants a mana ability to another permanent",
+})
+
+
+@dataclass
+class Triggers:
+    """The triggers the reader read (P19 R16), and what is left unread.
+
+    `found` is `DerivedProfile.triggers`. `explained` is true when every line
+    that makes mana is one of them or one made in combat, which then has
+    `combat` as its reason.
+    """
+
+    found: list = field(default_factory=list)
+    explained: bool = False
+    combat: bool = False
+
+
+def _names_itself(words: str, card: OracleCard) -> bool:
+    """Whether "Ganax" or "this creature" in a trigger is the card itself."""
+    name = card.front_name or ""
+    return words in ("this creature", "~", name, name.split(",", 1)[0])
+
+
+def _trigger_line(line: str, card: OracleCard) -> dict | None:
+    """One line as a trigger the engine plays, or None."""
+    if (found := _OPPONENT_TREASURE.match(line)) is not None:
+        return {"event": "opponents", "treasures": 1, "tax": found.group("tax")}
+    if (found := _OPPONENT_DRAW.match(line)) is not None:
+        return {"event": "opponents", "draw": 1, "tax": found.group("tax")}
+    line = re.sub(r"^[A-Z][\w' ]+ — ", "", line)
+    for event, wanted, pattern in _TRIGGER_EVENTS:
+        start = pattern.match(line)
+        if start is None:
+            continue
+        groups = start.groupdict()
+        if groups.get("self") is not None and not _names_itself(groups["self"], card):
+            return None
+        effect = _TRIGGER_EFFECT.fullmatch(line, start.end())
+        if effect is None:
+            return None
+        read = {"event": event, "filter": groups.get("type", "").lower() or wanted}
+        if effect.group("spawn") is not None:
+            read |= {"treasures": 1, "spawn": True}
+        elif (effect.group("any") or effect.group("pips")) and event == "upkeep" \
+                and not effect.group("keep"):
+            # Mana made in the upkeep is gone by the main phase.
+            return None
+        elif effect.group("any"):
+            read |= {"mana": 1, "color": "any"}
+        elif effect.group("pips"):
+            pips = re.findall(r"\{(\w)\}", effect.group("pips"))
+            if len(set(pips)) != 1:
+                return None
+            read |= {"mana": len(pips), "color": pips[0]}
+        else:
+            read["treasures"] = _word_number(effect.group("treasures") or "a")
+        if effect.group("life"):
+            read["life"] = int(effect.group("life"))
+        return read
+    return None
+
+
+def _triggers(card: OracleCard) -> Triggers:
+    """The triggers that make Treasure, mana or cards (P19 R16)."""
+    text = card.oracle_text or ""
+    reading = Triggers()
+    mana_lines = explained = 0
+    for raw in text.split("//", 1)[0].splitlines():
+        line = _REMINDER.sub("", raw).strip()
+        if not line:
+            continue
+        found = _trigger_line(line, card)
+        if found is None and _TREASURE_PER_LAND.match(line):
+            found = {"event": "resolves", "filter": "per_land", "treasures": 1}
+        makes_mana = bool(_MANA_LINE.search(line))
+        mana_lines += makes_mana
+        if found is not None:
+            reading.found.append(found)
+            explained += makes_mana
+        elif _COMBAT_TREASURE.search(raw):
+            reading.combat = True
+            explained += makes_mana
+    reading.explained = bool(mana_lines) and explained == mana_lines
+    return reading
+
+
+def _treasure_altar(card: OracleCard) -> dict | None:
+    """Warren Soultrader's "Pay 1 life, Sacrifice another creature: Create a
+    Treasure token." as an altar for one mana of any colour (P19 R16)."""
+    for raw in (card.oracle_text or "").splitlines():
+        found = _TREASURE_ALTAR.match(_REMINDER.sub("", raw).strip())
+        if found is not None:
+            return {"sacrifice": [found.group("what")], "filter": "", "amount": 1,
+                    "produces": None, "taps": False, "life": int(found.group("life") or 0),
+                    "other": bool(found.group("another"))}
+    return None
+
+
 def _made_tokens(card: OracleCard, kind: str, on_enter: re.Pattern,
                  in_spell: re.Pattern) -> int:
     """Tokens a spell's own sentence or a permanent's arrival makes."""
@@ -1856,6 +2011,19 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         # the Treasure is read now (P19 R7).
         mana.notes = [note for note in mana.notes
                       if note != "only grants a mana ability to another permanent"]
+    triggers = _triggers(card)
+    unread = any(note in _TRIGGER_EXPLAINS for note in mana.notes)
+    if triggers.explained:
+        # Its only mana is a trigger's, read now - or one in combat (P19 R16).
+        mana.notes = [note for note in mana.notes if note not in _TRIGGER_EXPLAINS]
+    if triggers.combat and unread:
+        # Said where it was a gap already: a card read without its combat
+        # Treasure (Ragavan) is read pessimistically, not wrongly.
+        mana.notes.append(gettext_noop(
+            "makes Treasure or mana in combat, which the engine does not play"))
+    if mana.sacrifice is None and (altar := _treasure_altar(card)) is not None:
+        mana.sacrifice = altar
+        mana.notes = [note for note in mana.notes if note not in _TRIGGER_EXPLAINS]
     discard = _DISCARD_COST.search(text)
     additional = AdditionalCost() if discard else _additional_cost(card)
     draw = _draw(text)
@@ -1950,6 +2118,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         additional_cost=additional.ways,
         sacrifice_mana=mana.sacrifice,
         mana_from_hand=mana.from_hand,
+        triggers=triggers.found,
         cost_reduction=_first_number(_COST_REDUCTION, text),
         draws_cards=draw.cards,
         discards_after=draw.discards,
@@ -1968,7 +2137,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         skips_draw_step=bool(_SKIPS_DRAW_STEP.search(text)),
         needs_review=bool(reasons),
         review_reasons=[reason[:120] for reason in reasons],
-        source_map=_source_map(tags, tapped, mana, tutor),
+        source_map=_source_map(tags, tapped, mana, tutor)
+        | ({"triggers": REGEX} if triggers.found else {}),
     )
     return profile
 
@@ -2077,7 +2247,7 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "skips_draw_step",
             "mana_produces", "mana_activation", "mana_untaps", "mana_condition", "mana_rule",
             "mana_filter", "treasures", "landers", "discard_cost", "additional_cost",
-            "sacrifice_mana", "mana_from_hand",
+            "sacrifice_mana", "mana_from_hand", "triggers",
             "discards_after", "puts_back",
             "draws_x",
             "extra_cost",

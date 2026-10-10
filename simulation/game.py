@@ -14,19 +14,32 @@ import random
 from collections import Counter
 
 from simulation.cards import (
+    ANOTHER,
     ARTIFACT,
+    CAST,
+    COLORLESS_SPELL,
     COUNTS,
     CREATURE,
+    DIES,
     ENCHANTMENT,
+    ENTERS,
     EXTRA,
     FLAT,
     GRANT,
+    INSTANT_OR_SORCERY,
     LANDER,
+    LANDFALL,
     LANDS_COULD_PRODUCE,
+    MAIN_PHASE,
     MULTIPLY,
+    OPPONENT_TURNS,
+    PER_LAND,
     PLANESWALKER,
+    RESOLVES,
     RITUAL,
     ROCK,
+    SECOND_SPELL,
+    UPKEEP,
     AdditionalCost,
     ManaAbility,
 )
@@ -156,6 +169,11 @@ class Game:
         #: The colour each permanent chose as it entered, by name (P19 R13):
         #: Caged Sun, Utopia Sprawl. Kept, because the choice is made once.
         self.chosen_colors: dict[str, str] = {}
+        #: P19 R16: mana a trigger added before the main phase opened - Lotus
+        #: Cobra's for the land drop - waiting for this turn's pool.
+        self.pending_mana: list[str] = []
+        #: P19 R16: spells cast this turn, the commander included (Lotho).
+        self.spells_this_turn = 0
         self.log = []
 
     @property
@@ -273,14 +291,87 @@ class Game:
             self.note(f"  -> puts {worst.name} back on top")
 
     def make_treasures(self, card) -> None:
-        """The Treasure tokens a card makes as it resolves (P19 R7)."""
+        """The Treasure tokens a card makes as it resolves (P19 R7), counted
+        ones included: Brass's Bounty's one for each land (P19 R16)."""
+        for trigger in card.triggers:
+            if trigger.event == RESOLVES:
+                self._apply(card, trigger)
         if not card.treasures:
             return
-        made = [card.treasure_mana or "WUBRG"] * card.treasures
+        self._add_treasures(card.treasure_mana, card.treasures)
+        self.note(f"  -> {card.treasures} Treasure")
+
+    def _add_treasures(self, mana: str, count: int) -> None:
+        """Treasure tokens onto the battlefield, and into an open pool."""
+        made = [mana or "WUBRG"] * count
         self.treasures.extend(made)
         if self.pool is not None:
             self.pool.treasures.extend(made)
-        self.note(f"  -> {card.treasures} Treasure")
+
+    # --- Triggers (P19 R16) --------------------------------------------------
+
+    def fire(self, event: str, subject=None, *, gone=None) -> None:
+        """Every trigger on the battlefield that ``event`` sets off.
+
+        ``subject`` is what happened: the land that entered, the spell cast,
+        the creature that died. ``gone`` is a permanent that has just left and
+        still sees its own leaving (Pawn of Ulamog). The order is
+        :meth:`_triggers`', so the same game always plays the same way.
+        """
+        sources = self._triggers(lambda c: any(t.event == event for t in c.triggers))
+        if gone is not None and any(t.event == event for t in gone.triggers):
+            sources.append(gone)
+        for card in sources:
+            for trigger in card.triggers:
+                if trigger.event == event and self._applies(trigger, card, subject):
+                    self._apply(card, trigger)
+
+    def _applies(self, trigger, card, subject) -> bool:
+        """Whether ``subject`` passes the trigger's filter."""
+        wanted = trigger.filter
+        if trigger.event == CAST:
+            if wanted == INSTANT_OR_SORCERY:
+                return bool(self.types_of(subject) & {"instant", "sorcery"})
+            if wanted == COLORLESS_SPELL:
+                return not (subject.colors or subject.mana_cost.colors)
+            if wanted == SECOND_SPELL:
+                return self.spells_this_turn == 2
+            return True
+        if trigger.event == DIES:
+            return subject is not card if wanted == ANOTHER else True
+        if trigger.event == ENTERS:
+            return not wanted or wanted in subject.creature_types
+        return True
+
+    def _apply(self, card, trigger) -> None:
+        """What one trigger does."""
+        if trigger.life:
+            self.life -= trigger.life
+        made = []
+        if trigger.treasures:
+            count = trigger.treasures * (len(self.lands) if trigger.filter == PER_LAND else 1)
+            if count:
+                self._add_treasures(trigger.treasure_mana, count)
+                made.append(f"{count} Treasure")
+        if trigger.mana:
+            if self.pool is not None:
+                self.pool.add(trigger.mana_color, trigger.mana)
+            else:
+                self.pending_mana.extend([trigger.mana_color] * trigger.mana)
+            made.append(f"+{trigger.mana}{trigger.mana_color}")
+        if trigger.draw:
+            drawn = self.draw(trigger.draw)
+            made.append(f"{len(drawn)} card")
+        if made:
+            self.note(f"  -> {card.name}: {', '.join(made)}")
+
+    def spell_cast(self, card) -> None:
+        """A spell was cast: count it, and fire what that sets off. A card
+        exiled from the hand for its mana (a Spirit Guide) was not cast."""
+        if card.exiled_on_cast:
+            return
+        self.spells_this_turn += 1
+        self.fire(CAST, card)
 
     def make_landers(self, card) -> None:
         """The Lander tokens a card makes as it resolves or enters (P19 R14)."""
@@ -406,6 +497,9 @@ class Game:
             self.rocks.pop(index)
         elif card in self.creatures:
             self.creatures.remove(card)
+            self.graveyard.append(card)
+            self.fire(DIES, card, gone=card)
+            return
         else:
             self.other_permanents.remove(card)
         self.graveyard.append(card)
@@ -414,8 +508,10 @@ class Game:
 
     def is_mana_source(self, card) -> bool:
         """Does the permanent make mana? Such a one is never sacrificed to
-        a cost: a player keeps the ramp."""
-        return card.kind == ROCK or bool(card.mana_abilities) or card.sacrifice_mana is not None
+        a cost: a player keeps the ramp - a Lotus Cobra or a Storm-Kiln
+        Artist too (P19 R16)."""
+        return (card.kind == ROCK or bool(card.mana_abilities) or card.sacrifice_mana is not None
+                or any(trigger.mana or trigger.treasures for trigger in card.triggers))
 
     @staticmethod
     def types_of(card) -> frozenset[str]:
@@ -590,7 +686,11 @@ class Game:
         if cost is None:
             return []
         options = []
-        for fodder in self.fodder(card.sacrifice_mana, pool, also=card):
+        also = None if card.sacrifice_mana_other else card
+        if card.sacrifice_mana.life and \
+                self.life - card.sacrifice_mana.life < PHYREXIAN_LIFE_FLOOR:
+            return []
+        for fodder in self.fodder(card.sacrifice_mana, pool, also=also):
             test = pool.copy()
             if fodder == TREASURE:
                 test.treasures.pop()
@@ -617,6 +717,8 @@ class Game:
             self.lands.insert(self.tapped_lands, self.lands.pop(index))
             self.tapped_lands += 1
         self.note(f"{card.name} (sacrifice for mana)")
+        if card.sacrifice_mana.life:
+            self.life -= card.sacrifice_mana.life
         self.sacrifice(fodder)
         pool.add(card.sacrifice_mana_color, card.sacrifice_mana_amount)
 
@@ -750,6 +852,10 @@ class Game:
             + self._untapped([c for c in self.creatures if self.mana_ability(c) is not None])
         )
         pool = self.mana()
+        self.fire(MAIN_PHASE)
+        for key in self.pending_mana:
+            pool.add(key)
+        self.pending_mana = []
         pool.treasures = list(self.treasures)
         for card in sources:
             flat = self.mana_ability(card)
@@ -1030,6 +1136,7 @@ class Game:
             self.lands.insert(0, card)
             self.tapped_lands += 1
         self.note(f"Land: {card.name}" + (" (tapped)" if tapped else ""))
+        self.fire(LANDFALL, card)
 
     def play_fetch(self, card, choose=None) -> None:
         """A fetch land played this turn: sacrificed at once for what it finds.
@@ -1128,6 +1235,7 @@ class Game:
         else:
             self.lands.append(land)
         self.note(f"  -> {land.name} onto the battlefield" + (" (tapped)" if tapped else ""))
+        self.fire(LANDFALL, land)
 
     def cast(self, card, pool: ManaPool, x: int = 0, pick: int | None = None) -> None:
         """Cast a card and take the cost out of the pool, ``x`` for each {X};
@@ -1151,6 +1259,7 @@ class Game:
         if card.discard_cost:
             self.discard(card.discard_cost)
         self._pay_additional(way, fodder)
+        self.spell_cast(card)
         self._resolve(card, pool)
         if card.x_count:
             self.note(f"  -> X = {x}")
@@ -1176,6 +1285,7 @@ class Game:
             self.creatures.append(card)
             self.arrived.append(card.name)
             self.note(f"{card.name}")
+            self.fire(ENTERS, card)
             return
         if card.kind in (PLANESWALKER,):
             self.other_permanents.append(card)
@@ -1217,9 +1327,11 @@ class Game:
         self.life -= payment.life
         self.treasures = list(pool.treasures)
         self.commander_casts += 1
+        self.spell_cast(commander)
         self.creatures.append(commander)
         self.arrived.append(commander.name)
         self.note(f"{commander.name} (commander)")
+        self.fire(ENTERS, commander)
 
     def _commander_cost(self):
         """The commander's cost, tax and cost reduction included.
@@ -1252,7 +1364,12 @@ class Game:
         self.land_drop_used = False
         self.arrived = []
         self.tapped_creatures = []
+        self.pending_mana = []
+        self.spells_this_turn = 0
         self.note(f"--- Turn {self.turn} ---")
+        if self.turn > 1:
+            # The opponents' turns since the last one of yours (P19 R16).
+            self.fire(OPPONENT_TURNS)
 
         if self.turn > 1 or not self.on_the_play:
             skipper = self._first(lambda c: c.skips_draw_step)
@@ -1268,6 +1385,7 @@ class Game:
                 self.life -= sum(c.mv for c in drawn)
             else:
                 self.life -= spec.life
+        self.fire(UPKEEP)
 
     def _first(self, predicate):
         """The first permanent the condition holds for."""

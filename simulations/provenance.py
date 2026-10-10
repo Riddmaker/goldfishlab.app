@@ -101,6 +101,8 @@ class FieldSpec:
     mana_only: bool = False
     #: A row only a card with {X} in its cost has an answer to (P19 R9).
     x_only: bool = False
+    #: A row only a card with a trigger the engine plays has (P19 R16).
+    triggers_only: bool = False
 
 
 #: The rows, in the order the panel shows them. Every one has a label, so a
@@ -134,6 +136,7 @@ FIELDS = (
               ("tutor_count", "tutor_to"), "engine", applies_to_lands=False),
     FieldSpec("skips_draw_step", _("Skips the draw step"), ("skips_draw_step",),
               "regex", applies_to_lands=False),
+    FieldSpec("triggers", _("Triggers"), ("triggers",), "regex", triggers_only=True),
     FieldSpec("effective_priority", _("Cast priority"), applies_to_lands=False),
     FieldSpec("accelerant", _("Counts as acceleration")),
     FieldSpec("goldfish_castable", _("Can be cast against nobody"),
@@ -284,6 +287,7 @@ def _rows(reading: adapter.Reading, scopes: dict) -> list[Row]:
         if (spec.applies_to_lands or not is_land) and (is_land or not spec.lands_only)
         and (reading.card.mana_abilities or not spec.mana_only)
         and (reading.card.x_count or not spec.x_only)
+        and (reading.card.triggers or not spec.triggers_only)
     ]
 
 

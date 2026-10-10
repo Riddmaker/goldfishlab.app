@@ -42,6 +42,11 @@
             <span class="ml-1 border border-blood-600 px-1 text-xs text-blood-700">{% translate "Game Changer" %}</span>
           {% endif %}
         </p>
+        {% for assumption in card.assumptions %}
+          <p class="mt-1 text-xs text-ink-700">
+            <span class="font-semibold text-ink-900">{% translate "Assumed:" %}</span> {{ assumption }}
+          </p>
+        {% endfor %}
       </li>
     {% empty %}
       <li class="col-span-full text-ink-700">

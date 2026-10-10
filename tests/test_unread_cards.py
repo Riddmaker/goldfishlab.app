@@ -19,7 +19,7 @@ from simulations.models import CardAnnotation, UnreadCard
 
 User = get_user_model()
 
-LIST = b"1 Smothering Tithe\n1 Cabal Ritual\n1 Sol Ring\n1 Swamp\n"
+LIST = b"1 Goldspan Dragon\n1 Cabal Ritual\n1 Sol Ring\n1 Swamp\n"
 
 
 @pytest.fixture
@@ -47,9 +47,9 @@ def test_an_upload_counts_the_cards_the_engine_could_not_read(
     upload(user, django_capture_on_commit_callbacks)
 
     names = set(UnreadCard.objects.values_list("oracle_card__name", flat=True))
-    assert {"Smothering Tithe", "Cabal Ritual"} <= names
+    assert {"Goldspan Dragon", "Cabal Ritual"} <= names
     assert "Sol Ring" not in names and "Swamp" not in names
-    orchard = UnreadCard.objects.get(oracle_card__name="Smothering Tithe")
+    orchard = UnreadCard.objects.get(oracle_card__name="Goldspan Dragon")
     assert orchard.seen == 1
     assert orchard.status == UnreadCard.Status.OPEN
     assert orchard.engine_version == ENGINE_VERSION
@@ -68,7 +68,7 @@ def test_a_second_upload_counts_again_and_outlives_the_deck(
     upload(user, django_capture_on_commit_callbacks, deck=deck)
     deck.delete()
 
-    assert UnreadCard.objects.get(oracle_card__name="Smothering Tithe").seen == 2
+    assert UnreadCard.objects.get(oracle_card__name="Goldspan Dragon").seen == 2
 
 
 def test_a_deck_deleted_before_the_worker_came_is_skipped(db):
@@ -129,7 +129,7 @@ def make_row(name, **fields):
 def test_recheck_closes_what_the_engine_reads_now_and_keeps_the_rest(catalogue):
     sol = make_row("Sol Ring")
     tower = make_row("Command Tower")
-    orchard = make_row("Smothering Tithe")
+    orchard = make_row("Goldspan Dragon")
 
     assert unread.recheck() == 2
 
@@ -158,7 +158,7 @@ def test_a_card_lost_again_opens_and_is_mailed_again(catalogue, user):
 
 
 def test_one_set_aside_stays_set_aside(catalogue, user):
-    orchard = make_row("Smothering Tithe", status=UnreadCard.Status.WONT_FIX)
+    orchard = make_row("Goldspan Dragon", status=UnreadCard.Status.WONT_FIX)
     deck = Deck.objects.create(owner=user, name="Mine")
     deck.entries.create(oracle_card=orchard.oracle_card, quantity=1)
 
@@ -174,14 +174,14 @@ def test_the_weekly_mail_names_only_new_open_cards_once(catalogue, settings):
     settings.SITE_URL = "https://goldfishlab.app"
     make_row("Command Tower", seen=9)
     make_row("Cabal Ritual", mailed_at=timezone.now() - timedelta(days=7))
-    make_row("Smothering Tithe", status=UnreadCard.Status.WONT_FIX)
+    make_row("Goldspan Dragon", status=UnreadCard.Status.WONT_FIX)
 
     assert unread.weekly_mail() == 1
     assert len(mail.outbox) == 1
     message = mail.outbox[0]
     assert message.to == ["ops@example.com"]
     assert "Command Tower (seen 9x)" in message.body
-    assert "Cabal Ritual" not in message.body and "Smothering Tithe" not in message.body
+    assert "Cabal Ritual" not in message.body and "Goldspan Dragon" not in message.body
     path = reverse("admin:simulations_unreadcard_change", args=[card("Command Tower").pk])
     assert f"https://goldfishlab.app{path}" in message.body
 

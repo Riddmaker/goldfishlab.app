@@ -412,6 +412,70 @@ class AdditionalCost:
     exile_from_graveyard: str = ""
 
 
+# --- Triggers (P19 R16) ------------------------------------------------------
+#
+# What a permanent does when something happens: makes a Treasure, adds mana,
+# draws a card. Each event is one the goldfish game really has - a land
+# entering, a spell cast, an upkeep - except ``OPPONENT_TURNS``, which stands for a
+# round of the opponents' turns and is played on an assumption the card list
+# states (see ``simulations.gaps``).
+
+#: "Landfall — Whenever a land you control enters": Lotus Cobra.
+LANDFALL = "landfall"
+#: "Whenever you cast a spell": Birgi. ``filter`` narrows it.
+CAST = "cast"
+#: "At the beginning of your upkeep": Awakening Zone.
+UPKEEP = "upkeep"
+#: "At the beginning of your first main phase": Hulking Raptor.
+MAIN_PHASE = "main"
+#: "Whenever another creature you control dies": Pitiless Plunderer.
+DIES = "dies"
+#: "Whenever Ganax or another Dragon you control enters": ``filter`` is the
+#: creature type, the card itself included.
+ENTERS = "enters"
+#: The card's own resolution, counted: Brass's Bounty's "For each land you
+#: control, create a Treasure token" (``filter`` ``per_land``).
+RESOLVES = "resolves"
+#: The opponents' turns, once a round, assumed: Smothering Tithe's Treasure
+#: from the one opponent a round who does not pay, Rhystic Study's card.
+OPPONENT_TURNS = "opponents"
+
+#: ``CAST`` filters.
+INSTANT_OR_SORCERY = "instant_sorcery"
+COLORLESS_SPELL = "colorless"
+SECOND_SPELL = "second"
+#: ``DIES`` filter: not the card itself.
+ANOTHER = "another"
+#: ``RESOLVES`` filter.
+PER_LAND = "per_land"
+
+
+@dataclass(frozen=True)
+class Trigger:
+    """One triggered ability the engine plays (P19 R16).
+
+    Attributes:
+        event: When it fires, one of the constants above.
+        filter: What narrows the event, see the constants above.
+        treasures: Treasure tokens it makes, each one mana of
+            ``treasure_mana`` - ``C`` for an Eldrazi Spawn, which the engine
+            keeps as a Treasure that makes {C}.
+        mana: Mana it adds, of ``mana_color`` (a colour, or a choice key).
+            Before the main phase opens it waits for the pool.
+        draw: Cards it draws.
+        life: Life it costs (Lotho: 1).
+    """
+
+    event: str
+    filter: str = ""
+    treasures: int = 0
+    treasure_mana: str = ""
+    mana: int = 0
+    mana_color: str = ""
+    draw: int = 0
+    life: int = 0
+
+
 #: What a Lander token does (P19 R14): "{2}, {T}, Sacrifice this token: Search
 #: your library for a basic land card, put it onto the battlefield tapped".
 LANDER = LandSearch(when="activate", cost=ManaCost(generic=2), taps=True, sacrifice=True)
@@ -566,6 +630,11 @@ class Card:
     sacrifice_mana_color: str = ""
     #: P19 R15: {T} is part of that ability's cost (Phyrexian Tower).
     sacrifice_mana_taps: bool = False
+    #: P19 R16: "Sacrifice another creature" - never the altar itself
+    #: (Warren Soultrader). Its life, if any, is ``sacrifice_mana.life``.
+    sacrifice_mana_other: bool = False
+    #: P19 R16: the triggered abilities the engine plays.
+    triggers: tuple[Trigger, ...] = ()
     #: P19 R15: it goes to exile rather than the graveyard once cast - a
     #: Spirit Guide, a ritual exiled from the hand for its mana.
     exiled_on_cast: bool = False

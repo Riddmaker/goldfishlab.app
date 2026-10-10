@@ -49,6 +49,7 @@ from simulation.cards import (
     LandSearch,
     ManaAbility,
     TappedUnless,
+    Trigger,
     TutorSpec,
     UpkeepSpec,
 )
@@ -340,6 +341,11 @@ class Reading:
         return gettext("yes") if self.card.skips_draw_step else gettext("no")
 
     @property
+    def triggers(self) -> str:
+        """The triggers the engine plays (P19 R16), in words."""
+        return "; ".join(_trigger_text(trigger) for trigger in self.card.triggers)
+
+    @property
     def effective_priority(self) -> int:
         """What the agent will actually use, default rule included."""
         return agent.priority(self.card)
@@ -444,6 +450,49 @@ def _land_search_text(search: LandSearch) -> str:
     if search.sacrifices_land and search.when == "enters":
         text = gettext("sacrifice a land: %(search)s") % {"search": text}
     return text
+
+
+#: When a trigger fires, in words (P19 R16).
+_TRIGGER_WHEN = {
+    ("landfall", ""): gettext_noop("whenever a land of yours enters"),
+    ("cast", ""): gettext_noop("whenever you cast a spell"),
+    ("cast", "instant_sorcery"): gettext_noop("whenever you cast an instant or sorcery"),
+    ("cast", "colorless"): gettext_noop("whenever you cast a colourless spell"),
+    ("cast", "second"): gettext_noop("on your second spell each turn"),
+    ("upkeep", ""): gettext_noop("each upkeep"),
+    ("main", ""): gettext_noop("at each first main phase"),
+    ("dies", "another"): gettext_noop("whenever another creature of yours dies"),
+    ("dies", ""): gettext_noop("whenever it or another creature of yours dies"),
+    ("resolves", "per_land"): gettext_noop("as it resolves, for each land you control"),
+    ("opponents", ""): gettext_noop("once a round, when one opponent does not pay"),
+}
+
+
+def _trigger_text(trigger: Trigger) -> str:
+    """One trigger, in words: when, then what."""
+    if trigger.event == "enters":
+        when = gettext("whenever it or another %(type)s of yours enters") % {
+            "type": trigger.filter.capitalize()}
+    else:
+        when = gettext(_TRIGGER_WHEN.get((trigger.event, trigger.filter), trigger.event))
+    made = []
+    if trigger.treasures:
+        if trigger.treasure_mana == COLORLESS:
+            made.append(ngettext("%(count)s Eldrazi Spawn (one {C})",
+                                 "%(count)s Eldrazi Spawn (one {C} each)",
+                                 trigger.treasures) % {"count": trigger.treasures})
+        else:
+            made.append(ngettext("%(count)s Treasure", "%(count)s Treasures",
+                                 trigger.treasures) % {"count": trigger.treasures})
+    if trigger.mana:
+        made.append(gettext("%(count)s × %(color)s mana") % {
+            "count": trigger.mana, "color": mana_label(trigger.mana_color)})
+    if trigger.draw:
+        made.append(ngettext("draws %(count)s card", "draws %(count)s cards",
+                             trigger.draw) % {"count": trigger.draw})
+    if trigger.life:
+        made.append(gettext("costs %(life)s life") % {"life": trigger.life})
+    return gettext("%(when)s: %(what)s") % {"when": when, "what": ", ".join(made)}
 
 
 def _way_text(way: AdditionalCost) -> str:
@@ -892,6 +941,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         additional_costs=_additional_costs(profile),
         exiled_on_cast=bool(getattr(profile, "mana_from_hand", False)),
         **({} if _overrides_mana(overrides) else _sacrifice_mana(profile, deck_colors)),
+        triggers=_triggers(profile, overrides, deck_colors),
     )
 
     _record_gaps(card, profile, overrides, gaps, oracle_card.oracle_text or "")
@@ -1210,9 +1260,42 @@ def _sacrifice_mana(profile, deck_colors: frozenset[str]) -> dict:
     else:
         return {}
     return {"sacrifice_mana": AdditionalCost(sacrifice=frozenset(found["sacrifice"]),
-                                             sacrifice_filter=found.get("filter", "")),
+                                             sacrifice_filter=found.get("filter", ""),
+                                             life=int(found.get("life", 0))),
             "sacrifice_mana_amount": int(found["amount"]), "sacrifice_mana_color": color,
-            "sacrifice_mana_taps": bool(found.get("taps"))}
+            "sacrifice_mana_taps": bool(found.get("taps")),
+            "sacrifice_mana_other": bool(found.get("other"))}
+
+
+def _triggers(profile, overrides: dict, deck_colors: frozenset[str]) -> tuple[Trigger, ...]:
+    """The triggers the reader read (P19 R16), as the engine plays them.
+
+    A Treasure's "one mana of any color" is the deck's colours; an Eldrazi
+    Spawn is a Treasure that makes {C}. An annotation that says what the card
+    taps for says what mana it makes, so it switches off a trigger's mana -
+    as it does an altar's (P19 R15).
+    """
+    found = []
+    for read in getattr(profile, "triggers", None) or []:
+        mana = int(read.get("mana", 0))
+        if mana and _overrides_mana(overrides):
+            mana = 0
+        treasures = int(read.get("treasures", 0))
+        color = read.get("color", "")
+        trigger = Trigger(
+            event=read["event"],
+            filter=read.get("filter", ""),
+            treasures=treasures,
+            treasure_mana=(COLORLESS if read.get("spawn") else _any_colour(deck_colors))
+            if treasures else "",
+            mana=mana,
+            mana_color=(_any_colour(deck_colors) if color == "any" else color) if mana else "",
+            draw=int(read.get("draw", 0)),
+            life=int(read.get("life", 0)),
+        )
+        if trigger.treasures or trigger.mana or trigger.draw:
+            found.append(trigger)
+    return tuple(found)
 
 
 def _additional_costs(profile) -> tuple[AdditionalCost, ...]:
@@ -1414,7 +1497,8 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
             gaps.append(Gap(card.name, "profile", reason))
 
     if profile.produces_mana and profile.mana_amount is None and not card.mana_abilities \
-            and not card.treasures and not card.ritual_counts and card.sacrifice_mana is None:
+            and not card.treasures and not card.ritual_counts and card.sacrifice_mana is None \
+            and not card.triggers:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("makes mana, but how much could not be read")))
 
@@ -1422,6 +1506,17 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
         gaps.append(Gap(card.name, "assumed_lands", gettext_noop(
             "searches when you have fewer lands than turns gone by, assuming each opponent "
             "plays a land a turn")))
+
+    for read in getattr(profile, "triggers", None) or []:
+        if read["event"] != "opponents":
+            continue
+        # P19 R16: the opponents' round, assumed - stated on the card list.
+        template = (gettext_noop("makes a Treasure once a round, assuming one opponent a round "
+                                 "does not pay %(tax)s") if read.get("treasures")
+                    else gettext_noop("draws a card once a round, assuming one opponent a round "
+                                      "does not pay %(tax)s"))
+        params = {"tax": read.get("tax", "")}
+        gaps.append(Gap(card.name, "assumed_trigger", template % params, template, params))
 
     if any(way.life_x for way in card.additional_costs):
         gaps.append(Gap(card.name, "assumed_cost", gettext_noop(

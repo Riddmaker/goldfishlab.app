@@ -23,6 +23,7 @@ from django.utils.translation import gettext
 
 from decks.analysis import KARSTEN_MAX, KARSTEN_MIN
 from simulation.cards import CARD_TYPES
+from simulations import gaps as gaps_module
 from simulations.engine.adapter import Reading
 from simulations.report import CARD_TYPE_NAMES, SEEN_ROLES
 
@@ -74,6 +75,17 @@ class GridCard:
     @property
     def categories(self) -> frozenset[str]:
         return self.reading.card.categories
+
+    @property
+    def assumptions(self) -> list[str]:
+        """What the engine assumes to play this card, in words (P19 R16).
+
+        Stated beside the card rather than only counted: a number that rests
+        on "one opponent a round does not pay" is worth only as much as that
+        assumption is at the reader's table.
+        """
+        return [gap.text for gap in self.reading.gaps
+                if gap.field in gaps_module.ASSUMPTION_FIELDS]
 
     def matches(self, *, kind: str, category: str, query: str) -> bool:
         if kind and kind not in self.types:

@@ -380,6 +380,10 @@ class DerivedProfile(models.Model):
     #: P19 R15: "Exile this card from your hand: Add {G}" - played as a ritual
     #: that costs nothing and goes to exile (Elvish Spirit Guide).
     mana_from_hand = models.BooleanField(default=False)
+    #: P19 R16: the triggers that make Treasure, mana or cards - Lotus Cobra,
+    #: Storm-Kiln Artist, Smothering Tithe: a list of {"event", "filter",
+    #: "treasures", "spawn", "mana", "color", "draw", "life", "tax"}.
+    triggers = models.JSONField(default=list, blank=True)
     cost_reduction = models.PositiveSmallIntegerField(null=True, blank=True)
     draws_cards = models.PositiveSmallIntegerField(null=True, blank=True)
     #: P19 R8: cards discarded right after that draw - "Draw two cards, then

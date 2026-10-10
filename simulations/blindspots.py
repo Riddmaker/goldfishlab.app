@@ -33,6 +33,8 @@ from dataclasses import dataclass, field
 
 from django.utils.translation import gettext
 
+from simulations import gaps as gaps_module
+
 #: A card whose *trigger* is something an opponent does. In a goldfish the
 #: trigger never fires, so the card is a permanent that cost mana.
 _OPPONENT_TRIGGER = re.compile(
@@ -116,6 +118,7 @@ def find(readings) -> list[BlindSpot]:
     found = [
         unresolved_mana(readings),
         opponent_dependent(readings),
+        assumptions(readings),
         mislabelled_removal(readings),
     ]
     return [spot for spot in found if spot.suspects]
@@ -142,6 +145,9 @@ def opponent_dependent(readings) -> BlindSpot:
         fix=gettext("Can be cast against nobody"),
     )
     for reading in readings:
+        if any(gap.field == "assumed_trigger" for gap in reading.gaps):
+            # Played on an assumption since P19 R16 - listed with it instead.
+            continue
         text = reading.oracle_card.oracle_text or ""
         if _OPPONENT_TRIGGER.search(text):
             reason = gettext("triggers on something an opponent does")
@@ -157,6 +163,32 @@ def opponent_dependent(readings) -> BlindSpot:
         spot.suspects.append(
             Suspect(reading.oracle_card.pk, reading.oracle_card.front_name, reason)
         )
+    return spot
+
+
+def assumptions(readings) -> BlindSpot:
+    """Cards the engine plays on an assumption about the table (P19 R16).
+
+    Each with the assumption itself, word for word - the same sentence the
+    card list shows beside the card. No field answers them, so `fix` is
+    empty and the panel leaves out its "answered by" line.
+    """
+    spot = BlindSpot(
+        key="assumptions",
+        heading=gettext("Cards played on an assumption"),
+        detail=gettext(
+            "A goldfish game has no opponents. Where a card needs them, the "
+            "engine plays it on the assumption named beside it. Judge it "
+            "against your own table: if yours plays differently, so does the "
+            "card."
+        ),
+        fix="",
+    )
+    for reading in readings:
+        for gap in reading.gaps:
+            if gap.field in gaps_module.ASSUMPTION_FIELDS:
+                spot.suspects.append(
+                    Suspect(reading.oracle_card.pk, reading.oracle_card.front_name, gap.text))
     return spot
 
 

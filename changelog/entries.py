@@ -42,6 +42,18 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 10), "triggers",
+        _("Smothering Tithe, Lotus Cobra and Storm-Kiln Artist"),
+        _("Cards that make Treasure, mana or a card when something happens now do it in a "
+          "simulated game: Lotus Cobra and Tireless Provisioner when a land enters, Birgi, "
+          "Storm-Kiln Artist and Lotho when you cast a spell, Pitiless Plunderer and Pawn of "
+          "Ulamog when a creature dies, Ganax when a Dragon arrives, Awakening Zone and Hulking "
+          "Raptor every turn, Brass's Bounty once for each land. Smothering Tithe, Rhystic Study "
+          "and Esper Sentinel wait on opponents a goldfish does not have, so they give one a "
+          "round, assuming one opponent does not pay - and the card list on your deck page now "
+          "says beside every card what the engine assumes to play it."),
+    ),
+    Entry(
         date(2026, 10, 10), "sacrifice-costs",
         _("Village Rites, Harrow, Natural Order and Ashnod's Altar"),
         _("Spells that sacrifice, pay life or discard as an additional cost now pay it: a "

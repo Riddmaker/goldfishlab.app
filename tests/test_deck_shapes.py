@@ -167,7 +167,7 @@ def test_a_deck_the_engine_cannot_read_shouts_about_it(client, owner, build):
     assert "Mana sources nobody has pinned down" in body
     assert "Cards that need an opponent" in body
     # And the cards themselves, by name.
-    for name in ("Phyrexian Tribute", "Cabal Ritual", "Rhystic Study", "Mystic Remora"):
+    for name in ("Phyrexian Tribute", "Cabal Ritual", "Goldspan Dragon", "Mystic Remora"):
         assert name in body, f"{name} is a blind spot and is not on the page"
 
 
@@ -479,10 +479,30 @@ def test_the_detector_names_the_cards_it_was_written_for(build):
     for. Until this deck there was nowhere to point it at them: the reference
     deck contains one of the four.
     """
-    spot = blindspots.opponent_dependent(adapter.readings(build(OPPONENT_DEPENDENT)))
-    named = {suspect.name for suspect in spot.suspects}
+    readings = adapter.readings(build(OPPONENT_DEPENDENT))
+    named = {suspect.name for suspect in blindspots.opponent_dependent(readings).suspects}
+    assumed = {suspect.name: suspect.reason
+               for suspect in blindspots.assumptions(readings).suspects}
 
-    assert {"Rhystic Study", "Smothering Tithe", "Esper Sentinel", "Mystic Remora"} <= named
+    # Since engine version 20 three of them are played on an assumption the
+    # panel names instead (P19 R16); Mystic Remora's cumulative upkeep is not.
+    assert "Mystic Remora" in named
+    assert not named & {"Rhystic Study", "Smothering Tithe", "Esper Sentinel"}
+    assert assumed["Smothering Tithe"] == (
+        "makes a Treasure once a round, assuming one opponent a round does not pay {2}")
+    assert assumed["Rhystic Study"].startswith("draws a card once a round")
+    assert "Esper Sentinel" in assumed
+
+
+def test_the_deck_page_states_each_assumption_beside_the_card(build, client, owner):
+    """Every assumption is shown in detail on the card list, not only counted."""
+    deck = build(OPPONENT_DEPENDENT)
+    client.force_login(owner)
+    page = client.get(deck.get_absolute_url()).content.decode()
+
+    assert "Assumed:" in page
+    assert ("makes a Treasure once a round, assuming one opponent a round does not pay {2}"
+            in page)
 
 
 def test_a_deck_of_opponent_dependent_cards_still_simulates(build):

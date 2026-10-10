@@ -119,6 +119,13 @@ boundary, not the symptom.
 #:    mana; "pay X life" with X = 0. Altars and Phyrexian Tower sacrifice
 #:    when their mana unlocks a spell, Spirit Guides are free rituals, and a
 #:    creature's {T} search (Wight of the Reliquary) waits a turn.
-ENGINE_VERSION = 19
+#: 20: P19 R16. Triggers that make Treasure, mana or a card: landfall (Lotus
+#:    Cobra, Tireless Provisioner), casting a spell (Birgi, Storm-Kiln Artist,
+#:    Lotho on the second), a creature dying (Pitiless Plunderer), a Dragon
+#:    entering (Ganax), upkeep and first main phase (Awakening Zone, Hulking
+#:    Raptor), Brass's Bounty per land; an Eldrazi Spawn is a Treasure for
+#:    {C}. Smothering Tithe, Rhystic Study and Esper Sentinel get one a round
+#:    (assumed: one opponent does not pay). Warren Soultrader is an altar.
+ENGINE_VERSION = 20
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

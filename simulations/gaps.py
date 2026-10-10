@@ -53,8 +53,17 @@ JUDGEMENT = "judgement"
 #: a player says when the land enters untapped at their table.
 #: `assumed_cost` (P19 R15): Toxic Deluge's "pay X life" is paid with X = 0,
 #: since nothing in a goldfish is there for X to kill.
+#: `assumed_trigger` (P19 R16): Smothering Tithe, Rhystic Study and Esper
+#: Sentinel trigger on the opponents, who are not there - played as one
+#: opponent a round not paying the tax. Every one of these is stated, in
+#: detail, beside the card on the deck page's card list.
 JUDGEMENT_FIELDS = frozenset({"priority", "accelerant", "assumed_mana", "assumed_lands",
-                              "assumed_cost"})
+                              "assumed_cost", "assumed_trigger"})
+
+#: The judgement fields the engine answers with an assumption of its own -
+#: shown on the deck page beside the card, never only counted.
+ASSUMPTION_FIELDS = frozenset({"assumed_mana", "assumed_lands", "assumed_cost",
+                               "assumed_trigger"})
 
 
 def kind_of(field: str) -> str:

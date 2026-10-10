@@ -19,7 +19,7 @@ from simulations.models import CardAnnotation, UnreadCard
 
 User = get_user_model()
 
-LIST = b"1 Goldspan Dragon\n1 Cabal Ritual\n1 Sol Ring\n1 Swamp\n"
+LIST = b"1 Goldspan Dragon\n1 Mana Drain\n1 Sol Ring\n1 Swamp\n"
 
 
 @pytest.fixture
@@ -47,7 +47,7 @@ def test_an_upload_counts_the_cards_the_engine_could_not_read(
     upload(user, django_capture_on_commit_callbacks)
 
     names = set(UnreadCard.objects.values_list("oracle_card__name", flat=True))
-    assert {"Goldspan Dragon", "Cabal Ritual"} <= names
+    assert {"Goldspan Dragon", "Mana Drain"} <= names
     assert "Sol Ring" not in names and "Swamp" not in names
     orchard = UnreadCard.objects.get(oracle_card__name="Goldspan Dragon")
     assert orchard.seen == 1
@@ -144,7 +144,7 @@ def test_recheck_closes_what_the_engine_reads_now_and_keeps_the_rest(catalogue):
 
 
 def test_a_card_lost_again_opens_and_is_mailed_again(catalogue, user):
-    tower_row = make_row("Cabal Ritual", status=UnreadCard.Status.READ, read_since=3,
+    tower_row = make_row("Mana Drain", status=UnreadCard.Status.READ, read_since=3,
                     mailed_at=timezone.now())
     deck = Deck.objects.create(owner=user, name="Mine")
     deck.entries.create(oracle_card=tower_row.oracle_card, quantity=1)
@@ -173,7 +173,7 @@ def test_the_weekly_mail_names_only_new_open_cards_once(catalogue, settings):
     settings.ALERT_EMAIL = "ops@example.com"
     settings.SITE_URL = "https://goldfishlab.app"
     make_row("Command Tower", seen=9)
-    make_row("Cabal Ritual", mailed_at=timezone.now() - timedelta(days=7))
+    make_row("Mana Drain", mailed_at=timezone.now() - timedelta(days=7))
     make_row("Goldspan Dragon", status=UnreadCard.Status.WONT_FIX)
 
     assert unread.weekly_mail() == 1
@@ -181,7 +181,7 @@ def test_the_weekly_mail_names_only_new_open_cards_once(catalogue, settings):
     message = mail.outbox[0]
     assert message.to == ["ops@example.com"]
     assert "Command Tower (seen 9x)" in message.body
-    assert "Cabal Ritual" not in message.body and "Goldspan Dragon" not in message.body
+    assert "Mana Drain" not in message.body and "Goldspan Dragon" not in message.body
     path = reverse("admin:simulations_unreadcard_change", args=[card("Command Tower").pk])
     assert f"https://goldfishlab.app{path}" in message.body
 
@@ -199,14 +199,14 @@ def test_without_an_address_the_cards_wait_for_one(catalogue, settings):
 
 
 def test_the_admin_shows_the_card_and_what_players_answered(catalogue, admin_client, user):
-    row = make_row("Cabal Ritual")
+    row = make_row("Mana Drain")
     CardAnnotation.objects.create(owner=user, oracle_card=row.oracle_card,
                                   overrides={"mana_produces": {"C": 1}})
 
     listing = admin_client.get(reverse("admin:simulations_unreadcard_changelist"))
     page = admin_client.get(reverse("admin:simulations_unreadcard_change", args=[row.pk]))
 
-    assert listing.status_code == 200 and "Cabal Ritual" in listing.content.decode()
+    assert listing.status_code == 200 and "Mana Drain" in listing.content.decode()
     body = page.content.decode()
     assert "1 player(s)" in body
     assert "mana_produces" in body

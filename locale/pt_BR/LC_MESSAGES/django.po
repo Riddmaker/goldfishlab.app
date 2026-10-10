@@ -9711,3 +9711,76 @@ msgstr ""
 "Territory nomeiam o tipo de criatura mais comum do seu deck - a página do "
 "deck diz qual, ao lado da carta, e você pode nomear outro. O playtest mostra"
 " esse mana separado do resto."
+
+#: changelog/entries.py
+msgid "Heraldic Banner, Three Tree City and Fanatic of Rhonas"
+msgstr "Heraldic Banner, Three Tree City e Fanatic of Rhonas"
+
+#: changelog/entries.py
+msgid ""
+"More mana cards now work in a simulated game. Relic of Sauron, Gwenna and "
+"Smokebraider make their mana in any combination of colours. Heraldic Banner,"
+" Valgavoth's Lair and Throne of Eldraine make the colour your deck's costs "
+"ask for most - your deck page says which, beside the card, and you can "
+"choose another. Three Tree City counts your deck's most common creature "
+"type. Fanatic of Rhonas, Whisperer of the Wilds and Ilysian Caryatid make "
+"more once you control a creature with power 4 or greater, and Nimbus Maze, "
+"Rite of Flame and Cabal Ritual's threshold work too. Cards with hybrid mana "
+"symbols are no longer flagged: the engine has paid them correctly for a "
+"while."
+msgstr ""
+"Mais cartas de mana agora funcionam em uma partida simulada. Relic of "
+"Sauron, Gwenna e Smokebraider geram seu mana em qualquer combinação de "
+"cores. Heraldic Banner, Valgavoth's Lair e Throne of Eldraine geram a cor "
+"que os custos do seu deck mais pedem - a página do seu deck diz qual, ao "
+"lado da carta, e você pode escolher outra. Three Tree City conta o tipo de "
+"criatura mais comum do seu deck. Fanatic of Rhonas, Whisperer of the Wilds e"
+" Ilysian Caryatid geram mais assim que você controla uma criatura com poder "
+"4 ou mais, e Nimbus Maze, Rite of Flame e o limiar de Cabal Ritual também "
+"funcionam. Cartas com símbolos de mana híbrido não são mais sinalizadas: o "
+"motor já as paga corretamente há algum tempo."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "monocoloured %(color)s"
+msgstr "monocoloridas %(color)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "a creature with power %(count)s or greater"
+msgstr "uma criatura com poder %(count)s ou mais"
+
+#: simulations/engine/adapter.py
+msgid ""
+"chooses a colour, but no card in this deck has a coloured cost: it is played"
+" as a choice of its colours"
+msgstr ""
+"escolhe uma cor, mas nenhuma carta deste deck tem custo colorido: ela é "
+"jogada como uma escolha entre suas cores"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"chooses %(color)s, the colour most mana symbols in this deck's costs ask for"
+" (%(count)s)"
+msgstr ""
+"escolhe %(color)s, a cor que mais símbolos de mana nos custos deste deck "
+"pedem (%(count)s)"
+
+#: simulations/annotations.py
+msgid "Colour it chooses"
+msgstr "Cor que ela escolhe"
+
+#: simulations/annotations.py
+msgid ""
+"For Heraldic Banner, Throne of Eldraine and the like: the colour you choose "
+"as it enters. Left empty, the engine chooses the colour most mana symbols in"
+" your deck's costs ask for."
+msgstr ""
+"Para Heraldic Banner, Throne of Eldraine e semelhantes: a cor que você "
+"escolhe quando ela entra. Deixado vazio, o motor escolhe a cor que mais "
+"símbolos de mana nos custos do seu deck pedem."
+
+#: simulations/forms.py
+msgid "The deck's most common colour"
+msgstr "A cor mais comum do deck"

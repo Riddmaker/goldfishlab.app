@@ -41,7 +41,13 @@ def test_a_condition_is_read(text, expected):
 
 def test_a_condition_the_board_cannot_answer_is_not_read():
     assert _activation_condition(
-        "Activate only if you control a creature with power 4 or greater.") is None
+        "Activate only if you control a legendary creature.") is None
+
+
+def test_a_creature_with_power_four_is_read_since_r18():
+    assert _activation_condition(
+        "Activate only if you control a creature with power 4 or greater.") == {
+        "kind": "power", "count": 4}
 
 
 def test_temple_of_the_false_god_makes_two_from_the_fifth_land():

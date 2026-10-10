@@ -171,12 +171,13 @@ def test_the_deck_definitions_are_equal(converted):
         # `additional_costs` (19): the deck's one, Ritual of the Machine's
         # sacrifice, is on a card the engine never casts (no creature to steal).
         # `printed_subtypes` (21): only restricted mana asks it, and this deck
-        # has none.
+        # has none. `power` (22): only "a creature with power 4" asks it, and
+        # this deck has none.
         return replace(card, name=normalise(card.name), cost=card.mana_cost,
                        types=frozenset(), categories=frozenset(), basic=False,
                        creature_types=frozenset(), legendary=False,
                        colors=frozenset(), defender=False, additional_costs=(),
-                       printed_subtypes=frozenset())
+                       printed_subtypes=frozenset(), power=0)
 
     def fold(definition):
         return tuple(

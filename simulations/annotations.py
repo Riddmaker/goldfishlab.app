@@ -185,6 +185,13 @@ JUDGEMENTS = (
           "creature type in your deck."),
     ),
     Judgement(
+        "chosen_color",
+        _("Colour it chooses"),
+        _("For Heraldic Banner, Throne of Eldraine and the like: the colour you "
+          "choose as it enters. Left empty, the engine chooses the colour most "
+          "mana symbols in your deck's costs ask for."),
+    ),
+    Judgement(
         "tutor_count",
         _("Cards it searches up"),
         _("How many cards this finds in your library. The community tags say "

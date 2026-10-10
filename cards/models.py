@@ -349,7 +349,10 @@ class DerivedProfile(models.Model):
     #: {"if": {"kind": control_type | lands | artifacts, ...}, "otherwise":
     #: {"amount", "produces", "activation"} | null}. `otherwise` is what the
     #: card taps for while the condition does not hold: a Tainted land's {C},
-    #: nothing for Temple of the False God. See `cards.profiles._mana_production`.
+    #: nothing for Temple of the False God. P19 R18: kind "power" (a creature
+    #: with printed power `count` or more), and "also": [{"if", "amount",
+    #: "produces", "activation"}, ...] for further conditional abilities
+    #: (Nimbus Maze). See `cards.profiles._mana_production`.
     mana_condition = models.JSONField(null=True, blank=True)
     #: P19 R4: a mana rule the engine already plays, read off the text -
     #: {"rule": type_adding | double_subtype | per_controlled, "subtype",
@@ -367,6 +370,11 @@ class DerivedProfile(models.Model):
     #: "otherwise": {"amount", "produces", "activation"} | null}. Cavern of
     #: Souls; `otherwise` is its {C}. See `cards.profiles._spend_only`.
     mana_spend_only = models.JSONField(null=True, blank=True)
+    #: P19 R18: the ability above makes the colour chosen as the card entered
+    #: ("one mana of the chosen color": Heraldic Banner, Valgavoth's Lair).
+    #: The deck settles which; a "chosen_color" spell filter in
+    #: `mana_spend_only` means that colour too (Throne of Eldraine).
+    mana_chosen_color = models.BooleanField(default=False)
     #: P19 R7: Treasure tokens it makes as it resolves (a spell's sentence, a
     #: permanent's "When this creature enters"). See `cards.profiles._treasures`.
     treasures = models.PositiveSmallIntegerField(default=0)

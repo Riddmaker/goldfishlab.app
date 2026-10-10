@@ -144,6 +144,8 @@ class TappedUnless:
       assuming each of three plays one a turn (the Turbulent lands)
     * ``life_at_most`` - you have ``count`` or less life; the opponents'
       life is unknown, so this holds less often than at a table
+    * ``power`` - you control a creature with power ``count`` or greater,
+      by the power printed on it (Fanatic of Rhonas; P19 R18)
 
     Since engine version 8 the same question also guards a mana ability
     (P19 R4): "Activate only if you control five or more lands" is a
@@ -179,6 +181,8 @@ class SpellFilter:
         colorless: A colourless spell only (Shrine of the Forsaken Gods).
         multicolored: A spell of two or more colours (Pillar of the Paruns).
         noncreature: Not a creature spell.
+        only_color: A spell of this one colour and no other (Throne of
+            Eldraine's chosen colour, P19 R18). Empty: any.
     """
 
     types: frozenset[str] = field(default_factory=frozenset)
@@ -187,6 +191,7 @@ class SpellFilter:
     colorless: bool = False
     multicolored: bool = False
     noncreature: bool = False
+    only_color: str = ""
 
 
 @dataclass(frozen=True)
@@ -648,7 +653,10 @@ class Card:
     enchants: str = ""
     #: P19 R13: a ritual whose mana counts the board when it resolves:
     #: ``creature`` (Battle Hymn) or ``tapped:<land type>`` (High Tide: each
-    #: such land in this turn's pool, less the one that paid for it).
+    #: such land in this turn's pool, less the one that paid for it). P19
+    #: R18: ``named:<name>`` adds one more for each card of that name in the
+    #: graveyard (Rite of Flame), ``threshold:<cards>:<amount>`` makes
+    #: ``amount`` instead with that many cards there (Cabal Ritual).
     ritual_counts: str = ""
     #: P19 R15: the ways its additional cost can be paid, any one of them -
     #: empty for none. "Discard a card" alone stays ``discard_cost``.
@@ -673,6 +681,9 @@ class Card:
     #: "equipment", "dragon": what restricted mana asks a spell about.
     #: ``subtypes`` holds the basic land types only.
     printed_subtypes: frozenset[str] = field(default_factory=frozenset)
+    #: P19 R18: the power printed on it, 0 for none or "*" - what "a creature
+    #: with power 4 or greater" asks. Counters and pumps are not counted.
+    power: int = 0
 
     @property
     def mana_cost(self) -> ManaCost:

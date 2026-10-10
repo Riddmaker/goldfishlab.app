@@ -73,6 +73,7 @@ ALLOWED_KEYS = {
     "draw_on_cast": "Cards drawn when the spell resolves.",
     "x_min": "The smallest X the spell is cast for; it waits until then.",
     "chosen_type": "The creature type a Cavern of Souls names, lower case: 'elf'.",
+    "chosen_color": "The colour a Heraldic Banner chooses: W, U, B, R or G.",
     "discard_on_cast": "Cards discarded right after that draw, like Faithless Looting.",
     "put_back_on_cast": "Cards put back on top of the library after that draw, like Brainstorm.",
     "life_on_cast": "Life paid when the spell resolves.",

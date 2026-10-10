@@ -971,6 +971,10 @@ class Game:
             return self.OPPONENTS * max(self.turn - 1, 0) >= condition.count
         if kind == "life_at_most":
             return self.life <= condition.count
+        if kind == "power":
+            return any(CREATURE in (permanent.types or {permanent.kind})
+                       and permanent.power >= condition.count
+                       for permanent in self.battlefield)
         if kind == "reveal":
             return any(other is not card and other.subtypes & condition.types
                        for other in self.hand)
@@ -1086,7 +1090,10 @@ class Game:
             here = {land.name for land in self.lands if land is not card}
             full = sum(amount for _, amount in ability.produces)
             return (full if needed <= here else 0), COLORLESS
-        return sum(1 for creature in self.creatures if what in creature.creature_types), color
+        # An Elf, or the deck's chosen type (Three Tree City, P19 R18): of
+        # one colour, the one the hand wants most when the text lets it choose.
+        return (sum(1 for creature in self.creatures if what in creature.creature_types),
+                color or self.wanted_color(card))
 
     def devotion(self, color: str) -> int:
         """Mana symbols of a colour among the costs of your permanents (Nykthos)."""
@@ -1329,6 +1336,16 @@ class Game:
             lands = self._untapped(self.lands[self.tapped_lands:])
             found = sum(1 for land in lands if wanted in subtypes_of(land, granted))
             return card.ritual_color, max(found - 1, 0)
+        if what.startswith("named:"):
+            # Rite of Flame: one more for each copy already resolved.
+            named = what.split(":", 1)[1]
+            return card.ritual_color, card.ritual_gain + sum(
+                1 for found in self.graveyard if found.name == named)
+        if what.startswith("threshold:"):
+            # Cabal Ritual: more instead, once the graveyard holds enough.
+            _, needed, more = what.split(":")
+            if len(self.graveyard) >= int(needed):
+                return card.ritual_color, int(more)
         return card.ritual_color, card.ritual_gain
 
     def cast_commander(self, pool: ManaPool) -> None:

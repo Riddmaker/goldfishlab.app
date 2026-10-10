@@ -105,6 +105,8 @@ def _fits(wanted, spell) -> bool:
     colors = spell.colors if (spell.colors or spell.types) else spell.mana_cost.colors
     if wanted.colorless and colors:
         return False
+    if wanted.only_color and set(colors) != {wanted.only_color}:
+        return False
     return not (wanted.multicolored and len(colors) < 2)
 
 

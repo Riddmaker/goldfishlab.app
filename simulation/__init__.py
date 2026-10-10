@@ -133,6 +133,15 @@ boundary, not the symptom.
 #:    makes instead ({C}) is spent last. "The chosen type" is the deck's most
 #:    common creature type (assumed, shown on the deck page) unless an
 #:    annotation names one. Shrine of the Forsaken Gods counts seven lands.
-ENGINE_VERSION = 21
+#: 22: P19 R18. Small readings: "N mana in any combination of colours"
+#:    (Relic of Sauron, Gwenna); the colour chosen as a card enters (Heraldic
+#:    Banner, Valgavoth's Lair, Throne of Eldraine for monocoloured spells of
+#:    it) is the one the deck's costs ask for most - assumed, shown on the
+#:    deck page; Three Tree City counts the deck's creature type; "a creature
+#:    with power 4 or greater" by printed power (Fanatic of Rhonas, Ilysian
+#:    Caryatid); Nimbus Maze's two conditions; Rite of Flame and Cabal
+#:    Ritual's threshold count the graveyard. Hybrid symbols are no gap: the
+#:    payer has settled them since version 5.
+ENGINE_VERSION = 22
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

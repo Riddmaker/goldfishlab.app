@@ -214,10 +214,10 @@ def test_no_contradiction_when_the_reading_agrees_with_the_tag():
                    for reason in profile.review_reasons)
 
 
-def test_an_additional_casting_cost_is_a_cost_the_engine_never_pays():
+def test_an_additional_casting_cost_is_read_so_the_engine_pays_it():
     """Diabolic Intent is Demonic Tutor plus a sacrificed creature. The engine
-    pays mana and nothing else, so it would get the tutor for free - and the
-    tutor derivation is what turned that from harmless into a live overstatement.
+    once paid mana and nothing else, so it got the tutor for free; since P19
+    R15 it reads the sacrifice and pays it.
     """
     card = OracleCard(
         front_name="Test Tutor",
@@ -227,7 +227,8 @@ def test_an_additional_casting_cost_is_a_cost_the_engine_never_pays():
     )
     profile = profiles.derive(card, {"tutor", "tutor-to-hand", "tutor-card"})
     assert profile.tutor_count == 1, "the tutor itself still reads"
-    assert any("does not pay" in reason for reason in profile.review_reasons)
+    assert profile.additional_cost[0]["sacrifice"] == ["creature"]
+    assert not any("does not pay" in reason for reason in profile.review_reasons)
 
 
 # --- the role the report could never fire ----------------------------------

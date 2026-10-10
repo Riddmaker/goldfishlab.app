@@ -31,7 +31,8 @@ def test_a_ramp_spell_is_read_whole():
     assert found.spec == {"battlefield": 1, "hand": 0, "tapped": True, "basic": True,
                           "types": [], "life": 0, "when": "cast", "sacrifice": False,
                           "untap_at": 0, "cost": "", "taps": False, "share_type": False,
-                          "each": False, "condition": ""}
+                          "each": False, "condition": "", "sacrifices_land": False,
+                          "land_cost_types": [], "sacrifice_other": [], "discard": 0}
 
 
 def test_cultivate_puts_one_onto_the_battlefield_and_one_in_hand():
@@ -94,10 +95,10 @@ def test_an_enchantment_fetches_when_it_enters():
     # are an assumption since P19 R14 - Knight of the White Orchid.)
     ("Whenever a creature an opponent controls dies, you may search your library for a "
      "Plains card, put it onto the battlefield, then shuffle.", Kind.CREATURE, "condition"),
-    # A creature's {T}: when it arrived is not tracked (activated ones are
-    # played since P19 R14 - Myriad Landscape).
-    ("{1}{G}, {T}, Sacrifice this creature: Search your library for a basic land card, put "
-     "it onto the battlefield tapped, then shuffle.", Kind.CREATURE, "cost"),
+    # A cost nothing pays: a card exiled from the graveyard (a creature's {T}
+    # is played since P19 R15 - Wight of the Reliquary).
+    ("{T}, Exile a Treefolk card from your graveyard: Search your library for up to two "
+     "Forest cards, put them onto the battlefield tapped, then shuffle.", Kind.CREATURE, "cost"),
     # Combat (P19 R14): the engine plays none.
     ("Whenever equipped creature attacks, you may search your library for a basic land "
      "card, put it onto the battlefield tapped, then shuffle.", Kind.ARTIFACT, "combat"),

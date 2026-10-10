@@ -21,6 +21,7 @@ from simulation.cards import (
     FLAT,
     MULTIPLY,
     PER_CONTROLLED,
+    AdditionalCost,
     Card,
     CostReduction,
     DeckDefinition,
@@ -66,7 +67,7 @@ EVERYTHING = Card(
     life_on_cast=1,
     tutor=TutorSpec(to_hand=False, count=3, life=3, kind=CREATURE, to_battlefield=True,
                     color="G", max_mv=4, max_mv_x=True, to_top=True,
-                    types=frozenset({"artifact", "enchantment"})),
+                    types=frozenset({"artifact", "enchantment"}), max_mv_sacrificed=2),
     upkeep=UpkeepSpec(draw=2, life=1, life_per_mv=True),
     end_step=EndStepSpec(max_hand=6, life_floor=20),
     skips_draw_step=True,
@@ -81,7 +82,9 @@ EVERYTHING = Card(
                            types=frozenset({"forest", "island"}), life=1, when="play",
                            sacrifice=True, untap_at=4,
                            cost=ManaCost(pips=(("G", 1),), generic=2), taps=True,
-                           share_type=True, each=True, condition="opponent_more_lands"),
+                           share_type=True, each=True, condition="opponent_more_lands",
+                           sacrifices_land=True, land_cost_types=frozenset({"forest"}),
+                           sacrifice_other=frozenset({"creature"}), discard=1),
     basic=True,
     tapped_unless=TappedUnless(kind="lands", types=frozenset({"island"}), count=3,
                                at_least=False, other=True, basic=True, type="island",
@@ -101,6 +104,15 @@ EVERYTHING = Card(
     defender=True,
     enchants="forest",
     ritual_counts="tapped:island",
+    additional_costs=(AdditionalCost(sacrifice=frozenset({"artifact", "creature"}),
+                                     sacrifice_filter="G", life=3, life_x=True, discard=1,
+                                     mana=ManaCost(generic=2), exile_from_graveyard="creature"),
+                      AdditionalCost(life=5)),
+    sacrifice_mana=AdditionalCost(sacrifice=frozenset({"creature"}), sacrifice_filter="goblin"),
+    sacrifice_mana_amount=2,
+    sacrifice_mana_color="B",
+    sacrifice_mana_taps=True,
+    exiled_on_cast=True,
 )
 
 
@@ -251,6 +263,14 @@ def test_a_chosen_colour_survives_the_trip():
     data = json.loads(json.dumps(serial.dump_game(game)))
     del data["chosen_colors"]
     assert serial.load_game(data, chainer.DECK).chosen_colors == {}
+
+
+def test_the_creatures_that_arrived_survive_the_trip():
+    """A creature's {T} waits a turn (P19 R15); a reload keeps that."""
+    game = Game(random.Random(3), deck=chainer.DECK)
+    game.arrived, game.tapped_creatures = ["Wight of the Reliquary"], ["Knight"]
+    back = restored(game)
+    assert (back.arrived, back.tapped_creatures) == (["Wight of the Reliquary"], ["Knight"])
 
 
 def test_a_lander_survives_the_trip():

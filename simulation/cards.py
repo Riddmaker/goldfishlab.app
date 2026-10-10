@@ -311,6 +311,9 @@ class TutorSpec:
     #: P19 R10: "with mana value 3 or less", or with ``max_mv_x`` "X or less".
     max_mv: int | None = None
     max_mv_x: bool = False
+    #: P19 R15: Eldritch Evolution - "X is 2 plus the sacrificed creature's
+    #: mana value": this much more than what its additional cost sacrificed.
+    max_mv_sacrificed: int | None = None
     #: P19 R12: on top of the library, drawn next turn (Vampiric Tutor); then
     #: ``to_hand`` says nothing. ``types`` limits it by card type, any of them
     #: (Enlightened Tutor: artifact or enchantment); empty means any card.
@@ -348,6 +351,14 @@ class LandSearch:
         condition: ``opponent_more_lands`` - Knight of the White Orchid:
             only if an opponent controls more lands than you, which rests on
             the assumption that each opponent plays a land a turn.
+        sacrifices_land: Springbloom Druid: a land of yours is sacrificed
+            first (P19 R15). Worth it only when more lands come back. On an
+            activated search it is part of the cost: Elvish Reclaimer.
+        land_cost_types: That land must be of one of these types: Knight of
+            the Reliquary's "a Forest or Plains". Empty: any land.
+        sacrifice_other: Wight of the Reliquary: another permanent of these
+            types is sacrificed as part of the cost.
+        discard: Cards discarded as part of the cost (Silverglade Pathfinder).
     """
 
     battlefield: int = 1
@@ -364,6 +375,41 @@ class LandSearch:
     share_type: bool = False
     each: bool = False
     condition: str = ""
+    sacrifices_land: bool = False
+    land_cost_types: frozenset[str] = field(default_factory=frozenset)
+    sacrifice_other: frozenset[str] = field(default_factory=frozenset)
+    discard: int = 0
+
+
+@dataclass(frozen=True)
+class AdditionalCost:
+    """One way to pay "As an additional cost to cast this spell, ..." (P19 R15).
+
+    A card holds a tuple of them: one for "sacrifice a creature", two for
+    "discard a card or pay 3 life", and the agent pays the cheapest.
+
+    Attributes:
+        sacrifice: The card types a permanent sacrificed may have, any of
+            them (``{"artifact", "creature"}`` for Deadly Dispute). Empty: no
+            sacrifice.
+        sacrifice_filter: What the permanent must also be: a colour letter
+            (Natural Order: ``G``), ``legendary``, or a creature type
+            (``goblin``).
+        life: Life paid (Bitter Triumph: 3).
+        life_x: "Pay X life" (Toxic Deluge): paid with X = 0, because in a
+            goldfish there is nothing for X to kill.
+        discard: Cards discarded, the weakest first.
+        mana: Mana paid on top of the printed cost (Redirect Lightning's {2}).
+        exile_from_graveyard: A card of this type exiled from the graveyard.
+    """
+
+    sacrifice: frozenset[str] = field(default_factory=frozenset)
+    sacrifice_filter: str = ""
+    life: int = 0
+    life_x: bool = False
+    discard: int = 0
+    mana: ManaCost | None = None
+    exile_from_graveyard: str = ""
 
 
 #: What a Lander token does (P19 R14): "{2}, {T}, Sacrifice this token: Search
@@ -509,6 +555,20 @@ class Card:
     #: ``creature`` (Battle Hymn) or ``tapped:<land type>`` (High Tide: each
     #: such land in this turn's pool, less the one that paid for it).
     ritual_counts: str = ""
+    #: P19 R15: the ways its additional cost can be paid, any one of them -
+    #: empty for none. "Discard a card" alone stays ``discard_cost``.
+    additional_costs: tuple[AdditionalCost, ...] = ()
+    #: P19 R15: a mana ability whose cost is sacrificing another permanent -
+    #: Ashnod's Altar, Phyrexian Tower: the types it takes (see
+    #: :class:`AdditionalCost`), what one gives, and in what colour.
+    sacrifice_mana: AdditionalCost | None = None
+    sacrifice_mana_amount: int = 0
+    sacrifice_mana_color: str = ""
+    #: P19 R15: {T} is part of that ability's cost (Phyrexian Tower).
+    sacrifice_mana_taps: bool = False
+    #: P19 R15: it goes to exile rather than the graveyard once cast - a
+    #: Spirit Guide, a ritual exiled from the hand for its mana.
+    exiled_on_cast: bool = False
 
     @property
     def mana_cost(self) -> ManaCost:

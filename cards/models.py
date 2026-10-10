@@ -368,6 +368,18 @@ class DerivedProfile(models.Model):
     landers = models.PositiveSmallIntegerField(default=0)
     #: P19 R7: "As an additional cost to cast this spell, discard a card."
     discard_cost = models.PositiveSmallIntegerField(default=0)
+    #: P19 R15: every other additional cost of the card's own, as the ways it
+    #: can be paid: [{"sacrifice": ["creature"], "filter": "", "life": 0,
+    #: "life_x": false, "discard": 0, "mana": "", "exile_from_graveyard": ""}].
+    #: Null: none, or none read. See `cards.profiles._additional_cost`.
+    additional_cost = models.JSONField(null=True, blank=True, default=None)
+    #: P19 R15: a mana ability whose cost sacrifices another permanent -
+    #: Ashnod's Altar, Phyrexian Tower: {"sacrifice": ["creature"], "filter": "",
+    #: "amount": 2, "produces": {"C": 2} or null for a choice, "taps": false}.
+    sacrifice_mana = models.JSONField(null=True, blank=True, default=None)
+    #: P19 R15: "Exile this card from your hand: Add {G}" - played as a ritual
+    #: that costs nothing and goes to exile (Elvish Spirit Guide).
+    mana_from_hand = models.BooleanField(default=False)
     cost_reduction = models.PositiveSmallIntegerField(null=True, blank=True)
     draws_cards = models.PositiveSmallIntegerField(null=True, blank=True)
     #: P19 R8: cards discarded right after that draw - "Draw two cards, then

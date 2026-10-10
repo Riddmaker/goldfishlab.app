@@ -27,6 +27,7 @@ from simulation.cards import (
     PLANESWALKER,
     RITUAL,
     ROCK,
+    AdditionalCost,
     ManaAbility,
 )
 from simulation.mana import (
@@ -52,6 +53,11 @@ from simulation.manacost import (
     choice,
     is_choice,
 )
+
+#: The tokens the engine keeps as a count or a list rather than as cards,
+#: when one is sacrificed (P19 R15).
+TREASURE = "Treasure"
+LANDER_FODDER = "Lander"
 
 STARTING_LIFE = 40
 STARTING_HAND_SIZE = 7
@@ -139,6 +145,14 @@ class Game:
         #: Lander tokens on the battlefield (P19 R14): each a ``LANDER``
         #: search, activated when the mana is there.
         self.landers = 0
+        #: P19 R15: what the last additional cost sacrificed - Eldritch
+        #: Evolution's X counts from it. None: nothing yet.
+        self.last_sacrificed = None
+        #: P19 R15: the creatures that arrived this turn, and those whose {T}
+        #: was used - by name, so that a saved playtest keeps them. Neither
+        #: can pay {T} until the next turn.
+        self.arrived: list[str] = []
+        self.tapped_creatures: list[str] = []
         #: The colour each permanent chose as it entered, by name (P19 R13):
         #: Caged Sun, Utopia Sprawl. Kept, because the choice is made once.
         self.chosen_colors: dict[str, str] = {}
@@ -293,9 +307,17 @@ class Game:
             return None
         cost = spec.cost or ManaCost()
         if not spec.taps or card not in self.lands:
-            # A creature's {T} would need to know when it arrived; the reader
-            # leaves such a card unread.
-            return None if spec.taps and card in self.creatures else cost
+            if spec.taps and card in self.creatures and not self.creature_can_tap(card):
+                return None
+            return cost
+        own = self._own_mana_as_cost(card)
+        return None if own is None else cost.plus(own)
+
+    def _own_mana_as_cost(self, card) -> ManaCost | None:
+        """The mana an untapped land put into the pool, as a cost: paid back
+        when its {T} goes to an ability instead - {C} as generic, a colour as
+        itself, the mana on top included. None when it cannot be: it came in
+        tapped, or it made a choice of colours."""
         if card not in self.lands[self.tapped_lands:]:
             return None
         made = available_mana(self.lands, [card], [], doublers(self.battlefield),
@@ -303,18 +325,44 @@ class Game:
                               extras=self.mana_extras(per_source=True)).by_color()
         if any(is_choice(source) for source in made):
             return None
-        pips = dict(cost.pips)
-        for source, amount in made.items():
-            if source != COLORLESS:
-                pips[source] = pips.get(source, 0) + amount
-        return ManaCost(pips=tuple(sorted(pips.items())),
-                        generic=cost.generic + made.get(COLORLESS, 0),
-                        colorless=cost.colorless, hybrid=cost.hybrid)
+        return ManaCost(pips=tuple(sorted((source, amount) for source, amount in made.items()
+                                          if source != COLORLESS)),
+                        generic=made.get(COLORLESS, 0))
+
+    def creature_can_tap(self, card) -> bool:
+        """A creature's {T} for something other than mana (P19 R15): not the
+        turn it arrived, once a turn, and not a mana creature, whose {T} is
+        in the pool already."""
+        return (card.name not in self.arrived and card.name not in self.tapped_creatures
+                and not card.mana_abilities)
+
+    def activation_fodder(self, card):
+        """What else ``card``'s activated search costs - ``(land, other)``,
+        either None when not asked - or None when it cannot be paid now."""
+        spec = card.land_search
+        land = other = None
+        if spec.sacrifices_land:
+            lands = [found for found in self.land_fodder() if found is not card
+                     and (not spec.land_cost_types or found.subtypes & spec.land_cost_types)]
+            if not lands:
+                return None
+            land = lands[0]
+        if spec.sacrifice_other:
+            others = [found for found in self.fodder(AdditionalCost(sacrifice=spec.sacrifice_other))
+                      if found is not card and not isinstance(found, str)]
+            if not others:
+                return None
+            other = others[0]
+        if spec.discard and len(self.hand) < spec.discard:
+            return None
+        return land, other
 
     def can_activate(self, card, pool: ManaPool) -> bool:
         """Can ``card``'s land search (None: a Lander) be paid for now?"""
         cost = self.activation_cost(card)
-        return cost is not None and pool.can_pay_cost(cost, life=self.life)
+        if cost is None or not pool.can_pay_cost(cost, life=self.life):
+            return False
+        return card is None or self.activation_fodder(card) is not None
 
     def activate(self, card, pool: ManaPool, choose=None) -> int:
         """Pay for a land search, sacrifice its source, search. Returns how
@@ -329,8 +377,18 @@ class Game:
             self.landers -= 1
             self.note("Lander (activated)")
             return self.search_lands(None, choose, LANDER)
-        self._sacrifice(card)
+        land, other = self.activation_fodder(card)
+        spec = card.land_search
+        if spec.sacrifice:
+            self._sacrifice(card)
+        elif card in self.creatures:
+            self.tapped_creatures.append(card.name)
         self.note(f"{card.name} (activated)")
+        for fodder in (land, other):
+            if fodder is not None:
+                self.sacrifice(fodder)
+        if spec.discard:
+            self.discard(spec.discard)
         return self.search_lands(card, choose)
 
     def _sacrifice(self, card) -> None:
@@ -351,6 +409,216 @@ class Game:
         else:
             self.other_permanents.remove(card)
         self.graveyard.append(card)
+
+    # --- Additional costs and sacrifices (P19 R15) ---------------------------
+
+    def is_mana_source(self, card) -> bool:
+        """Does the permanent make mana? Such a one is never sacrificed to
+        a cost: a player keeps the ramp."""
+        return card.kind == ROCK or bool(card.mana_abilities) or card.sacrifice_mana is not None
+
+    @staticmethod
+    def types_of(card) -> frozenset[str]:
+        """The card types a sacrifice asks about; a fixture card has only a kind."""
+        return card.types or frozenset({"artifact" if card.kind == ROCK else card.kind})
+
+    def _fits(self, card, cost) -> bool:
+        if not self.types_of(card) & cost.sacrifice:
+            return False
+        wanted = cost.sacrifice_filter
+        if not wanted:
+            return True
+        if wanted == "legendary":
+            return card.legendary
+        if wanted in COLORS:
+            return wanted in (card.colors or card.mana_cost.colors)
+        return wanted in card.creature_types
+
+    def fodder(self, cost, pool: ManaPool | None = None, *, also=None) -> list:
+        """What may be sacrificed to ``cost``, in the order it is given up.
+
+        A Treasure, then a Lander token; then a permanent that comes back
+        (tagged ``recursive`` - its return is not played); then the
+        cheapest. Never the commander and never a permanent that makes mana
+        - the Treasure aside, a token and first by the user's decision. A
+        land only to a cost that asks for one, see :meth:`land_fodder`.
+        ``also``: an altar that may sacrifice itself (Skirk Prospector),
+        last of all.
+        """
+        if not cost.sacrifice:
+            return []
+        found: list = []
+        if "artifact" in cost.sacrifice and not cost.sacrifice_filter:
+            if pool.treasures if pool is not None else self.treasures:
+                found.append(TREASURE)
+            if self.landers:
+                found.append(LANDER_FODDER)
+        commander = self.deck.commander
+        permanents = [card for card in self.creatures + self.rocks + self.other_permanents
+                      if card is not commander and card is not also
+                      and not self.is_mana_source(card) and self._fits(card, cost)]
+        found += sorted(permanents, key=lambda card: ("recursive" not in card.tags,
+                                                      card.mv, card.name))
+        if also is not None and self._fits(also, cost):
+            found.append(also)
+        if "land" in cost.sacrifice:
+            found += self.land_fodder()
+        return found
+
+    def land_fodder(self) -> list:
+        """The lands a cost may take, the cheapest loss first: one that came
+        in tapped (it made nothing this turn), a basic, one whose colours the
+        other lands make too. An untapped one is tapped for its mana first,
+        so its mana stays in the pool."""
+        counts = Counter(color for land in self.lands for color in land_colors(land))
+        tapped = {id(land) for land in self.lands[:self.tapped_lands]}
+
+        def loss(land):
+            shared = min((counts[color] for color in land_colors(land)), default=0)
+            return (id(land) not in tapped, not land.basic, -shared, land.name)
+
+        return sorted(self.lands, key=loss)
+
+    def payment_options(self, card, pool: ManaPool, x: int = 0) -> list[tuple]:
+        """Every way ``card``'s additional cost can be paid now, as ``(way,
+        fodder)``, the agent's choice first: nothing (X = 0 life), life the
+        deck can spare, a sacrifice, a card from the graveyard, a discard,
+        more mana, and last life below the floor."""
+        base = effective_mana_cost(card, reductions_from(self.battlefield), x)
+        others = [other for other in self.hand if other is not card]
+        options = []
+        for way in card.additional_costs:
+            cost = base.plus(way.mana) if way.mana is not None else base
+            if self.life < way.life or len(others) < way.discard:
+                continue
+            if way.exile_from_graveyard and not any(
+                    way.exile_from_graveyard in self.types_of(other) for other in self.graveyard):
+                continue
+            life_rank = 0
+            if way.life:
+                life_rank = 1 if self.life - way.life >= PHYREXIAN_LIFE_FLOOR else 6
+            rank = max(life_rank, 2 if way.sacrifice else 0,
+                       3 if way.exile_from_graveyard else 0, 4 if way.discard else 0,
+                       5 if way.mana is not None else 0)
+            life = self.life - way.life
+            if not way.sacrifice:
+                if pool.can_pay_cost(cost, life=life):
+                    options.append((rank, way, None))
+                continue
+            for fodder in self.fodder(way, pool):
+                test = pool
+                if fodder == TREASURE:
+                    test = pool.copy()
+                    test.treasures.pop()
+                if test.can_pay_cost(cost, life=life):
+                    options.append((rank, way, fodder))
+        options.sort(key=lambda option: option[0])
+        return [(way, fodder) for _, way, fodder in options]
+
+    def additional_payment(self, card, pool: ManaPool, x: int = 0, pick: int | None = None):
+        """How ``card`` is paid for now: ``(way, fodder)`` - ``(None, None)``
+        for a card without an additional cost - or None when it cannot be.
+        ``pick`` chooses among :meth:`payment_options`; None takes the first."""
+        if not card.additional_costs:
+            cost = effective_mana_cost(card, reductions_from(self.battlefield), x)
+            return (None, None) if pool.can_pay_cost(cost, life=self.life) else None
+        options = self.payment_options(card, pool, x)
+        index = 0 if pick is None else pick
+        return options[index] if 0 <= index < len(options) else None
+
+    def _pay_additional(self, way, fodder) -> None:
+        """Pay what an additional cost asks beyond mana. A Treasure it
+        sacrificed has left the pool already."""
+        if way is None:
+            return
+        if way.life:
+            self.life -= way.life
+            self.note(f"  -> pays {way.life} life")
+        if way.life_x:
+            self.note("  -> X = 0: nothing in a goldfish for it to hit")
+        if way.discard:
+            self.discard(way.discard)
+        if way.exile_from_graveyard:
+            gone = min((other for other in self.graveyard
+                        if way.exile_from_graveyard in self.types_of(other)),
+                       key=lambda other: (other.mv, other.name))
+            self.graveyard.remove(gone)
+            self.exiled.append(gone)
+            self.note(f"  -> exiles {gone.name} from the graveyard")
+        if fodder is not None:
+            self.sacrifice(fodder)
+
+    def sacrifice(self, fodder) -> None:
+        """Sacrifice a permanent or a token to a cost. A Treasure is taken
+        out of the pool by whoever pays with it."""
+        self.last_sacrificed = fodder
+        if fodder == TREASURE:
+            self.note("  -> sacrifices a Treasure")
+            return
+        if fodder == LANDER_FODDER:
+            self.landers -= 1
+            self.note("  -> sacrifices a Lander")
+            return
+        index = next((i for i, land in enumerate(self.lands) if land is fodder), None)
+        if index is not None:
+            # This land, not an equal one: the one that came in tapped.
+            if index < self.tapped_lands:
+                self.tapped_lands -= 1
+            self.graveyard.append(self.lands.pop(index))
+        else:
+            self._sacrifice(fodder)
+        self.note(f"  -> sacrifices {fodder.name}")
+
+    # --- Altars: mana for a sacrifice (P19 R15) -------------------------------
+
+    def altar_cost(self, card) -> ManaCost | None:
+        """What using ``card``'s altar costs out of the pool: nothing, or for
+        Phyrexian Tower the {C} its {T} already made. None: not now."""
+        if card.sacrifice_mana is None or card not in self.battlefield:
+            return None
+        if not card.sacrifice_mana_taps:
+            return ManaCost()
+        if card not in self.lands:
+            # A creature's or an artifact's {T} is not tracked: not used.
+            return None
+        return self._own_mana_as_cost(card)
+
+    def altar_fodder(self, card, pool: ManaPool) -> list:
+        """What ``card``'s altar may sacrifice, in :meth:`fodder` order; the
+        altar itself last when it fits (Skirk Prospector is a Goblin)."""
+        cost = self.altar_cost(card)
+        if cost is None:
+            return []
+        options = []
+        for fodder in self.fodder(card.sacrifice_mana, pool, also=card):
+            test = pool.copy()
+            if fodder == TREASURE:
+                test.treasures.pop()
+            if test.can_pay_cost(cost, life=self.life):
+                options.append(fodder)
+        return options
+
+    def use_altar(self, card, pool: ManaPool, pick: int | None = None) -> None:
+        """Sacrifice to ``card``'s altar for its mana; ``pick`` indexes
+        :meth:`altar_fodder`, the first when None."""
+        options = self.altar_fodder(card, pool)
+        index = 0 if pick is None else pick
+        if not 0 <= index < len(options):
+            raise ValueError(f"{card.name} has nothing to sacrifice")
+        fodder = options[index]
+        if fodder == TREASURE:
+            pool.treasures.pop()
+        pool.pay_cost(self.altar_cost(card), life=self.life)
+        self.treasures = list(pool.treasures)
+        if card.sacrifice_mana_taps:
+            # Its {T} went to this: the land counts as tapped from now on.
+            index = next(i for i in range(self.tapped_lands, len(self.lands))
+                         if self.lands[i] == card)
+            self.lands.insert(self.tapped_lands, self.lands.pop(index))
+            self.tapped_lands += 1
+        self.note(f"{card.name} (sacrifice for mana)")
+        self.sacrifice(fodder)
+        pool.add(card.sacrifice_mana_color, card.sacrifice_mana_amount)
 
     def opponent_has_more_lands(self) -> bool:
         """Does an opponent control more lands than you? On the assumption
@@ -503,10 +771,10 @@ class Game:
         if card.discard_cost and len([c for c in self.hand if c is not card]) < card.discard_cost:
             return False
         if card.x_count:
-            return self.max_x(card, pool) >= card.x_min
-        return pool.can_pay_cost(
-            effective_mana_cost(card, reductions_from(self.battlefield)), life=self.life
-        )
+            return self.max_x(card, pool) >= card.x_min and (
+                not card.additional_costs
+                or self.additional_payment(card, pool, card.x_min) is not None)
+        return self.additional_payment(card, pool) is not None
 
     def _has_target(self, enchants: str) -> bool:
         """An Aura's land is there: any land, or one of a type (P19 R13)."""
@@ -789,6 +1057,17 @@ class Game:
         if spec.condition == "opponent_more_lands" and not self.opponent_has_more_lands():
             self.note("  -> no opponent has more lands")
             return 0
+        if spec.sacrifices_land and spec.when == "enters":
+            # Springbloom Druid's "you may": only when more lands come back
+            # than the one it costs (P19 R15).
+            there = sum(1 for land in self.library if land.is_land
+                        and (land.basic or not spec.basic)
+                        and (not spec.types or land.subtypes & spec.types))
+            fodder = self.land_fodder()
+            if not fodder or min(there, spec.battlefield + spec.hand) < 2:
+                self.note("  -> keeps its lands")
+                return 0
+            self.sacrifice(fodder[0])
         self.life -= spec.life
         found = 0
         each = sorted(spec.types) if spec.each else ()
@@ -850,10 +1129,18 @@ class Game:
             self.lands.append(land)
         self.note(f"  -> {land.name} onto the battlefield" + (" (tapped)" if tapped else ""))
 
-    def cast(self, card, pool: ManaPool, x: int = 0) -> None:
-        """Cast a card and take the cost out of the pool, ``x`` for each {X}."""
+    def cast(self, card, pool: ManaPool, x: int = 0, pick: int | None = None) -> None:
+        """Cast a card and take the cost out of the pool, ``x`` for each {X};
+        ``pick`` is how its additional cost is paid (:meth:`payment_options`),
+        the agent's choice when None."""
         cost = effective_mana_cost(card, reductions_from(self.battlefield), x)
-        payment = pool.pay_cost(cost, life=self.life)
+        way, fodder = self.additional_payment(card, pool, x, pick) or (None, None)
+        if way is not None and way.mana is not None:
+            cost = cost.plus(way.mana)
+        if fodder == TREASURE:
+            # Sacrificed rather than tapped: its mana leaves the pool first.
+            pool.treasures.pop()
+        payment = pool.pay_cost(cost, life=self.life - (way.life if way else 0))
         if payment is None:
             raise ValueError(f"{card.name} ({cost}) cannot be paid from {pool}")
         # Phyrexian mana: whatever was not paid with mana is paid with life.
@@ -863,6 +1150,7 @@ class Game:
             self.hand.remove(card)
         if card.discard_cost:
             self.discard(card.discard_cost)
+        self._pay_additional(way, fodder)
         self._resolve(card, pool)
         if card.x_count:
             self.note(f"  -> X = {x}")
@@ -872,7 +1160,7 @@ class Game:
         if card.kind == RITUAL:
             color, gain = self.ritual_mana(card)
             pool.add(color, gain)
-            self.graveyard.append(card)
+            (self.exiled if card.exiled_on_cast else self.graveyard).append(card)
             self.note(f"{card.name} -> +{gain}{color} mana")
             return
         if card.kind == ROCK:
@@ -886,6 +1174,7 @@ class Game:
             return
         if card.kind == CREATURE:
             self.creatures.append(card)
+            self.arrived.append(card.name)
             self.note(f"{card.name}")
             return
         if card.kind in (PLANESWALKER,):
@@ -929,6 +1218,7 @@ class Game:
         self.treasures = list(pool.treasures)
         self.commander_casts += 1
         self.creatures.append(commander)
+        self.arrived.append(commander.name)
         self.note(f"{commander.name} (commander)")
 
     def _commander_cost(self):
@@ -960,6 +1250,8 @@ class Game:
         self.tapped_lands = 0      # untap
         self.tapped_rocks = 0
         self.land_drop_used = False
+        self.arrived = []
+        self.tapped_creatures = []
         self.note(f"--- Turn {self.turn} ---")
 
         if self.turn > 1 or not self.on_the_play:

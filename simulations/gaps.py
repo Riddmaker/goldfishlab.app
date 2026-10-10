@@ -51,7 +51,10 @@ JUDGEMENT = "judgement"
 #: replace with what their table really gives. `assumed_lands` (P19 R12) is
 #: the same for the Turbulent lands: each opponent plays a land a turn, until
 #: a player says when the land enters untapped at their table.
-JUDGEMENT_FIELDS = frozenset({"priority", "accelerant", "assumed_mana", "assumed_lands"})
+#: `assumed_cost` (P19 R15): Toxic Deluge's "pay X life" is paid with X = 0,
+#: since nothing in a goldfish is there for X to kill.
+JUDGEMENT_FIELDS = frozenset({"priority", "accelerant", "assumed_mana", "assumed_lands",
+                              "assumed_cost"})
 
 
 def kind_of(field: str) -> str:

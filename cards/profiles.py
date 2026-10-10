@@ -360,6 +360,13 @@ _TO_BATTLEFIELD = re.compile(
     r"(?: with mana value (?P<mv>X|\d+) or less)?"
     r"(?:,| and) put (?:it|that card) onto the battlefield",
     re.IGNORECASE)
+#: P19 R15: Eldritch Evolution - "a creature card with mana value X or less,
+#: where X is 2 plus the sacrificed creature's mana value. Put that card onto
+#: the battlefield".
+_PLUS_SACRIFICED = re.compile(
+    r"Search your library for a creature card with mana value X or less, where X is "
+    r"(?P<n>\w+) plus the sacrificed creature's mana value\. Put that card onto the battlefield",
+    re.IGNORECASE)
 _COLOR_LETTER = {"white": "W", "blue": "U", "black": "B", "red": "R", "green": "G"}
 #: P19 R12: Vampiric Tutor, Mystical Tutor, Worldly Tutor: "Search your library
 #: for a[n instant or sorcery] card, [reveal it, ]then shuffle and put that
@@ -382,6 +389,26 @@ _ADDITIONAL_COST = re.compile(r"As an additional cost to cast", re.IGNORECASE)
 _DISCARD_COST = re.compile(
     r"^As an additional cost to cast this spell, discard (a|one|two|three) cards?\.$",
     re.IGNORECASE | re.MULTILINE)
+#: P19 R15: every other additional cost of the card's own, one sentence.
+_OWN_ADDITIONAL_COST = re.compile(
+    r"(?:^|\()As an additional cost to cast this spell, (?P<body>[^.]+)\.", re.MULTILINE)
+#: The parts such a cost is made of, any of them joined by " or ".
+_COST_PARTS = re.compile(
+    r"sacrifice an? (?:(?P<filter>white|blue|black|red|green|legendary) )?"
+    r"(?P<t1>artifact|creature|land|enchantment)"
+    r"(?: or (?:an? )?(?P<t2>artifact|creature|land|enchantment)(?![\w ]*life))?"
+    r"|sacrifice an? (?P<subtype>[A-Z][a-z]+)"
+    r"|pay (?P<life>\d+|X) life"
+    r"|discard (?P<discard>a|one|two) cards?"
+    r"|pay (?P<mana>(?:\{[\dWUBRGC]\})+)"
+    r"|exile an? (?P<exile>creature|artifact|land) card from your graveyard")
+_COLOR_WORDS = {"white": "W", "blue": "U", "black": "B", "red": "R", "green": "G"}
+#: An additional cost on *other* spells (Defiler of Vigor): not the card's own.
+_OTHER_SPELLS_COST = re.compile(
+    r"As an additional cost to cast (?!this spell)[\w ]+ spells", re.IGNORECASE)
+#: A sentence that pays off the optional cost: read only as not paid.
+_PAID_PAYOFF = re.compile(r"\bthis way\b|additional cost was paid|\bwhen you do\b",
+                          re.IGNORECASE)
 #: Treasure a card makes as it resolves (P19 R7): a spell's own sentence
 #: ("Draw two cards and create two Treasure tokens.") or a permanent's arrival
 #: ("When this creature enters, create two Treasure tokens."). Not a trigger
@@ -723,6 +750,78 @@ def _activation_condition(text: str) -> dict | None:
     return {"kind": "control_type", "types": _land_types(found.group("types"))}
 
 
+@dataclass
+class AdditionalCost:
+    """A card's own additional cost, read (P19 R15).
+
+    `ways` are the alternatives, any one of which pays it - stored as
+    `DerivedProfile.additional_cost`. `optional` is a "you may" cost, never
+    paid; `reason` says why the cost could not be read.
+    """
+
+    ways: list[dict] | None = None
+    optional: bool = False
+    reason: str = ""
+
+
+def _additional_cost(card: OracleCard) -> AdditionalCost:
+    """Read "As an additional cost to cast this spell, ..." (P19 R15).
+
+    "Discard a card" alone is `discard_cost`, read since engine version 11.
+    """
+    text = card.oracle_text or ""
+    found = _OWN_ADDITIONAL_COST.search(text)
+    if found is None:
+        return AdditionalCost()
+    body = found.group("body").strip()
+    if body.lower().startswith("you may "):
+        # Not paying is always allowed, and the card is played as it is
+        # without it - unless something else on it counts on the payment.
+        rest = text[:found.start()] + text[found.end():]
+        if _PAID_PAYOFF.search(rest) and _COST_REDUCTION.search(rest):
+            return AdditionalCost(reason=gettext_noop(
+                "has an additional casting cost the engine does not pay"))
+        return AdditionalCost(optional=True)
+    ways, position = [], 0
+    while True:
+        part = _COST_PARTS.match(body, position)
+        if part is None:
+            return AdditionalCost(reason=gettext_noop(
+                "has an additional casting cost the engine does not pay"))
+        ways.append(_cost_way(part))
+        position = part.end()
+        if position == len(body):
+            return AdditionalCost(ways=ways)
+        if not body.startswith(" or ", position):
+            return AdditionalCost(reason=gettext_noop(
+                "has an additional casting cost the engine does not pay"))
+        position += len(" or ")
+
+
+def _cost_way(part: re.Match) -> dict:
+    """One alternative of an additional cost, as the profile stores it."""
+    way = {"sacrifice": [], "filter": "", "life": 0, "life_x": False, "discard": 0,
+           "mana": "", "exile_from_graveyard": ""}
+    if part.group("t1"):
+        way["sacrifice"] = sorted({part.group("t1"), part.group("t2") or part.group("t1")})
+        wanted = part.group("filter") or ""
+        way["filter"] = _COLOR_WORDS.get(wanted, wanted)
+    elif part.group("subtype"):
+        way["sacrifice"], way["filter"] = ["creature"], part.group("subtype").lower()
+    elif part.group("life"):
+        if part.group("life") == "X":
+            way["life_x"] = True
+        else:
+            way["life"] = int(part.group("life"))
+    elif part.group("discard"):
+        way["discard"] = _word_number(part.group("discard")) or 1
+    elif part.group("mana"):
+        way["mana"] = part.group("mana")
+    else:
+        way["exile_from_graveyard"] = part.group("exile")
+    return way
+
+
 def _treasures(card: OracleCard, kind: str) -> int:
     """How many Treasure tokens the card makes as it resolves, or 0 (P19 R7)."""
     return _made_tokens(card, kind, _TREASURE_ON_ENTER, _TREASURE_IN_SPELL)
@@ -963,6 +1062,14 @@ class ManaClause:
     #: Generic mana in the cost, beside `{T}`: the `{1}` on a Signet.
     activation: int = 0
     sacrifices_self: bool = False
+    #: P19 R15: "Sacrifice a creature" - another permanent goes as the cost
+    #: (Ashnod's Altar): {"sacrifice": types, "filter": ...}. None: no such.
+    sacrifices: dict | None = None
+    #: P19 R15: {T} is part of the cost.
+    taps: bool = False
+    #: P19 R15: "Exile this card from your hand" is the cost (Elvish Spirit
+    #: Guide): mana once, out of the hand.
+    from_hand: bool = False
     #: "Activate only if you control ..." read as a condition (P19 R4).
     condition: dict | None = None
     #: A filter's coloured input, "WB" for {W/B} (P19 R6). Empty: none.
@@ -995,6 +1102,12 @@ class ManaReading:
     activation: int = 0
     #: False for "This artifact doesn't untap during your untap step."
     untaps: bool = True
+    #: P19 R15: "Exile this card from your hand: Add {G}" - Elvish Spirit
+    #: Guide makes its mana from the hand, once, for nothing.
+    from_hand: bool = False
+    #: P19 R15: an ability that sacrifices another permanent for mana:
+    #: {"sacrifice", "filter", "amount", "produces", "taps"}. None: none.
+    sacrifice: dict | None = None
     #: The mana comes from sacrificing the card itself (Lotus Petal) - once,
     #: which the engine models as a ritual cast when it unlocks something.
     one_shot: bool = False
@@ -1012,10 +1125,34 @@ def _self_reference(card: OracleCard) -> str:
     return rf"(?:this [\w ]+?|~|{re.escape(card.front_name or '')})"
 
 
+#: P19 R15: the cost of an altar - "Sacrifice a creature", "Sacrifice an
+#: artifact", "Sacrifice a Goblin". Not "X Goats", not "five Treasures".
+_SACRIFICE_ANOTHER = re.compile(
+    r"Sacrifice (?:an?|another) (?:(?P<filter>white|blue|black|red|green|legendary) )?"
+    r"(?:(?P<t1>artifact|creature)|(?P<subtype>(?!Food|Treasure|Clue|Blood|Desert|land)"
+    r"[A-Z][a-z]+))", re.IGNORECASE)
+
+
 def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
     """Split `{1}, {T}, Sacrifice this artifact` into what the engine can pay."""
     for part in (piece.strip() for piece in cost_text.split(",")):
-        if not part or part == "{T}":
+        if part == "{T}":
+            clause.taps = True
+            continue
+        if not part:
+            continue
+        if re.fullmatch(r"Exile this card from your hand", part, re.IGNORECASE):
+            clause.from_hand = True
+            continue
+        if (found := _SACRIFICE_ANOTHER.fullmatch(part)) is not None:
+            # Ashnod's Altar, Phyrexian Tower (P19 R15).
+            if found.group("t1"):
+                wanted = found.group("filter") or ""
+                clause.sacrifices = {"sacrifice": [found.group("t1").lower()],
+                                     "filter": _COLOR_WORDS.get(wanted, wanted)}
+            else:
+                clause.sacrifices = {"sacrifice": ["creature"],
+                                     "filter": found.group("subtype").lower()}
             continue
         if re.fullmatch(r"(?:\{\d+\})+", part):
             clause.activation += sum(int(n) for n in _SYMBOL.findall(part))
@@ -1220,6 +1357,29 @@ def _mana_production(card: OracleCard) -> ManaReading:
         reading.notes = sorted(notes)
         return reading
 
+    altars = [clause for clause in usable if clause.sacrifices is not None]
+    usable = [clause for clause in usable if clause.sacrifices is None]
+    if altars:
+        # P19 R15: mana for another permanent, used when it unlocks a spell.
+        first = altars[0]
+        if len(altars) > 1 or first.amount is None or first.activation or first.condition:
+            notes.add(gettext_noop("an ability that sacrifices for mana is not modelled"))
+        else:
+            reading.sacrifice = {**first.sacrifices, "amount": first.amount,
+                                 "produces": first.produces, "taps": first.taps}
+    from_hand = [clause for clause in usable if clause.from_hand]
+    usable = [clause for clause in usable if not clause.from_hand]
+    if from_hand:
+        first = from_hand[0]
+        if usable or len(from_hand) > 1 or first.amount is None or first.activation \
+                or first.taps or first.condition:
+            notes.add(gettext_noop("a mana ability that exiles the card from hand is not modelled"))
+        else:
+            # P19 R15: a ritual that costs nothing - see `derive`.
+            reading.amount, reading.produces, reading.from_hand = (
+                first.amount, first.produces, True)
+            reading.notes = sorted(notes)
+            return reading
     tapping = [clause for clause in usable if not clause.sacrifices_self]
     one_shots = [clause for clause in usable if clause.sacrifices_self]
     # Filters and converters ride beside the plain ability (P19 R6): Fetid
@@ -1345,6 +1505,10 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
                      filter={"color": _COLOR_LETTER.get(color, ""),
                              "max_mv": None if limit is None else
                              ("X" if limit.upper() == "X" else int(limit))})
+    found = _PLUS_SACRIFICED.search(text)
+    if found is not None and (plus := _word_number(found.group("n"))) is not None:
+        return Tutor(zone="battlefield", count=1, kind="creature",
+                     filter={"color": "", "max_mv": None, "plus_sacrificed": plus})
     found = _TO_TOP.search(text)
     line_start = text.rfind("\n", 0, found.start()) + 1 if found else 0
     if found is not None and ":" not in text[line_start:found.start()] \
@@ -1429,6 +1593,14 @@ _SACRIFICE_SELF = re.compile(r"^sacrifice this creature: $")
 _ACTIVATED = re.compile(
     r"^(?P<cost>(?:\{(?:\d+|[wubrg])\})+), (?P<tap>\{t\}, )?"
     r"sacrifice this (?P<what>land|artifact|creature|enchantment): $")
+#: P19 R15: a creature's own {T} ability - Wight of the Reliquary, Knight of
+#: the Reliquary, Elvish Reclaimer, Frontier Guide: "{2}, {T}, Sacrifice a
+#: land: ". The parts after the {T}, each read or the whole left unread.
+_CREATURE_TAP = re.compile(r"^(?:(?P<cost>(?:\{(?:\d+|[wubrg])\})+), )?\{t\}, ?(?P<rest>.*): $")
+_TAP_PART = re.compile(
+    r"sacrifice this creature|sacrifice a land|sacrifice another creature|discard a card"
+    r"|sacrifice an? (?P<a>forest|plains|island|swamp|mountain)"
+    r"(?: or (?P<b>forest|plains|island|swamp|mountain))?")
 #: P19 R14: "When this creature enters, if an opponent controls more lands
 #: than you, (you may) search ..." - Knight of the White Orchid.
 _ENTERS_IF_BEHIND = re.compile(
@@ -1438,6 +1610,10 @@ _ENTERS_IF_BEHIND = re.compile(
 _FIRST_CHAPTER = re.compile(r"^i — (?:[^—]+ — )?$")
 #: P19 R14: a search in combat - the engine plays none.
 _IN_COMBAT = re.compile(r"\battacks\b|\bcombat damage\b")
+#: P19 R15: Springbloom Druid - "When this creature enters, you may sacrifice
+#: a land. If you do, search ...".
+_SACRIFICE_LAND_FIRST = re.compile(
+    r"When (?:this creature|~) enters, you may sacrifice a land\. If you do, search your library")
 #: Krosan Verge: "a Forest card and a Plains card".
 _ONE_OF_EACH = re.compile(r"^(\w+) card and an? (\w+)$")
 
@@ -1525,6 +1701,10 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
         types, count = [each.group(1), each.group(2)], 2
     else:
         types = [name for name in re.split(r",? or |, ", names) if name]
+        if types and "land" not in names and not set(types) & _LAND_TYPES:
+            # Natural Order's "green creature card": not a land search at
+            # all, and the tutor reading takes it (P19 R15).
+            return LandSearch()
         if not types or not set(types) <= _LAND_TYPES:
             return LandSearch(reason=gettext_noop(
                 "searches for lands the engine cannot describe"))
@@ -1542,6 +1722,8 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     lead = f"{lead} " if lead else ""
     life, sacrifice = 0, False
     cost, taps, condition = "", False, ""
+    sacrifices_land, land_cost_types, sacrifice_other, discard = False, [], [], 0
+    tapping = _creature_tap(lead) if kind == DerivedProfile.Kind.CREATURE else None
     spell = kind in (DerivedProfile.Kind.SORCERY, DerivedProfile.Kind.INSTANT)
     activated = _ACTIVATED.match(lead)
     if not lead and spell:
@@ -1550,12 +1732,18 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
         when = "enters"
     elif _ENTERS_IF_BEHIND.match(lead):
         when, condition = "enters", "opponent_more_lands"
+    elif lead == "if you do, " and _SACRIFICE_LAND_FIRST.search(text):
+        when, sacrifices_land = "enters", True
     elif activated is not None and (
-            (activated.group("what") == "land") == (kind == DerivedProfile.Kind.LAND)
-            and not (activated.group("tap") and activated.group("what") == "creature")):
-        # A creature's {T} would need to know when it arrived: left unread.
+            (activated.group("what") == "land") == (kind == DerivedProfile.Kind.LAND)):
         when, sacrifice = "activate", True
         cost, taps = activated.group("cost").upper(), bool(activated.group("tap"))
+    elif tapping is not None:
+        # P19 R15: once a turn, and not the turn it arrived.
+        when, taps = "activate", True
+        cost, sacrifice = tapping["cost"], tapping["self"]
+        sacrifices_land, land_cost_types = tapping["land"], tapping["land_types"]
+        sacrifice_other, discard = tapping["other"], tapping["discard"]
     elif (lead == "when you do, " and kind == DerivedProfile.Kind.LAND
           and _SACRIFICED_ON_ENTERING.search(text)):
         when, sacrifice = "play", True
@@ -1590,8 +1778,34 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
         "types": sorted(types), "life": life, "when": when, "sacrifice": sacrifice,
         "untap_at": untap_at, "cost": cost, "taps": taps,
         "share_type": bool(match.group("share")), "each": each is not None and bool(types),
-        "condition": condition,
+        "condition": condition, "sacrifices_land": sacrifices_land,
+        "land_cost_types": land_cost_types, "sacrifice_other": sacrifice_other,
+        "discard": discard,
     })
+
+
+def _creature_tap(lead: str) -> dict | None:
+    """A creature's "{2}, {T}, Sacrifice a land: " read part by part (P19
+    R15), or None when one part is something else."""
+    found = _CREATURE_TAP.match(lead)
+    if found is None:
+        return None
+    read = {"cost": (found.group("cost") or "").upper(), "self": False, "land": False,
+            "land_types": [], "other": [], "discard": 0}
+    for part in filter(None, found.group("rest").split(", ")):
+        piece = _TAP_PART.fullmatch(part)
+        if piece is None:
+            return None
+        if part == "sacrifice this creature":
+            read["self"] = True
+        elif part == "sacrifice another creature":
+            read["other"] = ["creature"]
+        elif part == "discard a card":
+            read["discard"] = 1
+        else:
+            read["land"] = True
+            read["land_types"] = sorted(filter(None, (piece.group("a"), piece.group("b"))))
+    return read
 
 
 def _first_number(pattern: re.Pattern, text: str) -> int | None:
@@ -1643,6 +1857,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana.notes = [note for note in mana.notes
                       if note != "only grants a mana ability to another permanent"]
     discard = _DISCARD_COST.search(text)
+    additional = AdditionalCost() if discard else _additional_cost(card)
     draw = _draw(text)
     amount = mana.amount
     if mana.one_shot and kind in (DerivedProfile.Kind.ARTIFACT, DerivedProfile.Kind.ROCK):
@@ -1651,6 +1866,10 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         # engine's ritual is, and the agent casts a ritual precisely when the
         # mana unlocks something worth casting. Read as a rock it made a mana
         # every turn for the rest of the game.
+        kind = DerivedProfile.Kind.RITUAL
+    if mana.from_hand:
+        # Elvish Spirit Guide (P19 R15): a ritual for {0} that goes to exile.
+        # Its body is never cast, which can only under-read it.
         kind = DerivedProfile.Kind.RITUAL
     tutor = _tutor(card, tags)
     land = _land_search(card, kind)
@@ -1684,9 +1903,16 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     # `Add {C}{C}` clause is readable, but the cards this catches are the ones
     # where it is not and a single mana slipped through looking correct.
     counts = mana_rule is not None and mana_rule["rule"] == "counts"
-    if MULTIPLE_MANA_TAG in tags and amount == 1 and not counts:
+    altar = mana.sacrifice is not None and (mana.sacrifice["amount"] or 0) > 1
+    if MULTIPLE_MANA_TAG in tags and amount == 1 and not counts and not altar:
         reasons.append(gettext_noop("tagged as adding more than one mana; only one was read"))
-    if _ADDITIONAL_COST.search(text) and not discard:
+    if additional.reason:
+        reasons.append(additional.reason)
+    elif _OTHER_SPELLS_COST.search(text):
+        reasons.append(gettext_noop(
+            "changes what other spells cost, which the engine does not model"))
+    elif (_ADDITIONAL_COST.search(text) and not discard and additional.ways is None
+          and not additional.optional):
         reasons.append(gettext_noop("has an additional casting cost the engine does not pay"))
     if cost.hybrid:
         reasons.append(gettext_noop("hybrid pips: payment flexibility is not modelled"))
@@ -1721,6 +1947,9 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         treasures=treasures,
         landers=landers,
         discard_cost=_word_number(discard.group(1)) if discard else 0,
+        additional_cost=additional.ways,
+        sacrifice_mana=mana.sacrifice,
+        mana_from_hand=mana.from_hand,
         cost_reduction=_first_number(_COST_REDUCTION, text),
         draws_cards=draw.cards,
         discards_after=draw.discards,
@@ -1847,7 +2076,9 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "tapped_unless",
             "skips_draw_step",
             "mana_produces", "mana_activation", "mana_untaps", "mana_condition", "mana_rule",
-            "mana_filter", "treasures", "landers", "discard_cost", "discards_after", "puts_back",
+            "mana_filter", "treasures", "landers", "discard_cost", "additional_cost",
+            "sacrifice_mana", "mana_from_hand",
+            "discards_after", "puts_back",
             "draws_x",
             "extra_cost",
             "needs_review", "review_reasons", "source_map", "derived_at",

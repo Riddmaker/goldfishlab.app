@@ -178,6 +178,10 @@ class CastSpell(Action):
     #: game recorded before X was paid at all, and replays as it was played:
     #: X = 0. The agent and the board both say what X is.
     x: int | None = None
+    #: How its additional cost is paid, an index into
+    #: ``Game.payment_options`` (P19 R15): what to sacrifice, or life rather
+    #: than a discard. None: the agent's choice, the first.
+    payment: int | None = None
 
     def run(self, game, policy) -> None:
         card = _at(game, HAND, self.index)
@@ -192,9 +196,11 @@ class CastSpell(Action):
         # on every card, answered an unaffordable one with a ValueError and an
         # HTTP 500 that htmx then swallowed in silence.
         cost = castable_cost(game, card, x)
-        if not pool.can_pay_cost(cost, life=game.life):
+        if game.additional_payment(card, pool, x, self.payment) is None:
+            if card.additional_costs and pool.can_pay_cost(cost, life=game.life):
+                raise IllegalAction(f"{card.name}'s additional cost cannot be paid now")
             raise IllegalAction(f"{card.name} costs {cost}; the floating mana is {pool}")
-        game.cast(card, pool, x)
+        game.cast(card, pool, x, self.payment)
         _apply_cast_effect(game, card, policy, x)
 
 
@@ -247,6 +253,26 @@ class ActivateLander(Action):
         if not game.can_activate(None, pool):
             raise IllegalAction(f"no Lander can be activated; the floating mana is {pool}")
         game.activate(None, pool, _land_chooser(policy))
+
+
+@dataclass(frozen=True)
+class SacrificeForMana(Action):
+    """Sacrifice a permanent to the altar at ``index`` in ``zone`` for its
+    mana (P19 R15): Ashnod's Altar, Phyrexian Tower. ``payment`` indexes
+    ``Game.altar_fodder``; None is the agent's choice."""
+
+    kind = "sacrifice_mana"
+    zone: str = OTHER
+    index: int = 0
+    payment: int | None = None
+
+    def run(self, game, policy) -> None:
+        card = _at(game, self.zone, self.index)
+        pool = _pool(game)
+        options = game.altar_fodder(card, pool)
+        if not options or not 0 <= (self.payment or 0) < len(options):
+            raise IllegalAction(f"{card.name} has nothing to sacrifice now")
+        game.use_altar(card, pool, self.payment)
 
 
 @dataclass(frozen=True)
@@ -387,7 +413,7 @@ BY_KIND = {
     for action in (
         BeginTurn, PlayLand, OpenMainPhase, CastSpell, CastCommander, EndStep,
         AdvancePhase, Mulligan, KeepHand, Draw, SetLife, MoveCard, TapPermanent,
-        ActivateSearch, ActivateLander,
+        ActivateSearch, ActivateLander, SacrificeForMana,
     )
 }
 
@@ -436,6 +462,7 @@ def legal_actions(game) -> list[Action]:
         if game.can_cast_commander(pool):
             allowed.append(CastCommander())
         allowed += activations(game, pool)
+        allowed += altars(game, pool)
 
     return allowed
 
@@ -452,6 +479,14 @@ def activations(game, pool) -> list[Action]:
     if game.can_activate(None, pool):
         found.append(ActivateLander())
     return found
+
+
+def altars(game, pool) -> list[Action]:
+    """The altars that have something to sacrifice now (P19 R15)."""
+    return [SacrificeForMana(zone=zone, index=index)
+            for zone in (LANDS, ROCKS, CREATURES, OTHER)
+            for index, card in enumerate(zone_of(game, zone))
+            if card.sacrifice_mana is not None and game.altar_fodder(card, pool)]
 
 
 def castable_cost(game, card, x: int = 0):
@@ -504,7 +539,7 @@ def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
         spec = card.tutor
         game.life -= spec.life
         if spec.to_battlefield:
-            predicate = _battlefield_predicate(spec, x)
+            predicate = _battlefield_predicate(spec, x, game)
         elif spec.to_top:
             predicate = (lambda c: bool(c.types & spec.types)) if spec.types else None
         else:
@@ -563,9 +598,13 @@ def _arrival(game, card, policy) -> None:
     game.make_landers(card)
 
 
-def _battlefield_predicate(spec, x: int):
+def _battlefield_predicate(spec, x: int, game=None):
     """Which library cards a search onto the battlefield may find (P19 R10)."""
     limit = x if spec.max_mv_x else spec.max_mv
+    if spec.max_mv_sacrificed is not None:
+        # Eldritch Evolution: counted from what its cost sacrificed (P19 R15).
+        gone = getattr(game, "last_sacrificed", None)
+        limit = spec.max_mv_sacrificed + getattr(gone, "mv", 0)
 
     def matches(card) -> bool:
         types = card.types or frozenset({card.kind})

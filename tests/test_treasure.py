@@ -55,15 +55,17 @@ def test_big_score_is_read_whole():
 
 
 @pytest.mark.django_db
-def test_a_sacrifice_as_additional_cost_stays_a_gap():
+def test_a_sacrifice_as_additional_cost_is_read_beside_the_treasure():
     dispute = OracleCard(name="Deadly Dispute", front_name="Deadly Dispute",
                          type_line="Instant", mana_cost="{1}{B}", cmc=2,
                          oracle_text="As an additional cost to cast this spell, sacrifice an "
                                      "artifact or creature.\nDraw two cards and create a "
                                      "Treasure token.")
     profile = derive(dispute, set())
-    assert profile.discard_cost == 0
-    assert any("additional casting cost" in reason for reason in profile.review_reasons)
+    assert profile.discard_cost == 0 and profile.treasures == 1
+    # P19 R15: the sacrifice is paid, so it is no longer a gap.
+    assert profile.additional_cost[0]["sacrifice"] == ["artifact", "creature"]
+    assert not profile.review_reasons
 
 
 # --- the engine -----------------------------------------------------------------

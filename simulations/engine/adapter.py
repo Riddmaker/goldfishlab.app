@@ -41,6 +41,7 @@ from simulation.cards import (
     MULTIPLY,
     PER_CONTROLLED,
     TYPE_ADDING,
+    AdditionalCost,
     Card,
     CostReduction,
     DeckDefinition,
@@ -268,6 +269,11 @@ class Reading:
         """
         if self.card.is_land:
             return gettext("no cost")
+        if self.card.additional_costs:
+            # P19 R15: what else is paid, any one of the ways.
+            ways = " / ".join(_way_text(way) for way in self.card.additional_costs)
+            return gettext("%(cost)s, and %(extra)s") % {"cost": self.card.mana_cost,
+                                                         "extra": ways}
         return str(self.card.mana_cost)
 
     @property
@@ -314,6 +320,10 @@ class Reading:
             if spec.max_mv_x or spec.max_mv is not None:
                 what = gettext("%(what)s with mana value %(limit)s or less") % {
                     "what": what, "limit": "X" if spec.max_mv_x else spec.max_mv}
+            if spec.max_mv_sacrificed is not None:
+                what = gettext("%(what)s with mana value up to %(plus)s more than the "
+                               "creature sacrificed") % {"what": what,
+                                                         "plus": spec.max_mv_sacrificed}
             text = gettext("%(what)s onto the battlefield") % {"what": what}
         elif spec.to_top:
             text = gettext("%(what)s on top of the library, drawn next turn") % {"what": what}
@@ -411,13 +421,58 @@ def _land_search_text(search: LandSearch) -> str:
     if search.life:
         text = gettext("%(search)s, paying %(life)s life") % {"search": text,
                                                              "life": search.life}
-    if search.when == "activate":
+    if search.when == "activate" and search.sacrifice:
         cost = str(search.cost or "") + (", {T}" if search.taps else "")
         text = gettext("%(cost)s, sacrifice it: %(search)s") % {
             "cost": cost.lstrip(", "), "search": text}
+    elif search.when == "activate":
+        # P19 R15: a creature's {T}, once a turn.
+        parts = [str(search.cost)] if search.cost else []
+        parts.append("{T}")
+        if search.sacrifices_land:
+            parts.append(gettext("sacrifice a land") if not search.land_cost_types else
+                         gettext("sacrifice a %(types)s") % {"types": " / ".join(
+                             sorted(kind.capitalize() for kind in search.land_cost_types))})
+        if search.sacrifice_other:
+            parts.append(gettext("sacrifice another creature"))
+        if search.discard:
+            parts.append(gettext("discard a card"))
+        text = gettext("%(cost)s: %(search)s, once a turn") % {"cost": ", ".join(parts),
+                                                               "search": text}
     if search.condition == "opponent_more_lands":
         text = gettext("%(search)s, if an opponent controls more lands") % {"search": text}
+    if search.sacrifices_land and search.when == "enters":
+        text = gettext("sacrifice a land: %(search)s") % {"search": text}
     return text
+
+
+def _way_text(way: AdditionalCost) -> str:
+    """One way to pay an additional cost, in words (P19 R15)."""
+    from cards.models import DerivedProfile
+
+    kinds = dict(DerivedProfile.Kind.choices)
+    parts = []
+    if way.sacrifice:
+        what = " / ".join(str(kinds.get(kind, kind)) for kind in sorted(way.sacrifice))
+        if way.sacrifice_filter in COLORS:
+            what = gettext("%(what)s (%(color)s)") % {
+                "what": what, "color": mana_label(way.sacrifice_filter)}
+        elif way.sacrifice_filter:
+            what = f"{what} ({way.sacrifice_filter.capitalize()})"
+        parts.append(gettext("sacrifice a %(what)s") % {"what": what})
+    if way.life:
+        parts.append(gettext("%(life)s life") % {"life": way.life})
+    if way.life_x:
+        parts.append(gettext("X life, paid as 0"))
+    if way.discard:
+        parts.append(ngettext("discard %(count)s card", "discard %(count)s cards",
+                              way.discard) % {"count": way.discard})
+    if way.mana is not None:
+        parts.append(str(way.mana))
+    if way.exile_from_graveyard:
+        parts.append(gettext("exile a %(what)s card from the graveyard") % {
+            "what": kinds.get(way.exile_from_graveyard, way.exile_from_graveyard)})
+    return ", ".join(str(part) for part in parts) or gettext("nothing")
 
 
 def _ability_text(ability) -> str:
@@ -834,6 +889,9 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         treasure_mana=_any_colour(deck_colors) if getattr(profile, "treasures", 0) else "",
         landers=int(getattr(profile, "landers", 0) or 0),
         discard_cost=int(getattr(profile, "discard_cost", 0) or 0),
+        additional_costs=_additional_costs(profile),
+        exiled_on_cast=bool(getattr(profile, "mana_from_hand", False)),
+        **({} if _overrides_mana(overrides) else _sacrifice_mana(profile, deck_colors)),
     )
 
     _record_gaps(card, profile, overrides, gaps, oracle_card.oracle_text or "")
@@ -1021,6 +1079,9 @@ def _cost(oracle_card, profile, overrides: dict) -> ManaCost:
             colorless=int(profile.colorless),
             has_x=bool(profile.has_x),
         )
+    if getattr(profile, "mana_from_hand", False):
+        # Elvish Spirit Guide (P19 R15): exiled from the hand, not cast.
+        return ManaCost()
     # A spree mode the engine plays costs its own mana on top (P19 R8) - but
     # only the derived draw's mode: a person who set the draw said what it is.
     extra = "" if "draw_on_cast" in overrides else getattr(profile, "extra_cost", "")
@@ -1126,7 +1187,44 @@ def _land_search(profile) -> LandSearch | None:
         cost=parse(found["cost"]) if found.get("cost") else None,
         taps=bool(found.get("taps")), share_type=bool(found.get("share_type")),
         each=bool(found.get("each")), condition=found.get("condition", ""),
+        sacrifices_land=bool(found.get("sacrifices_land")),
+        land_cost_types=frozenset(found.get("land_cost_types", ())),
+        sacrifice_other=frozenset(found.get("sacrifice_other", ())),
+        discard=int(found.get("discard", 0)),
     )
+
+
+def _sacrifice_mana(profile, deck_colors: frozenset[str]) -> dict:
+    """An altar's mana, as `Card` fields (P19 R15): what it takes, what one
+    sacrifice gives and in what colour - "any color" being the deck's. An
+    annotation that says what the card taps for says this too: the reference
+    deck's Ashnod's Altar is a sacrifice engine that makes no mana."""
+    found = getattr(profile, "sacrifice_mana", None)
+    if not found or not found.get("amount"):
+        return {}
+    produces = found.get("produces")
+    if produces is None:
+        color = _any_colour(deck_colors)
+    elif len(produces) == 1:
+        color = next(iter(produces))
+    else:
+        return {}
+    return {"sacrifice_mana": AdditionalCost(sacrifice=frozenset(found["sacrifice"]),
+                                             sacrifice_filter=found.get("filter", "")),
+            "sacrifice_mana_amount": int(found["amount"]), "sacrifice_mana_color": color,
+            "sacrifice_mana_taps": bool(found.get("taps"))}
+
+
+def _additional_costs(profile) -> tuple[AdditionalCost, ...]:
+    """The ways the reader read the card's additional cost (P19 R15)."""
+    return tuple(
+        AdditionalCost(
+            sacrifice=frozenset(way.get("sacrifice", ())), sacrifice_filter=way.get("filter", ""),
+            life=int(way.get("life", 0)), life_x=bool(way.get("life_x")),
+            discard=int(way.get("discard", 0)),
+            mana=parse(way["mana"]) if way.get("mana") else None,
+            exile_from_graveyard=way.get("exile_from_graveyard", ""))
+        for way in getattr(profile, "additional_cost", None) or ())
 
 
 def _tutor(profile, overrides: dict) -> TutorSpec | None:
@@ -1166,7 +1264,8 @@ def _tutor(profile, overrides: dict) -> TutorSpec | None:
         max_mv = limit.get("max_mv")
         battlefield = {"to_battlefield": True, "color": limit.get("color") or "",
                        "max_mv_x": max_mv == "X",
-                       "max_mv": max_mv if isinstance(max_mv, int) else None}
+                       "max_mv": max_mv if isinstance(max_mv, int) else None,
+                       "max_mv_sacrificed": limit.get("plus_sacrificed")}
     return TutorSpec(
         **battlefield,
         to_hand=TUTOR_ZONES[profile.tutor_to],
@@ -1315,7 +1414,7 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
             gaps.append(Gap(card.name, "profile", reason))
 
     if profile.produces_mana and profile.mana_amount is None and not card.mana_abilities \
-            and not card.treasures and not card.ritual_counts:
+            and not card.treasures and not card.ritual_counts and card.sacrifice_mana is None:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("makes mana, but how much could not be read")))
 
@@ -1323,6 +1422,10 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
         gaps.append(Gap(card.name, "assumed_lands", gettext_noop(
             "searches when you have fewer lands than turns gone by, assuming each opponent "
             "plays a land a turn")))
+
+    if any(way.life_x for way in card.additional_costs):
+        gaps.append(Gap(card.name, "assumed_cost", gettext_noop(
+            "pays X life with X = 0: in a goldfish there is nothing for X to hit")))
 
     if card.tapped_unless is not None and card.tapped_unless.kind == "opponent_lands":
         gaps.append(Gap(card.name, "assumed_lands", gettext_noop(

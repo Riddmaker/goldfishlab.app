@@ -104,9 +104,10 @@ def test_urborg_and_crypt_ghast_are_read_as_rules(catalogue):
 
 def test_every_unresolved_mana_source_is_flagged(catalogue):
     """No silent holes: unresolved amount implies needs_review - unless a rule
-    says how the mana is made."""
+    says how the mana is made, or an altar's sacrifice does (P19 R15)."""
     unresolved = DerivedProfile.objects.filter(produces_mana=True, mana_amount=None,
-                                               mana_rule__isnull=True)
+                                               mana_rule__isnull=True,
+                                               sacrifice_mana__isnull=True)
     assert unresolved.exists()
     assert not unresolved.filter(needs_review=False).exists()
 

@@ -217,6 +217,17 @@ class ManaCost:
             return self
         return replace(self, generic=max(0, self.generic - amount))
 
+    def plus(self, other: "ManaCost") -> "ManaCost":
+        """Both costs paid together - an additional cost of mana (P19 R15)."""
+        pips = dict(self.pips)
+        for color, count in other.pips:
+            pips[color] = pips.get(color, 0) + count
+        return replace(self, pips=tuple(sorted(pips.items())),
+                       generic=self.generic + other.generic,
+                       colorless=self.colorless + other.colorless,
+                       hybrid=self.hybrid + other.hybrid,
+                       phyrexian=self.phyrexian + other.phyrexian)
+
     def with_generic(self, generic: int) -> "ManaCost":
         """The same cost with a different generic part - the commander tax."""
         return replace(self, generic=max(0, generic))

@@ -113,6 +113,12 @@ boundary, not the symptom.
 #:    of the White Orchid while an opponent has more lands (assumed: one a
 #:    turn each); a Saga's first chapter as it enters. The report's "two
 #:    scaling mana sources" no longer counts filter lands or Reflecting Pool.
-ENGINE_VERSION = 18
+#: 19: P19 R15. Additional costs are paid: a sacrifice (a Treasure, a Lander,
+#:    a creature that comes back, then the cheapest - never the commander or
+#:    a mana source; a land only to a land search worth it), life, a discard,
+#:    mana; "pay X life" with X = 0. Altars and Phyrexian Tower sacrifice
+#:    when their mana unlocks a spell, Spirit Guides are free rituals, and a
+#:    creature's {T} search (Wight of the Reliquary) waits a turn.
+ENGINE_VERSION = 19
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

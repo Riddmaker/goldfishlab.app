@@ -42,6 +42,18 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 10), "sacrifice-costs",
+        _("Village Rites, Harrow, Natural Order and Ashnod's Altar"),
+        _("Spells that sacrifice, pay life or discard as an additional cost now pay it: a "
+          "simulated game gives up a Treasure first, then a creature that comes back, then its "
+          "cheapest - never your commander or a mana creature - and a land only to Harrow or a "
+          "search worth it. In the playtest you choose what to sacrifice. Ashnod's Altar, "
+          "Phyrexian Tower and Krark-Clan Ironworks sacrifice when their mana lets a spell be "
+          "cast, the Spirit Guides add their mana from your hand, and Wight of the Reliquary "
+          "and Elvish Reclaimer search from the turn after they arrive. Toxic Deluge pays X = 0 "
+          "life, as nothing in a goldfish is there for it."),
+    ),
+    Entry(
         date(2026, 10, 9), "activated-land-search",
         _("Wayfarer's Bauble, Myriad Landscape and Lander tokens"),
         _("Wayfarer's Bauble, Burnished Hart, Myriad Landscape, Urza's Cave, the Panoramas and "

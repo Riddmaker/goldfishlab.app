@@ -167,7 +167,7 @@ def test_a_deck_the_engine_cannot_read_shouts_about_it(client, owner, build):
     assert "Mana sources nobody has pinned down" in body
     assert "Cards that need an opponent" in body
     # And the cards themselves, by name.
-    for name in ("Toxic Deluge", "Ashnod's Altar", "Rhystic Study", "Mystic Remora"):
+    for name in ("Phyrexian Tribute", "Cabal Ritual", "Rhystic Study", "Mystic Remora"):
         assert name in body, f"{name} is a blind spot and is not on the page"
 
 
@@ -195,8 +195,9 @@ def test_a_deck_the_engine_can_read_stays_quiet_by_comparison(build):
     assert "unresolved_mana" not in quiet
     # Each P19 round teaches the engine some of these cards (Cabal Coffers and
     # Maze of Ith left in engine version 8, Nykthos and Gaea's Cradle in
-    # version 15); what stays must still be named.
-    assert loud["unresolved_mana"] >= 2
+    # version 15, Phyrexian Tower and Ashnod's Altar in 19); what stays must
+    # still be named.
+    assert loud["unresolved_mana"] >= 1
 
     assert adapter.convert(build(UNMODELLABLE)).readable < adapter.convert(
         build(LAND_HEAVY)

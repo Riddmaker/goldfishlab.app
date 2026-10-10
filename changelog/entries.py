@@ -42,6 +42,48 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 10), "sacrifice-costs",
+        _("Village Rites, Harrow, Natural Order and Ashnod's Altar"),
+        _("Spells that sacrifice, pay life or discard as an additional cost now pay it: a "
+          "simulated game gives up a Treasure first, then a creature that comes back, then its "
+          "cheapest - never your commander or a mana creature - and a land only to Harrow or a "
+          "search worth it. In the playtest you choose what to sacrifice. Ashnod's Altar, "
+          "Phyrexian Tower and Krark-Clan Ironworks sacrifice when their mana lets a spell be "
+          "cast, the Spirit Guides add their mana from your hand, and Wight of the Reliquary "
+          "and Elvish Reclaimer search from the turn after they arrive. Toxic Deluge pays X = 0 "
+          "life, as nothing in a goldfish is there for it."),
+    ),
+    Entry(
+        date(2026, 10, 9), "activated-land-search",
+        _("Wayfarer's Bauble, Myriad Landscape and Lander tokens"),
+        _("Wayfarer's Bauble, Burnished Hart, Myriad Landscape, Urza's Cave, the Panoramas and "
+          "Lander tokens now find their lands: a simulated game activates them with the mana "
+          "left once its spells are cast, and in the playtest a button does. Knight of the "
+          "White Orchid searches while an opponent has more lands, assuming each plays one a "
+          "turn. The report no longer counts filter lands or Reflecting Pool among the mana "
+          "sources that grow with your board."),
+    ),
+    Entry(
+        date(2026, 10, 9), "mana-on-top",
+        _("Wild Growth, Mirari's Wake and Cryptolith Rite"),
+        _("Auras such as Wild Growth, Fertile Ground and Utopia Sprawl now add their mana "
+          "when the land they enchant is tapped, and Mirari's Wake, Vorinclex, Kinnan, "
+          "Forsaken Monument, Caged Sun, Mana Reflection and Nyxbloom Ancient add theirs to "
+          "what you tap. With Cryptolith Rite or Enduring Vitality your creatures tap for any "
+          "colour from the turn after they arrive. Bloom Tender, Sanctum Weaver and Overgrown "
+          "Battlement count your board, and Battle Hymn and High Tide make their mana."),
+    ),
+    Entry(
+        date(2026, 10, 9), "tutor-to-top",
+        _("Vampiric Tutor, Minas Tirith and the battle lands"),
+        _("Vampiric, Mystical, Enlightened and Worldly Tutor now put the card they find on "
+          "top of your library, where you draw it next turn. Lands that enter tapped unless "
+          "you control a legendary creature, a planeswalker or a basic land, Starting Town "
+          "and the Turbulent lands now enter untapped when that holds; for the Turbulent "
+          "lands we assume each opponent plays a land a turn. Battle lands such as Prairie "
+          "Stream entered untapped beside a single basic land; now they wait for two."),
+    ),
+    Entry(
         date(2026, 10, 9), "board-counts",
         _("Gaea's Cradle, Elvish Archdruid, Nykthos and Tron"),
         _("Mana that counts your board now makes what it counts: Gaea's Cradle and Circle of "

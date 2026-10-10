@@ -95,6 +95,30 @@ boundary, not the symptom.
 #:    Dreams Druid per creature, Elvish Archdruid and Priest of Titania per
 #:    Elf, Cabal Stronghold per basic Swamp, Crypt of Agadeem per black
 #:    creature card in the graveyard, Nykthos by devotion, Tron together.
-ENGINE_VERSION = 15
+#: 16: P19 R12. Vampiric, Mystical, Enlightened and Worldly Tutor put their
+#:    card on top of the library. Lands that enter tapped unless you control
+#:    a legendary creature, a planeswalker or a basic land, Starting Town
+#:    (first three turns), the Turbulent lands (assuming each opponent plays a
+#:    land a turn) and "a player has 13 or less life" (your own life) are
+#:    checked against the game. A battle land no longer counts itself among
+#:    the basic lands it asks for, so it entered untapped beside one.
+#: 17: P19 R13. Mana on top of what a source makes: Wild Growth, Utopia
+#:    Sprawl, Mirari's Wake, Kinnan, Forsaken Monument, Caged Sun, Mana
+#:    Reflection; Cryptolith Rite and Abundant Growth give a mana ability;
+#:    Bloom Tender, Sanctum Weaver and Overgrown Battlement count the board,
+#:    Battle Hymn and High Tide are rituals that do.
+#: 18: P19 R14. Land searches that are activated - Wayfarer's Bauble,
+#:    Burnished Hart, Myriad Landscape, Urza's Cave, the Panoramas, Lander
+#:    tokens - with mana left once spells are cast, before an X spell; Knight
+#:    of the White Orchid while an opponent has more lands (assumed: one a
+#:    turn each); a Saga's first chapter as it enters. The report's "two
+#:    scaling mana sources" no longer counts filter lands or Reflecting Pool.
+#: 19: P19 R15. Additional costs are paid: a sacrifice (a Treasure, a Lander,
+#:    a creature that comes back, then the cheapest - never the commander or
+#:    a mana source; a land only to a land search worth it), life, a discard,
+#:    mana; "pay X life" with X = 0. Altars and Phyrexian Tower sacrifice
+#:    when their mana unlocks a spell, Spirit Guides are free rituals, and a
+#:    creature's {T} search (Wight of the Reliquary) waits a turn.
+ENGINE_VERSION = 19
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

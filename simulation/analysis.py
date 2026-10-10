@@ -28,7 +28,7 @@ import random
 from collections import Counter
 
 from simulation import agent, combos
-from simulation.cards import FLAT
+from simulation.cards import COUNTS, FILTER, FLAT, LANDS_COULD_PRODUCE
 from simulation.game import Game
 from simulation.manacost import SOURCES
 
@@ -195,13 +195,24 @@ def _scaling_mana_sources(cards) -> int:
     This is the general form of what used to be the name list
     ``{Cabal Coffers, Urborg, Crypt Ghast}``: anything that makes **no** fixed
     amount but depends on how many permanents are controlled. Two of them
-    together are the deck's actual ramp engine.
+    together are the deck's actual ramp engine. An Aura's bonus on its one
+    land (Wild Growth, Abundant Growth; P19 R13) is a fixed amount, and does
+    not count.
     """
-    return sum(
-        1
-        for card in cards
-        if any(ability.rule != FLAT for ability in card.mana_abilities)
-    )
+    return sum(1 for card in cards if any(map(_grows, card.mana_abilities)))
+
+
+#: Rules whose amount is fixed however large the board gets: a filter land
+#: (P19 R6) and Reflecting Pool (R5) make what they make.
+_FIXED_RULES = frozenset({FLAT, FILTER, LANDS_COULD_PRODUCE})
+
+
+def _grows(ability) -> bool:
+    """Does this ability make more as the board grows? Tron (``names:``) does
+    not: its seven are there once the three lands are."""
+    if ability.rule in _FIXED_RULES or ability.subtype.startswith("enchanted"):
+        return False
+    return not (ability.rule == COUNTS and ability.subtype.startswith("names:"))
 
 
 def _has_fast_mana(cards) -> bool:

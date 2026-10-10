@@ -40,6 +40,9 @@ class ActionForm(forms.Form):
     #: X for a spell with {X} in its cost (P19 R9); the engine checks that
     #: the pool pays for it.
     x = forms.IntegerField(required=False, min_value=0, max_value=99)
+    #: How an additional cost is paid, or what an altar sacrifices (P19 R15):
+    #: an index into the options the board offered; the engine checks it.
+    payment = forms.IntegerField(required=False, min_value=0, max_value=200)
     total = forms.IntegerField(required=False, min_value=MIN_LIFE, max_value=MAX_LIFE)
     zone = forms.ChoiceField(required=False,
                              choices=[(zone, zone) for zone in actions.ZONES])

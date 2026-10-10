@@ -9,8 +9,9 @@ first, then the card-advantage engines, then the sacrifice motor.
 """
 
 from simulation import actions
-from simulation.cards import PER_CONTROLLED, RITUAL, TYPE_ADDING
-from simulation.mana import ManaPool, effective_mana_cost, reductions_from
+from simulation.cards import LANDER, PER_CONTROLLED, RITUAL, TYPE_ADDING
+from simulation.game import TREASURE
+from simulation.mana import ManaPool, effective_mana_cost, land_colors, reductions_from
 from simulation.manacost import SUBTYPE_COLORS
 
 # From this priority upwards it is worth burning a ritual. A setting of the
@@ -165,7 +166,7 @@ def _try_ritual_line(game, pool: ManaPool) -> bool:
     rituals = [card for card in game.hand
                if card.kind == RITUAL and game.can_cast(card, pool)]
     if not rituals:
-        return False
+        return _try_altar(game, pool)
 
     castable_now = {card.name for card in game.hand if game.can_cast(card, pool)}
     for ritual in sorted(rituals, key=lambda c: c.mv):
@@ -173,7 +174,8 @@ def _try_ritual_line(game, pool: ManaPool) -> bool:
         cost = effective_mana_cost(ritual, reductions_from(game.battlefield))
         if test.pay_cost(cost, life=game.life) is None:
             continue
-        test.add(ritual.ritual_color, ritual.ritual_gain)
+        # What it makes now: Battle Hymn counts the board (P19 R13).
+        test.add(*game.ritual_mana(ritual))
         unlocked = [
             card for card in game.hand
             if card is not ritual
@@ -187,6 +189,32 @@ def _try_ritual_line(game, pool: ManaPool) -> bool:
         if unlocked:
             _do(game, actions.CastSpell(index=game.hand.index(ritual)))
             return True
+    return _try_altar(game, pool)
+
+
+def _try_altar(game, pool: ManaPool) -> bool:
+    """Sacrifice to an altar when its mana unlocks something, as a ritual is
+    cast (P19 R15): Ashnod's Altar with a creature to spare, Phyrexian Tower
+    trading its {C} for {B}{B}. What is sacrificed follows the fodder order -
+    never the commander, never a mana source."""
+    castable_now = {card.name for card in game.hand if game.can_cast(card, pool)}
+    for action in actions.altars(game, pool):
+        altar = actions.zone_of(game, action.zone)[action.index]
+        fodder = game.altar_fodder(altar, pool)[0]
+        test = pool.copy()
+        if fodder == TREASURE:
+            test.treasures.pop()
+        test.pay_cost(game.altar_cost(altar), life=game.life)
+        test.add(altar.sacrifice_mana_color, altar.sacrifice_mana_amount)
+        unlocked = [card for card in game.hand
+                    if card.kind != RITUAL and card.name not in castable_now
+                    and card is not fodder and priority(card) >= RITUAL_THRESHOLD
+                    and game.can_cast(card, test)]
+        if game.can_cast_commander(test) and not game.can_cast_commander(pool):
+            unlocked.append(None)
+        if unlocked:
+            _do(game, action)
+            return True
     return False
 
 
@@ -195,7 +223,8 @@ def _try_ritual_line(game, pool: ManaPool) -> bool:
 def _cast_best(game, pool: ManaPool) -> bool:
     """Cast the best playable card. Returns True when something happened."""
     castable = [card for card in game.hand
-                if card.kind != RITUAL and game.can_cast(card, pool)]
+                if card.kind != RITUAL and game.can_cast(card, pool)
+                and _worth_its_land(game, card, pool)]
     # An X spell takes whatever is left, so it waits until nothing else can
     # be cast - commander included (P19 R9).
     options = [card for card in castable if not card.x_count]
@@ -218,11 +247,93 @@ def _cast_best(game, pool: ManaPool) -> bool:
         return True
 
     if x_spells:
+        # A land search first: X takes everything that is left (P19 R14).
+        if _try_activation(game, pool):
+            return True
         spell = max(x_spells, key=priority)
         _do(game, actions.CastSpell(index=game.hand.index(spell), x=game.max_x(spell, pool)))
         return True
 
     return False
+
+
+# --- Activated land searches (P19 R14) ---------------------------------------
+
+def _activation_gain(game, card):
+    """What activating ``card``'s land search (None: a Lander) is worth, or
+    None when it is worth nothing: lands gained, then a colour the lands lack.
+
+    Worth it is one land more than it costs - Wayfarer's Bauble, Myriad
+    Landscape - or a colour the lands cannot make yet: Urza's Cave trades
+    itself for a land of the colour that is missing.
+    """
+    spec = card.land_search if card is not None else LANDER
+    lost_land = card if card is not None and card in game.lands else None
+    if card is not None and spec.sacrifices_land:
+        # Elvish Reclaimer, Knight of the Reliquary: a land for a land (P19 R15).
+        lost_land = game.activation_fodder(card)[0]
+    return _search_gain(game, spec, lost_land)
+
+
+def _search_gain(game, spec, lost_land):
+    """What a land search is worth when it costs ``lost_land`` (or None):
+    lands gained, then a colour the lands lack - or None for nothing."""
+    if spec.condition == "opponent_more_lands" and not game.opponent_has_more_lands():
+        return None
+    options = [land for land in game.library if land.is_land
+               and (land.basic or not spec.basic)
+               and (not spec.types or land.subtypes & spec.types)]
+    if not options:
+        return None
+    wanted = spec.battlefield + spec.hand
+    if spec.each:
+        found = sum(1 for kind in spec.types if any(kind in land.subtypes for land in options))
+    elif spec.share_type:
+        found = max(min(wanted, sum(1 for other in options if other.subtypes & land.subtypes))
+                    for land in options)
+    else:
+        found = min(wanted, len(options))
+    lost = 1 if lost_land is not None else 0
+    kept = list(game.lands)
+    if lost_land is not None:
+        # One copy of it: a deck's basics are often one card object.
+        kept.remove(lost_land)
+    have = frozenset().union(*(land_colors(land) for land in kept))
+    new_colour = any(land_colors(land) - have for land in options)
+    if found <= lost and not new_colour:
+        return None
+    return found - lost, new_colour
+
+
+def _worth_its_land(game, card, pool: ManaPool) -> bool:
+    """A land goes to an additional cost only for a land search worth it:
+    Harrow (two for one), Crop Rotation for a colour that is missing
+    (P19 R15). Nothing else is paid for with a land."""
+    payment = game.additional_payment(card, pool)
+    fodder = payment[1] if payment is not None else None
+    if fodder is None or isinstance(fodder, str) or not any(land is fodder for land in game.lands):
+        return True
+    return card.land_search is not None and _search_gain(game, card.land_search, fodder) is not None
+
+
+def _try_activation(game, pool: ManaPool) -> bool:
+    """Activate the land search worth most, with mana nothing else wants.
+
+    Called once spells and rituals are done and before an X spell takes the
+    rest. The lands come in tapped, so this is as good as waiting for an
+    opponent's end step.
+    """
+    best = None
+    for action in actions.activations(game, pool):
+        card = (None if isinstance(action, actions.ActivateLander)
+                else actions.zone_of(game, action.zone)[action.index])
+        gain = _activation_gain(game, card)
+        if gain is not None and (best is None or gain > best[0]):
+            best = (gain, action)
+    if best is None:
+        return False
+    _do(game, best[1])
+    return True
 
 
 def _do(game, action) -> None:
@@ -257,6 +368,8 @@ def take_turn(game) -> None:
         if _cast_best(game, pool):
             continue
         if _try_ritual_line(game, pool):
+            continue
+        if _try_activation(game, pool):
             continue
         break
 

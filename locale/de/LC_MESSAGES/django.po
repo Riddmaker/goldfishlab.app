@@ -9152,3 +9152,389 @@ msgstr "%(mana)s, solange du %(names)s kontrollierst"
 #, python-format
 msgid "one %(color)s for each %(type)s you control"
 msgstr "ein %(color)s pro %(type)s, den du kontrollierst"
+
+#: changelog/entries.py
+msgid "Vampiric Tutor, Minas Tirith and the battle lands"
+msgstr "Vampiric Tutor, Minas Tirith und die Battle Lands"
+
+#: changelog/entries.py
+msgid ""
+"Vampiric, Mystical, Enlightened and Worldly Tutor now put the card they find"
+" on top of your library, where you draw it next turn. Lands that enter "
+"tapped unless you control a legendary creature, a planeswalker or a basic "
+"land, Starting Town and the Turbulent lands now enter untapped when that "
+"holds; for the Turbulent lands we assume each opponent plays a land a turn. "
+"Battle lands such as Prairie Stream entered untapped beside a single basic "
+"land; now they wait for two."
+msgstr ""
+"Vampiric, Mystical, Enlightened und Worldly Tutor legen die gefundene Karte "
+"jetzt oben auf deine Bibliothek, und du ziehst sie im nächsten Zug. Länder, "
+"die getappt ins Spiel kommen, außer du kontrollierst eine legendäre Kreatur,"
+" einen Planeswalker oder ein Standardland, Starting Town und die Turbulent-"
+"Länder kommen jetzt ungetappt, wenn das zutrifft; bei den Turbulent-Ländern "
+"nehmen wir an, dass jeder Gegner pro Zug ein Land spielt. Battle Lands wie "
+"Prairie Stream kamen schon neben einem einzigen Standardland ungetappt; "
+"jetzt warten sie auf zwei."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s on top of the library, drawn next turn"
+msgstr "%(what)s oben auf die Bibliothek, im nächsten Zug gezogen"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters untapped from your fourth turn, assuming each opponent plays a land a"
+" turn"
+msgstr ""
+"kommt ab deinem vierten Zug ungetappt, angenommen jeder Gegner spielt pro "
+"Zug ein Land"
+
+#: changelog/entries.py
+msgid "Wild Growth, Mirari's Wake and Cryptolith Rite"
+msgstr "Wild Growth, Mirari's Wake und Cryptolith Rite"
+
+#: changelog/entries.py
+msgid ""
+"Auras such as Wild Growth, Fertile Ground and Utopia Sprawl now add their "
+"mana when the land they enchant is tapped, and Mirari's Wake, Vorinclex, "
+"Kinnan, Forsaken Monument, Caged Sun, Mana Reflection and Nyxbloom Ancient "
+"add theirs to what you tap. With Cryptolith Rite or Enduring Vitality your "
+"creatures tap for any colour from the turn after they arrive. Bloom Tender, "
+"Sanctum Weaver and Overgrown Battlement count your board, and Battle Hymn "
+"and High Tide make their mana."
+msgstr ""
+"Auren wie Wild Growth, Fertile Ground und Utopia Sprawl geben ihr Mana jetzt"
+" dazu, wenn das verzauberte Land getappt wird, und Mirari's Wake, Vorinclex,"
+" Kinnan, Forsaken Monument, Caged Sun, Mana Reflection und Nyxbloom Ancient "
+"geben ihres zu dem dazu, was du tappst. Mit Cryptolith Rite oder Enduring "
+"Vitality tappen deine Kreaturen ab dem Zug nach ihrem Eintreffen für jede "
+"Farbe. Bloom Tender, Sanctum Weaver und Overgrown Battlement zählen dein "
+"Spielfeld, und Battle Hymn und High Tide machen ihr Mana."
+
+#: simulations/engine/adapter.py
+msgid "1 of the chosen colour"
+msgstr "1 der gewählten Farbe"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "a permanent tapped for mana makes %(times)s times as much"
+msgstr "eine für Mana getappte bleibende Karte macht %(times)s-mal so viel"
+
+#: simulations/engine/adapter.py
+msgid "the enchanted land taps for one mana of any colour"
+msgstr "das verzauberte Land tappt für ein Mana einer beliebigen Farbe"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your creatures tap for %(mana)s"
+msgstr "deine Kreaturen tappen für %(mana)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more when the enchanted land is tapped for mana"
+msgstr "%(mana)s mehr, wenn das verzauberte Land für Mana getappt wird"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more when the enchanted Forest is tapped for mana"
+msgstr "%(mana)s mehr, wenn der verzauberte Forest für Mana getappt wird"
+
+#: simulations/engine/adapter.py
+msgid "one more mana of a type it made, whenever a land is tapped for mana"
+msgstr ""
+"ein Mana mehr einer Art, die es gemacht hat, wann immer ein Land für Mana "
+"getappt wird"
+
+#: simulations/engine/adapter.py
+msgid ""
+"one more mana of a type it made, whenever a nonland permanent is tapped for "
+"mana"
+msgstr ""
+"ein Mana mehr einer Art, die sie gemacht hat, wann immer eine bleibende "
+"Karte, die kein Land ist, für Mana getappt wird"
+
+#: simulations/engine/adapter.py
+msgid ""
+"one more mana of a type it made, whenever a permanent is tapped for mana"
+msgstr ""
+"ein Mana mehr einer Art, die sie gemacht hat, wann immer eine bleibende "
+"Karte für Mana getappt wird"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more whenever a creature is tapped for mana"
+msgstr "%(mana)s mehr, wann immer eine Kreatur für Mana getappt wird"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more whenever a permanent is tapped for {C}"
+msgstr "%(mana)s mehr, wann immer eine bleibende Karte für {C} getappt wird"
+
+#: simulations/engine/adapter.py
+msgid "one more mana of the chosen colour, whenever a land makes that colour"
+msgstr ""
+"ein Mana mehr der gewählten Farbe, wann immer ein Land diese Farbe macht"
+
+#: simulations/engine/adapter.py
+msgid ""
+"one more mana of the chosen colour, whenever a basic land makes that colour"
+msgstr ""
+"ein Mana mehr der gewählten Farbe, wann immer ein Standardland diese Farbe "
+"macht"
+
+#: simulations/engine/adapter.py
+msgid "one of each colour among your permanents"
+msgstr "eins jeder Farbe unter deinen bleibenden Karten"
+
+#: simulations/engine/adapter.py
+msgid "one mana of one colour for each enchantment you control"
+msgstr "ein Mana einer Farbe pro Verzauberung, die du kontrollierst"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each enchantment you control"
+msgstr "ein %(color)s pro Verzauberung, die du kontrollierst"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each creature you control with defender"
+msgstr "ein %(color)s pro Kreatur mit Verteidiger, die du kontrollierst"
+
+#: changelog/entries.py
+msgid "Wayfarer's Bauble, Myriad Landscape and Lander tokens"
+msgstr "Wayfarer's Bauble, Myriad Landscape und Lander-Token"
+
+#: changelog/entries.py
+msgid ""
+"Wayfarer's Bauble, Burnished Hart, Myriad Landscape, Urza's Cave, the "
+"Panoramas and Lander tokens now find their lands: a simulated game activates"
+" them with the mana left once its spells are cast, and in the playtest a "
+"button does. Knight of the White Orchid searches while an opponent has more "
+"lands, assuming each plays one a turn. The report no longer counts filter "
+"lands or Reflecting Pool among the mana sources that grow with your board."
+msgstr ""
+"Wayfarer's Bauble, Burnished Hart, Myriad Landscape, Urza's Cave, die "
+"Panoramas und Lander-Token finden jetzt ihre Länder: Ein simuliertes Spiel "
+"aktiviert sie mit dem Mana, das nach den Zaubern übrig ist, und im Playtest "
+"tut es ein Knopf. Knight of the White Orchid sucht, solange ein Gegner mehr "
+"Länder hat – angenommen, jeder spielt eines pro Zug. Der Report zählt "
+"Filter-Länder und Reflecting Pool nicht mehr zu den Manaquellen, die mit "
+"deinem Spielfeld wachsen."
+
+#: cards/profiles.py
+msgid "searches for lands in combat, which the engine does not play"
+msgstr "sucht Länder im Kampf, den die Engine nicht spielt"
+
+#: cards/profiles.py
+msgid "makes a Lander token at a moment the engine does not play"
+msgstr ""
+"erzeugt einen Lander-Token zu einem Zeitpunkt, den die Engine nicht spielt"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s of one land type"
+msgstr "%(what)s desselben Landtyps"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, one of each"
+msgstr "%(what)s, je eines"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(cost)s, sacrifice it: %(search)s"
+msgstr "%(cost)s, opfern: %(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, if an opponent controls more lands"
+msgstr "%(search)s, wenn ein Gegner mehr Länder kontrolliert"
+
+#: simulations/engine/adapter.py
+msgid ""
+"searches when you have fewer lands than turns gone by, assuming each "
+"opponent plays a land a turn"
+msgstr ""
+"sucht, wenn du weniger Länder hast als vergangene Züge – angenommen, jeder "
+"Gegner spielt ein Land pro Zug"
+
+#: playtest/views.py
+msgid "Land search activated"
+msgstr "Land-Suche aktiviert"
+
+#: playtest/views.py
+msgid "Lander activated"
+msgstr "Lander aktiviert"
+
+#: templates/playtest/_board.html
+msgid "Activate"
+msgstr "Aktivieren"
+
+#: templates/playtest/_board.html
+msgid "Activate a Lander: {2}, a basic land"
+msgstr "Lander aktivieren: {2}, ein Standardland"
+
+#: templates/playtest/_board.html
+#, python-format
+msgid "%(count)s Lander token"
+msgid_plural "%(count)s Lander tokens"
+msgstr[0] "%(count)s Lander-Token"
+msgstr[1] "%(count)s Lander-Token"
+
+#: changelog/entries.py
+msgid "Village Rites, Harrow, Natural Order and Ashnod's Altar"
+msgstr "Village Rites, Harrow, Natural Order und Ashnod's Altar"
+
+#: changelog/entries.py
+msgid ""
+"Spells that sacrifice, pay life or discard as an additional cost now pay it:"
+" a simulated game gives up a Treasure first, then a creature that comes "
+"back, then its cheapest - never your commander or a mana creature - and a "
+"land only to Harrow or a search worth it. In the playtest you choose what to"
+" sacrifice. Ashnod's Altar, Phyrexian Tower and Krark-Clan Ironworks "
+"sacrifice when their mana lets a spell be cast, the Spirit Guides add their "
+"mana from your hand, and Wight of the Reliquary and Elvish Reclaimer search "
+"from the turn after they arrive. Toxic Deluge pays X = 0 life, as nothing in"
+" a goldfish is there for it."
+msgstr ""
+"Zauber, die als zusätzliche Kosten opfern, Leben zahlen oder abwerfen, "
+"bezahlen das jetzt: Ein simuliertes Spiel gibt zuerst einen Treasure her, "
+"dann eine Kreatur, die zurückkommt, dann seine günstigste – nie deinen "
+"Commander oder eine Mana-Kreatur – und ein Land nur für Harrow oder eine "
+"Suche, die sich lohnt. Im Playtest wählst du, was du opferst. Ashnod's "
+"Altar, Phyrexian Tower und Krark-Clan Ironworks opfern, wenn ihr Mana einen "
+"Zauber spielbar macht, die Spirit Guides geben ihr Mana aus deiner Hand, und"
+" Wight of the Reliquary und Elvish Reclaimer suchen ab dem Zug nach ihrer "
+"Ankunft. Toxic Deluge zahlt X = 0 Leben, denn in einem Goldfish ist nichts "
+"dafür da."
+
+#: cards/profiles.py
+msgid "changes what other spells cost, which the engine does not model"
+msgstr "ändert, was andere Zauber kosten – das modelliert die Engine nicht"
+
+#: cards/profiles.py
+msgid "an ability that sacrifices for mana is not modelled"
+msgstr "eine Fähigkeit, die für Mana opfert, ist nicht modelliert"
+
+#: cards/profiles.py
+msgid "a mana ability that exiles the card from hand is not modelled"
+msgstr ""
+"eine Mana-Fähigkeit, die die Karte aus der Hand ins Exil schickt, ist nicht "
+"modelliert"
+
+#: simulations/engine/adapter.py
+msgid "pays X life with X = 0: in a goldfish there is nothing for X to hit"
+msgstr ""
+"zahlt X Leben mit X = 0: In einem Goldfish gibt es nichts, was X treffen "
+"könnte"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(cost)s, and %(extra)s"
+msgstr "%(cost)s, und %(extra)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "sacrifice a %(what)s"
+msgstr "opfere: %(what)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(life)s life"
+msgstr "%(life)s Leben"
+
+#: simulations/engine/adapter.py
+msgid "X life, paid as 0"
+msgstr "X Leben, bezahlt als 0"
+
+#: simulations/engine/adapter.py playtest/views.py
+#, python-format
+msgid "discard %(count)s card"
+msgid_plural "discard %(count)s cards"
+msgstr[0] "%(count)s Karte abwerfen"
+msgstr[1] "%(count)s Karten abwerfen"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "exile a %(what)s card from the graveyard"
+msgstr "eine Karte (%(what)s) aus dem Friedhof ins Exil schicken"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(what)s with mana value up to %(plus)s more than the creature sacrificed"
+msgstr "%(what)s mit Manawert bis zu %(plus)s mehr als die geopferte Kreatur"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "sacrifice a land: %(search)s"
+msgstr "ein Land opfern: %(search)s"
+
+#: simulations/engine/adapter.py
+msgid "sacrifice a land"
+msgstr "ein Land opfern"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "sacrifice a %(types)s"
+msgstr "opfere: %(types)s"
+
+#: simulations/engine/adapter.py
+msgid "sacrifice another creature"
+msgstr "eine andere Kreatur opfern"
+
+#: simulations/engine/adapter.py
+msgid "discard a card"
+msgstr "eine Karte abwerfen"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(cost)s: %(search)s, once a turn"
+msgstr "%(cost)s: %(search)s, einmal pro Zug"
+
+#: playtest/views.py
+msgid "a Treasure"
+msgstr "einen Treasure"
+
+#: playtest/views.py
+msgid "a Lander token"
+msgstr "einen Lander-Token"
+
+#: playtest/views.py
+#, python-format
+msgid "sacrifice %(what)s"
+msgstr "opfern: %(what)s"
+
+#: playtest/views.py
+#, python-format
+msgid "pay %(life)s life"
+msgstr "%(life)s Leben zahlen"
+
+#: playtest/views.py
+#, python-format
+msgid "pay %(mana)s"
+msgstr "%(mana)s zahlen"
+
+#: playtest/views.py
+msgid "exile a card from the graveyard"
+msgstr "eine Karte aus dem Friedhof ins Exil schicken"
+
+#: playtest/views.py
+msgid "X = 0"
+msgstr "X = 0"
+
+#: playtest/views.py
+msgid "Sacrificed for mana"
+msgstr "Für Mana geopfert"
+
+#: templates/playtest/_board.html
+msgid "How to pay its additional cost"
+msgstr "Wie die zusätzlichen Kosten bezahlt werden"
+
+#: templates/playtest/_board.html
+msgid "What to sacrifice"
+msgstr "Was geopfert wird"
+
+#: templates/playtest/_board.html
+msgid "Sacrifice for mana"
+msgstr "Für Mana opfern"

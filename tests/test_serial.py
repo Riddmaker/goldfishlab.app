@@ -19,7 +19,9 @@ from simulation.cards import (
     CREATURE,
     FILTER,
     FLAT,
+    MULTIPLY,
     PER_CONTROLLED,
+    AdditionalCost,
     Card,
     CostReduction,
     DeckDefinition,
@@ -56,6 +58,7 @@ EVERYTHING = Card(
         ManaAbility(rule=FLAT, produces=(("C", 2),),
                     only_if=TappedUnless(kind="artifacts", count=3)),
         ManaAbility(rule=FILTER, produces=(("WB", 2),), pays_with="WB"),
+        ManaAbility(rule=MULTIPLY, subtype="permanent", times=2),
     ),
     ritual_gain=3,
     ritual_color="R",
@@ -63,7 +66,8 @@ EVERYTHING = Card(
     draw_on_cast=2,
     life_on_cast=1,
     tutor=TutorSpec(to_hand=False, count=3, life=3, kind=CREATURE, to_battlefield=True,
-                    color="G", max_mv=4, max_mv_x=True),
+                    color="G", max_mv=4, max_mv_x=True, to_top=True,
+                    types=frozenset({"artifact", "enchantment"}), max_mv_sacrificed=2),
     upkeep=UpkeepSpec(draw=2, life=1, life_per_mv=True),
     end_step=EndStepSpec(max_hand=6, life_floor=20),
     skips_draw_step=True,
@@ -76,12 +80,18 @@ EVERYTHING = Card(
     untaps=False,
     land_search=LandSearch(battlefield=2, hand=1, tapped=False, basic=False,
                            types=frozenset({"forest", "island"}), life=1, when="play",
-                           sacrifice=True, untap_at=4),
+                           sacrifice=True, untap_at=4,
+                           cost=ManaCost(pips=(("G", 1),), generic=2), taps=True,
+                           share_type=True, each=True, condition="opponent_more_lands",
+                           sacrifices_land=True, land_cost_types=frozenset({"forest"}),
+                           sacrifice_other=frozenset({"creature"}), discard=1),
     basic=True,
     tapped_unless=TappedUnless(kind="lands", types=frozenset({"island"}), count=3,
-                               at_least=False, other=True, basic=True, type="island"),
+                               at_least=False, other=True, basic=True, type="island",
+                               legendary=True),
     treasures=2,
     treasure_mana="RG",
+    landers=1,
     discard_cost=1,
     discard_on_cast=2,
     put_back_on_cast=2,
@@ -89,6 +99,20 @@ EVERYTHING = Card(
     x_min=2,
     draws_x=True,
     creature_types=frozenset({"elf"}),
+    legendary=True,
+    colors=frozenset({"B", "G"}),
+    defender=True,
+    enchants="forest",
+    ritual_counts="tapped:island",
+    additional_costs=(AdditionalCost(sacrifice=frozenset({"artifact", "creature"}),
+                                     sacrifice_filter="G", life=3, life_x=True, discard=1,
+                                     mana=ManaCost(generic=2), exile_from_graveyard="creature"),
+                      AdditionalCost(life=5)),
+    sacrifice_mana=AdditionalCost(sacrifice=frozenset({"creature"}), sacrifice_filter="goblin"),
+    sacrifice_mana_amount=2,
+    sacrifice_mana_color="B",
+    sacrifice_mana_taps=True,
+    exiled_on_cast=True,
 )
 
 
@@ -229,3 +253,31 @@ def test_a_state_cached_before_version_three_still_loads():
     data = json.loads(json.dumps(serial.dump_game(game)))
     del data["stays_tapped"]
     assert serial.load_game(data, chainer.DECK).stays_tapped == []
+
+
+def test_a_chosen_colour_survives_the_trip():
+    """Caged Sun chose once (P19 R13); a reload must not choose again."""
+    game = Game(random.Random(3), deck=chainer.DECK)
+    game.chosen_colors = {"Caged Sun": "G"}
+    assert restored(game).chosen_colors == {"Caged Sun": "G"}
+    data = json.loads(json.dumps(serial.dump_game(game)))
+    del data["chosen_colors"]
+    assert serial.load_game(data, chainer.DECK).chosen_colors == {}
+
+
+def test_the_creatures_that_arrived_survive_the_trip():
+    """A creature's {T} waits a turn (P19 R15); a reload keeps that."""
+    game = Game(random.Random(3), deck=chainer.DECK)
+    game.arrived, game.tapped_creatures = ["Wight of the Reliquary"], ["Knight"]
+    back = restored(game)
+    assert (back.arrived, back.tapped_creatures) == (["Wight of the Reliquary"], ["Knight"])
+
+
+def test_a_lander_survives_the_trip():
+    """Lander tokens wait for their mana (P19 R14); a reload keeps them."""
+    game = Game(random.Random(3), deck=chainer.DECK)
+    game.landers = 2
+    assert restored(game).landers == 2
+    data = json.loads(json.dumps(serial.dump_game(game)))
+    del data["landers"]
+    assert serial.load_game(data, chainer.DECK).landers == 0

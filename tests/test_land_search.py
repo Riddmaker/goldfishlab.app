@@ -30,7 +30,9 @@ def test_a_ramp_spell_is_read_whole():
                  "battlefield tapped, then shuffle.")
     assert found.spec == {"battlefield": 1, "hand": 0, "tapped": True, "basic": True,
                           "types": [], "life": 0, "when": "cast", "sacrifice": False,
-                          "untap_at": 0}
+                          "untap_at": 0, "cost": "", "taps": False, "share_type": False,
+                          "each": False, "condition": "", "sacrifices_land": False,
+                          "land_cost_types": [], "sacrifice_other": [], "discard": 0}
 
 
 def test_cultivate_puts_one_onto_the_battlefield_and_one_in_hand():
@@ -89,14 +91,17 @@ def test_an_enchantment_fetches_when_it_enters():
 
 
 @pytest.mark.parametrize("text, kind, reason", [
-    # An opponent's lands: a goldfish has no opponent.
-    ("When this creature enters, if an opponent controls more lands than you, you may "
-     "search your library for a Plains card, put it onto the battlefield, then shuffle.",
-     Kind.CREATURE, "condition"),
-    # A mana cost to activate: not paid.
-    ("{2}, {T}, Sacrifice this land: Search your library for up to two basic land cards "
-     "that share a land type, put them onto the battlefield tapped, then shuffle.",
-     Kind.LAND, "cost"),
+    # An opponent's creature dying: a goldfish has no opponent. (Their lands
+    # are an assumption since P19 R14 - Knight of the White Orchid.)
+    ("Whenever a creature an opponent controls dies, you may search your library for a "
+     "Plains card, put it onto the battlefield, then shuffle.", Kind.CREATURE, "condition"),
+    # A cost nothing pays: a card exiled from the graveyard (a creature's {T}
+    # is played since P19 R15 - Wight of the Reliquary).
+    ("{T}, Exile a Treefolk card from your graveyard: Search your library for up to two "
+     "Forest cards, put them onto the battlefield tapped, then shuffle.", Kind.CREATURE, "cost"),
+    # Combat (P19 R14): the engine plays none.
+    ("Whenever equipped creature attacks, you may search your library for a basic land "
+     "card, put it onto the battlefield tapped, then shuffle.", Kind.ARTIFACT, "combat"),
     # A snow land: nothing here describes one.
     ("Search your library for a snow land card, put it onto the battlefield tapped, then "
      "shuffle.", Kind.SORCERY, "describe"),

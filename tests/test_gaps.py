@@ -144,7 +144,9 @@ def test_the_unreadable_deck_is_unreadable_and_not_merely_unjudged(build):
     """
     conversion = adapter.convert(build(UNMODELLABLE))
     assert conversion.readable < 0.6, "the deck of unreadable cards reads too well"
-    assert conversion.cards_unreadable >= 5
+    # Four since engine version 19 read Toxic Deluge, Phyrexian Tower and
+    # Ashnod's Altar (P19 R15): what the fixture still holds that it cannot.
+    assert conversion.cards_unreadable >= 4
 
 
 def test_a_deck_nobody_annotated_still_reads_well(build):

@@ -164,10 +164,16 @@ def test_the_deck_definitions_are_equal(converted):
         # aggregates below are the proof of that. `basic` likewise: only a
         # land search reads it (engine version 6), and this deck has none.
         # `creature_types` too: only a counting rule reads it (engine version
-        # 15, Elvish Archdruid), and this deck has none either.
+        # 15, Elvish Archdruid), and this deck has none either. `legendary`
+        # likewise: only a land's condition asks it (16, Minas Tirith).
+        # `colors` and `defender` too: only a counting rule reads them (17,
+        # Bloom Tender, Overgrown Battlement), and this deck has none.
+        # `additional_costs` (19): the deck's one, Ritual of the Machine's
+        # sacrifice, is on a card the engine never casts (no creature to steal).
         return replace(card, name=normalise(card.name), cost=card.mana_cost,
                        types=frozenset(), categories=frozenset(), basic=False,
-                       creature_types=frozenset())
+                       creature_types=frozenset(), legendary=False,
+                       colors=frozenset(), defender=False, additional_costs=())
 
     def fold(definition):
         return tuple(

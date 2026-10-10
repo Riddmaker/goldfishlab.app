@@ -31,6 +31,19 @@ def read(text: str):
      "don't, this land enters tapped.", {"kind": "reveal", "types": ["plains", "swamp"]}),
     ("As this land enters, you may pay 2 life. If you don't, it enters tapped.",
      {"kind": "pay_life", "life": 2}),
+    # P19 R12
+    ("Minas Tirith enters tapped unless you control a legendary creature.",
+     {"kind": "permanent", "types": ["creature"], "legendary": True}),
+    ("This land enters tapped unless you control a planeswalker.",
+     {"kind": "permanent", "types": ["planeswalker"], "legendary": False}),
+    ("This land enters tapped unless you control a basic land.",
+     {"kind": "lands", "count": 1, "basic": True}),
+    ("This land enters tapped unless it's your first, second, or third turn of the game.",
+     {"kind": "turn", "count": 3}),
+    ("This land enters tapped unless your opponents control eight or more lands.",
+     {"kind": "opponent_lands", "count": 8}),
+    ("This land enters tapped unless a player has 13 or less life.",
+     {"kind": "life_at_most", "count": 13}),
 ])
 def test_the_condition_is_read_and_is_no_longer_a_gap(text, condition):
     assert read(text) == (True, "", condition)
@@ -38,7 +51,7 @@ def test_the_condition_is_read_and_is_no_longer_a_gap(text, condition):
 
 def test_a_condition_it_cannot_read_stays_a_gap():
     tapped, note, condition = read(
-        "This land enters tapped unless you control a legendary creature.")
+        "This land enters tapped unless you control a legendary green creature.")
     assert tapped and "conditionally" in note and condition is None
 
 
@@ -101,3 +114,78 @@ def test_a_shock_land_fetched_tapped_pays_nothing():
     game.library, game.lands, game.tapped_lands = [shock], [], 0
     game.search_lands(Card("Wilds", 0, 0, 0, LAND, land_search=LandSearch(basic=False)))
     assert (game.tapped_lands, game.life) == (1, 40)
+
+
+# --- P19 R12 ------------------------------------------------------------------
+
+
+def test_a_battle_land_does_not_count_itself_as_a_basic_land():
+    battle = land("Prairie Stream", unless=TappedUnless("lands", count=2, basic=True))
+    assert play(battle, lands=[FOREST]).tapped_lands == 1
+    assert play(battle, lands=[FOREST, ISLAND]).tapped_lands == 0
+
+
+def test_a_basic_land_out_lets_ba_sing_se_enter_untapped():
+    temple = land("Ba Sing Se", unless=TappedUnless("lands", count=1, basic=True))
+    assert play(temple, lands=[]).tapped_lands == 1
+    assert play(temple, lands=[land("Bayou")]).tapped_lands == 1
+    assert play(temple, lands=[FOREST]).tapped_lands == 0
+
+
+def test_minas_tirith_needs_a_legendary_creature():
+    tirith = land("Minas Tirith", unless=TappedUnless("permanent", frozenset({"creature"}),
+                                                       legendary=True))
+    plain = Card("Grizzly Bears", 2, 1, 1, "creature", types=frozenset({"creature"}))
+    legend = Card("Tuvasa", 3, 3, 0, "creature", types=frozenset({"creature"}), legendary=True)
+    game = Game(random.Random(1))
+    game.library, game.hand, game.lands, game.tapped_lands = [], [tirith], [], 0
+    game.creatures = [plain]
+    assert not game.untaps_on_entering(tirith)
+    game.creatures = [plain, legend]
+    assert game.untaps_on_entering(tirith)
+
+
+def test_starting_town_is_untapped_in_the_first_three_turns():
+    town = land("Starting Town", unless=TappedUnless("turn", count=3))
+    game = Game(random.Random(1))
+    game.turn = 3
+    assert game.untaps_on_entering(town)
+    game.turn = 4
+    assert not game.untaps_on_entering(town)
+
+
+def test_a_turbulent_land_assumes_each_opponent_plays_a_land_a_turn():
+    fen = land("Turbulent Fen", unless=TappedUnless("opponent_lands", count=8))
+    game = Game(random.Random(1))
+    game.turn = 3
+    assert not game.untaps_on_entering(fen)
+    game.turn = 4
+    assert game.untaps_on_entering(fen)
+
+
+def test_low_life_counts_only_your_own():
+    campground = land("Abandoned Campground", unless=TappedUnless("life_at_most", count=13))
+    game = Game(random.Random(1))
+    assert not game.untaps_on_entering(campground)
+    game.life = 13
+    assert game.untaps_on_entering(campground)
+
+
+def test_the_turbulent_assumption_is_a_stated_judgement_not_a_gap(db):
+    import uuid
+
+    from cards import profiles
+    from simulations import gaps
+    from simulations.engine import adapter
+
+    fen = OracleCard.objects.create(
+        oracle_id=uuid.uuid4(), name="Turbulent Fen", front_name="Turbulent Fen",
+        search_name="turbulent fen", type_line="Land", produced_mana=["B", "G"],
+        oracle_text="({T}: Add {B} or {G}.)\nThis land enters tapped unless your opponents "
+                    "control eight or more lands.")
+    profiles.rebuild(OracleCard.objects.filter(pk=fen.pk))
+    card, found = adapter.engine_readings([fen], builtin=False)[fen.pk]
+    assert card.tapped_unless == TappedUnless("opponent_lands", count=8)
+    assumed = [gap for gap in found if gap.field == "assumed_lands"]
+    assert assumed and gaps.kind_of("assumed_lands") == gaps.JUDGEMENT
+    assert not gaps.of_kind(found, gaps.READING)

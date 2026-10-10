@@ -8097,3 +8097,358 @@ msgstr "%(names)sをコントロールしている間は%(mana)s"
 #, python-format
 msgid "one %(color)s for each %(type)s you control"
 msgstr "あなたがコントロールする%(type)s 1体につき%(color)s 1つ"
+
+#: changelog/entries.py
+msgid "Vampiric Tutor, Minas Tirith and the battle lands"
+msgstr "Vampiric Tutor、Minas Tirith、バトルランド"
+
+#: changelog/entries.py
+msgid ""
+"Vampiric, Mystical, Enlightened and Worldly Tutor now put the card they find"
+" on top of your library, where you draw it next turn. Lands that enter "
+"tapped unless you control a legendary creature, a planeswalker or a basic "
+"land, Starting Town and the Turbulent lands now enter untapped when that "
+"holds; for the Turbulent lands we assume each opponent plays a land a turn. "
+"Battle lands such as Prairie Stream entered untapped beside a single basic "
+"land; now they wait for two."
+msgstr ""
+"Vampiric、Mystical、Enlightened、Worldly Tutor "
+"は、見つけたカードをライブラリーの一番上に置くようになり、次のターンに引けます。伝説のクリーチャー、プレインズウォーカー、基本土地をコントロールしていない限りタップ状態で戦場に出る土地、Starting"
+" Town、Turbulent 土地は、条件を満たすとアンタップ状態で出るようになりました。Turbulent "
+"土地については、各対戦相手が毎ターン土地を1枚出すと仮定しています。Prairie Stream "
+"などのバトルランドは基本土地1枚だけでもアンタップ状態で出ていましたが、今は2枚を待ちます。"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s on top of the library, drawn next turn"
+msgstr "%(what)s をライブラリーの一番上へ、次のターンに引く"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters untapped from your fourth turn, assuming each opponent plays a land a"
+" turn"
+msgstr "各対戦相手が毎ターン土地を1枚出すと仮定し、あなたの4ターン目からアンタップ状態で出る"
+
+#: changelog/entries.py
+msgid "Wild Growth, Mirari's Wake and Cryptolith Rite"
+msgstr "Wild Growth、Mirari's Wake、Cryptolith Rite"
+
+#: changelog/entries.py
+msgid ""
+"Auras such as Wild Growth, Fertile Ground and Utopia Sprawl now add their "
+"mana when the land they enchant is tapped, and Mirari's Wake, Vorinclex, "
+"Kinnan, Forsaken Monument, Caged Sun, Mana Reflection and Nyxbloom Ancient "
+"add theirs to what you tap. With Cryptolith Rite or Enduring Vitality your "
+"creatures tap for any colour from the turn after they arrive. Bloom Tender, "
+"Sanctum Weaver and Overgrown Battlement count your board, and Battle Hymn "
+"and High Tide make their mana."
+msgstr ""
+"Wild Growth、Fertile Ground、Utopia Sprawl "
+"などのオーラは、エンチャントしている土地がタップされたときにマナを加えるようになりました。Mirari's "
+"Wake、Vorinclex、Kinnan、Forsaken Monument、Caged Sun、Mana Reflection、Nyxbloom "
+"Ancient は、あなたがタップしたものにマナを上乗せします。Cryptolith Rite や Enduring Vitality "
+"があれば、クリーチャーは戦場に出た次のターンから任意の色のマナを出せます。Bloom Tender、Sanctum Weaver、Overgrown "
+"Battlement は盤面を数え、Battle Hymn と High Tide はマナを生み出します。"
+
+#: simulations/engine/adapter.py
+msgid "1 of the chosen colour"
+msgstr "選んだ色を1つ"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "a permanent tapped for mana makes %(times)s times as much"
+msgstr "マナのためにタップしたパーマネントは%(times)s倍のマナを生む"
+
+#: simulations/engine/adapter.py
+msgid "the enchanted land taps for one mana of any colour"
+msgstr "エンチャントされている土地は任意の色のマナ1点を出す"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your creatures tap for %(mana)s"
+msgstr "あなたのクリーチャーはタップして%(mana)sを出す"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more when the enchanted land is tapped for mana"
+msgstr "エンチャントされている土地がマナのためにタップされると%(mana)s追加"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more when the enchanted Forest is tapped for mana"
+msgstr "エンチャントされているForestがマナのためにタップされると%(mana)s追加"
+
+#: simulations/engine/adapter.py
+msgid "one more mana of a type it made, whenever a land is tapped for mana"
+msgstr "土地がマナのためにタップされるたび、それが出した種類のマナを1点追加"
+
+#: simulations/engine/adapter.py
+msgid ""
+"one more mana of a type it made, whenever a nonland permanent is tapped for "
+"mana"
+msgstr "土地でないパーマネントがマナのためにタップされるたび、それが出した種類のマナを1点追加"
+
+#: simulations/engine/adapter.py
+msgid ""
+"one more mana of a type it made, whenever a permanent is tapped for mana"
+msgstr "パーマネントがマナのためにタップされるたび、それが出した種類のマナを1点追加"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more whenever a creature is tapped for mana"
+msgstr "クリーチャーがマナのためにタップされるたび%(mana)s追加"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s more whenever a permanent is tapped for {C}"
+msgstr "パーマネントが{C}のためにタップされるたび%(mana)s追加"
+
+#: simulations/engine/adapter.py
+msgid "one more mana of the chosen colour, whenever a land makes that colour"
+msgstr "土地が選んだ色のマナを出すたび、その色のマナを1点追加"
+
+#: simulations/engine/adapter.py
+msgid ""
+"one more mana of the chosen colour, whenever a basic land makes that colour"
+msgstr "基本土地が選んだ色のマナを出すたび、その色のマナを1点追加"
+
+#: simulations/engine/adapter.py
+msgid "one of each colour among your permanents"
+msgstr "あなたのパーマネントの色それぞれにつき1点"
+
+#: simulations/engine/adapter.py
+msgid "one mana of one colour for each enchantment you control"
+msgstr "あなたがコントロールするエンチャント1つにつき単一の色のマナ1点"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each enchantment you control"
+msgstr "あなたがコントロールするエンチャント1つにつき%(color)s1点"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each creature you control with defender"
+msgstr "あなたがコントロールする防衛を持つクリーチャー1体につき%(color)s1点"
+
+#: changelog/entries.py
+msgid "Wayfarer's Bauble, Myriad Landscape and Lander tokens"
+msgstr "Wayfarer's Bauble、Myriad Landscape、Landerトークン"
+
+#: changelog/entries.py
+msgid ""
+"Wayfarer's Bauble, Burnished Hart, Myriad Landscape, Urza's Cave, the "
+"Panoramas and Lander tokens now find their lands: a simulated game activates"
+" them with the mana left once its spells are cast, and in the playtest a "
+"button does. Knight of the White Orchid searches while an opponent has more "
+"lands, assuming each plays one a turn. The report no longer counts filter "
+"lands or Reflecting Pool among the mana sources that grow with your board."
+msgstr ""
+"Wayfarer's Bauble、Burnished Hart、Myriad Landscape、Urza's "
+"Cave、Panoramaの土地、Landerトークンが土地を見つけるようになりました。シミュレーションでは呪文を唱えた後に残ったマナで起動し、プレイテストではボタンで起動できます。Knight"
+" of the White "
+"Orchidは、各対戦相手が毎ターン土地を1枚プレイすると仮定し、対戦相手の方が土地が多い間はサーチします。レポートは、フィルターランドとReflecting"
+" Poolを、盤面とともに増えるマナ源に数えなくなりました。"
+
+#: cards/profiles.py
+msgid "searches for lands in combat, which the engine does not play"
+msgstr "戦闘中に土地をサーチするが、エンジンは戦闘をプレイしない"
+
+#: cards/profiles.py
+msgid "makes a Lander token at a moment the engine does not play"
+msgstr "エンジンがプレイしないタイミングでLanderトークンを生成する"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s of one land type"
+msgstr "同じ土地タイプの%(what)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, one of each"
+msgstr "%(what)s（各1枚）"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(cost)s, sacrifice it: %(search)s"
+msgstr "%(cost)s、これを生け贄に捧げる：%(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, if an opponent controls more lands"
+msgstr "%(search)s（対戦相手の方が多くの土地をコントロールしている場合）"
+
+#: simulations/engine/adapter.py
+msgid ""
+"searches when you have fewer lands than turns gone by, assuming each "
+"opponent plays a land a turn"
+msgstr "各対戦相手が毎ターン土地を1枚プレイすると仮定し、経過したターン数より土地が少ないときにサーチする"
+
+#: playtest/views.py
+msgid "Land search activated"
+msgstr "土地サーチを起動"
+
+#: playtest/views.py
+msgid "Lander activated"
+msgstr "Landerを起動"
+
+#: templates/playtest/_board.html
+msgid "Activate"
+msgstr "起動"
+
+#: templates/playtest/_board.html
+msgid "Activate a Lander: {2}, a basic land"
+msgstr "Landerを起動：{2}、基本土地1枚"
+
+#: templates/playtest/_board.html
+#, python-format
+msgid "%(count)s Lander token"
+msgid_plural "%(count)s Lander tokens"
+msgstr[0] "Landerトークン%(count)s個"
+
+#: changelog/entries.py
+msgid "Village Rites, Harrow, Natural Order and Ashnod's Altar"
+msgstr "Village Rites、Harrow、Natural Order、Ashnod's Altar"
+
+#: changelog/entries.py
+msgid ""
+"Spells that sacrifice, pay life or discard as an additional cost now pay it:"
+" a simulated game gives up a Treasure first, then a creature that comes "
+"back, then its cheapest - never your commander or a mana creature - and a "
+"land only to Harrow or a search worth it. In the playtest you choose what to"
+" sacrifice. Ashnod's Altar, Phyrexian Tower and Krark-Clan Ironworks "
+"sacrifice when their mana lets a spell be cast, the Spirit Guides add their "
+"mana from your hand, and Wight of the Reliquary and Elvish Reclaimer search "
+"from the turn after they arrive. Toxic Deluge pays X = 0 life, as nothing in"
+" a goldfish is there for it."
+msgstr ""
+"追加コストとして生け贄、ライフの支払い、手札を捨てることを要求する呪文が、そのコストを支払うようになりました。シミュレーションでは、まず宝物を、次に戻ってくるクリーチャーを、その次に最も安いものを差し出します。統率者やマナ・クリーチャーは差し出さず、土地はHarrowか価値のあるサーチにだけ使います。プレイテストでは何を生け贄に捧げるかを選べます。Ashnod's"
+" Altar、Phyrexian Tower、Krark-Clan "
+"Ironworksは、そのマナで呪文が唱えられるようになるときに生け贄を捧げ、Spirit Guideは手札からマナを加え、Wight of the "
+"ReliquaryとElvish Reclaimerは戦場に出た次のターンからサーチします。Toxic DelugeはX = "
+"0のライフを支払います。ゴールドフィッシュには対象がないからです。"
+
+#: cards/profiles.py
+msgid "changes what other spells cost, which the engine does not model"
+msgstr "他の呪文のコストを変えるが、エンジンはそれをモデル化しない"
+
+#: cards/profiles.py
+msgid "an ability that sacrifices for mana is not modelled"
+msgstr "マナのために生け贄を捧げる能力はモデル化されていない"
+
+#: cards/profiles.py
+msgid "a mana ability that exiles the card from hand is not modelled"
+msgstr "手札からこのカードを追放するマナ能力はモデル化されていない"
+
+#: simulations/engine/adapter.py
+msgid "pays X life with X = 0: in a goldfish there is nothing for X to hit"
+msgstr "X = 0としてXライフを支払う：ゴールドフィッシュではXの対象が何もない"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(cost)s, and %(extra)s"
+msgstr "%(cost)s、さらに%(extra)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "sacrifice a %(what)s"
+msgstr "%(what)sを生け贄に捧げる"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(life)s life"
+msgstr "%(life)sライフ"
+
+#: simulations/engine/adapter.py
+msgid "X life, paid as 0"
+msgstr "Xライフ（0として支払う）"
+
+#: simulations/engine/adapter.py playtest/views.py
+#, python-format
+msgid "discard %(count)s card"
+msgid_plural "discard %(count)s cards"
+msgstr[0] "%(count)s枚捨てる"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "exile a %(what)s card from the graveyard"
+msgstr "墓地から%(what)sカードを1枚追放する"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(what)s with mana value up to %(plus)s more than the creature sacrificed"
+msgstr "生け贄に捧げたクリーチャーよりマナ総量が最大%(plus)s多い%(what)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "sacrifice a land: %(search)s"
+msgstr "土地を1つ生け贄に捧げる：%(search)s"
+
+#: simulations/engine/adapter.py
+msgid "sacrifice a land"
+msgstr "土地を1つ生け贄に捧げる"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "sacrifice a %(types)s"
+msgstr "%(types)sを1つ生け贄に捧げる"
+
+#: simulations/engine/adapter.py
+msgid "sacrifice another creature"
+msgstr "他のクリーチャーを1体生け贄に捧げる"
+
+#: simulations/engine/adapter.py
+msgid "discard a card"
+msgstr "カードを1枚捨てる"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(cost)s: %(search)s, once a turn"
+msgstr "%(cost)s：%(search)s（1ターンに1回）"
+
+#: playtest/views.py
+msgid "a Treasure"
+msgstr "宝物"
+
+#: playtest/views.py
+msgid "a Lander token"
+msgstr "Landerトークン"
+
+#: playtest/views.py
+#, python-format
+msgid "sacrifice %(what)s"
+msgstr "%(what)sを生け贄に捧げる"
+
+#: playtest/views.py
+#, python-format
+msgid "pay %(life)s life"
+msgstr "%(life)sライフを支払う"
+
+#: playtest/views.py
+#, python-format
+msgid "pay %(mana)s"
+msgstr "%(mana)sを支払う"
+
+#: playtest/views.py
+msgid "exile a card from the graveyard"
+msgstr "墓地からカードを1枚追放する"
+
+#: playtest/views.py
+msgid "X = 0"
+msgstr "X = 0"
+
+#: playtest/views.py
+msgid "Sacrificed for mana"
+msgstr "マナのために生け贄"
+
+#: templates/playtest/_board.html
+msgid "How to pay its additional cost"
+msgstr "追加コストの支払い方"
+
+#: templates/playtest/_board.html
+msgid "What to sacrifice"
+msgstr "生け贄に捧げるもの"
+
+#: templates/playtest/_board.html
+msgid "Sacrifice for mana"
+msgstr "マナのために生け贄に捧げる"

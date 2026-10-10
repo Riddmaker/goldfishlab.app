@@ -167,7 +167,7 @@ def test_a_deck_of_legal_cards_passes_the_card_check(deck):
 
 def test_coverage_reports_what_the_reader_could_not_resolve(deck):
     """The honesty number, present from Phase 1 so no page can overclaim."""
-    add(deck, "Phyrexian Tower")  # mana for a sacrificed creature - unresolvable
+    add(deck, "Cabal Ritual")  # mana "instead" with a full graveyard - unresolvable
     add(deck, "Sol Ring")  # fully resolved
 
     result = analyse(deck)

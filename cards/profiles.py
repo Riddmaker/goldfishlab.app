@@ -273,6 +273,13 @@ _OPPONENT_LANDS = re.compile(r"\s*that a land an opponent controls could produce
 # creates, a land it enchants, creatures it pumps. The grantee is the mana
 # source; this card is not. Curly quotes included because Oracle text uses both.
 _GRANTED = re.compile(r"[\"“][^\"”]*[\"”]")
+#: P19 R12: mana made for another player, or by a target turned into a land
+#: or a Treasure: removal, not a mana source.
+_FOR_SOMEONE_ELSE = re.compile(
+    r"Its controller creates (?:\w+ )?Treasure|Target [^.:]*becomes a Treasure"
+    r"|Enchanted permanent is a colorless land", re.IGNORECASE)
+#: A land with a basic land type taps for its colour by that type alone.
+_BASIC_TYPE_LINE = re.compile(r"\bLand\b.*\b(?:Plains|Island|Swamp|Mountain|Forest)\b")
 # Anything that makes an amount depend on the board state is unresolvable here.
 _SCALING = re.compile(r"\bfor each\b|\bequal to\b|\btimes\b|\bX\b")
 _SCALES_UP_FRONT = re.compile(r"(?:an amount of|X mana|mana equal to)", re.IGNORECASE)
@@ -329,7 +336,8 @@ _OPPONENT_LOSS = re.compile(
 )
 
 _WORD_NUMBERS = {"a": 1, "an": 1, "one": 1, "two": 2, "three": 3, "four": 4,
-                 "five": 5}
+                 "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9,
+                 "ten": 10}
 
 #: "Search **your** library for up to three creature cards". The pronoun is the
 #: whole check: "target player searches their library" is a card that makes an
@@ -352,7 +360,23 @@ _TO_BATTLEFIELD = re.compile(
     r"(?: with mana value (?P<mv>X|\d+) or less)?"
     r"(?:,| and) put (?:it|that card) onto the battlefield",
     re.IGNORECASE)
+#: P19 R15: Eldritch Evolution - "a creature card with mana value X or less,
+#: where X is 2 plus the sacrificed creature's mana value. Put that card onto
+#: the battlefield".
+_PLUS_SACRIFICED = re.compile(
+    r"Search your library for a creature card with mana value X or less, where X is "
+    r"(?P<n>\w+) plus the sacrificed creature's mana value\. Put that card onto the battlefield",
+    re.IGNORECASE)
 _COLOR_LETTER = {"white": "W", "blue": "U", "black": "B", "red": "R", "green": "G"}
+#: P19 R12: Vampiric Tutor, Mystical Tutor, Worldly Tutor: "Search your library
+#: for a[n instant or sorcery] card, [reveal it, ]then shuffle and put that
+#: card on top." Its zone is in the text, not in a tag.
+_TO_TOP = re.compile(
+    r"Search your library for an? (?:(?P<what>[a-z]+(?: or [a-z]+)?) )?card, "
+    r"(?:reveal it, )?then shuffle and put (?:that|the) card on top\.",
+    re.IGNORECASE)
+_TOP_TYPES = frozenset({"artifact", "creature", "enchantment", "instant", "sorcery",
+                        "planeswalker", "land"})
 
 #: "As an additional cost to cast this spell, sacrifice a creature." The engine
 #: pays mana and nothing else, so it casts Diabolic Intent for {2}{B} and gets a
@@ -365,6 +389,26 @@ _ADDITIONAL_COST = re.compile(r"As an additional cost to cast", re.IGNORECASE)
 _DISCARD_COST = re.compile(
     r"^As an additional cost to cast this spell, discard (a|one|two|three) cards?\.$",
     re.IGNORECASE | re.MULTILINE)
+#: P19 R15: every other additional cost of the card's own, one sentence.
+_OWN_ADDITIONAL_COST = re.compile(
+    r"(?:^|\()As an additional cost to cast this spell, (?P<body>[^.]+)\.", re.MULTILINE)
+#: The parts such a cost is made of, any of them joined by " or ".
+_COST_PARTS = re.compile(
+    r"sacrifice an? (?:(?P<filter>white|blue|black|red|green|legendary) )?"
+    r"(?P<t1>artifact|creature|land|enchantment)"
+    r"(?: or (?:an? )?(?P<t2>artifact|creature|land|enchantment)(?![\w ]*life))?"
+    r"|sacrifice an? (?P<subtype>[A-Z][a-z]+)"
+    r"|pay (?P<life>\d+|X) life"
+    r"|discard (?P<discard>a|one|two) cards?"
+    r"|pay (?P<mana>(?:\{[\dWUBRGC]\})+)"
+    r"|exile an? (?P<exile>creature|artifact|land) card from your graveyard")
+_COLOR_WORDS = {"white": "W", "blue": "U", "black": "B", "red": "R", "green": "G"}
+#: An additional cost on *other* spells (Defiler of Vigor): not the card's own.
+_OTHER_SPELLS_COST = re.compile(
+    r"As an additional cost to cast (?!this spell)[\w ]+ spells", re.IGNORECASE)
+#: A sentence that pays off the optional cost: read only as not paid.
+_PAID_PAYOFF = re.compile(r"\bthis way\b|additional cost was paid|\bwhen you do\b",
+                          re.IGNORECASE)
 #: Treasure a card makes as it resolves (P19 R7): a spell's own sentence
 #: ("Draw two cards and create two Treasure tokens.") or a permanent's arrival
 #: ("When this creature enters, create two Treasure tokens."). Not a trigger
@@ -374,6 +418,19 @@ _TREASURE_ON_ENTER = re.compile(
     re.IGNORECASE | re.MULTILINE)
 _TREASURE_IN_SPELL = re.compile(r"\bcreate (a|one|two|three|four) Treasure tokens?\.$",
                                 re.IGNORECASE)
+#: Lander tokens (P19 R14), read like Treasure: "When this creature enters,
+#: create a Lander token." or a spell's "Create a Lander token."
+_LANDER_ON_ENTER = re.compile(
+    r"^When (?:this [\w ]+?|~) enters, create (a|one|two|three) Lander tokens?\.",
+    re.IGNORECASE | re.MULTILINE)
+_LANDER_IN_SPELL = re.compile(r"\bcreate (a|one|two|three) Lander tokens?\.$", re.IGNORECASE)
+_LANDER_SACRIFICED = re.compile(r"sacrifice (?:that|those) tokens?", re.IGNORECASE)
+#: A Lander's reminder text: its search is the token's, not the card's.
+_LANDER_REMINDER = re.compile(
+    r"\((?:It's an artifact|A Lander token is an artifact) with \"\{2\}, \{T\}, "
+    r"Sacrifice this token: Search your library for a basic land card, put it onto the "
+    r"battlefield tapped, then shuffle\.\"\)")
+_LANDER = re.compile(r"\bLander tokens?\b")
 #: A sentence that makes it under a condition, or an ability's cost before it
 #: (Magma Opus: "Discard this card: Create a Treasure token.").
 _CONDITIONAL_SENTENCE = re.compile(r"^(?:For each|When|Whenever|If|At|Until)\b", re.IGNORECASE)
@@ -498,6 +555,25 @@ _UNLESS_LANDS = re.compile(
 _UNLESS_OPPONENTS = re.compile(
     rf"enters(?: the battlefield)? tapped unless you have {_NUMBER_WORD} or more opponents\.",
     re.IGNORECASE)
+#: P19 R12: "unless you control a legendary creature" (Minas Tirith, Rivendell),
+#: "a planeswalker" (Dedicated Commons), "a basic land" (Ba Sing Se).
+_UNLESS_PERMANENT = re.compile(
+    r"enters(?: the battlefield)? tapped unless you control an? "
+    r"(?P<what>legendary creature|planeswalker|basic land)\.", re.IGNORECASE)
+#: P19 R12: Starting Town.
+_UNLESS_EARLY = re.compile(
+    r"enters(?: the battlefield)? tapped unless it's your first, second, or third turn "
+    r"of the game\.", re.IGNORECASE)
+#: P19 R12: the Turbulent lands. A goldfish has no opponents' lands to count:
+#: the engine assumes each of three opponents plays one a turn.
+_UNLESS_OPPONENT_LANDS = re.compile(
+    r"enters(?: the battlefield)? tapped unless your opponents control (?P<n>\w+) or "
+    r"more lands\.", re.IGNORECASE)
+#: P19 R12: "unless a player has 13 or less life" (Abandoned Campground). Only
+#: your own life is known, so it enters tapped more often than at a real table.
+_UNLESS_LOW_LIFE = re.compile(
+    r"enters(?: the battlefield)? tapped unless a player has (?P<n>\d+) or less life\.",
+    re.IGNORECASE)
 #: Snarls and Shadowmoor's reveal lands.
 _REVEAL = re.compile(
     rf"As (?:this land|~) enters(?: the battlefield)?, you may reveal {_TYPE_LIST} card from "
@@ -554,6 +630,7 @@ _LANDS_COULD_PRODUCE = re.compile(
 _COUNTS = re.compile(
     r"^(?:\{(?P<cost>\d+)\}, )?\{T\}: Add \{(?P<color>[WUBRG])\} for each "
     r"(?:(?P<creature>creature) you control|(?P<elf>Elf) (?:you control|on the battlefield)"
+    r"|(?P<defender>creature you control with defender)"
     rf"|basic (?P<basic>{_BASIC_TYPE}) you control"
     r"|(?P<dead>white|blue|black|red|green) creature card in your graveyard)\.$",
     re.MULTILINE)
@@ -570,9 +647,72 @@ _TRON = re.compile(
 #: The cards the Urza land types are printed on.
 _URZA_NAMES = {"Mine": "Urza's Mine", "Power-Plant": "Urza's Power Plant",
                "Tower": "Urza's Tower"}
+#: P19 R13: mana on top of what a source makes. "Whenever enchanted land is
+#: tapped for mana, its controller adds an additional {G}." (Wild Growth,
+#: Overgrowth, Fertile Ground, Utopia Sprawl's chosen colour, Market
+#: Festival's two in any combination.)
+_ENCHANTED_EXTRA = re.compile(
+    r"^Whenever enchanted (?P<what>land|Forest) is tapped for mana, its controller adds an "
+    r"additional (?:(?P<symbols>(?:\{[WUBRG]\})+)|(?P<n>one|two) mana (?:of any color|in any "
+    r"combination of colors)|(?P<chosen>one mana of the chosen color))\.$", re.MULTILINE)
+#: "Enchant land" / "Enchant Forest": what the Aura needs to be cast.
+_ENCHANT = re.compile(r"^Enchant (?P<what>land|Forest)$", re.MULTILINE)
+#: "Whenever you tap a land for mana, add one mana of any type that land
+#: produced." (Mirari's Wake, Vorinclex, Zendikar Resurgent; "a player taps"
+#: for Mana Flare and Heartbeat of Spring - in a goldfish, only you do;
+#: "a nonland permanent" for Kinnan.)
+_SAME_TYPE_EXTRA = re.compile(
+    r"^Whenever (?:you tap|a player taps) an? (?P<what>land|nonland permanent|permanent) for "
+    r"mana, (?:that player )?adds? one mana of any type that (?:land|permanent) produced\.",
+    re.MULTILINE)
+#: "Whenever you tap a creature for mana, add an additional {G}." (Badgermole
+#: Cub, Leyline of Abundance) and "Whenever you tap a permanent for {C}, add an
+#: additional {C}." (Forsaken Monument).
+_SOURCE_EXTRA = re.compile(
+    r"^Whenever you tap a (?P<what>creature for mana|permanent for \{C\}), add an additional "
+    r"\{(?P<color>[WUBRGC])\}\.$", re.MULTILINE)
+#: Caged Sun and Gauntlet of Power: a bonus in the colour chosen as it enters.
+_CHOSEN_EXTRA = re.compile(
+    r"^Whenever (?:a land's ability causes you to add one or more mana of the chosen color, add"
+    r"|(?P<basic>a basic land is tapped for mana of the chosen color, its controller adds)) "
+    r"an additional one mana of that color\.$", re.MULTILINE)
+#: "If you tap a permanent for mana, it produces twice as much of that mana
+#: instead." (Mana Reflection; Nyxbloom Ancient three times.)
+_MULTIPLY = re.compile(
+    r"^If you tap a permanent for mana, it produces (?P<times>twice|three times) as much of "
+    r"that mana instead\.$", re.MULTILINE)
+#: "Creatures you control have "{T}: Add one mana of any color."" (Cryptolith
+#: Rite, Enduring Vitality, Elven Chorus; Citanul Hierophants' {G}) and
+#: "Enchanted land has "{T}: Add one mana of any color."" (Abundant Growth).
+_GRANT = re.compile(
+    r"^(?P<who>Creatures you control have|Enchanted land has) \"\{T\}: Add "
+    r"(?:(?P<any>one mana of any color)|\{(?P<color>[WUBRG])\})\.\"$", re.MULTILINE)
+#: "{T}: For each color among permanents you control, add one mana of that
+#: color." (Bloom Tender - after its "Vivid -" - and Faeburrow Elder.)
+_COLORS_AMONG = re.compile(
+    r"^(?:[^\n:]* — )?\{T\}: For each color among permanents you control, add one mana of "
+    r"that color\.$", re.MULTILINE)
+#: "{T}: Add X mana of any one color, where X is the number of enchantments
+#: you control." (Sanctum Weaver) and "{T}: Add X mana in any combination of
+#: colors, where X is the number of creatures you control with defender."
+#: (Axebane Guardian).
+_COUNTS_X = re.compile(
+    r"^\{T\}: Add X mana (?:(?P<one>of any one color)|in any combination of colors), where X "
+    r"is the number of (?:(?P<enchantments>enchantments you control)"
+    r"|creatures you control with defender)\.$", re.MULTILINE)
+#: Rituals that count the board as they resolve: "Add {R} for each creature
+#: you control." (Battle Hymn) and "Until end of turn, whenever a player taps
+#: an Island for mana, that player adds an additional {U}." (High Tide).
+_RITUAL_CREATURES = re.compile(
+    r"^Add \{(?P<color>[WUBRG])\} for each creature you control\.$", re.MULTILINE)
+_RITUAL_TAPPED = re.compile(
+    rf"^Until end of turn, whenever (?:a player taps|you tap) an? (?P<type>{_BASIC_TYPE}) for "
+    r"mana, (?:that player )?adds? an additional \{(?P<color>[WUBRG])\}\.$", re.MULTILINE)
+_WORD_TIMES = {"twice": 2, "three times": 3}
 #: What a read mana rule explains, and so is no longer a reason to review.
 _RULE_EXPLAINS = frozenset({
     "produces mana, but no readable 'Add' clause",
+    "only grants a mana ability to another permanent",
     "mana amount scales with the board",
     "makes mana only as part of another effect",
     "a conditional replacement ('instead') is not counted",
@@ -610,17 +750,106 @@ def _activation_condition(text: str) -> dict | None:
     return {"kind": "control_type", "types": _land_types(found.group("types"))}
 
 
+@dataclass
+class AdditionalCost:
+    """A card's own additional cost, read (P19 R15).
+
+    `ways` are the alternatives, any one of which pays it - stored as
+    `DerivedProfile.additional_cost`. `optional` is a "you may" cost, never
+    paid; `reason` says why the cost could not be read.
+    """
+
+    ways: list[dict] | None = None
+    optional: bool = False
+    reason: str = ""
+
+
+def _additional_cost(card: OracleCard) -> AdditionalCost:
+    """Read "As an additional cost to cast this spell, ..." (P19 R15).
+
+    "Discard a card" alone is `discard_cost`, read since engine version 11.
+    """
+    text = card.oracle_text or ""
+    found = _OWN_ADDITIONAL_COST.search(text)
+    if found is None:
+        return AdditionalCost()
+    body = found.group("body").strip()
+    if body.lower().startswith("you may "):
+        # Not paying is always allowed, and the card is played as it is
+        # without it - unless something else on it counts on the payment.
+        rest = text[:found.start()] + text[found.end():]
+        if _PAID_PAYOFF.search(rest) and _COST_REDUCTION.search(rest):
+            return AdditionalCost(reason=gettext_noop(
+                "has an additional casting cost the engine does not pay"))
+        return AdditionalCost(optional=True)
+    ways, position = [], 0
+    while True:
+        part = _COST_PARTS.match(body, position)
+        if part is None:
+            return AdditionalCost(reason=gettext_noop(
+                "has an additional casting cost the engine does not pay"))
+        ways.append(_cost_way(part))
+        position = part.end()
+        if position == len(body):
+            return AdditionalCost(ways=ways)
+        if not body.startswith(" or ", position):
+            return AdditionalCost(reason=gettext_noop(
+                "has an additional casting cost the engine does not pay"))
+        position += len(" or ")
+
+
+def _cost_way(part: re.Match) -> dict:
+    """One alternative of an additional cost, as the profile stores it."""
+    way = {"sacrifice": [], "filter": "", "life": 0, "life_x": False, "discard": 0,
+           "mana": "", "exile_from_graveyard": ""}
+    if part.group("t1"):
+        way["sacrifice"] = sorted({part.group("t1"), part.group("t2") or part.group("t1")})
+        wanted = part.group("filter") or ""
+        way["filter"] = _COLOR_WORDS.get(wanted, wanted)
+    elif part.group("subtype"):
+        way["sacrifice"], way["filter"] = ["creature"], part.group("subtype").lower()
+    elif part.group("life"):
+        if part.group("life") == "X":
+            way["life_x"] = True
+        else:
+            way["life"] = int(part.group("life"))
+    elif part.group("discard"):
+        way["discard"] = _word_number(part.group("discard")) or 1
+    elif part.group("mana"):
+        way["mana"] = part.group("mana")
+    else:
+        way["exile_from_graveyard"] = part.group("exile")
+    return way
+
+
 def _treasures(card: OracleCard, kind: str) -> int:
     """How many Treasure tokens the card makes as it resolves, or 0 (P19 R7)."""
-    text = _GRANTED.sub("", _TREASURE_REMINDER.sub("", card.oracle_text or ""))
+    return _made_tokens(card, kind, _TREASURE_ON_ENTER, _TREASURE_IN_SPELL)
+
+
+def _landers(card: OracleCard, kind: str) -> int:
+    """How many Lander tokens the card makes as it resolves, or 0 (P19 R14).
+
+    Not one sacrificed again at a later end step (Kav Landseeker).
+    """
+    if _LANDER_SACRIFICED.search(card.oracle_text or ""):
+        return 0
+    return _made_tokens(card, kind, _LANDER_ON_ENTER, _LANDER_IN_SPELL)
+
+
+def _made_tokens(card: OracleCard, kind: str, on_enter: re.Pattern,
+                 in_spell: re.Pattern) -> int:
+    """Tokens a spell's own sentence or a permanent's arrival makes."""
+    text = _GRANTED.sub("", _TREASURE_REMINDER.sub("", _LANDER_REMINDER.sub(
+        "", card.oracle_text or "")))
     if kind not in (DerivedProfile.Kind.INSTANT, DerivedProfile.Kind.SORCERY):
-        found = _TREASURE_ON_ENTER.search(text)
+        found = on_enter.search(text)
         return (_word_number(found.group(1)) or 0) if found else 0
     for sentence in re.split(r"(?<=\.)\s+|\n", text):
         sentence = sentence.strip()
         if _CONDITIONAL_SENTENCE.match(sentence) or ":" in sentence:
             continue
-        if (found := _TREASURE_IN_SPELL.search(sentence)) is not None:
+        if (found := in_spell.search(sentence)) is not None:
             return _word_number(found.group(1)) or 0
     return 0
 
@@ -642,6 +871,8 @@ def _mana_rule(card: OracleCard, kind: str) -> dict | None:
                 "color": found.group("color")}
     if _LANDS_COULD_PRODUCE.search(text):
         return {"rule": "lands_could_produce", "subtype": "", "activation": 0, "color": ""}
+    if (found := _extra_rule(text, kind)) is not None:
+        return found
     if kind == DerivedProfile.Kind.LAND and (found := _PER_CONTROLLED.fullmatch(text)):
         return {"rule": "per_controlled", "subtype": found.group("type").lower(),
                 "activation": int(found.group("cost")), "color": found.group("color")}
@@ -652,11 +883,75 @@ def _mana_rule(card: OracleCard, kind: str) -> dict | None:
     return _counting_rule(text)
 
 
+def _extra_rule(text: str, kind: str) -> dict | None:
+    """Mana on top, a granted ability or a counting ritual (P19 R13), or None."""
+    if kind == DerivedProfile.Kind.RITUAL:
+        if (found := _RITUAL_CREATURES.search(text)) is not None:
+            return {"rule": "ritual", "subtype": "creature", "color": found.group("color"),
+                    "activation": 0}
+        if (found := _RITUAL_TAPPED.search(text)) is not None:
+            return {"rule": "ritual", "subtype": "tapped:" + found.group("type").lower(),
+                    "color": found.group("color"), "activation": 0}
+        return None
+    if (found := _ENCHANTED_EXTRA.search(text)) is not None:
+        enchant = _ENCHANT.search(text)
+        if enchant is None or enchant.group("what") != found.group("what"):
+            return None
+        what = found.group("what").lower()
+        rule = {"rule": "extra", "activation": 0, "color": "", "enchants": what,
+                "subtype": "enchanted" if what == "land" else "enchanted:" + what}
+        if found.group("symbols"):
+            symbols = re.findall(r"[WUBRG]", found.group("symbols"))
+            rule["produces"] = {symbols[0]: len(symbols)} if len(set(symbols)) == 1 else None
+            if rule["produces"] is None:
+                return None
+        elif found.group("n"):
+            rule["produces"] = {"WUBRG": _word_number(found.group("n"))}
+        else:
+            rule["color"] = "chosen"
+        return rule
+    if (found := _SAME_TYPE_EXTRA.search(text)) is not None:
+        scope = {"land": "land", "nonland permanent": "nonland",
+                 "permanent": "permanent"}[found.group("what")]
+        return {"rule": "extra", "subtype": scope, "activation": 0, "color": ""}
+    if (found := _SOURCE_EXTRA.search(text)) is not None:
+        scope = "creature" if found.group("what").startswith("creature") else "colorless"
+        return {"rule": "extra", "subtype": scope, "activation": 0, "color": "",
+                "produces": {found.group("color"): 1}}
+    if (found := _CHOSEN_EXTRA.search(text)) is not None:
+        return {"rule": "extra", "subtype": "chosen_basic" if found.group("basic") else
+                "chosen_land", "activation": 0, "color": "chosen"}
+    if (found := _MULTIPLY.search(text)) is not None:
+        return {"rule": "multiply", "subtype": "permanent", "activation": 0, "color": "",
+                "times": _WORD_TIMES[found.group("times")]}
+    if (found := _GRANT.search(text)) is not None:
+        if found.group("who").startswith("Enchanted"):
+            if not found.group("any") or (enchant := _ENCHANT.search(text)) is None \
+                    or enchant.group("what") != "land":
+                return None
+            return {"rule": "grant", "subtype": "enchanted", "activation": 0, "color": "",
+                    "enchants": "land", "produces": {"WUBRG": 1}}
+        return {"rule": "grant", "subtype": "creature", "activation": 0, "color": "",
+                "produces": {"WUBRG" if found.group("any") else found.group("color"): 1}}
+    return None
+
+
 def _counting_rule(text: str) -> dict | None:
     """Mana that counts the board, as a ``counts`` rule (P19 R11), or None."""
+    if _COLORS_AMONG.search(text):
+        # P19 R13: Bloom Tender. The colours are the board's to say.
+        return {"rule": "counts", "subtype": "colors_among", "color": "", "activation": 0}
+    if (found := _COUNTS_X.search(text)) is not None:
+        if found.group("enchantments"):
+            return {"rule": "counts", "subtype": "enchantment", "activation": 0,
+                    "color": "" if found.group("one") else "WUBRG"}
+        return {"rule": "counts", "subtype": "creature:defender", "activation": 0,
+                "color": "" if found.group("one") else "WUBRG"}
     if (found := _COUNTS.search(text)) is not None:
         if found.group("creature"):
             subtype = "creature"
+        elif found.group("defender"):
+            subtype = "creature:defender"
         elif found.group("elf"):
             subtype = "elf"
         elif found.group("basic"):
@@ -699,6 +994,18 @@ def _tapped_unless(text: str) -> dict | None:
         return {"kind": "reveal", "types": _land_types(found.group("types"))}
     if (found := _PAY_LIFE.search(text)) is not None:
         return {"kind": "pay_life", "life": _word_number(found.group("n"))}
+    if (found := _UNLESS_PERMANENT.search(text)) is not None:
+        what = found.group("what").lower()
+        if what == "basic land":
+            return {"kind": "lands", "count": 1, "basic": True}
+        return {"kind": "permanent", "types": [what.split()[-1]],
+                "legendary": what.startswith("legendary")}
+    if _UNLESS_EARLY.search(text):
+        return {"kind": "turn", "count": 3}
+    if (found := _UNLESS_OPPONENT_LANDS.search(text)) is not None:
+        return {"kind": "opponent_lands", "count": _word_number(found.group("n"))}
+    if (found := _UNLESS_LOW_LIFE.search(text)) is not None:
+        return {"kind": "life_at_most", "count": int(found.group("n"))}
     return None
 
 
@@ -755,6 +1062,14 @@ class ManaClause:
     #: Generic mana in the cost, beside `{T}`: the `{1}` on a Signet.
     activation: int = 0
     sacrifices_self: bool = False
+    #: P19 R15: "Sacrifice a creature" - another permanent goes as the cost
+    #: (Ashnod's Altar): {"sacrifice": types, "filter": ...}. None: no such.
+    sacrifices: dict | None = None
+    #: P19 R15: {T} is part of the cost.
+    taps: bool = False
+    #: P19 R15: "Exile this card from your hand" is the cost (Elvish Spirit
+    #: Guide): mana once, out of the hand.
+    from_hand: bool = False
     #: "Activate only if you control ..." read as a condition (P19 R4).
     condition: dict | None = None
     #: A filter's coloured input, "WB" for {W/B} (P19 R6). Empty: none.
@@ -787,6 +1102,12 @@ class ManaReading:
     activation: int = 0
     #: False for "This artifact doesn't untap during your untap step."
     untaps: bool = True
+    #: P19 R15: "Exile this card from your hand: Add {G}" - Elvish Spirit
+    #: Guide makes its mana from the hand, once, for nothing.
+    from_hand: bool = False
+    #: P19 R15: an ability that sacrifices another permanent for mana:
+    #: {"sacrifice", "filter", "amount", "produces", "taps"}. None: none.
+    sacrifice: dict | None = None
     #: The mana comes from sacrificing the card itself (Lotus Petal) - once,
     #: which the engine models as a ritual cast when it unlocks something.
     one_shot: bool = False
@@ -804,10 +1125,34 @@ def _self_reference(card: OracleCard) -> str:
     return rf"(?:this [\w ]+?|~|{re.escape(card.front_name or '')})"
 
 
+#: P19 R15: the cost of an altar - "Sacrifice a creature", "Sacrifice an
+#: artifact", "Sacrifice a Goblin". Not "X Goats", not "five Treasures".
+_SACRIFICE_ANOTHER = re.compile(
+    r"Sacrifice (?:an?|another) (?:(?P<filter>white|blue|black|red|green|legendary) )?"
+    r"(?:(?P<t1>artifact|creature)|(?P<subtype>(?!Food|Treasure|Clue|Blood|Desert|land)"
+    r"[A-Z][a-z]+))", re.IGNORECASE)
+
+
 def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
     """Split `{1}, {T}, Sacrifice this artifact` into what the engine can pay."""
     for part in (piece.strip() for piece in cost_text.split(",")):
-        if not part or part == "{T}":
+        if part == "{T}":
+            clause.taps = True
+            continue
+        if not part:
+            continue
+        if re.fullmatch(r"Exile this card from your hand", part, re.IGNORECASE):
+            clause.from_hand = True
+            continue
+        if (found := _SACRIFICE_ANOTHER.fullmatch(part)) is not None:
+            # Ashnod's Altar, Phyrexian Tower (P19 R15).
+            if found.group("t1"):
+                wanted = found.group("filter") or ""
+                clause.sacrifices = {"sacrifice": [found.group("t1").lower()],
+                                     "filter": _COLOR_WORDS.get(wanted, wanted)}
+            else:
+                clause.sacrifices = {"sacrifice": ["creature"],
+                                     "filter": found.group("subtype").lower()}
             continue
         if re.fullmatch(r"(?:\{\d+\})+", part):
             clause.activation += sum(int(n) for n in _SYMBOL.findall(part))
@@ -985,6 +1330,15 @@ def _mana_production(card: OracleCard) -> ManaReading:
         notes.add(gettext_noop(
             "enters only by discarding a land card, which the engine does not do"))
 
+    if not clauses and (_FOR_SOMEONE_ELSE.search(text) or _BASIC_TYPE_LINE.search(type_line)):
+        # P19 R12: the mana is somebody else's - An Offer You Can't Refuse
+        # gives its Treasures to the spell's controller, Imprisoned in the Moon
+        # and Vraska turn a target into a land or a Treasure - or it is a land
+        # type's own: Dryad Arbor's "{T}: Add {G}" is reminder text for being
+        # a Forest, which the engine plays as one.
+        reading.produces_mana = False
+        return reading
+
     if not clauses:
         # Scryfall says it makes mana but no `Add` clause of its own was found:
         # either every one is inside quotes, or it is a replacement effect or a
@@ -1003,6 +1357,29 @@ def _mana_production(card: OracleCard) -> ManaReading:
         reading.notes = sorted(notes)
         return reading
 
+    altars = [clause for clause in usable if clause.sacrifices is not None]
+    usable = [clause for clause in usable if clause.sacrifices is None]
+    if altars:
+        # P19 R15: mana for another permanent, used when it unlocks a spell.
+        first = altars[0]
+        if len(altars) > 1 or first.amount is None or first.activation or first.condition:
+            notes.add(gettext_noop("an ability that sacrifices for mana is not modelled"))
+        else:
+            reading.sacrifice = {**first.sacrifices, "amount": first.amount,
+                                 "produces": first.produces, "taps": first.taps}
+    from_hand = [clause for clause in usable if clause.from_hand]
+    usable = [clause for clause in usable if not clause.from_hand]
+    if from_hand:
+        first = from_hand[0]
+        if usable or len(from_hand) > 1 or first.amount is None or first.activation \
+                or first.taps or first.condition:
+            notes.add(gettext_noop("a mana ability that exiles the card from hand is not modelled"))
+        else:
+            # P19 R15: a ritual that costs nothing - see `derive`.
+            reading.amount, reading.produces, reading.from_hand = (
+                first.amount, first.produces, True)
+            reading.notes = sorted(notes)
+            return reading
     tapping = [clause for clause in usable if not clause.sacrifices_self]
     one_shots = [clause for clause in usable if clause.sacrifices_self]
     # Filters and converters ride beside the plain ability (P19 R6): Fetid
@@ -1128,6 +1505,20 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
                      filter={"color": _COLOR_LETTER.get(color, ""),
                              "max_mv": None if limit is None else
                              ("X" if limit.upper() == "X" else int(limit))})
+    found = _PLUS_SACRIFICED.search(text)
+    if found is not None and (plus := _word_number(found.group("n"))) is not None:
+        return Tutor(zone="battlefield", count=1, kind="creature",
+                     filter={"color": "", "max_mv": None, "plus_sacrificed": plus})
+    found = _TO_TOP.search(text)
+    line_start = text.rfind("\n", 0, found.start()) + 1 if found else 0
+    if found is not None and ":" not in text[line_start:found.start()] \
+            and not text[line_start:].startswith("+"):
+        # On top of the library, to be drawn next turn (P19 R12). Not Sterling
+        # Grove's "{1}, Sacrifice: Search ...", an ability the engine does not
+        # use, and not Insatiable Avarice's spree mode, whose {2} nobody pays.
+        types = (found.group("what") or "").lower().split(" or ") if found.group("what") else []
+        if all(kind in _TOP_TYPES for kind in types):
+            return Tutor(zone="top", count=1, filter={"types": sorted(types)})
     if not _SEARCH_YOUR_LIBRARY.search(text) and _THEIR_LIBRARY.search(text):
         # Path to Exile: the search is the target's controller's, and the
         # target is an opponent's creature or land a goldfish does not have.
@@ -1178,7 +1569,7 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
 #: about English the reader would have to keep.
 _LAND_SEARCH = re.compile(
     r"(?P<lead>[^.\n]*?)Search your library for (?:up to )?(?P<n>a|an|one|two|three|\d+) "
-    r"(?P<what>[A-Za-z ,]+?) cards?(?: that share a land type)?, "
+    r"(?P<what>[A-Za-z ,]+?) cards?(?P<share> that share a land type)?, "
     r"(?:reveal (?:those cards|them|it), )?(?:and )?put (?P<put>[^.]+?)"
     r"(?:, then shuffle|\. Shuffle)"
     r"(?:\. Then if you control (?P<untap>\w+) or more lands, untap that land)?",
@@ -1197,6 +1588,34 @@ _SACRIFICED_ON_ENTERING = re.compile(
     r"When this land enters, sacrifice it\. When you do, search your library", re.IGNORECASE)
 _FETCH = re.compile(r"^\{t\}, (?:pay (?P<life>\w+) life, )?sacrifice this land: $")
 _SACRIFICE_SELF = re.compile(r"^sacrifice this creature: $")
+#: P19 R14: "{2}, {T}, Sacrifice this land: " - Wayfarer's Bauble, Myriad
+#: Landscape, Burnished Hart (no {T}), the Panoramas.
+_ACTIVATED = re.compile(
+    r"^(?P<cost>(?:\{(?:\d+|[wubrg])\})+), (?P<tap>\{t\}, )?"
+    r"sacrifice this (?P<what>land|artifact|creature|enchantment): $")
+#: P19 R15: a creature's own {T} ability - Wight of the Reliquary, Knight of
+#: the Reliquary, Elvish Reclaimer, Frontier Guide: "{2}, {T}, Sacrifice a
+#: land: ". The parts after the {T}, each read or the whole left unread.
+_CREATURE_TAP = re.compile(r"^(?:(?P<cost>(?:\{(?:\d+|[wubrg])\})+), )?\{t\}, ?(?P<rest>.*): $")
+_TAP_PART = re.compile(
+    r"sacrifice this creature|sacrifice a land|sacrifice another creature|discard a card"
+    r"|sacrifice an? (?P<a>forest|plains|island|swamp|mountain)"
+    r"(?: or (?P<b>forest|plains|island|swamp|mountain))?")
+#: P19 R14: "When this creature enters, if an opponent controls more lands
+#: than you, (you may) search ..." - Knight of the White Orchid.
+_ENTERS_IF_BEHIND = re.compile(
+    r"^(?:[\w' ]+ — )?when (?:this|~) (?:creature|artifact|enchantment|permanent) enters, "
+    r"if an opponent controls more lands than you, (?:you may )?$")
+#: P19 R14: a Saga's first chapter, which happens as it enters.
+_FIRST_CHAPTER = re.compile(r"^i — (?:[^—]+ — )?$")
+#: P19 R14: a search in combat - the engine plays none.
+_IN_COMBAT = re.compile(r"\battacks\b|\bcombat damage\b")
+#: P19 R15: Springbloom Druid - "When this creature enters, you may sacrifice
+#: a land. If you do, search ...".
+_SACRIFICE_LAND_FIRST = re.compile(
+    r"When (?:this creature|~) enters, you may sacrifice a land\. If you do, search your library")
+#: Krosan Verge: "a Forest card and a Plains card".
+_ONE_OF_EACH = re.compile(r"^(\w+) card and an? (\w+)$")
 
 
 @dataclass
@@ -1264,7 +1683,7 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     Not a card with no such search: that is an empty `LandSearch`, and the
     general tutor reading (`_tutor`) goes on as before.
     """
-    text = card.oracle_text or ""
+    text = _LANDER_REMINDER.sub("", card.oracle_text or "")
     if len(_SEARCH_CLAUSE.findall(text)) != 1:
         return LandSearch()
     match = _LAND_SEARCH.search(text)
@@ -1275,10 +1694,17 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     what = match.group("what").strip().lower()
     basic = what.startswith("basic ")
     names = what.removeprefix("basic ")
+    each = _ONE_OF_EACH.match(names)
     if names == "land":
         types: list[str] = []
+    elif each is not None and {each.group(1), each.group(2)} <= _LAND_TYPES and count == 1:
+        types, count = [each.group(1), each.group(2)], 2
     else:
         types = [name for name in re.split(r",? or |, ", names) if name]
+        if types and "land" not in names and not set(types) & _LAND_TYPES:
+            # Natural Order's "green creature card": not a land search at
+            # all, and the tutor reading takes it (P19 R15).
+            return LandSearch()
         if not types or not set(types) <= _LAND_TYPES:
             return LandSearch(reason=gettext_noop(
                 "searches for lands the engine cannot describe"))
@@ -1295,11 +1721,29 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     lead = match.group("lead").strip().lower()
     lead = f"{lead} " if lead else ""
     life, sacrifice = 0, False
+    cost, taps, condition = "", False, ""
+    sacrifices_land, land_cost_types, sacrifice_other, discard = False, [], [], 0
+    tapping = _creature_tap(lead) if kind == DerivedProfile.Kind.CREATURE else None
     spell = kind in (DerivedProfile.Kind.SORCERY, DerivedProfile.Kind.INSTANT)
+    activated = _ACTIVATED.match(lead)
     if not lead and spell:
         when = "cast"
-    elif _ENTERS.match(lead):
+    elif _ENTERS.match(lead) or _FIRST_CHAPTER.match(lead):
         when = "enters"
+    elif _ENTERS_IF_BEHIND.match(lead):
+        when, condition = "enters", "opponent_more_lands"
+    elif lead == "if you do, " and _SACRIFICE_LAND_FIRST.search(text):
+        when, sacrifices_land = "enters", True
+    elif activated is not None and (
+            (activated.group("what") == "land") == (kind == DerivedProfile.Kind.LAND)):
+        when, sacrifice = "activate", True
+        cost, taps = activated.group("cost").upper(), bool(activated.group("tap"))
+    elif tapping is not None:
+        # P19 R15: once a turn, and not the turn it arrived.
+        when, taps = "activate", True
+        cost, sacrifice = tapping["cost"], tapping["self"]
+        sacrifices_land, land_cost_types = tapping["land"], tapping["land_types"]
+        sacrifice_other, discard = tapping["other"], tapping["discard"]
     elif (lead == "when you do, " and kind == DerivedProfile.Kind.LAND
           and _SACRIFICED_ON_ENTERING.search(text)):
         when, sacrifice = "play", True
@@ -1315,6 +1759,9 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     elif "{" in lead:
         return LandSearch(reason=gettext_noop(
             "searches for lands at a cost the engine does not pay"))
+    elif _IN_COMBAT.search(lead):
+        return LandSearch(reason=gettext_noop(
+            "searches for lands in combat, which the engine does not play"))
     else:
         return LandSearch(reason=gettext_noop(
             "searches for lands under a condition the engine cannot read"))
@@ -1329,8 +1776,36 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     return LandSearch(spec={
         "battlefield": battlefield, "hand": hand, "tapped": tapped, "basic": basic,
         "types": sorted(types), "life": life, "when": when, "sacrifice": sacrifice,
-        "untap_at": untap_at,
+        "untap_at": untap_at, "cost": cost, "taps": taps,
+        "share_type": bool(match.group("share")), "each": each is not None and bool(types),
+        "condition": condition, "sacrifices_land": sacrifices_land,
+        "land_cost_types": land_cost_types, "sacrifice_other": sacrifice_other,
+        "discard": discard,
     })
+
+
+def _creature_tap(lead: str) -> dict | None:
+    """A creature's "{2}, {T}, Sacrifice a land: " read part by part (P19
+    R15), or None when one part is something else."""
+    found = _CREATURE_TAP.match(lead)
+    if found is None:
+        return None
+    read = {"cost": (found.group("cost") or "").upper(), "self": False, "land": False,
+            "land_types": [], "other": [], "discard": 0}
+    for part in filter(None, found.group("rest").split(", ")):
+        piece = _TAP_PART.fullmatch(part)
+        if piece is None:
+            return None
+        if part == "sacrifice this creature":
+            read["self"] = True
+        elif part == "sacrifice another creature":
+            read["other"] = ["creature"]
+        elif part == "discard a card":
+            read["discard"] = 1
+        else:
+            read["land"] = True
+            read["land_types"] = sorted(filter(None, (piece.group("a"), piece.group("b"))))
+    return read
 
 
 def _first_number(pattern: re.Pattern, text: str) -> int | None:
@@ -1382,6 +1857,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana.notes = [note for note in mana.notes
                       if note != "only grants a mana ability to another permanent"]
     discard = _DISCARD_COST.search(text)
+    additional = AdditionalCost() if discard else _additional_cost(card)
     draw = _draw(text)
     amount = mana.amount
     if mana.one_shot and kind in (DerivedProfile.Kind.ARTIFACT, DerivedProfile.Kind.ROCK):
@@ -1391,6 +1867,10 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         # mana unlocks something worth casting. Read as a rock it made a mana
         # every turn for the rest of the game.
         kind = DerivedProfile.Kind.RITUAL
+    if mana.from_hand:
+        # Elvish Spirit Guide (P19 R15): a ritual for {0} that goes to exile.
+        # Its body is never cast, which can only under-read it.
+        kind = DerivedProfile.Kind.RITUAL
     tutor = _tutor(card, tags)
     land = _land_search(card, kind)
     if land.spec is not None or land.reason:
@@ -1398,6 +1878,12 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         # more specific than what the general tutor reading says about it
         # ("tutors onto the battlefield, which the engine cannot do").
         tutor = Tutor(reason=land.reason)
+    landers = _landers(card, kind)
+    if _LANDER.search(text) and not _SEARCH_CLAUSE.search(_LANDER_REMINDER.sub("", text)):
+        # The only search is the Lander's own (P19 R14): played as a token
+        # when the card makes it as it resolves, a gap when it is made later.
+        tutor = Tutor(reason="" if landers else gettext_noop(
+            "makes a Lander token at a moment the engine does not play"))
 
     opponent_loss = _first_number(_OPPONENT_LOSS, text)
     if opponent_loss and "drain_payoff" not in roles:
@@ -1417,9 +1903,16 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     # `Add {C}{C}` clause is readable, but the cards this catches are the ones
     # where it is not and a single mana slipped through looking correct.
     counts = mana_rule is not None and mana_rule["rule"] == "counts"
-    if MULTIPLE_MANA_TAG in tags and amount == 1 and not counts:
+    altar = mana.sacrifice is not None and (mana.sacrifice["amount"] or 0) > 1
+    if MULTIPLE_MANA_TAG in tags and amount == 1 and not counts and not altar:
         reasons.append(gettext_noop("tagged as adding more than one mana; only one was read"))
-    if _ADDITIONAL_COST.search(text) and not discard:
+    if additional.reason:
+        reasons.append(additional.reason)
+    elif _OTHER_SPELLS_COST.search(text):
+        reasons.append(gettext_noop(
+            "changes what other spells cost, which the engine does not model"))
+    elif (_ADDITIONAL_COST.search(text) and not discard and additional.ways is None
+          and not additional.optional):
         reasons.append(gettext_noop("has an additional casting cost the engine does not pay"))
     if cost.hybrid:
         reasons.append(gettext_noop("hybrid pips: payment flexibility is not modelled"))
@@ -1452,7 +1945,11 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana_rule=mana_rule,
         mana_filter=mana.filter,
         treasures=treasures,
+        landers=landers,
         discard_cost=_word_number(discard.group(1)) if discard else 0,
+        additional_cost=additional.ways,
+        sacrifice_mana=mana.sacrifice,
+        mana_from_hand=mana.from_hand,
         cost_reduction=_first_number(_COST_REDUCTION, text),
         draws_cards=draw.cards,
         discards_after=draw.discards,
@@ -1579,7 +2076,10 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "tapped_unless",
             "skips_draw_step",
             "mana_produces", "mana_activation", "mana_untaps", "mana_condition", "mana_rule",
-            "mana_filter", "treasures", "discard_cost", "discards_after", "puts_back", "draws_x",
+            "mana_filter", "treasures", "landers", "discard_cost", "additional_cost",
+            "sacrifice_mana", "mana_from_hand",
+            "discards_after", "puts_back",
+            "draws_x",
             "extra_cost",
             "needs_review", "review_reasons", "source_map", "derived_at",
         ],

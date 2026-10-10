@@ -178,6 +178,10 @@ class CastSpell(Action):
     #: game recorded before X was paid at all, and replays as it was played:
     #: X = 0. The agent and the board both say what X is.
     x: int | None = None
+    #: How its additional cost is paid, an index into
+    #: ``Game.payment_options`` (P19 R15): what to sacrifice, or life rather
+    #: than a discard. None: the agent's choice, the first.
+    payment: int | None = None
 
     def run(self, game, policy) -> None:
         card = _at(game, HAND, self.index)
@@ -192,9 +196,11 @@ class CastSpell(Action):
         # on every card, answered an unaffordable one with a ValueError and an
         # HTTP 500 that htmx then swallowed in silence.
         cost = castable_cost(game, card, x)
-        if not pool.can_pay_cost(cost, life=game.life):
+        if game.additional_payment(card, pool, x, self.payment) is None:
+            if card.additional_costs and pool.can_pay_cost(cost, life=game.life):
+                raise IllegalAction(f"{card.name}'s additional cost cannot be paid now")
             raise IllegalAction(f"{card.name} costs {cost}; the floating mana is {pool}")
-        game.cast(card, pool, x)
+        game.cast(card, pool, x, self.payment)
         _apply_cast_effect(game, card, policy, x)
 
 
@@ -217,6 +223,56 @@ class CastCommander(Action):
                 f"the floating mana is {pool}"
             )
         game.cast_commander(pool)
+
+
+@dataclass(frozen=True)
+class ActivateSearch(Action):
+    """Activate the land search of the permanent at ``index`` in ``zone``:
+    Wayfarer's Bauble, Myriad Landscape (P19 R14). Paid out of the pool."""
+
+    kind = "activate_search"
+    zone: str = LANDS
+    index: int = 0
+
+    def run(self, game, policy) -> None:
+        card = _at(game, self.zone, self.index)
+        pool = _pool(game)
+        if not game.can_activate(card, pool):
+            raise IllegalAction(f"{card.name} cannot be activated now; the floating mana is {pool}")
+        game.activate(card, pool, _land_chooser(policy))
+
+
+@dataclass(frozen=True)
+class ActivateLander(Action):
+    """Sacrifice a Lander token for a basic land, tapped (P19 R14)."""
+
+    kind = "activate_lander"
+
+    def run(self, game, policy) -> None:
+        pool = _pool(game)
+        if not game.can_activate(None, pool):
+            raise IllegalAction(f"no Lander can be activated; the floating mana is {pool}")
+        game.activate(None, pool, _land_chooser(policy))
+
+
+@dataclass(frozen=True)
+class SacrificeForMana(Action):
+    """Sacrifice a permanent to the altar at ``index`` in ``zone`` for its
+    mana (P19 R15): Ashnod's Altar, Phyrexian Tower. ``payment`` indexes
+    ``Game.altar_fodder``; None is the agent's choice."""
+
+    kind = "sacrifice_mana"
+    zone: str = OTHER
+    index: int = 0
+    payment: int | None = None
+
+    def run(self, game, policy) -> None:
+        card = _at(game, self.zone, self.index)
+        pool = _pool(game)
+        options = game.altar_fodder(card, pool)
+        if not options or not 0 <= (self.payment or 0) < len(options):
+            raise IllegalAction(f"{card.name} has nothing to sacrifice now")
+        game.use_altar(card, pool, self.payment)
 
 
 @dataclass(frozen=True)
@@ -357,6 +413,7 @@ BY_KIND = {
     for action in (
         BeginTurn, PlayLand, OpenMainPhase, CastSpell, CastCommander, EndStep,
         AdvancePhase, Mulligan, KeepHand, Draw, SetLife, MoveCard, TapPermanent,
+        ActivateSearch, ActivateLander, SacrificeForMana,
     )
 }
 
@@ -404,8 +461,32 @@ def legal_actions(game) -> list[Action]:
                     if game.can_cast(card, pool)]
         if game.can_cast_commander(pool):
             allowed.append(CastCommander())
+        allowed += activations(game, pool)
+        allowed += altars(game, pool)
 
     return allowed
+
+
+def activations(game, pool) -> list[Action]:
+    """The land searches that can be activated now (P19 R14)."""
+    found: list[Action] = [
+        ActivateSearch(zone=zone, index=index)
+        for zone in (LANDS, ROCKS, CREATURES, OTHER)
+        for index, card in enumerate(zone_of(game, zone))
+        if card.land_search is not None and card.land_search.when == "activate"
+        and game.can_activate(card, pool)
+    ]
+    if game.can_activate(None, pool):
+        found.append(ActivateLander())
+    return found
+
+
+def altars(game, pool) -> list[Action]:
+    """The altars that have something to sacrifice now (P19 R15)."""
+    return [SacrificeForMana(zone=zone, index=index)
+            for zone in (LANDS, ROCKS, CREATURES, OTHER)
+            for index, card in enumerate(zone_of(game, zone))
+            if card.sacrifice_mana is not None and game.altar_fodder(card, pool)]
 
 
 def castable_cost(game, card, x: int = 0):
@@ -458,7 +539,9 @@ def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
         spec = card.tutor
         game.life -= spec.life
         if spec.to_battlefield:
-            predicate = _battlefield_predicate(spec, x)
+            predicate = _battlefield_predicate(spec, x, game)
+        elif spec.to_top:
+            predicate = (lambda c: bool(c.types & spec.types)) if spec.types else None
         else:
             predicate = (lambda c: c.kind == spec.kind) if spec.kind else None
         found = 0
@@ -471,13 +554,16 @@ def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
                 game.note(f"  -> puts {target.name} onto the battlefield")
                 game.enter_battlefield(target)
                 _arrival(game, target, policy)
+            elif spec.to_top:
+                game.library.insert(0, target)
+                game.note(f"  -> puts {target.name} on top of the library")
             elif spec.to_hand:
                 game.hand.append(target)
                 game.note(f"  -> searches up {target.name}")
             else:
                 game.graveyard.append(target)
             found += 1
-        if not spec.to_hand and not spec.to_battlefield and found:
+        if not (spec.to_hand or spec.to_battlefield or spec.to_top) and found:
             game.note(f"  -> {found} cards to the graveyard")
 
     _arrival(game, card, policy)
@@ -509,11 +595,16 @@ def _arrival(game, card, policy) -> None:
             game.graveyard.append(card)
 
     game.make_treasures(card)
+    game.make_landers(card)
 
 
-def _battlefield_predicate(spec, x: int):
+def _battlefield_predicate(spec, x: int, game=None):
     """Which library cards a search onto the battlefield may find (P19 R10)."""
     limit = x if spec.max_mv_x else spec.max_mv
+    if spec.max_mv_sacrificed is not None:
+        # Eldritch Evolution: counted from what its cost sacrificed (P19 R15).
+        gone = getattr(game, "last_sacrificed", None)
+        limit = spec.max_mv_sacrificed + getattr(gone, "mv", 0)
 
     def matches(card) -> bool:
         types = card.types or frozenset({card.kind})

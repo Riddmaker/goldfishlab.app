@@ -75,6 +75,25 @@ LANDS_COULD_PRODUCE = "lands_could_produce"
 #: works the amount out each turn (`Game.mana_ability`).
 COUNTS = "counts"
 
+#: Mana on top of what a source makes as it is tapped (P19 R13). ``subtype``
+#: says which sources: ``enchanted`` (the land an Aura is on - Wild Growth;
+#: ``enchanted:forest`` for Utopia Sprawl), ``land`` (every land - Mirari's
+#: Wake), ``nonland`` (Kinnan), ``creature`` (Badgermole Cub), ``colorless``
+#: (a source tapped for {C} - Forsaken Monument), ``chosen_land`` (a land
+#: making the chosen colour - Caged Sun) and ``chosen_basic`` (Gauntlet of
+#: Power). ``produces`` is the bonus; empty means one mana of a type the
+#: source made, and ``color="chosen"`` the colour chosen as it entered.
+EXTRA = "extra"
+
+#: A permanent that taps for ``times`` as much (P19 R13): Mana Reflection
+#: twice, Nyxbloom Ancient three times.
+MULTIPLY = "multiply"
+
+#: Other permanents have a mana ability (P19 R13): ``subtype`` ``creature``
+#: (Cryptolith Rite: each creature taps for ``produces``) or ``enchanted``
+#: (Abundant Growth: the enchanted land taps for any colour instead).
+GRANT = "grant"
+
 #: ``{W/B}, {T}: Add {W}{W}, {W}{B}, or {B}{B}`` - a filter land - and
 #: ``{1}, {T}: Add one mana of any color`` - a converter, Study Hall (P19 R6).
 #: One mana goes in (``pays_with``: the colours it may be; empty = any) and
@@ -118,6 +137,13 @@ class TappedUnless:
       Phyrexian life floor
     * ``artifacts`` - you control ``count`` or more artifacts (Mox Opal,
       Spire of Industry)
+    * ``permanent`` - you control a permanent of one of ``types``, a
+      ``legendary`` one if set (Minas Tirith, Dedicated Commons; P19 R12)
+    * ``turn`` - it is your turn ``count`` or earlier (Starting Town)
+    * ``opponent_lands`` - your opponents control ``count`` or more lands,
+      assuming each of three plays one a turn (the Turbulent lands)
+    * ``life_at_most`` - you have ``count`` or less life; the opponents'
+      life is unknown, so this holds less often than at a table
 
     Since engine version 8 the same question also guards a mana ability
     (P19 R4): "Activate only if you control five or more lands" is a
@@ -132,6 +158,7 @@ class TappedUnless:
     other: bool = False
     basic: bool = False
     type: str = ""
+    legendary: bool = False
 
 
 @dataclass(frozen=True)
@@ -177,6 +204,8 @@ class ManaAbility:
     #: A ``FILTER``'s one mana of input: the colours it may be paid with,
     #: "WB" for {W/B}; empty for {1}, any mana (P19 R6).
     pays_with: str = ""
+    #: A ``MULTIPLY``'s factor: 2 for twice as much (P19 R13).
+    times: int = 1
 
     def __post_init__(self):
         # Canonicalise, so that two abilities making the same mana compare
@@ -282,6 +311,14 @@ class TutorSpec:
     #: P19 R10: "with mana value 3 or less", or with ``max_mv_x`` "X or less".
     max_mv: int | None = None
     max_mv_x: bool = False
+    #: P19 R15: Eldritch Evolution - "X is 2 plus the sacrificed creature's
+    #: mana value": this much more than what its additional cost sacrificed.
+    max_mv_sacrificed: int | None = None
+    #: P19 R12: on top of the library, drawn next turn (Vampiric Tutor); then
+    #: ``to_hand`` says nothing. ``types`` limits it by card type, any of them
+    #: (Enlightened Tutor: artifact or enchantment); empty means any card.
+    to_top: bool = False
+    types: frozenset[str] = field(default_factory=frozenset)
 
 
 @dataclass(frozen=True)
@@ -298,12 +335,30 @@ class LandSearch:
         types: The land types it may find (Farseek: plains, island, swamp,
             mountain); empty means any land.
         life: Life paid (a fetch land: 1).
-        when: ``cast`` (a spell), ``enters`` (a permanent's arrival) or
-            ``play`` (a fetch land, the moment it is played).
+        when: ``cast`` (a spell), ``enters`` (a permanent's arrival),
+            ``play`` (a fetch land, the moment it is played) or ``activate``
+            (Wayfarer's Bauble, Myriad Landscape: an ability paid for with
+            ``cost``; P19 R14).
         sacrifice: The card itself goes to the graveyard (a fetch land,
             Sakura-Tribe Elder).
         untap_at: Fabled Passage: the land is untapped once you control at
             least this many lands. 0: never.
+        cost: What activating it costs, the card's own sacrifice aside.
+        taps: ``{T}`` is part of that cost: a land that pays it makes no
+            mana this turn.
+        share_type: Myriad Landscape: every land found shares a land type.
+        each: Krosan Verge: one land of each of ``types``.
+        condition: ``opponent_more_lands`` - Knight of the White Orchid:
+            only if an opponent controls more lands than you, which rests on
+            the assumption that each opponent plays a land a turn.
+        sacrifices_land: Springbloom Druid: a land of yours is sacrificed
+            first (P19 R15). Worth it only when more lands come back. On an
+            activated search it is part of the cost: Elvish Reclaimer.
+        land_cost_types: That land must be of one of these types: Knight of
+            the Reliquary's "a Forest or Plains". Empty: any land.
+        sacrifice_other: Wight of the Reliquary: another permanent of these
+            types is sacrificed as part of the cost.
+        discard: Cards discarded as part of the cost (Silverglade Pathfinder).
     """
 
     battlefield: int = 1
@@ -315,6 +370,51 @@ class LandSearch:
     when: str = "cast"
     sacrifice: bool = False
     untap_at: int = 0
+    cost: ManaCost | None = None
+    taps: bool = False
+    share_type: bool = False
+    each: bool = False
+    condition: str = ""
+    sacrifices_land: bool = False
+    land_cost_types: frozenset[str] = field(default_factory=frozenset)
+    sacrifice_other: frozenset[str] = field(default_factory=frozenset)
+    discard: int = 0
+
+
+@dataclass(frozen=True)
+class AdditionalCost:
+    """One way to pay "As an additional cost to cast this spell, ..." (P19 R15).
+
+    A card holds a tuple of them: one for "sacrifice a creature", two for
+    "discard a card or pay 3 life", and the agent pays the cheapest.
+
+    Attributes:
+        sacrifice: The card types a permanent sacrificed may have, any of
+            them (``{"artifact", "creature"}`` for Deadly Dispute). Empty: no
+            sacrifice.
+        sacrifice_filter: What the permanent must also be: a colour letter
+            (Natural Order: ``G``), ``legendary``, or a creature type
+            (``goblin``).
+        life: Life paid (Bitter Triumph: 3).
+        life_x: "Pay X life" (Toxic Deluge): paid with X = 0, because in a
+            goldfish there is nothing for X to kill.
+        discard: Cards discarded, the weakest first.
+        mana: Mana paid on top of the printed cost (Redirect Lightning's {2}).
+        exile_from_graveyard: A card of this type exiled from the graveyard.
+    """
+
+    sacrifice: frozenset[str] = field(default_factory=frozenset)
+    sacrifice_filter: str = ""
+    life: int = 0
+    life_x: bool = False
+    discard: int = 0
+    mana: ManaCost | None = None
+    exile_from_graveyard: str = ""
+
+
+#: What a Lander token does (P19 R14): "{2}, {T}, Sacrifice this token: Search
+#: your library for a basic land card, put it onto the battlefield tapped".
+LANDER = LandSearch(when="activate", cost=ManaCost(generic=2), taps=True, sacrifice=True)
 
 
 #: A card with no mana production of its own.
@@ -417,6 +517,9 @@ class Card:
     #: Dragon: 2). Each is one mana of ``treasure_mana``, sacrificed when spent.
     treasures: int = 0
     treasure_mana: str = ""
+    #: P19 R14: Lander tokens it makes as it resolves or enters, each a
+    #: :data:`LANDER` search to activate later.
+    landers: int = 0
     #: P19 R7: "As an additional cost to cast this spell, discard a card."
     discard_cost: int = 0
     #: P19 R8: cards discarded right after ``draw_on_cast`` - Faithless
@@ -438,6 +541,34 @@ class Card:
     #: P19 R11: the creature types on the front face, lower case - what
     #: Elvish Archdruid counts. Empty for everything else.
     creature_types: frozenset[str] = field(default_factory=frozenset)
+    #: P19 R12: "Legendary" on the front face - what Minas Tirith asks for.
+    legendary: bool = False
+    #: P19 R13: the card's colours (Scryfall's, not its cost's: a Devoid card
+    #: is colourless) - what Bloom Tender counts.
+    colors: frozenset[str] = field(default_factory=frozenset)
+    #: P19 R13: it has defender - what Overgrown Battlement counts.
+    defender: bool = False
+    #: P19 R13: an Aura's target: ``land`` or a land type (``forest``). It
+    #: cannot be cast without one.
+    enchants: str = ""
+    #: P19 R13: a ritual whose mana counts the board when it resolves:
+    #: ``creature`` (Battle Hymn) or ``tapped:<land type>`` (High Tide: each
+    #: such land in this turn's pool, less the one that paid for it).
+    ritual_counts: str = ""
+    #: P19 R15: the ways its additional cost can be paid, any one of them -
+    #: empty for none. "Discard a card" alone stays ``discard_cost``.
+    additional_costs: tuple[AdditionalCost, ...] = ()
+    #: P19 R15: a mana ability whose cost is sacrificing another permanent -
+    #: Ashnod's Altar, Phyrexian Tower: the types it takes (see
+    #: :class:`AdditionalCost`), what one gives, and in what colour.
+    sacrifice_mana: AdditionalCost | None = None
+    sacrifice_mana_amount: int = 0
+    sacrifice_mana_color: str = ""
+    #: P19 R15: {T} is part of that ability's cost (Phyrexian Tower).
+    sacrifice_mana_taps: bool = False
+    #: P19 R15: it goes to exile rather than the graveyard once cast - a
+    #: Spirit Guide, a ritual exiled from the hand for its mana.
+    exiled_on_cast: bool = False
 
     @property
     def mana_cost(self) -> ManaCost:
@@ -459,7 +590,7 @@ class Card:
     @property
     def produces_mana(self) -> bool:
         """Does the card make mana, whether tapped or cast?"""
-        return bool(self.mana_abilities) or self.ritual_gain > 0
+        return bool(self.mana_abilities) or self.ritual_gain > 0 or bool(self.ritual_counts)
 
     @property
     def is_accelerant(self) -> bool:

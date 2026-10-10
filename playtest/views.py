@@ -15,7 +15,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.translation import gettext, gettext_noop
+from django.utils.translation import gettext, gettext_noop, ngettext
 from django.views.generic import DetailView, View
 
 from decks.models import Deck
@@ -23,6 +23,7 @@ from playtest import services
 from playtest.forms import ActionForm, ForkForm, StartForm
 from playtest.models import PlaytestSession
 from simulation import actions
+from simulation.game import LANDER_FODDER, TREASURE
 from simulation.manacost import COLORLESS, COLORS
 
 #: The board fragment htmx swaps in. The whole page includes it too, so the two
@@ -103,6 +104,9 @@ ACTION_NAMES = {
     "set_life": gettext_noop("Life changed"),
     "move_card": gettext_noop("Card moved"),
     "tap_permanent": gettext_noop("Permanent tapped"),
+    "activate_search": gettext_noop("Land search activated"),
+    "activate_lander": gettext_noop("Lander activated"),
+    "sacrifice_mana": gettext_noop("Sacrificed for mana"),
 }
 
 #: The message tag that marks an engine refusal, so the page can say it is
@@ -114,13 +118,17 @@ PIP_ORDER = (*COLORS, COLORLESS)
 
 
 def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
-           x_max=None) -> list[dict]:
+           x_max=None, zone="", activatable=(), payments=None, altars=None) -> list[dict]:
     """One zone, as the flat rows a template can loop over without thinking.
 
     The alternative is a custom filter for `images[card.name]` and another for
     `index in castable`. Both would put logic in the template, where it cannot
     be tested. `x_max` gives a castable card with {X} the largest X the pool
     pays (P19 R9), which the board fills in for the player to change.
+    `activatable` are the permanents in `zone` whose land search the pool
+    pays for now (P19 R14). `payments` gives a castable card the ways its
+    additional cost can be paid, and `altars` an altar what it can sacrifice
+    (P19 R15): labels, the first the agent's own choice.
     """
     return [
         {
@@ -131,9 +139,51 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
             "castable": index in castable,
             "playable": index in playable,
             "x_max": x_max(card) if x_max and index in castable and card.x_count else None,
+            "zone": zone,
+            "activatable": index in activatable,
+            "payments": payments(card) if payments and index in castable
+            and card.additional_costs else [],
+            "altar": altars(card) if altars and card.sacrifice_mana is not None else [],
         }
         for index, card in enumerate(cards)
     ]
+
+
+def _fodder_label(fodder) -> str:
+    """What a sacrifice takes, as the board names it."""
+    if fodder == TREASURE:
+        return gettext("a Treasure")
+    if fodder == LANDER_FODDER:
+        return gettext("a Lander token")
+    return fodder.name
+
+
+def payment_labels(game, card) -> list[str]:
+    """The ways ``card``'s additional cost can be paid now, in words (P19 R15)."""
+    labels = []
+    for way, fodder in game.payment_options(card, game.pool):
+        if fodder is not None:
+            labels.append(gettext("sacrifice %(what)s") % {"what": _fodder_label(fodder)})
+        elif way.life:
+            labels.append(gettext("pay %(life)s life") % {"life": way.life})
+        elif way.discard:
+            labels.append(ngettext("discard %(count)s card", "discard %(count)s cards",
+                                   way.discard) % {"count": way.discard})
+        elif way.mana is not None:
+            labels.append(gettext("pay %(mana)s") % {"mana": way.mana})
+        elif way.exile_from_graveyard:
+            labels.append(gettext("exile a card from the graveyard"))
+        else:
+            labels.append(gettext("X = 0"))
+    return labels
+
+
+def altar_labels(game):
+    """What each altar on the board can sacrifice now, in words (P19 R15)."""
+    pool = getattr(game, "pool", None)
+    if pool is None:
+        return None
+    return lambda card: [_fodder_label(fodder) for fodder in game.altar_fodder(card, pool)]
 
 
 def pips(pool) -> list[tuple[str, int]]:
@@ -176,13 +226,21 @@ def board_context(session: PlaytestSession, game) -> dict:
             playable={a.index for a in legal if isinstance(a, actions.PlayLand)},
             x_max=(lambda card: game.max_x(card, game.pool))
             if getattr(game, "pool", None) is not None else None,
+            payments=(lambda card: payment_labels(game, card))
+            if getattr(game, "pool", None) is not None else None,
         ),
         "battlefield": [
             {"key": key, "label": gettext(label),
              "tiles": [tile for zone in zones
-                       for tile in _tiles(getattr(game, zone), images, keywords)]}
+                       for tile in _tiles(getattr(game, zone), images, keywords, zone=zone,
+                                          activatable={a.index for a in legal
+                                                       if isinstance(a, actions.ActivateSearch)
+                                                       and a.zone == zone},
+                                          altars=altar_labels(game))]}
             for key, label, zones in BATTLEFIELD_ROWS
         ],
+        "landers": getattr(game, "landers", 0),
+        "lander_ready": any(isinstance(a, actions.ActivateLander) for a in legal),
         "graveyard": _tiles(game.graveyard, images),
         "exiled": _tiles(game.exiled, images),
         "pips": pips(getattr(game, "pool", None)),

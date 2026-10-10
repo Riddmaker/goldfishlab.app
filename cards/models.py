@@ -364,8 +364,22 @@ class DerivedProfile(models.Model):
     #: P19 R7: Treasure tokens it makes as it resolves (a spell's sentence, a
     #: permanent's "When this creature enters"). See `cards.profiles._treasures`.
     treasures = models.PositiveSmallIntegerField(default=0)
+    #: P19 R14: Lander tokens it makes the same way. See `cards.profiles._landers`.
+    landers = models.PositiveSmallIntegerField(default=0)
     #: P19 R7: "As an additional cost to cast this spell, discard a card."
     discard_cost = models.PositiveSmallIntegerField(default=0)
+    #: P19 R15: every other additional cost of the card's own, as the ways it
+    #: can be paid: [{"sacrifice": ["creature"], "filter": "", "life": 0,
+    #: "life_x": false, "discard": 0, "mana": "", "exile_from_graveyard": ""}].
+    #: Null: none, or none read. See `cards.profiles._additional_cost`.
+    additional_cost = models.JSONField(null=True, blank=True, default=None)
+    #: P19 R15: a mana ability whose cost sacrifices another permanent -
+    #: Ashnod's Altar, Phyrexian Tower: {"sacrifice": ["creature"], "filter": "",
+    #: "amount": 2, "produces": {"C": 2} or null for a choice, "taps": false}.
+    sacrifice_mana = models.JSONField(null=True, blank=True, default=None)
+    #: P19 R15: "Exile this card from your hand: Add {G}" - played as a ritual
+    #: that costs nothing and goes to exile (Elvish Spirit Guide).
+    mana_from_hand = models.BooleanField(default=False)
     cost_reduction = models.PositiveSmallIntegerField(null=True, blank=True)
     draws_cards = models.PositiveSmallIntegerField(null=True, blank=True)
     #: P19 R8: cards discarded right after that draw - "Draw two cards, then
@@ -395,7 +409,7 @@ class DerivedProfile(models.Model):
     # that", not a tutor quietly redirected to the graveyard.
     tutor_to = models.CharField(
         max_length=16, blank=True,
-        help_text="hand, graveyard or battlefield. Blank means not a tutor.",
+        help_text="hand, graveyard, battlefield or top. Blank means not a tutor.",
     )
     tutor_count = models.PositiveSmallIntegerField(
         null=True, blank=True, help_text="Null means unresolved, never 'one'."
@@ -404,6 +418,8 @@ class DerivedProfile(models.Model):
         max_length=16, blank=True,
         help_text="Engine card kind the search is restricted to. Blank means any.",
     )
+    #: P19 R12: for `tutor_to` "top" (Vampiric Tutor), {"types": [...]}: the card
+    #: types it may find, any of them; empty for any card.
     #: P19 R10: what else a search onto the battlefield is limited to - {"color":
     #: "G" for "a green creature card", "max_mv": "X" or a number for "with mana
     #: value X or less"}. Green Sun's Zenith, Chord of Calling. Null: nothing.
@@ -416,7 +432,8 @@ class DerivedProfile(models.Model):
     #: once you control that many lands). See `cards.profiles._land_search`.
     land_search = models.JSONField(null=True, blank=True)
     #: P19 R3: when `enters_tapped`, the condition under which it does not -
-    #: {"kind": control_type | lands | opponents | reveal | pay_life, ...}.
+    #: {"kind": control_type | lands | opponents | reveal | pay_life | permanent |
+    #: turn | opponent_lands | life_at_most, ...} (the last four since P19 R12).
     #: See `cards.profiles._tapped_unless`. Null: none, or none it could read.
     tapped_unless = models.JSONField(null=True, blank=True)
 

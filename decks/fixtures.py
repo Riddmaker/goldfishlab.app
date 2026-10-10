@@ -265,26 +265,22 @@ UNMODELLABLE = DeckShape(
     ),
     commander=None,
     cards=(
-        # "As an additional cost, pay X life": a cost the engine does not pay.
-        # Exotic Orchard stood here until engine version 9 read it as the
-        # deck's colours, an assumption about the opponents (P19 R5).
-        (4, "Toxic Deluge"),
-        # Mana for a sacrificed creature, which the engine does not do. Maze of
-        # Ith stood here until engine version 8 read it as a land that really
-        # makes no mana (P19 R4).
-        (4, "Phyrexian Tower"),
+        # "Sacrifice two creatures": a cost the engine does not pay. Toxic
+        # Deluge stood here until engine version 19 paid its X life as 0, and
+        # Exotic Orchard until 9 read it as the deck's colours (P19 R5, R15).
+        (4, "Phyrexian Tribute"),
         # A ritual whose extra mana grows with the board. Nykthos and Gaea's
         # Cradle stood here until engine version 15 counted devotion and
-        # creatures (P19 R11).
+        # creatures (P19 R11); Phyrexian Tower and Ashnod's Altar until 19
+        # sacrificed for their mana (P19 R15), Maze of Ith until 8 (R4).
         (4, "Rite of Flame"),
         # Black mana "instead" with a full graveyard. Cabal Coffers stood here
         # until the reader learned its rule (P19 R4).
         (4, "Cabal Ritual"),
-        (4, "Rhystic Study"), (4, "Smothering Tithe"),
+        # A mana ability granted to a Treasure an opponent's spell pays for.
+        (4, "Smothering Tithe"),
+        (4, "Rhystic Study"),
         (4, "Esper Sentinel"), (4, "Mystic Remora"),
-        (4, "Ashnod's Altar"),
-        (4, "Blood Crypt"),
-        (4, "Gleemax"),
     ),
 )
 

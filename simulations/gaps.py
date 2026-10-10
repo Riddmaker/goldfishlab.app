@@ -55,15 +55,17 @@ JUDGEMENT = "judgement"
 #: since nothing in a goldfish is there for X to kill.
 #: `assumed_trigger` (P19 R16): Smothering Tithe, Rhystic Study and Esper
 #: Sentinel trigger on the opponents, who are not there - played as one
-#: opponent a round not paying the tax. Every one of these is stated, in
-#: detail, beside the card on the deck page's card list.
+#: opponent a round not paying the tax. `assumed_type` (P19 R17): Cavern of
+#: Souls names the deck's most common creature type until an annotation names
+#: another. Every one of these is stated, in detail, beside the card on the
+#: deck page's card list.
 JUDGEMENT_FIELDS = frozenset({"priority", "accelerant", "assumed_mana", "assumed_lands",
-                              "assumed_cost", "assumed_trigger"})
+                              "assumed_cost", "assumed_trigger", "assumed_type"})
 
 #: The judgement fields the engine answers with an assumption of its own -
 #: shown on the deck page beside the card, never only counted.
 ASSUMPTION_FIELDS = frozenset({"assumed_mana", "assumed_lands", "assumed_cost",
-                               "assumed_trigger"})
+                               "assumed_trigger", "assumed_type"})
 
 
 def kind_of(field: str) -> str:

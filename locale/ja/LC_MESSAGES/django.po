@@ -8595,3 +8595,120 @@ msgstr ""
 "Ulamog、ドラゴンが出たときのGanax、毎ターンのAwakening ZoneとHulking Raptor、土地1つにつき1回のBrass's "
 "Bounty。Smothering Tithe、Rhystic Study、Esper "
 "Sentinelはゴールドフィッシュにはいない対戦相手を待つため、対戦相手1人が支払わないと仮定して1巡に1回働きます。またデッキページのカード一覧では、エンジンが各カードをプレイするために置いている仮定がカードの横に表示されるようになりました。"
+
+#: simulations/engine/adapter.py
+msgid ""
+"names a creature type, but no card in this deck has one: only its other mana"
+" is played"
+msgstr "クリーチャー・タイプを指定するが、このデッキにタイプを持つカードがない：もう一方のマナだけを使う"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"names %(type)s as its creature type, the most common one in this deck "
+"(%(count)s cards)"
+msgstr "クリーチャー・タイプとして%(type)sを指定する（このデッキで最も多いタイプ、%(count)s枚）"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s, only for %(spells)s"
+msgstr "%(mana)s（%(spells)sにのみ）"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s spells"
+msgstr "%(what)sの呪文"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(one)s or %(other)s"
+msgstr "%(one)sまたは%(other)s"
+
+#: simulations/engine/adapter.py
+msgid "legendary"
+msgstr "伝説の"
+
+#: simulations/engine/adapter.py
+msgid "multicoloured"
+msgstr "多色の"
+
+#: simulations/engine/adapter.py
+msgid "noncreature"
+msgstr "クリーチャーでない"
+
+#: simulations/engine/adapter.py
+msgid "artifact"
+msgstr "アーティファクト"
+
+#: simulations/engine/adapter.py
+msgid "creature"
+msgstr "クリーチャー"
+
+#: simulations/engine/adapter.py
+msgid "enchantment"
+msgstr "エンチャント"
+
+#: simulations/engine/adapter.py
+msgid "instant"
+msgstr "インスタント"
+
+#: simulations/engine/adapter.py
+msgid "sorcery"
+msgstr "ソーサリー"
+
+#: simulations/engine/adapter.py
+msgid "planeswalker"
+msgstr "プレインズウォーカー"
+
+#: simulations/annotations.py
+msgid "Creature type it names"
+msgstr "指定するクリーチャー・タイプ"
+
+#: simulations/annotations.py
+msgid ""
+"For Cavern of Souls and the like: the creature type you choose as it enters,"
+" such as Elf. Left empty, the engine names the most common creature type in "
+"your deck."
+msgstr ""
+"Cavern of "
+"Soulsなど：戦場に出るときに選ぶクリーチャー・タイプ（例：Elf）。空欄なら、エンジンはデッキで最も多いクリーチャー・タイプを指定します。"
+
+#: simulations/forms.py
+msgid "One creature type, such as Elf or Dragon."
+msgstr "クリーチャー・タイプを1つ（例：ElfやDragon）。"
+
+#: playtest/views.py
+#, python-format
+msgid "%(mana)s for %(spells)s"
+msgstr "%(spells)s用の%(mana)s"
+
+#: playtest/views.py
+#, python-format
+msgid "%(restricted)s, or %(mana)s"
+msgstr "%(restricted)s、または%(mana)s"
+
+#: templates/playtest/_board.html
+msgid "Mana only some spells may spend"
+msgstr "一部の呪文にしか使えないマナ"
+
+#: changelog/entries.py
+msgid "Cavern of Souls, Ancient Ziggurat and Plaza of Heroes"
+msgstr "Cavern of Souls、Ancient Ziggurat、Plaza of Heroes"
+
+#: changelog/entries.py
+msgid ""
+"Lands and creatures whose mana only some spells may spend now make it in a "
+"simulated game, and only those spells spend it: Ancient Ziggurat and Herd "
+"Heirloom for creatures, Plaza of Heroes and Delighted Halfling for legendary"
+" spells, your commander included, Eldrazi Temple and Shrine of the Forsaken "
+"Gods for colourless ones, Power Depot for artifacts, Haven of the Spirit "
+"Dragon for Dragons. Cavern of Souls and Unclaimed Territory name your deck's"
+" most common creature type - your deck page says which, beside the card, and"
+" you can name another. The playtest shows such mana apart from the rest."
+msgstr ""
+"一部の呪文にしか使えないマナを出す土地やクリーチャーが、シミュレーションでマナを出すようになり、その呪文だけがそれを使います：Ancient "
+"ZigguratとHerd Heirloomはクリーチャーに、Plaza of HeroesとDelighted "
+"Halflingは統率者を含む伝説の呪文に、Eldrazi TempleとShrine of the Forsaken "
+"Godsは無色の呪文に、Power Depotはアーティファクトに、Haven of the Spirit Dragonはドラゴンに。Cavern of"
+" SoulsとUnclaimed "
+"Territoryはデッキで最も多いクリーチャー・タイプを指定します。どのタイプかはデッキページのカードの横に表示され、別のタイプを指定することもできます。プレイテストではこのマナを他と分けて表示します。"

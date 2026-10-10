@@ -457,6 +457,7 @@ class CardAnnotateView(DeckScopedView):
         first, more = form.split(
             {gap.field for gap in entry.reading_gaps}, is_land=entry.reading.card.is_land,
             has_x=bool(entry.reading.card.x_count),
+            names_type=entry.reading.names_type,
         )
         context = {
             "deck": deck,

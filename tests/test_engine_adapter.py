@@ -170,10 +170,13 @@ def test_the_deck_definitions_are_equal(converted):
         # Bloom Tender, Overgrown Battlement), and this deck has none.
         # `additional_costs` (19): the deck's one, Ritual of the Machine's
         # sacrifice, is on a card the engine never casts (no creature to steal).
+        # `printed_subtypes` (21): only restricted mana asks it, and this deck
+        # has none.
         return replace(card, name=normalise(card.name), cost=card.mana_cost,
                        types=frozenset(), categories=frozenset(), basic=False,
                        creature_types=frozenset(), legendary=False,
-                       colors=frozenset(), defender=False, additional_costs=())
+                       colors=frozenset(), defender=False, additional_costs=(),
+                       printed_subtypes=frozenset())
 
     def fold(definition):
         return tuple(

@@ -42,6 +42,18 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 10), "restricted-mana",
+        _("Cavern of Souls, Ancient Ziggurat and Plaza of Heroes"),
+        _("Lands and creatures whose mana only some spells may spend now make it in a "
+          "simulated game, and only those spells spend it: Ancient Ziggurat and Herd Heirloom "
+          "for creatures, Plaza of Heroes and Delighted Halfling for legendary spells, your "
+          "commander included, Eldrazi Temple and Shrine of the Forsaken Gods for colourless "
+          "ones, Power Depot for artifacts, Haven of the Spirit Dragon for Dragons. Cavern of "
+          "Souls and Unclaimed Territory name your deck's most common creature type - your "
+          "deck page says which, beside the card, and you can name another. The playtest "
+          "shows such mana apart from the rest."),
+    ),
+    Entry(
         date(2026, 10, 10), "triggers",
         _("Smothering Tithe, Lotus Cobra and Storm-Kiln Artist"),
         _("Cards that make Treasure, mana or a card when something happens now do it in a "

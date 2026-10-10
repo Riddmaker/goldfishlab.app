@@ -9647,3 +9647,128 @@ msgstr ""
 "per giro, supponendo che un avversario non paghi – e l'elenco delle carte "
 "nella pagina del tuo mazzo ora indica accanto a ogni carta cosa suppone il "
 "motore per giocarla."
+
+#: simulations/engine/adapter.py
+msgid ""
+"names a creature type, but no card in this deck has one: only its other mana"
+" is played"
+msgstr ""
+"nomina un tipo di creatura, ma nessuna carta di questo mazzo ne ha uno: si "
+"gioca solo l'altro suo mana"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"names %(type)s as its creature type, the most common one in this deck "
+"(%(count)s cards)"
+msgstr ""
+"nomina %(type)s come tipo di creatura, il più comune in questo mazzo "
+"(%(count)s carte)"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s, only for %(spells)s"
+msgstr "%(mana)s, solo per %(spells)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s spells"
+msgstr "magie: %(what)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(one)s or %(other)s"
+msgstr "%(one)s o %(other)s"
+
+#: simulations/engine/adapter.py
+msgid "legendary"
+msgstr "leggendaria"
+
+#: simulations/engine/adapter.py
+msgid "multicoloured"
+msgstr "multicolore"
+
+#: simulations/engine/adapter.py
+msgid "noncreature"
+msgstr "non creatura"
+
+#: simulations/engine/adapter.py
+msgid "artifact"
+msgstr "artefatto"
+
+#: simulations/engine/adapter.py
+msgid "creature"
+msgstr "creatura"
+
+#: simulations/engine/adapter.py
+msgid "enchantment"
+msgstr "incantesimo"
+
+#: simulations/engine/adapter.py
+msgid "instant"
+msgstr "istantaneo"
+
+#: simulations/engine/adapter.py
+msgid "sorcery"
+msgstr "stregoneria"
+
+#: simulations/engine/adapter.py
+msgid "planeswalker"
+msgstr "planeswalker"
+
+#: simulations/annotations.py
+msgid "Creature type it names"
+msgstr "Tipo di creatura che nomina"
+
+#: simulations/annotations.py
+msgid ""
+"For Cavern of Souls and the like: the creature type you choose as it enters,"
+" such as Elf. Left empty, the engine names the most common creature type in "
+"your deck."
+msgstr ""
+"Per Cavern of Souls e simili: il tipo di creatura che scegli quando entra, "
+"per esempio Elf. Se lo lasci vuoto, il motore nomina il tipo di creatura più"
+" comune del tuo mazzo."
+
+#: simulations/forms.py
+msgid "One creature type, such as Elf or Dragon."
+msgstr "Un tipo di creatura, per esempio Elf o Dragon."
+
+#: playtest/views.py
+#, python-format
+msgid "%(mana)s for %(spells)s"
+msgstr "%(mana)s per %(spells)s"
+
+#: playtest/views.py
+#, python-format
+msgid "%(restricted)s, or %(mana)s"
+msgstr "%(restricted)s, oppure %(mana)s"
+
+#: templates/playtest/_board.html
+msgid "Mana only some spells may spend"
+msgstr "Mana che solo alcune magie possono spendere"
+
+#: changelog/entries.py
+msgid "Cavern of Souls, Ancient Ziggurat and Plaza of Heroes"
+msgstr "Cavern of Souls, Ancient Ziggurat e Plaza of Heroes"
+
+#: changelog/entries.py
+msgid ""
+"Lands and creatures whose mana only some spells may spend now make it in a "
+"simulated game, and only those spells spend it: Ancient Ziggurat and Herd "
+"Heirloom for creatures, Plaza of Heroes and Delighted Halfling for legendary"
+" spells, your commander included, Eldrazi Temple and Shrine of the Forsaken "
+"Gods for colourless ones, Power Depot for artifacts, Haven of the Spirit "
+"Dragon for Dragons. Cavern of Souls and Unclaimed Territory name your deck's"
+" most common creature type - your deck page says which, beside the card, and"
+" you can name another. The playtest shows such mana apart from the rest."
+msgstr ""
+"Le terre e le creature il cui mana può essere speso solo da alcune magie ora"
+" lo producono in una partita simulata, e solo quelle magie lo spendono: "
+"Ancient Ziggurat e Herd Heirloom per le creature, Plaza of Heroes e "
+"Delighted Halfling per le magie leggendarie, il tuo comandante compreso, "
+"Eldrazi Temple e Shrine of the Forsaken Gods per quelle incolori, Power "
+"Depot per gli artefatti, Haven of the Spirit Dragon per i Draghi. Cavern of "
+"Souls e Unclaimed Territory nominano il tipo di creatura più comune del tuo "
+"mazzo - la pagina del mazzo dice quale, accanto alla carta, e puoi nominarne"
+" un altro. Il playtest mostra questo mana separato dal resto."

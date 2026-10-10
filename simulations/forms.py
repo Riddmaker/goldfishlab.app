@@ -14,6 +14,8 @@ because a checkbox cannot say the third thing and would quietly save "no" for
 every card it was never asked about.
 """
 
+import re
+
 from django import forms
 from django.utils.translation import gettext, ngettext
 from django.utils.translation import gettext_lazy as _
@@ -239,6 +241,10 @@ class AnnotationForm(forms.Form):
         required=False, min_value=0, max_value=20,
         label=BY_KEY["x_min"].label, help_text=BY_KEY["x_min"].help,
     )
+    chosen_type = forms.CharField(
+        required=False, max_length=40,
+        label=BY_KEY["chosen_type"].label, help_text=BY_KEY["chosen_type"].help,
+    )
 
     note = forms.CharField(
         required=False, max_length=500, widget=forms.Textarea(attrs={"rows": 2}),
@@ -257,23 +263,36 @@ class AnnotationForm(forms.Form):
              "replace_tags", "replace_subtypes", "note"]
         )
 
-    def split(self, gap_fields, *, is_land: bool, has_x: bool = False) -> tuple[list, list]:
+    def split(self, gap_fields, *, is_land: bool, has_x: bool = False,
+              names_type: bool = False) -> tuple[list, list]:
         """The fields worth asking about this card first, and the rest.
 
         `scope` is in neither: the page carries it as a hidden field and offers
         the other scope as a link, which is a toggle and not a question. Nor is
-        the X field on a card without an X (P19 R9).
+        the X field on a card without an X (P19 R9), nor the creature type on
+        a card that names none - and on one that does, it comes first (P19 R17).
         """
         wanted = [name for field in gap_fields for name in ANSWERS.get(field, ())]
+        if names_type:
+            wanted.insert(0, "chosen_type")
         if is_land:
             wanted.extend(LAND_ANSWERS)
         fields = [bound for bound in self if bound.name != "scope"
-                  and (has_x or bound.name != "x_min")]
+                  and (has_x or bound.name != "x_min")
+                  and (names_type or bound.name != "chosen_type")]
         # In the order `ANSWERS` names them, so a "Replace the roles" box sits
         # above the roles it replaces rather than after them.
         first = sorted((bound for bound in fields if bound.name in wanted),
                        key=lambda bound: wanted.index(bound.name))
         return first, [bound for bound in fields if bound.name not in wanted]
+
+    def clean_chosen_type(self):
+        """One creature type, as the type line spells it: letters, a hyphen,
+        an apostrophe. Stored lower case, the way the engine compares it."""
+        text = " ".join(self.cleaned_data.get("chosen_type", "").split())
+        if text and not re.fullmatch(r"[A-Za-z][A-Za-z'-]*", text):
+            raise forms.ValidationError(_("One creature type, such as Elf or Dragon."))
+        return text.lower()
 
     def clean_mana_produces(self):
         text = self.cleaned_data.get("mana_produces", "")
@@ -310,6 +329,7 @@ class AnnotationForm(forms.Form):
             # Zero is a statement too: "it only has to tap".
             "mana_activation": data.get("mana_activation"),
             "x_min": data.get("x_min"),
+            "chosen_type": data.get("chosen_type") or None,
         }
 
     @staticmethod
@@ -338,4 +358,6 @@ class AnnotationForm(forms.Form):
             initial["mana_activation"] = overrides["mana_activation"]
         if "x_min" in overrides:
             initial["x_min"] = overrides["x_min"]
+        if "chosen_type" in overrides:
+            initial["chosen_type"] = str(overrides["chosen_type"]).title()
         return initial

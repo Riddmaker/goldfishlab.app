@@ -537,7 +537,7 @@ def derive_kind(card: OracleCard, tags: set[str]) -> str:
 
 # --- the conditions under which a land enters untapped (P19 R3) ---------------
 
-_NUMBER_WORD = r"(?P<n>one|two|three|four|five|\d+)"
+_NUMBER_WORD = r"(?P<n>one|two|three|four|five|six|seven|eight|nine|ten|\d+)"
 _BASIC_TYPE = r"(?:Plains|Island|Swamp|Mountain|Forest)"
 _TYPE_LIST = (rf"(?:an? )?(?P<types>{_BASIC_TYPE}"
               rf"(?:,? (?:or )?(?:an? )?{_BASIC_TYPE})*)")
@@ -596,6 +596,30 @@ _ACTIVATE_IF = re.compile(
     rf"|(?P<artifact>an artifact)|{_TYPE_LIST})\.",
     re.IGNORECASE)
 _SPEND_ONLY = re.compile(r"Spend this mana only", re.IGNORECASE)
+_ACTIVATE_ONLY = re.compile(r"Activate only (?:if|during)", re.IGNORECASE)
+
+#: P19 R17: "Spend this mana only to cast a creature spell of the chosen
+#: type, and that spell can't be countered." - the spells, up to the stop.
+_SPEND_TO_CAST = re.compile(
+    r"Spend this mana only to cast (?P<spells>[^.]+?)"
+    r"(?:,? and that spell can't be countered)?\.")
+#: Where the spells end and something else the mana may pay begins: "or
+#: activate abilities of artifacts", "or pay a morph cost". The engine pays
+#: no ability with restricted mana, so those are left out - read narrower
+#: than printed, never wider.
+_SPEND_NOT_A_SPELL = re.compile(
+    r",? (?:or )?(?:to )?(?:activate|pay|turn|unlock|foretell)\b.*$")
+#: The alternatives: "Vampire, Cleric, and/or Demon spells", "an instant or
+#: sorcery spell", "Aura and/or Equipment spells" - any one of them.
+_SPEND_SEPARATOR = re.compile(r",? (?:and/or|or|and) |, ")
+_SPELL_TYPES = ("artifact", "creature", "enchantment", "instant", "sorcery", "planeswalker")
+_SPEND_PART = re.compile(
+    r"^(?:an? )?(?P<adjectives>(?:(?:colorless|legendary|multicolored|noncreature) )*)"
+    r"(?P<subtypes>(?:[A-Z][\w'-]* )*?)"
+    rf"(?P<types>(?:(?:{'|'.join(_SPELL_TYPES)}) )*)"
+    r"spells?(?P<chosen> of the chosen type)?$")
+_SPELL_NOUN = re.compile(r"\b(spells?)(?: of the chosen type)?$")
+_CHOOSE_CREATURE_TYPE = re.compile(r"\bchoose a creature type\b", re.IGNORECASE)
 
 #: P19 R4: the three mana rules the engine has played since Phase 2, until now
 #: only through a built-in annotation. "Each land is a Swamp in addition to
@@ -1227,6 +1251,9 @@ class ManaClause:
     from_hand: bool = False
     #: "Activate only if you control ..." read as a condition (P19 R4).
     condition: dict | None = None
+    #: P19 R17: "Spend this mana only to cast ..." - the spells it may pay
+    #: for, see `_spend_only`. None: any.
+    spend_only: list | None = None
     #: A filter's coloured input, "WB" for {W/B} (P19 R6). Empty: none.
     pays_with: str = ""
     #: The colours a choice among symbols offers: "WB" for "Add {W}{W},
@@ -1269,6 +1296,10 @@ class ManaReading:
     #: The ability can be used only under a condition: {"if": ..., "otherwise":
     #: what the card taps for without it, or None} (P19 R4).
     condition: dict | None = None
+    #: P19 R17: "Spend this mana only to cast ...": {"spells": the filters of
+    #: `_spend_only`, "otherwise": what the card taps for instead, or None}.
+    #: The reading's own amount is the restricted ability's.
+    spend_only: dict | None = None
     #: A filter or converter beside the plain ability (P19 R6): {"pays_with":
     #: "WB" or "" (any mana), "amount", "offers": colours or "" (any)}.
     filter: dict | None = None
@@ -1412,16 +1443,80 @@ def _mana_clauses(card: OracleCard, *, is_spell: bool) -> list[ManaClause]:
             if not clause.problem:
                 _read_produced(clause, after)
             if not clause.problem and _RESTRICTED.search(after):
-                condition = _activation_condition(after)
-                if (condition is not None and clause.is_ability
-                        and not clause.sacrifices_self and not _SPEND_ONLY.search(after)):
-                    # Since engine version 8 the game checks it (P19 R4).
-                    clause.condition = condition
-                else:
-                    clause.problem = gettext_noop(
-                        "its mana is restricted to certain spells or moments")
+                _restrict(clause, after, card)
             found.append(clause)
     return found
+
+
+def _restrict(clause: ManaClause, after: str, card: OracleCard) -> None:
+    """The spells its mana pays for (P19 R17) and when it may be used (P19 R4).
+
+    Either one the engine cannot hold leaves the clause a gap.
+    """
+    usable = clause.is_ability and not clause.sacrifices_self
+    if usable and _SPEND_ONLY.search(after):
+        # Not on an altar or from the hand: those are played as unrestricted.
+        clause.spend_only = _spend_only(after, card)
+        usable = (clause.spend_only is not None and clause.sacrifices is None
+                  and not clause.from_hand)
+    if usable and _ACTIVATE_ONLY.search(after):
+        # Since engine version 8 the game checks it (P19 R4).
+        clause.condition = _activation_condition(after)
+        usable = clause.condition is not None
+    if not usable:
+        clause.spend_only = clause.condition = None
+        clause.problem = gettext_noop("its mana is restricted to certain spells or moments")
+
+
+def _spend_only(text: str, card: OracleCard) -> list | None:
+    """"Spend this mana only to cast ..." as spell filters, or None (P19 R17).
+
+    Each is a dict of what `simulation.cards.SpellFilter` asks - "types",
+    "subtypes", "legendary", "colorless", "multicolored", "noncreature" -
+    plus "chosen_type" for "a creature spell of the chosen type", which the
+    deck settles. Any one of them will do. An alternative that is no kind of
+    spell ("or activate abilities of artifacts") or that the engine cannot
+    tell apart ("a kicked spell", "spells from your graveyard") is dropped:
+    that reads the card narrower than it is. None when nothing is left, or a
+    filter would ask nothing - "spells and abilities that put tokens onto
+    the battlefield" is not "spells".
+    """
+    found = _SPEND_TO_CAST.search(text)
+    if found is None:
+        return None
+    spells = _SPEND_NOT_A_SPELL.sub("", found.group("spells"))
+    parts = [part.strip() for part in _SPEND_SEPARATOR.split(spells) if part.strip()]
+    filters = []
+    # "Vampire, Cleric, and/or Demon spells": the last part names the noun
+    # for the ones before it - only the noun, so "an instant or sorcery
+    # spell" is an instant spell or a sorcery spell. Read back to front.
+    head = ""
+    for part in reversed(parts):
+        noun = _SPELL_NOUN.search(part)
+        if noun is not None:
+            head = noun.group(1)
+        elif head:
+            part = f"{part} {head}"
+        read = _SPEND_PART.match(part)
+        if read is None:
+            continue
+        adjectives = read.group("adjectives").split()
+        wanted = {
+            "types": sorted(set(read.group("types").split())),
+            "subtypes": sorted({word.lower() for word in read.group("subtypes").split()}),
+            "legendary": "legendary" in adjectives,
+            "colorless": "colorless" in adjectives,
+            "multicolored": "multicolored" in adjectives,
+            "noncreature": "noncreature" in adjectives,
+            "chosen_type": bool(read.group("chosen")),
+        }
+        if wanted["chosen_type"] and not _CHOOSE_CREATURE_TYPE.search(card.oracle_text or ""):
+            continue
+        if not any(wanted.values()):
+            continue
+        filters.append(wanted)
+    filters.reverse()
+    return filters or None
 
 
 def _strongest(clauses: list[ManaClause]) -> tuple[ManaClause, dict | None, list[ManaClause]]:
@@ -1437,6 +1532,78 @@ def _strongest(clauses: list[ManaClause]) -> tuple[ManaClause, dict | None, list
     chosen = top[0]
     same = all(clause.produces == chosen.produces for clause in top)
     return chosen, (chosen.produces if same else None), top
+
+
+def _read_plain(reading: ManaReading, worth_it: list[ManaClause], notes: set) -> None:
+    """The plain abilities: the strongest, and its condition if it has one (P19 R4)."""
+    chosen, produces, top = _strongest(worth_it)
+    conditions = {repr(sorted(clause.condition.items())) for clause in top
+                  if clause.condition}
+    plain = [clause for clause in worth_it if not clause.condition]
+    if len(conditions) > 1:
+        # Two abilities under two different conditions: one ability with
+        # a condition is what the engine holds.
+        notes.add(gettext_noop("its mana is restricted to certain spells or moments"))
+        chosen, produces, top = _strongest(plain) if plain else (None, None, [])
+        conditions = set()
+    if chosen is not None:
+        reading.amount, reading.activation = chosen.amount, chosen.activation
+        reading.produces = produces
+    if conditions:
+        condition = next(clause.condition for clause in top if clause.condition)
+        otherwise = None
+        if plain:
+            fallback, fallback_produces, _ = _strongest(plain)
+            otherwise = {"amount": fallback.amount, "produces": fallback_produces,
+                         "activation": fallback.activation}
+        if otherwise is not None and otherwise["produces"] is None:
+            # Without the condition it would still make a choice of
+            # colours, and which ones `produced_mana` cannot say apart
+            # from the conditional ability's. Kept a gap.
+            notes.add(gettext_noop("its mana is restricted to certain spells or moments"))
+            reading.amount = None
+        else:
+            reading.condition = {"if": condition, "otherwise": otherwise}
+
+
+def _read_restricted(reading: ManaReading, restricted: list[ManaClause], notes: set,
+                     plain: list[ManaClause]) -> None:
+    """Mana only some spells may spend, beside what the card makes otherwise (P19 R17).
+
+    The restricted ability becomes the reading and the plain one its
+    ``otherwise``, as a condition's does: Cavern of Souls is one mana of any
+    colour for a creature spell of the chosen type, or {C}. One that makes
+    less than the plain ability is never worth holding back, and one that
+    costs mana to make is not played: both stay the gap they were.
+    """
+    first = restricted[0]
+    kinds = {(repr(clause.spend_only), clause.amount, repr(clause.produces),
+              repr(clause.condition)) for clause in restricted}
+    otherwise = None
+    if plain:
+        otherwise = {"amount": reading.amount, "produces": reading.produces,
+                     "activation": reading.activation}
+        exact = [clause for clause in plain if clause.produces and not clause.condition]
+        if reading.produces is None and first.produces is None and exact:
+            # Both a choice of colours, which `produced_mana` cannot tell
+            # apart: the plain one's exact mana instead - Plaza of Heroes'
+            # {C} rather than its colour among legendary permanents.
+            fallback, _, _ = _strongest(exact)
+            otherwise = {"amount": fallback.amount, "produces": fallback.produces,
+                         "activation": fallback.activation}
+            plain = [fallback]
+    if (len(kinds) > 1 or first.activation or first.amount is None
+            or reading.condition is not None
+            or (otherwise is not None and (reading.amount is None or first.net < max(
+                clause.net for clause in plain)))
+            or (otherwise is not None and otherwise["produces"] is None
+                and first.produces is None)):
+        notes.add(gettext_noop("its mana is restricted to certain spells or moments"))
+        return
+    reading.amount, reading.produces, reading.activation = first.amount, first.produces, 0
+    reading.spend_only = {"spells": first.spend_only, "otherwise": otherwise}
+    if first.condition:
+        reading.condition = {"if": first.condition, "otherwise": otherwise}
 
 
 def _mana_production(card: OracleCard) -> ManaReading:
@@ -1554,35 +1721,13 @@ def _mana_production(card: OracleCard) -> ManaReading:
     elif converting:
         notes.add(gettext_noop("an ability that only converts mana is not modelled"))
 
+    restricted = [clause for clause in worth_it if clause.spend_only]
     if worth_it:
-        chosen, produces, top = _strongest(worth_it)
-        conditions = {repr(sorted(clause.condition.items())) for clause in top
-                      if clause.condition}
-        plain = [clause for clause in worth_it if not clause.condition]
-        if len(conditions) > 1:
-            # Two abilities under two different conditions: one ability with
-            # a condition is what the engine holds.
-            notes.add(gettext_noop("its mana is restricted to certain spells or moments"))
-            chosen, produces, top = _strongest(plain) if plain else (None, None, [])
-            conditions = set()
-        if chosen is not None:
-            reading.amount, reading.activation = chosen.amount, chosen.activation
-            reading.produces = produces
-        if conditions:
-            condition = next(clause.condition for clause in top if clause.condition)
-            otherwise = None
-            if plain:
-                fallback, fallback_produces, _ = _strongest(plain)
-                otherwise = {"amount": fallback.amount, "produces": fallback_produces,
-                             "activation": fallback.activation}
-            if otherwise is not None and otherwise["produces"] is None:
-                # Without the condition it would still make a choice of
-                # colours, and which ones `produced_mana` cannot say apart
-                # from the conditional ability's. Kept a gap.
-                notes.add(gettext_noop("its mana is restricted to certain spells or moments"))
-                reading.amount = None
-            else:
-                reading.condition = {"if": condition, "otherwise": otherwise}
+        plain = [clause for clause in worth_it if not clause.spend_only]
+        if plain:
+            _read_plain(reading, plain, notes)
+        if restricted:
+            _read_restricted(reading, restricted, notes, plain)
         if any(clause.net <= 0 for clause in tapping):
             notes.add(gettext_noop("an ability that only converts mana is not modelled"))
     elif one_shots and "Creature" not in type_line:
@@ -2112,6 +2257,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana_condition=mana.condition,
         mana_rule=mana_rule,
         mana_filter=mana.filter,
+        mana_spend_only=mana.spend_only,
         treasures=treasures,
         landers=landers,
         discard_cost=_word_number(discard.group(1)) if discard else 0,
@@ -2246,7 +2392,8 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "tapped_unless",
             "skips_draw_step",
             "mana_produces", "mana_activation", "mana_untaps", "mana_condition", "mana_rule",
-            "mana_filter", "treasures", "landers", "discard_cost", "additional_cost",
+            "mana_filter", "mana_spend_only", "treasures", "landers", "discard_cost",
+            "additional_cost",
             "sacrifice_mana", "mana_from_hand", "triggers",
             "discards_after", "puts_back",
             "draws_x",

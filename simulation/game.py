@@ -411,10 +411,12 @@ class Game:
         tapped, or it made a choice of colours."""
         if card not in self.lands[self.tapped_lands:]:
             return None
-        made = available_mana(self.lands, [card], [], doublers(self.battlefield),
+        pool = available_mana(self.lands, [card], [], doublers(self.battlefield),
                               ability_of=self.mana_ability,
-                              extras=self.mana_extras(per_source=True)).by_color()
-        if any(is_choice(source) for source in made):
+                              extras=self.mana_extras(per_source=True),
+                              otherwise_of=self.plain_mana_ability)
+        made = pool.by_color()
+        if pool.restricted or any(is_choice(source) for source in made):
             return None
         return ManaCost(pips=tuple(sorted((source, amount) for source, amount in made.items()
                                           if source != COLORLESS)),
@@ -598,7 +600,7 @@ class Game:
                        5 if way.mana is not None else 0)
             life = self.life - way.life
             if not way.sacrifice:
-                if pool.can_pay_cost(cost, life=life):
+                if pool.can_pay_cost(cost, life=life, spell=card):
                     options.append((rank, way, None))
                 continue
             for fodder in self.fodder(way, pool):
@@ -606,7 +608,7 @@ class Game:
                 if fodder == TREASURE:
                     test = pool.copy()
                     test.treasures.pop()
-                if test.can_pay_cost(cost, life=life):
+                if test.can_pay_cost(cost, life=life, spell=card):
                     options.append((rank, way, fodder))
         options.sort(key=lambda option: option[0])
         return [(way, fodder) for _, way, fodder in options]
@@ -617,7 +619,7 @@ class Game:
         ``pick`` chooses among :meth:`payment_options`; None takes the first."""
         if not card.additional_costs:
             cost = effective_mana_cost(card, reductions_from(self.battlefield), x)
-            return (None, None) if pool.can_pay_cost(cost, life=self.life) else None
+            return (None, None) if pool.can_pay_cost(cost, life=self.life, spell=card) else None
         options = self.payment_options(card, pool, x)
         index = 0 if pick is None else pick
         return options[index] if 0 <= index < len(options) else None
@@ -765,7 +767,7 @@ class Game:
         )
         return available_mana(self.lands, untapped_lands, untapped_rocks + dorks,
                               doublers(self.battlefield), ability_of=self.mana_ability,
-                              extras=self.mana_extras())
+                              extras=self.mana_extras(), otherwise_of=self.plain_mana_ability)
 
     def mana_extras(self, *, per_source: bool = False) -> list[Extra]:
         """The mana on top that the permanents in play add (P19 R13).
@@ -902,7 +904,8 @@ class Game:
         reductions = reductions_from(self.battlefield)
         best = -1
         for x in range(self.MAX_X + 1):
-            if not pool.can_pay_cost(effective_mana_cost(card, reductions, x), life=self.life):
+            if not pool.can_pay_cost(effective_mana_cost(card, reductions, x), life=self.life,
+                                     spell=card):
                 break
             best = x
         return best
@@ -990,6 +993,15 @@ class Game:
                                and own.total - own.activation_generic > granted.total):
             return own
         return granted
+
+    def plain_mana_ability(self, card):
+        """What ``card`` taps for instead of its restricted ability, or None
+        (P19 R17): Cavern of Souls' {C}, Shrine of the Forsaken Gods' {R}."""
+        for ability in card.mana_abilities:
+            if ability.rule == FLAT and not ability.spend_only and (
+                    ability.only_if is None or self.holds(ability.only_if, card)):
+                return ability
+        return None
 
     def _granted_to_creatures(self):
         """The mana ability creatures have from a permanent in play, or None.
@@ -1225,9 +1237,11 @@ class Game:
         """
         if not tapped and self.pool is not None:
             made = available_mana(self.lands + [land], [land], [], doublers(self.battlefield),
-                                  extras=self.mana_extras(per_source=True))
+                                  extras=self.mana_extras(per_source=True),
+                                  otherwise_of=self.plain_mana_ability)
             for source, amount in made.by_color().items():
                 self.pool.add(source, amount)
+            self.pool.restricted.extend(made.restricted)
             tapped = True
         if tapped:
             self.lands.insert(0, land)
@@ -1248,7 +1262,7 @@ class Game:
         if fodder == TREASURE:
             # Sacrificed rather than tapped: its mana leaves the pool first.
             pool.treasures.pop()
-        payment = pool.pay_cost(cost, life=self.life - (way.life if way else 0))
+        payment = pool.pay_cost(cost, life=self.life - (way.life if way else 0), spell=card)
         if payment is None:
             raise ValueError(f"{card.name} ({cost}) cannot be paid from {pool}")
         # Phyrexian mana: whatever was not paid with mana is paid with life.
@@ -1321,7 +1335,7 @@ class Game:
         """Cast the commander from the command zone, commander tax included."""
         commander = self.deck.commander
         cost = self._commander_cost()
-        payment = pool.pay_cost(cost, life=self.life)
+        payment = pool.pay_cost(cost, life=self.life, spell=commander)
         if payment is None:
             raise ValueError(f"{commander.name} ({cost}) cannot be paid from {pool}")
         self.life -= payment.life
@@ -1352,7 +1366,7 @@ class Game:
         commander = self.deck.commander
         if commander is None or self.has(commander.name):
             return False
-        return pool.can_pay_cost(self._commander_cost(), life=self.life)
+        return pool.can_pay_cost(self._commander_cost(), life=self.life, spell=commander)
 
     # --- The turn ----------------------------------------------------------
 

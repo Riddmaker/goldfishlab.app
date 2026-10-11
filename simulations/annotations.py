@@ -136,9 +136,10 @@ JUDGEMENTS = (
         "mana_produces",
         _("Taps for"),
         # "nothing" is the word the box reads (`NOTHING`), in every language.
-        _("Letters for the colours, with a number where it makes more than one: "
-          "B, 2B, B C. Write “nothing” for a card that makes no mana the "
-          "engine can use."),
+        _("What tapping the card itself makes. Letters for the colours, with a "
+          "number where it makes more than one: B, 2B, B C. Write “nothing” for a "
+          "card whose own tap makes no mana. Its other mana - an altar, a trigger, "
+          "counters - is under “What the engine plays”."),
     ),
     Judgement(
         "subtypes",

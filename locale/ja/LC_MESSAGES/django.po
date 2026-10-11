@@ -9581,3 +9581,710 @@ msgstr ""
 "Discoveryは対戦相手1人が申し出を受けると仮定して2つ探します。Cycle of RenewalとRoiling "
 "Regrowthは印刷どおり土地を生け贄に捧げるようになりました。Neheb, the Eternalは戦闘ダメージに応じて{R}を、Crime "
 "Novelistはあなたが使った宝物1つにつき{R}を加えます。デッキ・ページではカードの横にすべての仮定を表示します。"
+
+#: simulations/primitives.py
+msgid "Land search"
+msgstr "土地サーチ"
+
+#: simulations/primitives.py
+msgid "Lands it puts onto the battlefield, and when."
+msgstr "戦場に出す土地と、そのタイミング。"
+
+#: simulations/primitives.py
+msgid "Search"
+msgstr "サーチ"
+
+#: simulations/primitives.py
+msgid "A card it finds in your library, and where that card goes."
+msgstr "ライブラリーから探すカードと、その行き先。"
+
+#: simulations/primitives.py
+msgid "Enters tapped unless"
+msgstr "タップ状態で戦場に出る（例外あり）"
+
+#: simulations/primitives.py
+msgid "When a land that enters tapped comes in untapped."
+msgstr "タップ状態で戦場に出る土地が、アンタップ状態で出る条件。"
+
+#: simulations/primitives.py
+msgid "Mana that counts"
+msgstr "数える マナ"
+
+#: simulations/primitives.py
+msgid ""
+"Mana that grows with the board, adds to other sources or is granted to them:"
+" Gaea's Cradle, Caged Sun, Cryptolith Rite."
+msgstr ""
+"盤面に応じて増える、他のマナ源に加わる、または他に与えられるマナ：Gaea's Cradle、Caged Sun、Cryptolith Rite。"
+
+#: simulations/primitives.py
+msgid ""
+"Treasure, mana or cards it makes when something happens: a land enters, a "
+"spell is cast, a creature dies."
+msgstr "何かが起きたときに生み出す宝物・マナ・カード：土地が戦場に出る、呪文を唱える、クリーチャーが死亡する。"
+
+#: simulations/primitives.py
+msgid ""
+"Treasure, mana or lands it makes as creatures attack or deal combat damage; "
+"an Equipment's cost."
+msgstr "クリーチャーが攻撃したり戦闘ダメージを与えたりしたときの宝物・マナ・土地、および装備コスト。"
+
+#: simulations/primitives.py
+msgid "Mana kept as counters"
+msgstr "カウンターとして蓄えるマナ"
+
+#: simulations/primitives.py
+msgid ""
+"Counters, energy or a Food it spends for mana: Pentad Prism, storage lands."
+msgstr "マナのために使うカウンター・エネルギー・食物：Pentad Prism、蓄積土地。"
+
+#: simulations/primitives.py
+msgid "+1/+1 counters"
+msgstr "+1/+1カウンター"
+
+#: simulations/primitives.py
+msgid ""
+"Counters it enters with or puts on creatures, and what grows with them."
+msgstr "戦場に出るときのカウンターやクリーチャーに置くカウンターと、それに応じて増えるもの。"
+
+#: simulations/primitives.py
+msgid "Mana from tapping others"
+msgstr "他をタップして得るマナ"
+
+#: simulations/primitives.py
+msgid ""
+"Mana for tapping other permanents: Springleaf Drum, Urza, Relic of Legends."
+msgstr "他のパーマネントをタップして得るマナ：Springleaf Drum、Urza、Relic of Legends。"
+
+#: simulations/primitives.py
+msgid "Mana for a sacrifice"
+msgstr "生け贄で得るマナ"
+
+#: simulations/primitives.py
+msgid "Mana for sacrificing a permanent: Ashnod's Altar, Phyrexian Tower."
+msgstr "パーマネントを生け贄に捧げて得るマナ：Ashnod's Altar、Phyrexian Tower。"
+
+#: simulations/primitives.py
+msgid "Additional cost"
+msgstr "追加コスト"
+
+#: simulations/primitives.py
+msgid "What casting it costs beside mana: a sacrifice, life, a discard."
+msgstr "唱えるのにマナ以外に必要なもの：生け贄、ライフ、手札を捨てること。"
+
+#: simulations/primitives.py
+msgid "Treasure as it resolves"
+msgstr "解決時の宝物"
+
+#: simulations/primitives.py
+msgid "Treasure tokens it makes as it resolves or enters."
+msgstr "解決時または戦場に出たときに生成する宝物トークン。"
+
+#: simulations/primitives.py
+msgid "Mox"
+msgstr "Mox"
+
+#: simulations/primitives.py
+msgid ""
+"Mox Diamond discards a land to enter; Chrome Mox exiles a card for its "
+"colours."
+msgstr "Mox Diamondは土地を捨てて戦場に出る。Chrome Moxはカードを追放してその色を得る。"
+
+#: simulations/primitives.py
+msgid "Plains"
+msgstr "平地"
+
+#: simulations/primitives.py
+msgid "Island"
+msgstr "島"
+
+#: simulations/primitives.py
+msgid "Swamp"
+msgstr "沼"
+
+#: simulations/primitives.py
+msgid "Mountain"
+msgstr "山"
+
+#: simulations/primitives.py
+msgid "Forest"
+msgstr "森"
+
+#: simulations/primitives.py
+msgid "Any"
+msgstr "任意"
+
+#: simulations/primitives.py
+msgid "Any card"
+msgstr "任意のカード"
+
+#: simulations/primitives.py
+msgid "Lands onto the battlefield"
+msgstr "戦場に出す土地"
+
+#: simulations/primitives.py
+msgid "Lands to hand after them"
+msgstr "その後に手札に加える土地"
+
+#: simulations/primitives.py
+msgid "They enter tapped"
+msgstr "タップ状態で出る"
+
+#: simulations/primitives.py
+msgid "Basic lands only"
+msgstr "基本土地のみ"
+
+#: simulations/primitives.py
+msgid "Land types it may find"
+msgstr "探せる土地タイプ"
+
+#: simulations/primitives.py
+msgid "None ticked: any land."
+msgstr "チェックなし：どの土地でも。"
+
+#: simulations/primitives.py
+msgid "Only if"
+msgstr "条件"
+
+#: simulations/primitives.py
+msgid "The card itself is sacrificed"
+msgstr "このカード自身を生け贄に捧げる"
+
+#: simulations/primitives.py
+msgid "A land of yours is sacrificed first"
+msgstr "まず自分の土地を1つ生け贄に捧げる"
+
+#: simulations/primitives.py
+msgid "Mana it costs to activate"
+msgstr "起動に必要なマナ"
+
+#: simulations/primitives.py
+msgid "Such as {2}. Blank: none."
+msgstr "例：{2}。空欄：なし。"
+
+#: simulations/primitives.py
+msgid "Activating it taps the card"
+msgstr "起動するとこのカードをタップする"
+
+#: simulations/primitives.py
+msgid "Life paid"
+msgstr "支払うライフ"
+
+#: simulations/primitives.py
+msgid "As many as the greatest power among your creatures"
+msgstr "あなたのクリーチャーの最大のパワーに等しい数"
+
+#: simulations/primitives.py
+msgid "Searches again this often while the condition holds"
+msgstr "条件を満たす間、この回数だけ再度探す"
+
+#: simulations/primitives.py
+msgid "One more for each opponent assumed to search too"
+msgstr "同じく探すと仮定した対戦相手1人につきさらに1つ"
+
+#: simulations/primitives.py
+msgid "Where the card goes"
+msgstr "カードの行き先"
+
+#: simulations/primitives.py
+msgid "How many cards"
+msgstr "枚数"
+
+#: simulations/primitives.py
+msgid "What it may find"
+msgstr "探せるもの"
+
+#: simulations/primitives.py
+msgid "Or any of these types"
+msgstr "またはこれらのタイプのいずれか"
+
+#: simulations/primitives.py
+msgid ""
+"Card types, subtypes or creature types, comma-separated: aura, equipment, "
+"elf."
+msgstr "カード・タイプ、サブタイプ、クリーチャー・タイプを英語でカンマ区切り：aura, equipment, elf。"
+
+#: simulations/primitives.py
+msgid "Mana value at most"
+msgstr "マナ総量の上限"
+
+#: simulations/primitives.py
+msgid "Blank: no limit."
+msgstr "空欄：上限なし。"
+
+#: simulations/primitives.py
+msgid "Of this colour"
+msgstr "この色"
+
+#: simulations/primitives.py
+msgid "A land it finds goes onto the battlefield tapped"
+msgstr "見つけた土地はタップ状態で戦場に出る"
+
+#: simulations/primitives.py
+msgid "Cards discarded at random afterwards"
+msgstr "その後に無作為に捨てるカード"
+
+#: simulations/primitives.py
+msgid "Any card with delirium"
+msgstr "昂揚があれば任意のカード"
+
+#: simulations/primitives.py
+msgid "What it sacrifices"
+msgstr "生け贄に捧げるもの"
+
+#: simulations/primitives.py
+msgid "Mana for each sacrifice"
+msgstr "生け贄1つごとのマナ"
+
+#: simulations/primitives.py
+msgid "Of these colours"
+msgstr "これらの色"
+
+#: simulations/primitives.py
+msgid "Such as C or BB. Blank: any colour of the deck."
+msgstr "例：CまたはBB。空欄：デッキのいずれかの色。"
+
+#: simulations/primitives.py
+msgid "Using it taps the card"
+msgstr "使うとこのカードをタップする"
+
+#: simulations/primitives.py
+msgid "Life paid each time"
+msgstr "毎回支払うライフ"
+
+#: simulations/primitives.py
+msgid "What it taps"
+msgstr "タップするもの"
+
+#: simulations/primitives.py
+msgid "Mana for each one tapped"
+msgstr "タップした1つごとのマナ"
+
+#: simulations/primitives.py
+msgid "Such as U or C. Blank: any colour of the deck."
+msgstr "例：UまたはC。空欄：デッキのいずれかの色。"
+
+#: simulations/primitives.py
+msgid "Treasure tokens"
+msgstr "宝物トークン"
+
+#: simulations/primitives.py
+msgid "How it enters"
+msgstr "戦場への出方"
+
+#: simulations/primitives.py
+msgid "Narrowed to"
+msgstr "絞り込み"
+
+#: simulations/primitives.py
+msgid ""
+"Blank for none. For a spell: instant_sorcery, colorless or second; for a "
+"creature dying: another; as it resolves: per_land; for a creature entering: "
+"its type, such as dragon."
+msgstr ""
+"空欄はなし。呪文：instant_sorcery、colorless、second。死亡するクリーチャー：another。解決時：per_land。戦場に出るクリーチャー：英語のタイプ名（例：dragon）。"
+
+#: simulations/primitives.py
+msgid "Mana"
+msgstr "マナ"
+
+#: simulations/primitives.py
+msgid "Of colour"
+msgstr "色"
+
+#: simulations/primitives.py
+msgid "Cards drawn"
+msgstr "引くカード"
+
+#: simulations/primitives.py
+msgid "Life it costs"
+msgstr "支払うライフ"
+
+#: simulations/primitives.py
+msgid "+1/+1 counters on it"
+msgstr "それの上の+1/+1カウンター"
+
+#: simulations/primitives.py
+msgid "Whose attack"
+msgstr "誰の攻撃"
+
+#: simulations/primitives.py
+msgid "Of these creature types"
+msgstr "これらのクリーチャー・タイプ"
+
+#: simulations/primitives.py
+msgid "Blank: any creature."
+msgstr "空欄：どのクリーチャーでも。"
+
+#: simulations/primitives.py
+msgid "Mana kept to the second main phase"
+msgstr "第2メイン・フェイズまで残るマナ"
+
+#: simulations/primitives.py
+msgid "Letters, such as RRRGGG. Blank: none."
+msgstr "文字で（例：RRRGGG）。空欄：なし。"
+
+#: simulations/primitives.py
+msgid "Finds a basic land"
+msgstr "基本土地を探す"
+
+#: simulations/primitives.py
+msgid "The land enters untapped"
+msgstr "土地はアンタップ状態で出る"
+
+#: simulations/primitives.py
+msgid "Equip cost"
+msgstr "装備コスト"
+
+#: simulations/primitives.py
+msgid "For an Equipment, such as {2}."
+msgstr "装備品の場合（例：{2}）。"
+
+#: simulations/primitives.py
+msgid "An Aura that goes on a creature"
+msgstr "クリーチャーにつけるオーラ"
+
+#: simulations/primitives.py
+msgid "Each Treasure makes this much more"
+msgstr "各宝物が追加で生み出す量"
+
+#: simulations/primitives.py
+msgid "Sacrifice one of"
+msgstr "生け贄に捧げるもの"
+
+#: simulations/primitives.py
+msgid "Life"
+msgstr "ライフ"
+
+#: simulations/primitives.py
+msgid "Pay X life (paid with X = 0)"
+msgstr "Xライフを支払う（X = 0で支払う）"
+
+#: simulations/primitives.py
+msgid "Cards discarded"
+msgstr "捨てるカード"
+
+#: simulations/primitives.py
+msgid "Mana on top"
+msgstr "追加のマナ"
+
+#: simulations/primitives.py
+msgid "Exile from your graveyard"
+msgstr "墓地から追放"
+
+#: simulations/primitives.py
+msgid "The sacrifice must also be"
+msgstr "生け贄はさらに次であること"
+
+#: simulations/primitives.py
+msgid "Blank for anything. A colour letter, legendary, or a creature type."
+msgstr "空欄は何でも。色の文字、legendary、または英語のクリーチャー・タイプ。"
+
+#: simulations/primitives.py
+msgid "As it is cast"
+msgstr "唱えたとき"
+
+#: simulations/primitives.py
+msgid "As it enters"
+msgstr "戦場に出たとき"
+
+#: simulations/primitives.py
+msgid "As it is played (a fetch land)"
+msgstr "プレイしたとき（フェッチランド）"
+
+#: simulations/primitives.py
+msgid "When activated, with spare mana"
+msgstr "余ったマナで起動したとき"
+
+#: simulations/primitives.py
+msgid "In each opponent's end step"
+msgstr "各対戦相手の終了ステップ"
+
+#: simulations/primitives.py
+msgid "Always"
+msgstr "常に"
+
+#: simulations/primitives.py
+msgid "An opponent controls more lands (assumed: one a turn each)"
+msgstr "対戦相手の土地の方が多い（仮定：各自毎ターン1つ）"
+
+#: simulations/primitives.py
+msgid "To hand"
+msgstr "手札へ"
+
+#: simulations/primitives.py
+msgid "On top of the library"
+msgstr "ライブラリーの一番上へ"
+
+#: simulations/primitives.py
+msgid "Onto the battlefield"
+msgstr "戦場へ"
+
+#: simulations/primitives.py
+msgid "To the graveyard"
+msgstr "墓地へ"
+
+#: simulations/primitives.py
+msgid "Discards a land card (Mox Diamond)"
+msgstr "土地カードを捨てる（Mox Diamond）"
+
+#: simulations/primitives.py
+msgid "Exiles a coloured card for its colours (Chrome Mox)"
+msgstr "色のあるカードを追放してその色を得る（Chrome Mox）"
+
+#: simulations/primitives.py
+msgid "A land of yours enters"
+msgstr "あなたの土地が戦場に出る"
+
+#: simulations/primitives.py
+msgid "You cast a spell"
+msgstr "あなたが呪文を唱える"
+
+#: simulations/primitives.py
+msgid "It or another creature of a type enters"
+msgstr "それか、ある種類の他のクリーチャーが戦場に出る"
+
+#: simulations/primitives.py
+msgid "A creature of yours dies"
+msgstr "あなたのクリーチャーが死亡する"
+
+#: simulations/primitives.py
+msgid "You sacrifice an artifact"
+msgstr "あなたがアーティファクトを生け贄に捧げる"
+
+#: simulations/primitives.py
+msgid "Your upkeep"
+msgstr "あなたのアップキープ"
+
+#: simulations/primitives.py
+msgid "Your first main phase"
+msgstr "あなたの第1メイン・フェイズ"
+
+#: simulations/primitives.py
+msgid "As it resolves"
+msgstr "解決時"
+
+#: simulations/primitives.py
+msgid "Once a round, an opponent does not pay"
+msgstr "1巡に1回、対戦相手が支払わない"
+
+#: simulations/primitives.py
+msgid "None"
+msgstr "なし"
+
+#: simulations/primitives.py
+msgid "Any colour of the deck"
+msgstr "デッキのいずれかの色"
+
+#: simulations/primitives.py
+msgid "As it attacks"
+msgstr "攻撃したとき"
+
+#: simulations/primitives.py
+msgid "As it deals combat damage to a player"
+msgstr "プレイヤーに戦闘ダメージを与えたとき"
+
+#: simulations/primitives.py
+msgid "This creature"
+msgstr "このクリーチャー"
+
+#: simulations/primitives.py
+msgid "The creature it equips"
+msgstr "装備しているクリーチャー"
+
+#: simulations/primitives.py
+msgid "The creature it enchants"
+msgstr "エンチャントしているクリーチャー"
+
+#: simulations/primitives.py
+msgid "Any of your creatures, once a combat"
+msgstr "あなたのいずれかのクリーチャー（戦闘ごとに1回）"
+
+#: simulations/primitives.py
+msgid "Each modified creature of yours"
+msgstr "あなたの各修正されたクリーチャー"
+
+#: simulations/primitives.py
+msgid "Your commander"
+msgstr "あなたの統率者"
+
+#: simulations/primitives.py
+msgid "You attack the enchanted player"
+msgstr "エンチャントされているプレイヤーを攻撃する"
+
+#: simulations/primitives.py
+msgid "Every point of combat damage"
+msgstr "戦闘ダメージ1点ごと"
+
+#: simulations/primitives.py
+msgid "Nothing"
+msgstr "なし"
+
+#: simulations/primitives.py
+msgid "A creature card"
+msgstr "クリーチャー・カード"
+
+#: simulations/primitives.py
+msgid "An artifact card"
+msgstr "アーティファクト・カード"
+
+#: simulations/primitives.py
+msgid "A land card"
+msgstr "土地カード"
+
+#: simulations/editor.py
+msgid "read from the card"
+msgstr "カードから読み取り"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(cost)s: %(amount)s mana"
+msgstr "%(cost)s：マナ%(amount)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "tap %(what)s: %(amount)s mana each"
+msgstr "%(what)sをタップ：それぞれマナ%(amount)s"
+
+#: simulations/editor.py
+msgid "does nothing"
+msgstr "何もしない"
+
+#: simulations/editor.py
+msgid "not readable"
+msgstr "読み取れない"
+
+#: simulations/editor.py
+msgid "From the card"
+msgstr "カードから"
+
+#: simulations/editor.py
+msgid "Yours, this deck"
+msgstr "あなた（このデッキ）"
+
+#: simulations/editor.py
+msgid "Yours, all decks"
+msgstr "あなた（すべてのデッキ）"
+
+#: simulations/editor.py
+msgid "Off"
+msgstr "オフ"
+
+#: simulations/editor.py
+#, python-format
+msgid "“%(word)s” is not a type. Use words such as aura or elf."
+msgstr "「%(word)s」はタイプではありません。auraやelfのような語を使ってください。"
+
+#: simulations/editor.py
+#, python-format
+msgid "“%(word)s” is not one word the engine knows."
+msgstr "「%(word)s」はエンジンが知っている語ではありません。"
+
+#: simulations/editor.py
+#, python-format
+msgid "“%(mana)s” is not mana. Use letters such as RRRGGG."
+msgstr "「%(mana)s」はマナではありません。RRRGGGのような文字を使ってください。"
+
+#: simulations/editor.py
+#, python-format
+msgid "“%(cost)s” is not a mana cost. Write it like {2} or {1}{G}."
+msgstr "「%(cost)s」はマナ・コストではありません。{2}や{1}{G}のように書いてください。"
+
+#: simulations/editor.py
+msgid "switched off"
+msgstr "オフ"
+
+#: simulations/editor.py
+msgid "discards a land card to enter"
+msgstr "土地カードを捨てて戦場に出る"
+
+#: simulations/editor.py
+msgid "exiles a coloured card for its colours"
+msgstr "色のあるカードを追放してその色を得る"
+
+#: simulations/views.py
+#, python-format
+msgid "Saved. %(card)s will be read that way from the next run onwards."
+msgstr "保存しました。次回の実行から%(card)sはこのように読み取られます。"
+
+#: simulations/views.py
+msgid "Check the boxes marked below."
+msgstr "下の印のある欄を確認してください。"
+
+#: simulations/annotations.py
+msgid ""
+"What tapping the card itself makes. Letters for the colours, with a number "
+"where it makes more than one: B, 2B, B C. Write “nothing” for a card whose "
+"own tap makes no mana. Its other mana - an altar, a trigger, counters - is "
+"under “What the engine plays”."
+msgstr ""
+"カード自身をタップして生み出すもの。色は文字で、2つ以上なら数字を付けて：B、2B、B "
+"C。自分のタップでマナを出さないカードには「nothing」と書いてください。祭壇・誘発・カウンターなどの他のマナは「エンジンがプレイする内容」にあります。"
+
+#: changelog/entries.py
+msgid "Correct everything the engine reads off a card"
+msgstr "エンジンがカードから読み取るすべてを修正"
+
+#: changelog/entries.py
+msgid ""
+"A card's page now shows what the simulation plays of it, block by block: its"
+" land search, its search, its triggers, what it does in combat, its altar, "
+"its additional cost and more, each in words and with who decided it - the "
+"card, you, or a built-in default. You can change a block, switch it off, add"
+" one the engine did not read, or go back to the card data, for one deck or "
+"for all of them. Triggers, combat and additional costs are edited one entry "
+"at a time. \"Taps for\" now changes only what tapping the card makes; until "
+"today it also switched off its other mana, and your earlier answers keep "
+"that meaning."
+msgstr ""
+"カードのページで、シミュレーションがそのカードをどうプレイするかをブロックごとに表示するようになりました。土地サーチ、サーチ、誘発、戦闘での動き、祭壇、追加コストなどを、それぞれ言葉で、誰が決めたか（カード、あなた、組み込みの既定値）と一緒に示します。ブロックの変更、オフ、エンジンが読み取れなかったブロックの追加、カードデータへの復帰を、1つのデッキまたはすべてのデッキに対して行えます。誘発・戦闘・追加コストは1項目ずつ編集します。「生み出すマナ」はカード自身のタップで出るマナだけを変えるようになりました。これまでは他のマナもオフにしていましたが、以前の回答はその意味のまま保たれます。"
+
+#: templates/simulations/_primitives.html
+msgid "What the engine plays"
+msgstr "エンジンがプレイする内容"
+
+#: templates/simulations/_primitives.html
+msgid "Remove"
+msgstr "削除"
+
+#: templates/simulations/_primitives.html
+msgid "Add one"
+msgstr "追加"
+
+#: templates/simulations/_primitives.html
+msgid "Off: the card does not do this"
+msgstr "オフ：このカードはこれをしない"
+
+#: templates/simulations/_primitives.html
+msgid "Back to the card data"
+msgstr "カードデータに戻す"
+
+#: templates/simulations/_primitives.html
+msgid "Nothing beyond its mana and its cost."
+msgstr "マナとコスト以外は何もありません。"
+
+#: templates/simulations/_primitives.html
+msgid "Add a building block"
+msgstr "ブロックを追加"
+
+#: templates/simulations/_primitives.html
+msgid "new"
+msgstr "新規"
+
+#: templates/simulations/_primitives.html
+msgid "Save this block"
+msgstr "このブロックを保存"
+
+#: templates/simulations/_primitives.html
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: templates/simulations/annotate.html
+msgid "How to play it"
+msgstr "プレイのしかた"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(count)s Treasure as it resolves"
+msgid_plural "%(count)s Treasures as it resolves"
+msgstr[0] "解決時に宝物%(count)s個"

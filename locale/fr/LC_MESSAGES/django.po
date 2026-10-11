@@ -10127,3 +10127,161 @@ msgstr ""
 msgid "is tapped for mana every turn, and mills a card each time"
 msgstr ""
 "est engagé pour du mana à chaque tour, et meule une carte à chaque fois"
+
+#: simulations/engine/adapter.py
+msgid ""
+"keeps its counters as mana and spends them only when a spell needs them, as "
+"a Treasure is spent"
+msgstr ""
+"garde ses marqueurs comme du mana et ne les dépense que lorsqu'un sort en a "
+"besoin, comme un Trésor"
+
+#: simulations/engine/adapter.py
+msgid ""
+"spends a counter each turn it is tapped for this mana, whether or not that "
+"colour is needed; with none left it makes only its other mana, if it has any"
+msgstr ""
+"dépense un marqueur à chaque tour où elle est engagée pour ce mana, que "
+"cette couleur soit utile ou non ; sans marqueur, elle ne produit que son "
+"autre mana, si elle en a"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters with X counters, X being all the mana left when it is cast, last in "
+"the main phase"
+msgstr ""
+"arrive avec X marqueurs, X étant tout le mana restant au moment où elle est "
+"lancée, en dernier dans la phase principale"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is kicked as often as the mana left pays for, at least once - cast last in "
+"the main phase, as a spell with X is"
+msgstr ""
+"est lancé avec le multikicker autant de fois que le mana restant le permet, "
+"au moins une fois - en dernier dans la phase principale, comme un sort avec "
+"X"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters with a counter for each colour the open mana can make when it is "
+"cast, at most one for each mana it costs"
+msgstr ""
+"arrive avec un marqueur pour chaque couleur que le mana disponible peut "
+"produire au moment où elle est lancée, au plus un par mana qu'elle coûte"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each turn from the turn after it enters to put one more counter on "
+"itself"
+msgstr ""
+"s'engage à chaque tour, à partir du tour suivant son arrivée, pour mettre un"
+" marqueur de plus sur elle-même"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts a counter on itself each time it is tapped, so it makes one more mana "
+"each turn"
+msgstr ""
+"met un marqueur sur elle-même à chaque fois qu'elle est engagée, et produit "
+"donc un mana de plus à chaque tour"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a counter for each red spell you cast and turns each three into "
+"{R}{R}{R} at once, kept as a Treasure is until a spell needs it"
+msgstr ""
+"reçoit un marqueur pour chaque sort rouge que vous lancez et transforme "
+"aussitôt chaque groupe de trois en {R}{R}{R}, gardé comme un Trésor jusqu'à "
+"ce qu'un sort en ait besoin"
+
+#: simulations/engine/adapter.py
+msgid "is sacrificed as your next turn begins once its last counter is gone"
+msgstr ""
+"est sacrifiée au début de votre tour suivant une fois son dernier marqueur "
+"parti"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes its mana once for each point of toughness, then dies as your next turn"
+" begins"
+msgstr ""
+"produit son mana une fois par point d'endurance, puis meurt au début de "
+"votre tour suivant"
+
+#: simulations/engine/adapter.py
+msgid ""
+"returns to your hand as your next turn begins once its last counter is gone,"
+" and may be cast again"
+msgstr ""
+"retourne dans votre main au début de votre tour suivant une fois son dernier"
+" marqueur parti, et peut être relancée"
+
+#: simulations/engine/adapter.py
+msgid ""
+"spends one energy each turn it is tapped for any colour, whether or not that"
+" colour is needed; energy comes only from cards that give it as they enter, "
+"and without it the card makes only its other mana, if it has any"
+msgstr ""
+"dépense une énergie à chaque tour où elle est engagée pour une couleur au "
+"choix, que cette couleur soit utile ou non ; l'énergie ne vient que des "
+"cartes qui la donnent en arrivant, et sans elle la carte ne produit que son "
+"autre mana, si elle en a"
+
+#: simulations/engine/adapter.py
+msgid "is used once each turn from the turn after it enters, as if it tapped"
+msgstr ""
+"est utilisée une fois par tour à partir du tour suivant son arrivée, comme "
+"si elle s'engageait"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts the counters it enters with on itself - on another creature it would "
+"make no mana"
+msgstr ""
+"met sur elle-même les marqueurs avec lesquels elle arrive - sur une autre "
+"créature, elle ne produirait aucun mana"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes all its mana in one colour: the one the cards in hand ask for most"
+msgstr ""
+"produit tout son mana d'une seule couleur : celle que les cartes en main "
+"demandent le plus"
+
+#: simulations/engine/adapter.py
+msgid ""
+"sacrifices the Food it makes as it enters for one mana, once; it never pays "
+"{1}{G} for another Food, which costs more than it gives"
+msgstr ""
+"sacrifie une fois la Nourriture qu'elle crée en arrivant pour un mana ; elle"
+" ne paie jamais {1}{G} pour une autre Nourriture, qui coûte plus qu'elle ne "
+"rapporte"
+
+#: changelog/entries.py
+msgid "Everflowing Chalice, Pentad Prism, energy and storage lands"
+msgstr ""
+"Everflowing Chalice, Pentad Prism, l'énergie et les terrains de stockage"
+
+#: changelog/entries.py
+msgid ""
+"Cards that keep their mana as counters, energy or a Food now make it in a "
+"simulated game. Pentad Prism and Crystalline Crawler spend their counters "
+"only when a spell needs them, as a Treasure; Runaway Steam-Kin turns three "
+"counters into three red mana. Vivid lands, storage lands, Gemstone Mine, "
+"Aether Hub, Servant of the Conduit, Channeler Initiate, Wall of Roots, Mana "
+"Bloom and Gilded Goose use one each turn they tap. Everflowing Chalice is "
+"kicked like a spell with X, and it, Astral Cornucopia and Empowered "
+"Autogenerator make one mana for each counter. Your deck page says all of "
+"this beside each card."
+msgstr ""
+"Les cartes qui gardent leur mana sous forme de marqueurs, d'énergie ou de "
+"Nourriture le produisent désormais dans une partie simulée. Pentad Prism et "
+"Crystalline Crawler ne dépensent leurs marqueurs que lorsqu'un sort en a "
+"besoin, comme un Trésor ; Runaway Steam-Kin transforme trois marqueurs en "
+"trois manas rouges. Les terrains Vivid, les terrains de stockage, Gemstone "
+"Mine, Aether Hub, Servant of the Conduit, Channeler Initiate, Wall of Roots,"
+" Mana Bloom et Gilded Goose en utilisent un à chaque tour où ils s'engagent."
+" Everflowing Chalice est lancé avec le multikicker comme un sort avec X, et "
+"lui, Astral Cornucopia et Empowered Autogenerator produisent un mana par "
+"marqueur. La page de votre deck indique tout cela à côté de chaque carte."

@@ -42,6 +42,18 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 11), "counter-mana",
+        _("Everflowing Chalice, Pentad Prism, energy and storage lands"),
+        _("Cards that keep their mana as counters, energy or a Food now make it in a "
+          "simulated game. Pentad Prism and Crystalline Crawler spend their counters only "
+          "when a spell needs them, as a Treasure; Runaway Steam-Kin turns three counters "
+          "into three red mana. Vivid lands, storage lands, Gemstone Mine, Aether Hub, "
+          "Servant of the Conduit, Channeler Initiate, Wall of Roots, Mana Bloom and Gilded "
+          "Goose use one each turn they tap. Everflowing Chalice is kicked like a spell with "
+          "X, and it, Astral Cornucopia and Empowered Autogenerator make one mana for each "
+          "counter. Your deck page says all of this beside each card."),
+    ),
+    Entry(
         date(2026, 10, 10), "tap-costs",
         _("Springleaf Drum, Relic of Legends, Urza and the Moxen"),
         _("Cards that tap another of your permanents for mana now make it in a simulated "

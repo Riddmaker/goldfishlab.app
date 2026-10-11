@@ -53,6 +53,28 @@ from simulation.manacost import (
 )
 
 
+class Stored(str):
+    """Mana a permanent keeps as counters, lent to the pool as a Treasure is
+    (P19 R20): Pentad Prism's, Runaway Steam-Kin's. Spent the same way, but
+    no Treasure token - nothing an altar may sacrifice."""
+
+    __slots__ = ()
+
+
+def has_treasure(keys: list[str]) -> bool:
+    """Is there a Treasure token among these, not just kept mana?"""
+    return any(not isinstance(key, Stored) for key in keys)
+
+
+def sacrifice_treasure(keys: list[str]) -> None:
+    """Take the last Treasure token out of these - to a cost, not for mana."""
+    for index in range(len(keys) - 1, -1, -1):
+        if not isinstance(keys[index], Stored):
+            del keys[index]
+            return
+    raise ValueError("no Treasure to sacrifice")
+
+
 @dataclass
 class RestrictedMana:
     """The mana one source made that only some spells may spend (P19 R17).

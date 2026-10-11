@@ -26,7 +26,7 @@ import typing
 
 from simulation.cards import Card, DeckDefinition
 from simulation.game import Game
-from simulation.mana import ManaPool, RestrictedMana
+from simulation.mana import ManaPool, RestrictedMana, Stored
 
 #: Dataclasses reachable from a deck, by name. Loading consults this rather
 #: than anything importable, so a crafted payload cannot name an arbitrary
@@ -184,9 +184,16 @@ def dump_game(game: Game) -> dict:
     if game.pool is not None:
         state["pool_converters"] = list(game.pool.converters)
         state["pool_treasures"] = list(game.pool.treasures)
+        state["pool_stored"] = _stored_at(game.pool.treasures)
         # P19 R17: mana only some spells may spend, and what it would be instead.
         state["pool_restricted"] = [dump(each) for each in game.pool.restricted]
     state["treasures"] = list(game.treasures)
+    # P19 R20: which of them are a permanent's kept counters, not Treasure
+    # tokens; the counters, energy and emptied stores beside them.
+    state["stored"] = _stored_at(game.treasures)
+    state["counters"] = dict(game.counters)
+    state["energy"] = game.energy
+    state["emptied"] = list(game.emptied)
     state["landers"] = game.landers
     state["arrived"] = list(game.arrived)
     state["tapped_creatures"] = list(game.tapped_creatures)
@@ -197,6 +204,17 @@ def dump_game(game: Game) -> dict:
     state["spells_this_turn"] = game.spells_this_turn
     state["rng"] = dump(game.rng.getstate())
     return state
+
+
+def _stored_at(keys: list[str]) -> list[int]:
+    """Where kept counters sit among Treasure tokens (P19 R20)."""
+    return [index for index, key in enumerate(keys) if isinstance(key, Stored)]
+
+
+def _with_stored(keys: list, stored: list) -> list[str]:
+    """Treasure keys back, the kept counters among them as ``Stored``."""
+    at = {int(index) for index in stored}
+    return [Stored(key) if index in at else str(key) for index, key in enumerate(keys)]
 
 
 def load_game(data: dict, deck: DeckDefinition) -> Game:
@@ -219,10 +237,14 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
     game.pool = None if data["pool"] is None else ManaPool(**data["pool"])
     if game.pool is not None:
         game.pool.converters = list(data.get("pool_converters", []))
-        game.pool.treasures = list(data.get("pool_treasures", []))
+        game.pool.treasures = _with_stored(data.get("pool_treasures", []),
+                                           data.get("pool_stored", []))
         game.pool.restricted = [_load_dataclass(RestrictedMana, row)
                                 for row in data.get("pool_restricted", [])]
-    game.treasures = list(data.get("treasures", []))
+    game.treasures = _with_stored(data.get("treasures", []), data.get("stored", []))
+    game.counters = {str(name): int(count) for name, count in data.get("counters", {}).items()}
+    game.energy = int(data.get("energy", 0))
+    game.emptied = [str(name) for name in data.get("emptied", [])]
     game.landers = int(data.get("landers", 0))
     game.arrived = [str(name) for name in data.get("arrived", [])]
     game.tapped_creatures = [str(name) for name in data.get("tapped_creatures", [])]

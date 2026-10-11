@@ -9987,3 +9987,157 @@ msgstr ""
 #: simulations/engine/adapter.py
 msgid "is tapped for mana every turn, and mills a card each time"
 msgstr "viene TAPpato per il mana ogni turno, e macina una carta ogni volta"
+
+#: simulations/engine/adapter.py
+msgid ""
+"keeps its counters as mana and spends them only when a spell needs them, as "
+"a Treasure is spent"
+msgstr ""
+"tiene i suoi segnalini come mana e li spende solo quando una magia ne ha "
+"bisogno, come un Tesoro"
+
+#: simulations/engine/adapter.py
+msgid ""
+"spends a counter each turn it is tapped for this mana, whether or not that "
+"colour is needed; with none left it makes only its other mana, if it has any"
+msgstr ""
+"spende un segnalino ogni turno in cui viene TAPpata per questo mana, che "
+"quel colore serva o no; senza segnalini produce solo il suo altro mana, se "
+"ne ha"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters with X counters, X being all the mana left when it is cast, last in "
+"the main phase"
+msgstr ""
+"entra con X segnalini, dove X è tutto il mana rimasto quando viene lanciata,"
+" per ultima nella fase principale"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is kicked as often as the mana left pays for, at least once - cast last in "
+"the main phase, as a spell with X is"
+msgstr ""
+"viene potenziata tante volte quante il mana rimasto permette, almeno una "
+"volta - lanciata per ultima nella fase principale, come una magia con X"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters with a counter for each colour the open mana can make when it is "
+"cast, at most one for each mana it costs"
+msgstr ""
+"entra con un segnalino per ogni colore che il mana disponibile può produrre "
+"quando viene lanciata, al massimo uno per ogni mana che costa"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each turn from the turn after it enters to put one more counter on "
+"itself"
+msgstr ""
+"si TAPpa ogni turno, a partire dal turno dopo il suo ingresso, per mettere "
+"un altro segnalino su se stessa"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts a counter on itself each time it is tapped, so it makes one more mana "
+"each turn"
+msgstr ""
+"mette un segnalino su se stessa ogni volta che viene TAPpata, quindi produce"
+" un mana in più ogni turno"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a counter for each red spell you cast and turns each three into "
+"{R}{R}{R} at once, kept as a Treasure is until a spell needs it"
+msgstr ""
+"riceve un segnalino per ogni magia rossa che lanci e trasforma subito ogni "
+"tre in {R}{R}{R}, tenuto come un Tesoro finché una magia non ne ha bisogno"
+
+#: simulations/engine/adapter.py
+msgid "is sacrificed as your next turn begins once its last counter is gone"
+msgstr ""
+"viene sacrificata all'inizio del tuo turno successivo una volta finito "
+"l'ultimo segnalino"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes its mana once for each point of toughness, then dies as your next turn"
+" begins"
+msgstr ""
+"produce il suo mana una volta per ogni punto di costituzione, poi muore "
+"all'inizio del tuo turno successivo"
+
+#: simulations/engine/adapter.py
+msgid ""
+"returns to your hand as your next turn begins once its last counter is gone,"
+" and may be cast again"
+msgstr ""
+"ritorna nella tua mano all'inizio del tuo turno successivo una volta finito "
+"l'ultimo segnalino, e può essere lanciata di nuovo"
+
+#: simulations/engine/adapter.py
+msgid ""
+"spends one energy each turn it is tapped for any colour, whether or not that"
+" colour is needed; energy comes only from cards that give it as they enter, "
+"and without it the card makes only its other mana, if it has any"
+msgstr ""
+"spende un'energia ogni turno in cui viene TAPpata per un colore qualsiasi, "
+"che quel colore serva o no; l'energia arriva solo dalle carte che la danno "
+"quando entrano, e senza di essa la carta produce solo il suo altro mana, se "
+"ne ha"
+
+#: simulations/engine/adapter.py
+msgid "is used once each turn from the turn after it enters, as if it tapped"
+msgstr ""
+"viene usata una volta per turno a partire dal turno dopo il suo ingresso, "
+"come se venisse TAPpata"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts the counters it enters with on itself - on another creature it would "
+"make no mana"
+msgstr ""
+"mette su se stessa i segnalini con cui entra - su un'altra creatura non "
+"produrrebbe mana"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes all its mana in one colour: the one the cards in hand ask for most"
+msgstr ""
+"produce tutto il suo mana di un solo colore: quello che le carte in mano "
+"chiedono di più"
+
+#: simulations/engine/adapter.py
+msgid ""
+"sacrifices the Food it makes as it enters for one mana, once; it never pays "
+"{1}{G} for another Food, which costs more than it gives"
+msgstr ""
+"sacrifica una volta il Cibo che crea quando entra per un mana; non paga mai "
+"{1}{G} per un altro Cibo, che costa più di quanto rende"
+
+#: changelog/entries.py
+msgid "Everflowing Chalice, Pentad Prism, energy and storage lands"
+msgstr "Everflowing Chalice, Pentad Prism, l'energia e le terre di accumulo"
+
+#: changelog/entries.py
+msgid ""
+"Cards that keep their mana as counters, energy or a Food now make it in a "
+"simulated game. Pentad Prism and Crystalline Crawler spend their counters "
+"only when a spell needs them, as a Treasure; Runaway Steam-Kin turns three "
+"counters into three red mana. Vivid lands, storage lands, Gemstone Mine, "
+"Aether Hub, Servant of the Conduit, Channeler Initiate, Wall of Roots, Mana "
+"Bloom and Gilded Goose use one each turn they tap. Everflowing Chalice is "
+"kicked like a spell with X, and it, Astral Cornucopia and Empowered "
+"Autogenerator make one mana for each counter. Your deck page says all of "
+"this beside each card."
+msgstr ""
+"Le carte che tengono il loro mana come segnalini, energia o un Cibo ora lo "
+"producono in una partita simulata. Pentad Prism e Crystalline Crawler "
+"spendono i loro segnalini solo quando una magia ne ha bisogno, come un "
+"Tesoro; Runaway Steam-Kin trasforma tre segnalini in tre mana rossi. Le "
+"terre Vivid, le terre di accumulo, Gemstone Mine, Aether Hub, Servant of the"
+" Conduit, Channeler Initiate, Wall of Roots, Mana Bloom e Gilded Goose ne "
+"usano uno ogni turno in cui vengono TAPpate. Everflowing Chalice viene "
+"potenziato come una magia con X, e lui, Astral Cornucopia ed Empowered "
+"Autogenerator producono un mana per ogni segnalino. La pagina del tuo mazzo "
+"dice tutto questo accanto a ogni carta."

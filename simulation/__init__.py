@@ -162,6 +162,15 @@ boundary, not the symptom.
 #:    as creatures enter with them, from Rishkar, Evolve, Increment, Adapt
 #:    (Incubation Druid's three) and "another Elf enters"; Growing Rites of
 #:    Itlimoc turns into its land at four creatures.
-ENGINE_VERSION = 25
+#: 26: P19 R22. Combat: every creature that can attacks each turn and, a
+#:    goldfish having no blockers, deals its damage to a player - assumed,
+#:    shown on the deck page. Sword of the Animist and Kodama of the West
+#:    Tree find lands; Goldspan Dragon (whose Treasures make two), Ragavan,
+#:    Professional Face-Breaker, Curse of Opulence and the rest make
+#:    Treasure; Savage Ventmaw's mana goes to a second main phase, where a
+#:    spell with X waits for it. Equipment is equipped with spare mana, an
+#:    Aura goes on a creature as it is cast, Living weapon makes a Germ;
+#:    Paradise Mantle makes its creature a mana creature.
+ENGINE_VERSION = 26
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

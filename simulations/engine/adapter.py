@@ -31,6 +31,7 @@ from decks.models import Deck
 from simulation import ENGINE_VERSION, agent
 from simulation.cards import (
     CARD_TYPES,
+    COMBAT_SEARCH,
     COUNTS,
     DISCARD_LAND,
     DOUBLE_SUBTYPE,
@@ -48,6 +49,7 @@ from simulation.cards import (
     TYPE_ADDING,
     AdditionalCost,
     Card,
+    CombatTrigger,
     CostReduction,
     DeckDefinition,
     EndStepSpec,
@@ -365,8 +367,10 @@ class Reading:
 
     @property
     def triggers(self) -> str:
-        """The triggers the engine plays (P19 R16), in words."""
-        return "; ".join(_trigger_text(trigger) for trigger in self.card.triggers)
+        """The triggers the engine plays (P19 R16), in combat too (P19 R22),
+        in words."""
+        return "; ".join([*(_trigger_text(trigger) for trigger in self.card.triggers),
+                          *(_combat_text(trigger) for trigger in self.card.combat)])
 
     @property
     def effective_priority(self) -> int:
@@ -518,6 +522,41 @@ def _trigger_text(trigger: Trigger) -> str:
     return gettext("%(when)s: %(what)s") % {"when": when, "what": ", ".join(made)}
 
 
+#: When a trigger in combat fires, in words (P19 R22).
+_COMBAT_WHEN = {
+    ("attacks", "self"): gettext_noop("whenever it attacks"),
+    ("attacks", "equipped"): gettext_noop("whenever the creature it equips attacks"),
+    ("attacks", "enchanted"): gettext_noop("whenever the enchanted creature attacks"),
+    ("attacks", "commander"): gettext_noop("whenever your commander attacks"),
+    ("attacks", "curse"): gettext_noop("whenever you attack the enchanted player"),
+    ("damage", "self"): gettext_noop("whenever it deals combat damage to a player"),
+    ("damage", "equipped"): gettext_noop(
+        "whenever the creature it equips deals combat damage to a player"),
+    ("damage", "enchanted"): gettext_noop(
+        "whenever the enchanted creature deals combat damage to a player"),
+    ("damage", "any"): gettext_noop(
+        "once a combat, when creatures of yours deal combat damage to a player"),
+    ("damage", "modified"): gettext_noop(
+        "for each modified creature of yours that deals combat damage to a player"),
+}
+
+
+def _combat_text(trigger: CombatTrigger) -> str:
+    """One trigger in combat, in words: when, then what (P19 R22)."""
+    when = gettext(_COMBAT_WHEN.get((trigger.event, trigger.who), trigger.event))
+    if trigger.types:
+        when = f"{when} ({' / '.join(sorted(kind.capitalize() for kind in trigger.types))})"
+    if trigger.search:
+        what = _land_search_text(COMBAT_SEARCH)
+    elif trigger.mana:
+        what = gettext("%(mana)s, kept to the second main phase") % {
+            "mana": "".join(f"{{{key}}}" for key in trigger.mana)}
+    else:
+        what = ngettext("%(count)s Treasure", "%(count)s Treasures",
+                        trigger.treasures) % {"count": trigger.treasures}
+    return gettext("%(when)s: %(what)s") % {"when": when, "what": what}
+
+
 def _way_text(way: AdditionalCost) -> str:
     """One way to pay an additional cost, in words (P19 R15)."""
     from cards.models import DerivedProfile
@@ -629,6 +668,8 @@ def _extra_text(ability) -> str:
             return gettext("the enchanted land taps for one mana of any colour")
         if ability.subtype == "creature:counter":
             return gettext("your creatures with a counter tap for %(mana)s") % {"mana": mana}
+        if ability.subtype == "equipped":
+            return gettext("the creature it equips taps for %(mana)s") % {"mana": mana}
         return gettext("your creatures tap for %(mana)s") % {"mana": mana}
     texts = {
         "enchanted": gettext_noop("%(mana)s more when the enchanted land is tapped for mana"),
@@ -1089,7 +1130,8 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         legendary="Legendary" in (oracle_card.type_line or "").split("//", 1)[0],
         colors=frozenset(oracle_card.colors or ()) & frozenset(COLORS),
         defender="Defender" in (oracle_card.keywords or []),
-        enchants=_read_rule(profile, "enchants"),
+        enchants=("creature" if (getattr(profile, "combat", None) or {}).get("aura")
+                  else _read_rule(profile, "enchants")),
         ritual_counts=_ritual_counts(profile, overrides, kind),
         life_on_cast=int(overrides.get("life_on_cast", 0)),
         tutor=_tutor(profile, overrides),
@@ -1120,6 +1162,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         toughness=_power(oracle_card, "toughness"),
         growth=_growth(profile),
         flip=0 if _overrides_mana(overrides) else int(_read_rule(profile, "flip") or 0),
+        **_combat(oracle_card, profile, deck_colors),
         tap_mana=(None if _overrides_mana(overrides)
                   else _tap_mana(profile, deck_colors, chosen, color)),
         mox="" if _overrides_mana(overrides) else str(getattr(profile, "mox", "") or ""),
@@ -1141,31 +1184,30 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
 #: what it taps - whole sentences, so each language words them its own way.
 _TAPS_ONE = {
     "creature": gettext_noop(
-        "taps a creature of yours that makes no mana and is not used otherwise this turn: "
-        "the engine plays no combat, so tapping it costs nothing"),
+        "taps a creature of yours that makes no mana and is not used otherwise this turn, "
+        "before combat: that creature does not attack that turn"),
     "legendary creature": gettext_noop(
         "taps a legendary creature of yours that makes no mana and is not used otherwise "
-        "this turn: the engine plays no combat, so tapping it costs nothing"),
+        "this turn, before combat: that creature does not attack that turn"),
     "permanent": gettext_noop(
         "taps a permanent of yours that makes no mana and is not used otherwise this turn "
         "- never a land"),
     "artifact or creature": gettext_noop(
         "taps an artifact or creature of yours that makes no mana and is not used "
-        "otherwise this turn: the engine plays no combat, so tapping it costs nothing"),
+        "otherwise this turn, before combat: a creature tapped so does not attack that turn"),
 }
 #: ... and what a card that taps every permanent that fits assumes.
 _TAPS_EACH = {
     "legendary creature": gettext_noop(
         "taps each legendary creature of yours that makes no mana, your commander "
-        "included, for one mana each: the engine plays no combat, so tapping them costs "
-        "nothing"),
+        "included, for one mana each, before combat: those creatures do not attack that "
+        "turn"),
     "artifact": gettext_noop(
         "taps each artifact of yours that makes no mana, for its mana; a Treasure is "
         "sacrificed for its own mana instead"),
     "creature": gettext_noop(
         "taps each creature of yours of the kind it names that makes no mana, itself "
-        "included when it is one: the engine plays no combat, so tapping them costs "
-        "nothing"),
+        "included when it is one, before combat: those creatures do not attack that turn"),
     "permanent": gettext_noop(
         "taps each permanent of yours that makes no mana, for its mana - never a land"),
 }
@@ -1399,6 +1441,114 @@ def _record_growth(card: Card, rule: dict, gaps: list[Gap]) -> None:
                 "puts the rest on the bottom"))
         said.extend(_GROWS_SAID[grows] for grows in growth.grows if grows in _GROWS_SAID)
     gaps.extend(Gap(card.name, "assumed_cost", text) for text in said)
+
+
+def _combat(oracle_card, profile, deck_colors: frozenset[str]) -> dict:
+    """What the card does in combat, as `Card` fields (P19 R22)."""
+    found = getattr(profile, "combat", None) or {}
+    triggers = tuple(
+        CombatTrigger(event=read["event"], who=read["who"],
+                      types=frozenset(read.get("types") or ()),
+                      treasures=int(read.get("treasures") or 0),
+                      treasure_mana=_any_colour(deck_colors) if read.get("treasures") else "",
+                      mana=str(read.get("mana") or ""), search=bool(read.get("search")))
+        for read in found.get("triggers") or ())
+    return {
+        "haste": "Haste" in (oracle_card.keywords or []),
+        "combat": triggers,
+        "equip": parse(found["equip"]) if found.get("equip") else None,
+        "germ": bool(found.get("germ")),
+        "treasure_bonus": int(found.get("treasure_bonus") or 0),
+    }
+
+
+#: P19 R22: what the engine assumes about combat, as said beside the card.
+#: The goldfish has no blockers: whole sentences, so each language words them
+#: its own way.
+_COMBAT_SAID = {
+    "attacks": gettext_noop(
+        "attacks each turn it can - from the turn after it arrives, at once with haste - and "
+        "is assumed to survive combat; what it makes as it attacks comes even if it is "
+        "blocked"),
+    "damage": gettext_noop(
+        "attacks each turn it can and is assumed to deal combat damage to a player: a "
+        "goldfish has no blockers, so against opponents with many blockers this is "
+        "optimistic"),
+    "host_attacks": gettext_noop(
+        "the creature it is on attacks each turn it can and is assumed to survive combat; "
+        "what it makes as that creature attacks comes even if it is blocked"),
+    "host_damage": gettext_noop(
+        "the creature it is on attacks each turn it can and is assumed to deal combat damage "
+        "to a player: a goldfish has no blockers, so against opponents with many blockers "
+        "this is optimistic"),
+    "any": gettext_noop(
+        "makes its Treasure once each turn one of your creatures can attack, assumed to deal "
+        "combat damage to a player: a goldfish has no blockers, so against opponents with "
+        "many blockers this is optimistic"),
+    "modified": gettext_noop(
+        "finds a basic land for each creature with an Equipment, an Aura or a +1/+1 counter "
+        "that attacks, each assumed to deal combat damage to a player: a goldfish has no "
+        "blockers, so against opponents with many blockers this is optimistic"),
+    "commander": gettext_noop(
+        "makes its Treasure each turn your commander can attack, assuming it attacks the "
+        "opponent with the most life"),
+    "curse": gettext_noop(
+        "makes a Gold token each turn one of your creatures attacks, assuming you attack the "
+        "enchanted player; attacks by your opponents are not counted"),
+}
+
+
+def _record_combat(card: Card, found: dict, gaps: list[Gap]) -> None:
+    """P19 R22: what the engine assumes about combat - stated on the card
+    list, beside the card."""
+    said = []
+    for trigger in card.combat:
+        if trigger.who in ("equipped", "enchanted"):
+            key = "host_" + trigger.event
+        elif trigger.who in ("any", "modified", "commander", "curse"):
+            key = trigger.who
+        else:
+            key = trigger.event
+        if _COMBAT_SAID[key] not in said:
+            said.append(_COMBAT_SAID[key])
+        if trigger.mana:
+            said.append(gettext_noop(
+                "keeps the mana it adds as it attacks for your second main phase, where the "
+                "engine casts what it pays for; a spell with X waits for it"))
+    if any(trigger.treasures for trigger in card.combat):
+        said.append(gettext_noop(
+            "the Treasure made in combat can be spent in your second main phase"))
+    if card.equip is not None and card.germ:
+        said.append(gettext_noop(
+            "its Germ token, a 0/0 the Equipment makes a 1/1, attacks from the turn after it "
+            "enters; it is equipped again only if the Germ is gone"))
+    elif card.equip is not None and any(ability.rule == GRANT and ability.subtype == "equipped"
+                                       for ability in card.mana_abilities):
+        said.append(gettext_noop(
+            "is equipped, with mana left after the turn's spells, to the weakest creature "
+            "without a mana ability or anything else on it; that creature taps for mana from "
+            "the next turn and no longer attacks"))
+    elif card.equip is not None:
+        said.append(gettext_noop(
+            "is equipped, with mana left after the turn's spells, to a creature without a mana "
+            "ability that can attack this turn - one with nothing else on it and no counters "
+            "first; it stays there"))
+    if card.enchants == "creature":
+        said.append(gettext_noop(
+            "goes on a creature without a mana ability that can attack this turn as it is "
+            "cast - one with nothing else on it first; it needs a creature to be cast"))
+    if card.treasure_bonus:
+        said.append(gettext_noop(
+            "makes each of your Treasures add two mana while it is on the battlefield; the "
+            "two may be of different colours"))
+    if any(read.get("extra") for read in found.get("triggers") or ()):
+        said.append(gettext_noop(
+            "the rest of its trigger - a card exiled from an opponent's library - is not "
+            "played"))
+    if found.get("vehicle"):
+        said.append(gettext_noop(
+            "searches as it enters; the engine crews no Vehicle, so it never attacks"))
+    gaps.extend(Gap(card.name, "assumed_trigger", text) for text in said)
 
 
 def _names_color(profile) -> bool:
@@ -2134,7 +2284,8 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
 
     if profile.produces_mana and profile.mana_amount is None and not card.mana_abilities \
             and not card.treasures and not card.ritual_counts and card.sacrifice_mana is None \
-            and not card.triggers and card.tap_mana is None and card.store is None:
+            and not card.triggers and card.tap_mana is None and card.store is None \
+            and not card.combat:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("makes mana, but how much could not be read")))
 
@@ -2158,6 +2309,7 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
     _record_store(card, getattr(profile, "mana_store", None) or {}, gaps)
     if not _overrides_mana(overrides):
         _record_growth(card, getattr(profile, "mana_rule", None) or {}, gaps)
+    _record_combat(card, getattr(profile, "combat", None) or {}, gaps)
 
     if any(way.life_x for way in card.additional_costs):
         gaps.append(Gap(card.name, "assumed_cost", gettext_noop(

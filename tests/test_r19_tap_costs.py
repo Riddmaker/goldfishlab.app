@@ -336,7 +336,7 @@ def test_every_card_states_its_assumption_beside_it(drum_deck):
         assert not reading.unreadable, name
         grid = deck_cards.GridCard(reading=reading, open=False, answered=False)
         assert grid.assumptions == assumed(reading) and grid.assumptions, name
-    assert "the engine plays no combat" in assumed(found["drum"])[0]
+    assert "before combat: that creature does not attack" in assumed(found["drum"])[0]
     assert "your commander included" in assumed(found["relic"])[0]
     assert "after the turn's land drop" in assumed(found["diamond"])[0]
     assert "the most expensive one" in assumed(found["chrome"])[0]

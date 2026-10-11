@@ -178,7 +178,8 @@ def test_the_deck_definitions_are_equal(converted):
                        types=frozenset(), categories=frozenset(), basic=False,
                        creature_types=frozenset(), legendary=False,
                        colors=frozenset(), defender=False, additional_costs=(),
-                       printed_subtypes=frozenset(), power=0, toughness=0)
+                       printed_subtypes=frozenset(), power=0, toughness=0,
+                       haste=False)
 
     def fold(definition):
         return tuple(

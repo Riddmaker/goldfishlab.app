@@ -32,9 +32,9 @@ from simulation.mana import effective_mana_cost, reductions_from
 
 # --- Phases ----------------------------------------------------------------
 #
-# A goldfish has no opponent, so combat and main2 carry no mechanics. They are
-# here anyway, because a person reading their own board expects them and the
-# playtest lets a card be moved by hand at any point in the turn.
+# A goldfish has no opponent. Combat plays only the triggers of the creatures
+# that attack (P19 R22, see ``Game.combat``), and the second main phase casts
+# with what combat brought.
 #
 # **Untap and upkeep are deliberately not phases.** The Phase 5 outline listed
 # all seven, but the engine resolves untap, the turn's draw and the upkeep
@@ -272,6 +272,39 @@ class Adapt(Action):
 
 
 @dataclass(frozen=True)
+class Equip(Action):
+    """Equip the Equipment at ``index`` in ``zone`` (P19 R22): Sword of the
+    Animist. ``target`` indexes ``Game.attach_targets``; None is the
+    engine's choice, the first."""
+
+    kind = "equip"
+    zone: str = OTHER
+    index: int = 0
+    target: int | None = None
+
+    def run(self, game, policy) -> None:
+        card = _at(game, self.zone, self.index)
+        pool = _pool(game)
+        if not game.can_equip(card, pool):
+            raise IllegalAction(f"{card.name} cannot be equipped now; the floating mana is {pool}")
+        if not 0 <= (self.target or 0) < len(game.attach_targets(card)):
+            raise IllegalAction(f"{card.name} has no such creature to go on")
+        game.equip(card, pool, self.target)
+
+
+@dataclass(frozen=True)
+class Combat(Action):
+    """Fight this turn's combat (P19 R22): every creature that can attacks,
+    and what their triggers make comes into the second main phase."""
+
+    kind = "combat"
+
+    def run(self, game, policy) -> None:
+        game.phase = COMBAT
+        game.combat(_land_chooser(policy))
+
+
+@dataclass(frozen=True)
 class SacrificeForMana(Action):
     """Sacrifice a permanent to the altar at ``index`` in ``zone`` for its
     mana (P19 R15): Ashnod's Altar, Phyrexian Tower. ``payment`` indexes
@@ -307,8 +340,8 @@ class AdvancePhase(Action):
     """Step to the next phase, running whatever that phase does.
 
     This is what the playtest UI's "next" button posts. The agent does not use
-    it: it drives the phases it cares about directly, because a goldfish turn
-    has nothing to do in combat.
+    it: it drives the phases it cares about directly. Stepping into combat
+    fights it (P19 R22).
     """
 
     kind = "advance_phase"
@@ -320,6 +353,8 @@ class AdvancePhase(Action):
         nxt = PHASES[PHASES.index(game.phase) + 1]
         if nxt == MAIN1:
             OpenMainPhase().run(game, policy)
+        elif nxt == COMBAT:
+            Combat().run(game, policy)
         elif nxt == END:
             EndStep().run(game, policy)
         else:
@@ -429,7 +464,7 @@ BY_KIND = {
     for action in (
         BeginTurn, PlayLand, OpenMainPhase, CastSpell, CastCommander, EndStep,
         AdvancePhase, Mulligan, KeepHand, Draw, SetLife, MoveCard, TapPermanent,
-        ActivateSearch, ActivateLander, SacrificeForMana, Adapt,
+        ActivateSearch, ActivateLander, SacrificeForMana, Adapt, Equip, Combat,
     )
 }
 
@@ -480,6 +515,7 @@ def legal_actions(game) -> list[Action]:
         allowed += activations(game, pool)
         allowed += altars(game, pool)
         allowed += adaptations(game, pool)
+        allowed += equips(game, pool)
 
     return allowed
 
@@ -502,6 +538,12 @@ def adaptations(game, pool) -> list[Action]:
     """The creatures that can adapt now (P19 R21)."""
     return [Adapt(index=index) for index, card in enumerate(game.creatures)
             if game.can_adapt(card, pool)]
+
+
+def equips(game, pool) -> list[Action]:
+    """The Equipment that can be equipped now (P19 R22)."""
+    return [Equip(zone=OTHER, index=index) for index, card in enumerate(game.other_permanents)
+            if card.equip is not None and game.can_equip(card, pool)]
 
 
 def altars(game, pool) -> list[Action]:

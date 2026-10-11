@@ -18,6 +18,7 @@ from simulation.cards import (
     ARTIFACT,
     CAST,
     COLORLESS_SPELL,
+    COMBAT_SEARCH,
     COUNTS,
     CREATURE,
     DIES,
@@ -26,6 +27,7 @@ from simulation.cards import (
     ENTERS,
     EXTRA,
     FLAT,
+    GERM,
     GRANT,
     IMPRINT,
     INSTANT_OR_SORCERY,
@@ -46,6 +48,7 @@ from simulation.cards import (
     STORE_TAP,
     UPKEEP,
     AdditionalCost,
+    Card,
     ManaAbility,
 )
 from simulation.mana import (
@@ -214,6 +217,14 @@ class Game:
         self.plus_counters: dict[str, int] = {}
         #: P19 R21: the cards that turned into their land (Itlimoc), by name.
         self.flipped: list[str] = []
+        #: P19 R22: each Equipment and Aura on a creature, by name: the
+        #: creature's name. Kept from turn to turn.
+        self.attached: dict[str, str] = {}
+        #: P19 R22: this turn's combat has been fought - there is one.
+        self.combat_done = False
+        #: P19 R22: during combat, mana a trigger adds is gone before the
+        #: second main phase - but for what a card keeps (Savage Ventmaw).
+        self.in_combat = False
         self.log = []
 
     @property
@@ -393,7 +404,11 @@ class Game:
             if count:
                 self._add_treasures(trigger.treasure_mana, count)
                 made.append(f"{count} Treasure")
-        if trigger.mana:
+        if trigger.mana and self.in_combat:
+            # Lotus Cobra's mana for a land found in combat empties before the
+            # second main phase (P19 R22).
+            made.append(f"+{trigger.mana}{trigger.mana_color} (lost in combat)")
+        elif trigger.mana:
             if self.pool is not None:
                 self.pool.add(trigger.mana_color, trigger.mana)
             else:
@@ -545,11 +560,14 @@ class Game:
             self.rocks.pop(index)
         elif card in self.creatures:
             self.creatures.remove(card)
-            self.graveyard.append(card)
+            if not card.token:
+                self.graveyard.append(card)
+            self._detach(card)
             self.fire(DIES, card, gone=card)
             return
         else:
             self.other_permanents.remove(card)
+            self._detach(card)
         self.graveyard.append(card)
 
     # --- Additional costs and sacrifices (P19 R15) ---------------------------
@@ -927,6 +945,7 @@ class Game:
             pool.add(key)
         self.pending_mana = []
         pool.treasures = list(self.treasures)
+        pool.treasure_bonus = self.treasure_bonus()
         for card in sources:
             flat = self.mana_ability(card)
             if not card.untaps and flat is not None and not flat.activation_generic:
@@ -960,6 +979,9 @@ class Game:
         """An Aura's land is there: any land, or one of a type (P19 R13)."""
         if enchants == "land":
             return bool(self.lands)
+        if enchants == "creature":
+            # P19 R22: Shiny Impetus, Sticky Fingers.
+            return bool(self.creatures)
         granted = granted_subtypes(self.lands)
         return any(enchants in subtypes_of(land, granted) for land in self.lands)
 
@@ -1181,7 +1203,9 @@ class Game:
             for ability in permanent.mana_abilities:
                 if ability.rule != GRANT or not (
                         ability.subtype == "creature"
-                        or (ability.subtype == "creature:counter" and countered)):
+                        or (ability.subtype == "creature:counter" and countered)
+                        or (ability.subtype == "equipped" and card is not None
+                            and self.attached.get(permanent.name) == card.name)):
                     continue
                 if best is None or len(ability.produces[0][0]) > len(best.produces[0][0]):
                     best = ability
@@ -1506,6 +1530,8 @@ class Game:
             self.note(f"{card.name}")
             self._creature_enters(card, x)
             self.fire(ENTERS, card)
+            if card.treasure_bonus and self.pool is not None:
+                self.pool.treasure_bonus = self.treasure_bonus()
             return
         if card.kind in (PLANESWALKER,):
             self.other_permanents.append(card)
@@ -1516,6 +1542,13 @@ class Game:
             self.note(f"{card.name}")
             if card.growth is not None and card.growth.look:
                 self._look_for_creature(card)
+            if card.germ:
+                self._make_germ(card)
+            elif card.enchants == "creature":
+                targets = self.attach_targets(card) or list(self.creatures)
+                if targets:
+                    self.attached[card.name] = targets[0].name
+                    self.note(f"  -> on {targets[0].name}")
             return
         # Sorcery / instant
         self.graveyard.append(card)
@@ -1638,6 +1671,205 @@ class Game:
         self.note(f"{card.name} adapts")
         self.add_counters(card, card.growth.adapt)
 
+    # --- Combat, Equipment and Auras (P19 R22) -------------------------------
+    #
+    # A goldfish has no blockers. Every creature that can attacks, each turn,
+    # and deals its combat damage to a player - the assumption the card list
+    # states beside each card it matters for. Only the triggers are played:
+    # no life total of an opponent is kept.
+
+    def treasure_bonus(self) -> int:
+        """How much more each Treasure makes: Goldspan Dragon's one."""
+        return max((card.treasure_bonus for card in self.battlefield), default=0)
+
+    def can_attack(self, card) -> bool:
+        """Whether a creature attacks this turn: not the turn it arrived
+        unless it has haste, not tapped for something else, no mana ability -
+        its {T} is in the pool already - and no defender."""
+        return ((card.name not in self.arrived or card.haste)
+                and card.name not in self.tapped_creatures
+                and self.mana_ability(card) is None and not card.defender)
+
+    def attackers(self) -> list:
+        """The creatures that attack, in the order they are on the battlefield."""
+        return [card for card in self.creatures if self.can_attack(card)]
+
+    def host(self, card):
+        """The creature an Equipment or Aura is on, or None."""
+        name = self.attached.get(card.name)
+        return next((each for each in self.creatures if each.name == name), None)
+
+    def modified(self, creature) -> bool:
+        """Kodama of the West Tree's "modified": an Equipment, an Aura or a
+        +1/+1 counter on it."""
+        return bool(self.plus_counters.get(creature.name)) \
+            or creature.name in self.attached.values()
+
+    def deals_damage(self, creature) -> bool:
+        """Whether an attacker deals combat damage: it has power, or something
+        on it to give it some (a Germ under its Equipment)."""
+        return self.power(creature) > 0 or creature.name in self.attached.values()
+
+    def combat_plan(self) -> list[tuple]:
+        """What this turn's combat would set off: ``(card, trigger, times)``."""
+        if self.combat_done:
+            return []
+        attackers = self.attackers()
+        if not attackers:
+            return []
+        connected = [each for each in attackers if self.deals_damage(each)]
+        plan = []
+        for card in self._triggers(lambda each: bool(each.combat)):
+            for trigger in card.combat:
+                times = self._combat_times(card, trigger, attackers, connected)
+                if times:
+                    plan.append((card, trigger, times))
+        return plan
+
+    def _combat_times(self, card, trigger, attackers, connected) -> int:
+        """How often ``trigger`` fires in a combat with these attackers."""
+        group = attackers if trigger.event == "attacks" else connected
+        who = trigger.who
+        if who == "self":
+            return int(any(each is card for each in group))
+        if who in ("equipped", "enchanted"):
+            host = self.host(card)
+            return int(host is not None and any(each is host for each in group))
+        if who == "any":
+            return int(any(not trigger.types or each.creature_types & trigger.types
+                           for each in group))
+        if who == "modified":
+            return sum(1 for each in group if self.modified(each))
+        if who == "commander":
+            commander = self.deck.commander
+            return int(commander is not None and any(each is commander for each in group))
+        if who == "curse":
+            return int(bool(attackers))
+        return 0
+
+    def combat_expected(self) -> bool:
+        """Will this turn's combat bring mana or Treasure? A spell with X waits
+        for it, to the second main phase."""
+        return any(trigger.mana or trigger.treasures for _, trigger, _ in self.combat_plan())
+
+    def combat(self, choose=None) -> bool:
+        """Fight this turn's combat: every creature that can attacks. Returns
+        whether it brought mana or Treasure for the second main phase.
+
+        ``choose`` picks a land a search in combat finds, as for any search.
+        """
+        if self.combat_done:
+            return False
+        plan = self.combat_plan()
+        attackers = self.attackers()
+        self.combat_done = True
+        if not plan:
+            # Nothing rides on it: the log stays as it was before P19 R22.
+            self.tapped_creatures.extend(each.name for each in attackers)
+            return False
+        self.note("Combat: " + ", ".join(each.name for each in attackers) + " attack")
+        for each in attackers:
+            self.tapped_creatures.append(each.name)
+        treasures = len(self.treasures)
+        gained = False
+        self.in_combat = True
+        try:
+            for card, trigger, times in plan:
+                for _ in range(times):
+                    gained |= self._combat_effect(card, trigger, choose)
+        finally:
+            self.in_combat = False
+        return gained or len(self.treasures) > treasures
+
+    def _combat_effect(self, card, trigger, choose=None) -> bool:
+        """What one trigger in combat does; whether it added mana."""
+        if trigger.treasures:
+            self._add_treasures(trigger.treasure_mana, trigger.treasures)
+            self.note(f"  -> {card.name}: {trigger.treasures} Treasure")
+        if trigger.search:
+            self.note(f"  -> {card.name}: searches for a basic land")
+            self.search_lands(card, choose, COMBAT_SEARCH)
+        if trigger.mana and self.pool is not None:
+            for key in trigger.mana:
+                self.pool.add(key)
+            self.note(f"  -> {card.name}: +{trigger.mana}, kept to the end of the turn")
+            return True
+        return False
+
+    def _make_germ(self, card) -> None:
+        """Living weapon: a 0/0 Germ token, the Equipment on it."""
+        germ = Card(name=GERM, mv=0, pips=0, generic=0, kind=CREATURE,
+                    types=frozenset({CREATURE}), creature_types=frozenset({"phyrexian", "germ"}),
+                    colors=frozenset({"B"}), token=True)
+        self.creatures.append(germ)
+        self.arrived.append(GERM)
+        self.attached[card.name] = GERM
+        self.note(f"  -> a {GERM} token, {card.name} on it")
+        self._creature_enters(germ)
+        self.fire(ENTERS, germ)
+
+    def _detach(self, card) -> None:
+        """A permanent left: what was on it falls off - an Aura goes to the
+        graveyard - and it is on nothing any more."""
+        self.attached.pop(card.name, None)
+        for name, host in list(self.attached.items()):
+            if host != card.name:
+                continue
+            del self.attached[name]
+            aura = next((each for each in self.other_permanents
+                         if each.name == name and each.enchants == "creature"), None)
+            if aura is not None:
+                self.other_permanents.remove(aura)
+                self.graveyard.append(aura)
+                self.note(f"  -> {name} goes to the graveyard")
+
+    def _grants_mana(self, card) -> bool:
+        """Paradise Mantle: what it is on taps for mana."""
+        return any(ability.rule == GRANT and ability.subtype == "equipped"
+                   for ability in card.mana_abilities)
+
+    def attach_targets(self, card) -> list:
+        """The creatures an Equipment or Aura would go on, the best first.
+
+        For a trigger in combat: one that makes no mana and can attack - this
+        turn before the next, then one with nothing on it and no counters,
+        which is one more modified creature for Kodama of the West Tree. For
+        Paradise Mantle: one that makes no mana and has nothing on it, the
+        weakest, which gives up the least by tapping for mana instead.
+        """
+        taken = set(self.attached.values())
+        if self._grants_mana(card):
+            found = [each for each in self.creatures if self.mana_ability(each) is None
+                     and each.name not in taken and not each.combat]
+            return sorted(found, key=lambda each: (self.power(each), each.name))
+        found = [each for each in self.creatures
+                 if self.mana_ability(each) is None and not each.defender]
+        return sorted(found, key=lambda each: (
+            not ((each.name not in self.arrived or each.haste)
+                 and each.name not in self.tapped_creatures),
+            self.modified(each), each.name))
+
+    def can_equip(self, card, pool: ManaPool) -> bool:
+        """Can ``card`` be equipped now: an Equipment on the battlefield on no
+        creature, something to put it on, and the mana for it."""
+        return (card.equip is not None and any(each is card for each in self.other_permanents)
+                and self.host(card) is None and bool(self.attach_targets(card))
+                and pool.can_pay_cost(card.equip, life=self.life))
+
+    def equip(self, card, pool: ManaPool, pick: int | None = None) -> None:
+        """Pay the equip cost and put ``card`` on a creature; ``pick`` indexes
+        :meth:`attach_targets`, the best when None."""
+        if not self.can_equip(card, pool):
+            raise ValueError(f"{card.name} cannot be equipped from {pool}")
+        targets = self.attach_targets(card)
+        index = 0 if pick is None else pick
+        if not 0 <= index < len(targets):
+            raise ValueError(f"{card.name} has no creature {index} to go on")
+        pool.pay_cost(card.equip, life=self.life)
+        self.treasures = list(pool.treasures)
+        self.attached[card.name] = targets[index].name
+        self.note(f"{card.name} equipped to {targets[index].name}")
+
     # --- Mana kept as counters, energy or a Food (P19 R20) ------------------
 
     def _colors_open(self, card, pool: ManaPool) -> int:
@@ -1735,6 +1967,7 @@ class Game:
                 if card is None:
                     continue
                 zone.remove(card)
+                self._detach(card)
                 if card in self.stays_tapped:
                     self.stays_tapped.remove(card)
                 self.counters.pop(name, None)
@@ -1873,6 +2106,7 @@ class Game:
         self.fodder_used = []
         self.pending_mana = []
         self.spells_this_turn = 0
+        self.combat_done = False
         self.note(f"--- Turn {self.turn} ---")
         self._clear_emptied()
         if self.turn > 1:

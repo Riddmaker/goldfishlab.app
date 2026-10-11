@@ -43,6 +43,9 @@ class ActionForm(forms.Form):
     #: How an additional cost is paid, or what an altar sacrifices (P19 R15):
     #: an index into the options the board offered; the engine checks it.
     payment = forms.IntegerField(required=False, min_value=0, max_value=200)
+    #: The creature an Equipment goes on (P19 R22): an index into the ones
+    #: the board offered; the engine checks it.
+    target = forms.IntegerField(required=False, min_value=0, max_value=500)
     total = forms.IntegerField(required=False, min_value=MIN_LIFE, max_value=MAX_LIFE)
     zone = forms.ChoiceField(required=False,
                              choices=[(zone, zone) for zone in actions.ZONES])

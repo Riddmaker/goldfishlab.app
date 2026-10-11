@@ -187,6 +187,8 @@ def dump_game(game: Game) -> dict:
         state["pool_stored"] = _stored_at(game.pool.treasures)
         # P19 R17: mana only some spells may spend, and what it would be instead.
         state["pool_restricted"] = [dump(each) for each in game.pool.restricted]
+        # P19 R22: Goldspan Dragon's Treasures make one more.
+        state["pool_treasure_bonus"] = game.pool.treasure_bonus
     state["treasures"] = list(game.treasures)
     # P19 R20: which of them are a permanent's kept counters, not Treasure
     # tokens; the counters, energy and emptied stores beside them.
@@ -197,6 +199,9 @@ def dump_game(game: Game) -> dict:
     # P19 R21: +1/+1 counters, and the cards that turned into their land.
     state["plus_counters"] = dict(game.plus_counters)
     state["flipped"] = list(game.flipped)
+    # P19 R22: what is on which creature, and whether combat was fought.
+    state["attached"] = dict(game.attached)
+    state["combat_done"] = game.combat_done
     state["landers"] = game.landers
     state["arrived"] = list(game.arrived)
     state["tapped_creatures"] = list(game.tapped_creatures)
@@ -244,6 +249,7 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
                                            data.get("pool_stored", []))
         game.pool.restricted = [_load_dataclass(RestrictedMana, row)
                                 for row in data.get("pool_restricted", [])]
+        game.pool.treasure_bonus = int(data.get("pool_treasure_bonus", 0))
     game.treasures = _with_stored(data.get("treasures", []), data.get("stored", []))
     game.counters = {str(name): int(count) for name, count in data.get("counters", {}).items()}
     game.energy = int(data.get("energy", 0))
@@ -251,6 +257,8 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
     game.plus_counters = {str(name): int(count)
                           for name, count in data.get("plus_counters", {}).items()}
     game.flipped = [str(name) for name in data.get("flipped", [])]
+    game.attached = {str(name): str(host) for name, host in data.get("attached", {}).items()}
+    game.combat_done = bool(data.get("combat_done", False))
     game.landers = int(data.get("landers", 0))
     game.arrived = [str(name) for name in data.get("arrived", [])]
     game.tapped_creatures = [str(name) for name in data.get("tapped_creatures", [])]

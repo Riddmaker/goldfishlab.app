@@ -42,6 +42,20 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 11), "combat-mana",
+        _("Sword of the Animist, Goldspan Dragon, Ragavan and combat"),
+        _("A simulated game now has a combat. Every creature that can attack does, each "
+          "turn, and - a goldfish has no blockers - deals its damage to a player; against "
+          "opponents with many blockers that is optimistic, and your deck page says so beside "
+          "each card it matters for. Sword of the Animist, Bitterthorn and Kodama of the West "
+          "Tree find lands; Goldspan Dragon, whose Treasures then make two mana, Captain "
+          "Lannery Storm, Ragavan, Professional Face-Breaker, Grim Hireling, Diamond Pick-Axe, "
+          "Shiny Impetus, Sticky Fingers and Curse of Opulence make Treasure. Savage Ventmaw's "
+          "mana is spent in a second main phase, where a spell with X waits for it. Equipment "
+          "is equipped with mana left over, Paradise Mantle turns a creature into a mana "
+          "creature, and the playtest has an Equip button."),
+    ),
+    Entry(
         date(2026, 10, 11), "power-mana",
         _("Selvala, Marwyn, Rishkar and mana by power"),
         _("Creatures whose mana counts power or +1/+1 counters now make it in a simulated "

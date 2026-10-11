@@ -459,7 +459,8 @@ class TapMana:
     Urza an artifact for {U}, Grand Architect a blue creature for {C}{C} only
     artifact spells may spend. One activation for each permanent there is
     to tap: only one that makes no mana of its own, which keeps the ramp it
-    is, and here no creature attacks. Grand Architect may tap itself.
+    is; a creature tapped so does not attack (P19 R22). Grand Architect may
+    tap itself.
 
     Attributes:
         types: The card types a permanent tapped may have, any of them;
@@ -627,9 +628,45 @@ class Trigger:
     life: int = 0
 
 
+@dataclass(frozen=True)
+class CombatTrigger:
+    """A trigger in combat (P19 R22): as a creature attacks, or as it deals
+    combat damage to a player - which, a goldfish having no blockers, is
+    assumed to happen whenever it attacks.
+
+    Attributes:
+        event: ``attacks`` or ``damage``.
+        who: Whose attack: ``self``; ``equipped`` or ``enchanted``, the
+            creature the card is attached to; ``any`` (one or more of your
+            creatures, of ``types`` if given - once a combat); ``modified``
+            (each creature with an Equipment, an Aura or a +1/+1 counter -
+            Kodama of the West Tree); ``commander`` (Guild Artisan); ``curse``
+            (Curse of Opulence: you attack the cursed player).
+        types: Creature types, any of them, for ``any``. Empty: any creature.
+        treasures: Treasure tokens it makes (a Gold token is one), each one
+            mana of ``treasure_mana``.
+        mana: Mana it adds and keeps to the end of the turn, "RRRGGG".
+        search: A basic land onto the battlefield, tapped.
+    """
+
+    event: str
+    who: str = "self"
+    types: frozenset[str] = field(default_factory=frozenset)
+    treasures: int = 0
+    treasure_mana: str = ""
+    mana: str = ""
+    search: bool = False
+
+
 #: What a Lander token does (P19 R14): "{2}, {T}, Sacrifice this token: Search
 #: your library for a basic land card, put it onto the battlefield tapped".
 LANDER = LandSearch(when="activate", cost=ManaCost(generic=2), taps=True, sacrifice=True)
+
+#: P19 R22: what a search in combat does - Sword of the Animist.
+COMBAT_SEARCH = LandSearch(when="combat")
+
+#: P19 R22: Living weapon's token, a 0/0 the Equipment makes a 1/1 or more.
+GERM = "Germ"
 
 
 #: A card with no mana production of its own.
@@ -763,8 +800,8 @@ class Card:
     colors: frozenset[str] = field(default_factory=frozenset)
     #: P19 R13: it has defender - what Overgrown Battlement counts.
     defender: bool = False
-    #: P19 R13: an Aura's target: ``land`` or a land type (``forest``). It
-    #: cannot be cast without one.
+    #: P19 R13: an Aura's target: ``land`` or a land type (``forest``); P19
+    #: R22: ``creature`` (Shiny Impetus). It cannot be cast without one.
     enchants: str = ""
     #: P19 R13: a ritual whose mana counts the board when it resolves:
     #: ``creature`` (Battle Hymn) or ``tapped:<land type>`` (High Tide: each
@@ -818,6 +855,20 @@ class Card:
     #: step once you control this many creatures, and makes mana only then.
     #: 0: no such card.
     flip: int = 0
+    #: P19 R22: it attacks the turn it arrives.
+    haste: bool = False
+    #: P19 R22: its triggers in combat.
+    combat: tuple[CombatTrigger, ...] = ()
+    #: P19 R22: an Equipment's equip cost - read only where something rides
+    #: on it (a trigger in combat, Paradise Mantle's mana). None: not equipped.
+    equip: ManaCost | None = None
+    #: P19 R22: Living weapon - it enters with a 0/0 Germ attached.
+    germ: bool = False
+    #: P19 R22: each Treasure makes this much more mana (Goldspan Dragon).
+    treasure_bonus: int = 0
+    #: P19 R22: a token the engine made as a card (a Germ): it goes to no
+    #: graveyard.
+    token: bool = False
 
     @property
     def mana_cost(self) -> ManaCost:

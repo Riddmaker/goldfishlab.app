@@ -68,6 +68,7 @@ from simulation.cards import (
 from simulation.mana import land_color
 from simulation.manacost import COLORLESS, COLORS, ManaCost, choice, mana_label, parse
 from simulations import gaps as gaps_module
+from simulations import primitives
 
 #: Engine kinds that are one-shot spells. Only these may take `draw_on_cast`
 #: from the derived `draws_cards`: a permanent's "draw a card" is almost always
@@ -1107,6 +1108,26 @@ def scope_filter(deck: Deck):
     )
 
 
+def check_overrides(oracle_card, overrides: dict) -> str:
+    """Build the card with these overrides once, as a run would, and describe
+    it (the editor rebuild). A primitive the engine cannot play raises here,
+    at the form, rather than inside a worker.
+
+    Returns:
+        str: What the card searches, triggers and taps for, in words.
+
+    Raises:
+        ValueError: With the reason, for the form to show.
+    """
+    annotations = Annotations(overrides={oracle_card.pk: overrides}, scopes={})
+    try:
+        card = _card_from(oracle_card, annotations, [], frozenset("WUBRG"))
+        reading = Reading(oracle_card=oracle_card, card=card)
+        return " / ".join((reading.searches, reading.triggers, reading.taps_for))
+    except (KeyError, TypeError, ValueError, AttributeError) as exc:
+        raise ValueError(f"the engine cannot play this: {exc}") from exc
+
+
 def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
                deck_colors: frozenset[str] = frozenset(),
                deck_type: tuple[str, int] | None = None,
@@ -1118,8 +1139,8 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
     ``deck_chosen_color`` is :func:`deck_color` the same way: outside a deck
     "the chosen color" is a choice of the card's colours.
     """
-    profile = getattr(oracle_card, "profile", None)
     overrides = annotations.for_card(oracle_card.pk)
+    profile = effective(getattr(oracle_card, "profile", None), overrides)
     name = oracle_card.front_name
 
     if profile is None:
@@ -1195,7 +1216,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         discard_cost=int(getattr(profile, "discard_cost", 0) or 0),
         additional_costs=_additional_costs(profile),
         exiled_on_cast=bool(getattr(profile, "mana_from_hand", False)),
-        **({} if _overrides_mana(overrides) else _sacrifice_mana(profile, deck_colors)),
+        **_sacrifice_mana(profile, deck_colors),
         triggers=_triggers(profile, overrides, deck_colors),
         printed_subtypes=printed_subtypes(oracle_card),
         power=_power(oracle_card),
@@ -1203,11 +1224,10 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         growth=_growth(profile),
         flip=0 if _overrides_mana(overrides) else int(_read_rule(profile, "flip") or 0),
         **_combat(oracle_card, profile, deck_colors),
-        tap_mana=(None if _overrides_mana(overrides)
-                  else _tap_mana(profile, deck_colors, chosen, color)),
-        mox="" if _overrides_mana(overrides) else str(getattr(profile, "mox", "") or ""),
+        tap_mana=_tap_mana(profile, deck_colors, chosen, color),
+        mox=str(getattr(profile, "mox", "") or ""),
         mana_mills=int(getattr(profile, "mana_mills", 0) or 0),
-        store=None if _overrides_mana(overrides) else _store(profile, deck_colors),
+        store=_store(profile, deck_colors),
     )
 
     _record_gaps(card, profile, overrides, gaps, oracle_card.oracle_text or "")
@@ -1908,6 +1928,36 @@ def _any_colour(deck_colors: frozenset[str]) -> str:
     return choice([color for color in COLORS if color in deck_colors] or COLORS)
 
 
+class EffectiveProfile:
+    """A derived profile with an annotation's primitives laid over it.
+
+    The editor rebuild: every override key of :mod:`simulations.primitives`
+    holds a primitive in the reader's own JSON shape, so the code that plays a
+    reading plays an override too - nothing about a primitive is written twice.
+    Every other attribute is the profile's.
+    """
+
+    def __init__(self, profile, overrides: dict):
+        self._profile = profile
+        self._fields: dict = {}
+        for key in sorted(primitives.KEYS & set(overrides)):
+            self._fields.update(primitives.profile_fields(key, overrides[key]))
+
+    def __getattr__(self, name):
+        fields = self.__dict__.get("_fields", {})
+        if name in fields:
+            return fields[name]
+        return getattr(self.__dict__["_profile"], name)
+
+
+def effective(profile, overrides: dict):
+    """The profile the engine plays: the reading, or what an annotation says
+    instead of a primitive of it."""
+    if profile is None or not primitives.KEYS & set(overrides):
+        return profile
+    return EffectiveProfile(profile, overrides)
+
+
 def _overrides_mana(overrides: dict) -> bool:
     """Whether an annotation says what this card taps for."""
     return _annotated_production(overrides) is not None
@@ -2146,15 +2196,13 @@ def _triggers(profile, overrides: dict, deck_colors: frozenset[str]) -> tuple[Tr
     """The triggers the reader read (P19 R16), as the engine plays them.
 
     A Treasure's "one mana of any color" is the deck's colours; an Eldrazi
-    Spawn is a Treasure that makes {C}. An annotation that says what the card
-    taps for says what mana it makes, so it switches off a trigger's mana -
-    as it does an altar's (P19 R15).
+    Spawn is a Treasure that makes {C}. Since the editor rebuild "Taps for"
+    no longer switches a trigger's mana off: the `triggers` override does
+    (`primitives.keep_taps_for_scope` keeps the annotations written before).
     """
     found = []
     for read in getattr(profile, "triggers", None) or []:
         mana = int(read.get("mana", 0))
-        if mana and _overrides_mana(overrides):
-            mana = 0
         treasures = int(read.get("treasures", 0))
         color = read.get("color", "")
         trigger = Trigger(

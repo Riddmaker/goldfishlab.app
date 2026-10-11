@@ -10749,3 +10749,740 @@ msgstr ""
 "Neheb, the Eternal adiciona {R} pelo dano de combate, Crime Novelist para "
 "cada Tesouro que você gasta. A página do seu deck mostra cada suposição ao "
 "lado da carta."
+
+#: simulations/primitives.py
+msgid "Land search"
+msgstr "Busca de terrenos"
+
+#: simulations/primitives.py
+msgid "Lands it puts onto the battlefield, and when."
+msgstr "Os terrenos que coloca no campo de batalha, e quando."
+
+#: simulations/primitives.py
+msgid "Search"
+msgstr "Busca"
+
+#: simulations/primitives.py
+msgid "A card it finds in your library, and where that card goes."
+msgstr "Uma carta que encontra no seu grimório, e para onde ela vai."
+
+#: simulations/primitives.py
+msgid "Enters tapped unless"
+msgstr "Entra virado a menos que"
+
+#: simulations/primitives.py
+msgid "When a land that enters tapped comes in untapped."
+msgstr "Quando um terreno que entra virado entra desvirado."
+
+#: simulations/primitives.py
+msgid "Mana that counts"
+msgstr "Mana que conta"
+
+#: simulations/primitives.py
+msgid ""
+"Mana that grows with the board, adds to other sources or is granted to them:"
+" Gaea's Cradle, Caged Sun, Cryptolith Rite."
+msgstr ""
+"Mana que cresce com o tabuleiro, soma-se a outras fontes ou é concedido a "
+"elas: Gaea's Cradle, Caged Sun, Cryptolith Rite."
+
+#: simulations/primitives.py
+msgid ""
+"Treasure, mana or cards it makes when something happens: a land enters, a "
+"spell is cast, a creature dies."
+msgstr ""
+"Tesouros, mana ou cartas quando algo acontece: um terreno entra, uma mágica "
+"é conjurada, uma criatura morre."
+
+#: simulations/primitives.py
+msgid ""
+"Treasure, mana or lands it makes as creatures attack or deal combat damage; "
+"an Equipment's cost."
+msgstr ""
+"Tesouros, mana ou terrenos quando criaturas atacam ou causam dano de "
+"combate; o custo de equipar."
+
+#: simulations/primitives.py
+msgid "Mana kept as counters"
+msgstr "Mana guardado como marcadores"
+
+#: simulations/primitives.py
+msgid ""
+"Counters, energy or a Food it spends for mana: Pentad Prism, storage lands."
+msgstr ""
+"Marcadores, energia ou uma Comida gastos por mana: Pentad Prism, terrenos de"
+" armazenamento."
+
+#: simulations/primitives.py
+msgid "+1/+1 counters"
+msgstr "Marcadores +1/+1"
+
+#: simulations/primitives.py
+msgid ""
+"Counters it enters with or puts on creatures, and what grows with them."
+msgstr ""
+"Os marcadores com que entra ou que coloca em criaturas, e o que cresce com "
+"eles."
+
+#: simulations/primitives.py
+msgid "Mana from tapping others"
+msgstr "Mana ao virar outros"
+
+#: simulations/primitives.py
+msgid ""
+"Mana for tapping other permanents: Springleaf Drum, Urza, Relic of Legends."
+msgstr ""
+"Mana ao virar outras permanentes: Springleaf Drum, Urza, Relic of Legends."
+
+#: simulations/primitives.py
+msgid "Mana for a sacrifice"
+msgstr "Mana por um sacrifício"
+
+#: simulations/primitives.py
+msgid "Mana for sacrificing a permanent: Ashnod's Altar, Phyrexian Tower."
+msgstr "Mana ao sacrificar uma permanente: Ashnod's Altar, Phyrexian Tower."
+
+#: simulations/primitives.py
+msgid "Additional cost"
+msgstr "Custo adicional"
+
+#: simulations/primitives.py
+msgid "What casting it costs beside mana: a sacrifice, life, a discard."
+msgstr ""
+"O que custa conjurá-la além do mana: um sacrifício, vida, um descarte."
+
+#: simulations/primitives.py
+msgid "Treasure as it resolves"
+msgstr "Tesouros ao resolver"
+
+#: simulations/primitives.py
+msgid "Treasure tokens it makes as it resolves or enters."
+msgstr "As fichas de Tesouro que cria ao resolver ou entrar."
+
+#: simulations/primitives.py
+msgid "Mox"
+msgstr "Mox"
+
+#: simulations/primitives.py
+msgid ""
+"Mox Diamond discards a land to enter; Chrome Mox exiles a card for its "
+"colours."
+msgstr ""
+"Mox Diamond descarta um terreno para entrar; Chrome Mox exila uma carta por "
+"suas cores."
+
+#: simulations/primitives.py
+msgid "Plains"
+msgstr "Planície"
+
+#: simulations/primitives.py
+msgid "Island"
+msgstr "Ilha"
+
+#: simulations/primitives.py
+msgid "Swamp"
+msgstr "Pântano"
+
+#: simulations/primitives.py
+msgid "Mountain"
+msgstr "Montanha"
+
+#: simulations/primitives.py
+msgid "Forest"
+msgstr "Floresta"
+
+#: simulations/primitives.py
+msgid "Any"
+msgstr "Qualquer"
+
+#: simulations/primitives.py
+msgid "Any card"
+msgstr "Qualquer carta"
+
+#: simulations/primitives.py
+msgid "Lands onto the battlefield"
+msgstr "Terrenos no campo de batalha"
+
+#: simulations/primitives.py
+msgid "Lands to hand after them"
+msgstr "Terrenos para a mão depois"
+
+#: simulations/primitives.py
+msgid "They enter tapped"
+msgstr "Entram virados"
+
+#: simulations/primitives.py
+msgid "Basic lands only"
+msgstr "Apenas terrenos básicos"
+
+#: simulations/primitives.py
+msgid "Land types it may find"
+msgstr "Tipos de terreno que pode encontrar"
+
+#: simulations/primitives.py
+msgid "None ticked: any land."
+msgstr "Nada marcado: qualquer terreno."
+
+#: simulations/primitives.py
+msgid "Only if"
+msgstr "Somente se"
+
+#: simulations/primitives.py
+msgid "The card itself is sacrificed"
+msgstr "A própria carta é sacrificada"
+
+#: simulations/primitives.py
+msgid "A land of yours is sacrificed first"
+msgstr "Primeiro um terreno seu é sacrificado"
+
+#: simulations/primitives.py
+msgid "Mana it costs to activate"
+msgstr "Mana para ativá-la"
+
+#: simulations/primitives.py
+msgid "Such as {2}. Blank: none."
+msgstr "Por exemplo {2}. Vazio: nenhum."
+
+#: simulations/primitives.py
+msgid "Activating it taps the card"
+msgstr "Ativá-la vira a carta"
+
+#: simulations/primitives.py
+msgid "Life paid"
+msgstr "Vida paga"
+
+#: simulations/primitives.py
+msgid "As many as the greatest power among your creatures"
+msgstr "Tantos quanto o maior poder entre suas criaturas"
+
+#: simulations/primitives.py
+msgid "Searches again this often while the condition holds"
+msgstr "Busca novamente essa quantidade de vezes enquanto a condição valer"
+
+#: simulations/primitives.py
+msgid "One more for each opponent assumed to search too"
+msgstr "Mais um para cada oponente que se supõe também procurar"
+
+#: simulations/primitives.py
+msgid "Where the card goes"
+msgstr "Para onde vai a carta"
+
+#: simulations/primitives.py
+msgid "How many cards"
+msgstr "Quantas cartas"
+
+#: simulations/primitives.py
+msgid "What it may find"
+msgstr "O que pode encontrar"
+
+#: simulations/primitives.py
+msgid "Or any of these types"
+msgstr "Ou qualquer destes tipos"
+
+#: simulations/primitives.py
+msgid ""
+"Card types, subtypes or creature types, comma-separated: aura, equipment, "
+"elf."
+msgstr ""
+"Tipos de carta, subtipos ou tipos de criatura, separados por vírgulas: aura,"
+" equipment, elf."
+
+#: simulations/primitives.py
+msgid "Mana value at most"
+msgstr "Valor de mana no máximo"
+
+#: simulations/primitives.py
+msgid "Blank: no limit."
+msgstr "Vazio: sem limite."
+
+#: simulations/primitives.py
+msgid "Of this colour"
+msgstr "Desta cor"
+
+#: simulations/primitives.py
+msgid "A land it finds goes onto the battlefield tapped"
+msgstr "Um terreno encontrado entra virado no campo de batalha"
+
+#: simulations/primitives.py
+msgid "Cards discarded at random afterwards"
+msgstr "Cartas descartadas aleatoriamente depois"
+
+#: simulations/primitives.py
+msgid "Any card with delirium"
+msgstr "Qualquer carta com delírio"
+
+#: simulations/primitives.py
+msgid "What it sacrifices"
+msgstr "O que sacrifica"
+
+#: simulations/primitives.py
+msgid "Mana for each sacrifice"
+msgstr "Mana por sacrifício"
+
+#: simulations/primitives.py
+msgid "Of these colours"
+msgstr "Destas cores"
+
+#: simulations/primitives.py
+msgid "Such as C or BB. Blank: any colour of the deck."
+msgstr "Por exemplo C ou BB. Vazio: qualquer cor do deck."
+
+#: simulations/primitives.py
+msgid "Using it taps the card"
+msgstr "Usá-la vira a carta"
+
+#: simulations/primitives.py
+msgid "Life paid each time"
+msgstr "Vida paga a cada vez"
+
+#: simulations/primitives.py
+msgid "What it taps"
+msgstr "O que vira"
+
+#: simulations/primitives.py
+msgid "Mana for each one tapped"
+msgstr "Mana por cada um virado"
+
+#: simulations/primitives.py
+msgid "Such as U or C. Blank: any colour of the deck."
+msgstr "Por exemplo U ou C. Vazio: qualquer cor do deck."
+
+#: simulations/primitives.py
+msgid "Treasure tokens"
+msgstr "Fichas de Tesouro"
+
+#: simulations/primitives.py
+msgid "How it enters"
+msgstr "Como entra"
+
+#: simulations/primitives.py
+msgid "Narrowed to"
+msgstr "Limitado a"
+
+#: simulations/primitives.py
+msgid ""
+"Blank for none. For a spell: instant_sorcery, colorless or second; for a "
+"creature dying: another; as it resolves: per_land; for a creature entering: "
+"its type, such as dragon."
+msgstr ""
+"Vazio para nenhum. Para uma mágica: instant_sorcery, colorless ou second; "
+"para uma criatura que morre: another; ao resolver: per_land; para uma "
+"criatura que entra: seu tipo em inglês, como dragon."
+
+#: simulations/primitives.py
+msgid "Mana"
+msgstr "Mana"
+
+#: simulations/primitives.py
+msgid "Of colour"
+msgstr "Da cor"
+
+#: simulations/primitives.py
+msgid "Cards drawn"
+msgstr "Cartas compradas"
+
+#: simulations/primitives.py
+msgid "Life it costs"
+msgstr "Vida que custa"
+
+#: simulations/primitives.py
+msgid "+1/+1 counters on it"
+msgstr "Marcadores +1/+1 nela"
+
+#: simulations/primitives.py
+msgid "Whose attack"
+msgstr "O ataque de quem"
+
+#: simulations/primitives.py
+msgid "Of these creature types"
+msgstr "Destes tipos de criatura"
+
+#: simulations/primitives.py
+msgid "Blank: any creature."
+msgstr "Vazio: qualquer criatura."
+
+#: simulations/primitives.py
+msgid "Mana kept to the second main phase"
+msgstr "Mana guardado até a segunda fase principal"
+
+#: simulations/primitives.py
+msgid "Letters, such as RRRGGG. Blank: none."
+msgstr "Letras, como RRRGGG. Vazio: nenhum."
+
+#: simulations/primitives.py
+msgid "Finds a basic land"
+msgstr "Encontra um terreno básico"
+
+#: simulations/primitives.py
+msgid "The land enters untapped"
+msgstr "O terreno entra desvirado"
+
+#: simulations/primitives.py
+msgid "Equip cost"
+msgstr "Custo de equipar"
+
+#: simulations/primitives.py
+msgid "For an Equipment, such as {2}."
+msgstr "Para um Equipamento, como {2}."
+
+#: simulations/primitives.py
+msgid "An Aura that goes on a creature"
+msgstr "Uma Aura que vai numa criatura"
+
+#: simulations/primitives.py
+msgid "Each Treasure makes this much more"
+msgstr "Cada Tesouro produz isso a mais"
+
+#: simulations/primitives.py
+msgid "Sacrifice one of"
+msgstr "Sacrificar um de"
+
+#: simulations/primitives.py
+msgid "Life"
+msgstr "Vida"
+
+#: simulations/primitives.py
+msgid "Pay X life (paid with X = 0)"
+msgstr "Pagar X de vida (pago com X = 0)"
+
+#: simulations/primitives.py
+msgid "Cards discarded"
+msgstr "Cartas descartadas"
+
+#: simulations/primitives.py
+msgid "Mana on top"
+msgstr "Mana adicional"
+
+#: simulations/primitives.py
+msgid "Exile from your graveyard"
+msgstr "Exilar do seu cemitério"
+
+#: simulations/primitives.py
+msgid "The sacrifice must also be"
+msgstr "O sacrifício também deve ser"
+
+#: simulations/primitives.py
+msgid "Blank for anything. A colour letter, legendary, or a creature type."
+msgstr ""
+"Vazio para qualquer um. Uma letra de cor, legendary ou um tipo de criatura "
+"em inglês."
+
+#: simulations/primitives.py
+msgid "As it is cast"
+msgstr "Ao ser conjurada"
+
+#: simulations/primitives.py
+msgid "As it enters"
+msgstr "Ao entrar"
+
+#: simulations/primitives.py
+msgid "As it is played (a fetch land)"
+msgstr "Ao ser jogado (um fetch land)"
+
+#: simulations/primitives.py
+msgid "When activated, with spare mana"
+msgstr "Ao ativar, com mana sobrando"
+
+#: simulations/primitives.py
+msgid "In each opponent's end step"
+msgstr "Na etapa final de cada oponente"
+
+#: simulations/primitives.py
+msgid "Always"
+msgstr "Sempre"
+
+#: simulations/primitives.py
+msgid "An opponent controls more lands (assumed: one a turn each)"
+msgstr "Um oponente controla mais terrenos (suposto: um por turno cada)"
+
+#: simulations/primitives.py
+msgid "To hand"
+msgstr "Para a mão"
+
+#: simulations/primitives.py
+msgid "On top of the library"
+msgstr "No topo do grimório"
+
+#: simulations/primitives.py
+msgid "Onto the battlefield"
+msgstr "No campo de batalha"
+
+#: simulations/primitives.py
+msgid "To the graveyard"
+msgstr "Para o cemitério"
+
+#: simulations/primitives.py
+msgid "Discards a land card (Mox Diamond)"
+msgstr "Descarta um card de terreno (Mox Diamond)"
+
+#: simulations/primitives.py
+msgid "Exiles a coloured card for its colours (Chrome Mox)"
+msgstr "Exila um card colorido por suas cores (Chrome Mox)"
+
+#: simulations/primitives.py
+msgid "A land of yours enters"
+msgstr "Um terreno seu entra"
+
+#: simulations/primitives.py
+msgid "You cast a spell"
+msgstr "Você conjura uma mágica"
+
+#: simulations/primitives.py
+msgid "It or another creature of a type enters"
+msgstr "Ela ou outra criatura de um tipo entra"
+
+#: simulations/primitives.py
+msgid "A creature of yours dies"
+msgstr "Uma criatura sua morre"
+
+#: simulations/primitives.py
+msgid "You sacrifice an artifact"
+msgstr "Você sacrifica um artefato"
+
+#: simulations/primitives.py
+msgid "Your upkeep"
+msgstr "Sua manutenção"
+
+#: simulations/primitives.py
+msgid "Your first main phase"
+msgstr "Sua primeira fase principal"
+
+#: simulations/primitives.py
+msgid "As it resolves"
+msgstr "Ao resolver"
+
+#: simulations/primitives.py
+msgid "Once a round, an opponent does not pay"
+msgstr "Uma vez por rodada, um oponente não paga"
+
+#: simulations/primitives.py
+msgid "None"
+msgstr "Nenhum"
+
+#: simulations/primitives.py
+msgid "Any colour of the deck"
+msgstr "Qualquer cor do deck"
+
+#: simulations/primitives.py
+msgid "As it attacks"
+msgstr "Ao atacar"
+
+#: simulations/primitives.py
+msgid "As it deals combat damage to a player"
+msgstr "Ao causar dano de combate a um jogador"
+
+#: simulations/primitives.py
+msgid "This creature"
+msgstr "Esta criatura"
+
+#: simulations/primitives.py
+msgid "The creature it equips"
+msgstr "A criatura equipada"
+
+#: simulations/primitives.py
+msgid "The creature it enchants"
+msgstr "A criatura encantada"
+
+#: simulations/primitives.py
+msgid "Any of your creatures, once a combat"
+msgstr "Qualquer uma de suas criaturas, uma vez por combate"
+
+#: simulations/primitives.py
+msgid "Each modified creature of yours"
+msgstr "Cada criatura modificada sua"
+
+#: simulations/primitives.py
+msgid "Your commander"
+msgstr "Seu comandante"
+
+#: simulations/primitives.py
+msgid "You attack the enchanted player"
+msgstr "Você ataca o jogador encantado"
+
+#: simulations/primitives.py
+msgid "Every point of combat damage"
+msgstr "Cada ponto de dano de combate"
+
+#: simulations/primitives.py
+msgid "Nothing"
+msgstr "Nada"
+
+#: simulations/primitives.py
+msgid "A creature card"
+msgstr "Um card de criatura"
+
+#: simulations/primitives.py
+msgid "An artifact card"
+msgstr "Um card de artefato"
+
+#: simulations/primitives.py
+msgid "A land card"
+msgstr "Um card de terreno"
+
+#: simulations/editor.py
+msgid "read from the card"
+msgstr "lido da carta"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(cost)s: %(amount)s mana"
+msgstr "%(cost)s: %(amount)s mana"
+
+#: simulations/editor.py
+#, python-format
+msgid "tap %(what)s: %(amount)s mana each"
+msgstr "virar %(what)s: %(amount)s mana cada"
+
+#: simulations/editor.py
+msgid "does nothing"
+msgstr "não faz nada"
+
+#: simulations/editor.py
+msgid "not readable"
+msgstr "não legível"
+
+#: simulations/editor.py
+msgid "From the card"
+msgstr "Da carta"
+
+#: simulations/editor.py
+msgid "Yours, this deck"
+msgstr "Seu, este deck"
+
+#: simulations/editor.py
+msgid "Yours, all decks"
+msgstr "Seu, todos os decks"
+
+#: simulations/editor.py
+msgid "Off"
+msgstr "Desativado"
+
+#: simulations/editor.py
+#, python-format
+msgid "“%(word)s” is not a type. Use words such as aura or elf."
+msgstr "“%(word)s” não é um tipo. Use palavras como aura ou elf."
+
+#: simulations/editor.py
+#, python-format
+msgid "“%(word)s” is not one word the engine knows."
+msgstr "“%(word)s” não é uma palavra que o motor conhece."
+
+#: simulations/editor.py
+#, python-format
+msgid "“%(mana)s” is not mana. Use letters such as RRRGGG."
+msgstr "“%(mana)s” não é mana. Use letras como RRRGGG."
+
+#: simulations/editor.py
+#, python-format
+msgid "“%(cost)s” is not a mana cost. Write it like {2} or {1}{G}."
+msgstr "“%(cost)s” não é um custo de mana. Escreva como {2} ou {1}{G}."
+
+#: simulations/editor.py
+msgid "switched off"
+msgstr "desativado"
+
+#: simulations/editor.py
+msgid "discards a land card to enter"
+msgstr "descarta um card de terreno para entrar"
+
+#: simulations/editor.py
+msgid "exiles a coloured card for its colours"
+msgstr "exila um card colorido por suas cores"
+
+#: simulations/views.py
+#, python-format
+msgid "Saved. %(card)s will be read that way from the next run onwards."
+msgstr "Salvo. %(card)s será lido assim a partir da próxima simulação."
+
+#: simulations/views.py
+msgid "Check the boxes marked below."
+msgstr "Verifique os campos marcados abaixo."
+
+#: simulations/annotations.py
+msgid ""
+"What tapping the card itself makes. Letters for the colours, with a number "
+"where it makes more than one: B, 2B, B C. Write “nothing” for a card whose "
+"own tap makes no mana. Its other mana - an altar, a trigger, counters - is "
+"under “What the engine plays”."
+msgstr ""
+"O que virar a própria carta produz. Letras para as cores, com um número onde"
+" for mais de um: B, 2B, B C. Escreva “nothing” para uma carta cujo próprio "
+"virar não produz mana. Seu outro mana - um altar, um gatilho, marcadores - "
+"está em “O que o motor joga”."
+
+#: changelog/entries.py
+msgid "Correct everything the engine reads off a card"
+msgstr "Corrija tudo o que o motor lê de uma carta"
+
+#: changelog/entries.py
+msgid ""
+"A card's page now shows what the simulation plays of it, block by block: its"
+" land search, its search, its triggers, what it does in combat, its altar, "
+"its additional cost and more, each in words and with who decided it - the "
+"card, you, or a built-in default. You can change a block, switch it off, add"
+" one the engine did not read, or go back to the card data, for one deck or "
+"for all of them. Triggers, combat and additional costs are edited one entry "
+"at a time. \"Taps for\" now changes only what tapping the card makes; until "
+"today it also switched off its other mana, and your earlier answers keep "
+"that meaning."
+msgstr ""
+"A página de uma carta agora mostra o que a simulação joga dela, bloco a "
+"bloco: sua busca de terrenos, sua busca, seus gatilhos, o que faz em "
+"combate, seu altar, seu custo adicional e mais, cada um em palavras e com "
+"quem decidiu - a carta, você ou um padrão embutido. Você pode alterar um "
+"bloco, desativá-lo, adicionar um que o motor não leu ou voltar aos dados da "
+"carta, para um deck ou para todos. Gatilhos, combate e custos adicionais são"
+" editados uma entrada por vez. “Vira para” agora muda apenas o que virar a "
+"carta produz; até hoje também desativava seu outro mana, e suas respostas "
+"anteriores mantêm esse significado."
+
+#: templates/simulations/_primitives.html
+msgid "What the engine plays"
+msgstr "O que o motor joga"
+
+#: templates/simulations/_primitives.html
+msgid "Remove"
+msgstr "Remover"
+
+#: templates/simulations/_primitives.html
+msgid "Add one"
+msgstr "Adicionar um"
+
+#: templates/simulations/_primitives.html
+msgid "Off: the card does not do this"
+msgstr "Desativar: a carta não faz isso"
+
+#: templates/simulations/_primitives.html
+msgid "Back to the card data"
+msgstr "Voltar aos dados da carta"
+
+#: templates/simulations/_primitives.html
+msgid "Nothing beyond its mana and its cost."
+msgstr "Nada além do seu mana e do seu custo."
+
+#: templates/simulations/_primitives.html
+msgid "Add a building block"
+msgstr "Adicionar um bloco"
+
+#: templates/simulations/_primitives.html
+msgid "new"
+msgstr "novo"
+
+#: templates/simulations/_primitives.html
+msgid "Save this block"
+msgstr "Salvar este bloco"
+
+#: templates/simulations/_primitives.html
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: templates/simulations/annotate.html
+msgid "How to play it"
+msgstr "Como jogá-la"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(count)s Treasure as it resolves"
+msgid_plural "%(count)s Treasures as it resolves"
+msgstr[0] "%(count)s Tesouro ao resolver"
+msgstr[1] "%(count)s Tesouros ao resolver"

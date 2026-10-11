@@ -38,7 +38,7 @@ from django.utils.translation import gettext_lazy as _
 
 from cards.models import OracleCard
 from decks.models import Deck
-from simulations import gaps
+from simulations import gaps, primitives
 
 #: The mana a colour annotation may name. Spelled out here rather than imported
 #: from `simulation.manacost`, because the engine stays a stranger to Django and
@@ -90,6 +90,10 @@ ALLOWED_KEYS = {
     "subtypes": "Land subtypes the card carries, e.g. ['swamp'].",
     "tags": "Role tags, overriding the ones rolled up from the community tags.",
     "enters_tapped": "Override the derived enters-tapped reading.",
+    # The editor rebuild: one key per primitive, in the reader's own JSON
+    # shape; null means "the card does not do this". See simulations/primitives.py.
+    **{primitive.key: f"Replaces the reading of {', '.join(primitive.fields)}."
+       for primitive in primitives.PRIMITIVES},
 }
 
 
@@ -162,6 +166,11 @@ class CardAnnotation(models.Model):
                               f"Known keys: {sorted(ALLOWED_KEYS)}"}
             )
         self._clean_colors()
+        for key in primitives.KEYS & set(self.overrides):
+            try:
+                primitives.validate(key, self.overrides[key])
+            except primitives.PrimitiveError as exc:
+                raise ValidationError({"overrides": str(exc)}) from exc
 
     def _clean_colors(self):
         """Reject a colour the engine would not recognise.

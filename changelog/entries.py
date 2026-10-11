@@ -42,6 +42,18 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 11), "card-editor",
+        _("Correct everything the engine reads off a card"),
+        _("A card's page now shows what the simulation plays of it, block by block: its land "
+          "search, its search, its triggers, what it does in combat, its altar, its additional "
+          "cost and more, each in words and with who decided it - the card, you, or a "
+          "built-in default. You can change a block, switch it off, add one the engine did "
+          "not read, or go back to the card data, for one deck or for all of them. Triggers, "
+          "combat and additional costs are edited one entry at a time. \"Taps for\" now "
+          "changes only what tapping the card makes; until today it also switched off its "
+          "other mana, and your earlier answers keep that meaning."),
+    ),
+    Entry(
         date(2026, 10, 11), "tutor-choices",
         _("Archdruid's Charm, Gifts Ungiven, Tempt with Discovery and other searches"),
         _("More searches now work in a simulated game. Open the Armory, Solve the Equation, "

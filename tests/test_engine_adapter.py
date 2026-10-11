@@ -172,12 +172,13 @@ def test_the_deck_definitions_are_equal(converted):
         # sacrifice, is on a card the engine never casts (no creature to steal).
         # `printed_subtypes` (21): only restricted mana asks it, and this deck
         # has none. `power` (22): only "a creature with power 4" asks it, and
-        # this deck has none.
+        # this deck has none. `toughness` (25) likewise: only Arbor Adherent's
+        # mana and Evolve compare it, and this deck has neither.
         return replace(card, name=normalise(card.name), cost=card.mana_cost,
                        types=frozenset(), categories=frozenset(), basic=False,
                        creature_types=frozenset(), legendary=False,
                        colors=frozenset(), defender=False, additional_costs=(),
-                       printed_subtypes=frozenset(), power=0)
+                       printed_subtypes=frozenset(), power=0, toughness=0)
 
     def fold(definition):
         return tuple(

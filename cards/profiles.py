@@ -615,8 +615,9 @@ _ACTIVATE_IF_POWER = re.compile(
 #: P19 R18: Ilysian Caryatid - "If you control a creature with power 4 or
 #: greater, add two mana of any one color instead."
 _INSTEAD_IF_POWER = re.compile(
-    r"^\{T\}: Add one mana of any color\. If you control a creature with power "
-    rf"{_NUMBER_WORD} or greater, add two mana of any one color instead\.$", re.MULTILINE)
+    r"^\{T\}: Add (?:one mana of any color|\{(?P<color>[WUBRG])\})\. If you control a creature "
+    rf"with power {_NUMBER_WORD} or greater, add (?:two mana of any one color|"
+    r"\{(?P=color)\}\{(?P=color)\}) instead\.$", re.MULTILINE)
 _SPEND_ONLY = re.compile(r"Spend this mana only", re.IGNORECASE)
 _ACTIVATE_ONLY = re.compile(r"Activate only (?:if|during)", re.IGNORECASE)
 
@@ -747,6 +748,7 @@ _COLORS_AMONG = re.compile(
 _COUNTS_X = re.compile(
     r"^\{T\}: Add X mana (?:(?P<one>of any one color)|in any combination of colors), where X "
     r"is the number of (?:(?P<enchantments>enchantments you control)"
+    r"|(?P<elves>Elves on the battlefield)"
     r"|creatures you control with defender)\.$", re.MULTILINE)
 #: Rituals that count the board as they resolve: "Add {R} for each creature
 #: you control." (Battle Hymn) and "Until end of turn, whenever a player taps
@@ -772,6 +774,74 @@ _RITUAL_THRESHOLD = re.compile(
 _COUNTS_CHOSEN_TYPE = re.compile(
     r"^(?:\{(?P<cost>\d+)\}, )?\{T\}: Choose a color\. Add an amount of mana of that color "
     r"equal to the number of creatures you control of the chosen type\.$", re.MULTILINE)
+#: P19 R21: mana by power or toughness. "{T}: Add X mana of any one color,
+#: where X is this creature's power." (Kami of Whispered Hopes), "{T}: Add an
+#: amount of {G} equal to Marwyn's power.", "{G}, {T}: Add X mana in any
+#: combination of colors, where X is the greatest power among creatures you
+#: control." (Selvala), Arbor Adherent's greatest toughness among the others,
+#: and Vivi Ornitier's "{0}: ... Activate only during your turn and only once
+#: each turn." - played as a {T}.
+_COUNTS_STAT = re.compile(
+    r"^(?:\{(?P<cost>[WUBRG])\}, )?\{(?P<tap>T|0)\}: Add "
+    r"(?:X mana (?:(?P<one>of any one color)|in any combination of (?:colors|\{(?P<a>[WUBRG])\} "
+    r"and/or \{(?P<b>[WUBRG])\})), where X is|an amount of \{(?P<color>[WUBRG])\} equal to) "
+    r"(?:the greatest (?P<stat>power|toughness) among (?P<other>other )?creatures you control"
+    r"|(?P<whose>[^.\n]+?)'s power)\."
+    r"(?P<once> Activate only during your turn and only once each turn\.)?$", re.MULTILINE)
+#: P19 R21: "{T}: Add {G} for each +1/+1 counter on this creature." (Gyre Sage)
+_COUNTS_OWN_COUNTERS = re.compile(
+    r"^\{T\}: Add \{(?P<color>[WUBRG])\} for each \+1/\+1 counter on (?P<whose>[^.\n]+)\.$",
+    re.MULTILINE)
+#: P19 R21: "{T}: Add an amount of {G} equal to your devotion to green."
+#: (Karametra's Acolyte) - one colour, unlike Nykthos' choice.
+_DEVOTION_FIXED = re.compile(
+    r"^\{T\}: Add an amount of \{(?P<color>[WUBRG])\} equal to your devotion to "
+    r"(?:white|blue|black|red|green)\.", re.MULTILINE)
+#: P19 R21: Rishkar - "Each creature you control with a counter on it has
+#: "{T}: Add {G}.""
+_GRANT_COUNTERED = re.compile(
+    r"^Each creature you control with a counter on it has \"\{T\}: Add "
+    r"\{(?P<color>[WUBRG])\}\.\"$", re.MULTILINE)
+#: P19 R21: Incubation Druid - "If this creature has a +1/+1 counter on it,
+#: add three mana of that type instead."
+_MORE_WITH_COUNTER = re.compile(
+    r"If this creature has a \+1/\+1 counter on it, add (?P<n>two|three) mana of that type "
+    r"instead\.")
+#: P19 R21: Growing Rites of Itlimoc's way to its back face.
+_FLIP_AT_CREATURES = re.compile(
+    r"^At the beginning of your end step, if you control (?P<n>\w+) or more creatures, "
+    r"transform (?P<whose>[^.\n]+)\.$", re.MULTILINE)
+#: P19 R21: what grows a creature's power, read where its mana counts it.
+_ENTERS_WITH_COUNTERS = re.compile(
+    r"^(?P<whose>[^.\n]+?) enters with (?P<n>X|a|an|one|two|three|four|five|six|seven|eight|"
+    r"nine|ten|\d+) \+1/\+1 counters? on it\.", re.MULTILINE)
+_GROWS_ON_ENTER = re.compile(
+    r"^Whenever another (?P<type>[A-Z][a-z]+) you control enters, put a \+1/\+1 counter on "
+    r"(?P<whose>[^.\n]+)\.$", re.MULTILINE)
+_GROWS_ON_CAST = re.compile(
+    r"^Whenever you cast a noncreature spell, put a \+1/\+1 counter on (?P<whose>[^.\n]+?)"
+    r"(?: and [^.\n]+)?\.$", re.MULTILINE)
+_ADAPT = re.compile(r"^(?P<cost>(?:\{[\dWUBRG]\})+): Adapt (?P<n>\d+)\.", re.MULTILINE)
+#: Kami of Whispered Hopes, Hardened Scales: one more on each placement.
+_COUNTER_BONUS = re.compile(
+    r"^If one or more \+1/\+1 counters would be put on an? (?:permanent|creature) you "
+    r"control, that many plus (?P<n>one|two) \+1/\+1 counters are put on "
+    r"(?:that permanent|it) instead\.$", re.MULTILINE)
+#: Rishkar: "When Rishkar enters, put a +1/+1 counter on each of up to two
+#: target creatures."
+_PUTS_ON_ENTER = re.compile(
+    r"^When (?P<whose>[^.\n]+?) enters, put a \+1/\+1 counter on each of up to "
+    r"(?P<n>two|three) target creatures\.$", re.MULTILINE)
+#: Selvala, Heart of the Wilds - a goldfish's creatures are all its own.
+_DRAWS_ON_GREATEST = re.compile(
+    r"^Whenever another creature enters, its controller may draw a card if its power is "
+    r"greater than each other creature's power\.$", re.MULTILINE)
+#: Growing Rites of Itlimoc: "look at the top four cards of your library. You
+#: may reveal a creature card from among them and put it into your hand."
+_LOOK_FOR_CREATURE = re.compile(
+    r"^When (?P<whose>[^.\n]+?) enters, look at the top (?P<n>\w+) cards of your library\. "
+    r"You may reveal a creature card from among them and put it into your hand\. Put the rest "
+    r"on the bottom of your library in any order\.$", re.MULTILINE)
 _WORD_TIMES = {"twice": 2, "three times": 3}
 #: What a read mana rule explains, and so is no longer a reason to review.
 _RULE_EXPLAINS = frozenset({
@@ -1095,17 +1165,128 @@ def _mana_rule(card: OracleCard, kind: str) -> dict | None:
         return {"rule": "double_subtype", "subtype": subtype, "activation": 0,
                 "color": found.group("color")}
     if _LANDS_COULD_PRODUCE.search(text):
-        return {"rule": "lands_could_produce", "subtype": "", "activation": 0, "color": ""}
+        rule = {"rule": "lands_could_produce", "subtype": "", "activation": 0, "color": ""}
+        if (found := _MORE_WITH_COUNTER.search(text)) is not None:
+            # P19 R21: Incubation Druid, three with a +1/+1 counter.
+            rule["with_counter"] = _word_number(found.group("n"))
+        return rule
     if (found := _extra_rule(text, kind)) is not None:
         return found
     if kind == DerivedProfile.Kind.LAND and (found := _PER_CONTROLLED.fullmatch(text)):
         return {"rule": "per_controlled", "subtype": found.group("type").lower(),
                 "activation": int(found.group("cost")), "color": found.group("color")}
     if "//" in (card.name or ""):
-        # Itlimoc counts creatures on its back face, which this engine never
-        # reaches: the front is an enchantment that makes no mana.
+        # A back face's mana is out of reach - but for Growing Rites of
+        # Itlimoc, which the engine turns at the end step (P19 R21).
+        front, _, back = text.partition("//")
+        flip = _FLIP_AT_CREATURES.search(front)
+        if flip is None or not _names_itself(flip.group("whose"), card):
+            return None
+        rule = _counting_rule(back.strip(), card)
+        if rule is None or rule["subtype"] != "creature":
+            return None
+        return rule | {"flip": _word_number(flip.group("n"))}
+    return _counting_rule(text, card)
+
+
+def _stat_rule(text: str, card: OracleCard) -> dict | None:
+    """Mana by power, toughness or the card's own +1/+1 counters (P19 R21).
+
+    ``subtype`` "power" (its own), "power:greatest", "toughness:greatest_other"
+    or "counters"; ``color`` a colour, "" for one colour the hand settles,
+    "WUBRG" or "UR" for any combination of those; ``pays`` the colour of an
+    activation cost, which the engine pays as generic; ``once`` for Vivi's
+    {0} once a turn, played as a {T}.
+    """
+    if (found := _COUNTS_OWN_COUNTERS.search(text)) is not None:
+        if not _names_itself(found.group("whose"), card):
+            return None
+        return {"rule": "counts", "subtype": "counters", "color": found.group("color"),
+                "activation": 0}
+    found = _COUNTS_STAT.search(text)
+    if found is None:
         return None
-    return _counting_rule(text)
+    if found.group("tap") == "0" and not found.group("once"):
+        return None
+    if found.group("whose") is not None:
+        if not _names_itself(found.group("whose"), card):
+            return None
+        subtype = "power"
+    elif found.group("stat") == "power" and not found.group("other"):
+        subtype = "power:greatest"
+    elif found.group("stat") == "toughness" and found.group("other"):
+        subtype = "toughness:greatest_other"
+    else:
+        return None
+    if found.group("color"):
+        color = found.group("color")
+    elif found.group("one"):
+        color = ""
+    elif found.group("a"):
+        color = "".join(sorted({found.group("a"), found.group("b")}, key="WUBRG".index))
+    else:
+        color = "WUBRG"
+    rule = {"rule": "counts", "subtype": subtype, "color": color,
+            "activation": 1 if found.group("cost") else 0}
+    if found.group("cost"):
+        rule["pays"] = found.group("cost")
+    if found.group("once"):
+        rule["once"] = True
+    return rule
+
+
+def _growth(card: OracleCard, kind: str, mana_rule: dict | None) -> dict | None:
+    """+1/+1 counters and what grows with them, as the engine plays them (P19 R21).
+
+    For every creature: the counters it enters with ("enters", or
+    "enters_x"), since power counts for Selvala and "a creature with power 4
+    or greater". For any card: "bonus" (Kami of Whispered Hopes: one more on
+    each placement), "puts" (Rishkar: a counter on each of up to two
+    creatures as it enters), "draws_on_greatest" (Selvala). For a card whose
+    own mana counts its power or counters: "grows" ("enters:<type>",
+    "cast:noncreature", "evolve", "increment") and "adapt" {"n", "cost"}.
+    "look": Growing Rites of Itlimoc's look at the top cards for a creature.
+    None: nothing of these.
+    """
+    front = (card.oracle_text or "").split("//", 1)[0]
+    found: dict = {}
+    rule = mana_rule or {}
+    if kind == DerivedProfile.Kind.CREATURE:
+        for match in _ENTERS_WITH_COUNTERS.finditer(front):
+            # "This creature enters with ...", at the start of its line.
+            if _names_itself(re.sub(r"^This ", "this ", match.group("whose")), card):
+                if match.group("n") == "X":
+                    found["enters_x"] = True
+                else:
+                    found["enters"] = _word_number(match.group("n")) or 0
+                break
+    if (match := _COUNTER_BONUS.search(front)) is not None:
+        found["bonus"] = _word_number(match.group("n"))
+    if (match := _PUTS_ON_ENTER.search(front)) is not None \
+            and _names_itself(match.group("whose"), card):
+        found["puts"] = _word_number(match.group("n"))
+    if _DRAWS_ON_GREATEST.search(front):
+        found["draws_on_greatest"] = True
+    own = (rule.get("rule") == "counts" and rule.get("subtype") in ("power", "counters")
+           or bool(rule.get("with_counter")))
+    if own:
+        grows = [f"enters:{match.group('type').lower()}"
+                 for match in _GROWS_ON_ENTER.finditer(front)
+                 if _names_itself(match.group("whose"), card)]
+        grows += ["cast:noncreature" for match in _GROWS_ON_CAST.finditer(front)
+                  if _names_itself(match.group("whose"), card)]
+        for raw in front.splitlines():
+            line = _REMINDER.sub("", raw).strip()
+            if line in ("Evolve", "Increment"):
+                grows.append(line.lower())
+        if grows:
+            found["grows"] = grows
+        if (match := _ADAPT.search(front)) is not None:
+            found["adapt"] = {"n": int(match.group("n")), "cost": match.group("cost")}
+    if rule.get("flip") and (match := _LOOK_FOR_CREATURE.search(front)) is not None \
+            and _names_itself(match.group("whose"), card):
+        found["look"] = _word_number(match.group("n"))
+    return found or None
 
 
 def _extra_rule(text: str, kind: str) -> dict | None:
@@ -1161,6 +1342,10 @@ def _extra_rule(text: str, kind: str) -> dict | None:
     if (found := _MULTIPLY.search(text)) is not None:
         return {"rule": "multiply", "subtype": "permanent", "activation": 0, "color": "",
                 "times": _WORD_TIMES[found.group("times")]}
+    if (found := _GRANT_COUNTERED.search(text)) is not None:
+        # P19 R21: Rishkar - the creatures with a counter on them.
+        return {"rule": "grant", "subtype": "creature:counter", "activation": 0, "color": "",
+                "produces": {found.group("color"): 1}}
     if (found := _GRANT.search(text)) is not None:
         if found.group("who").startswith("Enchanted"):
             if not found.group("any") or (enchant := _ENCHANT.search(text)) is None \
@@ -1173,14 +1358,24 @@ def _extra_rule(text: str, kind: str) -> dict | None:
     return None
 
 
-def _counting_rule(text: str) -> dict | None:
+def _counting_rule(text: str, card: OracleCard | None = None) -> dict | None:
     """Mana that counts the board, as a ``counts`` rule (P19 R11), or None."""
+    if card is not None and (found := _stat_rule(text, card)) is not None:
+        return found
+    if (found := _DEVOTION_FIXED.search(text)) is not None:
+        # P19 R21: Karametra's Acolyte.
+        return {"rule": "counts", "subtype": "devotion:" + found.group("color"),
+                "color": found.group("color"), "activation": 0}
     if _COLORS_AMONG.search(text):
         # P19 R13: Bloom Tender. The colours are the board's to say.
         return {"rule": "counts", "subtype": "colors_among", "color": "", "activation": 0}
     if (found := _COUNTS_X.search(text)) is not None:
         if found.group("enchantments"):
             return {"rule": "counts", "subtype": "enchantment", "activation": 0,
+                    "color": "" if found.group("one") else "WUBRG"}
+        if found.group("elves"):
+            # P19 R21: Wirewood Channeler, every Elf a goldfish's own.
+            return {"rule": "counts", "subtype": "elf", "activation": 0,
                     "color": "" if found.group("one") else "WUBRG"}
         return {"rule": "counts", "subtype": "creature:defender", "activation": 0,
                 "color": "" if found.group("one") else "WUBRG"}
@@ -1877,6 +2072,10 @@ def _read_store(card: OracleCard, stores: list[ManaClause], notes: set) -> dict 
     first = stores[0]
     text = card.oracle_text or ""
     me = _self_reference(card)
+    if first.per_counter == "+1/+1":
+        # P19 R21: Gyre Sage - a counting rule (`_stat_rule`), not a store.
+        notes.add(gettext_noop("mana amount scales with the board"))
+        return None
     if first.per_counter:
         kind, problem = first.per_counter, gettext_noop("mana amount scales with the board")
     else:
@@ -2102,6 +2301,9 @@ def _mana_production(card: OracleCard) -> ManaReading:
                                                    "produces": reading.produces,
                                                    "activation": reading.activation}}
                 reading.amount = 2
+                if found.group("color"):
+                    # P19 R21: Raucous Audience's {G}{G}.
+                    reading.produces = {found.group("color"): 2}
     elif one_shots and "Creature" not in type_line:
         chosen = one_shots[0]
         reading.amount, reading.produces = chosen.amount, chosen.produces
@@ -2505,7 +2707,11 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
 
     cost = parse_mana_cost(card.mana_cost)
     kind = derive_kind(card, tags)
-    roles = sorted({ROLE_FROM_TAG[slug] for slug in tags if slug in ROLE_FROM_TAG})
+    if _FLIP_AT_CREATURES.search(text.split("//", 1)[0]):
+        # P19 R21: Growing Rites of Itlimoc is cast as the enchantment it is;
+        # the land is its back face.
+        kind = DerivedProfile.Kind.ENCHANTMENT
+    roles =sorted({ROLE_FROM_TAG[slug] for slug in tags if slug in ROLE_FROM_TAG})
     if "tutor" in roles and _finds_only_lands(tags, branches):
         roles.remove("tutor")
     if "reanimate" in roles and _returns_no_creature(tags, revivals):
@@ -2522,6 +2728,11 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     mana_rule = _mana_rule(card, kind)
     if mana_rule is not None:
         mana.notes = [note for note in mana.notes if note not in _RULE_EXPLAINS]
+        if mana_rule.get("once"):
+            # P19 R21: Vivi's "only during your turn and only once each turn".
+            mana.notes = [note for note in mana.notes
+                          if note != "its mana is restricted to certain spells or moments"]
+    growth = _growth(card, kind, mana_rule)
     treasures = _treasures(card, kind)
     if treasures and not _GRANTED.search(_TREASURE_REMINDER.sub("", text)):
         # The quoted ability was only the Treasure's own reminder text, and
@@ -2587,7 +2798,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     # is to report it rather than to pick a side. Sol Ring is the shape: the
     # `Add {C}{C}` clause is readable, but the cards this catches are the ones
     # where it is not and a single mana slipped through looking correct.
-    counts = mana_rule is not None and mana_rule["rule"] == "counts"
+    counts = mana_rule is not None and (mana_rule["rule"] == "counts"
+                                        or bool(mana_rule.get("with_counter")))
     altar = mana.sacrifice is not None and (mana.sacrifice["amount"] or 0) > 1
     if MULTIPLE_MANA_TAG in tags and amount == 1 and not counts and not altar \
             and mana.tap_mana is None and mana.store is None:
@@ -2642,6 +2854,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mox=mana.mox,
         mana_mills=mana.mills,
         mana_store=mana.store,
+        growth=growth,
         triggers=triggers.found,
         cost_reduction=_first_number(_COST_REDUCTION, text),
         draws_cards=draw.cards,
@@ -2774,6 +2987,7 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "discard_cost",
             "additional_cost",
             "sacrifice_mana", "mana_from_hand", "tap_mana", "mox", "mana_mills", "mana_store",
+            "growth",
             "triggers",
             "discards_after", "puts_back",
             "draws_x",

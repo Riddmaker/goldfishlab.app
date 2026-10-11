@@ -10285,3 +10285,201 @@ msgstr ""
 " Everflowing Chalice est lancé avec le multikicker comme un sort avec X, et "
 "lui, Astral Cornucopia et Empowered Autogenerator produisent un mana par "
 "marqueur. La page de votre deck indique tout cela à côté de chaque carte."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to its power"
+msgstr "%(color)s égal à sa force"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to the greatest power among your creatures"
+msgstr "%(color)s égal à la plus grande force parmi vos créatures"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to the greatest toughness among your other creatures"
+msgstr "%(color)s égal à la plus grande endurance parmi vos autres créatures"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each +1/+1 counter on it"
+msgstr "un %(color)s pour chaque marqueur +1/+1 sur elle"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts its power as the turn's mana is opened: the power printed on it and "
+"its +1/+1 counters, no pumps or anthems; counters it gets later in the turn "
+"count from the next turn"
+msgstr ""
+"compte sa force au moment où le mana du tour est ouvert : la force imprimée "
+"et ses marqueurs +1/+1, sans bonus temporaires ni effets d'anthem ; les "
+"marqueurs reçus plus tard dans le tour comptent à partir du tour suivant"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts the greatest power among your creatures as the turn's mana is opened:"
+" printed power and +1/+1 counters, no pumps or anthems"
+msgstr ""
+"compte la plus grande force parmi vos créatures au moment où le mana du tour"
+" est ouvert : force imprimée et marqueurs +1/+1, sans bonus temporaires ni "
+"effets d'anthem"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts the greatest toughness among your other creatures as the turn's mana "
+"is opened: printed toughness and +1/+1 counters, no pumps or anthems"
+msgstr ""
+"compte la plus grande endurance parmi vos autres créatures au moment où le "
+"mana du tour est ouvert : endurance imprimée et marqueurs +1/+1, sans bonus "
+"temporaires ni effets d'anthem"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts its +1/+1 counters as the turn's mana is opened; counters it gets "
+"later in the turn count from the next turn"
+msgstr ""
+"compte ses marqueurs +1/+1 au moment où le mana du tour est ouvert ; les "
+"marqueurs reçus plus tard dans le tour comptent à partir du tour suivant"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a +1/+1 counter for each noncreature spell you cast; the damage to the "
+"opponents is not counted"
+msgstr ""
+"reçoit un marqueur +1/+1 pour chaque sort non-créature que vous lancez ; les"
+" blessures infligées aux adversaires ne sont pas comptées"
+
+#: simulations/engine/adapter.py
+msgid ""
+"evolves when a creature enters with greater printed power or toughness plus "
+"counters than it has"
+msgstr ""
+"évolue quand une créature arrive avec une force ou une endurance imprimée "
+"plus marqueurs supérieure à la sienne"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a counter from Increment when a spell's mana value is greater than its "
+"power or toughness; X is not counted"
+msgstr ""
+"reçoit un marqueur grâce à Increment quand la valeur de mana d'un sort est "
+"supérieure à sa force ou à son endurance ; X n'est pas compté"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "as much %(color)s as your devotion to it"
+msgstr "autant de %(color)s que votre dévotion à cette couleur"
+
+#: simulations/engine/adapter.py
+msgid "mana of one colour"
+msgstr "du mana d'une seule couleur"
+
+#: simulations/engine/adapter.py
+msgid "pays the coloured mana its ability costs with any mana, as generic"
+msgstr ""
+"paie le mana coloré que coûte sa capacité avec n'importe quel mana, comme du"
+" générique"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gives its {T}: Add {G} only to creatures with a +1/+1 counter; other kinds "
+"of counters are not counted"
+msgstr ""
+"ne donne son {T}: Add {G} qu'aux créatures avec un marqueur +1/+1 ; les "
+"autres types de marqueurs ne sont pas comptés"
+
+#: simulations/engine/adapter.py
+msgid ""
+"turns into its land at your end step once you control enough creatures, and "
+"makes mana from your next turn on; it never counts as a land drop"
+msgstr ""
+"se transforme en son terrain lors de votre étape de fin dès que vous "
+"contrôlez assez de créatures, et produit du mana à partir de votre tour "
+"suivant ; elle ne compte jamais comme un terrain joué"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your creatures with a counter tap for %(mana)s"
+msgstr "vos créatures avec un marqueur s'engagent pour %(mana)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts its counters as it enters on the creatures they make the most mana with"
+" - Incubation Druid first, then creatures without a mana ability - and on "
+"creatures that were there before this turn rather than new ones"
+msgstr ""
+"place ses marqueurs en arrivant sur les créatures avec lesquelles ils "
+"produisent le plus de mana - Incubation Druid d'abord, puis les créatures "
+"sans capacité de mana - et sur des créatures présentes avant ce tour plutôt "
+"que sur des nouvelles"
+
+#: simulations/engine/adapter.py
+msgid ""
+"adapts as soon as the mana left after the turn's spells and land searches "
+"pays for it, before a spell with X takes the rest"
+msgstr ""
+"s'adapte dès que le mana restant après les sorts et recherches de terrain du"
+" tour suffit à la payer, avant qu'un sort avec X ne prenne le reste"
+
+#: simulations/engine/adapter.py
+msgid ""
+"adds one more counter each time the engine puts +1/+1 counters on one of "
+"your creatures"
+msgstr ""
+"ajoute un marqueur de plus chaque fois que le moteur place des marqueurs "
+"+1/+1 sur une de vos créatures"
+
+#: simulations/engine/adapter.py
+msgid ""
+"draws a card when one of your creatures enters with more power than each "
+"other creature; a goldfish's opponents have no creatures"
+msgstr ""
+"pioche une carte quand une de vos créatures arrive avec une force supérieure"
+" à celle de chaque autre créature ; les adversaires d'un goldfish n'ont pas "
+"de créatures"
+
+#: simulations/engine/adapter.py
+msgid ""
+"takes the creature of highest mana value among the cards it looks at, and "
+"puts the rest on the bottom"
+msgstr ""
+"prend la créature de plus haute valeur de mana parmi les cartes regardées, "
+"et met le reste au-dessous"
+
+#: changelog/entries.py
+msgid "Selvala, Marwyn, Rishkar and mana by power"
+msgstr "Selvala, Marwyn, Rishkar et le mana selon la force"
+
+#: changelog/entries.py
+msgid ""
+"Creatures whose mana counts power or +1/+1 counters now make it in a "
+"simulated game. A creature's power is the power printed on it plus its +1/+1"
+" counters, no pumps or anthems: Kami of Whispered Hopes, Marwyn and Vivi "
+"Ornitier tap for their own, Selvala for the greatest, Arbor Adherent for the"
+" greatest toughness of the others, Gyre Sage for its counters. The counters "
+"come from creatures that enter with them, Rishkar, Evolve, Increment, Adapt "
+"- Incubation Druid makes three - and every other Elf that enters, and Kami "
+"adds one more each time. Growing Rites of Itlimoc finds a creature and turns"
+" into its land at four creatures. Your deck page says all of this beside "
+"each card."
+msgstr ""
+"Les créatures dont le mana compte la force ou les marqueurs +1/+1 le "
+"produisent désormais dans une partie simulée. La force d'une créature est sa"
+" force imprimée plus ses marqueurs +1/+1, sans bonus temporaires ni effets "
+"d'anthem : Kami of Whispered Hopes, Marwyn et Vivi Ornitier s'engagent pour "
+"la leur, Selvala pour la plus grande, Arbor Adherent pour la plus grande "
+"endurance des autres, Gyre Sage pour ses marqueurs. Les marqueurs viennent "
+"des créatures qui arrivent avec, de Rishkar, Evolve, Increment, Adapt - "
+"Incubation Druid en produit trois - et de chaque autre Elfe qui arrive, et "
+"Kami en ajoute un de plus à chaque fois. Growing Rites of Itlimoc trouve une"
+" créature et se transforme en son terrain à quatre créatures. La page de "
+"votre deck explique tout cela à côté de chaque carte."
+
+#: playtest/views.py
+msgid "Adapted"
+msgstr "Adapté"
+
+#: templates/playtest/_board.html
+msgid "Adapt"
+msgstr "Adapter"

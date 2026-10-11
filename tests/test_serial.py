@@ -26,6 +26,7 @@ from simulation.cards import (
     CostReduction,
     DeckDefinition,
     EndStepSpec,
+    Growth,
     LandSearch,
     ManaAbility,
     SpellFilter,
@@ -132,6 +133,11 @@ EVERYTHING = Card(
     mana_mills=1,
     store=Store("free", "R", amount=3, per_use=3, start_from="colors", grows="red_spell",
                 empty="dies"),
+    toughness=5,
+    growth=Growth(enters=1, enters_x=True, grows=("evolve", "enters:elf"), adapt=3,
+                  adapt_cost=ManaCost(pips=(("G", 2),), generic=3), bonus=1, puts=2,
+                  draws_on_greatest=True, look=4),
+    flip=4,
 )
 
 

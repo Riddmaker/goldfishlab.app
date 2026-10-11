@@ -236,6 +236,19 @@
                     </button>
                   </form>
                 {% endif %}
+                {% if tile.adaptable %}
+                  <form method="post" action="{% url 'playtest:act' session.id %}"
+                        hx-post="{% url 'playtest:act' session.id %}"
+                        hx-target="#board" hx-swap="outerHTML" class="mt-1">
+                    {% csrf_token %}
+                    <input type="hidden" name="kind" value="adapt">
+                    <input type="hidden" name="index" value="{{ tile.index }}">
+                    <button type="submit"
+                            class="w-full border border-ink-800 bg-ink-900 px-2 py-1 text-xs text-parchment-100 hover:bg-ink-800">
+                      {% translate "Adapt" %}
+                    </button>
+                  </form>
+                {% endif %}
                 {% if tile.altar %}
                   <form method="post" action="{% url 'playtest:act' session.id %}"
                         hx-post="{% url 'playtest:act' session.id %}"

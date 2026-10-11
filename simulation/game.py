@@ -209,6 +209,11 @@ class Game:
         #: P19 R20: permanents whose last counter went this turn - sacrificed,
         #: dead or back in hand as the next turn begins.
         self.emptied: list[str] = []
+        #: P19 R21: the +1/+1 counters on each creature, by name - apart from
+        #: the counters a store keeps for its mana.
+        self.plus_counters: dict[str, int] = {}
+        #: P19 R21: the cards that turned into their land (Itlimoc), by name.
+        self.flipped: list[str] = []
         self.log = []
 
     @property
@@ -411,6 +416,7 @@ class Game:
                 if permanent.store is not None and permanent.store.grows == "red_spell":
                     self.counters[permanent.name] = self.counters.get(permanent.name, 0) + 1
                     self._bank(permanent)
+        self._grow_on_cast(card)
         self.fire(CAST, card)
 
     def make_landers(self, card) -> None:
@@ -815,7 +821,7 @@ class Game:
     def _stored_others(self) -> list:
         """Enchantments that tap for kept counters (Mana Bloom, P19 R20)."""
         return self._untapped([card for card in self.other_permanents
-                               if card.store is not None
+                               if (card.store is not None or card.flip)
                                and self.mana_ability(card) is not None])
 
     def mana_extras(self, *, per_source: bool = False) -> list[Extra]:
@@ -1039,7 +1045,7 @@ class Game:
             return self.life <= condition.count
         if kind == "power":
             return any(CREATURE in (permanent.types or {permanent.kind})
-                       and permanent.power >= condition.count
+                       and self.power(permanent) >= condition.count
                        for permanent in self.battlefield)
         if kind == "reveal":
             return any(other is not card and other.subtypes & condition.types
@@ -1147,7 +1153,7 @@ class Game:
         own = self._own_mana_ability(card, entering=entering)
         if card.kind != CREATURE:
             return own
-        granted = self._granted_to_creatures()
+        granted = self._granted_to_creatures(card)
         if granted is None or (own is not None
                                and own.total - own.activation_generic > granted.total):
             return own
@@ -1162,17 +1168,22 @@ class Game:
                 return ability
         return None
 
-    def _granted_to_creatures(self):
+    def _granted_to_creatures(self, card=None):
         """The mana ability creatures have from a permanent in play, or None.
 
         The widest, when there are several: Cryptolith Rite's any colour over
-        Citanul Hierophants' {G}.
+        Citanul Hierophants' {G}. Rishkar's goes only to a creature with a
+        counter on it (P19 R21).
         """
+        countered = card is not None and bool(self.plus_counters.get(card.name))
         best = None
         for permanent in self.battlefield:
             for ability in permanent.mana_abilities:
-                if ability.rule == GRANT and ability.subtype == "creature" and (
-                        best is None or len(ability.produces[0][0]) > len(best.produces[0][0])):
+                if ability.rule != GRANT or not (
+                        ability.subtype == "creature"
+                        or (ability.subtype == "creature:counter" and countered)):
+                    continue
+                if best is None or len(ability.produces[0][0]) > len(best.produces[0][0]):
                     best = ability
         return None if best is None else ManaAbility(FLAT, best.produces)
 
@@ -1190,6 +1201,9 @@ class Game:
             return ManaAbility(FLAT, {colors: 1}) if colors else None
         if card.store is not None and (stored := self._store_ability(card)) is not None:
             return stored
+        if card.flip and card.name not in self.flipped:
+            # Growing Rites of Itlimoc: no mana before it turns (P19 R21).
+            return None
         counted = None
         for ability in card.mana_abilities:
             if ability.rule == COUNTS and ability.subtype == "colors_among":
@@ -1211,7 +1225,9 @@ class Game:
                 colors = self.lands_could_produce(card)
                 if not colors:
                     continue
-                return ManaAbility(FLAT, {colors: 1},
+                # Incubation Druid: three with a +1/+1 counter (P19 R21).
+                amount = ability.times if self.plus_counters.get(card.name) else 1
+                return ManaAbility(FLAT, {colors: amount},
                                    activation_generic=ability.activation_generic)
             if ability.rule != FLAT:
                 continue
@@ -1237,6 +1253,11 @@ class Game:
             return sum(1 for found in self.graveyard
                        if CREATURE in (found.types or {found.kind})
                        and wanted in found.mana_cost.colors), color
+        if what in ("power", "counters", "power:greatest", "toughness:greatest_other"):
+            return self._stat_count(what, card), color or self.wanted_color(card)
+        if what.startswith("devotion:"):
+            # Karametra's Acolyte: its one colour (P19 R21).
+            return self.devotion(what.split(":", 1)[1]), color
         if what == "devotion":
             devotion = {each: self.devotion(each) for each in COLORS}
             best = max(COLORS, key=lambda each: (devotion[each], each == color))
@@ -1457,11 +1478,11 @@ class Game:
         ``x`` is what X was paid as, ``colors`` how many colours were open
         for it - what a store's counters start from (P19 R20).
         """
-        self._place(card, pool)
+        self._place(card, pool, x)
         if card.store is not None and card.kind != RITUAL:
             self._store_enters(card, x, colors)
 
-    def _place(self, card, pool: ManaPool) -> None:
+    def _place(self, card, pool: ManaPool, x: int = 0) -> None:
         """The card into its zone, a ritual's mana into the pool."""
         if card.kind == RITUAL:
             color, gain = self.ritual_mana(card)
@@ -1483,6 +1504,7 @@ class Game:
             self.creatures.append(card)
             self.arrived.append(card.name)
             self.note(f"{card.name}")
+            self._creature_enters(card, x)
             self.fire(ENTERS, card)
             return
         if card.kind in (PLANESWALKER,):
@@ -1492,10 +1514,129 @@ class Game:
         if card.kind in (ENCHANTMENT, ARTIFACT):
             self.other_permanents.append(card)
             self.note(f"{card.name}")
+            if card.growth is not None and card.growth.look:
+                self._look_for_creature(card)
             return
         # Sorcery / instant
         self.graveyard.append(card)
         self.note(f"{card.name}")
+
+    # --- +1/+1 counters and power (P19 R21) ---------------------------------
+
+    def power(self, card) -> int:
+        """Its printed power and its +1/+1 counters - no pumps, no anthems."""
+        return card.power + self.plus_counters.get(card.name, 0)
+
+    def toughness(self, card) -> int:
+        """Its printed toughness and its +1/+1 counters."""
+        return card.toughness + self.plus_counters.get(card.name, 0)
+
+    def _stat_count(self, what: str, card) -> int:
+        """Power, toughness or counters, as a counting ability reads them."""
+        if what == "power":
+            return self.power(card)
+        if what == "counters":
+            return self.plus_counters.get(card.name, 0)
+        if what == "power:greatest":
+            return max((self.power(each) for each in self.creatures), default=0)
+        return max((self.toughness(each) for each in self.creatures if each is not card),
+                   default=0)
+
+    def add_counters(self, card, count: int) -> None:
+        """+1/+1 counters on a creature - one more for each Kami of Whispered
+        Hopes or Hardened Scales."""
+        if count <= 0:
+            return
+        count += sum(each.growth.bonus for each in self.battlefield
+                     if each.growth is not None)
+        self.plus_counters[card.name] = self.plus_counters.get(card.name, 0) + count
+        self.note(f"  -> {card.name} gets {count} +1/+1 counter(s)")
+
+    def _creature_enters(self, card, x: int = 0) -> None:
+        """The counters a creature arrives with, and what its arrival grows."""
+        growth = card.growth
+        if growth is not None:
+            self.add_counters(card, x if growth.enters_x else growth.enters)
+            if growth.puts:
+                for target in self.counter_targets(growth.puts):
+                    self.add_counters(target, 1)
+        for other in list(self.creatures):
+            spec = other.growth
+            if other is card or spec is None:
+                continue
+            for grows in spec.grows:
+                if grows.startswith("enters:") and grows[7:] in card.creature_types:
+                    self.add_counters(other, 1)
+                elif grows == "evolve" and (self.power(card) > self.power(other)
+                                            or self.toughness(card) > self.toughness(other)):
+                    self.add_counters(other, 1)
+            if spec.draws_on_greatest and all(
+                    self.power(card) > self.power(each)
+                    for each in self.creatures if each is not card):
+                drawn = self.draw(1)
+                self.note(f"  -> {other.name}: {len(drawn)} card")
+
+    def counter_targets(self, count: int) -> list:
+        """Where Rishkar's counters go: on the creatures they make the most
+        mana on - Incubation Druid's two more first - then the ones that were
+        there before this turn."""
+        def gain(creature) -> int:
+            before = self.mana_ability(creature)
+            had = self.plus_counters.get(creature.name, 0)
+            self.plus_counters[creature.name] = had + 1
+            after = self.mana_ability(creature)
+            if had:
+                self.plus_counters[creature.name] = had
+            else:
+                del self.plus_counters[creature.name]
+            return ((after.total if after is not None else 0)
+                    - (before.total if before is not None else 0))
+        ranked = sorted(self.creatures, key=lambda each: (
+            -gain(each), each.name in self.arrived, each.name))
+        return ranked[:count]
+
+    def _grow_on_cast(self, spell) -> None:
+        """Vivi Ornitier's noncreature spells, Topiary Lecturer's Increment."""
+        noncreature = CREATURE not in self.types_of(spell)
+        for creature in list(self.creatures):
+            spec = creature.growth
+            if spec is None:
+                continue
+            for grows in spec.grows:
+                if grows == "cast:noncreature" and noncreature:
+                    self.add_counters(creature, 1)
+                elif grows == "increment" and spell.mv > min(self.power(creature),
+                                                             self.toughness(creature)):
+                    self.add_counters(creature, 1)
+
+    def _look_for_creature(self, card) -> None:
+        """Growing Rites of Itlimoc: a creature from the top cards into the
+        hand - the one of highest mana value - the rest to the bottom."""
+        seen = self.library[:card.growth.look]
+        del self.library[:card.growth.look]
+        creatures = [each for each in seen if CREATURE in self.types_of(each)]
+        if creatures:
+            found = max(creatures, key=lambda each: (each.mv, each.name))
+            seen.remove(found)
+            self.hand.append(found)
+            self.note(f"  -> {card.name}: {found.name} to hand")
+        self.library.extend(seen)
+
+    def can_adapt(self, card, pool: ManaPool) -> bool:
+        """Can ``card`` adapt now - no counters yet, and the mana for it?"""
+        growth = card.growth
+        return (growth is not None and growth.adapt > 0 and growth.adapt_cost is not None
+                and any(each is card for each in self.creatures)
+                and not self.plus_counters.get(card.name)
+                and pool.can_pay_cost(growth.adapt_cost, life=self.life))
+
+    def adapt(self, card, pool: ManaPool) -> None:
+        """Pay for Adapt and put the counters on (Incubation Druid)."""
+        if not self.can_adapt(card, pool):
+            raise ValueError(f"{card.name} cannot adapt from {pool}")
+        pool.pay_cost(card.growth.adapt_cost, life=self.life)
+        self.note(f"{card.name} adapts")
+        self.add_counters(card, card.growth.adapt)
 
     # --- Mana kept as counters, energy or a Food (P19 R20) ------------------
 
@@ -1695,6 +1836,7 @@ class Game:
         self.creatures.append(commander)
         self.arrived.append(commander.name)
         self.note(f"{commander.name} (commander)")
+        self._creature_enters(commander)
         self.fire(ENTERS, commander)
 
     def _commander_cost(self):
@@ -1783,6 +1925,12 @@ class Game:
         is why they are drawn straight away here. Capped conservatively: hand
         size 7, life never below 25.
         """
+        for card in self.other_permanents:
+            if card.flip and card.name not in self.flipped \
+                    and len(self.creatures) >= card.flip:
+                # Growing Rites of Itlimoc becomes Itlimoc (P19 R21).
+                self.flipped.append(card.name)
+                self.note(f"{card.name} transforms ({len(self.creatures)} creatures)")
         for card in self._triggers(lambda c: c.end_step is not None):
             spec = card.end_step
             want = max(0, spec.max_hand - len(self.hand))

@@ -358,6 +358,27 @@ class TutorSpec:
     #: (Enlightened Tutor: artifact or enchantment); empty means any card.
     to_top: bool = False
     types: frozenset[str] = field(default_factory=frozenset)
+    #: P19 R23: a search to hand may find any of ``types`` - card types,
+    #: subtypes or creature types (Open the Armory: aura, equipment) - with
+    #: ``max_mv`` or less (Spellseeker). ``land_tapped``: a land it finds goes
+    #: onto the battlefield tapped instead (Archdruid's Charm), and it looks
+    #: for one only while the hand holds no land.
+    land_tapped: bool = False
+    #: P19 R23: Gifts Ungiven - this many cards found, ``count`` of them to
+    #: hand: the opponent puts the best ones into the graveyard.
+    gifts: int = 0
+    #: P19 R23: Gamble - cards discarded at random afterwards.
+    random_discard: int = 0
+    #: P19 R23: Demonic Counsel - any card with delirium (four card types in
+    #: the graveyard).
+    delirium_any: bool = False
+    #: P19 R23: Defense of the Heart - not as it is cast but in an upkeep,
+    #: once an opponent is assumed to have three creatures; it is sacrificed.
+    upkeep: str = ""
+
+
+#: ``TutorSpec.upkeep``: an opponent controls three or more creatures.
+OPPONENT_CREATURES = "opponent_creatures"
 
 
 @dataclass(frozen=True)
@@ -398,6 +419,18 @@ class LandSearch:
         sacrifice_other: Wight of the Reliquary: another permanent of these
             types is sacrificed as part of the cost.
         discard: Cards discarded as part of the cost (Silverglade Pathfinder).
+        also: P19 R23: land types found beside the basic lands (Circuitous
+            Route's Gates).
+        power_at, power_count: P19 R23: Entish Restoration - this many lands
+            instead beside a creature with at least this much power.
+        by_power: P19 R23: as many lands as the greatest power among your
+            creatures (Traverse the Outlands).
+        repeat: P19 R23: Claim Jumper - searched again this often, while the
+            condition still holds.
+        tempting: P19 R23: Tempt with Discovery - one more land for each
+            opponent assumed to take the offer.
+        by_x: P19 R23: X lands (Open the Way); ``reveal``: off the top of the
+            library rather than searched for.
     """
 
     battlefield: int = 1
@@ -418,6 +451,14 @@ class LandSearch:
     land_cost_types: frozenset[str] = field(default_factory=frozenset)
     sacrifice_other: frozenset[str] = field(default_factory=frozenset)
     discard: int = 0
+    also: frozenset[str] = field(default_factory=frozenset)
+    power_at: int = 0
+    power_count: int = 0
+    by_power: bool = False
+    repeat: int = 0
+    tempting: int = 0
+    by_x: bool = False
+    reveal: bool = False
 
 
 @dataclass(frozen=True)
@@ -591,6 +632,9 @@ RESOLVES = "resolves"
 #: The opponents' turns, once a round, assumed: Smothering Tithe's Treasure
 #: from the one opponent a round who does not pay, Rhystic Study's card.
 OPPONENT_TURNS = "opponents"
+#: P19 R23: "Whenever you sacrifice an artifact": Crime Novelist. A Treasure
+#: spent is one; ``filter`` is ``artifact``.
+SACRIFICED = "sacrificed"
 
 #: ``CAST`` filters.
 INSTANT_OR_SORCERY = "instant_sorcery"
@@ -616,6 +660,7 @@ class Trigger:
             Before the main phase opens it waits for the pool.
         draw: Cards it draws.
         life: Life it costs (Lotho: 1).
+        counter: +1/+1 counters it puts on the card itself (Crime Novelist).
     """
 
     event: str
@@ -626,6 +671,7 @@ class Trigger:
     mana_color: str = ""
     draw: int = 0
     life: int = 0
+    counter: int = 0
 
 
 @dataclass(frozen=True)
@@ -646,7 +692,12 @@ class CombatTrigger:
         treasures: Treasure tokens it makes (a Gold token is one), each one
             mana of ``treasure_mana``.
         mana: Mana it adds and keeps to the end of the turn, "RRRGGG".
-        search: A basic land onto the battlefield, tapped.
+        search: A basic land onto the battlefield, tapped - ``untapped``
+            (Sword of Hearth and Home), not.
+
+    P19 R23: ``who`` ``total`` is Neheb, the Eternal: ``mana`` once for each
+    point of combat damage the attackers deal, which in a goldfish is the
+    life the opponents lost.
     """
 
     event: str
@@ -656,6 +707,7 @@ class CombatTrigger:
     treasure_mana: str = ""
     mana: str = ""
     search: bool = False
+    untapped: bool = False
 
 
 #: What a Lander token does (P19 R14): "{2}, {T}, Sacrifice this token: Search
@@ -664,6 +716,8 @@ LANDER = LandSearch(when="activate", cost=ManaCost(generic=2), taps=True, sacrif
 
 #: P19 R22: what a search in combat does - Sword of the Animist.
 COMBAT_SEARCH = LandSearch(when="combat")
+#: P19 R23: Sword of Hearth and Home's land enters untapped.
+COMBAT_SEARCH_UNTAPPED = LandSearch(when="combat", tapped=False)
 
 #: P19 R22: Living weapon's token, a 0/0 the Equipment makes a 1/1 or more.
 GERM = "Germ"
@@ -787,6 +841,9 @@ class Card:
     #: P19 R9: the smallest X worth casting it for. A deck author may want
     #: Stroke of Genius held until X is four.
     x_min: int = 1
+    #: P19 R23: the largest X allowed (Open the Way: the number of players).
+    #: 0: no limit.
+    x_max: int = 0
     #: P19 R9: it draws X cards (Stroke of Genius, Blue Sun's Zenith), on
     #: top of ``draw_on_cast``.
     draws_x: bool = False

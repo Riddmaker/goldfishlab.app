@@ -389,6 +389,49 @@ _TO_TOP = re.compile(
     re.IGNORECASE)
 _TOP_TYPES = frozenset({"artifact", "creature", "enchantment", "instant", "sorcery",
                         "planeswalker", "land"})
+#: P19 R23: a search to hand for one card of a type or a subtype, with or
+#: without a mana value limit - Open the Armory ("an Aura or Equipment card"),
+#: Solve the Equation, Spellseeker, Ranger-Captain of Eos. The words are
+#: matched against the card's types, its subtypes and its creature types.
+_HAND_TUTOR = re.compile(
+    r"search your library for an? (?P<what>[A-Za-z]+(?: or [A-Za-z]+)?) card"
+    r"(?: with mana value (?P<mv>\d+) or less)?, reveal it, put it into your hand, "
+    r"then shuffle\.", re.IGNORECASE)
+#: P19 R23: Demonic Counsel - a Demon, or with delirium any card.
+_DELIRIUM_ANY = re.compile(
+    r"^Search your library for an? (?P<what>[A-Z][a-z]+) card, reveal it, put it into your "
+    r"hand, then shuffle\.\nDelirium — If there are four or more card types among cards in "
+    r"your graveyard, instead search your library for any card, put it into your hand, then "
+    r"shuffle\.$")
+#: P19 R23: Gifts Ungiven - four cards, an opponent splits them.
+_GIFTS = re.compile(
+    r"Search your library for up to four cards with different names and reveal them\. Target "
+    r"opponent chooses two of those cards\. Put the chosen cards into your graveyard and the "
+    r"rest into your hand\.")
+#: P19 R23: Archdruid's Charm's first mode - a land onto the battlefield tapped,
+#: a creature to hand.
+_CREATURE_OR_LAND = re.compile(
+    r"Search your library for a creature or land card and reveal it\. Put it onto the "
+    r"battlefield tapped if it's a land card\. Otherwise, put it into your hand\.")
+#: P19 R23: Defense of the Heart.
+_UPKEEP_CREATURES = re.compile(
+    r"^At the beginning of your upkeep, if an opponent controls three or more creatures, "
+    r"sacrifice this enchantment, search your library for up to two creature cards, put "
+    r"those cards onto the battlefield, then shuffle\.$", re.MULTILINE)
+#: P19 R23: Hoarding Broodlord - the card is exiled, and may be played from
+#: there: as good as in hand.
+_EXILED_PLAYABLE = re.compile(
+    r"search your library for a card, exile it face down, then shuffle\. For as long as that "
+    r"card remains exiled, you may play it\.", re.IGNORECASE)
+#: P19 R23: Scheming Symmetry - you are one of the two players.
+_EACH_TO_TOP = re.compile(
+    r"Choose two target players\. Each of them searches their library for a card, then "
+    r"shuffles and puts that card on top\.")
+#: P19 R23: a search of the opponents' libraries only (Opposition Agent,
+#: Praetor's Grasp): nothing in a goldfish, and said so.
+_OPPONENTS_SEARCH = re.compile(
+    r"You control your opponents while they're searching their libraries"
+    r"|^Search target opponent's library for a card", re.MULTILINE)
 
 #: "As an additional cost to cast this spell, sacrifice a creature." The engine
 #: pays mana and nothing else, so it casts Diabolic Intent for {2}{B} and gets a
@@ -993,6 +1036,8 @@ _TRIGGER_EVENTS = (
         r"Whenever (?P<self>[\w,' ]+?) or another nontoken creature you control dies")),
     ("enters", "", re.compile(
         r"Whenever (?P<self>[\w,' ]+?) or another (?P<type>[A-Z][a-z]+) you control enters")),
+    # P19 R23: Crime Novelist - a Treasure spent counts.
+    ("sacrificed", "artifact", re.compile(r"Whenever you sacrifice an artifact")),
 )
 #: What the trigger does, the rest of its line.
 _TRIGGER_EFFECT = re.compile(
@@ -1003,7 +1048,9 @@ _TRIGGER_EFFECT = re.compile(
     r"|create a 0/1 colorless Eldrazi Spawn creature token(?P<spawn>)"
     r"(?: with \"Sacrifice this token: Add \{C\}\.\"|\. It has \"Sacrifice this token: Add "
     r"\{C\}\.\")"
-    r"|add (?:(?P<any>one mana of any color)|(?P<pips>(?:\{[WUBRGC]\})+)))"
+    # P19 R23: Crime Novelist's counter comes with its mana.
+    r"|(?P<counter>put a \+1/\+1 counter on this creature and )?"
+    r"add (?:(?P<any>one mana of any color)|(?P<pips>(?:\{[WUBRGC]\})+)))"
     # The Spawn's quoted ability ends the line itself.
     r"(?:\.(?P<keep> Until end of turn, you don't lose this mana as steps and phases end\.)?)?$")
 #: P19 R16: what the opponents do in a round, played on an assumption the card
@@ -1092,6 +1139,8 @@ def _trigger_line(line: str, card: OracleCard) -> dict | None:
             read["treasures"] = _word_number(effect.group("treasures") or "a")
         if effect.group("life"):
             read["life"] = int(effect.group("life"))
+        if effect.group("counter"):
+            read["counter"] = 1
         return read
     return None
 
@@ -1138,7 +1187,16 @@ _COMBAT_EFFECT = re.compile(
     r"|add (?P<pips>(?:\{[WUBRGC]\})+)\. Until end of turn, you don't lose this mana as steps "
     r"and phases end\."
     r"|(?P<search>search your library for a basic land card, put it onto the battlefield "
-    r"tapped, then shuffle\.))(?P<more> .+)?$")
+    r"tapped, then shuffle\.)"
+    # P19 R23: Sword of Hearth and Home - its creature to flicker is not used.
+    r"|(?P<flicker>exile up to one target creature you own, then search your library for a "
+    r"basic land card\. Put both cards onto the battlefield under your control, then "
+    r"shuffle\.))(?P<more> .+)?$")
+#: P19 R23: Neheb, the Eternal - {R} for each life the opponents lost, which
+#: in a goldfish is the combat damage dealt.
+_POSTCOMBAT_LOSS = re.compile(
+    r"^At the beginning of each of your postcombat main phases, add \{(?P<color>[WUBRG])\} for "
+    r"each 1 life your opponents have lost this turn\.$")
 #: "Equipped creature gets +1/+1 and has "Whenever this creature attacks,
 #: ..."" (Diamond Pick-Axe), Sticky Fingers' "Enchanted creature has menace
 #: and "...", and Guild Artisan's "Commander creatures you own have "..."".
@@ -1188,6 +1246,8 @@ def _combat_trigger(line: str, card: OracleCard, host: str = "") -> dict | None:
     read = {"event": "damage" if "damage" in event else "attacks"} | who
     if effect.group("search") is not None:
         read["search"] = True
+    elif effect.group("flicker") is not None:
+        read |= {"search": True, "untapped": True, "flicker": True}
     elif effect.group("pips"):
         read["mana"] = "".join(re.findall(r"\{(\w)\}", effect.group("pips")))
     else:
@@ -1227,6 +1287,10 @@ def _combat(card: OracleCard, kind: str) -> tuple[dict | None, frozenset[str]]:
             read.add(line)
         elif _TREASURE_BONUS.match(line):
             found["treasure_bonus"] = 1
+            read.add(line)
+        elif (loss := _POSTCOMBAT_LOSS.match(line)) is not None:
+            found["triggers"].append({"event": "damage", "who": "total",
+                                      "mana": loss.group("color")})
             read.add(line)
         elif re.match(r"^Whenever this Vehicle enters or attacks, (?:you may )?search ", line):
             found["vehicle"] = True
@@ -2486,12 +2550,16 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
     count to 1 - is wrong on every Buried Alive and right often enough that
     nobody would notice.
     """
+    text = card.oracle_text or ""
+    special = _special_tutor(text)
+    if special is not None:
+        # Read whole off the text, tags or not (P19 R23).
+        return special
     if TUTOR_TAG not in tags:
         return Tutor()
 
     zones = {TUTOR_ZONE_FROM_TAG[slug] for slug in tags if slug in TUTOR_ZONE_FROM_TAG}
     kinds = {TUTOR_KIND_FROM_TAG[slug] for slug in tags if slug in TUTOR_KIND_FROM_TAG}
-    text = card.oracle_text or ""
 
     if len(_SEARCH_CLAUSE.findall(text)) > 1:
         return Tutor(reason=gettext_noop("searches the library more than once; not modelled"))
@@ -2548,7 +2616,17 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
         return Tutor(zone=zone, count=count,
                      reason=gettext_noop(
                          "tutors onto the battlefield, which the engine cannot do"))
-    if tags & TUTOR_UNEXPRESSIBLE_TAGS:
+    unexpressible = bool(tags & TUTOR_UNEXPRESSIBLE_TAGS)
+    found = _HAND_TUTOR.search(text)
+    line_start = text.rfind("\n", 0, found.start()) + 1 if found else 0
+    if (unexpressible or len(kinds) > 1) and zone == "hand" and found is not None \
+            and ":" not in text[line_start:found.start()]:
+        # P19 R23: the types or subtypes, and the limit, read off the text -
+        # not an ability's search: Tezzeret's "−3:" is not played.
+        return Tutor(zone="hand", count=1, filter={
+            "types": sorted(word.lower() for word in found.group("what").split(" or ")),
+            "max_mv": int(found.group("mv")) if found.group("mv") else None})
+    if unexpressible:
         return Tutor(zone=zone, count=count,
                      reason=gettext_noop("tutors for something the engine cannot describe"))
     if len(kinds) > 1:
@@ -2556,11 +2634,36 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
                      reason=gettext_noop("tutors for more than one card kind; not modelled"))
 
     if _RANDOM_DISCARD.search(text):
-        return Tutor(zone=zone, count=count,
-                     reason=gettext_noop(
-                         "searches, then discards at random; the discard is not modelled"))
+        # P19 R23: Gamble - the discard is played, at random.
+        return Tutor(zone=zone, count=count, kind=kinds.pop() if kinds else "",
+                     filter={"random_discard": 1})
 
     return Tutor(zone=zone, count=count, kind=kinds.pop() if kinds else "")
+
+
+def _special_tutor(text: str) -> Tutor | None:
+    """The searches of one shape each, read whole off the text (P19 R23), or
+    None: Demonic Counsel, Gifts Ungiven, Archdruid's Charm, Defense of the
+    Heart, Hoarding Broodlord, Scheming Symmetry, and the searches of an
+    opponent's library, which do nothing in a goldfish."""
+    if (found := _DELIRIUM_ANY.search(text)) is not None:
+        return Tutor(zone="hand", count=1, filter={
+            "types": [found.group("what").lower()], "max_mv": None, "delirium_any": True})
+    if _GIFTS.search(text):
+        return Tutor(zone="hand", count=2, filter={"gifts": 4})
+    if _CREATURE_OR_LAND.search(text):
+        return Tutor(zone="hand", count=1, filter={
+            "types": ["creature", "land"], "max_mv": None, "land_tapped": True})
+    if _UPKEEP_CREATURES.search(text):
+        return Tutor(zone="battlefield", count=2, kind="creature", filter={
+            "color": "", "max_mv": None, "upkeep": "opponent_creatures"})
+    if _EXILED_PLAYABLE.search(text):
+        return Tutor(zone="hand", count=1, filter={"exiled": True})
+    if _EACH_TO_TOP.search(text):
+        return Tutor(zone="top", count=1, filter={"types": [], "symmetry": True})
+    if _OPPONENTS_SEARCH.search(text):
+        return Tutor(filter={"opponents": True})
+    return None
 
 
 # --- searching for lands (P19 R2) --------------------------------------------
@@ -2627,6 +2730,70 @@ _SACRIFICE_LAND_FIRST = re.compile(
     r"When (?:this creature|~) enters, you may sacrifice a land\. If you do, search your library")
 #: Krosan Verge: "a Forest card and a Plains card".
 _ONE_OF_EACH = re.compile(r"^(\w+) card and an? (\w+)$")
+#: P19 R23: Keeper of the Accord - in each opponent's end step.
+_OPPONENT_END_IF_BEHIND = re.compile(
+    r"^at the beginning of each opponent's end step, if that player controls more lands than "
+    r"you, (?:you may )?$")
+#: P19 R23: Circuitous Route's Gates beside the basic lands.
+_OR_GATES = " basic land cards and/or Gate cards, "
+#: P19 R23: Entish Restoration - "Sacrifice a land." first, and three instead
+#: of two beside a creature with power 4 or greater.
+_SACRIFICE_LAND_SPELL = re.compile(r"^Sacrifice a land\. (?=Search your library)")
+_INSTEAD_IF_POWER_SEARCH = re.compile(
+    r" If you control a creature with power (?P<power>\d+) or greater, instead search your "
+    r"library for up to (?P<n>\w+) basic land cards, put them onto the battlefield tapped, then "
+    r"shuffle\.")
+#: P19 R23: Traverse the Outlands - as many as the greatest power.
+_BY_POWER_SEARCH = (
+    "for up to X basic land cards, where X is the greatest power among creatures you control. "
+    "Put those cards")
+#: P19 R23: Claim Jumper - "a Plains card and put it onto the battlefield
+#: tapped. Then if an opponent controls more lands than you, repeat this
+#: process once. If you search your library this way, shuffle."
+_REPEAT_ONCE = re.compile(
+    r" card and put it onto the battlefield tapped\. Then if an opponent controls more lands "
+    r"than you, repeat this process once\. If you search your library this way, shuffle\.")
+#: P19 R23: Tempt with Discovery, whole.
+_TEMPT = re.compile(
+    r"^Tempting offer — Search your library for a land card and put it onto the battlefield\. "
+    r"Each opponent may search their library for a land card and put it onto the battlefield\. "
+    r"For each opponent who searches a library this way, search your library for a land card "
+    r"and put it onto the battlefield\. Then each player who searched a library this way "
+    r"shuffles\.$")
+#: P19 R23: Open the Way - X lands from the top, X no more than the players.
+_REVEAL_X_LANDS = re.compile(
+    r"^X can't be greater than the number of players in the game\.\nReveal cards from the top "
+    r"of your library until you reveal X land cards\. Put those land cards onto the battlefield "
+    r"tapped and the rest on the bottom of your library in a random order\.$")
+#: How many accept the tempting offer: one opponent, as said on the card list.
+TEMPTED_OPPONENTS = 1
+#: A Commander game's players, for Open the Way's X.
+PLAYERS = 4
+
+
+def _land_search_shape(text: str, kind: str) -> tuple[str, dict]:
+    """The text a land search is read from, worded the common way, and what
+    the rewording took out (P19 R23): Gates, a land sacrificed first, three
+    lands beside a big creature, as many as the greatest power, a repeat."""
+    extra: dict = {}
+    if _OR_GATES in text:
+        text, extra["also"] = text.replace(_OR_GATES, " basic land cards, "), ["gate"]
+    if kind in (DerivedProfile.Kind.SORCERY, DerivedProfile.Kind.INSTANT) \
+            and _SACRIFICE_LAND_SPELL.match(text):
+        text, extra["sacrifices_land"] = _SACRIFICE_LAND_SPELL.sub("", text), True
+    if (found := _INSTEAD_IF_POWER_SEARCH.search(text)) is not None \
+            and (count := _word_number(found.group("n"))) is not None:
+        text = text.replace(found.group(0), "")
+        extra["power_at"], extra["power_count"] = int(found.group("power")), count
+    if _BY_POWER_SEARCH in text:
+        # The count is the board's, not a number: one stands in for it.
+        text = text.replace(_BY_POWER_SEARCH, "for up to one basic land cards, put those cards")
+        extra["by_power"] = True
+    if (found := _REPEAT_ONCE.search(text)) is not None:
+        text = text.replace(found.group(0), " card, put it onto the battlefield tapped, then "
+                                            "shuffle.")
+        extra["repeat"] = 1
+    return text, extra
 
 
 @dataclass
@@ -2695,6 +2862,14 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     general tutor reading (`_tutor`) goes on as before.
     """
     text = _LANDER_REMINDER.sub("", card.oracle_text or "")
+    if _TEMPT.match(text):
+        # P19 R23: one land, and one more for each opponent who searches too.
+        return LandSearch(spec=_search_spec(battlefield=1, tapped=False, basic=False,
+                                            tempting=TEMPTED_OPPONENTS))
+    if _REVEAL_X_LANDS.match(text):
+        return LandSearch(spec=_search_spec(battlefield=0, tapped=True, basic=False,
+                                            by_x=True, reveal=True, x_max=PLAYERS))
+    text, extra = _land_search_shape(text, kind)
     if len(_SEARCH_CLAUSE.findall(text)) != 1:
         return LandSearch()
     match = _LAND_SEARCH.search(text)
@@ -2744,6 +2919,10 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
         when = "enters"
     elif _ENTERS_IF_BEHIND.match(lead):
         when, condition = "enters", "opponent_more_lands"
+    elif _OPPONENT_END_IF_BEHIND.match(lead):
+        # P19 R23: Keeper of the Accord, once for each opponent behind whom
+        # you are, played as your turn begins.
+        when, condition = "opponents", "opponent_more_lands"
     elif lead == "if you do, " and _SACRIFICE_LAND_FIRST.search(text):
         when, sacrifices_land = "enters", True
     elif activated is not None and (
@@ -2785,15 +2964,28 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
             return LandSearch(reason=gettext_noop(
                 "searches for lands under a condition the engine cannot read"))
 
-    return LandSearch(spec={
-        "battlefield": battlefield, "hand": hand, "tapped": tapped, "basic": basic,
-        "types": sorted(types), "life": life, "when": when, "sacrifice": sacrifice,
-        "untap_at": untap_at, "cost": cost, "taps": taps,
-        "share_type": bool(match.group("share")), "each": each is not None and bool(types),
-        "condition": condition, "sacrifices_land": sacrifices_land,
-        "land_cost_types": land_cost_types, "sacrifice_other": sacrifice_other,
-        "discard": discard,
-    })
+    sacrifices_land = sacrifices_land or extra.pop("sacrifices_land", False)
+    return LandSearch(spec=_search_spec(
+        battlefield=battlefield, hand=hand, tapped=tapped, basic=basic,
+        types=sorted(types), life=life, when=when, sacrifice=sacrifice,
+        untap_at=untap_at, cost=cost, taps=taps,
+        share_type=bool(match.group("share")), each=each is not None and bool(types),
+        condition=condition, sacrifices_land=sacrifices_land,
+        land_cost_types=land_cost_types, sacrifice_other=sacrifice_other,
+        discard=discard, **extra,
+    ))
+
+
+def _search_spec(**read) -> dict:
+    """A land search's stored keys, the ones not read at their defaults. The
+    P19 R23 keys are stored only when read, so no other card's profile
+    changes."""
+    spec = {"battlefield": 1, "hand": 0, "tapped": True, "basic": False, "types": [],
+            "life": 0, "when": "cast", "sacrifice": False, "untap_at": 0, "cost": "",
+            "taps": False, "share_type": False, "each": False, "condition": "",
+            "sacrifices_land": False, "land_cost_types": [], "sacrifice_other": [],
+            "discard": 0}
+    return spec | read
 
 
 def _creature_tap(lead: str) -> dict | None:
@@ -2912,9 +3104,10 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         kind = DerivedProfile.Kind.ARTIFACT
     tutor = _tutor(card, tags)
     land = _land_search(card, kind)
-    if land.reason == _COMBAT_SEARCH and any(
+    if land.reason in (_COMBAT_SEARCH, "") and land.spec is None and any(
             trigger.get("search") for trigger in (combat or {}).get("triggers", ())):
-        # P19 R22: the search in combat is `_combat`'s now, the only one.
+        # P19 R22: the search in combat is `_combat`'s now, the only one -
+        # Sword of Hearth and Home's too, in two sentences (P19 R23).
         land, tutor = LandSearch(), Tutor()
     elif land.spec is not None or land.reason:
         # A land search read whole, or the reason it could not be: either way
@@ -2966,7 +3159,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     # something the engine plays and cannot read yet.
     if cost.has_x and draw.x_unread:
         reasons.append(gettext_noop("draws or discards by X in a way that is not modelled"))
-    if cost.has_x and _X_LANDS.search(text):
+    if cost.has_x and _X_LANDS.search(text) and not (land.spec or {}).get("by_x"):
         reasons.append(gettext_noop("puts lands onto the battlefield by X; not modelled"))
 
     profile = DerivedProfile(

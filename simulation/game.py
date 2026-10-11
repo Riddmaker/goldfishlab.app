@@ -12,6 +12,7 @@ The rules this rests on (see CLAUDE.md for the sources):
 
 import random
 from collections import Counter
+from dataclasses import replace
 
 from simulation.cards import (
     ANOTHER,
@@ -19,6 +20,7 @@ from simulation.cards import (
     CAST,
     COLORLESS_SPELL,
     COMBAT_SEARCH,
+    COMBAT_SEARCH_UNTAPPED,
     COUNTS,
     CREATURE,
     DIES,
@@ -36,12 +38,14 @@ from simulation.cards import (
     LANDS_COULD_PRODUCE,
     MAIN_PHASE,
     MULTIPLY,
+    OPPONENT_CREATURES,
     OPPONENT_TURNS,
     PER_LAND,
     PLANESWALKER,
     RESOLVES,
     RITUAL,
     ROCK,
+    SACRIFICED,
     SECOND_SPELL,
     STORE_FREE,
     STORE_SCALES,
@@ -85,6 +89,10 @@ TREASURE = "Treasure"
 LANDER_FODDER = "Lander"
 
 STARTING_LIFE = 40
+
+#: The card types delirium counts (P19 R23).
+DELIRIUM_TYPES = frozenset({"artifact", "battle", "creature", "enchantment", "instant",
+                            "kindred", "land", "planeswalker", "sorcery"})
 
 
 def _wanted(condition) -> str:
@@ -352,6 +360,14 @@ class Game:
         self._add_treasures(card.treasure_mana, card.treasures)
         self.note(f"  -> {card.treasures} Treasure")
 
+    def _spend_treasures(self, pool: ManaPool) -> None:
+        """The Treasures left once a payment is made. Each one gone was
+        sacrificed, which Crime Novelist sees (P19 R23)."""
+        spent = len(self.treasures) - len(pool.treasures)
+        self.treasures = list(pool.treasures)
+        for _ in range(spent):
+            self.fire(SACRIFICED, TREASURE)
+
     def _add_treasures(self, mana: str, count: int) -> None:
         """Treasure tokens onto the battlefield, and into an open pool."""
         made = [mana or "WUBRG"] * count
@@ -417,6 +433,9 @@ class Game:
         if trigger.draw:
             drawn = self.draw(trigger.draw)
             made.append(f"{len(drawn)} card")
+        if trigger.counter:
+            # Crime Novelist grows with each artifact it sees go (P19 R23).
+            self.add_counters(card, trigger.counter)
         if made:
             self.note(f"  -> {card.name}: {', '.join(made)}")
 
@@ -526,10 +545,11 @@ class Game:
         if payment is None:
             raise ValueError(f"{card.name if card else 'Lander'} cannot be activated from {pool}")
         self.life -= payment.life
-        self.treasures = list(pool.treasures)
+        self._spend_treasures(pool)
         if card is None:
             self.landers -= 1
             self.note("Lander (activated)")
+            self.fire(SACRIFICED, LANDER_FODDER)
             return self.search_lands(None, choose, LANDER)
         land, other = self.activation_fodder(card)
         spec = card.land_search
@@ -564,11 +584,15 @@ class Game:
                 self.graveyard.append(card)
             self._detach(card)
             self.fire(DIES, card, gone=card)
+            if "artifact" in card.types:
+                self.fire(SACRIFICED, card)
             return
         else:
             self.other_permanents.remove(card)
             self._detach(card)
         self.graveyard.append(card)
+        if card.kind in (ROCK, ARTIFACT) or "artifact" in card.types:
+            self.fire(SACRIFICED, card)
 
     # --- Additional costs and sacrifices (P19 R15) ---------------------------
 
@@ -721,6 +745,7 @@ class Game:
         if fodder == LANDER_FODDER:
             self.landers -= 1
             self.note("  -> sacrifices a Lander")
+            self.fire(SACRIFICED, LANDER_FODDER)
             return
         index = next((i for i, land in enumerate(self.lands) if land is fodder), None)
         if index is not None:
@@ -776,7 +801,7 @@ class Game:
         if fodder == TREASURE:
             sacrifice_treasure(pool.treasures)
         pool.pay_cost(self.altar_cost(card), life=self.life)
-        self.treasures = list(pool.treasures)
+        self._spend_treasures(pool)
         if card.sacrifice_mana_taps:
             # Its {T} went to this: the land counts as tapped from now on.
             index = next(i for i in range(self.tapped_lands, len(self.lands))
@@ -997,7 +1022,7 @@ class Game:
         """
         reductions = reductions_from(self.battlefield)
         best = -1
-        for x in range(self.MAX_X + 1):
+        for x in range(min(self.MAX_X, card.x_max or self.MAX_X) + 1):
             if not pool.can_pay_cost(effective_mana_cost(card, reductions, x), life=self.life,
                                      spell=card):
                 break
@@ -1008,6 +1033,9 @@ class Game:
 
     #: A Commander game: three opponents, for "unless you have two or more".
     OPPONENTS = 3
+    #: P19 R23: the turn from which an opponent is assumed to control three
+    #: creatures (Defense of the Heart): each plays one a turn from their second.
+    OPPONENT_CREATURES_FROM = 4
 
     def untaps_on_entering(self, land) -> bool:
         """Whether a land that would enter tapped meets its condition not to.
@@ -1378,9 +1406,9 @@ class Game:
         self.graveyard.append(card)
         self.search_lands(card, choose)
 
-    def search_lands(self, card, choose=None, spec=None) -> int:
+    def search_lands(self, card, choose=None, spec=None, x: int = 0) -> int:
         """Carry out ``card.land_search`` (or ``spec``, a Lander's). Returns
-        how many lands it found.
+        how many lands it found. ``x`` is what X was paid as (Open the Way).
 
         ``choose(game, options)`` picks each land; without it, the one that
         adds the most colours the lands in play cannot make yet
@@ -1391,25 +1419,28 @@ class Game:
         if spec.condition == "opponent_more_lands" and not self.opponent_has_more_lands():
             self.note("  -> no opponent has more lands")
             return 0
+        if spec.reveal:
+            return self._reveal_lands(spec, x)
+        battlefield = self._lands_searched(spec)
         if spec.sacrifices_land and spec.when == "enters":
             # Springbloom Druid's "you may": only when more lands come back
             # than the one it costs (P19 R15).
-            there = sum(1 for land in self.library if land.is_land
-                        and (land.basic or not spec.basic)
-                        and (not spec.types or land.subtypes & spec.types))
+            there = sum(1 for land in self.library if self._searchable(land, spec))
             fodder = self.land_fodder()
-            if not fodder or min(there, spec.battlefield + spec.hand) < 2:
+            if not fodder or min(there, battlefield + spec.hand) < 2:
                 self.note("  -> keeps its lands")
                 return 0
+            self.sacrifice(fodder[0])
+        elif spec.sacrifices_land and (fodder := self.land_fodder()):
+            # Entish Restoration: the land goes first, whatever comes back
+            # (P19 R23).
             self.sacrifice(fodder[0])
         self.life -= spec.life
         found = 0
         each = sorted(spec.types) if spec.each else ()
         shared = None
-        for index in range(spec.battlefield + spec.hand):
-            options = [land for land in self.library if land.is_land
-                       and (land.basic or not spec.basic)
-                       and (not spec.types or land.subtypes & spec.types)]
+        for index in range(battlefield + spec.hand):
+            options = [land for land in self.library if self._searchable(land, spec)]
             if each:
                 if index >= len(each):
                     break
@@ -1418,7 +1449,7 @@ class Game:
                 options = [land for land in options if land.subtypes & shared]
             elif spec.share_type:
                 # Myriad Landscape: a type there is enough of, where there is one.
-                total = spec.battlefield + spec.hand
+                total = battlefield + spec.hand
                 plenty = [land for land in options
                           if sum(1 for other in options if other.subtypes & land.subtypes) >= total]
                 options = plenty or options
@@ -1431,7 +1462,7 @@ class Game:
                 shared = land.subtypes
             self.library.remove(land)
             found += 1
-            if index >= spec.battlefield:
+            if index >= battlefield:
                 self.hand.append(land)
                 self.note(f"  -> {land.name} to hand")
                 continue
@@ -1440,7 +1471,47 @@ class Game:
                 tapped = False
             # `tapped` first: a land the search puts in tapped pays no life.
             self._enter_land(land, tapped or self._enters_tapped(land))
+        if spec.repeat and found:
+            # Claim Jumper: once more, if an opponent still has more lands.
+            found += self.search_lands(card, choose, replace(spec, repeat=spec.repeat - 1))
         return found
+
+    @staticmethod
+    def _searchable(land, spec) -> bool:
+        """Whether a library card is a land ``spec`` may find."""
+        if not land.is_land:
+            return False
+        if spec.also and land.subtypes & spec.also:
+            # Circuitous Route's Gates beside the basic lands (P19 R23).
+            return True
+        return (land.basic or not spec.basic) and (
+            not spec.types or bool(land.subtypes & spec.types))
+
+    def _lands_searched(self, spec) -> int:
+        """How many lands a search puts onto the battlefield (P19 R23): the
+        greatest power among your creatures (Traverse the Outlands), more
+        beside a big one (Entish Restoration), one more for each opponent
+        assumed to take the offer (Tempt with Discovery)."""
+        if spec.by_power:
+            return max((self.power(creature) for creature in self.creatures), default=0)
+        if spec.power_at and any(self.power(creature) >= spec.power_at
+                                 for creature in self.creatures):
+            return spec.power_count
+        return spec.battlefield + spec.tempting
+
+    def _reveal_lands(self, spec, x: int) -> int:
+        """Open the Way: cards off the top until X lands, those onto the
+        battlefield, the rest to the bottom in a random order (P19 R23)."""
+        lands, rest = [], []
+        while self.library and len(lands) < x:
+            card = self.library.pop(0)
+            (lands if card.is_land else rest).append(card)
+        self.rng.shuffle(rest)
+        self.library.extend(rest)
+        self.note(f"  -> reveals {len(lands) + len(rest)} cards")
+        for land in lands:
+            self._enter_land(land, spec.tapped or self._enters_tapped(land))
+        return len(lands)
 
     def _enter_land(self, land, tapped: bool) -> None:
         """A land put onto the battlefield, not played: no land drop used.
@@ -1485,7 +1556,7 @@ class Game:
             raise ValueError(f"{card.name} ({cost}) cannot be paid from {pool}")
         # Phyrexian mana: whatever was not paid with mana is paid with life.
         self.life -= payment.life
-        self.treasures = list(pool.treasures)
+        self._spend_treasures(pool)
         if card in self.hand:
             self.hand.remove(card)
         if card.discard_cost:
@@ -1745,6 +1816,9 @@ class Game:
             return int(commander is not None and any(each is commander for each in group))
         if who == "curse":
             return int(bool(attackers))
+        if who == "total":
+            # Neheb: the life the opponents lost, all of it combat damage.
+            return sum(self.power(each) for each in connected)
         return 0
 
     def combat_expected(self) -> bool:
@@ -1775,6 +1849,10 @@ class Game:
         self.in_combat = True
         try:
             for card, trigger, times in plan:
+                if trigger.who == "total":
+                    gained |= self._combat_effect(card, replace(trigger,
+                                                                mana=trigger.mana * times))
+                    continue
                 for _ in range(times):
                     gained |= self._combat_effect(card, trigger, choose)
         finally:
@@ -1788,11 +1866,16 @@ class Game:
             self.note(f"  -> {card.name}: {trigger.treasures} Treasure")
         if trigger.search:
             self.note(f"  -> {card.name}: searches for a basic land")
-            self.search_lands(card, choose, COMBAT_SEARCH)
+            self.search_lands(card, choose,
+                              COMBAT_SEARCH_UNTAPPED if trigger.untapped else COMBAT_SEARCH)
         if trigger.mana and self.pool is not None:
             for key in trigger.mana:
                 self.pool.add(key)
-            self.note(f"  -> {card.name}: +{trigger.mana}, kept to the end of the turn")
+            if trigger.who == "total":
+                self.note(f"  -> {card.name}: +{len(trigger.mana)}{trigger.mana[:1]} for the "
+                          f"combat damage")
+            else:
+                self.note(f"  -> {card.name}: +{trigger.mana}, kept to the end of the turn")
             return True
         return False
 
@@ -1866,7 +1949,7 @@ class Game:
         if not 0 <= index < len(targets):
             raise ValueError(f"{card.name} has no creature {index} to go on")
         pool.pay_cost(card.equip, life=self.life)
-        self.treasures = list(pool.treasures)
+        self._spend_treasures(pool)
         self.attached[card.name] = targets[index].name
         self.note(f"{card.name} equipped to {targets[index].name}")
 
@@ -2063,7 +2146,7 @@ class Game:
         if payment is None:
             raise ValueError(f"{commander.name} ({cost}) cannot be paid from {pool}")
         self.life -= payment.life
-        self.treasures = list(pool.treasures)
+        self._spend_treasures(pool)
         self.commander_casts += 1
         self.spell_cast(commander)
         self.creatures.append(commander)
@@ -2098,6 +2181,8 @@ class Game:
     def begin_turn(self) -> None:
         """Untap, upkeep triggers, draw."""
         self.turn += 1
+        self.note(f"--- Turn {self.turn} ---")
+        self._opponents_end_steps()
         self.tapped_lands = 0      # untap
         self.tapped_rocks = 0
         self.land_drop_used = False
@@ -2107,7 +2192,6 @@ class Game:
         self.pending_mana = []
         self.spells_this_turn = 0
         self.combat_done = False
-        self.note(f"--- Turn {self.turn} ---")
         self._clear_emptied()
         if self.turn > 1:
             # The opponents' turns since the last one of yours (P19 R16).
@@ -2128,6 +2212,34 @@ class Game:
             else:
                 self.life -= spec.life
         self.fire(UPKEEP)
+
+    def _opponents_end_steps(self) -> None:
+        """Keeper of the Accord: a search in each opponent's end step since
+        your last turn, while that opponent has more lands - assumed, one a
+        turn each (P19 R23). Before the untap step: a land found tapped untaps
+        with the rest."""
+        if self.turn == 1:
+            return
+        for card in self._triggers(lambda c: c.land_search is not None
+                                   and c.land_search.when == "opponents"):
+            for _ in range(self.OPPONENTS):
+                if not self.search_lands(card):
+                    break
+
+    def upkeep_tutors(self) -> list:
+        """Defense of the Heart: the cards whose search is due this upkeep,
+        once an opponent is assumed to have three creatures (P19 R23)."""
+        if self.turn < self.OPPONENT_CREATURES_FROM:
+            return []
+        return self._triggers(lambda c: c.tutor is not None
+                              and c.tutor.upkeep == OPPONENT_CREATURES)
+
+    def delirium(self) -> bool:
+        """Four or more card types among the cards in the graveyard."""
+        kinds = set()
+        for card in self.graveyard:
+            kinds |= self.types_of(card) & DELIRIUM_TYPES
+        return len(kinds) >= 4
 
     def _first(self, predicate):
         """The first permanent the condition holds for."""

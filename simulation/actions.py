@@ -125,6 +125,11 @@ class BeginTurn(Action):
 
     def run(self, game, policy) -> None:
         game.begin_turn()
+        for card in game.upkeep_tutors():
+            # Defense of the Heart (P19 R23): sacrificed, then its search.
+            game.note(f"{card.name}: an opponent controls three creatures (assumed)")
+            game._sacrifice(card)
+            run_tutor(game, card.tutor, policy)
         # Mana does not survive the turn it was made in. The agent never
         # noticed, because it reopens the pool at every main phase - but a
         # human who taps out on turn one and spends nothing would otherwise
@@ -600,38 +605,10 @@ def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
     to ``policy``; without one, the search takes the most expensive card, which
     is a placeholder for the human being asked and never used by the agent.
     """
-    if card.tutor is not None:
-        spec = card.tutor
-        game.life -= spec.life
-        if spec.to_battlefield:
-            predicate = _battlefield_predicate(spec, x, game)
-        elif spec.to_top:
-            predicate = (lambda c: bool(c.types & spec.types)) if spec.types else None
-        else:
-            predicate = (lambda c: c.kind == spec.kind) if spec.kind else None
-        found = 0
-        for _ in range(spec.count):
-            target = _search(game, policy, predicate)
-            if target is None:
-                break
-            game.library.remove(target)
-            if spec.to_battlefield:
-                game.note(f"  -> puts {target.name} onto the battlefield")
-                game.enter_battlefield(target)
-                _arrival(game, target, policy)
-            elif spec.to_top:
-                game.library.insert(0, target)
-                game.note(f"  -> puts {target.name} on top of the library")
-            elif spec.to_hand:
-                game.hand.append(target)
-                game.note(f"  -> searches up {target.name}")
-            else:
-                game.graveyard.append(target)
-            found += 1
-        if not (spec.to_hand or spec.to_battlefield or spec.to_top) and found:
-            game.note(f"  -> {found} cards to the graveyard")
+    if card.tutor is not None and not card.tutor.upkeep:
+        run_tutor(game, card.tutor, policy, x)
 
-    _arrival(game, card, policy)
+    _arrival(game, card, policy, x)
 
     drawn = card.draw_on_cast + (x if card.draws_x else 0)
     if drawn:
@@ -644,7 +621,102 @@ def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
         game.put_back(card.put_back_on_cast)
 
 
-def _arrival(game, card, policy) -> None:
+def run_tutor(game, spec, policy, x: int = 0) -> None:
+    """Search the library as ``spec`` says: to hand, to the graveyard, on top
+    or onto the battlefield."""
+    game.life -= spec.life
+    if spec.to_battlefield:
+        predicate = _battlefield_predicate(spec, x, game)
+    elif spec.to_top:
+        predicate = (lambda c: bool(c.types & spec.types)) if spec.types else None
+    else:
+        predicate = _hand_predicate(spec, game)
+    if spec.gifts:
+        _gifts(game, spec, policy)
+        return
+    found = 0
+    for _ in range(spec.count):
+        target = _search(game, policy, predicate)
+        if target is None and spec.land_tapped:
+            # Archdruid's Charm: the other half of "a creature or land card".
+            target = _search(game, policy, _hand_predicate(spec, game, other=True))
+        if target is None:
+            break
+        game.library.remove(target)
+        if spec.to_battlefield:
+            game.note(f"  -> puts {target.name} onto the battlefield")
+            game.enter_battlefield(target)
+            _arrival(game, target, policy)
+        elif spec.to_top:
+            game.library.insert(0, target)
+            game.note(f"  -> puts {target.name} on top of the library")
+        elif spec.land_tapped and target.is_land:
+            game.note(f"  -> searches up {target.name}")
+            game._enter_land(target, True)
+        elif spec.to_hand:
+            game.hand.append(target)
+            game.note(f"  -> searches up {target.name}")
+        else:
+            game.graveyard.append(target)
+        found += 1
+    if not (spec.to_hand or spec.to_battlefield or spec.to_top) and found:
+        game.note(f"  -> {found} cards to the graveyard")
+    for _ in range(spec.random_discard):
+        # Gamble: any card in hand, the one just found included.
+        if game.hand:
+            gone = game.hand.pop(game.rng.randrange(len(game.hand)))
+            game.graveyard.append(gone)
+            game.note(f"  -> discards {gone.name} at random")
+
+
+def _hand_predicate(spec, game, *, other: bool = False):
+    """Which library cards a search to hand may find: its kind, or any of its
+    types, subtypes or creature types up to its mana value (P19 R23).
+
+    Archdruid's Charm looks for a land while the hand holds none, for a
+    creature otherwise; ``other`` is the half it did not look for.
+    """
+    if spec.kind:
+        return lambda c: c.kind == spec.kind
+    if spec.delirium_any and game.delirium():
+        return None
+    wanted = spec.types
+    if spec.land_tapped:
+        land_first = not any(card.is_land for card in game.hand)
+        wanted = frozenset({"land" if land_first != other else "creature"})
+    if not wanted and spec.max_mv is None:
+        return None
+
+    def matches(card) -> bool:
+        if wanted and not ((game.types_of(card) | card.printed_subtypes
+                            | card.creature_types) & wanted):
+            return False
+        return spec.max_mv is None or card.mv <= spec.max_mv
+
+    return matches
+
+
+def _gifts(game, spec, policy) -> None:
+    """Gifts Ungiven: the cards found are the best there are, and the
+    opponent puts the best of them into the graveyard (P19 R23)."""
+    found = []
+    for _ in range(spec.gifts):
+        names = {card.name for card in found}
+        target = _search(game, policy, lambda c, names=names: c.name not in names)
+        if target is None:
+            break
+        game.library.remove(target)
+        found.append(target)
+    kept = max(len(found) - spec.count, 0)
+    for target in found[:kept]:
+        game.graveyard.append(target)
+        game.note(f"  -> {target.name} to the graveyard")
+    for target in found[kept:]:
+        game.hand.append(target)
+        game.note(f"  -> searches up {target.name}")
+
+
+def _arrival(game, card, policy, x: int = 0) -> None:
     """What a card does as it resolves or enters: its land search, its Treasure.
 
     Shared by a cast card and a card a tutor put onto the battlefield (P19
@@ -652,7 +724,7 @@ def _arrival(game, card, policy) -> None:
     """
     search = card.land_search
     if search is not None and search.when in ("cast", "enters"):
-        game.search_lands(card, _land_chooser(policy))
+        game.search_lands(card, _land_chooser(policy), x=x)
         if search.sacrifice and card in game.creatures:
             # Sakura-Tribe Elder: sacrificed for its land as soon as it is in
             # play - nothing in a goldfish is worth keeping it around for.

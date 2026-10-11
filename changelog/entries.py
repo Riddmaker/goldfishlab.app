@@ -42,6 +42,22 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 11), "tutor-choices",
+        _("Archdruid's Charm, Gifts Ungiven, Tempt with Discovery and other searches"),
+        _("More searches now work in a simulated game. Open the Armory, Solve the Equation, "
+          "Spellseeker and Ranger-Captain of Eos find the kind of card they name, Demonic "
+          "Counsel any card once your graveyard holds four card types, Gamble discards at "
+          "random. Archdruid's Charm finds a land while your hand has none, a creature "
+          "otherwise; Gifts Ungiven leaves you the two cards an opponent would give you; "
+          "Defense of the Heart fires from your fourth turn. Traverse the Outlands, Entish "
+          "Restoration, Circuitous Route, Claim Jumper, Keeper of the Accord, Open the Way and "
+          "Sword of Hearth and Home find lands, and Tempt with Discovery finds two, assuming "
+          "one opponent takes the offer. Cycle of Renewal and Roiling Regrowth now sacrifice "
+          "their land, as printed. Neheb, the Eternal adds {R} for the combat damage, Crime "
+          "Novelist for each Treasure you spend. Your deck page states every assumption beside "
+          "the card."),
+    ),
+    Entry(
         date(2026, 10, 11), "combat-mana",
         _("Sword of the Animist, Goldspan Dragon, Ragavan and combat"),
         _("A simulated game now has a combat. Every creature that can attack does, each "

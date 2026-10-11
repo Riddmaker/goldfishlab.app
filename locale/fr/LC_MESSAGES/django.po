@@ -10786,3 +10786,197 @@ msgstr "Équiper"
 #: templates/playtest/_board.html
 msgid "Creature to equip"
 msgstr "Créature à équiper"
+
+#: simulations/engine/adapter.py
+msgid "the creature it may exile and return with the land is not used"
+msgstr ""
+"la créature qu'il peut exiler et renvoyer avec le terrain n'est pas utilisée"
+
+#: simulations/engine/adapter.py
+msgid "whenever you sacrifice an artifact, a Treasure spent included"
+msgstr "chaque fois que vous sacrifiez un artefact, Trésor dépensé compris"
+
+#: simulations/engine/adapter.py
+msgid "in your second main phase, for each life your opponents lost in combat"
+msgstr ""
+"dans votre seconde phase principale, pour chaque point de vie perdu par vos "
+"adversaires au combat"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts the combat damage of every creature that can attack, each assumed to "
+"deal it to a player: a goldfish has no blockers, so against opponents with "
+"many blockers this is optimistic; life lost any other way is not counted"
+msgstr ""
+"compte les blessures de combat de chaque créature qui peut attaquer, chacune"
+" supposée les infliger à un joueur : un goldfish n'a pas de bloqueurs, donc "
+"face à des adversaires qui en ont beaucoup, c'est optimiste ; les points de "
+"vie perdus autrement ne sont pas comptés"
+
+#: simulations/engine/adapter.py
+msgid "as many basic lands as the greatest power among your creatures"
+msgstr ""
+"autant de terrains de base que la plus grande force parmi vos créatures"
+
+#: simulations/engine/adapter.py
+msgid "assumes one opponent takes the tempting offer, so you find two lands"
+msgstr ""
+"suppose qu'un adversaire accepte l'offre tentante, vous trouvez donc deux "
+"terrains"
+
+#: simulations/engine/adapter.py
+msgid "assumes four players, so X is at most 4"
+msgstr "suppose quatre joueurs, X vaut donc au plus 4"
+
+#: simulations/engine/adapter.py
+msgid ""
+"looks for a land, put onto the battlefield tapped, while your hand holds no "
+"land, and for a creature otherwise; its other modes are not used"
+msgstr ""
+"cherche un terrain, mis sur le champ de bataille engagé, tant que votre main"
+" n'en contient aucun, et une créature sinon ; ses autres modes ne sont pas "
+"utilisés"
+
+#: simulations/engine/adapter.py
+msgid ""
+"assumes the opponent puts the two best of the four cards into your "
+"graveyard; the other two go to your hand"
+msgstr ""
+"suppose que l'adversaire met les deux meilleures des quatre cartes dans "
+"votre cimetière ; les deux autres vont dans votre main"
+
+#: simulations/engine/adapter.py
+msgid ""
+"assumes an opponent controls three creatures from your fourth turn on; then "
+"it is sacrificed and puts your two best creatures onto the battlefield"
+msgstr ""
+"suppose qu'un adversaire contrôle trois créatures à partir de votre "
+"quatrième tour ; il est alors sacrifié et met vos deux meilleures créatures "
+"sur le champ de bataille"
+
+#: simulations/engine/adapter.py
+msgid ""
+"the card it exiles counts as a card in your hand, since you may play it from"
+" exile"
+msgstr ""
+"la carte qu'il exile compte comme une carte de votre main, puisque vous "
+"pouvez la jouer depuis l'exil"
+
+#: simulations/engine/adapter.py
+msgid ""
+"you are one of the two players and find a card for the top of your library; "
+"the opponent's card is not counted"
+msgstr ""
+"vous êtes l'un des deux joueurs et trouvez une carte pour le dessus de votre"
+" bibliothèque ; la carte de l'adversaire n'est pas comptée"
+
+#: simulations/engine/adapter.py
+msgid ""
+"searches only an opponent's library, which a goldfish does not have: it does"
+" nothing here"
+msgstr ""
+"ne fouille que la bibliothèque d'un adversaire, qu'un goldfish n'a pas : "
+"elle ne fait rien ici"
+
+#: simulations/engine/adapter.py
+msgid "X lands off the top of the library"
+msgstr "X terrains du dessus de la bibliothèque"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s or Gates"
+msgstr "%(what)s ou Portails"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, and one more for each opponent who searches too"
+msgstr "%(what)s, et un de plus pour chaque adversaire qui cherche aussi"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(search)s; %(count)s beside a creature with power %(power)s or greater"
+msgstr "%(search)s ; %(count)s avec une créature de force %(power)s ou plus"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, then once more"
+msgstr "%(search)s, puis une fois de plus"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "in each opponent's end step: %(search)s"
+msgstr "lors de l'étape de fin de chaque adversaire : %(search)s"
+
+#: simulations/engine/adapter.py
+msgid "a +1/+1 counter on it"
+msgstr "un marqueur +1/+1 sur elle"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, any card with delirium"
+msgstr "%(what)s, n'importe quelle carte avec délire"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, then a card discarded at random"
+msgstr "%(search)s, puis une carte défaussée au hasard"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"in an upkeep, sacrificed once an opponent controls three creatures: "
+"%(search)s"
+msgstr ""
+"lors d'une étape d'entretien, sacrifié dès qu'un adversaire contrôle trois "
+"créatures : %(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(found)s cards, %(count)s of them to hand and the rest to the graveyard"
+msgstr ""
+"%(found)s cartes, %(count)s d'entre elles en main et le reste au cimetière"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s to hand, a land onto the battlefield tapped"
+msgstr "%(what)s en main, un terrain sur le champ de bataille engagé"
+
+#: changelog/entries.py
+msgid ""
+"Archdruid's Charm, Gifts Ungiven, Tempt with Discovery and other searches"
+msgstr ""
+"Archdruid's Charm, Gifts Ungiven, Tempt with Discovery et d'autres "
+"recherches"
+
+#: changelog/entries.py
+msgid ""
+"More searches now work in a simulated game. Open the Armory, Solve the "
+"Equation, Spellseeker and Ranger-Captain of Eos find the kind of card they "
+"name, Demonic Counsel any card once your graveyard holds four card types, "
+"Gamble discards at random. Archdruid's Charm finds a land while your hand "
+"has none, a creature otherwise; Gifts Ungiven leaves you the two cards an "
+"opponent would give you; Defense of the Heart fires from your fourth turn. "
+"Traverse the Outlands, Entish Restoration, Circuitous Route, Claim Jumper, "
+"Keeper of the Accord, Open the Way and Sword of Hearth and Home find lands, "
+"and Tempt with Discovery finds two, assuming one opponent takes the offer. "
+"Cycle of Renewal and Roiling Regrowth now sacrifice their land, as printed. "
+"Neheb, the Eternal adds {R} for the combat damage, Crime Novelist for each "
+"Treasure you spend. Your deck page states every assumption beside the card."
+msgstr ""
+"D'autres recherches fonctionnent maintenant dans une partie simulée. Open "
+"the Armory, Solve the Equation, Spellseeker et Ranger-Captain of Eos "
+"trouvent le type de carte qu'ils nomment, Demonic Counsel n'importe quelle "
+"carte dès que votre cimetière contient quatre types de cartes, Gamble "
+"défausse au hasard. Archdruid's Charm trouve un terrain tant que votre main "
+"n'en a pas, une créature sinon ; Gifts Ungiven vous laisse les deux cartes "
+"qu'un adversaire vous donnerait ; Defense of the Heart se déclenche à partir"
+" de votre quatrième tour. Traverse the Outlands, Entish Restoration, "
+"Circuitous Route, Claim Jumper, Keeper of the Accord, Open the Way et Sword "
+"of Hearth and Home trouvent des terrains, et Tempt with Discovery en trouve "
+"deux, en supposant qu'un adversaire accepte l'offre. Cycle of Renewal et "
+"Roiling Regrowth sacrifient maintenant leur terrain, comme imprimé. Neheb, "
+"the Eternal ajoute {R} pour les blessures de combat, Crime Novelist pour "
+"chaque Trésor que vous dépensez. Votre page de deck indique chaque hypothèse"
+" à côté de la carte."

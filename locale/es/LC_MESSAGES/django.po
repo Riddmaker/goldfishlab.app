@@ -10072,3 +10072,157 @@ msgstr ""
 #: simulations/engine/adapter.py
 msgid "is tapped for mana every turn, and mills a card each time"
 msgstr "se gira para generar maná cada turno, y muele una carta cada vez"
+
+#: simulations/engine/adapter.py
+msgid ""
+"keeps its counters as mana and spends them only when a spell needs them, as "
+"a Treasure is spent"
+msgstr ""
+"guarda sus contadores como maná y solo los gasta cuando un hechizo los "
+"necesita, como un Tesoro"
+
+#: simulations/engine/adapter.py
+msgid ""
+"spends a counter each turn it is tapped for this mana, whether or not that "
+"colour is needed; with none left it makes only its other mana, if it has any"
+msgstr ""
+"gasta un contador cada turno en que se gira para este maná, se necesite o no"
+" ese color; sin contadores solo genera su otro maná, si tiene"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters with X counters, X being all the mana left when it is cast, last in "
+"the main phase"
+msgstr ""
+"entra con X contadores, siendo X todo el maná que queda cuando se lanza, en "
+"último lugar en la fase principal"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is kicked as often as the mana left pays for, at least once - cast last in "
+"the main phase, as a spell with X is"
+msgstr ""
+"se estimula tantas veces como paga el maná restante, al menos una vez - "
+"lanzado en último lugar en la fase principal, como un hechizo con X"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters with a counter for each colour the open mana can make when it is "
+"cast, at most one for each mana it costs"
+msgstr ""
+"entra con un contador por cada color que el maná disponible puede generar "
+"cuando se lanza, como máximo uno por cada maná que cuesta"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each turn from the turn after it enters to put one more counter on "
+"itself"
+msgstr ""
+"se gira cada turno, a partir del turno siguiente a su entrada, para ponerse "
+"un contador más"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts a counter on itself each time it is tapped, so it makes one more mana "
+"each turn"
+msgstr ""
+"se pone un contador cada vez que se gira, así que genera un maná más cada "
+"turno"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a counter for each red spell you cast and turns each three into "
+"{R}{R}{R} at once, kept as a Treasure is until a spell needs it"
+msgstr ""
+"recibe un contador por cada hechizo rojo que lanzas y convierte enseguida "
+"cada tres en {R}{R}{R}, que se guarda como un Tesoro hasta que un hechizo lo"
+" necesita"
+
+#: simulations/engine/adapter.py
+msgid "is sacrificed as your next turn begins once its last counter is gone"
+msgstr ""
+"se sacrifica al comienzo de tu siguiente turno una vez que se ha ido su "
+"último contador"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes its mana once for each point of toughness, then dies as your next turn"
+" begins"
+msgstr ""
+"genera su maná una vez por cada punto de resistencia y luego muere al "
+"comienzo de tu siguiente turno"
+
+#: simulations/engine/adapter.py
+msgid ""
+"returns to your hand as your next turn begins once its last counter is gone,"
+" and may be cast again"
+msgstr ""
+"vuelve a tu mano al comienzo de tu siguiente turno una vez que se ha ido su "
+"último contador, y puede lanzarse de nuevo"
+
+#: simulations/engine/adapter.py
+msgid ""
+"spends one energy each turn it is tapped for any colour, whether or not that"
+" colour is needed; energy comes only from cards that give it as they enter, "
+"and without it the card makes only its other mana, if it has any"
+msgstr ""
+"gasta una energía cada turno en que se gira para un color cualquiera, se "
+"necesite o no ese color; la energía solo viene de las cartas que la dan al "
+"entrar, y sin ella la carta solo genera su otro maná, si tiene"
+
+#: simulations/engine/adapter.py
+msgid "is used once each turn from the turn after it enters, as if it tapped"
+msgstr ""
+"se usa una vez por turno a partir del turno siguiente a su entrada, como si "
+"se girara"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts the counters it enters with on itself - on another creature it would "
+"make no mana"
+msgstr ""
+"se pone a sí misma los contadores con los que entra - en otra criatura no "
+"generaría maná"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes all its mana in one colour: the one the cards in hand ask for most"
+msgstr ""
+"genera todo su maná de un solo color: el que más piden las cartas de la mano"
+
+#: simulations/engine/adapter.py
+msgid ""
+"sacrifices the Food it makes as it enters for one mana, once; it never pays "
+"{1}{G} for another Food, which costs more than it gives"
+msgstr ""
+"sacrifica una vez la Comida que crea al entrar por un maná; nunca paga "
+"{1}{G} por otra Comida, que cuesta más de lo que da"
+
+#: changelog/entries.py
+msgid "Everflowing Chalice, Pentad Prism, energy and storage lands"
+msgstr ""
+"Everflowing Chalice, Pentad Prism, la energía y las tierras de "
+"almacenamiento"
+
+#: changelog/entries.py
+msgid ""
+"Cards that keep their mana as counters, energy or a Food now make it in a "
+"simulated game. Pentad Prism and Crystalline Crawler spend their counters "
+"only when a spell needs them, as a Treasure; Runaway Steam-Kin turns three "
+"counters into three red mana. Vivid lands, storage lands, Gemstone Mine, "
+"Aether Hub, Servant of the Conduit, Channeler Initiate, Wall of Roots, Mana "
+"Bloom and Gilded Goose use one each turn they tap. Everflowing Chalice is "
+"kicked like a spell with X, and it, Astral Cornucopia and Empowered "
+"Autogenerator make one mana for each counter. Your deck page says all of "
+"this beside each card."
+msgstr ""
+"Las cartas que guardan su maná como contadores, energía o una Comida ahora "
+"lo generan en una partida simulada. Pentad Prism y Crystalline Crawler solo "
+"gastan sus contadores cuando un hechizo los necesita, como un Tesoro; "
+"Runaway Steam-Kin convierte tres contadores en tres manás rojos. Las tierras"
+" Vivid, las tierras de almacenamiento, Gemstone Mine, Aether Hub, Servant of"
+" the Conduit, Channeler Initiate, Wall of Roots, Mana Bloom y Gilded Goose "
+"usan uno cada turno en que se giran. Everflowing Chalice se estimula como un"
+" hechizo con X, y él, Astral Cornucopia y Empowered Autogenerator generan un"
+" maná por cada contador. La página de tu mazo dice todo esto junto a cada "
+"carta."

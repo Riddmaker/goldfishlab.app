@@ -11,7 +11,13 @@ first, then the card-advantage engines, then the sacrifice motor.
 from simulation import actions
 from simulation.cards import LANDER, PER_CONTROLLED, RITUAL, TYPE_ADDING
 from simulation.game import TREASURE
-from simulation.mana import ManaPool, effective_mana_cost, land_colors, reductions_from
+from simulation.mana import (
+    ManaPool,
+    effective_mana_cost,
+    land_colors,
+    reductions_from,
+    sacrifice_treasure,
+)
 from simulation.manacost import SUBTYPE_COLORS
 
 # From this priority upwards it is worth burning a ritual. A setting of the
@@ -203,7 +209,7 @@ def _try_altar(game, pool: ManaPool) -> bool:
         fodder = game.altar_fodder(altar, pool)[0]
         test = pool.copy()
         if fodder == TREASURE:
-            test.treasures.pop()
+            sacrifice_treasure(test.treasures)
         test.pay_cost(game.altar_cost(altar), life=game.life)
         test.add(altar.sacrifice_mana_color, altar.sacrifice_mana_amount)
         unlocked = [card for card in game.hand

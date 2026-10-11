@@ -8895,3 +8895,123 @@ msgstr ""
 #: simulations/engine/adapter.py
 msgid "is tapped for mana every turn, and mills a card each time"
 msgstr "毎ターンマナのためにタップされ、そのたびにカードを1枚切削します"
+
+#: simulations/engine/adapter.py
+msgid ""
+"keeps its counters as mana and spends them only when a spell needs them, as "
+"a Treasure is spent"
+msgstr "カウンターをマナとして持ち続け、呪文が必要とするときだけ宝物と同じように使います"
+
+#: simulations/engine/adapter.py
+msgid ""
+"spends a counter each turn it is tapped for this mana, whether or not that "
+"colour is needed; with none left it makes only its other mana, if it has any"
+msgstr ""
+"このマナのためにタップされるターンごとに、その色が必要かどうかにかかわらずカウンターを1個使います。カウンターがなくなると、ほかのマナがあればそれだけを生み出します"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters with X counters, X being all the mana left when it is cast, last in "
+"the main phase"
+msgstr "Xは唱えられた時点で残っているすべてのマナで、X個のカウンターが置かれた状態で戦場に出ます。メイン・フェイズの最後に唱えられます"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is kicked as often as the mana left pays for, at least once - cast last in "
+"the main phase, as a spell with X is"
+msgstr "残っているマナで支払えるだけ、少なくとも1回キッカーされます。Xを含む呪文と同じように、メイン・フェイズの最後に唱えられます"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters with a counter for each colour the open mana can make when it is "
+"cast, at most one for each mana it costs"
+msgstr "唱えられた時点で使えるマナが生み出せる色1つにつきカウンター1個を置いた状態で戦場に出ます。ただし点数で見たマナ・コストの数までです"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each turn from the turn after it enters to put one more counter on "
+"itself"
+msgstr "戦場に出た次のターンから毎ターンタップして、自身にカウンターをもう1個置きます"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts a counter on itself each time it is tapped, so it makes one more mana "
+"each turn"
+msgstr "タップされるたびに自身にカウンターを1個置くので、毎ターン1マナずつ多く生み出します"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a counter for each red spell you cast and turns each three into "
+"{R}{R}{R} at once, kept as a Treasure is until a spell needs it"
+msgstr ""
+"あなたが赤の呪文を唱えるたびにカウンターを1個得て、3個ごとにすぐ{R}{R}{R}に変えます。そのマナは呪文が必要とするまで宝物と同じように取っておかれます"
+
+#: simulations/engine/adapter.py
+msgid "is sacrificed as your next turn begins once its last counter is gone"
+msgstr "最後のカウンターがなくなったら、あなたの次のターンの開始時に生け贄に捧げられます"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes its mana once for each point of toughness, then dies as your next turn"
+" begins"
+msgstr "タフネス1点につき1回マナを生み出し、その後あなたの次のターンの開始時に死亡します"
+
+#: simulations/engine/adapter.py
+msgid ""
+"returns to your hand as your next turn begins once its last counter is gone,"
+" and may be cast again"
+msgstr "最後のカウンターがなくなったら、あなたの次のターンの開始時に手札に戻り、もう一度唱えられます"
+
+#: simulations/engine/adapter.py
+msgid ""
+"spends one energy each turn it is tapped for any colour, whether or not that"
+" colour is needed; energy comes only from cards that give it as they enter, "
+"and without it the card makes only its other mana, if it has any"
+msgstr ""
+"好きな色のためにタップされるターンごとに、その色が必要かどうかにかかわらずエネルギーを1個使います。エネルギーは戦場に出たときにそれを与えるカードからしか得られず、エネルギーがなければほかのマナがあればそれだけを生み出します"
+
+#: simulations/engine/adapter.py
+msgid "is used once each turn from the turn after it enters, as if it tapped"
+msgstr "戦場に出た次のターンから、タップするのと同じように毎ターン1回使われます"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts the counters it enters with on itself - on another creature it would "
+"make no mana"
+msgstr "戦場に出るときのカウンターを自身に置きます。ほかのクリーチャーに置くとマナを生み出せません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes all its mana in one colour: the one the cards in hand ask for most"
+msgstr "すべてのマナを1色で生み出します。手札のカードが最も多く求める色です"
+
+#: simulations/engine/adapter.py
+msgid ""
+"sacrifices the Food it makes as it enters for one mana, once; it never pays "
+"{1}{G} for another Food, which costs more than it gives"
+msgstr ""
+"戦場に出たときに生成する食物を1回だけ生け贄に捧げて1マナを得ます。得られる以上のコストがかかるので、{1}{G}を支払って新たな食物を生成することはありません"
+
+#: changelog/entries.py
+msgid "Everflowing Chalice, Pentad Prism, energy and storage lands"
+msgstr "Everflowing Chalice、Pentad Prism、エネルギー、そしてストレージ・ランド"
+
+#: changelog/entries.py
+msgid ""
+"Cards that keep their mana as counters, energy or a Food now make it in a "
+"simulated game. Pentad Prism and Crystalline Crawler spend their counters "
+"only when a spell needs them, as a Treasure; Runaway Steam-Kin turns three "
+"counters into three red mana. Vivid lands, storage lands, Gemstone Mine, "
+"Aether Hub, Servant of the Conduit, Channeler Initiate, Wall of Roots, Mana "
+"Bloom and Gilded Goose use one each turn they tap. Everflowing Chalice is "
+"kicked like a spell with X, and it, Astral Cornucopia and Empowered "
+"Autogenerator make one mana for each counter. Your deck page says all of "
+"this beside each card."
+msgstr ""
+"マナをカウンター、エネルギー、食物として持ち続けるカードが、シミュレーションでマナを生み出すようになりました。Pentad "
+"PrismとCrystalline Crawlerは、呪文が必要とするときだけ宝物と同じようにカウンターを使います。Runaway Steam-"
+"Kinはカウンター3個を赤マナ3点に変えます。Vividランド、ストレージ・ランド、Gemstone Mine、Aether Hub、Servant "
+"of the Conduit、Channeler Initiate、Wall of Roots、Mana Bloom、Gilded "
+"Gooseは、タップするターンごとに1つずつ使います。Everflowing ChaliceはXを含む呪文と同じようにキッカーされ、Astral "
+"CornucopiaやEmpowered "
+"Autogeneratorとともにカウンター1個につき1マナを生み出します。デッキページでは、これらすべてを各カードの横に表示します。"

@@ -29,6 +29,7 @@ from simulation.cards import (
     LandSearch,
     ManaAbility,
     SpellFilter,
+    Store,
     TapMana,
     TappedUnless,
     Trigger,
@@ -129,6 +130,8 @@ EVERYTHING = Card(
                      spend_only=(SpellFilter(types=frozenset({"artifact"})),), tokens=1),
     mox="imprint",
     mana_mills=1,
+    store=Store("free", "R", amount=3, per_use=3, start_from="colors", grows="red_spell",
+                empty="dies"),
 )
 
 

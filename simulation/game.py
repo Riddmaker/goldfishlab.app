@@ -41,6 +41,9 @@ from simulation.cards import (
     RITUAL,
     ROCK,
     SECOND_SPELL,
+    STORE_FREE,
+    STORE_SCALES,
+    STORE_TAP,
     UPKEEP,
     AdditionalCost,
     ManaAbility,
@@ -51,14 +54,17 @@ from simulation.mana import (
     Extra,
     ManaPool,
     RestrictedMana,
+    Stored,
     applicable_reduction,
     available_mana,
     doublers,
     effective_mana_cost,
     granted_subtypes,
+    has_treasure,
     land_color,
     land_colors,
     reductions_from,
+    sacrifice_treasure,
     subtypes_of,
 )
 from simulation.manacost import (
@@ -195,6 +201,14 @@ class Game:
         self.fodder_used: list[str] = []
         #: P19 R19: the colours of the card each Chrome Mox exiled, by name.
         self.imprinted: dict[str, str] = {}
+        #: P19 R20: the counters each permanent keeps for its mana, by name,
+        #: and the player's energy. A free store's counters are in
+        #: ``treasures`` instead, as ``Stored`` mana.
+        self.counters: dict[str, int] = {}
+        self.energy = 0
+        #: P19 R20: permanents whose last counter went this turn - sacrificed,
+        #: dead or back in hand as the next turn begins.
+        self.emptied: list[str] = []
         self.log = []
 
     @property
@@ -392,6 +406,11 @@ class Game:
         if card.exiled_on_cast:
             return
         self.spells_this_turn += 1
+        if "R" in self._colors_of(card):
+            for permanent in self.battlefield:
+                if permanent.store is not None and permanent.store.grows == "red_spell":
+                    self.counters[permanent.name] = self.counters.get(permanent.name, 0) + 1
+                    self._bank(permanent)
         self.fire(CAST, card)
 
     def make_landers(self, card) -> None:
@@ -534,7 +553,7 @@ class Game:
         a cost: a player keeps the ramp - a Lotus Cobra or a Storm-Kiln
         Artist too (P19 R16)."""
         return (card.kind == ROCK or bool(card.mana_abilities) or card.sacrifice_mana is not None
-                or card.tap_mana is not None
+                or card.tap_mana is not None or card.store is not None
                 or any(trigger.mana or trigger.treasures for trigger in card.triggers))
 
     @staticmethod
@@ -569,7 +588,7 @@ class Game:
             return []
         found: list = []
         if "artifact" in cost.sacrifice and not cost.sacrifice_filter:
-            if pool.treasures if pool is not None else self.treasures:
+            if has_treasure(pool.treasures if pool is not None else self.treasures):
                 found.append(TREASURE)
             if self.landers:
                 found.append(LANDER_FODDER)
@@ -629,7 +648,7 @@ class Game:
                 test = pool
                 if fodder == TREASURE:
                     test = pool.copy()
-                    test.treasures.pop()
+                    sacrifice_treasure(test.treasures)
                 if test.can_pay_cost(cost, life=life, spell=card):
                     options.append((rank, way, fodder))
         options.sort(key=lambda option: option[0])
@@ -717,7 +736,7 @@ class Game:
         for fodder in self.fodder(card.sacrifice_mana, pool, also=also):
             test = pool.copy()
             if fodder == TREASURE:
-                test.treasures.pop()
+                sacrifice_treasure(test.treasures)
             if test.can_pay_cost(cost, life=self.life):
                 options.append(fodder)
         return options
@@ -731,7 +750,7 @@ class Game:
             raise ValueError(f"{card.name} has nothing to sacrifice")
         fodder = options[index]
         if fodder == TREASURE:
-            pool.treasures.pop()
+            sacrifice_treasure(pool.treasures)
         pool.pay_cost(self.altar_cost(card), life=self.life)
         self.treasures = list(pool.treasures)
         if card.sacrifice_mana_taps:
@@ -786,12 +805,18 @@ class Game:
         untapped_rocks = self._untapped(self.rocks[self.tapped_rocks:])
         dorks = self._untapped(
             [card for card in self.creatures if self.mana_ability(card) is not None]
-        )
+        ) + self._stored_others()
         pool = available_mana(self.lands, untapped_lands, untapped_rocks + dorks,
                               doublers(self.battlefield), ability_of=self.mana_ability,
                               extras=self.mana_extras(), otherwise_of=self.plain_mana_ability)
         self._add_tap_mana(pool)
         return pool
+
+    def _stored_others(self) -> list:
+        """Enchantments that tap for kept counters (Mana Bloom, P19 R20)."""
+        return self._untapped([card for card in self.other_permanents
+                               if card.store is not None
+                               and self.mana_ability(card) is not None])
 
     def mana_extras(self, *, per_source: bool = False) -> list[Extra]:
         """The mana on top that the permanents in play add (P19 R13).
@@ -876,8 +901,10 @@ class Game:
             self._untapped(self.lands[self.tapped_lands:])
             + self._untapped(self.rocks[self.tapped_rocks:])
             + self._untapped([c for c in self.creatures if self.mana_ability(c) is not None])
+            + self._stored_others()
         )
         pool = self.mana()
+        self._spend_stores(sources)
         tapped, _ = self.tap_fodder()
         for found in tapped.values():
             for other in found:
@@ -1161,6 +1188,8 @@ class Game:
             # Chrome Mox (P19 R19): the colours of the card it exiled, or none.
             colors = self.imprinted.get(card.name, "")
             return ManaAbility(FLAT, {colors: 1}) if colors else None
+        if card.store is not None and (stored := self._store_ability(card)) is not None:
+            return stored
         counted = None
         for ability in card.mana_abilities:
             if ability.rule == COUNTS and ability.subtype == "colors_among":
@@ -1287,6 +1316,8 @@ class Game:
             self.lands.insert(0, card)
             self.tapped_lands += 1
         self.note(f"Land: {card.name}" + (" (tapped)" if tapped else ""))
+        if card.store is not None:
+            self._store_enters(card)
         self.fire(LANDFALL, card)
 
     def play_fetch(self, card, choose=None) -> None:
@@ -1374,6 +1405,8 @@ class Game:
         its mana straight away - the pool is opened once a turn, and would
         otherwise never see it.
         """
+        if land.store is not None:
+            self._store_enters(land)
         if not tapped and self.pool is not None:
             made = available_mana(self.lands + [land], [land], [], doublers(self.battlefield),
                                   extras=self.mana_extras(per_source=True),
@@ -1395,12 +1428,13 @@ class Game:
         ``pick`` is how its additional cost is paid (:meth:`payment_options`),
         the agent's choice when None."""
         cost = effective_mana_cost(card, reductions_from(self.battlefield), x)
+        colors = self._colors_open(card, pool)
         way, fodder = self.additional_payment(card, pool, x, pick) or (None, None)
         if way is not None and way.mana is not None:
             cost = cost.plus(way.mana)
         if fodder == TREASURE:
             # Sacrificed rather than tapped: its mana leaves the pool first.
-            pool.treasures.pop()
+            sacrifice_treasure(pool.treasures)
         payment = pool.pay_cost(cost, life=self.life - (way.life if way else 0), spell=card)
         if payment is None:
             raise ValueError(f"{card.name} ({cost}) cannot be paid from {pool}")
@@ -1413,12 +1447,22 @@ class Game:
             self.discard(card.discard_cost)
         self._pay_additional(way, fodder)
         self.spell_cast(card)
-        self._resolve(card, pool)
+        self._resolve(card, pool, x, colors)
         if card.x_count:
             self.note(f"  -> X = {x}")
 
-    def _resolve(self, card, pool: ManaPool) -> None:
-        """Put the card in the right zone and apply its immediate effects."""
+    def _resolve(self, card, pool: ManaPool, x: int = 0, colors: int = 0) -> None:
+        """Put the card in the right zone and apply its immediate effects.
+
+        ``x`` is what X was paid as, ``colors`` how many colours were open
+        for it - what a store's counters start from (P19 R20).
+        """
+        self._place(card, pool)
+        if card.store is not None and card.kind != RITUAL:
+            self._store_enters(card, x, colors)
+
+    def _place(self, card, pool: ManaPool) -> None:
+        """The card into its zone, a ritual's mana into the pool."""
         if card.kind == RITUAL:
             color, gain = self.ritual_mana(card)
             pool.add(color, gain)
@@ -1452,6 +1496,116 @@ class Game:
         # Sorcery / instant
         self.graveyard.append(card)
         self.note(f"{card.name}")
+
+    # --- Mana kept as counters, energy or a Food (P19 R20) ------------------
+
+    def _colors_open(self, card, pool: ManaPool) -> int:
+        """How many colours Sunburst or Converge may count as ``card`` is cast:
+        the colours the pool can make, at most one for each mana it costs."""
+        if card.store is None or card.store.start_from != "colors":
+            return 0
+        made = pool.by_color()
+        single = {key for key in made if key in COLORS}
+        choices = sum(amount for key, amount in made.items()
+                      if len(key) > 1 and set(key) & set(COLORS)) + len(pool.treasures)
+        return min(card.mv, len(COLORS), len(single) + choices)
+
+    def _store_enters(self, card, x: int = 0, colors: int = 0) -> None:
+        """The counters, energy or Food a permanent arrives with."""
+        store = card.store
+        count = {"x": x, "kicks": x, "colors": colors}.get(store.start_from, store.start)
+        if store.energy:
+            self.energy += count
+            if count:
+                self.note(f"  -> {count} energy")
+            return
+        self.counters[card.name] = count
+        if count and store.use != STORE_SCALES:
+            self.note(f"  -> {card.name} enters with {count} counter(s)")
+        self._bank(card)
+
+    def _bank(self, card) -> None:
+        """A free store's counters as mana kept for a payment, as a Treasure."""
+        store = card.store
+        if store.use != STORE_FREE:
+            return
+        while self.counters.get(card.name, 0) >= store.per_use:
+            self.counters[card.name] -= store.per_use
+            made = [Stored(store.mana)] * store.amount
+            self.treasures.extend(made)
+            if self.pool is not None:
+                self.pool.treasures.extend(made)
+
+    def _store_ready(self, card) -> bool:
+        """Has a ``STORE_TAP`` permanent what one more use spends? Energy
+        is shared: each source in turn takes its share from the player's."""
+        store = card.store
+        if not store.energy:
+            return self.counters.get(card.name, 0) >= store.per_use
+        users = [each for each in self.battlefield
+                 if each.store is not None and each.store.energy]
+        index = next((i for i, each in enumerate(users) if each is card), 0)
+        return self.energy >= store.per_use * (index + 1)
+
+    def _store_ability(self, card):
+        """What the counters make this turn, or None: then the card taps
+        for its plain ability, if it has one."""
+        store = card.store
+        if store.use == STORE_TAP:
+            return ManaAbility(FLAT, {store.mana: store.amount}) if self._store_ready(card) \
+                else None
+        if store.use == STORE_SCALES:
+            count = self.counters.get(card.name, 0) + (1 if store.grows == "use" else 0)
+            if count <= 0:
+                return None
+            return ManaAbility(FLAT, {store.mana or self.wanted_color(card): count * store.amount})
+        return None
+
+    def _spend_stores(self, sources) -> None:
+        """The main phase opens: each store tapped spends its use, and a
+        Crystalline Crawler taps to put one more counter on itself."""
+        for card in self.battlefield:
+            store = card.store
+            if store is not None and store.use == STORE_FREE and store.grows == "tap" \
+                    and card.name not in self.arrived and card.name not in self.tapped_creatures:
+                self.counters[card.name] = self.counters.get(card.name, 0) + 1
+                self._bank(card)
+        for card in sources:
+            store = card.store
+            if store is None:
+                continue
+            if store.use == STORE_SCALES and store.grows == "use":
+                self.counters[card.name] = self.counters.get(card.name, 0) + 1
+            if store.use != STORE_TAP or not self._store_ready(card):
+                continue
+            if store.energy:
+                self.energy -= store.per_use
+                continue
+            self.counters[card.name] -= store.per_use
+            if self.counters[card.name] < store.per_use and store.empty:
+                self.emptied.append(card.name)
+
+    def _clear_emptied(self) -> None:
+        """Last turn's empty storage land is sacrificed, Wall of Roots dies,
+        Mana Bloom goes back to the hand."""
+        for name in self.emptied:
+            for zone in (self.lands, self.rocks, self.creatures, self.other_permanents):
+                card = next((each for each in zone if each.name == name), None)
+                if card is None:
+                    continue
+                zone.remove(card)
+                if card in self.stays_tapped:
+                    self.stays_tapped.remove(card)
+                self.counters.pop(name, None)
+                if card.store.empty == "hand":
+                    self.hand.append(card)
+                    self.note(f"{name} returns to hand")
+                else:
+                    self.graveyard.append(card)
+                    self.note(f"{name} " + ("dies" if card.store.empty == "dies"
+                                            else "is sacrificed"))
+                break
+        self.emptied = []
 
     # --- Moxen and mill costs (P19 R19) -----------------------------------
 
@@ -1578,6 +1732,7 @@ class Game:
         self.pending_mana = []
         self.spells_this_turn = 0
         self.note(f"--- Turn {self.turn} ---")
+        self._clear_emptied()
         if self.turn > 1:
             # The opponents' turns since the last one of yours (P19 R16).
             self.fire(OPPONENT_TURNS)

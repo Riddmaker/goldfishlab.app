@@ -42,6 +42,9 @@ from simulation.cards import (
     LANDS_COULD_PRODUCE,
     MULTIPLY,
     PER_CONTROLLED,
+    STORE_FREE,
+    STORE_SCALES,
+    STORE_TAP,
     TYPE_ADDING,
     AdditionalCost,
     Card,
@@ -51,6 +54,7 @@ from simulation.cards import (
     LandSearch,
     ManaAbility,
     SpellFilter,
+    Store,
     TapMana,
     TappedUnless,
     Trigger,
@@ -1098,6 +1102,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
                   else _tap_mana(profile, deck_colors, chosen, color)),
         mox="" if _overrides_mana(overrides) else str(getattr(profile, "mox", "") or ""),
         mana_mills=int(getattr(profile, "mana_mills", 0) or 0),
+        store=None if _overrides_mana(overrides) else _store(profile, deck_colors),
     )
 
     _record_gaps(card, profile, overrides, gaps, oracle_card.oracle_text or "")
@@ -1175,6 +1180,104 @@ def _record_tapping(card: Card, gaps: list[Gap]) -> None:
     if card.mana_mills:
         gaps.append(Gap(card.name, "assumed_cost", gettext_noop(
             "is tapped for mana every turn, and mills a card each time")))
+
+
+def _store(profile, deck_colors: frozenset[str]) -> Store | None:
+    """Mana kept as counters, energy or a Food, as the engine plays it
+    (P19 R20): "any color" the deck's; "X mana of any one color" one colour
+    the hand asks for, which the game settles."""
+    found = getattr(profile, "mana_store", None)
+    if not found or not found.get("amount"):
+        return None
+    produces = found.get("produces")
+    if produces is None:
+        mana = "" if found["use"] == STORE_SCALES else _any_colour(deck_colors)
+    elif len(produces) == 1:
+        mana = next(iter(produces))
+    else:
+        return None
+    return Store(use=found["use"], mana=mana, amount=int(found["amount"]),
+                 per_use=int(found.get("per_use") or 1), energy=found.get("kind") == "energy",
+                 start=int(found.get("start") or 0), start_from=found.get("start_from", ""),
+                 grows=found.get("grows", ""), empty=found.get("empty", ""))
+
+
+#: P19 R20: how a store spends its counters, as said beside the card.
+_STORE_USE = {
+    STORE_FREE: gettext_noop(
+        "keeps its counters as mana and spends them only when a spell needs them, as a "
+        "Treasure is spent"),
+    STORE_TAP: gettext_noop(
+        "spends a counter each turn it is tapped for this mana, whether or not that colour "
+        "is needed; with none left it makes only its other mana, if it has any"),
+}
+_STORE_START = {
+    "x": gettext_noop(
+        "enters with X counters, X being all the mana left when it is cast, last in the "
+        "main phase"),
+    "kicks": gettext_noop(
+        "is kicked as often as the mana left pays for, at least once - cast last in the "
+        "main phase, as a spell with X is"),
+    "colors": gettext_noop(
+        "enters with a counter for each colour the open mana can make when it is cast, at "
+        "most one for each mana it costs"),
+}
+_STORE_GROWS = {
+    "tap": gettext_noop(
+        "taps each turn from the turn after it enters to put one more counter on itself"),
+    "use": gettext_noop(
+        "puts a counter on itself each time it is tapped, so it makes one more mana each "
+        "turn"),
+    "red_spell": gettext_noop(
+        "gets a counter for each red spell you cast and turns each three into {R}{R}{R} at "
+        "once, kept as a Treasure is until a spell needs it"),
+}
+_STORE_EMPTY = {
+    "sacrifice": gettext_noop(
+        "is sacrificed as your next turn begins once its last counter is gone"),
+    "dies": gettext_noop(
+        "makes its mana once for each point of toughness, then dies as your next turn begins"),
+    "hand": gettext_noop(
+        "returns to your hand as your next turn begins once its last counter is gone, and "
+        "may be cast again"),
+}
+
+
+def _record_store(card: Card, found: dict, gaps: list[Gap]) -> None:
+    """P19 R20: what the engine assumes about mana kept as counters, energy
+    or a Food - stated on the card list, beside the card."""
+    store = card.store
+    if store is None:
+        return
+    said = []
+    if store.energy:
+        said.append(gettext_noop(
+            "spends one energy each turn it is tapped for any colour, whether or not that "
+            "colour is needed; energy comes only from cards that give it as they enter, and "
+            "without it the card makes only its other mana, if it has any"))
+    elif found.get("kind") == "food":
+        said.append(gettext_noop(
+            "sacrifices the Food it makes as it enters for one mana, once; it never pays "
+            "{1}{G} for another Food, which costs more than it gives"))
+    elif store.use in _STORE_USE and store.grows != "red_spell" and store.empty != "dies":
+        said.append(_STORE_USE[store.use])
+    if found.get("once"):
+        said.append(gettext_noop(
+            "is used once each turn from the turn after it enters, as if it tapped"))
+    if found.get("target"):
+        said.append(gettext_noop(
+            "puts the counters it enters with on itself - on another creature it would make "
+            "no mana"))
+    if store.start_from in _STORE_START:
+        said.append(_STORE_START[store.start_from])
+    if store.grows in _STORE_GROWS:
+        said.append(_STORE_GROWS[store.grows])
+    if store.empty in _STORE_EMPTY:
+        said.append(_STORE_EMPTY[store.empty])
+    if store.use == STORE_SCALES and not store.mana:
+        said.append(gettext_noop(
+            "makes all its mana in one colour: the one the cards in hand ask for most"))
+    gaps.extend(Gap(card.name, "assumed_cost", text) for text in said)
 
 
 def _power(oracle_card) -> int:
@@ -1572,7 +1675,14 @@ def _after_draw(profile, overrides: dict, kind: str, key: str, field_name: str) 
 
 
 def _x_count(oracle_card, profile) -> int:
-    """How many {X} the cost has (P19 R9): three on Astral Cornucopia."""
+    """How many {X} the cost has (P19 R9): three on Astral Cornucopia.
+
+    P19 R20: Everflowing Chalice's multikicker is an X too - {2} for each
+    time, and X its counters.
+    """
+    store = getattr(profile, "mana_store", None) or {}
+    if store.get("start_from") == "kicks":
+        return int(store.get("kick") or 0)
     if not profile.has_x:
         return 0
     return (oracle_card.mana_cost or "").upper().count("{X}") or 1
@@ -1908,7 +2018,7 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
 
     if profile.produces_mana and profile.mana_amount is None and not card.mana_abilities \
             and not card.treasures and not card.ritual_counts and card.sacrifice_mana is None \
-            and not card.triggers and card.tap_mana is None:
+            and not card.triggers and card.tap_mana is None and card.store is None:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("makes mana, but how much could not be read")))
 
@@ -1929,6 +2039,7 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
         gaps.append(Gap(card.name, "assumed_trigger", template % params, template, params))
 
     _record_tapping(card, gaps)
+    _record_store(card, getattr(profile, "mana_store", None) or {}, gaps)
 
     if any(way.life_x for way in card.additional_costs):
         gaps.append(Gap(card.name, "assumed_cost", gettext_noop(

@@ -1331,6 +1331,16 @@ class ManaClause:
     mills: int = 0
     #: P19 R19: "one mana of any of the exiled card's colors" (Chrome Mox).
     imprint: bool = False
+    #: P19 R20: the cost spends something the card keeps: {"kind": a counter
+    #: kind ("charge", "+1/+1", "-0/-1"), "energy" or "food", "per_use",
+    #: "text": the cost as printed}. None: no such cost.
+    store: dict | None = None
+    #: P19 R20: "{C} for each charge counter on this artifact" - the kind of
+    #: counter the amount is multiplied by. Empty: a fixed amount.
+    per_counter: str = ""
+    #: P19 R20: "Put a charge counter on this artifact. Add X mana ..." -
+    #: the ability adds a counter before it counts them.
+    adds_counter: bool = False
     problem: str = ""
     note: str = ""
 
@@ -1387,6 +1397,10 @@ class ManaReading:
     mox: str = ""
     #: P19 R19: cards milled each time it is tapped for mana (Millikin).
     mills: int = 0
+    #: P19 R20: mana kept as counters, energy or a Food, see `_read_store`.
+    #: None: none. The rest of the reading is what the card taps for
+    #: without it (Aether Hub's {C}), or nothing.
+    store: dict | None = None
     notes: list[str] = field(default_factory=list)
 
 
@@ -1417,6 +1431,36 @@ _ENTERS_WITH_ARTIFACT_TOKEN = re.compile(
 #: Chrome Mox: the colours of the card it imprinted (P19 R19).
 _IMPRINTED_COLORS = re.compile(r"one mana of any of the exiled card's colors",
                                re.IGNORECASE)
+
+
+#: P19 R20: a kind of counter as printed - "charge", "+1/+1", "-1/-1".
+_COUNTER_KIND = r"(?P<kind>[+-]\d+/[+-]\d+|[a-z]+)"
+_ENERGY_COST = re.compile(r"Pay ((?:\{E\})+)")
+_FOOD_COST = re.compile(r"Sacrifice a Food", re.IGNORECASE)
+#: Mana counted by the counters on the card itself (Everflowing Chalice,
+#: Astral Cornucopia, Empowered Autogenerator).
+_PER_COUNTER = re.compile(
+    rf"(?:(?P<symbol>\{{[WUBRGC]\}}) for each|(?P<one>one) mana of that colou?r for each"
+    rf"|X mana of any one colou?r, where X is the number of) {_COUNTER_KIND} counters? on ",
+    re.IGNORECASE)
+_ONCE_EACH_TURN = re.compile(r"Activate only once each turn", re.IGNORECASE)
+
+
+def _store_cost(part: str, card: OracleCard) -> dict | None:
+    """A cost that spends what the card keeps, or None (P19 R20)."""
+    me = _self_reference(card)
+    found = re.fullmatch(rf"Remove (?P<n>a|an|one|two|three) {_COUNTER_KIND} counters? from {me}",
+                         part, re.IGNORECASE)
+    if found is not None:
+        return {"kind": found.group("kind").lower(), "per_use": _word_number(found.group("n")),
+                "text": part}
+    if re.fullmatch(rf"Put a -0/-1 counter on {me}", part, re.IGNORECASE):
+        return {"kind": "-0/-1", "per_use": 1, "text": part}
+    if (found := _ENERGY_COST.fullmatch(part)) is not None:
+        return {"kind": "energy", "per_use": found.group(1).count("{E}"), "text": part}
+    if _FOOD_COST.fullmatch(part):
+        return {"kind": "food", "per_use": 1, "text": part}
+    return None
 
 
 def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
@@ -1470,6 +1514,10 @@ def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
         if _MILL_A_CARD.fullmatch(part):
             clause.mills = 1
             continue
+        if (store := _store_cost(part, card)) is not None:
+            # P19 R20: Pentad Prism, Aether Hub, Wall of Roots, Gilded Goose.
+            clause.store = store
+            continue
         if _SYMBOL_RUN.fullmatch(part):
             clause.problem = gettext_noop(
                 "a mana ability with a coloured cost (a filter) is not modelled")
@@ -1486,9 +1534,19 @@ def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
         clause.taps_other = None
 
 
-def _read_produced(clause: ManaClause, after: str, card_text: str = "") -> None:
+def _read_produced(clause: ManaClause, after: str, card_text: str = "",
+                   card: OracleCard | None = None) -> None:
     """What follows `Add`: symbols, "N mana of any color", or something that scales."""
     after = after.lstrip()
+    counted = _PER_COUNTER.match(after)
+    if counted and card is not None and re.match(
+            rf"{_self_reference(card)}\s*\.", after[counted.end():], re.IGNORECASE):
+        # P19 R20: one mana for each counter on the card itself.
+        symbol = counted.group("symbol")
+        clause.amount = 1
+        clause.produces = {symbol[1].upper(): 1} if symbol else None
+        clause.per_counter = counted.group("kind").lower()
+        return
     run = _SYMBOL_RUN.match(after)
     if run:
         symbols = [symbol.upper() for symbol in _SYMBOL.findall(run.group())]
@@ -1573,12 +1631,24 @@ def _mana_clauses(card: OracleCard, *, is_spell: bool) -> list[ManaClause]:
                 if not is_spell:
                     clause.problem = gettext_noop(
                         "makes mana only from a triggered or static ability")
+            counter_first = re.fullmatch(
+                rf"\s*(?:Choose a colou?r|(?P<put>Put an? {_COUNTER_KIND} counter on "
+                rf"{_self_reference(card)}))\.\s*", prefix, re.IGNORECASE)
+            if counter_first is not None and clause.is_ability and not clause.problem \
+                    and _PER_COUNTER.match(after.lstrip()):
+                # P19 R20: Astral Cornucopia chooses its one colour first,
+                # Empowered Autogenerator adds a counter before it counts.
+                prefix = ""
+                clause.adds_counter = bool(counter_first.group("put"))
             if prefix.strip() and not clause.problem:
                 # Deathrite Shaman: "{T}: Exile target land card from a
                 # graveyard. Add ..." - the mana needs a target first.
                 clause.problem = gettext_noop("makes mana only as part of another effect")
             if not clause.problem:
-                _read_produced(clause, after, card.oracle_text or "")
+                _read_produced(clause, after, card.oracle_text or "", card)
+            if clause.store is not None and _ONCE_EACH_TURN.search(after):
+                # P19 R20: Wall of Roots and Mana Bloom - once a turn, as a tap.
+                clause.store["once"] = True
             if not clause.problem and _RESTRICTED.search(after):
                 _restrict(clause, after, card)
             if not clause.problem and _NOT_FOR_GENERIC.search(after):
@@ -1787,6 +1857,96 @@ def _read_restricted(reading: ManaReading, restricted: list[ManaClause], notes: 
         reading.condition = {"if": first.condition, "otherwise": otherwise}
 
 
+_NUMBER_OR_X = r"(?P<n>a|an|one|two|three|four|five|six|seven|eight|nine|ten|X|\d+)"
+
+
+def _read_store(card: OracleCard, stores: list[ManaClause], notes: set) -> dict | None:
+    """Mana the card keeps as counters, energy or a Food (P19 R20), or None.
+
+    {"use": "free" (spent whenever a payment needs it, as a Treasure),
+    "tap" (one use each turn, with its {T} or "once each turn") or "scales"
+    (one mana for each counter, which stay); "kind", "per_use", "amount",
+    "produces" (None: a colour of the deck's); "start" counters as it enters,
+    or "start_from" "x" / "colors" (Sunburst, Converge) / "kicks" with
+    "kick" the multikicker's generic cost; "grows" "tap" (Crystalline
+    Crawler's {T}), "use" (Empowered Autogenerator) or "red_spell"
+    (Runaway Steam-Kin); "empty" "sacrifice", "hand" (Mana Bloom) or "dies"
+    (Wall of Roots); "target": the counters go on "target creature you
+    control" (Channeler Initiate); "once"}.
+    """
+    first = stores[0]
+    text = card.oracle_text or ""
+    me = _self_reference(card)
+    if first.per_counter:
+        kind, problem = first.per_counter, gettext_noop("mana amount scales with the board")
+    else:
+        kind = first.store["kind"]
+        problem = f"a mana ability that costs '{first.store['text']}' is not modelled"[:120]
+    if len(stores) > 1 or first.amount is None or first.activation or first.condition \
+            or first.spend_only or first.sacrifices_self or first.taps_other is not None \
+            or first.mills:
+        notes.add(problem)
+        return None
+    store = {"use": "scales" if first.per_counter else "tap"
+             if first.taps or first.store.get("once") else "free",
+             "kind": kind, "per_use": 0 if first.per_counter else first.store["per_use"],
+             "amount": first.amount, "produces": first.produces, "start": 0,
+             "start_from": "", "kick": 0, "grows": "", "empty": "", "target": False,
+             "once": bool(first.store and first.store.get("once"))}
+    counter = re.escape(kind)
+    if kind == "energy":
+        found = re.search(r"When [^.]*? enters, you get ((?:\{E\})+)", text)
+        start = found.group(1).count("{E}") if found else None
+    elif kind == "food":
+        start = 1 if re.search(r"When [^.]*? enters, create a Food token", text) else None
+    elif kind == "-0/-1":
+        start = int(card.toughness) if (card.toughness or "").isdigit() else None
+        store["empty"] = "dies"
+    else:
+        start = None
+        if (found := re.search(rf"enters (?:tapped )?with {_NUMBER_OR_X} {counter} counters? "
+                               r"on it(?P<each> for each (?:colou?r of mana spent|time it "
+                               r"was kicked))?", text, re.IGNORECASE)) is not None:
+            if found.group("each") and "kicked" in found.group("each"):
+                kick = re.search(r"Multikicker \{(\d+)\}", text)
+                if kick is not None:
+                    store["start_from"], store["kick"] = "kicks", int(kick.group(1))
+            elif found.group("each"):
+                store["start_from"] = "colors"
+            elif found.group("n").upper() == "X":
+                store["start_from"] = "x"
+            else:
+                start = _word_number(found.group("n"))
+            if store["start_from"]:
+                start = 0
+        elif (found := re.search(rf"enters, put {_NUMBER_OR_X} {counter} counters? on target "
+                                 r"creature you control", text, re.IGNORECASE)) is not None:
+            # D4: on itself - the only way it makes mana.
+            start, store["target"] = _word_number(found.group("n")), True
+        if first.adds_counter:
+            store["grows"] = "use"
+        elif re.search(rf"\{{T\}}: Put an? {counter} counter on {me}\.", text, re.IGNORECASE):
+            store["grows"] = "tap"
+        elif re.search(rf"Whenever you cast a red spell, [^.]*?put an? {counter} counter on "
+                       rf"{me}", text, re.IGNORECASE):
+            store["grows"] = "red_spell"
+        if start is None and store["grows"]:
+            start = 0
+        if re.search(rf"If there are no {counter} counters on {me}, sacrifice it", text,
+                     re.IGNORECASE):
+            store["empty"] = "sacrifice"
+        elif re.search(rf"if {me} has no {counter} counters on it, return it to its owner's "
+                       r"hand", text, re.IGNORECASE):
+            store["empty"] = "hand"
+    if start is None or (store["use"] == "tap" and store["grows"] == "tap"):
+        # Mirrodin's Core taps either to add a counter or for one: a choice
+        # each turn the engine does not make.
+        notes.add(problem)
+        return None
+    store["start"] = start
+    return store
+
+
 def _mana_production(card: OracleCard) -> ManaReading:
     """How much mana the card adds, at what cost, and how often.
 
@@ -1886,6 +2046,11 @@ def _mana_production(card: OracleCard) -> ManaReading:
                 **first.taps_other, "amount": first.amount, "produces": first.produces,
                 "spend_only": first.spend_only,
                 "token": 1 if artifacts and _ENTERS_WITH_ARTIFACT_TOKEN.search(text) else 0}
+    stores = [clause for clause in usable if clause.store is not None or clause.per_counter]
+    usable = [clause for clause in usable if clause.store is None and not clause.per_counter]
+    if stores:
+        # P19 R20: mana kept as counters, energy or a Food.
+        reading.store = _read_store(card, stores, notes)
     from_hand = [clause for clause in usable if clause.from_hand]
     usable = [clause for clause in usable if not clause.from_hand]
     if from_hand:
@@ -2425,7 +2590,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     counts = mana_rule is not None and mana_rule["rule"] == "counts"
     altar = mana.sacrifice is not None and (mana.sacrifice["amount"] or 0) > 1
     if MULTIPLE_MANA_TAG in tags and amount == 1 and not counts and not altar \
-            and mana.tap_mana is None:
+            and mana.tap_mana is None and mana.store is None:
         reasons.append(gettext_noop("tagged as adding more than one mana; only one was read"))
     if additional.reason:
         reasons.append(additional.reason)
@@ -2476,6 +2641,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         tap_mana=mana.tap_mana,
         mox=mana.mox,
         mana_mills=mana.mills,
+        mana_store=mana.store,
         triggers=triggers.found,
         cost_reduction=_first_number(_COST_REDUCTION, text),
         draws_cards=draw.cards,
@@ -2607,7 +2773,8 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "mana_filter", "mana_spend_only", "mana_chosen_color", "treasures", "landers",
             "discard_cost",
             "additional_cost",
-            "sacrifice_mana", "mana_from_hand", "tap_mana", "mox", "mana_mills", "triggers",
+            "sacrifice_mana", "mana_from_hand", "tap_mana", "mox", "mana_mills", "mana_store",
+            "triggers",
             "discards_after", "puts_back",
             "draws_x",
             "extra_cost",

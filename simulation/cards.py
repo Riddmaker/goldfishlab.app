@@ -480,6 +480,48 @@ class TapMana:
     tokens: int = 0
 
 
+#: ``Store.use``: spent whenever a payment needs it, as a Treasure (Pentad
+#: Prism); one use each turn the card taps (Vivid lands, Aether Hub, Wall of
+#: Roots); or one mana for each counter, which stay (Everflowing Chalice).
+STORE_FREE = "free"
+STORE_TAP = "tap"
+STORE_SCALES = "scales"
+
+
+@dataclass(frozen=True)
+class Store:
+    """Mana a permanent keeps as counters, energy or a Food (P19 R20).
+
+    Attributes:
+        use: ``STORE_FREE``, ``STORE_TAP`` or ``STORE_SCALES``.
+        mana: What one use adds - a colour, ``C`` or a choice key; for
+            ``STORE_SCALES`` empty means one colour the hand wants.
+        amount: How much of it, for each counter when it scales.
+        per_use: Counters one use spends (Runaway Steam-Kin: three).
+        energy: The counters are the player's energy, shared by all.
+        start: Counters as it enters.
+        start_from: ``x`` (Astral Cornucopia, Mana Bloom), ``colors``
+            (Sunburst, Converge) or ``kicks`` (Everflowing Chalice, cast as a
+            spell with X); empty: ``start``.
+        grows: ``tap`` - its {T} adds one each turn (Crystalline Crawler);
+            ``use`` - each use adds one before counting (Empowered
+            Autogenerator); ``red_spell`` - one for each red spell cast.
+        empty: With the last counter gone, at the start of the next turn:
+            ``sacrifice`` (storage lands, Gemstone Mine), ``dies`` (Wall of
+            Roots) or ``hand`` (Mana Bloom).
+    """
+
+    use: str = STORE_TAP
+    mana: str = ""
+    amount: int = 1
+    per_use: int = 1
+    energy: bool = False
+    start: int = 0
+    start_from: str = ""
+    grows: str = ""
+    empty: str = ""
+
+
 #: ``Card.mox``: "If this artifact would enter, you may discard a land card
 #: instead" (Mox Diamond), and "Imprint - exile a nonartifact, nonland card"
 #: whose colours it makes (Chrome Mox).
@@ -729,6 +771,9 @@ class Card:
     mox: str = ""
     #: P19 R19: cards it mills each time it is tapped for mana (Millikin).
     mana_mills: int = 0
+    #: P19 R20: mana it keeps as counters, energy or a Food. Its
+    #: ``mana_abilities`` are what it taps for without them.
+    store: Store | None = None
 
     @property
     def mana_cost(self) -> ManaCost:

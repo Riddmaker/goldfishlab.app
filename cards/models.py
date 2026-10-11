@@ -405,6 +405,11 @@ class DerivedProfile(models.Model):
     mox = models.CharField(max_length=16, blank=True, default="")
     #: P19 R19: cards milled each time it is tapped for mana (Millikin).
     mana_mills = models.PositiveSmallIntegerField(default=0)
+    #: P19 R20: mana kept as counters, energy or a Food - Pentad Prism,
+    #: Aether Hub, Everflowing Chalice: {"use", "kind", "per_use", "amount",
+    #: "produces", "start", "start_from", "kick", "grows", "empty", "target",
+    #: "once"}, see `cards.profiles._read_store`. Null: none.
+    mana_store = models.JSONField(null=True, blank=True, default=None)
     #: P19 R16: the triggers that make Treasure, mana or cards - Lotus Cobra,
     #: Storm-Kiln Artist, Smothering Tithe: a list of {"event", "filter",
     #: "treasures", "spawn", "mana", "color", "draw", "life", "tax"}.

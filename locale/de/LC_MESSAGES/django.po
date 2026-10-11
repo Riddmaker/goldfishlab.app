@@ -10038,3 +10038,158 @@ msgstr ""
 #: simulations/engine/adapter.py
 msgid "is tapped for mana every turn, and mills a card each time"
 msgstr "wird jeden Zug für Mana getappt und millt dabei jedes Mal eine Karte"
+
+#: simulations/engine/adapter.py
+msgid ""
+"keeps its counters as mana and spends them only when a spell needs them, as "
+"a Treasure is spent"
+msgstr ""
+"hält ihre Marken als Mana und gibt sie erst aus, wenn ein Zauberspruch sie "
+"braucht - wie ein Treasure"
+
+#: simulations/engine/adapter.py
+msgid ""
+"spends a counter each turn it is tapped for this mana, whether or not that "
+"colour is needed; with none left it makes only its other mana, if it has any"
+msgstr ""
+"gibt jeden Zug, in dem sie für dieses Mana getappt wird, eine Marke aus - ob"
+" die Farbe gebraucht wird oder nicht; ohne Marken macht sie nur ihr anderes "
+"Mana, falls sie eines hat"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters with X counters, X being all the mana left when it is cast, last in "
+"the main phase"
+msgstr ""
+"kommt mit X Marken ins Spiel; X ist alles Mana, das übrig ist, wenn sie "
+"gewirkt wird - zuletzt in der Hauptphase"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is kicked as often as the mana left pays for, at least once - cast last in "
+"the main phase, as a spell with X is"
+msgstr ""
+"wird so oft gekickt, wie das übrige Mana bezahlt, mindestens einmal - "
+"zuletzt in der Hauptphase gewirkt, wie ein Zauberspruch mit X"
+
+#: simulations/engine/adapter.py
+msgid ""
+"enters with a counter for each colour the open mana can make when it is "
+"cast, at most one for each mana it costs"
+msgstr ""
+"kommt mit einer Marke für jede Farbe ins Spiel, die das offene Mana beim "
+"Wirken machen kann - höchstens eine für jedes Mana, das sie kostet"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each turn from the turn after it enters to put one more counter on "
+"itself"
+msgstr ""
+"tappt sich ab dem Zug nach dem Ins-Spiel-Kommen jeden Zug, um sich eine "
+"weitere Marke zu geben"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts a counter on itself each time it is tapped, so it makes one more mana "
+"each turn"
+msgstr ""
+"legt sich jedes Mal, wenn sie getappt wird, eine Marke hinzu und macht so "
+"jeden Zug ein Mana mehr"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a counter for each red spell you cast and turns each three into "
+"{R}{R}{R} at once, kept as a Treasure is until a spell needs it"
+msgstr ""
+"bekommt für jeden roten Zauberspruch, den du wirkst, eine Marke und macht "
+"aus je drei sofort {R}{R}{R}, das wie ein Treasure aufbewahrt wird, bis ein "
+"Zauberspruch es braucht"
+
+#: simulations/engine/adapter.py
+msgid "is sacrificed as your next turn begins once its last counter is gone"
+msgstr ""
+"wird zu Beginn deines nächsten Zuges geopfert, sobald ihre letzte Marke weg "
+"ist"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes its mana once for each point of toughness, then dies as your next turn"
+" begins"
+msgstr ""
+"macht ihr Mana einmal für jeden Punkt Widerstandskraft und stirbt dann zu "
+"Beginn deines nächsten Zuges"
+
+#: simulations/engine/adapter.py
+msgid ""
+"returns to your hand as your next turn begins once its last counter is gone,"
+" and may be cast again"
+msgstr ""
+"kehrt zu Beginn deines nächsten Zuges auf deine Hand zurück, sobald ihre "
+"letzte Marke weg ist, und kann erneut gewirkt werden"
+
+#: simulations/engine/adapter.py
+msgid ""
+"spends one energy each turn it is tapped for any colour, whether or not that"
+" colour is needed; energy comes only from cards that give it as they enter, "
+"and without it the card makes only its other mana, if it has any"
+msgstr ""
+"gibt jeden Zug, in dem sie für eine beliebige Farbe getappt wird, eine "
+"Energie aus - ob die Farbe gebraucht wird oder nicht; Energie kommt nur von "
+"Karten, die sie beim Ins-Spiel-Kommen geben, und ohne sie macht die Karte "
+"nur ihr anderes Mana, falls sie eines hat"
+
+#: simulations/engine/adapter.py
+msgid "is used once each turn from the turn after it enters, as if it tapped"
+msgstr ""
+"wird ab dem Zug nach dem Ins-Spiel-Kommen einmal pro Zug genutzt, als würde "
+"sie getappt"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts the counters it enters with on itself - on another creature it would "
+"make no mana"
+msgstr ""
+"legt die Marken, mit denen sie ins Spiel kommt, auf sich selbst - auf einer "
+"anderen Kreatur würde sie kein Mana machen"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes all its mana in one colour: the one the cards in hand ask for most"
+msgstr ""
+"macht ihr ganzes Mana in einer Farbe: der, nach der die Karten auf der Hand "
+"am meisten fragen"
+
+#: simulations/engine/adapter.py
+msgid ""
+"sacrifices the Food it makes as it enters for one mana, once; it never pays "
+"{1}{G} for another Food, which costs more than it gives"
+msgstr ""
+"opfert das Food, das sie beim Ins-Spiel-Kommen erzeugt, einmal für ein Mana;"
+" sie bezahlt nie {1}{G} für ein weiteres Food, das mehr kostet, als es "
+"bringt"
+
+#: changelog/entries.py
+msgid "Everflowing Chalice, Pentad Prism, energy and storage lands"
+msgstr "Everflowing Chalice, Pentad Prism, Energie und Speicherländer"
+
+#: changelog/entries.py
+msgid ""
+"Cards that keep their mana as counters, energy or a Food now make it in a "
+"simulated game. Pentad Prism and Crystalline Crawler spend their counters "
+"only when a spell needs them, as a Treasure; Runaway Steam-Kin turns three "
+"counters into three red mana. Vivid lands, storage lands, Gemstone Mine, "
+"Aether Hub, Servant of the Conduit, Channeler Initiate, Wall of Roots, Mana "
+"Bloom and Gilded Goose use one each turn they tap. Everflowing Chalice is "
+"kicked like a spell with X, and it, Astral Cornucopia and Empowered "
+"Autogenerator make one mana for each counter. Your deck page says all of "
+"this beside each card."
+msgstr ""
+"Karten, die ihr Mana als Marken, Energie oder ein Food aufbewahren, machen "
+"es jetzt im simulierten Spiel. Pentad Prism und Crystalline Crawler geben "
+"ihre Marken erst aus, wenn ein Zauberspruch sie braucht - wie ein Treasure; "
+"Runaway Steam-Kin macht aus drei Marken drei rote Mana. Vivid-Länder, "
+"Speicherländer, Gemstone Mine, Aether Hub, Servant of the Conduit, Channeler"
+" Initiate, Wall of Roots, Mana Bloom und Gilded Goose nutzen eine pro Zug, "
+"in dem sie tappen. Everflowing Chalice wird gekickt wie ein Zauberspruch mit"
+" X, und er, Astral Cornucopia und Empowered Autogenerator machen ein Mana "
+"pro Marke. Deine Deckseite sagt das alles neben jeder Karte."

@@ -148,6 +148,13 @@ boundary, not the symptom.
 #:    Architect each blue creature. Mox Diamond discards a spare land card,
 #:    Chrome Mox exiles the most expensive coloured card and makes its
 #:    colours; Millikin mills a card each time it taps.
-ENGINE_VERSION = 23
+#: 24: P19 R20. Mana kept as counters, energy or a Food: Pentad Prism and
+#:    Crystalline Crawler spend theirs as a Treasure, only when a payment
+#:    needs it; Vivid lands, storage lands, Gemstone Mine, Aether Hub,
+#:    Servant of the Conduit, Wall of Roots, Mana Bloom and Gilded Goose one
+#:    each turn they tap; Everflowing Chalice (kicked as an X), Astral
+#:    Cornucopia and Empowered Autogenerator tap for one per counter;
+#:    Runaway Steam-Kin turns three counters into {R}{R}{R}.
+ENGINE_VERSION = 24
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

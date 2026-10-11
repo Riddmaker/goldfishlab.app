@@ -211,10 +211,11 @@ def _plain(value):
 
 #: The card columns the reader and the adapter read. Everything else - the
 #: legalities, the image and Scryfall links, the prices' ranks - only chose the
-#: fixed set, and would only make the fixture bigger.
+#: fixed set, and would only make the fixture bigger. P19 R20: the toughness
+#: Wall of Roots spends as its counters.
 CARD_COLUMNS = ("oracle_id", "name", "front_name", "search_name", "mana_cost", "cmc",
                 "type_line", "oracle_text", "colors", "color_identity", "produced_mana",
-                "keywords", "layout", "game_changer")
+                "keywords", "layout", "game_changer", "toughness")
 
 
 def pack(cards: list[dict], tags: dict, edges: list, links: list) -> dict:

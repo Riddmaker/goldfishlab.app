@@ -29,6 +29,7 @@ from decks.models import Deck, DeckCard
 from simulation.fixtures import chainer
 from simulations.fixtures import annotation_overrides
 from simulations.models import CardAnnotation
+from simulations.primitives import keep_taps_for_scope
 
 DECK_NAME = "Chainer, Dementia Master"
 
@@ -126,6 +127,10 @@ class Command(BaseCommand):
             overrides = _without_deck_specific_colour(
                 annotation_overrides(card), cards[card.name]
             )
+            # The author's "taps for" meant every mana reading of the card,
+            # as it did before the editor rebuild: Ashnod's Altar is no altar here.
+            overrides = keep_taps_for_scope(
+                overrides, getattr(cards[card.name], "profile", None))
             if not overrides:
                 continue
             _, created = CardAnnotation.objects.update_or_create(

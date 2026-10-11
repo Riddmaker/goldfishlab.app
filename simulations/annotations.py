@@ -310,3 +310,33 @@ def _merged(kept: dict, values: dict) -> dict:
         if value is not None:
             kept[key] = value
     return kept
+
+
+#: The editor rebuild: "back to the card data" for one primitive - the key is
+#: removed, so the reader's reading stands again. Not `None`, which is a
+#: statement ("the card does not do this").
+RESET = object()
+
+
+def apply_primitives(overrides: dict, changes: dict) -> dict:
+    """Merge changes to some primitives into an existing `overrides` dict.
+
+    Unlike :func:`apply`, which owns every judgement and takes the whole
+    form, a primitive is edited one block at a time: keys not in `changes`
+    stay as they are. A value of :data:`RESET` removes the key; `None`
+    switches the primitive off.
+
+    Returns:
+        dict: The overrides to store. Never the same object as `overrides`.
+    """
+    from simulations import primitives
+
+    kept = dict(overrides or {})
+    for key, value in changes.items():
+        if key not in primitives.KEYS:
+            raise ValueError(f"{key!r} is not a primitive")
+        if value is RESET:
+            kept.pop(key, None)
+        else:
+            kept[key] = primitives.validate(key, value)
+    return kept

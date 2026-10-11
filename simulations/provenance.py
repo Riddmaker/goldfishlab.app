@@ -161,6 +161,15 @@ ANNOTATION_KEY = {
     "goldfish_castable": "goldfish_castable",
 }
 
+#: The editor rebuild: primitives that answer a row too, after its
+#: judgement key - a land search shown as what the card searches for.
+PRIMITIVE_KEYS = {
+    "taps_for": ("mana_rule", "sacrifice_mana", "tap_mana", "mana_store", "mox"),
+    "enters_tapped": ("tapped_unless",),
+    "searches": ("tutor", "land_search"),
+    "triggers": ("triggers", "combat"),
+}
+
 #: Rows whose engine default is a fine answer rather than a weakness. The cast
 #: priority is the one: nobody is asked for it since Phase 9 C (decision D6 -
 #: the product is statistics about a deck, not steering a game), so flagging
@@ -309,9 +318,10 @@ def _source_for(spec: FieldSpec, card_scopes: dict, source_map: dict | None) -> 
     adapter already records that as a gap; claiming a Scryfall field for a card
     nothing has ever read would be the one dishonest answer available.
     """
-    annotation_key = ANNOTATION_KEY.get(spec.attribute)
-    if annotation_key and annotation_key in card_scopes:
-        return card_scopes[annotation_key]
+    for annotation_key in (ANNOTATION_KEY.get(spec.attribute),
+                           *PRIMITIVE_KEYS.get(spec.attribute, ())):
+        if annotation_key and annotation_key in card_scopes:
+            return card_scopes[annotation_key]
     if source_map is None:
         return "engine"
     for key in spec.derived_keys:

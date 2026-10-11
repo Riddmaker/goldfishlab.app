@@ -12,6 +12,7 @@ made in combat stays unread, with its own reason.
 
 import random
 import uuid
+from types import SimpleNamespace
 
 import pytest
 
@@ -36,6 +37,7 @@ from simulation.manacost import parse
 from simulations import blindspots, deck_cards
 from simulations.engine.adapter import Gap, Reading, _trigger_text
 from simulations.engine.adapter import _triggers as adapter_triggers
+from simulations.primitives import keep_taps_for_scope
 
 # --- the reader -----------------------------------------------------------------
 
@@ -372,9 +374,15 @@ def test_a_spawn_makes_colourless_and_a_treasure_the_deck_s_colours():
     assert spawn.treasure_mana == "C" and treasure.treasure_mana == "UG"
 
 
-def test_an_annotated_mana_switches_off_a_trigger_s_mana():
-    assert adapter_triggers(Profile([{"event": "landfall", "mana": 1, "color": "any"}]),
-                            {"mana_black": 1}, frozenset({"G"})) == ()
+def test_taps_for_leaves_a_trigger_s_mana_alone():
+    """Since the editor rebuild "Taps for" replaces the card's own tap ability
+    only; the `triggers` override is what switches a trigger off, and
+    `keep_taps_for_scope` writes it for an annotation from before."""
+    read = Profile([{"event": "landfall", "mana": 1, "color": "any"}])
+    assert len(adapter_triggers(read, {"mana_black": 1}, frozenset({"G"}))) == 1
+    kept = keep_taps_for_scope({"mana_black": 1}, SimpleNamespace(
+        triggers=read.triggers, sacrifice_mana=None, tap_mana=None, mana_store=None, mox=""))
+    assert adapter_triggers(Profile(kept["triggers"]), kept, frozenset({"G"})) == ()
 
 
 def test_the_card_page_says_what_a_trigger_does():

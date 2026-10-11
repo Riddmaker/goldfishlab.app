@@ -26,6 +26,7 @@ import secrets
 from dataclasses import dataclass
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
 from django.utils.translation import gettext, ngettext
@@ -36,7 +37,8 @@ from billing import quotas
 from billing.models import UsageRecord
 from core.l10n import number
 from metrics import counts
-from simulations.engine import runner
+from simulations import primitives
+from simulations.engine import adapter, runner
 from simulations.models import SimulationRun
 
 #: Runs at or below this size go to the short queue, which has a worker of its
@@ -400,12 +402,17 @@ def annotation_at(deck, oracle_card, scope: str):
     ).first()
 
 
-def save_annotation(*, deck, oracle_card, scope: str, judgements: dict,
-                    note: str = ""):
+def save_annotation(*, deck, oracle_card, scope: str, judgements: dict | None = None,
+                    note: str | None = "", primitive_changes: dict | None = None):
     """Write one judgement, merged into whatever is already stored.
 
     A "Looks right" already on the row is kept, and keeps the row: a row
     carrying only that flag is an answer, not an empty judgement.
+
+    `judgements` is the whole judgement form (`annotations.apply`); None
+    leaves the judgements as stored. `primitive_changes` edits some
+    primitives and leaves the rest (`annotations.apply_primitives`); each is
+    built once by the adapter before anything is stored.
 
     Returns:
         CardAnnotation | None: The row, or `None` when the judgement was empty
@@ -416,13 +423,22 @@ def save_annotation(*, deck, oracle_card, scope: str, judgements: dict,
         django.core.exceptions.ValidationError: From the model's own `clean`,
             which is what rejects a colour the engine would not recognise.
     """
-    from simulations.annotations import apply
+    from simulations.annotations import apply, apply_primitives
     from simulations.models import CardAnnotation
 
     keys = _scope_keys(deck, scope)
     existing = CardAnnotation.objects.filter(oracle_card=oracle_card, **keys).first()
-    overrides = apply(existing.overrides if existing else {}, judgements)
-    note = (note or "").strip()
+    overrides = existing.overrides if existing else {}
+    if judgements is not None:
+        overrides = apply(overrides, judgements)
+    if primitive_changes:
+        # The editor rebuild: one block at a time, the rest untouched.
+        try:
+            overrides = apply_primitives(overrides, primitive_changes)
+        except ValueError as exc:
+            raise ValidationError(str(exc)) from exc
+    # `None`: the note is not part of this save and stays as it is.
+    note = (existing.note if existing else "") if note is None else note.strip()
     confirmed = bool(existing and existing.confirmed)
     _recount_holding(deck, oracle_card, scope)
 
@@ -430,6 +446,13 @@ def save_annotation(*, deck, oracle_card, scope: str, judgements: dict,
         if existing:
             existing.delete()
         return None
+
+    if primitives.KEYS & set(overrides):
+        # The editor rebuild: a primitive is built once before it is stored.
+        try:
+            adapter.check_overrides(oracle_card, overrides)
+        except ValueError as exc:
+            raise ValidationError(str(exc)) from exc
 
     annotation, _created = CardAnnotation.objects.update_or_create(
         oracle_card=oracle_card,

@@ -9419,3 +9419,165 @@ msgstr "装備"
 #: templates/playtest/_board.html
 msgid "Creature to equip"
 msgstr "装備するクリーチャー"
+
+#: simulations/engine/adapter.py
+msgid "the creature it may exile and return with the land is not used"
+msgstr "土地と一緒に追放して戻せるクリーチャーは使われません"
+
+#: simulations/engine/adapter.py
+msgid "whenever you sacrifice an artifact, a Treasure spent included"
+msgstr "あなたがアーティファクトを生け贄に捧げるたび（使った宝物を含む）"
+
+#: simulations/engine/adapter.py
+msgid "in your second main phase, for each life your opponents lost in combat"
+msgstr "あなたの第2メイン・フェイズに、対戦相手が戦闘で失ったライフ1点につき"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts the combat damage of every creature that can attack, each assumed to "
+"deal it to a player: a goldfish has no blockers, so against opponents with "
+"many blockers this is optimistic; life lost any other way is not counted"
+msgstr ""
+"攻撃できるすべてのクリーチャーの戦闘ダメージを数え、それぞれがプレイヤーにダメージを与えると仮定します。ゴールドフィッシュにはブロッカーがいないので、ブロッカーの多い対戦相手に対しては楽観的です。それ以外の方法で失われたライフは数えません"
+
+#: simulations/engine/adapter.py
+msgid "as many basic lands as the greatest power among your creatures"
+msgstr "あなたのクリーチャーの中で最大のパワーに等しい数の基本土地"
+
+#: simulations/engine/adapter.py
+msgid "assumes one opponent takes the tempting offer, so you find two lands"
+msgstr "対戦相手1人が誘惑の申し出を受けると仮定するので、土地を2つ見つけます"
+
+#: simulations/engine/adapter.py
+msgid "assumes four players, so X is at most 4"
+msgstr "プレイヤーを4人と仮定するので、Xは最大4です"
+
+#: simulations/engine/adapter.py
+msgid ""
+"looks for a land, put onto the battlefield tapped, while your hand holds no "
+"land, and for a creature otherwise; its other modes are not used"
+msgstr "手札に土地がない間は土地を探してタップ状態で戦場に出し、そうでなければクリーチャーを探します。他のモードは使われません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"assumes the opponent puts the two best of the four cards into your "
+"graveyard; the other two go to your hand"
+msgstr "対戦相手が4枚のうち最も良い2枚をあなたの墓地に置くと仮定します。残りの2枚はあなたの手札に加わります"
+
+#: simulations/engine/adapter.py
+msgid ""
+"assumes an opponent controls three creatures from your fourth turn on; then "
+"it is sacrificed and puts your two best creatures onto the battlefield"
+msgstr ""
+"あなたの4ターン目以降、対戦相手がクリーチャーを3体コントロールしていると仮定します。そのとき生け贄に捧げられ、あなたの最も良いクリーチャー2体を戦場に出します"
+
+#: simulations/engine/adapter.py
+msgid ""
+"the card it exiles counts as a card in your hand, since you may play it from"
+" exile"
+msgstr "追放したカードは追放領域からプレイできるので、手札のカードとして扱います"
+
+#: simulations/engine/adapter.py
+msgid ""
+"you are one of the two players and find a card for the top of your library; "
+"the opponent's card is not counted"
+msgstr "あなたは2人のプレイヤーのうちの1人で、ライブラリーの一番上に置くカードを1枚探します。対戦相手のカードは数えません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"searches only an opponent's library, which a goldfish does not have: it does"
+" nothing here"
+msgstr "対戦相手のライブラリーだけを探しますが、ゴールドフィッシュには対戦相手がいないので、ここでは何もしません"
+
+#: simulations/engine/adapter.py
+msgid "X lands off the top of the library"
+msgstr "ライブラリーの一番上からX枚の土地"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s or Gates"
+msgstr "%(what)sまたは門"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, and one more for each opponent who searches too"
+msgstr "%(what)s、さらに同じく探した対戦相手1人につき1つ"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(search)s; %(count)s beside a creature with power %(power)s or greater"
+msgstr "%(search)s。パワー%(power)s以上のクリーチャーがいれば%(count)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, then once more"
+msgstr "%(search)s、その後もう一度"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "in each opponent's end step: %(search)s"
+msgstr "各対戦相手の終了ステップに：%(search)s"
+
+#: simulations/engine/adapter.py
+msgid "a +1/+1 counter on it"
+msgstr "それの上に+1/+1カウンター1個"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, any card with delirium"
+msgstr "%(what)s、昂揚があれば任意のカード"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, then a card discarded at random"
+msgstr "%(search)s、その後無作為にカード1枚を捨てる"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"in an upkeep, sacrificed once an opponent controls three creatures: "
+"%(search)s"
+msgstr "アップキープに、対戦相手がクリーチャーを3体コントロールしたら生け贄に捧げて：%(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(found)s cards, %(count)s of them to hand and the rest to the graveyard"
+msgstr "%(found)s枚のカード、うち%(count)s枚を手札に、残りを墓地に"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s to hand, a land onto the battlefield tapped"
+msgstr "%(what)sを手札に、土地ならタップ状態で戦場に"
+
+#: changelog/entries.py
+msgid ""
+"Archdruid's Charm, Gifts Ungiven, Tempt with Discovery and other searches"
+msgstr "Archdruid's Charm、Gifts Ungiven、Tempt with Discoveryなどのサーチ"
+
+#: changelog/entries.py
+msgid ""
+"More searches now work in a simulated game. Open the Armory, Solve the "
+"Equation, Spellseeker and Ranger-Captain of Eos find the kind of card they "
+"name, Demonic Counsel any card once your graveyard holds four card types, "
+"Gamble discards at random. Archdruid's Charm finds a land while your hand "
+"has none, a creature otherwise; Gifts Ungiven leaves you the two cards an "
+"opponent would give you; Defense of the Heart fires from your fourth turn. "
+"Traverse the Outlands, Entish Restoration, Circuitous Route, Claim Jumper, "
+"Keeper of the Accord, Open the Way and Sword of Hearth and Home find lands, "
+"and Tempt with Discovery finds two, assuming one opponent takes the offer. "
+"Cycle of Renewal and Roiling Regrowth now sacrifice their land, as printed. "
+"Neheb, the Eternal adds {R} for the combat damage, Crime Novelist for each "
+"Treasure you spend. Your deck page states every assumption beside the card."
+msgstr ""
+"シミュレーションでさらに多くのサーチが機能するようになりました。Open the Armory、Solve the "
+"Equation、Spellseeker、Ranger-Captain of Eosは指定された種類のカードを、Demonic "
+"Counselは墓地にカード・タイプが4つ以上あれば任意のカードを探し、Gambleは無作為に捨てます。Archdruid's "
+"Charmは手札に土地がない間は土地を、そうでなければクリーチャーを探します。Gifts "
+"Ungivenは対戦相手が渡すであろう2枚を残し、Defense of the Heartはあなたの4ターン目から誘発します。Traverse the "
+"Outlands、Entish Restoration、Circuitous Route、Claim Jumper、Keeper of the "
+"Accord、Open the Way、Sword of Hearth and Homeは土地を探し、Tempt with "
+"Discoveryは対戦相手1人が申し出を受けると仮定して2つ探します。Cycle of RenewalとRoiling "
+"Regrowthは印刷どおり土地を生け贄に捧げるようになりました。Neheb, the Eternalは戦闘ダメージに応じて{R}を、Crime "
+"Novelistはあなたが使った宝物1つにつき{R}を加えます。デッキ・ページではカードの横にすべての仮定を表示します。"

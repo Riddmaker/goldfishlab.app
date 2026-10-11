@@ -129,12 +129,13 @@ def test_two_searches_on_one_card_are_not_modelled():
 
 
 def test_a_tutor_that_taxes_you_says_so():
-    """Gamble opens with Demonic Tutor's exact sentence and is a different card."""
+    """Gamble opens with Demonic Tutor's exact sentence and is a different card:
+    the random discard is read with it (P19 R23), never dropped."""
     found = _tutor("Search your library for a card, put that card into your "
                    "hand, discard a card at random, then shuffle.",
                    "tutor", "tutor-to-hand", "tutor-card")
     assert (found.zone, found.count) == ("hand", 1)
-    assert "random" in found.reason
+    assert found.filter == {"random_discard": 1}
 
 
 # --- the ground truth we actually have -------------------------------------

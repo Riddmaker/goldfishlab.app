@@ -32,6 +32,7 @@ from simulation import ENGINE_VERSION, agent
 from simulation.cards import (
     CARD_TYPES,
     COMBAT_SEARCH,
+    COMBAT_SEARCH_UNTAPPED,
     COUNTS,
     DISCARD_LAND,
     DOUBLE_SUBTYPE,
@@ -335,17 +336,19 @@ class Reading:
             named = [spec.kind] if spec.kind else sorted(spec.types)
             what = gettext("%(count)s × %(kind)s") % {
                 "count": spec.count,
-                "kind": " / ".join(str(kinds.get(kind, kind)) for kind in named)}
+                "kind": " / ".join(str(kinds.get(kind, kind.capitalize())) for kind in named)}
         else:
             what = ngettext("%(count)s card", "%(count)s cards", spec.count) % {
                 "count": spec.count}
+        if spec.delirium_any:
+            what = gettext("%(what)s, any card with delirium") % {"what": what}
+        if spec.max_mv_x or spec.max_mv is not None:
+            what = gettext("%(what)s with mana value %(limit)s or less") % {
+                "what": what, "limit": "X" if spec.max_mv_x else spec.max_mv}
         if spec.to_battlefield:
             if spec.color:
                 what = gettext("%(what)s (%(color)s)") % {"what": what,
                                                           "color": mana_label(spec.color)}
-            if spec.max_mv_x or spec.max_mv is not None:
-                what = gettext("%(what)s with mana value %(limit)s or less") % {
-                    "what": what, "limit": "X" if spec.max_mv_x else spec.max_mv}
             if spec.max_mv_sacrificed is not None:
                 what = gettext("%(what)s with mana value up to %(plus)s more than the "
                                "creature sacrificed") % {"what": what,
@@ -353,9 +356,20 @@ class Reading:
             text = gettext("%(what)s onto the battlefield") % {"what": what}
         elif spec.to_top:
             text = gettext("%(what)s on top of the library, drawn next turn") % {"what": what}
+        elif spec.gifts:
+            text = gettext("%(found)s cards, %(count)s of them to hand and the rest to the "
+                           "graveyard") % {"found": spec.gifts, "count": spec.count}
+        elif spec.land_tapped:
+            text = gettext("%(what)s to hand, a land onto the battlefield tapped") % {
+                "what": what}
         else:
             text = (gettext("%(what)s to hand") if spec.to_hand
                     else gettext("%(what)s to the graveyard")) % {"what": what}
+        if spec.random_discard:
+            text = gettext("%(search)s, then a card discarded at random") % {"search": text}
+        if spec.upkeep:
+            text = gettext("in an upkeep, sacrificed once an opponent controls three "
+                           "creatures: %(search)s") % {"search": text}
         if spec.life:
             text = gettext("%(search)s, paying %(life)s life") % {"search": text,
                                                                  "life": spec.life}
@@ -434,7 +448,11 @@ RULE_TEXT = {
 def _land_search_text(search: LandSearch) -> str:
     """A land search, in words: what, how many, where, at what price."""
     types = " / ".join(sorted(subtype.capitalize() for subtype in search.types))
-    if search.basic:
+    if search.by_power:
+        what = gettext("as many basic lands as the greatest power among your creatures")
+    elif search.reveal:
+        what = gettext("X lands off the top of the library")
+    elif search.basic:
         what = ngettext("%(count)s basic land", "%(count)s basic lands",
                         search.battlefield) % {"count": search.battlefield}
     else:
@@ -442,6 +460,11 @@ def _land_search_text(search: LandSearch) -> str:
                         search.battlefield) % {"count": search.battlefield}
     if types:
         what = f"{what} ({types})"
+    if search.also:
+        what = gettext("%(what)s or Gates") % {"what": what}
+    if search.tempting:
+        what = gettext("%(what)s, and one more for each opponent who searches too") % {
+            "what": what}
     if search.share_type:
         what = gettext("%(what)s of one land type") % {"what": what}
     elif search.each:
@@ -472,9 +495,17 @@ def _land_search_text(search: LandSearch) -> str:
             parts.append(gettext("discard a card"))
         text = gettext("%(cost)s: %(search)s, once a turn") % {"cost": ", ".join(parts),
                                                                "search": text}
+    if search.power_at:
+        text = gettext("%(search)s; %(count)s beside a creature with power %(power)s or "
+                       "greater") % {"search": text, "count": search.power_count,
+                                     "power": search.power_at}
     if search.condition == "opponent_more_lands":
         text = gettext("%(search)s, if an opponent controls more lands") % {"search": text}
-    if search.sacrifices_land and search.when == "enters":
+    if search.repeat:
+        text = gettext("%(search)s, then once more") % {"search": text}
+    if search.when == "opponents":
+        text = gettext("in each opponent's end step: %(search)s") % {"search": text}
+    if search.sacrifices_land and search.when in ("enters", "cast"):
         text = gettext("sacrifice a land: %(search)s") % {"search": text}
     return text
 
@@ -492,6 +523,8 @@ _TRIGGER_WHEN = {
     ("dies", ""): gettext_noop("whenever it or another creature of yours dies"),
     ("resolves", "per_land"): gettext_noop("as it resolves, for each land you control"),
     ("opponents", ""): gettext_noop("once a round, when one opponent does not pay"),
+    ("sacrificed", "artifact"): gettext_noop(
+        "whenever you sacrifice an artifact, a Treasure spent included"),
 }
 
 
@@ -519,6 +552,8 @@ def _trigger_text(trigger: Trigger) -> str:
                              trigger.draw) % {"count": trigger.draw})
     if trigger.life:
         made.append(gettext("costs %(life)s life") % {"life": trigger.life})
+    if trigger.counter:
+        made.append(gettext("a +1/+1 counter on it"))
     return gettext("%(when)s: %(what)s") % {"when": when, "what": ", ".join(made)}
 
 
@@ -538,6 +573,8 @@ _COMBAT_WHEN = {
         "once a combat, when creatures of yours deal combat damage to a player"),
     ("damage", "modified"): gettext_noop(
         "for each modified creature of yours that deals combat damage to a player"),
+    ("damage", "total"): gettext_noop(
+        "in your second main phase, for each life your opponents lost in combat"),
 }
 
 
@@ -547,7 +584,9 @@ def _combat_text(trigger: CombatTrigger) -> str:
     if trigger.types:
         when = f"{when} ({' / '.join(sorted(kind.capitalize() for kind in trigger.types))})"
     if trigger.search:
-        what = _land_search_text(COMBAT_SEARCH)
+        what = _land_search_text(COMBAT_SEARCH_UNTAPPED if trigger.untapped else COMBAT_SEARCH)
+    elif trigger.who == "total":
+        what = "".join(f"{{{key}}}" for key in trigger.mana)
     elif trigger.mana:
         what = gettext("%(mana)s, kept to the second main phase") % {
             "mana": "".join(f"{{{key}}}" for key in trigger.mana)}
@@ -1124,6 +1163,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
                                      "puts_back"),
         x_count=_x_count(oracle_card, profile),
         x_min=int(overrides.get("x_min", 1)),
+        x_max=int((getattr(profile, "land_search", None) or {}).get("x_max", 0)),
         draws_x=(kind in ONE_SHOT_KINDS and "draw_on_cast" not in overrides
                  and bool(getattr(profile, "draws_x", False))),
         creature_types=creature_types(oracle_card),
@@ -1451,7 +1491,8 @@ def _combat(oracle_card, profile, deck_colors: frozenset[str]) -> dict:
                       types=frozenset(read.get("types") or ()),
                       treasures=int(read.get("treasures") or 0),
                       treasure_mana=_any_colour(deck_colors) if read.get("treasures") else "",
-                      mana=str(read.get("mana") or ""), search=bool(read.get("search")))
+                      mana=str(read.get("mana") or ""), search=bool(read.get("search")),
+                      untapped=bool(read.get("untapped")))
         for read in found.get("triggers") or ())
     return {
         "haste": "Haste" in (oracle_card.keywords or []),
@@ -1495,7 +1536,57 @@ _COMBAT_SAID = {
     "curse": gettext_noop(
         "makes a Gold token each turn one of your creatures attacks, assuming you attack the "
         "enchanted player; attacks by your opponents are not counted"),
+    "total": gettext_noop(
+        "counts the combat damage of every creature that can attack, each assumed to deal it "
+        "to a player: a goldfish has no blockers, so against opponents with many blockers "
+        "this is optimistic; life lost any other way is not counted"),
 }
+
+
+#: P19 R23: Sword of Hearth and Home.
+_FLICKER_SAID = gettext_noop(
+    "the creature it may exile and return with the land is not used")
+
+
+#: P19 R23: what a search assumes, by the shape read - whole sentences.
+_SEARCH_SAID = {
+    "tempting": ("assumed_lands", gettext_noop(
+        "assumes one opponent takes the tempting offer, so you find two lands")),
+    "reveal": ("assumed_lands", gettext_noop(
+        "assumes four players, so X is at most 4")),
+    "land_tapped": ("assumed_trigger", gettext_noop(
+        "looks for a land, put onto the battlefield tapped, while your hand holds no land, "
+        "and for a creature otherwise; its other modes are not used")),
+    "gifts": ("assumed_trigger", gettext_noop(
+        "assumes the opponent puts the two best of the four cards into your graveyard; the "
+        "other two go to your hand")),
+    "upkeep": ("assumed_trigger", gettext_noop(
+        "assumes an opponent controls three creatures from your fourth turn on; then it is "
+        "sacrificed and puts your two best creatures onto the battlefield")),
+    "exiled": ("assumed_trigger", gettext_noop(
+        "the card it exiles counts as a card in your hand, since you may play it from exile")),
+    "symmetry": ("assumed_trigger", gettext_noop(
+        "you are one of the two players and find a card for the top of your library; the "
+        "opponent's card is not counted")),
+    "opponents": ("assumed_trigger", gettext_noop(
+        "searches only an opponent's library, which a goldfish does not have: it does "
+        "nothing here")),
+}
+
+
+def _record_search(card: Card, found: dict, gaps: list[Gap]) -> None:
+    """P19 R23: what the engine assumes about a search - stated on the card
+    list, beside the card."""
+    keys = [key for key in ("land_tapped", "gifts", "upkeep", "exiled", "symmetry",
+                            "opponents") if found.get(key)]
+    search = card.land_search
+    if search is not None and search.tempting:
+        keys.append("tempting")
+    if search is not None and search.reveal:
+        keys.append("reveal")
+    for key in keys:
+        field_name, text = _SEARCH_SAID[key]
+        gaps.append(Gap(card.name, field_name, text))
 
 
 def _record_combat(card: Card, found: dict, gaps: list[Gap]) -> None:
@@ -1505,16 +1596,19 @@ def _record_combat(card: Card, found: dict, gaps: list[Gap]) -> None:
     for trigger in card.combat:
         if trigger.who in ("equipped", "enchanted"):
             key = "host_" + trigger.event
-        elif trigger.who in ("any", "modified", "commander", "curse"):
+        elif trigger.who in ("any", "modified", "commander", "curse", "total"):
             key = trigger.who
         else:
             key = trigger.event
         if _COMBAT_SAID[key] not in said:
             said.append(_COMBAT_SAID[key])
-        if trigger.mana:
+        if trigger.mana and trigger.who != "total":
             said.append(gettext_noop(
                 "keeps the mana it adds as it attacks for your second main phase, where the "
                 "engine casts what it pays for; a spell with X waits for it"))
+        if any(read.get("flicker") for read in found.get("triggers") or ()) \
+                and _FLICKER_SAID not in said:
+            said.append(_FLICKER_SAID)
     if any(trigger.treasures for trigger in card.combat):
         said.append(gettext_noop(
             "the Treasure made in combat can be spent in your second main phase"))
@@ -1993,6 +2087,11 @@ def _land_search(profile) -> LandSearch | None:
         land_cost_types=frozenset(found.get("land_cost_types", ())),
         sacrifice_other=frozenset(found.get("sacrifice_other", ())),
         discard=int(found.get("discard", 0)),
+        also=frozenset(found.get("also", ())),
+        power_at=int(found.get("power_at", 0)), power_count=int(found.get("power_count", 0)),
+        by_power=bool(found.get("by_power")), repeat=int(found.get("repeat", 0)),
+        tempting=int(found.get("tempting", 0)), by_x=bool(found.get("by_x")),
+        reveal=bool(found.get("reveal")),
     )
 
 
@@ -2068,6 +2167,7 @@ def _triggers(profile, overrides: dict, deck_colors: frozenset[str]) -> tuple[Tr
             mana_color=(_any_colour(deck_colors) if color == "any" else color) if mana else "",
             draw=int(read.get("draw", 0)),
             life=int(read.get("life", 0)),
+            counter=int(read.get("counter", 0)),
         )
         if trigger.treasures or trigger.mana or trigger.draw:
             found.append(trigger)
@@ -2119,12 +2219,22 @@ def _tutor(profile, overrides: dict) -> TutorSpec | None:
         # P19 R12: Vampiric Tutor. `tutor_filter` holds the card types it may find.
         battlefield = {"to_top": True,
                        "types": frozenset((limit or {}).get("types", ()))}
+    elif profile.tutor_to == "hand" and limit is not None:
+        # P19 R23: types or subtypes, a mana value limit, and the shapes of
+        # Archdruid's Charm, Gifts Ungiven, Gamble and Demonic Counsel.
+        battlefield = {"types": frozenset(limit.get("types") or ()),
+                       "max_mv": limit.get("max_mv"),
+                       "land_tapped": bool(limit.get("land_tapped")),
+                       "gifts": int(limit.get("gifts") or 0),
+                       "random_discard": int(limit.get("random_discard") or 0),
+                       "delirium_any": bool(limit.get("delirium_any"))}
     elif limit is not None:
         max_mv = limit.get("max_mv")
         battlefield = {"to_battlefield": True, "color": limit.get("color") or "",
                        "max_mv_x": max_mv == "X",
                        "max_mv": max_mv if isinstance(max_mv, int) else None,
-                       "max_mv_sacrificed": limit.get("plus_sacrificed")}
+                       "max_mv_sacrificed": limit.get("plus_sacrificed"),
+                       "upkeep": limit.get("upkeep") or ""}
     return TutorSpec(
         **battlefield,
         to_hand=TUTOR_ZONES[profile.tutor_to],
@@ -2305,6 +2415,7 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
         params = {"tax": read.get("tax", "")}
         gaps.append(Gap(card.name, "assumed_trigger", template % params, template, params))
 
+    _record_search(card, getattr(profile, "tutor_filter", None) or {}, gaps)
     _record_tapping(card, gaps)
     _record_store(card, getattr(profile, "mana_store", None) or {}, gaps)
     if not _overrides_mana(overrides):

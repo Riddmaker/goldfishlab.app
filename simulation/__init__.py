@@ -171,6 +171,17 @@ boundary, not the symptom.
 #:    spell with X waits for it. Equipment is equipped with spare mana, an
 #:    Aura goes on a creature as it is cast, Living weapon makes a Germ;
 #:    Paradise Mantle makes its creature a mana creature.
-ENGINE_VERSION = 26
+#: 27: P19 R23. Searches with a choice: Open the Armory, Solve the Equation,
+#:    Spellseeker and Ranger-Captain of Eos find a type or subtype up to a
+#:    mana value; Demonic Counsel any card with delirium; Archdruid's Charm a
+#:    land onto the battlefield while the hand has none, else a creature;
+#:    Gifts Ungiven keeps the two cards the opponent leaves; Gamble discards
+#:    at random; Defense of the Heart from turn 4 (assumed). Land searches by
+#:    power (Traverse the Outlands, Entish Restoration), with Gates, twice
+#:    (Claim Jumper), in the opponents' end steps (Keeper of the Accord),
+#:    tempted (one opponent accepts, assumed), off the top by X (Open the
+#:    Way); Sword of Hearth and Home in combat. Neheb adds {R} per combat
+#:    damage, Crime Novelist {R} per artifact sacrificed, a Treasure too.
+ENGINE_VERSION = 27
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

@@ -272,4 +272,62 @@ def test_only_the_owner_and_only_known_keys(deck, client):
     assert post(client, deck, deck.cobra, "triggers", {"action": "off"}).status_code == 404
     client.force_login(deck.owner)
     assert post(client, deck, deck.cobra, "teleport", {"action": "off"}).status_code == 404
-    assert post(client, deck, deck.cobra, "combat", {"action": "save"}).status_code == 404
+    assert post(client, deck, deck.cobra, "mana_rule", {"action": "save"}).status_code == 404
+
+
+# --- E3: lists, one entry at a time --------------------------------------------------
+
+
+TRIGGER_BOXES = {"triggers-event": "landfall", "triggers-filter": "", "triggers-treasures": "0",
+                 "triggers-mana": "2", "triggers-color": "G", "triggers-draw": "0",
+                 "triggers-life": "0", "triggers-counter": "0"}
+
+
+def test_a_trigger_entry_changed_added_and_removed(deck, client):
+    client.force_login(deck.owner)
+    text = page(client, deck, deck.cobra, "?edit=triggers&item=0").content.decode()
+    assert 'name="item" value="0"' in text and "Narrowed to" in text
+    post(client, deck, deck.cobra, "triggers", {"action": "save", "item": "0", **TRIGGER_BOXES})
+    (trigger,) = card_of(deck.deck, deck.cobra).triggers
+    assert (trigger.event, trigger.mana, trigger.mana_color) == ("landfall", 2, "G")
+    post(client, deck, deck.cobra, "triggers", {
+        "action": "save", "item": "new", **TRIGGER_BOXES, "triggers-event": "cast",
+        "triggers-mana": "0", "triggers-color": "", "triggers-treasures": "1"})
+    assert [each.event for each in card_of(deck.deck, deck.cobra).triggers] == [
+        "landfall", "cast"]
+    post(client, deck, deck.cobra, "triggers", {"action": "remove", "item": "0"})
+    assert [each.event for each in card_of(deck.deck, deck.cobra).triggers] == ["cast"]
+
+
+def test_a_combat_trigger_added_with_its_equip_cost(deck, client):
+    client.force_login(deck.owner)
+    post(client, deck, deck.growth, "combat", {
+        "action": "save", "item": "new", "combat-event": "attacks", "combat-who": "equipped",
+        "combat-types": "", "combat-treasures": "0", "combat-mana": "", "combat-search": "on",
+        "combat-equip": "{2}", "combat-treasure_bonus": "0"})
+    card = card_of(deck.deck, deck.growth)
+    assert card.combat[0].who == "equipped" and card.combat[0].search
+    assert str(card.equip) == "{2}"
+
+
+def test_an_additional_cost_added_by_hand(deck, client):
+    client.force_login(deck.owner)
+    post(client, deck, deck.growth, "additional_cost", {
+        "action": "save", "item": "new", "additional_cost-sacrifice": ["creature"],
+        "additional_cost-life": "0", "additional_cost-discard": "0",
+        "additional_cost-mana": "", "additional_cost-exile_from_graveyard": "",
+        "additional_cost-filter": ""})
+    (way,) = card_of(deck.deck, deck.growth).additional_costs
+    assert way.sacrifice == frozenset({"creature"})
+
+
+def test_a_bad_entry_is_refused(deck, client):
+    client.force_login(deck.owner)
+    response = post(client, deck, deck.cobra, "triggers", {
+        "action": "save", "item": "0", **TRIGGER_BOXES, "triggers-filter": "drop table"})
+    assert response.status_code == 400 and "not one word" in response.content.decode()
+    response = post(client, deck, deck.growth, "combat", {
+        "action": "save", "item": "new", "combat-event": "attacks", "combat-who": "self",
+        "combat-mana": "XYZ", "combat-treasures": "0"})
+    assert response.status_code == 400
+    assert not CardAnnotation.objects.exists()

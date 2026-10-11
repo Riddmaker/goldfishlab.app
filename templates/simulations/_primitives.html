@@ -16,8 +16,28 @@
             <span class="text-xs {% if block.status == 'card' %}text-ink-700{% elif block.status == 'off' %}text-blood-700{% else %}text-verdigris-800{% endif %}">{{ block.status_label }}</span>
           </div>
           {% if block.text %}<p class="mt-1 text-sm text-ink-900">{{ block.text }}</p>{% endif %}
+          {% if block.entries %}
+            <ol class="mt-1 space-y-1 text-sm">
+              {% for text in block.entries %}
+                <li class="flex flex-wrap items-baseline gap-x-3">
+                  <span class="text-ink-900">{{ text }}</span>
+                  <a href="?{% if scope == 'user' %}scope=user&amp;{% endif %}edit={{ block.key }}&amp;item={{ forloop.counter0 }}#editing"
+                     class="text-ink-900 underline">{% translate "Change" %}</a>
+                  <form method="post" action="{% url 'simulations:primitive' deck.id card.pk block.key %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="scope" value="{{ scope }}">
+                    <input type="hidden" name="item" value="{{ forloop.counter0 }}">
+                    <button type="submit" name="action" value="remove" class="text-blood-700 underline">{% translate "Remove" %}</button>
+                  </form>
+                </li>
+              {% endfor %}
+            </ol>
+          {% endif %}
           <div class="mt-2 flex flex-wrap items-center gap-4 text-sm">
-            {% if block.editable %}
+            {% if block.is_list %}
+              <a href="?{% if scope == 'user' %}scope=user&amp;{% endif %}edit={{ block.key }}&amp;item=new#editing"
+                 class="text-ink-900 underline">{% translate "Add one" %}</a>
+            {% elif block.editable %}
               <a href="?{% if scope == 'user' %}scope=user&amp;{% endif %}edit={{ block.key }}#editing"
                  class="text-ink-900 underline">{% translate "Change" %}</a>
             {% endif %}
@@ -49,7 +69,7 @@
       <ul class="mt-2 space-y-2 text-sm">
         {% for block in addable %}
           <li>
-            <a href="?{% if scope == 'user' %}scope=user&amp;{% endif %}edit={{ block.key }}#editing"
+            <a href="?{% if scope == 'user' %}scope=user&amp;{% endif %}edit={{ block.key }}{% if block.is_list %}&amp;item=new{% endif %}#editing"
                class="text-ink-900 underline">{{ block.label }}</a>
             <span class="text-ink-700">— {{ block.help }}</span>
           </li>
@@ -64,7 +84,8 @@
           class="surface-parchment mt-4 space-y-5 border border-parchment-600 p-4">
       {% csrf_token %}
       <input type="hidden" name="scope" value="{{ scope }}">
-      <h4 class="font-display text-lg text-ink-900">{{ editing_label }}</h4>
+      {% if editing_item != "" %}<input type="hidden" name="item" value="{{ editing_item }}">{% endif %}
+      <h4 class="font-display text-lg text-ink-900">{{ editing_label }}{% if editing_item == "new" %} · {% translate "new" %}{% endif %}</h4>
       {% if primitive_form.non_field_errors %}
         <ul class="border-l-2 border-blood-600 pl-4 text-sm text-blood-700">
           {% for error in primitive_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}

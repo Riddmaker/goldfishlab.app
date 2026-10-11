@@ -403,3 +403,84 @@ DEFAULTS = {
 
 #: Primitives with a form; the rest can be switched off or reset only.
 EDITABLE = frozenset(FIELDS)
+
+
+# --- lists: one entry at a time (E3) ------------------------------------------------
+
+#: The entries' boxes, for the primitives that are lists: a trigger, a
+#: trigger in combat (with the card's combat settings beside it), one way to
+#: pay an additional cost.
+ITEM_FIELDS = {
+    "triggers": (
+        Field("event", "choice", _("When"), choices=(
+            ("landfall", _("A land of yours enters")),
+            ("cast", _("You cast a spell")),
+            ("enters", _("It or another creature of a type enters")),
+            ("dies", _("A creature of yours dies")),
+            ("sacrificed", _("You sacrifice an artifact")),
+            ("upkeep", _("Your upkeep")),
+            ("main", _("Your first main phase")),
+            ("resolves", _("As it resolves")),
+            ("opponents", _("Once a round, an opponent does not pay")))),
+        Field("filter", "word", _("Narrowed to"),
+              _("Blank for none. For a spell: instant_sorcery, colorless or second; for a "
+                "creature dying: another; as it resolves: per_land; for a creature entering: "
+                "its type, such as dragon.")),
+        Field("treasures", "int", _("Treasure tokens"), high=5),
+        Field("mana", "int", _("Mana"), high=10),
+        Field("color", "choice", _("Of colour"), choices=(
+            ("", _("None")), ("any", _("Any colour of the deck")), ("W", _("White")),
+            ("U", _("Blue")), ("B", _("Black")), ("R", _("Red")), ("G", _("Green")),
+            ("C", _("Colourless")))),
+        Field("draw", "int", _("Cards drawn"), high=3),
+        Field("life", "int", _("Life it costs"), high=5, more=True),
+        Field("counter", "int", _("+1/+1 counters on it"), high=3, more=True),
+    ),
+    "combat": (
+        Field("event", "choice", _("When"), choices=(
+            ("attacks", _("As it attacks")),
+            ("damage", _("As it deals combat damage to a player")))),
+        Field("who", "choice", _("Whose attack"), choices=(
+            ("self", _("This creature")), ("equipped", _("The creature it equips")),
+            ("enchanted", _("The creature it enchants")),
+            ("any", _("Any of your creatures, once a combat")),
+            ("modified", _("Each modified creature of yours")),
+            ("commander", _("Your commander")), ("curse", _("You attack the enchanted player")),
+            ("total", _("Every point of combat damage")))),
+        Field("types", "words", _("Of these creature types"), _("Blank: any creature."),
+              more=True),
+        Field("treasures", "int", _("Treasure tokens"), high=5),
+        Field("mana", "pips", _("Mana kept to the second main phase"),
+              _("Letters, such as RRRGGG. Blank: none.")),
+        Field("search", "bool", _("Finds a basic land")),
+        Field("untapped", "bool", _("The land enters untapped"), more=True),
+        Field("equip", "cost", _("Equip cost"), _("For an Equipment, such as {2}."), more=True),
+        Field("aura", "bool", _("An Aura that goes on a creature"), more=True),
+        Field("treasure_bonus", "int", _("Each Treasure makes this much more"), high=2,
+              more=True),
+    ),
+    "additional_cost": (
+        Field("sacrifice", "multi", _("Sacrifice one of"), choices=_PERMANENT_CHOICES),
+        Field("life", "int", _("Life"), high=20),
+        Field("life_x", "bool", _("Pay X life (paid with X = 0)")),
+        Field("discard", "int", _("Cards discarded"), high=3),
+        Field("mana", "cost", _("Mana on top"), _("Such as {2}. Blank: none.")),
+        Field("exile_from_graveyard", "choice", _("Exile from your graveyard"), choices=(
+            ("", _("Nothing")), ("creature", _("A creature card")),
+            ("artifact", _("An artifact card")), ("land", _("A land card")))),
+        Field("filter", "word", _("The sacrifice must also be"),
+              _("Blank for anything. A colour letter, legendary, or a creature type."),
+              more=True),
+    ),
+}
+
+#: The card's combat settings, not one trigger's: carried in the combat form.
+COMBAT_CARD_FIELDS = frozenset({"equip", "aura", "treasure_bonus"})
+
+#: What a new entry starts from.
+ITEM_DEFAULTS = {
+    "triggers": {"event": "landfall", "filter": "", "mana": 1, "color": "any"},
+    "combat": {"event": "attacks", "who": "self", "treasures": 1},
+    "additional_cost": {"sacrifice": ["creature"], "filter": "", "life": 0, "life_x": False,
+                        "discard": 0, "mana": "", "exile_from_graveyard": ""},
+}

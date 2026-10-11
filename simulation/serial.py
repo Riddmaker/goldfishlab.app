@@ -194,6 +194,9 @@ def dump_game(game: Game) -> dict:
     state["counters"] = dict(game.counters)
     state["energy"] = game.energy
     state["emptied"] = list(game.emptied)
+    # P19 R21: +1/+1 counters, and the cards that turned into their land.
+    state["plus_counters"] = dict(game.plus_counters)
+    state["flipped"] = list(game.flipped)
     state["landers"] = game.landers
     state["arrived"] = list(game.arrived)
     state["tapped_creatures"] = list(game.tapped_creatures)
@@ -245,6 +248,9 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
     game.counters = {str(name): int(count) for name, count in data.get("counters", {}).items()}
     game.energy = int(data.get("energy", 0))
     game.emptied = [str(name) for name in data.get("emptied", [])]
+    game.plus_counters = {str(name): int(count)
+                          for name, count in data.get("plus_counters", {}).items()}
+    game.flipped = [str(name) for name in data.get("flipped", [])]
     game.landers = int(data.get("landers", 0))
     game.arrived = [str(name) for name in data.get("arrived", [])]
     game.tapped_creatures = [str(name) for name in data.get("tapped_creatures", [])]

@@ -9015,3 +9015,165 @@ msgstr ""
 "Gooseは、タップするターンごとに1つずつ使います。Everflowing ChaliceはXを含む呪文と同じようにキッカーされ、Astral "
 "CornucopiaやEmpowered "
 "Autogeneratorとともにカウンター1個につき1マナを生み出します。デッキページでは、これらすべてを各カードの横に表示します。"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to its power"
+msgstr "パワーに等しい%(color)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to the greatest power among your creatures"
+msgstr "あなたのクリーチャーの中で最も大きいパワーに等しい%(color)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to the greatest toughness among your other creatures"
+msgstr "あなたの他のクリーチャーの中で最も大きいタフネスに等しい%(color)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each +1/+1 counter on it"
+msgstr "その上の+1/+1カウンター1個につき%(color)s1つ"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts its power as the turn's mana is opened: the power printed on it and "
+"its +1/+1 counters, no pumps or anthems; counters it gets later in the turn "
+"count from the next turn"
+msgstr ""
+"そのターンのマナを出す時点のパワーを数えます。印刷されたパワーと+1/+1カウンターのみで、一時的な強化や全体強化は含みません。ターンの後半に得たカウンターは次のターンから数えます"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts the greatest power among your creatures as the turn's mana is opened:"
+" printed power and +1/+1 counters, no pumps or anthems"
+msgstr ""
+"そのターンのマナを出す時点で、あなたのクリーチャーの中で最も大きいパワーを数えます。印刷されたパワーと+1/+1カウンターのみで、一時的な強化や全体強化は含みません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts the greatest toughness among your other creatures as the turn's mana "
+"is opened: printed toughness and +1/+1 counters, no pumps or anthems"
+msgstr ""
+"そのターンのマナを出す時点で、あなたの他のクリーチャーの中で最も大きいタフネスを数えます。印刷されたタフネスと+1/+1カウンターのみで、一時的な強化や全体強化は含みません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts its +1/+1 counters as the turn's mana is opened; counters it gets "
+"later in the turn count from the next turn"
+msgstr "そのターンのマナを出す時点の+1/+1カウンターを数えます。ターンの後半に得たカウンターは次のターンから数えます"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a +1/+1 counter for each noncreature spell you cast; the damage to the "
+"opponents is not counted"
+msgstr "あなたがクリーチャーでない呪文を唱えるたびに+1/+1カウンターを1個得ます。対戦相手へのダメージは数えません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"evolves when a creature enters with greater printed power or toughness plus "
+"counters than it has"
+msgstr "印刷されたパワーかタフネスにカウンターを加えた値が自身より大きいクリーチャーが戦場に出たときに進化します"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a counter from Increment when a spell's mana value is greater than its "
+"power or toughness; X is not counted"
+msgstr "呪文のマナ総量がそのパワーかタフネスより大きいとき、Incrementでカウンターを得ます。Xは数えません"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "as much %(color)s as your devotion to it"
+msgstr "その色への信心に等しい%(color)s"
+
+#: simulations/engine/adapter.py
+msgid "mana of one colour"
+msgstr "1色のマナ"
+
+#: simulations/engine/adapter.py
+msgid "pays the coloured mana its ability costs with any mana, as generic"
+msgstr "能力のコストの色マナを、不特定マナとして任意のマナで支払います"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gives its {T}: Add {G} only to creatures with a +1/+1 counter; other kinds "
+"of counters are not counted"
+msgstr "{T}: Add {G}を+1/+1カウンターが置かれたクリーチャーにだけ与えます。他の種類のカウンターは数えません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"turns into its land at your end step once you control enough creatures, and "
+"makes mana from your next turn on; it never counts as a land drop"
+msgstr "十分な数のクリーチャーをコントロールしたら終了ステップに土地へ変身し、次のターンからマナを出します。土地のプレイには数えません"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your creatures with a counter tap for %(mana)s"
+msgstr "カウンターが置かれたあなたのクリーチャーはタップで%(mana)sを出します"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts its counters as it enters on the creatures they make the most mana with"
+" - Incubation Druid first, then creatures without a mana ability - and on "
+"creatures that were there before this turn rather than new ones"
+msgstr ""
+"戦場に出たとき、カウンターを最も多くマナを生むクリーチャーに置きます。まずIncubation "
+"Druid、次にマナ能力のないクリーチャーで、新しいものよりこのターンより前からいるクリーチャーを優先します"
+
+#: simulations/engine/adapter.py
+msgid ""
+"adapts as soon as the mana left after the turn's spells and land searches "
+"pays for it, before a spell with X takes the rest"
+msgstr "そのターンの呪文と土地探索の後に残ったマナで支払えるようになり次第、Xを持つ呪文が残りを使う前に適応します"
+
+#: simulations/engine/adapter.py
+msgid ""
+"adds one more counter each time the engine puts +1/+1 counters on one of "
+"your creatures"
+msgstr "エンジンがあなたのクリーチャーに+1/+1カウンターを置くたびに、さらに1個追加します"
+
+#: simulations/engine/adapter.py
+msgid ""
+"draws a card when one of your creatures enters with more power than each "
+"other creature; a goldfish's opponents have no creatures"
+msgstr ""
+"あなたのクリーチャーが他のどのクリーチャーよりも大きいパワーで戦場に出たとき、カードを1枚引きます。ゴールドフィッシュの対戦相手はクリーチャーを持ちません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"takes the creature of highest mana value among the cards it looks at, and "
+"puts the rest on the bottom"
+msgstr "見たカードの中からマナ総量が最も大きいクリーチャーを取り、残りを一番下に置きます"
+
+#: changelog/entries.py
+msgid "Selvala, Marwyn, Rishkar and mana by power"
+msgstr "Selvala、Marwyn、Rishkarとパワーによるマナ"
+
+#: changelog/entries.py
+msgid ""
+"Creatures whose mana counts power or +1/+1 counters now make it in a "
+"simulated game. A creature's power is the power printed on it plus its +1/+1"
+" counters, no pumps or anthems: Kami of Whispered Hopes, Marwyn and Vivi "
+"Ornitier tap for their own, Selvala for the greatest, Arbor Adherent for the"
+" greatest toughness of the others, Gyre Sage for its counters. The counters "
+"come from creatures that enter with them, Rishkar, Evolve, Increment, Adapt "
+"- Incubation Druid makes three - and every other Elf that enters, and Kami "
+"adds one more each time. Growing Rites of Itlimoc finds a creature and turns"
+" into its land at four creatures. Your deck page says all of this beside "
+"each card."
+msgstr ""
+"パワーや+1/+1カウンターを数えてマナを出すクリーチャーが、シミュレーションでマナを出すようになりました。クリーチャーのパワーは印刷されたパワーと+1/+1カウンターの合計で、一時的な強化や全体強化は含みません。Kami"
+" of Whispered Hopes、Marwyn、Vivi Ornitierは自身のパワー、Selvalaは最大のパワー、Arbor "
+"Adherentは他のクリーチャーの最大のタフネス、Gyre "
+"Sageは自身のカウンターの分だけマナを出します。カウンターは、カウンターを持って戦場に出るクリーチャー、Rishkar、Evolve、Increment、Adapt（Incubation"
+" Druidは3つ）、そして戦場に出る他のエルフから得られ、Kamiは毎回1個追加します。Growing Rites of "
+"Itlimocはクリーチャーを見つけ、クリーチャーが4体になると土地に変身します。デッキページでは、これらすべてを各カードの横に表示します。"
+
+#: playtest/views.py
+msgid "Adapted"
+msgstr "適応しました"
+
+#: templates/playtest/_board.html
+msgid "Adapt"
+msgstr "適応"

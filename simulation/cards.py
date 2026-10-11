@@ -522,6 +522,40 @@ class Store:
     empty: str = ""
 
 
+@dataclass(frozen=True)
+class Growth:
+    """+1/+1 counters and what grows with them (P19 R21).
+
+    Attributes:
+        enters: +1/+1 counters it enters with (Polukranos: six).
+        enters_x: ... X of them, X as it was paid (a Hydra).
+        grows: What puts a counter on it: ``enters:<type>`` - another
+            creature of that type enters (Marwyn: ``enters:elf``);
+            ``cast:noncreature`` (Vivi Ornitier); ``evolve`` (Gyre Sage);
+            ``increment`` (Topiary Lecturer).
+        adapt: Adapt N - N counters when it has none, for ``adapt_cost``
+            (Incubation Druid: 3 for {3}{G}{G}).
+        bonus: One more on each placement on a creature you control (Kami
+            of Whispered Hopes, Hardened Scales).
+        puts: A counter on each of up to this many creatures as it enters
+            (Rishkar: two).
+        draws_on_greatest: A card when a creature enters with more power
+            than each other (Selvala, Heart of the Wilds).
+        look: Cards it looks at for a creature as it enters (Growing Rites of
+            Itlimoc: four).
+    """
+
+    enters: int = 0
+    enters_x: bool = False
+    grows: tuple[str, ...] = ()
+    adapt: int = 0
+    adapt_cost: ManaCost | None = None
+    bonus: int = 0
+    puts: int = 0
+    draws_on_greatest: bool = False
+    look: int = 0
+
+
 #: ``Card.mox``: "If this artifact would enter, you may discard a land card
 #: instead" (Mox Diamond), and "Imprint - exile a nonartifact, nonland card"
 #: whose colours it makes (Chrome Mox).
@@ -763,8 +797,12 @@ class Card:
     #: ``subtypes`` holds the basic land types only.
     printed_subtypes: frozenset[str] = field(default_factory=frozenset)
     #: P19 R18: the power printed on it, 0 for none or "*" - what "a creature
-    #: with power 4 or greater" asks. Counters and pumps are not counted.
+    #: with power 4 or greater" asks. The game adds its +1/+1 counters
+    #: (`Game.power`, P19 R21); pumps and anthems are not counted.
     power: int = 0
+    #: P19 R21: the toughness printed on it, 0 for none or "*" - Arbor
+    #: Adherent's mana, and what Evolve compares.
+    toughness: int = 0
     #: P19 R19: mana for tapping other permanents (Relic of Legends, Urza).
     tap_mana: TapMana | None = None
     #: P19 R19: ``DISCARD_LAND`` or ``IMPRINT``, see there; empty for none.
@@ -774,6 +812,12 @@ class Card:
     #: P19 R20: mana it keeps as counters, energy or a Food. Its
     #: ``mana_abilities`` are what it taps for without them.
     store: Store | None = None
+    #: P19 R21: +1/+1 counters and what grows with them.
+    growth: Growth | None = None
+    #: P19 R21: Growing Rites of Itlimoc - it turns into its land at your end
+    #: step once you control this many creatures, and makes mana only then.
+    #: 0: no such card.
+    flip: int = 0
 
     @property
     def mana_cost(self) -> ManaCost:

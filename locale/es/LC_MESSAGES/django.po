@@ -10226,3 +10226,198 @@ msgstr ""
 " hechizo con X, y él, Astral Cornucopia y Empowered Autogenerator generan un"
 " maná por cada contador. La página de tu mazo dice todo esto junto a cada "
 "carta."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to its power"
+msgstr "%(color)s igual a su fuerza"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to the greatest power among your creatures"
+msgstr "%(color)s igual a la mayor fuerza entre tus criaturas"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to the greatest toughness among your other creatures"
+msgstr "%(color)s igual a la mayor resistencia entre tus otras criaturas"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each +1/+1 counter on it"
+msgstr "un %(color)s por cada contador +1/+1 sobre ella"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts its power as the turn's mana is opened: the power printed on it and "
+"its +1/+1 counters, no pumps or anthems; counters it gets later in the turn "
+"count from the next turn"
+msgstr ""
+"cuenta su fuerza cuando se abre el maná del turno: la fuerza impresa y sus "
+"contadores +1/+1, sin potenciadores ni anthems; los contadores que recibe "
+"más tarde en el turno cuentan desde el turno siguiente"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts the greatest power among your creatures as the turn's mana is opened:"
+" printed power and +1/+1 counters, no pumps or anthems"
+msgstr ""
+"cuenta la mayor fuerza entre tus criaturas cuando se abre el maná del turno:"
+" fuerza impresa y contadores +1/+1, sin potenciadores ni anthems"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts the greatest toughness among your other creatures as the turn's mana "
+"is opened: printed toughness and +1/+1 counters, no pumps or anthems"
+msgstr ""
+"cuenta la mayor resistencia entre tus otras criaturas cuando se abre el maná"
+" del turno: resistencia impresa y contadores +1/+1, sin potenciadores ni "
+"anthems"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts its +1/+1 counters as the turn's mana is opened; counters it gets "
+"later in the turn count from the next turn"
+msgstr ""
+"cuenta sus contadores +1/+1 cuando se abre el maná del turno; los contadores"
+" que recibe más tarde en el turno cuentan desde el turno siguiente"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a +1/+1 counter for each noncreature spell you cast; the damage to the "
+"opponents is not counted"
+msgstr ""
+"recibe un contador +1/+1 por cada hechizo que no sea de criatura que lances;"
+" el daño a los oponentes no se cuenta"
+
+#: simulations/engine/adapter.py
+msgid ""
+"evolves when a creature enters with greater printed power or toughness plus "
+"counters than it has"
+msgstr ""
+"evoluciona cuando entra una criatura con mayor fuerza o resistencia impresa "
+"más contadores que la suya"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a counter from Increment when a spell's mana value is greater than its "
+"power or toughness; X is not counted"
+msgstr ""
+"recibe un contador de Increment cuando el valor de maná de un hechizo es "
+"mayor que su fuerza o su resistencia; X no se cuenta"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "as much %(color)s as your devotion to it"
+msgstr "tanto %(color)s como tu devoción a ese color"
+
+#: simulations/engine/adapter.py
+msgid "mana of one colour"
+msgstr "maná de un solo color"
+
+#: simulations/engine/adapter.py
+msgid "pays the coloured mana its ability costs with any mana, as generic"
+msgstr ""
+"paga el maná de color que cuesta su habilidad con cualquier maná, como "
+"genérico"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gives its {T}: Add {G} only to creatures with a +1/+1 counter; other kinds "
+"of counters are not counted"
+msgstr ""
+"da su {T}: Add {G} solo a las criaturas con un contador +1/+1; otros tipos "
+"de contadores no se cuentan"
+
+#: simulations/engine/adapter.py
+msgid ""
+"turns into its land at your end step once you control enough creatures, and "
+"makes mana from your next turn on; it never counts as a land drop"
+msgstr ""
+"se transforma en su tierra en tu paso final en cuanto controlas suficientes "
+"criaturas, y produce maná desde tu siguiente turno; nunca cuenta como tierra"
+" jugada"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your creatures with a counter tap for %(mana)s"
+msgstr "tus criaturas con un contador se giran por %(mana)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts its counters as it enters on the creatures they make the most mana with"
+" - Incubation Druid first, then creatures without a mana ability - and on "
+"creatures that were there before this turn rather than new ones"
+msgstr ""
+"pone sus contadores al entrar en las criaturas con las que producen más maná"
+" - primero Incubation Druid, luego criaturas sin habilidad de maná - y en "
+"criaturas que ya estaban antes de este turno en lugar de las nuevas"
+
+#: simulations/engine/adapter.py
+msgid ""
+"adapts as soon as the mana left after the turn's spells and land searches "
+"pays for it, before a spell with X takes the rest"
+msgstr ""
+"se adapta en cuanto el maná que queda tras los hechizos y búsquedas de "
+"tierras del turno alcanza para pagarla, antes de que un hechizo con X se "
+"lleve el resto"
+
+#: simulations/engine/adapter.py
+msgid ""
+"adds one more counter each time the engine puts +1/+1 counters on one of "
+"your creatures"
+msgstr ""
+"añade un contador más cada vez que el motor pone contadores +1/+1 sobre una "
+"de tus criaturas"
+
+#: simulations/engine/adapter.py
+msgid ""
+"draws a card when one of your creatures enters with more power than each "
+"other creature; a goldfish's opponents have no creatures"
+msgstr ""
+"roba una carta cuando una de tus criaturas entra con más fuerza que cada "
+"otra criatura; los oponentes de un goldfish no tienen criaturas"
+
+#: simulations/engine/adapter.py
+msgid ""
+"takes the creature of highest mana value among the cards it looks at, and "
+"puts the rest on the bottom"
+msgstr ""
+"toma la criatura de mayor valor de maná entre las cartas que mira, y pone el"
+" resto en el fondo"
+
+#: changelog/entries.py
+msgid "Selvala, Marwyn, Rishkar and mana by power"
+msgstr "Selvala, Marwyn, Rishkar y el maná según la fuerza"
+
+#: changelog/entries.py
+msgid ""
+"Creatures whose mana counts power or +1/+1 counters now make it in a "
+"simulated game. A creature's power is the power printed on it plus its +1/+1"
+" counters, no pumps or anthems: Kami of Whispered Hopes, Marwyn and Vivi "
+"Ornitier tap for their own, Selvala for the greatest, Arbor Adherent for the"
+" greatest toughness of the others, Gyre Sage for its counters. The counters "
+"come from creatures that enter with them, Rishkar, Evolve, Increment, Adapt "
+"- Incubation Druid makes three - and every other Elf that enters, and Kami "
+"adds one more each time. Growing Rites of Itlimoc finds a creature and turns"
+" into its land at four creatures. Your deck page says all of this beside "
+"each card."
+msgstr ""
+"Las criaturas cuyo maná cuenta la fuerza o los contadores +1/+1 ahora lo "
+"producen en una partida simulada. La fuerza de una criatura es la fuerza "
+"impresa más sus contadores +1/+1, sin potenciadores ni anthems: Kami of "
+"Whispered Hopes, Marwyn y Vivi Ornitier se giran por la suya, Selvala por la"
+" mayor, Arbor Adherent por la mayor resistencia de las demás, Gyre Sage por "
+"sus contadores. Los contadores vienen de criaturas que entran con ellos, de "
+"Rishkar, Evolve, Increment, Adapt - Incubation Druid produce tres - y de "
+"cada otro Elfo que entra, y Kami añade uno más cada vez. Growing Rites of "
+"Itlimoc encuentra una criatura y se transforma en su tierra con cuatro "
+"criaturas. La página de tu mazo explica todo esto junto a cada carta."
+
+#: playtest/views.py
+msgid "Adapted"
+msgstr "Adaptado"
+
+#: templates/playtest/_board.html
+msgid "Adapt"
+msgstr "Adaptar"

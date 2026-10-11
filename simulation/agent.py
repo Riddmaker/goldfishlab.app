@@ -253,8 +253,9 @@ def _cast_best(game, pool: ManaPool) -> bool:
         return True
 
     if x_spells:
-        # A land search first: X takes everything that is left (P19 R14).
-        if _try_activation(game, pool):
+        # A land search first: X takes everything that is left (P19 R14);
+        # then Adapt, which makes more mana each turn after (P19 R21).
+        if _try_activation(game, pool) or _try_adapt(game, pool):
             return True
         spell = max(x_spells, key=priority)
         _do(game, actions.CastSpell(index=game.hand.index(spell), x=game.max_x(spell, pool)))
@@ -342,6 +343,16 @@ def _try_activation(game, pool: ManaPool) -> bool:
     return True
 
 
+def _try_adapt(game, pool: ManaPool) -> bool:
+    """Adapt with mana nothing else wants (P19 R21): Incubation Druid pays
+    {3}{G}{G} once for two more mana each turn after."""
+    found = actions.adaptations(game, pool)
+    if not found:
+        return False
+    _do(game, found[0])
+    return True
+
+
 def _do(game, action) -> None:
     """Carry out one action with this agent's answers."""
     actions.apply(game, action, POLICY)
@@ -376,6 +387,8 @@ def take_turn(game) -> None:
         if _try_ritual_line(game, pool):
             continue
         if _try_activation(game, pool):
+            continue
+        if _try_adapt(game, pool):
             continue
         break
 

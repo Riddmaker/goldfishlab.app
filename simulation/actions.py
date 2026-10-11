@@ -257,6 +257,21 @@ class ActivateLander(Action):
 
 
 @dataclass(frozen=True)
+class Adapt(Action):
+    """Adapt the creature at ``index``: Incubation Druid (P19 R21)."""
+
+    kind = "adapt"
+    index: int = 0
+
+    def run(self, game, policy) -> None:
+        card = _at(game, CREATURES, self.index)
+        pool = _pool(game)
+        if not game.can_adapt(card, pool):
+            raise IllegalAction(f"{card.name} cannot adapt now; the floating mana is {pool}")
+        game.adapt(card, pool)
+
+
+@dataclass(frozen=True)
 class SacrificeForMana(Action):
     """Sacrifice a permanent to the altar at ``index`` in ``zone`` for its
     mana (P19 R15): Ashnod's Altar, Phyrexian Tower. ``payment`` indexes
@@ -414,7 +429,7 @@ BY_KIND = {
     for action in (
         BeginTurn, PlayLand, OpenMainPhase, CastSpell, CastCommander, EndStep,
         AdvancePhase, Mulligan, KeepHand, Draw, SetLife, MoveCard, TapPermanent,
-        ActivateSearch, ActivateLander, SacrificeForMana,
+        ActivateSearch, ActivateLander, SacrificeForMana, Adapt,
     )
 }
 
@@ -464,6 +479,7 @@ def legal_actions(game) -> list[Action]:
             allowed.append(CastCommander())
         allowed += activations(game, pool)
         allowed += altars(game, pool)
+        allowed += adaptations(game, pool)
 
     return allowed
 
@@ -480,6 +496,12 @@ def activations(game, pool) -> list[Action]:
     if game.can_activate(None, pool):
         found.append(ActivateLander())
     return found
+
+
+def adaptations(game, pool) -> list[Action]:
+    """The creatures that can adapt now (P19 R21)."""
+    return [Adapt(index=index) for index, card in enumerate(game.creatures)
+            if game.can_adapt(card, pool)]
 
 
 def altars(game, pool) -> list[Action]:

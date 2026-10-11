@@ -10193,3 +10193,199 @@ msgstr ""
 "in dem sie tappen. Everflowing Chalice wird gekickt wie ein Zauberspruch mit"
 " X, und er, Astral Cornucopia und Empowered Autogenerator machen ein Mana "
 "pro Marke. Deine Deckseite sagt das alles neben jeder Karte."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to its power"
+msgstr "%(color)s in Höhe ihrer Stärke"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to the greatest power among your creatures"
+msgstr "%(color)s in Höhe der grössten Stärke deiner Kreaturen"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to the greatest toughness among your other creatures"
+msgstr ""
+"%(color)s in Höhe der grössten Widerstandskraft deiner anderen Kreaturen"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each +1/+1 counter on it"
+msgstr "ein %(color)s für jede +1/+1-Marke auf ihr"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts its power as the turn's mana is opened: the power printed on it and "
+"its +1/+1 counters, no pumps or anthems; counters it gets later in the turn "
+"count from the next turn"
+msgstr ""
+"zählt ihre Stärke, wenn das Mana des Zuges geöffnet wird: die aufgedruckte "
+"Stärke und ihre +1/+1-Marken, ohne Pumps oder Anthems; Marken, die sie "
+"später im Zug bekommt, zählen ab dem nächsten Zug"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts the greatest power among your creatures as the turn's mana is opened:"
+" printed power and +1/+1 counters, no pumps or anthems"
+msgstr ""
+"zählt die grösste Stärke deiner Kreaturen, wenn das Mana des Zuges geöffnet "
+"wird: aufgedruckte Stärke und +1/+1-Marken, ohne Pumps oder Anthems"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts the greatest toughness among your other creatures as the turn's mana "
+"is opened: printed toughness and +1/+1 counters, no pumps or anthems"
+msgstr ""
+"zählt die grösste Widerstandskraft deiner anderen Kreaturen, wenn das Mana "
+"des Zuges geöffnet wird: aufgedruckte Widerstandskraft und +1/+1-Marken, "
+"ohne Pumps oder Anthems"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts its +1/+1 counters as the turn's mana is opened; counters it gets "
+"later in the turn count from the next turn"
+msgstr ""
+"zählt ihre +1/+1-Marken, wenn das Mana des Zuges geöffnet wird; Marken, die "
+"sie später im Zug bekommt, zählen ab dem nächsten Zug"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a +1/+1 counter for each noncreature spell you cast; the damage to the "
+"opponents is not counted"
+msgstr ""
+"bekommt für jeden Nichtkreatur-Zauberspruch, den du wirkst, eine "
+"+1/+1-Marke; der Schaden an den Gegnern wird nicht gezählt"
+
+#: simulations/engine/adapter.py
+msgid ""
+"evolves when a creature enters with greater printed power or toughness plus "
+"counters than it has"
+msgstr ""
+"entwickelt sich, wenn eine Kreatur mit grösserer aufgedruckter Stärke oder "
+"Widerstandskraft plus Marken ins Spiel kommt, als sie selbst hat"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a counter from Increment when a spell's mana value is greater than its "
+"power or toughness; X is not counted"
+msgstr ""
+"bekommt durch Increment eine Marke, wenn der Manawert eines Zauberspruchs "
+"grösser als ihre Stärke oder Widerstandskraft ist; X wird nicht gezählt"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "as much %(color)s as your devotion to it"
+msgstr "so viel %(color)s wie deine Hingabe an diese Farbe"
+
+#: simulations/engine/adapter.py
+msgid "mana of one colour"
+msgstr "Mana einer Farbe"
+
+#: simulations/engine/adapter.py
+msgid "pays the coloured mana its ability costs with any mana, as generic"
+msgstr ""
+"zahlt das farbige Mana, das ihre Fähigkeit kostet, mit beliebigem Mana, wie "
+"generisches"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gives its {T}: Add {G} only to creatures with a +1/+1 counter; other kinds "
+"of counters are not counted"
+msgstr ""
+"gibt ihr {T}: Add {G} nur Kreaturen mit einer +1/+1-Marke; andere Arten von "
+"Marken werden nicht gezählt"
+
+#: simulations/engine/adapter.py
+msgid ""
+"turns into its land at your end step once you control enough creatures, and "
+"makes mana from your next turn on; it never counts as a land drop"
+msgstr ""
+"verwandelt sich in deinem Endsegment in ihr Land, sobald du genug Kreaturen "
+"kontrollierst, und macht ab deinem nächsten Zug Mana; sie zählt nie als "
+"Landspiel"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your creatures with a counter tap for %(mana)s"
+msgstr "deine Kreaturen mit einer Marke tappen für %(mana)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts its counters as it enters on the creatures they make the most mana with"
+" - Incubation Druid first, then creatures without a mana ability - and on "
+"creatures that were there before this turn rather than new ones"
+msgstr ""
+"legt ihre Marken beim Eintritt auf die Kreaturen, mit denen sie am meisten "
+"Mana machen - zuerst Incubation Druid, dann Kreaturen ohne Manafähigkeit - "
+"und lieber auf Kreaturen, die schon vor diesem Zug da waren, als auf neue"
+
+#: simulations/engine/adapter.py
+msgid ""
+"adapts as soon as the mana left after the turn's spells and land searches "
+"pays for it, before a spell with X takes the rest"
+msgstr ""
+"passt sich an, sobald das Mana, das nach den Zaubersprüchen und Landsuchen "
+"des Zuges übrig ist, dafür reicht - bevor ein Zauberspruch mit X den Rest "
+"nimmt"
+
+#: simulations/engine/adapter.py
+msgid ""
+"adds one more counter each time the engine puts +1/+1 counters on one of "
+"your creatures"
+msgstr ""
+"legt jedes Mal eine Marke mehr, wenn die Engine +1/+1-Marken auf eine deiner"
+" Kreaturen legt"
+
+#: simulations/engine/adapter.py
+msgid ""
+"draws a card when one of your creatures enters with more power than each "
+"other creature; a goldfish's opponents have no creatures"
+msgstr ""
+"zieht eine Karte, wenn eine deiner Kreaturen mit mehr Stärke als jede andere"
+" Kreatur ins Spiel kommt; die Gegner eines Goldfish haben keine Kreaturen"
+
+#: simulations/engine/adapter.py
+msgid ""
+"takes the creature of highest mana value among the cards it looks at, and "
+"puts the rest on the bottom"
+msgstr ""
+"nimmt unter den angeschauten Karten die Kreatur mit dem höchsten Manawert "
+"und legt den Rest unter die Bibliothek"
+
+#: changelog/entries.py
+msgid "Selvala, Marwyn, Rishkar and mana by power"
+msgstr "Selvala, Marwyn, Rishkar und Mana nach Stärke"
+
+#: changelog/entries.py
+msgid ""
+"Creatures whose mana counts power or +1/+1 counters now make it in a "
+"simulated game. A creature's power is the power printed on it plus its +1/+1"
+" counters, no pumps or anthems: Kami of Whispered Hopes, Marwyn and Vivi "
+"Ornitier tap for their own, Selvala for the greatest, Arbor Adherent for the"
+" greatest toughness of the others, Gyre Sage for its counters. The counters "
+"come from creatures that enter with them, Rishkar, Evolve, Increment, Adapt "
+"- Incubation Druid makes three - and every other Elf that enters, and Kami "
+"adds one more each time. Growing Rites of Itlimoc finds a creature and turns"
+" into its land at four creatures. Your deck page says all of this beside "
+"each card."
+msgstr ""
+"Kreaturen, deren Mana Stärke oder +1/+1-Marken zählt, machen es jetzt im "
+"simulierten Spiel. Die Stärke einer Kreatur ist die aufgedruckte Stärke plus"
+" ihre +1/+1-Marken, ohne Pumps oder Anthems: Kami of Whispered Hopes, Marwyn"
+" und Vivi Ornitier tappen für ihre eigene, Selvala für die grösste, Arbor "
+"Adherent für die grösste Widerstandskraft der anderen, Gyre Sage für ihre "
+"Marken. Die Marken kommen von Kreaturen, die mit ihnen ins Spiel kommen, von"
+" Rishkar, Evolve, Increment, Adapt - Incubation Druid macht drei - und von "
+"jedem weiteren Elf, der ins Spiel kommt, und Kami legt jedes Mal eine mehr. "
+"Growing Rites of Itlimoc findet eine Kreatur und wird bei vier Kreaturen zu "
+"ihrem Land. Deine Deck-Seite sagt das alles neben jeder Karte."
+
+#: playtest/views.py
+msgid "Adapted"
+msgstr "Angepasst"
+
+#: templates/playtest/_board.html
+msgid "Adapt"
+msgstr "Anpassen"

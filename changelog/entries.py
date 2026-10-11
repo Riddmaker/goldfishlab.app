@@ -42,6 +42,19 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 11), "power-mana",
+        _("Selvala, Marwyn, Rishkar and mana by power"),
+        _("Creatures whose mana counts power or +1/+1 counters now make it in a simulated "
+          "game. A creature's power is the power printed on it plus its +1/+1 counters, no "
+          "pumps or anthems: Kami of Whispered Hopes, Marwyn and Vivi Ornitier tap for their "
+          "own, Selvala for the greatest, Arbor Adherent for the greatest toughness of the "
+          "others, Gyre Sage for its counters. The counters come from creatures that enter "
+          "with them, Rishkar, Evolve, Increment, Adapt - Incubation Druid makes three - and "
+          "every other Elf that enters, and Kami adds one more each time. Growing Rites of "
+          "Itlimoc finds a creature and turns into its land at four creatures. Your deck page "
+          "says all of this beside each card."),
+    ),
+    Entry(
         date(2026, 10, 11), "counter-mana",
         _("Everflowing Chalice, Pentad Prism, energy and storage lands"),
         _("Cards that keep their mana as counters, energy or a Food now make it in a "

@@ -155,6 +155,13 @@ boundary, not the symptom.
 #:    each turn they tap; Everflowing Chalice (kicked as an X), Astral
 #:    Cornucopia and Empowered Autogenerator tap for one per counter;
 #:    Runaway Steam-Kin turns three counters into {R}{R}{R}.
-ENGINE_VERSION = 24
+#: 25: P19 R21. Mana by power and +1/+1 counters: a creature's power is the
+#:    printed one plus its counters (Kami of Whispered Hopes, Marwyn, Vivi
+#:    Ornitier, Selvala's greatest power, Arbor Adherent's toughness, Gyre
+#:    Sage's counters, "a creature with power 4 or greater"); counters come
+#:    as creatures enter with them, from Rishkar, Evolve, Increment, Adapt
+#:    (Incubation Druid's three) and "another Elf enters"; Growing Rites of
+#:    Itlimoc turns into its land at four creatures.
+ENGINE_VERSION = 25
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

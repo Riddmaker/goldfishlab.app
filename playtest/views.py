@@ -108,6 +108,7 @@ ACTION_NAMES = {
     "activate_search": gettext_noop("Land search activated"),
     "activate_lander": gettext_noop("Lander activated"),
     "sacrifice_mana": gettext_noop("Sacrificed for mana"),
+    "adapt": gettext_noop("Adapted"),
 }
 
 #: The message tag that marks an engine refusal, so the page can say it is
@@ -119,7 +120,8 @@ PIP_ORDER = (*COLORS, COLORLESS)
 
 
 def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
-           x_max=None, zone="", activatable=(), payments=None, altars=None) -> list[dict]:
+           x_max=None, zone="", activatable=(), payments=None, altars=None,
+           adaptable=()) -> list[dict]:
     """One zone, as the flat rows a template can loop over without thinking.
 
     The alternative is a custom filter for `images[card.name]` and another for
@@ -129,7 +131,8 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
     `activatable` are the permanents in `zone` whose land search the pool
     pays for now (P19 R14). `payments` gives a castable card the ways its
     additional cost can be paid, and `altars` an altar what it can sacrifice
-    (P19 R15): labels, the first the agent's own choice.
+    (P19 R15): labels, the first the agent's own choice. `adaptable` are the
+    creatures that can adapt now (P19 R21).
     """
     return [
         {
@@ -145,6 +148,7 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
             "payments": payments(card) if payments and index in castable
             and card.additional_costs else [],
             "altar": altars(card) if altars and card.sacrifice_mana is not None else [],
+            "adaptable": index in adaptable,
         }
         for index, card in enumerate(cards)
     ]
@@ -258,7 +262,10 @@ def board_context(session: PlaytestSession, game) -> dict:
                                           activatable={a.index for a in legal
                                                        if isinstance(a, actions.ActivateSearch)
                                                        and a.zone == zone},
-                                          altars=altar_labels(game))]}
+                                          altars=altar_labels(game),
+                                          adaptable={a.index for a in legal
+                                                     if isinstance(a, actions.Adapt)
+                                                     and zone == actions.CREATURES})]}
             for key, label, zones in BATTLEFIELD_ROWS
         ],
         "landers": getattr(game, "landers", 0),

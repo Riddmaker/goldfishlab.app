@@ -410,6 +410,11 @@ class DerivedProfile(models.Model):
     #: "produces", "start", "start_from", "kick", "grows", "empty", "target",
     #: "once"}, see `cards.profiles._read_store`. Null: none.
     mana_store = models.JSONField(null=True, blank=True, default=None)
+    #: P19 R21: +1/+1 counters and what grows with them - Gyre Sage, Rishkar,
+    #: Kami of Whispered Hopes, Growing Rites of Itlimoc: {"enters",
+    #: "enters_x", "grows", "adapt", "bonus", "puts", "draws_on_greatest",
+    #: "look"}, see `cards.profiles._growth`. Null: none.
+    growth = models.JSONField(null=True, blank=True, default=None)
     #: P19 R16: the triggers that make Treasure, mana or cards - Lotus Cobra,
     #: Storm-Kiln Artist, Smothering Tithe: a list of {"event", "filter",
     #: "treasures", "spawn", "mana", "color", "draw", "life", "tax"}.

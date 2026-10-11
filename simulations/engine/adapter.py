@@ -51,6 +51,7 @@ from simulation.cards import (
     CostReduction,
     DeckDefinition,
     EndStepSpec,
+    Growth,
     LandSearch,
     ManaAbility,
     SpellFilter,
@@ -626,6 +627,8 @@ def _extra_text(ability) -> str:
     if ability.rule == GRANT:
         if ability.subtype == "enchanted":
             return gettext("the enchanted land taps for one mana of any colour")
+        if ability.subtype == "creature:counter":
+            return gettext("your creatures with a counter tap for %(mana)s") % {"mana": mana}
         return gettext("your creatures tap for %(mana)s") % {"mana": mana}
     texts = {
         "enchanted": gettext_noop("%(mana)s more when the enchanted land is tapped for mana"),
@@ -646,6 +649,16 @@ def _extra_text(ability) -> str:
     }
     text = texts.get(ability.subtype)
     return gettext(text) % {"mana": mana} if text else str(ability.rule)
+
+
+#: P19 R21: mana by power, toughness or counters, in words.
+_STAT_TEXT = {
+    "power": gettext_noop("%(color)s equal to its power"),
+    "power:greatest": gettext_noop("%(color)s equal to the greatest power among your creatures"),
+    "toughness:greatest_other": gettext_noop(
+        "%(color)s equal to the greatest toughness among your other creatures"),
+    "counters": gettext_noop("one %(color)s for each +1/+1 counter on it"),
+}
 
 
 def _counts_text(ability) -> str:
@@ -670,6 +683,12 @@ def _counts_text(ability) -> str:
             "color": color, "dead": mana_label(what.split(":", 1)[1])}
     if what == "devotion":
         return gettext("as much as your devotion to your best colour, in that colour")
+    if what.startswith("devotion:"):
+        return gettext("as much %(color)s as your devotion to it") % {"color": color}
+    if what in _STAT_TEXT:
+        if not color:
+            color = gettext("mana of one colour")
+        return gettext(_STAT_TEXT[what]) % {"color": color}
     if what.startswith("names:"):
         produced = " + ".join(f"{amount} {mana_label(source)}"
                               for source, amount in ability.produces)
@@ -1098,6 +1117,9 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         triggers=_triggers(profile, overrides, deck_colors),
         printed_subtypes=printed_subtypes(oracle_card),
         power=_power(oracle_card),
+        toughness=_power(oracle_card, "toughness"),
+        growth=_growth(profile),
+        flip=0 if _overrides_mana(overrides) else int(_read_rule(profile, "flip") or 0),
         tap_mana=(None if _overrides_mana(overrides)
                   else _tap_mana(profile, deck_colors, chosen, color)),
         mox="" if _overrides_mana(overrides) else str(getattr(profile, "mox", "") or ""),
@@ -1280,10 +1302,103 @@ def _record_store(card: Card, found: dict, gaps: list[Gap]) -> None:
     gaps.extend(Gap(card.name, "assumed_cost", text) for text in said)
 
 
-def _power(oracle_card) -> int:
-    """The power printed on the front face, 0 for none or "*" (P19 R18)."""
-    printed = str(getattr(oracle_card, "power", "") or "").split("//", 1)[0].strip()
+def _power(oracle_card, stat: str = "power") -> int:
+    """The power (or toughness, P19 R21) printed on the front face, 0 for none
+    or "*" (P19 R18)."""
+    printed = str(getattr(oracle_card, stat, "") or "").split("//", 1)[0].strip()
     return int(printed) if printed.isdigit() else 0
+
+
+def _growth(profile) -> Growth | None:
+    """+1/+1 counters and what grows with them, as the engine plays them (P19 R21)."""
+    found = getattr(profile, "growth", None)
+    if not found:
+        return None
+    adapt = found.get("adapt") or {}
+    return Growth(enters=int(found.get("enters") or 0), enters_x=bool(found.get("enters_x")),
+                  grows=tuple(found.get("grows") or ()), adapt=int(adapt.get("n") or 0),
+                  adapt_cost=parse(adapt["cost"]) if adapt else None,
+                  bonus=int(found.get("bonus") or 0), puts=int(found.get("puts") or 0),
+                  draws_on_greatest=bool(found.get("draws_on_greatest")),
+                  look=int(found.get("look") or 0))
+
+
+#: P19 R21: what the engine assumes about mana by power and +1/+1 counters,
+#: as said beside the card.
+_STAT_SAID = {
+    "power": gettext_noop(
+        "counts its power as the turn's mana is opened: the power printed on it and its "
+        "+1/+1 counters, no pumps or anthems; counters it gets later in the turn count from "
+        "the next turn"),
+    "power:greatest": gettext_noop(
+        "counts the greatest power among your creatures as the turn's mana is opened: "
+        "printed power and +1/+1 counters, no pumps or anthems"),
+    "toughness:greatest_other": gettext_noop(
+        "counts the greatest toughness among your other creatures as the turn's mana is "
+        "opened: printed toughness and +1/+1 counters, no pumps or anthems"),
+    "counters": gettext_noop(
+        "counts its +1/+1 counters as the turn's mana is opened; counters it gets later in "
+        "the turn count from the next turn"),
+}
+_GROWS_SAID = {
+    "cast:noncreature": gettext_noop(
+        "gets a +1/+1 counter for each noncreature spell you cast; the damage to the "
+        "opponents is not counted"),
+    "evolve": gettext_noop(
+        "evolves when a creature enters with greater printed power or toughness plus "
+        "counters than it has"),
+    "increment": gettext_noop(
+        "gets a counter from Increment when a spell's mana value is greater than its power "
+        "or toughness; X is not counted"),
+}
+
+
+def _record_growth(card: Card, rule: dict, gaps: list[Gap]) -> None:
+    """P19 R21: what the engine assumes about mana by power, toughness and
+    +1/+1 counters - stated on the card list, beside the card."""
+    said = []
+    counted = rule.get("rule") == "counts"
+    if counted and rule.get("subtype") in _STAT_SAID:
+        said.append(_STAT_SAID[rule["subtype"]])
+    if counted and rule.get("once"):
+        said.append(gettext_noop(
+            "is used once each turn from the turn after it enters, as if it tapped"))
+    if counted and rule.get("pays"):
+        said.append(gettext_noop(
+            "pays the coloured mana its ability costs with any mana, as generic"))
+    if rule.get("rule") == "grant" and rule.get("subtype") == "creature:counter":
+        said.append(gettext_noop(
+            "gives its {T}: Add {G} only to creatures with a +1/+1 counter; other kinds of "
+            "counters are not counted"))
+    if rule.get("flip"):
+        said.append(gettext_noop(
+            "turns into its land at your end step once you control enough creatures, and makes "
+            "mana from your next turn on; it never counts as a land drop"))
+    growth = card.growth
+    if growth is not None:
+        if growth.puts:
+            said.append(gettext_noop(
+                "puts its counters as it enters on the creatures they make the most mana "
+                "with - Incubation Druid first, then creatures without a mana ability - and "
+                "on creatures that were there before this turn rather than new ones"))
+        if growth.adapt:
+            said.append(gettext_noop(
+                "adapts as soon as the mana left after the turn's spells and land searches "
+                "pays for it, before a spell with X takes the rest"))
+        if growth.bonus:
+            said.append(gettext_noop(
+                "adds one more counter each time the engine puts +1/+1 counters on one of "
+                "your creatures"))
+        if growth.draws_on_greatest:
+            said.append(gettext_noop(
+                "draws a card when one of your creatures enters with more power than each "
+                "other creature; a goldfish's opponents have no creatures"))
+        if growth.look:
+            said.append(gettext_noop(
+                "takes the creature of highest mana value among the cards it looks at, and "
+                "puts the rest on the bottom"))
+        said.extend(_GROWS_SAID[grows] for grows in growth.grows if grows in _GROWS_SAID)
+    gaps.extend(Gap(card.name, "assumed_cost", text) for text in said)
 
 
 def _names_color(profile) -> bool:
@@ -1392,7 +1507,8 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
                            subtype=subtype,
                            activation_generic=int(read_rule.get("activation") or 0),
                            color=read_rule.get("color", ""),
-                           times=int(read_rule.get("times") or 1))
+                           times=int(read_rule.get("times")
+                                     or read_rule.get("with_counter") or 1))
         if read_rule["rule"] != "counts" or not profile.mana_amount:
             return (rule,)
         # Cabal Stronghold, Urza's Mine: the counting ability and the plain
@@ -2040,6 +2156,8 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
 
     _record_tapping(card, gaps)
     _record_store(card, getattr(profile, "mana_store", None) or {}, gaps)
+    if not _overrides_mana(overrides):
+        _record_growth(card, getattr(profile, "mana_rule", None) or {}, gaps)
 
     if any(way.life_x for way in card.additional_costs):
         gaps.append(Gap(card.name, "assumed_cost", gettext_noop(

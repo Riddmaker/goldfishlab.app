@@ -10141,3 +10141,198 @@ msgstr ""
 "potenziato come una magia con X, e lui, Astral Cornucopia ed Empowered "
 "Autogenerator producono un mana per ogni segnalino. La pagina del tuo mazzo "
 "dice tutto questo accanto a ogni carta."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to its power"
+msgstr "%(color)s pari alla sua forza"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to the greatest power among your creatures"
+msgstr "%(color)s pari alla forza più alta tra le tue creature"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(color)s equal to the greatest toughness among your other creatures"
+msgstr "%(color)s pari alla costituzione più alta tra le tue altre creature"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "one %(color)s for each +1/+1 counter on it"
+msgstr "un %(color)s per ogni segnalino +1/+1 su di essa"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts its power as the turn's mana is opened: the power printed on it and "
+"its +1/+1 counters, no pumps or anthems; counters it gets later in the turn "
+"count from the next turn"
+msgstr ""
+"conta la sua forza quando si apre il mana del turno: la forza stampata e i "
+"suoi segnalini +1/+1, senza potenziamenti né anthem; i segnalini ricevuti "
+"più tardi nel turno contano dal turno successivo"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts the greatest power among your creatures as the turn's mana is opened:"
+" printed power and +1/+1 counters, no pumps or anthems"
+msgstr ""
+"conta la forza più alta tra le tue creature quando si apre il mana del "
+"turno: forza stampata e segnalini +1/+1, senza potenziamenti né anthem"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts the greatest toughness among your other creatures as the turn's mana "
+"is opened: printed toughness and +1/+1 counters, no pumps or anthems"
+msgstr ""
+"conta la costituzione più alta tra le tue altre creature quando si apre il "
+"mana del turno: costituzione stampata e segnalini +1/+1, senza potenziamenti"
+" né anthem"
+
+#: simulations/engine/adapter.py
+msgid ""
+"counts its +1/+1 counters as the turn's mana is opened; counters it gets "
+"later in the turn count from the next turn"
+msgstr ""
+"conta i suoi segnalini +1/+1 quando si apre il mana del turno; i segnalini "
+"ricevuti più tardi nel turno contano dal turno successivo"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a +1/+1 counter for each noncreature spell you cast; the damage to the "
+"opponents is not counted"
+msgstr ""
+"riceve un segnalino +1/+1 per ogni magia non creatura che lanci; il danno "
+"agli avversari non viene contato"
+
+#: simulations/engine/adapter.py
+msgid ""
+"evolves when a creature enters with greater printed power or toughness plus "
+"counters than it has"
+msgstr ""
+"si evolve quando entra una creatura con forza o costituzione stampata più "
+"segnalini maggiore della sua"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gets a counter from Increment when a spell's mana value is greater than its "
+"power or toughness; X is not counted"
+msgstr ""
+"riceve un segnalino da Increment quando il valore di mana di una magia è "
+"maggiore della sua forza o costituzione; X non viene contato"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "as much %(color)s as your devotion to it"
+msgstr "tanto %(color)s quanto la tua devozione a quel colore"
+
+#: simulations/engine/adapter.py
+msgid "mana of one colour"
+msgstr "mana di un solo colore"
+
+#: simulations/engine/adapter.py
+msgid "pays the coloured mana its ability costs with any mana, as generic"
+msgstr ""
+"paga il mana colorato che costa la sua abilità con mana qualsiasi, come "
+"generico"
+
+#: simulations/engine/adapter.py
+msgid ""
+"gives its {T}: Add {G} only to creatures with a +1/+1 counter; other kinds "
+"of counters are not counted"
+msgstr ""
+"dà il suo {T}: Add {G} solo alle creature con un segnalino +1/+1; gli altri "
+"tipi di segnalini non vengono contati"
+
+#: simulations/engine/adapter.py
+msgid ""
+"turns into its land at your end step once you control enough creatures, and "
+"makes mana from your next turn on; it never counts as a land drop"
+msgstr ""
+"si trasforma nella sua terra durante la tua sottofase finale non appena "
+"controlli abbastanza creature, e produce mana dal tuo turno successivo; non "
+"conta mai come terra giocata"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your creatures with a counter tap for %(mana)s"
+msgstr "le tue creature con un segnalino si tappano per %(mana)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"puts its counters as it enters on the creatures they make the most mana with"
+" - Incubation Druid first, then creatures without a mana ability - and on "
+"creatures that were there before this turn rather than new ones"
+msgstr ""
+"mette i suoi segnalini all'ingresso sulle creature con cui producono più "
+"mana - prima Incubation Druid, poi le creature senza abilità di mana - e su "
+"creature presenti prima di questo turno piuttosto che su quelle nuove"
+
+#: simulations/engine/adapter.py
+msgid ""
+"adapts as soon as the mana left after the turn's spells and land searches "
+"pays for it, before a spell with X takes the rest"
+msgstr ""
+"si adatta non appena il mana rimasto dopo le magie e le ricerche di terre "
+"del turno basta a pagarla, prima che una magia con X prenda il resto"
+
+#: simulations/engine/adapter.py
+msgid ""
+"adds one more counter each time the engine puts +1/+1 counters on one of "
+"your creatures"
+msgstr ""
+"aggiunge un segnalino in più ogni volta che il motore mette segnalini +1/+1 "
+"su una delle tue creature"
+
+#: simulations/engine/adapter.py
+msgid ""
+"draws a card when one of your creatures enters with more power than each "
+"other creature; a goldfish's opponents have no creatures"
+msgstr ""
+"pesca una carta quando una delle tue creature entra con forza maggiore di "
+"ogni altra creatura; gli avversari di un goldfish non hanno creature"
+
+#: simulations/engine/adapter.py
+msgid ""
+"takes the creature of highest mana value among the cards it looks at, and "
+"puts the rest on the bottom"
+msgstr ""
+"prende la creatura con il valore di mana più alto tra le carte guardate, e "
+"mette il resto in fondo"
+
+#: changelog/entries.py
+msgid "Selvala, Marwyn, Rishkar and mana by power"
+msgstr "Selvala, Marwyn, Rishkar e il mana in base alla forza"
+
+#: changelog/entries.py
+msgid ""
+"Creatures whose mana counts power or +1/+1 counters now make it in a "
+"simulated game. A creature's power is the power printed on it plus its +1/+1"
+" counters, no pumps or anthems: Kami of Whispered Hopes, Marwyn and Vivi "
+"Ornitier tap for their own, Selvala for the greatest, Arbor Adherent for the"
+" greatest toughness of the others, Gyre Sage for its counters. The counters "
+"come from creatures that enter with them, Rishkar, Evolve, Increment, Adapt "
+"- Incubation Druid makes three - and every other Elf that enters, and Kami "
+"adds one more each time. Growing Rites of Itlimoc finds a creature and turns"
+" into its land at four creatures. Your deck page says all of this beside "
+"each card."
+msgstr ""
+"Le creature il cui mana conta la forza o i segnalini +1/+1 ora lo producono "
+"in una partita simulata. La forza di una creatura è la forza stampata più i "
+"suoi segnalini +1/+1, senza potenziamenti né anthem: Kami of Whispered "
+"Hopes, Marwyn e Vivi Ornitier si tappano per la propria, Selvala per la più "
+"alta, Arbor Adherent per la costituzione più alta delle altre, Gyre Sage per"
+" i suoi segnalini. I segnalini vengono dalle creature che entrano con essi, "
+"da Rishkar, Evolve, Increment, Adapt - Incubation Druid ne produce tre - e "
+"da ogni altro Elfo che entra, e Kami ne aggiunge uno in più ogni volta. "
+"Growing Rites of Itlimoc trova una creatura e si trasforma nella sua terra a"
+" quattro creature. La pagina del tuo mazzo spiega tutto questo accanto a "
+"ogni carta."
+
+#: playtest/views.py
+msgid "Adapted"
+msgstr "Adattato"
+
+#: templates/playtest/_board.html
+msgid "Adapt"
+msgstr "Adattare"

@@ -19,6 +19,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -38,7 +39,10 @@ from guests.services import LIFETIME as GUEST_LIFETIME
 from metrics import doors
 from sharing import services as sharing
 from simulations import (
+    annotations,
     blindspots,
+    editor,
+    primitives,
     provenance,
     report,
     review,
@@ -383,6 +387,7 @@ class CardAnnotateView(DeckScopedView):
             ),
             annotation=annotation,
             scope=scope,
+            editing=request.GET.get("edit", ""),
         ))
 
     def post(self, request, pk, oracle_id):
@@ -449,7 +454,28 @@ class CardAnnotateView(DeckScopedView):
         url = reverse("simulations:annotate", args=[deck.pk, oracle_card.pk])
         return f"{url}?scope={scope}" if scope != DECK_SCOPE else url
 
-    def _context(self, deck, card, *, form, annotation, scope) -> dict:
+    def _blocks(self, deck, card, entry, scope, editing, primitive_form) -> dict:
+        """The editor rebuild: the card's primitives as blocks, and the one
+        being edited with its form."""
+        found = adapter.annotations_for(deck)
+        overrides = found.for_card(card.pk)
+        shown, addable = editor.blocks(entry.reading, overrides, found.scopes.get(card.pk, {}),
+                                       scope)
+        if editing not in primitives.EDITABLE:
+            editing = ""
+        if editing and primitive_form is None:
+            value = editor.current(editing, overrides, getattr(card, "profile", None))
+            primitive_form = editor.form_class(editing)(
+                initial=editor.initial(editing, value), prefix=editing)
+        first, more = (editor.split(primitive_form, editing) if primitive_form is not None
+                       else ([], []))
+        return {"blocks": shown, "addable": addable, "editing": editing,
+                "editing_label": primitives.BY_KEY[editing].label if editing else "",
+                "primitive_form": primitive_form, "primitive_first": first,
+                "primitive_more": more}
+
+    def _context(self, deck, card, *, form, annotation, scope, editing="",
+                 primitive_form=None) -> dict:
         entries = provenance.for_deck(deck)
         entry = next(entry for entry in entries if entry.oracle_card.pk == card.pk)
         questions = review.queue(deck, [each.reading for each in entries])
@@ -470,6 +496,7 @@ class CardAnnotateView(DeckScopedView):
             "annotation": annotation,
             "scope": scope,
             "step": None,
+            **self._blocks(deck, card, entry, scope, editing, primitive_form),
         }
         if card.pk in ids:
             here = ids.index(card.pk)
@@ -493,6 +520,56 @@ class CardAnnotateView(DeckScopedView):
         possible default, so an unrecognised value falls back to this deck.
         """
         return value if value in {DECK_SCOPE, USER_SCOPE} else DECK_SCOPE
+
+
+class PrimitiveView(DeckScopedView):
+    """Change one primitive of one card (the editor rebuild): set it from its
+    form, switch it off, or go back to what the card data says."""
+
+    def post(self, request, pk, oracle_id, key):
+        deck = self.get_deck(request, pk)
+        card = self.get_card(deck, oracle_id)
+        scope = CardAnnotateView._scope(request.POST.get("scope"))
+        primitive = primitives.BY_KEY.get(key)
+        if primitive is None:
+            raise Http404
+        action = request.POST.get("action", "save")
+        back = CardAnnotateView._url(deck, card, scope)
+        if action == "off":
+            change = None
+        elif action == "reset":
+            change = annotations.RESET
+        elif key in primitives.EDITABLE:
+            found = adapter.annotations_for(deck)
+            overrides = found.for_card(card.pk)
+            base = editor.current(key, overrides, getattr(card, "profile", None))
+            form = editor.form_class(key)(request.POST, prefix=key)
+            try:
+                if not form.is_valid():
+                    raise ValidationError(gettext("Check the boxes marked below."))
+                change = editor.value_from(key, base, form.cleaned_data)
+                services.save_annotation(deck=deck, oracle_card=card, scope=scope,
+                                         note=None, primitive_changes={key: change})
+            except ValidationError as exc:
+                form.add_error(None, exc.messages)
+                annotation = services.annotation_at(deck, card, scope)
+                return render(request, "simulations/annotate.html", CardAnnotateView()._context(
+                    deck, card,
+                    form=AnnotationForm(initial={"scope": scope,
+                                                 **AnnotationForm.initial_for(annotation)}),
+                    annotation=annotation, scope=scope, editing=key, primitive_form=form,
+                ), status=400)
+            messages.success(request, gettext("Saved. %(card)s will be read that way from "
+                                              "the next run onwards.")
+                             % {"card": card.front_name})
+            return redirect(back)
+        else:
+            raise Http404
+        services.save_annotation(deck=deck, oracle_card=card, scope=scope, note=None,
+                                 primitive_changes={key: change})
+        messages.success(request, gettext("Saved. %(card)s will be read that way from the "
+                                          "next run onwards.") % {"card": card.front_name})
+        return redirect(back)
 
 
 class AnnotationDeleteView(DeckScopedView):

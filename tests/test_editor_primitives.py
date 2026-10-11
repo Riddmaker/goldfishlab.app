@@ -14,6 +14,7 @@ from types import SimpleNamespace
 import pytest
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 from cards import profiles
 from cards.models import OracleCard
@@ -193,3 +194,82 @@ def test_the_reading_is_where_the_editor_starts(deck):
     cobra = deck.cobra.profile
     assert primitives.reading_of("triggers", cobra) == cobra.triggers
     assert primitives.reading_of("land_search", deck.growth.profile) is None
+
+
+# --- E2: the card page ------------------------------------------------------------
+
+
+def page(client, deck, oracle_card, query=""):
+    url = reverse("simulations:annotate", args=[deck.deck.pk, oracle_card.pk])
+    return client.get(url + query)
+
+
+def post(client, deck, oracle_card, key, data):
+    url = reverse("simulations:primitive", args=[deck.deck.pk, oracle_card.pk, key])
+    return client.post(url, {"scope": DECK_SCOPE, **data})
+
+
+def test_the_page_shows_what_the_engine_plays(deck, client):
+    client.force_login(deck.owner)
+    text = page(client, deck, deck.cobra).content.decode()
+    assert "What the engine plays" in text and "From the card" in text
+    assert "whenever a land of yours enters" in text
+    assert "Add a building block" in text
+
+
+def test_a_land_search_added_through_the_form(deck, client):
+    client.force_login(deck.owner)
+    text = page(client, deck, deck.growth, "?edit=land_search").content.decode()
+    assert 'id="editing"' in text and "Lands onto the battlefield" in text
+    response = post(client, deck, deck.growth, "land_search", {
+        "action": "save", "land_search-when": "cast", "land_search-battlefield": "2",
+        "land_search-hand": "0", "land_search-tapped": "on", "land_search-basic": "on",
+        "land_search-condition": "", "land_search-repeat": "0", "land_search-tempting": "0",
+        "land_search-life": "0"})
+    assert response.status_code == 302
+    search = card_of(deck.deck, deck.growth).land_search
+    assert search.battlefield == 2 and search.tapped and search.basic
+    text = page(client, deck, deck.growth).content.decode()
+    assert "Yours, this deck" in text and "Back to the card data" in text
+
+
+def test_off_and_back_through_the_page(deck, client):
+    client.force_login(deck.owner)
+    assert post(client, deck, deck.cobra, "triggers", {"action": "off"}).status_code == 302
+    assert card_of(deck.deck, deck.cobra).triggers == ()
+    assert "switched off" in page(client, deck, deck.cobra).content.decode()
+    post(client, deck, deck.cobra, "triggers", {"action": "reset"})
+    assert card_of(deck.deck, deck.cobra).triggers
+
+
+def test_a_bad_box_is_refused_with_its_reason(deck, client):
+    client.force_login(deck.owner)
+    response = post(client, deck, deck.growth, "land_search", {
+        "action": "save", "land_search-when": "activate", "land_search-battlefield": "1",
+        "land_search-cost": "two mana", "land_search-condition": ""})
+    assert response.status_code == 400
+    assert "is not a mana cost" in response.content.decode()
+    response = post(client, deck, deck.growth, "tutor", {
+        "action": "save", "tutor-to": "hand", "tutor-count": "1", "tutor-kind": "",
+        "tutor-types": "<script>", "tutor-color": ""})
+    assert response.status_code == 400
+    assert not CardAnnotation.objects.filter(oracle_card=deck.growth).exists()
+
+
+def test_a_search_with_types_through_the_form(deck, client):
+    client.force_login(deck.owner)
+    post(client, deck, deck.growth, "tutor", {
+        "action": "save", "tutor-to": "hand", "tutor-count": "1", "tutor-kind": "",
+        "tutor-types": "Aura, equipment", "tutor-max_mv": "", "tutor-color": ""})
+    tutor = card_of(deck.deck, deck.growth).tutor
+    assert tutor.types == frozenset({"aura", "equipment"}) and tutor.max_mv is None
+
+
+def test_only_the_owner_and_only_known_keys(deck, client):
+    other = get_user_model().objects.create_user(email="other@example.com",
+                                                 password="pw-for-test-only")
+    client.force_login(other)
+    assert post(client, deck, deck.cobra, "triggers", {"action": "off"}).status_code == 404
+    client.force_login(deck.owner)
+    assert post(client, deck, deck.cobra, "teleport", {"action": "off"}).status_code == 404
+    assert post(client, deck, deck.cobra, "combat", {"action": "save"}).status_code == 404

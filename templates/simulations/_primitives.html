@@ -1,0 +1,95 @@
+{% load i18n %}
+{% comment %}
+  The editor rebuild: what the engine plays of this card, one building block
+  at a time. Each block says who decided it - the card, you, a built-in
+  default - and can be changed, switched off, or taken back to the card data.
+  Every action is a plain form post: no script is needed.
+{% endcomment %}
+<section id="primitives" class="mt-4">
+  <h3 class="font-display text-xl text-ink-900">{% translate "What the engine plays" %}</h3>
+  {% if blocks %}
+    <ul class="mt-2">
+      {% for block in blocks %}
+        <li id="primitive-{{ block.key }}" class="border-b border-parchment-300 py-3">
+          <div class="flex flex-wrap items-baseline gap-x-3">
+            <span class="font-display text-ink-900">{{ block.label }}</span>
+            <span class="text-xs {% if block.status == 'card' %}text-ink-700{% elif block.status == 'off' %}text-blood-700{% else %}text-verdigris-800{% endif %}">{{ block.status_label }}</span>
+          </div>
+          {% if block.text %}<p class="mt-1 text-sm text-ink-900">{{ block.text }}</p>{% endif %}
+          <div class="mt-2 flex flex-wrap items-center gap-4 text-sm">
+            {% if block.editable %}
+              <a href="?{% if scope == 'user' %}scope=user&amp;{% endif %}edit={{ block.key }}#editing"
+                 class="text-ink-900 underline">{% translate "Change" %}</a>
+            {% endif %}
+            {% if block.status != "off" %}
+              <form method="post" action="{% url 'simulations:primitive' deck.id card.pk block.key %}">
+                {% csrf_token %}
+                <input type="hidden" name="scope" value="{{ scope }}">
+                <button type="submit" name="action" value="off" class="text-blood-700 underline">{% translate "Off: the card does not do this" %}</button>
+              </form>
+            {% endif %}
+            {% if block.resettable %}
+              <form method="post" action="{% url 'simulations:primitive' deck.id card.pk block.key %}">
+                {% csrf_token %}
+                <input type="hidden" name="scope" value="{{ scope }}">
+                <button type="submit" name="action" value="reset" class="text-ink-700 underline">{% translate "Back to the card data" %}</button>
+              </form>
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="mt-2 text-sm text-ink-700">{% translate "Nothing beyond its mana and its cost." %}</p>
+  {% endif %}
+
+  {% if addable %}
+    <details class="mt-3">
+      <summary class="cursor-pointer text-sm text-ink-900 underline">{% translate "Add a building block" %}</summary>
+      <ul class="mt-2 space-y-2 text-sm">
+        {% for block in addable %}
+          <li>
+            <a href="?{% if scope == 'user' %}scope=user&amp;{% endif %}edit={{ block.key }}#editing"
+               class="text-ink-900 underline">{{ block.label }}</a>
+            <span class="text-ink-700">— {{ block.help }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </details>
+  {% endif %}
+
+  {% if primitive_form %}
+    <form id="editing" method="post"
+          action="{% url 'simulations:primitive' deck.id card.pk editing %}"
+          class="surface-parchment mt-4 space-y-5 border border-parchment-600 p-4">
+      {% csrf_token %}
+      <input type="hidden" name="scope" value="{{ scope }}">
+      <h4 class="font-display text-lg text-ink-900">{{ editing_label }}</h4>
+      {% if primitive_form.non_field_errors %}
+        <ul class="border-l-2 border-blood-600 pl-4 text-sm text-blood-700">
+          {% for error in primitive_form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+      {% for field in primitive_first %}
+        {% include "simulations/_annotation_field.html" %}
+      {% endfor %}
+      {% if primitive_more %}
+        <details>
+          <summary class="cursor-pointer text-ink-900 underline">{% translate "More" %}</summary>
+          <div class="mt-4 space-y-5">
+            {% for field in primitive_more %}
+              {% include "simulations/_annotation_field.html" %}
+            {% endfor %}
+          </div>
+        </details>
+      {% endif %}
+      <div class="flex flex-wrap items-center gap-3">
+        <button type="submit" name="action" value="save"
+                class="border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
+          {% translate "Save this block" %}
+        </button>
+        <a href="?{% if scope == 'user' %}scope=user{% endif %}#primitives" class="text-sm text-ink-900 underline">{% translate "Cancel" %}</a>
+      </div>
+    </form>
+  {% endif %}
+</section>

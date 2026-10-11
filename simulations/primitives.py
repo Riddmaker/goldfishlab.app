@@ -276,3 +276,130 @@ def keep_taps_for_scope(overrides: dict, profile) -> dict:
         kept["triggers"] = [{name: item for name, item in read.items()
                              if name not in ("mana", "color")} for read in triggers]
     return kept
+
+
+# --- the editor's fields (E2) ------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Field:
+    """One box of a primitive's form.
+
+    `kind`: ``int`` (from `low` to `high`), ``optint`` (blank is "no limit"),
+    ``bool``, ``choice`` (one of `choices`), ``multi`` (any of `choices`),
+    ``words`` (comma-separated lower-case words: types, subtypes), ``mana``
+    ("2B G"; blank is "any colour of the deck") or ``cost`` ("{2}{B}").
+    """
+
+    name: str
+    kind: str
+    label: str
+    help: str = ""
+    choices: tuple = ()
+    low: int = 0
+    high: int = 10
+    #: Shown under "More" rather than at once.
+    more: bool = False
+
+
+_LAND_TYPE_CHOICES = (("plains", _("Plains")), ("island", _("Island")),
+                      ("swamp", _("Swamp")), ("mountain", _("Mountain")),
+                      ("forest", _("Forest")))
+_PERMANENT_CHOICES = (("creature", _("Creature")), ("artifact", _("Artifact")),
+                      ("land", _("Land")), ("enchantment", _("Enchantment")))
+_COLOR_CHOICES = (("", _("Any")), ("W", _("White")), ("U", _("Blue")), ("B", _("Black")),
+                  ("R", _("Red")), ("G", _("Green")))
+_KIND_CHOICES = (("", _("Any card")), ("creature", _("Creature")), ("land", _("Land")),
+                 ("artifact", _("Artifact")), ("enchantment", _("Enchantment")),
+                 ("instant", _("Instant")), ("sorcery", _("Sorcery")),
+                 ("planeswalker", _("Planeswalker")))
+
+FIELDS = {
+    "land_search": (
+        Field("when", "choice", _("When"), choices=(
+            ("cast", _("As it is cast")), ("enters", _("As it enters")),
+            ("play", _("As it is played (a fetch land)")),
+            ("activate", _("When activated, with spare mana")),
+            ("opponents", _("In each opponent's end step"))), high=0),
+        Field("battlefield", "int", _("Lands onto the battlefield"), high=10),
+        Field("hand", "int", _("Lands to hand after them"), high=5),
+        Field("tapped", "bool", _("They enter tapped")),
+        Field("basic", "bool", _("Basic lands only")),
+        Field("types", "multi", _("Land types it may find"),
+              _("None ticked: any land."), choices=_LAND_TYPE_CHOICES),
+        Field("condition", "choice", _("Only if"), choices=(
+            ("", _("Always")),
+            ("opponent_more_lands", _("An opponent controls more lands (assumed: one a turn "
+                                      "each)")))),
+        Field("sacrifice", "bool", _("The card itself is sacrificed"), more=True),
+        Field("sacrifices_land", "bool", _("A land of yours is sacrificed first"), more=True),
+        Field("cost", "cost", _("Mana it costs to activate"), _("Such as {2}. Blank: none."),
+              more=True),
+        Field("taps", "bool", _("Activating it taps the card"), more=True),
+        Field("life", "int", _("Life paid"), high=20, more=True),
+        Field("by_power", "bool", _("As many as the greatest power among your creatures"),
+              more=True),
+        Field("repeat", "int", _("Searches again this often while the condition holds"),
+              high=3, more=True),
+        Field("tempting", "int", _("One more for each opponent assumed to search too"),
+              high=3, more=True),
+    ),
+    "tutor": (
+        Field("to", "choice", _("Where the card goes"), choices=(
+            ("hand", _("To hand")), ("top", _("On top of the library")),
+            ("battlefield", _("Onto the battlefield")), ("graveyard", _("To the graveyard")))),
+        Field("count", "int", _("How many cards"), low=1, high=10),
+        Field("kind", "choice", _("What it may find"), choices=_KIND_CHOICES),
+        Field("types", "words", _("Or any of these types"),
+              _("Card types, subtypes or creature types, comma-separated: aura, equipment, "
+                "elf.")),
+        Field("max_mv", "optint", _("Mana value at most"), _("Blank: no limit."), high=20),
+        Field("color", "choice", _("Of this colour"), choices=_COLOR_CHOICES, more=True),
+        Field("land_tapped", "bool", _("A land it finds goes onto the battlefield tapped"),
+              more=True),
+        Field("random_discard", "int", _("Cards discarded at random afterwards"), high=3,
+              more=True),
+        Field("delirium_any", "bool", _("Any card with delirium"), more=True),
+    ),
+    "sacrifice_mana": (
+        Field("sacrifice", "multi", _("What it sacrifices"), choices=_PERMANENT_CHOICES),
+        Field("amount", "int", _("Mana for each sacrifice"), low=1, high=10),
+        Field("produces", "mana", _("Of these colours"),
+              _("Such as C or BB. Blank: any colour of the deck.")),
+        Field("taps", "bool", _("Using it taps the card")),
+        Field("life", "int", _("Life paid each time"), high=10, more=True),
+    ),
+    "tap_mana": (
+        Field("types", "multi", _("What it taps"), choices=_PERMANENT_CHOICES),
+        Field("amount", "int", _("Mana for each one tapped"), low=1, high=10),
+        Field("produces", "mana", _("Of these colours"),
+              _("Such as U or C. Blank: any colour of the deck.")),
+    ),
+    "treasures": (
+        Field("count", "int", _("Treasure tokens"), low=1, high=10),
+    ),
+    "mox": (
+        Field("kind", "choice", _("How it enters"), choices=(
+            ("discard_land", _("Discards a land card (Mox Diamond)")),
+            ("imprint", _("Exiles a coloured card for its colours (Chrome Mox)")))),
+    ),
+}
+
+#: What a primitive the reader did not find starts from when added by hand.
+DEFAULTS = {
+    "land_search": {"battlefield": 1, "hand": 0, "tapped": True, "basic": True, "types": [],
+                    "life": 0, "when": "cast", "sacrifice": False, "untap_at": 0, "cost": "",
+                    "taps": False, "share_type": False, "each": False, "condition": "",
+                    "sacrifices_land": False, "land_cost_types": [], "sacrifice_other": [],
+                    "discard": 0},
+    "tutor": {"to": "hand", "count": 1},
+    "sacrifice_mana": {"sacrifice": ["creature"], "filter": "", "amount": 1, "produces": None,
+                       "taps": False},
+    "tap_mana": {"types": ["creature"], "filter": "", "amount": 1, "produces": None,
+                 "spend_only": None, "token": 0},
+    "treasures": 1,
+    "mox": "discard_land",
+}
+
+#: Primitives with a form; the rest can be switched off or reset only.
+EDITABLE = frozenset(FIELDS)

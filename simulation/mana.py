@@ -145,7 +145,7 @@ class ManaPool:
     to keep working, while underneath sits a full WUBRG pool.
     """
 
-    __slots__ = ("_pool", "converters", "treasures", "restricted")
+    __slots__ = ("_pool", "converters", "treasures", "restricted", "treasure_bonus")
 
     def __init__(self, black: int = 0, colorless: int = 0, **colors: int):
         #: Converters tapped for {C} that could instead turn that {C} and one
@@ -157,6 +157,9 @@ class ManaPool:
         self.treasures: list[str] = []
         #: Mana only some spells may spend, source by source (P19 R17).
         self.restricted: list[RestrictedMana] = []
+        #: P19 R22: how much more each Treasure token makes - Goldspan
+        #: Dragon's one. Kept counters and Eldrazi Spawn ({C}) make no more.
+        self.treasure_bonus = 0
         self._pool = dict.fromkeys(SOURCES, 0)
         self._pool[COLORLESS] = colorless
         self._pool["B"] = black
@@ -346,6 +349,7 @@ class ManaPool:
         self.converters = other.converters
         self.treasures = other.treasures
         self.restricted = other.restricted
+        self.treasure_bonus = other.treasure_bonus
 
     def _pay_restricted_first(self, cost: ManaCost, life: int, matching: list[int]):
         """The spell's restricted mana on the symbols it can pay, the rest as usual.
@@ -446,17 +450,24 @@ class ManaPool:
             # rather than after trying each count in turn.
             everything = dict(self._pool)
             for key in self.treasures:
-                everything[key] = everything.get(key, 0) + 1
+                everything[key] = everything.get(key, 0) + self._treasure_mana(key)
             if self._plan_converting(everything, cost, life)[0] is None:
                 return None, self._pool, 0, 0
         for sacrificed in range(len(self.treasures) + 1):
             start = dict(self._pool)
             for key in self.treasures[:sacrificed]:
-                start[key] = start.get(key, 0) + 1
+                start[key] = start.get(key, 0) + self._treasure_mana(key)
             payment, pool, used = self._plan_converting(start, cost, life)
             if payment is not None:
                 return payment, pool, used, sacrificed
         return None, self._pool, 0, 0
+
+    def _treasure_mana(self, key: str) -> int:
+        """What sacrificing one of ``treasures`` makes: one, and Goldspan
+        Dragon's bonus for a Treasure token (P19 R22)."""
+        if isinstance(key, Stored) or key == COLORLESS:
+            return 1
+        return 1 + self.treasure_bonus
 
     def _plan_converting(self, start: dict, cost: ManaCost, life: int):
         payment = plan_payment(dict(start), cost, life=life)
@@ -480,6 +491,7 @@ class ManaPool:
         clone.converters = list(self.converters)
         clone.treasures = list(self.treasures)
         clone.restricted = [each.copy() for each in self.restricted]
+        clone.treasure_bonus = self.treasure_bonus
         return clone
 
     def __eq__(self, other) -> bool:

@@ -109,6 +109,8 @@ ACTION_NAMES = {
     "activate_lander": gettext_noop("Lander activated"),
     "sacrifice_mana": gettext_noop("Sacrificed for mana"),
     "adapt": gettext_noop("Adapted"),
+    "equip": gettext_noop("Equipped"),
+    "combat": gettext_noop("Combat"),
 }
 
 #: The message tag that marks an engine refusal, so the page can say it is
@@ -121,7 +123,7 @@ PIP_ORDER = (*COLORS, COLORLESS)
 
 def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
            x_max=None, zone="", activatable=(), payments=None, altars=None,
-           adaptable=()) -> list[dict]:
+           adaptable=(), equips=None) -> list[dict]:
     """One zone, as the flat rows a template can loop over without thinking.
 
     The alternative is a custom filter for `images[card.name]` and another for
@@ -132,7 +134,9 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
     pays for now (P19 R14). `payments` gives a castable card the ways its
     additional cost can be paid, and `altars` an altar what it can sacrifice
     (P19 R15): labels, the first the agent's own choice. `adaptable` are the
-    creatures that can adapt now (P19 R21).
+    creatures that can adapt now (P19 R21). `equips` gives an Equipment
+    that can be equipped now the creatures it can go on, the engine's choice
+    first (P19 R22).
     """
     return [
         {
@@ -149,6 +153,7 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
             and card.additional_costs else [],
             "altar": altars(card) if altars and card.sacrifice_mana is not None else [],
             "adaptable": index in adaptable,
+            "equip": equips(card) if equips else [],
         }
         for index, card in enumerate(cards)
     ]
@@ -189,6 +194,15 @@ def altar_labels(game):
     if pool is None:
         return None
     return lambda card: [_fodder_label(fodder) for fodder in game.altar_fodder(card, pool)]
+
+
+def equip_labels(game):
+    """The creatures each Equipment can go on now, by name (P19 R22)."""
+    pool = getattr(game, "pool", None)
+    if pool is None:
+        return None
+    return lambda card: ([each.name for each in game.attach_targets(card)]
+                         if card.equip is not None and game.can_equip(card, pool) else [])
 
 
 def pips(pool) -> list[tuple[str, int]]:
@@ -263,6 +277,8 @@ def board_context(session: PlaytestSession, game) -> dict:
                                                        if isinstance(a, actions.ActivateSearch)
                                                        and a.zone == zone},
                                           altars=altar_labels(game),
+                                          equips=equip_labels(game)
+                                          if zone == actions.OTHER else None,
                                           adaptable={a.index for a in legal
                                                      if isinstance(a, actions.Adapt)
                                                      and zone == actions.CREATURES})]}

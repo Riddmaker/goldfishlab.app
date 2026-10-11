@@ -734,7 +734,7 @@ _MULTIPLY = re.compile(
 #: Rite, Enduring Vitality, Elven Chorus; Citanul Hierophants' {G}) and
 #: "Enchanted land has "{T}: Add one mana of any color."" (Abundant Growth).
 _GRANT = re.compile(
-    r"^(?P<who>Creatures you control have|Enchanted land has) \"\{T\}: Add "
+    r"^(?P<who>Creatures you control have|Enchanted land has|Equipped creature has) \"\{T\}: Add "
     r"(?:(?P<any>one mana of any color)|\{(?P<color>[WUBRG])\})\.\"$", re.MULTILINE)
 #: "{T}: For each color among permanents you control, add one mana of that
 #: color." (Bloom Tender - after its "Vivid -" - and Faeburrow Elder.)
@@ -1096,8 +1096,9 @@ def _trigger_line(line: str, card: OracleCard) -> dict | None:
     return None
 
 
-def _triggers(card: OracleCard) -> Triggers:
-    """The triggers that make Treasure, mana or cards (P19 R16)."""
+def _triggers(card: OracleCard, combat_lines: frozenset[str] = frozenset()) -> Triggers:
+    """The triggers that make Treasure, mana or cards (P19 R16). A line in
+    ``combat_lines`` is one `_combat` read (P19 R22)."""
     text = card.oracle_text or ""
     reading = Triggers()
     mana_lines = explained = 0
@@ -1113,11 +1114,136 @@ def _triggers(card: OracleCard) -> Triggers:
         if found is not None:
             reading.found.append(found)
             explained += makes_mana
+        elif line in combat_lines:
+            explained += makes_mana
         elif _COMBAT_TREASURE.search(raw):
             reading.combat = True
             explained += makes_mana
     reading.explained = bool(mana_lines) and explained == mana_lines
     return reading
+
+
+#: P19 R22: a trigger in combat, the whole line: "Whenever equipped creature
+#: attacks, ...", "Whenever Ragavan deals combat damage to a player, ...",
+#: "Whenever enchanted player is attacked, ..." (Curse of Opulence).
+_COMBAT_LINE = re.compile(
+    r"^Whenever (?P<who>.+?) (?P<event>attacks(?: a player)?|enters or attacks"
+    r"|attacks or becomes the target of a spell|deals? combat damage to a player(?: or battle)?"
+    r"|is attacked), (?P<effect>.+)$")
+#: What it does. Anything after a Treasure ("and exile the top card of that
+#: player's library") is not played, and said so (``extra``).
+_COMBAT_EFFECT = re.compile(
+    r"^(?P<most>if no opponent has more life than that player, )?(?:you )?(?:may )?(?:"
+    r"create (?P<n>a|one|two|three) (?:Treasure|Gold) tokens?(?P<rest>(?: and|, then) [^.]+)?\."
+    r"|add (?P<pips>(?:\{[WUBRGC]\})+)\. Until end of turn, you don't lose this mana as steps "
+    r"and phases end\."
+    r"|(?P<search>search your library for a basic land card, put it onto the battlefield "
+    r"tapped, then shuffle\.))(?P<more> .+)?$")
+#: "Equipped creature gets +1/+1 and has "Whenever this creature attacks,
+#: ..."" (Diamond Pick-Axe), Sticky Fingers' "Enchanted creature has menace
+#: and "...", and Guild Artisan's "Commander creatures you own have "..."".
+_GRANTED_COMBAT = re.compile(
+    r"^(?P<host>Equipped creature|Enchanted creature|Commander creatures you own) "
+    r"(?:gets [+-]\d+/[+-]\d+ and )?(?:has|have) (?:[a-z]+ and )?\"(?P<inner>Whenever this "
+    r"creature [^\"]+)\"$")
+_COMBAT_HOSTS = {"Equipped creature": "equipped", "Enchanted creature": "enchanted",
+                 "Commander creatures you own": "commander"}
+#: "Whenever one or more Ninja or Rogue creatures you control deal combat damage".
+_ONE_OR_MORE = re.compile(
+    r"^one or more (?:(?P<a>[A-Z][a-z]+)(?: or (?P<b>[A-Z][a-z]+))? )?creatures you control$")
+#: Goldspan Dragon: "Treasures you control have "{T}, Sacrifice this artifact:
+#: Add two mana of any one color.""
+_TREASURE_BONUS = re.compile(
+    r"^Treasures you control have \"\{T\}, Sacrifice this artifact: Add two mana of any one "
+    r"color\.\"$")
+_EQUIP = re.compile(r"^Equip (?P<cost>(?:\{[\dWUBRGC]\})+)$")
+
+
+def _combat_who(who: str, event: str, card: OracleCard) -> dict | None:
+    """Whose attack or damage a trigger waits for, or None."""
+    if event == "is attacked":
+        return {"who": "curse"} if who == "enchanted player" else None
+    if _names_itself(re.sub(r"^This ", "this ", who), card):
+        return {"who": "self"}
+    if who in ("equipped creature", "enchanted creature"):
+        return {"who": who.split()[0]}
+    if who == "a modified creature you control":
+        return {"who": "modified"}
+    if (found := _ONE_OR_MORE.match(who)) is not None:
+        types = sorted(each.lower() for each in (found.group("a"), found.group("b")) if each)
+        return {"who": "any"} | ({"types": types} if types else {})
+    return None
+
+
+def _combat_trigger(line: str, card: OracleCard, host: str = "") -> dict | None:
+    """One line as a trigger in combat the engine plays (P19 R22), or None."""
+    found = _COMBAT_LINE.match(re.sub(r"^[A-Z][\w' ]+ — ", "", line))
+    if found is None:
+        return None
+    event = found.group("event")
+    who = {"who": host} if host else _combat_who(found.group("who"), event, card)
+    effect = _COMBAT_EFFECT.match(found.group("effect"))
+    if who is None or effect is None:
+        return None
+    read = {"event": "damage" if "damage" in event else "attacks"} | who
+    if effect.group("search") is not None:
+        read["search"] = True
+    elif effect.group("pips"):
+        read["mana"] = "".join(re.findall(r"\{(\w)\}", effect.group("pips")))
+    else:
+        read["treasures"] = _word_number(effect.group("n"))
+    if effect.group("most"):
+        read["most_life"] = True
+    if (effect.group("rest") or effect.group("more")) and who["who"] != "curse":
+        read["extra"] = True
+    return read
+
+
+def _combat(card: OracleCard, kind: str) -> tuple[dict | None, frozenset[str]]:
+    """What the card does in combat, as the engine plays it (P19 R22), and
+    the lines that says - None when nothing.
+
+    "triggers": attack and combat damage triggers that make Treasure (a Gold
+    token is one), mana kept to the second main phase, or a basic land.
+    "equip": an Equipment's cost, "aura": an Aura on a creature, "germ":
+    Living weapon - each only where a trigger or a granted mana ability
+    (Paradise Mantle) rides on it. "treasure_bonus": Goldspan's Treasures
+    make one more. "vehicle": a Vehicle whose search as it enters is read,
+    never crewed.
+    """
+    found: dict = {"triggers": []}
+    read: set[str] = set()
+    lines = [_REMINDER.sub("", raw).strip()
+             for raw in (card.oracle_text or "").split("//", 1)[0].splitlines()]
+    for line in filter(None, lines):
+        granted = _GRANTED_COMBAT.match(line)
+        if granted is not None:
+            trigger = _combat_trigger(granted.group("inner"), card,
+                                      _COMBAT_HOSTS[granted.group("host")])
+        else:
+            trigger = _combat_trigger(line, card)
+        if trigger is not None:
+            found["triggers"].append(trigger)
+            read.add(line)
+        elif _TREASURE_BONUS.match(line):
+            found["treasure_bonus"] = 1
+            read.add(line)
+        elif re.match(r"^Whenever this Vehicle enters or attacks, (?:you may )?search ", line):
+            found["vehicle"] = True
+            read.add(line)
+    hosts = {trigger["who"] for trigger in found["triggers"]}
+    rule = _GRANT.search(card.oracle_text or "")
+    if "equipped" in hosts or (rule is not None and rule.group("who").startswith("Equipped")):
+        equip = next((match for line in lines if (match := _EQUIP.match(line))), None)
+        if equip is not None:
+            found["equip"] = equip.group("cost")
+        if "Living weapon" in lines:
+            found["germ"] = True
+    if "enchanted" in hosts and "Enchant creature" in lines:
+        found["aura"] = True
+    if not found["triggers"]:
+        del found["triggers"]
+    return (found or None), frozenset(read)
 
 
 def _treasure_altar(card: OracleCard) -> dict | None:
@@ -1347,6 +1473,10 @@ def _extra_rule(text: str, kind: str) -> dict | None:
         return {"rule": "grant", "subtype": "creature:counter", "activation": 0, "color": "",
                 "produces": {found.group("color"): 1}}
     if (found := _GRANT.search(text)) is not None:
+        if found.group("who").startswith("Equipped"):
+            # P19 R22: Paradise Mantle - the creature it is equipped to.
+            return {"rule": "grant", "subtype": "equipped", "activation": 0, "color": "",
+                    "produces": {"WUBRG" if found.group("any") else found.group("color"): 1}}
         if found.group("who").startswith("Enchanted"):
             if not found.group("any") or (enchant := _ENCHANT.search(text)) is None \
                     or enchant.group("what") != "land":
@@ -2482,8 +2612,15 @@ _ENTERS_IF_BEHIND = re.compile(
     r"if an opponent controls more lands than you, (?:you may )?$")
 #: P19 R14: a Saga's first chapter, which happens as it enters.
 _FIRST_CHAPTER = re.compile(r"^i — (?:[^—]+ — )?$")
-#: P19 R14: a search in combat - the engine plays none.
+#: P19 R14: a search in combat - the engine plays none, but for what
+#: `_combat` reads (P19 R22).
 _IN_COMBAT = re.compile(r"\battacks\b|\bcombat damage\b")
+#: P19 R22: "Whenever this creature enters or attacks, you may search ..." -
+#: the search as it enters; a Vehicle's (Lumbering Worldwagon) is never crewed.
+_ENTERS_OR_ATTACKS = re.compile(
+    r"^whenever (?:this|~) (?:creature|vehicle) enters or attacks, (?:you may )?$")
+#: The reason a search in combat was not read, until `_combat` reads it.
+_COMBAT_SEARCH = "searches for lands in combat, which the engine does not play"
 #: P19 R15: Springbloom Druid - "When this creature enters, you may sacrifice
 #: a land. If you do, search ...".
 _SACRIFICE_LAND_FIRST = re.compile(
@@ -2602,7 +2739,8 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     activated = _ACTIVATED.match(lead)
     if not lead and spell:
         when = "cast"
-    elif _ENTERS.match(lead) or _FIRST_CHAPTER.match(lead):
+    elif _ENTERS.match(lead) or _FIRST_CHAPTER.match(lead) or _ENTERS_OR_ATTACKS.match(lead):
+        # P19 R22: Primeval Herald's attack is `_combat`'s.
         when = "enters"
     elif _ENTERS_IF_BEHIND.match(lead):
         when, condition = "enters", "opponent_more_lands"
@@ -2739,7 +2877,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         # the Treasure is read now (P19 R7).
         mana.notes = [note for note in mana.notes
                       if note != "only grants a mana ability to another permanent"]
-    triggers = _triggers(card)
+    combat, combat_lines = _combat(card, kind)
+    triggers = _triggers(card, combat_lines)
     unread = any(note in _TRIGGER_EXPLAINS for note in mana.notes)
     if triggers.explained:
         # Its only mana is a trigger's, read now - or one in combat (P19 R16).
@@ -2767,9 +2906,17 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         # Elvish Spirit Guide (P19 R15): a ritual for {0} that goes to exile.
         # Its body is never cast, which can only under-read it.
         kind = DerivedProfile.Kind.RITUAL
+    if combat is not None and combat.get("equip") and mana_rule is not None \
+            and mana_rule.get("subtype") == "equipped":
+        # P19 R22: Paradise Mantle is an Equipment, not a mana rock.
+        kind = DerivedProfile.Kind.ARTIFACT
     tutor = _tutor(card, tags)
     land = _land_search(card, kind)
-    if land.spec is not None or land.reason:
+    if land.reason == _COMBAT_SEARCH and any(
+            trigger.get("search") for trigger in (combat or {}).get("triggers", ())):
+        # P19 R22: the search in combat is `_combat`'s now, the only one.
+        land, tutor = LandSearch(), Tutor()
+    elif land.spec is not None or land.reason:
         # A land search read whole, or the reason it could not be: either way
         # more specific than what the general tutor reading says about it
         # ("tutors onto the battlefield, which the engine cannot do").
@@ -2855,6 +3002,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana_mills=mana.mills,
         mana_store=mana.store,
         growth=growth,
+        combat=combat,
         triggers=triggers.found,
         cost_reduction=_first_number(_COST_REDUCTION, text),
         draws_cards=draw.cards,
@@ -2988,6 +3136,7 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "additional_cost",
             "sacrifice_mana", "mana_from_hand", "tap_mana", "mox", "mana_mills", "mana_store",
             "growth",
+            "combat",
             "triggers",
             "discards_after", "puts_back",
             "draws_x",

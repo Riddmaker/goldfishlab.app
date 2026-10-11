@@ -9177,3 +9177,245 @@ msgstr "適応しました"
 #: templates/playtest/_board.html
 msgid "Adapt"
 msgstr "適応"
+
+#: simulations/engine/adapter.py
+msgid "whenever it attacks"
+msgstr "攻撃するたび"
+
+#: simulations/engine/adapter.py
+msgid "whenever the creature it equips attacks"
+msgstr "装備しているクリーチャーが攻撃するたび"
+
+#: simulations/engine/adapter.py
+msgid "whenever the enchanted creature attacks"
+msgstr "エンチャントされているクリーチャーが攻撃するたび"
+
+#: simulations/engine/adapter.py
+msgid "whenever your commander attacks"
+msgstr "あなたの統率者が攻撃するたび"
+
+#: simulations/engine/adapter.py
+msgid "whenever you attack the enchanted player"
+msgstr "エンチャントされているプレイヤーを攻撃するたび"
+
+#: simulations/engine/adapter.py
+msgid "whenever it deals combat damage to a player"
+msgstr "プレイヤーに戦闘ダメージを与えるたび"
+
+#: simulations/engine/adapter.py
+msgid "whenever the creature it equips deals combat damage to a player"
+msgstr "装備しているクリーチャーがプレイヤーに戦闘ダメージを与えるたび"
+
+#: simulations/engine/adapter.py
+msgid "whenever the enchanted creature deals combat damage to a player"
+msgstr "エンチャントされているクリーチャーがプレイヤーに戦闘ダメージを与えるたび"
+
+#: simulations/engine/adapter.py
+msgid "once a combat, when creatures of yours deal combat damage to a player"
+msgstr "戦闘ごとに1回、あなたのクリーチャーがプレイヤーに戦闘ダメージを与えたとき"
+
+#: simulations/engine/adapter.py
+msgid ""
+"for each modified creature of yours that deals combat damage to a player"
+msgstr "プレイヤーに戦闘ダメージを与える、あなたの改変されたクリーチャー1体につき"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a creature of yours that makes no mana and is not used otherwise this "
+"turn, before combat: that creature does not attack that turn"
+msgstr "マナを出さず、このターン他に使われない自分のクリーチャーを戦闘前に1体タップします。そのクリーチャーはそのターン攻撃しません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a legendary creature of yours that makes no mana and is not used "
+"otherwise this turn, before combat: that creature does not attack that turn"
+msgstr "マナを出さず、このターン他に使われない自分の伝説のクリーチャーを戦闘前に1体タップします。そのクリーチャーはそのターン攻撃しません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps an artifact or creature of yours that makes no mana and is not used "
+"otherwise this turn, before combat: a creature tapped so does not attack "
+"that turn"
+msgstr ""
+"マナを出さず、このターン他に使われない自分のアーティファクトかクリーチャーを戦闘前に1つタップします。こうしてタップされたクリーチャーはそのターン攻撃しません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each legendary creature of yours that makes no mana, your commander "
+"included, for one mana each, before combat: those creatures do not attack "
+"that turn"
+msgstr ""
+"マナを出さない自分の伝説のクリーチャーを、統率者も含めて戦闘前にそれぞれタップし、1体につき1マナを出します。それらのクリーチャーはそのターン攻撃しません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each creature of yours of the kind it names that makes no mana, itself "
+"included when it is one, before combat: those creatures do not attack that "
+"turn"
+msgstr ""
+"指定された種類の、マナを出さない自分のクリーチャーを戦闘前にそれぞれタップします。自身がその種類なら自身も含みます。それらのクリーチャーはそのターン攻撃しません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"attacks each turn it can - from the turn after it arrives, at once with "
+"haste - and is assumed to survive combat; what it makes as it attacks comes "
+"even if it is blocked"
+msgstr ""
+"攻撃できるターンには毎ターン攻撃し（戦場に出た次のターンから、速攻があればすぐに）、戦闘で生き残ると仮定します。攻撃時に生み出すものは、ブロックされても得られます"
+
+#: simulations/engine/adapter.py
+msgid ""
+"attacks each turn it can and is assumed to deal combat damage to a player: a"
+" goldfish has no blockers, so against opponents with many blockers this is "
+"optimistic"
+msgstr ""
+"攻撃できるターンには毎ターン攻撃し、プレイヤーに戦闘ダメージを与えると仮定します。ゴールドフィッシュにはブロッカーがいないため、ブロッカーの多い対戦相手に対しては楽観的です"
+
+#: simulations/engine/adapter.py
+msgid ""
+"the creature it is on attacks each turn it can and is assumed to survive "
+"combat; what it makes as that creature attacks comes even if it is blocked"
+msgstr ""
+"これが付いているクリーチャーは攻撃できるターンには毎ターン攻撃し、戦闘で生き残ると仮定します。そのクリーチャーの攻撃時に生み出すものは、ブロックされても得られます"
+
+#: simulations/engine/adapter.py
+msgid ""
+"the creature it is on attacks each turn it can and is assumed to deal combat"
+" damage to a player: a goldfish has no blockers, so against opponents with "
+"many blockers this is optimistic"
+msgstr ""
+"これが付いているクリーチャーは攻撃できるターンには毎ターン攻撃し、プレイヤーに戦闘ダメージを与えると仮定します。ゴールドフィッシュにはブロッカーがいないため、ブロッカーの多い対戦相手に対しては楽観的です"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes its Treasure once each turn one of your creatures can attack, assumed "
+"to deal combat damage to a player: a goldfish has no blockers, so against "
+"opponents with many blockers this is optimistic"
+msgstr ""
+"あなたのクリーチャーが攻撃できるターンごとに1回宝物を生成します。そのクリーチャーはプレイヤーに戦闘ダメージを与えると仮定します。ゴールドフィッシュにはブロッカーがいないため、ブロッカーの多い対戦相手に対しては楽観的です"
+
+#: simulations/engine/adapter.py
+msgid ""
+"finds a basic land for each creature with an Equipment, an Aura or a +1/+1 "
+"counter that attacks, each assumed to deal combat damage to a player: a "
+"goldfish has no blockers, so against opponents with many blockers this is "
+"optimistic"
+msgstr ""
+"装備品、オーラ、+1/+1カウンターのいずれかを持つ攻撃クリーチャー1体につき基本土地を1枚見つけます。それぞれプレイヤーに戦闘ダメージを与えると仮定します。ゴールドフィッシュにはブロッカーがいないため、ブロッカーの多い対戦相手に対しては楽観的です"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes its Treasure each turn your commander can attack, assuming it attacks "
+"the opponent with the most life"
+msgstr "あなたの統率者が攻撃できるターンごとに宝物を生成します。統率者はライフが最も多い対戦相手を攻撃すると仮定します"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes a Gold token each turn one of your creatures attacks, assuming you "
+"attack the enchanted player; attacks by your opponents are not counted"
+msgstr ""
+"あなたのクリーチャーが攻撃するターンごとに金トークンを1つ生成します。エンチャントされているプレイヤーを攻撃すると仮定し、対戦相手による攻撃は数えません"
+
+#: simulations/engine/adapter.py
+msgid "the Treasure made in combat can be spent in your second main phase"
+msgstr "戦闘中に生成された宝物は、第2メイン・フェイズで使えます"
+
+#: simulations/engine/adapter.py
+msgid ""
+"its Germ token, a 0/0 the Equipment makes a 1/1, attacks from the turn after"
+" it enters; it is equipped again only if the Germ is gone"
+msgstr "その細菌トークン（装備品によって1/1になる0/0）は、戦場に出た次のターンから攻撃します。細菌がいなくなった場合にのみ付け直します"
+
+#: simulations/engine/adapter.py
+msgid ""
+"goes on a creature without a mana ability that can attack this turn as it is"
+" cast - one with nothing else on it first; it needs a creature to be cast"
+msgstr ""
+"唱えられるとき、このターン攻撃できるマナ能力を持たないクリーチャーに付きます（他に何も付いていないものを優先）。唱えるにはクリーチャーが必要です"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes each of your Treasures add two mana while it is on the battlefield; "
+"the two may be of different colours"
+msgstr "これが戦場にある間、あなたの宝物はそれぞれ2マナを出します。2つは異なる色でもかまいません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"the rest of its trigger - a card exiled from an opponent's library - is not "
+"played"
+msgstr "誘発の残り（対戦相手のライブラリーから追放したカード）はプレイしません"
+
+#: simulations/engine/adapter.py
+msgid ""
+"searches as it enters; the engine crews no Vehicle, so it never attacks"
+msgstr "戦場に出たときに探します。エンジンは機体に搭乗しないため、攻撃することはありません"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s, kept to the second main phase"
+msgstr "%(mana)s（第2メイン・フェイズまで保持）"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "the creature it equips taps for %(mana)s"
+msgstr "装備しているクリーチャーはタップで%(mana)sを出します"
+
+#: simulations/engine/adapter.py
+msgid ""
+"keeps the mana it adds as it attacks for your second main phase, where the "
+"engine casts what it pays for; a spell with X waits for it"
+msgstr "攻撃時に出したマナを第2メイン・フェイズまで保持し、エンジンはそのマナで払える呪文をそこで唱えます。Xを含む呪文はそれを待ちます"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is equipped, with mana left after the turn's spells, to the weakest creature"
+" without a mana ability or anything else on it; that creature taps for mana "
+"from the next turn and no longer attacks"
+msgstr ""
+"ターンの呪文の後に残ったマナで、マナ能力も他に付いているものも持たない最も弱いクリーチャーに装備されます。そのクリーチャーは次のターンからタップでマナを出し、攻撃しなくなります"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is equipped, with mana left after the turn's spells, to a creature without a"
+" mana ability that can attack this turn - one with nothing else on it and no"
+" counters first; it stays there"
+msgstr ""
+"ターンの呪文の後に残ったマナで、このターン攻撃できるマナ能力を持たないクリーチャーに装備されます（他に何も付いておらずカウンターもないものを優先）。そのまま付いたままです"
+
+#: changelog/entries.py
+msgid "Sword of the Animist, Goldspan Dragon, Ragavan and combat"
+msgstr "Sword of the Animist、Goldspan Dragon、Ragavanと戦闘"
+
+#: changelog/entries.py
+msgid ""
+"A simulated game now has a combat. Every creature that can attack does, each"
+" turn, and - a goldfish has no blockers - deals its damage to a player; "
+"against opponents with many blockers that is optimistic, and your deck page "
+"says so beside each card it matters for. Sword of the Animist, Bitterthorn "
+"and Kodama of the West Tree find lands; Goldspan Dragon, whose Treasures "
+"then make two mana, Captain Lannery Storm, Ragavan, Professional Face-"
+"Breaker, Grim Hireling, Diamond Pick-Axe, Shiny Impetus, Sticky Fingers and "
+"Curse of Opulence make Treasure. Savage Ventmaw's mana is spent in a second "
+"main phase, where a spell with X waits for it. Equipment is equipped with "
+"mana left over, Paradise Mantle turns a creature into a mana creature, and "
+"the playtest has an Equip button."
+msgstr ""
+"シミュレーションのゲームに戦闘が加わりました。攻撃できるクリーチャーは毎ターン攻撃し、ゴールドフィッシュにはブロッカーがいないため、プレイヤーにダメージを与えます。ブロッカーの多い対戦相手に対しては楽観的であり、デッキページでは関係する各カードの横にそう表示します。Sword"
+" of the Animist、Bitterthorn、Kodama of the West Treeは土地を見つけ、Goldspan "
+"Dragon（その宝物は2マナを出すようになります）、Captain Lannery Storm、Ragavan、Professional Face-"
+"Breaker、Grim Hireling、Diamond Pick-Axe、Shiny Impetus、Sticky Fingers、Curse of"
+" Opulenceは宝物を生成します。Savage "
+"Ventmawのマナは第2メイン・フェイズで使われ、Xを含む呪文はそれを待ちます。装備品は余ったマナで装備され、Paradise "
+"Mantleはクリーチャーをマナ・クリーチャーにし、プレイテストには装備ボタンがあります。"
+
+#: playtest/views.py
+msgid "Equipped"
+msgstr "装備した"
+
+#: templates/playtest/_board.html
+msgid "Equip"
+msgstr "装備"
+
+#: templates/playtest/_board.html
+msgid "Creature to equip"
+msgstr "装備するクリーチャー"

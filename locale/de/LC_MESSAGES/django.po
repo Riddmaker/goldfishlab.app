@@ -10389,3 +10389,302 @@ msgstr "Angepasst"
 #: templates/playtest/_board.html
 msgid "Adapt"
 msgstr "Anpassen"
+
+#: simulations/engine/adapter.py
+msgid "whenever it attacks"
+msgstr "immer wenn sie angreift"
+
+#: simulations/engine/adapter.py
+msgid "whenever the creature it equips attacks"
+msgstr "immer wenn die ausgerüstete Kreatur angreift"
+
+#: simulations/engine/adapter.py
+msgid "whenever the enchanted creature attacks"
+msgstr "immer wenn die verzauberte Kreatur angreift"
+
+#: simulations/engine/adapter.py
+msgid "whenever your commander attacks"
+msgstr "immer wenn dein Commander angreift"
+
+#: simulations/engine/adapter.py
+msgid "whenever you attack the enchanted player"
+msgstr "immer wenn du den verzauberten Spieler angreifst"
+
+#: simulations/engine/adapter.py
+msgid "whenever it deals combat damage to a player"
+msgstr "immer wenn sie einem Spieler Kampfschaden zufügt"
+
+#: simulations/engine/adapter.py
+msgid "whenever the creature it equips deals combat damage to a player"
+msgstr "immer wenn die ausgerüstete Kreatur einem Spieler Kampfschaden zufügt"
+
+#: simulations/engine/adapter.py
+msgid "whenever the enchanted creature deals combat damage to a player"
+msgstr "immer wenn die verzauberte Kreatur einem Spieler Kampfschaden zufügt"
+
+#: simulations/engine/adapter.py
+msgid "once a combat, when creatures of yours deal combat damage to a player"
+msgstr ""
+"einmal pro Kampf, wenn Kreaturen von dir einem Spieler Kampfschaden zufügen"
+
+#: simulations/engine/adapter.py
+msgid ""
+"for each modified creature of yours that deals combat damage to a player"
+msgstr ""
+"für jede modifizierte Kreatur von dir, die einem Spieler Kampfschaden zufügt"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a creature of yours that makes no mana and is not used otherwise this "
+"turn, before combat: that creature does not attack that turn"
+msgstr ""
+"tappt eine deiner Kreaturen, die kein Mana macht und in diesem Zug sonst "
+"nicht gebraucht wird, vor dem Kampf: Diese Kreatur greift in diesem Zug "
+"nicht an"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps a legendary creature of yours that makes no mana and is not used "
+"otherwise this turn, before combat: that creature does not attack that turn"
+msgstr ""
+"tappt eine deiner legendären Kreaturen, die kein Mana macht und in diesem "
+"Zug sonst nicht gebraucht wird, vor dem Kampf: Diese Kreatur greift in "
+"diesem Zug nicht an"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps an artifact or creature of yours that makes no mana and is not used "
+"otherwise this turn, before combat: a creature tapped so does not attack "
+"that turn"
+msgstr ""
+"tappt eines deiner Artefakte oder eine deiner Kreaturen, die kein Mana macht"
+" und in diesem Zug sonst nicht gebraucht wird, vor dem Kampf: Eine so "
+"getappte Kreatur greift in diesem Zug nicht an"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each legendary creature of yours that makes no mana, your commander "
+"included, for one mana each, before combat: those creatures do not attack "
+"that turn"
+msgstr ""
+"tappt jede deiner legendären Kreaturen, die kein Mana macht, auch deinen "
+"Commander, für je ein Mana, vor dem Kampf: Diese Kreaturen greifen in diesem"
+" Zug nicht an"
+
+#: simulations/engine/adapter.py
+msgid ""
+"taps each creature of yours of the kind it names that makes no mana, itself "
+"included when it is one, before combat: those creatures do not attack that "
+"turn"
+msgstr ""
+"tappt jede deiner Kreaturen der genannten Art, die kein Mana macht, sich "
+"selbst eingeschlossen, wenn sie dazugehört, vor dem Kampf: Diese Kreaturen "
+"greifen in diesem Zug nicht an"
+
+#: simulations/engine/adapter.py
+msgid ""
+"attacks each turn it can - from the turn after it arrives, at once with "
+"haste - and is assumed to survive combat; what it makes as it attacks comes "
+"even if it is blocked"
+msgstr ""
+"greift jeden Zug an, in dem sie kann - ab dem Zug nach ihrer Ankunft, mit "
+"Eile sofort - und überlebt angenommen den Kampf; was sie beim Angreifen "
+"macht, kommt auch, wenn sie geblockt wird"
+
+#: simulations/engine/adapter.py
+msgid ""
+"attacks each turn it can and is assumed to deal combat damage to a player: a"
+" goldfish has no blockers, so against opponents with many blockers this is "
+"optimistic"
+msgstr ""
+"greift jeden Zug an, in dem sie kann, und fügt angenommen einem Spieler "
+"Kampfschaden zu: Ein Goldfish hat keine Blocker, gegen Gegner mit vielen "
+"Blockern ist das also optimistisch"
+
+#: simulations/engine/adapter.py
+msgid ""
+"the creature it is on attacks each turn it can and is assumed to survive "
+"combat; what it makes as that creature attacks comes even if it is blocked"
+msgstr ""
+"die Kreatur, an der sie hängt, greift jeden Zug an, in dem sie kann, und "
+"überlebt angenommen den Kampf; was beim Angriff dieser Kreatur entsteht, "
+"kommt auch, wenn sie geblockt wird"
+
+#: simulations/engine/adapter.py
+msgid ""
+"the creature it is on attacks each turn it can and is assumed to deal combat"
+" damage to a player: a goldfish has no blockers, so against opponents with "
+"many blockers this is optimistic"
+msgstr ""
+"die Kreatur, an der sie hängt, greift jeden Zug an, in dem sie kann, und "
+"fügt angenommen einem Spieler Kampfschaden zu: Ein Goldfish hat keine "
+"Blocker, gegen Gegner mit vielen Blockern ist das also optimistisch"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes its Treasure once each turn one of your creatures can attack, assumed "
+"to deal combat damage to a player: a goldfish has no blockers, so against "
+"opponents with many blockers this is optimistic"
+msgstr ""
+"macht seinen Schatz einmal in jedem Zug, in dem eine deiner Kreaturen "
+"angreifen kann, die angenommen einem Spieler Kampfschaden zufügt: Ein "
+"Goldfish hat keine Blocker, gegen Gegner mit vielen Blockern ist das also "
+"optimistisch"
+
+#: simulations/engine/adapter.py
+msgid ""
+"finds a basic land for each creature with an Equipment, an Aura or a +1/+1 "
+"counter that attacks, each assumed to deal combat damage to a player: a "
+"goldfish has no blockers, so against opponents with many blockers this is "
+"optimistic"
+msgstr ""
+"findet ein Standardland für jede angreifende Kreatur mit einer Ausrüstung, "
+"einer Aura oder einer +1/+1-Marke, die jeweils angenommen einem Spieler "
+"Kampfschaden zufügt: Ein Goldfish hat keine Blocker, gegen Gegner mit vielen"
+" Blockern ist das also optimistisch"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes its Treasure each turn your commander can attack, assuming it attacks "
+"the opponent with the most life"
+msgstr ""
+"macht seinen Schatz in jedem Zug, in dem dein Commander angreifen kann - "
+"angenommen, er greift den Gegner mit den meisten Lebenspunkten an"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes a Gold token each turn one of your creatures attacks, assuming you "
+"attack the enchanted player; attacks by your opponents are not counted"
+msgstr ""
+"macht in jedem Zug, in dem eine deiner Kreaturen angreift, einen Gold-"
+"Spielstein - angenommen, du greifst den verzauberten Spieler an; Angriffe "
+"deiner Gegner werden nicht gezählt"
+
+#: simulations/engine/adapter.py
+msgid "the Treasure made in combat can be spent in your second main phase"
+msgstr ""
+"der im Kampf entstandene Schatz kann in deiner zweiten Hauptphase ausgegeben"
+" werden"
+
+#: simulations/engine/adapter.py
+msgid ""
+"its Germ token, a 0/0 the Equipment makes a 1/1, attacks from the turn after"
+" it enters; it is equipped again only if the Germ is gone"
+msgstr ""
+"sein Keim-Spielstein, ein 0/0, den die Ausrüstung zu einer 1/1 macht, greift"
+" ab dem Zug nach seinem Erscheinen an; neu ausgerüstet wird nur, wenn der "
+"Keim weg ist"
+
+#: simulations/engine/adapter.py
+msgid ""
+"goes on a creature without a mana ability that can attack this turn as it is"
+" cast - one with nothing else on it first; it needs a creature to be cast"
+msgstr ""
+"kommt beim Wirken auf eine Kreatur ohne Mana-Fähigkeit, die in diesem Zug "
+"angreifen kann - zuerst eine, an der noch nichts hängt; ohne Kreatur kann "
+"sie nicht gewirkt werden"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes each of your Treasures add two mana while it is on the battlefield; "
+"the two may be of different colours"
+msgstr ""
+"lässt jeden deiner Schätze zwei Mana machen, solange sie im Spiel ist; die "
+"zwei dürfen verschiedene Farben haben"
+
+#: simulations/engine/adapter.py
+msgid ""
+"the rest of its trigger - a card exiled from an opponent's library - is not "
+"played"
+msgstr ""
+"der Rest ihres Auslösers - eine Karte, die aus der Bibliothek eines Gegners "
+"ins Exil geht - wird nicht gespielt"
+
+#: simulations/engine/adapter.py
+msgid ""
+"searches as it enters; the engine crews no Vehicle, so it never attacks"
+msgstr ""
+"sucht, wenn es ins Spiel kommt; die Engine bemannt keine Fahrzeuge, also "
+"greift es nie an"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(mana)s, kept to the second main phase"
+msgstr "%(mana)s, bis zur zweiten Hauptphase behalten"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "the creature it equips taps for %(mana)s"
+msgstr "die ausgerüstete Kreatur tappt für %(mana)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"keeps the mana it adds as it attacks for your second main phase, where the "
+"engine casts what it pays for; a spell with X waits for it"
+msgstr ""
+"behält das Mana, das sie beim Angreifen macht, für deine zweite Hauptphase, "
+"in der die Engine wirkt, was es bezahlt; ein Zauberspruch mit X wartet "
+"darauf"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is equipped, with mana left after the turn's spells, to the weakest creature"
+" without a mana ability or anything else on it; that creature taps for mana "
+"from the next turn and no longer attacks"
+msgstr ""
+"wird mit dem Mana, das nach den Zaubersprüchen des Zuges übrig ist, an die "
+"schwächste Kreatur ohne Mana-Fähigkeit gehängt, an der noch nichts hängt; "
+"diese Kreatur tappt ab dem nächsten Zug für Mana und greift nicht mehr an"
+
+#: simulations/engine/adapter.py
+msgid ""
+"is equipped, with mana left after the turn's spells, to a creature without a"
+" mana ability that can attack this turn - one with nothing else on it and no"
+" counters first; it stays there"
+msgstr ""
+"wird mit dem Mana, das nach den Zaubersprüchen des Zuges übrig ist, an eine "
+"Kreatur ohne Mana-Fähigkeit gehängt, die in diesem Zug angreifen kann - "
+"zuerst eine ohne anderes daran und ohne Marken; dort bleibt sie"
+
+#: changelog/entries.py
+msgid "Sword of the Animist, Goldspan Dragon, Ragavan and combat"
+msgstr "Sword of the Animist, Goldspan Dragon, Ragavan und der Kampf"
+
+#: changelog/entries.py
+msgid ""
+"A simulated game now has a combat. Every creature that can attack does, each"
+" turn, and - a goldfish has no blockers - deals its damage to a player; "
+"against opponents with many blockers that is optimistic, and your deck page "
+"says so beside each card it matters for. Sword of the Animist, Bitterthorn "
+"and Kodama of the West Tree find lands; Goldspan Dragon, whose Treasures "
+"then make two mana, Captain Lannery Storm, Ragavan, Professional Face-"
+"Breaker, Grim Hireling, Diamond Pick-Axe, Shiny Impetus, Sticky Fingers and "
+"Curse of Opulence make Treasure. Savage Ventmaw's mana is spent in a second "
+"main phase, where a spell with X waits for it. Equipment is equipped with "
+"mana left over, Paradise Mantle turns a creature into a mana creature, and "
+"the playtest has an Equip button."
+msgstr ""
+"Ein simuliertes Spiel hat jetzt einen Kampf. Jede Kreatur, die angreifen "
+"kann, tut es in jedem Zug und fügt - ein Goldfish hat keine Blocker - einem "
+"Spieler ihren Schaden zu; gegen Gegner mit vielen Blockern ist das "
+"optimistisch, und deine Deckseite sagt das bei jeder Karte, für die es "
+"zählt. Sword of the Animist, Bitterthorn und Kodama of the West Tree finden "
+"Länder; Goldspan Dragon, dessen Schätze dann zwei Mana machen, Captain "
+"Lannery Storm, Ragavan, Professional Face-Breaker, Grim Hireling, Diamond "
+"Pick-Axe, Shiny Impetus, Sticky Fingers und Curse of Opulence machen "
+"Schätze. Das Mana von Savage Ventmaw wird in einer zweiten Hauptphase "
+"ausgegeben, in der ein Zauberspruch mit X darauf wartet. Ausrüstungen werden"
+" mit übrigem Mana angelegt, Paradise Mantle macht eine Kreatur zur Mana-"
+"Kreatur, und der Playtest hat einen Knopf zum Ausrüsten."
+
+#: playtest/views.py
+msgid "Equipped"
+msgstr "Ausgerüstet"
+
+#: templates/playtest/_board.html
+msgid "Equip"
+msgstr "Ausrüsten"
+
+#: templates/playtest/_board.html
+msgid "Creature to equip"
+msgstr "Kreatur zum Ausrüsten"

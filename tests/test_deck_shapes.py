@@ -136,10 +136,11 @@ def test_a_deck_the_engine_cannot_read_has_bad_coverage(build):
     """
     conversion = adapter.convert(build(UNMODELLABLE))
 
-    # The reading score - the one the pages show - is 4 of 12 here: a few cards
-    # are unreadable only in their casting order, which no page counts since
-    # phase 9 C. The mixed number this used to check was under 25%.
-    assert conversion.readable < 0.5
+    # The reading score - the one the pages show - is half here at most: a few
+    # cards are unreadable only in their casting order, which no page counts
+    # since phase 9 C. The mixed number this used to check was under 25%.
+    # Goldspan Dragon left the deck once combat was played (P19 R22).
+    assert conversion.readable <= 0.5
     assert conversion.cards_with_gaps >= conversion.cards_total - 1
 
 
@@ -167,7 +168,7 @@ def test_a_deck_the_engine_cannot_read_shouts_about_it(client, owner, build):
     assert "Mana sources nobody has pinned down" in body
     assert "Cards that need an opponent" in body
     # And the cards themselves, by name.
-    for name in ("Phyrexian Tribute", "Cabal Ritual", "Goldspan Dragon", "Mystic Remora"):
+    for name in ("Phyrexian Tribute", "Cabal Ritual", "Mana Drain", "Mystic Remora"):
         assert name in body, f"{name} is a blind spot and is not on the page"
 
 

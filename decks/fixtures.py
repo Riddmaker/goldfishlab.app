@@ -277,11 +277,9 @@ UNMODELLABLE = DeckShape(
         # Black mana "instead" with a full graveyard. Cabal Coffers stood here
         # until the reader learned its rule (P19 R4).
         (4, "Cabal Ritual"),
-        # Treasure made in combat, which the engine does not play, and mana
-        # Treasures are granted. Smothering Tithe, Rhystic Study and Esper
-        # Sentinel stood here until engine version 20 played them on an
-        # assumption about the opponents (P19 R16).
-        (4, "Goldspan Dragon"),
+        # Smothering Tithe, Rhystic Study and Esper Sentinel stood here until
+        # engine version 20 played them on an assumption about the opponents
+        # (P19 R16), Goldspan Dragon until 26 played combat (P19 R22).
         # Mana from a countered spell, and mana for discarding the hand.
         (4, "Mana Drain"), (4, "Lion's Eye Diamond"),
         (4, "Mystic Remora"),

@@ -23,6 +23,7 @@ from simulation.cards import (
     PER_CONTROLLED,
     AdditionalCost,
     Card,
+    CombatTrigger,
     CostReduction,
     DeckDefinition,
     EndStepSpec,
@@ -138,6 +139,13 @@ EVERYTHING = Card(
                   adapt_cost=ManaCost(pips=(("G", 2),), generic=3), bonus=1, puts=2,
                   draws_on_greatest=True, look=4),
     flip=4,
+    haste=True,
+    combat=(CombatTrigger(event="damage", who="any", types=frozenset({"ninja"}), treasures=1,
+                          treasure_mana="WUBRG", mana="RG", search=True),),
+    equip=ManaCost(generic=2),
+    germ=True,
+    treasure_bonus=1,
+    token=True,
 )
 
 

@@ -252,10 +252,12 @@ def _cast_best(game, pool: ManaPool) -> bool:
         _do(game, actions.CastCommander())
         return True
 
-    if x_spells:
+    if x_spells and not game.combat_expected():
         # A land search first: X takes everything that is left (P19 R14);
-        # then Adapt, which makes more mana each turn after (P19 R21).
-        if _try_activation(game, pool) or _try_adapt(game, pool):
+        # then Adapt, which makes more mana each turn after (P19 R21), and an
+        # Equipment (P19 R22). With mana or Treasure to come from combat, X
+        # waits for the second main phase.
+        if _try_activation(game, pool) or _try_adapt(game, pool) or _try_equip(game, pool):
             return True
         spell = max(x_spells, key=priority)
         _do(game, actions.CastSpell(index=game.hand.index(spell), x=game.max_x(spell, pool)))
@@ -353,13 +355,23 @@ def _try_adapt(game, pool: ManaPool) -> bool:
     return True
 
 
+def _try_equip(game, pool: ManaPool) -> bool:
+    """Equip with mana nothing else wants (P19 R22): Sword of the Animist on
+    a creature that attacks, Paradise Mantle on one that then makes mana."""
+    found = actions.equips(game, pool)
+    if not found:
+        return False
+    _do(game, found[0])
+    return True
+
+
 def _do(game, action) -> None:
     """Carry out one action with this agent's answers."""
     actions.apply(game, action, POLICY)
 
 
 def take_turn(game) -> None:
-    """Play a whole turn: land drop, main phase, end step.
+    """Play a whole turn: land drop, main phase, combat, end step.
 
     Since Phase 5 every step here is an :class:`~simulation.actions.Action`
     rather than a direct call into :class:`~simulation.game.Game`. The agent
@@ -367,8 +379,9 @@ def take_turn(game) -> None:
     but the doing is the same code the playtest runs, so a human and the agent
     cannot drift apart about what casting a spell means.
 
-    It does not use ``AdvancePhase``: a goldfish turn has nothing to do in
-    combat, and stepping through empty phases would only make the log longer.
+    It does not use ``AdvancePhase``: stepping through empty phases would only
+    make the log longer. A second main phase is played only when combat
+    brought mana or Treasure, or a spell with X waited for it (P19 R22).
     """
     _do(game, actions.BeginTurn())
 
@@ -380,7 +393,24 @@ def take_turn(game) -> None:
     # ritual is cast on top of it.
     _do(game, actions.OpenMainPhase())
     pool = game.pool
+    _main_phase(game, pool)
 
+    # P19 R22: combat, then a second main phase for what it brought - or for
+    # a spell with X that waited for it.
+    held = any(card.x_count for card in game.hand) and game.combat_expected()
+    treasures = len(game.treasures)
+    total = pool.total
+    _do(game, actions.Combat())
+    if held or len(game.treasures) > treasures or pool.total > total:
+        game.phase = actions.MAIN2
+        _main_phase(game, pool)
+
+    _do(game, actions.EndStep())
+
+
+def _main_phase(game, pool: ManaPool) -> None:
+    """Cast, use rituals and altars, activate, adapt and equip until nothing
+    more can be done."""
     while True:
         if _cast_best(game, pool):
             continue
@@ -390,6 +420,6 @@ def take_turn(game) -> None:
             continue
         if _try_adapt(game, pool):
             continue
+        if _try_equip(game, pool):
+            continue
         break
-
-    _do(game, actions.EndStep())

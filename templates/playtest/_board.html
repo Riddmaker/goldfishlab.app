@@ -249,6 +249,26 @@
                     </button>
                   </form>
                 {% endif %}
+                {% if tile.equip %}
+                  <form method="post" action="{% url 'playtest:act' session.id %}"
+                        hx-post="{% url 'playtest:act' session.id %}"
+                        hx-target="#board" hx-swap="outerHTML" class="mt-1 space-y-1">
+                    {% csrf_token %}
+                    <input type="hidden" name="kind" value="equip">
+                    <input type="hidden" name="zone" value="{{ tile.zone }}">
+                    <input type="hidden" name="index" value="{{ tile.index }}">
+                    <select name="target" class="w-full text-xs"
+                            aria-label="{% translate 'Creature to equip' %}">
+                      {% for label in tile.equip %}
+                        <option value="{{ forloop.counter0 }}">{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                    <button type="submit"
+                            class="w-full border border-ink-800 bg-ink-900 px-2 py-1 text-xs text-parchment-100 hover:bg-ink-800">
+                      {% translate "Equip" %}
+                    </button>
+                  </form>
+                {% endif %}
                 {% if tile.altar %}
                   <form method="post" action="{% url 'playtest:act' session.id %}"
                         hx-post="{% url 'playtest:act' session.id %}"

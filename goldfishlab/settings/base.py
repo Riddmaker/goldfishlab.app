@@ -65,6 +65,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # First: www. and the hoster's domain are sent to SITE_URL in one hop,
+    # before anything else reads the request (core.hosts).
+    "core.hosts.CanonicalHostMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "csp.middleware.CSPMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -244,6 +247,10 @@ _site = urlsplit(SITE_URL)
 if SITE_URL and (_site.scheme not in ("http", "https") or not _site.netloc
                  or _site.path or _site.query or _site.fragment):
     raise ImproperlyConfigured(f"SITE_URL must be http(s)://host with no path: {SITE_URL!r}")
+# Send a GET on any other host to SITE_URL with a 301 (core.hosts). Off here
+# and on in production, so a development .env naming the real site never
+# sends localhost there.
+SITE_URL_REDIRECT = env.bool("SITE_URL_REDIRECT", default=False)
 
 AUTH_USER_MODEL = "accounts.User"
 

@@ -62,3 +62,6 @@ htmlcov/
 
 # The P19 coverage gate keeps each round's snapshot here (scripts/coverage_gate.py).
 /.coverage-gate/
+
+# Google Search Console exports, shared locally for analysis (may list private URLs).
+/goldfishlab.app-Coverage/

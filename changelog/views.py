@@ -51,9 +51,18 @@ class ChangelogView(TemplateView):
 
 class ChangelogFeed(Feed):
     """/changelog/feed/: RSS 2.0, in the language of its address. Each item
-    links its entry's anchor on the page, which is also its id."""
+    links its entry's anchor on the page, which is also its id.
+
+    Kept out of search results by its header, as a feed has no <head> to say
+    noindex in: Google listed /de/changelog/feed/ as a page of its own
+    (search console, 2026-10-12). Feed readers ignore the header."""
 
     title = _("Goldfish Lab: what's new")
+
+    def __call__(self, request, *args, **kwargs):
+        response = super().__call__(request, *args, **kwargs)
+        response.headers["X-Robots-Tag"] = "noindex"
+        return response
     description = _("What changed on Goldfish Lab, newest first.")
 
     def link(self):

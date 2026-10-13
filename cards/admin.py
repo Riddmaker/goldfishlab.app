@@ -9,7 +9,14 @@ work out.
 
 from django.contrib import admin
 
-from cards.models import BulkImport, DerivedProfile, OracleCard, OracleCardTag, Tag
+from cards.models import (
+    BulkImport,
+    DerivedProfile,
+    ForgeScript,
+    OracleCard,
+    OracleCardTag,
+    Tag,
+)
 
 
 @admin.register(BulkImport)
@@ -67,3 +74,15 @@ class DerivedProfileAdmin(admin.ModelAdmin):
 class TagAdmin(admin.ModelAdmin):
     list_display = ("slug", "label")
     search_fields = ("slug", "label")
+
+
+@admin.register(ForgeScript)
+class ForgeScriptAdmin(admin.ModelAdmin):
+    list_display = ("oracle_card", "path", "commit", "imported_at")
+    search_fields = ("oracle_card__name", "path")
+    list_filter = ("blocks_version",)
+    readonly_fields = ("oracle_card", "commit", "path", "blocks", "blocks_version",
+                       "unmodeled", "unread", "imported_at")
+
+    def has_add_permission(self, request):
+        return False

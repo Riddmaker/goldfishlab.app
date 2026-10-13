@@ -87,12 +87,14 @@ def readings(oracle_cards) -> dict:
 
 
 def imports() -> dict:
-    """The Scryfall imports the catalogue in this database came from, by kind."""
+    """The imports the catalogue in this database came from, by kind: the
+    Scryfall files by their date, Forge's scripts by their commit."""
     from cards.models import BulkImport
 
     latest = {}
     for row in BulkImport.objects.filter(status=BulkImport.Status.OK).order_by("started_at"):
-        latest[row.kind] = row.scryfall_updated_at.isoformat()
+        latest[row.kind] = row.forge_commit if row.kind == BulkImport.Kind.FORGE_SCRIPTS \
+            else row.scryfall_updated_at.isoformat()
     return latest
 
 
@@ -121,11 +123,20 @@ def diff(path: Path) -> tuple[coverage.Diff, dict, dict, list[str]]:
     """Today's reading against the frozen one: the diff, both sides, and notes."""
     frozen = load(path)
     now = readings(catalogue())
+    from cards.models import BulkImport
+
     notes = []
-    if frozen["imports"] != imports():
+    forge = BulkImport.Kind.FORGE_SCRIPTS
+    before, after = dict(frozen["imports"]), imports()
+    forge_before, forge_after = before.pop(forge, None), after.pop(forge, None)
+    if before != after:
         notes.append("the catalogue was imported again since the freeze: new oracle text "
                      "or tags explain part of this diff "
-                     f"(frozen {frozen['imports']}, now {imports()})")
+                     f"(frozen {before}, now {after})")
+    # A freeze from before the scripts were read did not depend on them.
+    if forge_before is not None and forge_before != forge_after:
+        notes.append(f"Forge's scripts are of another commit since the freeze "
+                     f"({forge_before[:10]}, now {(forge_after or 'none')[:10]})")
     return coverage.compare(frozen["cards"], now), frozen["cards"], now, notes
 
 

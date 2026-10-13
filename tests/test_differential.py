@@ -60,3 +60,16 @@ def test_the_newest_frozen_version_is_found(tmp_path, monkeypatch):
     for version in (9, 27, 10):
         (tmp_path / f"frozen_engine_v{version}.json.gz").touch()
     assert differential.latest_frozen().name == "frozen_engine_v27.json.gz"
+
+
+def test_a_new_forge_commit_is_named_as_a_cause(frozen):
+    from cards import forge_import
+
+    forge_import.run()
+    path, _count = frozen
+    differential.freeze(path)
+    BulkImport.objects.filter(kind=BulkImport.Kind.FORGE_SCRIPTS).update(forge_commit="e" * 40)
+
+    _diff, _before, _after, notes = differential.diff(path)
+    assert notes == ["Forge's scripts are of another commit since the freeze "
+                     "(ffffffffff, now eeeeeeeeee)"]

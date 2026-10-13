@@ -19,11 +19,16 @@ with no lands, while every deck page still looks perfectly healthy. Until the
 that. Profiles are rebuilt whenever cards or tags changed, whenever any card is
 missing its profile, and on `--profiles`, which is what a deploy that changed
 the deriver but not the bulk files needs.
+
+Before the profiles, Forge's card scripts of the pinned commit are translated
+into blocks (`cards.forge_import`) - only when the pin, the translation or the
+catalogue changed, `--profiles` included.
 """
 
 from django.core.management.base import BaseCommand, CommandError
 
 from cards import refresh
+from cards.models import BulkImport
 from cards.scryfall import ScryfallError
 
 KINDS = refresh.KINDS
@@ -69,6 +74,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options["profiles"]:
+            self._result(refresh.forge_scripts())
             self._profiles("asked for")
             self._derived(refresh.rebuild_profiles())
             return
@@ -96,7 +102,8 @@ class Command(BaseCommand):
             self._derived(loaded.profiles_written)
 
     def _result(self, result) -> None:
-        style = self.style.WARNING if result.skipped else self.style.SUCCESS
+        style = (self.style.ERROR if result.status == BulkImport.Status.FAILED else
+                 self.style.WARNING if result.skipped else self.style.SUCCESS)
         self.stdout.write(style(f"  {result}"))
 
     def _profiles(self, reason: str) -> None:

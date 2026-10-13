@@ -70,6 +70,8 @@ class IngestResult:
     def __str__(self) -> str:
         if self.skipped:
             return f"{self.kind}: skipped, {self.message}"
+        if self.status == BulkImport.Status.FAILED:
+            return f"{self.kind}: FAILED, {self.message}"
         memory = f", peak {self.peak_memory_kb / 1024:.1f} MB" if self.peak_memory_kb else ""
         return (
             f"{self.kind}: {self.rows_written} written, {self.rows_skipped} skipped, "

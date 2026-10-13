@@ -376,3 +376,25 @@ def test_a_draw_the_reader_read_is_never_doubled():
     forge_merge.draws(again, blocks_of("Name:Test\nTypes:Creature\n" + ENTERS.replace(
         "TrigToken", "TrigDraw") + "SVar:TrigDraw:DB$ Draw | NumCards$ 1"), None)
     assert again.triggers == read
+
+
+def test_a_draw_no_block_holds_is_said_where_nothing_else_is():
+    script = ("Name:Test\nTypes:Sorcery\nA:SP$ Draw | NumCards$ X\n"
+              "SVar:X:Count$InYourHand\n")
+    profile = DerivedProfile(kind="sorcery", draws_cards=None, triggers=[], source_map={},
+                             review_reasons=[], needs_review=False)
+    forge_merge.merge(profile, blocks_of(script), None)
+    assert profile.review_reasons == ["draws cards in a way that is not read yet"]
+    assert profile.needs_review
+    said = DerivedProfile(kind="sorcery", draws_cards=None, triggers=[], source_map={},
+                          review_reasons=["something else"], needs_review=True)
+    forge_merge.merge(said, blocks_of(script), None)
+    assert said.review_reasons == ["something else"]
+
+
+def test_a_draw_the_engine_plays_needs_no_reason():
+    profile = DerivedProfile(kind="sorcery", draws_cards=None, triggers=[], source_map={},
+                             review_reasons=[], needs_review=False)
+    forge_merge.merge(profile, blocks_of("Name:Test\nTypes:Sorcery\nA:SP$ Draw | NumCards$ 2\n"),
+                      None)
+    assert profile.draws_cards == 2 and not profile.review_reasons

@@ -18,6 +18,8 @@ of this, so it still overrides everything.
 
 from collections.abc import Callable
 
+from django.utils.translation import gettext_noop
+
 from cards import forge
 from simulation import blocks as b
 
@@ -418,9 +420,65 @@ def draws(profile, abilities, card) -> None:
     take(profile, "triggers", [*(profile.triggers or ()), entry])
 
 
+#: What a card does that the goldfish plays, when Forge reads it and the
+#: engine does not: said, where it said nothing (card model phase 1).
+_SILENT = {
+    "draw": gettext_noop("draws cards in a way that is not read yet"),
+    "treasure": gettext_noop("makes Treasure in a way that is not read yet"),
+    "land_search": gettext_noop("searches for lands in a way that is not read yet"),
+}
+
+
+def _family(ability: b.Ability) -> str | None:
+    for effect in ability.effects:
+        if effect.verb == "draw" and not effect.arg("player"):
+            return "draw"
+        if effect.verb == "create_token" and effect.arg("token") == "treasure" \
+                and effect.arg("owner") in _YOURS:
+            return "treasure"
+        if effect.verb == "move" and effect.arg("from") == "library" \
+                and effect.arg("to") == "battlefield" and not effect.arg("player") \
+                and "Land" in str(effect.arg("what", "")):
+            return "land_search"
+    return None
+
+
+def _played(profile, family: str) -> bool:
+    if family == "draw":
+        return bool(profile.draws_cards or profile.draws_x
+                    or any(trigger.get("draw") for trigger in profile.triggers or ()))
+    if family == "treasure":
+        return bool(profile.treasures or any(
+            trigger.get("treasures") for trigger in profile.triggers or ()))
+    return profile.land_search is not None
+
+
+def unread(profile, abilities, card) -> None:
+    """Say what the card does that neither the reader nor Forge's blocks gave
+    the engine: a draw, a Treasure or a land search as the spell resolves or
+    the card enters - under a condition or by a count no block holds yet, or
+    beside something the engine would leave out (a loot's discard).
+    Without it the card would read as complete and play without it.
+
+    Only where nothing else is said about the card: a reason already given
+    covers the reading the user looks at.
+    """
+    if profile.review_reasons:
+        return
+    for ability in abilities:
+        arrives = (ability.kind == b.RESOLVES and profile.kind in _ONE_SHOT) or (
+            ability.kind == b.TRIGGERED and ability.event == _SELF_ENTERS)
+        family = _family(ability) if arrives and not ability.mode else None
+        if family is None or _played(profile, family):
+            continue
+        profile.review_reasons = [_SILENT[family]]
+        profile.needs_review = True
+        return
+
+
 #: The families, in order: each reads the blocks and the profile, and takes
-#: what its rule allows.
-FAMILIES: list[Callable] = [mana, enters_tapped, land_search, treasures, draws]
+#: what its rule allows. `unread` comes last: it says what none of them took.
+FAMILIES: list[Callable] = [mana, enters_tapped, land_search, treasures, draws, unread]
 
 
 def merge(profile, abilities, card) -> None:

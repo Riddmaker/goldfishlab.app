@@ -26,6 +26,12 @@ Overrides are a JSON dict rather than thirty nullable columns. The engine's
 would make that expensive enough to discourage it. The keys are validated
 against `ALLOWED_KEYS`, so a typo is an error rather than a silently ignored
 setting.
+
+**Patches beside them (card model, phase 2).** Every save also writes the
+overrides as `patches` - each corrected primitive as a patch on the block of
+the reading it corrects (`simulations.patches`) - and the engine plays the
+patches. For one release both are written, so code from before phase 2 can
+still be rolled back to and reads the overrides it always read.
 """
 
 import uuid
@@ -38,7 +44,7 @@ from django.utils.translation import gettext_lazy as _
 
 from cards.models import OracleCard
 from decks.models import Deck
-from simulations import gaps, primitives
+from simulations import gaps, patches, primitives
 
 #: The mana a colour annotation may name. Spelled out here rather than imported
 #: from `simulation.manacost`, because the engine stays a stranger to Django and
@@ -121,6 +127,9 @@ class CardAnnotation(models.Model):
     )
 
     overrides = models.JSONField(default=dict, blank=True)
+    #: The same correction as patches on the reading's blocks, written on every
+    #: save (`simulations.patches.from_overrides`); what the engine plays.
+    patches = models.JSONField(default=dict, blank=True)
     note = models.TextField(blank=True, help_text="Why, for the provenance panel.")
     #: "Looks right": the user read what the engine made of this card and
     #: agrees (Phase 9 C2). Needed because many reading gaps - hybrid pips, a
@@ -156,7 +165,25 @@ class CardAnnotation(models.Model):
         # simulation, and a typo'd key that is silently dropped produces a
         # number that is wrong with no error anywhere.
         self.clean()
+        self._write_patches()
+        # `update_or_create` saves only the fields it was given: the patches
+        # go wherever the overrides go.
+        fields = kwargs.get("update_fields")
+        if fields is not None and "overrides" in fields:
+            kwargs["update_fields"] = {*fields, "patches"}
         return super().save(*args, **kwargs)
+
+    def _write_patches(self) -> None:
+        """The overrides as patches, unless the stored ones already say them."""
+        overrides = self.overrides or {}
+        if not overrides:
+            self.patches = {}
+            return
+        if patches.is_current(self.patches) \
+                and self.patches.get("of") == patches.digest(overrides):
+            return
+        profile = getattr(self.oracle_card, "profile", None)
+        self.patches = patches.from_overrides(overrides, profile, previous=self.patches)
 
     def clean(self):
         unknown = set(self.overrides) - set(ALLOWED_KEYS)
@@ -171,6 +198,10 @@ class CardAnnotation(models.Model):
                 primitives.validate(key, self.overrides[key])
             except primitives.PrimitiveError as exc:
                 raise ValidationError({"overrides": str(exc)}) from exc
+        try:
+            patches.validate(self.patches)
+        except patches.PatchError as exc:
+            raise ValidationError({"patches": str(exc)}) from exc
 
     def _clean_colors(self):
         """Reject a colour the engine would not recognise.

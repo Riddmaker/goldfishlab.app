@@ -80,3 +80,17 @@ def test_the_export_does_not_overwrite(corrected, django_db_blocker, tmp_path):
     out.write_text("[]", encoding="utf-8")
     with django_db_blocker.unblock(), pytest.raises(CommandError):
         call_command("annotations_export", out=str(out))
+
+
+def test_every_correction_plays_the_same_from_its_patches(corrected, django_db_blocker):
+    """Card model gate C: a correction as patches says exactly what it said."""
+    from simulations import patches
+
+    with django_db_blocker.unblock():
+        rows = list(CardAnnotation.objects.exclude(overrides={})
+                    .select_related("oracle_card__profile"))
+    assert rows
+    for row in rows:
+        profile = getattr(row.oracle_card, "profile", None)
+        said, notes = patches.effective(row.overrides, row.patches, profile)
+        assert (said, notes) == (row.overrides, []), row.oracle_card.name

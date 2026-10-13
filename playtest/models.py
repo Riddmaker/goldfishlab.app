@@ -68,6 +68,9 @@ class PlaytestSession(models.Model):
     #: Counted by copies (phase 10), as on a simulation run. Zero from before.
     copies_total = models.PositiveIntegerField(default=0)
     copies_unreadable = models.PositiveIntegerField(default=0)
+    #: `simulation.ENGINE_VERSION` the snapshot was read with (card model
+    #: phase 2). Null for a session opened before it was stored.
+    engine_version = models.PositiveSmallIntegerField(null=True, blank=True)
 
     #: A replay of every action not undone, cached. `cached_seq` is the
     #: sequence number it was taken at; `None` means there is no cache.

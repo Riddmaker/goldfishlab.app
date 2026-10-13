@@ -193,9 +193,122 @@ def enters_tapped(profile, abilities, card) -> None:
     take(profile, "enters_tapped", True)
 
 
+#: Reasons a land search read whole answers: each says the reader found a
+#: search, or a tutor, and could not read it.
+_SEARCH_UNREAD = (
+    "searches for lands under a condition the engine cannot read",
+    "tutors onto the battlefield, which the engine cannot do",
+    "tutors, but no readable 'search your library' clause",
+    "searches for lands the engine cannot describe",
+    "searches for lands, but where they go could not be read",
+    "tutors, but how many cards it finds could not be read",
+    "searches the library more than once; not modelled",
+    "tutors to more than one zone; not modelled",
+    "searches for lands at a cost the engine does not pay",
+)
+_BASIC_TYPES = ("Plains", "Island", "Swamp", "Mountain", "Forest")
+#: What may stand beside the search in its ability: nothing the engine skips.
+_SEARCH_COMPANIONS = frozenset({"shuffle"})
+
+
+def _lands(what: str) -> tuple[bool, list[str]] | None:
+    """Forge's ``ChangeType`` of a land search as (basic only, land types),
+    or None for one the engine cannot describe: "Land.Basic" -> (True, []),
+    "Forest,Plains" -> (False, ["forest", "plains"])."""
+    basics, types = set(), set()
+    for part in what.split(","):
+        base, _, rest = part.strip().partition(".")
+        props = set(rest.split("+")) - {""}
+        if base in _BASIC_TYPES:
+            types.add(base.casefold())
+        elif base in ("Land", "Card"):
+            named = props & set(_BASIC_TYPES)
+            if len(named) > 1 or (base == "Card" and not named):
+                return None
+            types |= {name.casefold() for name in named}
+            props -= named
+        else:
+            return None
+        if props - {"Basic"}:
+            return None
+        basics.add("Basic" in props)
+    if len(basics) != 1 or (types and len(types) != len(what.split(","))):
+        return None
+    return basics.pop(), sorted(types)
+
+
+def _search_when(ability: b.Ability, profile) -> dict | None:
+    """When the search is played, and what activating it costs, or None."""
+    if ability.kind == b.RESOLVES and profile.kind in _ONE_SHOT:
+        return {"when": "cast"}
+    if ability.kind == b.TRIGGERED and ability.event == _SELF_ENTERS \
+            and profile.kind not in _ONE_SHOT:
+        return {"when": "enters"}
+    if ability.kind != b.ACTIVATED:
+        return None
+    found = {"when": "activate"}
+    for cost in ability.costs:
+        if cost.atom == "tap":
+            found["taps"] = True
+        elif cost.atom == "sacrifice_self":
+            found["sacrifice"] = True
+        elif cost.atom == "mana" and not (cost.mana.pips or cost.mana.colorless
+                                          or cost.mana.hybrid or cost.mana.phyrexian
+                                          or cost.mana.has_x):
+            if cost.mana.generic:
+                found["cost"] = f"{{{cost.mana.generic}}}"
+        else:
+            return None
+    return found
+
+
+def land_search(profile, abilities, card) -> None:
+    """A land search the reader could not read: Reshape the Earth's ten
+    lands, Molten Man's basic Mountain as it enters, Frontier Guide's
+    activated one.
+
+    Taken when it is the card's only search of its library, read whole and
+    not a mode, the lands go onto the battlefield, a number of them, of a
+    kind the engine describes (any, basic, of basic land types), and it is
+    played as a spell resolves, as the card itself enters, or for generic
+    mana, {T} and the card itself. A search in combat, as something dies or
+    for another player is not.
+    """
+    if profile.land_search is not None:
+        return
+    searches = [ability for ability in abilities
+                if any(effect.arg("from") == "library" for effect in ability.effects)]
+    if len(searches) != 1 or not complete(searches[0]) or searches[0].mode:
+        return
+    ability = searches[0]
+    moves = [effect for effect in ability.effects if effect.verb == "move"]
+    rest = [effect for effect in ability.effects if effect.verb != "move"]
+    if len(moves) != 1 or any(effect.verb not in _SEARCH_COMPANIONS for effect in rest):
+        return
+    move = moves[0]
+    n = move.arg("n", 1)
+    lands = _lands(str(move.arg("what", "")))
+    when = _search_when(ability, profile)
+    if move.arg("to") != "battlefield" or move.arg("player") or move.arg("target") \
+            or not isinstance(n, int) or lands is None or when is None:
+        return
+    from cards.profiles import _search_spec
+
+    basic, types = lands
+    take(profile, "land_search", _search_spec(battlefield=n, tapped=bool(move.arg("tapped")),
+                                              basic=basic, types=types, **when),
+         answers=_SEARCH_UNREAD)
+    # The search is the land search now, not a tutor the engine cannot play,
+    # as `profiles.derive` leaves it when it reads one.
+    profile.tutor_to, profile.tutor_count, profile.tutor_kind = "", None, ""
+    profile.tutor_filter = None
+    profile.source_map = {field: source for field, source in profile.source_map.items()
+                          if not field.startswith("tutor_")}
+
+
 #: The families, in order: each reads the blocks and the profile, and takes
 #: what its rule allows.
-FAMILIES: list[Callable] = [mana, enters_tapped]
+FAMILIES: list[Callable] = [mana, enters_tapped, land_search]
 
 
 def merge(profile, abilities, card) -> None:

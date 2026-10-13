@@ -367,3 +367,14 @@ A:AB$ Draw | Cost$ 3 | NumCards$ 1 | SorcerySpeed$ True | PlayerTurn$ True \
 """)
     assert [ability.unread for ability in found] == [
         ("when:OpponentTurn",), ("when:ActivationZone",), ()]
+
+
+def test_a_cost_paid_as_a_trigger_resolves_is_unread():
+    found = blocks_of("""Name:Test Scout
+Types:Artifact
+T:Mode$ ChangesZone | Origin$ Any | Destination$ Battlefield | ValidCard$ Card.Self \
+| Execute$ TrigSearch
+SVar:TrigSearch:AB$ ChangeZone | Cost$ Sac<1/Land> | Origin$ Library \
+| Destination$ Battlefield | ChangeType$ Land.Basic | ChangeNum$ 2
+""")
+    assert only(found, b.TRIGGERED).unread == ("cost:Sac<1/Land>",)

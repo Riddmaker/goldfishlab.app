@@ -201,3 +201,67 @@ SVar:ETBTapped:DB$ Tap | Defined$ Self | ETB$ True | SubAbility$ DBRad
 SVar:DBRad:DB$ Radiation | Num$ 2
 """), None)
     assert not profile.enters_tapped
+
+
+def searched(kind: str, script: str) -> DerivedProfile:
+    profile = DerivedProfile(kind=kind, land_search=None, tutor_to="battlefield",
+                             tutor_count=1, source_map={"tutor_to": "tags"}, needs_review=True,
+                             review_reasons=["tutors onto the battlefield, which the engine "
+                                             "cannot do"])
+    forge_merge.land_search(profile, blocks_of(f"Name:Test\n{script}"), None)
+    return profile
+
+
+def test_a_spells_land_search_is_taken_and_is_no_tutor_any_more():
+    profile = searched("sorcery", """Types:Sorcery
+A:SP$ ChangeZone | Origin$ Library | Destination$ Battlefield | ChangeType$ Land \
+| ChangeNum$ 10 | Tapped$ True | SubAbility$ DBShuffle
+SVar:DBShuffle:DB$ Shuffle | Defined$ You
+""")
+    spec = profile.land_search
+    assert (spec["battlefield"], spec["tapped"], spec["basic"], spec["types"], spec["when"]) == (
+        10, True, False, [], "cast")
+    assert (profile.tutor_to, profile.tutor_count) == ("", None)
+    assert profile.source_map == {"land_search": "forge"}
+    assert not profile.needs_review
+
+
+def test_a_search_as_the_card_enters_or_for_its_cost_is_taken():
+    entering = searched("creature", """Types:Creature Human
+T:Mode$ ChangesZone | Origin$ Any | Destination$ Battlefield | ValidCard$ Card.Self \
+| Execute$ TrigSearch
+SVar:TrigSearch:DB$ ChangeZone | Origin$ Library | Destination$ Battlefield \
+| ChangeType$ Mountain.Basic | Tapped$ True
+""").land_search
+    assert (entering["when"], entering["basic"], entering["types"]) == (
+        "enters", True, ["mountain"])
+    activated = searched("land", """Types:Land
+A:AB$ ChangeZone | Cost$ 1 T Sac<1/CARDNAME> | Origin$ Library | Destination$ Battlefield \
+| ChangeType$ Land.Basic | Tapped$ True
+""").land_search
+    assert (activated["when"], activated["cost"], activated["taps"], activated["sacrifice"]) == (
+        "activate", "{1}", True, True)
+
+
+@pytest.mark.parametrize("kind, script", [
+    # As it dies: no moment the engine plays a search at.
+    ("creature", "Types:Creature\nT:Mode$ ChangesZone | Origin$ Battlefield | Destination$ "
+     "Graveyard | ValidCard$ Card.Self | Execute$ TrigSearch\nSVar:TrigSearch:DB$ ChangeZone | "
+     "Origin$ Library | Destination$ Battlefield | ChangeType$ Land.Basic"),
+    # A land the engine cannot describe.
+    ("sorcery", "Types:Sorcery\nA:SP$ ChangeZone | Origin$ Library | Destination$ Battlefield "
+     "| ChangeType$ Land.Basic,Desert"),
+    # For another player.
+    ("instant", "Types:Instant\nA:SP$ ChangeZone | Origin$ Library | Destination$ Battlefield "
+     "| ChangeType$ Land.Basic | DefinedPlayer$ TargetedController"),
+    # Paid for as it resolves.
+    ("artifact", "Types:Artifact\nT:Mode$ ChangesZone | Origin$ Any | Destination$ Battlefield "
+     "| ValidCard$ Card.Self | Execute$ TrigSearch\nSVar:TrigSearch:AB$ ChangeZone | Cost$ "
+     "Sac<1/Land> | Origin$ Library | Destination$ Battlefield | ChangeType$ Land.Basic"),
+    # One of a charm's modes.
+    ("sorcery", "Types:Sorcery\nA:SP$ Charm | Choices$ DBSearch,DBDraw\nSVar:DBSearch:DB$ "
+     "ChangeZone | Origin$ Library | Destination$ Battlefield | ChangeType$ Land.Basic\n"
+     "SVar:DBDraw:DB$ Draw | NumCards$ 1"),
+])
+def test_a_land_search_the_engine_would_play_otherwise_is_not_taken(kind, script):
+    assert searched(kind, script).land_search is None

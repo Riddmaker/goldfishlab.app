@@ -30,7 +30,7 @@ from simulation import blocks as b
 
 #: Raised with every change to how a script is translated, so the next run
 #: translates every script again although the pin did not move.
-TRANSLATION = 3
+TRANSLATION = 4
 
 #: More scripts than this share failing to translate stops the run, and the
 #: blocks of the last good run stay.
@@ -295,6 +295,10 @@ def _effects(ability: forge.Ability, reading: _Reading) -> tuple[b.Effect, ...]:
                 reading.unread.append("modes")
                 return
             elif VERBS[step.head] is not None:
+                if step is not ability and step.param("Cost"):
+                    # Paid as it resolves: Larval Scoutlander's "you may
+                    # sacrifice a land. If you do, search ...".
+                    reading.unread.append("cost:" + step.param("Cost"))
                 verb = "enters_tapped" if step.head == "Tap" and \
                     step.param("ETB") == "True" else VERBS[step.head]
                 effects.append(b.Effect(verb, _args(step, reading)))

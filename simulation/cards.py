@@ -836,7 +836,7 @@ class Card:
     put_back_on_cast: int = 0
     #: P19 R9: how many {X} the cost has - Astral Cornucopia's {X}{X}{X} is
     #: three. 0: no X. The agent casts such a spell last in its main phase,
-    #: with everything left as X, the way Forge's AI picks its X.
+    #: with everything left as X.
     x_count: int = 0
     #: P19 R9: the smallest X worth casting it for. A deck author may want
     #: Stroke of Genius held until X is four.

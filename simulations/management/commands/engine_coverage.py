@@ -3,6 +3,8 @@
     manage.py engine_coverage                  # the numbers: catalogue and decks
     manage.py engine_coverage --check          # today's catalogue against the snapshot
     manage.py engine_coverage --export-fixture # rebuild the fixed set (rarely)
+    manage.py engine_coverage --freeze         # freeze the whole catalogue's reading
+    manage.py engine_coverage --diff           # today's code against the frozen reading
 
 The gate itself is `tests/test_engine_coverage.py`, on the committed fixture;
 `COVERAGE_WRITE=1` makes it write the snapshots instead of comparing. This
@@ -10,11 +12,15 @@ command looks at a development database, whose Scryfall tags drift from the
 fixture's - so `--check` also shows what new tags changed.
 `--export-fixture` needs the full catalogue and the precons
 (`ingest_scryfall`, `precons`); see `simulations/coverage.py`.
+`--freeze` and `--diff` cover every Commander-legal card, for the card-model
+rebuild; see `simulations/differential.py`.
 """
+
+from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
 
-from simulations import coverage
+from simulations import coverage, differential
 
 
 class Command(BaseCommand):
@@ -24,6 +30,11 @@ class Command(BaseCommand):
         group = parser.add_mutually_exclusive_group()
         group.add_argument("--check", action="store_true")
         group.add_argument("--export-fixture", action="store_true")
+        group.add_argument("--freeze", action="store_true")
+        group.add_argument("--diff", action="store_true")
+        parser.add_argument("--frozen", help="the frozen file (default: the newest in .data/)")
+        parser.add_argument("--limit", type=int, default=30,
+                            help="cards listed per group in the diff")
 
     def handle(self, *args, **options):
         if options["export_fixture"]:
@@ -32,6 +43,16 @@ class Command(BaseCommand):
             count = coverage.export_decks()
             self.stdout.write(f"{count} decks written to {coverage.DECKS_FIXTURE}")
             self.stdout.write("now: COVERAGE_WRITE=1 pytest tests/test_engine_coverage.py")
+            return
+
+        if options["freeze"]:
+            path = differential.frozen_path() if not options["frozen"] else Path(options["frozen"])
+            count = differential.freeze(path)
+            self.stdout.write(f"{count} cards frozen into {path}")
+            return
+
+        if options["diff"]:
+            self._diff(options)
             return
 
         if options["check"]:
@@ -52,3 +73,17 @@ class Command(BaseCommand):
 
         for line in coverage.report():
             self.stdout.write(line)
+
+    def _diff(self, options):
+        path = Path(options["frozen"]) if options["frozen"] else differential.latest_frozen()
+        if path is None or not path.exists():
+            raise CommandError("nothing frozen yet: run engine_coverage --freeze first")
+        diff, before, after, notes = differential.diff(path)
+        for note in notes:
+            self.stderr.write(note)
+        for line in diff.lines(before, after, limit=options["limit"]):
+            self.stdout.write(line)
+        if diff.lost:
+            raise CommandError(f"{len(diff.lost)} card(s) read before and not now")
+        self.stdout.write(f"every card reads as in {path.name}" if diff.empty else
+                          f"no card reads worse than in {path.name}")

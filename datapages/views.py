@@ -14,11 +14,12 @@ from django_ratelimit.decorators import ratelimit
 
 from core import seo
 from core.l10n import number, percent
-from datapages import numbers, services
+from datapages import services
 from datapages.models import Precon
 from metrics import counts
 from sharing.services import ROBOTS
 from sharing.views import CACHE_SECONDS, rendered
+from simulations import numbers
 
 #: The table's columns that sort, and what each sorts by. Newest first when
 #: the address names none, or one that is not here.

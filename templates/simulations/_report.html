@@ -5,6 +5,23 @@
   and works in a browser with both switched off. `shared` (P4): on a shared
   report, which offers its reader nothing of the owner's.
 {% endcomment %}
+{% if report.glance %}
+  {# P20 F4 (E1.19): the precon pages' numbers, for every deck - the same sentences. #}
+  <section id="glance" class="surface-parchment mt-6 p-6">
+    <h2 class="font-display text-2xl text-ink-900">{% translate "In short" %}</h2>
+    <ul class="mt-3 list-disc space-y-1 pl-5 text-ink-900">
+      {% for sentence in report.glance %}<li>{{ sentence }}</li>{% endfor %}
+    </ul>
+    <p class="mt-2 text-sm text-ink-700">
+      {% blocktranslate trimmed with shown=report.iterations|intcomma count games=report.iterations %}
+        “±” is how far the share of {{ shown }} game can be from the true one, at 95% confidence.
+      {% plural %}
+        “±” is how far the share of {{ shown }} games can be from the true one, at 95% confidence.
+      {% endblocktranslate %}
+      {% include "core/_why.html" with anchor="games" %}
+    </p>
+  </section>
+{% endif %}
 <section id="seen" class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">{% translate "What you drew" %}</h2>
   {% if report.seen %}
@@ -168,9 +185,7 @@
     </details>
   </section>
 {% endif %}
-{% if report.brackets %}
-  {% include "simulations/_brackets.html" with tempo=report.brackets %}
-{% endif %}
+{% include "simulations/_brackets.html" with tempo=report.brackets %}
 <section class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">{% translate "Mulligans" %}</h2>
   <table class="mt-4 w-full text-left text-sm">

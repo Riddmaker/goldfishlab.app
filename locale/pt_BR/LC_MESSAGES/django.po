@@ -11982,3 +11982,261 @@ msgstr ""
 "simulação, e o relatório diz quando não houve espaço para ele. Atingir o "
 "limite de decks ao importar agora se explica em vez de mostrar um código de "
 "erro."
+
+#: decks/analysis.py
+msgid "possible: no Game Changers"
+msgstr "possível: nenhum Game Changer"
+
+#: decks/analysis.py
+msgid ""
+"No Game Changers, so none of them keeps this deck out of Bracket 1 or 2. "
+"Speed, tutors and extra turns decide as well; the report checks the speed."
+msgstr ""
+"Nenhum Game Changer, então nenhum deles tira este deck do Bracket 1 ou 2. "
+"Velocidade, tutores e turnos extras também contam; o relatório verifica a "
+"velocidade."
+
+#: decks/analysis.py
+#, python-format
+msgid "at least, by %(count)s Game Changer"
+msgid_plural "at least, by %(count)s Game Changers"
+msgstr[0] "no mínimo, por %(count)s Game Changer"
+msgstr[1] "no mínimo, por %(count)s Game Changers"
+
+#: decks/analysis.py
+#, python-format
+msgid ""
+"Brackets 1 and 2 expect no Game Changers and Bracket 3 allows up to "
+"%(limit)s, so this deck is at least Bracket 3: %(cards)s."
+msgstr ""
+"Os Brackets 1 e 2 não preveem Game Changers e o Bracket 3 permite até "
+"%(limit)s, então este deck é no mínimo Bracket 3: %(cards)s."
+
+#: decks/analysis.py
+#, python-format
+msgid ""
+"Bracket 3 allows up to %(limit)s Game Changers, so this deck is at least "
+"Bracket 4: %(cards)s."
+msgstr ""
+"O Bracket 3 permite até %(limit)s Game Changers, então este deck é no mínimo"
+" Bracket 4: %(cards)s."
+
+#: simulations/numbers.py
+#, python-format
+msgid ""
+"In %(share)s of games (± %(margin)s points) it has four lands in play on "
+"turn 4."
+msgstr ""
+"Em %(share)s das partidas (± %(margin)s pontos), ele tem quatro terrenos em "
+"jogo no turno 4."
+
+#: simulations/numbers.py
+#, python-format
+msgid ""
+"It keeps its first seven cards in %(share)s of games (± %(margin)s points)."
+msgstr ""
+"Ele mantém as sete primeiras cartas em %(share)s das partidas (± %(margin)s "
+"pontos)."
+
+#: templates/decks/detail.html
+#, python-format
+msgid "+ %(count)s double-faced card with a land on the back"
+msgid_plural "+ %(count)s double-faced cards with a land on the back"
+msgstr[0] "+ %(count)s carta de duas faces com um terreno no verso"
+msgstr[1] "+ %(count)s cartas de duas faces com um terreno no verso"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s of %(total)s cards has something the engine could not read on its "
+"own."
+msgid_plural ""
+"%(count)s of %(total)s cards have something the engine could not read on its"
+" own."
+msgstr[0] ""
+"%(count)s de %(total)s cartas tem algo que o motor não conseguiu ler "
+"sozinho."
+msgstr[1] ""
+"%(count)s de %(total)s cartas têm algo que o motor não conseguiu ler "
+"sozinho."
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s of them still needs you; the red marker at the top takes you "
+"there."
+msgid_plural ""
+"%(count)s of them still need you; the red marker at the top takes you "
+"through them."
+msgstr[0] ""
+"%(count)s delas ainda precisa de você; o marcador vermelho no topo leva você"
+" até lá."
+msgstr[1] ""
+"%(count)s delas ainda precisam de você; o marcador vermelho no topo guia "
+"você por elas."
+
+#: templates/decks/detail.html
+msgid "You have looked at each of them."
+msgstr "Você já olhou cada uma delas."
+
+#: templates/decks/detail.html
+#, python-format
+msgid "The engine read the %(count)s card on its own."
+msgid_plural "The engine read all %(count)s cards on its own."
+msgstr[0] "O motor leu sozinho a %(count)s carta."
+msgstr[1] "O motor leu sozinho todas as %(count)s cartas."
+
+#: templates/simulations/_brackets.html
+msgid ""
+"Commander Spellbook knows no combo in this deck that ends the game on its "
+"own, so by speed nothing keeps it out of Bracket 1."
+msgstr ""
+"O Commander Spellbook não conhece neste deck nenhum combo que termine a "
+"partida sozinho, então pela velocidade nada o tira do Bracket 1."
+
+#: templates/simulations/_brackets.html
+msgid ""
+"The deck has combos that end the game, and this run did not time them. Run "
+"the deck again to see how fast they come together."
+msgstr ""
+"O deck tem combos que terminam a partida, e esta simulação não os "
+"cronometrou. Simule o deck de novo para ver com que rapidez eles se juntam."
+
+#: templates/simulations/_brackets.html
+msgid ""
+"Without its combos looked up, this run measures no game-ending combo, so it "
+"cannot say how fast the deck ends a game."
+msgstr ""
+"Sem buscar os combos, esta simulação não mede nenhum combo que termine a "
+"partida, então não pode dizer com que rapidez o deck termina uma partida."
+
+#: templates/simulations/_brackets.html
+msgid "Find the deck's combos"
+msgstr "Encontrar os combos do deck"
+
+#: templates/simulations/_brackets.html
+msgid "By Game Changers: none, so Bracket 1 or 2 is possible."
+msgstr "Pelos Game Changers: nenhum, então o Bracket 1 ou 2 é possível."
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid ""
+"By Game Changers: at least Bracket %(floor)s, with %(count)s Game Changer."
+msgid_plural ""
+"By Game Changers: at least Bracket %(floor)s, with %(count)s Game Changers."
+msgstr[0] ""
+"Pelos Game Changers: no mínimo Bracket %(floor)s, com %(count)s Game "
+"Changer."
+msgstr[1] ""
+"Pelos Game Changers: no mínimo Bracket %(floor)s, com %(count)s Game "
+"Changers."
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid "Together: at least Bracket %(number)s - the higher of the two counts."
+msgstr "Juntos: no mínimo Bracket %(number)s - vale o mais alto dos dois."
+
+#: templates/core/methodology.html
+msgid ""
+"When a card's reading is changed after a run, that run is not recalculated —"
+" its numbers are a record of what the engine actually saw — so the report "
+"says so, and running the deck again shows the difference. How exact a number"
+" is depends on the number of games: the report gives its main shares with a "
+"±, explained under “How many games is enough”."
+msgstr ""
+"Quando a leitura de uma carta muda depois de uma simulação, essa simulação "
+"não é recalculada — seus números são o registro do que o motor realmente viu"
+" —, então o relatório avisa, e simular o deck de novo mostra a diferença. O "
+"quanto um número é exato depende do número de partidas: o relatório dá suas "
+"proporções principais com um ±, explicado em “Quantas partidas bastam”."
+
+#: templates/core/methodology.html
+msgid ""
+"Ten thousand games pin a share of 50%% to about <strong>±1.0 percentage "
+"points at 95%% confidence</strong>, and one of 80%% to about ±0.8; two "
+"thousand games to about ±2.2 and ±1.8. Past ten thousand you are buying "
+"decimal places that do not change a decision, which is why this application "
+"meters <strong>turns simulated</strong> rather than selling you iteration "
+"counts."
+msgstr ""
+"Dez mil partidas fixam uma proporção de 50%% em cerca de <strong>±1,0 ponto "
+"percentual com 95%% de confiança</strong>, e uma de 80%% em cerca de ±0,8; "
+"duas mil partidas, em cerca de ±2,2 e ±1,8. Além de dez mil, você compra "
+"casas decimais que não mudam nenhuma decisão, e é por isso que este "
+"aplicativo mede <strong>turnos simulados</strong> em vez de vender números "
+"de iterações."
+
+#: templates/core/methodology.html
+msgid ""
+"The ± beside a share in a report is that interval for the games the run "
+"played: 1.96 × √(p × (1 − p) / games). Two runs whose shares are further "
+"apart than their ± together differ for a reason, not by chance."
+msgstr ""
+"O ± ao lado de uma proporção no relatório é esse intervalo para as partidas "
+"que a simulação jogou: 1,96 × √(p × (1 − p) / partidas). Duas simulações "
+"cujas proporções estão mais distantes do que a soma de seus ± diferem por um"
+" motivo, não por acaso."
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Four lands on turn 4</strong>, at the top of every report and on the"
+" precon pages, is the share of games with at least four lands on the "
+"battlefield at the end of turn 4: every land drop made, the commonest way a "
+"Commander deck stumbles early. A run of fewer than four turns does not have "
+"it."
+msgstr ""
+"<strong>Quatro terrenos no turno 4</strong>, no topo de cada relatório e nas"
+" páginas dos precons, é a proporção de partidas com pelo menos quatro "
+"terrenos no campo de batalha ao fim do turno 4: todo terreno baixado, o "
+"tropeço inicial mais comum de um deck de Commander. Uma simulação de menos "
+"de quatro turnos não tem esse número."
+
+#: templates/simulations/_advanced.html
+#, python-format
+msgid ""
+"Engine v%(version)s, seed %(seed)s. How exact a share is depends on the "
+"number of games."
+msgstr ""
+"Motor v%(version)s, semente %(seed)s. O quanto uma proporção é exata depende"
+" do número de partidas."
+
+#: changelog/entries.py
+msgid "Every report names a bracket, and every share how exact it is"
+msgstr "Cada relatório indica um bracket, e cada proporção o quanto é exata"
+
+#: changelog/entries.py
+msgid ""
+"The land count on the deck page counts a double-faced card by its front, as "
+"the list of what is in the deck does, and names the cards with a land on the"
+" back beside it. The bracket tile is now the lowest bracket the Game "
+"Changers allow, commander included. Every report has its bracket section, "
+"also without looked-up combos: it says why the speed is missing, adds the "
+"Game Changers, and gives the two together. A report now starts with the "
+"precon pages' numbers - four lands on turn 4, the opening hands kept, the "
+"mana on turn 4 - and each share says how far it can be off for the number of"
+" games played."
+msgstr ""
+"A contagem de terrenos na página do deck conta uma carta de duas faces pela "
+"frente, como a lista do que há no deck, e nomeia ao lado as cartas com um "
+"terreno no verso. O quadro de Bracket agora mostra o bracket mais baixo que "
+"os Game Changers permitem, comandante incluído. Cada relatório tem sua seção"
+" de brackets, também sem combos buscados: diz por que falta a velocidade, "
+"acrescenta os Game Changers e dá os dois juntos. Um relatório agora começa "
+"com os números das páginas dos precons - quatro terrenos no turno 4, as mãos"
+" iniciais mantidas, a mana no turno 4 - e cada proporção diz o quanto pode "
+"errar para o número de partidas jogadas."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"“±” is how far the share of %(shown)s game can be from the true one, at 95%%"
+" confidence."
+msgid_plural ""
+"“±” is how far the share of %(shown)s games can be from the true one, at "
+"95%% confidence."
+msgstr[0] ""
+"“±” é o quanto a proporção de %(shown)s partida pode se afastar da "
+"verdadeira, com 95%% de confiança."
+msgstr[1] ""
+"“±” é o quanto a proporção de %(shown)s partidas pode se afastar da "
+"verdadeira, com 95%% de confiança."

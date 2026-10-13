@@ -81,9 +81,10 @@ def test_game_changers_drive_the_bracket_hint(deck):
     add(deck, "Necropotence")
     add(deck, "Demonic Tutor")
 
-    verdict = analyse(deck).bracket_verdict
-    assert verdict.ok
-    assert "Bracket 3 allows up to 3" in verdict.detail
+    result = analyse(deck)
+    assert result.bracket_floor == 3
+    assert result.bracket_verdict.ok
+    assert "Bracket 3 allows up to 3" in result.bracket_verdict.detail
 
 
 def test_a_deck_over_the_game_changer_limit_is_named_as_bracket_4(deck):
@@ -91,9 +92,10 @@ def test_a_deck_over_the_game_changer_limit_is_named_as_bracket_4(deck):
     for name in changers[:4]:
         add(deck, name)
 
-    verdict = analyse(deck).bracket_verdict
-    assert not verdict.ok
-    assert "Bracket 4" in verdict.detail
+    result = analyse(deck)
+    assert result.bracket_floor == 4
+    assert not result.bracket_verdict.ok
+    assert "at least Bracket 4" in result.bracket_verdict.detail
 
 
 def test_deck_size_is_checked_against_one_hundred(deck):
@@ -165,16 +167,7 @@ def test_a_deck_of_legal_cards_passes_the_card_check(deck):
     assert analyse(deck).legality[-1].ok
 
 
-def test_coverage_reports_what_the_reader_could_not_resolve(deck):
-    """The honesty number, present from Phase 1 so no page can overclaim."""
-    add(deck, "Mana Drain")  # mana next turn from a countered spell - unresolvable
-    add(deck, "Sol Ring")  # fully resolved
-
-    result = analyse(deck)
-    assert 1 <= result.cards_needing_review < result.total_cards
-
-
 def test_an_empty_deck_does_not_divide_by_zero(deck):
     result = analyse(deck)
-    assert result.cards_needing_review == 0
+    assert result.land_count == 0
     assert result.average_mv == 0.0

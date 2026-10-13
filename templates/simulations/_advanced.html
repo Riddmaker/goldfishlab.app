@@ -48,8 +48,8 @@
   {% endif %}
   <p class="mt-6 text-xs text-parchment-200">
     {% blocktranslate trimmed with version=run.engine_version seed=run.seed %}
-      Engine v{{ version }}, seed {{ seed }}. Differences below about
-      one percentage point are noise.
+      Engine v{{ version }}, seed {{ seed }}. How exact a share is depends
+      on the number of games.
     {% endblocktranslate %}
     {% include "core/_why.html" with anchor="games" dark=True %}
   </p>

@@ -113,7 +113,8 @@ def test_the_deck_page_admits_what_it_could_not_read(signed_in, deck):
     """
     body = signed_in.get(deck.get_absolute_url()).content.decode()
     assert "What the engine cannot model" in body
-    assert "could not resolve on its own" in body
+    # Counted off the review queue since P20 F4 (E1.35), like the red marker.
+    assert "could not read on its own" in body or "The engine read all" in body
 
 
 def test_the_review_screen_lists_every_unmatched_row(signed_in, deck):

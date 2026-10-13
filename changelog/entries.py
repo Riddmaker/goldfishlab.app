@@ -42,6 +42,19 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 13), "report-numbers",
+        _("Every report names a bracket, and every share how exact it is"),
+        _("The land count on the deck page counts a double-faced card by its front, as the list "
+          "of what is in the deck does, and names the cards with a land on the back beside it. "
+          "The bracket tile is now the lowest bracket the Game Changers allow, commander "
+          "included. Every report has its bracket section, also without looked-up combos: it "
+          "says why the speed is missing, adds the Game Changers, and gives the two together. "
+          "A report now starts with the precon pages' numbers - four lands on turn 4, the "
+          "opening hands kept, the mana on turn 4 - and each share says how far it can be off "
+          "for the number of games played."),
+        "methodology", "games",
+    ),
+    Entry(
         date(2026, 10, 13), "account-honest",
         _("Your account keeps its language, and every limit is on the page"),
         _("An account now keeps the language it was made in, also when it was saved from a "

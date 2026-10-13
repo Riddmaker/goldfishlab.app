@@ -23,7 +23,8 @@ from math import comb, sqrt
 from django.utils.translation import gettext, gettext_noop, ngettext
 
 from core.l10n import number
-from simulations import charts
+from decks import analysis as deck_analysis
+from simulations import charts, numbers
 from simulations.engine import runner
 
 #: Cards in an opening hand, before any mulligan.
@@ -431,7 +432,7 @@ class BracketRow:
         return self.turns - 1
 
 
-def bracket_tempo(result: dict, timed_combos: bool) -> dict | None:
+def bracket_tempo(result: dict, timed_combos: bool) -> dict:
     """How fast a game-ending combo comes together, against the brackets (P8).
 
     A combo that is together at the end of turn N is read as ending the game on
@@ -444,12 +445,14 @@ def bracket_tempo(result: dict, timed_combos: bool) -> dict | None:
             no ``wins`` block but with timed combos is from before P8 and gets
             "run it again"; one with neither timed nothing.
 
-    Returns None for a result with nothing to say and nothing to ask, which is
-    a run that timed no combo: the section is then left off the page.
+    A run that timed no combo gets ``no_combos`` instead of rows (P20 F4,
+    E1.29): the section used to fall off the page, and whoever did not know
+    "Find combos" never got a bracket at all. `brackets` says why there are
+    none and adds the Game Changers' half.
     """
     wins = result.get("wins")
     if wins is None:
-        return {"rerun": True} if timed_combos else None
+        return {"rerun": True} if timed_combos else {"rerun": False, "no_combos": True}
     games, by_turn, turns = wins["games"], wins["by_turn"], result["turns"]
 
     rows = []
@@ -471,6 +474,7 @@ def bracket_tempo(result: dict, timed_combos: bool) -> dict | None:
     ]
     return {
         "rerun": False,
+        "no_combos": False,
         "rows": rows,
         "verdict": verdict,
         "cedh": CEDH if cedh else None,
@@ -479,6 +483,52 @@ def bracket_tempo(result: dict, timed_combos: bool) -> dict | None:
         "typical": _typical_win_sentence(by_turn, games, turns),
         "source": BRACKETS_SOURCE,
     }
+
+
+#: Why a run timed no combo, as `brackets` tells it apart: nobody looked the
+#: deck's combos up, none of them ends a game, or some do and the run did not
+#: time them (looked up after it).
+NOT_LOOKED_UP = "not_looked_up"
+NONE_KNOWN = "none_known"
+RUN_AGAIN = "run_again"
+
+
+def brackets(run, result: dict, timed_combos: bool) -> dict:
+    """The bracket section: speed, the Game Changers, and the two together.
+
+    P20 F4 (E1.29, E1.30): the deck page's tile said "Bracket 3" by the Game
+    Changers while the report said "Bracket 1" by speed, and neither said the
+    other existed. Both are floors - a deck is in a bracket only if it fits
+    every rule - so together the higher one counts. The Game Changers are read
+    off the deck as it is now, like the deck page's tile.
+    """
+    tempo = bracket_tempo(result, timed_combos)
+    changers = deck_analysis.game_changers(run.deck)
+    floor = deck_analysis.bracket_floor(len(changers))
+    by_speed = None
+    if tempo.get("no_combos"):
+        tempo["combos"] = _combo_state(run)
+        # No combo that ends the game: speed holds the deck to no bracket.
+        by_speed = 1 if tempo["combos"] == NONE_KNOWN else None
+    elif tempo.get("verdict"):
+        by_speed = tempo["verdict"].number
+    elif tempo.get("cedh"):
+        by_speed = CEDH[0]
+    tempo.update(game_changers=len(changers), floor=floor,
+                 together=max(floor, by_speed) if by_speed is not None else None,
+                 source=BRACKETS_SOURCE)
+    return tempo
+
+
+def _combo_state(run) -> str:
+    """Why `run` timed no combo (see `NOT_LOOKED_UP`)."""
+    lookup = getattr(run.deck, "combo_lookup", None)
+    if lookup is None or not lookup.ok or lookup.fetched_at is None:
+        return NOT_LOOKED_UP
+    included = lookup.entries.filter(kind=lookup.entries.model.Kind.INCLUDED)
+    if any(entry.combo.ends_the_game for entry in included.select_related("combo")):
+        return RUN_AGAIN
+    return NONE_KNOWN
 
 
 def _typical_win_sentence(by_turn, games: int, turns: int) -> str:
@@ -769,8 +819,9 @@ def build(run) -> dict:
         "milestones_hidden": max(0, len(milestone_rows) - MAX_LINES),
         "seen": seen(result),
         "combos": measured,
-        "brackets": bracket_tempo(
-            result, timed_combos=any(not row.hypothetical for row in measured)),
+        "brackets": brackets(
+            run, result, timed_combos=any(not row.hypothetical for row in measured)),
+        "glance": numbers.sentences(numbers.of(run)),
         "percentiles": PERCENTILES,
     }
 

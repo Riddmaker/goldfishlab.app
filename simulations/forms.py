@@ -33,8 +33,9 @@ from simulations.annotations import (
 )
 from simulations.engine.adapter import DECK_SCOPE, USER_SCOPE
 
-#: Offered sizes. Ten thousand games already gives roughly +/-0.5 percentage
-#: points at 95% confidence, which is why the interface meters turns rather
+#: Offered sizes. Ten thousand games already pin a share to about +/-1.0
+#: percentage points at 95% confidence (`simulations.numbers.margin`), which is
+#: why the interface meters turns rather
 #: than iterations - selling a bigger number would sell precision the answer
 #: does not gain.
 GAME_SIZES = (1_000, 10_000, 50_000)

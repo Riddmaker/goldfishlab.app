@@ -24,7 +24,9 @@ KARSTEN_MIN = 35
 KARSTEN_MAX = 38
 KARSTEN_SOURCE = gettext_noop("Frank Karsten's mana-base guidance for Commander")
 
-#: Bracket 3 ("upgraded") allows at most three cards from the Game Changer list.
+#: Bracket 3 ("upgraded") allows at most three cards from the Game Changer list;
+#: Brackets 1 and 2 expect none, 4 and 5 have no limit (Wizards' bracket rules,
+#: checked again for P20 F4).
 BRACKET_3_GAME_CHANGERS = 3
 
 #: The curve histogram stops here and buckets the rest, so one Eldrazi cannot
@@ -56,15 +58,15 @@ class DeckAnalysis:
     curve: dict[int, int] = field(default_factory=dict)
     color_identity: list[str] = field(default_factory=list)
     game_changers: list[str] = field(default_factory=list)
+    #: Cards counted as spells that have a land on their back (P20 F4, E1.5):
+    #: the tile says how many, so the land count reads right either way.
+    land_backs: int = 0
+    #: The lowest bracket the Game Changers allow (P20 F4, E1.30).
+    bracket_floor: int = 1
 
     lands_verdict: Verdict | None = None
     bracket_verdict: Verdict | None = None
     legality: list[Verdict] = field(default_factory=list)
-
-    # How much of the deck the app could actually read. Phase 4 turns this into
-    # the coverage panel; it is recorded from the start so no page can imply
-    # full understanding it does not have.
-    cards_needing_review: int = 0
 
     @property
     def is_legal(self) -> bool:
@@ -74,7 +76,7 @@ class DeckAnalysis:
 def analyse(deck) -> DeckAnalysis:
     """Describe a deck from its entries. One query, no simulation."""
     entries = list(
-        deck.entries.select_related("oracle_card", "oracle_card__profile").all()
+        deck.entries.select_related("oracle_card").all()
     )
 
     analysis = DeckAnalysis()
@@ -85,7 +87,6 @@ def analyse(deck) -> DeckAnalysis:
     for entry in entries:
         card = entry.oracle_card
         quantity = entry.quantity
-        profile = getattr(card, "profile", None)
 
         analysis.total_cards += quantity
         colors.update(card.color_identity)
@@ -94,6 +95,8 @@ def analyse(deck) -> DeckAnalysis:
             analysis.land_count += quantity
         else:
             analysis.nonland_count += quantity
+            if card.has_land_back:
+                analysis.land_backs += quantity
             bucket = min(int(card.cmc), CURVE_CEILING)
             curve[bucket] += quantity
             mv_total += int(card.cmc) * quantity
@@ -101,11 +104,11 @@ def analyse(deck) -> DeckAnalysis:
         if card.game_changer:
             analysis.game_changers.append(card.name)
 
-        if profile is not None and profile.needs_review:
-            analysis.cards_needing_review += quantity
-
     for commander in deck.commanders:
         colors.update(commander.color_identity)
+        # A commander off the list counts like any card of the 99 (P20 F4).
+        if commander.game_changer:
+            analysis.game_changers.append(commander.name)
 
     analysis.curve = {bucket: curve.get(bucket, 0) for bucket in range(CURVE_CEILING + 1)}
     analysis.average_mv = (
@@ -114,6 +117,7 @@ def analyse(deck) -> DeckAnalysis:
     analysis.color_identity = sorted(colors)
 
     analysis.lands_verdict = _judge_lands(analysis.land_count)
+    analysis.bracket_floor = bracket_floor(len(analysis.game_changers))
     analysis.bracket_verdict = _judge_bracket(analysis.game_changers)
     analysis.legality = _check_legality(deck, entries, analysis)
     return analysis
@@ -135,19 +139,48 @@ def _judge_lands(count: int) -> Verdict:
     )
 
 
+def bracket_floor(game_changers: int) -> int:
+    """The lowest bracket a deck with this many Game Changers can be in.
+
+    A floor, never a rating (P20 F4, E1.30): Brackets 1 and 2 expect no Game
+    Changers, so one is enough for 3, and Bracket 3 allows three. A deck with
+    none is not held to 1 or 2 by them; speed, tutors and extra turns decide
+    as well, which is the report's half.
+    """
+    if not game_changers:
+        return 1
+    return 3 if game_changers <= BRACKET_3_GAME_CHANGERS else 4
+
+
 def _judge_bracket(game_changers: list[str]) -> Verdict:
     count = len(game_changers)
-    found = ngettext("%(count)s Game Changer", "%(count)s Game Changers", count) % {
-        "count": count}
-    if count <= BRACKET_3_GAME_CHANGERS:
-        return Verdict(True, found, gettext("Bracket 3 allows up to %(limit)s.") % {
-            "limit": BRACKET_3_GAME_CHANGERS})
-    return Verdict(
-        False,
-        found,
-        gettext("Bracket 3 allows %(limit)s. This deck reads as Bracket 4: %(cards)s") % {
-            "limit": BRACKET_3_GAME_CHANGERS, "cards": ", ".join(sorted(game_changers))},
-    )
+    floor = bracket_floor(count)
+    cards = ", ".join(sorted(game_changers))
+    if floor == 1:
+        return Verdict(True, gettext("possible: no Game Changers"), gettext(
+            "No Game Changers, so none of them keeps this deck out of Bracket 1 or 2. Speed, "
+            "tutors and extra turns decide as well; the report checks the speed."))
+    found = ngettext("at least, by %(count)s Game Changer",
+                     "at least, by %(count)s Game Changers", count) % {"count": count}
+    if floor == 3:
+        return Verdict(True, found, gettext(
+            "Brackets 1 and 2 expect no Game Changers and Bracket 3 allows up to %(limit)s, "
+            "so this deck is at least Bracket 3: %(cards)s.") % {
+                "limit": BRACKET_3_GAME_CHANGERS, "cards": cards})
+    return Verdict(False, found, gettext(
+        "Bracket 3 allows up to %(limit)s Game Changers, so this deck is at least "
+        "Bracket 4: %(cards)s.") % {"limit": BRACKET_3_GAME_CHANGERS, "cards": cards})
+
+
+def game_changers(deck) -> list[str]:
+    """The Game Changers of a deck, commanders included, by name.
+
+    For the report's bracket section (P20 F4), which needs the floor without
+    the rest of `analyse`.
+    """
+    names = list(deck.entries.filter(oracle_card__game_changer=True)
+                 .values_list("oracle_card__name", flat=True))
+    return names + [card.name for card in deck.commanders if card.game_changer]
 
 
 def _check_legality(deck, entries, analysis: DeckAnalysis) -> list[Verdict]:
@@ -301,4 +334,6 @@ __all__ = [
     "KARSTEN_MIN",
     "Verdict",
     "analyse",
+    "bracket_floor",
+    "game_changers",
 ]

@@ -92,11 +92,15 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
 
     def grid_context(self, deck, readings) -> dict:
         printings = {entry.oracle_card_id: entry.printings_shown for entry in deck.entries.all()}
-        grid = deck_cards.cards(readings, review.queue(deck, readings), printings)
+        questions = review.queue(deck, readings)
+        grid = deck_cards.cards(readings, questions, printings)
         filters = deck_cards.Filters.from_request(self.request.GET)
         type_bars, category_bars = deck_cards.bars(grid)
         return {
             "deck": deck,
+            # The cards the engine could not read on its own: the same queue the
+            # red marker counts the open ones of (P20 F4, E1.35).
+            "unread_cards": len(questions),
             "grid": deck_cards.shown(grid, filters),
             "grid_total": len(grid),
             "filters": filters,

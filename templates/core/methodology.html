@@ -299,9 +299,9 @@
         {% blocktranslate trimmed %}
           When a card's reading is changed after a run, that run is not recalculated —
           its numbers are a record of what the engine actually saw — so the report says
-          so, and running the deck again shows the difference. Magic has enormous
-          variance: differences below about one percentage point are noise, whatever
-          the number of games.
+          so, and running the deck again shows the difference. How exact a number is
+          depends on the number of games: the report gives its main shares with a ±,
+          explained under “How many games is enough”.
         {% endblocktranslate %}
       </p>
     </div>
@@ -406,10 +406,27 @@
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
         {% blocktranslate trimmed %}
-          Ten thousand games gives roughly <strong>±0.5 percentage points at 95%
-          confidence</strong>. Past that you are buying decimal places that do not
-          change a decision, which is why this application meters
+          Ten thousand games pin a share of 50% to about <strong>±1.0 percentage
+          points at 95% confidence</strong>, and one of 80% to about ±0.8; two thousand
+          games to about ±2.2 and ±1.8. Past ten thousand you are buying decimal places
+          that do not change a decision, which is why this application meters
           <strong>turns simulated</strong> rather than selling you iteration counts.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          The ± beside a share in a report is that interval for the games the run
+          played: 1.96 × √(p × (1 − p) / games). Two runs whose shares are further
+          apart than their ± together differ for a reason, not by chance.
+        {% endblocktranslate %}
+      </p>
+      <p id="on-curve" class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          <strong>Four lands on turn 4</strong>, at the top of every report and on
+          the precon pages, is the share of games with at least four lands on the
+          battlefield at the end of turn 4: every land drop made, the commonest way a
+          Commander deck stumbles early. A run of fewer than four turns does not have
+          it.
         {% endblocktranslate %}
       </p>
       <p class="mt-4 text-sm text-ink-700">

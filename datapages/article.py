@@ -19,10 +19,10 @@ from django.core.cache import cache
 from django.utils.translation import gettext
 
 from core.l10n import number, percent
-from datapages import numbers, sweep
+from datapages import sweep
 from datapages.models import LandSweep
 from datapages.views import CACHE_SECONDS, rows
-from simulations import charts
+from simulations import charts, numbers
 from simulations.models import SimulationRun
 
 KEY = "datapages:article"

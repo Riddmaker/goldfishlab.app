@@ -134,6 +134,16 @@
       {% else %}
         <p class="text-sm text-blood-700">! {% translate "outside band" %}</p>
       {% endif %}
+      {% if analysis.land_backs %}
+        {# P20 F4 (E1.5): counted by the front face, as the list below counts. #}
+        <p class="text-sm text-ink-700" data-land-backs>
+          {% blocktranslate trimmed count count=analysis.land_backs %}
+            + {{ count }} double-faced card with a land on the back
+          {% plural %}
+            + {{ count }} double-faced cards with a land on the back
+          {% endblocktranslate %}
+        </p>
+      {% endif %}
     </div>
     <div class="surface-parchment p-4">
       <p class="text-sm text-ink-700">{% translate "Average mana value" %}</p>
@@ -142,13 +152,9 @@
     </div>
     <div class="surface-parchment p-4">
       <p class="text-sm text-ink-700">{% translate "Bracket" %}</p>
-      {% if analysis.bracket_verdict.ok %}
-        <p class="tabular font-display text-3xl text-ink-900">3</p>
-        <p class="text-sm text-verdigris-800">✓ {{ analysis.bracket_verdict.message }}</p>
-      {% else %}
-        <p class="tabular font-display text-3xl text-ink-900">4</p>
-        <p class="text-sm text-blood-700">! {{ analysis.bracket_verdict.message }}</p>
-      {% endif %}
+      {# A floor by the Game Changers, never a rating (P20 F4, E1.30). #}
+      <p class="tabular font-display text-3xl text-ink-900" data-bracket-floor>{% if analysis.bracket_floor == 1 %}1–2{% else %}{{ analysis.bracket_floor }}+{% endif %}</p>
+      <p class="text-sm text-ink-700">{{ analysis.bracket_verdict.message }}</p>
     </div>
     <div class="surface-parchment p-4">
       <p class="text-sm text-ink-700">{% translate "Commander legality" %}</p>
@@ -281,19 +287,40 @@
       {% endfor %}
     </ul>
   </details>
-  <details class="mt-6">
+  <details id="combos" class="mt-6">
     <summary class="cursor-pointer font-display text-xl text-parchment-100">{% translate "Combos" %}</summary>
     {% include "combos/_panel.html" %}
   </details>
   <details class="mt-6 border-l-2 border-parchment-600 pl-5">
     <summary class="cursor-pointer font-display text-xl text-parchment-100">{% translate "What the engine cannot model" %}</summary>
-    <p class="mt-3 text-parchment-200">
-      {% blocktranslate trimmed with some=analysis.cards_needing_review count count=analysis.total_cards %}
-        {{ some }} of {{ count }} card has something the card reader could not resolve on its own.
-      {% plural %}
-        {{ some }} of {{ count }} cards have something the card reader could not resolve on its own.
-      {% endblocktranslate %}
-      {% if deck.open_questions %}{% translate "The red marker at the top takes you through them." %}{% endif %}
+    {% comment %}
+      One source with the red marker (P20 F4, E1.35): the review queue. The
+      sentence once counted the card reader's own flag, and said "0 of 99"
+      beside "1 card needs you".
+    {% endcomment %}
+    <p class="mt-3 text-parchment-200" data-unread>
+      {% if unread_cards %}
+        {% blocktranslate trimmed with total=analysis.total_cards count count=unread_cards %}
+          {{ count }} of {{ total }} cards has something the engine could not read on its own.
+        {% plural %}
+          {{ count }} of {{ total }} cards have something the engine could not read on its own.
+        {% endblocktranslate %}
+        {% if deck.open_questions %}
+          {% blocktranslate trimmed count count=deck.open_questions %}
+            {{ count }} of them still needs you; the red marker at the top takes you there.
+          {% plural %}
+            {{ count }} of them still need you; the red marker at the top takes you through them.
+          {% endblocktranslate %}
+        {% else %}
+          {% translate "You have looked at each of them." %}
+        {% endif %}
+      {% else %}
+        {% blocktranslate trimmed count count=analysis.total_cards %}
+          The engine read the {{ count }} card on its own.
+        {% plural %}
+          The engine read all {{ count }} cards on its own.
+        {% endblocktranslate %}
+      {% endif %}
     </p>
     {% include "simulations/_blindspots.html" %}
     {% if last_import %}

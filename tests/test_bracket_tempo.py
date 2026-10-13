@@ -257,8 +257,10 @@ def test_an_old_run_asks_to_be_run_again():
     assert report.bracket_tempo({"turns": 9}, timed_combos=True) == {"rerun": True}
 
 
-def test_a_run_that_timed_no_combo_has_no_section():
-    assert report.bracket_tempo({"turns": 9}, timed_combos=False) is None
+def test_a_run_that_timed_no_combo_says_so():
+    """P20 F4 (E1.29): the section stays, and says why there is no tempo."""
+    assert report.bracket_tempo({"turns": 9}, timed_combos=False) == {
+        "rerun": False, "no_combos": True}
 
 
 # --- the page --------------------------------------------------------------

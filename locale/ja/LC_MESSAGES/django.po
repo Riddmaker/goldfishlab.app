@@ -10700,3 +10700,202 @@ msgid ""
 "showing an error code."
 msgstr ""
 "アカウントは作成時の言語を覚えるようになりました。お試しデッキから保存した場合も同様で、メールはその言語で届きます。請求ポータルでの解約は、プランが終わる日を表示するようになりました。料金ページはすべての上限（毎月インポートできるデッキリストの数、アカウントなしで試せる内容）を示し、アカウントページはインポートも数えます。シミュレーションで新しいデッキ要約も作成されるときは、それがシミュレーション1回分になることをデッキページに表示し、余裕がなかったときはレポートに表示します。インポート中にデッキの上限に達したときは、エラーコードではなく説明を表示します。"
+
+#: decks/analysis.py
+msgid "possible: no Game Changers"
+msgstr "可能：ゲームチェンジャーなし"
+
+#: decks/analysis.py
+msgid ""
+"No Game Changers, so none of them keeps this deck out of Bracket 1 or 2. "
+"Speed, tutors and extra turns decide as well; the report checks the speed."
+msgstr ""
+"ゲームチェンジャーがないので、このデッキがブラケット1や2から外れる理由にはなりません。速さ、サーチ、追加ターンも判断材料で、速さはレポートが確かめます。"
+
+#: decks/analysis.py
+#, python-format
+msgid "at least, by %(count)s Game Changer"
+msgid_plural "at least, by %(count)s Game Changers"
+msgstr[0] "最低ライン：ゲームチェンジャー%(count)s枚"
+
+#: decks/analysis.py
+#, python-format
+msgid ""
+"Brackets 1 and 2 expect no Game Changers and Bracket 3 allows up to "
+"%(limit)s, so this deck is at least Bracket 3: %(cards)s."
+msgstr ""
+"ブラケット1と2はゲームチェンジャーなし、ブラケット3は%(limit)s枚までなので、このデッキは最低でもブラケット3です：%(cards)s。"
+
+#: decks/analysis.py
+#, python-format
+msgid ""
+"Bracket 3 allows up to %(limit)s Game Changers, so this deck is at least "
+"Bracket 4: %(cards)s."
+msgstr "ブラケット3で認められるゲームチェンジャーは%(limit)s枚までなので、このデッキは最低でもブラケット4です：%(cards)s。"
+
+#: simulations/numbers.py
+#, python-format
+msgid ""
+"In %(share)s of games (± %(margin)s points) it has four lands in play on "
+"turn 4."
+msgstr "%(share)sのゲーム（±%(margin)sポイント）で、4ターン目に土地が4枚場に出ています。"
+
+#: simulations/numbers.py
+#, python-format
+msgid ""
+"It keeps its first seven cards in %(share)s of games (± %(margin)s points)."
+msgstr "%(share)sのゲーム（±%(margin)sポイント）で、最初の7枚をキープします。"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "+ %(count)s double-faced card with a land on the back"
+msgid_plural "+ %(count)s double-faced cards with a land on the back"
+msgstr[0] "＋裏面が土地の両面カード%(count)s枚"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s of %(total)s cards has something the engine could not read on its "
+"own."
+msgid_plural ""
+"%(count)s of %(total)s cards have something the engine could not read on its"
+" own."
+msgstr[0] "%(total)s枚中%(count)s枚に、エンジンが自力で読み取れなかった部分があります。"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s of them still needs you; the red marker at the top takes you "
+"there."
+msgid_plural ""
+"%(count)s of them still need you; the red marker at the top takes you "
+"through them."
+msgstr[0] "そのうち%(count)s枚はまだあなたの確認が必要です。上の赤いマーカーから順に確認できます。"
+
+#: templates/decks/detail.html
+msgid "You have looked at each of them."
+msgstr "すべて確認済みです。"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "The engine read the %(count)s card on its own."
+msgid_plural "The engine read all %(count)s cards on its own."
+msgstr[0] "エンジンは%(count)s枚すべてを自力で読み取りました。"
+
+#: templates/simulations/_brackets.html
+msgid ""
+"Commander Spellbook knows no combo in this deck that ends the game on its "
+"own, so by speed nothing keeps it out of Bracket 1."
+msgstr ""
+"Commander "
+"Spellbookは、このデッキに単独でゲームを終わらせるコンボを見つけていません。速さの点では、ブラケット1から外れる理由はありません。"
+
+#: templates/simulations/_brackets.html
+msgid ""
+"The deck has combos that end the game, and this run did not time them. Run "
+"the deck again to see how fast they come together."
+msgstr ""
+"このデッキにはゲームを終わらせるコンボがありますが、このシミュレーションでは計測していません。もう一度シミュレーションすると、どれだけ早く揃うかがわかります。"
+
+#: templates/simulations/_brackets.html
+msgid ""
+"Without its combos looked up, this run measures no game-ending combo, so it "
+"cannot say how fast the deck ends a game."
+msgstr ""
+"コンボを検索していないため、このシミュレーションはゲームを終わらせるコンボを計測していません。デッキがどれだけ早くゲームを終わらせるかはわかりません。"
+
+#: templates/simulations/_brackets.html
+msgid "Find the deck's combos"
+msgstr "デッキのコンボを探す"
+
+#: templates/simulations/_brackets.html
+msgid "By Game Changers: none, so Bracket 1 or 2 is possible."
+msgstr "ゲームチェンジャー：なし。ブラケット1または2の可能性があります。"
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid ""
+"By Game Changers: at least Bracket %(floor)s, with %(count)s Game Changer."
+msgid_plural ""
+"By Game Changers: at least Bracket %(floor)s, with %(count)s Game Changers."
+msgstr[0] "ゲームチェンジャー：%(count)s枚で、最低でもブラケット%(floor)s。"
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid "Together: at least Bracket %(number)s - the higher of the two counts."
+msgstr "総合：最低でもブラケット%(number)s。2つのうち高い方が優先されます。"
+
+#: templates/core/methodology.html
+msgid ""
+"When a card's reading is changed after a run, that run is not recalculated —"
+" its numbers are a record of what the engine actually saw — so the report "
+"says so, and running the deck again shows the difference. How exact a number"
+" is depends on the number of games: the report gives its main shares with a "
+"±, explained under “How many games is enough”."
+msgstr ""
+"シミュレーション後にカードの読み取りを変えても、そのシミュレーションは再計算されません。数値はエンジンが実際に見たものの記録だからです。レポートはその旨を表示し、もう一度シミュレーションすると違いがわかります。数値の精度はゲーム数によって決まります。レポートは主な割合に±を付けて示します。説明は「何ゲームあれば十分か」にあります。"
+
+#: templates/core/methodology.html
+msgid ""
+"Ten thousand games pin a share of 50%% to about <strong>±1.0 percentage "
+"points at 95%% confidence</strong>, and one of 80%% to about ±0.8; two "
+"thousand games to about ±2.2 and ±1.8. Past ten thousand you are buying "
+"decimal places that do not change a decision, which is why this application "
+"meters <strong>turns simulated</strong> rather than selling you iteration "
+"counts."
+msgstr ""
+"1万ゲームあれば、50%%の割合は<strong>信頼度95%%で約±1.0ポイント</strong>、80%%の割合は約±0.8に収まります。2千ゲームではそれぞれ約±2.2と±1.8です。1万を超えても、判断を変えない小数点以下を買うだけです。だからこのアプリは反復回数ではなく<strong>シミュレーションしたターン数</strong>で計量します。"
+
+#: templates/core/methodology.html
+msgid ""
+"The ± beside a share in a report is that interval for the games the run "
+"played: 1.96 × √(p × (1 − p) / games). Two runs whose shares are further "
+"apart than their ± together differ for a reason, not by chance."
+msgstr ""
+"レポートの割合の横にある±は、そのシミュレーションのゲーム数に対するこの区間です：1.96 × √(p × (1 − p) / "
+"ゲーム数)。2つのシミュレーションの割合の差が両者の±の合計より大きければ、その差は偶然ではなく理由があります。"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Four lands on turn 4</strong>, at the top of every report and on the"
+" precon pages, is the share of games with at least four lands on the "
+"battlefield at the end of turn 4: every land drop made, the commonest way a "
+"Commander deck stumbles early. A run of fewer than four turns does not have "
+"it."
+msgstr ""
+"<strong>4ターン目に土地4枚</strong>は、各レポートの冒頭と構築済みデッキのページに載っている数値で、4ターン目の終わりに戦場に土地が4枚以上あるゲームの割合です。毎ターン土地を置けたということで、統率者デッキが序盤につまずく最も多い原因です。4ターン未満のシミュレーションにはこの数値はありません。"
+
+#: templates/simulations/_advanced.html
+#, python-format
+msgid ""
+"Engine v%(version)s, seed %(seed)s. How exact a share is depends on the "
+"number of games."
+msgstr "エンジン v%(version)s、シード %(seed)s。割合の精度はゲーム数によって決まります。"
+
+#: changelog/entries.py
+msgid "Every report names a bracket, and every share how exact it is"
+msgstr "すべてのレポートがブラケットを示し、すべての割合が精度を示します"
+
+#: changelog/entries.py
+msgid ""
+"The land count on the deck page counts a double-faced card by its front, as "
+"the list of what is in the deck does, and names the cards with a land on the"
+" back beside it. The bracket tile is now the lowest bracket the Game "
+"Changers allow, commander included. Every report has its bracket section, "
+"also without looked-up combos: it says why the speed is missing, adds the "
+"Game Changers, and gives the two together. A report now starts with the "
+"precon pages' numbers - four lands on turn 4, the opening hands kept, the "
+"mana on turn 4 - and each share says how far it can be off for the number of"
+" games played."
+msgstr ""
+"デッキページの土地の枚数は、デッキの中身の一覧と同じく両面カードを表面で数え、裏面が土地のカードを横に示します。ブラケットのタイルは、統率者を含めてゲームチェンジャーが認める最も低いブラケットを示すようになりました。すべてのレポートにブラケットの項目があり、コンボを検索していなくても表示されます。速さがない理由を説明し、ゲームチェンジャーを加え、両方を合わせて示します。レポートは構築済みデッキのページと同じ数値（4ターン目に土地4枚、キープした初手、4ターン目のマナ）から始まり、各割合はプレイしたゲーム数に対してどれだけずれうるかを示します。"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"“±” is how far the share of %(shown)s game can be from the true one, at 95%%"
+" confidence."
+msgid_plural ""
+"“±” is how far the share of %(shown)s games can be from the true one, at "
+"95%% confidence."
+msgstr[0] "「±」は、%(shown)sゲームから出した割合が真の値からどれだけずれうるかを、95%%の信頼度で示します。"

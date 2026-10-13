@@ -170,7 +170,19 @@ class OracleCard(models.Model):
 
     @property
     def is_land(self) -> bool:
-        return "Land" in self.type_line
+        """Whether the front face is a land (P20 F4, E1.5).
+
+        The front face only, as the engine and the deck page's "What is in it"
+        count: Fell the Profane // Fell Mire is a sorcery in the land count of
+        both, so reading the whole type line made the tile say 38 where the
+        list said 36. Westvale Abbey // Ormendahl stays a land.
+        """
+        return "Land" in front_face(self.type_line)
+
+    @property
+    def has_land_back(self) -> bool:
+        """A card that is not a land but has one on its back (Fell the Profane)."""
+        return not self.is_land and "Land" in self.type_line
 
     @property
     def is_commander_legal(self) -> bool:

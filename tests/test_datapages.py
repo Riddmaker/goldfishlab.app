@@ -31,14 +31,14 @@ from django.utils import translation
 
 from billing.models import UsageRecord
 from cards.models import OracleCard
-from datapages import mtgjson, numbers, services, sweep
+from datapages import mtgjson, services, sweep
 from datapages import tasks as datapage_tasks
 from datapages.models import LandSweep, Precon
 from metrics import report as metrics_report
 from metrics.models import DailyCount
 from sharing.models import SharedReport
+from simulations import numbers, tasks
 from simulations import services as run_services
-from simulations import tasks
 from simulations.models import SimulationRun
 from tests.test_i18n import FakeRedis
 
@@ -289,7 +289,7 @@ def test_a_precons_page_shows_its_report_and_sentences(client, precon):
     page = response.content.decode()
     assert response.status_code == 200
     assert "Syr Konrad, the Grim" in page
-    assert "of games it has four lands in play on turn 4" in page
+    assert "it has four lands in play on turn 4" in page
     assert "MTGJSON" in page
     assert 'name="robots"' not in page or "noindex" not in page
 

@@ -282,12 +282,13 @@ def test_the_preview_panel_reports_the_mapping_it_was_given(signed_in, catalogue
 
 
 def test_setting_the_commander_by_hand(signed_in, catalogue, owner):
-    outcome = services.import_deck(owner=owner, raw=b"1 Necropotence\n1 Sol Ring\n", name="Manual")
+    outcome = services.import_deck(owner=owner, raw=b"1 Chainer, Dementia Master\n1 Sol Ring\n",
+                                   name="Manual")
     deck = outcome.deck
     assert deck.commander is None
 
-    card = OracleCard.objects.get(front_name="Necropotence")
-    signed_in.post(reverse("decks:set-commander", args=[deck.id]), {"oracle_id": str(card.pk)})
+    card = OracleCard.objects.get(front_name="Chainer, Dementia Master")
+    signed_in.post(reverse("decks:set-commander", args=[deck.id]), {"commander": str(card.pk)})
 
     deck.refresh_from_db()
     assert deck.commander_id == card.pk
@@ -298,34 +299,85 @@ def test_setting_the_commander_by_hand(signed_in, catalogue, owner):
 def test_replacing_the_commander_puts_the_old_one_back_in_the_99(signed_in, catalogue, owner):
     """Which card leaves a deck is its owner's call, not a side effect."""
     deck = services.import_deck(
-        owner=owner, raw=b"1 Necropotence\n1 Sol Ring\n", name="Manual"
+        owner=owner, raw=b"1 Chainer, Dementia Master\n1 Kenrith, the Returned King\n",
+        name="Manual"
     ).deck
-    necro = OracleCard.objects.get(front_name="Necropotence")
-    ring = OracleCard.objects.get(front_name="Sol Ring")
+    chainer = OracleCard.objects.get(front_name="Chainer, Dementia Master")
+    kenrith = OracleCard.objects.get(front_name="Kenrith, the Returned King")
     url = reverse("decks:set-commander", args=[deck.id])
 
-    signed_in.post(url, {"oracle_id": str(necro.pk)})
-    signed_in.post(url, {"oracle_id": str(ring.pk)})
+    signed_in.post(url, {"commander": str(chainer.pk)})
+    signed_in.post(url, {"commander": str(kenrith.pk)})
 
     deck.refresh_from_db()
-    assert deck.commander_id == ring.pk
+    assert deck.commander_id == kenrith.pk
     assert list(deck.entries.values_list("oracle_card__front_name", flat=True)) == [
-        "Necropotence"
+        "Chainer, Dementia Master"
     ]
 
 
 def test_a_card_outside_the_deck_cannot_be_made_its_commander(signed_in, catalogue, owner):
     outcome = services.import_deck(owner=owner, raw=b"1 Sol Ring\n", name="Manual")
-    outsider = OracleCard.objects.exclude(
-        pk__in=DeckCard.objects.filter(deck=outcome.deck).values("oracle_card")
-    ).first()
+    outsider = OracleCard.objects.get(front_name="Kenrith, the Returned King")
 
     signed_in.post(
-        reverse("decks:set-commander", args=[outcome.deck.id]), {"oracle_id": str(outsider.pk)}
+        reverse("decks:set-commander", args=[outcome.deck.id]), {"commander": str(outsider.pk)}
     )
 
     outcome.deck.refresh_from_db()
     assert outcome.deck.commander is None
+
+
+CRADLE_RING_CHAINER = b"1 Gaea's Cradle\n1 Sol Ring\n1 Chainer, Dementia Master\n"
+
+
+@pytest.mark.parametrize("posted", ["Gaea's Cradle", "Sol Ring", "", "not-a-uuid"])
+def test_only_a_card_that_may_lead_is_saved_as_commander(signed_in, catalogue, owner, posted):
+    """Lauf 1 (E1.55): a land was saved - pre-selected for anybody who clicked Save."""
+    deck = services.import_deck(
+        owner=owner, raw=CRADLE_RING_CHAINER, name="Manual").deck
+    found = OracleCard.objects.filter(front_name=posted).first()
+    value = str(found.pk) if found else posted
+
+    response = signed_in.post(reverse("decks:set-commander", args=[deck.id]),
+                              {"commander": value}, follow=True)
+
+    deck.refresh_from_db()
+    assert deck.commander is None
+    assert response.status_code == 200
+    assert deck.entries.count() == 3
+
+
+def test_the_choice_offers_only_cards_that_may_lead_and_starts_on_nothing(
+        signed_in, catalogue, owner):
+    deck = services.import_deck(
+        owner=owner, raw=CRADLE_RING_CHAINER, name="Manual").deck
+
+    body = signed_in.get(deck.get_absolute_url()).content.decode()
+    choice = body[body.index('id="commander-select"'):body.index("</select>",
+                                                                body.index('id="commander-select"'))]
+    assert "Chainer, Dementia Master" in choice
+    assert "Gaea" not in choice and "Sol Ring" not in choice
+    assert '<option value="">' in choice
+    assert "selected" not in choice
+    assert "The file does not name a commander." in body
+
+
+def test_a_commander_once_set_can_be_changed(signed_in, catalogue, owner):
+    """E1.55: with a commander the choice used to vanish, and only a new import helped."""
+    deck = services.import_deck(
+        owner=owner,
+        raw=b"// Commander\n1 Chainer, Dementia Master\n// Deck\n1 Kenrith, the Returned King\n",
+        name="Manual").deck
+    assert deck.commander.front_name == "Chainer, Dementia Master"
+
+    body = signed_in.get(deck.get_absolute_url()).content.decode()
+    assert "Change the commander" in body
+    kenrith = OracleCard.objects.get(front_name="Kenrith, the Returned King")
+    signed_in.post(reverse("decks:set-commander", args=[deck.id]), {"commander": str(kenrith.pk)})
+
+    deck.refresh_from_db()
+    assert deck.commander_id == kenrith.pk
 
 
 # --- the paste tab ----------------------------------------------------------

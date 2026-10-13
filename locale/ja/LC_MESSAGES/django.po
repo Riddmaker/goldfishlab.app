@@ -10383,3 +10383,221 @@ msgid ""
 "asking. A link to a deck is answered with where that site keeps its export."
 msgstr ""
 "インポートは、Moxfield・Archidekt・ManaBox・TappedOut・Arenaのエクスポートをそのままの形で読み込むようになりました。セット、コレクター番号、フォイル、カテゴリ、そしてサイトが対応するすべての言語の見出しも読み取ります。版とフォイルは各カードの横に表示します。サイドボードとメイビーボードはデッキに入れず、何枚あったかをデッキページに表示します。最初のカード名にカンマがあるMoxfieldのリスト、見出し行のないArchidektのCSV、セミコロン区切りのExcelファイルも、確認なしで読み込みます。デッキへのリンクには、そのサイトのどこにエクスポートがあるかをお知らせします。"
+
+#: decks/models.py
+msgid "The file does not name a commander."
+msgstr "ファイルに統率者の指定がありません。"
+
+#: decks/models.py
+#, python-format
+msgid "The file names %(names)s as commander, but that card was not found."
+msgstr "ファイルは %(names)s を統率者としていますが、そのカードが見つかりませんでした。"
+
+#: decks/models.py
+#, python-format
+msgid ""
+"The file names %(names)s as commander, but that card cannot lead a Commander"
+" deck."
+msgstr "ファイルは %(names)s を統率者としていますが、そのカードは統率者になれません。"
+
+#: decks/models.py
+#, python-format
+msgid ""
+"The file names %(names)s as commanders, but they cannot share the command "
+"zone."
+msgstr "ファイルは %(names)s を統率者としていますが、この2枚は統率領域を共有できません。"
+
+#: decks/forms.py
+msgid "Choose a commander."
+msgstr "統率者を選んでください。"
+
+#: decks/forms.py
+msgid "That card cannot be this deck's commander."
+msgstr "そのカードはこのデッキの統率者になれません。"
+
+#: decks/forms.py
+msgid "That card cannot be a second commander here."
+msgstr "そのカードはここで2人目の統率者になれません。"
+
+#: decks/forms.py
+#, python-format
+msgid "%(first)s and %(second)s cannot share the command zone."
+msgstr "%(first)s と %(second)s は統率領域を共有できません。"
+
+#: decks/analysis.py
+#, python-format
+msgid "%(first)s and %(second)s cannot share the command zone"
+msgstr "%(first)s と %(second)s は統率領域を共有できません"
+
+#: decks/views.py
+#, python-format
+msgid "%(first)s and %(second)s are now the commanders."
+msgstr "%(first)s と %(second)s を統率者に設定しました。"
+
+#: decks/analysis.py
+#, python-format
+msgid "The commanders' identity is %(colours)s."
+msgstr "統率者たちの固有色は %(colours)s です。"
+
+#: decks/analysis.py
+msgid ""
+"A commander is a legendary creature, or a card that says it can be one; two "
+"share the command zone only as partners or with a Background."
+msgstr "統率者は伝説のクリーチャーか、統率者にできると書かれたカードです。2枚で統率領域を共有できるのは、共闘か背景の組み合わせだけです。"
+
+#: decks/analysis.py
+msgid "May be commanders"
+msgstr "統率者にできます"
+
+#: decks/analysis.py
+msgid "May be commander"
+msgstr "統率者にできます"
+
+#: decks/analysis.py
+#, python-format
+msgid "%(card)s cannot be a commander"
+msgstr "%(card)s は統率者になれません"
+
+#: templates/decks/_commander_form.html
+#, python-format
+msgid ""
+"The file lists <strong>%(names)s</strong> first - is that the commander?"
+msgstr "ファイルの先頭は <strong>%(names)s</strong> です。これが統率者ですか？"
+
+#: templates/decks/_commander_form.html
+msgid "Commander"
+msgstr "統率者"
+
+#: templates/decks/_commander_form.html
+msgid "Choose…"
+msgstr "選択してください…"
+
+#: templates/decks/_commander_form.html
+msgid "Second commander (partner or Background)"
+msgstr "2人目の統率者（共闘または背景）"
+
+#: templates/decks/_commander_form.html
+msgid "No second commander"
+msgstr "2人目の統率者なし"
+
+#: templates/decks/_commander_form.html
+msgid ""
+"No card in this list may lead a Commander deck - that takes a legendary "
+"creature, or a card that says it can be your commander. Is the commander "
+"missing from the file?"
+msgstr ""
+"このリストには統率者になれるカードがありません。伝説のクリーチャーか、統率者にできると書かれたカードが必要です。ファイルに統率者が抜けていませんか？"
+
+#: templates/decks/detail.html
+msgid "Commander:"
+msgstr "統率者："
+
+#: templates/decks/detail.html
+msgid "Commanders:"
+msgstr "統率者："
+
+#: templates/decks/detail.html
+msgid "Change the commander"
+msgstr "統率者を変更"
+
+#: templates/decks/detail.html
+msgid "No commander set."
+msgstr "統率者が未設定です。"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s card + 2 commanders"
+msgid_plural "%(count)s cards + 2 commanders"
+msgstr[0] "%(count)s 枚＋統率者2人"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Goldfish Lab plays by the Commander rules - 40 life, a command zone, 100 "
+"cards. This deck has %(count)s card and no commander, so its numbers hold "
+"only under those rules."
+msgid_plural ""
+"Goldfish Lab plays by the Commander rules - 40 life, a command zone, 100 "
+"cards. This deck has %(count)s cards and no commander, so its numbers hold "
+"only under those rules."
+msgstr[0] ""
+"Goldfish Lab は統率者戦のルール（ライフ40、統率領域、100枚）で回します。このデッキは %(count)s "
+"枚で統率者がいないため、数値はこのルールの下でのみ当てはまります。"
+
+#: templates/decks/detail.html templates/guests/commander.html
+msgid "Simulate without a commander"
+msgstr "統率者なしでシミュレーション"
+
+#: templates/decks/_status.html
+msgid "Not a Commander deck"
+msgstr "統率者戦のデッキではありません"
+
+#: templates/simulations/detail.html
+msgid ""
+"Played without a commander - the numbers are for a deck with an empty "
+"command zone."
+msgstr "統率者なしで回しました。数値は統率領域が空のデッキのものです。"
+
+#: templates/simulations/detail.html
+#, python-format
+msgid ""
+"Goldfish Lab plays by the Commander rules, and this deck had %(count)s card,"
+" so its numbers hold only under those rules."
+msgid_plural ""
+"Goldfish Lab plays by the Commander rules, and this deck had %(count)s "
+"cards, so its numbers hold only under those rules."
+msgstr[0] ""
+"Goldfish Lab は統率者戦のルールで回しますが、このデッキは %(count)s 枚でした。数値はこのルールの下でのみ当てはまります。"
+
+#: templates/guests/commander.html
+msgid "Who is your commander?"
+msgstr "統率者はどれですか？"
+
+#: templates/guests/commander.html
+msgid "Choose the commander before the first simulation."
+msgstr "最初のシミュレーションの前に統率者を選んでください。"
+
+#: templates/guests/commander.html
+#, python-format
+msgid ""
+"<strong class=\"text-parchment-100\">%(name)s</strong> is in. The simulation"
+" casts the commander from the command zone, so it needs to know which card "
+"that is."
+msgstr ""
+"<strong class=\"text-parchment-100\">%(name)s</strong> "
+"を読み込みました。シミュレーションは統率領域から統率者を唱えるので、どのカードが統率者かを知る必要があります。"
+
+#: templates/guests/commander.html
+msgid "Simulate with this commander"
+msgstr "この統率者でシミュレーション"
+
+#: templates/guests/commander.html
+msgid "The report will say the deck was played without one."
+msgstr "レポートには統率者なしで回したことが表示されます。"
+
+#: templates/guests/try.html
+msgid "For Commander decks: 100 cards, played by the Commander rules."
+msgstr "統率者戦のデッキ用：100枚、統率者戦のルールで回します。"
+
+#: changelog/entries.py
+msgid "Only a card that may lead becomes the commander"
+msgstr "統率者にできるカードだけが統率者になります"
+
+#: changelog/entries.py
+msgid ""
+"The commander choice on the deck page offers only legendary creatures and "
+"the cards that say they can be your commander, starts on nothing instead of "
+"on the first card, and stays open to change the commander later. Two "
+"partners, a creature with its Background or a companion with the Doctor are "
+"read from the file together. When the file names no commander the page says "
+"why, and when the file lists it first or last it is suggested. A guest is "
+"asked for the commander before the first simulation, and a run without one "
+"says so on its report."
+msgstr ""
+"デッキページの統率者の選択肢は、伝説のクリーチャーと「統率者にできる」と書かれたカードだけになりました。最初のカードではなく未選択の状態から始まり、後から統率者を変更することもできます。共闘の2枚、クリーチャーとその背景、ドクターのコンパニオンとドクターは、ファイルから一緒に読み込まれます。ファイルに統率者の指定がないときはその理由を表示し、ファイルの先頭か末尾にあるときは候補として提案します。ゲストは最初のシミュレーションの前に統率者を尋ねられ、統率者なしのシミュレーションはレポートにそう表示されます。"
+
+#: templates/decks/_commander_form.html
+#, python-format
+msgid ""
+"The file lists <strong>%(names)s</strong> first - are those the commanders?"
+msgstr "ファイルの先頭は <strong>%(names)s</strong> です。これが統率者ですか？"

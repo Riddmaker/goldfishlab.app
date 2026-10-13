@@ -22,6 +22,9 @@ from django.utils.translation import gettext, gettext_noop, ngettext
 
 from cards.models import OracleCard
 
+#: Commander is a 100-card format, commanders included.
+COMMANDER_DECK_SIZE = 100
+
 
 class Deck(models.Model):
     """One deck belonging to one user."""
@@ -41,6 +44,16 @@ class Deck(models.Model):
         null=True,
         blank=True,
         related_name="commands_decks",
+    )
+    #: The second commander, when two share the command zone - two partners,
+    #: a creature and its Background, a companion and the Doctor (P20 F2,
+    #: `cards.commanders.pair_ok`). Never set without `commander`.
+    partner = models.ForeignKey(
+        OracleCard,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="partners_decks",
     )
     notes = models.TextField(blank=True)
     #: The printings the file named for the card(s) in the command zone, which
@@ -74,8 +87,27 @@ class Deck(models.Model):
         return sum(entry.quantity for entry in self.entries.all())
 
     @property
+    def commanders(self) -> list[OracleCard]:
+        """The command zone, first commander first: none, one or two cards."""
+        return [card for card in (self.commander, self.partner) if card is not None]
+
+    @property
+    def commander_count(self) -> int:
+        return (1 if self.commander_id else 0) + (1 if self.partner_id else 0)
+
+    @property
     def total_with_commander(self) -> int:
-        return self.card_count + (1 if self.commander_id else 0)
+        return self.card_count + self.commander_count
+
+    @property
+    def is_commander_deck(self) -> bool:
+        """A commander, or the 100 cards a Commander deck has (P20 F2, E1.81).
+
+        Goldfish Lab only plays by the Commander rules. A 75-card list without
+        a commander still runs, and the deck page and the report say whose
+        rules the numbers are under.
+        """
+        return bool(self.commander_id) or self.total_with_commander == COMMANDER_DECK_SIZE
 
 
 class DeckCard(models.Model):
@@ -166,6 +198,15 @@ def printing_label(printings) -> str:
     return str(printings_shown(printings))
 
 
+class CommanderIssue(models.TextChoices):
+    """Why an import left the command zone empty (`DeckImport.commander_issue`)."""
+
+    UNMARKED = "unmarked", "The file names no commander"
+    NOT_FOUND = "not_found", "The named commander was not found"
+    NOT_ALLOWED = "not_allowed", "The named card cannot be a commander"
+    NOT_PAIR = "not_pair", "The named cards cannot share the command zone"
+
+
 class DeckImport(models.Model):
     """One upload, with its tally.
 
@@ -205,6 +246,17 @@ class DeckImport(models.Model):
     # board (`decks.importers.boards`), which the import leaves out on purpose
     # and says so. Not rows: a left-out card is not an unresolved one.
     left_out = models.JSONField(default=dict, blank=True)
+    #: Why this import set no commander, when it set none (P20 F2): the file
+    #: named none, named a card that was not found, named one that cannot lead
+    #: a deck, or named two that cannot share the command zone.
+    commander_issue = models.CharField(max_length=16, choices=CommanderIssue.choices,
+                                       blank=True)
+    #: The names the file marked as commander, as written, for that sentence.
+    commander_named = models.JSONField(default=list, blank=True)
+    #: Oracle ids the file's own order suggests as the commander(s) - the
+    #: first lines, or a last block of one or two (decision E4). A suggestion
+    #: the deck page fills in, never one it saves without a click.
+    suggested_commanders = models.JSONField(default=list, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -230,6 +282,28 @@ class DeckImport(models.Model):
     def columns_shown(self) -> list[tuple[str, str]]:
         """`column_mapping` with each label in the page's language."""
         return [(gettext(label), header) for label, header in self.column_mapping]
+
+    @property
+    def commander_issue_shown(self) -> str:
+        """Why the import set no commander, as a sentence in the page's language.
+
+        Three different things used to read "the file did not mark one" - also
+        when it had named two partners (Lauf 1, E1.54).
+        """
+        names = " + ".join(self.commander_named or [])
+        sentences = {
+            CommanderIssue.UNMARKED: gettext("The file does not name a commander."),
+            CommanderIssue.NOT_FOUND: gettext(
+                "The file names %(names)s as commander, but that card was not found."),
+            CommanderIssue.NOT_ALLOWED: gettext(
+                "The file names %(names)s as commander, but that card cannot lead a "
+                "Commander deck."),
+            CommanderIssue.NOT_PAIR: gettext(
+                "The file names %(names)s as commanders, but they cannot share the command "
+                "zone."),
+        }
+        sentence = sentences.get(self.commander_issue, "")
+        return sentence % {"names": names} if "%(names)s" in sentence else sentence
 
     @property
     def left_out_shown(self) -> list[str]:

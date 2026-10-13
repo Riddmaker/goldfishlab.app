@@ -106,6 +106,29 @@ never in silence. The printings are kept for display on `DeckCard.printings` and
 `Deck.commander_printings`; the engine never reads them. A paste of nothing but links is refused
 with where that site keeps its export (`services.refuse_links`).
 
+### The command zone (P20 F2)
+
+Which cards may lead a deck is one rule in one place, `cards/commanders.py`, read off the card's
+front face: a legendary creature, a card that says it "can be your commander" (or Grist), and a
+legendary Background as the second half of a pair. Two cards share the zone as plain partners,
+with the same `Partner—<group>`, as `Partner with` each other, as a creature that chooses a
+Background with one, or as a Doctor's companion with a Time Lord Doctor (Comprehensive Rules
+702.124). The abilities are read from the rules text, because Scryfall's `keywords` say
+"Partner" for all three partner kinds.
+
+The importer sets what the file marks, when that may lead (`decks/command_zone.read`): one card,
+or two that pair, onto `Deck.commander` and `Deck.partner`. Otherwise it sets nobody and records
+why on `DeckImport.commander_issue` - named none, not found, may not lead, may not pair - and the
+deck page says that sentence. A file that marks nobody may still say it by its order: a last
+block of one or two cards after a blank line (Moxfield's MTGO export) or first lines out of
+alphabetical order (Moxfield's text export) are kept as `suggested_commanders`, which the choice
+fills in and nobody's deck gets without a click. An alphabetical file (Archidekt) suggests nothing.
+
+The choice (`decks.forms.CommanderForm`) offers only the cards that may lead and a second field
+for the cards that pair with the first; the server checks the same. A guest whose clean import
+has no commander is asked before the first run, and may run without one; the run keeps its
+`commander_names`, and an empty list puts "Played without a commander" on the report.
+
 The tests are `tests/test_import_shapes.py`, one case per real export shape, with lines rebuilt
 on the patterns of the real files - the files themselves are a person's decks and stay out of the
 repository.

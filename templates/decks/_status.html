@@ -1,12 +1,15 @@
 {% comment %}
   The red marker (Phase 9 C2): how many cards of `deck` the engine could not
   read and nobody has answered. The view counts `deck.open_questions` before
-  the page renders. Never colour alone - each state is a word too.
+  the page renders. Otherwise whether it is a Commander deck at all (P20 F2). Never colour alone - each state is a word too.
 {% endcomment %}
 {% load i18n %}
 {% if deck.open_questions %}
   <a href="{% url 'simulations:review' deck.id %}"
      class="deck-status deck-status-open">! {% blocktranslate count count=deck.open_questions %}{{ count }} card needs you{% plural %}{{ count }} cards need you{% endblocktranslate %}</a>
+{% elif not deck.is_commander_deck %}
+  {# P20 F2 (E1.81): ready to run, but by rules the deck was not built for. #}
+  <span class="deck-status deck-status-open">! {% translate "Not a Commander deck" %}</span>
 {% else %}
   <span class="deck-status deck-status-ready">✓ {% translate "Ready" %}</span>
 {% endif %}

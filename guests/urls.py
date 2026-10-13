@@ -9,4 +9,5 @@ app_name = "guests"
 urlpatterns = [
     path("", views.TryView.as_view(), name="try"),
     path("save/", views.SaveDeckView.as_view(), name="save"),
+    path("commander/", views.CommanderView.as_view(), name="commander"),
 ]

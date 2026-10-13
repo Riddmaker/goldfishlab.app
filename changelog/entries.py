@@ -42,6 +42,18 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 13), "commander-honest",
+        _("Only a card that may lead becomes the commander"),
+        _("The commander choice on the deck page offers only legendary creatures and the cards "
+          "that say they can be your commander, starts on nothing instead of on the first card, "
+          "and stays open to change the commander later. Two partners, a creature with its "
+          "Background or a companion with the Doctor are read from the file together. When the "
+          "file names no commander the page says why, and when the file lists it first or last "
+          "it is suggested. A guest is asked for the commander before the first simulation, and "
+          "a run without one says so on its report."),
+        "decks:list",
+    ),
+    Entry(
         date(2026, 10, 13), "import-as-it-comes",
         _("Deck lists are read the way your tool writes them"),
         _("The importer now reads the exports of Moxfield, Archidekt, ManaBox, TappedOut and "

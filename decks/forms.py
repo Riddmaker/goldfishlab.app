@@ -1,4 +1,4 @@
-"""The deck import form.
+"""The deck import form, and the commander choice.
 
 The upload field is the application's only untrusted input in Phase 1, so the
 validation here is the security boundary: size before decode, decode before
@@ -9,7 +9,8 @@ from django import forms
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from decks import importers
+from cards import commanders
+from decks import command_zone, importers
 from decks.importers import columns
 from decks.services import MAX_UPLOAD_BYTES
 
@@ -198,3 +199,43 @@ class ColumnMappingForm(forms.Form):
             chosen = self.cleaned_data.get(column.key) or ""
             answer[column.key] = chosen or self.fields[column.key].initial or columns.ABSENT
         return answer
+
+
+class CommanderForm(forms.Form):
+    """The commander - and a second one - picked from the deck's own cards (P20 F2).
+
+    The choices are the rule, not the template: only a card that may lead a
+    deck is a valid first commander, and only one that may share the command
+    zone with it a valid second (`cards.commanders`). A land posted by hand,
+    a card from another deck or a Background on its own is a validation
+    error with a sentence, never a saved commander.
+    """
+
+    commander = forms.ChoiceField(
+        error_messages={"required": _("Choose a commander."),
+                        "invalid_choice": _("That card cannot be this deck's commander.")})
+    partner = forms.ChoiceField(
+        required=False,
+        error_messages={"invalid_choice": _("That card cannot be a second commander here.")})
+
+    def __init__(self, *args, deck, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.choice = command_zone.choice(deck)
+        self.cards = {str(card.pk): card for card in command_zone.pool(deck)}
+        self.fields["commander"].choices = [("", "")] + [
+            (str(card.pk), card.front_name) for card in self.choice.leads]
+        self.fields["partner"].choices = [("", "")] + [
+            (str(second.card.pk), second.card.front_name) for second in self.choice.seconds]
+
+    def clean(self):
+        cleaned = super().clean()
+        first = self.cards.get(cleaned.get("commander") or "")
+        second = self.cards.get(cleaned.get("partner") or "")
+        if first is None:
+            return cleaned
+        if second is not None and not commanders.pair_ok(first, second):
+            self.add_error("partner", gettext(
+                "%(first)s and %(second)s cannot share the command zone.") % {
+                    "first": first.front_name, "second": second.front_name})
+        cleaned["cards"] = command_zone.ordered(first, second) if second else [first]
+        return cleaned

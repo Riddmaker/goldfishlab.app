@@ -19,11 +19,10 @@ from django_ratelimit.decorators import ratelimit
 from billing import quotas
 from billing.quotas import QuotaExceeded
 from billing.views import upgrade_prompt
-from cards.models import OracleCard
 from combos import services as combo_services
 from decks import analysis as deck_analysis
-from decks import services
-from decks.forms import ColumnMappingForm, ImportForm
+from decks import command_zone, services
+from decks.forms import ColumnMappingForm, CommanderForm, ImportForm
 from decks.importers import columns, tabular
 from decks.models import Deck, DeckCard, DeckImport, PendingImport, printings_shown
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
@@ -45,7 +44,7 @@ class DeckListView(OwnedDecksMixin, ListView):
     context_object_name = "decks"
 
     def get_queryset(self):
-        return super().get_queryset().select_related("commander")
+        return super().get_queryset().select_related("commander", "partner")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -74,7 +73,7 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         return (
             super()
             .get_queryset()
-            .select_related("commander")
+            .select_related("commander", "partner")
             .prefetch_related(Prefetch("entries", queryset=entries))
         )
 
@@ -130,9 +129,10 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         context["analysis"] = analysis
         context["legality_problems"] = sum(1 for verdict in analysis.legality if not verdict.ok)
         context["last_import"] = deck.imports.first()
-        context["commander_printing"] = (
-            printings_shown((deck.commander_printings or {}).get(str(deck.commander_id), []))
-            if deck.commander_id else None)
+        context["commander_printings"] = [
+            (card, printings_shown((deck.commander_printings or {}).get(str(card.pk), [])))
+            for card in deck.commanders]
+        context["commander_choice"] = commander_choice(deck, context["last_import"])
         context["curve_max"] = max(analysis.curve.values() or [1]) or 1
         context["run_form"] = RunForm(plan=quotas.plan_for(self.request.user))
         context["runs"] = runs = list(deck.runs.all()[:5])
@@ -149,6 +149,12 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         # every report carries the other.
         context["blindspots"] = blindspots.find(readings)
         return context
+
+
+def commander_choice(deck, last_import):
+    """The commander choice for the deck page, with the last import's suggestion."""
+    suggested = last_import.suggested_commanders if last_import is not None else []
+    return command_zone.choice(deck, suggested)
 
 
 #: What to say when nothing recognised the file. It used to end "other formats
@@ -434,20 +440,37 @@ class ImportReviewView(LoginRequiredMixin, DetailView):
 
 
 class SetCommanderView(LoginRequiredMixin, View):
-    """Pick the commander by hand when the file did not say."""
+    """Pick the commander(s) by hand: when the file did not say, or to change them.
+
+    Only from the deck's own cards and only cards that may lead it
+    (`CommanderForm`) - Lauf 1 saved a land here (E1.55).
+    """
 
     def post(self, request, pk):
         deck = get_object_or_404(Deck, pk=pk, owner=request.user)
-        card = get_object_or_404(OracleCard, pk=request.POST.get("oracle_id"))
-
-        if not deck.entries.filter(oracle_card=card).exists():
-            messages.error(request, gettext("That card is not in this deck."))
+        if save_commanders(request, deck):
             return redirect(deck.get_absolute_url())
+        return redirect(f"{deck.get_absolute_url()}#commander")
 
-        services.set_commander(deck, card)
+
+def save_commanders(request, deck) -> bool:
+    """Validate and save a posted `CommanderForm`, with a message either way."""
+    form = CommanderForm(request.POST, deck=deck)
+    if not form.is_valid():
+        for errors in form.errors.values():
+            for error in errors:
+                messages.error(request, error)
+        return False
+
+    cards = form.cleaned_data["cards"]
+    services.set_commander(deck, *cards)
+    if len(cards) > 1:
+        messages.success(request, gettext("%(first)s and %(second)s are now the commanders.") % {
+            "first": cards[0].front_name, "second": cards[1].front_name})
+    else:
         messages.success(request, gettext("%(card)s is now the commander.") % {
-            "card": card.name})
-        return redirect(deck.get_absolute_url())
+            "card": cards[0].front_name})
+    return True
 
 
 class DeckDeleteView(OwnedDecksMixin, DeleteView):

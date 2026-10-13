@@ -32,7 +32,7 @@ from django.utils.translation import gettext, gettext_noop
 from billing import quotas
 from billing.models import UsageRecord
 from core.l10n import number
-from decks import importers, resolve
+from decks import command_zone, importers, resolve
 from decks.models import Deck, DeckCard, DeckImport, PendingImport, UnresolvedRow
 
 #: Uploads above this are refused before anything is decoded. The reference
@@ -321,6 +321,8 @@ def import_deck(
         raise ImportError_(gettext("that deck belongs to someone else"))
 
     report = resolve.resolve(rows)
+    zone = command_zone.read(report)
+    suggested = [] if zone.cards else command_zone.suggest(report)
 
     # The deck name the file itself gave (Arena's `About` block) is the
     # person's own name for it, and beats both the commander and the filename.
@@ -343,17 +345,20 @@ def import_deck(
         rows_unresolved=len(report.unresolved),
         rung_counts=report.rung_counts,
         left_out=left_out,
+        commander_issue=zone.issue,
+        commander_named=[name[:256] for name in zone.named[:4]],
+        suggested_commanders=[str(card.pk) for card in suggested],
         status=DeckImport.Status.APPLIED,
     )
 
-    _write_entries(deck, report, commander=_commander_for(deck, report))
+    _write_entries(deck, report, commanders=_commanders_for(deck, zone))
     _write_unresolved(record, report)
-    _set_commander(deck, report)
+    _set_commanders(deck, report, zone)
     if creating and not name and deck.commander_id:
         # A deck is called after its commander, not after the file: every
         # Archidekt export is named "archidekt-collection-export-<date>.csv"
         # (phase 9 G - the name a guest's save form starts from).
-        deck.name = deck.commander.name
+        deck.name = " + ".join(card.name for card in deck.commanders)[:120]
         deck.save(update_fields=["name"])
     recount_later(Deck.objects.filter(pk=deck.pk))
     deck.open_questions = None
@@ -371,13 +376,15 @@ def _left_out(rows) -> dict[str, int]:
     return dict(counts)
 
 
-def _printings(report: resolve.ResolutionReport) -> tuple[dict, dict]:
+def _printings(report: resolve.ResolutionReport, command=()) -> tuple[dict, dict]:
     """What the file said about each card's printing, split in two.
 
     `(the list, the command zone)`: a row marked as commander keeps its
-    printing with the commander, every other row with its `DeckCard`. A row
-    that names neither a set nor a finish says nothing and is not kept.
+    printing with the commander - when the import made it one, `command` -
+    and every other row with its `DeckCard`. A row that names neither a set
+    nor a finish says nothing and is not kept.
     """
+    zone = {str(card.pk) for card in command}
     in_list: dict[str, list] = defaultdict(list)
     command: dict[str, list] = defaultdict(list)
     for resolution in report.resolved:
@@ -386,7 +393,9 @@ def _printings(report: resolve.ResolutionReport) -> tuple[dict, dict]:
             continue
         printing = {"set": row.set_code[:12], "number": row.collector_number[:16],
                     "finish": row.finish, "quantity": min(row.quantity, 32_767)}
-        (command if row.is_commander else in_list)[str(resolution.card.pk)].append(printing)
+        oracle_id = str(resolution.card.pk)
+        in_zone = row.is_commander and oracle_id in zone
+        (command if in_zone else in_list)[oracle_id].append(printing)
     return dict(in_list), dict(command)
 
 
@@ -405,25 +414,23 @@ def fill(deck: Deck, report: resolve.ResolutionReport) -> None:
     """Make `deck` the list `report` resolved, commander included - what an
     import writes, for a list that did not come from a person's upload and
     is therefore not metered or recorded (the site's own precons, P11)."""
-    _write_entries(deck, report, commander=_commander_for(deck, report))
-    _set_commander(deck, report)
+    zone = command_zone.read(report)
+    _write_entries(deck, report, commanders=_commanders_for(deck, zone))
+    _set_commanders(deck, report, zone)
     recount_later(Deck.objects.filter(pk=deck.pk))
 
 
-def _commander_for(deck: Deck, report: resolve.ResolutionReport):
-    """The card this import leaves in the command zone, if any.
+def _commanders_for(deck: Deck, zone: command_zone.Reading) -> list:
+    """The cards this import leaves in the command zone, if any.
 
-    The file's own marker when there is exactly one, and otherwise the
-    commander the deck already had - a refill from a list that does not mark
-    one keeps the commander somebody picked by hand.
+    What the file marked, when that may lead a deck (`command_zone.read`),
+    and otherwise the commanders the deck already had - a refill from a list
+    that does not mark one keeps the commander somebody picked by hand.
     """
-    marked = [r for r in report.resolved if r.row.is_commander]
-    if len(marked) == 1:
-        return marked[0].card
-    return deck.commander if deck.commander_id else None
+    return zone.cards or deck.commanders
 
 
-def _write_entries(deck: Deck, report: resolve.ResolutionReport, *, commander=None) -> None:
+def _write_entries(deck: Deck, report: resolve.ResolutionReport, *, commanders=()) -> None:
     """Replace the deck's contents with what resolved.
 
     Replace rather than merge: an import is the user saying "this is the deck
@@ -435,16 +442,18 @@ def _write_entries(deck: Deck, report: resolve.ResolutionReport, *, commander=No
     writing that row as a `DeckCard` as well as setting `Deck.commander` put
     the card in two zones at once: "101 cards" on the legality panel, the
     commander shuffled into the library as well as sitting in the command
-    zone, and a collection check asking for two copies. One copy leaves the
-    list for the command zone here.
+    zone, and a collection check asking for two copies. One copy of each
+    commander leaves the list for the command zone here.
     """
     DeckCard.objects.filter(deck=deck).delete()
-    printings, _ = _printings(report)
+    printings, _ = _printings(report, commanders)
     quantities = report.quantities()
-    if commander is not None and str(commander.pk) in quantities:
-        quantities[str(commander.pk)] -= 1
-        if quantities[str(commander.pk)] < 1:
-            del quantities[str(commander.pk)]
+    for commander in commanders:
+        oracle_id = str(commander.pk)
+        if oracle_id in quantities:
+            quantities[oracle_id] -= 1
+            if quantities[oracle_id] < 1:
+                del quantities[oracle_id]
     cards = {str(r.card.pk): r.card for r in report.resolved}
 
     DeckCard.objects.bulk_create(
@@ -476,19 +485,22 @@ def _write_unresolved(record: DeckImport, report: resolve.ResolutionReport) -> N
     )
 
 
-def _set_commander(deck: Deck, report: resolve.ResolutionReport) -> None:
+def _set_commanders(deck: Deck, report: resolve.ResolutionReport,
+                    zone: command_zone.Reading) -> None:
     """Use the export's own commander marker, and never guess past it.
 
-    If the file does not say, the deck has no commander and the deck page says
-    so plainly. Picking "the only legendary creature" would be right often
-    enough to be trusted and wrong often enough to hurt.
+    If the file does not say - or says something no deck may do - the deck
+    keeps the commanders it had (none, for a new one) and the deck page says
+    why (`DeckImport.commander_issue`). Picking "the only legendary creature"
+    would be right often enough to be trusted and wrong often enough to hurt.
     """
-    marked = [r for r in report.resolved if r.row.is_commander]
-    if len(marked) == 1:
-        _, command = _printings(report)
-        deck.commander = marked[0].card
-        deck.commander_printings = command
-        deck.save(update_fields=["commander", "commander_printings", "updated_at"])
+    if not zone.cards:
+        return
+    _, command = _printings(report, zone.cards)
+    deck.commander = zone.cards[0]
+    deck.partner = zone.cards[1] if len(zone.cards) > 1 else None
+    deck.commander_printings = command
+    deck.save(update_fields=["commander", "partner", "commander_printings", "updated_at"])
 
 
 def recount_later(decks) -> None:
@@ -503,34 +515,47 @@ def recount_later(decks) -> None:
 
 
 @transaction.atomic
-def set_commander(deck: Deck, card) -> None:
-    """Set the commander by hand, from the deck page.
+def set_commander(deck: Deck, card, partner=None) -> None:
+    """Set the commander - and a second one, or none - by hand, from the deck page.
 
-    Picked out of the deck's own list, so one copy moves from the 99 to the
-    command zone - the same rule the importer follows. A commander being
-    replaced goes back into the 99 rather than vanishing from the deck: which
-    card leaves a deck is its owner's decision, not a side effect of this one.
+    Picked out of the deck's own list, so one copy of each moves from the 99
+    to the command zone - the same rule the importer follows. A commander
+    being replaced goes back into the 99 rather than vanishing from the deck:
+    which card leaves a deck is its owner's decision, not a side effect of
+    this one. Whether the pair may lead together is the caller's to check
+    (`decks.forms.CommanderForm`).
     """
-    previous = deck.commander if deck.commander_id else None
-    if previous is not None and previous.pk == card.pk:
+    chosen = [each for each in (card, partner) if each is not None]
+    previous = deck.commanders
+    if [each.pk for each in previous] == [each.pk for each in chosen]:
         return
 
     # The printings travel with the card: the copy that leaves the list takes
     # what the file said about it to the command zone, and back again.
-    moved = (deck.commander_printings or {}).get(str(previous.pk), []) if previous else []
-    taken = []
-    entry = DeckCard.objects.filter(deck=deck, oracle_card=card).first()
-    if entry is not None:
+    old = deck.commander_printings or {}
+    staying = {each.pk for each in previous} & {each.pk for each in chosen}
+    zone = {str(pk): old[str(pk)] for pk in staying if old.get(str(pk))}
+
+    for each in chosen:
+        if each.pk in staying:
+            continue
+        entry = DeckCard.objects.filter(deck=deck, oracle_card=each).first()
+        if entry is None:
+            continue
         if entry.quantity > 1:
             entry.quantity -= 1
             entry.save(update_fields=["quantity"])
         else:
-            taken = entry.printings
+            if entry.printings:
+                zone[str(each.pk)] = entry.printings
             entry.delete()
 
-    if previous is not None:
+    for each in previous:
+        if each.pk in staying:
+            continue
+        moved = old.get(str(each.pk), [])
         back, created = DeckCard.objects.get_or_create(
-            deck=deck, oracle_card=previous, defaults={"quantity": 1, "printings": moved}
+            deck=deck, oracle_card=each, defaults={"quantity": 1, "printings": moved}
         )
         if not created:
             back.quantity += 1
@@ -538,9 +563,10 @@ def set_commander(deck: Deck, card) -> None:
             back.save(update_fields=["quantity", "printings"])
 
     deck.commander = card
-    deck.commander_printings = {str(card.pk): taken} if taken else {}
+    deck.partner = partner
+    deck.commander_printings = zone
     deck.open_questions = None
-    deck.save(update_fields=["commander", "commander_printings", "open_questions",
+    deck.save(update_fields=["commander", "partner", "commander_printings", "open_questions",
                              "updated_at"])
 
 

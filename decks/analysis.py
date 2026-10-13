@@ -14,6 +14,9 @@ from dataclasses import dataclass, field
 
 from django.utils.translation import gettext, gettext_noop, ngettext
 
+from cards import commanders
+from decks.models import COMMANDER_DECK_SIZE
+
 # Frank Karsten's published Commander guidance: 35-38 lands for a typical
 # 99-card deck. Quoted, not invented - and shown to the user with his name on
 # it, because a bare "too few lands" is an opinion pretending to be a fact.
@@ -23,9 +26,6 @@ KARSTEN_SOURCE = gettext_noop("Frank Karsten's mana-base guidance for Commander"
 
 #: Bracket 3 ("upgraded") allows at most three cards from the Game Changer list.
 BRACKET_3_GAME_CHANGERS = 3
-
-#: Commander is a 100-card format, commander included.
-COMMANDER_DECK_SIZE = 100
 
 #: The curve histogram stops here and buckets the rest, so one Eldrazi cannot
 #: stretch the chart to thirty columns.
@@ -104,8 +104,8 @@ def analyse(deck) -> DeckAnalysis:
         if profile is not None and profile.needs_review:
             analysis.cards_needing_review += quantity
 
-    if deck.commander_id and deck.commander:
-        colors.update(deck.commander.color_identity)
+    for commander in deck.commanders:
+        colors.update(commander.color_identity)
 
     analysis.curve = {bucket: curve.get(bucket, 0) for bucket in range(CURVE_CEILING + 1)}
     analysis.average_mv = (
@@ -151,10 +151,11 @@ def _judge_bracket(game_changers: list[str]) -> Verdict:
 
 
 def _check_legality(deck, entries, analysis: DeckAnalysis) -> list[Verdict]:
-    """The five Commander rules a deck list can be checked against offline."""
+    """The six Commander rules a deck list can be checked against offline."""
     verdicts = []
+    leading = deck.commanders
 
-    total = analysis.total_cards + (1 if deck.commander_id else 0)
+    total = analysis.total_cards + len(leading)
     verdicts.append(
         Verdict(
             total == COMMANDER_DECK_SIZE,
@@ -182,8 +183,8 @@ def _check_legality(deck, entries, analysis: DeckAnalysis) -> list[Verdict]:
         )
     )
 
-    if deck.commander_id and deck.commander:
-        allowed = set(deck.commander.color_identity)
+    if leading:
+        allowed = {colour for commander in leading for colour in commander.color_identity}
         outside = sorted(
             {
                 entry.oracle_card.name
@@ -191,7 +192,8 @@ def _check_legality(deck, entries, analysis: DeckAnalysis) -> list[Verdict]:
                 if not set(entry.oracle_card.color_identity) <= allowed
             }
         )
-        identity = gettext("The commander's identity is %(colours)s.") % {
+        identity = (gettext("The commanders' identity is %(colours)s.") if len(leading) > 1
+                    else gettext("The commander's identity is %(colours)s.")) % {
             "colours": "".join(sorted(allowed)) or gettext("colourless")}
         verdicts.append(
             Verdict(
@@ -205,14 +207,13 @@ def _check_legality(deck, entries, analysis: DeckAnalysis) -> list[Verdict]:
                     "cards": ", ".join(outside[:5])},
             )
         )
-
+        verdicts.append(_may_lead(leading))
+        banned = [card.name for card in leading if not card.is_commander_legal]
         verdicts.append(
             Verdict(
-                deck.commander.legalities.get("commander") == "legal",
-                gettext("Commander is legal")
-                if deck.commander.is_commander_legal
-                else gettext("Commander is banned"),
-                deck.commander.name,
+                not banned,
+                gettext("Commander is legal") if not banned else gettext("Commander is banned"),
+                ", ".join(banned or [card.name for card in leading]),
             )
         )
     else:
@@ -221,6 +222,30 @@ def _check_legality(deck, entries, analysis: DeckAnalysis) -> list[Verdict]:
 
     verdicts.append(_legal_cards(entries))
     return verdicts
+
+
+def _may_lead(leading) -> Verdict:
+    """The commander is a card that may be one, and a pair may share the zone.
+
+    Lauf 1 read "✓ Commander is legal - Bayou": a land's Commander legality
+    is "legal", because it may be *in* the deck (E1.3). Whether it may lead
+    the deck is the other question (`cards.commanders`). An old deck with a
+    wrong commander needs no migration: this line says so, and the choice
+    above it is open.
+    """
+    rule = gettext("A commander is a legendary creature, or a card that says it can be one; "
+                   "two share the command zone only as partners or with a Background.")
+    if len(leading) == 2:
+        if commanders.pair_ok(*leading):
+            return Verdict(True, gettext("May be commanders"), rule)
+        return Verdict(False, gettext("%(first)s and %(second)s cannot share the command "
+                                      "zone") % {"first": leading[0].front_name,
+                                                 "second": leading[1].front_name}, rule)
+    card = leading[0]
+    if commanders.stands_alone(card):
+        return Verdict(True, gettext("May be commander"), rule)
+    return Verdict(False, gettext("%(card)s cannot be a commander") % {"card": card.front_name},
+                   rule)
 
 
 def _legal_cards(entries) -> Verdict:

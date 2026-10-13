@@ -11685,3 +11685,254 @@ msgstr ""
 "CSV di Archidekt senza riga d’intestazione e un file Excel con il punto e "
 "virgola vengono letti senza chiedere. A un link a un mazzo si risponde con "
 "dove quel sito tiene il suo export."
+
+#: decks/models.py
+msgid "The file does not name a commander."
+msgstr "Il file non indica alcun comandante."
+
+#: decks/models.py
+#, python-format
+msgid "The file names %(names)s as commander, but that card was not found."
+msgstr ""
+"Il file indica %(names)s come comandante, ma questa carta non è stata "
+"trovata."
+
+#: decks/models.py
+#, python-format
+msgid ""
+"The file names %(names)s as commander, but that card cannot lead a Commander"
+" deck."
+msgstr ""
+"Il file indica %(names)s come comandante, ma questa carta non può guidare un"
+" mazzo Commander."
+
+#: decks/models.py
+#, python-format
+msgid ""
+"The file names %(names)s as commanders, but they cannot share the command "
+"zone."
+msgstr ""
+"Il file indica %(names)s come comandanti, ma non possono condividere la zona"
+" di comando."
+
+#: decks/forms.py
+msgid "Choose a commander."
+msgstr "Scegli un comandante."
+
+#: decks/forms.py
+msgid "That card cannot be this deck's commander."
+msgstr "Questa carta non può essere il comandante di questo mazzo."
+
+#: decks/forms.py
+msgid "That card cannot be a second commander here."
+msgstr "Questa carta non può essere un secondo comandante qui."
+
+#: decks/forms.py
+#, python-format
+msgid "%(first)s and %(second)s cannot share the command zone."
+msgstr "%(first)s e %(second)s non possono condividere la zona di comando."
+
+#: decks/analysis.py
+#, python-format
+msgid "%(first)s and %(second)s cannot share the command zone"
+msgstr "%(first)s e %(second)s non possono condividere la zona di comando"
+
+#: decks/views.py
+#, python-format
+msgid "%(first)s and %(second)s are now the commanders."
+msgstr "%(first)s e %(second)s ora sono i comandanti."
+
+#: decks/analysis.py
+#, python-format
+msgid "The commanders' identity is %(colours)s."
+msgstr "L'identità dei comandanti è %(colours)s."
+
+#: decks/analysis.py
+msgid ""
+"A commander is a legendary creature, or a card that says it can be one; two "
+"share the command zone only as partners or with a Background."
+msgstr ""
+"Un comandante è una creatura leggendaria, o una carta che dice di poterlo "
+"essere; due condividono la zona di comando solo come partner o con un "
+"Background."
+
+#: decks/analysis.py
+msgid "May be commanders"
+msgstr "Possono essere comandanti"
+
+#: decks/analysis.py
+msgid "May be commander"
+msgstr "Può essere comandante"
+
+#: decks/analysis.py
+#, python-format
+msgid "%(card)s cannot be a commander"
+msgstr "%(card)s non può essere comandante"
+
+#: templates/decks/_commander_form.html
+#, python-format
+msgid ""
+"The file lists <strong>%(names)s</strong> first - is that the commander?"
+msgstr "Il file elenca per primo <strong>%(names)s</strong>: è il comandante?"
+
+#: templates/decks/_commander_form.html
+msgid "Commander"
+msgstr "Comandante"
+
+#: templates/decks/_commander_form.html
+msgid "Choose…"
+msgstr "Scegli…"
+
+#: templates/decks/_commander_form.html
+msgid "Second commander (partner or Background)"
+msgstr "Secondo comandante (partner o Background)"
+
+#: templates/decks/_commander_form.html
+msgid "No second commander"
+msgstr "Nessun secondo comandante"
+
+#: templates/decks/_commander_form.html
+msgid ""
+"No card in this list may lead a Commander deck - that takes a legendary "
+"creature, or a card that says it can be your commander. Is the commander "
+"missing from the file?"
+msgstr ""
+"Nessuna carta di questa lista può guidare un mazzo Commander: serve una "
+"creatura leggendaria, o una carta che dice di poter essere il tuo "
+"comandante. Manca il comandante nel file?"
+
+#: templates/decks/detail.html
+msgid "Commander:"
+msgstr "Comandante:"
+
+#: templates/decks/detail.html
+msgid "Commanders:"
+msgstr "Comandanti:"
+
+#: templates/decks/detail.html
+msgid "Change the commander"
+msgstr "Cambia il comandante"
+
+#: templates/decks/detail.html
+msgid "No commander set."
+msgstr "Nessun comandante impostato."
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s card + 2 commanders"
+msgid_plural "%(count)s cards + 2 commanders"
+msgstr[0] "%(count)s carta + 2 comandanti"
+msgstr[1] "%(count)s carte + 2 comandanti"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Goldfish Lab plays by the Commander rules - 40 life, a command zone, 100 "
+"cards. This deck has %(count)s card and no commander, so its numbers hold "
+"only under those rules."
+msgid_plural ""
+"Goldfish Lab plays by the Commander rules - 40 life, a command zone, 100 "
+"cards. This deck has %(count)s cards and no commander, so its numbers hold "
+"only under those rules."
+msgstr[0] ""
+"Goldfish Lab gioca con le regole Commander: 40 punti vita, una zona di "
+"comando, 100 carte. Questo mazzo ha %(count)s carta e nessun comandante, "
+"quindi i suoi numeri valgono solo con queste regole."
+msgstr[1] ""
+"Goldfish Lab gioca con le regole Commander: 40 punti vita, una zona di "
+"comando, 100 carte. Questo mazzo ha %(count)s carte e nessun comandante, "
+"quindi i suoi numeri valgono solo con queste regole."
+
+#: templates/decks/detail.html templates/guests/commander.html
+msgid "Simulate without a commander"
+msgstr "Simula senza comandante"
+
+#: templates/decks/_status.html
+msgid "Not a Commander deck"
+msgstr "Non è un mazzo Commander"
+
+#: templates/simulations/detail.html
+msgid ""
+"Played without a commander - the numbers are for a deck with an empty "
+"command zone."
+msgstr ""
+"Giocato senza comandante: i numeri valgono per un mazzo con la zona di "
+"comando vuota."
+
+#: templates/simulations/detail.html
+#, python-format
+msgid ""
+"Goldfish Lab plays by the Commander rules, and this deck had %(count)s card,"
+" so its numbers hold only under those rules."
+msgid_plural ""
+"Goldfish Lab plays by the Commander rules, and this deck had %(count)s "
+"cards, so its numbers hold only under those rules."
+msgstr[0] ""
+"Goldfish Lab gioca con le regole Commander e questo mazzo aveva %(count)s "
+"carta, quindi i suoi numeri valgono solo con queste regole."
+msgstr[1] ""
+"Goldfish Lab gioca con le regole Commander e questo mazzo aveva %(count)s "
+"carte, quindi i suoi numeri valgono solo con queste regole."
+
+#: templates/guests/commander.html
+msgid "Who is your commander?"
+msgstr "Chi è il tuo comandante?"
+
+#: templates/guests/commander.html
+msgid "Choose the commander before the first simulation."
+msgstr "Scegli il comandante prima della prima simulazione."
+
+#: templates/guests/commander.html
+#, python-format
+msgid ""
+"<strong class=\"text-parchment-100\">%(name)s</strong> is in. The simulation"
+" casts the commander from the command zone, so it needs to know which card "
+"that is."
+msgstr ""
+"<strong class=\"text-parchment-100\">%(name)s</strong> è dentro. La "
+"simulazione lancia il comandante dalla zona di comando, quindi deve sapere "
+"quale carta è."
+
+#: templates/guests/commander.html
+msgid "Simulate with this commander"
+msgstr "Simula con questo comandante"
+
+#: templates/guests/commander.html
+msgid "The report will say the deck was played without one."
+msgstr "Il report dirà che il mazzo è stato giocato senza comandante."
+
+#: templates/guests/try.html
+msgid "For Commander decks: 100 cards, played by the Commander rules."
+msgstr "Per mazzi Commander: 100 carte, giocate con le regole Commander."
+
+#: changelog/entries.py
+msgid "Only a card that may lead becomes the commander"
+msgstr "Diventa comandante solo una carta che può esserlo"
+
+#: changelog/entries.py
+msgid ""
+"The commander choice on the deck page offers only legendary creatures and "
+"the cards that say they can be your commander, starts on nothing instead of "
+"on the first card, and stays open to change the commander later. Two "
+"partners, a creature with its Background or a companion with the Doctor are "
+"read from the file together. When the file names no commander the page says "
+"why, and when the file lists it first or last it is suggested. A guest is "
+"asked for the commander before the first simulation, and a run without one "
+"says so on its report."
+msgstr ""
+"La scelta del comandante nella pagina del mazzo offre solo creature "
+"leggendarie e carte che dicono di poter essere il tuo comandante, parte da "
+"nessuna scelta invece che dalla prima carta e resta aperta per cambiare il "
+"comandante in seguito. Due partner, una creatura con il suo Background o un "
+"compagno con il Dottore vengono letti insieme dal file. Quando il file non "
+"indica un comandante la pagina dice perché, e quando il file lo mette per "
+"primo o per ultimo viene suggerito. A un ospite viene chiesto il comandante "
+"prima della prima simulazione, e una simulazione senza comandante lo dice "
+"nel suo report."
+
+#: templates/decks/_commander_form.html
+#, python-format
+msgid ""
+"The file lists <strong>%(names)s</strong> first - are those the commanders?"
+msgstr ""
+"Il file elenca per primi <strong>%(names)s</strong>: sono i comandanti?"

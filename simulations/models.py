@@ -296,6 +296,11 @@ class SimulationRun(models.Model):
     #: the deck page compares it with today's to say "The deck has changed
     #: since this run." Empty on a run from before, which then says nothing.
     deck_print = models.CharField(max_length=64, blank=True)
+    #: The commanders the run was started with, by name (P20 F2, E1.4): `[]`
+    #: when the deck had none, and the report says so - a commander changed
+    #: while the run plays does not change what it played. `None` on a run
+    #: from before, which says nothing rather than guess.
+    commander_names = models.JSONField(null=True, blank=True)
 
     #: How long one game actually took, measured by the first chunk. Used to
     #: size the chunks of the *next* run of this deck: a measurement on this
@@ -320,6 +325,10 @@ class SimulationRun(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse("simulations:detail", args=[self.id])
+
+    @property
+    def played_without_commander(self) -> bool:
+        return self.commander_names is not None and not self.commander_names
 
     # --- progress ----------------------------------------------------------
 

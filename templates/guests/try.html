@@ -8,6 +8,7 @@
 {% block content %}
   <h1 class="font-display text-3xl text-parchment-100">{% translate "Try it with your deck" %}</h1>
   <p class="mt-2 text-parchment-200">{% translate "No account. Drop the file and the simulation starts." %}</p>
+  <p class="mt-1 text-sm text-ink-300">{% translate "For Commander decks: 100 cards, played by the Commander rules." %}</p>
   {% include "guests/_steps.html" %}
   <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
     <div class="surface-parchment p-6">

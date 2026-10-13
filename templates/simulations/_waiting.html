@@ -21,7 +21,7 @@
   <li>{% translate "Playing a land for the turn…" %}</li>
   <li>{% translate "Looking for the third land…" %}</li>
   <li>{% translate "Counting the mana…" %}</li>
-  <li>{% translate "Casting the commander from the command zone…" %}</li>
+  {% if not run.played_without_commander %}<li>{% translate "Casting the commander from the command zone…" %}</li>{% endif %}
   <li>{% translate "Tapping out. Nobody is holding a counterspell." %}</li>
   <li>{% translate "Resolving the stack. It is a short stack." %}</li>
   <li>{% translate "Passing the turn to nobody…" %}</li>

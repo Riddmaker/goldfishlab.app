@@ -25,6 +25,21 @@
     <a href="{{ run.deck.get_absolute_url }}"
        class="ml-auto text-sm text-parchment-200 underline">{% translate "Back to the deck" %}</a>
   </div>
+  {% if run.played_without_commander %}
+    {# P20 F2 (E1.4): a run without a commander used to look like any other. #}
+    <p class="mt-3 border-l-2 border-blood-600 pl-3 text-parchment-200">
+      {% translate "Played without a commander - the numbers are for a deck with an empty command zone." %}
+      {% if run.library_size and run.library_size != 100 %}
+        {% blocktranslate trimmed count count=run.library_size %}
+          Goldfish Lab plays by the Commander rules, and this deck had {{ count }} card, so its
+          numbers hold only under those rules.
+        {% plural %}
+          Goldfish Lab plays by the Commander rules, and this deck had {{ count }} cards, so its
+          numbers hold only under those rules.
+        {% endblocktranslate %}
+      {% endif %}
+    </p>
+  {% endif %}
   {% comment %}
     The panel holds the polled fragment, and while the run plays the fish and
     the lines beside it (phase 10 T3.2) - outside the fragment, so the swaps

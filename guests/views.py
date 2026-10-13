@@ -13,12 +13,12 @@ from allauth.decorators import rate_limit
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.db import transaction
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters
-from django.views.generic import FormView
+from django.views.generic import FormView, View
 from django_ratelimit.core import is_ratelimited
 from django_ratelimit.decorators import ratelimit
 from django_ratelimit.exceptions import Ratelimited
@@ -28,7 +28,7 @@ from billing.models import UsageRecord
 from billing.quotas import QuotaExceeded
 from billing.views import refusal
 from changelog import services as changelog_services
-from decks.views import ImportFlowMixin, imported
+from decks.views import ImportFlowMixin, commander_choice, imported, save_commanders
 from guests import services
 from guests.forms import SaveDeckForm
 from simulations import services as simulations
@@ -39,14 +39,23 @@ def land(request, outcome):
 
     Only a clean import runs by itself. Rows that did not match go to the
     review first, as for everybody - a report on a deck with missing cards
-    would answer a question nobody asked.
+    would answer a question nobody asked. A deck without a commander asks
+    for one first (P20 F2, E1.46): Lauf 1 ran a guest's deck with an empty
+    command zone, and the report never said so.
     """
     if not outcome.clean:
         return imported(request, outcome)
+    if not outcome.deck.commander_id:
+        return redirect("guests:commander")
+    return start_trial(request, outcome.deck)
+
+
+def start_trial(request, deck):
+    """The guest's trial run of `deck`, or the deck page with why not."""
     try:
         run = simulations.start_run(
             owner=request.user,
-            deck=outcome.deck,
+            deck=deck,
             games=services.TRIAL_GAMES,
             turns=services.TRIAL_TURNS,
             on_the_play=False,
@@ -54,11 +63,45 @@ def land(request, outcome):
     except QuotaExceeded as exc:
         # The sentence, not the exception's text: that is a log line.
         messages.info(request, refusal(exc))
-        return redirect(outcome.deck.get_absolute_url())
+        return redirect(deck.get_absolute_url())
     except simulations.SimulationRefused as exc:
         messages.info(request, str(exc))
-        return redirect(outcome.deck.get_absolute_url())
+        return redirect(deck.get_absolute_url())
     return redirect(run.get_absolute_url())
+
+
+@method_decorator(ratelimit(key="ip", rate="10/m", method="POST"), name="post")
+class CommanderView(View):
+    """"Who is your commander?" - between a guest's clean import and its run.
+
+    The deck page's choice (`decks/_commander_form.html`), with what the
+    file's order suggests filled in (E4) and a way to run without one that
+    somebody has to choose. The run starts either way, as it would have
+    after the import, and its report says when there was no commander.
+    """
+
+    template_name = "guests/commander.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not services.is_guest(request.user):
+            return redirect("decks:list" if request.user.is_authenticated else "guests:try")
+        self.deck = services.deck_of(request.user)
+        if self.deck is None:
+            return redirect("guests:try")
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        last_import = self.deck.imports.first()
+        return render(request, self.template_name, {
+            "deck": self.deck,
+            "last_import": last_import,
+            "commander_choice": commander_choice(self.deck, last_import),
+        })
+
+    def post(self, request):
+        if "without" not in request.POST and not save_commanders(request, self.deck):
+            return redirect("guests:commander")
+        return start_trial(request, self.deck)
 
 
 # Per address, because a guest is not anybody yet: ten uploads a minute is

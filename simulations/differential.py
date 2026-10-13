@@ -14,10 +14,20 @@ written to the database. The file lives in `/.data/` (not committed: it is
 about 2 MB, and only means something next to the catalogue it was made from).
 It records which Scryfall imports that catalogue came from; when they differ
 at `--diff`, new oracle text or tags explain part of the diff, and it says so.
+
+`--diff --explain` is the gate between two engine versions (card model,
+gate B): every card that moved is given its **causes** - the Forge families
+of `cards.forge_merge` that changed its profile, and the reader changes of
+`READER_CAUSES` its text shows - and a card nothing explains fails it.
 """
 
+import copy
 import gzip
 import json
+import re
+from collections import Counter
+from collections.abc import Callable
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -62,30 +72,45 @@ def readings(oracle_cards) -> dict:
     The profile is derived here rather than loaded, so the reading is the
     code's and not whatever the last `profiles.rebuild()` stored.
     """
-    from cards import forge_merge, profiles
-    from cards.models import OracleCardTag
-
-    branches = profiles.tutor_branches()
-    revivals = profiles.reanimate_branches()
     found = {}
-    cards = list(oracle_cards)
-    for start in range(0, len(cards), CHUNK):
-        chunk = cards[start:start + CHUNK]
-        slugs: dict[str, set[str]] = {}
-        links = OracleCardTag.objects.filter(oracle_card__in=chunk).values_list(
-            "oracle_card_id", "tag__slug")
-        for card_id, slug in links:
-            slugs.setdefault(str(card_id), set()).add(slug)
-        forge = forge_merge.blocks_by_card(chunk)
+    for chunk, derive, forge in _chunks(oracle_cards):
         for card in chunk:
             # Sets the reverse one-to-one cache only; nothing is saved.
-            card.profile = profiles.derive(card, slugs.get(str(card.pk), set()),
-                                           branches=branches, revivals=revivals,
-                                           forge=forge.get(str(card.pk), ()))
+            card.profile = derive(card, forge.get(str(card.pk), ()))
         read = adapter.engine_readings(chunk, builtin=False)
         for card in chunk:
             found[key(card)] = {"id": str(card.pk), **coverage.reading(*read[card.pk])}
     return found
+
+
+def _chunks(oracle_cards):
+    """The cards a thousand at a time, each chunk with a way to derive a
+    card's profile and the chunk's Forge blocks by oracle id."""
+    from cards import forge_merge, profiles
+
+    branches = profiles.tutor_branches()
+    revivals = profiles.reanimate_branches()
+    cards = list(oracle_cards)
+    for start in range(0, len(cards), CHUNK):
+        chunk = cards[start:start + CHUNK]
+        slugs = _tags(chunk)
+
+        def derive(card, forge, slugs=slugs):
+            return profiles.derive(card, slugs.get(str(card.pk), set()),
+                                   branches=branches, revivals=revivals, forge=forge)
+
+        yield chunk, derive, forge_merge.blocks_by_card(chunk)
+
+
+def _tags(chunk) -> dict[str, set[str]]:
+    from cards.models import OracleCardTag
+
+    slugs: dict[str, set[str]] = {}
+    links = OracleCardTag.objects.filter(oracle_card__in=chunk).values_list(
+        "oracle_card_id", "tag__slug")
+    for card_id, slug in links:
+        slugs.setdefault(str(card_id), set()).add(slug)
+    return slugs
 
 
 def imports() -> dict:
@@ -166,3 +191,100 @@ def round_trip(path: Path) -> dict:
         verbs.update(blocks.verbs(found))
     return {"cards": sum(abilities.values()), "lost": lost, "extra": extra,
             "abilities": dict(sorted(abilities.items())), "verbs": verbs}
+
+
+# --- explaining a diff (gate B) -------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Cause:
+    """A change of our reader between two versions, as a card shows it: the
+    reading fields it may move, and what the card's oracle text must say."""
+
+    name: str
+    keys: frozenset[str]
+    shows: Callable[[str], bool]
+
+
+_REMINDER_DRAW = re.compile(r"\([^)]*\bdraws?\b[^)]*\)", re.IGNORECASE)
+_TAPPED_ATTACKING = re.compile(r"\btapped and attacking\b", re.IGNORECASE)
+_SACRIFICE_SOME = re.compile(r"\bsacrifice (?:two|three) ", re.IGNORECASE)
+
+#: Engine v28 (card model, phase 1, PR 2). A draw inside reminder text is
+#: Cycling's, a Clue's, a gift's ...: none is drawn as the spell resolves.
+READER_CAUSES = (
+    Cause("draw in reminder text", frozenset({"draw_on_cast", "discard_on_cast"}),
+          lambda text: bool(_REMINDER_DRAW.search(text))),
+    Cause("tapped and attacking is no entering tapped",
+          frozenset({"enters_tapped", "unread"}),
+          lambda text: bool(_TAPPED_ATTACKING.search(text))),
+    Cause("sacrifice two or three", frozenset({"additional_costs", "unread"}),
+          lambda text: bool(_SACRIFICE_SOME.search(text))),
+)
+
+
+@dataclass
+class Explanation:
+    """Every card that moved, with its causes; and the ones nothing explains."""
+
+    diff: coverage.Diff
+    notes: list[str]
+    #: Card -> its causes: ``forge:<family>`` or ``reader:<cause>``.
+    causes: dict[str, list[str]] = field(default_factory=dict)
+    #: Card -> the reading fields no cause covers (``replay`` when deriving
+    #: again did not give today's reading).
+    unexplained: dict[str, list[str]] = field(default_factory=dict)
+
+    def by_cause(self) -> Counter:
+        return Counter(cause for found in self.causes.values() for cause in found)
+
+
+def _profile_state(profile) -> dict:
+    return {item.attname: copy.deepcopy(getattr(profile, item.attname))
+            for item in type(profile)._meta.concrete_fields}
+
+
+def _read(card, profile) -> dict:
+    card.profile = profile
+    return coverage.reading(*adapter.engine_readings([card], builtin=False)[card.pk])
+
+
+def explain(path: Path) -> Explanation:
+    """Today's diff against a frozen reading, every moved card with its causes.
+
+    A card's profile is derived again without Forge, and the Forge families
+    are applied to it one by one, as `forge_merge.merge` does: a family that
+    changed the profile is a cause. What moved between the frozen reading and
+    the one without Forge is our reader's, and has to be covered by the keys
+    of a `READER_CAUSES` entry the card's text shows.
+    """
+    from cards import forge_merge
+    from cards.models import OracleCard
+
+    found, before, after, notes = diff(path)
+    moved = {after[name]["id"]: name
+             for name in (*found.lost, *found.gained, *found.changed, *found.reasons)}
+    explanation = Explanation(diff=found, notes=notes)
+    cards = OracleCard.objects.filter(pk__in=moved).order_by("pk")
+    for chunk, derive, forge in _chunks(cards):
+        for card in chunk:
+            name, abilities = moved[str(card.pk)], forge.get(str(card.pk), ())
+            profile = derive(card, ())
+            alone, causes = _read(card, profile), []
+            for family in forge_merge.FAMILIES:
+                was = _profile_state(profile)
+                family(profile, abilities, card)
+                if _profile_state(profile) != was:
+                    causes.append(f"forge:{family.__name__}")
+            left = set(coverage.changed_keys(before[name], alone))
+            text = card.oracle_text or ""
+            for cause in READER_CAUSES:
+                if left & cause.keys and cause.shows(text):
+                    causes.append(f"reader:{cause.name}")
+                    left -= cause.keys
+            if coverage.changed_keys(_read(card, profile), after[name]):
+                left.add("replay")
+            explanation.causes[name] = causes
+            if left:
+                explanation.unexplained[name] = sorted(left)
+    return explanation

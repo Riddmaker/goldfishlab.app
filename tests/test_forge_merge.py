@@ -4,11 +4,14 @@ The scripts are made up for these tests, in the format's shape; none is
 copied from Forge's card data.
 """
 
+import random
+
 import pytest
 
 from cards import forge, forge_import, forge_merge, profiles, refresh
 from cards.models import DerivedProfile, ForgeScript, OracleCard
 from simulation import blocks as b
+from simulations.engine import adapter
 
 
 def blocks_of(text: str) -> tuple[b.Ability, ...]:
@@ -311,3 +314,65 @@ def test_a_spells_treasures_are_taken_beside_its_other_tokens():
 ])
 def test_a_treasure_the_engine_would_play_otherwise_is_not_taken(kind, script):
     assert treasure_of(kind, script).treasures == 0
+
+
+def drawn_by(kind: str, script: str, **fields) -> DerivedProfile:
+    profile = DerivedProfile(kind=kind, draws_cards=None, triggers=[], source_map={}, **fields)
+    forge_merge.draws(profile, blocks_of(f"Name:Test\n{script}"), None)
+    return profile
+
+
+def test_a_draw_as_the_card_enters_is_a_trigger_as_it_arrives():
+    profile = drawn_by("creature", "Types:Creature\n" + ENTERS.replace("TrigToken", "TrigDraw")
+                       + "SVar:TrigDraw:DB$ Draw | NumCards$ 1 | Defined$ You | SubAbility$ "
+                       "DBLose\nSVar:DBLose:DB$ LoseLife | LifeAmount$ 1 | Defined$ You\n")
+    assert profile.triggers == [{"event": "resolves", "draw": 1, "life": 1}]
+    assert profile.source_map == {"triggers": "forge"}
+    assert profile.draws_cards is None
+
+
+def test_the_engine_draws_as_the_card_arrives():
+    from simulation.cards import CREATURE, Card, Trigger
+    from simulation.game import Game
+
+    game = Game(random.Random(1))
+    game.library = [Card(f"Card {n}", 0, 0, 0, CREATURE) for n in range(3)]
+    strix = Card("Strix", 0, 0, 2, CREATURE, triggers=(Trigger("resolves", draw=1, life=1),))
+    game.make_treasures(strix)
+    assert (len(game.hand), game.life) == (1, 39)
+    assert "as it enters" in adapter._trigger_text(strix.triggers[0])
+
+
+def test_a_spells_draw_the_reader_missed_is_taken():
+    profile = drawn_by("sorcery", "Types:Sorcery\nA:SP$ Draw | NumCards$ 7 | ValidTgts$ Player")
+    assert profile.draws_cards == 7 and profile.triggers == []
+
+
+@pytest.mark.parametrize("kind, script", [
+    # Each opponent draws.
+    ("creature", "Types:Creature\n" + ENTERS.replace("TrigToken", "TrigDraw")
+     + "SVar:TrigDraw:DB$ Draw | NumCards$ 1 | Defined$ Player.Opponent"),
+    # A loot: the engine would play the draw without its discard.
+    ("creature", "Types:Creature\n" + ENTERS.replace("TrigToken", "TrigDraw")
+     + "SVar:TrigDraw:DB$ Draw | NumCards$ 1 | SubAbility$ DBDiscard\n"
+       "SVar:DBDiscard:DB$ Discard | NumCards$ 1 | Mode$ TgtChoose"),
+    # As it dies.
+    ("creature", "Types:Creature\nT:Mode$ ChangesZone | Origin$ Battlefield | Destination$ "
+     "Graveyard | ValidCard$ Card.Self | Execute$ TrigDraw\nSVar:TrigDraw:DB$ Draw | NumCards$ 1"),
+    # A count.
+    ("sorcery", "Types:Sorcery\nA:SP$ Draw | NumCards$ X\nSVar:X:Count$Valid Creature.YouCtrl"),
+])
+def test_a_draw_the_engine_would_play_otherwise_is_not_taken(kind, script):
+    profile = drawn_by(kind, script)
+    assert profile.draws_cards is None and profile.triggers == []
+
+
+def test_a_draw_the_reader_read_is_never_doubled():
+    read = [{"event": "upkeep", "draw": 1}]
+    profile = drawn_by("creature", "Types:Creature\n" + ENTERS.replace("TrigToken", "TrigDraw")
+                       + "SVar:TrigDraw:DB$ Draw | NumCards$ 1")
+    assert profile.triggers
+    again = DerivedProfile(kind="creature", draws_cards=None, source_map={}, triggers=read)
+    forge_merge.draws(again, blocks_of("Name:Test\nTypes:Creature\n" + ENTERS.replace(
+        "TrigToken", "TrigDraw") + "SVar:TrigDraw:DB$ Draw | NumCards$ 1"), None)
+    assert again.triggers == read

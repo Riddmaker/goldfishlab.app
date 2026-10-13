@@ -389,3 +389,14 @@ SVar:DBTreasure:DB$ Token | TokenAmount$ 2 | TokenScript$ c_a_treasure_sac \
 """)
     token = only(found, b.RESOLVES).effects[1]
     assert (token.arg("token"), token.arg("owner")) == ("treasure", "TargetedController")
+
+
+def test_a_draw_for_another_player_says_who_draws():
+    found = blocks_of("""Name:Test Gift
+Types:Sorcery
+A:SP$ Draw | NumCards$ 1 | Defined$ Player.Opponent | SubAbility$ DBDraw
+SVar:DBDraw:DB$ Draw | NumCards$ 2 | Defined$ You
+""")
+    first, second = only(found, b.RESOLVES).effects
+    assert (first.arg("player"), first.arg("who")) == ("Player.Opponent", None)
+    assert (second.arg("player"), second.arg("who")) == (None, "you")

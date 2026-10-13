@@ -30,7 +30,7 @@ from simulation import blocks as b
 
 #: Raised with every change to how a script is translated, so the next run
 #: translates every script again although the pin did not move.
-TRANSLATION = 5
+TRANSLATION = 6
 
 #: More scripts than this share failing to translate stops the run, and the
 #: blocks of the last good run stay.
@@ -166,6 +166,10 @@ _AMOUNTS = ("NumCards", "Amount", "NumDmg", "LifeAmount", "CounterNum", "TokenAm
 _CHOICES = {"Any": "any", "AnyColor": "any", "ColorIdentity": "identity",
             "Chosen": "chosen"}
 
+#: APIs that happen to a player, who is you unless ``Defined$`` says otherwise.
+_PLAYER_APIS = frozenset({"Draw", "Discard", "Mill", "LoseLife", "GainLife", "Scry",
+                          "Surveil"})
+
 _TOKEN_SCRIPT = re.compile(r"^c_a_([a-z]+)_sac$")
 _ANY_TYPE = frozenset({"Card", "Permanent", "Any", "Self", "CARDNAME"})
 
@@ -269,6 +273,9 @@ def _args(step: forge.Ability, reading: _Reading) -> tuple:
     who = params.get("Defined", "")
     if who in ("You", "Self") and step.head not in ("ChangeZone", "ChangeZoneAll"):
         args["who"] = who.lower()
+    elif who and step.head in _PLAYER_APIS:
+        # "Each opponent draws a card", "Its controller loses 2 life".
+        args["player"] = who
     if params.get("ValidTgts"):
         args["target"] = True
     if params.get("UnlessCost"):
@@ -684,7 +691,8 @@ def facts(abilities, type_line: str = "") -> dict:
         enters = ability.kind == b.TRIGGERED and ability.event == b.Event("enters", who="self")
         if (ability.kind == b.RESOLVES or enters) and draws != "x":
             for effect in ability.effects:
-                if effect.verb == "draw" and ability.mode == 0 and draws != "x":
+                if effect.verb == "draw" and ability.mode == 0 and draws != "x" \
+                        and not effect.arg("player"):
                     n = effect.arg("n", 1)
                     draws = draws + n if isinstance(n, int) else "x"
         for effect in ability.effects:

@@ -355,9 +355,72 @@ def treasures(profile, abilities, card) -> None:
     take(profile, "treasures", made, answers=answers)
 
 
+#: What may stand beside a draw: nothing that touches your hand or library,
+#: so that the draw alone is what the engine plays of the ability. Leaving
+#: out a scry or a token only under-reads it.
+_DRAW_COMPANIONS = frozenset({
+    "damage", "damage_all", "destroy", "destroy_all", "counter_spell", "gain_life", "pump",
+    "pump_all", "tap", "tap_all", "untap", "untap_all", "put_counter", "put_counter_all",
+    "scry", "surveil", "create_token", "goad", "prevent_damage", "regenerate", "shuffle",
+    "proliferate", "gain_control", "fight", "become_monarch",
+})
+
+
+def _drawn(ability: b.Ability) -> tuple[int, int] | None:
+    """Cards the ability draws for you, and life it costs you, or None for
+    an ability whose draw the engine would play otherwise."""
+    if not complete(ability) or ability.mode:
+        return None
+    draws = [effect for effect in ability.effects if effect.verb == "draw"]
+    # Blade Juggler's "deals 1 damage to you" is life the draw costs too.
+    losses = [effect for effect in ability.effects if effect.verb == "lose_life"
+              or (effect.verb == "damage" and effect.arg("who") == "you")]
+    rest = [effect for effect in ability.effects
+            if effect not in draws and effect not in losses]
+    if len(draws) != 1 or len(losses) > 1 or any(
+            effect.verb not in _DRAW_COMPANIONS for effect in rest):
+        return None
+    n = draws[0].arg("n", 1)
+    life = losses[0].arg("n", 1) if losses else 0
+    if draws[0].arg("player") or not isinstance(n, int) or not isinstance(life, int) or (
+            losses and losses[0].arg("player")):
+        return None
+    return n, life
+
+
+def draws(profile, abilities, card) -> None:
+    """Cards drawn the reader did not read: as a spell resolves, or as the
+    card itself enters - Baleful Strix, Mulldrifter, Abundant Growth - which
+    the engine plays as a trigger as the card arrives, with the life it costs
+    (``resolves``, as Brass's Bounty's Treasure).
+
+    Taken from an ability read whole, not a mode, that draws you a fixed
+    number of cards beside nothing that touches your hand or library.
+    """
+    found = []
+    for ability in abilities:
+        arrives = (ability.kind == b.RESOLVES and profile.kind in _ONE_SHOT) or (
+            ability.kind == b.TRIGGERED and ability.event == _SELF_ENTERS
+            and profile.kind not in _ONE_SHOT)
+        if arrives and any(effect.verb == "draw" for effect in ability.effects):
+            found.append(ability)
+    if len(found) != 1 or (drawn := _drawn(found[0])) is None:
+        return
+    n, life = drawn
+    if profile.kind in _ONE_SHOT:
+        # A spell's life is no field the engine reads from the reader.
+        if profile.draws_cards is None and not profile.draws_x and not life:
+            take(profile, "draws_cards", n)
+        return
+    if any(trigger.get("draw") for trigger in profile.triggers or ()):
+        return
+    entry = {"event": "resolves", "draw": n, **({"life": life} if life else {})}
+    take(profile, "triggers", [*(profile.triggers or ()), entry])
+
+
 #: The families, in order: each reads the blocks and the profile, and takes
 #: what its rule allows.
-FAMILIES: list[Callable] = [mana, enters_tapped, land_search, treasures]
+FAMILIES: list[Callable] = [mana, enters_tapped, land_search, treasures, draws]
 
 
 def merge(profile, abilities, card) -> None:

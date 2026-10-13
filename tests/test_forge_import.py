@@ -211,6 +211,37 @@ A:AB$ Mana | Cost$ 1 T | Produced$ Combo W U
     assert forge_import.facts(signet)["taps_for"] == "BGRUW"
 
 
+def test_taps_for_is_the_mana_tap_makes_net():
+    town = blocks_of("""Name:Test Town
+Types:Land
+A:AB$ Mana | Cost$ T | Produced$ C
+A:AB$ Mana | Cost$ 1 T | Produced$ Any
+A:AB$ Mana | Cost$ T PayLife<1> | Produced$ G
+A:AB$ Mana | Cost$ 1 T | Produced$ R W
+""")
+    signet = [ability for ability in town if ability.kind == b.MANA][3]
+    assert signet.effects[0].args == (("all", True), ("color", "RW"))
+    # Not the {1} that converts into any colour; the {1} that makes two does.
+    assert forge_import.facts(town, "Land")["taps_for"] == "CGRW"
+    cavern = blocks_of("""Name:Test Cavern
+Types:Land
+A:AB$ Mana | Cost$ T | Produced$ Any | RestrictValid$ Spell.Creature+ChosenType
+""")
+    # Restricted mana is mana the reader reads too, with the restriction.
+    assert only(cavern, b.MANA).effects[0].arg("restrict") == "Spell.Creature+ChosenType"
+    assert forge_import.facts(cavern)["taps_for"] == "BGRUW"
+    chosen = blocks_of("""Name:Test Apple
+Types:Land
+A:AB$ Mana | Cost$ T | Produced$ Chosen
+""")
+    reflected = blocks_of("""Name:Test Mox
+Types:Artifact
+A:AB$ ManaReflected | Cost$ T | ColorOrType$ Color | ReflectProperty$ Is
+""")
+    assert forge_import.facts(chosen)["taps_for"] == forge_import.facts(reflected)[
+        "taps_for"] == "BGRUW"
+
+
 def test_a_search_for_an_opponent_is_no_land_search():
     found = blocks_of("""Name:Test Path
 Types:Instant

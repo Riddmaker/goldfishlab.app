@@ -30,7 +30,7 @@ from simulation import blocks as b
 
 #: Raised with every change to how a script is translated, so the next run
 #: translates every script again although the pin did not move.
-TRANSLATION = 1
+TRANSLATION = 2
 
 #: More scripts than this share failing to translate stops the run, and the
 #: blocks of the last good run stay.
@@ -228,6 +228,13 @@ def _args(step: forge.Ability, reading: _Reading) -> tuple:
     if step.head in MANA_APIS:
         args["color"] = _colors(params.get("Produced", "")) if step.head == "Mana" \
             else "reflected"
+        words = params.get("Produced", "").split()
+        if step.head == "Mana" and len(words) > 1 and set(words) <= set("WUBRGC"):
+            # "W U": each of them (a Signet), where "Combo W U" is one of them.
+            args["all"] = True
+        if params.get("RestrictValid"):
+            # "Spend this mana only to cast a creature spell of the chosen type".
+            args["restrict"] = params["RestrictValid"]
     elif step.head == "Token":
         script = params.get("TokenScript", "")
         match = _TOKEN_SCRIPT.match(script)
@@ -629,6 +636,8 @@ ANY = "WUBRG"
 
 _BASIC_TYPES = {"Plains": "W", "Island": "U", "Swamp": "B", "Mountain": "R", "Forest": "G"}
 _LAND_WORDS = ("Land", *_BASIC_TYPES)
+#: Colours a deck decides: read as any colour, as the engine plays them.
+_ANY_COLOUR = frozenset({"any", "identity", "chosen", "reflected"})
 
 
 def facts(abilities, type_line: str = "") -> dict:
@@ -646,11 +655,14 @@ def facts(abilities, type_line: str = "") -> dict:
     land_search = enters_tapped = treasures = False
     for ability in abilities:
         atoms = {cost.atom for cost in ability.costs}
-        if ability.kind == b.MANA and "tap" in atoms and atoms <= {"tap", "mana"}:
+        # What {T} makes, life aside (Hashep Oasis), and restricted or not:
+        # the reader's flat mana. An ability that also takes mana counts only
+        # when it makes more than it takes (a Signet), not when it converts.
+        if ability.kind == b.MANA and "tap" in atoms and atoms <= {"tap", "life", "mana"}:
             for effect in ability.effects:
-                if effect.verb == "add_mana":
+                if effect.verb == "add_mana" and _nets_mana(ability, effect):
                     color = effect.arg("color", "")
-                    taps_for |= set(ANY) if color in ("any", "identity") else \
+                    taps_for |= set(ANY) if color in _ANY_COLOUR else \
                         {letter for letter in color if letter in ANY + "C"}
         enters = ability.kind == b.TRIGGERED and ability.event == b.Event("enters", who="self")
         if (ability.kind == b.RESOLVES or enters) and draws != "x":
@@ -671,3 +683,16 @@ def facts(abilities, type_line: str = "") -> dict:
     return {"taps_for": "".join(sorted(taps_for)), "draws": draws,
             "land_search": land_search, "enters_tapped": enters_tapped,
             "treasures": treasures}
+
+
+def _nets_mana(ability, effect) -> bool:
+    """Whether ``effect`` makes more mana than ``ability``'s cost takes."""
+    paid = sum(cost.mana.generic + cost.mana.colorless + sum(n for _, n in cost.mana.pips)
+               + len(cost.mana.hybrid) + len(cost.mana.phyrexian)
+               for cost in ability.costs if cost.atom == "mana" and cost.mana is not None)
+    if not paid:
+        return True
+    n = effect.arg("n", 1)
+    made = (n if isinstance(n, int) else 1) * (len(effect.arg("color", "")) if effect.arg(
+        "all") else 1)
+    return made > paid

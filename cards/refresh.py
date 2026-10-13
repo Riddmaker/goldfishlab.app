@@ -25,8 +25,9 @@ from cards.models import BulkImport, DerivedProfile, OracleCard
 #: What `--kind all` means, in dependency order: a tagging needs its card.
 KINDS = [BulkImport.Kind.ORACLE_CARDS, BulkImport.Kind.ORACLE_TAGS]
 
-#: The kinds whose rows a profile is derived from.
-PROFILE_INPUTS = frozenset(KINDS)
+#: The kinds whose rows a profile is derived from: Forge's blocks fill in
+#: what the reader left open (`cards.forge_merge`).
+PROFILE_INPUTS = frozenset({*KINDS, BulkImport.Kind.FORGE_SCRIPTS})
 
 #: `date.weekday()` of the weekly full run: Tuesday.
 FULL_RUN_WEEKDAY = 1
@@ -80,10 +81,13 @@ def load(
     loaded.results.append(result)
     if on_result:
         on_result(result)
+    forge_changed = result.status == BulkImport.Status.OK
 
     missing = OracleCard.objects.count() - DerivedProfile.objects.count()
     if changed:
         loaded.profiles_reason = "cards or tags changed"
+    elif forge_changed:
+        loaded.profiles_reason = "Forge's blocks changed"
     elif missing:
         loaded.profiles_reason = f"{missing} cards had no profile"
     else:

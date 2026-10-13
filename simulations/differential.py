@@ -62,7 +62,7 @@ def readings(oracle_cards) -> dict:
     The profile is derived here rather than loaded, so the reading is the
     code's and not whatever the last `profiles.rebuild()` stored.
     """
-    from cards import profiles
+    from cards import forge_merge, profiles
     from cards.models import OracleCardTag
 
     branches = profiles.tutor_branches()
@@ -76,10 +76,12 @@ def readings(oracle_cards) -> dict:
             "oracle_card_id", "tag__slug")
         for card_id, slug in links:
             slugs.setdefault(str(card_id), set()).add(slug)
+        forge = forge_merge.blocks_by_card(chunk)
         for card in chunk:
             # Sets the reverse one-to-one cache only; nothing is saved.
             card.profile = profiles.derive(card, slugs.get(str(card.pk), set()),
-                                           branches=branches, revivals=revivals)
+                                           branches=branches, revivals=revivals,
+                                           forge=forge.get(str(card.pk), ()))
         read = adapter.engine_readings(chunk, builtin=False)
         for card in chunk:
             found[key(card)] = {"id": str(card.pk), **coverage.reading(*read[card.pk])}

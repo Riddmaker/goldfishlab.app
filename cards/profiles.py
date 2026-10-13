@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 
 from django.utils.translation import gettext_noop
 
+from cards import forge_merge
 from cards.models import DerivedProfile, OracleCard
 
 # --- source labels, as they appear in DerivedProfile.source_map --------------
@@ -3025,12 +3026,16 @@ def _first_number(pattern: re.Pattern, text: str) -> int | None:
 
 def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
            branches: frozenset[str] | None = None,
-           revivals: frozenset[str] | None = None) -> DerivedProfile:
+           revivals: frozenset[str] | None = None,
+           forge=forge_merge.LOAD) -> DerivedProfile:
     """Build (not save) the profile for one card.
 
     `branches` is `tutor_branches()` and `revivals` is `reanimate_branches()`,
     passed in by `rebuild` so that a pass over the catalogue reads the tag tree
-    once rather than once per land fetcher or reanimator.
+    once rather than once per land fetcher or reanimator. `forge` is the
+    card's blocks from Forge's script (`forge_merge.blocks_by_card`), loaded
+    here when not given; they fill in what the reader left open
+    (`forge_merge.merge`, card model phase 1).
     """
     tags = tag_slugs if tag_slugs is not None else set(card.tags.values_list("slug", flat=True))
     text = card.oracle_text or ""
@@ -3218,6 +3223,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         source_map=_source_map(tags, tapped, mana, tutor)
         | ({"triggers": REGEX} if triggers.found else {}),
     )
+    forge_merge.merge(profile, forge_merge.blocks_of(card) if forge is forge_merge.LOAD
+                      else forge, card)
     return profile
 
 
@@ -3309,8 +3316,9 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
     for card_id, slug in links:
         slugs_by_card.setdefault(str(card_id), set()).add(slug)
 
+    forge = forge_merge.blocks_by_card(batch)
     profiles = [derive(card, slugs_by_card.get(str(card.pk), set()), branches=branches,
-                       revivals=revivals)
+                       revivals=revivals, forge=forge.get(str(card.pk), ()))
                 for card in batch]
     DerivedProfile.objects.bulk_create(
         profiles,

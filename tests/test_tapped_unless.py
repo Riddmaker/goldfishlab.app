@@ -189,3 +189,23 @@ def test_the_turbulent_assumption_is_a_stated_judgement_not_a_gap(db):
     assumed = [gap for gap in found if gap.field == "assumed_lands"]
     assert assumed and gaps.kind_of("assumed_lands") == gaps.JUDGEMENT
     assert not gaps.of_kind(found, gaps.READING)
+
+
+# --- card model phase 1 (engine version 28) -------------------------------------
+
+
+def test_a_lorwyn_land_reveals_a_creature_of_its_type():
+    palace = land("Gilt-Leaf Palace", unless=TappedUnless("reveal", frozenset({"elf"})))
+    elf = Card("Llanowar Elves", 0, 0, 1, "creature", creature_types=frozenset({"elf", "druid"}))
+    assert play(palace, hand=[elf]).tapped_lands == 0
+    assert play(palace, hand=[FOREST]).tapped_lands == 1
+
+
+@pytest.mark.parametrize("text", [
+    "Sneak {3}{W/B} (You may cast this spell for {3}{W/B} if you also return an unblocked "
+    "attacker you control to hand during the declare blockers step. It enters tapped and "
+    "attacking.)",
+    "Whenever this creature attacks, create a token copy of it. It enters tapped and attacking.",
+])
+def test_a_card_put_in_tapped_and_attacking_does_not_enter_tapped_as_it_is_played(text):
+    assert read(text) == (False, "", None)

@@ -141,3 +141,63 @@ Types:Land
 A:AB$ Mana | Cost$ T | Produced$ C | Amount$ 2
 """), None)
     assert (profile.mana_amount, profile.mana_produces) == (1, {"U": 1})
+
+
+def unread_tapped() -> DerivedProfile:
+    return DerivedProfile(
+        kind="land", enters_tapped=False, source_map={}, needs_review=True,
+        review_reasons=["text mentions entering tapped, but the condition was not readable"])
+
+
+def tapped_by(replacement: str) -> DerivedProfile:
+    profile = unread_tapped()
+    forge_merge.enters_tapped(profile, blocks_of(
+        f"Name:Test\nTypes:Land\nR:Event$ Moved | ValidCard$ Card.Self | Destination$ "
+        f"Battlefield | ReplaceWith$ ETBTapped{replacement}\n"
+        "SVar:ETBTapped:DB$ Tap | Defined$ Self | ETB$ True\n"), None)
+    return profile
+
+
+def test_a_card_that_enters_tapped_by_its_short_name_is_taken():
+    profile = tapped_by("")
+    assert profile.enters_tapped and profile.tapped_unless is None
+    assert not profile.needs_review and profile.source_map["enters_tapped"] == "forge"
+
+
+@pytest.mark.parametrize("unless, condition", [
+    ("Reveal<1/Elf>", {"kind": "reveal", "types": ["elf"]}),
+    ("PayLife<3>", {"kind": "pay_life", "life": 3}),
+])
+def test_a_condition_the_engine_checks_is_taken_with_it(unless, condition):
+    profile = unread_tapped()
+    forge_merge.enters_tapped(profile, blocks_of(f"""Name:Test
+Types:Land
+R:Event$ Moved | ValidCard$ Card.Self | Destination$ Battlefield | ReplaceWith$ ETBTapped
+SVar:ETBTapped:DB$ Tap | Defined$ Self | ETB$ True | UnlessCost$ {unless}
+"""), None)
+    assert profile.enters_tapped and profile.tapped_unless == condition
+    assert not profile.needs_review
+
+
+def test_a_condition_the_engine_cannot_check_is_played_tapped_and_still_said():
+    profile = unread_tapped()
+    forge_merge.enters_tapped(profile, blocks_of("""Name:Test
+Types:Land
+R:Event$ Moved | ValidCard$ Card.Self | Destination$ Battlefield | ReplaceWith$ ETBTapped
+SVar:ETBTapped:DB$ Tap | Defined$ Self | ETB$ True | ConditionPresent$ Land.YouCtrl+Other \
+| ConditionCompare$ GE2
+"""), None)
+    assert profile.enters_tapped and profile.tapped_unless is None
+    assert profile.needs_review
+
+
+def test_a_choice_to_enter_tapped_is_not_taken():
+    profile = unread_tapped()
+    forge_merge.enters_tapped(profile, blocks_of("""Name:Test
+Types:Land
+R:Event$ Moved | ValidCard$ Card.Self | Destination$ Battlefield | ReplaceWith$ ETBTapped \
+| Optional$ True
+SVar:ETBTapped:DB$ Tap | Defined$ Self | ETB$ True | SubAbility$ DBRad
+SVar:DBRad:DB$ Radiation | Num$ 2
+"""), None)
+    assert not profile.enters_tapped

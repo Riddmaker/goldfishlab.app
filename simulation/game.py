@@ -1097,7 +1097,10 @@ class Game:
                        and self.power(permanent) >= condition.count
                        for permanent in self.battlefield)
         if kind == "reveal":
-            return any(other is not card and other.subtypes & condition.types
+            # A land type (the Castles), or since engine version 28 a creature
+            # type: Gilt-Leaf Palace's Elf.
+            return any(other is not card
+                       and (other.subtypes | other.creature_types) & condition.types
                        for other in self.hand)
         if kind == "pay_life":
             return self.life - condition.count >= PHYREXIAN_LIFE_FLOOR

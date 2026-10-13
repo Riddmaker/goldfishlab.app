@@ -18,6 +18,7 @@ of this, so it still overrides everything.
 
 from collections.abc import Callable
 
+from cards import forge
 from simulation import blocks as b
 
 #: The source label, as it appears in `DerivedProfile.source_map`.
@@ -143,9 +144,58 @@ def mana(profile, abilities, card) -> None:
         take(profile, "mana_colors", colors)
 
 
+_TAPPED_UNREAD = ("text mentions entering tapped, but the condition was not readable",)
+_SELF_ENTERS = b.Event("enters", who="self")
+
+
+def _unless(cost: str) -> dict | None:
+    """Forge's "unless" cost as a condition the engine checks: a card of a
+    type revealed from the hand, or life paid."""
+    parts = forge.cost_parts(cost)
+    if len(parts) != 1:
+        return None
+    name, _, inner = parts[0].partition("<")
+    fields = inner.rstrip(">").split("/")
+    if name == "Reveal" and len(fields) == 2 and fields[0] == "1" and fields[1].isalpha():
+        return {"kind": "reveal", "types": [fields[1].casefold()]}
+    if name == "PayLife" and fields[0].isdigit():
+        return {"kind": "pay_life", "life": int(fields[0])}
+    return None
+
+
+def enters_tapped(profile, abilities, card) -> None:
+    """The card enters tapped, where the reader did not read it.
+
+    "Boseiju enters tapped" (the short name), and "If you don't, this land
+    enters tapped" after a reveal or life the engine can check. A condition
+    it cannot check is played as tapped, and the reason stays: pessimistic,
+    not wrong. "You may have it enter tapped" is not taken.
+    """
+    if profile.enters_tapped:
+        return
+    found = [ability for ability in abilities if ability.kind == b.REPLACEMENT
+             and ability.event == _SELF_ENTERS
+             and any(effect.verb == "enters_tapped" for effect in ability.effects)]
+    if len(found) != 1 or any(effect.verb == b.UNMODELED or effect.arg("optional")
+                              for effect in found[0].effects):
+        return
+    ability = found[0]
+    if complete(ability):
+        take(profile, "enters_tapped", True, answers=_TAPPED_UNREAD)
+        return
+    unless = next(effect.arg("unless") for effect in ability.effects
+                  if effect.verb == "enters_tapped")
+    condition = _unless(unless) if unless and not ability.unread else None
+    if condition is not None:
+        take(profile, "enters_tapped", True, answers=_TAPPED_UNREAD)
+        take(profile, "tapped_unless", condition)
+        return
+    take(profile, "enters_tapped", True)
+
+
 #: The families, in order: each reads the blocks and the profile, and takes
 #: what its rule allows.
-FAMILIES: list[Callable] = [mana]
+FAMILIES: list[Callable] = [mana, enters_tapped]
 
 
 def merge(profile, abilities, card) -> None:

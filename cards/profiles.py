@@ -227,11 +227,15 @@ _COLORS = frozenset("WUBRG")
 # `[.\n]\s*` rather than `[.\n] `: Oracle text separates abilities with a bare
 # newline and no space, so requiring one missed every card whose sentence begins
 # a line - "Flash\nFlying\nEbondeath enters tapped." among them.
-_ENTERS_TAPPED = r"(?:^|[.\n]\s*)(?:{name}|This [\w ]+?|It|~) enters(?: the battlefield)? tapped"
+_ENTERS_TAPPED = (r"(?:^|[.\n]\s*)(?:{name}|This [\w ]+?|It|~) enters(?: the battlefield)? tapped"
+                  r"(?! and attacking)")
 _UNLESS = re.compile(r"enters(?: the battlefield)? tapped unless", re.IGNORECASE)
 # The bare phrase, wherever it appears and whatever its subject. Used only to
 # notice that a card is *about* entering tapped when the anchored rule missed.
-_TAPPED_MENTION = re.compile(r"enters(?: the battlefield)? tapped", re.IGNORECASE)
+# Not "It enters tapped and attacking": a token, or a card put onto the
+# battlefield in combat (Sneak, Ninjutsu), never the card as it is played.
+_TAPPED_MENTION = re.compile(r"enters(?: the battlefield)? tapped(?! and attacking)",
+                             re.IGNORECASE)
 
 # --- mana abilities, read clause by clause ------------------------------------
 #

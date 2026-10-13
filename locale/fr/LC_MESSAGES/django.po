@@ -11724,3 +11724,62 @@ msgid "%(count)s Treasure as it resolves"
 msgid_plural "%(count)s Treasures as it resolves"
 msgstr[0] "%(count)s Trésor à la résolution"
 msgstr[1] "%(count)s Trésors à la résolution"
+
+#: simulations/engine/adapter.py
+msgid "as it enters"
+msgstr "quand elle arrive"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "sacrifice %(count)s × %(what)s"
+msgstr "sacrifier %(count)s × %(what)s"
+
+#: simulations/primitives.py
+msgid "How many are sacrificed"
+msgstr "Combien sont sacrifiés"
+
+#: simulations/primitives.py
+msgid "Blank or 1: one."
+msgstr "Vide ou 1 : un seul."
+
+#: cards/forge_merge.py
+msgid "draws cards in a way that is not read yet"
+msgstr "pioche des cartes d'une manière qui n'est pas encore lue"
+
+#: cards/forge_merge.py
+msgid "makes Treasure in a way that is not read yet"
+msgstr "crée des Trésors d'une manière qui n'est pas encore lue"
+
+#: cards/forge_merge.py
+msgid "searches for lands in a way that is not read yet"
+msgstr "cherche des terrains d'une manière qui n'est pas encore lue"
+
+#: changelog/entries.py
+msgid "Cards that draw as they enter, and no free cards from Cycling"
+msgstr ""
+"Des cartes qui piochent en arrivant, et plus de carte gratuite par le "
+"Recyclage"
+
+#: changelog/entries.py
+msgid ""
+"Where our reading of a card's text left something out, the simulation now "
+"also reads the card from Forge's card scripts: creatures and artifacts that "
+"draw as they enter, such as Baleful Strix and Mulldrifter; lands that enter "
+"tapped, such as Boseiju, or unless you reveal an Elf, as Gilt-Leaf Palace; "
+"Treasure, land searches and mana abilities. A spell no longer draws a card "
+"for the Cycling, Clue, Learn or gift written on it, which was a free card "
+"every time it was cast, and Phyrexian Tribute sacrifices its two creatures. "
+"A card that draws or makes Treasure in a way the simulation does not read "
+"yet is now marked, so that you can correct it."
+msgstr ""
+"Là où notre lecture du texte d'une carte omettait quelque chose, la "
+"simulation lit désormais aussi la carte dans les scripts de cartes de Forge "
+": les créatures et artefacts qui piochent en arrivant, comme Baleful Strix "
+"et Mulldrifter ; les terrains qui arrivent engagés, comme Boseiju, ou à "
+"moins de révéler un Elfe, comme Gilt-Leaf Palace ; les Trésors, les "
+"recherches de terrains et les capacités de mana. Un sort ne pioche plus de "
+"carte pour le Recyclage, l'Indice, Apprendre ou le cadeau écrits dessus, ce "
+"qui était une carte gratuite à chaque lancement, et Phyrexian Tribute "
+"sacrifie ses deux créatures. Une carte qui pioche ou crée des Trésors d'une "
+"manière que la simulation ne lit pas encore est désormais signalée, pour que"
+" vous puissiez la corriger."

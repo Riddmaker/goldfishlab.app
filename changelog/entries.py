@@ -42,6 +42,18 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 13), "card-scripts",
+        _("Cards that draw as they enter, and no free cards from Cycling"),
+        _("Where our reading of a card's text left something out, the simulation now also "
+          "reads the card from Forge's card scripts: creatures and artifacts that draw as they "
+          "enter, such as Baleful Strix and Mulldrifter; lands that enter tapped, such as "
+          "Boseiju, or unless you reveal an Elf, as Gilt-Leaf Palace; Treasure, land searches "
+          "and mana abilities. A spell no longer draws a card for the Cycling, Clue, Learn or "
+          "gift written on it, which was a free card every time it was cast, and Phyrexian "
+          "Tribute sacrifices its two creatures. A card that draws or makes Treasure in a way "
+          "the simulation does not read yet is now marked, so that you can correct it."),
+    ),
+    Entry(
         date(2026, 10, 11), "card-editor",
         _("Correct everything the engine reads off a card"),
         _("A card's page now shows what the simulation plays of it, block by block: its land "

@@ -174,7 +174,12 @@ re-derive them on their own:
 Both also translate [Forge](https://github.com/Card-Forge/forge)'s card scripts into blocks
 (`cards/forge_import.py`), from the copy of one pinned commit in `cards/data/` - only when the
 pin, the translation or the catalogue changed. The pin moves only by pull request, so a deck's
-numbers never change between two deploys of the same code:
+numbers never change between two deploys of the same code. New blocks derive the profiles
+again: where the reader left something open, `cards/forge_merge.py` takes it from the blocks,
+family by family (mana, entering tapped, land searches, Treasure, draws), only from an
+ability read whole, never over a reading, and marked `forge` in the profile's source map. What
+neither gives the engine gets a review reason. A change to the translation bumps
+`forge_import.TRANSLATION`, or the next run skips it:
 
 ```bash
 # Once: git clone --filter=blob:none --sparse https://github.com/Card-Forge/forge .data/forge

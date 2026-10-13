@@ -265,7 +265,7 @@ def export_fixture(cards, path: Path = CARDS_FIXTURE) -> int:
 @transaction.atomic
 def load_fixture(path: Path = CARDS_FIXTURE) -> list:
     """Put the fixed set into an empty catalogue and derive its profiles."""
-    from cards import profiles
+    from cards import forge, forge_import, profiles
     from cards.models import OracleCard, OracleCardTag, Tag, TagEdge
 
     with gzip.open(path, "rt", encoding="utf-8") as handle:
@@ -282,6 +282,10 @@ def load_fixture(path: Path = CARDS_FIXTURE) -> list:
     OracleCardTag.objects.bulk_create(
         [OracleCardTag(oracle_card=cards[card], tag=tags[tag], is_direct=direct, weight=weight)
          for card, tag, direct, weight in data["links"]], batch_size=5_000)
+    # The blocks of the pinned scripts, which fill in what the reader left
+    # open (card model phase 1) - from the committed pack itself, not the
+    # small one the other tests read (`tests/conftest.py`).
+    forge_import.run(forge.PIN.with_name("forge_scripts.jsonl.gz"), force=True)
     profiles.rebuild(OracleCard.objects.filter(pk__in=[card.pk for card in cards]))
     return cards
 

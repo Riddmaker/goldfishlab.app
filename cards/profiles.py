@@ -3094,7 +3094,11 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana.notes = [note for note in mana.notes if note not in _TRIGGER_EXPLAINS]
     discard = _DISCARD_COST.search(text)
     additional = AdditionalCost() if discard else _additional_cost(card)
-    draw = _draw(text)
+    # Not a draw in reminder text: Cycling's, a Clue's or a Blood token's is
+    # an ability the spell does not use as it resolves, Learn's a discard for
+    # a draw, a gift's the opponent's. Read as the spell's own, each was a
+    # free card every time it was cast (card model phase 1).
+    draw = _draw(_REMINDER.sub("", text))
     amount = mana.amount
     if mana.one_shot and kind in (DerivedProfile.Kind.ARTIFACT, DerivedProfile.Kind.ROCK):
         # Lotus Petal: "{T}, Sacrifice this artifact: Add one mana of any

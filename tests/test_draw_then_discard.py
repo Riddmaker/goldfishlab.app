@@ -115,3 +115,22 @@ def test_brainstorm_puts_the_two_worst_back_on_top():
     assert game.hand == [BEAR]
     assert set(game.library[:2]) == {GIANT, DRAGON}
     assert game.library[2:] == [BEAR]
+
+
+# --- card model phase 1 ---------------------------------------------------------
+
+
+@pytest.mark.parametrize("text", [
+    "Destroy all artifacts, creatures, and enchantments.\n"
+    "Cycling {3} ({3}, Discard this card: Draw a card.)",
+    "Target creature gets +2/+2 until end of turn. Investigate. (Create a Clue token. It's an "
+    "artifact with \"{2}, Sacrifice this token: Draw a card.\")",
+    "Target creature gets -4/-0 until end of turn.\nLearn. (You may reveal a Lesson card you "
+    "own from outside the game and put it into your hand, or discard a card to draw a card.)",
+    "Gift a card (You may promise an opponent a gift as you cast this spell. If you do, they "
+    "draw a card before its other effects.)\nDestroy target creature.",
+])
+def test_a_draw_in_reminder_text_is_not_the_spells_own(text):
+    card = OracleCard(name="Test Spell", front_name="Test Spell", type_line="Sorcery",
+                      mana_cost="{2}", cmc=2, oracle_text=text)
+    assert derive(card, set()).draws_cards is None

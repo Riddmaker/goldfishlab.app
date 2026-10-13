@@ -265,3 +265,49 @@ A:AB$ ChangeZone | Cost$ 1 T Sac<1/CARDNAME> | Origin$ Library | Destination$ Ba
 ])
 def test_a_land_search_the_engine_would_play_otherwise_is_not_taken(kind, script):
     assert searched(kind, script).land_search is None
+
+
+ENTERS = ("T:Mode$ ChangesZone | Origin$ Any | Destination$ Battlefield | ValidCard$ Card.Self "
+          "| Execute$ TrigToken\n")
+
+
+def treasure_of(kind: str, script: str, text: str = "") -> DerivedProfile:
+    profile = DerivedProfile(kind=kind, treasures=0, source_map={},
+                             review_reasons=["only grants a mana ability to another permanent"],
+                             needs_review=True)
+    forge_merge.treasures(profile, blocks_of(f"Name:Test\n{script}"),
+                          OracleCard(name="Test", oracle_text=text))
+    return profile
+
+
+def test_a_treasure_made_as_the_card_enters_is_taken():
+    profile = treasure_of("creature", "Types:Creature\n" + ENTERS
+                          + "SVar:TrigToken:DB$ Token | TokenScript$ c_a_treasure_sac\n",
+                          'When this creature enters, create a Treasure token. (It\'s an '
+                          'artifact with "{T}, Sacrifice this token: Add one mana of any '
+                          'color.")')
+    assert profile.treasures == 1 and profile.source_map == {"treasures": "forge"}
+    assert not profile.needs_review
+
+
+def test_a_spells_treasures_are_taken_beside_its_other_tokens():
+    profile = treasure_of("sorcery", "Types:Sorcery\nA:SP$ Token | TokenScript$ u_1_1_fish "
+                          "| TokenAmount$ 2 | SubAbility$ DBTreasure\nSVar:DBTreasure:DB$ "
+                          "Token | TokenScript$ c_a_treasure_sac | TokenAmount$ 2\n")
+    assert profile.treasures == 2
+
+
+@pytest.mark.parametrize("kind, script", [
+    ("instant", "Types:Instant\nA:SP$ Token | TokenScript$ c_a_treasure_sac | TokenAmount$ 2 "
+     "| TokenOwner$ TargetedController"),
+    ("creature", "Types:Creature\n" + ENTERS + "SVar:TrigToken:DB$ Token | TokenScript$ "
+     "c_a_treasure_sac | TokenTapped$ True"),
+    ("creature", "Types:Creature\nT:Mode$ ChangesZone | Origin$ Battlefield | Destination$ "
+     "Graveyard | ValidCard$ Card.Self | Execute$ TrigToken\nSVar:TrigToken:DB$ Token | "
+     "TokenScript$ c_a_treasure_sac"),
+    ("creature", "Types:Creature\n" + ENTERS + "SVar:TrigToken:DB$ Token | TokenScript$ "
+     "c_a_treasure_sac | SubAbility$ DBLose\nSVar:DBLose:DB$ LoseLife | LifeAmount$ 1 "
+     "| Defined$ You"),
+])
+def test_a_treasure_the_engine_would_play_otherwise_is_not_taken(kind, script):
+    assert treasure_of(kind, script).treasures == 0

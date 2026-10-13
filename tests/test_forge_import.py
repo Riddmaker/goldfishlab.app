@@ -378,3 +378,14 @@ SVar:TrigSearch:AB$ ChangeZone | Cost$ Sac<1/Land> | Origin$ Library \
 | Destination$ Battlefield | ChangeType$ Land.Basic | ChangeNum$ 2
 """)
     assert only(found, b.TRIGGERED).unread == ("cost:Sac<1/Land>",)
+
+
+def test_a_token_for_another_player_says_whose_it_is():
+    found = blocks_of("""Name:Test Offer
+Types:Instant
+A:SP$ Counter | TargetType$ Spell | ValidTgts$ Card.nonCreature | SubAbility$ DBTreasure
+SVar:DBTreasure:DB$ Token | TokenAmount$ 2 | TokenScript$ c_a_treasure_sac \
+| TokenOwner$ TargetedController
+""")
+    token = only(found, b.RESOLVES).effects[1]
+    assert (token.arg("token"), token.arg("owner")) == ("treasure", "TargetedController")

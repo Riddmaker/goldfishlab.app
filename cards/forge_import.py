@@ -30,7 +30,7 @@ from simulation import blocks as b
 
 #: Raised with every change to how a script is translated, so the next run
 #: translates every script again although the pin did not move.
-TRANSLATION = 4
+TRANSLATION = 5
 
 #: More scripts than this share failing to translate stops the run, and the
 #: blocks of the last good run stay.
@@ -245,6 +245,11 @@ def _args(step: forge.Ability, reading: _Reading) -> tuple:
         script = params.get("TokenScript", "")
         match = _TOKEN_SCRIPT.match(script)
         args["token"] = match.group(1) if match else script
+        if params.get("TokenTapped") == "True":
+            args["tapped"] = True
+        if params.get("TokenOwner", "You") != "You":
+            # An Offer You Can't Refuse: "Its controller creates two Treasure".
+            args["owner"] = params["TokenOwner"]
     elif step.head in ("ChangeZone", "ChangeZoneAll"):
         args["from"] = params.get("Origin", "").lower()
         args["to"] = params.get("Destination", "").lower()
@@ -687,7 +692,8 @@ def facts(abilities, type_line: str = "") -> dict:
                     effect.arg("to") == "battlefield" and not effect.arg("player") and \
                     any(word in str(effect.arg("what", "")) for word in _LAND_WORDS):
                 land_search = True
-            if effect.verb == "create_token" and effect.arg("token") == "treasure":
+            if effect.verb == "create_token" and effect.arg("token") == "treasure" \
+                    and not effect.arg("owner"):
                 treasures = True
             if ability.kind == b.REPLACEMENT and effect.verb == "enters_tapped" and \
                     ability.event == b.Event("enters", who="self"):

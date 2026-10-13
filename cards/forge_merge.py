@@ -306,9 +306,58 @@ def land_search(profile, abilities, card) -> None:
                           if not field.startswith("tutor_")}
 
 
+_GRANTS = "only grants a mana ability to another permanent"
+#: Token owners that are you as the card enters or resolves: the controller
+#: of the card that triggered, which is the card itself, or "you and target
+#: opponent each" (Bloodroot Apothecary) - the opponent's is no goldfish's.
+_YOURS = frozenset({None, "TriggeredCardController", "TargetedAndYou"})
+
+
+def treasures(profile, abilities, card) -> None:
+    """Treasure the reader did not read: made as the card itself enters
+    (Galazeth Prismari, Kalain) or as a spell resolves.
+
+    Taken from an ability read whole, not a mode, that does nothing else but
+    make other tokens; the Treasure yours, not "its controller's" (An Offer
+    You Can't Refuse), and untapped: the engine spends a Treasure the turn it
+    is made. Treasure made in combat, as a creature dies, at the end step or
+    for an activation is not: the engine plays none of those moments, and a
+    card with one of them beside (Patron of the Arts, as it enters or dies)
+    is played with the one it does play.
+    """
+    from cards.profiles import _GRANTED, _TREASURE_REMINDER
+
+    if profile.treasures:
+        return
+    made = 0
+    for ability in abilities:
+        tokens = [effect for effect in ability.effects
+                  if effect.verb == "create_token" and effect.arg("token") == "treasure"]
+        if not tokens:
+            continue
+        arrives = (ability.kind == b.RESOLVES and profile.kind in _ONE_SHOT) or (
+            ability.kind == b.TRIGGERED and ability.event == _SELF_ENTERS
+            and profile.kind not in _ONE_SHOT)
+        n = tokens[0].arg("n", 1)
+        others = [effect for effect in ability.effects if effect not in tokens]
+        if not arrives or ability.mode or not complete(ability) or len(tokens) != 1 \
+                or any(effect.verb != "create_token" for effect in others) \
+                or tokens[0].arg("owner") not in _YOURS or tokens[0].arg("tapped") \
+                or not isinstance(n, int):
+            # Played at none of its moments, which only under-reads the card.
+            continue
+        made += n
+    if not made:
+        return
+    text = (card.oracle_text or "") if card is not None else ""
+    # The only "Add" was the Treasure's own reminder text, as `derive` says.
+    answers = () if _GRANTED.search(_TREASURE_REMINDER.sub("", text)) else (_GRANTS,)
+    take(profile, "treasures", made, answers=answers)
+
+
 #: The families, in order: each reads the blocks and the profile, and takes
 #: what its rule allows.
-FAMILIES: list[Callable] = [mana, enters_tapped, land_search]
+FAMILIES: list[Callable] = [mana, enters_tapped, land_search, treasures]
 
 
 def merge(profile, abilities, card) -> None:

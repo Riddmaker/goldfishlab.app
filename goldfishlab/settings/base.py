@@ -261,6 +261,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 ACCOUNT_LOGIN_METHODS = {"email"}
+# Saves the language an account is made in (P20 F3, accounts/adapter.py).
+ACCOUNT_ADAPTER = "accounts.adapter.AccountAdapter"
 # One password box: a typo in it is fixed with "Forgot your password?", and
 # the sign-up page promises "just an email and a password".
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*"]

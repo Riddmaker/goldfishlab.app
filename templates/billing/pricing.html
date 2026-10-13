@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load humanize i18n %}
 {% block title %}{% translate "Pricing" %} — Goldfish Lab{% endblock %}
 {% block description %}{% translate "What each Goldfish Lab tier costs and what it allows. Free to start, no card needed." %}{% endblock %}
 {% block content %}
@@ -48,5 +48,11 @@
       </p>
     {% endif %}
     {% include "billing/_tiers.html" %}
+    <p class="tabular mt-5 border-t border-parchment-400 pt-4 text-sm text-ink-700">
+      {% blocktranslate trimmed with games=trial_games|intcomma turns=trial_turns %}
+        <strong>Without an account:</strong> one deck, simulated {{ games }} times over
+        {{ turns }} turns, kept for 24 hours.
+      {% endblocktranslate %}
+    </p>
   </section>
 {% endblock %}

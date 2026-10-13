@@ -10650,3 +10650,53 @@ msgid ""
 " both as well. Reports of decks with one commander do not change."
 msgstr ""
 "統率者が2人いるデッキ（共闘の2枚、クリーチャーとその背景、ドクターのコンパニオンとドクター）は、両方が統率領域に入るようになりました。シミュレーションはそれぞれを自分の統率者税で、安い方から唱え、レポートは2人とも戦場にいるゲームを別の行で数えます。固有色、コンボ、手札を引くボードも両方を数えます。統率者1人のデッキのレポートは変わりません。"
+
+#: templates/billing/blocked.html
+msgid "Nothing was imported. Deleting a deck frees its place."
+msgstr "何もインポートされていません。デッキを削除すると枠が空きます。"
+
+#: billing/views.py
+msgid "Deck lists imported"
+msgstr "インポートしたデッキリスト"
+
+#: templates/billing/_tiers.html
+msgid "Deck lists imported a month:"
+msgstr "月あたりのデッキリストのインポート："
+
+#: templates/billing/pricing.html
+#, python-format
+msgid ""
+"<strong>Without an account:</strong> one deck, simulated %(games)s times "
+"over %(turns)s turns, kept for 24 hours."
+msgstr ""
+"<strong>アカウントなし：</strong>デッキ1つ、%(turns)s ターンを %(games)s 回シミュレーション、24時間保存。"
+
+#: templates/decks/detail.html
+msgid ""
+"This run also writes a new deck summary, which counts as one more "
+"simulation."
+msgstr "このシミュレーションでは新しいデッキ要約も作成され、シミュレーション1回分として数えられます。"
+
+#: templates/simulations/detail.html
+msgid ""
+"No new deck summary this time: a summary counts as one more simulation, and "
+"your plan had room for this run only."
+msgstr "今回は新しいデッキ要約はありません。要約はシミュレーション1回分として数えられ、プランにはこの1回分の余裕しかありませんでした。"
+
+#: changelog/entries.py
+msgid "Your account keeps its language, and every limit is on the page"
+msgstr "アカウントが言語を覚え、すべての上限がページに表示されます"
+
+#: changelog/entries.py
+msgid ""
+"An account now keeps the language it was made in, also when it was saved "
+"from a trial deck, so its mails arrive in that language. A cancellation in "
+"the billing portal now shows the day the plan ends. The pricing page names "
+"every limit - the deck lists you can import each month, and what trying "
+"without an account allows - and your account page counts the imports too. "
+"When a run also writes a new deck summary the deck page says that it counts "
+"as one more simulation, and the report says when there was no room for it. "
+"Reaching the deck limit while importing now explains itself instead of "
+"showing an error code."
+msgstr ""
+"アカウントは作成時の言語を覚えるようになりました。お試しデッキから保存した場合も同様で、メールはその言語で届きます。請求ポータルでの解約は、プランが終わる日を表示するようになりました。料金ページはすべての上限（毎月インポートできるデッキリストの数、アカウントなしで試せる内容）を示し、アカウントページはインポートも数えます。シミュレーションで新しいデッキ要約も作成されるときは、それがシミュレーション1回分になることをデッキページに表示し、余裕がなかったときはレポートに表示します。インポート中にデッキの上限に達したときは、エラーコードではなく説明を表示します。"

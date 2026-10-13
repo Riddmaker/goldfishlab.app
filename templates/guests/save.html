@@ -19,6 +19,7 @@
       {% csrf_token %}
       {% element fields form=form unlabeled=True %}
       {% endelement %}
+      {% include "account/_consent.html" %}
     {% endslot %}
     {% slot actions %}
       {% element button tags="prominent,signup" type="submit" %}

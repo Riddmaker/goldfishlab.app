@@ -12003,3 +12003,67 @@ msgstr ""
 "parte le partite con entrambi sul campo di battaglia. Anche l'identità di "
 "colore, le combo e il tavolo della mano iniziale contano entrambi. I report "
 "dei mazzi con un solo comandante non cambiano."
+
+#: templates/billing/blocked.html
+msgid "Nothing was imported. Deleting a deck frees its place."
+msgstr "Non è stato importato nulla. Eliminare un mazzo libera il suo posto."
+
+#: billing/views.py
+msgid "Deck lists imported"
+msgstr "Liste di mazzi importate"
+
+#: templates/billing/_tiers.html
+msgid "Deck lists imported a month:"
+msgstr "Liste di mazzi importate al mese:"
+
+#: templates/billing/pricing.html
+#, python-format
+msgid ""
+"<strong>Without an account:</strong> one deck, simulated %(games)s times "
+"over %(turns)s turns, kept for 24 hours."
+msgstr ""
+"<strong>Senza account:</strong> un mazzo, simulato %(games)s volte per "
+"%(turns)s turni, conservato per 24 ore."
+
+#: templates/decks/detail.html
+msgid ""
+"This run also writes a new deck summary, which counts as one more "
+"simulation."
+msgstr ""
+"Questa simulazione scrive anche un nuovo riepilogo del mazzo, che conta come"
+" una simulazione in più."
+
+#: templates/simulations/detail.html
+msgid ""
+"No new deck summary this time: a summary counts as one more simulation, and "
+"your plan had room for this run only."
+msgstr ""
+"Nessun nuovo riepilogo del mazzo questa volta: un riepilogo conta come una "
+"simulazione in più, e il tuo piano aveva spazio solo per questa."
+
+#: changelog/entries.py
+msgid "Your account keeps its language, and every limit is on the page"
+msgstr "Il tuo account mantiene la sua lingua, e ogni limite è sulla pagina"
+
+#: changelog/entries.py
+msgid ""
+"An account now keeps the language it was made in, also when it was saved "
+"from a trial deck, so its mails arrive in that language. A cancellation in "
+"the billing portal now shows the day the plan ends. The pricing page names "
+"every limit - the deck lists you can import each month, and what trying "
+"without an account allows - and your account page counts the imports too. "
+"When a run also writes a new deck summary the deck page says that it counts "
+"as one more simulation, and the report says when there was no room for it. "
+"Reaching the deck limit while importing now explains itself instead of "
+"showing an error code."
+msgstr ""
+"Un account ora mantiene la lingua in cui è stato creato, anche quando è "
+"stato salvato da un mazzo di prova, e le sue e-mail arrivano in quella "
+"lingua. Una disdetta nel portale di fatturazione ora mostra il giorno in cui"
+" il piano finisce. La pagina dei prezzi indica ogni limite – le liste di "
+"mazzi che puoi importare ogni mese e cosa permette la prova senza account – "
+"e la pagina del tuo account conta anche le importazioni. Quando una "
+"simulazione scrive anche un nuovo riepilogo del mazzo, la pagina del mazzo "
+"dice che conta come una simulazione in più, e il report dice quando non "
+"c'era spazio. Raggiungere il limite di mazzi durante un'importazione ora si "
+"spiega invece di mostrare un codice di errore."

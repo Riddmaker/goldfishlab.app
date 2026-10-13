@@ -113,7 +113,9 @@ def test_a_refused_import_keeps_the_guests_deck(client, catalogue):
 
     response = upload(client, "1 Sol Ring\n36 Swamp\n")
 
-    assert response.status_code == 200, "the form again, with the refusal"
+    # The 402 with a sentence and the guest's way on (P20 F3, E1.20).
+    assert response.status_code == 402
+    assert reverse("guests:save") in response.content.decode()
     assert Deck.objects.filter(pk=kept.pk).exists()
 
 

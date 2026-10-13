@@ -41,6 +41,10 @@
           {% translate "Decks:" %}
           <strong>{% if plan.max_decks %}{{ plan.max_decks }}{% else %}{% translate "no limit" %}{% endif %}</strong>
         </li>
+        <li class="tabular">
+          {% translate "Deck lists imported a month:" %}
+          <strong>{% if plan.max_imports_per_month %}{{ plan.max_imports_per_month }}{% else %}{% translate "no limit" %}{% endif %}</strong>
+        </li>
         <li class="tabular">{% blocktranslate trimmed with runs=plan.max_concurrent_runs %}At once: <strong>{{ runs }}</strong>{% endblocktranslate %}</li>
       </ul>
 

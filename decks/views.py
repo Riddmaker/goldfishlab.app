@@ -135,6 +135,10 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         context["commander_choice"] = commander_choice(deck, context["last_import"])
         context["curve_max"] = max(analysis.curve.values() or [1]) or 1
         context["run_form"] = RunForm(plan=quotas.plan_for(self.request.user))
+        # E3 (P20 F3, E1.27): a run that writes a new summary counts twice,
+        # and the button says so before it is pressed.
+        user = self.request.user
+        context["summary_due"] = not user.is_guest and summary.due(user, deck)
         context["runs"] = runs = list(deck.runs.all()[:5])
         context.update(self.last_run_context(deck, runs))
         # Sessions, not games: a playtest is one game played by hand and is
@@ -234,8 +238,9 @@ class ImportFlowMixin:
                 parser_name=chosen_format,
             )
         except QuotaExceeded as exc:
-            form.add_error(None, str(exc))
-            return self.form_invalid(form)
+            # The 402 with a sentence and a way on, as on the mapping screen -
+            # it used to put the exception's log line on the form (E1.20).
+            return upgrade_prompt(self.request, exc)
         except services.ImportError_ as exc:
             form.add_error(source_field, str(exc))
             return self.form_invalid(form)

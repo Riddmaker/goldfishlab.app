@@ -42,6 +42,19 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 13), "account-honest",
+        _("Your account keeps its language, and every limit is on the page"),
+        _("An account now keeps the language it was made in, also when it was saved from a "
+          "trial deck, so its mails arrive in that language. A cancellation in the billing "
+          "portal now shows the day the plan ends. The pricing page names every limit - the "
+          "deck lists you can import each month, and what trying without an account allows - "
+          "and your account page counts the imports too. When a run also writes a new deck "
+          "summary the deck page says that it counts as one more simulation, and the report "
+          "says when there was no room for it. Reaching the deck limit while importing now "
+          "explains itself instead of showing an error code."),
+        "pricing",
+    ),
+    Entry(
         date(2026, 10, 13), "two-commanders",
         _("Partners and Backgrounds play together"),
         _("A deck with two commanders - two partners, a creature with its Background, the "

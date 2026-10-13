@@ -301,6 +301,10 @@ class SimulationRun(models.Model):
     #: while the run plays does not change what it played. `None` on a run
     #: from before, which says nothing rather than guess.
     commander_names = models.JSONField(null=True, blank=True)
+    #: A new deck summary was due, and the plan had room for this run but not
+    #: for the summary as well (P20 F3, E1.27): the report says so rather than
+    #: leaving the old summary in place without a word.
+    summary_skipped = models.BooleanField(default=False)
 
     #: How long one game actually took, measured by the first chunk. Used to
     #: size the chunks of the *next* run of this deck: a measurement on this

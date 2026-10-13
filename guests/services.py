@@ -124,8 +124,9 @@ def claim(guest, user, *, deck_name: str = "") -> None:
     if deck_name:
         guest.decks.update(name=deck_name)
     changed = []
-    if guest.language and not user.language:
-        # The language picked while trying the site (phase 12).
+    if guest.language and user.language != guest.language:
+        # The language picked while trying the site (phase 12) beats the one
+        # the new account was made in (P20 F3): it was chosen.
         user.language = guest.language
         changed.append("language")
     if guest.simulated_week and (not user.simulated_week

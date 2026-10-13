@@ -67,5 +67,5 @@ def test_each_limited_counter_gets_a_bar(client):
 
     body = client.get(reverse("billing:plans")).content.decode()
 
-    # Free limits decks and runs, so both have a bar here.
-    assert body.count('role="progressbar"') == 2
+    # Free limits decks, runs and imports (P20 F3), so each has a bar here.
+    assert body.count('role="progressbar"') == 3

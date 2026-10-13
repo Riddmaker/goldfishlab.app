@@ -88,6 +88,11 @@
             {% translate "Draw a hand" %}
           </button>
         </div>
+        {% if summary_due %}
+          <p class="mt-2 max-w-xl text-sm text-parchment-200">
+            {% translate "This run also writes a new deck summary, which counts as one more simulation." %}
+          </p>
+        {% endif %}
         <details class="mt-3 max-w-xl text-parchment-200">
           <summary class="cursor-pointer text-sm underline">{% translate "Options" %}</summary>
           <div class="surface-parchment mt-3 space-y-4 p-4">

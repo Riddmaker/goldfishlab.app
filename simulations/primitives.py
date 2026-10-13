@@ -87,7 +87,7 @@ _ALTAR_KEYS = frozenset({
     "sacrifice", "filter", "amount", "produces", "taps", "life", "other",
 })
 _COST_KEYS = frozenset({
-    "sacrifice", "filter", "life", "life_x", "discard", "mana", "exile_from_graveyard",
+    "sacrifice", "filter", "life", "life_x", "discard", "mana", "exile_from_graveyard", "count",
 })
 
 PRIMITIVES = (
@@ -470,6 +470,8 @@ ITEM_FIELDS = {
             ("artifact", _("An artifact card")), ("land", _("A land card")))),
         Field("filter", "word", _("The sacrifice must also be"),
               _("Blank for anything. A colour letter, legendary, or a creature type."),
+              more=True),
+        Field("count", "optint", _("How many are sacrificed"), _("Blank or 1: one."), high=3,
               more=True),
     ),
 }

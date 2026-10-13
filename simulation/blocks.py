@@ -231,7 +231,7 @@ class CardBlocks:
 def _additional_cost_atoms(value: AdditionalCost) -> tuple[Cost, ...]:
     atoms = []
     if value.sacrifice or value.sacrifice_filter:
-        atoms.append(Cost("sacrifice", amount=1, types=value.sacrifice,
+        atoms.append(Cost("sacrifice", amount=value.sacrifice_count, types=value.sacrifice,
                           filter=value.sacrifice_filter))
     if value.life or value.life_x:
         atoms.append(Cost("life", amount=value.life, x=value.life_x))
@@ -249,7 +249,8 @@ def _additional_cost(atoms: tuple[Cost, ...]) -> AdditionalCost:
     kwargs: dict[str, Any] = {}
     for atom in atoms:
         if atom.atom == "sacrifice":
-            kwargs.update(sacrifice=atom.types, sacrifice_filter=atom.filter)
+            kwargs.update(sacrifice=atom.types, sacrifice_filter=atom.filter,
+                          sacrifice_count=atom.amount or 1)
         elif atom.atom == "life":
             kwargs.update(life=atom.amount, life_x=atom.x)
         elif atom.atom == "discard":

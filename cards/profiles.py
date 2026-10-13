@@ -458,6 +458,7 @@ _COST_PARTS = re.compile(
     r"(?P<t1>artifact|creature|land|enchantment)"
     r"(?: or (?:an? )?(?P<t2>artifact|creature|land|enchantment)(?![\w ]*life))?"
     r"|sacrifice an? (?P<subtype>[A-Z][a-z]+)"
+    r"|sacrifice (?P<count>two|three) (?P<tn>artifact|creature|land|enchantment)s"
     r"|pay (?P<life>\d+|X) life"
     r"|discard (?P<discard>a|one|two) cards?"
     r"|pay (?P<mana>(?:\{[\dWUBRGC]\})+)"
@@ -996,6 +997,10 @@ def _cost_way(part: re.Match) -> dict:
         way["filter"] = _COLOR_WORDS.get(wanted, wanted)
     elif part.group("subtype"):
         way["sacrifice"], way["filter"] = ["creature"], part.group("subtype").lower()
+    elif part.group("count"):
+        # Phyrexian Tribute (card model phase 1): stored only when more than
+        # one, so that no other card's profile changes.
+        way["sacrifice"], way["count"] = [part.group("tn")], _word_number(part.group("count"))
     elif part.group("life"):
         if part.group("life") == "X":
             way["life_x"] = True

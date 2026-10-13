@@ -612,7 +612,11 @@ def _way_text(way: AdditionalCost) -> str:
                 "what": what, "color": mana_label(way.sacrifice_filter)}
         elif way.sacrifice_filter:
             what = f"{what} ({way.sacrifice_filter.capitalize()})"
-        parts.append(gettext("sacrifice a %(what)s") % {"what": what})
+        if way.sacrifice_count > 1:
+            parts.append(gettext("sacrifice %(count)s × %(what)s") % {
+                "count": way.sacrifice_count, "what": what})
+        else:
+            parts.append(gettext("sacrifice a %(what)s") % {"what": what})
     if way.life:
         parts.append(gettext("%(life)s life") % {"life": way.life})
     if way.life_x:
@@ -2243,7 +2247,8 @@ def _additional_costs(profile) -> tuple[AdditionalCost, ...]:
             life=int(way.get("life", 0)), life_x=bool(way.get("life_x")),
             discard=int(way.get("discard", 0)),
             mana=parse(way["mana"]) if way.get("mana") else None,
-            exile_from_graveyard=way.get("exile_from_graveyard", ""))
+            exile_from_graveyard=way.get("exile_from_graveyard", ""),
+            sacrifice_count=max(int(way.get("count") or 1), 1))
         for way in getattr(profile, "additional_cost", None) or ())
 
 

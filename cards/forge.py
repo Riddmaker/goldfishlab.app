@@ -10,13 +10,13 @@ small text script, one per card under ``forge-gui/res/cardsfolder/``::
     SVar:TrigMana:DB$ Mana | Produced$ Any
 
 The card-model rebuild takes its blocks from these scripts first and from
-our own reader where a card has none (decided 2026-10-13). This module is the
-phase-0 spike: it parses a script into faces and abilities, and names the
-**constructs** an ability uses - its kind with its API, trigger mode, static
-mode or replacement event, every sub-ability it chains to, its cost atoms and
-its keywords - so the catalogue can be counted. The scripts are read from a
-local checkout (``/.data/forge/``) and nothing of them is committed; the
-importer, its NOTICE entry and the licence text come in phase 1.
+our own reader where a card has none (decided 2026-10-13). This module reads
+them: it parses a script into faces and abilities, names the **constructs**
+an ability uses - its kind with its API, trigger mode, static mode or
+replacement event, every sub-ability it chains to, its cost atoms and its
+keywords - so the catalogue can be counted, and keeps the pinned copy. The
+scripts of one commit are packed into ``cards/data/`` (GPL-3.0, see NOTICE
+and ``licenses/``); :mod:`cards.forge_import` turns them into blocks.
 
 Scripts are input: they are parsed as text and never executed.
 """
@@ -26,7 +26,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
-#: Where a checkout of the scripts lives, below the repository.
+#: Where the scripts lie inside a checkout of Forge.
 SCRIPTS = Path("forge-gui") / "res" / "cardsfolder"
 
 #: The lines that hold abilities: activated or spell, triggered, static,
@@ -156,15 +156,25 @@ def parse(text: str, path: str = "") -> Script:
     return Script(tuple(_face(lines) for lines in faces if lines), mode, path)
 
 
-def read_all(root: Path) -> dict[str, Script]:
-    """Every script below ``root``, by the name of its first face."""
-    found = {}
-    for path in sorted((root / SCRIPTS).rglob("*.txt")):
-        script = parse(path.read_text(encoding="utf-8", errors="replace"),
-                       str(path.relative_to(root)))
-        if script.name:
-            found.setdefault(script.name, script)
-    return found
+def from_checkout(root: Path, commit: str):
+    """``(path, text)`` of every script of ``commit`` in a git checkout of
+    Forge, read from git's objects in one stream rather than from 34,000 files.
+    A sparse or shallow clone will do, as long as it has the commit."""
+    import subprocess  # noqa: S404 - git, with a checked hash and no shell
+    import tarfile
+
+    if not _COMMIT.match(commit):
+        raise ValueError(f"not a full commit hash: {commit!r}")
+    archive = subprocess.Popen(  # noqa: S603
+        ["git", "-C", str(root), "archive", "--format=tar", commit, str(SCRIPTS)],  # noqa: S607
+        stdout=subprocess.PIPE)
+    with tarfile.open(fileobj=archive.stdout, mode="r|") as tar:
+        for member in tar:
+            if member.isfile() and member.name.endswith(".txt"):
+                handle = tar.extractfile(member)
+                yield member.name, handle.read().decode("utf-8", errors="replace")
+    if archive.wait() != 0:
+        raise RuntimeError(f"git archive failed for {commit} in {root}")
 
 
 # --- constructs -------------------------------------------------------------------
@@ -175,10 +185,19 @@ _COST_ATOM = re.compile(r"^([A-Za-z]+)<")
 _MANA_SYMBOL = re.compile(r"^(?:\d+|[WUBRGCXSP](?:/[WUBRGCP2])*)$")
 
 
+#: One part of a cost: an atom with its ``<...>`` (which may hold spaces), or
+#: a mana symbol.
+_COST_PART = re.compile(r"[A-Za-z]+<[^>]*>|\S+")
+
+
+def cost_parts(cost: str) -> list[str]:
+    return _COST_PART.findall(cost)
+
+
 def cost_atoms(cost: str) -> list[str]:
     """The kinds of atom in a Forge cost: ``tap``, ``mana``, ``Sac``, ``PayLife`` ..."""
     atoms = []
-    for part in cost.split():
+    for part in cost_parts(cost):
         if part == "T":
             atoms.append("tap")
         elif part == "Q":
@@ -263,122 +282,76 @@ def coverage(scripts, words: list[str]) -> Coverage:
     return result
 
 
-# --- a packed copy, read in seconds -------------------------------------------------
+# --- the pinned copy -----------------------------------------------------------
 #
-# A checkout is 34,000 small files, and reading them on a mounted volume takes
-# minutes. The first read packs them into one file named after the commit.
+# The importer reads one commit of the scripts, packed into one file in the
+# repository, and nothing else: the numbers of a deck change only when a pull
+# request moves the pin (`manage.py forge_pack`). A checkout is 34,000 small
+# files, so the copy is one gzip stream, read a script at a time: a header line
+# with the commit, then one JSON line per script.
+
+#: The packed scripts of the pinned commit.
+PACK = Path(__file__).resolve().parent / "data" / "forge_scripts.jsonl.gz"
+
+#: The pinned commit, readable in a pull request's diff.
+PIN = PACK.with_name("forge_commit.txt")
+
+_COMMIT = re.compile(r"^[0-9a-f]{40}$")
 
 
-def commit_of(root: Path) -> str:
-    """The commit a checkout stands on: a detached HEAD holds it directly."""
-    head = (root / ".git" / "HEAD").read_text(encoding="utf-8").strip()
-    if head.startswith("ref:"):
-        head = (root / ".git" / head.split(" ", 1)[1]).read_text(encoding="utf-8").strip()
-    return head
+def pinned() -> str:
+    return PIN.read_text(encoding="utf-8").strip()
 
 
-def load(root: Path) -> dict[str, Script]:
-    """`read_all`, through a packed copy beside the checkout."""
+def pack(texts, commit: str, date: str, out: Path | None = None) -> int:
+    """Write ``(path, text)`` pairs as the packed copy of ``commit``, made on
+    ``date`` (ISO 8601); how many."""
     import gzip
     import json
 
-    packed = root.parent / f"forge_scripts_{commit_of(root)[:10]}.json.gz"
-    if packed.exists():
-        with gzip.open(packed, "rt", encoding="utf-8") as handle:
-            texts = json.load(handle)
-    else:
-        texts = {str(path.relative_to(root)): path.read_text(encoding="utf-8",
-                                                               errors="replace")
-                 for path in sorted((root / SCRIPTS).rglob("*.txt"))}
-        with gzip.open(packed, "wt", encoding="utf-8") as handle:
-            json.dump(texts, handle, separators=(",", ":"), ensure_ascii=False)
-    found = {}
-    for path, text in texts.items():
-        script = parse(text, path)
-        if script.name:
-            found.setdefault(script.name, script)
+    if not _COMMIT.match(commit):
+        raise ValueError(f"not a full commit hash: {commit!r}")
+    out = out or PACK
+    count = 0
+    # mtime=0: the same scripts give the same bytes, so an unchanged pin is
+    # no change in git.
+    with open(out, "wb") as raw, gzip.GzipFile(fileobj=raw, mode="wb", mtime=0) as zipped:
+        zipped.write((json.dumps({"commit": commit, "date": date}) + "\n").encode())
+        for path, text in sorted(texts):
+            zipped.write((json.dumps({"path": path, "text": text}, ensure_ascii=False)
+                          + "\n").encode())
+            count += 1
+    return count
+
+
+def header(path: Path | None = None) -> dict:
+    """``{"commit": ..., "date": ...}`` of the packed copy."""
+    import gzip
+    import json
+
+    path = path or PACK
+    with gzip.open(path, "rt", encoding="utf-8") as handle:
+        return json.loads(handle.readline())
+
+
+def scripts(path: Path | None = None):
+    """Every script of the packed copy, one at a time, in path order."""
+    import gzip
+    import json
+
+    path = path or PACK
+    with gzip.open(path, "rt", encoding="utf-8") as handle:
+        handle.readline()
+        for line in handle:
+            entry = json.loads(line)
+            script = parse(entry["text"], entry["path"])
+            if script.name:
+                yield script
+
+
+def load(path: Path | None = None) -> dict[str, Script]:
+    """Every script of the packed copy, by the name of its first face."""
+    found: dict[str, Script] = {}
+    for script in scripts(path):
+        found.setdefault(script.name, script)
     return found
-
-
-# --- facts a goldfish plays, for the cross-check with our reader -------------------
-
-#: Mana of any colour, as our engine writes the choice.
-ANY = "WUBRG"
-
-
-def _produced(text: str) -> set[str]:
-    tokens = text.replace(",", " ").split()
-    if tokens[:1] == ["Combo"]:
-        tokens = tokens[1:]
-    letters = set()
-    for token in tokens:
-        if token in ("Any", "ColorIdentity", "AnyColor"):
-            letters |= set(ANY)
-        elif token in set("WUBRGC"):
-            letters.add(token)
-    return letters
-
-
-def _walk(ability: Ability):
-    yield ability
-    for sub in ability.chain:
-        yield from _walk(sub)
-
-
-def _self_enters(ability: Ability) -> bool:
-    return (ability.line == "T" and ability.head == "ChangesZone"
-            and ability.param("Destination") == "Battlefield"
-            and ability.param("ValidCard") == "Card.Self")
-
-
-#: A basic land type and the mana it taps for, which no script line spells out.
-_BASIC_TYPES = {"Plains": "W", "Island": "U", "Swamp": "B", "Mountain": "R", "Forest": "G"}
-
-#: What a land search may name besides ``Land``: the basic land types.
-_LAND_WORDS = ("Land", *_BASIC_TYPES)
-
-
-def facts(script: Script) -> dict:
-    """What the card does that the goldfish plays, in five coarse facts.
-
-    The front face, and for a modal double-faced card both faces: either may
-    be played, and our reader merges them.
-
-    ``taps_for``: the colours its {T} mana abilities can make, ``C`` included;
-    ``draws``: cards drawn as it resolves or enters, ``x`` for X; ``land_search``:
-    a land from the library onto the battlefield; ``enters_tapped``;
-    ``treasures``: it makes Treasure tokens.
-    """
-    faces = script.faces if script.mode == "Modal" else script.faces[:1]
-    taps_for: set[str] = set()
-    draws, land_search, enters_tapped, treasures = 0, False, False, False
-    for face in faces:
-        types = face.types.split()
-        if "Land" in types:
-            taps_for |= {_BASIC_TYPES[name] for name in types if name in _BASIC_TYPES}
-    for ability in (ability for face in faces for ability in face.abilities):
-        steps = list(_walk(ability))
-        atoms = set(cost_atoms(ability.param("Cost")))
-        if (ability.line == "A" and not ability.spell and ability.head == "Mana"
-                and "tap" in atoms and atoms <= {"tap", "mana"}):
-            taps_for |= _produced(ability.param("Produced"))
-        if (ability.line == "A" and ability.spell) or _self_enters(ability):
-            for step in steps:
-                if step.head == "Draw":
-                    amount = step.param("NumCards", "1")
-                    draws = draws + int(amount) if amount.isdigit() and draws != "x" else "x"
-        for step in steps:
-            if (step.head == "ChangeZone" and step.param("Origin") == "Library"
-                    and step.param("Destination") == "Battlefield"
-                    and not step.param("DefinedPlayer")
-                    and any(word in step.param("ChangeType") for word in _LAND_WORDS)):
-                land_search = True
-            if step.head == "Token" and "treasure" in step.param("TokenScript"):
-                treasures = True
-        if ability.line == "R" and ability.head == "Moved" and \
-                ability.param("ValidCard") == "Card.Self" and \
-                any(step.head == "Tap" and step.param("ETB") == "True" for step in steps):
-            enters_tapped = True
-    return {"taps_for": "".join(sorted(taps_for)), "draws": draws,
-            "land_search": land_search, "enters_tapped": enters_tapped,
-            "treasures": treasures}

@@ -92,17 +92,3 @@ def test_coverage_counts_cards_that_use_only_the_vocabulary():
     words = forge.vocabulary(scripts, 2)
     assert forge.coverage(scripts, words).covered < 3
     assert forge.coverage(scripts, forge.vocabulary(scripts, 50)).share == 1.0
-
-
-def test_facts_of_a_rock_a_ramp_spell_and_a_tapland():
-    assert forge.facts(forge.parse(ROCK))["taps_for"] == "GU"
-    assert forge.facts(forge.parse(SORCERY)) == {
-        "taps_for": "", "draws": 2, "land_search": True, "enters_tapped": False,
-        "treasures": True}
-    tapland = forge.facts(forge.parse(TAPLAND))
-    assert tapland["taps_for"] == "GU"
-    assert tapland["enters_tapped"]
-
-
-def test_a_modal_card_counts_both_faces():
-    assert forge.facts(forge.parse(MODAL))["taps_for"] == "B"

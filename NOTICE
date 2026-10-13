@@ -1,0 +1,20 @@
+Goldfish Lab
+Copyright (C) the Goldfish Lab contributors.
+Licensed under the GNU Affero General Public License v3.0 (see LICENSE).
+
+This repository also contains third-party data under its own licence:
+
+Forge card scripts
+  cards/data/forge_scripts.jsonl.gz holds the card scripts of the Forge
+  project (https://github.com/Card-Forge/forge, folder
+  forge-gui/res/cardsfolder) at the commit named in
+  cards/data/forge_commit.txt, unchanged, packed into one file.
+  Copyright (C) the Forge contributors.
+  Licensed under the GNU General Public License v3.0 (see licenses/GPL-3.0.txt).
+  Goldfish Lab translates these scripts into its own card blocks
+  (cards/forge_import.py). The GPL v3.0 continues to apply to the scripts
+  and to the blocks derived from them; section 13 of both licences permits
+  combining them with this work under the AGPL v3.0.
+
+Font: EB Garamond, SIL Open Font License 1.1 (see static/fonts/OFL.txt).
+Card data and images come from Scryfall and remain Wizards of the Coast's.

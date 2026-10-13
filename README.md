@@ -171,6 +171,19 @@ re-derive them on their own:
 .venv/Scripts/python manage.py ingest_scryfall --profiles
 ```
 
+Both also translate [Forge](https://github.com/Card-Forge/forge)'s card scripts into blocks
+(`cards/forge_import.py`), from the copy of one pinned commit in `cards/data/` - only when the
+pin, the translation or the catalogue changed. The pin moves only by pull request, so a deck's
+numbers never change between two deploys of the same code:
+
+```bash
+# Once: git clone --filter=blob:none --sparse https://github.com/Card-Forge/forge .data/forge
+#       git -C .data/forge sparse-checkout set forge-gui/res/cardsfolder
+# Then check out the commit to pin there, and:
+.venv/Scripts/python manage.py forge_pack            # writes cards/data/, commit both files
+.venv/Scripts/python manage.py forge_disagreements   # where Forge and our reader differ
+```
+
 Then, for a deck to look at locally:
 
 ```bash
@@ -423,7 +436,7 @@ msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
 | `goldfishlab/` | Settings (split base/dev/prod), URLs, Celery app |
 | `core/` | Landing page and its ticker of what others are doing (`core/ticker.py`, cached a minute, never the viewer's own), `/styleguide/`, `/healthz/`, `/about/methodology/`, terms, privacy, design-token reader, the rate-limit address rule and the production log formatter |
 | `accounts/` | Custom user identified by email, plus the data export and account deletion (`privacy.py`) and the one-time "privacy policy changed" page (`consent.py`) |
-| `cards/` | The Scryfall catalogue, role tags and the derived card profiles |
+| `cards/` | The Scryfall catalogue, role tags, Forge's card scripts as blocks and the derived card profiles |
 | `decks/` | Decks, the importer and the per-deck analysis screens |
 | `simulations/` | Runs: the engine boundary, Celery tasks, reports, annotations |
 | `combos/` | Commander Spellbook lookups, cached per deck. **No bulk mirror** — see `combos/spellbook.py` |
@@ -571,4 +584,6 @@ Bundled third-party parts keep their own licences: EB Garamond (SIL Open Font Li
 [static/fonts/OFL.txt](static/fonts/OFL.txt)), htmx (Zero-Clause BSD), Tailwind CSS (MIT, build
 time only). Card data and images come from Scryfall and remain Wizards of the Coast's; Goldfish
 Lab is unofficial Fan Content permitted under the Fan Content Policy. Combo data comes from
-Commander Spellbook.
+Commander Spellbook. The card scripts in `cards/data/` come from the
+[Forge](https://github.com/Card-Forge/forge) project under the GNU General Public License v3.0
+([licenses/GPL-3.0.txt](licenses/GPL-3.0.txt)); see [NOTICE](NOTICE).

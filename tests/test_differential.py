@@ -73,3 +73,67 @@ def test_a_new_forge_commit_is_named_as_a_cause(frozen):
     _diff, _before, _after, notes = differential.diff(path)
     assert notes == ["Forge's scripts are of another commit since the freeze "
                      "(ffffffffff, now eeeeeeeeee)"]
+
+
+# --- gate B: every card that moved has a cause --------------------------------
+
+
+def _edit_frozen(path, name, change):
+    import gzip
+    import json
+
+    data = differential.load(path)
+    change(data["cards"][name]["read"])
+    with gzip.open(path, "wt", encoding="utf-8") as handle:
+        json.dump(data, handle)
+
+
+def test_nothing_moved_needs_no_cause(frozen):
+    path, _count = frozen
+    found = differential.explain(path)
+    assert found.causes == {}
+    assert found.unexplained == {}
+
+
+def test_a_change_no_cause_covers_is_unexplained(frozen):
+    path, _count = frozen
+    card = OracleCard.objects.get(name="Sol Ring")
+    card.oracle_text = "{T}: Add {C}{C}{C}."
+    card.save(update_fields=["oracle_text"])
+
+    found = differential.explain(path)
+    assert found.causes == {differential.key(card): []}
+    assert "mana_abilities" in found.unexplained[differential.key(card)]
+    assert "replay" not in found.unexplained[differential.key(card)]
+
+
+def test_a_draw_in_reminder_text_is_the_readers_cause(frozen):
+    path, _count = frozen
+    card = OracleCard.objects.get(name="Llanowar Elves")
+    card.oracle_text += "\nCycling {2} ({2}, Discard this card: Draw a card.)"
+    card.save(update_fields=["oracle_text"])
+    differential.freeze(path)
+    # The frozen code read the reminder's draw as one more card on cast.
+    _edit_frozen(path, differential.key(card), lambda read: read.update(draw_on_cast=1))
+
+    found = differential.explain(path)
+    assert found.causes == {differential.key(card): ["reader:draw in reminder text"]}
+    assert found.unexplained == {}
+
+
+def test_a_forge_family_that_changed_the_profile_is_the_cause(frozen, monkeypatch):
+    from cards import forge_import, forge_merge
+
+    forge_import.run()
+    path, _count = frozen
+    differential.freeze(path)
+
+    def tapped(profile, abilities, card):
+        if card.name == "Sol Ring":
+            profile.enters_tapped = True
+
+    monkeypatch.setattr(forge_merge, "FAMILIES", [*forge_merge.FAMILIES, tapped])
+    found = differential.explain(path)
+    sol_ring = differential.key(OracleCard.objects.get(name="Sol Ring"))
+    assert found.causes == {sol_ring: ["forge:tapped"]}
+    assert found.unexplained == {}

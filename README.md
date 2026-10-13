@@ -320,6 +320,9 @@ written with `COVERAGE_WRITE=1 pytest tests/test_engine_coverage.py` and committ
 python manage.py engine_coverage                  # coverage of today's catalogue and decks
 python manage.py engine_coverage --check          # today's catalogue against the snapshot
 python manage.py engine_coverage --export-fixture # rebuild the slice (full catalogue + precons)
+# Between engine versions, on the whole catalogue (frozen file in .data/, never committed):
+python manage.py engine_coverage --freeze         # freeze today's reading of every card
+python manage.py engine_coverage --diff --explain # every card that moved since, with its cause
 # One turn of the loop, against the local server only: a deck of the most-played cards the
 # engine cannot read, uploaded through /decks/import/ as a local test account, the review
 # walk followed to the end and checked against the engine (report in /tmp). Each turn empties

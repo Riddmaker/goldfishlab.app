@@ -37,7 +37,7 @@ from billing import quotas
 from billing.models import UsageRecord
 from core.l10n import number
 from metrics import counts
-from simulations import primitives
+from simulations import patches, primitives
 from simulations.engine import adapter, runner
 from simulations.models import SimulationRun
 
@@ -428,7 +428,11 @@ def save_annotation(*, deck, oracle_card, scope: str, judgements: dict | None = 
 
     keys = _scope_keys(deck, scope)
     existing = CardAnnotation.objects.filter(oracle_card=oracle_card, **keys).first()
-    overrides = existing.overrides if existing else {}
+    # What the row says now (card model phase 2): its patches against today's
+    # reading, so a block this save does not touch keeps what the reader has
+    # learned since it was written.
+    overrides = patches.effective(existing.overrides, existing.patches,
+                                  getattr(oracle_card, "profile", None))[0] if existing else {}
     if judgements is not None:
         overrides = apply(overrides, judgements)
     if primitive_changes:

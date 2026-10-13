@@ -68,7 +68,7 @@ from simulation.cards import (
 from simulation.mana import land_color
 from simulation.manacost import COLORLESS, COLORS, ManaCost, choice, mana_label, parse
 from simulations import gaps as gaps_module
-from simulations import primitives
+from simulations import patches, primitives
 
 #: Engine kinds that are one-shot spells. Only these may take `draw_on_cast`
 #: from the derived `draws_cards`: a permanent's "draw a card" is almost always
@@ -886,9 +886,11 @@ def engine_readings(oracle_cards, *, builtin: bool = True) -> dict:
     merged: dict = {}
     rows = CardAnnotation.objects.filter(
         owner__isnull=True, deck__isnull=True, oracle_card__in=cards
-    ).values_list("oracle_card_id", "overrides") if builtin else ()
-    for oracle_id, overrides in rows:
-        merged.setdefault(oracle_id, {}).update(overrides or {})
+    ).values_list("oracle_card_id", "overrides", "patches") if builtin else ()
+    profiles = {card.pk: getattr(card, "profile", None) for card in cards}
+    for oracle_id, overrides, document in rows:
+        said, _notes = patches.effective(overrides, document, profiles.get(oracle_id))
+        merged.setdefault(oracle_id, {}).update(said)
     annotations = Annotations(overrides=merged, scopes={})
 
     found = {}
@@ -1050,6 +1052,9 @@ class Annotations:
 
     overrides: dict
     scopes: dict
+    #: Phase 2: by oracle id, every patch whose block changed or is gone
+    #: since it was written (`simulations.patches.Note`) - "please check".
+    notes: dict = field(default_factory=dict)
 
     def for_card(self, oracle_id) -> dict:
         """The winning overrides for one card."""
@@ -1085,27 +1090,52 @@ def annotations_for(deck: Deck) -> Annotations:
     from simulations.models import CardAnnotation
 
     relevant = cards_filter(deck)
-    rows = (
+    rows = list(
         CardAnnotation.objects.filter(relevant)
         .filter(scope_filter(deck))
         .order_by("owner_id", "deck_id")
-        .values_list("oracle_card_id", "owner_id", "deck_id", "overrides")
+        .values_list("oracle_card_id", "owner_id", "deck_id", "overrides", "patches")
         .distinct()
     )
+    profiles = _profiles_of(oracle_id for oracle_id, *_rest, document in rows
+                            if patches.is_current(document))
 
     merged: dict = {}
     scopes: dict = {}
+    notes: dict = {}
     # Built-in rows first, then the owner's, then this deck's. Each pass
     # overwrites only the keys it sets, so a deck-scoped annotation can change
     # one field without restating the rest.
     ordered = sorted(rows, key=lambda row: (row[1] is not None, row[2] is not None))
-    for oracle_id, owner_id, deck_id, overrides in ordered:
+    for oracle_id, owner_id, deck_id, overrides, document in ordered:
         scope = _scope_name(owner_id, deck_id)
-        merged.setdefault(oracle_id, {}).update(overrides or {})
-        scopes.setdefault(oracle_id, {}).update(
-            dict.fromkeys(overrides or {}, scope)
-        )
-    return Annotations(overrides=merged, scopes=scopes)
+        said, found = patches.effective(overrides, document, profiles.get(oracle_id))
+        merged.setdefault(oracle_id, {}).update(said)
+        scopes.setdefault(oracle_id, {}).update(dict.fromkeys(said, scope))
+        _keep_notes(notes, oracle_id, said, found)
+    return Annotations(overrides=merged, scopes=scopes, notes=notes)
+
+
+def _profiles_of(oracle_ids) -> dict:
+    """The derived profiles of these cards, by oracle id - what a patch is
+    played against."""
+    from cards.models import DerivedProfile
+
+    wanted = set(oracle_ids)
+    if not wanted:
+        return {}
+    return {profile.oracle_card_id: profile
+            for profile in DerivedProfile.objects.filter(oracle_card_id__in=wanted)}
+
+
+def _keep_notes(notes: dict, oracle_id, said: dict, found: list) -> None:
+    """A narrower row that says a key replaces the notes of a wider one about it."""
+    kept = [note for note in notes.get(oracle_id, ()) if note.key not in said]
+    kept.extend(found)
+    if kept:
+        notes[oracle_id] = kept
+    else:
+        notes.pop(oracle_id, None)
 
 
 def _scope_name(owner_id, deck_id) -> str:

@@ -182,6 +182,13 @@ boundary, not the symptom.
 #:    tempted (one opponent accepts, assumed), off the top by X (Open the
 #:    Way); Sword of Hearth and Home in combat. Neheb adds {R} per combat
 #:    damage, Crime Novelist {R} per artifact sacrificed, a Treasure too.
-ENGINE_VERSION = 27
+#: 28: card model phase 1. Forge's card scripts, translated into blocks, fill
+#:    in what the reader left open: cards drawn as a permanent enters
+#:    (Baleful Strix, Mulldrifter), a land search, Treasure, entering tapped
+#:    (Boseiju; a Lorwyn land revealing a creature type, The Black Gate's
+#:    life), a mana ability. A draw in reminder text is no longer the spell's
+#:    own (Cycling, a Clue, Learn, a gift), a token "tapped and attacking" no
+#:    card entering tapped; Phyrexian Tribute sacrifices two creatures.
+ENGINE_VERSION = 28
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

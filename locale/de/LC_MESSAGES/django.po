@@ -11619,3 +11619,60 @@ msgid "%(count)s Treasure as it resolves"
 msgid_plural "%(count)s Treasures as it resolves"
 msgstr[0] "%(count)s Treasure beim Auflösen"
 msgstr[1] "%(count)s Treasures beim Auflösen"
+
+#: simulations/engine/adapter.py
+msgid "as it enters"
+msgstr "beim Eintreten"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "sacrifice %(count)s × %(what)s"
+msgstr "opfere %(count)s × %(what)s"
+
+#: simulations/primitives.py
+msgid "How many are sacrificed"
+msgstr "Wie viele geopfert werden"
+
+#: simulations/primitives.py
+msgid "Blank or 1: one."
+msgstr "Leer oder 1: einer."
+
+#: cards/forge_merge.py
+msgid "draws cards in a way that is not read yet"
+msgstr "zieht Karten auf eine Weise, die noch nicht gelesen wird"
+
+#: cards/forge_merge.py
+msgid "makes Treasure in a way that is not read yet"
+msgstr "erzeugt Treasures auf eine Weise, die noch nicht gelesen wird"
+
+#: cards/forge_merge.py
+msgid "searches for lands in a way that is not read yet"
+msgstr "sucht Länder auf eine Weise, die noch nicht gelesen wird"
+
+#: changelog/entries.py
+msgid "Cards that draw as they enter, and no free cards from Cycling"
+msgstr ""
+"Karten, die beim Eintreten ziehen, und keine Gratiskarten mehr durch Cycling"
+
+#: changelog/entries.py
+msgid ""
+"Where our reading of a card's text left something out, the simulation now "
+"also reads the card from Forge's card scripts: creatures and artifacts that "
+"draw as they enter, such as Baleful Strix and Mulldrifter; lands that enter "
+"tapped, such as Boseiju, or unless you reveal an Elf, as Gilt-Leaf Palace; "
+"Treasure, land searches and mana abilities. A spell no longer draws a card "
+"for the Cycling, Clue, Learn or gift written on it, which was a free card "
+"every time it was cast, and Phyrexian Tribute sacrifices its two creatures. "
+"A card that draws or makes Treasure in a way the simulation does not read "
+"yet is now marked, so that you can correct it."
+msgstr ""
+"Wo unser Lesen des Kartentexts etwas ausgelassen hat, liest die Simulation "
+"die Karte jetzt auch aus den Karten-Skripten von Forge: Kreaturen und "
+"Artefakte, die beim Eintreten ziehen, wie Baleful Strix und Mulldrifter; "
+"Länder, die getappt eintreten, wie Boseiju, oder ausser du zeigst einen Elf "
+"vor, wie Gilt-Leaf Palace; Treasures, Landsuchen und Mana-Fähigkeiten. Ein "
+"Spell zieht keine Karte mehr für das Cycling, den Clue, Learn oder das "
+"Geschenk, das auf ihm steht – das war bei jedem Wirken eine Gratiskarte –, "
+"und Phyrexian Tribute opfert seine zwei Kreaturen. Eine Karte, die auf eine "
+"Weise zieht oder Treasures erzeugt, die die Simulation noch nicht liest, ist"
+" jetzt markiert, damit du sie korrigieren kannst."

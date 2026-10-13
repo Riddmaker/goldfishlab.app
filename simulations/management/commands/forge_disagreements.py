@@ -15,6 +15,9 @@ reader and the engine make of the card today, and each fact falls in one of
 * ``ours_more`` - the other way round;
 * ``conflict`` - both read something, and it differs.
 
+A card is marked ``unread`` when the engine has a reading gap on it, one
+about its text; judgements ("how early to cast it") do not count.
+
 ``--out`` writes every card that is not ``agree`` on some fact, for the hand
 checks; keep it out of the repository (``.data/`` is ignored). Nothing in the
 database changes.
@@ -29,6 +32,7 @@ from django.core.management.base import BaseCommand, CommandError
 from simulation.cards import Card
 from simulations import coverage
 from simulations.engine import adapter
+from simulations.gaps import READING
 
 FACTS = ("taps_for", "draws", "land_search", "enters_tapped", "treasures")
 CLASSES = ("agree", "forge_more", "ours_more", "conflict")
@@ -103,6 +107,9 @@ class Command(BaseCommand):
             readings = adapter.engine_readings(chunk, builtin=False)
             for card in chunk:
                 engine_card, gaps = readings[card.pk]
+                # A reading gap only: "how early to cast it" is a judgement
+                # almost every card leaves open, and says nothing of the text.
+                unread = any(gap.kind == READING for gap in gaps)
                 theirs = forge_import.facts(blocks.from_json(card.forge.blocks),
                                             card.type_line)
                 ours = our_facts(engine_card)
@@ -114,10 +121,10 @@ class Command(BaseCommand):
                         row[fact] = {"class": found, "forge": theirs[fact], "ours": ours[fact]}
                         examples.setdefault((fact, found), []).append(
                             f"{card.name}: forge {theirs[fact]!r}, ours {ours[fact]!r}"
-                            + (" (unread)" if gaps else ""))
+                            + (" (unread)" if unread else ""))
                 if row:
                     rows.append({"name": card.name, "id": str(card.pk),
-                                 "path": card.forge.path, "unread": bool(gaps), **row})
+                                 "path": card.forge.path, "unread": unread, **row})
 
         for fact in FACTS:
             line = "  ".join(f"{name} {counts[fact][name]:6d}" for name in CLASSES)

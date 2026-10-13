@@ -481,6 +481,8 @@ class AdditionalCost:
         discard: Cards discarded, the weakest first.
         mana: Mana paid on top of the printed cost (Redirect Lightning's {2}).
         exile_from_graveyard: A card of this type exiled from the graveyard.
+        sacrifice_count: How many permanents are sacrificed: Phyrexian
+            Tribute's two creatures (engine version 28).
     """
 
     sacrifice: frozenset[str] = field(default_factory=frozenset)
@@ -490,6 +492,7 @@ class AdditionalCost:
     discard: int = 0
     mana: ManaCost | None = None
     exile_from_graveyard: str = ""
+    sacrifice_count: int = 1
 
 
 @dataclass(frozen=True)

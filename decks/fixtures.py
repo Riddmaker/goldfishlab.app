@@ -265,10 +265,11 @@ UNMODELLABLE = DeckShape(
     ),
     commander=None,
     cards=(
-        # "Sacrifice two creatures": a cost the engine does not pay. Toxic
-        # Deluge stood here until engine version 19 paid its X life as 0, and
-        # Exotic Orchard until 9 read it as the deck's colours (P19 R5, R15).
-        (4, "Phyrexian Tribute"),
+        # "You may exile any number of blue cards from your hand": a cost the
+        # engine does not pay. Phyrexian Tribute stood here until engine 28
+        # sacrificed its two creatures, Toxic Deluge until 19 paid its X life
+        # as 0, and Exotic Orchard until 9 read it as the deck's colours.
+        (4, "March of Swirling Mist"),
         # A ritual whose extra mana grows with the board. Nykthos and Gaea's
         # Cradle stood here until engine version 15 counted devotion and
         # creatures (P19 R11); Phyrexian Tower and Ashnod's Altar until 19

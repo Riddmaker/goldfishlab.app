@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 
 from django.utils.translation import gettext_noop
 
+from cards import forge_merge
 from cards.models import DerivedProfile, OracleCard
 
 # --- source labels, as they appear in DerivedProfile.source_map --------------
@@ -226,11 +227,15 @@ _COLORS = frozenset("WUBRG")
 # `[.\n]\s*` rather than `[.\n] `: Oracle text separates abilities with a bare
 # newline and no space, so requiring one missed every card whose sentence begins
 # a line - "Flash\nFlying\nEbondeath enters tapped." among them.
-_ENTERS_TAPPED = r"(?:^|[.\n]\s*)(?:{name}|This [\w ]+?|It|~) enters(?: the battlefield)? tapped"
+_ENTERS_TAPPED = (r"(?:^|[.\n]\s*)(?:{name}|This [\w ]+?|It|~) enters(?: the battlefield)? tapped"
+                  r"(?! and attacking)")
 _UNLESS = re.compile(r"enters(?: the battlefield)? tapped unless", re.IGNORECASE)
 # The bare phrase, wherever it appears and whatever its subject. Used only to
 # notice that a card is *about* entering tapped when the anchored rule missed.
-_TAPPED_MENTION = re.compile(r"enters(?: the battlefield)? tapped", re.IGNORECASE)
+# Not "It enters tapped and attacking": a token, or a card put onto the
+# battlefield in combat (Sneak, Ninjutsu), never the card as it is played.
+_TAPPED_MENTION = re.compile(r"enters(?: the battlefield)? tapped(?! and attacking)",
+                             re.IGNORECASE)
 
 # --- mana abilities, read clause by clause ------------------------------------
 #
@@ -453,6 +458,7 @@ _COST_PARTS = re.compile(
     r"(?P<t1>artifact|creature|land|enchantment)"
     r"(?: or (?:an? )?(?P<t2>artifact|creature|land|enchantment)(?![\w ]*life))?"
     r"|sacrifice an? (?P<subtype>[A-Z][a-z]+)"
+    r"|sacrifice (?P<count>two|three) (?P<tn>artifact|creature|land|enchantment)s"
     r"|pay (?P<life>\d+|X) life"
     r"|discard (?P<discard>a|one|two) cards?"
     r"|pay (?P<mana>(?:\{[\dWUBRGC]\})+)"
@@ -991,6 +997,10 @@ def _cost_way(part: re.Match) -> dict:
         way["filter"] = _COLOR_WORDS.get(wanted, wanted)
     elif part.group("subtype"):
         way["sacrifice"], way["filter"] = ["creature"], part.group("subtype").lower()
+    elif part.group("count"):
+        # Phyrexian Tribute (card model phase 1): stored only when more than
+        # one, so that no other card's profile changes.
+        way["sacrifice"], way["count"] = [part.group("tn")], _word_number(part.group("count"))
     elif part.group("life"):
         if part.group("life") == "X":
             way["life_x"] = True
@@ -3025,12 +3035,16 @@ def _first_number(pattern: re.Pattern, text: str) -> int | None:
 
 def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
            branches: frozenset[str] | None = None,
-           revivals: frozenset[str] | None = None) -> DerivedProfile:
+           revivals: frozenset[str] | None = None,
+           forge=forge_merge.LOAD) -> DerivedProfile:
     """Build (not save) the profile for one card.
 
     `branches` is `tutor_branches()` and `revivals` is `reanimate_branches()`,
     passed in by `rebuild` so that a pass over the catalogue reads the tag tree
-    once rather than once per land fetcher or reanimator.
+    once rather than once per land fetcher or reanimator. `forge` is the
+    card's blocks from Forge's script (`forge_merge.blocks_by_card`), loaded
+    here when not given; they fill in what the reader left open
+    (`forge_merge.merge`, card model phase 1).
     """
     tags = tag_slugs if tag_slugs is not None else set(card.tags.values_list("slug", flat=True))
     text = card.oracle_text or ""
@@ -3085,7 +3099,11 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         mana.notes = [note for note in mana.notes if note not in _TRIGGER_EXPLAINS]
     discard = _DISCARD_COST.search(text)
     additional = AdditionalCost() if discard else _additional_cost(card)
-    draw = _draw(text)
+    # Not a draw in reminder text: Cycling's, a Clue's or a Blood token's is
+    # an ability the spell does not use as it resolves, Learn's a discard for
+    # a draw, a gift's the opponent's. Read as the spell's own, each was a
+    # free card every time it was cast (card model phase 1).
+    draw = _draw(_REMINDER.sub("", text))
     amount = mana.amount
     if mana.one_shot and kind in (DerivedProfile.Kind.ARTIFACT, DerivedProfile.Kind.ROCK):
         # Lotus Petal: "{T}, Sacrifice this artifact: Add one mana of any
@@ -3218,6 +3236,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         source_map=_source_map(tags, tapped, mana, tutor)
         | ({"triggers": REGEX} if triggers.found else {}),
     )
+    forge_merge.merge(profile, forge_merge.blocks_of(card) if forge is forge_merge.LOAD
+                      else forge, card)
     return profile
 
 
@@ -3309,8 +3329,9 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
     for card_id, slug in links:
         slugs_by_card.setdefault(str(card_id), set()).add(slug)
 
+    forge = forge_merge.blocks_by_card(batch)
     profiles = [derive(card, slugs_by_card.get(str(card.pk), set()), branches=branches,
-                       revivals=revivals)
+                       revivals=revivals, forge=forge.get(str(card.pk), ()))
                 for card in batch]
     DerivedProfile.objects.bulk_create(
         profiles,

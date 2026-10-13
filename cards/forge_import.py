@@ -30,7 +30,7 @@ from simulation import blocks as b
 
 #: Raised with every change to how a script is translated, so the next run
 #: translates every script again although the pin did not move.
-TRANSLATION = 1
+TRANSLATION = 6
 
 #: More scripts than this share failing to translate stops the run, and the
 #: blocks of the last good run stay.
@@ -151,6 +151,12 @@ def vocabulary() -> list[str]:
 
 #: Parameters that make an ability conditional in a way no block holds yet.
 _CONDITIONS = ("Condition", "CheckSVar", "IsPresent", "ActivationLimit")
+#: Parameters that say when, from where or by whom it is used, which no block
+#: holds yet either. Not what the goldfish does anyway: act on its own turn,
+#: from the battlefield, at sorcery speed ("Activate only as a sorcery").
+_WHEN = ("OpponentTurn", "ActivationPhases", "ActivationFirstCombat", "Exhaust", "AtEOT")
+_WHEN_DEFAULTS = {"ActivationZone": ("Battlefield",), "Activator": ("You",),
+                  "PlayerTurn": ("True", "You")}
 
 #: Where an amount stands, by API: the first found is taken.
 _AMOUNTS = ("NumCards", "Amount", "NumDmg", "LifeAmount", "CounterNum", "TokenAmount",
@@ -159,6 +165,10 @@ _AMOUNTS = ("NumCards", "Amount", "NumDmg", "LifeAmount", "CounterNum", "TokenAm
 #: ``Produced$`` words for a choice that only a deck decides.
 _CHOICES = {"Any": "any", "AnyColor": "any", "ColorIdentity": "identity",
             "Chosen": "chosen"}
+
+#: APIs that happen to a player, who is you unless ``Defined$`` says otherwise.
+_PLAYER_APIS = frozenset({"Draw", "Discard", "Mill", "LoseLife", "GainLife", "Scry",
+                          "Surveil"})
 
 _TOKEN_SCRIPT = re.compile(r"^c_a_([a-z]+)_sac$")
 _ANY_TYPE = frozenset({"Card", "Permanent", "Any", "Self", "CARDNAME"})
@@ -228,10 +238,22 @@ def _args(step: forge.Ability, reading: _Reading) -> tuple:
     if step.head in MANA_APIS:
         args["color"] = _colors(params.get("Produced", "")) if step.head == "Mana" \
             else "reflected"
+        words = params.get("Produced", "").split()
+        if step.head == "Mana" and len(words) > 1 and set(words) <= set("WUBRGC"):
+            # "W U": each of them (a Signet), where "Combo W U" is one of them.
+            args["all"] = True
+        if params.get("RestrictValid"):
+            # "Spend this mana only to cast a creature spell of the chosen type".
+            args["restrict"] = params["RestrictValid"]
     elif step.head == "Token":
         script = params.get("TokenScript", "")
         match = _TOKEN_SCRIPT.match(script)
         args["token"] = match.group(1) if match else script
+        if params.get("TokenTapped") == "True":
+            args["tapped"] = True
+        if params.get("TokenOwner", "You") != "You":
+            # An Offer You Can't Refuse: "Its controller creates two Treasure".
+            args["owner"] = params["TokenOwner"]
     elif step.head in ("ChangeZone", "ChangeZoneAll"):
         args["from"] = params.get("Origin", "").lower()
         args["to"] = params.get("Destination", "").lower()
@@ -251,15 +273,20 @@ def _args(step: forge.Ability, reading: _Reading) -> tuple:
     who = params.get("Defined", "")
     if who in ("You", "Self") and step.head not in ("ChangeZone", "ChangeZoneAll"):
         args["who"] = who.lower()
+    elif who and step.head in _PLAYER_APIS:
+        # "Each opponent draws a card", "Its controller loses 2 life".
+        args["player"] = who
     if params.get("ValidTgts"):
         args["target"] = True
     if params.get("UnlessCost"):
         args["unless"] = params["UnlessCost"]
     if params.get("OptionalDecider") or params.get("Optional"):
         args["optional"] = True
-    for name in params:
+    for name, value in params.items():
         if name.startswith(_CONDITIONS):
             reading.unread.append(f"cond:{name}")
+        elif name in _WHEN or value not in _WHEN_DEFAULTS.get(name, (value,)):
+            reading.unread.append(f"when:{name}")
     return tuple(sorted(args.items()))
 
 
@@ -280,6 +307,10 @@ def _effects(ability: forge.Ability, reading: _Reading) -> tuple[b.Effect, ...]:
                 reading.unread.append("modes")
                 return
             elif VERBS[step.head] is not None:
+                if step is not ability and step.param("Cost"):
+                    # Paid as it resolves: Larval Scoutlander's "you may
+                    # sacrifice a land. If you do, search ...".
+                    reading.unread.append("cost:" + step.param("Cost"))
                 verb = "enters_tapped" if step.head == "Tap" and \
                     step.param("ETB") == "True" else VERBS[step.head]
                 effects.append(b.Effect(verb, _args(step, reading)))
@@ -629,6 +660,8 @@ ANY = "WUBRG"
 
 _BASIC_TYPES = {"Plains": "W", "Island": "U", "Swamp": "B", "Mountain": "R", "Forest": "G"}
 _LAND_WORDS = ("Land", *_BASIC_TYPES)
+#: Colours a deck decides: read as any colour, as the engine plays them.
+_ANY_COLOUR = frozenset({"any", "identity", "chosen", "reflected"})
 
 
 def facts(abilities, type_line: str = "") -> dict:
@@ -646,16 +679,20 @@ def facts(abilities, type_line: str = "") -> dict:
     land_search = enters_tapped = treasures = False
     for ability in abilities:
         atoms = {cost.atom for cost in ability.costs}
-        if ability.kind == b.MANA and "tap" in atoms and atoms <= {"tap", "mana"}:
+        # What {T} makes, life aside (Hashep Oasis), and restricted or not:
+        # the reader's flat mana. An ability that also takes mana counts only
+        # when it makes more than it takes (a Signet), not when it converts.
+        if ability.kind == b.MANA and "tap" in atoms and atoms <= {"tap", "life", "mana"}:
             for effect in ability.effects:
-                if effect.verb == "add_mana":
+                if effect.verb == "add_mana" and _nets_mana(ability, effect):
                     color = effect.arg("color", "")
-                    taps_for |= set(ANY) if color in ("any", "identity") else \
+                    taps_for |= set(ANY) if color in _ANY_COLOUR else \
                         {letter for letter in color if letter in ANY + "C"}
         enters = ability.kind == b.TRIGGERED and ability.event == b.Event("enters", who="self")
         if (ability.kind == b.RESOLVES or enters) and draws != "x":
             for effect in ability.effects:
-                if effect.verb == "draw" and ability.mode == 0 and draws != "x":
+                if effect.verb == "draw" and ability.mode == 0 and draws != "x" \
+                        and not effect.arg("player"):
                     n = effect.arg("n", 1)
                     draws = draws + n if isinstance(n, int) else "x"
         for effect in ability.effects:
@@ -663,7 +700,8 @@ def facts(abilities, type_line: str = "") -> dict:
                     effect.arg("to") == "battlefield" and not effect.arg("player") and \
                     any(word in str(effect.arg("what", "")) for word in _LAND_WORDS):
                 land_search = True
-            if effect.verb == "create_token" and effect.arg("token") == "treasure":
+            if effect.verb == "create_token" and effect.arg("token") == "treasure" \
+                    and not effect.arg("owner"):
                 treasures = True
             if ability.kind == b.REPLACEMENT and effect.verb == "enters_tapped" and \
                     ability.event == b.Event("enters", who="self"):
@@ -671,3 +709,16 @@ def facts(abilities, type_line: str = "") -> dict:
     return {"taps_for": "".join(sorted(taps_for)), "draws": draws,
             "land_search": land_search, "enters_tapped": enters_tapped,
             "treasures": treasures}
+
+
+def _nets_mana(ability, effect) -> bool:
+    """Whether ``effect`` makes more mana than ``ability``'s cost takes."""
+    paid = sum(cost.mana.generic + cost.mana.colorless + sum(n for _, n in cost.mana.pips)
+               + len(cost.mana.hybrid) + len(cost.mana.phyrexian)
+               for cost in ability.costs if cost.atom == "mana" and cost.mana is not None)
+    if not paid:
+        return True
+    n = effect.arg("n", 1)
+    made = (n if isinstance(n, int) else 1) * (len(effect.arg("color", "")) if effect.arg(
+        "all") else 1)
+    return made > paid

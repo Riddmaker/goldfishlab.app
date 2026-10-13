@@ -11486,3 +11486,59 @@ msgid "%(count)s Treasure as it resolves"
 msgid_plural "%(count)s Treasures as it resolves"
 msgstr[0] "%(count)s Tesouro ao resolver"
 msgstr[1] "%(count)s Tesouros ao resolver"
+
+#: simulations/engine/adapter.py
+msgid "as it enters"
+msgstr "ao entrar"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "sacrifice %(count)s × %(what)s"
+msgstr "sacrificar %(count)s × %(what)s"
+
+#: simulations/primitives.py
+msgid "How many are sacrificed"
+msgstr "Quantos são sacrificados"
+
+#: simulations/primitives.py
+msgid "Blank or 1: one."
+msgstr "Vazio ou 1: um."
+
+#: cards/forge_merge.py
+msgid "draws cards in a way that is not read yet"
+msgstr "compra cards de um jeito que ainda não é lido"
+
+#: cards/forge_merge.py
+msgid "makes Treasure in a way that is not read yet"
+msgstr "cria Tesouros de um jeito que ainda não é lido"
+
+#: cards/forge_merge.py
+msgid "searches for lands in a way that is not read yet"
+msgstr "busca terrenos de um jeito que ainda não é lido"
+
+#: changelog/entries.py
+msgid "Cards that draw as they enter, and no free cards from Cycling"
+msgstr "Cards que compram ao entrar, e nada de cards de graça pelo Ciclo"
+
+#: changelog/entries.py
+msgid ""
+"Where our reading of a card's text left something out, the simulation now "
+"also reads the card from Forge's card scripts: creatures and artifacts that "
+"draw as they enter, such as Baleful Strix and Mulldrifter; lands that enter "
+"tapped, such as Boseiju, or unless you reveal an Elf, as Gilt-Leaf Palace; "
+"Treasure, land searches and mana abilities. A spell no longer draws a card "
+"for the Cycling, Clue, Learn or gift written on it, which was a free card "
+"every time it was cast, and Phyrexian Tribute sacrifices its two creatures. "
+"A card that draws or makes Treasure in a way the simulation does not read "
+"yet is now marked, so that you can correct it."
+msgstr ""
+"Onde nossa leitura do texto de um card deixava algo de fora, a simulação "
+"agora também lê o card a partir dos scripts de cards do Forge: criaturas e "
+"artefatos que compram ao entrar, como Baleful Strix e Mulldrifter; terrenos "
+"que entram virados, como Boseiju, ou a menos que você revele um Elfo, como "
+"Gilt-Leaf Palace; Tesouros, buscas de terrenos e habilidades de mana. Uma "
+"mágica não compra mais um card pelo Ciclo, pela Pista, por Aprender ou pelo "
+"presente escritos nela, o que era um card de graça toda vez que era "
+"conjurada, e Phyrexian Tribute sacrifica suas duas criaturas. Um card que "
+"compra ou cria Tesouros de um jeito que a simulação ainda não lê agora é "
+"marcado, para que você possa corrigi-lo."

@@ -10288,3 +10288,98 @@ msgstr "プレイのしかた"
 msgid "%(count)s Treasure as it resolves"
 msgid_plural "%(count)s Treasures as it resolves"
 msgstr[0] "解決時に宝物%(count)s個"
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s sideboard card was not imported."
+msgid_plural "%(count)s sideboard cards were not imported."
+msgstr[0] "サイドボードの%(count)s枚は取り込んでいません。"
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s maybeboard card was not imported."
+msgid_plural "%(count)s maybeboard cards were not imported."
+msgstr[0] "検討中（メイビーボード）の%(count)s枚は取り込んでいません。"
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s companion was not imported."
+msgid_plural "%(count)s companions were not imported."
+msgstr[0] "相棒%(count)s枚は取り込んでいません。"
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s token was not imported."
+msgid_plural "%(count)s tokens were not imported."
+msgstr[0] "トークン%(count)s個は取り込んでいません。"
+
+#: decks/models.py
+msgid "Foil"
+msgstr "フォイル"
+
+#: decks/models.py
+msgid "Etched foil"
+msgstr "エッチング・フォイル"
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s more"
+msgid_plural "%(count)s more"
+msgstr[0] "ほか%(count)s件"
+
+#: templates/decks/_left_out.html
+msgid ""
+"Goldfish Lab plays the deck itself, so only the main deck and the commander "
+"were read."
+msgstr "Goldfish Labはデッキそのものをプレイするため、メインデッキと統率者だけを読み込みました。"
+
+#: decks/importers/columns.py
+msgid "board or section"
+msgstr "ボード・セクション"
+
+#: decks/services.py
+msgid ""
+"Goldfish Lab cannot open links to other sites - it needs the list itself."
+msgstr "Goldfish Labは他のサイトへのリンクを開けません。リストそのものが必要です。"
+
+#: decks/services.py
+msgid "On Moxfield: open the deck → More → Export → copy, then paste it here."
+msgstr "Moxfieldの場合：デッキを開く → More → Export → コピーして、ここに貼り付けてください。"
+
+#: decks/services.py
+msgid ""
+"On Archidekt: open the deck → More → Export, then paste the text or upload "
+"the CSV."
+msgstr "Archidektの場合：デッキを開く → More → Export で、テキストを貼り付けるかCSVをアップロードしてください。"
+
+#: decks/services.py
+msgid ""
+"In ManaBox: open the deck → ⋮ → Export or Share, then paste the text here."
+msgstr "ManaBoxの場合：デッキを開く → ⋮ → Export または Share で、テキストをここに貼り付けてください。"
+
+#: decks/services.py
+msgid ""
+"Open the deck there, look for Export or Download, and paste the text list "
+"here."
+msgstr "そのサイトでデッキを開き、Export または Download を探して、テキストのリストをここに貼り付けてください。"
+
+#: decks/services.py
+msgid "the file only lists cards outside the deck (sideboard or maybeboard)"
+msgstr "このファイルにはデッキ外のカード（サイドボードまたはメイビーボード）しかありません"
+
+#: changelog/entries.py
+msgid "Deck lists are read the way your tool writes them"
+msgstr "デッキリストを、使っているツールの書き方のまま読み込みます"
+
+#: changelog/entries.py
+msgid ""
+"The importer now reads the exports of Moxfield, Archidekt, ManaBox, "
+"TappedOut and Arena as they come: with set, collector number and foil, with "
+"category tags, and with headings in every language the site speaks. The "
+"printing and the foil are shown beside each card. Sideboard and maybeboard "
+"stay out of the deck, and the deck page says how many cards that was. A "
+"Moxfield list whose first card has a comma in its name, an Archidekt CSV "
+"without a header row and an Excel file with semicolons are read without "
+"asking. A link to a deck is answered with where that site keeps its export."
+msgstr ""
+"インポートは、Moxfield・Archidekt・ManaBox・TappedOut・Arenaのエクスポートをそのままの形で読み込むようになりました。セット、コレクター番号、フォイル、カテゴリ、そしてサイトが対応するすべての言語の見出しも読み取ります。版とフォイルは各カードの横に表示します。サイドボードとメイビーボードはデッキに入れず、何枚あったかをデッキページに表示します。最初のカード名にカンマがあるMoxfieldのリスト、見出し行のないArchidektのCSV、セミコロン区切りのExcelファイルも、確認なしで読み込みます。デッキへのリンクには、そのサイトのどこにエクスポートがあるかをお知らせします。"

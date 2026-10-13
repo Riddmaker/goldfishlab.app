@@ -1,0 +1,14 @@
+{% comment %}
+  What the import left out on purpose - sideboard, maybeboard, companion,
+  tokens (P20 F1, E1.80). Never in silence: the file listed these cards, the
+  deck does not have them, and this says so. Expects `record`, a DeckImport.
+{% endcomment %}
+{% load i18n %}
+{% with sentences=record.left_out_shown %}
+  {% if sentences %}
+    <p class="mt-2 border-l-2 border-parchment-600 pl-3 text-sm text-parchment-200">
+      {% for sentence in sentences %}{{ sentence }} {% endfor %}
+      {% translate "Goldfish Lab plays the deck itself, so only the main deck and the commander were read." %}
+    </p>
+  {% endif %}
+{% endwith %}

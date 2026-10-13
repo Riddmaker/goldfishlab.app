@@ -85,6 +85,31 @@ columns mean, and a mapping screen for the files where that is not enough.
   trailing empty cells writes `4,Sol Ring` under a three-column header, and demanding equality
   refused real exports outright.
 
+* **A table without a header row** (P20 F1). Archidekt's deck CSV is `1,Armed // Dangerous`
+  from line one. When the *first* line has the shape "small number, then text" on every line of
+  the window, the columns are named `Quantity`, `Name`, … and read like any other file. Only at
+  the top of the file: below a real header every data line has that shape.
+
+### Text lists and boards (P20 F1)
+
+A pasted list is read by a small grammar from the end of the line: `*F*`/`*E*`/`*CMDR*`,
+`[Category{flags}]`, `^label^`, `<foil>`, `#tag`, `(SET) NUM` - each taken off while one fits,
+and the rest is the name. Set, number and finish land on `ParsedRow`; a commander or maybeboard
+marker sets the row's **board** (`decks/importers/boards.py`). Headings (`Commander`,
+`Comandante:`, `[CRÉATURES]`, `// Sideboard`, Arena's `About` block) open a board in any of the
+site's seven languages; an unknown heading is the main deck. A commander block ends at the first
+blank line after a card in it (ManaBox).
+
+Only `main` and `commander` reach the deck. Sideboard, maybeboard, companion and tokens are
+counted on `DeckImport.left_out` and said on the review and the deck page - left out on purpose,
+never in silence. The printings are kept for display on `DeckCard.printings` and
+`Deck.commander_printings`; the engine never reads them. A paste of nothing but links is refused
+with where that site keeps its export (`services.refuse_links`).
+
+The tests are `tests/test_import_shapes.py`, one case per real export shape, with lines rebuilt
+on the patterns of the real files - the files themselves are a person's decks and stay out of the
+repository.
+
 ### The asking
 
 **Where it cannot tell, it asks.** This is what makes the design safer than seven parsers rather

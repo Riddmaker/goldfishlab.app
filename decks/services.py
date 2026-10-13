@@ -20,11 +20,14 @@ Two rules this module exists to enforce:
    this whole application is built to avoid.
 """
 
+import re
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from django.db import transaction
-from django.utils.translation import gettext
+from django.utils.translation import gettext, gettext_noop
 
 from billing import quotas
 from billing.models import UsageRecord
@@ -128,8 +131,53 @@ def build(parser_class, overrides: dict | None = None) -> importers.Parser:
     return parser_class()
 
 
+#: A line that is nothing but a web address.
+_LINK = re.compile(r"^\s*(?:https?://|www\.)\S+\s*$", re.I)
+
+#: Where each deck site keeps its text export, in the words of its own menu
+#: (checked against each site's help in P20 F1). English, translated where
+#: shown. A site not listed gets the general sentence.
+_EXPORT_HELP = {
+    "moxfield.com": gettext_noop(
+        "On Moxfield: open the deck → More → Export → copy, then paste it here."),
+    "archidekt.com": gettext_noop(
+        "On Archidekt: open the deck → More → Export, then paste the text or upload the CSV."),
+    "manabox.app": gettext_noop(
+        "In ManaBox: open the deck → ⋮ → Export or Share, then paste the text here."),
+}
+_EXPORT_HELP_ANY = gettext_noop(
+    "Open the deck there, look for Export or Download, and paste the text list here.")
+
+
+class LinkNotList(ImportError_):
+    """The upload is a link to a deck, not the deck (E1.1)."""
+
+
+def refuse_links(text: str) -> None:
+    """Refuse a paste that is only web addresses, saying what to do instead.
+
+    Goldfish Lab does not fetch other sites. A paste of nothing but links
+    used to be read as a card name and fail as one; it now gets one sentence
+    naming where that site keeps its export. A link among real card lines is
+    not this: those lines are read, and the link shows as a row that did not
+    match.
+    """
+    lines = [line for line in text.splitlines() if line.strip()]
+    if not lines or not all(_LINK.match(line) for line in lines):
+        return
+    address = lines[0].strip()
+    host = urlsplit(address if "://" in address else f"https://{address}").hostname or ""
+    host = host.removeprefix("www.")
+    help_text = next((text for site, text in _EXPORT_HELP.items()
+                      if host == site or host.endswith("." + site)), _EXPORT_HELP_ANY)
+    raise LinkNotList(
+        gettext("Goldfish Lab cannot open links to other sites - it needs the list "
+                "itself.") + " " + gettext(help_text))
+
+
 def choose(text: str, parser_name: str = "") -> type[importers.Parser]:
     """Which parser reads this file. Raises rather than guessing."""
+    refuse_links(text)
     parser_class = importers.by_name(parser_name) if parser_name else importers.sniff(text)
     if parser_class is None:
         raise UnknownFormat("no parser recognised this file")
@@ -140,10 +188,19 @@ def parse(
     text: str, parser_name: str = "", overrides: dict | None = None
 ) -> tuple[type[importers.Parser], list]:
     """Pick a parser and run it. Raises `UnknownFormat` rather than guessing."""
-    parser_class = choose(text, parser_name)
+    parser, rows = read(text, parser_name, overrides)
+    return type(parser), rows
+
+
+def read(
+    text: str, parser_name: str = "", overrides: dict | None = None
+) -> tuple[importers.Parser, list]:
+    """`parse`, keeping the parser - which knows what else the file said,
+    such as the deck name in an Arena export's `About` block."""
+    parser = build(choose(text, parser_name), overrides)
 
     try:
-        rows = list(build(parser_class, overrides).parse(text))
+        rows = list(parser.parse(text))
     except importers.ImportRefused as exc:
         # A refusal the person can act on: a column we may not invent a value
         # for, a file that is not a table, more rows than any real export has,
@@ -154,7 +211,7 @@ def parse(
 
     if not rows:
         raise ImportError_(gettext("the file contained no card rows"))
-    return parser_class, rows
+    return parser, rows
 
 
 @dataclass
@@ -238,7 +295,16 @@ def import_deck(
     """
     if text is None:
         text = decode(raw)
-    parser_class, rows = parse(text, parser_name, overrides)
+    parser, rows = read(text, parser_name, overrides)
+    parser_class = type(parser)
+
+    # Sideboard, maybeboard, companion, tokens: listed in the file, not in the
+    # deck. Left out on purpose, counted, and said on the page (E1.80).
+    left_out = _left_out(rows)
+    rows = [row for row in rows if row.in_deck]
+    if not rows:
+        raise ImportError_(gettext(
+            "the file only lists cards outside the deck (sideboard or maybeboard)"))
 
     # Call site 3 of the four `check()` is allowed, and it comes BEFORE the
     # resolver, which is the work being metered - it used to come after, so an
@@ -256,6 +322,9 @@ def import_deck(
 
     report = resolve.resolve(rows)
 
+    # The deck name the file itself gave (Arena's `About` block) is the
+    # person's own name for it, and beats both the commander and the filename.
+    name = name or parser.deck_name
     if creating:
         deck = Deck.objects.create(
             owner=owner, name=name or Path(filename).stem or gettext("Imported deck")
@@ -273,6 +342,7 @@ def import_deck(
         rows_resolved=len(report.resolved),
         rows_unresolved=len(report.unresolved),
         rung_counts=report.rung_counts,
+        left_out=left_out,
         status=DeckImport.Status.APPLIED,
     )
 
@@ -290,6 +360,34 @@ def import_deck(
     _count_unread_later(deck)
 
     return ImportOutcome(deck=deck, record=record, report=report)
+
+
+def _left_out(rows) -> dict[str, int]:
+    """Cards per board that are not the deck, `{"side": 15}`."""
+    counts: Counter = Counter()
+    for row in rows:
+        if not row.in_deck:
+            counts[row.board] += row.quantity
+    return dict(counts)
+
+
+def _printings(report: resolve.ResolutionReport) -> tuple[dict, dict]:
+    """What the file said about each card's printing, split in two.
+
+    `(the list, the command zone)`: a row marked as commander keeps its
+    printing with the commander, every other row with its `DeckCard`. A row
+    that names neither a set nor a finish says nothing and is not kept.
+    """
+    in_list: dict[str, list] = defaultdict(list)
+    command: dict[str, list] = defaultdict(list)
+    for resolution in report.resolved:
+        row = resolution.row
+        if not (row.set_code or row.finish):
+            continue
+        printing = {"set": row.set_code[:12], "number": row.collector_number[:16],
+                    "finish": row.finish, "quantity": min(row.quantity, 32_767)}
+        (command if row.is_commander else in_list)[str(resolution.card.pk)].append(printing)
+    return dict(in_list), dict(command)
 
 
 def _count_unread_later(deck: Deck) -> None:
@@ -341,6 +439,7 @@ def _write_entries(deck: Deck, report: resolve.ResolutionReport, *, commander=No
     list for the command zone here.
     """
     DeckCard.objects.filter(deck=deck).delete()
+    printings, _ = _printings(report)
     quantities = report.quantities()
     if commander is not None and str(commander.pk) in quantities:
         quantities[str(commander.pk)] -= 1
@@ -350,7 +449,8 @@ def _write_entries(deck: Deck, report: resolve.ResolutionReport, *, commander=No
 
     DeckCard.objects.bulk_create(
         [
-            DeckCard(deck=deck, oracle_card=cards[oracle_id], quantity=min(quantity, 32_767))
+            DeckCard(deck=deck, oracle_card=cards[oracle_id], quantity=min(quantity, 32_767),
+                     printings=printings.get(oracle_id, []))
             for oracle_id, quantity in quantities.items()
         ],
         batch_size=500,
@@ -385,8 +485,10 @@ def _set_commander(deck: Deck, report: resolve.ResolutionReport) -> None:
     """
     marked = [r for r in report.resolved if r.row.is_commander]
     if len(marked) == 1:
+        _, command = _printings(report)
         deck.commander = marked[0].card
-        deck.save(update_fields=["commander", "updated_at"])
+        deck.commander_printings = command
+        deck.save(update_fields=["commander", "commander_printings", "updated_at"])
 
 
 def recount_later(decks) -> None:
@@ -413,25 +515,33 @@ def set_commander(deck: Deck, card) -> None:
     if previous is not None and previous.pk == card.pk:
         return
 
+    # The printings travel with the card: the copy that leaves the list takes
+    # what the file said about it to the command zone, and back again.
+    moved = (deck.commander_printings or {}).get(str(previous.pk), []) if previous else []
+    taken = []
     entry = DeckCard.objects.filter(deck=deck, oracle_card=card).first()
     if entry is not None:
         if entry.quantity > 1:
             entry.quantity -= 1
             entry.save(update_fields=["quantity"])
         else:
+            taken = entry.printings
             entry.delete()
 
     if previous is not None:
         back, created = DeckCard.objects.get_or_create(
-            deck=deck, oracle_card=previous, defaults={"quantity": 1}
+            deck=deck, oracle_card=previous, defaults={"quantity": 1, "printings": moved}
         )
         if not created:
             back.quantity += 1
-            back.save(update_fields=["quantity"])
+            back.printings = back.printings + moved
+            back.save(update_fields=["quantity", "printings"])
 
     deck.commander = card
+    deck.commander_printings = {str(card.pk): taken} if taken else {}
     deck.open_questions = None
-    deck.save(update_fields=["commander", "open_questions", "updated_at"])
+    deck.save(update_fields=["commander", "commander_printings", "open_questions",
+                             "updated_at"])
 
 
 # --- the mapping round trip -------------------------------------------------

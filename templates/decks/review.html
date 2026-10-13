@@ -23,6 +23,7 @@
       {% endfor %}.
     </p>
   {% endif %}
+  {% include "decks/_left_out.html" %}
   <section class="surface-parchment mt-8 p-6">
     <h2 class="font-display text-2xl text-ink-900">{% translate "How exact the match was" %}</h2>
     <p class="mt-2 text-sm text-ink-700">
@@ -61,7 +62,7 @@
       <ul class="mt-5 space-y-4">
         {% for row in unresolved %}
           <li class="surface-parchment p-4">
-            <p class="font-display text-lg text-ink-900">
+            <p class="break-words font-display text-lg text-ink-900">
               <span class="tabular">{{ row.quantity }}×</span> {{ row.raw_name }}
             </p>
             <p class="mt-1 text-sm text-ink-700">{% translate row.reason as reason %}{% blocktranslate with line=row.line_number %}Line {{ line }} — {{ reason }}{% endblocktranslate %}</p>

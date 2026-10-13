@@ -42,6 +42,19 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 13), "import-as-it-comes",
+        _("Deck lists are read the way your tool writes them"),
+        _("The importer now reads the exports of Moxfield, Archidekt, ManaBox, TappedOut and "
+          "Arena as they come: with set, collector number and foil, with category tags, and "
+          "with headings in every language the site speaks. The printing and the foil are "
+          "shown beside each card. Sideboard and maybeboard stay out of the deck, and the deck "
+          "page says how many cards that was. A Moxfield list whose first card has a comma in "
+          "its name, an Archidekt CSV without a header row and an Excel file with semicolons "
+          "are read without asking. A link to a deck is answered with where that site keeps "
+          "its export."),
+        "decks:import",
+    ),
+    Entry(
         date(2026, 10, 11), "card-editor",
         _("Correct everything the engine reads off a card"),
         _("A card's page now shows what the simulation plays of it, block by block: its land "

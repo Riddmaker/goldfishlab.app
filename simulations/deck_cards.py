@@ -55,6 +55,8 @@ class GridCard:
     reading: Reading
     open: bool
     answered: bool
+    #: The printings the imported file named (`decks.models.Printings`, P20 F1).
+    printing: object = None
 
     @property
     def oracle_card(self):
@@ -136,15 +138,21 @@ class Bar:
     band_label: str
 
 
-def cards(readings, questions) -> list[GridCard]:
-    """The deck's cards, commander left out, the ones that need you first."""
+def cards(readings, questions, printings: dict | None = None) -> list[GridCard]:
+    """The deck's cards, commander left out, the ones that need you first.
+
+    `printings` maps a card's id to what the imported file said about its
+    printing, shown under the name.
+    """
+    printings = printings or {}
     answered = {question.oracle_card.pk for question in questions if question.answered}
     open_ids = {question.oracle_card.pk for question in questions if not question.answered}
     return sorted(
         (
             GridCard(reading=reading,
                      open=reading.oracle_card.pk in open_ids,
-                     answered=reading.oracle_card.pk in answered)
+                     answered=reading.oracle_card.pk in answered,
+                     printing=printings.get(reading.oracle_card.pk))
             for reading in readings if not reading.is_commander
         ),
         key=lambda card: (not card.open, card.name.lower()),

@@ -29,11 +29,13 @@
         <a href="{% url 'decks:list' %}"
            class="ml-auto text-sm text-parchment-200 underline">{% translate "All decks" %}</a>
       </div>
+      {% if last_import %}{% include "decks/_left_out.html" with record=last_import %}{% endif %}
       {% if deck.commander %}
         <p class="mt-2 text-parchment-200">
           {% blocktranslate trimmed with name=deck.commander.front_name %}
             Commander: <strong class="text-parchment-100">{{ name }}</strong>
           {% endblocktranslate %}
+          {% if commander_printing %}<span class="text-sm text-parchment-300">({% include "decks/_printings.html" with printings=commander_printing %})</span>{% endif %}
         </p>
       {% else %}
         <form method="post" action="{% url 'decks:set-commander' deck.id %}"

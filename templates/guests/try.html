@@ -42,6 +42,23 @@
           {% endblocktranslate %}
         </li>
       </ul>
+      {# P20 F1 (E1.65): the same CSV hint the signed-in importer gives - a guest with a spreadsheet needs it more. #}
+      <p>
+        {% blocktranslate trimmed %}
+          <strong class="text-parchment-100">Any CSV works.</strong>
+          It only needs a column with the card name - a quantity column is optional.
+        {% endblocktranslate %}
+      </p>
+      <details class="text-ink-300">
+        <summary class="cursor-pointer">{% translate "Why not an Excel file?" %}</summary>
+        <p class="mt-2">
+          {% blocktranslate trimmed %}
+            An .xlsx file is a zip archive and an .xls file can carry macros - a large parser run
+            over a stranger's upload for no benefit you would notice. Every tool that exports a
+            spreadsheet also exports a CSV.
+          {% endblocktranslate %}
+        </p>
+      </details>
       <p class="text-ink-300">
         {% translate "Kept for 24 hours unless you save it with a free account." %}
         <a href="{% url 'privacy' %}" class="underline">{% translate "Privacy" %}</a>

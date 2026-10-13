@@ -25,7 +25,7 @@ from decks import analysis as deck_analysis
 from decks import services
 from decks.forms import ColumnMappingForm, ImportForm
 from decks.importers import columns, tabular
-from decks.models import Deck, DeckCard, DeckImport, PendingImport
+from decks.models import Deck, DeckCard, DeckImport, PendingImport, printings_shown
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
 from simulations import blindspots, deck_cards, review, summary
 from simulations.engine import adapter
@@ -92,7 +92,8 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         return response
 
     def grid_context(self, deck, readings) -> dict:
-        grid = deck_cards.cards(readings, review.queue(deck, readings))
+        printings = {entry.oracle_card_id: entry.printings_shown for entry in deck.entries.all()}
+        grid = deck_cards.cards(readings, review.queue(deck, readings), printings)
         filters = deck_cards.Filters.from_request(self.request.GET)
         type_bars, category_bars = deck_cards.bars(grid)
         return {
@@ -129,6 +130,9 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         context["analysis"] = analysis
         context["legality_problems"] = sum(1 for verdict in analysis.legality if not verdict.ok)
         context["last_import"] = deck.imports.first()
+        context["commander_printing"] = (
+            printings_shown((deck.commander_printings or {}).get(str(deck.commander_id), []))
+            if deck.commander_id else None)
         context["curve_max"] = max(analysis.curve.values() or [1]) or 1
         context["run_form"] = RunForm(plan=quotas.plan_for(self.request.user))
         context["runs"] = runs = list(deck.runs.all()[:5])

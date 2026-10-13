@@ -11569,3 +11569,119 @@ msgid "%(count)s Treasure as it resolves"
 msgid_plural "%(count)s Treasures as it resolves"
 msgstr[0] "%(count)s Tesoro alla risoluzione"
 msgstr[1] "%(count)s Tesori alla risoluzione"
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s sideboard card was not imported."
+msgid_plural "%(count)s sideboard cards were not imported."
+msgstr[0] "%(count)s carta del sideboard non è stata importata."
+msgstr[1] "%(count)s carte del sideboard non sono state importate."
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s maybeboard card was not imported."
+msgid_plural "%(count)s maybeboard cards were not imported."
+msgstr[0] "%(count)s carta del maybeboard non è stata importata."
+msgstr[1] "%(count)s carte del maybeboard non sono state importate."
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s companion was not imported."
+msgid_plural "%(count)s companions were not imported."
+msgstr[0] "%(count)s compagno non è stato importato."
+msgstr[1] "%(count)s compagni non sono stati importati."
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s token was not imported."
+msgid_plural "%(count)s tokens were not imported."
+msgstr[0] "%(count)s pedina non è stata importata."
+msgstr[1] "%(count)s pedine non sono state importate."
+
+#: decks/models.py
+msgid "Foil"
+msgstr "Foil"
+
+#: decks/models.py
+msgid "Etched foil"
+msgstr "Foil inciso"
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s more"
+msgid_plural "%(count)s more"
+msgstr[0] "altri %(count)s"
+msgstr[1] "altri %(count)s"
+
+#: templates/decks/_left_out.html
+msgid ""
+"Goldfish Lab plays the deck itself, so only the main deck and the commander "
+"were read."
+msgstr ""
+"Goldfish Lab gioca il mazzo stesso, quindi sono stati letti solo il mazzo "
+"principale e il comandante."
+
+#: decks/importers/columns.py
+msgid "board or section"
+msgstr "sezione (board)"
+
+#: decks/services.py
+msgid ""
+"Goldfish Lab cannot open links to other sites - it needs the list itself."
+msgstr ""
+"Goldfish Lab non può aprire link ad altri siti - serve la lista stessa."
+
+#: decks/services.py
+msgid "On Moxfield: open the deck → More → Export → copy, then paste it here."
+msgstr ""
+"Su Moxfield: apri il mazzo → More → Export → copia, poi incollalo qui."
+
+#: decks/services.py
+msgid ""
+"On Archidekt: open the deck → More → Export, then paste the text or upload "
+"the CSV."
+msgstr ""
+"Su Archidekt: apri il mazzo → More → Export, poi incolla il testo o carica "
+"il CSV."
+
+#: decks/services.py
+msgid ""
+"In ManaBox: open the deck → ⋮ → Export or Share, then paste the text here."
+msgstr ""
+"In ManaBox: apri il mazzo → ⋮ → Export o Share, poi incolla qui il testo."
+
+#: decks/services.py
+msgid ""
+"Open the deck there, look for Export or Download, and paste the text list "
+"here."
+msgstr ""
+"Apri lì il mazzo, cerca Export o Download e incolla qui la lista di testo."
+
+#: decks/services.py
+msgid "the file only lists cards outside the deck (sideboard or maybeboard)"
+msgstr "il file elenca solo carte fuori dal mazzo (sideboard o maybeboard)"
+
+#: changelog/entries.py
+msgid "Deck lists are read the way your tool writes them"
+msgstr "Le liste vengono lette così come le scrive il tuo strumento"
+
+#: changelog/entries.py
+msgid ""
+"The importer now reads the exports of Moxfield, Archidekt, ManaBox, "
+"TappedOut and Arena as they come: with set, collector number and foil, with "
+"category tags, and with headings in every language the site speaks. The "
+"printing and the foil are shown beside each card. Sideboard and maybeboard "
+"stay out of the deck, and the deck page says how many cards that was. A "
+"Moxfield list whose first card has a comma in its name, an Archidekt CSV "
+"without a header row and an Excel file with semicolons are read without "
+"asking. A link to a deck is answered with where that site keeps its export."
+msgstr ""
+"L’importazione ora legge gli export di Moxfield, Archidekt, ManaBox, "
+"TappedOut e Arena così come arrivano: con set, numero da collezione e foil, "
+"con le categorie e con intestazioni di sezione in tutte le lingue del sito. "
+"La stampa e il foil sono mostrati accanto a ogni carta. Sideboard e "
+"maybeboard restano fuori dal mazzo, e la pagina del mazzo dice quante carte "
+"erano. Una lista di Moxfield con una virgola nel nome della prima carta, un "
+"CSV di Archidekt senza riga d’intestazione e un file Excel con il punto e "
+"virgola vengono letti senza chiedere. A un link a un mazzo si risponde con "
+"dove quel sito tiene il suo export."

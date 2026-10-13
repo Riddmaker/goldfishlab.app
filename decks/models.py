@@ -7,15 +7,18 @@ because the interesting question after an import is not "did it work" but
 
 Rule that shapes the schema: **a row is never silently dropped.** Every line of
 the uploaded file ends up either as a `DeckCard` or as an `UnresolvedRow` with
-a reason. The counts must add up, and a test asserts that they do.
+a reason. The counts must add up, and a test asserts that they do. A sideboard
+or maybeboard row is the one kind that is left out on purpose, and it is
+counted on `DeckImport.left_out` and said on the page (P20 F1).
 """
 
 import uuid
+from dataclasses import dataclass
 
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext
+from django.utils.translation import gettext, gettext_noop, ngettext
 
 from cards.models import OracleCard
 
@@ -40,6 +43,10 @@ class Deck(models.Model):
         related_name="commands_decks",
     )
     notes = models.TextField(blank=True)
+    #: The printings the file named for the card(s) in the command zone, which
+    #: are not `DeckCard`s: `{oracle id: [printing, ...]}` in the shape of
+    #: `DeckCard.printings`. Display only (P20 F1).
+    commander_printings = models.JSONField(default=dict, blank=True)
     #: How many cards the engine could not read and the owner has not answered
     #: yet - the red marker (Phase 9 C2). `None` means "not counted since the
     #: last thing that could change it", and the page that needs it counts
@@ -81,6 +88,13 @@ class DeckCard(models.Model):
     deck = models.ForeignKey(Deck, on_delete=models.CASCADE, related_name="entries")
     oracle_card = models.ForeignKey(OracleCard, on_delete=models.PROTECT, related_name="in_decks")
     quantity = models.PositiveSmallIntegerField(default=1)
+    #: The printings the imported file named for this card, as
+    #: `[{"set": "cmr", "number": "189", "finish": "foil", "quantity": 1}]`.
+    #: The catalogue holds one printing per card, so this is what the file
+    #: said, shown beside the card and never read by the engine: a printing
+    #: does not change the rules (P20 F1, decision E1). Empty for a card
+    #: added by hand and for every import before F1.
+    printings = models.JSONField(default=list, blank=True)
 
     class Meta:
         constraints = [
@@ -91,6 +105,65 @@ class DeckCard(models.Model):
 
     def __str__(self) -> str:
         return f"{self.quantity}x {self.oracle_card_id}"
+
+    @property
+    def printing_label(self) -> str:
+        return printing_label(self.printings)
+
+    @property
+    def printings_shown(self) -> "Printings":
+        return printings_shown(self.printings)
+
+
+#: How a finish reads beside a card, in English (translated where shown).
+FINISH_LABELS = {"foil": gettext_noop("Foil"), "etched": gettext_noop("Etched foil")}
+
+#: More printings than this for one card are summarised, not listed.
+PRINTINGS_SHOWN = 3
+
+
+@dataclass(frozen=True)
+class Printings:
+    """What a file said about one card's printings, ready to show.
+
+    `codes` pairs a set and number (`CMR 189`, language-free, so a page marks
+    it as such) with its finish in the page's language; `more` counts the
+    printings past `PRINTINGS_SHOWN`.
+    """
+
+    codes: tuple[tuple[str, str], ...] = ()
+    more: int = 0
+
+    def __bool__(self) -> bool:
+        return bool(self.codes)
+
+    def __str__(self) -> str:
+        parts = [" · ".join(part for part in pair if part) for pair in self.codes]
+        if self.more:
+            parts.append(ngettext("%(count)s more", "%(count)s more", self.more)
+                         % {"count": self.more})
+        return ", ".join(parts)
+
+
+def printings_shown(printings) -> Printings:
+    """One entry per distinct printing the file named, for display.
+
+    Printings without a set and without a finish say nothing worth showing.
+    """
+    codes = []
+    for printing in printings or []:
+        code = " ".join(filter(None, (printing.get("set", "").upper(),
+                                      printing.get("number", ""))))
+        finish = FINISH_LABELS.get(printing.get("finish", ""))
+        pair = (code, gettext(finish) if finish else "")
+        if any(pair) and pair not in codes:
+            codes.append(pair)
+    return Printings(tuple(codes[:PRINTINGS_SHOWN]), max(0, len(codes) - PRINTINGS_SHOWN))
+
+
+def printing_label(printings) -> str:
+    """`CMR 189 · Foil, SLD 1011` as plain text."""
+    return str(printings_shown(printings))
 
 
 class DeckImport(models.Model):
@@ -128,6 +201,10 @@ class DeckImport(models.Model):
     # file whose headers answer for themselves is imported without interrupting
     # anybody, so this is where that reading becomes visible instead of never.
     column_mapping = models.JSONField(default=list, blank=True)
+    # `{"side": 15, "maybe": 4}` - cards the file listed outside the deck, by
+    # board (`decks.importers.boards`), which the import leaves out on purpose
+    # and says so. Not rows: a left-out card is not an unresolved one.
+    left_out = models.JSONField(default=dict, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -153,6 +230,27 @@ class DeckImport(models.Model):
     def columns_shown(self) -> list[tuple[str, str]]:
         """`column_mapping` with each label in the page's language."""
         return [(gettext(label), header) for label, header in self.column_mapping]
+
+    @property
+    def left_out_shown(self) -> list[str]:
+        """One sentence per board the import left out, in the page's language."""
+        sentences = {
+            "side": lambda n: ngettext(
+                "%(count)s sideboard card was not imported.",
+                "%(count)s sideboard cards were not imported.", n),
+            "maybe": lambda n: ngettext(
+                "%(count)s maybeboard card was not imported.",
+                "%(count)s maybeboard cards were not imported.", n),
+            "companion": lambda n: ngettext(
+                "%(count)s companion was not imported.",
+                "%(count)s companions were not imported.", n),
+            "tokens": lambda n: ngettext(
+                "%(count)s token was not imported.",
+                "%(count)s tokens were not imported.", n),
+        }
+        return [sentences[board](count) % {"count": count}
+                for board, count in (self.left_out or {}).items()
+                if board in sentences and count]
 
 
 class UnresolvedRow(models.Model):

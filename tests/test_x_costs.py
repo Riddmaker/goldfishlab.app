@@ -2,8 +2,8 @@
 
 Until now the engine read {X} and paid nothing for it: Stroke of Genius was cast
 for X = 0 the moment three mana were open, and drew nothing. An X spell now
-waits until nothing else can be cast and takes everything left as X - the way
-Forge's AI chooses its X - and "draw X cards" draws them.
+waits until nothing else can be cast and takes everything left as X, and
+"draw X cards" draws them.
 """
 
 import random

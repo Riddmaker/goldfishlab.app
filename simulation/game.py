@@ -1017,8 +1017,7 @@ class Game:
     def max_x(self, card, pool: ManaPool) -> int:
         """The largest X this pool pays for the card, -1 if not even X=0 (P19 R9).
 
-        Forge's AI does the same (``ComputerUtilMana.determineLeftoverMana``):
-        it tries X = 1, 2, 3 ... and stops at the first it cannot pay.
+        It tries X = 1, 2, 3 ... and stops at the first it cannot pay.
         """
         reductions = reductions_from(self.battlefield)
         best = -1

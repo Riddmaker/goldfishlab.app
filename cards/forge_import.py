@@ -30,7 +30,7 @@ from simulation import blocks as b
 
 #: Raised with every change to how a script is translated, so the next run
 #: translates every script again although the pin did not move.
-TRANSLATION = 2
+TRANSLATION = 3
 
 #: More scripts than this share failing to translate stops the run, and the
 #: blocks of the last good run stay.
@@ -151,6 +151,12 @@ def vocabulary() -> list[str]:
 
 #: Parameters that make an ability conditional in a way no block holds yet.
 _CONDITIONS = ("Condition", "CheckSVar", "IsPresent", "ActivationLimit")
+#: Parameters that say when, from where or by whom it is used, which no block
+#: holds yet either. Not what the goldfish does anyway: act on its own turn,
+#: from the battlefield, at sorcery speed ("Activate only as a sorcery").
+_WHEN = ("OpponentTurn", "ActivationPhases", "ActivationFirstCombat", "Exhaust", "AtEOT")
+_WHEN_DEFAULTS = {"ActivationZone": ("Battlefield",), "Activator": ("You",),
+                  "PlayerTurn": ("True", "You")}
 
 #: Where an amount stands, by API: the first found is taken.
 _AMOUNTS = ("NumCards", "Amount", "NumDmg", "LifeAmount", "CounterNum", "TokenAmount",
@@ -264,9 +270,11 @@ def _args(step: forge.Ability, reading: _Reading) -> tuple:
         args["unless"] = params["UnlessCost"]
     if params.get("OptionalDecider") or params.get("Optional"):
         args["optional"] = True
-    for name in params:
+    for name, value in params.items():
         if name.startswith(_CONDITIONS):
             reading.unread.append(f"cond:{name}")
+        elif name in _WHEN or value not in _WHEN_DEFAULTS.get(name, (value,)):
+            reading.unread.append(f"when:{name}")
     return tuple(sorted(args.items()))
 
 

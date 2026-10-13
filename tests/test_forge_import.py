@@ -355,3 +355,15 @@ def test_the_disagreement_report_runs(catalogue, tmp_path):
     call_command("forge_disagreements", "--out", str(path), stdout=out)
     assert "2 of " in out.getvalue()
     assert path.exists()
+
+
+def test_when_an_ability_may_be_used_is_unread_unless_the_goldfish_does_it_anyway():
+    found = blocks_of("""Name:Test Timing
+Types:Creature
+A:AB$ Mana | Cost$ T | Produced$ C | Amount$ 2 | OpponentTurn$ True
+A:AB$ Draw | Cost$ 2 | NumCards$ 1 | ActivationZone$ Graveyard
+A:AB$ Draw | Cost$ 3 | NumCards$ 1 | SorcerySpeed$ True | PlayerTurn$ True \
+| ActivationZone$ Battlefield
+""")
+    assert [ability.unread for ability in found] == [
+        ("when:OpponentTurn",), ("when:ActivationZone",), ()]

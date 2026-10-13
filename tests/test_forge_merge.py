@@ -4,6 +4,8 @@ The scripts are made up for these tests, in the format's shape; none is
 copied from Forge's card data.
 """
 
+import pytest
+
 from cards import forge, forge_import, forge_merge, profiles, refresh
 from cards.models import DerivedProfile, ForgeScript, OracleCard
 from simulation import blocks as b
@@ -85,3 +87,57 @@ def test_new_blocks_derive_the_profiles_again(catalogue):
     loaded = refresh.load([], source=None)
     assert loaded.profiles_reason == "Forge's blocks changed"
     assert not refresh.load([], source=None).profiles_reason
+
+
+# --- the families -----------------------------------------------------------------
+
+
+def unread_mana(**fields) -> DerivedProfile:
+    return DerivedProfile(kind="creature", produces_mana=True, mana_amount=None,
+                          review_reasons=["produces mana, but no readable 'Add' clause"],
+                          needs_review=True, source_map={}, **fields)
+
+
+def test_a_mana_ability_the_reader_missed_is_taken():
+    profile = unread_mana()
+    forge_merge.mana(profile, blocks_of("""Name:Test Yurlok
+Types:Creature
+A:AB$ Mana | Cost$ 1 T | Produced$ B R G
+"""), None)
+    assert (profile.mana_amount, profile.mana_produces, profile.mana_activation) == (
+        3, {"B": 1, "R": 1, "G": 1}, 1)
+    assert profile.source_map["mana_amount"] == "forge"
+    assert not profile.needs_review
+
+
+def test_a_choice_of_colours_is_taken_as_scryfalls_colours():
+    profile = unread_mana(mana_colors=["G", "W"])
+    forge_merge.mana(profile, blocks_of("""Name:Test Druid
+Types:Creature
+A:AB$ Mana | Cost$ T | Produced$ Combo G W
+"""), None)
+    assert (profile.mana_amount, profile.mana_produces, profile.mana_colors) == (
+        1, None, ["G", "W"])
+
+
+@pytest.mark.parametrize("ability", [
+    "A:AB$ Mana | Cost$ T | Produced$ C | Amount$ 2 | OpponentTurn$ True",
+    "A:AB$ Mana | Cost$ T | Produced$ Any | RestrictValid$ Spell.Creature",
+    "A:AB$ Mana | Cost$ U T | Produced$ C | Amount$ 3",
+    "A:AB$ Mana | Cost$ 1 T | Produced$ Any",
+    "A:AB$ Mana | Cost$ T | Produced$ G | Amount$ X\nSVar:X:Count$Valid Elf.YouCtrl",
+])
+def test_a_mana_ability_is_not_taken_when_the_engine_would_play_it_otherwise(ability):
+    profile = unread_mana()
+    forge_merge.mana(profile, blocks_of(f"Name:Test\nTypes:Creature\n{ability}\n"), None)
+    assert profile.mana_amount is None and profile.needs_review
+
+
+def test_a_mana_reading_is_never_overridden():
+    profile = DerivedProfile(kind="land", produces_mana=True, mana_amount=1,
+                             mana_produces={"U": 1}, source_map={})
+    forge_merge.mana(profile, blocks_of("""Name:Test Gate
+Types:Land
+A:AB$ Mana | Cost$ T | Produced$ C | Amount$ 2
+"""), None)
+    assert (profile.mana_amount, profile.mana_produces) == (1, {"U": 1})

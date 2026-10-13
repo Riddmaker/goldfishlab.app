@@ -79,9 +79,73 @@ def take(profile, field: str, value, *, answers: tuple[str, ...] = ()) -> None:
         profile.needs_review = bool(profile.review_reasons)
 
 
+# --- the families --------------------------------------------------------------
+
+#: Kinds whose mana is the spell's own, as it resolves: not a mana ability.
+_ONE_SHOT = frozenset({"instant", "sorcery", "ritual"})
+_LETTERS = frozenset("WUBRGC")
+#: Reasons a mana ability read whole answers.
+_MANA_UNREAD = (
+    "makes mana, but how much could not be read",
+    "produces mana, but no readable 'Add' clause",
+    "an 'Add' clause whose amount could not be read",
+)
+
+
+def mana(profile, abilities, card) -> None:
+    """A mana ability where the reader read none: Bramble Familiar's {G}.
+
+    Taken only when the card has exactly one ability that makes mana for {T}
+    (and generic mana, a Signet's {1}), a fixed amount, of colours the text
+    names or of any colour, for any spell. A painland's missing {C} is not
+    taken: beside a choice of two colours it changes nothing the engine plays.
+    """
+    if profile.kind in _ONE_SHOT or profile.mana_rule or (
+            profile.produces_mana and profile.mana_amount is not None):
+        return
+    found = [ability for ability in abilities if ability.kind == b.MANA]
+    if len(found) != 1 or not complete(found[0]):
+        return
+    ability = found[0]
+    atoms = [cost.atom for cost in ability.costs]
+    if "tap" not in atoms or not set(atoms) <= {"tap", "mana"}:
+        return
+    activation = 0
+    for cost in ability.costs:
+        if cost.atom == "mana":
+            paid = cost.mana
+            if paid.pips or paid.colorless or paid.hybrid or paid.phyrexian or paid.has_x:
+                return
+            activation = paid.generic
+    if len(ability.effects) != 1 or ability.effects[0].verb != "add_mana":
+        return
+    effect = ability.effects[0]
+    n, color = effect.arg("n", 1), effect.arg("color", "")
+    if not isinstance(n, int) or effect.arg("restrict"):
+        return
+    if color == "any":
+        produces, colors = None, list("WUBRG")
+    elif color and set(color) <= _LETTERS and (effect.arg("all") or len(color) == 1):
+        produces = {letter: n for letter in color}
+        n *= len(color)
+        colors = sorted(set(color) - {"C"})
+    elif color and set(color) <= _LETTERS:
+        produces, colors = None, sorted(set(color) - {"C"})
+    else:
+        return
+    if activation >= n:
+        return
+    profile.produces_mana = True
+    take(profile, "mana_amount", n, answers=_MANA_UNREAD)
+    take(profile, "mana_produces", produces)
+    take(profile, "mana_activation", activation or None)
+    if colors and not profile.mana_colors:
+        take(profile, "mana_colors", colors)
+
+
 #: The families, in order: each reads the blocks and the profile, and takes
-#: what its rule allows. Filled in by the following steps of phase 1.
-FAMILIES: list[Callable] = []
+#: what its rule allows.
+FAMILIES: list[Callable] = [mana]
 
 
 def merge(profile, abilities, card) -> None:

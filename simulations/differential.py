@@ -127,3 +127,29 @@ def diff(path: Path) -> tuple[coverage.Diff, dict, dict, list[str]]:
                      "or tags explain part of this diff "
                      f"(frozen {frozen['imports']}, now {imports()})")
     return coverage.compare(frozen["cards"], now), frozen["cards"], now, notes
+
+
+def round_trip(path: Path) -> dict:
+    """Every frozen card through blocks and back (card model, phase 0).
+
+    Returns how many cards there were, the ones that did not come back the
+    same, how many carry a value nothing reads (`blocks.Face.extra`), how many
+    abilities the cards have, and how often each verb, cost atom and event is
+    used.
+    """
+    from collections import Counter
+
+    from simulation import blocks, serial
+    from simulation.cards import Card
+
+    lost, extra, verbs, abilities = [], 0, Counter(), Counter()
+    for name, entry in load(path)["cards"].items():
+        card = serial.load(Card, {**coverage._DEFAULT, **entry["read"], "name": name})
+        found = blocks.to_blocks(card)
+        if blocks.from_blocks(found) != card:
+            lost.append(name)
+        extra += bool(found.face.extra)
+        abilities[len(found.abilities)] += 1
+        verbs.update(blocks.verbs(found))
+    return {"cards": sum(abilities.values()), "lost": lost, "extra": extra,
+            "abilities": dict(sorted(abilities.items())), "verbs": verbs}

@@ -5,6 +5,7 @@
     manage.py engine_coverage --export-fixture # rebuild the fixed set (rarely)
     manage.py engine_coverage --freeze         # freeze the whole catalogue's reading
     manage.py engine_coverage --diff           # today's code against the frozen reading
+    manage.py engine_coverage --blocks         # every frozen card through blocks and back
 
 The gate itself is `tests/test_engine_coverage.py`, on the committed fixture;
 `COVERAGE_WRITE=1` makes it write the snapshots instead of comparing. This
@@ -32,6 +33,7 @@ class Command(BaseCommand):
         group.add_argument("--export-fixture", action="store_true")
         group.add_argument("--freeze", action="store_true")
         group.add_argument("--diff", action="store_true")
+        group.add_argument("--blocks", action="store_true")
         parser.add_argument("--frozen", help="the frozen file (default: the newest in .data/)")
         parser.add_argument("--limit", type=int, default=30,
                             help="cards listed per group in the diff")
@@ -55,6 +57,10 @@ class Command(BaseCommand):
             self._diff(options)
             return
 
+        if options["blocks"]:
+            self._blocks(options)
+            return
+
         if options["check"]:
             from cards.models import OracleCard
 
@@ -74,10 +80,26 @@ class Command(BaseCommand):
         for line in coverage.report():
             self.stdout.write(line)
 
-    def _diff(self, options):
+    @staticmethod
+    def _frozen(options) -> Path:
         path = Path(options["frozen"]) if options["frozen"] else differential.latest_frozen()
         if path is None or not path.exists():
             raise CommandError("nothing frozen yet: run engine_coverage --freeze first")
+        return path
+
+    def _blocks(self, options):
+        found = differential.round_trip(self._frozen(options))
+        self.stdout.write(f"{found['cards']} cards, abilities per card {found['abilities']}, "
+                          f"{found['extra']} with a value nothing reads")
+        for name, count in found["verbs"].most_common():
+            self.stdout.write(f"  {count:6d}  {name}")
+        if found["lost"]:
+            raise CommandError(f"{len(found['lost'])} card(s) changed on the way: "
+                               f"{', '.join(found['lost'][:options['limit']])}")
+        self.stdout.write("every card came back the same")
+
+    def _diff(self, options):
+        path = self._frozen(options)
         diff, before, after, notes = differential.diff(path)
         for note in notes:
             self.stderr.write(note)

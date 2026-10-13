@@ -69,6 +69,20 @@ REPLACEMENT = "replacement"
 
 KINDS = (CAST, RESOLVES, STATIC, ACTIVATED, MANA, TRIGGERED, REPLACEMENT)
 
+# --- verbs a source may use that no engine structure plays -----------------------
+
+#: A construct of the source outside the vocabulary: ``construct`` names it.
+#: Never dropped silently - a card holding one is read only in part.
+UNMODELED = "unmodeled"
+#: A keyword ability (Flying, Equip): ``name``, and ``args`` as printed.
+KEYWORD = "keyword"
+#: "Choose one -": ``n`` modes of ``of``; the modes are the abilities with
+#: ``mode`` 1 and up.
+CHOOSE = "choose"
+
+#: The version of the block format, stored beside every block written.
+VERSION = 1
+
 
 def _args(value, *, skip=()) -> tuple[tuple[str, Any], ...]:
     """A dataclass's fields that differ from their defaults, sorted by name."""
@@ -144,7 +158,8 @@ class Ability:
 
     ``options`` are alternative cost sets, any one of which will do ("discard
     a card or pay 3 life"). ``form`` names today's engine structure that plays
-    it (see the module docstring). ``slot`` numbers the abilities of one kind
+    it (see the module docstring), empty for an ability read from a source
+    that no structure plays yet. ``slot`` numbers the abilities of one kind
     on the card, in order; with the kind it is the ability's stable id.
     """
 
@@ -156,6 +171,12 @@ class Ability:
     conds: tuple[Cond, ...] = ()
     event: Event | None = None
     slot: int = 0
+    #: Of a modal spell ("choose one"): which mode, from 1; 0 for no mode.
+    mode: int = 0
+    #: What the source says about the ability that no block holds yet - a
+    #: condition, a count - by its name in the source. Not empty: the ability
+    #: is read only in part.
+    unread: tuple[str, ...] = ()
 
     @property
     def id(self) -> str:
@@ -883,3 +904,89 @@ def reconcile(old: CardBlocks, new: CardBlocks) -> dict[str, tuple[str | None, s
         found = claim(ability, lambda other, a=ability: signature(other) == signature(a))
         result[ability.id] = (found.id, CHANGED) if found else (None, GONE)
     return result
+
+
+# --- stored: blocks as JSON -------------------------------------------------------
+#
+# Blocks a source gives (`cards.forge_import`) are stored as JSON. Conditions
+# are not stored yet: no source writes them before phase 2.
+
+
+def _plain(value):
+    if isinstance(value, frozenset | set):
+        return sorted(value)
+    if isinstance(value, tuple):
+        return [_plain(item) for item in value]
+    return value
+
+
+def _tupled(value):
+    return tuple(_tupled(item) for item in value) if isinstance(value, list) else value
+
+
+def _cost_json(cost: Cost) -> dict:
+    out = {name: _plain(value) for name, value in _args(cost)}
+    if cost.mana is not None:
+        out["mana"] = str(cost.mana)
+    return out
+
+
+def _cost_from(data: dict) -> Cost:
+    from simulation.manacost import parse
+
+    kwargs = dict(data)
+    if "mana" in kwargs:
+        kwargs["mana"] = parse(kwargs["mana"])
+    if "types" in kwargs:
+        kwargs["types"] = frozenset(kwargs["types"])
+    return Cost(**kwargs)
+
+
+def to_json(abilities) -> list[dict]:
+    """Abilities as JSON-ready dicts, defaults left out."""
+    out = []
+    for ability in abilities:
+        if ability.conds:
+            raise ValueError(f"conditions are not stored yet: {ability.id}")
+        entry = {name: value for name, value in _args(ability, skip=(
+            "effects", "costs", "options", "event", "conds"))}
+        if ability.effects:
+            entry["effects"] = [{"verb": effect.verb,
+                                 **({"args": [[key, _plain(value)] for key, value in effect.args]}
+                                    if effect.args else {})}
+                                for effect in ability.effects]
+        if ability.costs:
+            entry["costs"] = [_cost_json(cost) for cost in ability.costs]
+        if ability.options:
+            entry["options"] = [[_cost_json(cost) for cost in option]
+                                for option in ability.options]
+        if ability.event is not None:
+            entry["event"] = {name: _plain(value) for name, value in _args(ability.event)}
+            entry["event"]["name"] = ability.event.name
+        if "unread" in entry:
+            entry["unread"] = list(entry["unread"])
+        out.append(entry)
+    return out
+
+
+def from_json(data: list[dict]) -> tuple[Ability, ...]:
+    """`to_json`, backwards."""
+    found = []
+    for entry in data:
+        kwargs = {key: value for key, value in entry.items()
+                  if key not in ("effects", "costs", "options", "event", "unread")}
+        kwargs["effects"] = tuple(
+            Effect(effect["verb"], tuple((key, _tupled(value))
+                                         for key, value in effect.get("args", ())))
+            for effect in entry.get("effects", ()))
+        kwargs["costs"] = tuple(_cost_from(cost) for cost in entry.get("costs", ()))
+        kwargs["options"] = tuple(tuple(_cost_from(cost) for cost in option)
+                                  for option in entry.get("options", ()))
+        if "event" in entry:
+            event = dict(entry["event"])
+            if "types" in event:
+                event["types"] = frozenset(event["types"])
+            kwargs["event"] = Event(**event)
+        kwargs["unread"] = tuple(entry.get("unread", ()))
+        found.append(Ability(**kwargs))
+    return tuple(found)

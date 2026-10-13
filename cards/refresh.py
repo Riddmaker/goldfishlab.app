@@ -1,7 +1,8 @@
 """Keeping the catalogue current: load, derive, and the nightly job.
 
-`load()` is what `ingest_scryfall` has always done - cards, then tags, then the
-profiles whenever either changed - shared now by the command and the nightly
+`load()` is what `ingest_scryfall` has always done - cards, then tags, then
+Forge's scripts as blocks (phase 1 of the card-model rebuild), then the
+profiles whenever cards or tags changed - shared now by the command and the nightly
 task, so the two can never drift apart. **The profiles are not optional**: the
 engine reads `DerivedProfile`, never the raw card (see the command's docstring).
 
@@ -18,7 +19,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date
 
-from cards import ingest, profiles, scryfall
+from cards import forge_import, ingest, profiles, scryfall
 from cards.models import BulkImport, DerivedProfile, OracleCard
 
 #: What `--kind all` means, in dependency order: a tagging needs its card.
@@ -75,6 +76,11 @@ def load(
             on_result(result)
         changed |= kind in PROFILE_INPUTS and not result.skipped
 
+    result = forge_scripts(force=force, measure=measure)
+    loaded.results.append(result)
+    if on_result:
+        on_result(result)
+
     missing = OracleCard.objects.count() - DerivedProfile.objects.count()
     if changed:
         loaded.profiles_reason = "cards or tags changed"
@@ -87,6 +93,20 @@ def load(
         on_profiles(loaded.profiles_reason)
     loaded.profiles_written = rebuild_profiles()
     return loaded
+
+
+def forge_scripts(*, force: bool = False, measure: bool = False) -> ingest.IngestResult:
+    """Translate the pinned Forge scripts into blocks, when the pin, the
+    translation or the catalogue changed (`cards.forge_import`).
+
+    A run with too many failures is recorded as failed and leaves the blocks of
+    the last good run: the cards themselves are loaded either way.
+    """
+    try:
+        return forge_import.run(force=force, measure=measure)
+    except forge_import.TooManyFailures as exc:
+        return ingest.IngestResult(kind=BulkImport.Kind.FORGE_SCRIPTS,
+                                   status=BulkImport.Status.FAILED, message=str(exc))
 
 
 def rebuild_profiles() -> int:

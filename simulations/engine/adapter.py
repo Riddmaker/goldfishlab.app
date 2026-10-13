@@ -893,6 +893,17 @@ def engine_readings(oracle_cards, *, builtin: bool = True) -> dict:
     return found
 
 
+def card_with(oracle_card, overrides: dict) -> tuple[Card, list[Gap]]:
+    """One card with these overrides and no others, outside any deck.
+
+    What a stored correction makes of the card - for comparing it with what
+    later code makes of the same correction (`simulations.parity`).
+    """
+    gaps: list[Gap] = []
+    annotations = Annotations(overrides={oracle_card.pk: overrides}, scopes={})
+    return _card_from(oracle_card, annotations, gaps), gaps
+
+
 def engine_gaps(oracle_cards) -> dict:
     """What the engine alone cannot read about each card, by oracle id (P19a)."""
     return {pk: gaps for pk, (_card, gaps) in engine_readings(oracle_cards).items()}

@@ -1011,10 +1011,19 @@ class DeckDefinition:
     #: else (phase 10 N1). Names, because a combo names its cards; empty by
     #: default, which is every deck and every caller from before.
     key_cards: frozenset[str] = frozenset()
+    #: The second commander, when two share the command zone - partners, a
+    #: Background, the Doctor's companion (P20 F2b). None for every deck and
+    #: every caller from before, which then plays exactly as it did.
+    partner: Card | None = None
 
     def __post_init__(self):
         if len(self.library) < 1:
             raise ValueError("a deck needs at least one card")
+
+    @property
+    def commanders(self) -> tuple[Card, ...]:
+        """The command zone: none, one or two cards, first commander first."""
+        return tuple(card for card in (self.commander, self.partner) if card is not None)
 
     @property
     def size(self) -> int:
@@ -1045,6 +1054,7 @@ class DeckDefinition:
             commander=self.commander,
             library=tuple(sorted(self.library, key=lambda card: (card.name, card.mv))),
             key_cards=self.key_cards,
+            partner=self.partner,
         )
 
 

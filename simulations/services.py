@@ -511,6 +511,7 @@ def _recount_holding(deck, oracle_card, scope: str) -> None:
     if scope == USER_SCOPE:
         reached = Deck.objects.filter(owner=deck.owner).filter(
             Q(entries__oracle_card=oracle_card) | Q(commander=oracle_card)
+            | Q(partner=oracle_card)
         ).distinct()
     else:
         reached = Deck.objects.filter(pk=deck.pk)

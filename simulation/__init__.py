@@ -182,6 +182,11 @@ boundary, not the symptom.
 #:    tempted (one opponent accepts, assumed), off the top by X (Open the
 #:    Way); Sword of Hearth and Home in combat. Neheb adds {R} per combat
 #:    damage, Crime Novelist {R} per artifact sacrificed, a Treasure too.
-ENGINE_VERSION = 27
+#: 28: P20 F2b. Two commanders: partners, a creature and its Background, the
+#:    Doctor's companion and the Doctor. Each has its own tax, the cheaper one
+#:    that can be paid is cast first, "your commander attacks" fires for each,
+#:    and "commander on the battlefield" means at least one - with a count of
+#:    the games that have both. A deck with one commander plays as in 27.
+ENGINE_VERSION = 28
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

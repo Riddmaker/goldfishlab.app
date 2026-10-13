@@ -212,23 +212,31 @@ class CastSpell(Action):
 
 @dataclass(frozen=True)
 class CastCommander(Action):
-    """Cast the commander out of the command zone, tax included."""
+    """Cast a commander out of the command zone, its tax included.
+
+    ``index`` picks it: 0 the first commander, 1 the second (P20 F2b). A
+    replay from before has no index and casts the first, as it did.
+    """
 
     kind = "cast_commander"
+    index: int = 0
 
     def run(self, game, policy) -> None:
         pool = _pool(game)
-        commander = game.deck.commander
-        if commander is None:
+        commanders = game.deck.commanders
+        if not commanders:
             raise IllegalAction("this deck has no commander")
-        if not game.can_cast_commander(pool):
+        if self.index >= len(commanders):
+            raise IllegalAction("this deck has no second commander")
+        commander = commanders[self.index]
+        if not game.can_cast_commander(pool, commander):
             if game.has(commander.name):
                 raise IllegalAction(f"{commander.name} is already on the battlefield")
             raise IllegalAction(
-                f"{commander.name} costs {game._commander_cost()} with tax; "
+                f"{commander.name} costs {game._commander_cost(commander)} with tax; "
                 f"the floating mana is {pool}"
             )
-        game.cast_commander(pool)
+        game.cast_commander(pool, commander)
 
 
 @dataclass(frozen=True)
@@ -515,8 +523,9 @@ def legal_actions(game) -> list[Action]:
     if pool is not None:
         allowed += [CastSpell(index=i) for i, card in enumerate(game.hand)
                     if game.can_cast(card, pool)]
-        if game.can_cast_commander(pool):
-            allowed.append(CastCommander())
+        allowed += [CastCommander(index=index)
+                    for index, commander in enumerate(game.deck.commanders)
+                    if game.can_cast_commander(pool, commander)]
         allowed += activations(game, pool)
         allowed += altars(game, pool)
         allowed += adaptations(game, pool)

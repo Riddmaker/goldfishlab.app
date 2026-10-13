@@ -51,8 +51,8 @@ def deck_cards(deck):
     """Every distinct card of a deck, commander included."""
     cards = {entry.oracle_card_id: entry.oracle_card
              for entry in deck.entries.select_related("oracle_card", "oracle_card__profile")}
-    if deck.commander_id and deck.commander_id not in cards:
-        cards[deck.commander_id] = deck.commander
+    for commander in deck.commanders:
+        cards.setdefault(commander.pk, commander)
     return list(cards.values())
 
 

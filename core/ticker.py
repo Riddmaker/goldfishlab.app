@@ -21,7 +21,8 @@ from heapq import nlargest
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.db.models import F
+from django.db.models import Case, F, Value, When
+from django.db.models.functions import Concat
 from django.utils.translation import gettext, ngettext
 
 from core.l10n import number
@@ -110,7 +111,12 @@ def _rows(queryset, *fields):
 
 def build() -> list[Event]:
     """The newest `KEEP` events across the sources, newest first."""
-    commander = F("deck__commander__name")
+    # "Krark + Thrasios" for a deck with two commanders (P20 F2b).
+    commander = Case(
+        When(deck__partner__isnull=False,
+             then=Concat(F("deck__commander__name"), Value(" + "), F("deck__partner__name"))),
+        default=F("deck__commander__name"),
+    )
     runs = _rows(
         SimulationRun.objects.filter(status=SimulationRun.Status.DONE, finished_at__isnull=False)
         .annotate(at=F("finished_at"), commander=commander).order_by("-finished_at"),

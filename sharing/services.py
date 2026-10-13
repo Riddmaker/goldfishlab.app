@@ -96,7 +96,7 @@ def share(run: SimulationRun) -> SharedReport:
             return SharedReport.objects.create(
                 run=run,
                 deck_name=deck.name,
-                commander=deck.commander.name if deck.commander_id else "",
+                commander=" + ".join(card.name for card in deck.commanders)[:256],
                 cards=_cards(deck),
                 summary=content,
                 summary_language=language,

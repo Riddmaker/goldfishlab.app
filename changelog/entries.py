@@ -42,6 +42,17 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 13), "two-commanders",
+        _("Partners and Backgrounds play together"),
+        _("A deck with two commanders - two partners, a creature with its Background, the "
+          "Doctor's companion with the Doctor - now has both in its command zone: the "
+          "simulation casts each, with its own commander tax, the cheaper one first, and the "
+          "report counts the games with both on the battlefield in a row of its own. The colour "
+          "identity, the combos and the draw-a-hand board count both as well. Reports of decks "
+          "with one commander do not change."),
+        "methodology", "commander",
+    ),
+    Entry(
         date(2026, 10, 13), "commander-honest",
         _("Only a card that may lead becomes the commander"),
         _("The commander choice on the deck page offers only legendary creatures and the cards "

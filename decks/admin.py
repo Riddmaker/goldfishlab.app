@@ -20,7 +20,7 @@ class DeckAdmin(admin.ModelAdmin):
     list_display = ("name", "owner", "commander", "card_count", "updated_at")
     list_filter = ("format",)
     search_fields = ("name", "owner__email")
-    autocomplete_fields = ("commander",)
+    autocomplete_fields = ("commander", "partner")
     inlines = [DeckCardInline]
 
 

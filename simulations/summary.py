@@ -191,7 +191,12 @@ def fingerprint(deck) -> str:
                    default=str)
         for card, owner, deck_id, overrides in rows
     )
-    text = "|".join([f"commander:{deck.commander_id}", *cards, "annotations", *annotations])
+    # The second commander only when there is one, so a deck with one keeps
+    # the fingerprint it had (P20 F2b).
+    leading = [f"commander:{deck.commander_id}"]
+    if deck.partner_id:
+        leading.append(f"partner:{deck.partner_id}")
+    text = "|".join([*leading, *cards, "annotations", *annotations])
     return hashlib.sha256(text.encode()).hexdigest()
 
 
@@ -227,10 +232,10 @@ def facts(deck, readings) -> dict:
             "mana_value": int(oracle.cmc),
             "categories": [labels[key] for key in mine],
         })
-    commander = next((reading.oracle_card for reading in readings if reading.is_commander),
-                     None)
+    leading = [reading.oracle_card for reading in readings if reading.is_commander]
+    commander = leading[0] if leading else None
     core = dict(SEEN_ROLES)
-    return {
+    facts = {
         "commander": (
             {"name": commander.front_name, "type": commander.type_line,
              "mana_cost": commander.mana_cost, "text": commander.oracle_text}
@@ -277,6 +282,14 @@ def facts(deck, readings) -> dict:
         # them, for "strategies" to pick from - nothing else may be named.
         "strategies": offered(readings),
     }
+    if len(leading) > 1:
+        # A second commander (P20 F2b), and only then: a deck with one keeps
+        # the facts - and the cached summary - it had.
+        second = leading[1]
+        facts["second_commander"] = {"name": second.front_name, "type": second.type_line,
+                                     "mana_cost": second.mana_cost,
+                                     "text": second.oracle_text}
+    return facts
 
 
 #: At most this many combos go into the prompt, the most popular first.

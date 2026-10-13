@@ -12023,3 +12023,69 @@ msgid ""
 "The file lists <strong>%(names)s</strong> first - are those the commanders?"
 msgstr ""
 "El archivo pone primero <strong>%(names)s</strong>: ¿son los comandantes?"
+
+#: simulations/report.py
+msgid "Both commanders on the battlefield"
+msgstr "Ambos comandantes en el campo de batalla"
+
+#: simulations/report.py
+msgid ""
+"Both of your commanders have been cast and are on the battlefield. The row "
+"above counts a game with at least one."
+msgstr ""
+"Tus dos comandantes se han lanzado y están en el campo de batalla. La fila "
+"de arriba cuenta una partida con al menos uno."
+
+#: templates/core/methodology.html
+msgid "The command zone"
+msgstr "La zona de mando"
+
+#: templates/core/methodology.html
+msgid ""
+"The commander starts in the command zone and is cast from there when the "
+"mana is there, <strong>two more each time it was cast before</strong>. A "
+"deck may have <strong>two commanders</strong> - two partners, a creature "
+"that chooses a Background and its Background, or the Doctor's companion and "
+"the Doctor. Then each pays the tax for its own casts, the cheaper one that "
+"can be paid is cast first, and the report counts the games with at least one"
+" commander out and, in a row of its own, those with both."
+msgstr ""
+"El comandante empieza en la zona de mando y se lanza desde allí cuando hay "
+"maná, <strong>dos más por cada vez que se lanzó antes</strong>. Un mazo "
+"puede tener <strong>dos comandantes</strong>: dos compañeros, una criatura "
+"que elige un Trasfondo y su Trasfondo, o el acompañante del Doctor y el "
+"Doctor. Entonces cada uno paga el impuesto de sus propios lanzamientos, el "
+"más barato que se pueda pagar se lanza primero, y el informe cuenta las "
+"partidas con al menos un comandante en juego y, en una fila propia, las que "
+"tienen los dos."
+
+#: templates/core/methodology.html
+msgid ""
+"A deck without a commander is played with an empty command zone, and its "
+"report says so. Every rule here is a Commander rule: 40 life and 100 cards. "
+"A deck built for another format is played by them all the same."
+msgstr ""
+"Un mazo sin comandante se juega con la zona de mando vacía, y su informe lo "
+"dice. Cada regla aquí es una regla de Commander: 40 vidas y 100 cartas. Un "
+"mazo construido para otro formato se juega igualmente con ellas."
+
+#: changelog/entries.py
+msgid "Partners and Backgrounds play together"
+msgstr "Compañeros y Trasfondos juegan juntos"
+
+#: changelog/entries.py
+msgid ""
+"A deck with two commanders - two partners, a creature with its Background, "
+"the Doctor's companion with the Doctor - now has both in its command zone: "
+"the simulation casts each, with its own commander tax, the cheaper one "
+"first, and the report counts the games with both on the battlefield in a row"
+" of its own. The colour identity, the combos and the draw-a-hand board count"
+" both as well. Reports of decks with one commander do not change."
+msgstr ""
+"Un mazo con dos comandantes –dos compañeros, una criatura con su Trasfondo, "
+"el acompañante del Doctor con el Doctor– ahora tiene ambos en su zona de "
+"mando: la simulación lanza cada uno, con su propio impuesto de comandante, "
+"primero el más barato, y el informe cuenta en una fila propia las partidas "
+"con los dos en el campo de batalla. La identidad de color, los combos y el "
+"tablero de robar una mano también cuentan ambos. Los informes de mazos con "
+"un solo comandante no cambian."

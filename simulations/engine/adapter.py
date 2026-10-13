@@ -221,16 +221,17 @@ def convert(deck: Deck, *, adding=None) -> Conversion:
         seen.add(entry.oracle_card_id)
         library.extend([card] * entry.quantity)
 
-    commander = None
-    if deck.commander_id:
-        commander = _card_from(deck.commander, annotations, gaps, colors, chosen, color)
-        # The commander counts toward the total, because gaps are recorded for
-        # it like any other card. Leaving it out made `cards_with_gaps` able to
-        # exceed `cards_total` - a two-card deck whose commander the engine
-        # could not read reported **-50% coverage**, which is a worse answer
-        # than no answer. It is not a DeckCard (trap 7), so `seen` is the only
-        # thing that knows whether it has already been counted.
-        seen.add(deck.commander_id)
+    # The commanders count toward the total, because gaps are recorded for
+    # them like any other card. Leaving one out made `cards_with_gaps` able to
+    # exceed `cards_total` - a two-card deck whose commander the engine could
+    # not read reported **-50% coverage**, which is a worse answer than no
+    # answer. They are not DeckCards (trap 7), so `seen` is the only thing that
+    # knows whether one has already been counted. Two since P20 F2b.
+    commander, partner = (
+        _card_from(oracle, annotations, gaps, colors, chosen, color) if oracle else None
+        for oracle in (deck.commander if deck.commander_id else None,
+                       deck.partner if deck.partner_id else None))
+    seen.update(oracle.pk for oracle in deck.commanders)
 
     if adding is not None:
         library.append(_card_from(adding, annotations, gaps, colors, chosen, color))
@@ -240,10 +241,11 @@ def convert(deck: Deck, *, adding=None) -> Conversion:
         name=deck.name,
         commander=commander,
         library=tuple(library),
+        partner=partner,
     )
     copies = Counter(card.name for card in library)
-    if commander is not None:
-        copies[commander.name] += 1
+    for each in definition.commanders:
+        copies[each.name] += 1
     return Conversion(definition=definition, gaps=gaps, cards_total=len(seen),
                       copies=dict(copies))
 
@@ -846,12 +848,14 @@ def readings(deck: Deck) -> list[Reading]:
             )
         )
 
-    if deck.commander_id and deck.commander_id not in seen:
+    for oracle in deck.commanders:
+        if oracle.pk in seen:
+            continue
         gaps = []
-        card = _card_from(deck.commander, annotations, gaps, colors, chosen, color)
+        card = _card_from(oracle, annotations, gaps, colors, chosen, color)
         found.append(
             Reading(
-                oracle_card=deck.commander,
+                oracle_card=oracle,
                 card=card,
                 gaps=gaps,
                 is_commander=True,
@@ -912,9 +916,9 @@ def _deck_colors(entries, deck: Deck) -> frozenset[str]:
     colours the deck's own spells demand are the fallback, for a deck with no
     commander or a colourless one.
     """
-    commander = deck.commander if deck.commander_id else None
     identity = frozenset(
-        color for color in (getattr(commander, "color_identity", None) or [])
+        color for commander in deck.commanders
+        for color in (getattr(commander, "color_identity", None) or [])
         if color in COLORS
     )
     if identity:
@@ -942,7 +946,7 @@ def deck_creature_type(entries, deck: Deck) -> tuple[str, int]:
     for entry in entries:
         for found in creature_types(entry.oracle_card):
             counts[found] += entry.quantity
-    own = creature_types(deck.commander) if deck.commander_id else frozenset()
+    own = frozenset().union(*(creature_types(each) for each in deck.commanders))
     for found in own:
         counts[found] += 1
     if not counts:
@@ -967,8 +971,8 @@ def deck_color(entries, deck: Deck, deck_colors: frozenset[str]) -> tuple[str, i
         for found, amount in _cost_colors(entry.oracle_card).items():
             counts[found] += amount * entry.quantity
     own = deck.commander if deck.commander_id else None
-    if own is not None:
-        counts.update(_cost_colors(own))
+    for each in deck.commanders:
+        counts.update(_cost_colors(each))
     usable = {found: count for found, count in counts.items()
               if count and (not deck_colors or found in deck_colors)}
     if not usable:
@@ -1054,8 +1058,8 @@ def cards_filter(deck: Deck):
     from django.db.models import Q
 
     relevant = Q(oracle_card__in_decks__deck=deck)
-    if deck.commander_id:
-        relevant |= Q(oracle_card_id=deck.commander_id)
+    for each in deck.commanders:
+        relevant |= Q(oracle_card_id=each.pk)
     return relevant
 
 

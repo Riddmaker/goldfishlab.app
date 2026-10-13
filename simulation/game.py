@@ -157,6 +157,8 @@ class Game:
         self.stays_tapped: list = []
         self.land_drop_used = False
         self.commander_casts = 0
+        #: The second commander's casts, for its own tax (P20 F2b).
+        self.partner_casts = 0
         # Mana available at the start of the main phase. It has to be recorded
         # before anything is cast, or Crypt Ghast would count himself in the
         # very turn he arrives.
@@ -640,9 +642,9 @@ class Game:
                 found.append(TREASURE)
             if self.landers:
                 found.append(LANDER_FODDER)
-        commander = self.deck.commander
+        commanders = self.deck.commanders
         permanents = [card for card in self.creatures + self.rocks + self.other_permanents
-                      if card is not commander and card is not also
+                      if not any(card is each for each in commanders) and card is not also
                       and not self.is_mana_source(card) and self._fits(card, cost)]
         found += sorted(permanents, key=lambda card: ("recursive" not in card.tags,
                                                       card.mv, card.name))
@@ -893,7 +895,7 @@ class Game:
 
     def deck_colors(self) -> frozenset[str]:
         """The colours the deck's costs ask for: what a colour is chosen from."""
-        cards = [*self.deck.library, *([self.deck.commander] if self.deck.commander else [])]
+        cards = [*self.deck.library, *self.deck.commanders]
         found = frozenset().union(*(card.mana_cost.colors for card in cards))
         return found & frozenset(COLORS) or frozenset(COLORS)
 
@@ -1812,8 +1814,9 @@ class Game:
         if who == "modified":
             return sum(1 for each in group if self.modified(each))
         if who == "commander":
-            commander = self.deck.commander
-            return int(commander is not None and any(each is commander for each in group))
+            # Each commander that attacks is "your commander" attacking.
+            return sum(1 for commander in self.deck.commanders
+                       if any(each is commander for each in group))
         if who == "curse":
             return int(bool(attackers))
         if who == "total":
@@ -2138,16 +2141,23 @@ class Game:
                 return card.ritual_color, int(more)
         return card.ritual_color, card.ritual_gain
 
-    def cast_commander(self, pool: ManaPool) -> None:
-        """Cast the commander from the command zone, commander tax included."""
-        commander = self.deck.commander
-        cost = self._commander_cost()
+    def cast_commander(self, pool: ManaPool, commander=None) -> None:
+        """Cast a commander from the command zone, its own tax included.
+
+        The first commander unless another is named: with two (P20 F2b) each
+        pays the tax for its own casts, as the rules have it (903.8).
+        """
+        commander = commander or self.deck.commander
+        cost = self._commander_cost(commander)
         payment = pool.pay_cost(cost, life=self.life, spell=commander)
         if payment is None:
             raise ValueError(f"{commander.name} ({cost}) cannot be paid from {pool}")
         self.life -= payment.life
         self._spend_treasures(pool)
-        self.commander_casts += 1
+        if commander is self.deck.partner:
+            self.partner_casts += 1
+        else:
+            self.commander_casts += 1
         self.spell_cast(commander)
         self.creatures.append(commander)
         self.arrived.append(commander.name)
@@ -2155,26 +2165,35 @@ class Game:
         self._creature_enters(commander)
         self.fire(ENTERS, commander)
 
-    def _commander_cost(self):
-        """The commander's cost, tax and cost reduction included.
+    def _commander_cost(self, commander=None):
+        """A commander's cost, its tax and cost reduction included.
 
         The tax is generic, so it is added to the generic portion *before* a
         cost reduction applies - a medallion takes {1} off the taxed commander
         just as it would off an untaxed one.
         """
-        commander = self.deck.commander
+        commander = commander or self.deck.commander
+        casts = (self.partner_casts if commander is self.deck.partner
+                 else self.commander_casts)
         cost = commander.mana_cost
-        taxed = cost.with_generic(cost.generic + 2 * self.commander_casts)
+        taxed = cost.with_generic(cost.generic + 2 * casts)
         return taxed.reduced(
             applicable_reduction(taxed, reductions_from(self.battlefield))
         )
 
-    def can_cast_commander(self, pool: ManaPool) -> bool:
-        """Can the commander be paid for out of the command zone?"""
-        commander = self.deck.commander
+    def can_cast_commander(self, pool: ManaPool, commander=None) -> bool:
+        """Can a commander - the first, unless named - be paid for out of the command zone?"""
+        commander = commander or self.deck.commander
         if commander is None or self.has(commander.name):
             return False
-        return pool.can_pay_cost(self._commander_cost(), life=self.life, spell=commander)
+        return pool.can_pay_cost(self._commander_cost(commander), life=self.life,
+                                 spell=commander)
+
+    def castable_commanders(self, pool: ManaPool) -> list:
+        """The commanders that could be cast now, the cheaper first."""
+        found = [commander for commander in self.deck.commanders
+                 if self.can_cast_commander(pool, commander)]
+        return sorted(found, key=lambda commander: self._commander_cost(commander).mv)
 
     # --- The turn ----------------------------------------------------------
 

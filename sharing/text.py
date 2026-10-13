@@ -43,7 +43,8 @@ def facts(report: dict, run) -> list[str]:
     if report["mulligans"]:
         lines.append(gettext("Kept the first seven: %(percent)s") % {
             "percent": percent(report["mulligans"][0].share)})
-    others = sorted((row for key, row in milestones.items() if key != "commander"),
+    leading = ("commander", "both_commanders")
+    others = sorted((row for key, row in milestones.items() if key not in leading),
                     key=lambda row: -row["shares"][-1])
     for row in others[:MORE_MILESTONES]:
         lines.append(gettext("%(milestone)s by turn %(turn)s: %(percent)s") % {

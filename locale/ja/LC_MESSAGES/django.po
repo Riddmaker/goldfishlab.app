@@ -10601,3 +10601,52 @@ msgstr ""
 msgid ""
 "The file lists <strong>%(names)s</strong> first - are those the commanders?"
 msgstr "ファイルの先頭は <strong>%(names)s</strong> です。これが統率者ですか？"
+
+#: simulations/report.py
+msgid "Both commanders on the battlefield"
+msgstr "統率者2人とも戦場に"
+
+#: simulations/report.py
+msgid ""
+"Both of your commanders have been cast and are on the battlefield. The row "
+"above counts a game with at least one."
+msgstr "統率者が2人とも唱えられ、戦場にいます。上の行は少なくとも1人いるゲームを数えます。"
+
+#: templates/core/methodology.html
+msgid "The command zone"
+msgstr "統率領域"
+
+#: templates/core/methodology.html
+msgid ""
+"The commander starts in the command zone and is cast from there when the "
+"mana is there, <strong>two more each time it was cast before</strong>. A "
+"deck may have <strong>two commanders</strong> - two partners, a creature "
+"that chooses a Background and its Background, or the Doctor's companion and "
+"the Doctor. Then each pays the tax for its own casts, the cheaper one that "
+"can be paid is cast first, and the report counts the games with at least one"
+" commander out and, in a row of its own, those with both."
+msgstr ""
+"統率者は統率領域から始まり、マナが足りればそこから唱えられます。<strong>以前に唱えた回数ごとに2マナ多く</strong>かかります。デッキは<strong>2人の統率者</strong>を持てます：共闘の2枚、背景を選ぶクリーチャーとその背景、ドクターのコンパニオンとドクター。その場合、それぞれが自分の唱えた回数分の統率者税を払い、支払える安い方から先に唱え、レポートは少なくとも1人が戦場にいるゲームと、別の行で2人ともいるゲームを数えます。"
+
+#: templates/core/methodology.html
+msgid ""
+"A deck without a commander is played with an empty command zone, and its "
+"report says so. Every rule here is a Commander rule: 40 life and 100 cards. "
+"A deck built for another format is played by them all the same."
+msgstr ""
+"統率者のいないデッキは統率領域が空のまま回し、レポートにそう表示されます。ここでのルールはすべて統率者戦のもの（ライフ40、100枚）です。ほかのフォーマット用のデッキも同じルールで回します。"
+
+#: changelog/entries.py
+msgid "Partners and Backgrounds play together"
+msgstr "共闘と背景が一緒にプレイされます"
+
+#: changelog/entries.py
+msgid ""
+"A deck with two commanders - two partners, a creature with its Background, "
+"the Doctor's companion with the Doctor - now has both in its command zone: "
+"the simulation casts each, with its own commander tax, the cheaper one "
+"first, and the report counts the games with both on the battlefield in a row"
+" of its own. The colour identity, the combos and the draw-a-hand board count"
+" both as well. Reports of decks with one commander do not change."
+msgstr ""
+"統率者が2人いるデッキ（共闘の2枚、クリーチャーとその背景、ドクターのコンパニオンとドクター）は、両方が統率領域に入るようになりました。シミュレーションはそれぞれを自分の統率者税で、安い方から唱え、レポートは2人とも戦場にいるゲームを別の行で数えます。固有色、コンボ、手札を引くボードも両方を数えます。統率者1人のデッキのレポートは変わりません。"

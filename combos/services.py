@@ -72,8 +72,7 @@ def fingerprint(deck) -> str:
     oracle_ids = sorted(
         str(pk) for pk in deck.entries.values_list("oracle_card_id", flat=True)
     )
-    if deck.commander_id:
-        oracle_ids.append(f"commander:{deck.commander_id}")
+    oracle_ids += [f"commander:{commander.pk}" for commander in deck.commanders]
     return hashlib.sha256("|".join(oracle_ids).encode()).hexdigest()
 
 
@@ -106,7 +105,7 @@ def _names(deck) -> tuple[list[str], list[str]]:
         .values_list("oracle_card__front_name", flat=True)
         .distinct()
     )
-    commanders = [deck.commander.front_name] if deck.commander_id else []
+    commanders = [commander.front_name for commander in deck.commanders]
     return [name for name in main if name and name not in commanders], commanders
 
 

@@ -109,6 +109,7 @@ def build(precon: Precon, lands: int) -> LandSweep:
     counts = {entry.oracle_card: entry.quantity
               for entry in source.entries.select_related("oracle_card")}
     deck = Deck.objects.create(owner=source.owner, commander=source.commander,
+                               partner=source.partner,
                                name=f"{precon.name} ({lands} lands)"[:120])
     DeckCard.objects.bulk_create(DeckCard(deck=deck, oracle_card=card, quantity=copies)
                                  for card, copies in rebuild(counts, lands).items())

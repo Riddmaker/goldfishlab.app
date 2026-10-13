@@ -94,6 +94,28 @@
       </p>
     </div>
 
+    <h2 id="commander" class="mt-12 font-display text-2xl text-parchment-100">{% translate "The command zone" %}</h2>
+    <div class="mt-4 surface-parchment p-6">
+      {% comment %} P20 F2: cards/commanders.py, simulation/game.py cast_commander(). {% endcomment %}
+      <p class="text-ink-900">
+        {% blocktranslate trimmed %}
+          The commander starts in the command zone and is cast from there when the mana is
+          there, <strong>two more each time it was cast before</strong>. A deck may have
+          <strong>two commanders</strong> - two partners, a creature that chooses a Background and
+          its Background, or the Doctor's companion and the Doctor. Then each pays the tax for its
+          own casts, the cheaper one that can be paid is cast first, and the report counts the
+          games with at least one commander out and, in a row of its own, those with both.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-sm text-ink-700">
+        {% blocktranslate trimmed %}
+          A deck without a commander is played with an empty command zone, and its report says
+          so. Every rule here is a Commander rule: 40 life and 100 cards. A deck built for
+          another format is played by them all the same.
+        {% endblocktranslate %}
+      </p>
+    </div>
+
     <h2 id="mulligan" class="mt-12 font-display text-2xl text-parchment-100">{% translate "The mulligan rule" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       {% comment %} simulation/game.py: cards_to_bottom() is max(0, mulligans - 1). {% endcomment %}

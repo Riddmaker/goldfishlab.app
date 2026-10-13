@@ -164,6 +164,10 @@ GAME_SCALARS = ("life", "turn", "mulligans", "tapped_lands", "tapped_rocks",
                 "land_drop_used", "commander_casts", "mana_available",
                 "first_hand_lands", "phase", "on_the_play")
 
+#: Scalars added after states were first cached, with the value an older
+#: state means by leaving them out: no second commander was ever cast.
+LATER_SCALARS = {"partner_casts": 0}
+
 
 def dump_game(game: Game) -> dict:
     """The whole of a game, as a cache of a replay that already happened.
@@ -176,6 +180,7 @@ def dump_game(game: Game) -> dict:
     state = {name: [dump(card) for card in getattr(game, name)]
              for name in (*GAME_ZONES, *GAME_LISTS)}
     state.update({name: getattr(game, name) for name in GAME_SCALARS})
+    state.update({name: getattr(game, name) for name in LATER_SCALARS})
     state["mana_by_color"] = dict(game.mana_by_color)
     state["log"] = list(game.log)
     state["pool"] = game.pool.by_color() if game.pool is not None else None
@@ -240,6 +245,8 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
         setattr(game, name, [_load_dataclass(Card, row) for row in data.get(name, [])])
     for name in GAME_SCALARS:
         setattr(game, name, data[name])
+    for name, missing in LATER_SCALARS.items():
+        setattr(game, name, data.get(name, missing))
     game.mana_by_color = dict(data["mana_by_color"])
     game.log = list(data["log"])
     game.pool = None if data["pool"] is None else ManaPool(**data["pool"])

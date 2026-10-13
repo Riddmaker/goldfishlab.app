@@ -276,6 +276,8 @@ def _histogram_total(histogram) -> int:
 #: metric cannot quietly appear on screen with no explanation of what it counts.
 MILESTONES = (
     ("commander", gettext_noop("Commander on the battlefield")),
+    # Only in the result of a deck with two commanders (P20 F2b).
+    ("both_commanders", gettext_noop("Both commanders on the battlefield")),
     ("draw_engine", gettext_noop("A card-advantage engine in play")),
     ("ramp_engine", gettext_noop("Two or more scaling mana sources")),
     ("sac_outlet", gettext_noop("A sacrifice outlet in play")),
@@ -292,6 +294,9 @@ MILESTONES = (
 #: a test holds the two together.
 MILESTONE_INFO = {
     "commander": gettext_noop("Your commander has been cast and is on the battlefield."),
+    "both_commanders": gettext_noop(
+        "Both of your commanders have been cast and are on the battlefield. The row above "
+        "counts a game with at least one."),
     "draw_engine": gettext_noop(
         "A permanent that keeps drawing you cards, such as Phyrexian Arena."),
     "ramp_engine": gettext_noop("Two mana sources that make more as your board grows, "
@@ -376,7 +381,7 @@ def milestones(result: dict) -> list[dict]:
     total = result["iterations"]
     rows = []
     for key, label in MILESTONES:
-        shares = [_pct(stats[key], total) for stats in result["turn_stats"]]
+        shares = [_pct(stats.get(key, 0), total) for stats in result["turn_stats"]]
         if not any(shares):
             # A metric that never fires for this deck is noise on the page.
             continue

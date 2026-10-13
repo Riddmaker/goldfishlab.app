@@ -258,3 +258,20 @@ def test_a_deck_without_commander_and_100_cards_says_whose_rules(owner, signed_i
     signed_in.post(reverse("decks:set-commander", args=[deck.id]), {"commander": str(chainer.pk)})
     body = signed_in.get(deck.get_absolute_url()).content.decode()
     assert "Not a Commander deck" not in body
+
+
+# --- the engine reads both (F2b) -------------------------------------------
+
+
+def test_the_engine_deck_carries_both_commanders(pairs, owner):
+    from simulations.engine import adapter
+
+    deck = _import(owner, "Commander\n1 Krark, the Thumbless\n1 Thrasios, Triton Hero\n\n"
+                          "Deck\n1 Sol Ring\n1 Chainer, Dementia Master\n").deck
+
+    conversion = adapter.convert(deck)
+    assert [card.name for card in conversion.definition.commanders] == [
+        "Krark, the Thumbless", "Thrasios, Triton Hero"]
+    assert conversion.cards_total == 4
+    readings = adapter.readings(deck)
+    assert sum(reading.is_commander for reading in readings) == 2

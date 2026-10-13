@@ -12100,3 +12100,70 @@ msgid ""
 msgstr ""
 "Le fichier cite d'abord <strong>%(names)s</strong> : sont-ce les commandants"
 " ?"
+
+#: simulations/report.py
+msgid "Both commanders on the battlefield"
+msgstr "Les deux commandants sur le champ de bataille"
+
+#: simulations/report.py
+msgid ""
+"Both of your commanders have been cast and are on the battlefield. The row "
+"above counts a game with at least one."
+msgstr ""
+"Vos deux commandants ont été lancés et sont sur le champ de bataille. La "
+"ligne du dessus compte une partie dès qu'il y en a un."
+
+#: templates/core/methodology.html
+msgid "The command zone"
+msgstr "La zone de commandement"
+
+#: templates/core/methodology.html
+msgid ""
+"The commander starts in the command zone and is cast from there when the "
+"mana is there, <strong>two more each time it was cast before</strong>. A "
+"deck may have <strong>two commanders</strong> - two partners, a creature "
+"that chooses a Background and its Background, or the Doctor's companion and "
+"the Doctor. Then each pays the tax for its own casts, the cheaper one that "
+"can be paid is cast first, and the report counts the games with at least one"
+" commander out and, in a row of its own, those with both."
+msgstr ""
+"Le commandant commence dans la zone de commandement et y est lancé dès que "
+"le mana est là, <strong>deux de plus pour chaque lancement "
+"précédent</strong>. Un deck peut avoir <strong>deux commandants</strong> : "
+"deux partenaires, une créature qui choisit un Historique et son Historique, "
+"ou le compagnon du Docteur et le Docteur. Chacun paie alors la taxe de ses "
+"propres lancements, le moins cher qui peut être payé est lancé en premier, "
+"et le rapport compte les parties avec au moins un commandant en jeu et, sur "
+"une ligne à part, celles avec les deux."
+
+#: templates/core/methodology.html
+msgid ""
+"A deck without a commander is played with an empty command zone, and its "
+"report says so. Every rule here is a Commander rule: 40 life and 100 cards. "
+"A deck built for another format is played by them all the same."
+msgstr ""
+"Un deck sans commandant est joué avec une zone de commandement vide, et son "
+"rapport le dit. Chaque règle ici est une règle de Commander : 40 points de "
+"vie et 100 cartes. Un deck construit pour un autre format est joué selon "
+"elles malgré tout."
+
+#: changelog/entries.py
+msgid "Partners and Backgrounds play together"
+msgstr "Partenaires et Historiques jouent ensemble"
+
+#: changelog/entries.py
+msgid ""
+"A deck with two commanders - two partners, a creature with its Background, "
+"the Doctor's companion with the Doctor - now has both in its command zone: "
+"the simulation casts each, with its own commander tax, the cheaper one "
+"first, and the report counts the games with both on the battlefield in a row"
+" of its own. The colour identity, the combos and the draw-a-hand board count"
+" both as well. Reports of decks with one commander do not change."
+msgstr ""
+"Un deck à deux commandants – deux partenaires, une créature avec son "
+"Historique, le compagnon du Docteur avec le Docteur – a maintenant les deux "
+"dans sa zone de commandement : la simulation lance chacun, avec sa propre "
+"taxe de commandant, le moins cher d'abord, et le rapport compte sur une "
+"ligne à part les parties avec les deux sur le champ de bataille. L'identité "
+"de couleur, les combos et le plateau de main de départ comptent aussi les "
+"deux. Les rapports des decks à un seul commandant ne changent pas."

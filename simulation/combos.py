@@ -164,16 +164,15 @@ class Watcher:
             battlefield = self._count(game.battlefield)
             where[BATTLEFIELD] = battlefield
             if COMMAND in self.zones:
-                # The command zone is not a list on the game: the commander is
+                # The command zone is not a list on the game: a commander is
                 # in it whenever it is not on the battlefield. The engine never
                 # puts a commander anywhere else - it cannot die in a goldfish
-                # game - so this is the whole of the rule.
-                commander = game.deck.commander
+                # game - so this is the whole of the rule. Two of them (P20
+                # F2b) are two answers to the same question.
                 where[COMMAND] = Counter()
-                if (commander is not None
-                        and commander.name in self.names
-                        and not battlefield.get(commander.name)):
-                    where[COMMAND][commander.name] = 1
+                for commander in game.deck.commanders:
+                    if commander.name in self.names and not battlefield.get(commander.name):
+                        where[COMMAND][commander.name] = 1
         if GRAVEYARD in self.zones:
             where[GRAVEYARD] = self._count(game.graveyard)
         if HAND in self.zones:
@@ -194,8 +193,8 @@ class Watcher:
     def _met(self, watch: Watch, where: dict, game) -> bool:
         for requirement in watch.requirements:
             if requirement.must_be_commander:
-                commander = game.deck.commander
-                if commander is None or commander.name != requirement.name:
+                if requirement.name not in {commander.name
+                                            for commander in game.deck.commanders}:
                     return False
             held = sum(
                 where.get(zone, {}).get(requirement.name, 0)

@@ -16,7 +16,7 @@ from django.contrib.auth import get_user_model
 from cards import profiles
 from cards.models import DerivedProfile, OracleCard
 from decks.models import Deck, DeckCard
-from simulations import services
+from simulations import review, services
 from simulations.engine import adapter
 from simulations.engine.adapter import BUILTIN_SCOPE, DECK_SCOPE, USER_SCOPE
 from simulations.models import CardAnnotation
@@ -118,3 +118,53 @@ def test_both_commanders_are_checked(deck):
     found = reading_of(deck, deck.elf)
     assert found.is_commander
     assert checks_of(deck, deck.elf) == [("land_search", "changed", DECK_SCOPE)]
+
+
+# --- the review queue and the red marker -----------------------------------------------
+
+
+def _moved_growth(deck, scope=DECK_SCOPE):
+    read = search_of(deck.growth)
+    correct(deck, deck.growth, "land_search", read | {"battlefield": 2}, scope=scope)
+    move(deck.growth, land_search=read | {"tapped": False})
+    return read
+
+
+def _fresh(deck):
+    Deck.objects.filter(pk=deck.deck.pk).update(open_questions=None)
+    return Deck.objects.get(pk=deck.deck.pk)
+
+
+def test_a_card_to_check_is_an_open_question(deck):
+    assert review.open_questions(_fresh(deck)) == 0
+    _moved_growth(deck)
+    found = review.queue(deck.deck)
+    assert [(question.name, question.to_check, question.answered) for question in found] \
+        == [("Rampant Growth", True, False)]
+    assert review.open_questions(_fresh(deck)) == 1
+
+
+def test_a_built_in_check_is_no_question(deck):
+    read = search_of(deck.growth)
+    CardAnnotation.objects.create(oracle_card=deck.growth,
+                                  overrides={"land_search": read | {"battlefield": 2}})
+    move(deck.growth, land_search=read | {"tapped": False})
+    assert review.queue(deck.deck) == []
+
+
+def test_an_unread_card_to_check_counts_once(deck):
+    _moved_growth(deck)
+    DerivedProfile.objects.filter(oracle_card=deck.growth).update(
+        needs_review=True, review_reasons=["test: the cost could not be read"])
+    assert review.open_questions(_fresh(deck)) == 1
+
+
+def test_the_deck_page_says_which_cards_to_check(deck, client):
+    _moved_growth(deck)
+    client.force_login(deck.owner)
+    body = client.get(deck.deck.get_absolute_url()).content.decode()
+    assert "please check" in body
+    assert "1 card has a correction of yours to check" in body
+    assert "1 card needs you" in body
+    # Nothing here the engine could not read: that sentence is not about checks.
+    assert "The engine read all" in body

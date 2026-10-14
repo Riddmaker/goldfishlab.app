@@ -307,8 +307,8 @@
         {% plural %}
           {{ count }} of {{ total }} cards have something the engine could not read on its own.
         {% endblocktranslate %}
-        {% if deck.open_questions %}
-          {% blocktranslate trimmed count count=deck.open_questions %}
+        {% if unread_open %}
+          {% blocktranslate trimmed count count=unread_open %}
             {{ count }} of them still needs you; the red marker at the top takes you there.
           {% plural %}
             {{ count }} of them still need you; the red marker at the top takes you through them.
@@ -324,6 +324,16 @@
         {% endblocktranslate %}
       {% endif %}
     </p>
+    {% if check_cards %}
+      {# Card model phase 2: the reading moved under a correction of yours. #}
+      <p class="mt-3 text-parchment-200" data-checks>
+        {% blocktranslate trimmed count count=check_cards %}
+          {{ count }} card has a correction of yours to check: the card data changed under it.
+        {% plural %}
+          {{ count }} cards have a correction of yours to check: the card data changed under them.
+        {% endblocktranslate %}
+      </p>
+    {% endif %}
     {% include "simulations/_blindspots.html" %}
     {% if last_import %}
       <p class="mt-3 text-sm text-parchment-200">

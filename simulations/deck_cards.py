@@ -55,6 +55,8 @@ class GridCard:
     reading: Reading
     open: bool
     answered: bool
+    #: Open because a correction of the owner's no longer fits its reading.
+    to_check: bool = False
     #: The printings the imported file named (`decks.models.Printings`, P20 F1).
     printing: object = None
 
@@ -152,6 +154,7 @@ def cards(readings, questions, printings: dict | None = None) -> list[GridCard]:
             GridCard(reading=reading,
                      open=reading.oracle_card.pk in open_ids,
                      answered=reading.oracle_card.pk in answered,
+                     to_check=bool(reading.checks),
                      printing=printings.get(reading.oracle_card.pk))
             for reading in readings if not reading.is_commander
         ),

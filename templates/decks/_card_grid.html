@@ -27,7 +27,9 @@
           {% else %}
             <span class="block border border-parchment-600 p-3 text-ink-900">{{ card.name }}</span>
           {% endif %}
-          {% if card.open %}
+          {% if card.open and card.to_check %}
+            <span class="card-grid-mark deck-status deck-status-open">! {% translate "please check" %}</span>
+          {% elif card.open %}
             <span class="card-grid-mark deck-status deck-status-open">! {% translate "needs you" %}</span>
           {% elif card.answered %}
             <span class="card-grid-mark deck-status deck-status-ready">✓ {% translate "answered" %}</span>

@@ -9,18 +9,55 @@ said - without opening a worker log or asking the broker anything.
 from django.contrib import admin
 from django.utils.html import format_html, format_html_join
 
-from simulations import unread
+from simulations import patches, unread
 from simulations.models import CardAnnotation, SimulationRun, UnreadCard
+
+
+def _checks(annotation) -> list:
+    """The row's patches whose block changed or is gone (`patches.Note`)."""
+    profile = getattr(annotation.oracle_card, "profile", None)
+    return patches.effective(annotation.overrides, annotation.patches, profile)[1]
+
+
+class BuiltinCheckFilter(admin.SimpleListFilter):
+    """Built-in corrections the reading moved under (card model phase 2).
+
+    Nobody's deck asks about these - a built-in row is the operator's - so
+    this is where they are found: after an ingest or a new Forge pin, keep
+    each (save it again) or delete it. Worked out in Python over the built-in
+    rows, which are a few hundred.
+    """
+
+    title = "please check"
+    parameter_name = "check"
+
+    def lookups(self, request, model_admin):
+        return (("builtin", "Built-in, reading moved"),)
+
+    def queryset(self, request, queryset):
+        if self.value() != "builtin":
+            return queryset
+        rows = (CardAnnotation.objects.filter(owner__isnull=True, deck__isnull=True)
+                .exclude(overrides={}).select_related("oracle_card__profile"))
+        return queryset.filter(pk__in=[row.pk for row in rows if _checks(row)])
 
 
 @admin.register(CardAnnotation)
 class CardAnnotationAdmin(admin.ModelAdmin):
     list_display = ("oracle_card", "scope", "owner", "deck", "updated_at")
-    list_filter = ("created_at",)
+    list_filter = (BuiltinCheckFilter, "created_at")
     search_fields = ("oracle_card__front_name", "owner__email", "note")
     autocomplete_fields = ("oracle_card", "owner", "deck")
     # Written from the overrides on every save (card model phase 2).
-    readonly_fields = ("patches",)
+    readonly_fields = ("patches", "checks")
+
+    @admin.display(description="please check")
+    def checks(self, obj):
+        found = _checks(obj) if obj.pk else []
+        if not found:
+            return "-"
+        return format_html("<ul>{}</ul>", format_html_join(
+            "", "<li><code>{}</code>: {}</li>", ((note.block, note.status) for note in found)))
 
 
 @admin.register(SimulationRun)

@@ -269,3 +269,20 @@ def test_nobody_else_can_settle_a_check(deck, client):
     client.force_login(other)
     assert act(client, deck, deck.growth, "land_search", "keep").status_code == 404
     assert checks_of(deck, deck.growth) != []
+
+
+# --- built-in corrections are the operator's ---------------------------------------------
+
+
+def test_the_admin_finds_built_in_corrections_to_check(deck, admin_client):
+    read = search_of(deck.growth)
+    builtin = CardAnnotation.objects.create(
+        oracle_card=deck.growth, overrides={"land_search": read | {"battlefield": 2}})
+    _moved_growth(deck)  # the owner's own row: not the operator's question
+    url = reverse("admin:simulations_cardannotation_changelist")
+    assert admin_client.get(url, {"check": "builtin"}).context["cl"].result_count == 1
+    assert list(admin_client.get(url, {"check": "builtin"}).context["cl"].result_list) \
+        == [builtin]
+    change = admin_client.get(reverse("admin:simulations_cardannotation_change",
+                                      args=[builtin.pk])).content.decode()
+    assert "<code>land_search</code>: changed" in change

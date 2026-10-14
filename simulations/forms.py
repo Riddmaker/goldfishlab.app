@@ -39,7 +39,10 @@ from simulations.engine.adapter import DECK_SCOPE, USER_SCOPE
 #: than iterations - selling a bigger number would sell precision the answer
 #: does not gain.
 GAME_SIZES = (1_000, 10_000, 50_000)
-TURN_SIZES = (3, 4, 5, 6, 8, 10)
+#: Every plan's ceiling is in it (Goldfish 9, Koi 12), so a higher plan offers
+#: every size a lower one did: a plan's own ceiling is only added for that
+#: plan, and Koi without 9 lost the run a Goldfish user compared with (E2.8).
+TURN_SIZES = (3, 4, 5, 6, 8, 9, 10, 12)
 
 
 def games_label(games: int) -> str:

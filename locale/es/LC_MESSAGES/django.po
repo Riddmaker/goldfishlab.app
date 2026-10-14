@@ -12429,3 +12429,18 @@ msgstr[1] ""
 msgstr[2] ""
 "«±» indica cuánto puede alejarse de la real la proporción de %(shown)s "
 "partidas, con un 95 %% de confianza."
+
+#: changelog/entries.py
+msgid "Koi runs 9 turns again"
+msgstr "Koi vuelve a simular 9 turnos"
+
+#: changelog/entries.py
+msgid ""
+"A higher plan now offers every number of turns a lower one does: Koi has "
+"Goldfish's 9 turns back, and Kraken has Koi's 12. A run you made before "
+"upgrading can be made again with the same turns."
+msgstr ""
+"Un plan superior ofrece ahora cada número de turnos que ofrece uno inferior:"
+" Koi recupera los 9 turnos de Goldfish y Kraken tiene los 12 de Koi. Una "
+"simulación hecha antes de mejorar el plan se puede repetir con los mismos "
+"turnos."

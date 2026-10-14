@@ -12495,3 +12495,18 @@ msgstr[0] ""
 msgstr[1] ""
 "« ± » indique de combien la part mesurée sur %(shown)s parties peut "
 "s'écarter de la vraie, avec 95 %% de confiance."
+
+#: changelog/entries.py
+msgid "Koi runs 9 turns again"
+msgstr "Koi simule de nouveau 9 tours"
+
+#: changelog/entries.py
+msgid ""
+"A higher plan now offers every number of turns a lower one does: Koi has "
+"Goldfish's 9 turns back, and Kraken has Koi's 12. A run you made before "
+"upgrading can be made again with the same turns."
+msgstr ""
+"Une formule supérieure propose désormais chaque nombre de tours qu'une "
+"formule inférieure propose : Koi retrouve les 9 tours de Goldfish, et Kraken"
+" a les 12 de Koi. Une simulation faite avant de changer de formule peut être"
+" refaite avec les mêmes tours."

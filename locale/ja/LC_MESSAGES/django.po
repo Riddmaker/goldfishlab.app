@@ -10899,3 +10899,16 @@ msgid_plural ""
 "“±” is how far the share of %(shown)s games can be from the true one, at "
 "95%% confidence."
 msgstr[0] "「±」は、%(shown)sゲームから出した割合が真の値からどれだけずれうるかを、95%%の信頼度で示します。"
+
+#: changelog/entries.py
+msgid "Koi runs 9 turns again"
+msgstr "Koi で再び 9 ターンを実行できます"
+
+#: changelog/entries.py
+msgid ""
+"A higher plan now offers every number of turns a lower one does: Koi has "
+"Goldfish's 9 turns back, and Kraken has Koi's 12. A run you made before "
+"upgrading can be made again with the same turns."
+msgstr ""
+"上位プランは、下位プランで選べるターン数をすべて選べるようになりました。Koi では Goldfish の 9 ターンが復活し、Kraken では "
+"Koi の 12 ターンも選べます。アップグレード前に行ったシミュレーションを同じターン数でもう一度実行できます。"

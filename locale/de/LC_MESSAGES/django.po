@@ -12381,3 +12381,17 @@ msgstr[0] ""
 msgstr[1] ""
 "«±» sagt, wie weit der Anteil aus %(shown)s Spielen vom wahren entfernt sein"
 " kann, mit 95 %% Sicherheit."
+
+#: changelog/entries.py
+msgid "Koi runs 9 turns again"
+msgstr "Koi simuliert wieder 9 Züge"
+
+#: changelog/entries.py
+msgid ""
+"A higher plan now offers every number of turns a lower one does: Koi has "
+"Goldfish's 9 turns back, and Kraken has Koi's 12. A run you made before "
+"upgrading can be made again with the same turns."
+msgstr ""
+"Ein höheres Abo bietet jetzt jede Zugzahl, die ein tieferes bietet: Koi hat "
+"die 9 Züge von Goldfish wieder, und Kraken hat die 12 von Koi. Einen Lauf "
+"von vor dem Upgrade kannst du mit denselben Zügen wiederholen."

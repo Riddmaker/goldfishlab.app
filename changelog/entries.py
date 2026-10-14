@@ -42,6 +42,14 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 14), "turns-every-plan",
+        _("Koi runs 9 turns again"),
+        _("A higher plan now offers every number of turns a lower one does: Koi has Goldfish's "
+          "9 turns back, and Kraken has Koi's 12. A run you made before upgrading can be made "
+          "again with the same turns."),
+        "pricing",
+    ),
+    Entry(
         date(2026, 10, 13), "report-numbers",
         _("Every report names a bracket, and every share how exact it is"),
         _("The land count on the deck page counts a double-faced card by its front, as the list "

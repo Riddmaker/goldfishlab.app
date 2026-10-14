@@ -13,6 +13,10 @@ fingerprint (`scryfall.sets_fingerprint`): a new set or new previews change it,
 and only then are the files fetched. Errata, bans and Tagger edits change no
 count, so once a week everything is loaded anyway - on Tuesday, because
 Wizards announces bans and restrictions on Mondays.
+
+A moved Forge pin (the pin pull request of `.github/workflows/forge-sync.yml`)
+or a new translation needs no fetch either: the night after its deploy,
+`forge_import.stale()` sees it, and only the scripts and the profiles run.
 """
 
 from collections.abc import Callable
@@ -136,6 +140,9 @@ def nightly(today: date) -> str:
     weekly = today.weekday() == FULL_RUN_WEEKDAY
 
     if not weekly and last is not None and last.sets_fingerprint == fingerprint:
+        if forge_import.stale():
+            # A deploy moved the pin or the translation: no fetch needed.
+            return f"Forge's scripts changed, nothing fetched: {load(kinds=())}"
         return f"nothing new ({fingerprint} sets:printings), nothing fetched"
 
     why = "weekly full run" if weekly else f"sets changed to {fingerprint}"

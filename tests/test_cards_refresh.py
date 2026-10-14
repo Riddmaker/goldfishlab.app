@@ -99,6 +99,28 @@ def test_tuesday_loads_even_without_new_sets(scryfall_fake):
     assert "weekly" in line
 
 
+def test_a_moved_forge_pin_is_taken_over_the_next_night(scryfall_fake, tmp_path, monkeypatch):
+    """A deployed pin pull request needs no fetch: only the scripts and the
+    profiles run."""
+    from cards import forge
+    from cards.models import ForgeScript
+    from tests.conftest import FORGE_SCRIPTS
+
+    refresh.nightly(MONDAY)
+    scryfall_fake["loads"].clear()
+    moved = tmp_path / "forge_scripts.jsonl.gz"
+    forge.pack(FORGE_SCRIPTS.items(), "e" * 40, "2026-10-20T08:00:00+00:00", moved)
+    monkeypatch.setattr(forge, "PACK", moved)
+
+    line = refresh.nightly(MONDAY)
+
+    assert scryfall_fake["loads"] == []
+    assert "Forge's scripts changed" in line
+    assert set(ForgeScript.objects.values_list("commit", flat=True)) == {"e" * 40}
+    assert "profiles derived" in line
+    assert "nothing new" in refresh.nightly(MONDAY)
+
+
 def test_a_hand_run_ingest_is_checked_again_the_next_night(scryfall_fake):
     """A row without a fingerprint (ingest_scryfall by hand) is not "unchanged"."""
     ingest.ingest_cards(source=CARDS)

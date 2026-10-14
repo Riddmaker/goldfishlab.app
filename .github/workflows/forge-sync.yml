@@ -1,0 +1,211 @@
+name: Forge sync
+
+# Card model rebuild, phase 2: the weekly Forge pin. When Forge's card scripts
+# moved, this packs the newest commit (manage.py forge_pack), checks every
+# script against the pinned copy without a database (manage.py forge_check),
+# pushes the two pin files to the branch `forge-pin` and opens - or updates -
+# ONE issue "Forge pin ready" with the report and a link to open the pull
+# request into dev. A person opens it: the pin moves only by review, and
+# nothing here reaches production before that pull request is merged and dev
+# goes to main. The night after the deploy, the catalogue job
+# (cards/refresh.py) translates the new pin and derives the profiles again.
+#
+# Why no pull request from here: that needs "Allow GitHub Actions to create
+# and approve pull requests", a repository-wide right that would let any
+# workflow approve the pull request into main as well - the one review
+# between the code and production. It stays off.
+#
+# Privileges are split: `check` runs the pip install and our code with a
+# read-only token and no stored credentials; `publish` alone may write and
+# runs no Python, no pip and no third-party code beyond GitHub's own actions,
+# pinned to their commits. What `check` hands over is data, validated before
+# it is pushed: the two pin files, nothing else.
+#
+# More than 1 % of scripts failing to translate (a format break) fails the
+# run: the pin stays, and an issue "Forge sync failed" is opened or commented
+# on - the failure mail of a scheduled run goes only to whoever created the
+# workflow, which need not be anyone who reads it.
+#
+# Switched off until the repository variable FORGE_SYNC is "on" (Settings >
+# Secrets and variables > Actions > Variables). "Run workflow" works either
+# way, to try it by hand. Needs, once: `forge-pin` left out of the "dev only"
+# ruleset.
+on:
+  schedule:
+    # Mondays, 03:17 UTC: off the full hour, when GitHub delays scheduled runs,
+    # and before Tuesday's catalogue run and precon rerun.
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: forge-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    if: vars.FORGE_SYNC == 'on' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    outputs:
+      commit: ${{ steps.forge.outputs.commit }}
+      changes: ${{ steps.check.outputs.changes }}
+    env:
+      # Settings need these to load; no database or Redis is ever reached.
+      DJANGO_SETTINGS_MODULE: goldfishlab.settings.test
+      DJANGO_SECRET_KEY: ci-only-not-a-secret
+      DJANGO_DEBUG: "False"
+      DATABASE_URL: postgres://unused:unused@localhost:5432/unused
+      REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: dev
+          persist-credentials: false
+
+      - name: Has Forge moved?
+        id: forge
+        run: |
+          head=$(git ls-remote https://github.com/Card-Forge/forge refs/heads/master | cut -f1)
+          if [[ ! $head =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::no commit from Forge's master: '$head'"
+            exit 1
+          fi
+          if [[ $head == "$(cat cards/data/forge_commit.txt)" ]]; then
+            echo "The pin is Forge's newest commit already."
+          else
+            echo "commit=$head" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Only the card scripts, one commit deep: git archive reads them from
+      # here (cards/forge.py). Scripts are data, parsed and never executed.
+      - if: steps.forge.outputs.commit
+        uses: actions/checkout@v7.0.1
+        with:
+          repository: Card-Forge/forge
+          ref: ${{ steps.forge.outputs.commit }}
+          path: .data/forge
+          sparse-checkout: forge-gui/res/cardsfolder
+          fetch-depth: 1
+          persist-credentials: false
+
+      # No pip cache: a cache saved by a scheduled run on main would be
+      # restored by every branch.
+      - if: steps.forge.outputs.commit
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.13"
+
+      - name: Pack and check the new commit
+        if: steps.forge.outputs.commit
+        id: check
+        env:
+          COMMIT: ${{ steps.forge.outputs.commit }}
+        run: |
+          pip install -r requirements.txt
+          cp cards/data/forge_scripts.jsonl.gz "$RUNNER_TEMP/old.jsonl.gz"
+          python manage.py forge_pack --forge .data/forge --commit "$COMMIT"
+          mkdir "$RUNNER_TEMP/pin"
+          python manage.py forge_check --old "$RUNNER_TEMP/old.jsonl.gz" \
+            --out "$RUNNER_TEMP/pin/body.md" >> "$GITHUB_OUTPUT"
+          cp cards/data/forge_scripts.jsonl.gz cards/data/forge_commit.txt "$RUNNER_TEMP/pin/"
+          cat "$RUNNER_TEMP/pin/body.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - if: steps.check.outputs.changes && steps.check.outputs.changes != '0'
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: forge-pin
+          path: ${{ runner.temp }}/pin
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    needs: check
+    if: needs.check.outputs.changes && needs.check.outputs.changes != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # push the branch forge-pin
+      issues: write # the issue "Forge pin ready"
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      COMMIT: ${{ needs.check.outputs.commit }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: dev
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: forge-pin
+          path: ${{ runner.temp }}/pin
+
+      # The files come from a job that ran third-party code: take exactly the
+      # two pin files, and only when they name the commit found above.
+      - name: Validate the pin files
+        run: |
+          cd "$RUNNER_TEMP/pin"
+          [[ $COMMIT =~ ^[0-9a-f]{40}$ ]]
+          [[ $(ls | sort | tr '\n' ' ') == "body.md forge_commit.txt forge_scripts.jsonl.gz " ]]
+          [[ $(cat forge_commit.txt) == "$COMMIT" ]]
+          [[ $(stat -c %s forge_scripts.jsonl.gz) -lt 20000000 ]]
+          gzip -t forge_scripts.jsonl.gz
+          [[ $(zcat forge_scripts.jsonl.gz | head -1 | jq -r .commit) == "$COMMIT" ]]
+          [[ $(stat -c %s body.md) -lt 60000 ]]
+
+      - name: Push the branch forge-pin
+        run: |
+          cp "$RUNNER_TEMP/pin/forge_scripts.jsonl.gz" "$RUNNER_TEMP/pin/forge_commit.txt" cards/data/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c forge-pin
+          git add cards/data/forge_scripts.jsonl.gz cards/data/forge_commit.txt
+          # The message is the report: a pull request opened from this one
+          # commit takes its title and description from it.
+          { echo "Forge pin: ${COMMIT:0:10}"; echo; cat "$RUNNER_TEMP/pin/body.md"; } > "$RUNNER_TEMP/message.txt"
+          git commit -q --cleanup=verbatim -F "$RUNNER_TEMP/message.txt"
+          # One branch: a newer commit replaces the last one.
+          git push --force origin forge-pin
+
+      - name: Open or update the issue "Forge pin ready"
+        run: |
+          title="Forge pin ready"
+          link="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/dev...forge-pin?expand=1"
+          { echo "Forge's card scripts moved to \`${COMMIT:0:10}\`. [Open the pull request into dev]($link) - its description is the report below."
+            echo
+            cat "$RUNNER_TEMP/pin/body.md"; } > "$RUNNER_TEMP/issue.md"
+          open=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [[ -n $open ]]; then
+            gh issue edit "$open" --body-file "$RUNNER_TEMP/issue.md"
+          else
+            gh issue create --title "$title" --body-file "$RUNNER_TEMP/issue.md"
+          fi
+
+  failed:
+    needs: [check, publish]
+    if: failure()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Open or comment on the issue "Forge sync failed"
+        run: |
+          title="Forge sync failed"
+          run="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          open=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [[ -n $open ]]; then
+            gh issue comment "$open" --body "Failed again: $run"
+          else
+            gh issue create --title "$title" --body "The weekly Forge sync failed: $run
+
+          The pinned commit stays. More than 1 % of scripts failing to translate means Forge changed its format: cards/forge_import.py needs a fix."
+          fi

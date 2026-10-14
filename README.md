@@ -187,7 +187,18 @@ neither gives the engine gets a review reason. A change to the translation bumps
 # Then check out the commit to pin there, and:
 .venv/Scripts/python manage.py forge_pack            # writes cards/data/, commit both files
 .venv/Scripts/python manage.py forge_disagreements   # where Forge and our reader differ
+.venv/Scripts/python manage.py forge_check --old OLD.jsonl.gz   # what a new pin changes, no database
 ```
+
+Normally the pin moves by itself: `.github/workflows/forge-sync.yml` runs on Mondays, packs
+Forge's newest commit, checks it with `forge_check` (more than 1 % of scripts failing to
+translate fails the run and opens an issue "Forge sync failed"), pushes the two pin files to
+the branch `forge-pin` and opens or updates one issue "Forge pin ready" with the report - the
+cards that read less than before - and a link to open the pull request into `dev`. A person
+opens it: GitHub Actions may not create pull requests here, as that right would let a workflow
+approve one into `main` as well. After the deploy the nightly catalogue job takes the new pin
+over without a Scryfall fetch. It runs only while the repository variable `FORGE_SYNC` is
+`on`; "Run workflow" starts it by hand. It needs `forge-pin` left out of the "dev only" ruleset.
 
 Then, for a deck to look at locally:
 

@@ -3,9 +3,15 @@
 Everything here is read off `adapter.readings`, the same object the engine
 plays, so the deck page and the simulation report cannot sort a card
 differently. A card's **types** are printed (`Card.types`, front face only);
-its **categories** are `Card.categories` - the community roles unless the
-owner replaced them - which is exactly what the report's "What you drew"
-counts.
+its **categories** are `Card.categories` - derived from its blocks and the
+community tags unless the owner replaced them - which is exactly what the
+report's "What you drew" counts.
+
+A category bar shows two numbers (card model phase 3): every card in the
+category, which is what the template counts, and the cards whose **main**
+role it is (`Reading.primary`). A card counts in as many categories as it
+fits but has one main role at most, so the main roles and the cards with
+none add up to the deck.
 
 The commander is not in the grid or the counts. It is shown on its own at the
 top of the page, and a deck list counts the ninety-nine.
@@ -81,6 +87,10 @@ class GridCard:
         return self.reading.card.categories
 
     @property
+    def primary(self) -> str:
+        return self.reading.primary
+
+    @property
     def assumptions(self) -> list[str]:
         """What the engine assumes to play this card, in words (P19 R16).
 
@@ -138,6 +148,10 @@ class Bar:
     width: float
     band: tuple[float, float] | None
     band_label: str
+    #: Of a category: the cards whose main role it is. `None` for a type, and
+    #: for every category while no card has a main role yet (a profile not
+    #: derived again since card model phase 3).
+    slots: int | None = None
 
 
 def cards(readings, questions, printings: dict | None = None) -> list[GridCard]:
@@ -175,11 +189,15 @@ def bars(grid: list[GridCard]) -> tuple[list[Bar], list[Bar]]:
     row); a category is always shown, because "0 removal" is the answer.
     """
     counts: dict[str, int] = {}
+    slots: dict[str, int] = {}
     for card in grid:
         for kind in card.types:
             counts[f"type:{kind}"] = counts.get(f"type:{kind}", 0) + card.quantity
         for category in card.categories:
             counts[f"role:{category}"] = counts.get(f"role:{category}", 0) + card.quantity
+        if card.primary:
+            slots[card.primary] = slots.get(card.primary, 0) + card.quantity
+    ranked = any(card.primary for card in grid)
 
     rows = [("type", kind, label) for kind, label in TYPE_LABELS
             if counts.get(f"type:{kind}")]
@@ -187,7 +205,8 @@ def bars(grid: list[GridCard]) -> tuple[list[Bar], list[Bar]]:
     scale = max([counts.get(_key(param, value), 0) for param, value, _ in rows]
                 + [high for _, high in TEMPLATE.values()] + [1])
 
-    made = [_bar(param, value, label, counts.get(_key(param, value), 0), scale)
+    made = [_bar(param, value, label, counts.get(_key(param, value), 0), scale,
+                 slots.get(value, 0) if param == "cat" and ranked else None)
             for param, value, label in rows]
     return ([bar for bar in made if bar.param == "type"],
             [bar for bar in made if bar.param == "cat"])
@@ -197,7 +216,16 @@ def _key(param: str, value: str) -> str:
     return f"type:{value}" if param == "type" else f"role:{value}"
 
 
-def _bar(param: str, value: str, label: str, count: int, scale: int) -> Bar:
+def unranked(grid: list[GridCard]) -> int | None:
+    """How many cards have no main role - lands, plan cards - or `None` while
+    no card has one (see `Bar.slots`)."""
+    if not any(card.primary for card in grid):
+        return None
+    return sum(card.quantity for card in grid if not card.primary)
+
+
+def _bar(param: str, value: str, label: str, count: int, scale: int,
+         slots: int | None = None) -> Bar:
     key = _key(param, value)
     template = TEMPLATE.get(key)
     band = None
@@ -207,8 +235,9 @@ def _bar(param: str, value: str, label: str, count: int, scale: int) -> Bar:
         band = (round(100 * low / scale, 1), round(100 * (high - low) / scale, 1))
         band_label = f"{low}" if low == high else f"{low}-{high}"
     return Bar(key=key, label=gettext(label), count=count, param=param, value=value,
-               width=round(100 * count / scale, 1), band=band, band_label=band_label)
+               width=round(100 * count / scale, 1), band=band, band_label=band_label,
+               slots=slots)
 
 
 __all__ = ["Bar", "Filters", "GridCard", "QUERY_MAX", "TEMPLATE", "TYPE_LABELS",
-           "bars", "cards", "shown"]
+           "bars", "cards", "shown", "unranked"]

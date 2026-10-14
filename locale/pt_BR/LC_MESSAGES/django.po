@@ -3938,29 +3938,6 @@ msgstr ""
 "partidas são exatamente as partidas que teriam sido sem ela."
 
 #: templates/core/methodology.html
-msgid ""
-"<strong>Categories</strong> — ramp, card draw, removal and the rest — come "
-"from the community's card tags, or from what you said about a card. A spell "
-"that can only fetch lands, such as Cultivate, is ramp rather than a tutor. "
-"The chart shows the share of games with <em>at least one</em> by each turn, "
-"because that is the question a deck is built around: do I see ramp by turn "
-"two. <strong>Card types</strong> are shown as an average count instead: "
-"almost every game sees a creature by turn one, and how many is the part that"
-" differs between decks. The <strong>mana value</strong> bars count spells "
-"only — every land is mana value zero and would drown the curve."
-msgstr ""
-"<strong>Categorias</strong> — ramp, compra de cards, remoção e o resto — vêm"
-" das tags de cards da comunidade, ou do que você disse sobre um card. Uma "
-"mágica que só pode buscar terrenos, como Cultivate, é ramp e não tutor. O "
-"gráfico mostra a parcela de partidas com <em>pelo menos um</em> até cada "
-"turno, porque essa é a pergunta em torno da qual um deck é construído: vejo "
-"ramp até o turno dois? <strong>Tipos de card</strong> são mostrados, em vez "
-"disso, como contagem média: quase toda partida vê uma criatura até o turno "
-"um, e quantas é a parte que muda entre decks. As barras de <strong>valor de "
-"mana</strong> contam só mágicas — todo terreno tem valor de mana zero e "
-"afogaria a curva."
-
-#: templates/core/methodology.html
 #, python-format
 msgid ""
 "The deck page's bars and filters sort the cards the same way, so a card you "
@@ -13035,3 +13012,142 @@ msgstr ""
 "tem linha de cabeçalho. Agora o importador reconhece essas duas colunas "
 "mesmo assim, então cada carta mantém a impressão que sua lista indica em vez"
 " de perdê-la."
+
+#: simulations/report.py
+msgid "Lifegain"
+msgstr "Ganho de vida"
+
+#: simulations/report.py
+msgid "Treasure"
+msgstr "Tesouro"
+
+#: simulations/report.py
+msgid "Tokens"
+msgstr "Fichas"
+
+#: simulations/report.py
+msgid "Death trigger"
+msgstr "Gatilho de morte"
+
+#: simulations/report.py
+msgid "Tax"
+msgstr "Taxa"
+
+#: simulations/report.py
+msgid ""
+"Gains you life, or does something when you gain life: lifelink included."
+msgstr ""
+"Faz você ganhar vida, ou faz algo quando você ganha vida: vínculo com a vida"
+" incluído."
+
+#: simulations/report.py
+msgid "Searches your library for lands."
+msgstr "Busca terrenos no seu grimório."
+
+#: simulations/report.py
+msgid "Makes Treasure tokens: mana for a later turn."
+msgstr "Cria fichas de Tesouro: mana para um turno posterior."
+
+#: simulations/report.py
+msgid "Makes creature tokens."
+msgstr "Cria fichas de criatura."
+
+#: simulations/report.py
+msgid "Does something when another creature dies."
+msgstr "Faz algo quando outra criatura morre."
+
+#: simulations/report.py
+msgid "Makes opponents pay more, or pay you, for what they do."
+msgstr "Faz os oponentes pagarem mais pelo que fazem, ou pagarem a você."
+
+#: templates/simulations/_report.html
+msgid "By mechanic"
+msgstr "Por mecânica"
+
+#: templates/simulations/_report.html
+msgid "Share of games with at least one card of each mechanic, by turn"
+msgstr ""
+"Proporção de partidas com pelo menos um card de cada mecânica, por turno"
+
+#: templates/decks/_bar.html
+#, python-format
+msgid "%(slots)s main"
+msgstr "%(slots)s como papel principal"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"A card counts in every category it fits; “main” counts it once, in its main "
+"role. %(unranked)s card has none: a land, or a card that serves the plan."
+msgid_plural ""
+"A card counts in every category it fits; “main” counts it once, in its main "
+"role. %(unranked)s cards have none: lands, and cards that serve the plan."
+msgstr[0] ""
+"Um card conta em cada categoria em que se encaixa; “como papel principal” "
+"conta-o uma vez só, no seu papel principal. %(unranked)s card não tem "
+"nenhum: um terreno, ou um card a serviço do plano."
+msgstr[1] ""
+"Um card conta em cada categoria em que se encaixa; “como papel principal” "
+"conta-o uma vez só, no seu papel principal. %(unranked)s cards não têm "
+"nenhum: terrenos, e cards a serviço do plano."
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Categories</strong> — ramp, card draw, removal and the rest — come "
+"from what each card does, read off its abilities, together with the "
+"community's card tags, or from what you said about a card. A spell that can "
+"only fetch lands, such as Cultivate, is ramp rather than a tutor, and a "
+"Treasure that comes beside a spell's card draw, as on Deadly Dispute, makes "
+"it no ramp spell. A card has one main role and at most a second one; "
+"strategies and mechanics such as a sacrifice outlet, lifegain or tokens come"
+" on top, as many as the card has. The chart shows the share of games with "
+"<em>at least one</em> by each turn, because that is the question a deck is "
+"built around: do I see ramp by turn two. <strong>Card types</strong> are "
+"shown as an average count instead: almost every game sees a creature by turn"
+" one, and how many is the part that differs between decks. The <strong>mana "
+"value</strong> bars count spells only — every land is mana value zero and "
+"would drown the curve."
+msgstr ""
+"<strong>Categorias</strong> — ramp, compra de cards, remoção e o resto — vêm"
+" do que cada card faz, lido nas suas habilidades, junto com as tags de cards"
+" da comunidade, ou do que você disse sobre um card. Uma mágica que só pode "
+"buscar terrenos, como Cultivate, é ramp e não tutor, e um Tesouro que vem "
+"junto com a compra de cards de uma mágica, como em Deadly Dispute, não faz "
+"dela uma mágica de ramp. Um card tem um papel principal e no máximo um "
+"segundo; estratégias e mecânicas como um sacrifice outlet, ganho de vida ou "
+"fichas vêm por cima, tantas quantas o card tiver. O gráfico mostra a parcela"
+" de partidas com <em>pelo menos um</em> até cada turno, porque essa é a "
+"pergunta em torno da qual um deck é construído: vejo ramp até o turno dois? "
+"<strong>Tipos de card</strong> são mostrados, em vez disso, como contagem "
+"média: quase toda partida vê uma criatura até o turno um, e quantas é a "
+"parte que muda entre decks. As barras de <strong>valor de mana</strong> "
+"contam só mágicas — todo terreno tem valor de mana zero e afogaria a curva."
+
+#: templates/core/methodology.html
+msgid ""
+"Under each category bar, “main” counts the cards whose main role it is. "
+"There every card counts once, so the main roles and the cards with none — "
+"lands, and the cards that serve the plan — add up to the deck."
+msgstr ""
+"Abaixo de cada barra de categoria, “como papel principal” conta os cards "
+"cujo papel principal é esse. Ali cada card conta uma vez só, então os papéis"
+" principais e os cards sem nenhum — os terrenos, e os cards a serviço do "
+"plano — somam o deck."
+
+#: changelog/entries.py
+msgid "Categories read off what a card does"
+msgstr "Categorias lidas do que um card faz"
+
+#: changelog/entries.py
+msgid ""
+"Ramp, card draw, removal and the rest now come from what each card does, "
+"read off its abilities, together with the community's tags. A card has one "
+"main role, and the deck page counts it there once beside every category it "
+"fits. The report shows six mechanics of their own: lifegain, land search, "
+"Treasure, tokens, death triggers and tax."
+msgstr ""
+"Ramp, compra de cards, remoção e o resto agora vêm do que cada card faz, "
+"lido nas suas habilidades, junto com as tags da comunidade. Um card tem um "
+"papel principal, e a página do deck o conta ali uma vez, ao lado de cada "
+"categoria em que se encaixa. O relatório mostra seis mecânicas próprias: "
+"ganho de vida, busca de terrenos, Tesouro, fichas, gatilhos de morte e taxa."

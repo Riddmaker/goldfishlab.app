@@ -27,6 +27,7 @@ from dataclasses import dataclass, field, replace
 
 from django.utils.translation import gettext, gettext_noop, ngettext
 
+from cards import categories as card_categories
 from decks.models import Deck
 from simulation import ENGINE_VERSION, agent
 from simulation.cards import (
@@ -269,6 +270,11 @@ class Reading:
     #: The owner's corrections whose block changed or is gone since they were
     #: written (`Check`) - "please check". Built-in ones are the operator's.
     checks: list = field(default_factory=list)
+    #: The card's main role, one of `card.categories` (card model phase 3):
+    #: what the deck page's slots count. Empty for a card without one - a
+    #: land, a plan card - and for every card until its profile is derived
+    #: again.
+    primary: str = ""
 
     @property
     def names_type(self) -> bool:
@@ -855,6 +861,7 @@ def readings(deck: Deck) -> list[Reading]:
                 gaps=gaps,
                 quantity=entry.quantity,
                 checks=annotations.checks_of(entry.oracle_card_id),
+                primary=primary_role(entry.oracle_card, card.categories),
             )
         )
 
@@ -870,6 +877,7 @@ def readings(deck: Deck) -> list[Reading]:
                 gaps=gaps,
                 is_commander=True,
                 checks=annotations.checks_of(oracle.pk),
+                primary=primary_role(oracle, card.categories),
             )
         )
 
@@ -2438,20 +2446,53 @@ def _printed_subtypes(oracle_card) -> frozenset[str]:
 
 
 def _categories(profile, overrides: dict, tags_scope: str | None) -> frozenset[str]:
-    """The roles the draw statistics sort this card by (`Card.categories`).
+    """The categories the draw statistics sort this card by (`Card.categories`).
 
-    The community's roles, unless the **user** replaced them - on this deck or
-    on all of theirs - in which case their list is the answer, an empty one
-    included. A **built-in** replacement is ignored here: the built-in
-    annotations exist so that the reference deck plays exactly as its original
+    The card's derived categories (`derived_categories`), unless the **user**
+    replaced its roles - on this deck or on all of theirs - in which case
+    their list is the answer, an empty one included, for every key the list
+    could name. The mechanics card model phase 3 added came after every
+    stored list, so no list could name them, and they stay derived.
+
+    A **built-in** replacement is ignored here: the built-in annotations
+    exist so that the reference deck plays exactly as its original
     hand-written list did, which is why Phyrexian Arena is only `draw_engine`
     there. That keeps a game metric right and would make every Phyrexian Arena
     on the site vanish from "Card draw" - it is a statement about how the
     engine plays the card, not about what the card is.
     """
+    derived = derived_categories(profile)
     if "tags" in overrides and tags_scope != BUILTIN_SCOPE:
-        return frozenset(overrides["tags"])
-    return frozenset(profile.role_tags)
+        return frozenset(overrides["tags"]) | (
+            derived & frozenset(card_categories.NEW_MECHANICS))
+    return derived
+
+
+def derived_categories(profile) -> frozenset[str]:
+    """A card's roles and mechanics (card model phase 3, `cards.categories`).
+
+    Until the profile is derived that way (`categories_version`), the
+    community roles as before: `role_tags`.
+    """
+    if not getattr(profile, "categories_version", 0):
+        return frozenset(profile.role_tags)
+    roles = {role for role in (profile.primary_role, profile.secondary_role) if role}
+    return frozenset(roles) | frozenset(profile.mechanics)
+
+
+def primary_role(oracle_card, categories: frozenset[str]) -> str:
+    """The card's main role among its `categories`.
+
+    The derived one while the categories hold it; otherwise - the owner
+    replaced the roles - the first of theirs in `cards.categories.ROLE_ORDER`.
+    None before the profile is derived again: today's roles name no main one.
+    """
+    profile = getattr(oracle_card, "profile", None)
+    if not getattr(profile, "categories_version", 0):
+        return ""
+    if profile.primary_role in categories:
+        return profile.primary_role
+    return next((role for role in card_categories.ROLE_ORDER if role in categories), "")
 
 
 def card_types(oracle_card) -> frozenset[str]:

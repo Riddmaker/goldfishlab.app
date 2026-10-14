@@ -36,7 +36,7 @@ from cards.models import DerivedProfile
 from cards.profiles import ROLE_FROM_TAG
 from simulations.engine import runner
 from simulations.models import MANA_SOURCES
-from simulations.report import SEEN_ROLES, SEEN_STRATEGY_ROLES
+from simulations.report import SEEN_MECHANIC_ROLES, SEEN_ROLES, SEEN_STRATEGY_ROLES
 
 _ = gettext_lazy
 
@@ -57,7 +57,7 @@ ROLE_KEYS = sorted(
 #: report's categories and strategies keep their names; the rest are the
 #: engine's own.
 ROLE_NAMES = {
-    **dict(SEEN_ROLES + SEEN_STRATEGY_ROLES),
+    **dict(SEEN_ROLES + SEEN_STRATEGY_ROLES + SEEN_MECHANIC_ROLES),
     "creature": gettext_noop("Creature"),
     "draw_engine": gettext_noop("Draw engine"),
     "gamechanger": gettext_noop("Game Changer"),

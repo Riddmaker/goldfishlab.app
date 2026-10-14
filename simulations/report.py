@@ -560,7 +560,8 @@ SEEN_ROLES = (
 )
 
 #: What each category means (phase 10, F5 in the user test report, approved).
-#: The categories are Scryfall Tagger's community tags, or the user's own.
+#: A card's categories come from its blocks and Scryfall Tagger's community
+#: tags (`cards.categories`, card model phase 3), or are the user's own.
 SEEN_ROLE_INFO = {
     "ramp": gettext_noop("More mana, now or on later turns: mana rocks, mana creatures, "
                          "extra lands, rituals."),
@@ -603,6 +604,29 @@ SEEN_STRATEGY_INFO = {
     "cost_reducer": gettext_noop("Makes your spells cheaper to cast."),
     "evasion": gettext_noop(
         "Helps your creatures get past blockers: flying, menace, unblockable …"),
+}
+
+#: The mechanics card model phase 3 reads off a card's blocks, and what the
+#: page calls each. The keys are `simulation.analysis.SEEN_MECHANICS`; a test
+#: holds the two lists together. A chart of their own: one with the
+#: strategies would need more lines than the chart has colours.
+SEEN_MECHANIC_ROLES = (
+    ("lifegain", gettext_noop("Lifegain")),
+    ("land_search", gettext_noop("Land search")),
+    ("treasure", gettext_noop("Treasure")),
+    ("tokens", gettext_noop("Tokens")),
+    ("death_trigger", gettext_noop("Death trigger")),
+    ("tax", gettext_noop("Tax")),
+)
+
+SEEN_MECHANIC_INFO = {
+    "lifegain": gettext_noop(
+        "Gains you life, or does something when you gain life: lifelink included."),
+    "land_search": gettext_noop("Searches your library for lands."),
+    "treasure": gettext_noop("Makes Treasure tokens: mana for a later turn."),
+    "tokens": gettext_noop("Makes creature tokens."),
+    "death_trigger": gettext_noop("Does something when another creature dies."),
+    "tax": gettext_noop("Makes opponents pay more, or pay you, for what they do."),
 }
 
 #: What each card type line counts. A card with two types counts in both.
@@ -696,6 +720,8 @@ def seen(result: dict) -> dict | None:
                    for key, label in SEEN_ROLES if f"role:{key}" in groups]
     strategy_series = [(key, gettext(label), shares(f"role:{key}"))
                        for key, label in SEEN_STRATEGY_ROLES if f"role:{key}" in groups]
+    mechanic_series = [(key, gettext(label), shares(f"role:{key}"))
+                       for key, label in SEEN_MECHANIC_ROLES if f"role:{key}" in groups]
     type_series = [(kind, gettext(CARD_TYPE_NAMES[kind]), means(f"type:{kind}"))
                    for kind in runner.SEEN_CARD_TYPES if f"type:{kind}" in groups]
     type_spreads = {kind: _spreads(groups[f"type:{kind}"], games)
@@ -735,6 +761,8 @@ def seen(result: dict) -> dict | None:
         # Phase 11 K17. A run from before has no strategy groups and so no
         # lines here: the chart is absent, not empty.
         "strategies": share_chart(strategy_series, SEEN_STRATEGY_INFO),
+        # Card model phase 3: a run from before has no mechanic groups.
+        "mechanics": share_chart(mechanic_series, SEEN_MECHANIC_INFO),
         "types": charts.line_chart(type_series, x_labels, top_value=count_top,
                                    y_ticks=count_ticks, spreads=bands, infos=type_infos),
         # "The numbers" under the charts (phase 10 T5.3): a count reads

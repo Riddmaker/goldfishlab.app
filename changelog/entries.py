@@ -41,6 +41,19 @@ class Entry:
 
 
 ENTRIES = (
+    # Card model phase 3. Dated for the profile rebuild after the engine
+    # freeze: until then every card keeps its old categories, and the entry
+    # waits for its day.
+    Entry(
+        date(2026, 11, 10), "categories-from-cards",
+        _("Categories read off what a card does"),
+        _("Ramp, card draw, removal and the rest now come from what each card does, read off "
+          "its abilities, together with the community's tags. A card has one main role, and "
+          "the deck page counts it there once beside every category it fits. The report "
+          "shows six mechanics of their own: lifegain, land search, Treasure, tokens, death "
+          "triggers and tax."),
+        "methodology", "drew",
+    ),
     Entry(
         date(2026, 10, 14), "headerless-printings",
         _("Archidekt CSVs keep their editions"),

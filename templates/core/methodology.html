@@ -194,9 +194,13 @@
       <p class="mt-4 text-ink-900">
         {% blocktranslate trimmed %}
           <strong>Categories</strong> — ramp, card draw, removal and the rest — come
-          from the community's card tags, or from what you said about a card. A
-          spell that can only fetch lands, such as Cultivate, is ramp rather than
-          a tutor. The
+          from what each card does, read off its abilities, together with the
+          community's card tags, or from what you said about a card. A spell that
+          can only fetch lands, such as Cultivate, is ramp rather than a tutor,
+          and a Treasure that comes beside a spell's card draw, as on Deadly
+          Dispute, makes it no ramp spell. A card has one main role and at most
+          a second one; strategies and mechanics such as a sacrifice outlet,
+          lifegain or tokens come on top, as many as the card has. The
           chart shows the share of games with <em>at least one</em> by each turn,
           because that is the question a deck is built around: do I see ramp by turn
           two. <strong>Card types</strong> are shown as an average count instead:
@@ -213,6 +217,13 @@
           card draw, eight to ten removal, two to four board wipes, and Frank
           Karsten's {{ karsten_min }} to {{ karsten_max }} lands. It is a starting
           point many players use, not a rule, and no deck is marked for leaving it.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          Under each category bar, “main” counts the cards whose main role it is.
+          There every card counts once, so the main roles and the cards with none
+          — lands, and the cards that serve the plan — add up to the deck.
         {% endblocktranslate %}
       </p>
     </div>

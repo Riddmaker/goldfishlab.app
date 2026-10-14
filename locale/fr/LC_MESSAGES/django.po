@@ -4010,30 +4010,6 @@ msgstr ""
 "donc exactement celles qu'elles auraient été sans lui."
 
 #: templates/core/methodology.html
-msgid ""
-"<strong>Categories</strong> — ramp, card draw, removal and the rest — come "
-"from the community's card tags, or from what you said about a card. A spell "
-"that can only fetch lands, such as Cultivate, is ramp rather than a tutor. "
-"The chart shows the share of games with <em>at least one</em> by each turn, "
-"because that is the question a deck is built around: do I see ramp by turn "
-"two. <strong>Card types</strong> are shown as an average count instead: "
-"almost every game sees a creature by turn one, and how many is the part that"
-" differs between decks. The <strong>mana value</strong> bars count spells "
-"only — every land is mana value zero and would drown the curve."
-msgstr ""
-"Les <strong>catégories</strong> — ramp, pioche, removal et les autres — "
-"proviennent des tags de cartes de la communauté, ou de ce que vous avez "
-"indiqué sur une carte. Un sort qui ne peut chercher que des terrains, comme "
-"Cultivate, est du ramp plutôt qu'un tutor. Le graphique montre la part des "
-"parties qui en ont <em>au moins une</em> à chaque tour, car c'est la "
-"question autour de laquelle un deck est construit : est-ce que je vois du "
-"ramp d'ici le tour deux. Les <strong>types de cartes</strong> sont affichés "
-"plutôt en nombre moyen : presque chaque partie voit une créature d'ici le "
-"tour un, et c'est leur nombre qui diffère d'un deck à l'autre. Les barres de"
-" <strong>valeur de mana</strong> ne comptent que les sorts — chaque terrain "
-"a une valeur de mana de zéro et noierait la courbe."
-
-#: templates/core/methodology.html
 #, python-format
 msgid ""
 "The deck page's bars and filters sort the cards the same way, so a card you "
@@ -13300,3 +13276,147 @@ msgstr ""
 "cochés n’a pas de ligne d’en-tête. L’importateur reconnaît désormais ces "
 "deux colonnes malgré tout : chaque carte garde l’impression que nomme ta "
 "liste au lieu de la perdre."
+
+#: simulations/report.py
+msgid "Lifegain"
+msgstr "Gain de vie"
+
+#: simulations/report.py
+msgid "Treasure"
+msgstr "Trésor"
+
+#: simulations/report.py
+msgid "Tokens"
+msgstr "Jetons"
+
+#: simulations/report.py
+msgid "Death trigger"
+msgstr "Déclencheur de mort"
+
+#: simulations/report.py
+msgid "Tax"
+msgstr "Taxe"
+
+#: simulations/report.py
+msgid ""
+"Gains you life, or does something when you gain life: lifelink included."
+msgstr ""
+"Vous fait gagner des points de vie, ou fait quelque chose quand vous en "
+"gagnez : lien de vie compris."
+
+#: simulations/report.py
+msgid "Searches your library for lands."
+msgstr "Cherche des terrains dans votre bibliothèque."
+
+#: simulations/report.py
+msgid "Makes Treasure tokens: mana for a later turn."
+msgstr "Crée des jetons Trésor : du mana pour un tour suivant."
+
+#: simulations/report.py
+msgid "Makes creature tokens."
+msgstr "Crée des jetons de créature."
+
+#: simulations/report.py
+msgid "Does something when another creature dies."
+msgstr "Fait quelque chose quand une autre créature meurt."
+
+#: simulations/report.py
+msgid "Makes opponents pay more, or pay you, for what they do."
+msgstr ""
+"Fait payer davantage les adversaires pour ce qu'ils font, ou vous fait payer"
+" par eux."
+
+#: templates/simulations/_report.html
+msgid "By mechanic"
+msgstr "Par mécanique"
+
+#: templates/simulations/_report.html
+msgid "Share of games with at least one card of each mechanic, by turn"
+msgstr ""
+"Part des parties avec au moins une carte de chaque mécanique, par tour"
+
+#: templates/decks/_bar.html
+#, python-format
+msgid "%(slots)s main"
+msgstr "%(slots)s en rôle principal"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"A card counts in every category it fits; “main” counts it once, in its main "
+"role. %(unranked)s card has none: a land, or a card that serves the plan."
+msgid_plural ""
+"A card counts in every category it fits; “main” counts it once, in its main "
+"role. %(unranked)s cards have none: lands, and cards that serve the plan."
+msgstr[0] ""
+"Une carte compte dans chaque catégorie où elle a sa place ; « en rôle "
+"principal » ne la compte qu'une fois, dans son rôle principal. %(unranked)s "
+"carte n'en a pas : un terrain, ou une carte au service du plan."
+msgstr[1] ""
+"Une carte compte dans chaque catégorie où elle a sa place ; « en rôle "
+"principal » ne la compte qu'une fois, dans son rôle principal. %(unranked)s "
+"cartes n'en ont pas : des terrains, et des cartes au service du plan."
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Categories</strong> — ramp, card draw, removal and the rest — come "
+"from what each card does, read off its abilities, together with the "
+"community's card tags, or from what you said about a card. A spell that can "
+"only fetch lands, such as Cultivate, is ramp rather than a tutor, and a "
+"Treasure that comes beside a spell's card draw, as on Deadly Dispute, makes "
+"it no ramp spell. A card has one main role and at most a second one; "
+"strategies and mechanics such as a sacrifice outlet, lifegain or tokens come"
+" on top, as many as the card has. The chart shows the share of games with "
+"<em>at least one</em> by each turn, because that is the question a deck is "
+"built around: do I see ramp by turn two. <strong>Card types</strong> are "
+"shown as an average count instead: almost every game sees a creature by turn"
+" one, and how many is the part that differs between decks. The <strong>mana "
+"value</strong> bars count spells only — every land is mana value zero and "
+"would drown the curve."
+msgstr ""
+"Les <strong>catégories</strong> — ramp, pioche, removal et les autres — "
+"proviennent de ce que fait chaque carte, lu dans ses capacités, avec les "
+"tags de cartes de la communauté, ou de ce que vous avez indiqué sur une "
+"carte. Un sort qui ne peut chercher que des terrains, comme Cultivate, est "
+"du ramp plutôt qu'un tutor, et un Trésor qui accompagne la pioche d'un sort,"
+" comme sur Deadly Dispute, n'en fait pas un sort de ramp. Une carte a un "
+"rôle principal et au plus un second ; les stratégies et mécaniques, comme un"
+" outlet de sacrifice, le gain de vie ou les jetons, s'y ajoutent, autant que"
+" la carte en a. Le graphique montre la part des parties qui en ont <em>au "
+"moins une</em> à chaque tour, car c'est la question autour de laquelle un "
+"deck est construit : est-ce que je vois du ramp d'ici le tour deux. Les "
+"<strong>types de cartes</strong> sont affichés plutôt en nombre moyen : "
+"presque chaque partie voit une créature d'ici le tour un, et c'est leur "
+"nombre qui diffère d'un deck à l'autre. Les barres de <strong>valeur de "
+"mana</strong> ne comptent que les sorts — chaque terrain a une valeur de "
+"mana de zéro et noierait la courbe."
+
+#: templates/core/methodology.html
+msgid ""
+"Under each category bar, “main” counts the cards whose main role it is. "
+"There every card counts once, so the main roles and the cards with none — "
+"lands, and the cards that serve the plan — add up to the deck."
+msgstr ""
+"Sous chaque barre de catégorie, « en rôle principal » compte les cartes dont"
+" c'est le rôle principal. Là, chaque carte ne compte qu'une fois : les rôles"
+" principaux et les cartes qui n'en ont pas — les terrains, et les cartes au "
+"service du plan — forment ensemble le deck."
+
+#: changelog/entries.py
+msgid "Categories read off what a card does"
+msgstr "Des catégories lues dans ce que fait une carte"
+
+#: changelog/entries.py
+msgid ""
+"Ramp, card draw, removal and the rest now come from what each card does, "
+"read off its abilities, together with the community's tags. A card has one "
+"main role, and the deck page counts it there once beside every category it "
+"fits. The report shows six mechanics of their own: lifegain, land search, "
+"Treasure, tokens, death triggers and tax."
+msgstr ""
+"Le ramp, la pioche, le removal et le reste viennent désormais de ce que fait"
+" chaque carte, lu dans ses capacités, avec les tags de la communauté. Une "
+"carte a un rôle principal, et la page du deck l'y compte une fois, à côté de"
+" chaque catégorie où elle a sa place. Le rapport montre six mécaniques à "
+"part : gain de vie, recherche de terrain, Trésor, jetons, déclencheurs de "
+"mort et taxe."

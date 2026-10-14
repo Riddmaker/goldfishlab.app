@@ -3630,22 +3630,6 @@ msgstr ""
 "各ゲームの各ターンの後に、エンジンはそれまでに引いたカードを数えます。キープした初手と、毎回のドローです。サーチ・カードで見つけたカードはドローではないので数えません。呪文で持ってきた土地も同様です。マリガンでライブラリーの一番下に置いたカードは数えず、統率者も数えません。数えるときに乱数は一切引かないので、ゲームは数えなかった場合とまったく同じゲームになります。"
 
 #: templates/core/methodology.html
-msgid ""
-"<strong>Categories</strong> — ramp, card draw, removal and the rest — come "
-"from the community's card tags, or from what you said about a card. A spell "
-"that can only fetch lands, such as Cultivate, is ramp rather than a tutor. "
-"The chart shows the share of games with <em>at least one</em> by each turn, "
-"because that is the question a deck is built around: do I see ramp by turn "
-"two. <strong>Card types</strong> are shown as an average count instead: "
-"almost every game sees a creature by turn one, and how many is the part that"
-" differs between decks. The <strong>mana value</strong> bars count spells "
-"only — every land is mana value zero and would drown the curve."
-msgstr ""
-"<strong>カテゴリー</strong>（ランプ、ドロー、除去など）は、コミュニティのカード・タグ、またはあなたがカードについて回答した内容から決まります。Cultivate"
-" "
-"のように土地しか持ってこられない呪文は、サーチ・カードではなくランプです。グラフは各ターンまでに<em>少なくとも1枚</em>引いたゲームの割合を示します。「2ターン目までにランプを引けるか」こそが、デッキを組むときの問いだからです。一方、<strong>カード・タイプ</strong>は平均枚数で示します。ほぼすべてのゲームで1ターン目までにクリーチャーを引くので、デッキごとに違うのはその枚数だからです。<strong>マナ総量</strong>の棒グラフは呪文だけを数えます。土地はすべてマナ総量0なので、含めるとカーブが埋もれてしまいます。"
-
-#: templates/core/methodology.html
 #, python-format
 msgid ""
 "The deck page's bars and filters sort the cards the same way, so a card you "
@@ -11632,3 +11616,116 @@ msgid ""
 msgstr ""
 "ArchidektからエディションとScryfall "
 "IDにチェックを入れて書き出したCSVにはヘッダー行がありません。インポーターはそれでもこの2つの列を認識するようになったため、各カードはリストに書かれた版を失わずに保持します。"
+
+#: simulations/report.py
+msgid "Lifegain"
+msgstr "ライフ獲得"
+
+#: simulations/report.py
+msgid "Treasure"
+msgstr "宝物"
+
+#: simulations/report.py
+msgid "Tokens"
+msgstr "トークン"
+
+#: simulations/report.py
+msgid "Death trigger"
+msgstr "死亡誘発"
+
+#: simulations/report.py
+msgid "Tax"
+msgstr "課税"
+
+#: simulations/report.py
+msgid ""
+"Gains you life, or does something when you gain life: lifelink included."
+msgstr "ライフを得るか、ライフを得たときに何かをします。絆魂も含みます。"
+
+#: simulations/report.py
+msgid "Searches your library for lands."
+msgstr "ライブラリーから土地を探します。"
+
+#: simulations/report.py
+msgid "Makes Treasure tokens: mana for a later turn."
+msgstr "宝物トークンを生成します。後のターンのためのマナです。"
+
+#: simulations/report.py
+msgid "Makes creature tokens."
+msgstr "クリーチャー・トークンを生成します。"
+
+#: simulations/report.py
+msgid "Does something when another creature dies."
+msgstr "ほかのクリーチャーが死亡したときに何かをします。"
+
+#: simulations/report.py
+msgid "Makes opponents pay more, or pay you, for what they do."
+msgstr "対戦相手の行動に追加の支払いを求めるか、あなたへの支払いを求めます。"
+
+#: templates/simulations/_report.html
+msgid "By mechanic"
+msgstr "メカニズム別"
+
+#: templates/simulations/_report.html
+msgid "Share of games with at least one card of each mechanic, by turn"
+msgstr "各メカニズムのカードを1枚以上引いたゲームの割合（ターン別）"
+
+#: templates/decks/_bar.html
+#, python-format
+msgid "%(slots)s main"
+msgstr "主な役割 %(slots)s"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"A card counts in every category it fits; “main” counts it once, in its main "
+"role. %(unranked)s card has none: a land, or a card that serves the plan."
+msgid_plural ""
+"A card counts in every category it fits; “main” counts it once, in its main "
+"role. %(unranked)s cards have none: lands, and cards that serve the plan."
+msgstr[0] ""
+"カードは当てはまるすべてのカテゴリーで数えられます。「主な役割」は各カードを、その主な役割で1回だけ数えます。主な役割がないカードは "
+"%(unranked)s 枚です。土地と、デッキの計画を支えるカードです。"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Categories</strong> — ramp, card draw, removal and the rest — come "
+"from what each card does, read off its abilities, together with the "
+"community's card tags, or from what you said about a card. A spell that can "
+"only fetch lands, such as Cultivate, is ramp rather than a tutor, and a "
+"Treasure that comes beside a spell's card draw, as on Deadly Dispute, makes "
+"it no ramp spell. A card has one main role and at most a second one; "
+"strategies and mechanics such as a sacrifice outlet, lifegain or tokens come"
+" on top, as many as the card has. The chart shows the share of games with "
+"<em>at least one</em> by each turn, because that is the question a deck is "
+"built around: do I see ramp by turn two. <strong>Card types</strong> are "
+"shown as an average count instead: almost every game sees a creature by turn"
+" one, and how many is the part that differs between decks. The <strong>mana "
+"value</strong> bars count spells only — every land is mana value zero and "
+"would drown the curve."
+msgstr ""
+"<strong>カテゴリー</strong>（ランプ、ドロー、除去など）は、各カードの能力から読み取ったそのカードの働きと、コミュニティのカード・タグを合わせて決まります。あなたがカードについて回答した内容でも決まります。Cultivate"
+" のように土地しか持ってこられない呪文は、サーチ・カードではなくランプです。また Deadly Dispute "
+"のように、呪文のドローに添えて宝物が出るだけなら、その呪文はランプにはなりません。カードには主な役割が1つと、多くても2つ目の役割が1つあります。生け贄の手段、ライフ獲得、トークンなどの戦略やメカニズムは、カードが持つだけ別に加わります。グラフは各ターンまでに<em>少なくとも1枚</em>引いたゲームの割合を示します。「2ターン目までにランプを引けるか」こそが、デッキを組むときの問いだからです。一方、<strong>カード・タイプ</strong>は平均枚数で示します。ほぼすべてのゲームで1ターン目までにクリーチャーを引くので、デッキごとに違うのはその枚数だからです。<strong>マナ総量</strong>の棒グラフは呪文だけを数えます。土地はすべてマナ総量0なので、含めるとカーブが埋もれてしまいます。"
+
+#: templates/core/methodology.html
+msgid ""
+"Under each category bar, “main” counts the cards whose main role it is. "
+"There every card counts once, so the main roles and the cards with none — "
+"lands, and the cards that serve the plan — add up to the deck."
+msgstr ""
+"各カテゴリーの棒の下にある「主な役割」は、それを主な役割とするカードを数えます。そこでは各カードを1回だけ数えるので、主な役割の数と、主な役割のないカード（土地と、デッキの計画を支えるカード）を合わせるとデッキの枚数になります。"
+
+#: changelog/entries.py
+msgid "Categories read off what a card does"
+msgstr "カードの働きから読み取るカテゴリー"
+
+#: changelog/entries.py
+msgid ""
+"Ramp, card draw, removal and the rest now come from what each card does, "
+"read off its abilities, together with the community's tags. A card has one "
+"main role, and the deck page counts it there once beside every category it "
+"fits. The report shows six mechanics of their own: lifegain, land search, "
+"Treasure, tokens, death triggers and tax."
+msgstr ""
+"ランプ、ドロー、除去などのカテゴリーは、各カードの能力から読み取ったそのカードの働きと、コミュニティのタグを合わせて決まるようになりました。カードには主な役割が1つあり、デッキ・ページでは当てはまる各カテゴリーとは別に、その役割で1回だけ数えます。レポートには、ライフ獲得、土地サーチ、宝物、トークン、死亡誘発、課税の6つのメカニズムが別に表示されます。"

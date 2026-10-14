@@ -50,6 +50,14 @@ ENTRIES = (
         "pricing",
     ),
     Entry(
+        date(2026, 10, 14), "report-numbers-per-chart",
+        _("Every chart under “What you drew” has its own numbers"),
+        _("The numbers behind the category, strategy and card type charts stood in one table "
+          "below the mana value chart, which had none of its own. Each chart now has its table "
+          "right below it, the mana values included - also for a screen reader."),
+        "methodology",
+    ),
+    Entry(
         date(2026, 10, 14), "import-names",
         _("Basic lands in your language, and better guesses for typos"),
         _("The importer now knows the basic lands by their names in every language of this "

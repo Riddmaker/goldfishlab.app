@@ -729,6 +729,7 @@ def seen(result: dict) -> dict | None:
              for kind, spreads in type_spreads.items()
              if all(spread.sd is not None for spread in spreads)}
 
+    curve = _curve(groups, games, turns)
     return {
         "roles": share_chart(role_series, SEEN_ROLE_INFO),
         # Phase 11 K17. A run from before has no strategy groups and so no
@@ -741,7 +742,14 @@ def seen(result: dict) -> dict | None:
         "type_spreads": [
             {"label": label, "spreads": type_spreads[kind]} for kind, label, _ in type_series
         ],
-        "curve": _curve(groups, games, turns),
+        "curve": curve,
+        # The curve's own "The numbers" (P20 F6d, E1.76): one row per mana
+        # value, one column per turn - the bars' values, which a screen
+        # reader does not read inside their picture.
+        "curve_rows": [
+            {"label": bar.label, "means": [step["bars"][index].mean for step in curve]}
+            for index, bar in enumerate(curve[0]["bars"] if curve else [])
+        ],
         "turns": x_labels,
     }
 

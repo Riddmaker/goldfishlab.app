@@ -366,6 +366,17 @@ def test_the_curve_shares_one_scale_across_turns():
         assert all(0 <= bar.height <= 100 for bar in step["bars"])
 
 
+def test_the_curves_numbers_are_its_bars_by_mana_value():
+    """P20 F6d (E1.76): a row per mana value, a column per turn."""
+    seen = report.seen(_result())
+
+    assert [row["label"] for row in seen["curve_rows"]] == ["0", "1", "2", "3", "4", "5", "6",
+                                                          "7+"]
+    for index, row in enumerate(seen["curve_rows"]):
+        assert row["means"] == [step["bars"][index].mean for step in seen["curve"]]
+        assert len(row["means"]) == len(seen["turns"])
+
+
 def _with_strategy(result, key="drain_payoff"):
     """The plain deck's result, as if its ramp cards were also drain payoffs."""
     ramp = result["seen"]["role:ramp"]

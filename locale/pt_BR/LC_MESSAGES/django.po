@@ -12374,3 +12374,23 @@ msgstr ""
 "primeiro os nomes mais parecidos, não mais os cinco primeiros em ordem "
 "alfabética. Todos os outros nomes de cards são lidos em inglês, e a página "
 "de importação diz isso."
+
+#: templates/simulations/_report.html
+msgid "Mana value, by end of turn"
+msgstr "Valor de mana, até o fim do turno"
+
+#: changelog/entries.py
+msgid "Every chart under “What you drew” has its own numbers"
+msgstr "Cada gráfico em “O que você comprou” tem seus próprios números"
+
+#: changelog/entries.py
+msgid ""
+"The numbers behind the category, strategy and card type charts stood in one "
+"table below the mana value chart, which had none of its own. Each chart now "
+"has its table right below it, the mana values included - also for a screen "
+"reader."
+msgstr ""
+"Os números dos gráficos por categoria, estratégia e tipo de card ficavam "
+"numa única tabela abaixo do gráfico de valor de mana, que não tinha a sua. "
+"Agora cada gráfico tem sua tabela logo abaixo, inclusive os valores de mana "
+"– também para leitores de tela."

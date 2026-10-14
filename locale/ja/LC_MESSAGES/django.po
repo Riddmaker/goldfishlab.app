@@ -11018,3 +11018,21 @@ msgstr ""
 "インポートで、基本土地をこのサイトの各言語の名前（Sumpf、Forêt、Pântano "
 "など）で認識できるようになりました。見つからないカードには、アルファベット順の最初の 5 "
 "件ではなく、最も近い名前から候補を表示します。それ以外のカード名は英語で読み取り、インポートページにもそう表示します。"
+
+#: templates/simulations/_report.html
+msgid "Mana value, by end of turn"
+msgstr "マナ総量（ターン終了時まで）"
+
+#: changelog/entries.py
+msgid "Every chart under “What you drew” has its own numbers"
+msgstr "「引いたカード」の各グラフに、それぞれの数値表が付きました"
+
+#: changelog/entries.py
+msgid ""
+"The numbers behind the category, strategy and card type charts stood in one "
+"table below the mana value chart, which had none of its own. Each chart now "
+"has its table right below it, the mana values included - also for a screen "
+"reader."
+msgstr ""
+"カテゴリ別・戦略別・カードタイプ別のグラフの数値は、マナ総量のグラフの下にある 1 "
+"つの表にまとめられ、マナ総量のグラフ自体には表がありませんでした。今後はマナ総量を含め、各グラフのすぐ下にその表があり、スクリーンリーダーでも読めます。"

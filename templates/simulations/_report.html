@@ -26,6 +26,8 @@
   <h2 class="font-display text-2xl text-ink-900">{% translate "What you drew" %}</h2>
   {% if report.seen %}
     <p class="mt-1 text-sm text-ink-700">{% translate "Your opening hand and every card you drew." %}</p>
+    {# Not _("…") in the include: that would keep the catalogue's doubled "%%". #}
+    {% translate "% of games, by end of turn" as share_corner %}
     {% if report.seen.roles.lines %}
       <h3 class="font-display mt-5 text-lg text-ink-900">{% translate "By category" %}</h3>
       <p class="text-sm text-ink-700">{% translate "Games with at least one, by the end of each turn." %}</p>
@@ -33,16 +35,19 @@
       {% if missing_roles %}
         <p class="mt-2 text-sm text-ink-700">{% blocktranslate with labels=missing_roles|join:", " %}None in the deck: {{ labels }}.{% endblocktranslate %}</p>
       {% endif %}
+      {% include "simulations/_seen_numbers.html" with rows=report.seen.roles.lines turns=report.seen.turns kind="share" corner=share_corner %}
     {% endif %}
     {% if report.seen.strategies.lines %}
       <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "By strategy" %}</h3>
       <p class="text-sm text-ink-700">{% translate "Games with at least one, by the end of each turn." %}</p>
       {% include "simulations/_line_chart.html" with chart=report.seen.strategies name="seen-strategy" title=_("Share of games with at least one card of each strategy, by turn") %}
+      {% include "simulations/_seen_numbers.html" with rows=report.seen.strategies.lines turns=report.seen.turns kind="share" corner=share_corner %}
     {% endif %}
     {% if report.seen.types.lines %}
       <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "By card type" %}</h3>
       <p class="text-sm text-ink-700">{% translate "Cards drawn per game, on average. Point at a line for the spread." %}</p>
       {% include "simulations/_line_chart.html" with chart=report.seen.types name="seen-type" title=_("Average number of cards of each type seen, by turn") %}
+      {% include "simulations/_seen_numbers.html" with rows=report.seen.type_spreads turns=report.seen.turns kind="spread" corner=_("Cards per game, average ± spread") %}
     {% endif %}
     <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "Mana value of the spells you drew" %}</h3>
     <p class="text-sm text-ink-700">{% translate "Spells per game, on average. A bump on the right is a hand that waits." %}</p>
@@ -72,64 +77,7 @@
         </div>
       {% endfor %}
     </div>
-    <details class="mt-5 text-sm">
-      <summary class="cursor-pointer text-ink-900 underline">{% translate "The numbers" %}</summary>
-      <p class="mt-3 text-ink-700">
-        {% blocktranslate trimmed %}
-          By the end of each turn: how many games had drawn at least one card of a
-          category, and how many cards of each type a game had drawn - the average,
-          and ± how far a typical game was from it.
-        {% endblocktranslate %}
-      </p>
-      <div class="mt-3 overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead>
-            <tr class="border-b border-parchment-600 text-ink-700">
-              <th scope="col" class="py-1.5 pr-3">{% translate "By end of turn" %}</th>
-              {% for turn in report.seen.turns %}
-                <th scope="col" class="tabular py-1.5 pr-3">{{ turn }}</th>
-              {% endfor %}
-            </tr>
-          </thead>
-          {% if report.seen.roles.lines %}
-            <tbody>
-              <tr>
-                <th scope="colgroup"
-                    colspan="{{ report.seen.turns|length|add:1 }}"
-                    class="pt-3 pb-1 font-semibold text-ink-900">{% translate "% of games with at least one" %}</th>
-              </tr>
-              {% for line in report.seen.roles.lines|add:report.seen.strategies.lines %}
-                <tr class="border-b border-parchment-300">
-                  <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ line.label }}</th>
-                  {% for value in line.values %}
-                    <td class="tabular py-1.5 pr-3 text-ink-700">{% blocktranslate with number=value|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
-                  {% endfor %}
-                </tr>
-              {% endfor %}
-            </tbody>
-          {% endif %}
-          {% if report.seen.type_spreads %}
-            <tbody>
-              <tr>
-                <th scope="colgroup"
-                    colspan="{{ report.seen.turns|length|add:1 }}"
-                    class="pt-3 pb-1 font-semibold text-ink-900">{% translate "Cards per game, average ± spread" %}</th>
-              </tr>
-              {% for row in report.seen.type_spreads %}
-                <tr class="border-b border-parchment-300">
-                  <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
-                  {% for spread in row.spreads %}
-                    <td class="tabular whitespace-nowrap py-1.5 pr-3 text-ink-700">
-                      {{ spread.mean|floatformat:"1" }}{% if spread.sd is not None %} ± {{ spread.sd|floatformat:"1" }}{% endif %}
-                    </td>
-                  {% endfor %}
-                </tr>
-              {% endfor %}
-            </tbody>
-          {% endif %}
-        </table>
-      </div>
-    </details>
+    {% include "simulations/_seen_numbers.html" with rows=report.seen.curve_rows turns=report.seen.turns kind="mean" corner=_("Mana value, by end of turn") %}
   {% elif not shared %}
     <p class="mt-2 text-ink-700">
       {% blocktranslate trimmed with deck_url=run.deck.get_absolute_url %}

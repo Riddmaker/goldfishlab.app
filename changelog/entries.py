@@ -42,6 +42,14 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 14), "every-block",
+        _("Every building block of a card can be corrected"),
+        _("When a land enters untapped, mana kept as counters, +1/+1 counters and mana that "
+          "counts the board now have a form of their own on the card's page, as land searches "
+          "and triggers do. How many cards a search finds is set in its Search block, no "
+          "longer under “How to play it”."),
+    ),
+    Entry(
         date(2026, 10, 14), "check-corrections",
         _("Your corrections keep up with the card data"),
         _("When the card data changes under a correction of yours, the card says “please check” "

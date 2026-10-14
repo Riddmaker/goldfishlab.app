@@ -18,10 +18,14 @@ Phase 1 stores the blocks and compares them with our reader
 (`manage.py forge_disagreements`); a later step takes over the readings of
 the families checked by hand. The engine does not read them yet.
 
+`compare()` checks a new pin against the pinned one, from the two packs
+alone (`manage.py forge_check`, run by the weekly sync workflow).
+
 Scripts are data: parsed as text, never executed.
 """
 
 import re
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
@@ -651,6 +655,130 @@ def _new_cards() -> bool:
     cards = newest(BulkImport.Kind.ORACLE_CARDS)
     forge_run = newest(BulkImport.Kind.FORGE_SCRIPTS)
     return cards is not None and (forge_run is None or cards > forge_run)
+
+
+# --- two pins compared, for the pin pull request ------------------------------------
+
+
+@dataclass
+class Comparison:
+    """What moving the pin from one packed copy to another changes.
+
+    Built from the two packs alone - no database - so the weekly sync can
+    check a new commit before it opens a pull request. Card lists hold names.
+    """
+
+    old_commit: str
+    new_commit: str
+    scripts: int = 0
+    added: list[str] = field(default_factory=list)
+    removed: list[str] = field(default_factory=list)
+    changed: list[str] = field(default_factory=list)
+    #: Changed or added scripts whose blocks differ from the old pin's.
+    blocks_changed: list[str] = field(default_factory=list)
+    #: More left unread or unmodeled than before: the cards to look at.
+    reads_less: list[str] = field(default_factory=list)
+    reads_more: list[str] = field(default_factory=list)
+    failed: list[str] = field(default_factory=list)
+
+    @property
+    def changes(self) -> int:
+        return len(self.added) + len(self.removed) + len(self.changed)
+
+    @property
+    def too_many_failures(self) -> bool:
+        return bool(self.scripts) and len(self.failed) / self.scripts > MAX_FAILURES
+
+
+def _gaps(abilities) -> int:
+    """How much of a card the blocks leave open: unmodeled constructs and
+    unread clauses."""
+    return len(unmodeled(abilities)) + sum(len(ability.unread) for ability in abilities)
+
+
+def _translated(script: forge.Script):
+    try:
+        return translate(script), None
+    except Exception as error:  # noqa: BLE001 - counted, the caller decides
+        return None, f"{script.path}: {type(error).__name__}: {error}"
+
+
+def compare(old: Path, new: Path) -> Comparison:
+    """Compare the packed copies ``old`` and ``new``, script by script."""
+    before = {script.path: script for script in forge.scripts(old)}
+    result = Comparison(forge.header(old)["commit"], forge.header(new)["commit"])
+    seen = set()
+    for script in forge.scripts(new):
+        result.scripts += 1
+        seen.add(script.path)
+        abilities, error = _translated(script)
+        if error:
+            result.failed.append(error)
+        previous = before.get(script.path)
+        if previous is None:
+            result.added.append(script.name)
+        elif previous != script:
+            result.changed.append(script.name)
+        else:
+            continue
+        if abilities is None:
+            continue
+        was = _translated(previous)[0] if previous is not None else None
+        if was is not None and b.to_json(was) == b.to_json(abilities):
+            continue
+        result.blocks_changed.append(script.name)
+        if was is None:
+            continue
+        if _gaps(abilities) > _gaps(was):
+            result.reads_less.append(script.name)
+        elif _gaps(abilities) < _gaps(was):
+            result.reads_more.append(script.name)
+    result.removed = sorted(script.name for path, script in before.items() if path not in seen)
+    for names in (result.added, result.changed, result.blocks_changed,
+                  result.reads_less, result.reads_more):
+        names.sort()
+    return result
+
+
+#: Names listed per group in the pull request; the rest is counted.
+REPORT_NAMES = 30
+
+
+def report(comparison: Comparison) -> str:
+    """The pin pull request's description, in Markdown."""
+    old, new = comparison.old_commit, comparison.new_commit
+
+    def names(title: str, found: list[str]) -> list[str]:
+        if not found:
+            return []
+        shown = ", ".join(found[:REPORT_NAMES])
+        more = f" and {len(found) - REPORT_NAMES} more" if len(found) > REPORT_NAMES else ""
+        return [f"**{title} ({len(found)}):** {shown}{more}", ""]
+
+    lines = [
+        f"Moves the pinned Forge commit from `{old[:10]}` to `{new[:10]}` "
+        f"([compare](https://github.com/Card-Forge/forge/compare/{old}...{new})).",
+        "",
+        "| Scripts | Count |",
+        "| --- | --- |",
+        f"| In the new pin | {comparison.scripts} |",
+        f"| Added | {len(comparison.added)} |",
+        f"| Removed | {len(comparison.removed)} |",
+        f"| Changed | {len(comparison.changed)} |",
+        f"| Blocks changed | {len(comparison.blocks_changed)} |",
+        f"| Failed to translate | {len(comparison.failed)} "
+        f"(stops at {MAX_FAILURES:.0%}) |",
+        "",
+        *names("Read less than before, check these", comparison.reads_less),
+        *names("Read more than before", comparison.reads_more),
+        *names("Changed scripts", comparison.changed),
+        *names("New scripts", comparison.added),
+        *names("Removed scripts", comparison.removed),
+        *names("Failed to translate", comparison.failed),
+        "After the deploy, the nightly catalogue job translates the new pin and "
+        "derives the profiles again: decks with these cards may count differently.",
+    ]
+    return "\n".join(lines) + "\n"
 
 
 # --- facts a goldfish plays, for the comparison with our reader --------------------

@@ -20,5 +20,6 @@ urlpatterns = [
     ),
     path("<uuid:pk>/", views.DeckDetailView.as_view(), name="detail"),
     path("<uuid:pk>/commander/", views.SetCommanderView.as_view(), name="set-commander"),
+    path("<uuid:pk>/rename/", views.DeckRenameView.as_view(), name="rename"),
     path("<uuid:pk>/delete/", views.DeckDeleteView.as_view(), name="delete"),
 ]

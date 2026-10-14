@@ -514,6 +514,18 @@ def recount_later(decks) -> None:
     decks.update(open_questions=None)
 
 
+
+def rename(deck: Deck, name: str) -> None:
+    """Call `deck` `name` (E1.73).
+
+    `update`, as for the count of open questions: a name is not a change to
+    the deck, so the list does not reorder and "updated" keeps its date. A
+    report shared before keeps the name it was shared under - it is a copy.
+    """
+    Deck.objects.filter(pk=deck.pk).update(name=name)
+    deck.name = name
+
+
 @transaction.atomic
 def set_commander(deck: Deck, card, partner=None) -> None:
     """Set the commander - and a second one, or none - by hand, from the deck page.

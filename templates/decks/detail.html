@@ -4,6 +4,7 @@
 {% block description %}{% blocktranslate with name=deck.name %}Mana curve, card types, categories and Commander legality for {{ name }}.{% endblocktranslate %}{% endblock %}
 {% block head %}
   <script src="{% static 'js/commander.js' %}" defer></script>
+  <script src="{% static 'js/deck-name.js' %}" defer></script>
 {% endblock %}
 {% block content %}
   {% comment %}
@@ -26,7 +27,8 @@
     {% endif %}
     <div class="min-w-[16rem] flex-1">
       <div class="flex flex-wrap items-baseline gap-4">
-        <h1 class="font-display text-3xl text-parchment-100">{{ deck.name }}</h1>
+        {% url 'decks:detail' deck.pk as here %}
+        {% include "decks/_name.html" with heading=True next=here %}
         <span class="tabular text-parchment-200">
           {% if deck.partner %}
             {% blocktranslate count count=analysis.total_cards %}{{ count }} card + 2 commanders{% plural %}{{ count }} cards + 2 commanders{% endblocktranslate %}

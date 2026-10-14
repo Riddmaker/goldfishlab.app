@@ -10924,3 +10924,46 @@ msgid ""
 "language instead."
 msgstr ""
 "アカウントなしで試したデッキは、アップロードしたページの言語を保ちます。レポートとデッキページが、代わりにブラウザの言語で表示されることはなくなりました。"
+
+#: changelog/entries.py
+msgid "Give your decks the names you want"
+msgstr "デッキに好きな名前を付けられます"
+
+#: changelog/entries.py
+msgid ""
+"The pencil beside a deck's name renames it, in the list of your decks and on"
+" the deck page - where a click on the name works too. Two imports of the "
+"same deck no longer have to stand in the list under the same name."
+msgstr ""
+"デッキ名の横の鉛筆アイコンで名前を変更できます。デッキ一覧でもデッキページでも使え、デッキページでは名前をクリックしても変更できます。同じデッキを 2 "
+"回インポートしても、一覧に同じ名前で並ぶ必要はなくなりました。"
+
+#: templates/decks/_name.html
+msgid "Name saved."
+msgstr "名前を保存しました。"
+
+#: templates/decks/_name.html
+msgid "The name could not be saved."
+msgstr "名前を保存できませんでした。"
+
+#: templates/decks/_name.html
+msgid "Rename"
+msgstr "名前を変更"
+
+#: templates/decks/rename.html
+#, python-format
+msgid "Rename %(name)s"
+msgstr "%(name)s の名前を変更"
+
+#: templates/decks/rename.html
+msgid "Give this deck another name."
+msgstr "このデッキに別の名前を付けます。"
+
+#: decks/forms.py
+msgid "A deck needs a name."
+msgstr "デッキには名前が必要です。"
+
+#: decks/views.py
+#, python-format
+msgid "The deck is now called %(name)s."
+msgstr "デッキの名前を %(name)s に変更しました。"

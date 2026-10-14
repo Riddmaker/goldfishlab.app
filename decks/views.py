@@ -8,10 +8,12 @@ source, so a missing filter is a missing row rather than someone else's deck.
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Prefetch
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.cache import patch_vary_headers
 from django.utils.decorators import method_decorator
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext, gettext_noop, ngettext
 from django.views.generic import DeleteView, DetailView, FormView, ListView, View
 from django_ratelimit.decorators import ratelimit
@@ -22,7 +24,7 @@ from billing.views import upgrade_prompt
 from combos import services as combo_services
 from decks import analysis as deck_analysis
 from decks import command_zone, services
-from decks.forms import ColumnMappingForm, CommanderForm, ImportForm
+from decks.forms import ColumnMappingForm, CommanderForm, DeckNameForm, ImportForm
 from decks.importers import columns, tabular
 from decks.models import Deck, DeckCard, DeckImport, PendingImport, printings_shown
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
@@ -460,6 +462,51 @@ class SetCommanderView(LoginRequiredMixin, View):
         if save_commanders(request, deck):
             return redirect(deck.get_absolute_url())
         return redirect(f"{deck.get_absolute_url()}#commander")
+
+
+class DeckRenameView(OwnedDecksMixin, View):
+    """Give a deck another name (E1.73, E2.5).
+
+    The pencil beside a deck's name opens the field in place
+    (static/js/deck-name.js), which posts here asking for JSON - the name as
+    saved, or the sentence why not. Without the script the pencil is a link
+    to this page, and the form here goes back to where it came from.
+    """
+
+    template_name = "decks/rename.html"
+
+    def get(self, request, pk):
+        deck = get_object_or_404(self.get_queryset(), pk=pk)
+        form = DeckNameForm(initial={"name": deck.name})
+        return self.page(request, deck, form)
+
+    def post(self, request, pk):
+        deck = get_object_or_404(self.get_queryset(), pk=pk)
+        form = DeckNameForm(request.POST)
+        wants_json = request.headers.get("Accept") == "application/json"
+        if not form.is_valid():
+            if wants_json:
+                return JsonResponse({"error": form.errors["name"][0]}, status=400)
+            return self.page(request, deck, form, status=400)
+        services.rename(deck, form.cleaned_data["name"])
+        if wants_json:
+            return JsonResponse({"name": deck.name})
+        messages.success(request, gettext("The deck is now called %(name)s.") % {
+            "name": deck.name})
+        return redirect(self.back(request, deck))
+
+    def page(self, request, deck, form, status=200):
+        return render(request, self.template_name, {
+            "deck": deck, "form": form, "next": self.back(request, deck)}, status=status)
+
+    @staticmethod
+    def back(request, deck) -> str:
+        """The page the pencil was on, if it is one of this site's."""
+        target = request.POST.get("next") or request.GET.get("next") or ""
+        if url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()},
+                                           require_https=request.is_secure()):
+            return target
+        return deck.get_absolute_url()
 
 
 def save_commanders(request, deck) -> bool:

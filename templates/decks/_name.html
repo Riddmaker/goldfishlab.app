@@ -1,0 +1,47 @@
+{% load i18n %}
+{% comment %}
+  A deck's name and the pencil that renames it (E1.73, E2.5). On the deck page
+  (`heading`) the name is the <h1>, and a click on it opens the field as well;
+  in the list it stays the link into the deck. static/js/deck-name.js opens
+  the field in place - without it the pencil is a link to decks/rename.html,
+  which goes back to `next`.
+{% endcomment %}
+<div class="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1 data-editing:basis-full" data-deck-name
+     {% if heading %}data-click-edits{% endif %}
+     data-saved="{% translate 'Name saved.' %}"
+     data-failed="{% translate 'The name could not be saved.' %}">
+  {% if heading %}
+    <h1 id="deck-name-{{ deck.pk }}" class="font-display text-3xl text-parchment-100"
+        data-deck-name-text>{{ deck.name }}</h1>
+  {% else %}
+    <a id="deck-name-{{ deck.pk }}" href="{{ deck.get_absolute_url }}"
+       class="font-display text-xl text-ink-900 underline decoration-parchment-600 underline-offset-4 hover:decoration-ink-900"
+       data-deck-name-text>{{ deck.name }}</a>
+  {% endif %}
+  <a href="{% url 'decks:rename' deck.pk %}?next={{ next|urlencode }}"
+     class="inline-flex h-8 w-8 items-center justify-center self-center rounded {% if heading %}text-parchment-300 hover:text-parchment-100{% else %}text-ink-600 hover:text-ink-900{% endif %}"
+     title="{% translate 'Rename' %}" aria-label="{% translate 'Rename' %}"
+     aria-describedby="deck-name-{{ deck.pk }}" data-deck-name-edit>
+    <svg aria-hidden="true" viewBox="0 0 20 20" width="18" height="18" fill="none"
+         stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M13.5 3.5l3 3L7 16H4v-3z"/><path d="M11.5 5.5l3 3"/>
+    </svg>
+  </a>
+  <form method="post" action="{% url 'decks:rename' deck.pk %}"
+        class="flex w-full flex-wrap items-center gap-2" data-deck-name-form hidden>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <label for="deck-name-field-{{ deck.pk }}" class="sr-only">{% translate "Deck name" %}</label>
+    <input id="deck-name-field-{{ deck.pk }}" name="name" value="{{ deck.name }}"
+           maxlength="120" required autocomplete="off" spellcheck="false"
+           class="min-w-0 max-w-xl flex-1 border-b border-dashed bg-transparent font-display focus:border-solid focus-visible:outline-2 focus-visible:outline-offset-4 {% if heading %}border-parchment-300 text-3xl text-parchment-100 focus-visible:outline-parchment-200{% else %}border-ink-700 text-xl text-ink-900 focus-visible:outline-blood-700{% endif %}">
+    <button type="submit"
+            class="border border-blood-800 bg-blood-700 px-3 py-1 font-display text-parchment-100 hover:bg-blood-800">
+      {% translate "Save" %}
+    </button>
+    <button type="button" class="text-sm underline {% if heading %}text-parchment-200{% else %}text-ink-900{% endif %}"
+            data-deck-name-cancel>{% translate "Cancel" %}</button>
+  </form>
+  <span role="status" class="text-sm {% if heading %}text-parchment-200{% else %}text-ink-700{% endif %}"
+        data-deck-name-status></span>
+</div>

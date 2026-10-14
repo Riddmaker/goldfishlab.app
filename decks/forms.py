@@ -1,4 +1,4 @@
-"""The deck import form, and the commander choice.
+"""The deck import form, the commander choice, and the deck's name.
 
 The upload field is the application's only untrusted input in Phase 1, so the
 validation here is the security boundary: size before decode, decode before
@@ -239,3 +239,16 @@ class CommanderForm(forms.Form):
                     "first": first.front_name, "second": second.front_name})
         cleaned["cards"] = command_zone.ordered(first, second) if second else [first]
         return cleaned
+
+
+class DeckNameForm(forms.Form):
+    """A deck's name, as its owner wants it (E1.73, E2.5).
+
+    Any name: two decks may share one - the deck's id tells them apart, and
+    the owner can tell them apart by renaming one. Spaces at either end go.
+    """
+
+    name = forms.CharField(
+        max_length=120, label=_("Deck name"),
+        error_messages={"required": _("A deck needs a name.")},
+    )

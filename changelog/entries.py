@@ -50,6 +50,14 @@ ENTRIES = (
         "pricing",
     ),
     Entry(
+        date(2026, 10, 14), "rename-decks",
+        _("Give your decks the names you want"),
+        _("The pencil beside a deck's name renames it, in the list of your decks and on the deck "
+          "page - where a click on the name works too. Two imports of the same deck no longer "
+          "have to stand in the list under the same name."),
+        "decks:list",
+    ),
+    Entry(
         date(2026, 10, 14), "trial-language",
         _("Trying the site stays in your language"),
         _("A deck tried without an account keeps the language of the page it was uploaded on: "

@@ -12524,3 +12524,47 @@ msgstr ""
 "Un deck essayé sans compte garde la langue de la page où il a été envoyé : "
 "le rapport et la page du deck ne s'affichent plus dans la langue de votre "
 "navigateur à la place."
+
+#: changelog/entries.py
+msgid "Give your decks the names you want"
+msgstr "Donnez à vos decks les noms que vous voulez"
+
+#: changelog/entries.py
+msgid ""
+"The pencil beside a deck's name renames it, in the list of your decks and on"
+" the deck page - where a click on the name works too. Two imports of the "
+"same deck no longer have to stand in the list under the same name."
+msgstr ""
+"Le crayon à côté du nom d'un deck le renomme, dans la liste de vos decks et "
+"sur la page du deck – où un clic sur le nom suffit aussi. Deux imports du "
+"même deck n'ont plus à figurer dans la liste sous le même nom."
+
+#: templates/decks/_name.html
+msgid "Name saved."
+msgstr "Nom enregistré."
+
+#: templates/decks/_name.html
+msgid "The name could not be saved."
+msgstr "Le nom n'a pas pu être enregistré."
+
+#: templates/decks/_name.html
+msgid "Rename"
+msgstr "Renommer"
+
+#: templates/decks/rename.html
+#, python-format
+msgid "Rename %(name)s"
+msgstr "Renommer %(name)s"
+
+#: templates/decks/rename.html
+msgid "Give this deck another name."
+msgstr "Donnez un autre nom à ce deck."
+
+#: decks/forms.py
+msgid "A deck needs a name."
+msgstr "Un deck a besoin d'un nom."
+
+#: decks/views.py
+#, python-format
+msgid "The deck is now called %(name)s."
+msgstr "Le deck s'appelle maintenant %(name)s."

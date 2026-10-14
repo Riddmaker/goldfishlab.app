@@ -12458,3 +12458,48 @@ msgstr ""
 "Un mazo probado sin cuenta conserva el idioma de la página en la que se "
 "subió: el informe y la página del mazo ya no aparecen en el idioma de tu "
 "navegador."
+
+#: changelog/entries.py
+msgid "Give your decks the names you want"
+msgstr "Ponle a tus mazos los nombres que quieras"
+
+#: changelog/entries.py
+msgid ""
+"The pencil beside a deck's name renames it, in the list of your decks and on"
+" the deck page - where a click on the name works too. Two imports of the "
+"same deck no longer have to stand in the list under the same name."
+msgstr ""
+"El lápiz junto al nombre de un mazo le cambia el nombre, en la lista de tus "
+"mazos y en la página del mazo, donde también basta un clic en el nombre. Dos"
+" importaciones del mismo mazo ya no tienen que aparecer en la lista con el "
+"mismo nombre."
+
+#: templates/decks/_name.html
+msgid "Name saved."
+msgstr "Nombre guardado."
+
+#: templates/decks/_name.html
+msgid "The name could not be saved."
+msgstr "No se pudo guardar el nombre."
+
+#: templates/decks/_name.html
+msgid "Rename"
+msgstr "Cambiar nombre"
+
+#: templates/decks/rename.html
+#, python-format
+msgid "Rename %(name)s"
+msgstr "Cambiar el nombre de %(name)s"
+
+#: templates/decks/rename.html
+msgid "Give this deck another name."
+msgstr "Ponle otro nombre a este mazo."
+
+#: decks/forms.py
+msgid "A deck needs a name."
+msgstr "Un mazo necesita un nombre."
+
+#: decks/views.py
+#, python-format
+msgid "The deck is now called %(name)s."
+msgstr "El mazo ahora se llama %(name)s."

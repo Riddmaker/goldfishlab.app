@@ -1,7 +1,10 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 {% block title %}{% translate "Your decks" %} — Goldfish Lab{% endblock %}
 {% block description %}{% translate "Every deck you have imported, with its commander and card count." %}{% endblock %}
+{% block head %}
+  <script src="{% static 'js/deck-name.js' %}" defer></script>
+{% endblock %}
 {% block content %}
   <div class="flex flex-wrap items-baseline gap-4">
     <h1 class="font-display text-3xl text-parchment-100">{% translate "Your decks" %}</h1>
@@ -11,14 +14,12 @@
     </a>
   </div>
   {% if decks %}
+    {% url 'decks:list' as here %}
     <ul class="mt-8 space-y-4">
       {% for deck in decks %}
         <li class="surface-parchment p-5">
           <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-            <a href="{{ deck.get_absolute_url }}"
-               class="font-display text-xl text-ink-900 underline decoration-parchment-600 underline-offset-4 hover:decoration-ink-900">
-              {{ deck.name }}
-            </a>
+            {% include "decks/_name.html" with heading=False next=here %}
             <span class="tabular text-sm text-ink-700">{% blocktranslate count count=deck.total_with_commander %}{{ count }} card{% plural %}{{ count }} cards{% endblocktranslate %}</span>
             {% include "decks/_status.html" %}
             <span class="text-sm text-ink-700">

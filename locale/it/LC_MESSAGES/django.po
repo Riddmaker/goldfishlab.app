@@ -12353,6 +12353,51 @@ msgid ""
 "uploaded on: the report and the deck page are no longer in your browser's "
 "language instead."
 msgstr ""
-"Un mazzo provato senza account mantiene la lingua della pagina da cui è "
-"stato caricato: il report e la pagina del mazzo non compaiono più nella "
-"lingua del tuo browser."
+"Un deck provato senza account mantiene la lingua della pagina da cui è stato"
+" caricato: il report e la pagina del deck non compaiono più nella lingua del"
+" tuo browser."
+
+#: changelog/entries.py
+msgid "Give your decks the names you want"
+msgstr "Dai ai tuoi deck i nomi che vuoi"
+
+#: changelog/entries.py
+msgid ""
+"The pencil beside a deck's name renames it, in the list of your decks and on"
+" the deck page - where a click on the name works too. Two imports of the "
+"same deck no longer have to stand in the list under the same name."
+msgstr ""
+"La matita accanto al nome di un deck lo rinomina, nell'elenco dei tuoi deck "
+"e nella pagina del deck – dove basta anche un clic sul nome. Due "
+"importazioni dello stesso deck non devono più stare nell'elenco con lo "
+"stesso nome."
+
+#: templates/decks/_name.html
+msgid "Name saved."
+msgstr "Nome salvato."
+
+#: templates/decks/_name.html
+msgid "The name could not be saved."
+msgstr "Non è stato possibile salvare il nome."
+
+#: templates/decks/_name.html
+msgid "Rename"
+msgstr "Rinomina"
+
+#: templates/decks/rename.html
+#, python-format
+msgid "Rename %(name)s"
+msgstr "Rinomina %(name)s"
+
+#: templates/decks/rename.html
+msgid "Give this deck another name."
+msgstr "Dai un altro nome a questo deck."
+
+#: decks/forms.py
+msgid "A deck needs a name."
+msgstr "Un deck ha bisogno di un nome."
+
+#: decks/views.py
+#, python-format
+msgid "The deck is now called %(name)s."
+msgstr "Il deck ora si chiama %(name)s."

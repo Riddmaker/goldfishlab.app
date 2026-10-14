@@ -12415,3 +12415,22 @@ msgstr ""
 "Un report non si poteva più condividere dopo aver risposto a una domanda su "
 "una delle sue carte, e il motivo indicato era un elenco di carte cambiato. "
 "Ora lo impedisce solo una modifica alle carte o al comandante."
+
+#: templates/decks/import.html templates/guests/try.html
+msgid "Error:"
+msgstr "Errore:"
+
+#: changelog/entries.py
+msgid "A refused upload says why, also to a screen reader"
+msgstr "Un caricamento rifiutato dice perché, anche allo screen reader"
+
+#: changelog/entries.py
+msgid ""
+"When an upload or a pasted list is refused, the page now jumps to the field "
+"with the problem, a screen reader reads out what went wrong, and the page "
+"title starts with “Error”. The file field has a name of its own as well."
+msgstr ""
+"Quando un file o un elenco incollato viene rifiutato, la pagina ora passa al"
+" campo con il problema, uno screen reader legge cosa non andava e il titolo "
+"della pagina inizia con “Errore”. Anche il campo del file ha ora un nome "
+"suo."

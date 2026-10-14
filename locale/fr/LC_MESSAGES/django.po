@@ -12583,3 +12583,21 @@ msgstr ""
 "question sur l'une de ses cartes, et la raison donnée était une liste de "
 "cartes modifiée. Désormais, seule une modification des cartes ou du "
 "commandant l'empêche."
+
+#: templates/decks/import.html templates/guests/try.html
+msgid "Error:"
+msgstr "Erreur :"
+
+#: changelog/entries.py
+msgid "A refused upload says why, also to a screen reader"
+msgstr "Un import refusé dit pourquoi, aussi au lecteur d'écran"
+
+#: changelog/entries.py
+msgid ""
+"When an upload or a pasted list is refused, the page now jumps to the field "
+"with the problem, a screen reader reads out what went wrong, and the page "
+"title starts with “Error”. The file field has a name of its own as well."
+msgstr ""
+"Quand un fichier ou une liste collée est refusé, la page passe maintenant au"
+" champ en cause, un lecteur d'écran lit ce qui n'allait pas, et le titre de "
+"la page commence par « Erreur ». Le champ du fichier a aussi son propre nom."

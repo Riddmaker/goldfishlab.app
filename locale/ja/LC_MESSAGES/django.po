@@ -10979,3 +10979,19 @@ msgid ""
 "the cards or the commander stops it now."
 msgstr ""
 "カードに関する質問に回答すると、レポートを共有できなくなり、理由として「カードリストが変更された」と表示されていました。今後、共有できなくなるのはカードか統率者を変更した場合だけです。"
+
+#: templates/decks/import.html templates/guests/try.html
+msgid "Error:"
+msgstr "エラー:"
+
+#: changelog/entries.py
+msgid "A refused upload says why, also to a screen reader"
+msgstr "アップロードが受け付けられなかった理由を、スクリーンリーダーにも伝えます"
+
+#: changelog/entries.py
+msgid ""
+"When an upload or a pasted list is refused, the page now jumps to the field "
+"with the problem, a screen reader reads out what went wrong, and the page "
+"title starts with “Error”. The file field has a name of its own as well."
+msgstr ""
+"ファイルや貼り付けたリストが受け付けられなかったとき、問題のある欄へ移動し、スクリーンリーダーが原因を読み上げ、ページのタイトルが「エラー」で始まるようになりました。ファイル欄にも独自の名前が付きました。"

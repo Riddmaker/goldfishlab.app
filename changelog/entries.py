@@ -50,6 +50,14 @@ ENTRIES = (
         "pricing",
     ),
     Entry(
+        date(2026, 10, 14), "import-errors-heard",
+        _("A refused upload says why, also to a screen reader"),
+        _("When an upload or a pasted list is refused, the page now jumps to the field with the "
+          "problem, a screen reader reads out what went wrong, and the page title starts with "
+          "“Error”. The file field has a name of its own as well."),
+        "guests:try",
+    ),
+    Entry(
         date(2026, 10, 14), "share-after-answer",
         _("Answering a card no longer stops a report from being shared"),
         _("A report could not be shared once you had answered a question about one of its "

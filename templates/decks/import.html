@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static i18n %}
-{% block title %}{% translate "Import a deck" %} — Goldfish Lab{% endblock %}
+{% block title %}{% if form.errors %}{% translate "Error:" %} {% endif %}{% translate "Import a deck" %} — Goldfish Lab{% endblock %}
 {% block description %}{% translate "Import a deck from any CSV export or a pasted list." %}{% endblock %}
 {% block head %}
   <script src="{% static 'js/import.js' %}" defer></script>

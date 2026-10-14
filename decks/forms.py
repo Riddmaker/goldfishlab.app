@@ -6,6 +6,7 @@ parse, parse before anything touches the database.
 """
 
 from django import forms
+from django.forms.boundfield import BoundField
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -13,6 +14,18 @@ from cards import commanders
 from decks import command_zone, importers
 from decks.importers import columns
 from decks.services import MAX_UPLOAD_BYTES
+
+
+class _FocusedField(BoundField):
+    """A field that takes the focus when the page loads, if its form says so
+    (`ImportForm.focus`): `autofocus`, so the browser scrolls to it and a
+    screen reader reads it with its error - no script needed (E1.40)."""
+
+    def build_widget_attrs(self, attrs, widget=None):
+        attrs = super().build_widget_attrs(attrs, widget)
+        if self.name == self.form.focus:
+            attrs["autofocus"] = True
+        return attrs
 
 
 class ImportForm(forms.Form):
@@ -35,6 +48,7 @@ class ImportForm(forms.Form):
 
     FILE = "file"
     PASTE = "paste"
+    bound_field_class = _FocusedField
 
     source = forms.ChoiceField(
         choices=[(FILE, _("Upload a file")), (PASTE, _("Paste a list"))],
@@ -109,6 +123,18 @@ class ImportForm(forms.Form):
         if self.is_bound:
             return self.data.get("source") == self.PASTE
         return False
+
+    @property
+    def focus(self) -> str | None:
+        """The first field with an error, in the order the page shows them.
+
+        Errors are also added by the view after `is_valid` (an unreadable
+        file), so this is asked when the page is drawn, not when it is cleaned.
+        """
+        for name in ("text" if self.pasting else "file", "name", "format"):
+            if name in self.errors:
+                return name
+        return None
 
     def payload(self) -> tuple[bytes, str]:
         """The raw bytes and the file name, whichever way they came in.

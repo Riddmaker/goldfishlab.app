@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static i18n %}
-{% block title %}{% translate "Try it with your deck" %} — Goldfish Lab{% endblock %}
+{% block title %}{% if form.errors %}{% translate "Error:" %} {% endif %}{% translate "Try it with your deck" %} — Goldfish Lab{% endblock %}
 {% block description %}{% translate "Upload a Commander deck and simulate it - no account needed." %}{% endblock %}
 {% block head %}
   <script src="{% static 'js/import.js' %}" defer></script>

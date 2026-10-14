@@ -1,0 +1,140 @@
+name: Forge sync
+
+# Card model rebuild, phase 2: the weekly pin pull request. When Forge's card
+# scripts moved, this packs the newest commit (manage.py forge_pack), checks
+# every script against the pinned copy without a database (manage.py
+# forge_check) and opens - or updates - ONE pull request from the branch
+# `forge-pin` into dev. The pin still moves only by review: nothing here
+# reaches production before that pull request is merged and dev goes to main.
+# The night after the deploy, the catalogue job (cards/refresh.py) translates
+# the new pin and derives the profiles again.
+#
+# More than 1 % of scripts failing to translate (a format break) fails the
+# run: no pull request, the pin stays, and an issue "Forge sync failed" is
+# opened or commented on - the failure mail of a scheduled run goes only to
+# whoever created the workflow, which need not be anyone who reads it.
+#
+# Switched off until the repository variable FORGE_SYNC is "on" (Settings >
+# Secrets and variables > Actions > Variables). "Run workflow" works either
+# way, to try it by hand. Needs, once: Settings > Actions > General > "Allow
+# GitHub Actions to create and approve pull requests", and `forge-pin` left out
+# of the "dev only" ruleset. A pull request opened with GITHUB_TOKEN starts its
+# checks only after "Approve workflows to run"; merging into dev runs them too.
+on:
+  schedule:
+    # Mondays, 03:17 UTC: off the full hour, when GitHub delays scheduled runs,
+    # and before Tuesday's catalogue run and precon rerun.
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: forge-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  pin:
+    if: vars.FORGE_SYNC == 'on' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write # push the branch forge-pin
+      pull-requests: write # open or update the pin pull request
+      issues: write # report a failed run
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      # Settings need these to load; no database or Redis is ever reached.
+      DJANGO_SETTINGS_MODULE: goldfishlab.settings.test
+      DJANGO_SECRET_KEY: ci-only-not-a-secret
+      DJANGO_DEBUG: "False"
+      DATABASE_URL: postgres://unused:unused@localhost:5432/unused
+      REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: dev
+
+      - name: Has Forge moved?
+        id: forge
+        run: |
+          head=$(git ls-remote https://github.com/Card-Forge/forge refs/heads/master | cut -f1)
+          if [[ ! $head =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::no commit from Forge's master: '$head'"
+            exit 1
+          fi
+          echo "commit=$head" >> "$GITHUB_OUTPUT"
+          if [[ $head == "$(cat cards/data/forge_commit.txt)" ]]; then
+            echo "moved=false" >> "$GITHUB_OUTPUT"
+            echo "The pin is Forge's newest commit already."
+          else
+            echo "moved=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Only the card scripts, one commit deep: git archive reads them from
+      # here (cards/forge.py). Scripts are data, parsed and never executed.
+      - if: steps.forge.outputs.moved == 'true'
+        uses: actions/checkout@v7.0.1
+        with:
+          repository: Card-Forge/forge
+          ref: ${{ steps.forge.outputs.commit }}
+          path: .data/forge
+          sparse-checkout: forge-gui/res/cardsfolder
+          fetch-depth: 1
+          persist-credentials: false
+
+      - if: steps.forge.outputs.moved == 'true'
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Pack and check the new commit
+        if: steps.forge.outputs.moved == 'true'
+        id: check
+        env:
+          COMMIT: ${{ steps.forge.outputs.commit }}
+        run: |
+          pip install -r requirements.txt
+          cp cards/data/forge_scripts.jsonl.gz "$RUNNER_TEMP/old.jsonl.gz"
+          python manage.py forge_pack --forge .data/forge --commit "$COMMIT"
+          python manage.py forge_check --old "$RUNNER_TEMP/old.jsonl.gz" \
+            --out "$RUNNER_TEMP/body.md" >> "$GITHUB_OUTPUT"
+          cat "$RUNNER_TEMP/body.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open or update the pin pull request
+        if: steps.forge.outputs.moved == 'true' && steps.check.outputs.changes != '0'
+        env:
+          COMMIT: ${{ steps.forge.outputs.commit }}
+        run: |
+          title="Forge pin: ${COMMIT:0:10}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c forge-pin
+          git add cards/data/forge_scripts.jsonl.gz cards/data/forge_commit.txt
+          git commit -m "$title"
+          # One branch, one open pull request: a newer commit replaces it.
+          git push --force origin forge-pin
+          open=$(gh pr list --head forge-pin --base dev --state open --json number --jq '.[0].number')
+          if [[ -n $open ]]; then
+            gh pr edit "$open" --title "$title" --body-file "$RUNNER_TEMP/body.md"
+          else
+            gh pr create --base dev --head forge-pin --title "$title" \
+              --body-file "$RUNNER_TEMP/body.md"
+          fi
+
+      - name: Report the failure
+        if: failure()
+        run: |
+          title="Forge sync failed"
+          run="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          open=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [[ -n $open ]]; then
+            gh issue comment "$open" --body "Failed again: $run"
+          else
+            gh issue create --title "$title" --body "The weekly Forge sync failed: $run
+
+          No pull request was opened and the pinned commit stays. More than 1 % of scripts failing to translate means Forge changed its format: cards/forge_import.py needs a fix."
+          fi

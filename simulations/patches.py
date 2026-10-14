@@ -250,8 +250,10 @@ def effective(overrides: dict, document: dict | None, profile) -> tuple[dict, li
     """What a stored correction says now: the overrides the engine plays.
 
     A row without a current document, or one whose document was written for
-    other overrides (by code from before phase 2), plays its overrides as
-    they are.
+    other overrides, plays its overrides as they are. That is the guard for
+    every write that is not `CardAnnotation.save` - code from before phase 2
+    after a rollback, a `QuerySet.update`, a fixture loaded raw: the newer
+    word is the overrides', and stale patches are never played over it.
     """
     overrides = overrides or {}
     if not is_current(document) or document.get("of") != digest(overrides):

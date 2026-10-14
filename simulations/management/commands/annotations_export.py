@@ -2,9 +2,9 @@
 
     manage.py annotations_export --out corrections.json
 
-Writes each correction's card, scope (builtin, user, deck) and overrides, and
-how many players made the same one - **never who**: no owner, no deck, no
-note. The file is read locally against the development catalogue
+Writes each correction's card, scope (builtin, user, deck), overrides and
+patches, and how many players made the same one - **never who**: no owner,
+no deck, no note. The file is read locally against the development catalogue
 (`simulations.parity`) and is never committed.
 """
 

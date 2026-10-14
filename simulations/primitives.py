@@ -71,7 +71,7 @@ _CONDITION_KEYS = frozenset({
 _MANA_RULE_KEYS = frozenset({
     "rule", "subtype", "produces", "activation", "color", "times", "with_counter", "flip",
     "enchants", "stat", "of", "per", "once", "condition", "amount", "count", "spells",
-    "types", "filter", "other", "greatest", "chosen", "subtypes",
+    "types", "filter", "other", "greatest", "chosen", "subtypes", "pays",
 })
 _STORE_KEYS = frozenset({
     "use", "kind", "per_use", "amount", "produces", "start", "start_from", "kick", "grows",
@@ -139,15 +139,17 @@ PRIMITIVES = (
 BY_KEY = {primitive.key: primitive for primitive in PRIMITIVES}
 KEYS = frozenset(BY_KEY)
 
-#: Words a value may hold: lower-case names, colour letters, mana costs.
-_WORD = re.compile(r"^[\w{}+\-/' ]{0,40}$")
+#: Words a value may hold: lower-case names, colour letters, mana costs, and
+#: the reader's own compounds - "basic:swamp", "threshold:7:5", the Urza
+#: lands' "names:Urza's Mine|Urza's Tower".
+_WORD = re.compile(r"^[\w{}+\-/':| ]{0,64}$")
 #: The largest number any field takes; everything a card does fits under it.
 _MOST = 99
 #: The most entries a list holds; also what a patch may number (`simulations.patches`).
 MAX_ITEMS = 10
 #: Nesting a value may have: a combat object holds a list of triggers, a
-#: trigger a list of types.
-_DEPTH = 4
+#: trigger a list of types, each type a word.
+_DEPTH = 5
 
 
 class PrimitiveError(ValueError):
@@ -299,7 +301,10 @@ class Field:
     `kind`: ``int`` (from `low` to `high`), ``optint`` (blank is "no limit"),
     ``bool``, ``choice`` (one of `choices`), ``multi`` (any of `choices`),
     ``words`` (comma-separated lower-case words: types, subtypes), ``mana``
-    ("2B G"; blank is "any colour of the deck") or ``cost`` ("{2}{B}").
+    ("2B G"; blank is "any colour of the deck"), ``cost`` ("{2}{B}"),
+    ``colors`` (colour letters, each once: "B", "WUBRG"; blank is "one
+    colour, the one the hand needs") or ``colour`` (one of `choices`: a
+    colour letter, or what a one-colour mapping such as {"G": 1} makes).
     """
 
     name: str
@@ -311,6 +316,9 @@ class Field:
     high: int = 10
     #: Shown under "More" rather than at once.
     more: bool = False
+    #: What the box shows when the value has no such key: what the adapter
+    #: reads then, so saving an untouched form changes nothing it plays.
+    default: object = None
 
 
 _LAND_TYPE_CHOICES = (("plains", _("Plains")), ("island", _("Island")),
@@ -394,6 +402,48 @@ FIELDS = {
             ("discard_land", _("Discards a land card (Mox Diamond)")),
             ("imprint", _("Exiles a coloured card for its colours (Chrome Mox)")))),
     ),
+    # Card model phase 2, PR 7: the blocks that could only be switched off.
+    # What a form does not show - the counter's kind, how a creature grows -
+    # is carried through as read.
+    "mana_store": (
+        Field("use", "choice", _("How it spends its counters"), choices=(
+            ("tap", _("One use each turn, as it is tapped")),
+            ("free", _("Whenever a spell needs the mana, as a Treasure")),
+            ("scales", _("One mana for each counter on it; the counters stay")))),
+        Field("amount", "int", _("Mana each use"), low=1, high=10),
+        Field("produces", "colour", _("Of colour"), choices=(
+            ("", _("Any colour of the deck")), ("W", _("White")), ("U", _("Blue")),
+            ("B", _("Black")), ("R", _("Red")), ("G", _("Green")), ("C", _("Colourless")))),
+        Field("start", "int", _("Counters it enters with"), high=20),
+        Field("per_use", "int", _("Counters each use spends"), high=5, more=True),
+        Field("start_from", "choice", _("Or it enters with"), choices=(
+            ("", _("The number above")), ("x", _("X counters")),
+            ("colors", _("One for each colour spent on it")),
+            ("kicks", _("One for each time it was kicked"))), more=True),
+        Field("kick", "int", _("Multikicker cost"), _("Generic mana. 0: none."), high=10,
+              more=True),
+        Field("grows", "choice", _("It gets more counters"), choices=(
+            ("", _("Never")), ("tap", _("By tapping instead of making mana")),
+            ("use", _("Each time it is used")),
+            ("red_spell", _("For each red spell you cast"))), more=True),
+        Field("empty", "choice", _("With no counters left"), choices=(
+            ("", _("It stays")), ("sacrifice", _("It is sacrificed")),
+            ("hand", _("It returns to your hand")),
+            ("dies", _("It dies (counters that lower its toughness)"))), more=True),
+        Field("once", "bool", _("Used once each turn, without tapping"), more=True),
+        Field("target", "bool", _("The counters it enters with go on itself"), more=True),
+    ),
+    "growth": (
+        Field("enters", "int", _("+1/+1 counters it enters with"), high=10),
+        Field("enters_x", "bool", _("It enters with X of them")),
+        Field("puts", "int", _("Creatures it puts a counter on as it enters"), high=3),
+        Field("bonus", "int", _("One more on each placement"),
+              _("Counters added each time +1/+1 counters go on one of your creatures."),
+              high=3),
+        Field("draws_on_greatest", "bool",
+              _("Draws a card when a creature with the greatest power enters"), more=True),
+        Field("look", "int", _("Cards it looks at for a creature"), high=10, more=True),
+    ),
 }
 
 #: What a primitive the reader did not find starts from when added by hand.
@@ -410,10 +460,142 @@ DEFAULTS = {
                  "spend_only": None, "token": 0},
     "treasures": 1,
     "mox": "discard_land",
+    "mana_store": {"use": "tap", "kind": "charge", "per_use": 1, "amount": 1,
+                   "produces": None, "start": 1, "start_from": "", "kick": 0, "grows": "",
+                   "empty": "", "target": False, "once": False},
+    "growth": {"enters": 1},
+}
+
+
+# --- variants: the boxes depend on one field (card model phase 2, PR 7) ---------------
+
+
+@dataclass(frozen=True)
+class Variants:
+    """A primitive whose boxes depend on one of its fields: a condition's
+    ``kind``, a mana rule's ``rule``.
+
+    That field is never a box of the form. It is chosen first - from
+    `defaults`, which is also what a new one of each variant starts from -
+    and a variant with no defaults cannot be chosen by hand, only edited
+    where the reader read it. A variant without `specs` has no form.
+    """
+
+    field: str
+    specs: dict
+    labels: dict
+    defaults: dict
+
+    def of(self, value) -> str:
+        return value.get(self.field, "") if isinstance(value, dict) else ""
+
+
+_LAND_TYPES_HELP = _("Any one of them is enough.")
+#: One colour; empty is the land type's own (Cabal Coffers' {B} for Swamps).
+_SUBTYPE_COLOUR_CHOICES = (("", _("The colour of its land type")), ("W", _("White")),
+                           ("U", _("Blue")), ("B", _("Black")), ("R", _("Red")),
+                           ("G", _("Green")), ("C", _("Colourless")))
+
+VARIANTS = {
+    "tapped_unless": Variants(
+        field="kind",
+        specs={
+            "control_type": (
+                Field("types", "multi", _("Land types"), _LAND_TYPES_HELP,
+                      choices=_LAND_TYPE_CHOICES),),
+            "lands": (
+                Field("count", "int", _("Lands"), high=10),
+                Field("at_least", "bool", _("That many or more"),
+                      _("Unticked: that many or fewer."), default=True),
+                Field("other", "bool", _("Not counting this land")),
+                Field("basic", "bool", _("Basic lands only")),
+                Field("type", "choice", _("Of type"),
+                      choices=(("", _("Any land")), *_LAND_TYPE_CHOICES)),
+            ),
+            "opponents": (
+                Field("count", "int", _("Opponents"), _("A Commander table has three."),
+                      low=1, high=5),),
+            "reveal": (
+                Field("types", "words", _("Card types"),
+                      _("Comma-separated, such as swamp or giant. Any one of them is enough.")),),
+            "pay_life": (Field("life", "int", _("Life paid"), low=1, high=10),),
+            "permanent": (
+                Field("types", "words", _("Of these types"),
+                      _("Comma-separated, such as creature or gate.")),
+                Field("legendary", "bool", _("A legendary one")),
+            ),
+            "turn": (Field("count", "int", _("Up to your turn"), low=1, high=10),),
+            "opponent_lands": (
+                Field("count", "int", _("Lands"),
+                      _("Assumed: each of three opponents plays a land a turn."),
+                      low=1, high=20),),
+            "life_at_most": (Field("count", "int", _("Life at most"), low=1, high=40),),
+        },
+        labels={
+            "control_type": _("You control a land of a type"),
+            "lands": _("You control a number of lands"),
+            "opponents": _("You have a number of opponents"),
+            "reveal": _("You reveal a land card of a type from your hand"),
+            "pay_life": _("You pay life"),
+            "permanent": _("You control a permanent of a type"),
+            "turn": _("It is one of your first turns"),
+            "opponent_lands": _("Your opponents control a number of lands"),
+            "life_at_most": _("Your life is low"),
+        },
+        defaults={
+            "control_type": {"kind": "control_type", "types": ["swamp"]},
+            "lands": {"kind": "lands", "count": 2, "at_least": True, "other": True,
+                      "basic": False, "type": ""},
+            "opponents": {"kind": "opponents", "count": 2},
+            "reveal": {"kind": "reveal", "types": ["swamp"]},
+            "pay_life": {"kind": "pay_life", "life": 2},
+            "permanent": {"kind": "permanent", "types": ["creature"], "legendary": False},
+            "turn": {"kind": "turn", "count": 3},
+            "opponent_lands": {"kind": "opponent_lands", "count": 4},
+            "life_at_most": {"kind": "life_at_most", "count": 10},
+        },
+    ),
+    # Only edited where the reader read one: what a rule counts is spelled
+    # in a shape no form should write by hand. Granted and added mana
+    # ("extra", "grant") keep "Off" and "Back to the card data" only.
+    "mana_rule": Variants(
+        field="rule",
+        specs={
+            "type_adding": (
+                Field("subtype", "choice", _("Every land is also a"),
+                      choices=_LAND_TYPE_CHOICES),),
+            "double_subtype": (
+                Field("subtype", "word", _("Lands of this type")),
+                Field("color", "colour", _("Make one more of"),
+                      choices=_SUBTYPE_COLOUR_CHOICES),
+            ),
+            "per_controlled": (
+                Field("subtype", "word", _("For each land of this type")),
+                Field("color", "colour", _("Of colour"), choices=_SUBTYPE_COLOUR_CHOICES),
+                Field("activation", "int", _("Generic mana it costs beside tapping"),
+                      high=10),
+            ),
+            "counts": (
+                Field("color", "colors", _("Of colours"),
+                      _("Letters such as G, or WUBRG for any combination. Blank: one colour, "
+                        "the one the hand needs.")),
+                Field("activation", "int", _("Generic mana it costs beside tapping"),
+                      high=10),
+            ),
+            "ritual": (
+                Field("color", "colour", _("Of colour"), choices=_COLOR_CHOICES[1:]),),
+            "multiply": (Field("times", "int", _("Mana multiplied by"), low=2, high=4),),
+            "lands_could_produce": (
+                Field("with_counter", "optint", _("Mana with a +1/+1 counter on it"),
+                      _("Blank: no more than without."), high=5),),
+        },
+        labels={},
+        defaults={},
+    ),
 }
 
 #: Primitives with a form; the rest can be switched off or reset only.
-EDITABLE = frozenset(FIELDS)
+EDITABLE = frozenset(FIELDS) | frozenset(VARIANTS)
 
 
 # --- lists: one entry at a time (E3) ------------------------------------------------

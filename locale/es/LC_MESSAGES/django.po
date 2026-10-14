@@ -12774,3 +12774,454 @@ msgstr ""
 "dice «revisar» y el mazo la cuenta entre las cartas que te necesitan. Mantén"
 " tu corrección, vuelve a los datos de la carta o defínela de nuevo; hasta "
 "entonces no se pierde nada de lo que dijiste."
+
+#: simulations/primitives.py
+msgid "Any one of them is enough."
+msgstr "Basta con uno."
+
+#: simulations/primitives.py
+msgid "How it spends its counters"
+msgstr "Cómo gasta sus contadores"
+
+#: simulations/primitives.py
+msgid "Mana each use"
+msgstr "Maná por uso"
+
+#: simulations/primitives.py
+msgid "Counters it enters with"
+msgstr "Contadores al entrar"
+
+#: simulations/primitives.py
+msgid "Counters each use spends"
+msgstr "Contadores gastados por uso"
+
+#: simulations/primitives.py
+msgid "Or it enters with"
+msgstr "O entra con"
+
+#: simulations/primitives.py
+msgid "Multikicker cost"
+msgstr "Coste de multiestímulo"
+
+#: simulations/primitives.py
+msgid "Generic mana. 0: none."
+msgstr "Maná genérico. 0: ninguno."
+
+#: simulations/primitives.py
+msgid "It gets more counters"
+msgstr "Recibe más contadores"
+
+#: simulations/primitives.py
+msgid "With no counters left"
+msgstr "Sin contadores restantes"
+
+#: simulations/primitives.py
+msgid "Used once each turn, without tapping"
+msgstr "Se usa una vez por turno, sin girarla"
+
+#: simulations/primitives.py
+msgid "The counters it enters with go on itself"
+msgstr "Los contadores al entrar van sobre sí misma"
+
+#: simulations/primitives.py
+msgid "+1/+1 counters it enters with"
+msgstr "Contadores +1/+1 al entrar"
+
+#: simulations/primitives.py
+msgid "It enters with X of them"
+msgstr "Entra con X de ellos"
+
+#: simulations/primitives.py
+msgid "Creatures it puts a counter on as it enters"
+msgstr "Criaturas sobre las que pone un contador al entrar"
+
+#: simulations/primitives.py
+msgid "One more on each placement"
+msgstr "Uno más en cada colocación"
+
+#: simulations/primitives.py
+msgid "Counters added each time +1/+1 counters go on one of your creatures."
+msgstr ""
+"Contadores añadidos cada vez que se ponen contadores +1/+1 sobre una de tus "
+"criaturas."
+
+#: simulations/primitives.py
+msgid "Draws a card when a creature with the greatest power enters"
+msgstr "Roba una carta cuando entra una criatura con la mayor fuerza"
+
+#: simulations/primitives.py
+msgid "Cards it looks at for a creature"
+msgstr "Cartas que mira en busca de una criatura"
+
+#: simulations/primitives.py
+msgid "You control a land of a type"
+msgstr "Controlas una tierra de un tipo"
+
+#: simulations/primitives.py
+msgid "You control a number of lands"
+msgstr "Controlas un número de tierras"
+
+#: simulations/primitives.py
+msgid "You have a number of opponents"
+msgstr "Tienes un número de oponentes"
+
+#: simulations/primitives.py
+msgid "You reveal a land card of a type from your hand"
+msgstr "Muestras de tu mano una carta de un tipo"
+
+#: simulations/primitives.py
+msgid "You pay life"
+msgstr "Pagas vida"
+
+#: simulations/primitives.py
+msgid "You control a permanent of a type"
+msgstr "Controlas un permanente de un tipo"
+
+#: simulations/primitives.py
+msgid "It is one of your first turns"
+msgstr "Es uno de tus primeros turnos"
+
+#: simulations/primitives.py
+msgid "Your opponents control a number of lands"
+msgstr "Tus oponentes controlan un número de tierras"
+
+#: simulations/primitives.py
+msgid "Your life is low"
+msgstr "Tu vida es baja"
+
+#: simulations/primitives.py
+msgid "One use each turn, as it is tapped"
+msgstr "Un uso por turno, al girarla"
+
+#: simulations/primitives.py
+msgid "Whenever a spell needs the mana, as a Treasure"
+msgstr "Siempre que un hechizo necesite el maná, como un Tesoro"
+
+#: simulations/primitives.py
+msgid "One mana for each counter on it; the counters stay"
+msgstr "Un maná por cada contador sobre ella; los contadores se quedan"
+
+#: simulations/primitives.py
+msgid "The number above"
+msgstr "El número de arriba"
+
+#: simulations/primitives.py
+msgid "X counters"
+msgstr "X contadores"
+
+#: simulations/primitives.py
+msgid "One for each colour spent on it"
+msgstr "Uno por cada color gastado en ella"
+
+#: simulations/primitives.py
+msgid "One for each time it was kicked"
+msgstr "Uno por cada vez que se estimuló"
+
+#: simulations/primitives.py
+msgid "Never"
+msgstr "Nunca"
+
+#: simulations/primitives.py
+msgid "By tapping instead of making mana"
+msgstr "Girándola en vez de producir maná"
+
+#: simulations/primitives.py
+msgid "Each time it is used"
+msgstr "Cada vez que se usa"
+
+#: simulations/primitives.py
+msgid "For each red spell you cast"
+msgstr "Por cada hechizo rojo que lanzas"
+
+#: simulations/primitives.py
+msgid "It stays"
+msgstr "Se queda"
+
+#: simulations/primitives.py
+msgid "It is sacrificed"
+msgstr "Se sacrifica"
+
+#: simulations/primitives.py
+msgid "It returns to your hand"
+msgstr "Regresa a tu mano"
+
+#: simulations/primitives.py
+msgid "It dies (counters that lower its toughness)"
+msgstr "Muere (contadores que reducen su resistencia)"
+
+#: simulations/primitives.py
+msgid "That many or more"
+msgstr "Esa cantidad o más"
+
+#: simulations/primitives.py
+msgid "Unticked: that many or fewer."
+msgstr "Sin marcar: esa cantidad o menos."
+
+#: simulations/primitives.py
+msgid "Not counting this land"
+msgstr "Sin contar esta tierra"
+
+#: simulations/primitives.py
+msgid "Of type"
+msgstr "Del tipo"
+
+#: simulations/primitives.py
+msgid "Opponents"
+msgstr "Oponentes"
+
+#: simulations/primitives.py
+msgid "A Commander table has three."
+msgstr "Una mesa de Commander tiene tres."
+
+#: simulations/primitives.py
+msgid "Card types"
+msgstr "Tipos de carta"
+
+#: simulations/primitives.py
+msgid "Comma-separated, such as swamp or giant. Any one of them is enough."
+msgstr "Separados por comas, como swamp o giant. Basta con uno."
+
+#: simulations/primitives.py
+msgid "Of these types"
+msgstr "De estos tipos"
+
+#: simulations/primitives.py
+msgid "Comma-separated, such as creature or gate."
+msgstr "Separados por comas, como creature o gate."
+
+#: simulations/primitives.py
+msgid "A legendary one"
+msgstr "Uno legendario"
+
+#: simulations/primitives.py
+msgid "Up to your turn"
+msgstr "Hasta tu turno"
+
+#: simulations/primitives.py
+msgid "Assumed: each of three opponents plays a land a turn."
+msgstr "Se supone: cada uno de tres oponentes juega una tierra por turno."
+
+#: simulations/primitives.py
+msgid "Life at most"
+msgstr "Vida como máximo"
+
+#: simulations/primitives.py
+msgid "Every land is also a"
+msgstr "Cada tierra también es un"
+
+#: simulations/primitives.py
+msgid "Lands of this type"
+msgstr "Tierras de este tipo"
+
+#: simulations/primitives.py
+msgid "Make one more of"
+msgstr "Producen uno más de"
+
+#: simulations/primitives.py
+msgid "For each land of this type"
+msgstr "Por cada tierra de este tipo"
+
+#: simulations/primitives.py
+msgid "Generic mana it costs beside tapping"
+msgstr "Maná genérico además de girarla"
+
+#: simulations/primitives.py
+msgid "Of colours"
+msgstr "De los colores"
+
+#: simulations/primitives.py
+msgid ""
+"Letters such as G, or WUBRG for any combination. Blank: one colour, the one "
+"the hand needs."
+msgstr ""
+"Letras como G, o WUBRG para cualquier combinación. Vacío: un color, el que "
+"necesita la mano."
+
+#: simulations/primitives.py
+msgid "Mana multiplied by"
+msgstr "Maná multiplicado por"
+
+#: simulations/primitives.py
+msgid "Mana with a +1/+1 counter on it"
+msgstr "Maná con un contador +1/+1 sobre ella"
+
+#: simulations/primitives.py
+msgid "Blank: no more than without."
+msgstr "Vacío: no más que sin él."
+
+#: simulations/primitives.py
+msgid "Any land"
+msgstr "Cualquier tierra"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(count)s mana each use"
+msgid_plural "%(count)s mana each use"
+msgstr[0] "%(count)s maná por uso"
+msgstr[1] "%(count)s maná por uso"
+msgstr[2] "%(count)s maná por uso"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control %(count)s or more land"
+msgid_plural "untapped if you control %(count)s or more lands"
+msgstr[0] "enderezada si controlas %(count)s o más tierra"
+msgstr[1] "enderezada si controlas %(count)s o más tierras"
+msgstr[2] "enderezada si controlas %(count)s o más tierras"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control %(count)s or fewer land"
+msgid_plural "untapped if you control %(count)s or fewer lands"
+msgstr[0] "enderezada si controlas %(count)s o menos tierra"
+msgstr[1] "enderezada si controlas %(count)s o menos tierras"
+msgstr[2] "enderezada si controlas %(count)s o menos tierras"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you have %(count)s or more opponent"
+msgid_plural "untapped if you have %(count)s or more opponents"
+msgstr[0] "enderezada si tienes %(count)s o más oponente"
+msgstr[1] "enderezada si tienes %(count)s o más oponentes"
+msgstr[2] "enderezada si tienes %(count)s o más oponentes"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you pay %(count)s life"
+msgstr "enderezada si pagas %(count)s vidas"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped up to your turn %(count)s"
+msgstr "enderezada hasta tu turno %(count)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if an opponent controls %(count)s or more land"
+msgid_plural "untapped if an opponent controls %(count)s or more lands"
+msgstr[0] "enderezada si un oponente controla %(count)s o más tierra"
+msgstr[1] "enderezada si un oponente controla %(count)s o más tierras"
+msgstr[2] "enderezada si un oponente controla %(count)s o más tierras"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you have %(count)s or less life"
+msgstr "enderezada si tienes %(count)s vidas o menos"
+
+#: simulations/editor.py
+msgid "not counting this one"
+msgstr "sin contar esta"
+
+#: simulations/editor.py
+msgid "basic ones"
+msgstr "básicas"
+
+#: simulations/editor.py
+msgid "enters with X +1/+1 counters"
+msgstr "entra con X contadores +1/+1"
+
+#: simulations/editor.py
+#, python-format
+msgid "enters with %(count)s +1/+1 counter"
+msgid_plural "enters with %(count)s +1/+1 counters"
+msgstr[0] "entra con %(count)s contador +1/+1"
+msgstr[1] "entra con %(count)s contadores +1/+1"
+msgstr[2] "entra con %(count)s contadores +1/+1"
+
+#: simulations/editor.py
+#, python-format
+msgid "enters with %(count)s counter"
+msgid_plural "enters with %(count)s counters"
+msgstr[0] "entra con %(count)s contador"
+msgstr[1] "entra con %(count)s contadores"
+msgstr[2] "entra con %(count)s contadores"
+
+#: simulations/editor.py
+#, python-format
+msgid "puts a counter on %(count)s creature as it enters"
+msgid_plural "puts a counter on %(count)s creatures as it enters"
+msgstr[0] "pone un contador sobre %(count)s criatura al entrar"
+msgstr[1] "pone un contador sobre %(count)s criaturas al entrar"
+msgstr[2] "pone un contador sobre %(count)s criaturas al entrar"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(count)s more counter on each placement"
+msgid_plural "%(count)s more counters on each placement"
+msgstr[0] "%(count)s contador más en cada colocación"
+msgstr[1] "%(count)s contadores más en cada colocación"
+msgstr[2] "%(count)s contadores más en cada colocación"
+
+#: simulations/editor.py
+msgid "draws when a creature with the greatest power enters"
+msgstr "roba cuando entra una criatura con la mayor fuerza"
+
+#: simulations/editor.py
+#, python-format
+msgid "looks at %(count)s card for a creature"
+msgid_plural "looks at %(count)s cards for a creature"
+msgstr[0] "mira %(count)s carta en busca de una criatura"
+msgstr[1] "mira %(count)s cartas en busca de una criatura"
+msgstr[2] "mira %(count)s cartas en busca de una criatura"
+
+#: simulations/editor.py
+#, python-format
+msgid "“%(mana)s” is not a set of colours. Use letters such as G or WUBRG."
+msgstr "«%(mana)s» no es un conjunto de colores. Usa letras como G o WUBRG."
+
+#: simulations/editor.py
+msgid "Name at least one type."
+msgstr "Indica al menos un tipo."
+
+#: templates/simulations/_primitives.html
+msgid "Which one is it?"
+msgstr "¿Cuál es?"
+
+#: templates/simulations/_primitives.html
+msgid "It is another kind"
+msgstr "Es de otro tipo"
+
+#: changelog/entries.py
+msgid "Every building block of a card can be corrected"
+msgstr "Cada bloque de una carta se puede corregir"
+
+#: changelog/entries.py
+msgid ""
+"When a land enters untapped, mana kept as counters, +1/+1 counters and mana "
+"that counts the board now have a form of their own on the card's page, as "
+"land searches and triggers do. How many cards a search finds is set in its "
+"Search block, no longer under “How to play it”."
+msgstr ""
+"Cuándo una tierra entra enderezada, el maná guardado como contadores, los "
+"contadores +1/+1 y el maná que cuenta el tablero tienen ahora su propio "
+"formulario en la página de la carta, como las búsquedas de tierras y los "
+"disparadores. Cuántas cartas encuentra una búsqueda se indica en su bloque "
+"Búsqueda, ya no en «Cómo jugarla»."
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a land of type %(types)s"
+msgstr "enderezada si controlas una tierra de tipo %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you reveal a card of type %(types)s from your hand"
+msgstr "enderezada si muestras de tu mano una carta de tipo %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a permanent of type %(types)s"
+msgstr "enderezada si controlas un permanente de tipo %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a legendary permanent of type %(types)s"
+msgstr "enderezada si controlas un permanente legendario de tipo %(types)s"
+
+#: simulations/primitives.py
+msgid "The colour of its land type"
+msgstr "El color de su tipo de tierra"
+
+#: templates/simulations/_primitives.html
+msgid "Change"
+msgstr "Cambiar"

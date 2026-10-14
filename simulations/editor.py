@@ -12,6 +12,11 @@ the stored override, so editing the count of a search cannot lose its
 condition. A primitive that is a list - triggers, triggers in combat, the
 ways to pay an additional cost - is edited one entry at a time (E3), and the
 other entries stay as they are.
+
+Some primitives have boxes that depend on one of their fields (card model
+phase 2, PR 7; `primitives.VARIANTS`): which condition lets a land enter
+untapped, which rule a mana rule follows. That field is picked before the
+form - the *variant* - and is never one of its boxes.
 """
 
 import re
@@ -94,7 +99,9 @@ def blocks(reading, overrides: dict, scopes: dict,
         else:
             status = "card"
         value = overrides[key] if said else read
-        editable = key in primitives.EDITABLE or key in LISTS
+        # Switched off, the form starts from the reading (`current`).
+        editable = (can_edit(key, value) if status != "off"
+                    else can_add(key) or can_edit(key, read)) or key in LISTS
         block = Block(
             key=key, label=str(primitive.label), help=str(primitive.help),
             text=(gettext("switched off") if status == "off"
@@ -111,9 +118,48 @@ def blocks(reading, overrides: dict, scopes: dict,
         )
         if said or read is not None:
             shown.append(block)
-        elif editable:
+        elif can_add(key) or key in LISTS:
             addable.append(block)
     return shown, addable
+
+
+def can_add(key: str) -> bool:
+    """Whether a person may write this primitive where the card has none."""
+    variants = primitives.VARIANTS.get(key)
+    if variants is not None:
+        return bool(variants.defaults)
+    return key in primitives.FIELDS
+
+
+def can_edit(key: str, value) -> bool:
+    """Whether a form describes this value of the primitive."""
+    variants = primitives.VARIANTS.get(key)
+    if variants is not None:
+        return bool(variants.specs.get(variants.of(value)))
+    return key in primitives.FIELDS
+
+
+def variant_choices(key: str) -> list[tuple[str, str]]:
+    """The variants a person may pick for `key`: (value, label)."""
+    variants = primitives.VARIANTS.get(key)
+    if variants is None:
+        return []
+    return [(name, str(variants.labels.get(name, name))) for name in variants.defaults]
+
+
+def starting_value(key: str, value, variant: str = ""):
+    """What a form for `key` edits: `value`, or - where a variant other than
+    its own is picked, or it has none - that variant as it starts.
+
+    Returns `None` when a variant has to be picked first.
+    """
+    variants = primitives.VARIANTS.get(key)
+    if variants is None:
+        return value
+    own = variants.of(value)
+    if variant in variants.defaults and variant != own:
+        return dict(variants.defaults[variant])
+    return value if variants.specs.get(own) else None
 
 
 @dataclass(frozen=True)
@@ -135,7 +181,7 @@ def gone(reading, overrides: dict, scope: str = "deck") -> list[Gone]:
     the lists, whose other entries are still there)."""
     return [
         Gone(key=key, label=str(primitives.BY_KEY[key].label), scope=check.scope,
-             here=check.scope == scope, editable=key in primitives.EDITABLE)
+             here=check.scope == scope, editable=can_add(key))
         for key, check in _checks_by_key(reading).items()
         if check.status == "gone" and key not in LISTS and key not in overrides
     ]
@@ -169,8 +215,14 @@ def current(key: str, overrides: dict, profile):
 # --- the form ------------------------------------------------------------------------
 
 
-def specs_of(key: str, item: bool) -> tuple:
-    return primitives.ITEM_FIELDS[key] if item else primitives.FIELDS[key]
+def specs_of(key: str, item: bool, value=None) -> tuple:
+    """A form's boxes: for a variant primitive, those of `value`'s variant."""
+    if item:
+        return primitives.ITEM_FIELDS[key]
+    variants = primitives.VARIANTS.get(key)
+    if variants is not None:
+        return variants.specs.get(variants.of(value), ())
+    return primitives.FIELDS[key]
 
 
 def split(form, specs) -> tuple[list, list]:
@@ -199,6 +251,8 @@ def _form_field(spec: primitives.Field):
     if spec.kind == "multi":
         return forms.MultipleChoiceField(choices=spec.choices,
                                          widget=forms.CheckboxSelectMultiple, **common)
+    if spec.kind == "colour":
+        return forms.ChoiceField(choices=spec.choices, **common)
     return forms.CharField(max_length=40, **common)
 
 
@@ -208,17 +262,22 @@ def initial(key: str, value) -> dict:
         return {"count": value}
     if key == "mox":
         return {"kind": value}
-    return _initial(primitives.FIELDS[key], value or {})
+    return _initial(specs_of(key, False, value), value or {})
 
 
 def _initial(specs, value: dict) -> dict:
     found = {}
     for spec in specs:
-        item = value.get(spec.name)
-        if spec.kind == "words":
+        item = value.get(spec.name, spec.default)
+        if spec.kind == "optint" and not isinstance(item, int):
+            item = None
+        elif spec.kind == "words":
             item = ", ".join(item or ())
         elif spec.kind == "mana":
             item = format_mana(item) if item else ""
+        elif spec.kind == "colour" and not isinstance(item, str):
+            # One colour, the key of what it makes: {"G": 1} is G.
+            item = next(iter(item)) if isinstance(item, dict) and len(item) == 1 else ""
         found[spec.name] = item
     return found
 
@@ -233,12 +292,41 @@ def value_from(key: str, base, cleaned: dict):
         return cleaned.get("count") or 1
     if key == "mox":
         return cleaned.get("kind") or "discard_land"
-    value = _apply(primitives.FIELDS[key], dict(base or {}), cleaned)
+    specs = specs_of(key, False, base)
+    value = _unsaid_left_out(specs, base, _apply(specs, dict(base or {}), cleaned))
     if key == "tutor":
         # Kind and types are one restriction; empty ones are "any card".
         for name in ("kind", "types", "color"):
             if not value.get(name):
                 value.pop(name, None)
+    elif key == "mana_store":
+        # What it makes is the colour's, as much as one use adds.
+        value["produces"] = ({value["produces"]: value["amount"]}
+                             if value.get("produces") else None)
+    shown = {spec.name for spec in specs}
+    if key == "tapped_unless" and "types" in shown and not value.get("types") \
+            or key == "mana_rule" and "subtype" in shown and not value.get("subtype"):
+        # A condition or a rule about no type at all: nothing to look for.
+        raise forms.ValidationError(gettext("Name at least one type."))
+    return value
+
+
+def _unsaid_left_out(specs, base, value: dict) -> dict:
+    """`value` without the boxes the stored value did not have and that were
+    left at what the adapter reads for a missing one.
+
+    So an untouched form gives back exactly what it was shown: "lands it
+    finds enter tapped: no" written into a search that never said so would
+    make the adapter read a search it does not play (a creature tutor to the
+    battlefield with no filter) as one it does.
+    """
+    base = base if isinstance(base, dict) else {}
+    for spec in specs:
+        if spec.name in base or spec.name not in value:
+            continue
+        item = value[spec.name]
+        if (item == spec.default) if spec.default is not None else not item:
+            del value[spec.name]
     return value
 
 
@@ -326,10 +414,12 @@ def _apply(specs, value: dict, cleaned: dict) -> dict:
         if spec.kind == "int":
             value[spec.name] = spec.low if item is None else item
         elif spec.kind == "optint":
-            if item is None:
-                value.pop(spec.name, None)
-            else:
+            if item is not None:
                 value[spec.name] = item
+            elif not isinstance(value.get(spec.name), str):
+                value.pop(spec.name, None)
+            # Else a word no box can hold - Chord of Calling's "X" - left
+            # blank, so it stays as it is.
         elif spec.kind == "bool":
             value[spec.name] = bool(item)
         elif spec.kind == "choice":
@@ -349,6 +439,12 @@ def _apply(specs, value: dict, cleaned: dict) -> dict:
                 raise forms.ValidationError(str(exc)) from exc
         elif spec.kind == "cost":
             value[spec.name] = _cost(item)
+        elif spec.kind == "colors":
+            value[spec.name] = _colors(item)
+        elif spec.kind == "colour":
+            # Blank where blank is no choice (a ritual's colour) keeps it.
+            blank = any(name == "" for name, _label in spec.choices)
+            value[spec.name] = item or ("" if blank else value.get(spec.name, ""))
     return value
 
 
@@ -378,6 +474,16 @@ def _pips(text) -> str:
     return text
 
 
+def _colors(text) -> str:
+    """Colour letters, each once, in the order WUBRG then C."""
+    letters = (text or "").strip().upper()
+    if not _PIPS.match(letters) or len(set(letters)) != len(letters):
+        raise forms.ValidationError(
+            gettext("“%(mana)s” is not a set of colours. Use letters such as G or WUBRG.")
+            % {"mana": letters})
+    return "".join(sorted(letters, key="WUBRGC".index))
+
+
 def _cost(text: str) -> str:
     text = (text or "").strip().upper()
     if text and not _COST.match(text):
@@ -398,7 +504,11 @@ def _text(key: str, reading) -> str:
     if key == "tutor":
         return reading.searches if card.tutor else ""
     if key == "tapped_unless":
-        return adapter._condition_text(card.tapped_unless) if card.tapped_unless else ""
+        return _unless_text(card.tapped_unless) if card.tapped_unless else ""
+    if key == "mana_store":
+        return _store_text(card.store) if card.store else ""
+    if key == "growth":
+        return _growth_text(card.growth) if card.growth else ""
     if key == "treasures":
         return ngettext("%(count)s Treasure as it resolves", "%(count)s Treasures as it resolves",
                         card.treasures) % {"count": card.treasures}
@@ -414,6 +524,87 @@ def _text(key: str, reading) -> str:
     if key == "mana_rule":
         return reading.taps_for
     return gettext("read from the card")
+
+
+def _unless_text(condition) -> str:
+    """When a land that enters tapped comes in untapped, in words (PR 7)."""
+    count = condition.count
+    types = " / ".join(sorted(word.capitalize() for word in condition.types))
+    kind = condition.kind
+    if kind == "lands":
+        text = (ngettext("untapped if you control %(count)s or more land",
+                         "untapped if you control %(count)s or more lands", count)
+                if condition.at_least else
+                ngettext("untapped if you control %(count)s or fewer land",
+                         "untapped if you control %(count)s or fewer lands", count))
+        text %= {"count": count}
+        said = [gettext("not counting this one") if condition.other else "",
+                gettext("basic ones") if condition.basic else "",
+                condition.type.capitalize()]
+        said = [part for part in said if part]
+        return f"{text} ({', '.join(said)})" if said else text
+    if kind == "control_type":
+        return gettext("untapped if you control a land of type %(types)s") % {"types": types}
+    if kind == "reveal":
+        return gettext("untapped if you reveal a card of type %(types)s from your hand") % {
+            "types": types}
+    if kind == "permanent":
+        return (gettext("untapped if you control a legendary permanent of type %(types)s")
+                if condition.legendary
+                else gettext("untapped if you control a permanent of type %(types)s")) % {
+            "types": types}
+    if kind == "opponents":
+        return ngettext("untapped if you have %(count)s or more opponent",
+                        "untapped if you have %(count)s or more opponents", count) % {
+            "count": count}
+    if kind == "pay_life":
+        return gettext("untapped if you pay %(count)s life") % {"count": count}
+    if kind == "turn":
+        return gettext("untapped up to your turn %(count)s") % {"count": count}
+    if kind == "opponent_lands":
+        return ngettext("untapped if an opponent controls %(count)s or more land",
+                        "untapped if an opponent controls %(count)s or more lands", count) % {
+            "count": count}
+    if kind == "life_at_most":
+        return gettext("untapped if you have %(count)s or less life") % {"count": count}
+    return adapter._condition_text(condition)
+
+
+def _store_text(store) -> str:
+    """Mana kept as counters, in words (PR 7)."""
+    each = ngettext("%(count)s mana each use", "%(count)s mana each use",
+                    store.amount) % {"count": store.amount}
+    if store.start_from:
+        return each
+    return "; ".join([each, ngettext("enters with %(count)s counter",
+                                     "enters with %(count)s counters",
+                                     store.start) % {"count": store.start}])
+
+
+def _growth_text(growth) -> str:
+    """+1/+1 counters, in words (PR 7)."""
+    said = []
+    if growth.enters_x:
+        said.append(gettext("enters with X +1/+1 counters"))
+    elif growth.enters:
+        said.append(ngettext("enters with %(count)s +1/+1 counter",
+                             "enters with %(count)s +1/+1 counters",
+                             growth.enters) % {"count": growth.enters})
+    if growth.puts:
+        said.append(ngettext("puts a counter on %(count)s creature as it enters",
+                             "puts a counter on %(count)s creatures as it enters",
+                             growth.puts) % {"count": growth.puts})
+    if growth.bonus:
+        said.append(ngettext("%(count)s more counter on each placement",
+                             "%(count)s more counters on each placement",
+                             growth.bonus) % {"count": growth.bonus})
+    if growth.draws_on_greatest:
+        said.append(gettext("draws when a creature with the greatest power enters"))
+    if growth.look:
+        said.append(ngettext("looks at %(count)s card for a creature",
+                             "looks at %(count)s cards for a creature",
+                             growth.look) % {"count": growth.look})
+    return "; ".join(said) or gettext("read from the card")
 
 
 #: Every colour, for describing an entry outside a deck.

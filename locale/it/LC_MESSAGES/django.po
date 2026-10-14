@@ -12670,3 +12670,444 @@ msgstr ""
 "mostra «da ricontrollare» e il mazzo la conta tra le carte che hanno bisogno"
 " di te. Mantieni la correzione, torna ai dati della carta o reimpostala; "
 "fino ad allora nulla di ciò che hai detto va perso."
+
+#: simulations/primitives.py
+msgid "Any one of them is enough."
+msgstr "Ne basta uno."
+
+#: simulations/primitives.py
+msgid "How it spends its counters"
+msgstr "Come spende i suoi segnalini"
+
+#: simulations/primitives.py
+msgid "Mana each use"
+msgstr "Mana per utilizzo"
+
+#: simulations/primitives.py
+msgid "Counters it enters with"
+msgstr "Segnalini all'ingresso"
+
+#: simulations/primitives.py
+msgid "Counters each use spends"
+msgstr "Segnalini spesi per utilizzo"
+
+#: simulations/primitives.py
+msgid "Or it enters with"
+msgstr "Oppure entra con"
+
+#: simulations/primitives.py
+msgid "Multikicker cost"
+msgstr "Costo di moltiprovocare"
+
+#: simulations/primitives.py
+msgid "Generic mana. 0: none."
+msgstr "Mana generico. 0: nessuno."
+
+#: simulations/primitives.py
+msgid "It gets more counters"
+msgstr "Riceve altri segnalini"
+
+#: simulations/primitives.py
+msgid "With no counters left"
+msgstr "Senza segnalini rimasti"
+
+#: simulations/primitives.py
+msgid "Used once each turn, without tapping"
+msgstr "Usata una volta per turno, senza TAPparla"
+
+#: simulations/primitives.py
+msgid "The counters it enters with go on itself"
+msgstr "I segnalini all'ingresso vanno su se stessa"
+
+#: simulations/primitives.py
+msgid "+1/+1 counters it enters with"
+msgstr "Segnalini +1/+1 all'ingresso"
+
+#: simulations/primitives.py
+msgid "It enters with X of them"
+msgstr "Entra con X di essi"
+
+#: simulations/primitives.py
+msgid "Creatures it puts a counter on as it enters"
+msgstr "Creature su cui mette un segnalino all'ingresso"
+
+#: simulations/primitives.py
+msgid "One more on each placement"
+msgstr "Uno in più a ogni posizionamento"
+
+#: simulations/primitives.py
+msgid "Counters added each time +1/+1 counters go on one of your creatures."
+msgstr ""
+"Segnalini aggiunti ogni volta che segnalini +1/+1 vengono messi su una tua "
+"creatura."
+
+#: simulations/primitives.py
+msgid "Draws a card when a creature with the greatest power enters"
+msgstr "Pesca una carta quando entra una creatura con la forza maggiore"
+
+#: simulations/primitives.py
+msgid "Cards it looks at for a creature"
+msgstr "Carte guardate per trovare una creatura"
+
+#: simulations/primitives.py
+msgid "You control a land of a type"
+msgstr "Controlli una terra di un tipo"
+
+#: simulations/primitives.py
+msgid "You control a number of lands"
+msgstr "Controlli un certo numero di terre"
+
+#: simulations/primitives.py
+msgid "You have a number of opponents"
+msgstr "Hai un certo numero di avversari"
+
+#: simulations/primitives.py
+msgid "You reveal a land card of a type from your hand"
+msgstr "Riveli dalla mano una carta di un tipo"
+
+#: simulations/primitives.py
+msgid "You pay life"
+msgstr "Paghi punti vita"
+
+#: simulations/primitives.py
+msgid "You control a permanent of a type"
+msgstr "Controlli un permanente di un tipo"
+
+#: simulations/primitives.py
+msgid "It is one of your first turns"
+msgstr "È uno dei tuoi primi turni"
+
+#: simulations/primitives.py
+msgid "Your opponents control a number of lands"
+msgstr "I tuoi avversari controllano un certo numero di terre"
+
+#: simulations/primitives.py
+msgid "Your life is low"
+msgstr "I tuoi punti vita sono bassi"
+
+#: simulations/primitives.py
+msgid "One use each turn, as it is tapped"
+msgstr "Un utilizzo per turno, quando viene TAPpata"
+
+#: simulations/primitives.py
+msgid "Whenever a spell needs the mana, as a Treasure"
+msgstr "Ogni volta che una magia ha bisogno del mana, come un Tesoro"
+
+#: simulations/primitives.py
+msgid "One mana for each counter on it; the counters stay"
+msgstr "Un mana per ogni segnalino su di essa; i segnalini restano"
+
+#: simulations/primitives.py
+msgid "The number above"
+msgstr "Il numero sopra"
+
+#: simulations/primitives.py
+msgid "X counters"
+msgstr "X segnalini"
+
+#: simulations/primitives.py
+msgid "One for each colour spent on it"
+msgstr "Uno per ogni colore speso per essa"
+
+#: simulations/primitives.py
+msgid "One for each time it was kicked"
+msgstr "Uno per ogni volta che è stata provocata"
+
+#: simulations/primitives.py
+msgid "Never"
+msgstr "Mai"
+
+#: simulations/primitives.py
+msgid "By tapping instead of making mana"
+msgstr "TAPpandola invece di produrre mana"
+
+#: simulations/primitives.py
+msgid "Each time it is used"
+msgstr "A ogni utilizzo"
+
+#: simulations/primitives.py
+msgid "For each red spell you cast"
+msgstr "Per ogni magia rossa che lanci"
+
+#: simulations/primitives.py
+msgid "It stays"
+msgstr "Resta"
+
+#: simulations/primitives.py
+msgid "It is sacrificed"
+msgstr "Viene sacrificata"
+
+#: simulations/primitives.py
+msgid "It returns to your hand"
+msgstr "Torna nella tua mano"
+
+#: simulations/primitives.py
+msgid "It dies (counters that lower its toughness)"
+msgstr "Muore (segnalini che riducono la sua costituzione)"
+
+#: simulations/primitives.py
+msgid "That many or more"
+msgstr "Altrettante o più"
+
+#: simulations/primitives.py
+msgid "Unticked: that many or fewer."
+msgstr "Non spuntata: altrettante o meno."
+
+#: simulations/primitives.py
+msgid "Not counting this land"
+msgstr "Senza contare questa terra"
+
+#: simulations/primitives.py
+msgid "Of type"
+msgstr "Del tipo"
+
+#: simulations/primitives.py
+msgid "Opponents"
+msgstr "Avversari"
+
+#: simulations/primitives.py
+msgid "A Commander table has three."
+msgstr "Un tavolo di Commander ne ha tre."
+
+#: simulations/primitives.py
+msgid "Card types"
+msgstr "Tipi di carta"
+
+#: simulations/primitives.py
+msgid "Comma-separated, such as swamp or giant. Any one of them is enough."
+msgstr "Separati da virgole, come swamp o giant. Ne basta uno."
+
+#: simulations/primitives.py
+msgid "Of these types"
+msgstr "Di questi tipi"
+
+#: simulations/primitives.py
+msgid "Comma-separated, such as creature or gate."
+msgstr "Separati da virgole, come creature o gate."
+
+#: simulations/primitives.py
+msgid "A legendary one"
+msgstr "Uno leggendario"
+
+#: simulations/primitives.py
+msgid "Up to your turn"
+msgstr "Fino al tuo turno"
+
+#: simulations/primitives.py
+msgid "Assumed: each of three opponents plays a land a turn."
+msgstr "Ipotesi: ciascuno dei tre avversari gioca una terra per turno."
+
+#: simulations/primitives.py
+msgid "Life at most"
+msgstr "Punti vita al massimo"
+
+#: simulations/primitives.py
+msgid "Every land is also a"
+msgstr "Ogni terra è anche un"
+
+#: simulations/primitives.py
+msgid "Lands of this type"
+msgstr "Terre di questo tipo"
+
+#: simulations/primitives.py
+msgid "Make one more of"
+msgstr "Producono uno in più di"
+
+#: simulations/primitives.py
+msgid "For each land of this type"
+msgstr "Per ogni terra di questo tipo"
+
+#: simulations/primitives.py
+msgid "Generic mana it costs beside tapping"
+msgstr "Mana generico oltre a TAPparla"
+
+#: simulations/primitives.py
+msgid "Of colours"
+msgstr "Dei colori"
+
+#: simulations/primitives.py
+msgid ""
+"Letters such as G, or WUBRG for any combination. Blank: one colour, the one "
+"the hand needs."
+msgstr ""
+"Lettere come G, o WUBRG per qualsiasi combinazione. Vuoto: un colore, quello"
+" che serve alla mano."
+
+#: simulations/primitives.py
+msgid "Mana multiplied by"
+msgstr "Mana moltiplicato per"
+
+#: simulations/primitives.py
+msgid "Mana with a +1/+1 counter on it"
+msgstr "Mana con un segnalino +1/+1 su di essa"
+
+#: simulations/primitives.py
+msgid "Blank: no more than without."
+msgstr "Vuoto: non più che senza."
+
+#: simulations/primitives.py
+msgid "Any land"
+msgstr "Qualsiasi terra"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(count)s mana each use"
+msgid_plural "%(count)s mana each use"
+msgstr[0] "%(count)s mana per utilizzo"
+msgstr[1] "%(count)s mana per utilizzo"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control %(count)s or more land"
+msgid_plural "untapped if you control %(count)s or more lands"
+msgstr[0] "STAPpata se controlli %(count)s o più terra"
+msgstr[1] "STAPpata se controlli %(count)s o più terre"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control %(count)s or fewer land"
+msgid_plural "untapped if you control %(count)s or fewer lands"
+msgstr[0] "STAPpata se controlli %(count)s o meno terra"
+msgstr[1] "STAPpata se controlli %(count)s o meno terre"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you have %(count)s or more opponent"
+msgid_plural "untapped if you have %(count)s or more opponents"
+msgstr[0] "STAPpata se hai %(count)s o più avversario"
+msgstr[1] "STAPpata se hai %(count)s o più avversari"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you pay %(count)s life"
+msgstr "STAPpata se paghi %(count)s punti vita"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped up to your turn %(count)s"
+msgstr "STAPpata fino al tuo turno %(count)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if an opponent controls %(count)s or more land"
+msgid_plural "untapped if an opponent controls %(count)s or more lands"
+msgstr[0] "STAPpata se un avversario controlla %(count)s o più terra"
+msgstr[1] "STAPpata se un avversario controlla %(count)s o più terre"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you have %(count)s or less life"
+msgstr "STAPpata se hai %(count)s o meno punti vita"
+
+#: simulations/editor.py
+msgid "not counting this one"
+msgstr "senza contare questa"
+
+#: simulations/editor.py
+msgid "basic ones"
+msgstr "base"
+
+#: simulations/editor.py
+msgid "enters with X +1/+1 counters"
+msgstr "entra con X segnalini +1/+1"
+
+#: simulations/editor.py
+#, python-format
+msgid "enters with %(count)s +1/+1 counter"
+msgid_plural "enters with %(count)s +1/+1 counters"
+msgstr[0] "entra con %(count)s segnalino +1/+1"
+msgstr[1] "entra con %(count)s segnalini +1/+1"
+
+#: simulations/editor.py
+#, python-format
+msgid "enters with %(count)s counter"
+msgid_plural "enters with %(count)s counters"
+msgstr[0] "entra con %(count)s segnalino"
+msgstr[1] "entra con %(count)s segnalini"
+
+#: simulations/editor.py
+#, python-format
+msgid "puts a counter on %(count)s creature as it enters"
+msgid_plural "puts a counter on %(count)s creatures as it enters"
+msgstr[0] "mette un segnalino su %(count)s creatura quando entra"
+msgstr[1] "mette un segnalino su %(count)s creature quando entra"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(count)s more counter on each placement"
+msgid_plural "%(count)s more counters on each placement"
+msgstr[0] "%(count)s segnalino in più a ogni posizionamento"
+msgstr[1] "%(count)s segnalini in più a ogni posizionamento"
+
+#: simulations/editor.py
+msgid "draws when a creature with the greatest power enters"
+msgstr "pesca quando entra una creatura con la forza maggiore"
+
+#: simulations/editor.py
+#, python-format
+msgid "looks at %(count)s card for a creature"
+msgid_plural "looks at %(count)s cards for a creature"
+msgstr[0] "guarda %(count)s carta per trovare una creatura"
+msgstr[1] "guarda %(count)s carte per trovare una creatura"
+
+#: simulations/editor.py
+#, python-format
+msgid "“%(mana)s” is not a set of colours. Use letters such as G or WUBRG."
+msgstr "«%(mana)s» non è un insieme di colori. Usa lettere come G o WUBRG."
+
+#: simulations/editor.py
+msgid "Name at least one type."
+msgstr "Indica almeno un tipo."
+
+#: templates/simulations/_primitives.html
+msgid "Which one is it?"
+msgstr "Quale è?"
+
+#: templates/simulations/_primitives.html
+msgid "It is another kind"
+msgstr "È di un altro tipo"
+
+#: changelog/entries.py
+msgid "Every building block of a card can be corrected"
+msgstr "Ogni blocco di una carta si può correggere"
+
+#: changelog/entries.py
+msgid ""
+"When a land enters untapped, mana kept as counters, +1/+1 counters and mana "
+"that counts the board now have a form of their own on the card's page, as "
+"land searches and triggers do. How many cards a search finds is set in its "
+"Search block, no longer under “How to play it”."
+msgstr ""
+"Quando una terra entra STAPpata, il mana conservato come segnalini, i "
+"segnalini +1/+1 e il mana che conta il campo hanno ora un modulo proprio "
+"nella pagina della carta, come le ricerche di terre e gli inneschi. Quante "
+"carte trova una ricerca si imposta nel suo blocco Ricerca, non più sotto "
+"«Come giocarla»."
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a land of type %(types)s"
+msgstr "STAPpata se controlli una terra di tipo %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you reveal a card of type %(types)s from your hand"
+msgstr "STAPpata se riveli dalla mano una carta di tipo %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a permanent of type %(types)s"
+msgstr "STAPpata se controlli un permanente di tipo %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a legendary permanent of type %(types)s"
+msgstr "STAPpata se controlli un permanente leggendario di tipo %(types)s"
+
+#: simulations/primitives.py
+msgid "The colour of its land type"
+msgstr "Il colore del suo tipo di terra"
+
+#: templates/simulations/_primitives.html
+msgid "Change"
+msgstr "Modifica"

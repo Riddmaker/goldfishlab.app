@@ -69,7 +69,7 @@ def test_the_export_names_no_owner_and_no_deck(corrected, django_db_blocker, tmp
         stored = CardAnnotation.objects.exclude(overrides={}).count()
     rows = json.loads(out.read_text(encoding="utf-8"))
     assert {key for row in rows for key in row} == {
-        "oracle_id", "name", "scope", "overrides", "count", "engine_version"}
+        "oracle_id", "name", "scope", "overrides", "patches", "count", "engine_version"}
     assert sum(row["count"] for row in rows) == stored
 
 

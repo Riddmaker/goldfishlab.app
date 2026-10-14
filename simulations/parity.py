@@ -14,8 +14,13 @@ Three sources of rows:
 * the test decks' corrections (`decks.fixtures.SHAPES`);
   both committed as `tests/fixtures/parity_corpus.json`;
 * real corrections from production, exported with `annotations_export`:
-  card, scope and overrides only - no owner, no deck. That file stays on the
-  operator's machine and is never committed.
+  card, scope, overrides and patches only - no owner, no deck. That file
+  stays on the operator's machine and is never committed.
+
+Since card model phase 2 (PR 7) a row carries its patches, and a reading
+plays them as the engine does (`patches.effective`) - against the
+catalogue it is read with. A row from an export made before has none and
+plays its overrides.
 """
 
 import json
@@ -30,7 +35,7 @@ CORPUS = Path(settings.BASE_DIR) / "tests" / "fixtures" / "parity_corpus.json"
 
 
 def rows(queryset=None) -> list[dict]:
-    """Correction rows without who made them: card, scope and overrides.
+    """Correction rows without who made them: card, scope, overrides and patches.
 
     Identical rows are counted, not repeated: the same correction on the same
     card by two players is one row with ``count`` 2.
@@ -46,7 +51,8 @@ def rows(queryset=None) -> list[dict]:
                json.dumps(row.overrides, sort_keys=True))
         entry = found.setdefault(key, {
             "oracle_id": str(row.oracle_card_id), "name": row.oracle_card.name,
-            "scope": row.scope, "overrides": row.overrides, "count": 0,
+            "scope": row.scope, "overrides": row.overrides, "patches": row.patches,
+            "count": 0,
             "engine_version": ENGINE_VERSION,
         })
         entry["count"] += 1
@@ -61,18 +67,25 @@ def readings(entries: list[dict]) -> dict:
     colour is read the way `coverage` reads it.
     """
     from cards.models import OracleCard
+    from simulations import patches
     from simulations.engine import adapter
 
-    builtin = {entry["oracle_id"]: entry["overrides"] for entry in entries
-               if entry["scope"] == "builtin"}
     cards = {str(pk): card for pk, card in OracleCard.objects.select_related("profile")
              .in_bulk({entry["oracle_id"] for entry in entries}).items()}
+
+    def played(entry) -> dict:
+        card = cards.get(entry["oracle_id"])
+        return patches.effective(entry["overrides"], entry.get("patches"),
+                                 getattr(card, "profile", None))[0]
+
+    builtin = {entry["oracle_id"]: played(entry) for entry in entries
+               if entry["scope"] == "builtin" and entry["oracle_id"] in cards}
     found, seen = {}, {}
     for entry in entries:
         card = cards.get(entry["oracle_id"])
         if card is None:
             continue
-        merged = dict(builtin.get(entry["oracle_id"], {})) | entry["overrides"]
+        merged = dict(builtin.get(entry["oracle_id"], {})) | played(entry)
         made, gaps = adapter.card_with(card, merged)
         base = f"{entry['scope']}:{entry['name']}"
         seen[base] = seen.get(base, 0) + 1

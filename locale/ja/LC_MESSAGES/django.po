@@ -11196,3 +11196,426 @@ msgid ""
 "nothing you said is lost."
 msgstr ""
 "あなたの修正の後でカードデータが変わると、そのカードに「再確認」と表示され、デッキはあなたの対応が必要なカードとして数えます。修正を維持する、カードデータに戻す、または設定し直すことができます。それまで、あなたの修正は失われません。"
+
+#: simulations/primitives.py
+msgid "Any one of them is enough."
+msgstr "いずれか1つで足ります。"
+
+#: simulations/primitives.py
+msgid "How it spends its counters"
+msgstr "カウンターの使い方"
+
+#: simulations/primitives.py
+msgid "Mana each use"
+msgstr "1回あたりのマナ"
+
+#: simulations/primitives.py
+msgid "Counters it enters with"
+msgstr "戦場に出るときのカウンター"
+
+#: simulations/primitives.py
+msgid "Counters each use spends"
+msgstr "1回に使うカウンター"
+
+#: simulations/primitives.py
+msgid "Or it enters with"
+msgstr "または戦場に出るときに"
+
+#: simulations/primitives.py
+msgid "Multikicker cost"
+msgstr "多重キッカー・コスト"
+
+#: simulations/primitives.py
+msgid "Generic mana. 0: none."
+msgstr "不特定マナ。0：なし。"
+
+#: simulations/primitives.py
+msgid "It gets more counters"
+msgstr "カウンターが増える"
+
+#: simulations/primitives.py
+msgid "With no counters left"
+msgstr "カウンターがなくなったら"
+
+#: simulations/primitives.py
+msgid "Used once each turn, without tapping"
+msgstr "毎ターン1回、タップせずに使う"
+
+#: simulations/primitives.py
+msgid "The counters it enters with go on itself"
+msgstr "戦場に出るときのカウンターは自身に置く"
+
+#: simulations/primitives.py
+msgid "+1/+1 counters it enters with"
+msgstr "戦場に出るときの+1/+1カウンター"
+
+#: simulations/primitives.py
+msgid "It enters with X of them"
+msgstr "X個で戦場に出る"
+
+#: simulations/primitives.py
+msgid "Creatures it puts a counter on as it enters"
+msgstr "戦場に出るときにカウンターを置くクリーチャーの数"
+
+#: simulations/primitives.py
+msgid "One more on each placement"
+msgstr "置くたびに追加される数"
+
+#: simulations/primitives.py
+msgid "Counters added each time +1/+1 counters go on one of your creatures."
+msgstr "あなたのクリーチャーに+1/+1カウンターが置かれるたびに追加される数。"
+
+#: simulations/primitives.py
+msgid "Draws a card when a creature with the greatest power enters"
+msgstr "最も大きいパワーのクリーチャーが出たら1枚引く"
+
+#: simulations/primitives.py
+msgid "Cards it looks at for a creature"
+msgstr "クリーチャーを探して見るカードの枚数"
+
+#: simulations/primitives.py
+msgid "You control a land of a type"
+msgstr "特定のタイプの土地をコントロールしている"
+
+#: simulations/primitives.py
+msgid "You control a number of lands"
+msgstr "一定数の土地をコントロールしている"
+
+#: simulations/primitives.py
+msgid "You have a number of opponents"
+msgstr "一定数の対戦相手がいる"
+
+#: simulations/primitives.py
+msgid "You reveal a land card of a type from your hand"
+msgstr "手札から特定のタイプのカードを公開する"
+
+#: simulations/primitives.py
+msgid "You pay life"
+msgstr "ライフを支払う"
+
+#: simulations/primitives.py
+msgid "You control a permanent of a type"
+msgstr "特定のタイプのパーマネントをコントロールしている"
+
+#: simulations/primitives.py
+msgid "It is one of your first turns"
+msgstr "最初のターンのうちのいずれかである"
+
+#: simulations/primitives.py
+msgid "Your opponents control a number of lands"
+msgstr "対戦相手が一定数の土地をコントロールしている"
+
+#: simulations/primitives.py
+msgid "Your life is low"
+msgstr "ライフが少ない"
+
+#: simulations/primitives.py
+msgid "One use each turn, as it is tapped"
+msgstr "毎ターン1回、タップしたとき"
+
+#: simulations/primitives.py
+msgid "Whenever a spell needs the mana, as a Treasure"
+msgstr "呪文がマナを必要とするたびに（宝物のように）"
+
+#: simulations/primitives.py
+msgid "One mana for each counter on it; the counters stay"
+msgstr "その上のカウンター1個につき1マナ（カウンターは残る）"
+
+#: simulations/primitives.py
+msgid "The number above"
+msgstr "上の数"
+
+#: simulations/primitives.py
+msgid "X counters"
+msgstr "X個のカウンター"
+
+#: simulations/primitives.py
+msgid "One for each colour spent on it"
+msgstr "支払った色1色につき1個"
+
+#: simulations/primitives.py
+msgid "One for each time it was kicked"
+msgstr "キッカーした回数1回につき1個"
+
+#: simulations/primitives.py
+msgid "Never"
+msgstr "なし"
+
+#: simulations/primitives.py
+msgid "By tapping instead of making mana"
+msgstr "マナを出す代わりにタップして"
+
+#: simulations/primitives.py
+msgid "Each time it is used"
+msgstr "使うたびに"
+
+#: simulations/primitives.py
+msgid "For each red spell you cast"
+msgstr "赤の呪文を唱えるたびに"
+
+#: simulations/primitives.py
+msgid "It stays"
+msgstr "そのまま残る"
+
+#: simulations/primitives.py
+msgid "It is sacrificed"
+msgstr "生け贄に捧げる"
+
+#: simulations/primitives.py
+msgid "It returns to your hand"
+msgstr "手札に戻る"
+
+#: simulations/primitives.py
+msgid "It dies (counters that lower its toughness)"
+msgstr "死亡する（タフネスを下げるカウンター）"
+
+#: simulations/primitives.py
+msgid "That many or more"
+msgstr "その数以上"
+
+#: simulations/primitives.py
+msgid "Unticked: that many or fewer."
+msgstr "チェックなし：その数以下。"
+
+#: simulations/primitives.py
+msgid "Not counting this land"
+msgstr "この土地を除く"
+
+#: simulations/primitives.py
+msgid "Of type"
+msgstr "タイプ"
+
+#: simulations/primitives.py
+msgid "Opponents"
+msgstr "対戦相手"
+
+#: simulations/primitives.py
+msgid "A Commander table has three."
+msgstr "統率者戦の卓では3人。"
+
+#: simulations/primitives.py
+msgid "Card types"
+msgstr "カード・タイプ"
+
+#: simulations/primitives.py
+msgid "Comma-separated, such as swamp or giant. Any one of them is enough."
+msgstr "カンマ区切り。例：swamp、giant。いずれか1つで足ります。"
+
+#: simulations/primitives.py
+msgid "Of these types"
+msgstr "これらのタイプ"
+
+#: simulations/primitives.py
+msgid "Comma-separated, such as creature or gate."
+msgstr "カンマ区切り。例：creature、gate。"
+
+#: simulations/primitives.py
+msgid "A legendary one"
+msgstr "伝説のもの"
+
+#: simulations/primitives.py
+msgid "Up to your turn"
+msgstr "このターン数まで"
+
+#: simulations/primitives.py
+msgid "Assumed: each of three opponents plays a land a turn."
+msgstr "想定：3人の対戦相手がそれぞれ毎ターン土地を1枚出す。"
+
+#: simulations/primitives.py
+msgid "Life at most"
+msgstr "ライフの上限"
+
+#: simulations/primitives.py
+msgid "Every land is also a"
+msgstr "すべての土地が持つ追加のタイプ"
+
+#: simulations/primitives.py
+msgid "Lands of this type"
+msgstr "このタイプの土地"
+
+#: simulations/primitives.py
+msgid "Make one more of"
+msgstr "追加で出すマナ"
+
+#: simulations/primitives.py
+msgid "For each land of this type"
+msgstr "このタイプの土地1つにつき"
+
+#: simulations/primitives.py
+msgid "Generic mana it costs beside tapping"
+msgstr "タップに加えて必要な不特定マナ"
+
+#: simulations/primitives.py
+msgid "Of colours"
+msgstr "色"
+
+#: simulations/primitives.py
+msgid ""
+"Letters such as G, or WUBRG for any combination. Blank: one colour, the one "
+"the hand needs."
+msgstr "Gのような文字。WUBRGで任意の組み合わせ。空欄：手札が必要とする1色。"
+
+#: simulations/primitives.py
+msgid "Mana multiplied by"
+msgstr "マナの倍率"
+
+#: simulations/primitives.py
+msgid "Mana with a +1/+1 counter on it"
+msgstr "+1/+1カウンターが置かれているときのマナ"
+
+#: simulations/primitives.py
+msgid "Blank: no more than without."
+msgstr "空欄：ないときと同じ。"
+
+#: simulations/primitives.py
+msgid "Any land"
+msgstr "任意の土地"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(count)s mana each use"
+msgid_plural "%(count)s mana each use"
+msgstr[0] "1回あたり%(count)sマナ"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control %(count)s or more land"
+msgid_plural "untapped if you control %(count)s or more lands"
+msgstr[0] "%(count)s個以上の土地をコントロールしていればアンタップ状態"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control %(count)s or fewer land"
+msgid_plural "untapped if you control %(count)s or fewer lands"
+msgstr[0] "%(count)s個以下の土地をコントロールしていればアンタップ状態"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you have %(count)s or more opponent"
+msgid_plural "untapped if you have %(count)s or more opponents"
+msgstr[0] "対戦相手が%(count)s人以上いればアンタップ状態"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you pay %(count)s life"
+msgstr "%(count)s点のライフを支払えばアンタップ状態"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped up to your turn %(count)s"
+msgstr "あなたの第%(count)sターンまではアンタップ状態"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if an opponent controls %(count)s or more land"
+msgid_plural "untapped if an opponent controls %(count)s or more lands"
+msgstr[0] "対戦相手が%(count)s個以上の土地をコントロールしていればアンタップ状態"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you have %(count)s or less life"
+msgstr "ライフが%(count)s以下ならアンタップ状態"
+
+#: simulations/editor.py
+msgid "not counting this one"
+msgstr "これを除く"
+
+#: simulations/editor.py
+msgid "basic ones"
+msgstr "基本土地"
+
+#: simulations/editor.py
+msgid "enters with X +1/+1 counters"
+msgstr "+1/+1カウンターX個とともに戦場に出る"
+
+#: simulations/editor.py
+#, python-format
+msgid "enters with %(count)s +1/+1 counter"
+msgid_plural "enters with %(count)s +1/+1 counters"
+msgstr[0] "+1/+1カウンター%(count)s個とともに戦場に出る"
+
+#: simulations/editor.py
+#, python-format
+msgid "enters with %(count)s counter"
+msgid_plural "enters with %(count)s counters"
+msgstr[0] "カウンター%(count)s個とともに戦場に出る"
+
+#: simulations/editor.py
+#, python-format
+msgid "puts a counter on %(count)s creature as it enters"
+msgid_plural "puts a counter on %(count)s creatures as it enters"
+msgstr[0] "戦場に出るときにクリーチャー%(count)s体にカウンターを置く"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(count)s more counter on each placement"
+msgid_plural "%(count)s more counters on each placement"
+msgstr[0] "置くたびにカウンターが%(count)s個増える"
+
+#: simulations/editor.py
+msgid "draws when a creature with the greatest power enters"
+msgstr "最も大きいパワーのクリーチャーが出たら引く"
+
+#: simulations/editor.py
+#, python-format
+msgid "looks at %(count)s card for a creature"
+msgid_plural "looks at %(count)s cards for a creature"
+msgstr[0] "クリーチャーを探してカードを%(count)s枚見る"
+
+#: simulations/editor.py
+#, python-format
+msgid "“%(mana)s” is not a set of colours. Use letters such as G or WUBRG."
+msgstr "「%(mana)s」は色の組み合わせではありません。GやWUBRGのような文字を使ってください。"
+
+#: simulations/editor.py
+msgid "Name at least one type."
+msgstr "タイプを1つ以上入力してください。"
+
+#: templates/simulations/_primitives.html
+msgid "Which one is it?"
+msgstr "どれですか？"
+
+#: templates/simulations/_primitives.html
+msgid "It is another kind"
+msgstr "別の種類です"
+
+#: changelog/entries.py
+msgid "Every building block of a card can be corrected"
+msgstr "カードのすべてのブロックを修正できます"
+
+#: changelog/entries.py
+msgid ""
+"When a land enters untapped, mana kept as counters, +1/+1 counters and mana "
+"that counts the board now have a form of their own on the card's page, as "
+"land searches and triggers do. How many cards a search finds is set in its "
+"Search block, no longer under “How to play it”."
+msgstr ""
+"土地がアンタップ状態で出る条件、カウンターとして蓄えるマナ、+1/+1カウンター、盤面を数えるマナに、土地サーチや誘発と同じくカードページ上の専用フォームができました。サーチで見つけるカードの枚数は「プレイのしかた」ではなく、サーチのブロックで設定します。"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a land of type %(types)s"
+msgstr "タイプが%(types)sの土地をコントロールしていればアンタップ状態"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you reveal a card of type %(types)s from your hand"
+msgstr "手札からタイプが%(types)sのカードを公開すればアンタップ状態"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a permanent of type %(types)s"
+msgstr "タイプが%(types)sのパーマネントをコントロールしていればアンタップ状態"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a legendary permanent of type %(types)s"
+msgstr "タイプが%(types)sの伝説のパーマネントをコントロールしていればアンタップ状態"
+
+#: simulations/primitives.py
+msgid "The colour of its land type"
+msgstr "その土地タイプの色"
+
+#: templates/simulations/_primitives.html
+msgid "Change"
+msgstr "変更"

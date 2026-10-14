@@ -81,6 +81,12 @@ class PricingView(TemplateView):
         # until then its name, price and limits are still being decided.
         tiers["plans"] = [plan for plan in tiers["plans"]
                           if plan.is_default or plan.pk in tiers["purchasable"]]
+        # Trying without an account has limits too (P20 F3, E1.21), read from
+        # the trial's own constants so the page cannot drift from them.
+        from guests import services as guests
+
+        tiers["trial_games"] = guests.TRIAL_GAMES
+        tiers["trial_turns"] = guests.TRIAL_TURNS
         return {**super().get_context_data(**kwargs), **tiers}
 
 
@@ -115,6 +121,9 @@ def _usage_rows(user) -> list[dict]:
          gettext("this month")),
         # Decks you have, not decks made this month: deleting one frees a slot.
         (quotas.DECKS_OWNED, gettext("Decks"), gettext("right now")),
+        # The third limit a plan has, and the one Lauf 1 met without having
+        # seen it anywhere (P20 F3, E1.21).
+        (UsageRecord.Metric.IMPORTS, gettext("Deck lists imported"), gettext("this month")),
     ):
         decision = quotas.check(user, metric, amount=0, raise_on_fail=False)
         # The bar's width; capped, because a plan changed mid-month can leave
@@ -252,6 +261,10 @@ def upgrade_prompt(request, exc: quotas.QuotaExceeded):
     return render(request, "billing/blocked.html", {
         "message": refusal(exc),
         "subscription": services.subscription_for(request.user),
+        # Decks owned is a count, not a monthly counter: deleting one frees a
+        # place, and the first of the month does not (P20 F3, E1.20).
+        "owned": exc.metric == quotas.DECKS_OWNED,
+        "guest": getattr(request.user, "is_guest", False),
     }, status=402)
 
 

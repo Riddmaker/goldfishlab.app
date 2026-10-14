@@ -5,7 +5,7 @@
 {% block content %}
   <h1 class="font-display text-3xl text-parchment-100">{% translate "Which column is which?" %}</h1>
   <p class="mt-3 max-w-2xl text-parchment-200">
-    {% if pending.filename %}{{ pending.filename }}{% else %}{% translate "Your file" %}{% endif %} —
+    {% if pending.filename %}{{ pending.filename }}{% else %}{% translate "Pasted list" %}{% endif %} —
     {% blocktranslate count count=headers|length %}{{ count }} column{% plural %}{{ count }} columns{% endblocktranslate %},
     {% if table.delimiter_label == "comma" %}
       {% translate "separated by commas" %}

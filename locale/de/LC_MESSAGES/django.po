@@ -11620,6 +11620,923 @@ msgid_plural "%(count)s Treasures as it resolves"
 msgstr[0] "%(count)s Treasure beim Auflösen"
 msgstr[1] "%(count)s Treasures beim Auflösen"
 
+#: decks/models.py
+#, python-format
+msgid "%(count)s sideboard card was not imported."
+msgid_plural "%(count)s sideboard cards were not imported."
+msgstr[0] "%(count)s Sideboard-Karte wurde nicht übernommen."
+msgstr[1] "%(count)s Sideboard-Karten wurden nicht übernommen."
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s maybeboard card was not imported."
+msgid_plural "%(count)s maybeboard cards were not imported."
+msgstr[0] "%(count)s Maybeboard-Karte wurde nicht übernommen."
+msgstr[1] "%(count)s Maybeboard-Karten wurden nicht übernommen."
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s companion was not imported."
+msgid_plural "%(count)s companions were not imported."
+msgstr[0] "%(count)s Gefährte wurde nicht übernommen."
+msgstr[1] "%(count)s Gefährten wurden nicht übernommen."
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s token was not imported."
+msgid_plural "%(count)s tokens were not imported."
+msgstr[0] "%(count)s Spielstein wurde nicht übernommen."
+msgstr[1] "%(count)s Spielsteine wurden nicht übernommen."
+
+#: decks/models.py
+msgid "Foil"
+msgstr "Foil"
+
+#: decks/models.py
+msgid "Etched foil"
+msgstr "Etched Foil"
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s more"
+msgid_plural "%(count)s more"
+msgstr[0] "%(count)s weiterer"
+msgstr[1] "%(count)s weitere"
+
+#: templates/decks/_left_out.html
+msgid ""
+"Goldfish Lab plays the deck itself, so only the main deck and the commander "
+"were read."
+msgstr ""
+"Goldfish Lab spielt das Deck selbst, darum wurden nur Hauptdeck und "
+"Commander gelesen."
+
+#: decks/importers/columns.py
+msgid "board or section"
+msgstr "Bereich (Board)"
+
+#: decks/services.py
+msgid ""
+"Goldfish Lab cannot open links to other sites - it needs the list itself."
+msgstr ""
+"Goldfish Lab kann keine Links zu anderen Seiten öffnen - es braucht die "
+"Liste selbst."
+
+#: decks/services.py
+msgid "On Moxfield: open the deck → More → Export → copy, then paste it here."
+msgstr ""
+"Auf Moxfield: Deck öffnen → More → Export → kopieren, dann hier einfügen."
+
+#: decks/services.py
+msgid ""
+"On Archidekt: open the deck → More → Export, then paste the text or upload "
+"the CSV."
+msgstr ""
+"Auf Archidekt: Deck öffnen → More → Export, dann den Text einfügen oder die "
+"CSV hochladen."
+
+#: decks/services.py
+msgid ""
+"In ManaBox: open the deck → ⋮ → Export or Share, then paste the text here."
+msgstr ""
+"In ManaBox: Deck öffnen → ⋮ → Export oder Share, dann den Text hier "
+"einfügen."
+
+#: decks/services.py
+msgid ""
+"Open the deck there, look for Export or Download, and paste the text list "
+"here."
+msgstr ""
+"Öffne das Deck dort, such nach Export oder Download und füge die Textliste "
+"hier ein."
+
+#: decks/services.py
+msgid "the file only lists cards outside the deck (sideboard or maybeboard)"
+msgstr ""
+"die Datei nennt nur Karten ausserhalb des Decks (Sideboard oder Maybeboard)"
+
+#: changelog/entries.py
+msgid "Deck lists are read the way your tool writes them"
+msgstr "Decklisten werden so gelesen, wie dein Tool sie schreibt"
+
+#: changelog/entries.py
+msgid ""
+"The importer now reads the exports of Moxfield, Archidekt, ManaBox, "
+"TappedOut and Arena as they come: with set, collector number and foil, with "
+"category tags, and with headings in every language the site speaks. The "
+"printing and the foil are shown beside each card. Sideboard and maybeboard "
+"stay out of the deck, and the deck page says how many cards that was. A "
+"Moxfield list whose first card has a comma in its name, an Archidekt CSV "
+"without a header row and an Excel file with semicolons are read without "
+"asking. A link to a deck is answered with where that site keeps its export."
+msgstr ""
+"Der Import liest die Exporte von Moxfield, Archidekt, ManaBox, TappedOut und"
+" Arena jetzt so, wie sie kommen: mit Set, Sammlernummer und Foil, mit "
+"Kategorien und mit Abschnittsköpfen in jeder Sprache der Seite. Druck und "
+"Foil stehen neben jeder Karte. Sideboard und Maybeboard bleiben draussen, "
+"und die Deckseite sagt, wie viele Karten das waren. Eine Moxfield-Liste mit "
+"einem Komma im Namen der ersten Karte, eine Archidekt-CSV ohne Kopfzeile und"
+" eine Excel-Datei mit Semikolons werden ohne Rückfrage gelesen. Auf einen "
+"Link zu einem Deck kommt die Antwort, wo diese Seite ihren Export hat."
+
+#: decks/models.py
+msgid "The file does not name a commander."
+msgstr "Die Datei nennt keinen Commander."
+
+#: decks/models.py
+#, python-format
+msgid "The file names %(names)s as commander, but that card was not found."
+msgstr ""
+"Die Datei nennt %(names)s als Commander, aber diese Karte wurde nicht "
+"gefunden."
+
+#: decks/models.py
+#, python-format
+msgid ""
+"The file names %(names)s as commander, but that card cannot lead a Commander"
+" deck."
+msgstr ""
+"Die Datei nennt %(names)s als Commander, aber diese Karte darf kein "
+"Commander-Deck anführen."
+
+#: decks/models.py
+#, python-format
+msgid ""
+"The file names %(names)s as commanders, but they cannot share the command "
+"zone."
+msgstr ""
+"Die Datei nennt %(names)s als Commander, aber die beiden dürfen sich die "
+"Kommandozone nicht teilen."
+
+#: decks/forms.py
+msgid "Choose a commander."
+msgstr "Wähle einen Commander."
+
+#: decks/forms.py
+msgid "That card cannot be this deck's commander."
+msgstr "Diese Karte kann nicht der Commander dieses Decks sein."
+
+#: decks/forms.py
+msgid "That card cannot be a second commander here."
+msgstr "Diese Karte kann hier nicht zweiter Commander sein."
+
+#: decks/forms.py
+#, python-format
+msgid "%(first)s and %(second)s cannot share the command zone."
+msgstr "%(first)s und %(second)s dürfen sich die Kommandozone nicht teilen."
+
+#: decks/analysis.py
+#, python-format
+msgid "%(first)s and %(second)s cannot share the command zone"
+msgstr "%(first)s und %(second)s dürfen sich die Kommandozone nicht teilen"
+
+#: decks/views.py
+#, python-format
+msgid "%(first)s and %(second)s are now the commanders."
+msgstr "%(first)s und %(second)s sind jetzt die Commander."
+
+#: decks/analysis.py
+#, python-format
+msgid "The commanders' identity is %(colours)s."
+msgstr "Die Farbidentität der Commander ist %(colours)s."
+
+#: decks/analysis.py
+msgid ""
+"A commander is a legendary creature, or a card that says it can be one; two "
+"share the command zone only as partners or with a Background."
+msgstr ""
+"Ein Commander ist eine legendäre Kreatur oder eine Karte, die sagt, dass sie"
+" einer sein kann; zwei teilen sich die Kommandozone nur als Partner oder mit"
+" einem Hintergrund."
+
+#: decks/analysis.py
+msgid "May be commanders"
+msgstr "Dürfen Commander sein"
+
+#: decks/analysis.py
+msgid "May be commander"
+msgstr "Darf Commander sein"
+
+#: decks/analysis.py
+#, python-format
+msgid "%(card)s cannot be a commander"
+msgstr "%(card)s kann nicht Commander sein"
+
+#: templates/decks/_commander_form.html
+#, python-format
+msgid ""
+"The file lists <strong>%(names)s</strong> first - is that the commander?"
+msgstr ""
+"Die Datei nennt zuerst <strong>%(names)s</strong> – ist das der Commander?"
+
+#: templates/decks/_commander_form.html
+msgid "Commander"
+msgstr "Commander"
+
+#: templates/decks/_commander_form.html
+msgid "Choose…"
+msgstr "Bitte wählen …"
+
+#: templates/decks/_commander_form.html
+msgid "Second commander (partner or Background)"
+msgstr "Zweiter Commander (Partner oder Hintergrund)"
+
+#: templates/decks/_commander_form.html
+msgid "No second commander"
+msgstr "Kein zweiter Commander"
+
+#: templates/decks/_commander_form.html
+msgid ""
+"No card in this list may lead a Commander deck - that takes a legendary "
+"creature, or a card that says it can be your commander. Is the commander "
+"missing from the file?"
+msgstr ""
+"Keine Karte in dieser Liste darf ein Commander-Deck anführen – dafür braucht"
+" es eine legendäre Kreatur oder eine Karte, die sagt, dass sie dein "
+"Commander sein kann. Fehlt der Commander in der Datei?"
+
+#: templates/decks/detail.html
+msgid "Commander:"
+msgstr "Commander:"
+
+#: templates/decks/detail.html
+msgid "Commanders:"
+msgstr "Commander:"
+
+#: templates/decks/detail.html
+msgid "Change the commander"
+msgstr "Commander ändern"
+
+#: templates/decks/detail.html
+msgid "No commander set."
+msgstr "Kein Commander festgelegt."
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s card + 2 commanders"
+msgid_plural "%(count)s cards + 2 commanders"
+msgstr[0] "%(count)s Karte + 2 Commander"
+msgstr[1] "%(count)s Karten + 2 Commander"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Goldfish Lab plays by the Commander rules - 40 life, a command zone, 100 "
+"cards. This deck has %(count)s card and no commander, so its numbers hold "
+"only under those rules."
+msgid_plural ""
+"Goldfish Lab plays by the Commander rules - 40 life, a command zone, 100 "
+"cards. This deck has %(count)s cards and no commander, so its numbers hold "
+"only under those rules."
+msgstr[0] ""
+"Goldfish Lab spielt nach den Commander-Regeln – 40 Leben, Kommandozone, 100 "
+"Karten. Dieses Deck hat %(count)s Karte und keinen Commander, seine Zahlen "
+"gelten also nur unter diesen Regeln."
+msgstr[1] ""
+"Goldfish Lab spielt nach den Commander-Regeln – 40 Leben, Kommandozone, 100 "
+"Karten. Dieses Deck hat %(count)s Karten und keinen Commander, seine Zahlen "
+"gelten also nur unter diesen Regeln."
+
+#: templates/decks/detail.html templates/guests/commander.html
+msgid "Simulate without a commander"
+msgstr "Ohne Commander simulieren"
+
+#: templates/decks/_status.html
+msgid "Not a Commander deck"
+msgstr "Kein Commander-Deck"
+
+#: templates/simulations/detail.html
+msgid ""
+"Played without a commander - the numbers are for a deck with an empty "
+"command zone."
+msgstr ""
+"Ohne Commander gespielt – die Zahlen gelten für ein Deck mit leerer "
+"Kommandozone."
+
+#: templates/simulations/detail.html
+#, python-format
+msgid ""
+"Goldfish Lab plays by the Commander rules, and this deck had %(count)s card,"
+" so its numbers hold only under those rules."
+msgid_plural ""
+"Goldfish Lab plays by the Commander rules, and this deck had %(count)s "
+"cards, so its numbers hold only under those rules."
+msgstr[0] ""
+"Goldfish Lab spielt nach den Commander-Regeln, und dieses Deck hatte "
+"%(count)s Karte – seine Zahlen gelten also nur unter diesen Regeln."
+msgstr[1] ""
+"Goldfish Lab spielt nach den Commander-Regeln, und dieses Deck hatte "
+"%(count)s Karten – seine Zahlen gelten also nur unter diesen Regeln."
+
+#: templates/guests/commander.html
+msgid "Who is your commander?"
+msgstr "Wer ist dein Commander?"
+
+#: templates/guests/commander.html
+msgid "Choose the commander before the first simulation."
+msgstr "Wähle den Commander vor der ersten Simulation."
+
+#: templates/guests/commander.html
+#, python-format
+msgid ""
+"<strong class=\"text-parchment-100\">%(name)s</strong> is in. The simulation"
+" casts the commander from the command zone, so it needs to know which card "
+"that is."
+msgstr ""
+"<strong class=\"text-parchment-100\">%(name)s</strong> ist drin. Die "
+"Simulation wirkt den Commander aus der Kommandozone und muss deshalb wissen,"
+" welche Karte das ist."
+
+#: templates/guests/commander.html
+msgid "Simulate with this commander"
+msgstr "Mit diesem Commander simulieren"
+
+#: templates/guests/commander.html
+msgid "The report will say the deck was played without one."
+msgstr "Der Report sagt dann, dass das Deck ohne Commander gespielt wurde."
+
+#: templates/guests/try.html
+msgid "For Commander decks: 100 cards, played by the Commander rules."
+msgstr "Für Commander-Decks: 100 Karten, gespielt nach den Commander-Regeln."
+
+#: changelog/entries.py
+msgid "Only a card that may lead becomes the commander"
+msgstr "Nur eine Karte, die es darf, wird Commander"
+
+#: changelog/entries.py
+msgid ""
+"The commander choice on the deck page offers only legendary creatures and "
+"the cards that say they can be your commander, starts on nothing instead of "
+"on the first card, and stays open to change the commander later. Two "
+"partners, a creature with its Background or a companion with the Doctor are "
+"read from the file together. When the file names no commander the page says "
+"why, and when the file lists it first or last it is suggested. A guest is "
+"asked for the commander before the first simulation, and a run without one "
+"says so on its report."
+msgstr ""
+"Die Commander-Auswahl auf der Deckseite bietet nur noch legendäre Kreaturen "
+"und Karten an, die sagen, dass sie dein Commander sein können. Sie steht zu "
+"Beginn auf nichts statt auf der ersten Karte und bleibt offen, um den "
+"Commander später zu ändern. Zwei Partner, eine Kreatur mit ihrem Hintergrund"
+" oder ein Begleiter mit dem Doktor werden aus der Datei zusammen gelesen. "
+"Nennt die Datei keinen Commander, sagt die Seite warum; steht er in der "
+"Datei zuerst oder zuletzt, wird er vorgeschlagen. Gäste werden vor der "
+"ersten Simulation nach dem Commander gefragt, und ein Lauf ohne Commander "
+"sagt das im Report."
+
+#: templates/decks/_commander_form.html
+#, python-format
+msgid ""
+"The file lists <strong>%(names)s</strong> first - are those the commanders?"
+msgstr ""
+"Die Datei nennt zuerst <strong>%(names)s</strong> – sind das die Commander?"
+
+#: simulations/report.py
+msgid "Both commanders on the battlefield"
+msgstr "Beide Commander im Spiel"
+
+#: simulations/report.py
+msgid ""
+"Both of your commanders have been cast and are on the battlefield. The row "
+"above counts a game with at least one."
+msgstr ""
+"Beide Commander wurden gewirkt und sind im Spiel. Die Zeile darüber zählt "
+"ein Spiel schon mit einem."
+
+#: templates/core/methodology.html
+msgid "The command zone"
+msgstr "Die Kommandozone"
+
+#: templates/core/methodology.html
+msgid ""
+"The commander starts in the command zone and is cast from there when the "
+"mana is there, <strong>two more each time it was cast before</strong>. A "
+"deck may have <strong>two commanders</strong> - two partners, a creature "
+"that chooses a Background and its Background, or the Doctor's companion and "
+"the Doctor. Then each pays the tax for its own casts, the cheaper one that "
+"can be paid is cast first, and the report counts the games with at least one"
+" commander out and, in a row of its own, those with both."
+msgstr ""
+"Der Commander beginnt in der Kommandozone und wird von dort gewirkt, sobald "
+"das Mana reicht, <strong>für jedes frühere Wirken zwei mehr</strong>. Ein "
+"Deck darf <strong>zwei Commander</strong> haben – zwei Partner, eine "
+"Kreatur, die einen Hintergrund wählt, und ihren Hintergrund, oder den "
+"Begleiter des Doktors und den Doktor. Dann zahlt jeder die Steuer für sein "
+"eigenes Wirken, der günstigere, der sich bezahlen lässt, kommt zuerst, und "
+"der Report zählt die Spiele mit mindestens einem Commander im Spiel und, in "
+"einer eigenen Zeile, die mit beiden."
+
+#: templates/core/methodology.html
+msgid ""
+"A deck without a commander is played with an empty command zone, and its "
+"report says so. Every rule here is a Commander rule: 40 life and 100 cards. "
+"A deck built for another format is played by them all the same."
+msgstr ""
+"Ein Deck ohne Commander wird mit leerer Kommandozone gespielt, und sein "
+"Report sagt das. Jede Regel hier ist eine Commander-Regel: 40 Leben und 100 "
+"Karten. Ein Deck für ein anderes Format wird trotzdem nach ihnen gespielt."
+
+#: changelog/entries.py
+msgid "Partners and Backgrounds play together"
+msgstr "Partner und Hintergründe spielen zusammen"
+
+#: changelog/entries.py
+msgid ""
+"A deck with two commanders - two partners, a creature with its Background, "
+"the Doctor's companion with the Doctor - now has both in its command zone: "
+"the simulation casts each, with its own commander tax, the cheaper one "
+"first, and the report counts the games with both on the battlefield in a row"
+" of its own. The colour identity, the combos and the draw-a-hand board count"
+" both as well. Reports of decks with one commander do not change."
+msgstr ""
+"Ein Deck mit zwei Commandern – zwei Partner, eine Kreatur mit ihrem "
+"Hintergrund, der Begleiter des Doktors mit dem Doktor – hat jetzt beide in "
+"der Kommandozone: Die Simulation wirkt jeden mit seiner eigenen Commander-"
+"Steuer, den günstigeren zuerst, und der Report zählt die Spiele mit beiden "
+"im Spiel in einer eigenen Zeile. Auch Farbidentität, Combos und das Brett "
+"beim Handziehen zählen beide. Reports von Decks mit einem Commander ändern "
+"sich nicht."
+
+#: templates/billing/blocked.html
+msgid "Nothing was imported. Deleting a deck frees its place."
+msgstr ""
+"Es wurde nichts importiert. Wenn du ein Deck löschst, wird sein Platz frei."
+
+#: billing/views.py
+msgid "Deck lists imported"
+msgstr "Importierte Decklisten"
+
+#: templates/billing/_tiers.html
+msgid "Deck lists imported a month:"
+msgstr "Importierte Decklisten pro Monat:"
+
+#: templates/billing/pricing.html
+#, python-format
+msgid ""
+"<strong>Without an account:</strong> one deck, simulated %(games)s times "
+"over %(turns)s turns, kept for 24 hours."
+msgstr ""
+"<strong>Ohne Konto:</strong> ein Deck, %(games)s-mal simuliert über "
+"%(turns)s Züge, 24 Stunden aufbewahrt."
+
+#: templates/decks/detail.html
+msgid ""
+"This run also writes a new deck summary, which counts as one more "
+"simulation."
+msgstr ""
+"Dieser Lauf schreibt auch eine neue Deck-Zusammenfassung; sie zählt als eine"
+" weitere Simulation."
+
+#: templates/simulations/detail.html
+msgid ""
+"No new deck summary this time: a summary counts as one more simulation, and "
+"your plan had room for this run only."
+msgstr ""
+"Diesmal keine neue Deck-Zusammenfassung: Eine Zusammenfassung zählt als eine"
+" weitere Simulation, und dein Abo hatte nur noch Platz für diesen Lauf."
+
+#: changelog/entries.py
+msgid "Your account keeps its language, and every limit is on the page"
+msgstr "Dein Konto behält seine Sprache, und jede Grenze steht auf der Seite"
+
+#: changelog/entries.py
+msgid ""
+"An account now keeps the language it was made in, also when it was saved "
+"from a trial deck, so its mails arrive in that language. A cancellation in "
+"the billing portal now shows the day the plan ends. The pricing page names "
+"every limit - the deck lists you can import each month, and what trying "
+"without an account allows - and your account page counts the imports too. "
+"When a run also writes a new deck summary the deck page says that it counts "
+"as one more simulation, and the report says when there was no room for it. "
+"Reaching the deck limit while importing now explains itself instead of "
+"showing an error code."
+msgstr ""
+"Ein Konto behält jetzt die Sprache, in der es angelegt wurde – auch wenn es "
+"aus einem Probedeck gespeichert wurde –, und seine Mails kommen in dieser "
+"Sprache. Eine Kündigung im Kundenportal zeigt jetzt den Tag, an dem das Abo "
+"endet. Die Preisseite nennt jede Grenze – die Decklisten, die du pro Monat "
+"importieren kannst, und was das Ausprobieren ohne Konto erlaubt –, und deine"
+" Kontoseite zählt auch die Importe. Schreibt ein Lauf auch eine neue Deck-"
+"Zusammenfassung, sagt die Deckseite, dass sie als eine weitere Simulation "
+"zählt, und der Report sagt, wenn kein Platz dafür war. Wer beim Import an "
+"die Deck-Grenze stösst, bekommt jetzt eine Erklärung statt eines "
+"Fehlercodes."
+
+#: decks/analysis.py
+msgid "possible: no Game Changers"
+msgstr "möglich: keine Game Changer"
+
+#: decks/analysis.py
+msgid ""
+"No Game Changers, so none of them keeps this deck out of Bracket 1 or 2. "
+"Speed, tutors and extra turns decide as well; the report checks the speed."
+msgstr ""
+"Keine Game Changer – also hält keiner dieses Deck aus Bracket 1 oder 2 "
+"heraus. Tempo, Tutoren und Extrazüge entscheiden mit; der Report prüft das "
+"Tempo."
+
+#: decks/analysis.py
+#, python-format
+msgid "at least, by %(count)s Game Changer"
+msgid_plural "at least, by %(count)s Game Changers"
+msgstr[0] "mindestens, wegen %(count)s Game Changer"
+msgstr[1] "mindestens, wegen %(count)s Game Changern"
+
+#: decks/analysis.py
+#, python-format
+msgid ""
+"Brackets 1 and 2 expect no Game Changers and Bracket 3 allows up to "
+"%(limit)s, so this deck is at least Bracket 3: %(cards)s."
+msgstr ""
+"Bracket 1 und 2 sehen keine Game Changer vor, Bracket 3 erlaubt bis zu "
+"%(limit)s – also ist dieses Deck mindestens Bracket 3: %(cards)s."
+
+#: decks/analysis.py
+#, python-format
+msgid ""
+"Bracket 3 allows up to %(limit)s Game Changers, so this deck is at least "
+"Bracket 4: %(cards)s."
+msgstr ""
+"Bracket 3 erlaubt bis zu %(limit)s Game Changer – also ist dieses Deck "
+"mindestens Bracket 4: %(cards)s."
+
+#: simulations/numbers.py
+#, python-format
+msgid ""
+"In %(share)s of games (± %(margin)s points) it has four lands in play on "
+"turn 4."
+msgstr ""
+"In %(share)s der Spiele (± %(margin)s Punkte) hat es in Zug 4 vier Länder im"
+" Spiel."
+
+#: simulations/numbers.py
+#, python-format
+msgid ""
+"It keeps its first seven cards in %(share)s of games (± %(margin)s points)."
+msgstr ""
+"In %(share)s der Spiele (± %(margin)s Punkte) behält es die ersten sieben "
+"Karten."
+
+#: templates/decks/detail.html
+#, python-format
+msgid "+ %(count)s double-faced card with a land on the back"
+msgid_plural "+ %(count)s double-faced cards with a land on the back"
+msgstr[0] "+ %(count)s doppelseitige Karte mit Land auf der Rückseite"
+msgstr[1] "+ %(count)s doppelseitige Karten mit Land auf der Rückseite"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s of %(total)s cards has something the engine could not read on its "
+"own."
+msgid_plural ""
+"%(count)s of %(total)s cards have something the engine could not read on its"
+" own."
+msgstr[0] ""
+"%(count)s von %(total)s Karten hat etwas, das die Engine nicht selbst lesen "
+"konnte."
+msgstr[1] ""
+"%(count)s von %(total)s Karten haben etwas, das die Engine nicht selbst "
+"lesen konnte."
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s of them still needs you; the red marker at the top takes you "
+"there."
+msgid_plural ""
+"%(count)s of them still need you; the red marker at the top takes you "
+"through them."
+msgstr[0] ""
+"%(count)s davon braucht dich noch; die rote Markierung oben führt dich hin."
+msgstr[1] ""
+"%(count)s davon brauchen dich noch; die rote Markierung oben führt dich "
+"durch sie."
+
+#: templates/decks/detail.html
+msgid "You have looked at each of them."
+msgstr "Du hast dir jede davon angesehen."
+
+#: templates/decks/detail.html
+#, python-format
+msgid "The engine read the %(count)s card on its own."
+msgid_plural "The engine read all %(count)s cards on its own."
+msgstr[0] "Die Engine hat die %(count)s Karte selbst gelesen."
+msgstr[1] "Die Engine hat alle %(count)s Karten selbst gelesen."
+
+#: templates/simulations/_brackets.html
+msgid ""
+"Commander Spellbook knows no combo in this deck that ends the game on its "
+"own, so by speed nothing keeps it out of Bracket 1."
+msgstr ""
+"Commander Spellbook kennt in diesem Deck keine Combo, die das Spiel von "
+"selbst beendet – nach dem Tempo hält es also nichts aus Bracket 1 heraus."
+
+#: templates/simulations/_brackets.html
+msgid ""
+"The deck has combos that end the game, and this run did not time them. Run "
+"the deck again to see how fast they come together."
+msgstr ""
+"Das Deck hat Combos, die das Spiel beenden, und dieser Lauf hat sie nicht "
+"gemessen. Lass das Deck erneut laufen, um zu sehen, wie schnell sie "
+"zusammenkommen."
+
+#: templates/simulations/_brackets.html
+msgid ""
+"Without its combos looked up, this run measures no game-ending combo, so it "
+"cannot say how fast the deck ends a game."
+msgstr ""
+"Ohne nachgeschlagene Combos misst dieser Lauf keine Combo, die das Spiel "
+"beendet – er kann also nicht sagen, wie schnell das Deck ein Spiel beendet."
+
+#: templates/simulations/_brackets.html
+msgid "Find the deck's combos"
+msgstr "Combos des Decks finden"
+
+#: templates/simulations/_brackets.html
+msgid "By Game Changers: none, so Bracket 1 or 2 is possible."
+msgstr "Nach Game Changern: keine, also ist Bracket 1 oder 2 möglich."
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid ""
+"By Game Changers: at least Bracket %(floor)s, with %(count)s Game Changer."
+msgid_plural ""
+"By Game Changers: at least Bracket %(floor)s, with %(count)s Game Changers."
+msgstr[0] ""
+"Nach Game Changern: mindestens Bracket %(floor)s, mit %(count)s Game "
+"Changer."
+msgstr[1] ""
+"Nach Game Changern: mindestens Bracket %(floor)s, mit %(count)s Game "
+"Changern."
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid "Together: at least Bracket %(number)s - the higher of the two counts."
+msgstr ""
+"Zusammen: mindestens Bracket %(number)s – das Höhere der beiden zählt."
+
+#: templates/core/methodology.html
+msgid ""
+"When a card's reading is changed after a run, that run is not recalculated —"
+" its numbers are a record of what the engine actually saw — so the report "
+"says so, and running the deck again shows the difference. How exact a number"
+" is depends on the number of games: the report gives its main shares with a "
+"±, explained under “How many games is enough”."
+msgstr ""
+"Wird die Lesart einer Karte nach einem Lauf geändert, wird dieser Lauf nicht"
+" neu berechnet – seine Zahlen sind ein Protokoll dessen, was die Engine "
+"tatsächlich gesehen hat –, also sagt der Report es, und ein neuer Lauf zeigt"
+" den Unterschied. Wie genau eine Zahl ist, hängt von der Zahl der Spiele ab:"
+" Der Report gibt seine wichtigsten Anteile mit einem ± an, erklärt unter "
+"«Wie viele Spiele genug sind»."
+
+#: templates/core/methodology.html
+msgid ""
+"Ten thousand games pin a share of 50%% to about <strong>±1.0 percentage "
+"points at 95%% confidence</strong>, and one of 80%% to about ±0.8; two "
+"thousand games to about ±2.2 and ±1.8. Past ten thousand you are buying "
+"decimal places that do not change a decision, which is why this application "
+"meters <strong>turns simulated</strong> rather than selling you iteration "
+"counts."
+msgstr ""
+"Zehntausend Spiele legen einen Anteil von 50 %% auf etwa <strong>±1,0 "
+"Prozentpunkte bei 95 %% Sicherheit</strong> fest, einen von 80 %% auf etwa "
+"±0,8; zweitausend Spiele auf etwa ±2,2 und ±1,8. Darüber hinaus kaufst du "
+"Nachkommastellen, die keine Entscheidung ändern – deshalb misst diese "
+"Anwendung <strong>simulierte Züge</strong>, statt dir Spielzahlen zu "
+"verkaufen."
+
+#: templates/core/methodology.html
+msgid ""
+"The ± beside a share in a report is that interval for the games the run "
+"played: 1.96 × √(p × (1 − p) / games). Two runs whose shares are further "
+"apart than their ± together differ for a reason, not by chance."
+msgstr ""
+"Das ± neben einem Anteil im Report ist dieses Intervall für die Spiele, die "
+"der Lauf gespielt hat: 1,96 × √(p × (1 − p) / Spiele). Liegen die Anteile "
+"zweier Läufe weiter auseinander als ihre ± zusammen, unterscheiden sie sich "
+"aus einem Grund, nicht zufällig."
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Four lands on turn 4</strong>, at the top of every report and on the"
+" precon pages, is the share of games with at least four lands on the "
+"battlefield at the end of turn 4: every land drop made, the commonest way a "
+"Commander deck stumbles early. A run of fewer than four turns does not have "
+"it."
+msgstr ""
+"<strong>Vier Länder in Zug 4</strong>, oben in jedem Report und auf den "
+"Precon-Seiten, ist der Anteil der Spiele mit mindestens vier Ländern auf dem"
+" Spielfeld am Ende von Zug 4: jeder Land-Drop gemacht – woran ein Commander-"
+"Deck früh am häufigsten stolpert. Ein Lauf mit weniger als vier Zügen hat "
+"diese Zahl nicht."
+
+#: templates/simulations/_advanced.html
+#, python-format
+msgid ""
+"Engine v%(version)s, seed %(seed)s. How exact a share is depends on the "
+"number of games."
+msgstr ""
+"Engine v%(version)s, Seed %(seed)s. Wie genau ein Anteil ist, hängt von der "
+"Zahl der Spiele ab."
+
+#: changelog/entries.py
+msgid "Every report names a bracket, and every share how exact it is"
+msgstr "Jeder Report nennt ein Bracket und jeder Anteil, wie genau er ist"
+
+#: changelog/entries.py
+msgid ""
+"The land count on the deck page counts a double-faced card by its front, as "
+"the list of what is in the deck does, and names the cards with a land on the"
+" back beside it. The bracket tile is now the lowest bracket the Game "
+"Changers allow, commander included. Every report has its bracket section, "
+"also without looked-up combos: it says why the speed is missing, adds the "
+"Game Changers, and gives the two together. A report now starts with the "
+"precon pages' numbers - four lands on turn 4, the opening hands kept, the "
+"mana on turn 4 - and each share says how far it can be off for the number of"
+" games played."
+msgstr ""
+"Die Länder-Zahl auf der Deckseite zählt eine doppelseitige Karte nach ihrer "
+"Vorderseite, wie die Liste «Was drin ist», und nennt daneben die Karten mit "
+"einem Land auf der Rückseite. Die Bracket-Kachel zeigt jetzt das tiefste "
+"Bracket, das die Game Changer zulassen, den Commander eingeschlossen. Jeder "
+"Report hat seinen Bracket-Abschnitt, auch ohne nachgeschlagene Combos: Er "
+"sagt, warum das Tempo fehlt, ergänzt die Game Changer und nennt beides "
+"zusammen. Ein Report beginnt jetzt mit den Zahlen der Precon-Seiten – vier "
+"Länder in Zug 4, behaltene Starthände, das Mana in Zug 4 –, und jeder Anteil"
+" sagt, wie weit er bei der Zahl der gespielten Spiele danebenliegen kann."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"“±” is how far the share of %(shown)s game can be from the true one, at 95%%"
+" confidence."
+msgid_plural ""
+"“±” is how far the share of %(shown)s games can be from the true one, at "
+"95%% confidence."
+msgstr[0] ""
+"«±» sagt, wie weit der Anteil aus %(shown)s Spiel vom wahren entfernt sein "
+"kann, mit 95 %% Sicherheit."
+msgstr[1] ""
+"«±» sagt, wie weit der Anteil aus %(shown)s Spielen vom wahren entfernt sein"
+" kann, mit 95 %% Sicherheit."
+
+#: changelog/entries.py
+msgid "Koi runs 9 turns again"
+msgstr "Koi simuliert wieder 9 Züge"
+
+#: changelog/entries.py
+msgid ""
+"A higher plan now offers every number of turns a lower one does: Koi has "
+"Goldfish's 9 turns back, and Kraken has Koi's 12. A run you made before "
+"upgrading can be made again with the same turns."
+msgstr ""
+"Ein höheres Abo bietet jetzt jede Zugzahl, die ein tieferes bietet: Koi hat "
+"die 9 Züge von Goldfish wieder, und Kraken hat die 12 von Koi. Einen Lauf "
+"von vor dem Upgrade kannst du mit denselben Zügen wiederholen."
+
+#: changelog/entries.py
+msgid "Trying the site stays in your language"
+msgstr "Beim Ausprobieren bleibt die Seite in deiner Sprache"
+
+#: changelog/entries.py
+msgid ""
+"A deck tried without an account keeps the language of the page it was "
+"uploaded on: the report and the deck page are no longer in your browser's "
+"language instead."
+msgstr ""
+"Ein Deck, das du ohne Konto ausprobierst, behält die Sprache der Seite, auf "
+"der du es hochgeladen hast: Report und Deckseite erscheinen nicht mehr in "
+"der Sprache deines Browsers."
+
+#: changelog/entries.py
+msgid "Give your decks the names you want"
+msgstr "Gib deinen Decks die Namen, die du willst"
+
+#: changelog/entries.py
+msgid ""
+"The pencil beside a deck's name renames it, in the list of your decks and on"
+" the deck page - where a click on the name works too. Two imports of the "
+"same deck no longer have to stand in the list under the same name."
+msgstr ""
+"Der Stift neben dem Namen eines Decks benennt es um, in der Liste deiner "
+"Decks und auf der Deckseite – dort genügt auch ein Klick auf den Namen. Zwei"
+" Importe desselben Decks müssen nicht mehr unter demselben Namen in der "
+"Liste stehen."
+
+#: templates/decks/_name.html
+msgid "Name saved."
+msgstr "Name gespeichert."
+
+#: templates/decks/_name.html
+msgid "The name could not be saved."
+msgstr "Der Name konnte nicht gespeichert werden."
+
+#: templates/decks/_name.html
+msgid "Rename"
+msgstr "Umbenennen"
+
+#: templates/decks/rename.html
+#, python-format
+msgid "Rename %(name)s"
+msgstr "%(name)s umbenennen"
+
+#: templates/decks/rename.html
+msgid "Give this deck another name."
+msgstr "Gib diesem Deck einen anderen Namen."
+
+#: decks/forms.py
+msgid "A deck needs a name."
+msgstr "Ein Deck braucht einen Namen."
+
+#: decks/views.py
+#, python-format
+msgid "The deck is now called %(name)s."
+msgstr "Das Deck heißt jetzt %(name)s."
+
+#: changelog/entries.py
+msgid "Answering a card no longer stops a report from being shared"
+msgstr "Eine Kartenantwort verhindert das Teilen eines Berichts nicht mehr"
+
+#: changelog/entries.py
+msgid ""
+"A report could not be shared once you had answered a question about one of "
+"its cards, and the reason given was a changed card list. Only a change to "
+"the cards or the commander stops it now."
+msgstr ""
+"Ein Bericht ließ sich nicht mehr teilen, sobald du eine Frage zu einer "
+"seiner Karten beantwortet hattest, und als Grund stand eine geänderte "
+"Kartenliste da. Jetzt verhindert das nur noch eine Änderung an den Karten "
+"oder am Commander."
+
+#: templates/decks/import.html templates/guests/try.html
+msgid "Error:"
+msgstr "Fehler:"
+
+#: changelog/entries.py
+msgid "A refused upload says why, also to a screen reader"
+msgstr "Ein abgelehnter Upload sagt, warum – auch dem Screenreader"
+
+#: changelog/entries.py
+msgid ""
+"When an upload or a pasted list is refused, the page now jumps to the field "
+"with the problem, a screen reader reads out what went wrong, and the page "
+"title starts with “Error”. The file field has a name of its own as well."
+msgstr ""
+"Wird ein Upload oder eine eingefügte Liste abgelehnt, springt die Seite "
+"jetzt zum Feld mit dem Problem, ein Screenreader liest vor, was nicht "
+"gestimmt hat, und der Seitentitel beginnt mit „Fehler“. Auch das Dateifeld "
+"hat jetzt einen eigenen Namen."
+
+#: decks/resolve.py
+msgid "matched a basic land named in another language"
+msgstr "als Standardland in einer anderen Sprache erkannt"
+
+#: templates/decks/_import_form.html templates/decks/review.html
+msgid "Card names in English - only basic lands also work in other languages."
+msgstr ""
+"Kartennamen auf Englisch – nur Standardländer gehen auch in anderen "
+"Sprachen."
+
+#: changelog/entries.py
+msgid "Basic lands in your language, and better guesses for typos"
+msgstr ""
+"Standardländer in deiner Sprache und bessere Vorschläge bei Tippfehlern"
+
+#: changelog/entries.py
+msgid ""
+"The importer now knows the basic lands by their names in every language of "
+"this site - Sumpf, Forêt, Pântano. A card it cannot find gets the nearest "
+"names first, no longer the first five in the alphabet. All other card names "
+"are read in English, and the import page says so."
+msgstr ""
+"Der Import kennt die Standardländer jetzt unter ihren Namen in jeder Sprache"
+" dieser Seite – Sumpf, Forêt, Pântano. Findet er eine Karte nicht, schlägt "
+"er zuerst die ähnlichsten Namen vor, nicht mehr die ersten fünf im Alphabet."
+" Alle anderen Kartennamen werden auf Englisch gelesen, und die Import-Seite "
+"sagt das."
+
+#: templates/simulations/_report.html
+msgid "Mana value, by end of turn"
+msgstr "Manawert, bis Ende von Zug"
+
+#: changelog/entries.py
+msgid "Every chart under “What you drew” has its own numbers"
+msgstr "Jedes Diagramm unter „Was du gezogen hast“ hat seine eigenen Zahlen"
+
+#: changelog/entries.py
+msgid ""
+"The numbers behind the category, strategy and card type charts stood in one "
+"table below the mana value chart, which had none of its own. Each chart now "
+"has its table right below it, the mana values included - also for a screen "
+"reader."
+msgstr ""
+"Die Zahlen zu den Diagrammen nach Kategorie, Strategie und Kartentyp standen"
+" in einer einzigen Tabelle unter dem Manawert-Diagramm, das selbst keine "
+"hatte. Jetzt hat jedes Diagramm seine Tabelle direkt darunter, auch die "
+"Manawerte – ebenso für Screenreader."
+
 #: simulations/engine/adapter.py
 msgid "as it enters"
 msgstr "beim Eintreten"
@@ -11676,3 +12593,35 @@ msgstr ""
 "und Phyrexian Tribute opfert seine zwei Kreaturen. Eine Karte, die auf eine "
 "Weise zieht oder Treasures erzeugt, die die Simulation noch nicht liest, ist"
 " jetzt markiert, damit du sie korrigieren kannst."
+
+#: templates/decks/review.html templates/decks/map.html
+msgid "Pasted list"
+msgstr "Eingefügte Liste"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Imported from a pasted list: <span class=\"tabular\">%(matched)s</span> of "
+"<span class=\"tabular\">%(total)s</span> rows matched. <a "
+"href=\"%(review_url)s\" class=\"underline\">See how exact the match was</a>."
+msgstr ""
+"Aus einer eingefügten Liste importiert: <span "
+"class=\"tabular\">%(matched)s</span> von <span "
+"class=\"tabular\">%(total)s</span> Zeilen zugeordnet. <a "
+"href=\"%(review_url)s\" class=\"underline\">Sieh nach, wie genau die "
+"Zuordnung war</a>."
+
+#: changelog/entries.py
+msgid "A pasted list is no longer called a file"
+msgstr "Eine eingefügte Liste heisst nicht mehr Datei"
+
+#: changelog/entries.py
+msgid ""
+"After you paste a deck list, the import review, the column check and the "
+"deck page say “pasted list” where they said “uploaded file”, “your file” or "
+"“imported from a file”."
+msgstr ""
+"Nachdem du eine Deckliste eingefügt hast, steht in der Import-Prüfung, bei "
+"„Welche Spalte ist welche?“ und auf der Deck-Seite „Eingefügte Liste“, wo "
+"bisher „Hochgeladene Datei“, „Deine Datei“ oder „Aus einer Datei importiert“"
+" stand."

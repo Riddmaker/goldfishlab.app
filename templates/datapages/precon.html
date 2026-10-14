@@ -4,8 +4,9 @@
   /data/commander-precons/<slug>/ (P11): one precon's report - the frozen
   report of its newest finished run, the same body as a shared report
   (sharing/_body.html, through sharing.views.rendered). Its /r/ link sends
-  here. Above it, three sentences built from the numbers (datapages.numbers);
-  no written summary on a data page.
+  here. The three sentences built from the numbers (simulations.numbers) are
+  the report's own "In short" since P20 F4, and the page's description; no
+  written summary on a data page.
 {% endcomment %}
 {% block title %}{% blocktranslate trimmed with name=precon.name %}{{ name }} precon, simulated{% endblocktranslate %} — Goldfish Lab{% endblock %}
 {% block description %}{{ sentences|join:" " }}{% endblock %}
@@ -26,12 +27,6 @@
     {% endblocktranslate %}
     {% include "core/_why.html" with anchor="games" dark=True %}
   </p>
-  <section class="surface-parchment mt-6 p-6">
-    <h2 class="font-display text-2xl text-ink-900">{% translate "In short" %}</h2>
-    <ul class="mt-3 list-disc space-y-1 pl-5 text-ink-900">
-      {% for sentence in sentences %}<li>{{ sentence }}</li>{% endfor %}
-    </ul>
-  </section>
   {{ body }}
   <section class="mt-10 max-w-3xl">
     <h2 class="font-display text-2xl text-parchment-100">{% translate "Changed a few cards?" %}</h2>

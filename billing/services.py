@@ -342,6 +342,7 @@ def _subscription_changed(kind: str, obj, created=None) -> str:
         subscription.plan = Plan.objects.get(is_default=True)
         subscription.status = Subscription.Status.CANCELED
         subscription.cancel_at_period_end = False
+        subscription.cancel_at = None
         subscription.stripe_subscription_id = ""
         _note_event(subscription, created)
         subscription.save()
@@ -352,6 +353,7 @@ def _subscription_changed(kind: str, obj, created=None) -> str:
         subscription.plan = plan
     subscription.status = _status_from(obj.get("status", ""))
     subscription.cancel_at_period_end = bool(obj.get("cancel_at_period_end"))
+    subscription.cancel_at = _stamp(obj.get("cancel_at"))
     subscription.stripe_subscription_id = obj.get("id") or ""
     subscription.stripe_customer_id = (
         obj.get("customer") or subscription.stripe_customer_id
@@ -459,14 +461,19 @@ def _period_end(obj):
     are read: `current_period_end` at the top level for older API versions, and
     the first item's for current ones.
     """
-    from datetime import UTC, datetime
-
     stamp = obj.get("current_period_end")
     if stamp is None:
         for item in (obj.get("items") or {}).get("data") or []:
             stamp = item.get("current_period_end")
             if stamp:
                 break
+    return _stamp(stamp)
+
+
+def _stamp(stamp):
+    """A Stripe timestamp (seconds since the epoch) as an aware datetime, or None."""
+    from datetime import UTC, datetime
+
     if not stamp:
         return None
     return datetime.fromtimestamp(int(stamp), tz=UTC)

@@ -50,8 +50,8 @@ def card_images(session: PlaytestSession) -> dict:
     """
     pairs = dict(session.deck.entries.values_list(
         "oracle_card__front_name", "oracle_card__image_uri"))
-    if session.deck.commander_id:
-        pairs[session.deck.commander.front_name] = session.deck.commander.image_uri
+    for commander in session.deck.commanders:
+        pairs[commander.front_name] = commander.image_uri
     return pairs
 
 
@@ -67,8 +67,8 @@ def card_keywords(session: PlaytestSession) -> dict:
     """
     pairs = dict(session.deck.entries.values_list(
         "oracle_card__front_name", "oracle_card__keywords"))
-    if session.deck.commander_id:
-        pairs[session.deck.commander.front_name] = session.deck.commander.keywords
+    for commander in session.deck.commanders:
+        pairs[commander.front_name] = commander.keywords
     return pairs
 
 
@@ -292,11 +292,14 @@ def board_context(session: PlaytestSession, game) -> dict:
         "restricted": restricted_mana(getattr(game, "pool", None)),
         "deciding": deciding(game, live),
         "to_bottom": game.cards_to_bottom(game.mulligans),
-        "commander": session.deck.commander,
-        "commander_castable": any(
-            isinstance(a, actions.CastCommander) for a in legal),
-        "commander_out": bool(session.deck.commander_id)
-        and game.has(session.deck.commander.front_name),
+        # The command zone, one or two cards (P20 F2b), each with its own
+        # Cast: `index` is the one the engine casts.
+        "commanders": [
+            {"card": commander, "index": index,
+             "out": game.has(commander.front_name),
+             "castable": actions.CastCommander(index=index) in legal}
+            for index, commander in enumerate(session.deck.commanders)
+        ],
         "phases": [(phase, gettext(PHASE_NAMES[phase])) for phase in actions.PHASES],
         "history": [(row.seq, gettext(ACTION_NAMES[row.kind]) if row.kind in ACTION_NAMES
                      else row.kind) for row in live],

@@ -173,23 +173,24 @@
   {# --- the table: commander, battlefield, stacks --- #}
   <section class="surface-parchment playtest-table px-4 py-4">
     <div class="playtest-side">
-      {% if commander %}
+      {% for zone in commanders %}
         <div>
-          <p class="text-xs uppercase tracking-wide text-ink-700">{% translate "Command zone" %}</p>
-          {% if commander.image_uri %}
-            <img src="{{ commander.image_uri }}" alt="{{ commander.front_name }}" title="{{ commander.front_name }}"
-                 loading="lazy" class="board-card mt-1{% if commander_out %} board-card-gone{% endif %}">
+          {% if forloop.first %}<p class="text-xs uppercase tracking-wide text-ink-700">{% translate "Command zone" %}</p>{% endif %}
+          {% if zone.card.image_uri %}
+            <img src="{{ zone.card.image_uri }}" alt="{{ zone.card.front_name }}" title="{{ zone.card.front_name }}"
+                 loading="lazy" class="board-card mt-1{% if zone.out %} board-card-gone{% endif %}">
           {% else %}
-            <p class="board-card board-card-text mt-1">{{ commander.front_name }}</p>
+            <p class="board-card board-card-text mt-1">{{ zone.card.front_name }}</p>
           {% endif %}
-          {% if commander_out %}
+          {% if zone.out %}
             <p class="mt-1 text-xs text-ink-700">{% translate "On the battlefield" %}</p>
-          {% elif commander_castable %}
+          {% elif zone.castable %}
             <form method="post" action="{% url 'playtest:act' session.id %}"
                   hx-post="{% url 'playtest:act' session.id %}"
                   hx-target="#board" hx-swap="outerHTML" class="mt-1">
               {% csrf_token %}
               <input type="hidden" name="kind" value="cast_commander">
+              <input type="hidden" name="index" value="{{ zone.index }}">
               <button type="submit"
                       class="w-full border border-ink-800 bg-ink-900 px-2 py-1 text-xs text-parchment-100 hover:bg-ink-800">
                 {% translate "Cast" %}
@@ -197,7 +198,7 @@
             </form>
           {% endif %}
         </div>
-      {% endif %}
+      {% endfor %}
 
       <div>
         <p class="text-xs uppercase tracking-wide text-ink-700">{% translate "Library" %}</p>

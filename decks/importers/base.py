@@ -27,6 +27,8 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 
+from decks.importers import boards
+
 
 class ImportRefused(ValueError):
     """The file was readable and we are declining to read it anyway.
@@ -82,6 +84,11 @@ class ParsedRow:
     collector_number: str = ""
     is_commander: bool = False
     extra: dict = field(default_factory=dict)
+    #: Which part of the list the row is in (`boards`). Only `main` and
+    #: `commander` reach the deck; the rest is counted and said, never lost.
+    board: str = boards.MAIN
+    #: `foil`, `etched` or empty, whatever spelling the file used.
+    finish: str = ""
 
     #: Longest card name in the game is well under half this. A cell longer
     #: than this is not a card name, and carrying it whole only means a wider
@@ -92,6 +99,13 @@ class ParsedRow:
     def __post_init__(self):
         self.name = (self.name or "").strip()[: self.MAX_NAME]
         self.quantity = max(1, int(self.quantity or 1))
+        if self.is_commander and self.board == boards.MAIN:
+            self.board = boards.COMMANDER
+        self.is_commander = self.board == boards.COMMANDER
+
+    @property
+    def in_deck(self) -> bool:
+        return self.board in boards.IN_DECK
 
 
 class Parser(ABC):
@@ -105,6 +119,10 @@ class Parser(ABC):
 
     #: Lines to skip before the header row. Some tools write a title first.
     preamble_skip: int = 0
+
+    #: A deck name the file itself gave (Arena's `About` / `Name ...`), known
+    #: once `parse` has been read to the end. Empty when the file names none.
+    deck_name: str = ""
 
     @classmethod
     @abstractmethod

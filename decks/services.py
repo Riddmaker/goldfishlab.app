@@ -20,16 +20,19 @@ Two rules this module exists to enforce:
    this whole application is built to avoid.
 """
 
+import re
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from django.db import transaction
-from django.utils.translation import gettext
+from django.utils.translation import gettext, gettext_noop
 
 from billing import quotas
 from billing.models import UsageRecord
 from core.l10n import number
-from decks import importers, resolve
+from decks import command_zone, importers, resolve
 from decks.models import Deck, DeckCard, DeckImport, PendingImport, UnresolvedRow
 
 #: Uploads above this are refused before anything is decoded. The reference
@@ -128,8 +131,53 @@ def build(parser_class, overrides: dict | None = None) -> importers.Parser:
     return parser_class()
 
 
+#: A line that is nothing but a web address.
+_LINK = re.compile(r"^\s*(?:https?://|www\.)\S+\s*$", re.I)
+
+#: Where each deck site keeps its text export, in the words of its own menu
+#: (checked against each site's help in P20 F1). English, translated where
+#: shown. A site not listed gets the general sentence.
+_EXPORT_HELP = {
+    "moxfield.com": gettext_noop(
+        "On Moxfield: open the deck → More → Export → copy, then paste it here."),
+    "archidekt.com": gettext_noop(
+        "On Archidekt: open the deck → More → Export, then paste the text or upload the CSV."),
+    "manabox.app": gettext_noop(
+        "In ManaBox: open the deck → ⋮ → Export or Share, then paste the text here."),
+}
+_EXPORT_HELP_ANY = gettext_noop(
+    "Open the deck there, look for Export or Download, and paste the text list here.")
+
+
+class LinkNotList(ImportError_):
+    """The upload is a link to a deck, not the deck (E1.1)."""
+
+
+def refuse_links(text: str) -> None:
+    """Refuse a paste that is only web addresses, saying what to do instead.
+
+    Goldfish Lab does not fetch other sites. A paste of nothing but links
+    used to be read as a card name and fail as one; it now gets one sentence
+    naming where that site keeps its export. A link among real card lines is
+    not this: those lines are read, and the link shows as a row that did not
+    match.
+    """
+    lines = [line for line in text.splitlines() if line.strip()]
+    if not lines or not all(_LINK.match(line) for line in lines):
+        return
+    address = lines[0].strip()
+    host = urlsplit(address if "://" in address else f"https://{address}").hostname or ""
+    host = host.removeprefix("www.")
+    help_text = next((text for site, text in _EXPORT_HELP.items()
+                      if host == site or host.endswith("." + site)), _EXPORT_HELP_ANY)
+    raise LinkNotList(
+        gettext("Goldfish Lab cannot open links to other sites - it needs the list "
+                "itself.") + " " + gettext(help_text))
+
+
 def choose(text: str, parser_name: str = "") -> type[importers.Parser]:
     """Which parser reads this file. Raises rather than guessing."""
+    refuse_links(text)
     parser_class = importers.by_name(parser_name) if parser_name else importers.sniff(text)
     if parser_class is None:
         raise UnknownFormat("no parser recognised this file")
@@ -140,10 +188,19 @@ def parse(
     text: str, parser_name: str = "", overrides: dict | None = None
 ) -> tuple[type[importers.Parser], list]:
     """Pick a parser and run it. Raises `UnknownFormat` rather than guessing."""
-    parser_class = choose(text, parser_name)
+    parser, rows = read(text, parser_name, overrides)
+    return type(parser), rows
+
+
+def read(
+    text: str, parser_name: str = "", overrides: dict | None = None
+) -> tuple[importers.Parser, list]:
+    """`parse`, keeping the parser - which knows what else the file said,
+    such as the deck name in an Arena export's `About` block."""
+    parser = build(choose(text, parser_name), overrides)
 
     try:
-        rows = list(build(parser_class, overrides).parse(text))
+        rows = list(parser.parse(text))
     except importers.ImportRefused as exc:
         # A refusal the person can act on: a column we may not invent a value
         # for, a file that is not a table, more rows than any real export has,
@@ -154,7 +211,7 @@ def parse(
 
     if not rows:
         raise ImportError_(gettext("the file contained no card rows"))
-    return parser_class, rows
+    return parser, rows
 
 
 @dataclass
@@ -238,7 +295,16 @@ def import_deck(
     """
     if text is None:
         text = decode(raw)
-    parser_class, rows = parse(text, parser_name, overrides)
+    parser, rows = read(text, parser_name, overrides)
+    parser_class = type(parser)
+
+    # Sideboard, maybeboard, companion, tokens: listed in the file, not in the
+    # deck. Left out on purpose, counted, and said on the page (E1.80).
+    left_out = _left_out(rows)
+    rows = [row for row in rows if row.in_deck]
+    if not rows:
+        raise ImportError_(gettext(
+            "the file only lists cards outside the deck (sideboard or maybeboard)"))
 
     # Call site 3 of the four `check()` is allowed, and it comes BEFORE the
     # resolver, which is the work being metered - it used to come after, so an
@@ -255,7 +321,12 @@ def import_deck(
         raise ImportError_(gettext("that deck belongs to someone else"))
 
     report = resolve.resolve(rows)
+    zone = command_zone.read(report)
+    suggested = [] if zone.cards else command_zone.suggest(report)
 
+    # The deck name the file itself gave (Arena's `About` block) is the
+    # person's own name for it, and beats both the commander and the filename.
+    name = name or parser.deck_name
     if creating:
         deck = Deck.objects.create(
             owner=owner, name=name or Path(filename).stem or gettext("Imported deck")
@@ -273,23 +344,59 @@ def import_deck(
         rows_resolved=len(report.resolved),
         rows_unresolved=len(report.unresolved),
         rung_counts=report.rung_counts,
+        left_out=left_out,
+        commander_issue=zone.issue,
+        commander_named=[name[:256] for name in zone.named[:4]],
+        suggested_commanders=[str(card.pk) for card in suggested],
         status=DeckImport.Status.APPLIED,
     )
 
-    _write_entries(deck, report, commander=_commander_for(deck, report))
+    _write_entries(deck, report, commanders=_commanders_for(deck, zone))
     _write_unresolved(record, report)
-    _set_commander(deck, report)
+    _set_commanders(deck, report, zone)
     if creating and not name and deck.commander_id:
         # A deck is called after its commander, not after the file: every
         # Archidekt export is named "archidekt-collection-export-<date>.csv"
         # (phase 9 G - the name a guest's save form starts from).
-        deck.name = deck.commander.name
+        deck.name = " + ".join(card.name for card in deck.commanders)[:120]
         deck.save(update_fields=["name"])
     recount_later(Deck.objects.filter(pk=deck.pk))
     deck.open_questions = None
     _count_unread_later(deck)
 
     return ImportOutcome(deck=deck, record=record, report=report)
+
+
+def _left_out(rows) -> dict[str, int]:
+    """Cards per board that are not the deck, `{"side": 15}`."""
+    counts: Counter = Counter()
+    for row in rows:
+        if not row.in_deck:
+            counts[row.board] += row.quantity
+    return dict(counts)
+
+
+def _printings(report: resolve.ResolutionReport, command=()) -> tuple[dict, dict]:
+    """What the file said about each card's printing, split in two.
+
+    `(the list, the command zone)`: a row marked as commander keeps its
+    printing with the commander - when the import made it one, `command` -
+    and every other row with its `DeckCard`. A row that names neither a set
+    nor a finish says nothing and is not kept.
+    """
+    zone = {str(card.pk) for card in command}
+    in_list: dict[str, list] = defaultdict(list)
+    command: dict[str, list] = defaultdict(list)
+    for resolution in report.resolved:
+        row = resolution.row
+        if not (row.set_code or row.finish):
+            continue
+        printing = {"set": row.set_code[:12], "number": row.collector_number[:16],
+                    "finish": row.finish, "quantity": min(row.quantity, 32_767)}
+        oracle_id = str(resolution.card.pk)
+        in_zone = row.is_commander and oracle_id in zone
+        (command if in_zone else in_list)[oracle_id].append(printing)
+    return dict(in_list), dict(command)
 
 
 def _count_unread_later(deck: Deck) -> None:
@@ -307,25 +414,23 @@ def fill(deck: Deck, report: resolve.ResolutionReport) -> None:
     """Make `deck` the list `report` resolved, commander included - what an
     import writes, for a list that did not come from a person's upload and
     is therefore not metered or recorded (the site's own precons, P11)."""
-    _write_entries(deck, report, commander=_commander_for(deck, report))
-    _set_commander(deck, report)
+    zone = command_zone.read(report)
+    _write_entries(deck, report, commanders=_commanders_for(deck, zone))
+    _set_commanders(deck, report, zone)
     recount_later(Deck.objects.filter(pk=deck.pk))
 
 
-def _commander_for(deck: Deck, report: resolve.ResolutionReport):
-    """The card this import leaves in the command zone, if any.
+def _commanders_for(deck: Deck, zone: command_zone.Reading) -> list:
+    """The cards this import leaves in the command zone, if any.
 
-    The file's own marker when there is exactly one, and otherwise the
-    commander the deck already had - a refill from a list that does not mark
-    one keeps the commander somebody picked by hand.
+    What the file marked, when that may lead a deck (`command_zone.read`),
+    and otherwise the commanders the deck already had - a refill from a list
+    that does not mark one keeps the commander somebody picked by hand.
     """
-    marked = [r for r in report.resolved if r.row.is_commander]
-    if len(marked) == 1:
-        return marked[0].card
-    return deck.commander if deck.commander_id else None
+    return zone.cards or deck.commanders
 
 
-def _write_entries(deck: Deck, report: resolve.ResolutionReport, *, commander=None) -> None:
+def _write_entries(deck: Deck, report: resolve.ResolutionReport, *, commanders=()) -> None:
     """Replace the deck's contents with what resolved.
 
     Replace rather than merge: an import is the user saying "this is the deck
@@ -337,20 +442,24 @@ def _write_entries(deck: Deck, report: resolve.ResolutionReport, *, commander=No
     writing that row as a `DeckCard` as well as setting `Deck.commander` put
     the card in two zones at once: "101 cards" on the legality panel, the
     commander shuffled into the library as well as sitting in the command
-    zone, and a collection check asking for two copies. One copy leaves the
-    list for the command zone here.
+    zone, and a collection check asking for two copies. One copy of each
+    commander leaves the list for the command zone here.
     """
     DeckCard.objects.filter(deck=deck).delete()
+    printings, _ = _printings(report, commanders)
     quantities = report.quantities()
-    if commander is not None and str(commander.pk) in quantities:
-        quantities[str(commander.pk)] -= 1
-        if quantities[str(commander.pk)] < 1:
-            del quantities[str(commander.pk)]
+    for commander in commanders:
+        oracle_id = str(commander.pk)
+        if oracle_id in quantities:
+            quantities[oracle_id] -= 1
+            if quantities[oracle_id] < 1:
+                del quantities[oracle_id]
     cards = {str(r.card.pk): r.card for r in report.resolved}
 
     DeckCard.objects.bulk_create(
         [
-            DeckCard(deck=deck, oracle_card=cards[oracle_id], quantity=min(quantity, 32_767))
+            DeckCard(deck=deck, oracle_card=cards[oracle_id], quantity=min(quantity, 32_767),
+                     printings=printings.get(oracle_id, []))
             for oracle_id, quantity in quantities.items()
         ],
         batch_size=500,
@@ -376,17 +485,22 @@ def _write_unresolved(record: DeckImport, report: resolve.ResolutionReport) -> N
     )
 
 
-def _set_commander(deck: Deck, report: resolve.ResolutionReport) -> None:
+def _set_commanders(deck: Deck, report: resolve.ResolutionReport,
+                    zone: command_zone.Reading) -> None:
     """Use the export's own commander marker, and never guess past it.
 
-    If the file does not say, the deck has no commander and the deck page says
-    so plainly. Picking "the only legendary creature" would be right often
-    enough to be trusted and wrong often enough to hurt.
+    If the file does not say - or says something no deck may do - the deck
+    keeps the commanders it had (none, for a new one) and the deck page says
+    why (`DeckImport.commander_issue`). Picking "the only legendary creature"
+    would be right often enough to be trusted and wrong often enough to hurt.
     """
-    marked = [r for r in report.resolved if r.row.is_commander]
-    if len(marked) == 1:
-        deck.commander = marked[0].card
-        deck.save(update_fields=["commander", "updated_at"])
+    if not zone.cards:
+        return
+    _, command = _printings(report, zone.cards)
+    deck.commander = zone.cards[0]
+    deck.partner = zone.cards[1] if len(zone.cards) > 1 else None
+    deck.commander_printings = command
+    deck.save(update_fields=["commander", "partner", "commander_printings", "updated_at"])
 
 
 def recount_later(decks) -> None:
@@ -400,38 +514,72 @@ def recount_later(decks) -> None:
     decks.update(open_questions=None)
 
 
-@transaction.atomic
-def set_commander(deck: Deck, card) -> None:
-    """Set the commander by hand, from the deck page.
 
-    Picked out of the deck's own list, so one copy moves from the 99 to the
-    command zone - the same rule the importer follows. A commander being
-    replaced goes back into the 99 rather than vanishing from the deck: which
-    card leaves a deck is its owner's decision, not a side effect of this one.
+def rename(deck: Deck, name: str) -> None:
+    """Call `deck` `name` (E1.73).
+
+    `update`, as for the count of open questions: a name is not a change to
+    the deck, so the list does not reorder and "updated" keeps its date. A
+    report shared before keeps the name it was shared under - it is a copy.
     """
-    previous = deck.commander if deck.commander_id else None
-    if previous is not None and previous.pk == card.pk:
+    Deck.objects.filter(pk=deck.pk).update(name=name)
+    deck.name = name
+
+
+@transaction.atomic
+def set_commander(deck: Deck, card, partner=None) -> None:
+    """Set the commander - and a second one, or none - by hand, from the deck page.
+
+    Picked out of the deck's own list, so one copy of each moves from the 99
+    to the command zone - the same rule the importer follows. A commander
+    being replaced goes back into the 99 rather than vanishing from the deck:
+    which card leaves a deck is its owner's decision, not a side effect of
+    this one. Whether the pair may lead together is the caller's to check
+    (`decks.forms.CommanderForm`).
+    """
+    chosen = [each for each in (card, partner) if each is not None]
+    previous = deck.commanders
+    if [each.pk for each in previous] == [each.pk for each in chosen]:
         return
 
-    entry = DeckCard.objects.filter(deck=deck, oracle_card=card).first()
-    if entry is not None:
+    # The printings travel with the card: the copy that leaves the list takes
+    # what the file said about it to the command zone, and back again.
+    old = deck.commander_printings or {}
+    staying = {each.pk for each in previous} & {each.pk for each in chosen}
+    zone = {str(pk): old[str(pk)] for pk in staying if old.get(str(pk))}
+
+    for each in chosen:
+        if each.pk in staying:
+            continue
+        entry = DeckCard.objects.filter(deck=deck, oracle_card=each).first()
+        if entry is None:
+            continue
         if entry.quantity > 1:
             entry.quantity -= 1
             entry.save(update_fields=["quantity"])
         else:
+            if entry.printings:
+                zone[str(each.pk)] = entry.printings
             entry.delete()
 
-    if previous is not None:
+    for each in previous:
+        if each.pk in staying:
+            continue
+        moved = old.get(str(each.pk), [])
         back, created = DeckCard.objects.get_or_create(
-            deck=deck, oracle_card=previous, defaults={"quantity": 1}
+            deck=deck, oracle_card=each, defaults={"quantity": 1, "printings": moved}
         )
         if not created:
             back.quantity += 1
-            back.save(update_fields=["quantity"])
+            back.printings = back.printings + moved
+            back.save(update_fields=["quantity", "printings"])
 
     deck.commander = card
+    deck.partner = partner
+    deck.commander_printings = zone
     deck.open_questions = None
-    deck.save(update_fields=["commander", "open_questions", "updated_at"])
+    deck.save(update_fields=["commander", "partner", "commander_printings", "open_questions",
+                             "updated_at"])
 
 
 # --- the mapping round trip -------------------------------------------------

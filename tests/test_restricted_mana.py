@@ -312,13 +312,14 @@ def entry(type_line, quantity=1):
 def test_the_deck_s_creature_type_is_its_most_common():
     entries = [entry("Creature — Elf Druid", 3), entry("Creature — Goblin", 4),
                entry("Land")]
-    deck = SimpleNamespace(commander_id=None, commander=None)
+    deck = SimpleNamespace(commander_id=None, commander=None, commanders=[])
     assert adapter.deck_creature_type(entries, deck) == ("goblin", 4)
 
 
 def test_a_tie_goes_to_the_commander_s_type():
     entries = [entry("Creature — Elf", 3), entry("Creature — Goblin", 4)]
-    deck = SimpleNamespace(commander_id=1, commander=oracle("Legendary Creature — Elf Warrior"))
+    commander = oracle("Legendary Creature — Elf Warrior")
+    deck = SimpleNamespace(commander_id=1, commander=commander, commanders=[commander])
     assert adapter.deck_creature_type(entries, deck) == ("elf", 4)
 
 

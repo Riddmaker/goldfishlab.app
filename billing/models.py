@@ -133,6 +133,11 @@ class Subscription(models.Model):
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.ACTIVE)
     current_period_end = models.DateTimeField(null=True, blank=True)
     cancel_at_period_end = models.BooleanField(default=False)
+    #: When Stripe will end the subscription, if somebody cancelled it (P20 F3,
+    #: E1.58). Stripe's portal sets this, not `cancel_at_period_end`, on the
+    #: API version this site uses - Lauf 1 cancelled in the portal and the app
+    #: never knew. Empty again when the cancellation is taken back.
+    cancel_at = models.DateTimeField(null=True, blank=True)
 
     # Phase 6.
     stripe_customer_id = models.CharField(max_length=64, blank=True)
@@ -180,7 +185,14 @@ class Subscription(models.Model):
     @property
     def ends_soon(self) -> bool:
         """Cancelled in the portal, still inside the period already paid for."""
-        return self.cancel_at_period_end and self.status == self.Status.ACTIVE
+        cancelled = self.cancel_at_period_end or self.cancel_at is not None
+        return cancelled and self.status == self.Status.ACTIVE
+
+    @property
+    def ends_on(self):
+        """The day a cancelled subscription ends: Stripe's own date when it
+        gave one (it may lie past the current period), else the period's end."""
+        return self.cancel_at or self.current_period_end
 
 
 class UsageRecord(models.Model):

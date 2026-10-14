@@ -189,6 +189,11 @@ boundary, not the symptom.
 #:    life), a mana ability. A draw in reminder text is no longer the spell's
 #:    own (Cycling, a Clue, Learn, a gift), a token "tapped and attacking" no
 #:    card entering tapped; Phyrexian Tribute sacrifices two creatures.
-ENGINE_VERSION = 28
+#: 29: P20 F2b. Two commanders: partners, a creature and its Background, the
+#:    Doctor's companion and the Doctor. Each has its own tax, the cheaper one
+#:    that can be paid is cast first, "your commander attacks" fires for each,
+#:    and "commander on the battlefield" means at least one - with a count of
+#:    the games that have both. A deck with one commander plays as in 28.
+ENGINE_VERSION = 29
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

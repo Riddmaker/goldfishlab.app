@@ -249,7 +249,8 @@ def fixed_set():
            .order_by("edhrec_rank").values_list("pk", flat=True)[:TOP])
     in_decks = DeckCard.objects.values_list("oracle_card_id", flat=True)
     commanders = Deck.objects.exclude(commander=None).values_list("commander_id", flat=True)
-    return OracleCard.objects.filter(pk__in={*top, *in_decks, *commanders})
+    partners = Deck.objects.exclude(partner=None).values_list("partner_id", flat=True)
+    return OracleCard.objects.filter(pk__in={*top, *in_decks, *commanders, *partners})
 
 
 def _plain(value):

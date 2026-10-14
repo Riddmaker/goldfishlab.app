@@ -591,3 +591,91 @@ def test_the_quota_is_checked_before_the_resolver_runs(catalogue, user, monkeypa
     monkeypatch.setattr(resolve, "resolve", _must_not_run)
     with pytest.raises(QuotaExceeded):
         services.import_deck(owner=user, raw=b"1 Sol Ring\n", deck=deck)
+
+
+# --- P20 F1: boards, printings, links --------------------------------------
+
+ARENA_WITH_SIDEBOARD = (
+    b"About\nName Grim Test\n\n"
+    b"Commander\n1 Chainer, Dementia Master (A25) 82 *F*\n\n"
+    b"Deck\n1 Sol Ring (C21) 263\n1 Sol Ring (SLD) 1011 *F*\n30 Swamp\n\n"
+    b"Sideboard\n2 Lightning Bolt\n"
+)
+
+
+def test_the_sideboard_is_left_out_and_counted_not_dropped(catalogue, user):
+    """E1.80: Arena's sideboard went into the deck. It now stays out, and the
+    import says how many cards it left out, by board."""
+    outcome = services.import_deck(owner=user, raw=ARENA_WITH_SIDEBOARD)
+
+    names = {entry.oracle_card.name for entry in outcome.deck.entries.all()}
+    assert "Lightning Bolt" not in names
+    assert outcome.record.left_out == {"side": 2}
+    assert outcome.record.left_out_shown == ["2 sideboard cards were not imported."]
+    record = outcome.record
+    assert record.rows_total == record.rows_resolved + record.rows_unresolved
+
+
+def test_the_arena_deck_name_beats_the_commanders_name(catalogue, user):
+    outcome = services.import_deck(owner=user, raw=ARENA_WITH_SIDEBOARD)
+    assert outcome.deck.name == "Grim Test"
+    assert outcome.deck.commander.name == "Chainer, Dementia Master"
+
+
+def test_printings_are_kept_beside_the_card_and_the_commander(catalogue, user):
+    """Decision E1: what the file said about printing and foil is stored and
+    shown, never read by the engine."""
+    deck = services.import_deck(owner=user, raw=ARENA_WITH_SIDEBOARD).deck
+
+    sol_ring = deck.entries.get(oracle_card__name="Sol Ring")
+    assert sol_ring.quantity == 2
+    assert sol_ring.printing_label == "C21 263, SLD 1011 · Foil"
+    commander = str(deck.commander_id)
+    assert deck.commander_printings == {
+        commander: [{"set": "a25", "number": "82", "finish": "foil", "quantity": 1}]}
+    assert deck.entries.get(oracle_card__name="Swamp").printings == []
+
+
+def test_a_hand_picked_commander_takes_its_printing_along(catalogue, user):
+    deck = services.import_deck(
+        owner=user, raw=b"1 Chainer, Dementia Master (A25) 82\n1 Sol Ring (C21) 263 *F*\n",
+        name="Pick").deck
+    assert deck.commander_id is None
+    sol_ring = deck.entries.get(oracle_card__name="Sol Ring").oracle_card
+    chainer = deck.entries.get(oracle_card__name="Chainer, Dementia Master").oracle_card
+
+    services.set_commander(deck, sol_ring)
+    assert deck.commander_printings[str(sol_ring.pk)][0]["finish"] == "foil"
+
+    services.set_commander(deck, chainer)
+    back = deck.entries.get(oracle_card=sol_ring)
+    assert back.printing_label == "C21 263 · Foil"
+
+
+def test_a_file_of_only_sideboard_is_refused_with_a_reason(catalogue, user):
+    with pytest.raises(services.ImportError_, match="outside the deck"):
+        services.import_deck(owner=user, raw=b"Sideboard\n1 Sol Ring\n", name="Side")
+
+
+def test_a_double_faced_card_written_with_one_slash_resolves(catalogue):
+    rows = list(PlainTextParser().parse(
+        "1 Tergrid, God of Fright / Tergrid's Lantern (KHM) 112\n"))
+    assert resolve.resolve(rows).resolved[0].card.name.startswith("Tergrid, God of Fright")
+
+
+@pytest.mark.parametrize("who", ["account", "guest"])
+def test_a_link_is_refused_on_the_form_with_where_to_export(client, catalogue, user, who):
+    """E1.1, for both doors into the importer."""
+    from django.urls import reverse
+
+    if who == "account":
+        client.force_login(user)
+    url = reverse("decks:import" if who == "account" else "guests:try")
+    response = client.post(url, {"source": "paste",
+                                 "text": "https://moxfield.com/decks/q7Hs2kL9xEaBc3mW1nYzRt"})
+
+    assert response.status_code == 200
+    body = response.content.decode()
+    assert "cannot open links" in body
+    assert "Moxfield" in body
+    assert not Deck.objects.exists()

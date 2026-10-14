@@ -8,10 +8,12 @@ source, so a missing filter is a missing row rather than someone else's deck.
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Prefetch
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.cache import patch_vary_headers
 from django.utils.decorators import method_decorator
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext, gettext_noop, ngettext
 from django.views.generic import DeleteView, DetailView, FormView, ListView, View
 from django_ratelimit.decorators import ratelimit
@@ -19,13 +21,12 @@ from django_ratelimit.decorators import ratelimit
 from billing import quotas
 from billing.quotas import QuotaExceeded
 from billing.views import upgrade_prompt
-from cards.models import OracleCard
 from combos import services as combo_services
 from decks import analysis as deck_analysis
-from decks import services
-from decks.forms import ColumnMappingForm, ImportForm
+from decks import command_zone, services
+from decks.forms import ColumnMappingForm, CommanderForm, DeckNameForm, ImportForm
 from decks.importers import columns, tabular
-from decks.models import Deck, DeckCard, DeckImport, PendingImport
+from decks.models import Deck, DeckCard, DeckImport, PendingImport, printings_shown
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
 from simulations import blindspots, deck_cards, review, summary
 from simulations.engine import adapter
@@ -45,7 +46,7 @@ class DeckListView(OwnedDecksMixin, ListView):
     context_object_name = "decks"
 
     def get_queryset(self):
-        return super().get_queryset().select_related("commander")
+        return super().get_queryset().select_related("commander", "partner")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -74,7 +75,7 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         return (
             super()
             .get_queryset()
-            .select_related("commander")
+            .select_related("commander", "partner")
             .prefetch_related(Prefetch("entries", queryset=entries))
         )
 
@@ -92,11 +93,16 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         return response
 
     def grid_context(self, deck, readings) -> dict:
-        grid = deck_cards.cards(readings, review.queue(deck, readings))
+        printings = {entry.oracle_card_id: entry.printings_shown for entry in deck.entries.all()}
+        questions = review.queue(deck, readings)
+        grid = deck_cards.cards(readings, questions, printings)
         filters = deck_cards.Filters.from_request(self.request.GET)
         type_bars, category_bars = deck_cards.bars(grid)
         return {
             "deck": deck,
+            # The cards the engine could not read on its own: the same queue the
+            # red marker counts the open ones of (P20 F4, E1.35).
+            "unread_cards": len(questions),
             "grid": deck_cards.shown(grid, filters),
             "grid_total": len(grid),
             "filters": filters,
@@ -129,8 +135,16 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         context["analysis"] = analysis
         context["legality_problems"] = sum(1 for verdict in analysis.legality if not verdict.ok)
         context["last_import"] = deck.imports.first()
+        context["commander_printings"] = [
+            (card, printings_shown((deck.commander_printings or {}).get(str(card.pk), [])))
+            for card in deck.commanders]
+        context["commander_choice"] = commander_choice(deck, context["last_import"])
         context["curve_max"] = max(analysis.curve.values() or [1]) or 1
         context["run_form"] = RunForm(plan=quotas.plan_for(self.request.user))
+        # E3 (P20 F3, E1.27): a run that writes a new summary counts twice,
+        # and the button says so before it is pressed.
+        user = self.request.user
+        context["summary_due"] = not user.is_guest and summary.due(user, deck)
         context["runs"] = runs = list(deck.runs.all()[:5])
         context.update(self.last_run_context(deck, runs))
         # Sessions, not games: a playtest is one game played by hand and is
@@ -145,6 +159,12 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         # every report carries the other.
         context["blindspots"] = blindspots.find(readings)
         return context
+
+
+def commander_choice(deck, last_import):
+    """The commander choice for the deck page, with the last import's suggestion."""
+    suggested = last_import.suggested_commanders if last_import is not None else []
+    return command_zone.choice(deck, suggested)
 
 
 #: What to say when nothing recognised the file. It used to end "other formats
@@ -224,8 +244,9 @@ class ImportFlowMixin:
                 parser_name=chosen_format,
             )
         except QuotaExceeded as exc:
-            form.add_error(None, str(exc))
-            return self.form_invalid(form)
+            # The 402 with a sentence and a way on, as on the mapping screen -
+            # it used to put the exception's log line on the form (E1.20).
+            return upgrade_prompt(self.request, exc)
         except services.ImportError_ as exc:
             form.add_error(source_field, str(exc))
             return self.form_invalid(form)
@@ -430,20 +451,82 @@ class ImportReviewView(LoginRequiredMixin, DetailView):
 
 
 class SetCommanderView(LoginRequiredMixin, View):
-    """Pick the commander by hand when the file did not say."""
+    """Pick the commander(s) by hand: when the file did not say, or to change them.
+
+    Only from the deck's own cards and only cards that may lead it
+    (`CommanderForm`) - Lauf 1 saved a land here (E1.55).
+    """
 
     def post(self, request, pk):
         deck = get_object_or_404(Deck, pk=pk, owner=request.user)
-        card = get_object_or_404(OracleCard, pk=request.POST.get("oracle_id"))
-
-        if not deck.entries.filter(oracle_card=card).exists():
-            messages.error(request, gettext("That card is not in this deck."))
+        if save_commanders(request, deck):
             return redirect(deck.get_absolute_url())
+        return redirect(f"{deck.get_absolute_url()}#commander")
 
-        services.set_commander(deck, card)
+
+class DeckRenameView(OwnedDecksMixin, View):
+    """Give a deck another name (E1.73, E2.5).
+
+    The pencil beside a deck's name opens the field in place
+    (static/js/deck-name.js), which posts here asking for JSON - the name as
+    saved, or the sentence why not. Without the script the pencil is a link
+    to this page, and the form here goes back to where it came from.
+    """
+
+    template_name = "decks/rename.html"
+
+    def get(self, request, pk):
+        deck = get_object_or_404(self.get_queryset(), pk=pk)
+        form = DeckNameForm(initial={"name": deck.name})
+        return self.page(request, deck, form)
+
+    def post(self, request, pk):
+        deck = get_object_or_404(self.get_queryset(), pk=pk)
+        form = DeckNameForm(request.POST)
+        wants_json = request.headers.get("Accept") == "application/json"
+        if not form.is_valid():
+            if wants_json:
+                return JsonResponse({"error": form.errors["name"][0]}, status=400)
+            return self.page(request, deck, form, status=400)
+        services.rename(deck, form.cleaned_data["name"])
+        if wants_json:
+            return JsonResponse({"name": deck.name})
+        messages.success(request, gettext("The deck is now called %(name)s.") % {
+            "name": deck.name})
+        return redirect(self.back(request, deck))
+
+    def page(self, request, deck, form, status=200):
+        return render(request, self.template_name, {
+            "deck": deck, "form": form, "next": self.back(request, deck)}, status=status)
+
+    @staticmethod
+    def back(request, deck) -> str:
+        """The page the pencil was on, if it is one of this site's."""
+        target = request.POST.get("next") or request.GET.get("next") or ""
+        if url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()},
+                                           require_https=request.is_secure()):
+            return target
+        return deck.get_absolute_url()
+
+
+def save_commanders(request, deck) -> bool:
+    """Validate and save a posted `CommanderForm`, with a message either way."""
+    form = CommanderForm(request.POST, deck=deck)
+    if not form.is_valid():
+        for errors in form.errors.values():
+            for error in errors:
+                messages.error(request, error)
+        return False
+
+    cards = form.cleaned_data["cards"]
+    services.set_commander(deck, *cards)
+    if len(cards) > 1:
+        messages.success(request, gettext("%(first)s and %(second)s are now the commanders.") % {
+            "first": cards[0].front_name, "second": cards[1].front_name})
+    else:
         messages.success(request, gettext("%(card)s is now the commander.") % {
-            "card": card.name})
-        return redirect(deck.get_absolute_url())
+            "card": cards[0].front_name})
+    return True
 
 
 class DeckDeleteView(OwnedDecksMixin, DeleteView):

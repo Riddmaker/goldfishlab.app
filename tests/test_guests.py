@@ -104,6 +104,26 @@ def test_an_upload_makes_a_guest_and_starts_its_simulation(
     assert client.get(run.get_absolute_url()).status_code == 200, "signed in as the guest"
 
 
+def test_a_guest_keeps_the_language_of_the_address_it_came_on(client, _no_workers, settings):
+    """E2.7: an English browser on /de/try/ got its report in English."""
+    settings.LANGUAGES = [("en", "English"), ("de", "Deutsch")]
+    client.post("/de/try/", {"source": "paste", "text": DECK_TEXT},
+                HTTP_ACCEPT_LANGUAGE="en")
+
+    guest = the_guest()
+    run = SimulationRun.objects.get(owner=guest)
+    page = client.get(run.get_absolute_url(), HTTP_ACCEPT_LANGUAGE="en")
+    assert guest.language == "de"
+    assert page.headers["Content-Language"] == "de"
+
+
+def test_a_guest_on_the_english_address_keeps_no_language(client, _no_workers, settings):
+    settings.LANGUAGES = [("en", "English"), ("de", "Deutsch")]
+    upload(client)
+
+    assert the_guest().language == "", "English is what an empty language already means"
+
+
 def test_the_guest_row_is_unusable_outside_its_session(client):
     upload(client)
     guest = the_guest()
@@ -377,3 +397,60 @@ def test_the_privacy_policy_names_the_guest_and_its_day(client):
 
     assert "without an account" in body
     assert "24 hours" in body
+
+
+# --- who is the commander (P20 F2, E1.46) ----------------------------------
+
+UNMARKED = "1 Chainer, Dementia Master\n1 Sol Ring\n36 Swamp\n"
+
+
+def test_a_clean_import_without_a_commander_asks_before_it_runs(client, _no_workers):
+    """Lauf 1: the run started with an empty command zone, and nothing said so."""
+    response = upload(client, UNMARKED)
+
+    assert response.url == reverse("guests:commander")
+    assert not SimulationRun.objects.exists()
+    body = client.get(response.url).content.decode()
+    assert "Who is your commander?" in body
+    assert "The file does not name a commander." in body
+    assert "Simulate without a commander" in body
+
+
+def test_choosing_the_commander_starts_the_run(client, _no_workers,
+                                               django_capture_on_commit_callbacks):
+    upload(client, UNMARKED)
+    deck = the_guest().decks.get()
+    chainer = deck.entries.get(oracle_card__front_name="Chainer, Dementia Master").oracle_card
+
+    with django_capture_on_commit_callbacks(execute=True):
+        response = client.post(reverse("guests:commander"), {"commander": str(chainer.pk)})
+
+    run = SimulationRun.objects.get(deck=deck)
+    deck.refresh_from_db()
+    assert deck.commander_id == chainer.pk
+    assert response.url == run.get_absolute_url()
+    assert run.commander_names == ["Chainer, Dementia Master"]
+
+
+def test_without_a_commander_is_a_choice_and_the_run_records_it(client, _no_workers):
+    upload(client, UNMARKED)
+
+    response = client.post(reverse("guests:commander"), {"without": "1"})
+
+    run = SimulationRun.objects.get()
+    assert response.url == run.get_absolute_url()
+    assert run.commander_names == []
+
+
+def test_a_card_that_may_not_lead_asks_again(client, _no_workers):
+    upload(client, UNMARKED)
+    ring = the_guest().decks.get().entries.get(oracle_card__front_name="Sol Ring").oracle_card
+
+    response = client.post(reverse("guests:commander"), {"commander": str(ring.pk)})
+
+    assert response.url == reverse("guests:commander")
+    assert not SimulationRun.objects.exists()
+
+
+def test_a_marked_commander_still_runs_at_once(client, _no_workers):
+    assert upload(client).url == SimulationRun.objects.get().get_absolute_url()

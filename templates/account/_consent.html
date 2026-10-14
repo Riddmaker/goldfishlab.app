@@ -1,0 +1,14 @@
+{% comment %}
+  What creating an account means, with both documents linked (D2). On the
+  sign-up form and on the guest's "Save your deck", which makes an account
+  too and said nothing of it (P20 F3, E1.14).
+{% endcomment %}
+{% load i18n %}
+{% url 'terms' as terms_url %}
+{% url 'privacy' as privacy_url %}
+{# A div: `.auth-form form > p` lays each field out as a column. #}
+<div class="mb-4 text-sm">
+  {% blocktranslate trimmed %}
+    By creating an account you accept the <a href="{{ terms_url }}">terms</a> and confirm that you have read the <a href="{{ privacy_url }}">privacy policy</a>.
+  {% endblocktranslate %}
+</div>

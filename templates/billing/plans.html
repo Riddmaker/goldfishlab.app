@@ -25,7 +25,7 @@
     </p>
   {% elif subscription.ends_soon %}
     <p class="mt-6 border-l-2 border-parchment-600 bg-ink-900 px-4 py-3 text-parchment-100">
-      {% blocktranslate trimmed with date=subscription.current_period_end|date:"DATE_FORMAT" %}
+      {% blocktranslate trimmed with date=subscription.ends_on|date:"DATE_FORMAT" %}
         <strong>This plan ends on {{ date }}.</strong>
         You keep everything until then, and the account returns to Free afterwards.
       {% endblocktranslate %}

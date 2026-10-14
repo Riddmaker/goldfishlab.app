@@ -10289,6 +10289,754 @@ msgid "%(count)s Treasure as it resolves"
 msgid_plural "%(count)s Treasures as it resolves"
 msgstr[0] "解決時に宝物%(count)s個"
 
+#: decks/models.py
+#, python-format
+msgid "%(count)s sideboard card was not imported."
+msgid_plural "%(count)s sideboard cards were not imported."
+msgstr[0] "サイドボードの%(count)s枚は取り込んでいません。"
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s maybeboard card was not imported."
+msgid_plural "%(count)s maybeboard cards were not imported."
+msgstr[0] "検討中（メイビーボード）の%(count)s枚は取り込んでいません。"
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s companion was not imported."
+msgid_plural "%(count)s companions were not imported."
+msgstr[0] "相棒%(count)s枚は取り込んでいません。"
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s token was not imported."
+msgid_plural "%(count)s tokens were not imported."
+msgstr[0] "トークン%(count)s個は取り込んでいません。"
+
+#: decks/models.py
+msgid "Foil"
+msgstr "フォイル"
+
+#: decks/models.py
+msgid "Etched foil"
+msgstr "エッチング・フォイル"
+
+#: decks/models.py
+#, python-format
+msgid "%(count)s more"
+msgid_plural "%(count)s more"
+msgstr[0] "ほか%(count)s件"
+
+#: templates/decks/_left_out.html
+msgid ""
+"Goldfish Lab plays the deck itself, so only the main deck and the commander "
+"were read."
+msgstr "Goldfish Labはデッキそのものをプレイするため、メインデッキと統率者だけを読み込みました。"
+
+#: decks/importers/columns.py
+msgid "board or section"
+msgstr "ボード・セクション"
+
+#: decks/services.py
+msgid ""
+"Goldfish Lab cannot open links to other sites - it needs the list itself."
+msgstr "Goldfish Labは他のサイトへのリンクを開けません。リストそのものが必要です。"
+
+#: decks/services.py
+msgid "On Moxfield: open the deck → More → Export → copy, then paste it here."
+msgstr "Moxfieldの場合：デッキを開く → More → Export → コピーして、ここに貼り付けてください。"
+
+#: decks/services.py
+msgid ""
+"On Archidekt: open the deck → More → Export, then paste the text or upload "
+"the CSV."
+msgstr "Archidektの場合：デッキを開く → More → Export で、テキストを貼り付けるかCSVをアップロードしてください。"
+
+#: decks/services.py
+msgid ""
+"In ManaBox: open the deck → ⋮ → Export or Share, then paste the text here."
+msgstr "ManaBoxの場合：デッキを開く → ⋮ → Export または Share で、テキストをここに貼り付けてください。"
+
+#: decks/services.py
+msgid ""
+"Open the deck there, look for Export or Download, and paste the text list "
+"here."
+msgstr "そのサイトでデッキを開き、Export または Download を探して、テキストのリストをここに貼り付けてください。"
+
+#: decks/services.py
+msgid "the file only lists cards outside the deck (sideboard or maybeboard)"
+msgstr "このファイルにはデッキ外のカード（サイドボードまたはメイビーボード）しかありません"
+
+#: changelog/entries.py
+msgid "Deck lists are read the way your tool writes them"
+msgstr "デッキリストを、使っているツールの書き方のまま読み込みます"
+
+#: changelog/entries.py
+msgid ""
+"The importer now reads the exports of Moxfield, Archidekt, ManaBox, "
+"TappedOut and Arena as they come: with set, collector number and foil, with "
+"category tags, and with headings in every language the site speaks. The "
+"printing and the foil are shown beside each card. Sideboard and maybeboard "
+"stay out of the deck, and the deck page says how many cards that was. A "
+"Moxfield list whose first card has a comma in its name, an Archidekt CSV "
+"without a header row and an Excel file with semicolons are read without "
+"asking. A link to a deck is answered with where that site keeps its export."
+msgstr ""
+"インポートは、Moxfield・Archidekt・ManaBox・TappedOut・Arenaのエクスポートをそのままの形で読み込むようになりました。セット、コレクター番号、フォイル、カテゴリ、そしてサイトが対応するすべての言語の見出しも読み取ります。版とフォイルは各カードの横に表示します。サイドボードとメイビーボードはデッキに入れず、何枚あったかをデッキページに表示します。最初のカード名にカンマがあるMoxfieldのリスト、見出し行のないArchidektのCSV、セミコロン区切りのExcelファイルも、確認なしで読み込みます。デッキへのリンクには、そのサイトのどこにエクスポートがあるかをお知らせします。"
+
+#: decks/models.py
+msgid "The file does not name a commander."
+msgstr "ファイルに統率者の指定がありません。"
+
+#: decks/models.py
+#, python-format
+msgid "The file names %(names)s as commander, but that card was not found."
+msgstr "ファイルは %(names)s を統率者としていますが、そのカードが見つかりませんでした。"
+
+#: decks/models.py
+#, python-format
+msgid ""
+"The file names %(names)s as commander, but that card cannot lead a Commander"
+" deck."
+msgstr "ファイルは %(names)s を統率者としていますが、そのカードは統率者になれません。"
+
+#: decks/models.py
+#, python-format
+msgid ""
+"The file names %(names)s as commanders, but they cannot share the command "
+"zone."
+msgstr "ファイルは %(names)s を統率者としていますが、この2枚は統率領域を共有できません。"
+
+#: decks/forms.py
+msgid "Choose a commander."
+msgstr "統率者を選んでください。"
+
+#: decks/forms.py
+msgid "That card cannot be this deck's commander."
+msgstr "そのカードはこのデッキの統率者になれません。"
+
+#: decks/forms.py
+msgid "That card cannot be a second commander here."
+msgstr "そのカードはここで2人目の統率者になれません。"
+
+#: decks/forms.py
+#, python-format
+msgid "%(first)s and %(second)s cannot share the command zone."
+msgstr "%(first)s と %(second)s は統率領域を共有できません。"
+
+#: decks/analysis.py
+#, python-format
+msgid "%(first)s and %(second)s cannot share the command zone"
+msgstr "%(first)s と %(second)s は統率領域を共有できません"
+
+#: decks/views.py
+#, python-format
+msgid "%(first)s and %(second)s are now the commanders."
+msgstr "%(first)s と %(second)s を統率者に設定しました。"
+
+#: decks/analysis.py
+#, python-format
+msgid "The commanders' identity is %(colours)s."
+msgstr "統率者たちの固有色は %(colours)s です。"
+
+#: decks/analysis.py
+msgid ""
+"A commander is a legendary creature, or a card that says it can be one; two "
+"share the command zone only as partners or with a Background."
+msgstr "統率者は伝説のクリーチャーか、統率者にできると書かれたカードです。2枚で統率領域を共有できるのは、共闘か背景の組み合わせだけです。"
+
+#: decks/analysis.py
+msgid "May be commanders"
+msgstr "統率者にできます"
+
+#: decks/analysis.py
+msgid "May be commander"
+msgstr "統率者にできます"
+
+#: decks/analysis.py
+#, python-format
+msgid "%(card)s cannot be a commander"
+msgstr "%(card)s は統率者になれません"
+
+#: templates/decks/_commander_form.html
+#, python-format
+msgid ""
+"The file lists <strong>%(names)s</strong> first - is that the commander?"
+msgstr "ファイルの先頭は <strong>%(names)s</strong> です。これが統率者ですか？"
+
+#: templates/decks/_commander_form.html
+msgid "Commander"
+msgstr "統率者"
+
+#: templates/decks/_commander_form.html
+msgid "Choose…"
+msgstr "選択してください…"
+
+#: templates/decks/_commander_form.html
+msgid "Second commander (partner or Background)"
+msgstr "2人目の統率者（共闘または背景）"
+
+#: templates/decks/_commander_form.html
+msgid "No second commander"
+msgstr "2人目の統率者なし"
+
+#: templates/decks/_commander_form.html
+msgid ""
+"No card in this list may lead a Commander deck - that takes a legendary "
+"creature, or a card that says it can be your commander. Is the commander "
+"missing from the file?"
+msgstr ""
+"このリストには統率者になれるカードがありません。伝説のクリーチャーか、統率者にできると書かれたカードが必要です。ファイルに統率者が抜けていませんか？"
+
+#: templates/decks/detail.html
+msgid "Commander:"
+msgstr "統率者："
+
+#: templates/decks/detail.html
+msgid "Commanders:"
+msgstr "統率者："
+
+#: templates/decks/detail.html
+msgid "Change the commander"
+msgstr "統率者を変更"
+
+#: templates/decks/detail.html
+msgid "No commander set."
+msgstr "統率者が未設定です。"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s card + 2 commanders"
+msgid_plural "%(count)s cards + 2 commanders"
+msgstr[0] "%(count)s 枚＋統率者2人"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Goldfish Lab plays by the Commander rules - 40 life, a command zone, 100 "
+"cards. This deck has %(count)s card and no commander, so its numbers hold "
+"only under those rules."
+msgid_plural ""
+"Goldfish Lab plays by the Commander rules - 40 life, a command zone, 100 "
+"cards. This deck has %(count)s cards and no commander, so its numbers hold "
+"only under those rules."
+msgstr[0] ""
+"Goldfish Lab は統率者戦のルール（ライフ40、統率領域、100枚）で回します。このデッキは %(count)s "
+"枚で統率者がいないため、数値はこのルールの下でのみ当てはまります。"
+
+#: templates/decks/detail.html templates/guests/commander.html
+msgid "Simulate without a commander"
+msgstr "統率者なしでシミュレーション"
+
+#: templates/decks/_status.html
+msgid "Not a Commander deck"
+msgstr "統率者戦のデッキではありません"
+
+#: templates/simulations/detail.html
+msgid ""
+"Played without a commander - the numbers are for a deck with an empty "
+"command zone."
+msgstr "統率者なしで回しました。数値は統率領域が空のデッキのものです。"
+
+#: templates/simulations/detail.html
+#, python-format
+msgid ""
+"Goldfish Lab plays by the Commander rules, and this deck had %(count)s card,"
+" so its numbers hold only under those rules."
+msgid_plural ""
+"Goldfish Lab plays by the Commander rules, and this deck had %(count)s "
+"cards, so its numbers hold only under those rules."
+msgstr[0] ""
+"Goldfish Lab は統率者戦のルールで回しますが、このデッキは %(count)s 枚でした。数値はこのルールの下でのみ当てはまります。"
+
+#: templates/guests/commander.html
+msgid "Who is your commander?"
+msgstr "統率者はどれですか？"
+
+#: templates/guests/commander.html
+msgid "Choose the commander before the first simulation."
+msgstr "最初のシミュレーションの前に統率者を選んでください。"
+
+#: templates/guests/commander.html
+#, python-format
+msgid ""
+"<strong class=\"text-parchment-100\">%(name)s</strong> is in. The simulation"
+" casts the commander from the command zone, so it needs to know which card "
+"that is."
+msgstr ""
+"<strong class=\"text-parchment-100\">%(name)s</strong> "
+"を読み込みました。シミュレーションは統率領域から統率者を唱えるので、どのカードが統率者かを知る必要があります。"
+
+#: templates/guests/commander.html
+msgid "Simulate with this commander"
+msgstr "この統率者でシミュレーション"
+
+#: templates/guests/commander.html
+msgid "The report will say the deck was played without one."
+msgstr "レポートには統率者なしで回したことが表示されます。"
+
+#: templates/guests/try.html
+msgid "For Commander decks: 100 cards, played by the Commander rules."
+msgstr "統率者戦のデッキ用：100枚、統率者戦のルールで回します。"
+
+#: changelog/entries.py
+msgid "Only a card that may lead becomes the commander"
+msgstr "統率者にできるカードだけが統率者になります"
+
+#: changelog/entries.py
+msgid ""
+"The commander choice on the deck page offers only legendary creatures and "
+"the cards that say they can be your commander, starts on nothing instead of "
+"on the first card, and stays open to change the commander later. Two "
+"partners, a creature with its Background or a companion with the Doctor are "
+"read from the file together. When the file names no commander the page says "
+"why, and when the file lists it first or last it is suggested. A guest is "
+"asked for the commander before the first simulation, and a run without one "
+"says so on its report."
+msgstr ""
+"デッキページの統率者の選択肢は、伝説のクリーチャーと「統率者にできる」と書かれたカードだけになりました。最初のカードではなく未選択の状態から始まり、後から統率者を変更することもできます。共闘の2枚、クリーチャーとその背景、ドクターのコンパニオンとドクターは、ファイルから一緒に読み込まれます。ファイルに統率者の指定がないときはその理由を表示し、ファイルの先頭か末尾にあるときは候補として提案します。ゲストは最初のシミュレーションの前に統率者を尋ねられ、統率者なしのシミュレーションはレポートにそう表示されます。"
+
+#: templates/decks/_commander_form.html
+#, python-format
+msgid ""
+"The file lists <strong>%(names)s</strong> first - are those the commanders?"
+msgstr "ファイルの先頭は <strong>%(names)s</strong> です。これが統率者ですか？"
+
+#: simulations/report.py
+msgid "Both commanders on the battlefield"
+msgstr "統率者2人とも戦場に"
+
+#: simulations/report.py
+msgid ""
+"Both of your commanders have been cast and are on the battlefield. The row "
+"above counts a game with at least one."
+msgstr "統率者が2人とも唱えられ、戦場にいます。上の行は少なくとも1人いるゲームを数えます。"
+
+#: templates/core/methodology.html
+msgid "The command zone"
+msgstr "統率領域"
+
+#: templates/core/methodology.html
+msgid ""
+"The commander starts in the command zone and is cast from there when the "
+"mana is there, <strong>two more each time it was cast before</strong>. A "
+"deck may have <strong>two commanders</strong> - two partners, a creature "
+"that chooses a Background and its Background, or the Doctor's companion and "
+"the Doctor. Then each pays the tax for its own casts, the cheaper one that "
+"can be paid is cast first, and the report counts the games with at least one"
+" commander out and, in a row of its own, those with both."
+msgstr ""
+"統率者は統率領域から始まり、マナが足りればそこから唱えられます。<strong>以前に唱えた回数ごとに2マナ多く</strong>かかります。デッキは<strong>2人の統率者</strong>を持てます：共闘の2枚、背景を選ぶクリーチャーとその背景、ドクターのコンパニオンとドクター。その場合、それぞれが自分の唱えた回数分の統率者税を払い、支払える安い方から先に唱え、レポートは少なくとも1人が戦場にいるゲームと、別の行で2人ともいるゲームを数えます。"
+
+#: templates/core/methodology.html
+msgid ""
+"A deck without a commander is played with an empty command zone, and its "
+"report says so. Every rule here is a Commander rule: 40 life and 100 cards. "
+"A deck built for another format is played by them all the same."
+msgstr ""
+"統率者のいないデッキは統率領域が空のまま回し、レポートにそう表示されます。ここでのルールはすべて統率者戦のもの（ライフ40、100枚）です。ほかのフォーマット用のデッキも同じルールで回します。"
+
+#: changelog/entries.py
+msgid "Partners and Backgrounds play together"
+msgstr "共闘と背景が一緒にプレイされます"
+
+#: changelog/entries.py
+msgid ""
+"A deck with two commanders - two partners, a creature with its Background, "
+"the Doctor's companion with the Doctor - now has both in its command zone: "
+"the simulation casts each, with its own commander tax, the cheaper one "
+"first, and the report counts the games with both on the battlefield in a row"
+" of its own. The colour identity, the combos and the draw-a-hand board count"
+" both as well. Reports of decks with one commander do not change."
+msgstr ""
+"統率者が2人いるデッキ（共闘の2枚、クリーチャーとその背景、ドクターのコンパニオンとドクター）は、両方が統率領域に入るようになりました。シミュレーションはそれぞれを自分の統率者税で、安い方から唱え、レポートは2人とも戦場にいるゲームを別の行で数えます。固有色、コンボ、手札を引くボードも両方を数えます。統率者1人のデッキのレポートは変わりません。"
+
+#: templates/billing/blocked.html
+msgid "Nothing was imported. Deleting a deck frees its place."
+msgstr "何もインポートされていません。デッキを削除すると枠が空きます。"
+
+#: billing/views.py
+msgid "Deck lists imported"
+msgstr "インポートしたデッキリスト"
+
+#: templates/billing/_tiers.html
+msgid "Deck lists imported a month:"
+msgstr "月あたりのデッキリストのインポート："
+
+#: templates/billing/pricing.html
+#, python-format
+msgid ""
+"<strong>Without an account:</strong> one deck, simulated %(games)s times "
+"over %(turns)s turns, kept for 24 hours."
+msgstr ""
+"<strong>アカウントなし：</strong>デッキ1つ、%(turns)s ターンを %(games)s 回シミュレーション、24時間保存。"
+
+#: templates/decks/detail.html
+msgid ""
+"This run also writes a new deck summary, which counts as one more "
+"simulation."
+msgstr "このシミュレーションでは新しいデッキ要約も作成され、シミュレーション1回分として数えられます。"
+
+#: templates/simulations/detail.html
+msgid ""
+"No new deck summary this time: a summary counts as one more simulation, and "
+"your plan had room for this run only."
+msgstr "今回は新しいデッキ要約はありません。要約はシミュレーション1回分として数えられ、プランにはこの1回分の余裕しかありませんでした。"
+
+#: changelog/entries.py
+msgid "Your account keeps its language, and every limit is on the page"
+msgstr "アカウントが言語を覚え、すべての上限がページに表示されます"
+
+#: changelog/entries.py
+msgid ""
+"An account now keeps the language it was made in, also when it was saved "
+"from a trial deck, so its mails arrive in that language. A cancellation in "
+"the billing portal now shows the day the plan ends. The pricing page names "
+"every limit - the deck lists you can import each month, and what trying "
+"without an account allows - and your account page counts the imports too. "
+"When a run also writes a new deck summary the deck page says that it counts "
+"as one more simulation, and the report says when there was no room for it. "
+"Reaching the deck limit while importing now explains itself instead of "
+"showing an error code."
+msgstr ""
+"アカウントは作成時の言語を覚えるようになりました。お試しデッキから保存した場合も同様で、メールはその言語で届きます。請求ポータルでの解約は、プランが終わる日を表示するようになりました。料金ページはすべての上限（毎月インポートできるデッキリストの数、アカウントなしで試せる内容）を示し、アカウントページはインポートも数えます。シミュレーションで新しいデッキ要約も作成されるときは、それがシミュレーション1回分になることをデッキページに表示し、余裕がなかったときはレポートに表示します。インポート中にデッキの上限に達したときは、エラーコードではなく説明を表示します。"
+
+#: decks/analysis.py
+msgid "possible: no Game Changers"
+msgstr "可能：ゲームチェンジャーなし"
+
+#: decks/analysis.py
+msgid ""
+"No Game Changers, so none of them keeps this deck out of Bracket 1 or 2. "
+"Speed, tutors and extra turns decide as well; the report checks the speed."
+msgstr ""
+"ゲームチェンジャーがないので、このデッキがブラケット1や2から外れる理由にはなりません。速さ、サーチ、追加ターンも判断材料で、速さはレポートが確かめます。"
+
+#: decks/analysis.py
+#, python-format
+msgid "at least, by %(count)s Game Changer"
+msgid_plural "at least, by %(count)s Game Changers"
+msgstr[0] "最低ライン：ゲームチェンジャー%(count)s枚"
+
+#: decks/analysis.py
+#, python-format
+msgid ""
+"Brackets 1 and 2 expect no Game Changers and Bracket 3 allows up to "
+"%(limit)s, so this deck is at least Bracket 3: %(cards)s."
+msgstr ""
+"ブラケット1と2はゲームチェンジャーなし、ブラケット3は%(limit)s枚までなので、このデッキは最低でもブラケット3です：%(cards)s。"
+
+#: decks/analysis.py
+#, python-format
+msgid ""
+"Bracket 3 allows up to %(limit)s Game Changers, so this deck is at least "
+"Bracket 4: %(cards)s."
+msgstr "ブラケット3で認められるゲームチェンジャーは%(limit)s枚までなので、このデッキは最低でもブラケット4です：%(cards)s。"
+
+#: simulations/numbers.py
+#, python-format
+msgid ""
+"In %(share)s of games (± %(margin)s points) it has four lands in play on "
+"turn 4."
+msgstr "%(share)sのゲーム（±%(margin)sポイント）で、4ターン目に土地が4枚場に出ています。"
+
+#: simulations/numbers.py
+#, python-format
+msgid ""
+"It keeps its first seven cards in %(share)s of games (± %(margin)s points)."
+msgstr "%(share)sのゲーム（±%(margin)sポイント）で、最初の7枚をキープします。"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "+ %(count)s double-faced card with a land on the back"
+msgid_plural "+ %(count)s double-faced cards with a land on the back"
+msgstr[0] "＋裏面が土地の両面カード%(count)s枚"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s of %(total)s cards has something the engine could not read on its "
+"own."
+msgid_plural ""
+"%(count)s of %(total)s cards have something the engine could not read on its"
+" own."
+msgstr[0] "%(total)s枚中%(count)s枚に、エンジンが自力で読み取れなかった部分があります。"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s of them still needs you; the red marker at the top takes you "
+"there."
+msgid_plural ""
+"%(count)s of them still need you; the red marker at the top takes you "
+"through them."
+msgstr[0] "そのうち%(count)s枚はまだあなたの確認が必要です。上の赤いマーカーから順に確認できます。"
+
+#: templates/decks/detail.html
+msgid "You have looked at each of them."
+msgstr "すべて確認済みです。"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "The engine read the %(count)s card on its own."
+msgid_plural "The engine read all %(count)s cards on its own."
+msgstr[0] "エンジンは%(count)s枚すべてを自力で読み取りました。"
+
+#: templates/simulations/_brackets.html
+msgid ""
+"Commander Spellbook knows no combo in this deck that ends the game on its "
+"own, so by speed nothing keeps it out of Bracket 1."
+msgstr ""
+"Commander "
+"Spellbookは、このデッキに単独でゲームを終わらせるコンボを見つけていません。速さの点では、ブラケット1から外れる理由はありません。"
+
+#: templates/simulations/_brackets.html
+msgid ""
+"The deck has combos that end the game, and this run did not time them. Run "
+"the deck again to see how fast they come together."
+msgstr ""
+"このデッキにはゲームを終わらせるコンボがありますが、このシミュレーションでは計測していません。もう一度シミュレーションすると、どれだけ早く揃うかがわかります。"
+
+#: templates/simulations/_brackets.html
+msgid ""
+"Without its combos looked up, this run measures no game-ending combo, so it "
+"cannot say how fast the deck ends a game."
+msgstr ""
+"コンボを検索していないため、このシミュレーションはゲームを終わらせるコンボを計測していません。デッキがどれだけ早くゲームを終わらせるかはわかりません。"
+
+#: templates/simulations/_brackets.html
+msgid "Find the deck's combos"
+msgstr "デッキのコンボを探す"
+
+#: templates/simulations/_brackets.html
+msgid "By Game Changers: none, so Bracket 1 or 2 is possible."
+msgstr "ゲームチェンジャー：なし。ブラケット1または2の可能性があります。"
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid ""
+"By Game Changers: at least Bracket %(floor)s, with %(count)s Game Changer."
+msgid_plural ""
+"By Game Changers: at least Bracket %(floor)s, with %(count)s Game Changers."
+msgstr[0] "ゲームチェンジャー：%(count)s枚で、最低でもブラケット%(floor)s。"
+
+#: templates/simulations/_brackets.html
+#, python-format
+msgid "Together: at least Bracket %(number)s - the higher of the two counts."
+msgstr "総合：最低でもブラケット%(number)s。2つのうち高い方が優先されます。"
+
+#: templates/core/methodology.html
+msgid ""
+"When a card's reading is changed after a run, that run is not recalculated —"
+" its numbers are a record of what the engine actually saw — so the report "
+"says so, and running the deck again shows the difference. How exact a number"
+" is depends on the number of games: the report gives its main shares with a "
+"±, explained under “How many games is enough”."
+msgstr ""
+"シミュレーション後にカードの読み取りを変えても、そのシミュレーションは再計算されません。数値はエンジンが実際に見たものの記録だからです。レポートはその旨を表示し、もう一度シミュレーションすると違いがわかります。数値の精度はゲーム数によって決まります。レポートは主な割合に±を付けて示します。説明は「何ゲームあれば十分か」にあります。"
+
+#: templates/core/methodology.html
+msgid ""
+"Ten thousand games pin a share of 50%% to about <strong>±1.0 percentage "
+"points at 95%% confidence</strong>, and one of 80%% to about ±0.8; two "
+"thousand games to about ±2.2 and ±1.8. Past ten thousand you are buying "
+"decimal places that do not change a decision, which is why this application "
+"meters <strong>turns simulated</strong> rather than selling you iteration "
+"counts."
+msgstr ""
+"1万ゲームあれば、50%%の割合は<strong>信頼度95%%で約±1.0ポイント</strong>、80%%の割合は約±0.8に収まります。2千ゲームではそれぞれ約±2.2と±1.8です。1万を超えても、判断を変えない小数点以下を買うだけです。だからこのアプリは反復回数ではなく<strong>シミュレーションしたターン数</strong>で計量します。"
+
+#: templates/core/methodology.html
+msgid ""
+"The ± beside a share in a report is that interval for the games the run "
+"played: 1.96 × √(p × (1 − p) / games). Two runs whose shares are further "
+"apart than their ± together differ for a reason, not by chance."
+msgstr ""
+"レポートの割合の横にある±は、そのシミュレーションのゲーム数に対するこの区間です：1.96 × √(p × (1 − p) / "
+"ゲーム数)。2つのシミュレーションの割合の差が両者の±の合計より大きければ、その差は偶然ではなく理由があります。"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Four lands on turn 4</strong>, at the top of every report and on the"
+" precon pages, is the share of games with at least four lands on the "
+"battlefield at the end of turn 4: every land drop made, the commonest way a "
+"Commander deck stumbles early. A run of fewer than four turns does not have "
+"it."
+msgstr ""
+"<strong>4ターン目に土地4枚</strong>は、各レポートの冒頭と構築済みデッキのページに載っている数値で、4ターン目の終わりに戦場に土地が4枚以上あるゲームの割合です。毎ターン土地を置けたということで、統率者デッキが序盤につまずく最も多い原因です。4ターン未満のシミュレーションにはこの数値はありません。"
+
+#: templates/simulations/_advanced.html
+#, python-format
+msgid ""
+"Engine v%(version)s, seed %(seed)s. How exact a share is depends on the "
+"number of games."
+msgstr "エンジン v%(version)s、シード %(seed)s。割合の精度はゲーム数によって決まります。"
+
+#: changelog/entries.py
+msgid "Every report names a bracket, and every share how exact it is"
+msgstr "すべてのレポートがブラケットを示し、すべての割合が精度を示します"
+
+#: changelog/entries.py
+msgid ""
+"The land count on the deck page counts a double-faced card by its front, as "
+"the list of what is in the deck does, and names the cards with a land on the"
+" back beside it. The bracket tile is now the lowest bracket the Game "
+"Changers allow, commander included. Every report has its bracket section, "
+"also without looked-up combos: it says why the speed is missing, adds the "
+"Game Changers, and gives the two together. A report now starts with the "
+"precon pages' numbers - four lands on turn 4, the opening hands kept, the "
+"mana on turn 4 - and each share says how far it can be off for the number of"
+" games played."
+msgstr ""
+"デッキページの土地の枚数は、デッキの中身の一覧と同じく両面カードを表面で数え、裏面が土地のカードを横に示します。ブラケットのタイルは、統率者を含めてゲームチェンジャーが認める最も低いブラケットを示すようになりました。すべてのレポートにブラケットの項目があり、コンボを検索していなくても表示されます。速さがない理由を説明し、ゲームチェンジャーを加え、両方を合わせて示します。レポートは構築済みデッキのページと同じ数値（4ターン目に土地4枚、キープした初手、4ターン目のマナ）から始まり、各割合はプレイしたゲーム数に対してどれだけずれうるかを示します。"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"“±” is how far the share of %(shown)s game can be from the true one, at 95%%"
+" confidence."
+msgid_plural ""
+"“±” is how far the share of %(shown)s games can be from the true one, at "
+"95%% confidence."
+msgstr[0] "「±」は、%(shown)sゲームから出した割合が真の値からどれだけずれうるかを、95%%の信頼度で示します。"
+
+#: changelog/entries.py
+msgid "Koi runs 9 turns again"
+msgstr "Koi で再び 9 ターンを実行できます"
+
+#: changelog/entries.py
+msgid ""
+"A higher plan now offers every number of turns a lower one does: Koi has "
+"Goldfish's 9 turns back, and Kraken has Koi's 12. A run you made before "
+"upgrading can be made again with the same turns."
+msgstr ""
+"上位プランは、下位プランで選べるターン数をすべて選べるようになりました。Koi では Goldfish の 9 ターンが復活し、Kraken では "
+"Koi の 12 ターンも選べます。アップグレード前に行ったシミュレーションを同じターン数でもう一度実行できます。"
+
+#: changelog/entries.py
+msgid "Trying the site stays in your language"
+msgstr "お試し中もあなたの言語のままです"
+
+#: changelog/entries.py
+msgid ""
+"A deck tried without an account keeps the language of the page it was "
+"uploaded on: the report and the deck page are no longer in your browser's "
+"language instead."
+msgstr ""
+"アカウントなしで試したデッキは、アップロードしたページの言語を保ちます。レポートとデッキページが、代わりにブラウザの言語で表示されることはなくなりました。"
+
+#: changelog/entries.py
+msgid "Give your decks the names you want"
+msgstr "デッキに好きな名前を付けられます"
+
+#: changelog/entries.py
+msgid ""
+"The pencil beside a deck's name renames it, in the list of your decks and on"
+" the deck page - where a click on the name works too. Two imports of the "
+"same deck no longer have to stand in the list under the same name."
+msgstr ""
+"デッキ名の横の鉛筆アイコンで名前を変更できます。デッキ一覧でもデッキページでも使え、デッキページでは名前をクリックしても変更できます。同じデッキを 2 "
+"回インポートしても、一覧に同じ名前で並ぶ必要はなくなりました。"
+
+#: templates/decks/_name.html
+msgid "Name saved."
+msgstr "名前を保存しました。"
+
+#: templates/decks/_name.html
+msgid "The name could not be saved."
+msgstr "名前を保存できませんでした。"
+
+#: templates/decks/_name.html
+msgid "Rename"
+msgstr "名前を変更"
+
+#: templates/decks/rename.html
+#, python-format
+msgid "Rename %(name)s"
+msgstr "%(name)s の名前を変更"
+
+#: templates/decks/rename.html
+msgid "Give this deck another name."
+msgstr "このデッキに別の名前を付けます。"
+
+#: decks/forms.py
+msgid "A deck needs a name."
+msgstr "デッキには名前が必要です。"
+
+#: decks/views.py
+#, python-format
+msgid "The deck is now called %(name)s."
+msgstr "デッキの名前を %(name)s に変更しました。"
+
+#: changelog/entries.py
+msgid "Answering a card no longer stops a report from being shared"
+msgstr "カードについて回答しても、レポートを共有できるようになりました"
+
+#: changelog/entries.py
+msgid ""
+"A report could not be shared once you had answered a question about one of "
+"its cards, and the reason given was a changed card list. Only a change to "
+"the cards or the commander stops it now."
+msgstr ""
+"カードに関する質問に回答すると、レポートを共有できなくなり、理由として「カードリストが変更された」と表示されていました。今後、共有できなくなるのはカードか統率者を変更した場合だけです。"
+
+#: templates/decks/import.html templates/guests/try.html
+msgid "Error:"
+msgstr "エラー:"
+
+#: changelog/entries.py
+msgid "A refused upload says why, also to a screen reader"
+msgstr "アップロードが受け付けられなかった理由を、スクリーンリーダーにも伝えます"
+
+#: changelog/entries.py
+msgid ""
+"When an upload or a pasted list is refused, the page now jumps to the field "
+"with the problem, a screen reader reads out what went wrong, and the page "
+"title starts with “Error”. The file field has a name of its own as well."
+msgstr ""
+"ファイルや貼り付けたリストが受け付けられなかったとき、問題のある欄へ移動し、スクリーンリーダーが原因を読み上げ、ページのタイトルが「エラー」で始まるようになりました。ファイル欄にも独自の名前が付きました。"
+
+#: decks/resolve.py
+msgid "matched a basic land named in another language"
+msgstr "他の言語で書かれた基本土地として一致"
+
+#: templates/decks/_import_form.html templates/decks/review.html
+msgid "Card names in English - only basic lands also work in other languages."
+msgstr "カード名は英語で入力してください。基本土地だけは他の言語でも使えます。"
+
+#: changelog/entries.py
+msgid "Basic lands in your language, and better guesses for typos"
+msgstr "基本土地をあなたの言語で、入力ミスにはより的確な候補を"
+
+#: changelog/entries.py
+msgid ""
+"The importer now knows the basic lands by their names in every language of "
+"this site - Sumpf, Forêt, Pântano. A card it cannot find gets the nearest "
+"names first, no longer the first five in the alphabet. All other card names "
+"are read in English, and the import page says so."
+msgstr ""
+"インポートで、基本土地をこのサイトの各言語の名前（Sumpf、Forêt、Pântano "
+"など）で認識できるようになりました。見つからないカードには、アルファベット順の最初の 5 "
+"件ではなく、最も近い名前から候補を表示します。それ以外のカード名は英語で読み取り、インポートページにもそう表示します。"
+
+#: templates/simulations/_report.html
+msgid "Mana value, by end of turn"
+msgstr "マナ総量（ターン終了時まで）"
+
+#: changelog/entries.py
+msgid "Every chart under “What you drew” has its own numbers"
+msgstr "「引いたカード」の各グラフに、それぞれの数値表が付きました"
+
+#: changelog/entries.py
+msgid ""
+"The numbers behind the category, strategy and card type charts stood in one "
+"table below the mana value chart, which had none of its own. Each chart now "
+"has its table right below it, the mana values included - also for a screen "
+"reader."
+msgstr ""
+"カテゴリ別・戦略別・カードタイプ別のグラフの数値は、マナ総量のグラフの下にある 1 "
+"つの表にまとめられ、マナ総量のグラフ自体には表がありませんでした。今後はマナ総量を含め、各グラフのすぐ下にその表があり、スクリーンリーダーでも読めます。"
+
 #: simulations/engine/adapter.py
 msgid "as it enters"
 msgstr "戦場に出たとき"
@@ -10340,3 +11088,30 @@ msgstr ""
 "Palaceのようにエルフを公開しない限りタップ状態で出る土地、宝物、土地探し、マナ能力です。呪文に書かれたサイクリング、手掛かり、履修、贈り物でカードを引くことはなくなりました。これは唱えるたびのただ引きでした。またPhyrexian"
 " "
 "Tributeは2体のクリーチャーを生け贄に捧げます。シミュレーションがまだ読み取れない方法でカードを引いたり宝物を生み出したりするカードには印が付くようになり、修正できます。"
+
+#: templates/decks/review.html templates/decks/map.html
+msgid "Pasted list"
+msgstr "貼り付けたリスト"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Imported from a pasted list: <span class=\"tabular\">%(matched)s</span> of "
+"<span class=\"tabular\">%(total)s</span> rows matched. <a "
+"href=\"%(review_url)s\" class=\"underline\">See how exact the match was</a>."
+msgstr ""
+"貼り付けたリストからインポート：<span class=\"tabular\">%(total)s</span> 行中 <span "
+"class=\"tabular\">%(matched)s</span> 行が一致しました。<a href=\"%(review_url)s\" "
+"class=\"underline\">一致の正確さを見る</a>。"
+
+#: changelog/entries.py
+msgid "A pasted list is no longer called a file"
+msgstr "貼り付けたリストを「ファイル」と呼ばなくなりました"
+
+#: changelog/entries.py
+msgid ""
+"After you paste a deck list, the import review, the column check and the "
+"deck page say “pasted list” where they said “uploaded file”, “your file” or "
+"“imported from a file”."
+msgstr ""
+"デッキリストを貼り付けたとき、インポートの確認、「どの列が何ですか？」の画面、デッキのページで、「アップロードしたファイル」「あなたのファイル」「ファイルからインポート」ではなく「貼り付けたリスト」と表示されるようになりました。"

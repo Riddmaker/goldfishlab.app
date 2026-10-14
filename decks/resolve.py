@@ -13,8 +13,10 @@ The ladder, in order. Each rung is tried only when the ones above it fail:
 4. normalised name - casefold, accents stripped, punctuation dropped. This is
    the rung that finds `Lim-Dul the Necromancer` when the list says `Lim-Dul`,
    and it earns its keep on 2 of 214 rows.
-5. unresolved - straight to the review screen, with near-miss suggestions.
-   **Never a silent drop.**
+5. a basic land named in one of the site's languages - `Pântano`, `Wald`,
+   `沼` (P20 F6c, E1.48): a list from a Brazilian site had 29 of them.
+6. unresolved - straight to the review screen, with near-miss suggestions,
+   the nearest first. **Never a silent drop.**
 
 Everything is resolved in bulk: a handful of queries for a whole deck list, not
 a handful per row.
@@ -22,6 +24,7 @@ a handful per row.
 
 from collections import defaultdict
 from dataclasses import dataclass, field
+from difflib import SequenceMatcher
 
 from django.db.models import Q
 from django.utils.translation import gettext_noop
@@ -35,6 +38,7 @@ RUNG_SCRYFALL_ID = "scryfall_id"
 RUNG_ORACLE_ID = "oracle_id"
 RUNG_EXACT_NAME = "exact_name"
 RUNG_NORMALISED_NAME = "normalised_name"
+RUNG_BASIC_LAND = "basic_land"
 RUNG_UNRESOLVED = "unresolved"
 
 RUNG_ORDER = [
@@ -42,6 +46,7 @@ RUNG_ORDER = [
     RUNG_ORACLE_ID,
     RUNG_EXACT_NAME,
     RUNG_NORMALISED_NAME,
+    RUNG_BASIC_LAND,
 ]
 
 #: English, translated where shown. The row reasons below are stored
@@ -52,11 +57,32 @@ RUNG_LABELS = {
     RUNG_ORACLE_ID: gettext_noop("matched on the card id"),
     RUNG_EXACT_NAME: gettext_noop("matched on the exact name"),
     RUNG_NORMALISED_NAME: gettext_noop("matched on the name, ignoring accents and punctuation"),
+    RUNG_BASIC_LAND: gettext_noop("matched a basic land named in another language"),
     RUNG_UNRESOLVED: gettext_noop("not found"),
 }
 
 #: How many near-misses to offer per unresolved row.
 SUGGESTION_LIMIT = 5
+
+#: How many names sharing a row's beginning are ranked for it. Far more than
+#: any real beginning has once it is half the name; a cap for a short one.
+SUGGESTION_POOL = 500
+
+#: The basic lands, as printed in the site's other languages (P20 F6c, E1.48).
+#: Only these: every other card is read in English, and the review page says
+#: so. Keyed by `normalise`, so `Pântano` and `PANTANO` are one name.
+BASIC_LANDS = {
+    "Plains": ("Ebene", "Plaine", "Pianura", "Llanura", "Planície", "平地"),
+    "Island": ("Insel", "Île", "Isola", "Isla", "Ilha", "島"),
+    "Swamp": ("Sumpf", "Marais", "Palude", "Pantano", "Pântano", "沼"),
+    "Mountain": ("Gebirge", "Montagne", "Montagna", "Montaña", "Montanha", "山"),
+    "Forest": ("Wald", "Forêt", "Foresta", "Bosque", "Floresta", "森"),
+}
+_BASIC_LAND_NAMES = {
+    normalise(printed): english
+    for english, printed_names in BASIC_LANDS.items()
+    for printed in printed_names
+}
 
 #: Only this many unresolved rows get near-misses. Every suggestion is a query,
 #: and a file of 50,000 junk lines was 50,000 of them in one request - far past
@@ -173,7 +199,7 @@ def _build_lookups(rows: list[ParsedRow]) -> dict[str, dict]:
     exact_names = {front_face(r.name) for r in rows if r.name}
     folded_names = {normalise(r.name) for r in rows if r.name}
 
-    by_printing, by_oracle, by_name, by_folded = {}, {}, {}, {}
+    by_printing, by_oracle, by_name, by_folded, by_basic = {}, {}, {}, {}, {}
 
     if printing_ids:
         for card in OracleCard.objects.filter(scryfall_id__in=_uuids(printing_ids)):
@@ -194,11 +220,19 @@ def _build_lookups(rows: list[ParsedRow]) -> dict[str, dict]:
             by_name.setdefault(card.front_name, card)
             by_folded.setdefault(card.search_name, card)
 
+    basics = {_BASIC_LAND_NAMES[name] for name in folded_names if name in _BASIC_LAND_NAMES}
+    if basics:
+        lands = {card.front_name: card
+                 for card in OracleCard.objects.filter(front_name__in=basics)}
+        by_basic = {printed: lands[english] for printed, english in _BASIC_LAND_NAMES.items()
+                    if english in lands}
+
     return {
         RUNG_SCRYFALL_ID: by_printing,
         RUNG_ORACLE_ID: by_oracle,
         RUNG_EXACT_NAME: by_name,
         RUNG_NORMALISED_NAME: by_folded,
+        RUNG_BASIC_LAND: by_basic,
     }
 
 
@@ -225,6 +259,7 @@ def _match(row: ParsedRow, lookups: dict[str, dict]) -> tuple[OracleCard | None,
         RUNG_ORACLE_ID: row.oracle_id,
         RUNG_EXACT_NAME: front_face(row.name),
         RUNG_NORMALISED_NAME: normalise(row.name),
+        RUNG_BASIC_LAND: normalise(row.name),
     }
     for rung in RUNG_ORDER:
         key = keys.get(rung)
@@ -242,21 +277,25 @@ def _reason(row: ParsedRow) -> str:
 
 
 def _suggest(name: str) -> list[str]:
-    """Near misses for the review screen.
+    """Near misses for the review screen, the nearest first.
 
-    A prefix search on the normalised name, which catches the realistic failure
-    modes - a truncated name, a missing subtitle, a typo near the end. Full
-    fuzzy matching over 35,000 names is a Phase 6 problem with a trigram index,
-    not a Python loop.
+    The names that begin as the row does - which catches the realistic
+    failure modes, a truncated name, a missing subtitle, a typo near the end -
+    ranked by how alike they are (P20 F6c, E1.84). The first five
+    alphabetically were offered before: "big scor" got "Big Apple, 3 a.m."
+    and not "Big Score". Fuzzy matching over all 35,000 names would want a
+    trigram index, not a Python loop.
     """
     folded = normalise(name)
     if len(folded) < 3:
         return []
 
     head = folded[: max(4, len(folded) // 2)]
-    matches = (
+    candidates = (
         OracleCard.objects.filter(search_name__startswith=head)
         .order_by("name")
-        .values_list("name", flat=True)[:SUGGESTION_LIMIT]
+        .values_list("name", "search_name")[:SUGGESTION_POOL]
     )
-    return list(matches)
+    ranked = sorted(candidates, key=lambda candidate: (
+        -SequenceMatcher(None, folded, candidate[1]).ratio(), candidate[0]))
+    return [name for name, _ in ranked[:SUGGESTION_LIMIT]]

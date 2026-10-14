@@ -75,6 +75,11 @@ class FakeCard:
 @dataclass
 class FakeDeck:
     commander: object = None
+    partner: object = None
+
+    @property
+    def commanders(self) -> tuple:
+        return tuple(card for card in (self.commander, self.partner) if card is not None)
 
 
 @dataclass

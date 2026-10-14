@@ -40,3 +40,31 @@ def set_language(request):
     with translation.override(translation.get_language_from_path(path)
                               or settings.LANGUAGE_CODE):
         return django_set_language(request)
+
+
+def remember(user) -> bool:
+    """Give `user` the language they are reading in, if they have none (P20 F3).
+
+    Lauf 1 found accounts with an empty language: only the switcher set it,
+    so a person who signed up on /fr/ got English mails (E1.7). Called when
+    an account or a guest (E2.7) is made and at every sign-in, which also
+    fills the accounts made before - a migration would have had nothing
+    reliable to read. Only
+    a language that is switched on is kept, and never the default one:
+    English is what an empty language already means, and a stored language
+    wins over the address (`accounts.middleware`), so keeping "en" would pin
+    somebody who reads /fr/ to English. Does not save; says whether it
+    changed anything.
+    """
+    code = translation.get_language() or ""
+    if (user.language or code == settings.LANGUAGE_CODE
+            or code not in dict(settings.LANGUAGES)):
+        return False
+    user.language = code
+    return True
+
+
+def remember_on_login(sender, request, user, **kwargs) -> None:
+    """`user_logged_in`: fill an empty language from the one being read."""
+    if not getattr(user, "is_guest", False) and remember(user):
+        user.save(update_fields=["language"])

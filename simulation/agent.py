@@ -238,18 +238,22 @@ def _cast_best(game, pool: ManaPool) -> bool:
     best_spell = max(options, key=priority) if options else None
     best_score = priority(best_spell) if best_spell else -1
 
-    commander_ok = game.can_cast_commander(pool)
-    commander_priority = priority(game.deck.commander) if game.deck.commander else -1
-    if commander_ok and commander_priority > best_score:
-        _do(game, actions.CastCommander())
+    # With two commanders (P20 F2b) the cheaper one that can be paid goes
+    # first; the other follows on a later pass, or a later turn.
+    castable = game.castable_commanders(pool)
+    commander = castable[0] if castable else None
+    cast_it = actions.CastCommander(
+        index=game.deck.commanders.index(commander)) if commander else None
+    if commander is not None and priority(commander) > best_score:
+        _do(game, cast_it)
         return True
 
     if best_spell is not None:
         _do(game, actions.CastSpell(index=game.hand.index(best_spell)))
         return True
 
-    if commander_ok:
-        _do(game, actions.CastCommander())
+    if commander is not None:
+        _do(game, cast_it)
         return True
 
     if x_spells and not game.combat_expected():

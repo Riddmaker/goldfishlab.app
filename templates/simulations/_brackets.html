@@ -1,7 +1,9 @@
 {% comment %}
   P8: how fast a game-ending combo comes together, against the turns Wizards
   expects a game to last in each Commander Bracket. `tempo` is
-  `report.bracket_tempo`. The bracket names are Wizards' and stay in English.
+  `report.brackets`. The bracket names are Wizards' and stay in English.
+  P20 F4: always there - a run that timed no combo says why and where to get
+  them - and with the Game Changers' floor and the two together.
 {% endcomment %}
 {% load i18n %}
 <section id="brackets" class="surface-parchment mt-6 p-6">
@@ -12,6 +14,29 @@
         This run is older than the bracket check. Run the deck again to see how
         fast its combos end a game.
       {% endblocktranslate %}
+    </p>
+  {% elif tempo.no_combos %}
+    <p class="mt-2 text-ink-900" data-no-combos>
+      {% if tempo.combos == "none_known" %}
+        {% blocktranslate trimmed %}
+          Commander Spellbook knows no combo in this deck that ends the game on its own,
+          so by speed nothing keeps it out of Bracket 1.
+        {% endblocktranslate %}
+      {% elif tempo.combos == "run_again" %}
+        {% blocktranslate trimmed %}
+          The deck has combos that end the game, and this run did not time them. Run
+          the deck again to see how fast they come together.
+        {% endblocktranslate %}
+      {% else %}
+        {% blocktranslate trimmed %}
+          Without its combos looked up, this run measures no game-ending combo, so it
+          cannot say how fast the deck ends a game.
+        {% endblocktranslate %}
+        {% if not shared %}
+          <a href="{{ run.deck.get_absolute_url }}#combos" class="underline">{% translate "Find the deck's combos" %}</a>
+        {% endif %}
+      {% endif %}
+      {% include "core/_why.html" with anchor="report-brackets" %}
     </p>
   {% else %}
     <p class="mt-1 text-sm text-ink-700">
@@ -101,6 +126,24 @@
         their own.
       {% endblocktranslate %}
       <a href="{{ tempo.source }}" class="underline" rel="noopener">{% translate "The bracket rules, from Wizards of the Coast" %}</a>
+    </p>
+  {% endif %}
+  <p class="mt-4 text-ink-900" data-game-changers>
+    {% if tempo.floor == 1 %}
+      {% translate "By Game Changers: none, so Bracket 1 or 2 is possible." %}
+    {% else %}
+      {% blocktranslate trimmed with floor=tempo.floor count count=tempo.game_changers %}
+        By Game Changers: at least Bracket {{ floor }}, with {{ count }} Game Changer.
+      {% plural %}
+        By Game Changers: at least Bracket {{ floor }}, with {{ count }} Game Changers.
+      {% endblocktranslate %}
+    {% endif %}
+  </p>
+  {% if tempo.together %}
+    <p class="mt-1 text-lg text-ink-900" data-together>
+      {% blocktranslate trimmed with number=tempo.together %}
+        Together: at least Bracket {{ number }} - the higher of the two counts.
+      {% endblocktranslate %}
     </p>
   {% endif %}
 </section>

@@ -355,8 +355,7 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
     game = Game(rng, on_the_play=on_the_play, deck=deck)
     game.take_opening_hand()
 
-    commander = game.deck.commander
-    commander_name = commander.name if commander else ""
+    commander_names = [commander.name for commander in game.deck.commanders]
 
     opening_lands = sum(1 for card in game.hand if card.is_land)
     opening_hand = [card.name for card in game.hand]
@@ -388,7 +387,9 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
             },
             "permanents": names,
             "permanent_list": [card.name for card in game.battlefield],
-            "commander_out": bool(commander_name) and game.has(commander_name),
+            # At least one commander: the milestone. How many, for a deck with
+            # two (P20 F2b), which also counts the games with both out.
+            "commanders_out": sum(1 for name in commander_names if game.has(name)),
             "life": game.life,
             "hand_size": len(game.hand),
             # Carried along from Phase 2 on, so that the analysis never has to
@@ -446,6 +447,12 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
         "sac_outlet": 0, "recursive": 0, "engine_online": 0,
         "drain": 0, "ramp_engine": 0, "sol_ring": 0,
     } for _ in range(turns)]
+    # Only for a deck with two commanders: a key every other result would
+    # carry as a zero would change every stored result's shape for nothing.
+    pair = getattr(deck, "partner", None) is not None
+    if pair:
+        for stats in turn_stats:
+            stats["both_commanders"] = 0
 
     assembled = {watched.key: [0] * turns for watched in watch}
     # P8: by each turn, the games in which any game-ending combo was together.
@@ -477,7 +484,10 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
             board = snapshot["battlefield"]
             for field in HISTOGRAM_FIELDS:
                 stats[field].add(snapshot[field])
-            stats["commander"] += snapshot["commander_out"]
+            out = snapshot["commanders_out"]
+            stats["commander"] += out > 0
+            if pair:
+                stats["both_commanders"] += out > 1
             stats["necropotence"] += _skips_draw_step(board)
             stats["sol_ring"] += _has_fast_mana(board)
             stats["draw_engine"] += _tagged(board, DRAW_ENGINE_TAG)

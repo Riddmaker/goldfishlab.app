@@ -24,7 +24,7 @@ from django.contrib.auth import get_user_model, login
 from django.db import transaction
 from django.utils import timezone
 
-from accounts import privacy
+from accounts import language, privacy
 from billing.models import Plan, Subscription
 from metrics import counts
 
@@ -71,6 +71,10 @@ def create(request):
     Subscription.objects.update_or_create(
         user=user, defaults={"plan": Plan.objects.get(slug=GUEST_PLAN)}
     )
+    # The language of the address it was made on (/de/try/), so the report
+    # and the deck - addresses without one - stay in it (E2.7).
+    if language.remember(user):
+        user.save(update_fields=["language"])
     login(request, user, backend=BACKEND)
     counts.add(counts.Name.GUEST_STARTED)
     return user
@@ -124,8 +128,10 @@ def claim(guest, user, *, deck_name: str = "") -> None:
     if deck_name:
         guest.decks.update(name=deck_name)
     changed = []
-    if guest.language and not user.language:
-        # The language picked while trying the site (phase 12).
+    if guest.language and user.language != guest.language:
+        # The language picked while trying the site (phase 12), or the one
+        # its address had (E2.7), beats the one the new account was made in
+        # (P20 F3): it is the one the person read in.
         user.language = guest.language
         changed.append("language")
     if guest.simulated_week and (not user.simulated_week

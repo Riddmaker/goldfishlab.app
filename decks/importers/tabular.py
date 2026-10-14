@@ -49,7 +49,7 @@ from dataclasses import dataclass, field
 from django.utils.translation import gettext, gettext_noop
 
 from core.l10n import number
-from decks.importers import columns
+from decks.importers import boards, columns
 from decks.importers.base import (
     MalformedTable,
     NotTabular,
@@ -97,6 +97,9 @@ class Table:
     #: means "a table whose columns we do not recognise", which is a file the
     #: mapping screen can still rescue and the sniffer must still refuse.
     recognised: int = 0
+    #: True when the file has no header row at all and `headers` were
+    #: supplied by `_headerless` - the first line is already a card.
+    headerless: bool = False
 
     @property
     def delimiter_label(self) -> str:
@@ -147,6 +150,32 @@ def _candidate(window: list[str], delimiter: str) -> list[str] | None:
     return rows[0]
 
 
+#: The words a headerless file's columns are given, so the ordinary aliases
+#: read them: `Quantity` and `Name`, then numbered columns nobody maps.
+HEADERLESS = ("Quantity", "Name")
+
+
+def _headerless(window: list[str], delimiter: str) -> list[str] | None:
+    """Column names for a file with no header row, if it has that shape.
+
+    Archidekt's deck CSV is `1,Armed // Dangerous` from the first line down,
+    with no header at all (E1.16). A first column that is a small number on
+    every line and a second that is text is that shape and nothing else; the
+    columns are then named so the aliases read them as quantity and name.
+    """
+    rows = _rows_of(window, delimiter)
+    if not rows:
+        return None
+    width = max(len(row) for row in rows)
+    for row in rows:
+        if len(row) < 2:
+            return None
+        count, name = row[0].strip(), row[1].strip()
+        if not (count.isdigit() and len(count) <= 4) or not name or name.isdigit():
+            return None
+    return list(HEADERLESS) + [f"Column {index}" for index in range(3, width + 1)]
+
+
 def locate(text: str) -> "Table | None":
     """Find the header row, or decide this is not a table at all.
 
@@ -162,6 +191,7 @@ def locate(text: str) -> "Table | None":
     """
     lines = text.lstrip("﻿").splitlines()
     best: Table | None = None
+    first = next((index for index, line in enumerate(lines) if line.strip()), None)
 
     for start in range(min(HEADER_SCAN, len(lines))):
         if not lines[start].strip():
@@ -174,6 +204,17 @@ def locate(text: str) -> "Table | None":
                 continue
 
             recognised = len(columns.map_headers(headers).found)
+            # Only at the very top: below a header row, every data line has
+            # this shape, and reading one as "no header" would drop the real
+            # header's column names.
+            if not recognised and start == first:
+                supplied = _headerless(window, delimiter)
+                if supplied is not None:
+                    table = Table(start, delimiter, supplied,
+                                  len(columns.map_headers(supplied).found), headerless=True)
+                    if best is None or table.recognised > best.recognised:
+                        best = table
+                    continue
             # A header row with no data under it is only believable when we
             # recognise something in it; otherwise it is simply the last line
             # of a file that is not a table.
@@ -221,6 +262,8 @@ class TabularParser(Parser):
         mapping = columns.map_headers(table.headers)
         if not mapping.has(columns.NAME):
             return 0.3
+        if table.headerless:
+            return 0.8
         # Capped below the score a format-specific signature can reach, so a
         # parser that knows *which* tool wrote the file keeps the file.
         return min(0.85, 0.5 + 0.1 * table.recognised)
@@ -280,7 +323,8 @@ class TabularParser(Parser):
     def _rows(self, text: str, table: "Table", mapping: columns.Mapping) -> Iterator[ParsedRow]:
         produced = 0
 
-        for offset, raw in enumerate(_records(text, table), start=table.skip + 2):
+        first_line = table.skip + (1 if table.headerless else 2)
+        for offset, raw in enumerate(_records(text, table), start=first_line):
             name = mapping.get(raw, columns.NAME)
             if not name:
                 continue
@@ -300,7 +344,10 @@ class TabularParser(Parser):
                 scryfall_id=mapping.get(raw, columns.SCRYFALL_ID),
                 set_code=mapping.get(raw, columns.SET_CODE).lower(),
                 collector_number=mapping.get(raw, columns.COLLECTOR_NUMBER),
-                is_commander=_is_commander(mapping.get(raw, columns.TAGS)),
+                board=(boards.classify(mapping.get(raw, columns.BOARD))
+                       or boards.from_tags(mapping.get(raw, columns.TAGS))
+                       or boards.MAIN),
+                finish=_finish(mapping.get(raw, columns.FINISH)),
                 extra={
                     "finish": mapping.get(raw, columns.FINISH),
                     "condition": mapping.get(raw, columns.CONDITION),
@@ -363,7 +410,8 @@ def sample(text: str, table: "Table", limit: int = PREVIEW_ROWS) -> list[list[st
     column holds the quantity needs to see the columns, and the *parsed*
     preview cannot help them yet - it is blank until they have chosen.
     """
-    rows = _rows_of(_body(text, table).splitlines()[1:limit + 1], table.delimiter) or []
+    first = 0 if table.headerless else 1
+    rows = _rows_of(_body(text, table).splitlines()[first:first + limit], table.delimiter) or []
     width = len(table.headers)
     return [(row + [""] * width)[:width] for row in rows]
 
@@ -372,7 +420,8 @@ def _records(text: str, table: "Table") -> Iterator[dict]:
     """`csv.DictReader` over the file, starting at the located header."""
     try:
         yield from csv.DictReader(
-            io.StringIO(_body(text, table)), delimiter=table.delimiter
+            io.StringIO(_body(text, table)), delimiter=table.delimiter,
+            fieldnames=table.headers if table.headerless else None,
         )
     except csv.Error as exc:
         # An unterminated quote, or a single field larger than the csv module's
@@ -390,11 +439,12 @@ def _int(value, *, default: int) -> int:
         return default
 
 
-def _is_commander(tags: str) -> bool:
-    """Whether a tags or category cell marks this row as the general.
+#: Finish cells as the tools write them. Anything else - `Normal`, `false`,
+#: `nonfoil`, empty - is a plain card.
+_FINISHES = {"foil": "foil", "true": "foil", "yes": "foil", "1": "foil",
+             "etched": "etched", "etched foil": "etched", "foil etched": "etched"}
 
-    A substring test because the real cell reads `Commander,Ramp` rather than
-    `Commander`. Nothing else is inferred: a file that does not say has no
-    commander, and the deck page says so plainly.
-    """
-    return "commander" in (tags or "").lower()
+
+def _finish(cell: str) -> str:
+    """`foil`, `etched` or empty, from whatever a finish column says."""
+    return _FINISHES.get((cell or "").strip().casefold(), "")

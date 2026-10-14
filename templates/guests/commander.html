@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% block title %}{% translate "Who is your commander?" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "Choose the commander before the first simulation." %}{% endblock %}
+{% block head %}
+  <script src="{% static 'js/commander.js' %}" defer></script>
+{% endblock %}
+{% block content %}
+  {% comment %}
+    P20 F2 (E1.46): between a guest's clean import and its first run, when the
+    file named no commander. The run starts after either button, as it would
+    have after the import; without a commander its report says so.
+  {% endcomment %}
+  <h1 class="font-display text-3xl text-parchment-100">{% translate "Who is your commander?" %}</h1>
+  <p class="mt-2 text-parchment-200">
+    {% blocktranslate trimmed with name=deck.name %}
+      <strong class="text-parchment-100">{{ name }}</strong> is in. The simulation casts the
+      commander from the command zone, so it needs to know which card that is.
+    {% endblocktranslate %}
+    {% if last_import.commander_issue_shown %}{{ last_import.commander_issue_shown }}{% endif %}
+  </p>
+  <div id="commander" class="mt-6 max-w-2xl border-l-2 border-blood-600 pl-4">
+    {% url 'guests:commander' as commander_url %}
+    {% translate "Simulate with this commander" as submit_label %}
+    {% include "decks/_commander_form.html" with action=commander_url submit_label=submit_label %}
+  </div>
+  <form method="post" action="{% url 'guests:commander' %}" class="mt-6">
+    {% csrf_token %}
+    <button type="submit" name="without" value="1"
+            class="text-parchment-200 underline hover:text-parchment-100">
+      {% translate "Simulate without a commander" %}
+    </button>
+    <p class="mt-1 text-sm text-ink-300">
+      {% translate "The report will say the deck was played without one." %}
+    </p>
+  </form>
+{% endblock %}

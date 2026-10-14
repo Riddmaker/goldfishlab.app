@@ -42,6 +42,132 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 14), "pasted-list",
+        _("A pasted list is no longer called a file"),
+        _("After you paste a deck list, the import review, the column check and the deck page "
+          "say “pasted list” where they said “uploaded file”, “your file” or “imported from a "
+          "file”."),
+        "decks:import",
+    ),
+    Entry(
+        date(2026, 10, 14), "turns-every-plan",
+        _("Koi runs 9 turns again"),
+        _("A higher plan now offers every number of turns a lower one does: Koi has Goldfish's "
+          "9 turns back, and Kraken has Koi's 12. A run you made before upgrading can be made "
+          "again with the same turns."),
+        "pricing",
+    ),
+    Entry(
+        date(2026, 10, 14), "report-numbers-per-chart",
+        _("Every chart under “What you drew” has its own numbers"),
+        _("The numbers behind the category, strategy and card type charts stood in one table "
+          "below the mana value chart, which had none of its own. Each chart now has its table "
+          "right below it, the mana values included - also for a screen reader."),
+        "methodology",
+    ),
+    Entry(
+        date(2026, 10, 14), "import-names",
+        _("Basic lands in your language, and better guesses for typos"),
+        _("The importer now knows the basic lands by their names in every language of this "
+          "site - Sumpf, Forêt, Pântano. A card it cannot find gets the nearest names first, "
+          "no longer the first five in the alphabet. All other card names are read in English, "
+          "and the import page says so."),
+        "guests:try",
+    ),
+    Entry(
+        date(2026, 10, 14), "import-errors-heard",
+        _("A refused upload says why, also to a screen reader"),
+        _("When an upload or a pasted list is refused, the page now jumps to the field with the "
+          "problem, a screen reader reads out what went wrong, and the page title starts with "
+          "“Error”. The file field has a name of its own as well."),
+        "guests:try",
+    ),
+    Entry(
+        date(2026, 10, 14), "share-after-answer",
+        _("Answering a card no longer stops a report from being shared"),
+        _("A report could not be shared once you had answered a question about one of its "
+          "cards, and the reason given was a changed card list. Only a change to the cards or "
+          "the commander stops it now."),
+        "decks:list",
+    ),
+    Entry(
+        date(2026, 10, 14), "rename-decks",
+        _("Give your decks the names you want"),
+        _("The pencil beside a deck's name renames it, in the list of your decks and on the deck "
+          "page - where a click on the name works too. Two imports of the same deck no longer "
+          "have to stand in the list under the same name."),
+        "decks:list",
+    ),
+    Entry(
+        date(2026, 10, 14), "trial-language",
+        _("Trying the site stays in your language"),
+        _("A deck tried without an account keeps the language of the page it was uploaded on: "
+          "the report and the deck page are no longer in your browser's language instead."),
+        "guests:try",
+    ),
+    Entry(
+        date(2026, 10, 13), "report-numbers",
+        _("Every report names a bracket, and every share how exact it is"),
+        _("The land count on the deck page counts a double-faced card by its front, as the list "
+          "of what is in the deck does, and names the cards with a land on the back beside it. "
+          "The bracket tile is now the lowest bracket the Game Changers allow, commander "
+          "included. Every report has its bracket section, also without looked-up combos: it "
+          "says why the speed is missing, adds the Game Changers, and gives the two together. "
+          "A report now starts with the precon pages' numbers - four lands on turn 4, the "
+          "opening hands kept, the mana on turn 4 - and each share says how far it can be off "
+          "for the number of games played."),
+        "methodology", "games",
+    ),
+    Entry(
+        date(2026, 10, 13), "account-honest",
+        _("Your account keeps its language, and every limit is on the page"),
+        _("An account now keeps the language it was made in, also when it was saved from a "
+          "trial deck, so its mails arrive in that language. A cancellation in the billing "
+          "portal now shows the day the plan ends. The pricing page names every limit - the "
+          "deck lists you can import each month, and what trying without an account allows - "
+          "and your account page counts the imports too. When a run also writes a new deck "
+          "summary the deck page says that it counts as one more simulation, and the report "
+          "says when there was no room for it. Reaching the deck limit while importing now "
+          "explains itself instead of showing an error code."),
+        "pricing",
+    ),
+    Entry(
+        date(2026, 10, 13), "two-commanders",
+        _("Partners and Backgrounds play together"),
+        _("A deck with two commanders - two partners, a creature with its Background, the "
+          "Doctor's companion with the Doctor - now has both in its command zone: the "
+          "simulation casts each, with its own commander tax, the cheaper one first, and the "
+          "report counts the games with both on the battlefield in a row of its own. The colour "
+          "identity, the combos and the draw-a-hand board count both as well. Reports of decks "
+          "with one commander do not change."),
+        "methodology", "commander",
+    ),
+    Entry(
+        date(2026, 10, 13), "commander-honest",
+        _("Only a card that may lead becomes the commander"),
+        _("The commander choice on the deck page offers only legendary creatures and the cards "
+          "that say they can be your commander, starts on nothing instead of on the first card, "
+          "and stays open to change the commander later. Two partners, a creature with its "
+          "Background or a companion with the Doctor are read from the file together. When the "
+          "file names no commander the page says why, and when the file lists it first or last "
+          "it is suggested. A guest is asked for the commander before the first simulation, and "
+          "a run without one says so on its report."),
+        "decks:list",
+    ),
+    Entry(
+        date(2026, 10, 13), "import-as-it-comes",
+        _("Deck lists are read the way your tool writes them"),
+        _("The importer now reads the exports of Moxfield, Archidekt, ManaBox, TappedOut and "
+          "Arena as they come: with set, collector number and foil, with category tags, and "
+          "with headings in every language the site speaks. The printing and the foil are "
+          "shown beside each card. Sideboard and maybeboard stay out of the deck, and the deck "
+          "page says how many cards that was. A Moxfield list whose first card has a comma in "
+          "its name, an Archidekt CSV without a header row and an Excel file with semicolons "
+          "are read without asking. A link to a deck is answered with where that site keeps "
+          "its export."),
+        "decks:import",
+    ),
+    Entry(
         date(2026, 10, 13), "card-scripts",
         _("Cards that draw as they enter, and no free cards from Cycling"),
         _("Where our reading of a card's text left something out, the simulation now also "

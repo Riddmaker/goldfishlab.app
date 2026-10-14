@@ -246,20 +246,20 @@ def entry(cost, quantity=1):
 
 def test_the_deck_s_colour_is_the_one_its_costs_ask_for_most():
     entries = [entry("{1}{G}{G}", 2), entry("{B}"), entry("{2}{B/G}")]
-    deck = SimpleNamespace(commander_id=None, commander=None)
+    deck = SimpleNamespace(commander_id=None, commander=None, commanders=[])
     assert adapter.deck_color(entries, deck, frozenset("BG")) == ("G", 5)
 
 
 def test_a_tie_goes_to_the_commander_s_first_colour():
     entries = [entry("{G}{G}"), entry("{B}{B}")]
-    deck = SimpleNamespace(commander_id=1,
-                           commander=SimpleNamespace(mana_cost="{2}", colors=["G", "B"]))
+    commander = SimpleNamespace(mana_cost="{2}", colors=["G", "B"])
+    deck = SimpleNamespace(commander_id=1, commander=commander, commanders=[commander])
     assert adapter.deck_color(entries, deck, frozenset("BG")) == ("B", 2)
 
 
 def test_a_colour_outside_the_deck_s_colours_is_never_chosen():
     entries = [entry("{R}{R}{R}"), entry("{G}")]
-    deck = SimpleNamespace(commander_id=None, commander=None)
+    deck = SimpleNamespace(commander_id=None, commander=None, commanders=[])
     assert adapter.deck_color(entries, deck, frozenset("G")) == ("G", 1)
 
 

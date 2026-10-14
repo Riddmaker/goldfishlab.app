@@ -18,6 +18,7 @@ import unicodedata
 
 _PUNCT = re.compile(r"[^\w\s]", flags=re.UNICODE)
 _SPACE = re.compile(r"\s+")
+_HALVES = re.compile(r"//|\s/\s")
 
 
 def front_face(name: str) -> str:
@@ -25,8 +26,14 @@ def front_face(name: str) -> str:
 
     ``"Tergrid, God of Fright // Tergrid's Lantern"`` -> ``"Tergrid, God of Fright"``.
     Names without a ``//`` are returned unchanged.
+
+    A **single** slash with a space on each side counts too (P20 F1, E1.78):
+    Archidekt and some hand-typed lists write ``Birgi, God of Storytelling /
+    Harnfel, Horn of Bounty``. No card name in the catalogue contains `` / ``
+    (the one with a bare slash, ``Summon: Choco/Mog``, has no spaces), so the
+    catalogue's own front names do not change.
     """
-    return name.split("//")[0].strip()
+    return _HALVES.split(name, maxsplit=1)[0].strip()
 
 
 def normalise(name: str) -> str:

@@ -116,7 +116,11 @@ class Column:
 #: where a page shows it: imports store it (`DeckImport.column_mapping`).
 QUANTITY = Column(
     "quantity", gettext_noop("quantity"),
-    ("Quantity", "Count", "Qty", "Amount", "Card Count", "groupCount", "QUANTITY"),
+    ("Quantity", "Count", "Qty", "Amount", "Card Count", "groupCount", "QUANTITY",
+     # P20 F1 (E1.65): what a person types into a spreadsheet in the six other
+     # languages the site speaks. Excel in Switzerland writes `Anzahl;Kartenname`.
+     "Anzahl", "Menge", "Stückzahl", "Quantité", "Qté", "Quantità", "Cantidad",
+     "Quantidade", "Qtd", "枚数", "数量"),
     field_name="quantity",
 )
 #: **`Tradelist Count` is deliberately not a quantity alias.** Deckbox and
@@ -129,19 +133,26 @@ QUANTITY = Column(
 #: say as empty. Nothing would have errored.
 NAME = Column(
     "name", gettext_noop("card name"),
-    ("Name", "Card Name", "Card", "Simple Name", "CardName", "NAME"),
+    ("Name", "Card Name", "Card", "Simple Name", "CardName", "NAME",
+     # Not `Nombre` as a quantity: it is French for "number" and Spanish for
+     # "name", and the Spanish reading is the one a deck list means.
+     "Kartenname", "Karte", "Nom", "Nom de la carte", "Carte", "Nome",
+     "Nome della carta", "Carta", "Nombre", "Nombre de la carta", "Nome da carta",
+     "カード名"),
     required=True, field_name="name",
 )
 SET_CODE = Column(
     "set_code", gettext_noop("set code"),
     ("Edition Code", "Set Code", "Set code", "Edition", "Set ID", "Set",
-     "SETCODE", "Set Name"),
+     "SETCODE", "Set Name", "Erweiterung", "Édition", "Edizione", "Edición",
+     "Edição", "Extension", "セット"),
     field_name="set_code",
 )
 COLLECTOR_NUMBER = Column(
     "collector_number", gettext_noop("collector number"),
     ("Collector Number", "Collector number", "Card Number", "Collector #",
-     "Number", "COLLECTOR NUMBER"),
+     "Number", "COLLECTOR NUMBER", "Sammlernummer", "Nummer", "Numéro",
+     "Numéro de collection", "Numero", "Número", "コレクター番号"),
     field_name="collector_number",
 )
 SCRYFALL_ID = Column(
@@ -151,20 +162,36 @@ SCRYFALL_ID = Column(
 )
 FINISH = Column(
     "finish", gettext_noop("finish"),
-    ("Finish", "Foil", "Printing", "Premium", "FINISH", "isFoil"),
+    ("Finish", "Foil", "Printing", "Premium", "FINISH", "isFoil", "Finition",
+     "Finitura", "Acabado", "Acabamento"),
 )
-CONDITION = Column("condition", gettext_noop("condition"), ("Condition", "CONDITION"))
-LANGUAGE = Column("language", gettext_noop("language"), ("Language", "LANGUAGE", "Lang"))
+CONDITION = Column("condition", gettext_noop("condition"),
+                   ("Condition", "CONDITION", "Zustand", "État", "Condizione", "Estado",
+                    "Condição", "状態"))
+LANGUAGE = Column("language", gettext_noop("language"),
+                  ("Language", "LANGUAGE", "Lang", "Sprache", "Langue", "Lingua", "Idioma",
+                   "言語"))
 #: Not an identifier - the only column that can say which card is the general.
 #: Archidekt writes it into a free-text `Tags` cell, which is why the test is a
 #: substring search and not equality: a real cell reads `Commander,Ramp`.
+#: A note column counts too (P20 F1): a spreadsheet typed by hand says
+#: `Commander` in `Bemerkung`, and that is the only place it can say it.
 TAGS = Column(
     "tags", gettext_noop("tags or category"),
-    ("Tags", "Tag", "Category", "Categories"),
+    ("Tags", "Tag", "Category", "Categories", "Kategorie", "Catégorie", "Categoria",
+     "Categoría", "Étiquettes", "Etichette", "Etiquetas", "Bemerkung", "Kommentar",
+     "Notiz", "Notes", "Note", "Comment", "Comments"),
+)
+#: Which part of the list a row is in - main deck, sideboard, maybeboard
+#: (`boards`). Read by word, so `Sideboard` and `Banquillo` agree.
+BOARD = Column(
+    "board", gettext_noop("board or section"),
+    ("Board", "Section", "Zone", "Deck Section", "Board Type", "Bereich", "Sektion",
+     "Zona", "Sección", "Seção"),
 )
 
 ALL = (QUANTITY, NAME, SET_CODE, COLLECTOR_NUMBER, SCRYFALL_ID,
-       FINISH, CONDITION, LANGUAGE, TAGS)
+       FINISH, CONDITION, LANGUAGE, TAGS, BOARD)
 
 #: What the mapping screen offers, in the order it offers them. Identical to
 #: `ALL` today and deliberately a separate name: the day a concept exists that

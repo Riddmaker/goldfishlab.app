@@ -50,9 +50,21 @@ def refusal(run: SimulationRun) -> str | None:
         return NOT_FINISHED
     if getattr(run.owner, "is_guest", False):
         return GUEST
-    if not run.deck_print or run.deck_print != summary.fingerprint(run.deck):
+    if not _same_list(run):
         return DECK_CHANGED
     return None
+
+
+def _same_list(run: SimulationRun) -> bool:
+    """Whether the deck still has the commanders and cards the run played.
+
+    Only the list is frozen into a share, so an answer about a card given
+    since does not stop it (P20 F6, E1.32). A run from before `list_print`
+    knows only the whole fingerprint, answers included.
+    """
+    if run.list_print:
+        return run.list_print == summary.list_fingerprint(run.deck)
+    return bool(run.deck_print) and run.deck_print == summary.fingerprint(run.deck)
 
 
 def _type_of(type_line: str) -> str:
@@ -96,7 +108,7 @@ def share(run: SimulationRun) -> SharedReport:
             return SharedReport.objects.create(
                 run=run,
                 deck_name=deck.name,
-                commander=deck.commander.name if deck.commander_id else "",
+                commander=" + ".join(card.name for card in deck.commanders)[:256],
                 cards=_cards(deck),
                 summary=content,
                 summary_language=language,

@@ -178,10 +178,6 @@ def fingerprint(deck) -> str:
     from simulations.engine.adapter import cards_filter, scope_filter
     from simulations.models import CardAnnotation
 
-    cards = sorted(
-        f"{pk}x{quantity}"
-        for pk, quantity in deck.entries.values_list("oracle_card_id", "quantity")
-    )
     rows = (
         CardAnnotation.objects.filter(cards_filter(deck)).filter(scope_filter(deck))
         .values_list("oracle_card_id", "owner_id", "deck_id", "overrides").distinct()
@@ -191,8 +187,27 @@ def fingerprint(deck) -> str:
                    default=str)
         for card, owner, deck_id, overrides in rows
     )
-    text = "|".join([f"commander:{deck.commander_id}", *cards, "annotations", *annotations])
+    text = "|".join([*_list_parts(deck), "annotations", *annotations])
     return hashlib.sha256(text.encode()).hexdigest()
+
+
+def list_fingerprint(deck) -> str:
+    """The commanders and the cards alone - what a shared report freezes
+    (P20 F6, E1.32). An answer about a card changes `fingerprint`, not this."""
+    return hashlib.sha256("|".join(_list_parts(deck)).encode()).hexdigest()
+
+
+def _list_parts(deck) -> list[str]:
+    cards = sorted(
+        f"{pk}x{quantity}"
+        for pk, quantity in deck.entries.values_list("oracle_card_id", "quantity")
+    )
+    # The second commander only when there is one, so a deck with one keeps
+    # the fingerprint it had (P20 F2b).
+    leading = [f"commander:{deck.commander_id}"]
+    if deck.partner_id:
+        leading.append(f"partner:{deck.partner_id}")
+    return [*leading, *cards]
 
 
 def at_least_one(successes: int, population: int, drawn: int = HAND) -> float:
@@ -227,10 +242,10 @@ def facts(deck, readings) -> dict:
             "mana_value": int(oracle.cmc),
             "categories": [labels[key] for key in mine],
         })
-    commander = next((reading.oracle_card for reading in readings if reading.is_commander),
-                     None)
+    leading = [reading.oracle_card for reading in readings if reading.is_commander]
+    commander = leading[0] if leading else None
     core = dict(SEEN_ROLES)
-    return {
+    facts = {
         "commander": (
             {"name": commander.front_name, "type": commander.type_line,
              "mana_cost": commander.mana_cost, "text": commander.oracle_text}
@@ -277,6 +292,14 @@ def facts(deck, readings) -> dict:
         # them, for "strategies" to pick from - nothing else may be named.
         "strategies": offered(readings),
     }
+    if len(leading) > 1:
+        # A second commander (P20 F2b), and only then: a deck with one keeps
+        # the facts - and the cached summary - it had.
+        second = leading[1]
+        facts["second_commander"] = {"name": second.front_name, "type": second.type_line,
+                                     "mana_cost": second.mana_cost,
+                                     "text": second.oracle_text}
+    return facts
 
 
 #: At most this many combos go into the prompt, the most popular first.

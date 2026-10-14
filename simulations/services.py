@@ -95,10 +95,12 @@ def start_run(*, owner, deck, games: int, turns: int, on_the_play: bool = True,
 
     write_summary = summary.due(owner, deck)
     charge_summary = write_summary and not owner.is_guest
+    summary_skipped = False
     if charge_summary:
         both = quotas.check(owner, UsageRecord.Metric.RUNS_STARTED, amount=2,
                             raise_on_fail=False)
         write_summary = charge_summary = both.allowed
+        summary_skipped = not both.allowed
 
     # Guests share one allowance of workers between them, whoever they are.
     if getattr(owner, "is_guest", False):
@@ -141,6 +143,9 @@ def start_run(*, owner, deck, games: int, turns: int, on_the_play: bool = True,
                 # says that without the engine's reproducibility caveat.
                 seed=seed if seed is not None else secrets.randbelow(2**62),
                 deck_print=summary.fingerprint(deck),
+                list_print=summary.list_fingerprint(deck),
+                commander_names=[card.name for card in deck.commanders],
+                summary_skipped=summary_skipped,
             )
     except Exception:
         _release_slot(owner)
@@ -170,6 +175,7 @@ def start_lab_run(*, owner, deck, games: int, turns: int, on_the_play: bool,
     run = SimulationRun.objects.create(
         owner=owner, deck=deck, games_total=games, turns=turns,
         on_the_play=on_the_play, seed=seed, deck_print=summary.fingerprint(deck),
+        list_print=summary.list_fingerprint(deck),
     )
     transaction.on_commit(lambda: _dispatch(run, tasks))
     return run
@@ -514,6 +520,7 @@ def _recount_holding(deck, oracle_card, scope: str) -> None:
     if scope == USER_SCOPE:
         reached = Deck.objects.filter(owner=deck.owner).filter(
             Q(entries__oracle_card=oracle_card) | Q(commander=oracle_card)
+            | Q(partner=oracle_card)
         ).distinct()
     else:
         reached = Deck.objects.filter(pk=deck.pk)

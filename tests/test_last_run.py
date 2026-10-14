@@ -62,6 +62,7 @@ def test_a_run_remembers_the_deck_it_played(deck, monkeypatch):
     run = services.start_run(owner=deck.owner, deck=deck, games=1000, turns=3)
 
     assert run.deck_print == summary.fingerprint(deck)
+    assert run.list_print == summary.list_fingerprint(deck)
 
 
 def test_without_a_run_there_is_no_box_and_the_button_says_simulate(client, deck):

@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from billing import services, stripe_api
 from billing.models import Plan
+from simulations.forms import RunForm
 
 pytestmark = pytest.mark.django_db
 
@@ -60,6 +61,17 @@ def test_no_plan_carries_a_wizards_trademark():
 
 def test_guests_keep_six_turns():
     assert Plan.objects.get(slug="guest").max_turns == 6
+
+
+def test_a_higher_plan_offers_every_turn_count_a_lower_one_did():
+    """E2.8: Koi offered 10 and 12 but not Goldfish's 9."""
+    offered = {}
+    for slug in ("guest", "free", "koi", "kraken"):
+        plan = Plan.objects.get(slug=slug)
+        offered[slug] = {value for value, _text in RunForm(plan=plan).fields["turns"].choices}
+        assert max(offered[slug]) == plan.max_turns
+    assert offered["guest"] <= offered["free"] <= offered["koi"] <= offered["kraken"]
+    assert 9 in offered["koi"] and 12 in offered["kraken"]
 
 
 def test_the_old_lab_price_cannot_be_bought():

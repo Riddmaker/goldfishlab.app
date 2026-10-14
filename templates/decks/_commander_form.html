@@ -1,0 +1,66 @@
+{% comment %}
+  The commander choice (P20 F2): only the deck's cards that may lead it, a
+  first entry that chooses nothing, and a second field for a partner or a
+  Background (static/js/commander.js narrows it to the first choice). Starts
+  on the deck's commanders, else on what the file's order suggested - never
+  on the first card of the list. Expects `commander_choice`
+  (decks.command_zone.Choice), `action` and `submit_label`.
+{% endcomment %}
+{% load i18n %}
+{% if commander_choice %}
+  <form method="post" action="{{ action }}" class="mt-2" data-commander-form>
+    {% csrf_token %}
+    {% if commander_choice.suggested %}
+      <p class="text-parchment-100">
+        {% if commander_choice.second_id %}
+          {% blocktranslate trimmed with names=commander_choice.names %}
+            The file lists <strong>{{ names }}</strong> first - are those the commanders?
+          {% endblocktranslate %}
+        {% else %}
+          {% blocktranslate trimmed with names=commander_choice.names %}
+            The file lists <strong>{{ names }}</strong> first - is that the commander?
+          {% endblocktranslate %}
+        {% endif %}
+      </p>
+    {% endif %}
+    <div class="mt-2 flex flex-wrap items-end gap-3">
+      <label class="block min-w-0">
+        <span class="block text-sm text-parchment-200">{% translate "Commander" %}</span>
+        <select id="commander-select" name="commander" required data-commander-lead
+                class="max-w-full border border-parchment-600 bg-parchment-50 p-2 text-ink-900">
+          <option value="">{% translate "Choose…" %}</option>
+          {% for card in commander_choice.leads %}
+            {% with pk=card.pk|stringformat:"s" %}
+              <option value="{{ pk }}"{% if pk == commander_choice.lead_id %} selected{% endif %}>{{ card.front_name }}</option>
+            {% endwith %}
+          {% endfor %}
+        </select>
+      </label>
+      {% if commander_choice.seconds %}
+        <label class="block min-w-0" data-commander-second-field>
+          <span class="block text-sm text-parchment-200">{% translate "Second commander (partner or Background)" %}</span>
+          <select id="partner-select" name="partner" data-commander-second
+                  class="max-w-full border border-parchment-600 bg-parchment-50 p-2 text-ink-900">
+            <option value="">{% translate "No second commander" %}</option>
+            {% for second in commander_choice.seconds %}
+              {% with pk=second.card.pk|stringformat:"s" %}
+                <option value="{{ pk }}" data-leads="{{ second.leads|join:' ' }}"{% if pk == commander_choice.second_id %} selected{% endif %}>{{ second.card.front_name }}</option>
+              {% endwith %}
+            {% endfor %}
+          </select>
+        </label>
+      {% endif %}
+      <button type="submit"
+              class="border border-parchment-100 px-4 py-2 font-display text-parchment-100 hover:bg-ink-800">
+        {{ submit_label }}
+      </button>
+    </div>
+  </form>
+{% else %}
+  <p class="mt-2 text-parchment-200">
+    {% blocktranslate trimmed %}
+      No card in this list may lead a Commander deck - that takes a legendary creature, or
+      a card that says it can be your commander. Is the commander missing from the file?
+    {% endblocktranslate %}
+  </p>
+{% endif %}

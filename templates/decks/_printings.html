@@ -1,0 +1,8 @@
+{% comment %}
+  The printings an imported file named for one card (P20 F1): `CMR 189 · Foil`.
+  The set and number are no language's words, so they say so (`lang="zxx"`);
+  the finish is in the page's language. Expects `printings`, a decks.models.Printings.
+{% endcomment %}
+{% load i18n %}{% spaceless %}
+{% for code, finish in printings.codes %}{% if not forloop.first %}, {% endif %}{% if code %}<span lang="zxx">{{ code }}</span>{% endif %}{% if code and finish %} · {% endif %}{{ finish }}{% endfor %}{% if printings.more %}, {% blocktranslate count count=printings.more %}{{ count }} more{% plural %}{{ count }} more{% endblocktranslate %}{% endif %}
+{% endspaceless %}

@@ -1,0 +1,49 @@
+{% comment %}
+  "The numbers" right under one chart of "What you drew" (P20 F6d, E1.76).
+  There was one table for three charts, under the fourth - which itself had
+  none, its bars' values being part of a picture a screen reader does not
+  read into. Now every chart has its own.
+
+  Takes: rows, turns (the column headings), corner (the first column's
+  heading) and kind - "share" (`line.values`, a percentage, as the
+  category and strategy charts), "spread" (`row.spreads`, mean ± spread, as
+  the card types) or "mean" (`row.means`, as the mana values).
+{% endcomment %}
+{% load i18n %}
+<details class="mt-3 text-sm">
+  <summary class="cursor-pointer text-ink-900 underline">{% translate "The numbers" %}</summary>
+  <div class="mt-3 overflow-x-auto">
+    <table class="w-full text-left text-sm">
+      <thead>
+        <tr class="border-b border-parchment-600 text-ink-700">
+          <th scope="col" class="py-1.5 pr-3">{{ corner }}</th>
+          {% for turn in turns %}
+            <th scope="col" class="tabular py-1.5 pr-3">{{ turn }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr class="border-b border-parchment-300">
+            <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
+            {% if kind == "share" %}
+              {% for value in row.values %}
+                <td class="tabular py-1.5 pr-3 text-ink-700">{% blocktranslate with number=value|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
+              {% endfor %}
+            {% elif kind == "spread" %}
+              {% for spread in row.spreads %}
+                <td class="tabular whitespace-nowrap py-1.5 pr-3 text-ink-700">
+                  {{ spread.mean|floatformat:"1" }}{% if spread.sd is not None %} ± {{ spread.sd|floatformat:"1" }}{% endif %}
+                </td>
+              {% endfor %}
+            {% else %}
+              {% for mean in row.means %}
+                <td class="tabular py-1.5 pr-3 text-ink-700">{{ mean|floatformat:"1" }}</td>
+              {% endfor %}
+            {% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</details>

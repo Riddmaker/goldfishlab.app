@@ -835,6 +835,24 @@ def test_the_run_page_draws_what_was_seen(client, owner, run, fake_redis):
     assert "Run the deck again" not in body
 
 
+def test_every_drawn_chart_has_its_own_numbers_below_it(client, owner, run, fake_redis):
+    """P20 F6d (E1.76): one table for three charts sat under a fourth, which
+    had none - its bars' values are inside a picture."""
+    chunks = [tasks.simulate_chunk(str(run.pk), index, 20) for index in range(2)]
+    tasks.finalize_run(chunks, str(run.pk))
+    client.force_login(owner)
+
+    body = client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+    drew = body[body.index('id="seen"'):body.index("</section>", body.index('id="seen"'))]
+    charts = re.split(r"<h3 ", drew)[1:]
+
+    assert charts, "the run draws something"
+    for chart in charts:
+        assert chart.count("The numbers") == 1, chart[:80]
+    assert "Mana value, by end of turn" in charts[-1]
+    assert "% of games, by end of turn" in drew and "%%" not in drew
+
+
 def test_the_curve_opens_on_turn_one(client, owner, run, fake_redis):
     """Phase 10 T5.4: always turn 1, and Firefox may not restore the last pick."""
     chunks = [tasks.simulate_chunk(str(run.pk), 0, 20)]

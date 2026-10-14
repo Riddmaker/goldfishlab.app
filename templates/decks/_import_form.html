@@ -2,6 +2,14 @@
   The upload form, shared by the importer, the guest trial and the home page
   (phase 9 G). `action` is where it posts (default: this page), `submit_label`
   the button's word. Needs `form`, an ImportForm, and js/import.js in the page.
+
+  After a refused upload (P20 F6b, E1.40, E1.74): the field with the first
+  error takes the focus (`ImportForm.focus`, `autofocus`), is `aria-invalid`
+  and described by its error list - whose id is the one Django points
+  `aria-describedby` at - so a screen reader says what went wrong. The
+  error stands above its field, which the focus scrolls to with room above
+  (`scroll-margin-top` in input.css): below the drop zone it was off a
+  phone's screen.
 {% endcomment %}
 {% comment %}
   The two tabs are two radio buttons and CSS (`.import-form` in
@@ -12,7 +20,7 @@
 <form method="post"{% if action %} action="{{ action }}"{% endif %} enctype="multipart/form-data" class="import-form">
   {% csrf_token %}
   {% if form.non_field_errors %}
-    <ul class="errorlist">
+    <ul class="errorlist" role="alert">
       {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
     </ul>
   {% endif %}
@@ -32,12 +40,20 @@
     <label for="source-paste">{% translate "Paste a list" %}</label>
   </fieldset>
   <div class="import-panel-file">
+    {% if form.file.errors %}
+      <ul id="{{ form.file.auto_id }}_error" class="errorlist mb-2">
+        {% for error in form.file.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
     <div class="dropzone" data-dropzone>
+      {# The zone's face is hidden from a screen reader, so the field needs its own name. #}
+      <label for="{{ form.file.id_for_label }}" class="sr-only">{{ form.file.label }}</label>
       <input type="file"
              name="{{ form.file.html_name }}"
              id="{{ form.file.id_for_label }}"
              class="dropzone-input"
-             aria-describedby="dropzone-hint">
+             {% if form.file.errors %}aria-invalid="true" aria-describedby="dropzone-hint {{ form.file.auto_id }}_error"{% else %}aria-describedby="dropzone-hint"{% endif %}
+             {% if form.focus == "file" %}autofocus{% endif %}>
       <div class="dropzone-face" aria-hidden="true">
         <svg viewBox="0 0 24 24"
              width="40"
@@ -60,26 +76,23 @@
         Only the card names are needed. Quantities and set codes work too.
         A CSV, TSV or text file, up to 1&nbsp;MB.
       {% endblocktranslate %}
+      {% translate "Card names in English - only basic lands also work in other languages." %}
     </p>
-    {% if form.file.errors %}
-      <ul class="errorlist mt-2">
-        {% for error in form.file.errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
-    {% endif %}
   </div>
   <div class="import-panel-paste form-field">
     <label for="{{ form.text.id_for_label }}" class="sr-only">{{ form.text.label }}</label>
+    {% if form.text.errors %}
+      <ul id="{{ form.text.auto_id }}_error" class="errorlist mb-2">
+        {% for error in form.text.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
     {{ form.text }}
     <p class="mt-1 text-sm text-ink-700">
       {% blocktranslate trimmed %}
         One card per line - the name is enough, a quantity and set code work too. The commander goes under <code class="font-mono whitespace-nowrap">// Commander</code> - or pick it later.
       {% endblocktranslate %}
+      {% translate "Card names in English - only basic lands also work in other languages." %}
     </p>
-    {% if form.text.errors %}
-      <ul class="errorlist mt-2">
-        {% for error in form.text.errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
-    {% endif %}
   </div>
   <details class="mt-5 text-ink-900"
            {% if form.name.errors or form.format.errors %}open{% endif %}>
@@ -90,9 +103,9 @@
           <label for="{{ field.id_for_label }}"
                  class="text-sm font-semibold text-ink-800">{{ field.label }}</label>
           {{ field }}
-          <p class="text-sm text-ink-700">{{ field.help_text }}</p>
+          <p id="{{ field.auto_id }}_helptext" class="text-sm text-ink-700">{{ field.help_text }}</p>
           {% if field.errors %}
-            <ul class="errorlist">
+            <ul id="{{ field.auto_id }}_error" class="errorlist">
               {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
             </ul>
           {% endif %}

@@ -189,6 +189,70 @@ def test_an_unchanged_primitive_keeps_its_patches_through_a_save():
         patches.Note("land_search", "land_search", "changed")]
 
 
+def test_a_gone_correction_stays_through_a_save_of_another_block():
+    said = {"land_search": SEARCH | {"battlefield": 2}}
+    first = patches.from_overrides(said, _profile(land_search=SEARCH))
+    assert first["said"] == {"land_search": patches.digest(said["land_search"])}
+    later = _profile()
+
+    # Not played, but still said: a save of another block writes it again.
+    carried = patches.stated(said, first, later)
+    assert carried == said
+    assert "land_search" not in patches.effective(said, first, later)[0]
+    second = patches.from_overrides(carried | {"treasures": 1}, later, previous=first)
+    assert [patch for patch in second["blocks"] if patch["id"] == "land_search"] \
+        == first["blocks"]
+    assert patches.effective(carried | {"treasures": 1}, second, later)[1] == [
+        patches.Note("land_search", "land_search", "gone")]
+
+
+def _engine_neutral(overrides, document, later, keys):
+    """`settle` plays what was played, and leaves nothing to check on `keys`."""
+    before, _notes = patches.effective(overrides, document, later)
+    kept, settled = patches.settle(overrides, document, later, keys)
+    after, notes = patches.effective(kept, settled, later)
+    assert after == before
+    assert not [note for note in notes if note.key in keys]
+    return kept, settled
+
+
+def test_keeping_a_changed_correction_writes_it_against_today():
+    overrides = {"land_search": SEARCH | {"battlefield": 2}, "priority": 70}
+    document = patches.from_overrides(overrides, _profile(land_search=SEARCH))
+    later = _profile(land_search=SEARCH | {"tapped": False})
+    kept, settled = _engine_neutral(overrides, document, later, {"land_search"})
+    assert kept["land_search"] == {"battlefield": 2, "tapped": False, "basic": True}
+    assert settled["blocks"][0]["base"] == patches.digest(SEARCH | {"tapped": False})
+
+
+def test_discarding_a_gone_correction_lets_it_go():
+    overrides = {"land_search": SEARCH | {"battlefield": 2}, "treasures": 1}
+    document = patches.from_overrides(overrides, _profile(land_search=SEARCH))
+    kept, settled = _engine_neutral(overrides, document, _profile(), {"land_search"})
+    assert kept == {"treasures": 1}
+    assert [patch["id"] for patch in settled["blocks"]] == ["treasures"]
+
+
+def test_settling_a_list_lets_a_gone_entry_go_and_keeps_the_rest():
+    overrides = {"triggers": [LANDFALL | {"mana": 2}, CAST | {"draw": 3}]}
+    document = patches.from_overrides(overrides, _profile(triggers=[LANDFALL, CAST]))
+    later = _profile(triggers=[CAST | {"filter": "instant"}])
+    assert {note.status for note in patches.effective(overrides, document, later)[1]} \
+        == {"gone", "changed"}
+    kept, _settled = _engine_neutral(overrides, document, later, {"triggers"})
+    assert kept["triggers"] == [CAST | {"filter": "instant", "draw": 3}]
+
+
+def test_settling_one_block_leaves_the_others_to_check():
+    overrides = {"land_search": SEARCH | {"battlefield": 2}, "triggers": [LANDFALL | {"mana": 2}]}
+    document = patches.from_overrides(overrides, _profile(land_search=SEARCH,
+                                                          triggers=[LANDFALL]))
+    later = _profile(triggers=[LANDFALL | {"filter": "basic"}])
+    kept, settled = _engine_neutral(overrides, document, later, {"triggers"})
+    assert patches.effective(kept, settled, later)[1] == [
+        patches.Note("land_search", "land_search", "gone")]
+
+
 @pytest.mark.parametrize("document", [
     {"v": 99, "of": "0" * 16, "face": {}, "blocks": []},
     {"v": 1, "of": "short", "face": {}, "blocks": []},
@@ -204,6 +268,9 @@ def test_an_unchanged_primitive_keeps_its_patches_through_a_save():
         {"id": "triggers", "op": "add", "value": {"event": "x", "evil": 1}}]},
     {"v": 1, "of": "0" * 16, "face": {}, "blocks": [
         {"id": "land_search", "op": "keep", "drop": ["evil"]}]},
+    {"v": 1, "of": "0" * 16, "said": {"priority": "0" * 16}, "face": {}, "blocks": []},
+    {"v": 1, "of": "0" * 16, "said": {"land_search": "short"}, "face": {}, "blocks": []},
+    {"v": 1, "of": "0" * 16, "said": [], "face": {}, "blocks": []},
 ])
 def test_a_document_the_engine_cannot_store_is_refused(document):
     with pytest.raises(patches.PatchError):
@@ -285,6 +352,37 @@ def test_the_migration_converts_without_moving_a_card(cobra_deck):
     assert patches.is_current(row.patches)
     said, notes = patches.effective(row.overrides, row.patches, cobra_deck.cobra.profile)
     assert said == row.overrides and notes == []
+
+
+def test_the_migration_says_each_primitive_digest(cobra_deck):
+    read = cobra_deck.cobra.profile.triggers
+    overrides = {"triggers": [read[0] | {"mana": 3}], "priority": 10}
+    row = CardAnnotation.objects.create(owner=cobra_deck.owner, deck=cobra_deck.deck,
+                                        oracle_card=cobra_deck.cobra, overrides=overrides)
+    written = dict(row.patches)
+    CardAnnotation.objects.filter(pk=row.pk).update(
+        patches={key: value for key, value in written.items() if key != "said"})
+    migration = importlib.import_module("simulations.migrations.0015_patches_said")
+    migration.forwards(apps, None)
+    row.refresh_from_db()
+    assert row.patches == written
+    assert row.patches["said"] == {"triggers": patches.digest(overrides["triggers"])}
+
+
+def test_a_gone_correction_survives_an_unrelated_save(cobra_deck):
+    read = cobra_deck.cobra.profile.triggers
+    services.save_annotation(deck=cobra_deck.deck, oracle_card=cobra_deck.cobra,
+                             scope=DECK_SCOPE,
+                             primitive_changes={"triggers": [read[0] | {"mana": 2}],
+                                                "treasures": 1})
+    DerivedProfile.objects.filter(oracle_card=cobra_deck.cobra).update(triggers=[])
+    services.save_annotation(
+        deck=cobra_deck.deck, oracle_card=OracleCard.objects.get(pk=cobra_deck.cobra.pk),
+        scope=DECK_SCOPE, primitive_changes={"treasures": 2})
+    row = CardAnnotation.objects.get(oracle_card=cobra_deck.cobra)
+    assert [patch["id"] for patch in row.patches["blocks"]] == ["treasures", "triggers:0"]
+    assert [note.status for note in
+            adapter.annotations_for(cobra_deck.deck).notes[cobra_deck.cobra.pk]] == ["gone"]
 
 
 def test_a_playtest_keeps_its_engine_version(cobra_deck):

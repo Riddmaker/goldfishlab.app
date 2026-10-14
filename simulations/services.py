@@ -436,9 +436,10 @@ def save_annotation(*, deck, oracle_card, scope: str, judgements: dict | None = 
     existing = CardAnnotation.objects.filter(oracle_card=oracle_card, **keys).first()
     # What the row says now (card model phase 2): its patches against today's
     # reading, so a block this save does not touch keeps what the reader has
-    # learned since it was written.
-    overrides = patches.effective(existing.overrides, existing.patches,
-                                  getattr(oracle_card, "profile", None))[0] if existing else {}
+    # learned since it was written - and one whose block is gone stays, to be
+    # checked, rather than vanish with an unrelated save.
+    overrides = patches.stated(existing.overrides, existing.patches,
+                               getattr(oracle_card, "profile", None)) if existing else {}
     if judgements is not None:
         overrides = apply(overrides, judgements)
     if primitive_changes:

@@ -26,7 +26,10 @@ The patch document also carries the judgements that are not blocks
 (priority, tags, kind and the rest of `annotations`) as they are, under
 ``face``, and the digest of the `overrides` it was written with (``of``):
 code from before phase 2 writes only `overrides`, and a document that no
-longer matches them is out of date and is not played.
+longer matches them is out of date and is not played. ``said`` keeps the
+digest of each primitive's value as it was said, so a correction whose block
+is gone - not played, waiting for its owner - survives a save of another
+block (`stated`) until its owner keeps or discards it (`settle`).
 
 `from_overrides` writes a document and checks it: compiled against the same
 reading it gives exactly the overrides back, key by key, or that key becomes
@@ -104,7 +107,8 @@ def _kind(key: str, entry) -> str:
 # --- writing a document ----------------------------------------------------------
 
 
-def from_overrides(overrides: dict, profile, previous: dict | None = None) -> dict:
+def from_overrides(overrides: dict, profile, previous: dict | None = None,
+                   fresh=frozenset()) -> dict:
     """The patch document that says what `overrides` says, against this reading.
 
     Args:
@@ -113,38 +117,46 @@ def from_overrides(overrides: dict, profile, previous: dict | None = None) -> di
         previous: The document stored before. A primitive whose value did not
             change keeps the patches it had, so saving one block never resets
             the "please check" of another.
+        fresh: Primitives written against today's reading whatever `previous`
+            says - the ones their owner has just checked (`settle`).
 
     Returns:
-        dict: ``{"v", "of", "face", "blocks"}``.
+        dict: ``{"v", "of", "said", "face", "blocks"}``.
     """
     overrides = dict(overrides or {})
     kept = _previous_by_key(previous, profile)
     blocks: list[dict] = []
+    said: dict = {}
     for key in sorted(primitives.KEYS & set(overrides)):
         value = overrides[key]
+        said[key] = digest(value)
         before = kept.get(key)
-        if before is not None and before[0] == value:
-            blocks.extend(before[1])
+        if key not in fresh and before is not None \
+                and (before[1] == said[key] or before[0] == value):
+            blocks.extend(before[2])
             continue
         blocks.extend(_exact(key, value, profile))
     return {
         "v": VERSION,
         "of": digest(overrides),
+        "said": said,
         "face": {key: value for key, value in overrides.items() if key not in primitives.KEYS},
         "blocks": blocks,
     }
 
 
 def _previous_by_key(previous: dict | None, profile) -> dict:
-    """`{key: (value it compiles to, its patches)}` of a stored document."""
+    """`{key: (value it compiles to, digest it was said with, its patches)}` of a
+    stored document. A block that is gone compiles to nothing (`_GONE`); its
+    patches are kept by the digest alone."""
     if not is_current(previous):
         return {}
     values, _notes = compile_blocks(previous["blocks"], profile)
+    said = previous.get("said") or {}
     found: dict = {}
     for patch in previous["blocks"]:
         key = key_of(patch["id"])
-        if key in values:
-            found.setdefault(key, (values[key], []))[1].append(patch)
+        found.setdefault(key, (values.get(key, _GONE), said.get(key), []))[2].append(patch)
     return found
 
 
@@ -246,6 +258,42 @@ def effective(overrides: dict, document: dict | None, profile) -> tuple[dict, li
         return dict(overrides), []
     values, notes = compile_blocks(document["blocks"], profile)
     return {**document["face"], **values}, notes
+
+
+def stated(overrides: dict, document: dict | None, profile) -> dict:
+    """What a stored correction says, for writing it again: `effective`, and
+    each correction whose block is gone as it was said.
+
+    Those are not played - there is nothing left to apply them to - but they
+    are not the engine's to drop either: saving another block must not take
+    the "please check" away before its owner has seen it.
+    """
+    said, notes = effective(overrides, document, profile)
+    if not notes:
+        return said
+    gone = {note.key for note in notes
+            if note.status == "gone" and not is_list(note.key) and note.key in overrides}
+    return said | {key: overrides[key] for key in gone}
+
+
+def settle(overrides: dict, document: dict | None, profile,
+           keys) -> tuple[dict, dict]:
+    """Its owner has checked these primitives: the correction as it plays now.
+
+    A block that changed under its correction is written again against
+    today's reading - the same value, so the same engine card, and nothing
+    left to check. One that is gone is let go: it was not played anyway.
+
+    Returns:
+        tuple: The overrides and the document to store.
+    """
+    keys = frozenset(keys)
+    said, notes = effective(overrides, document, profile)
+    carried = stated(overrides, document, profile)
+    gone = {note.key for note in notes if note.status == "gone" and note.key not in said}
+    kept = {key: value for key, value in carried.items()
+            if key not in keys or key not in gone}
+    return kept, from_overrides(kept, profile, previous=document, fresh=keys)
 
 
 def compile_blocks(patches: list[dict], profile) -> tuple[dict, list[Note]]:
@@ -395,6 +443,10 @@ def validate(document) -> dict:
         raise PatchError("a patch document names the overrides it was written with")
     if primitives.KEYS & set(document["face"]):
         raise PatchError("a primitive is a block, not a face value")
+    said = document.get("said", {})
+    if not isinstance(said, dict) or set(said) - primitives.KEYS or not all(
+            isinstance(value, str) and len(value) == 16 for value in said.values()):
+        raise PatchError("a patch document says each primitive's digest")
     if len(document["blocks"]) > _MOST_PATCHES:
         raise PatchError("too many patches")
     for patch in document["blocks"]:

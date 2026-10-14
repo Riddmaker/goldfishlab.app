@@ -233,10 +233,6 @@ class AnnotationForm(forms.Form):
         label=BY_KEY["subtypes"].label, help_text=BY_KEY["subtypes"].help,
     )
 
-    tutor_count = forms.IntegerField(
-        required=False, min_value=0, max_value=10,
-        label=BY_KEY["tutor_count"].label, help_text=BY_KEY["tutor_count"].help,
-    )
     mana_activation = forms.IntegerField(
         required=False, min_value=0, max_value=10,
         label=BY_KEY["mana_activation"].label, help_text=BY_KEY["mana_activation"].help,
@@ -337,9 +333,6 @@ class AnnotationForm(forms.Form):
                 list(data.get("subtypes") or [])
                 if data.get("replace_subtypes") else None
             ),
-            # Zero is a real answer here - "this is not a tutor" - and an empty
-            # box is still no opinion, so this cannot go through `or None`.
-            "tutor_count": data.get("tutor_count"),
             # Zero is a statement too: "it only has to tap".
             "mana_activation": data.get("mana_activation"),
             "x_min": data.get("x_min"),

@@ -9,6 +9,8 @@ eight are the fixes for the blind spots in :mod:`simulations.blindspots`, and
 the other three are there because something started deriving them - tutors in
 Phase 5b, a mana ability's cost and whether it untaps in the 2026-09-25 review -
 and a derived value nobody can switch off is a judgement made on their behalf.
+The tutors' count left this form in card model phase 2 (PR 7): the Search
+block says it, beside the zone and what it may find (`tutor_as_block`).
 
 Two rules shape everything here, and both are about not lying.
 
@@ -192,14 +194,6 @@ JUDGEMENTS = (
           "choose as it enters. Left empty, the engine chooses the colour most "
           "mana symbols in your deck's costs ask for."),
     ),
-    Judgement(
-        "tutor_count",
-        _("Cards it searches up"),
-        _("How many cards this finds in your library. The community tags say "
-          "which zone it searches to and can never say how many, so the number "
-          "is read off the card text and is often missing. Write 0 for a card "
-          "the engine should not treat as a tutor at all."),
-    ),
 )
 
 #: Every key the editor owns. Anything else in `overrides` is left alone.
@@ -311,6 +305,30 @@ def _merged(kept: dict, values: dict) -> dict:
         if value is not None:
             kept[key] = value
     return kept
+
+
+#: The judgement keys a search was said with before the Search block.
+LEGACY_TUTOR_KEYS = ("tutor_count", "tutor_to_hand")
+
+
+def tutor_as_block(overrides: dict) -> dict | None:
+    """A correction that says a search with `tutor_count`, said as the
+    Search block instead (card model phase 2, PR 7), or None when it says
+    none.
+
+    A count of 0 is "not a tutor": the block switched off. `tutor_life` and
+    `tutor_kind` stay as they are - the adapter reads both beside the block.
+    Whether the engine plays the result the same is for the caller to check
+    (migration 0016 builds the card both ways).
+    """
+    if "tutor_count" not in (overrides or {}):
+        return None
+    count = overrides["tutor_count"]
+    kept = {key: value for key, value in overrides.items() if key not in LEGACY_TUTOR_KEYS}
+    if not count:
+        return kept | {"tutor": None}
+    to = "hand" if overrides.get("tutor_to_hand", True) else "graveyard"
+    return kept | {"tutor": {"to": to, "count": int(count)}}
 
 
 #: The editor rebuild: "back to the card data" for one primitive - the key is

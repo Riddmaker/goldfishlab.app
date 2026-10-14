@@ -3,13 +3,14 @@
     manage.py forge_check --old OLD.jsonl.gz [--new NEW.jsonl.gz] [--out body.md]
 
 Translates every script of both packed copies (`cards.forge_import.compare`)
-and writes the pin pull request's description to ``--out``. Prints one line,
+and writes the report - the pin commit's message, and so the pull request's
+description - to ``--out``. Prints one line,
 ``changes=N`` (scripts added, removed or changed), to standard output, so the
 weekly sync (``.github/workflows/forge-sync.yml``) can append it to
 ``$GITHUB_OUTPUT``; everything else goes to standard error.
 
 Fails when more than `forge_import.MAX_FAILURES` of the new scripts fail to
-translate: the sync then opens no pull request, and the pin stays.
+translate: the sync then pushes nothing, and the pin stays.
 """
 
 from pathlib import Path
@@ -28,7 +29,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--old", required=True, help="the pinned pack before forge_pack")
         parser.add_argument("--new", default=str(forge.PACK))
-        parser.add_argument("--out", help="where to write the pull request description")
+        parser.add_argument("--out", help="where to write the report")
 
     def handle(self, *args, **options):
         comparison = forge_import.compare(Path(options["old"]), Path(options["new"]))

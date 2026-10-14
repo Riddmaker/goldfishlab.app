@@ -665,7 +665,7 @@ class Comparison:
     """What moving the pin from one packed copy to another changes.
 
     Built from the two packs alone - no database - so the weekly sync can
-    check a new commit before it opens a pull request. Card lists hold names.
+    check a new commit before it offers it for review. Card lists hold names.
     """
 
     old_commit: str
@@ -740,18 +740,25 @@ def compare(old: Path, new: Path) -> Comparison:
     return result
 
 
-#: Names listed per group in the pull request; the rest is counted.
+#: Names listed per group in the report; the rest is counted.
 REPORT_NAMES = 30
 
 
+def _literal(text: str) -> str:
+    """``text`` as a Markdown code span: a name from Forge's scripts is data,
+    so no link, mention or formatting in it is rendered."""
+    return "`" + " ".join(text.replace("`", "'").split()) + "`"
+
+
 def report(comparison: Comparison) -> str:
-    """The pin pull request's description, in Markdown."""
+    """The report on a new pin, in Markdown: the issue "Forge pin ready", the
+    pin commit's message and so the pull request's description."""
     old, new = comparison.old_commit, comparison.new_commit
 
     def names(title: str, found: list[str]) -> list[str]:
         if not found:
             return []
-        shown = ", ".join(found[:REPORT_NAMES])
+        shown = ", ".join(_literal(name) for name in found[:REPORT_NAMES])
         more = f" and {len(found) - REPORT_NAMES} more" if len(found) > REPORT_NAMES else ""
         return [f"**{title} ({len(found)}):** {shown}{more}", ""]
 

@@ -101,9 +101,19 @@ def test_the_report_names_the_commits_and_cuts_long_lists(old):
 
     assert f"compare/{FORGE_COMMIT}...{NEW_COMMIT}" in text
     assert "| Changed | 40 |" in text
-    assert "**Read less than before, check these (1):** Sol Ring" in text
-    assert "Card 29 and 10 more" in text
+    assert "**Read less than before, check these (1):** `Sol Ring`" in text
+    assert "`Card 29` and 10 more" in text
     assert "Card 30" not in text
+
+
+def test_names_from_the_scripts_are_never_rendered_as_markdown():
+    """A script is data: a name cannot link, mention or break out of its span."""
+    found = forge_import.Comparison(FORGE_COMMIT, NEW_COMMIT, scripts=1,
+                                    added=["@someone [x](https://example.com) `y`\nz"])
+
+    text = forge_import.report(found)
+
+    assert "`@someone [x](https://example.com) 'y' z`" in text
 
 
 def test_the_command_prints_the_count_and_writes_the_description(tmp_path, old, capsys):
@@ -114,7 +124,7 @@ def test_the_command_prints_the_count_and_writes_the_description(tmp_path, old, 
     call_command("forge_check", old=str(old), new=str(new), out=str(body))
 
     assert capsys.readouterr().out.strip() == "changes=1"
-    assert "**New scripts (1):** Test Druid" in body.read_text(encoding="utf-8")
+    assert "**New scripts (1):** `Test Druid`" in body.read_text(encoding="utf-8")
 
 
 def test_the_command_fails_above_the_limit(tmp_path, old, monkeypatch):

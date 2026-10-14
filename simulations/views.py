@@ -389,6 +389,7 @@ class CardAnnotateView(DeckScopedView):
             scope=scope,
             editing=request.GET.get("edit", ""),
             item=request.GET.get("item", ""),
+            variant=request.GET.get("variant", ""),
         ))
 
     def post(self, request, pk, oracle_id):
@@ -456,9 +457,11 @@ class CardAnnotateView(DeckScopedView):
         return f"{url}?scope={scope}" if scope != DECK_SCOPE else url
 
     def _blocks(self, deck, card, entry, scope, editing, primitive_form,
-                item: str = "") -> dict:
+                item: str = "", variant: str = "") -> dict:
         """The editor rebuild: the card's primitives as blocks, and the one
-        being edited with its form - for a list, one entry of it."""
+        being edited with its form - for a list, one entry of it. A
+        primitive whose boxes depend on a variant (PR 7) offers its
+        variants first when there is none to edit yet."""
         found = adapter.annotations_for(deck)
         overrides = found.for_card(card.pk)
         shown, addable = editor.blocks(entry.reading, overrides, found.scopes.get(card.pk, {}),
@@ -468,25 +471,41 @@ class CardAnnotateView(DeckScopedView):
             editing = ""
         is_list = editing in editor.LISTS
         index = _item_index(item)
-        if editing and primitive_form is None:
+        value, choosing = None, []
+        if editing and not is_list:
             value = editor.current(editing, overrides, getattr(card, "profile", None))
             if any(line.key == editing and line.here for line in gone):
                 # "Set it again": the form starts from what its owner said.
                 value = services.annotation_at(deck, card, scope).overrides.get(editing, value)
+            value = editor.starting_value(editing, value, variant)
+            if value is None:
+                choosing = editor.variant_choices(editing)
+                if not choosing:
+                    editing = ""
+        elif editing:
+            value = editor.current(editing, overrides, getattr(card, "profile", None))
+        specs = editor.specs_of(editing, is_list, value) if editing and not choosing else ()
+        if specs and primitive_form is None:
             boxes = (editor.entry_initial(editing, value, index) if is_list
                      else editor.initial(editing, value))
-            primitive_form = editor.form_class(editor.specs_of(editing, is_list))(
-                initial=boxes, prefix=editing)
-        first, more = (editor.split(primitive_form, editor.specs_of(editing, is_list))
+            primitive_form = editor.form_class(specs)(initial=boxes, prefix=editing)
+        first, more = (editor.split(primitive_form, specs)
                        if primitive_form is not None else ([], []))
+        variants = primitives.VARIANTS.get(editing)
         return {"blocks": shown, "addable": addable, "gone": gone, "editing": editing,
                 "editing_item": "" if not is_list else ("new" if index is None else index),
                 "editing_label": primitives.BY_KEY[editing].label if editing else "",
+                "editing_variant": variants.of(value) if variants and value else "",
+                "editing_variant_label": (variants.labels.get(variants.of(value), "")
+                                          if variants and value else ""),
+                "variant_choices": choosing or (editor.variant_choices(editing)
+                                                if primitive_form is not None else []),
+                "choosing_variant": bool(choosing),
                 "primitive_form": primitive_form, "primitive_first": first,
                 "primitive_more": more}
 
     def _context(self, deck, card, *, form, annotation, scope, editing="",
-                 primitive_form=None, item="") -> dict:
+                 primitive_form=None, item="", variant="") -> dict:
         entries = provenance.for_deck(deck)
         entry = next(entry for entry in entries if entry.oracle_card.pk == card.pk)
         questions = review.queue(deck, [each.reading for each in entries])
@@ -507,7 +526,7 @@ class CardAnnotateView(DeckScopedView):
             "annotation": annotation,
             "scope": scope,
             "step": None,
-            **self._blocks(deck, card, entry, scope, editing, primitive_form, item),
+            **self._blocks(deck, card, entry, scope, editing, primitive_form, item, variant),
         }
         if card.pk in ids:
             here = ids.index(card.pk)
@@ -558,6 +577,7 @@ class PrimitiveView(DeckScopedView):
                                  % {"card": card.front_name})
             return redirect(CardAnnotateView._url(deck, card, scope) + "#primitives")
         item = request.POST.get("item", "")
+        variant = request.POST.get("variant", "")
         is_list = key in editor.LISTS
         found = adapter.annotations_for(deck)
         value = editor.current(key, found.for_card(card.pk), getattr(card, "profile", None))
@@ -569,14 +589,23 @@ class PrimitiveView(DeckScopedView):
                 change = annotations.RESET
             elif action == "remove" and is_list and _item_index(item) is not None:
                 change = editor.without_entry(key, value, _item_index(item))
-            elif action == "save" and (is_list or key in primitives.EDITABLE):
-                form = editor.form_class(editor.specs_of(key, is_list))(request.POST,
-                                                                         prefix=key)
+            elif action == "save" and is_list:
+                form = editor.form_class(editor.specs_of(key, True))(request.POST, prefix=key)
                 if not form.is_valid():
                     raise ValidationError(gettext("Check the boxes marked below."))
-                change = (editor.entry_value_from(key, value, _item_index(item),
-                                                  form.cleaned_data) if is_list
-                          else editor.value_from(key, value, form.cleaned_data))
+                change = editor.entry_value_from(key, value, _item_index(item),
+                                                 form.cleaned_data)
+            elif action == "save" and key in primitives.EDITABLE:
+                # A variant other than the stored one starts from its own
+                # defaults; one that cannot be picked is the stored one's.
+                base = editor.starting_value(key, value, variant)
+                if base is None or not editor.can_edit(key, base):
+                    raise Http404
+                form = editor.form_class(editor.specs_of(key, False, base))(request.POST,
+                                                                             prefix=key)
+                if not form.is_valid():
+                    raise ValidationError(gettext("Check the boxes marked below."))
+                change = editor.value_from(key, base, form.cleaned_data)
             else:
                 raise Http404
             services.save_annotation(deck=deck, oracle_card=card, scope=scope, note=None,
@@ -592,7 +621,7 @@ class PrimitiveView(DeckScopedView):
                 form=AnnotationForm(initial={"scope": scope,
                                              **AnnotationForm.initial_for(annotation)}),
                 annotation=annotation, scope=scope, editing=key, primitive_form=form,
-                item=item,
+                item=item, variant=variant,
             ), status=400)
         messages.success(request, gettext("Saved. %(card)s will be read that way from the "
                                           "next run onwards.") % {"card": card.front_name})

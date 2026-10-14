@@ -297,6 +297,11 @@ body {
   font-weight: 600;
 }
 
+/* A refused field takes the focus (P20 F6b); keep its error, above it, in view. */
+.import-form [aria-invalid="true"] {
+  scroll-margin-top: 6rem;
+}
+
 .auth-form button,
 .auth-form input[type="submit"] {
   font-family: var(--font-display);

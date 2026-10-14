@@ -6,7 +6,10 @@
   After a refused upload (P20 F6b, E1.40, E1.74): the field with the first
   error takes the focus (`ImportForm.focus`, `autofocus`), is `aria-invalid`
   and described by its error list - whose id is the one Django points
-  `aria-describedby` at - so a screen reader says what went wrong.
+  `aria-describedby` at - so a screen reader says what went wrong. The
+  error stands above its field, which the focus scrolls to with room above
+  (`scroll-margin-top` in input.css): below the drop zone it was off a
+  phone's screen.
 {% endcomment %}
 {% comment %}
   The two tabs are two radio buttons and CSS (`.import-form` in
@@ -37,6 +40,11 @@
     <label for="source-paste">{% translate "Paste a list" %}</label>
   </fieldset>
   <div class="import-panel-file">
+    {% if form.file.errors %}
+      <ul id="{{ form.file.auto_id }}_error" class="errorlist mb-2">
+        {% for error in form.file.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
     <div class="dropzone" data-dropzone>
       {# The zone's face is hidden from a screen reader, so the field needs its own name. #}
       <label for="{{ form.file.id_for_label }}" class="sr-only">{{ form.file.label }}</label>
@@ -70,14 +78,14 @@
       {% endblocktranslate %}
       {% translate "Card names in English - only basic lands also work in other languages." %}
     </p>
-    {% if form.file.errors %}
-      <ul id="{{ form.file.auto_id }}_error" class="errorlist mt-2">
-        {% for error in form.file.errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
-    {% endif %}
   </div>
   <div class="import-panel-paste form-field">
     <label for="{{ form.text.id_for_label }}" class="sr-only">{{ form.text.label }}</label>
+    {% if form.text.errors %}
+      <ul id="{{ form.text.auto_id }}_error" class="errorlist mb-2">
+        {% for error in form.text.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
     {{ form.text }}
     <p class="mt-1 text-sm text-ink-700">
       {% blocktranslate trimmed %}
@@ -85,11 +93,6 @@
       {% endblocktranslate %}
       {% translate "Card names in English - only basic lands also work in other languages." %}
     </p>
-    {% if form.text.errors %}
-      <ul id="{{ form.text.auto_id }}_error" class="errorlist mt-2">
-        {% for error in form.text.errors %}<li>{{ error }}</li>{% endfor %}
-      </ul>
-    {% endif %}
   </div>
   <details class="mt-5 text-ink-900"
            {% if form.name.errors or form.format.errors %}open{% endif %}>

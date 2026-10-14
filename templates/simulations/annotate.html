@@ -137,6 +137,7 @@
               {{ row.source_label }}
               {% if row.is_weak %}<span class="text-blood-700">— {% translate "worth checking" %}</span>{% endif %}
               {% if row.is_yours %}<span class="text-verdigris-800">✓</span>{% endif %}
+              {% if row.to_check %}<span class="text-blood-700">— {% translate "please check" %}</span>{% endif %}
               <span class="block text-xs">{{ row.source_detail }}</span>
             </td>
           </tr>

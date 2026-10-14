@@ -12,6 +12,7 @@ from types import SimpleNamespace
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 
 from cards import profiles
 from cards.models import DerivedProfile, OracleCard
@@ -168,3 +169,103 @@ def test_the_deck_page_says_which_cards_to_check(deck, client):
     assert "1 card needs you" in body
     # Nothing here the engine could not read: that sentence is not about checks.
     assert "The engine read all" in body
+
+
+# --- the card page: keep it, take it back, discard it, set it again ------------------
+
+
+def page(client, deck, card, query=""):
+    url = reverse("simulations:annotate", args=[deck.deck.pk, card.pk])
+    return client.get(url + query).content.decode()
+
+
+def act(client, deck, card, key, action, scope=DECK_SCOPE):
+    url = reverse("simulations:primitive", args=[deck.deck.pk, card.pk, key])
+    return client.post(url, {"scope": scope, "action": action})
+
+
+def engine_card(deck, card):
+    return reading_of(deck, card).card
+
+
+def test_keep_my_correction_plays_as_before_and_ends_the_check(deck, client):
+    _moved_growth(deck)
+    client.force_login(deck.owner)
+    text = page(client, deck, deck.growth)
+    assert 'data-check="changed"' in text and "Keep my correction" in text
+    assert "please check" in text  # the provenance table
+    before = engine_card(deck, deck.growth)
+
+    act(client, deck, deck.growth, "land_search", "keep")
+    assert engine_card(deck, deck.growth) == before
+    assert checks_of(deck, deck.growth) == []
+    assert review.open_questions(_fresh(deck)) == 0
+    assert "Keep my correction" not in page(client, deck, deck.growth)
+
+
+def test_back_to_the_card_data_ends_the_check(deck, client):
+    read = _moved_growth(deck)
+    client.force_login(deck.owner)
+    act(client, deck, deck.growth, "land_search", "reset")
+    assert not CardAnnotation.objects.filter(oracle_card=deck.growth).exists()
+    assert engine_card(deck, deck.growth).land_search is not None
+    assert search_of(deck.growth) == read | {"tapped": False}
+
+
+def test_a_gone_correction_has_its_own_line_and_can_be_discarded(deck, client):
+    read = search_of(deck.growth)
+    correct(deck, deck.growth, "land_search", read | {"battlefield": 2})
+    correct(deck, deck.growth, "treasures", 1)
+    move(deck.growth, land_search=None)
+    client.force_login(deck.owner)
+    text = page(client, deck, deck.growth)
+    assert "data-gone" in text and "Discard it" in text and "Set it again" in text
+    before = engine_card(deck, deck.growth)
+
+    act(client, deck, deck.growth, "land_search", "keep")
+    assert engine_card(deck, deck.growth) == before
+    row = CardAnnotation.objects.get(oracle_card=deck.growth)
+    assert "land_search" not in row.overrides and row.overrides["treasures"] == 1
+    assert "data-gone" not in page(client, deck, deck.growth)
+
+
+def test_set_it_again_starts_from_what_was_said(deck, client):
+    read = search_of(deck.growth)
+    correct(deck, deck.growth, "land_search", read | {"battlefield": 2})
+    move(deck.growth, land_search=None)
+    client.force_login(deck.owner)
+    text = page(client, deck, deck.growth, "?edit=land_search")
+    assert 'id="editing"' in text
+    assert 'name="land_search-battlefield" value="2"' in text
+
+
+def test_a_check_on_all_my_decks_is_kept_on_that_page(deck, client):
+    _moved_growth(deck, scope=USER_SCOPE)
+    client.force_login(deck.owner)
+    here = page(client, deck, deck.growth)
+    assert "check it there" in here and "Keep my correction" not in here
+    assert "Keep my correction" in page(client, deck, deck.growth, "?scope=user")
+    act(client, deck, deck.growth, "land_search", "keep", scope=DECK_SCOPE)
+    assert checks_of(deck, deck.growth) != []
+    act(client, deck, deck.growth, "land_search", "keep", scope=USER_SCOPE)
+    assert checks_of(deck, deck.growth) == []
+
+
+def test_looks_right_settles_every_check_of_the_card(deck, client):
+    _moved_growth(deck)
+    client.force_login(deck.owner)
+    before = engine_card(deck, deck.growth)
+    url = reverse("simulations:annotate", args=[deck.deck.pk, deck.growth.pk])
+    client.post(url, {"action": "confirm", "scope": DECK_SCOPE})
+    assert checks_of(deck, deck.growth) == []
+    assert engine_card(deck, deck.growth) == before
+    assert CardAnnotation.objects.get(oracle_card=deck.growth).confirmed
+
+
+def test_nobody_else_can_settle_a_check(deck, client):
+    _moved_growth(deck)
+    other = get_user_model().objects.create_user(email="other@example.com",
+                                                 password="pw-for-test-only")
+    client.force_login(other)
+    assert act(client, deck, deck.growth, "land_search", "keep").status_code == 404
+    assert checks_of(deck, deck.growth) != []

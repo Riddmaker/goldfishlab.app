@@ -1,0 +1,12 @@
+{% load i18n %}
+{% comment %}
+  A correction to check that was made on the other scope's page: only that
+  page keeps or discards it (card model phase 2). Needs `check_scope`.
+{% endcomment %}
+<p class="mt-1">
+  {% if check_scope == "user" %}
+    <a href="?scope=user#primitives" class="text-ink-900 underline">{% translate "You set this for all your decks: check it there" %}</a>
+  {% else %}
+    <a href="?scope=deck#primitives" class="text-ink-900 underline">{% translate "You set this for this deck: check it there" %}</a>
+  {% endif %}
+</p>

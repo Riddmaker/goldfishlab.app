@@ -479,6 +479,8 @@ def confirm_annotation(*, deck, oracle_card, scope: str):
     Nothing the engine reads changes - the stored values stay as they were,
     which is why this does not go through `save_annotation`: an empty form
     handed to `annotations.apply` would remove every judgement on the card.
+    What plays now is right, so every correction of this scope to check is
+    settled as it plays (`settle_checks`).
     """
     from simulations.models import CardAnnotation
 
@@ -486,8 +488,46 @@ def confirm_annotation(*, deck, oracle_card, scope: str):
         oracle_card=oracle_card, defaults={"confirmed": True},
         **_scope_keys(deck, scope),
     )
+    _settle(annotation, oracle_card, None)
     _recount_holding(deck, oracle_card, scope)
     return annotation
+
+
+def settle_checks(*, deck, oracle_card, scope: str, keys=None) -> bool:
+    """The owner has checked corrections whose reading moved (card model
+    phase 2): each one is kept as it plays now, or let go where its block is
+    gone. The engine card does not change.
+
+    Args:
+        keys: The primitives checked; None for every one of the row's.
+
+    Returns:
+        bool: Whether there was anything to settle.
+    """
+    from simulations.models import CardAnnotation
+
+    annotation = CardAnnotation.objects.filter(
+        oracle_card=oracle_card, **_scope_keys(deck, scope)).first()
+    if annotation is None or not _settle(annotation, oracle_card, keys):
+        return False
+    _recount_holding(deck, oracle_card, scope)
+    return True
+
+
+def _settle(annotation, oracle_card, keys) -> bool:
+    """Settle `keys` (None: all) of one row's checks; whether any were open."""
+    profile = getattr(oracle_card, "profile", None)
+    _said, notes = patches.effective(annotation.overrides, annotation.patches, profile)
+    wanted = {note.key for note in notes if keys is None or note.key in keys}
+    if not wanted:
+        return False
+    annotation.overrides, annotation.patches = patches.settle(
+        annotation.overrides, annotation.patches, profile, wanted)
+    if not annotation.overrides and not annotation.note and not annotation.confirmed:
+        annotation.delete()
+    else:
+        annotation.save(update_fields=["overrides", "patches", "updated_at"])
+    return True
 
 
 def delete_annotation(*, deck, oracle_card, scope: str) -> bool:

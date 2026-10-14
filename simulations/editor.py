@@ -47,6 +47,15 @@ class Block:
     resettable: bool = False
     #: A list's entries, in words, in their stored order (E3).
     entries: tuple[str, ...] = field(default_factory=tuple)
+    #: Card model phase 2, "please check": ``changed`` when the reading moved
+    #: under the correction, ``gone`` when it no longer has the block (or, in
+    #: a list, an entry that was corrected); empty when nothing is to check.
+    check: str = ""
+    #: The scope of the correction to check. Only that scope's page can keep
+    #: it or take it back, as with `resettable`.
+    check_scope: str = ""
+    #: The page's scope is the check's: its buttons are shown here.
+    check_here: bool = False
 
     @property
     def is_list(self) -> bool:
@@ -71,9 +80,11 @@ def blocks(reading, overrides: dict, scopes: dict,
     the others are offered under "Add" where a form can describe them.
     """
     profile = getattr(reading.oracle_card, "profile", None)
+    checks = _checks_by_key(reading)
     shown, addable = [], []
     for primitive in primitives.PRIMITIVES:
         key = primitive.key
+        check = checks.get(key)
         said = key in overrides
         read = primitives.reading_of(key, profile)
         if said and _is_off(key, overrides[key]):
@@ -94,12 +105,50 @@ def blocks(reading, overrides: dict, scopes: dict,
             entries=(tuple(_entry_text(key, entry, reading.oracle_card)
                            for entry in entries_of(key, value))
                      if key in LISTS and status != "off" else ()),
+            check=check.status if check and (said or key in LISTS) else "",
+            check_scope=check.scope if check else "",
+            check_here=bool(check) and check.scope == scope,
         )
         if said or read is not None:
             shown.append(block)
         elif editable:
             addable.append(block)
     return shown, addable
+
+
+@dataclass(frozen=True)
+class Gone:
+    """A correction of one block the card data no longer has: not played,
+    and not on the page as a block, so it gets a line of its own."""
+
+    key: str
+    label: str
+    scope: str
+    #: The page's scope is the correction's: "Discard it" is shown here.
+    here: bool
+    #: A form can describe the block: "Set it again" is offered.
+    editable: bool
+
+
+def gone(reading, overrides: dict, scope: str = "deck") -> list[Gone]:
+    """The owner's corrections whose single block is gone (`blocks` shows
+    the lists, whose other entries are still there)."""
+    return [
+        Gone(key=key, label=str(primitives.BY_KEY[key].label), scope=check.scope,
+             here=check.scope == scope, editable=key in primitives.EDITABLE)
+        for key, check in _checks_by_key(reading).items()
+        if check.status == "gone" and key not in LISTS and key not in overrides
+    ]
+
+
+def _checks_by_key(reading) -> dict:
+    """One check per primitive: ``changed`` wins over ``gone`` for a list
+    that has both, since the block is still on the page."""
+    found: dict = {}
+    for check in getattr(reading, "checks", ()):
+        if check.key not in found or check.status == "changed":
+            found[check.key] = check
+    return found
 
 
 def _is_off(key: str, value) -> bool:

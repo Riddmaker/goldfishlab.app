@@ -28,6 +28,7 @@ from django.utils import timezone
 
 from simulation import ENGINE_VERSION
 from simulations import gaps as gaps_module
+from simulations import patches
 from simulations.engine import adapter
 from simulations.models import CardAnnotation, UnreadCard
 
@@ -112,13 +113,18 @@ def answers(oracle_card) -> tuple[int, list[tuple[str, int]]]:
     """How many players answered the card themselves, and their commonest values.
 
     Read in aggregate from their saved annotations: what they told the engine
-    is what the card should do. Counted by value, never listed by who.
+    is what the card should do. Counted by value, never listed by who - and
+    by what each says against today's reading (card model phase 2, PR 7), so
+    two players who said the same are one value however old their rows.
     """
     rows = CardAnnotation.objects.filter(oracle_card=oracle_card, owner__isnull=False)
     players = rows.values("owner_id").distinct().count()
+    profile = getattr(oracle_card, "profile", None)
     values = Counter(
-        json.dumps(overrides, sort_keys=True)
-        for overrides in rows.values_list("overrides", flat=True) if overrides
+        json.dumps(said, sort_keys=True)
+        for said in (patches.stated(overrides, document, profile)
+                     for overrides, document in rows.values_list("overrides", "patches"))
+        if said
     )
     return players, values.most_common(ANSWERS)
 

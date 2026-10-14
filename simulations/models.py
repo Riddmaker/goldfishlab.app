@@ -30,8 +30,10 @@ setting.
 **Patches beside them (card model, phase 2).** Every save also writes the
 overrides as `patches` - each corrected primitive as a patch on the block of
 the reading it corrects (`simulations.patches`) - and the engine plays the
-patches. For one release both are written, so code from before phase 2 can
-still be rolled back to and reads the overrides it always read.
+patches. Both are written until phase 4 drops the column (decision D12), so
+code from before phase 2 can still be rolled back to and reads the overrides
+it always read, and the deck fingerprint (`summary.fingerprint`) still hashes
+them.
 """
 
 import uuid

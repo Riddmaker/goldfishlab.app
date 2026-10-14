@@ -30,7 +30,7 @@ from dataclasses import dataclass, field
 
 from django.utils.translation import gettext_noop
 
-from cards import forge_merge
+from cards import categories, forge_merge
 from cards.models import DerivedProfile, OracleCard
 
 # --- source labels, as they appear in DerivedProfile.source_map --------------
@@ -3236,9 +3236,21 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         source_map=_source_map(tags, tapped, mana, tutor)
         | ({"triggers": REGEX} if triggers.found else {}),
     )
-    forge_merge.merge(profile, forge_merge.blocks_of(card) if forge is forge_merge.LOAD
-                      else forge, card)
+    blocks = forge_merge.blocks_of(card) if forge is forge_merge.LOAD else forge
+    forge_merge.merge(profile, blocks, card)
+    _categorize(profile, blocks)
     return profile
+
+
+def _categorize(profile: DerivedProfile, blocks) -> None:
+    """The card's categories (phase 3), beside the roles the engine reads."""
+    found = categories.derive(profile.kind, blocks, profile.role_tags, profile)
+    profile.primary_role = found.primary
+    profile.secondary_role = found.secondary
+    profile.mechanics = list(found.mechanics)
+    profile.tempo = found.tempo
+    profile.category_review = list(found.review)
+    profile.categories_version = categories.VERSION
 
 
 def _source_map(tags: set[str], tapped: bool, mana: ManaReading,
@@ -3355,6 +3367,8 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "discards_after", "puts_back",
             "draws_x",
             "extra_cost",
+            "primary_role", "secondary_role", "mechanics", "tempo", "category_review",
+            "categories_version",
             "needs_review", "review_reasons", "source_map", "derived_at",
         ],
         unique_fields=["oracle_card"],

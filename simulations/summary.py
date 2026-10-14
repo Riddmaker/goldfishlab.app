@@ -178,10 +178,6 @@ def fingerprint(deck) -> str:
     from simulations.engine.adapter import cards_filter, scope_filter
     from simulations.models import CardAnnotation
 
-    cards = sorted(
-        f"{pk}x{quantity}"
-        for pk, quantity in deck.entries.values_list("oracle_card_id", "quantity")
-    )
     rows = (
         CardAnnotation.objects.filter(cards_filter(deck)).filter(scope_filter(deck))
         .values_list("oracle_card_id", "owner_id", "deck_id", "overrides").distinct()
@@ -191,13 +187,27 @@ def fingerprint(deck) -> str:
                    default=str)
         for card, owner, deck_id, overrides in rows
     )
+    text = "|".join([*_list_parts(deck), "annotations", *annotations])
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def list_fingerprint(deck) -> str:
+    """The commanders and the cards alone - what a shared report freezes
+    (P20 F6, E1.32). An answer about a card changes `fingerprint`, not this."""
+    return hashlib.sha256("|".join(_list_parts(deck)).encode()).hexdigest()
+
+
+def _list_parts(deck) -> list[str]:
+    cards = sorted(
+        f"{pk}x{quantity}"
+        for pk, quantity in deck.entries.values_list("oracle_card_id", "quantity")
+    )
     # The second commander only when there is one, so a deck with one keeps
     # the fingerprint it had (P20 F2b).
     leading = [f"commander:{deck.commander_id}"]
     if deck.partner_id:
         leading.append(f"partner:{deck.partner_id}")
-    text = "|".join([*leading, *cards, "annotations", *annotations])
-    return hashlib.sha256(text.encode()).hexdigest()
+    return [*leading, *cards]
 
 
 def at_least_one(successes: int, population: int, drawn: int = HAND) -> float:

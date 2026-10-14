@@ -12312,3 +12312,19 @@ msgstr "Um deck precisa de um nome."
 #, python-format
 msgid "The deck is now called %(name)s."
 msgstr "O deck agora se chama %(name)s."
+
+#: changelog/entries.py
+msgid "Answering a card no longer stops a report from being shared"
+msgstr ""
+"Responder sobre uma carta não impede mais o compartilhamento de um relatório"
+
+#: changelog/entries.py
+msgid ""
+"A report could not be shared once you had answered a question about one of "
+"its cards, and the reason given was a changed card list. Only a change to "
+"the cards or the commander stops it now."
+msgstr ""
+"Um relatório não podia mais ser compartilhado depois que você respondia a "
+"uma pergunta sobre uma de suas cartas, e o motivo dado era uma lista de "
+"cartas alterada. Agora só uma mudança nas cartas ou no comandante impede "
+"isso."

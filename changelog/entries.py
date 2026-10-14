@@ -50,6 +50,14 @@ ENTRIES = (
         "pricing",
     ),
     Entry(
+        date(2026, 10, 14), "share-after-answer",
+        _("Answering a card no longer stops a report from being shared"),
+        _("A report could not be shared once you had answered a question about one of its "
+          "cards, and the reason given was a changed card list. Only a change to the cards or "
+          "the commander stops it now."),
+        "decks:list",
+    ),
+    Entry(
         date(2026, 10, 14), "rename-decks",
         _("Give your decks the names you want"),
         _("The pencil beside a deck's name renames it, in the list of your decks and on the deck "

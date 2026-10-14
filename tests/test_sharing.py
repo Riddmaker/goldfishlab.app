@@ -24,7 +24,7 @@ from sharing import services, text
 from sharing.models import SharedReport
 from simulations import report, summary, tasks
 from simulations import services as run_services
-from simulations.models import DeckSummary, SimulationRun
+from simulations.models import CardAnnotation, DeckSummary, SimulationRun
 from tests.test_i18n import FakeRedis
 from tests.test_search_basics import _head
 
@@ -67,7 +67,7 @@ def run(owner, deck, monkeypatch, settings):
     monkeypatch.setattr(run_services, "_redis", FakeRedis)
     return _finish(SimulationRun.objects.create(
         owner=owner, deck=deck, games_total=40, turns=4, seed=7,
-        deck_print=summary.fingerprint(deck)))
+        deck_print=summary.fingerprint(deck), list_print=summary.list_fingerprint(deck)))
 
 
 @pytest.fixture
@@ -142,8 +142,43 @@ def test_a_changed_deck_cannot_be_shared_until_it_is_run_again(client, owner, ru
 
 
 def test_a_run_from_before_the_fingerprint_cannot_be_shared(run):
-    SimulationRun.objects.filter(pk=run.pk).update(deck_print="")
+    SimulationRun.objects.filter(pk=run.pk).update(deck_print="", list_print="")
     run.refresh_from_db()
+
+    assert services.refusal(run) == services.DECK_CHANGED
+
+
+def _answer_a_card(run):
+    entry = run.deck.entries.first()
+    CardAnnotation.objects.create(owner=run.owner, deck=run.deck, oracle_card=entry.oracle_card,
+                                  overrides={"tags": ["ramp"]})
+
+
+def test_an_answer_about_a_card_since_does_not_stop_the_share(client, owner, run):
+    """E1.32: the list a share freezes is the same; only a reading changed."""
+    _answer_a_card(run)
+    client.force_login(owner)
+
+    client.post(reverse("sharing:share", args=[run.pk]))
+
+    assert services.refusal(run) is None
+    assert SharedReport.objects.filter(run=run).exists()
+
+
+def test_a_changed_commander_still_stops_the_share(run):
+    deck = run.deck
+    deck.commander = deck.entries.exclude(oracle_card=deck.commander).first().oracle_card
+    deck.save()
+
+    assert services.refusal(run) == services.DECK_CHANGED
+
+
+def test_a_run_from_before_the_list_print_still_counts_answers(run):
+    SimulationRun.objects.filter(pk=run.pk).update(list_print="")
+    run.refresh_from_db()
+    assert services.refusal(run) is None
+
+    _answer_a_card(run)
 
     assert services.refusal(run) == services.DECK_CHANGED
 

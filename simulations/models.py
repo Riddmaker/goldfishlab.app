@@ -296,6 +296,11 @@ class SimulationRun(models.Model):
     #: the deck page compares it with today's to say "The deck has changed
     #: since this run." Empty on a run from before, which then says nothing.
     deck_print = models.CharField(max_length=64, blank=True)
+    #: The deck's `summary.list_fingerprint` when the run started (P20 F6,
+    #: E1.32): its commanders and cards, without the answers about them.
+    #: Sharing compares this, so answering a card does not take a report's
+    #: link away. Empty on a run from before, which compares `deck_print`.
+    list_print = models.CharField(max_length=64, blank=True)
     #: The commanders the run was started with, by name (P20 F2, E1.4): `[]`
     #: when the deck had none, and the report says so - a commander changed
     #: while the run plays does not change what it played. `None` on a run

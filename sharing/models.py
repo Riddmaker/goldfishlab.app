@@ -7,8 +7,9 @@ makes a new token, so a link once stopped never comes back.
 
 **The deck is frozen when the report is shared.** A run stores its result but
 not the card list it shuffled, and the deck goes on changing afterwards. So a
-run may only be shared while the deck is still the one it played (its
-`deck_print` matches), and the list, the names and - if it describes exactly
+run may only be shared while the deck still has the commanders and cards it
+played (its `list_print` matches - an answer about a card since is no change
+to the list, P20 F6), and the list, the names and - if it describes exactly
 that deck - the written summary are copied here. A later edit to the deck
 changes nothing a reader of the link sees.
 

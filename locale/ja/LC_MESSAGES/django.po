@@ -10967,3 +10967,15 @@ msgstr "デッキには名前が必要です。"
 #, python-format
 msgid "The deck is now called %(name)s."
 msgstr "デッキの名前を %(name)s に変更しました。"
+
+#: changelog/entries.py
+msgid "Answering a card no longer stops a report from being shared"
+msgstr "カードについて回答しても、レポートを共有できるようになりました"
+
+#: changelog/entries.py
+msgid ""
+"A report could not be shared once you had answered a question about one of "
+"its cards, and the reason given was a changed card list. Only a change to "
+"the cards or the commander stops it now."
+msgstr ""
+"カードに関する質問に回答すると、レポートを共有できなくなり、理由として「カードリストが変更された」と表示されていました。今後、共有できなくなるのはカードか統率者を変更した場合だけです。"

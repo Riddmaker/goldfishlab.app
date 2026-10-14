@@ -12639,3 +12639,33 @@ msgstr ""
 "Tribute sacrifica sus dos criaturas. Una carta que roba o crea Tesoros de "
 "una forma que la simulación aún no lee ahora está marcada, para que puedas "
 "corregirla."
+
+#: templates/decks/review.html templates/decks/map.html
+msgid "Pasted list"
+msgstr "Lista pegada"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Imported from a pasted list: <span class=\"tabular\">%(matched)s</span> of "
+"<span class=\"tabular\">%(total)s</span> rows matched. <a "
+"href=\"%(review_url)s\" class=\"underline\">See how exact the match was</a>."
+msgstr ""
+"Importado de una lista pegada: <span class=\"tabular\">%(matched)s</span> de"
+" <span class=\"tabular\">%(total)s</span> filas con coincidencia. <a "
+"href=\"%(review_url)s\" class=\"underline\">Ver lo exacta que fue la "
+"coincidencia</a>."
+
+#: changelog/entries.py
+msgid "A pasted list is no longer called a file"
+msgstr "Una lista pegada ya no se llama archivo"
+
+#: changelog/entries.py
+msgid ""
+"After you paste a deck list, the import review, the column check and the "
+"deck page say “pasted list” where they said “uploaded file”, “your file” or "
+"“imported from a file”."
+msgstr ""
+"Después de pegar una lista de mazo, la revisión de la importación, la página"
+" «¿Qué columna es cuál?» y la página del mazo dicen «Lista pegada» donde "
+"antes decían «Archivo subido», «Tu archivo» o «Importado de un archivo»."

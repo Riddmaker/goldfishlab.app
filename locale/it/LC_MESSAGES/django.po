@@ -12539,3 +12539,34 @@ msgstr ""
 "veniva lanciata, e Phyrexian Tribute sacrifica le sue due creature. Una "
 "carta che pesca o crea Tesori in un modo che la simulazione non legge ancora"
 " ora è segnalata, così puoi correggerla."
+
+#: templates/decks/review.html templates/decks/map.html
+msgid "Pasted list"
+msgstr "Lista incollata"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Imported from a pasted list: <span class=\"tabular\">%(matched)s</span> of "
+"<span class=\"tabular\">%(total)s</span> rows matched. <a "
+"href=\"%(review_url)s\" class=\"underline\">See how exact the match was</a>."
+msgstr ""
+"Importato da una lista incollata: <span class=\"tabular\">%(matched)s</span>"
+" di <span class=\"tabular\">%(total)s</span> righe abbinate. <a "
+"href=\"%(review_url)s\" class=\"underline\">Guarda quanto è stato preciso "
+"l'abbinamento</a>."
+
+#: changelog/entries.py
+msgid "A pasted list is no longer called a file"
+msgstr "Una lista incollata non si chiama più file"
+
+#: changelog/entries.py
+msgid ""
+"After you paste a deck list, the import review, the column check and the "
+"deck page say “pasted list” where they said “uploaded file”, “your file” or "
+"“imported from a file”."
+msgstr ""
+"Dopo aver incollato una lista del deck, la revisione dell'importazione, la "
+"pagina “Quale colonna è quale?” e la pagina del deck dicono “Lista "
+"incollata” dove prima c'era “File caricato”, “Il tuo file” o “Importato da "
+"un file”."

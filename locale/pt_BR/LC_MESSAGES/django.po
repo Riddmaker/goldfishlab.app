@@ -12450,3 +12450,33 @@ msgstr ""
 "conjurada, e Phyrexian Tribute sacrifica suas duas criaturas. Um card que "
 "compra ou cria Tesouros de um jeito que a simulação ainda não lê agora é "
 "marcado, para que você possa corrigi-lo."
+
+#: templates/decks/review.html templates/decks/map.html
+msgid "Pasted list"
+msgstr "Lista colada"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Imported from a pasted list: <span class=\"tabular\">%(matched)s</span> of "
+"<span class=\"tabular\">%(total)s</span> rows matched. <a "
+"href=\"%(review_url)s\" class=\"underline\">See how exact the match was</a>."
+msgstr ""
+"Importado de uma lista colada: <span class=\"tabular\">%(matched)s</span> de"
+" <span class=\"tabular\">%(total)s</span> linhas associadas. <a "
+"href=\"%(review_url)s\" class=\"underline\">Veja quão exata foi a "
+"associação</a>."
+
+#: changelog/entries.py
+msgid "A pasted list is no longer called a file"
+msgstr "Uma lista colada não é mais chamada de arquivo"
+
+#: changelog/entries.py
+msgid ""
+"After you paste a deck list, the import review, the column check and the "
+"deck page say “pasted list” where they said “uploaded file”, “your file” or "
+"“imported from a file”."
+msgstr ""
+"Depois de colar uma lista de deck, a revisão da importação, a página “Qual "
+"coluna é qual?” e a página do deck dizem “Lista colada” onde antes diziam "
+"“Arquivo enviado”, “Seu arquivo” ou “Importado de um arquivo”."

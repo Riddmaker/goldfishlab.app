@@ -337,7 +337,7 @@
           {% endblocktranslate %}
         {% else %}
           {% blocktranslate trimmed with matched=last_import.rows_resolved total=last_import.rows_total %}
-            Imported from a file:
+            Imported from a pasted list:
             <span class="tabular">{{ matched }}</span> of
             <span class="tabular">{{ total }}</span> rows matched.
             <a href="{{ review_url }}" class="underline">See how exact the match was</a>.

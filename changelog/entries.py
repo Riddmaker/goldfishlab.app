@@ -42,6 +42,14 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 14), "pasted-list",
+        _("A pasted list is no longer called a file"),
+        _("After you paste a deck list, the import review, the column check and the deck page "
+          "say “pasted list” where they said “uploaded file”, “your file” or “imported from a "
+          "file”."),
+        "decks:import",
+    ),
+    Entry(
         date(2026, 10, 14), "turns-every-plan",
         _("Koi runs 9 turns again"),
         _("A higher plan now offers every number of turns a lower one does: Koi has Goldfish's "

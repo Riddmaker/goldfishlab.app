@@ -11088,3 +11088,30 @@ msgstr ""
 "Palaceのようにエルフを公開しない限りタップ状態で出る土地、宝物、土地探し、マナ能力です。呪文に書かれたサイクリング、手掛かり、履修、贈り物でカードを引くことはなくなりました。これは唱えるたびのただ引きでした。またPhyrexian"
 " "
 "Tributeは2体のクリーチャーを生け贄に捧げます。シミュレーションがまだ読み取れない方法でカードを引いたり宝物を生み出したりするカードには印が付くようになり、修正できます。"
+
+#: templates/decks/review.html templates/decks/map.html
+msgid "Pasted list"
+msgstr "貼り付けたリスト"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Imported from a pasted list: <span class=\"tabular\">%(matched)s</span> of "
+"<span class=\"tabular\">%(total)s</span> rows matched. <a "
+"href=\"%(review_url)s\" class=\"underline\">See how exact the match was</a>."
+msgstr ""
+"貼り付けたリストからインポート：<span class=\"tabular\">%(total)s</span> 行中 <span "
+"class=\"tabular\">%(matched)s</span> 行が一致しました。<a href=\"%(review_url)s\" "
+"class=\"underline\">一致の正確さを見る</a>。"
+
+#: changelog/entries.py
+msgid "A pasted list is no longer called a file"
+msgstr "貼り付けたリストを「ファイル」と呼ばなくなりました"
+
+#: changelog/entries.py
+msgid ""
+"After you paste a deck list, the import review, the column check and the "
+"deck page say “pasted list” where they said “uploaded file”, “your file” or "
+"“imported from a file”."
+msgstr ""
+"デッキリストを貼り付けたとき、インポートの確認、「どの列が何ですか？」の画面、デッキのページで、「アップロードしたファイル」「あなたのファイル」「ファイルからインポート」ではなく「貼り付けたリスト」と表示されるようになりました。"

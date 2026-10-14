@@ -145,6 +145,28 @@ def test_uploading_a_file_with_unknown_rows_lands_on_the_review(signed_in, catal
     assert "Definitely Not A Card" in body
 
 
+def test_a_pasted_list_is_called_one_not_a_file(signed_in, catalogue):
+    """A pasted list has no file name, and the review said "Uploaded file" for
+    it, the deck page "Imported from a file" (P20 M.1)."""
+    paste = {"source": "paste", "text": "1 Sol Ring\n1 Definitely Not A Card\n"}
+    body = signed_in.post(reverse("decks:import"), paste, follow=True).content.decode()
+
+    assert "Pasted list" in body
+    assert "Uploaded file" not in body
+    page = signed_in.get(reverse("decks:detail", args=[Deck.objects.get().id])).content.decode()
+    assert "Imported from a pasted list:" in page
+    assert "Imported from a file" not in page
+
+
+def test_a_pasted_table_that_asks_for_its_columns_is_a_pasted_list(signed_in, catalogue):
+    paste = {"source": "paste", "text": "Name,Edition\nSol Ring,cmd\nSwamp,tor\n"}
+    body = signed_in.post(reverse("decks:import"), paste, follow=True).content.decode()
+
+    assert "Which column is which?" in body
+    assert "Pasted list" in body
+    assert "Your file" not in body
+
+
 def test_a_csv_from_a_tool_we_have_never_heard_of_just_imports(signed_in, catalogue):
     """`Count,Card,Set` is nobody's verified format and reads perfectly.
 

@@ -12710,3 +12710,34 @@ msgstr ""
 "sacrifie ses deux créatures. Une carte qui pioche ou crée des Trésors d'une "
 "manière que la simulation ne lit pas encore est désormais signalée, pour que"
 " vous puissiez la corriger."
+
+#: templates/decks/review.html templates/decks/map.html
+msgid "Pasted list"
+msgstr "Liste collée"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"Imported from a pasted list: <span class=\"tabular\">%(matched)s</span> of "
+"<span class=\"tabular\">%(total)s</span> rows matched. <a "
+"href=\"%(review_url)s\" class=\"underline\">See how exact the match was</a>."
+msgstr ""
+"Importé depuis une liste collée : <span class=\"tabular\">%(matched)s</span>"
+" lignes sur <span class=\"tabular\">%(total)s</span> associées. <a "
+"href=\"%(review_url)s\" class=\"underline\">Voir la précision de "
+"l'association</a>."
+
+#: changelog/entries.py
+msgid "A pasted list is no longer called a file"
+msgstr "Une liste collée n'est plus appelée fichier"
+
+#: changelog/entries.py
+msgid ""
+"After you paste a deck list, the import review, the column check and the "
+"deck page say “pasted list” where they said “uploaded file”, “your file” or "
+"“imported from a file”."
+msgstr ""
+"Après avoir collé une liste de deck, la vérification de l'import, l'écran « "
+"Quelle colonne est laquelle ? » et la page du deck indiquent « Liste collée "
+"» là où il était écrit « Fichier envoyé », « Votre fichier » ou « Importé "
+"depuis un fichier »."

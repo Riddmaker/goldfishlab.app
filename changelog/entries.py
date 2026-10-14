@@ -42,6 +42,13 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 14), "check-corrections",
+        _("Your corrections keep up with the card data"),
+        _("When the card data changes under a correction of yours, the card says “please check” "
+          "and the deck counts it among the cards that need you. Keep your correction, go back "
+          "to the card data, or set it again; until then nothing you said is lost."),
+    ),
+    Entry(
         date(2026, 10, 14), "pasted-list",
         _("A pasted list is no longer called a file"),
         _("After you paste a deck list, the import review, the column check and the deck page "

@@ -12669,3 +12669,108 @@ msgstr ""
 "Después de pegar una lista de mazo, la revisión de la importación, la página"
 " «¿Qué columna es cuál?» y la página del mazo dicen «Lista pegada» donde "
 "antes decían «Archivo subido», «Tu archivo» o «Importado de un archivo»."
+
+#: templates/decks/_card_grid.html templates/simulations/annotate.html
+msgid "please check"
+msgstr "revisar"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s card has a correction of yours to check: the card data changed "
+"under it."
+msgid_plural ""
+"%(count)s cards have a correction of yours to check: the card data changed "
+"under them."
+msgstr[0] ""
+"%(count)s carta tiene una corrección tuya que revisar: los datos de la carta"
+" cambiaron debajo."
+msgstr[1] ""
+"%(count)s de cartas tienen una corrección tuya que revisar: los datos de las"
+" cartas cambiaron debajo."
+msgstr[2] ""
+"%(count)s cartas tienen una corrección tuya que revisar: los datos de las "
+"cartas cambiaron debajo."
+
+#: templates/simulations/_attention.html
+msgid ""
+"The engine could not read it, or the card data changed under your "
+"correction. Say what it does, or that the engine's reading is right."
+msgid_plural ""
+"The engine could not read them, or the card data changed under your "
+"corrections. Say what they do, or that the engine's reading is right."
+msgstr[0] ""
+"El motor no pudo leerla, o los datos de la carta cambiaron bajo tu "
+"corrección. Di qué hace, o que la lectura del motor es correcta."
+msgstr[1] ""
+"El motor no pudo leerlas, o los datos de las cartas cambiaron bajo tus "
+"correcciones. Di qué hacen, o que la lectura del motor es correcta."
+msgstr[2] ""
+"El motor no pudo leerlas, o los datos de las cartas cambiaron bajo tus "
+"correcciones. Di qué hacen, o que la lectura del motor es correcta."
+
+#: templates/simulations/_primitives.html
+#, python-format
+msgid ""
+"Please check: your correction to “%(block)s” is not played. The card data no"
+" longer has it."
+msgstr ""
+"Revisa: tu corrección de «%(block)s» no se juega. Los datos de la carta ya "
+"no lo tienen."
+
+#: templates/simulations/_primitives.html
+msgid "Discard it"
+msgstr "Descartarla"
+
+#: templates/simulations/_primitives.html
+msgid "Set it again"
+msgstr "Volver a definirla"
+
+#: templates/simulations/_primitives.html
+msgid ""
+"Please check: the card data changed under your correction. It plays as shown"
+" here."
+msgstr ""
+"Revisa: los datos de la carta cambiaron bajo tu corrección. Se juega como se"
+" muestra aquí."
+
+#: templates/simulations/_primitives.html
+msgid ""
+"Please check: an entry you corrected is no longer in the card data. It is "
+"not played."
+msgstr ""
+"Revisa: una entrada que corregiste ya no está en los datos de la carta. No "
+"se juega."
+
+#: templates/simulations/_primitives.html
+msgid "Keep my correction"
+msgstr "Mantener mi corrección"
+
+#: templates/simulations/_check_elsewhere.html
+msgid "You set this for all your decks: check it there"
+msgstr "Lo definiste para todos tus mazos: revísalo allí"
+
+#: templates/simulations/_check_elsewhere.html
+msgid "You set this for this deck: check it there"
+msgstr "Lo definiste para este mazo: revísalo allí"
+
+#: simulations/views.py
+#, python-format
+msgid "Checked. %(card)s plays as it did."
+msgstr "Revisado. %(card)s se juega como antes."
+
+#: changelog/entries.py
+msgid "Your corrections keep up with the card data"
+msgstr "Tus correcciones siguen el ritmo de los datos de las cartas"
+
+#: changelog/entries.py
+msgid ""
+"When the card data changes under a correction of yours, the card says "
+"“please check” and the deck counts it among the cards that need you. Keep "
+"your correction, go back to the card data, or set it again; until then "
+"nothing you said is lost."
+msgstr ""
+"Cuando los datos de una carta cambian bajo una corrección tuya, la carta "
+"dice «revisar» y el mazo la cuenta entre las cartas que te necesitan. Mantén"
+" tu corrección, vuelve a los datos de la carta o defínela de nuevo; hasta "
+"entonces no se pierde nada de lo que dijiste."

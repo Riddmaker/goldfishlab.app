@@ -463,19 +463,23 @@ class CardAnnotateView(DeckScopedView):
         overrides = found.for_card(card.pk)
         shown, addable = editor.blocks(entry.reading, overrides, found.scopes.get(card.pk, {}),
                                        scope)
+        gone = editor.gone(entry.reading, overrides, scope)
         if editing not in primitives.EDITABLE and editing not in editor.LISTS:
             editing = ""
         is_list = editing in editor.LISTS
         index = _item_index(item)
         if editing and primitive_form is None:
             value = editor.current(editing, overrides, getattr(card, "profile", None))
+            if any(line.key == editing and line.here for line in gone):
+                # "Set it again": the form starts from what its owner said.
+                value = services.annotation_at(deck, card, scope).overrides.get(editing, value)
             boxes = (editor.entry_initial(editing, value, index) if is_list
                      else editor.initial(editing, value))
             primitive_form = editor.form_class(editor.specs_of(editing, is_list))(
                 initial=boxes, prefix=editing)
         first, more = (editor.split(primitive_form, editor.specs_of(editing, is_list))
                        if primitive_form is not None else ([], []))
-        return {"blocks": shown, "addable": addable, "editing": editing,
+        return {"blocks": shown, "addable": addable, "gone": gone, "editing": editing,
                 "editing_item": "" if not is_list else ("new" if index is None else index),
                 "editing_label": primitives.BY_KEY[editing].label if editing else "",
                 "primitive_form": primitive_form, "primitive_first": first,
@@ -546,6 +550,13 @@ class PrimitiveView(DeckScopedView):
         if key not in primitives.BY_KEY:
             raise Http404
         action = request.POST.get("action", "save")
+        if action == "keep":
+            # "Please check" (card model phase 2): kept as it plays now, or
+            # let go where the card data no longer has the block.
+            if services.settle_checks(deck=deck, oracle_card=card, scope=scope, keys={key}):
+                messages.success(request, gettext("Checked. %(card)s plays as it did.")
+                                 % {"card": card.front_name})
+            return redirect(CardAnnotateView._url(deck, card, scope) + "#primitives")
         item = request.POST.get("item", "")
         is_list = key in editor.LISTS
         found = adapter.annotations_for(deck)

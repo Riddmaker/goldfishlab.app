@@ -188,6 +188,8 @@ class Row:
     label: str
     value: str
     source: str
+    #: A correction of the owner's behind it no longer fits its reading.
+    to_check: bool = False
 
     @property
     def source_label(self) -> str:
@@ -285,12 +287,15 @@ def _rows(reading: adapter.Reading, scopes: dict) -> list[Row]:
     source_map = (profile.source_map or {}) if profile is not None else None
 
     is_land = reading.card.is_land
+    checked = {check.key for check in reading.checks}
     return [
         Row(
             key=spec.attribute,
             label=spec.label,
             value=_display(_value_of(reading, spec.attribute), spec.attribute),
             source=_source_for(spec, card_scopes, source_map),
+            to_check=bool(checked & {ANNOTATION_KEY.get(spec.attribute),
+                                     *PRIMITIVE_KEYS.get(spec.attribute, ())}),
         )
         for spec in FIELDS
         if (spec.applies_to_lands or not is_land) and (is_land or not spec.lands_only)

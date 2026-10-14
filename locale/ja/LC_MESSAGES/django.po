@@ -11115,3 +11115,84 @@ msgid ""
 "“imported from a file”."
 msgstr ""
 "デッキリストを貼り付けたとき、インポートの確認、「どの列が何ですか？」の画面、デッキのページで、「アップロードしたファイル」「あなたのファイル」「ファイルからインポート」ではなく「貼り付けたリスト」と表示されるようになりました。"
+
+#: templates/decks/_card_grid.html templates/simulations/annotate.html
+msgid "please check"
+msgstr "再確認"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s card has a correction of yours to check: the card data changed "
+"under it."
+msgid_plural ""
+"%(count)s cards have a correction of yours to check: the card data changed "
+"under them."
+msgstr[0] "%(count)s枚のカードに、再確認が必要な修正があります。修正後にカードデータが変わりました。"
+
+#: templates/simulations/_attention.html
+msgid ""
+"The engine could not read it, or the card data changed under your "
+"correction. Say what it does, or that the engine's reading is right."
+msgid_plural ""
+"The engine could not read them, or the card data changed under your "
+"corrections. Say what they do, or that the engine's reading is right."
+msgstr[0] ""
+"エンジンが読み取れなかったか、修正後にカードデータが変わりました。そのカードが何をするか、またはエンジンの読み取りが正しいことを伝えてください。"
+
+#: templates/simulations/_primitives.html
+#, python-format
+msgid ""
+"Please check: your correction to “%(block)s” is not played. The card data no"
+" longer has it."
+msgstr "再確認：「%(block)s」への修正は使われていません。カードデータにもうありません。"
+
+#: templates/simulations/_primitives.html
+msgid "Discard it"
+msgstr "破棄する"
+
+#: templates/simulations/_primitives.html
+msgid "Set it again"
+msgstr "設定し直す"
+
+#: templates/simulations/_primitives.html
+msgid ""
+"Please check: the card data changed under your correction. It plays as shown"
+" here."
+msgstr "再確認：修正後にカードデータが変わりました。ここに表示されている内容で使われます。"
+
+#: templates/simulations/_primitives.html
+msgid ""
+"Please check: an entry you corrected is no longer in the card data. It is "
+"not played."
+msgstr "再確認：あなたが修正した項目はカードデータにもうありません。使われていません。"
+
+#: templates/simulations/_primitives.html
+msgid "Keep my correction"
+msgstr "修正を維持する"
+
+#: templates/simulations/_check_elsewhere.html
+msgid "You set this for all your decks: check it there"
+msgstr "すべてのデッキ用に設定した修正です：そちらで確認"
+
+#: templates/simulations/_check_elsewhere.html
+msgid "You set this for this deck: check it there"
+msgstr "このデッキ用に設定した修正です：そちらで確認"
+
+#: simulations/views.py
+#, python-format
+msgid "Checked. %(card)s plays as it did."
+msgstr "確認しました。%(card)s はこれまでどおり使われます。"
+
+#: changelog/entries.py
+msgid "Your corrections keep up with the card data"
+msgstr "あなたの修正がカードデータの変化に追従します"
+
+#: changelog/entries.py
+msgid ""
+"When the card data changes under a correction of yours, the card says "
+"“please check” and the deck counts it among the cards that need you. Keep "
+"your correction, go back to the card data, or set it again; until then "
+"nothing you said is lost."
+msgstr ""
+"あなたの修正の後でカードデータが変わると、そのカードに「再確認」と表示され、デッキはあなたの対応が必要なカードとして数えます。修正を維持する、カードデータに戻す、または設定し直すことができます。それまで、あなたの修正は失われません。"

@@ -102,7 +102,11 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
             "deck": deck,
             # The cards the engine could not read on its own: the same queue the
             # red marker counts the open ones of (P20 F4, E1.35).
-            "unread_cards": len(questions),
+            "unread_cards": sum(1 for question in questions if question.unread),
+            "unread_open": sum(1 for question in questions if question.unread
+                               and not question.answered and not question.to_check),
+            # Corrections the reading moved under (card model phase 2).
+            "check_cards": sum(1 for question in questions if question.to_check),
             "grid": deck_cards.shown(grid, filters),
             "grid_total": len(grid),
             "filters": filters,

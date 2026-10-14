@@ -6,7 +6,14 @@ row of theirs for that card, on this deck or on all their decks: a saved value,
 or only "Looks right". The built-in annotations are not an answer, because
 nobody asked this user anything by shipping them.
 
-The queue is stable: every card with a reading gap, by name, answered or not.
+A card also needs its owner when a correction of theirs no longer fits the
+reading under it (card model phase 2): the reader learned more about the
+card, or no longer reads the block they corrected (`Reading.checks`). That
+one is answered once each correction is kept or let go - an answer given
+before the reading moved does not count for it.
+
+The queue is stable: every card with a reading gap or a correction to check,
+by name, answered or not.
 Answering a card ticks it rather than taking it out, so "2 of 5" still means
 the second of the same five after a save, and Back goes where it went before.
 
@@ -36,23 +43,36 @@ class Question:
         return self.reading.oracle_card
 
     @property
+    def unread(self) -> bool:
+        """The engine could not read something off it."""
+        return self.reading.unreadable
+
+    @property
+    def to_check(self) -> bool:
+        """A correction of the owner's to look at again (`Reading.checks`)."""
+        return bool(self.reading.checks)
+
+    @property
     def name(self) -> str:
         return self.reading.oracle_card.front_name
 
 
 def queue(deck: Deck, readings: list | None = None) -> list[Question]:
-    """Every card of the deck the engine could not read, by name.
+    """Every card of the deck the engine could not read, or with a correction
+    to check, by name.
 
     `readings` may be handed in by a caller that has them already - the tune
     page does - so one page does not read the deck twice.
     """
     if readings is None:
         readings = adapter.readings(deck)
-    unreadable = [reading for reading in readings if reading.unreadable]
-    answered = answered_ids(deck, [reading.oracle_card.pk for reading in unreadable])
+    asked = [reading for reading in readings if reading.unreadable or reading.checks]
+    answered = answered_ids(deck, [reading.oracle_card.pk for reading in asked])
     return sorted(
-        (Question(reading=reading, answered=reading.oracle_card.pk in answered)
-         for reading in unreadable),
+        (Question(reading=reading,
+                  answered=not reading.checks and (not reading.unreadable
+                                                   or reading.oracle_card.pk in answered))
+         for reading in asked),
         key=lambda question: question.name.lower(),
     )
 

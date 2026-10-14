@@ -4,9 +4,42 @@
   at a time. Each block says who decided it - the card, you, a built-in
   default - and can be changed, switched off, or taken back to the card data.
   Every action is a plain form post: no script is needed.
+
+  "Please check" (card model phase 2): the card data changed under a
+  correction, or no longer has the block it corrects. Keeping it, discarding
+  it or taking it back is offered on the page of the correction's scope only,
+  like "Back to the card data"; the other scope's page links there.
 {% endcomment %}
 <section id="primitives" class="mt-4">
   <h3 class="font-display text-xl text-ink-900">{% translate "What the engine plays" %}</h3>
+  {% if gone %}
+    <ul class="mt-2 space-y-2 border-l-2 border-blood-600 pl-4 text-sm" data-gone>
+      {% for line in gone %}
+        <li id="gone-{{ line.key }}">
+          <p class="text-blood-700">
+            {% blocktranslate trimmed with block=line.label %}
+              Please check: your correction to “{{ block }}” is not played. The card data no longer has it.
+            {% endblocktranslate %}
+          </p>
+          {% if line.here %}
+            <div class="mt-1 flex flex-wrap items-center gap-4">
+              <form method="post" action="{% url 'simulations:primitive' deck.id card.pk line.key %}">
+                {% csrf_token %}
+                <input type="hidden" name="scope" value="{{ scope }}">
+                <button type="submit" name="action" value="keep" class="text-blood-700 underline">{% translate "Discard it" %}</button>
+              </form>
+              {% if line.editable %}
+                <a href="?{% if scope == 'user' %}scope=user&amp;{% endif %}edit={{ line.key }}#editing"
+                   class="text-ink-900 underline">{% translate "Set it again" %}</a>
+              {% endif %}
+            </div>
+          {% else %}
+            {% include "simulations/_check_elsewhere.html" with check_scope=line.scope %}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
   {% if blocks %}
     <ul class="mt-2">
       {% for block in blocks %}
@@ -15,6 +48,33 @@
             <span class="font-display text-ink-900">{{ block.label }}</span>
             <span class="text-xs {% if block.status == 'card' %}text-ink-700{% elif block.status == 'off' %}text-blood-700{% else %}text-verdigris-800{% endif %}">{{ block.status_label }}</span>
           </div>
+          {% if block.check %}
+            <div class="mt-1 border-l-2 border-blood-600 pl-3 text-sm" data-check="{{ block.check }}">
+              <p class="text-blood-700">
+                {% if block.check == "changed" %}
+                  {% translate "Please check: the card data changed under your correction. It plays as shown here." %}
+                {% else %}
+                  {% translate "Please check: an entry you corrected is no longer in the card data. It is not played." %}
+                {% endif %}
+              </p>
+              {% if block.check_here %}
+                <div class="mt-1 flex flex-wrap items-center gap-4">
+                  <form method="post" action="{% url 'simulations:primitive' deck.id card.pk block.key %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="scope" value="{{ scope }}">
+                    <button type="submit" name="action" value="keep" class="text-verdigris-800 underline">{% translate "Keep my correction" %}</button>
+                  </form>
+                  <form method="post" action="{% url 'simulations:primitive' deck.id card.pk block.key %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="scope" value="{{ scope }}">
+                    <button type="submit" name="action" value="reset" class="text-ink-700 underline">{% translate "Back to the card data" %}</button>
+                  </form>
+                </div>
+              {% else %}
+                {% include "simulations/_check_elsewhere.html" with check_scope=block.check_scope %}
+              {% endif %}
+            </div>
+          {% endif %}
           {% if block.text %}<p class="mt-1 text-sm text-ink-900">{{ block.text }}</p>{% endif %}
           {% if block.entries %}
             <ol class="mt-1 space-y-1 text-sm">
@@ -48,7 +108,7 @@
                 <button type="submit" name="action" value="off" class="text-blood-700 underline">{% translate "Off: the card does not do this" %}</button>
               </form>
             {% endif %}
-            {% if block.resettable %}
+            {% if block.resettable and not block.check_here %}
               <form method="post" action="{% url 'simulations:primitive' deck.id card.pk block.key %}">
                 {% csrf_token %}
                 <input type="hidden" name="scope" value="{{ scope }}">

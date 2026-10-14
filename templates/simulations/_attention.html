@@ -22,11 +22,11 @@
     </p>
     <p class="mt-2 text-sm text-ink-700">
       {% blocktranslate trimmed count count=open_questions %}
-        The engine could not read it. Say what it does,
-        or that the engine's reading is right.
+        The engine could not read it, or the card data changed under your
+        correction. Say what it does, or that the engine's reading is right.
       {% plural %}
-        The engine could not read them. Say what they do,
-        or that the engine's reading is right.
+        The engine could not read them, or the card data changed under your
+        corrections. Say what they do, or that the engine's reading is right.
       {% endblocktranslate %}
     </p>
   {% elif report.annotations_changed %}

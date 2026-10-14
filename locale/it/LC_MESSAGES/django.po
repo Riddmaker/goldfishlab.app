@@ -12570,3 +12570,103 @@ msgstr ""
 "pagina “Quale colonna è quale?” e la pagina del deck dicono “Lista "
 "incollata” dove prima c'era “File caricato”, “Il tuo file” o “Importato da "
 "un file”."
+
+#: templates/decks/_card_grid.html templates/simulations/annotate.html
+msgid "please check"
+msgstr "da ricontrollare"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s card has a correction of yours to check: the card data changed "
+"under it."
+msgid_plural ""
+"%(count)s cards have a correction of yours to check: the card data changed "
+"under them."
+msgstr[0] ""
+"%(count)s carta ha una tua correzione da ricontrollare: i dati della carta "
+"sono cambiati sotto di essa."
+msgstr[1] ""
+"%(count)s carte hanno una tua correzione da ricontrollare: i dati delle "
+"carte sono cambiati sotto di esse."
+
+#: templates/simulations/_attention.html
+msgid ""
+"The engine could not read it, or the card data changed under your "
+"correction. Say what it does, or that the engine's reading is right."
+msgid_plural ""
+"The engine could not read them, or the card data changed under your "
+"corrections. Say what they do, or that the engine's reading is right."
+msgstr[0] ""
+"Il motore non è riuscito a leggerla, oppure i dati della carta sono cambiati"
+" sotto la tua correzione. Di' cosa fa, o che la lettura del motore è giusta."
+msgstr[1] ""
+"Il motore non è riuscito a leggerle, oppure i dati delle carte sono cambiati"
+" sotto le tue correzioni. Di' cosa fanno, o che la lettura del motore è "
+"giusta."
+
+#: templates/simulations/_primitives.html
+#, python-format
+msgid ""
+"Please check: your correction to “%(block)s” is not played. The card data no"
+" longer has it."
+msgstr ""
+"Da ricontrollare: la tua correzione a «%(block)s» non viene giocata. I dati "
+"della carta non lo contengono più."
+
+#: templates/simulations/_primitives.html
+msgid "Discard it"
+msgstr "Scartala"
+
+#: templates/simulations/_primitives.html
+msgid "Set it again"
+msgstr "Impostala di nuovo"
+
+#: templates/simulations/_primitives.html
+msgid ""
+"Please check: the card data changed under your correction. It plays as shown"
+" here."
+msgstr ""
+"Da ricontrollare: i dati della carta sono cambiati sotto la tua correzione. "
+"Si gioca come mostrato qui."
+
+#: templates/simulations/_primitives.html
+msgid ""
+"Please check: an entry you corrected is no longer in the card data. It is "
+"not played."
+msgstr ""
+"Da ricontrollare: una voce che hai corretto non è più nei dati della carta. "
+"Non viene giocata."
+
+#: templates/simulations/_primitives.html
+msgid "Keep my correction"
+msgstr "Mantieni la mia correzione"
+
+#: templates/simulations/_check_elsewhere.html
+msgid "You set this for all your decks: check it there"
+msgstr "L'hai impostato per tutti i tuoi mazzi: ricontrollalo lì"
+
+#: templates/simulations/_check_elsewhere.html
+msgid "You set this for this deck: check it there"
+msgstr "L'hai impostato per questo mazzo: ricontrollalo lì"
+
+#: simulations/views.py
+#, python-format
+msgid "Checked. %(card)s plays as it did."
+msgstr "Controllato. %(card)s si gioca come prima."
+
+#: changelog/entries.py
+msgid "Your corrections keep up with the card data"
+msgstr "Le tue correzioni seguono i dati delle carte"
+
+#: changelog/entries.py
+msgid ""
+"When the card data changes under a correction of yours, the card says "
+"“please check” and the deck counts it among the cards that need you. Keep "
+"your correction, go back to the card data, or set it again; until then "
+"nothing you said is lost."
+msgstr ""
+"Quando i dati di una carta cambiano sotto una tua correzione, la carta "
+"mostra «da ricontrollare» e il mazzo la conta tra le carte che hanno bisogno"
+" di te. Mantieni la correzione, torna ai dati della carta o reimpostala; "
+"fino ad allora nulla di ciò che hai detto va perso."

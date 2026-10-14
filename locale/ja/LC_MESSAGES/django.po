@@ -11619,3 +11619,16 @@ msgstr "その土地タイプの色"
 #: templates/simulations/_primitives.html
 msgid "Change"
 msgstr "変更"
+
+#: changelog/entries.py
+msgid "Archidekt CSVs keep their editions"
+msgstr "ArchidektのCSVがエディションを保持するように"
+
+#: changelog/entries.py
+msgid ""
+"A CSV exported from Archidekt with the edition and Scryfall id ticked has no"
+" header row. The importer now recognises those two columns anyway, so each "
+"card keeps the printing your list names instead of losing it."
+msgstr ""
+"ArchidektからエディションとScryfall "
+"IDにチェックを入れて書き出したCSVにはヘッダー行がありません。インポーターはそれでもこの2つの列を認識するようになったため、各カードはリストに書かれた版を失わずに保持します。"

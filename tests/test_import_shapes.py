@@ -59,6 +59,14 @@ ARCHIDEKT_CSV_HEADLESS = """\
 10,Forest
 """
 
+#: P20: Archidekt's deck CSV with edition and Scryfall id ticked - still no
+#: header, and an ownership flag at the end (`echt/mono_black commander.csv`).
+ARCHIDEKT_CSV_PRINTINGS = """\
+1,Animate Dead,5ed,1f2cd314-8f99-4443-ae86-a967effc7490,own exact edition
+1,Arcane Signet,40k,44ff370e-b72d-4a6c-b6dd-8434820559cc,own exact edition
+1,Swamp,ppp1,95e936cf-3bbb-4f3b-8e1a-4be1d4702b99,own different edition
+"""
+
 ARCHIDEKT_CSV_MAYBE = """\
 Quantity,Name,Finish,Tags,Edition Code,Collector Number
 1,"Prosper, Tome-Bound",Foil,Commander,afc,2
@@ -265,6 +273,37 @@ def test_a_headerless_table_is_read_only_from_the_first_line():
 
     headed = tabular.locate("Id,Name\n12345,Sol Ring\n2,Swamp\n")
     assert not headed.headerless and headed.headers == ["Id", "Name"]
+
+
+def test_a_headerless_table_keeps_its_printing():
+    """Edition and Scryfall id are read by their shape, so a file with no
+    header still says which printing it means (P20, the mono-black export)."""
+    _, rows = services.read(ARCHIDEKT_CSV_PRINTINGS)
+
+    assert [(row.set_code, row.scryfall_id) for row in rows] == [
+        ("5ed", "1f2cd314-8f99-4443-ae86-a967effc7490"),
+        ("40k", "44ff370e-b72d-4a6c-b6dd-8434820559cc"),
+        ("ppp1", "95e936cf-3bbb-4f3b-8e1a-4be1d4702b99"),
+    ]
+
+
+@pytest.mark.parametrize(
+    ("text", "headers"),
+    [
+        pytest.param("1,Sol Ring,c21,263\n2,Swamp,LEA,295\n",
+                     ["Quantity", "Name", "Set Code", "Collector Number"], id="set-and-number"),
+        pytest.param("1,Sol Ring,Ramp\n2,Swamp,Land\n",
+                     ["Quantity", "Name", "Column 3"], id="a-category-is-not-a-set"),
+        pytest.param("1,Sol Ring,263\n2,Swamp,295\n",
+                     ["Quantity", "Name", "Column 3"], id="a-lone-number-is-not-read"),
+        pytest.param("1,Sol Ring,own exact edition\n",
+                     ["Quantity", "Name", "Column 3"], id="a-note-is-not-read"),
+    ],
+)
+def test_a_headerless_column_is_named_only_by_an_unmistakable_shape(text, headers):
+    from decks.importers import tabular
+
+    assert tabular.locate(text).headers == headers
 
 
 # --- links ------------------------------------------------------------------

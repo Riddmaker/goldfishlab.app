@@ -42,6 +42,13 @@ class Entry:
 
 ENTRIES = (
     Entry(
+        date(2026, 10, 14), "headerless-printings",
+        _("Archidekt CSVs keep their editions"),
+        _("A CSV exported from Archidekt with the edition and Scryfall id ticked has no header "
+          "row. The importer now recognises those two columns anyway, so each card keeps the "
+          "printing your list names instead of losing it."),
+    ),
+    Entry(
         date(2026, 10, 14), "every-block",
         _("Every building block of a card can be corrected"),
         _("When a land enters untapped, mana kept as counters, +1/+1 counters and mana that "

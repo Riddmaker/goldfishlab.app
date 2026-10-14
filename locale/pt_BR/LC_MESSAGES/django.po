@@ -12316,7 +12316,7 @@ msgstr "O deck agora se chama %(name)s."
 #: changelog/entries.py
 msgid "Answering a card no longer stops a report from being shared"
 msgstr ""
-"Responder sobre uma carta não impede mais o compartilhamento de um relatório"
+"Responder sobre um card não impede mais o compartilhamento de um relatório"
 
 #: changelog/entries.py
 msgid ""
@@ -12325,9 +12325,8 @@ msgid ""
 "the cards or the commander stops it now."
 msgstr ""
 "Um relatório não podia mais ser compartilhado depois que você respondia a "
-"uma pergunta sobre uma de suas cartas, e o motivo dado era uma lista de "
-"cartas alterada. Agora só uma mudança nas cartas ou no comandante impede "
-"isso."
+"uma pergunta sobre um dos seus cards, e o motivo dado era uma lista de cards"
+" alterada. Agora só uma mudança nos cards ou no comandante impede isso."
 
 #: templates/decks/import.html templates/guests/try.html
 msgid "Error:"
@@ -12347,3 +12346,31 @@ msgstr ""
 "campo com o problema, um leitor de tela lê o que deu errado e o título da "
 "página começa com “Erro”. O campo do arquivo também tem agora um nome "
 "próprio."
+
+#: decks/resolve.py
+msgid "matched a basic land named in another language"
+msgstr "associado a um terreno básico nomeado em outro idioma"
+
+#: templates/decks/_import_form.html templates/decks/review.html
+msgid "Card names in English - only basic lands also work in other languages."
+msgstr ""
+"Nomes dos cards em inglês – só os terrenos básicos funcionam também em "
+"outros idiomas."
+
+#: changelog/entries.py
+msgid "Basic lands in your language, and better guesses for typos"
+msgstr ""
+"Terrenos básicos no seu idioma e sugestões melhores para erros de digitação"
+
+#: changelog/entries.py
+msgid ""
+"The importer now knows the basic lands by their names in every language of "
+"this site - Sumpf, Forêt, Pântano. A card it cannot find gets the nearest "
+"names first, no longer the first five in the alphabet. All other card names "
+"are read in English, and the import page says so."
+msgstr ""
+"A importação agora reconhece os terrenos básicos pelos nomes em cada idioma "
+"deste site – Sumpf, Forêt, Pântano. Quando não encontra um card, sugere "
+"primeiro os nomes mais parecidos, não mais os cinco primeiros em ordem "
+"alfabética. Todos os outros nomes de cards são lidos em inglês, e a página "
+"de importação diz isso."

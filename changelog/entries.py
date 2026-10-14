@@ -50,6 +50,15 @@ ENTRIES = (
         "pricing",
     ),
     Entry(
+        date(2026, 10, 14), "import-names",
+        _("Basic lands in your language, and better guesses for typos"),
+        _("The importer now knows the basic lands by their names in every language of this "
+          "site - Sumpf, Forêt, Pântano. A card it cannot find gets the nearest names first, "
+          "no longer the first five in the alphabet. All other card names are read in English, "
+          "and the import page says so."),
+        "guests:try",
+    ),
+    Entry(
         date(2026, 10, 14), "import-errors-heard",
         _("A refused upload says why, also to a screen reader"),
         _("When an upload or a pasted list is refused, the page now jumps to the field with the "

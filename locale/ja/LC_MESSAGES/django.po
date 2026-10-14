@@ -10995,3 +10995,26 @@ msgid ""
 "title starts with “Error”. The file field has a name of its own as well."
 msgstr ""
 "ファイルや貼り付けたリストが受け付けられなかったとき、問題のある欄へ移動し、スクリーンリーダーが原因を読み上げ、ページのタイトルが「エラー」で始まるようになりました。ファイル欄にも独自の名前が付きました。"
+
+#: decks/resolve.py
+msgid "matched a basic land named in another language"
+msgstr "他の言語で書かれた基本土地として一致"
+
+#: templates/decks/_import_form.html templates/decks/review.html
+msgid "Card names in English - only basic lands also work in other languages."
+msgstr "カード名は英語で入力してください。基本土地だけは他の言語でも使えます。"
+
+#: changelog/entries.py
+msgid "Basic lands in your language, and better guesses for typos"
+msgstr "基本土地をあなたの言語で、入力ミスにはより的確な候補を"
+
+#: changelog/entries.py
+msgid ""
+"The importer now knows the basic lands by their names in every language of "
+"this site - Sumpf, Forêt, Pântano. A card it cannot find gets the nearest "
+"names first, no longer the first five in the alphabet. All other card names "
+"are read in English, and the import page says so."
+msgstr ""
+"インポートで、基本土地をこのサイトの各言語の名前（Sumpf、Forêt、Pântano "
+"など）で認識できるようになりました。見つからないカードには、アルファベット順の最初の 5 "
+"件ではなく、最も近い名前から候補を表示します。それ以外のカード名は英語で読み取り、インポートページにもそう表示します。"

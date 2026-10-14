@@ -12601,3 +12601,32 @@ msgstr ""
 "Quand un fichier ou une liste collée est refusé, la page passe maintenant au"
 " champ en cause, un lecteur d'écran lit ce qui n'allait pas, et le titre de "
 "la page commence par « Erreur ». Le champ du fichier a aussi son propre nom."
+
+#: decks/resolve.py
+msgid "matched a basic land named in another language"
+msgstr "trouvée comme terrain de base nommé dans une autre langue"
+
+#: templates/decks/_import_form.html templates/decks/review.html
+msgid "Card names in English - only basic lands also work in other languages."
+msgstr ""
+"Noms des cartes en anglais – seuls les terrains de base fonctionnent aussi "
+"dans d'autres langues."
+
+#: changelog/entries.py
+msgid "Basic lands in your language, and better guesses for typos"
+msgstr ""
+"Les terrains de base dans votre langue, et de meilleures suggestions pour "
+"les fautes de frappe"
+
+#: changelog/entries.py
+msgid ""
+"The importer now knows the basic lands by their names in every language of "
+"this site - Sumpf, Forêt, Pântano. A card it cannot find gets the nearest "
+"names first, no longer the first five in the alphabet. All other card names "
+"are read in English, and the import page says so."
+msgstr ""
+"L'import reconnaît désormais les terrains de base sous leur nom dans chaque "
+"langue de ce site – Sumpf, Forêt, Pântano. Pour une carte introuvable, il "
+"propose d'abord les noms les plus proches, et non plus les cinq premiers de "
+"l'alphabet. Tous les autres noms de cartes sont lus en anglais, et la page "
+"d'import l'indique."

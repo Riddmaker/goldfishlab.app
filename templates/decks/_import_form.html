@@ -68,6 +68,7 @@
         Only the card names are needed. Quantities and set codes work too.
         A CSV, TSV or text file, up to 1&nbsp;MB.
       {% endblocktranslate %}
+      {% translate "Card names in English - only basic lands also work in other languages." %}
     </p>
     {% if form.file.errors %}
       <ul id="{{ form.file.auto_id }}_error" class="errorlist mt-2">
@@ -82,6 +83,7 @@
       {% blocktranslate trimmed %}
         One card per line - the name is enough, a quantity and set code work too. The commander goes under <code class="font-mono whitespace-nowrap">// Commander</code> - or pick it later.
       {% endblocktranslate %}
+      {% translate "Card names in English - only basic lands also work in other languages." %}
     </p>
     {% if form.text.errors %}
       <ul id="{{ form.text.auto_id }}_error" class="errorlist mt-2">

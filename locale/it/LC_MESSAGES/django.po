@@ -12434,3 +12434,32 @@ msgstr ""
 " campo con il problema, uno screen reader legge cosa non andava e il titolo "
 "della pagina inizia con “Errore”. Anche il campo del file ha ora un nome "
 "suo."
+
+#: decks/resolve.py
+msgid "matched a basic land named in another language"
+msgstr "trovata come terra base con il nome in un'altra lingua"
+
+#: templates/decks/_import_form.html templates/decks/review.html
+msgid "Card names in English - only basic lands also work in other languages."
+msgstr ""
+"Nomi delle carte in inglese: solo le terre base funzionano anche in altre "
+"lingue."
+
+#: changelog/entries.py
+msgid "Basic lands in your language, and better guesses for typos"
+msgstr ""
+"Le terre base nella tua lingua e suggerimenti migliori per gli errori di "
+"battitura"
+
+#: changelog/entries.py
+msgid ""
+"The importer now knows the basic lands by their names in every language of "
+"this site - Sumpf, Forêt, Pântano. A card it cannot find gets the nearest "
+"names first, no longer the first five in the alphabet. All other card names "
+"are read in English, and the import page says so."
+msgstr ""
+"L'importazione ora riconosce le terre base con il loro nome in ogni lingua "
+"di questo sito – Sumpf, Forêt, Pântano. Per una carta che non trova propone "
+"prima i nomi più simili, non più i primi cinque in ordine alfabetico. Tutti "
+"gli altri nomi delle carte vengono letti in inglese, e la pagina di "
+"importazione lo dice."

@@ -59,6 +59,7 @@
         {% blocktranslate count count=unresolved|length %}{{ count }} row not matched{% plural %}{{ count }} rows not matched{% endblocktranslate %}
       </h2>
       <p class="mt-2 text-parchment-200">{% translate "These were kept, not dropped. The deck below does not contain them." %}</p>
+      <p class="mt-1 text-parchment-200">{% translate "Card names in English - only basic lands also work in other languages." %}</p>
       <ul class="mt-5 space-y-4">
         {% for row in unresolved %}
           <li class="surface-parchment p-4">

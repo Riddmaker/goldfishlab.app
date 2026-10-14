@@ -266,6 +266,9 @@ class Reading:
     gaps: list[Gap] = field(default_factory=list)
     quantity: int = 1
     is_commander: bool = False
+    #: The owner's corrections whose block changed or is gone since they were
+    #: written (`Check`) - "please check". Built-in ones are the operator's.
+    checks: list = field(default_factory=list)
 
     @property
     def names_type(self) -> bool:
@@ -851,6 +854,7 @@ def readings(deck: Deck) -> list[Reading]:
                 card=card,
                 gaps=gaps,
                 quantity=entry.quantity,
+                checks=annotations.checks_of(entry.oracle_card_id),
             )
         )
 
@@ -865,6 +869,7 @@ def readings(deck: Deck) -> list[Reading]:
                 card=card,
                 gaps=gaps,
                 is_commander=True,
+                checks=annotations.checks_of(oracle.pk),
             )
         )
 
@@ -1040,6 +1045,23 @@ DECK_SCOPE = "deck"
 
 
 @dataclass(frozen=True)
+class Check:
+    """A correction to look at again: its block changed or is gone since it
+    was written (`simulations.patches.Note`), and whose correction it is."""
+
+    key: str
+    block: str
+    #: ``changed`` (played on a reading that moved) or ``gone`` (not played).
+    status: str
+    #: `DECK_SCOPE`, `USER_SCOPE` or `BUILTIN_SCOPE`.
+    scope: str
+
+    @property
+    def is_yours(self) -> bool:
+        return self.scope in {DECK_SCOPE, USER_SCOPE}
+
+
+@dataclass(frozen=True)
 class Annotations:
     """Every annotation that applies to one deck, already merged.
 
@@ -1057,12 +1079,17 @@ class Annotations:
     overrides: dict
     scopes: dict
     #: Phase 2: by oracle id, every patch whose block changed or is gone
-    #: since it was written (`simulations.patches.Note`) - "please check".
+    #: since it was written (`Check`) - "please check".
     notes: dict = field(default_factory=dict)
 
     def for_card(self, oracle_id) -> dict:
         """The winning overrides for one card."""
         return self.overrides.get(oracle_id, {})
+
+    def checks_of(self, oracle_id) -> list:
+        """The owner's own corrections to check on one card; the built-in
+        ones are not a question to them."""
+        return [check for check in self.notes.get(oracle_id, ()) if check.is_yours]
 
     def scope_of(self, oracle_id, key: str) -> str | None:
         """Which scope set this key, or `None` when nobody did."""
@@ -1116,7 +1143,8 @@ def annotations_for(deck: Deck) -> Annotations:
         said, found = patches.effective(overrides, document, profiles.get(oracle_id))
         merged.setdefault(oracle_id, {}).update(said)
         scopes.setdefault(oracle_id, {}).update(dict.fromkeys(said, scope))
-        _keep_notes(notes, oracle_id, said, found)
+        _keep_notes(notes, oracle_id, said, [
+            Check(note.key, note.block, note.status, scope) for note in found])
     return Annotations(overrides=merged, scopes=scopes, notes=notes)
 
 

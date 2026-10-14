@@ -327,7 +327,7 @@ def test_a_saved_correction_is_played_from_its_patches(cobra_deck):
     assert found.for_card(cobra_deck.cobra.pk)["triggers"] == [
         read[0] | {"filter": "basic", "mana": 2}]
     assert found.notes[cobra_deck.cobra.pk] == [
-        patches.Note("triggers", "triggers:0", "changed")]
+        adapter.Check("triggers", "triggers:0", "changed", DECK_SCOPE)]
 
     # Saving another judgement leaves the trigger's patch - and its note - as it was.
     services.save_annotation(

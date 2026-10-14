@@ -12728,10 +12728,6 @@ msgstr ""
 "sie neu; bis dahin geht nichts verloren, was du gesagt hast."
 
 #: simulations/primitives.py
-msgid "How many"
-msgstr "Wie viele"
-
-#: simulations/primitives.py
 msgid "Any one of them is enough."
 msgstr "Einer davon genügt."
 
@@ -12975,10 +12971,6 @@ msgid "Make one more of"
 msgstr "Erzeugen eines mehr von"
 
 #: simulations/primitives.py
-msgid "Colour letters, such as B."
-msgstr "Farbbuchstaben, etwa B."
-
-#: simulations/primitives.py
 msgid "For each land of this type"
 msgstr "Für jedes Land dieses Typs"
 
@@ -13037,16 +13029,6 @@ msgstr[1] "ungetappt, wenn du %(count)s oder weniger Länder kontrollierst"
 
 #: simulations/editor.py
 #, python-format
-msgid "untapped if you control a %(types)s"
-msgstr "ungetappt, wenn du ein %(types)s kontrollierst"
-
-#: simulations/editor.py
-#, python-format
-msgid "untapped if you reveal a %(types)s card from your hand"
-msgstr "ungetappt, wenn du eine %(types)s-Karte aus deiner Hand zeigst"
-
-#: simulations/editor.py
-#, python-format
 msgid "untapped if you have %(count)s or more opponent"
 msgid_plural "untapped if you have %(count)s or more opponents"
 msgstr[0] "ungetappt, wenn du %(count)s oder mehr Gegner hast"
@@ -13073,11 +13055,6 @@ msgstr[1] "ungetappt, wenn ein Gegner %(count)s oder mehr Länder kontrolliert"
 #, python-format
 msgid "untapped if you have %(count)s or less life"
 msgstr "ungetappt, wenn du %(count)s oder weniger Lebenspunkte hast"
-
-#: simulations/editor.py
-#, python-format
-msgid "untapped if you control a legendary %(types)s"
-msgstr "ungetappt, wenn du ein legendäres %(types)s kontrollierst"
 
 #: simulations/editor.py
 msgid "not counting this one"
@@ -13164,3 +13141,35 @@ msgstr ""
 "Kartenseite, wie Landsuchen und Trigger. Wie viele Karten eine Suche findet,"
 " stellst du in ihrem Baustein Suche ein, nicht mehr unter «Wie sie gespielt "
 "wird»."
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a land of type %(types)s"
+msgstr "ungetappt, wenn du ein Land vom Typ %(types)s kontrollierst"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you reveal a card of type %(types)s from your hand"
+msgstr ""
+"ungetappt, wenn du eine Karte vom Typ %(types)s aus deiner Hand zeigst"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a permanent of type %(types)s"
+msgstr ""
+"ungetappt, wenn du eine bleibende Karte vom Typ %(types)s kontrollierst"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a legendary permanent of type %(types)s"
+msgstr ""
+"ungetappt, wenn du eine legendäre bleibende Karte vom Typ %(types)s "
+"kontrollierst"
+
+#: simulations/primitives.py
+msgid "The colour of its land type"
+msgstr "Die Farbe seines Landtyps"
+
+#: templates/simulations/_primitives.html
+msgid "Change"
+msgstr "Ändern"

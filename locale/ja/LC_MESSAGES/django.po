@@ -11198,10 +11198,6 @@ msgstr ""
 "あなたの修正の後でカードデータが変わると、そのカードに「再確認」と表示され、デッキはあなたの対応が必要なカードとして数えます。修正を維持する、カードデータに戻す、または設定し直すことができます。それまで、あなたの修正は失われません。"
 
 #: simulations/primitives.py
-msgid "How many"
-msgstr "数"
-
-#: simulations/primitives.py
 msgid "Any one of them is enough."
 msgstr "いずれか1つで足ります。"
 
@@ -11442,10 +11438,6 @@ msgid "Make one more of"
 msgstr "追加で出すマナ"
 
 #: simulations/primitives.py
-msgid "Colour letters, such as B."
-msgstr "色の文字。例：B。"
-
-#: simulations/primitives.py
 msgid "For each land of this type"
 msgstr "このタイプの土地1つにつき"
 
@@ -11499,16 +11491,6 @@ msgstr[0] "%(count)s個以下の土地をコントロールしていればアン
 
 #: simulations/editor.py
 #, python-format
-msgid "untapped if you control a %(types)s"
-msgstr "%(types)sをコントロールしていればアンタップ状態"
-
-#: simulations/editor.py
-#, python-format
-msgid "untapped if you reveal a %(types)s card from your hand"
-msgstr "手札から%(types)sのカードを公開すればアンタップ状態"
-
-#: simulations/editor.py
-#, python-format
 msgid "untapped if you have %(count)s or more opponent"
 msgid_plural "untapped if you have %(count)s or more opponents"
 msgstr[0] "対戦相手が%(count)s人以上いればアンタップ状態"
@@ -11533,11 +11515,6 @@ msgstr[0] "対戦相手が%(count)s個以上の土地をコントロールして
 #, python-format
 msgid "untapped if you have %(count)s or less life"
 msgstr "ライフが%(count)s以下ならアンタップ状態"
-
-#: simulations/editor.py
-#, python-format
-msgid "untapped if you control a legendary %(types)s"
-msgstr "伝説の%(types)sをコントロールしていればアンタップ状態"
 
 #: simulations/editor.py
 msgid "not counting this one"
@@ -11614,3 +11591,31 @@ msgid ""
 "Search block, no longer under “How to play it”."
 msgstr ""
 "土地がアンタップ状態で出る条件、カウンターとして蓄えるマナ、+1/+1カウンター、盤面を数えるマナに、土地サーチや誘発と同じくカードページ上の専用フォームができました。サーチで見つけるカードの枚数は「プレイのしかた」ではなく、サーチのブロックで設定します。"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a land of type %(types)s"
+msgstr "タイプが%(types)sの土地をコントロールしていればアンタップ状態"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you reveal a card of type %(types)s from your hand"
+msgstr "手札からタイプが%(types)sのカードを公開すればアンタップ状態"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a permanent of type %(types)s"
+msgstr "タイプが%(types)sのパーマネントをコントロールしていればアンタップ状態"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a legendary permanent of type %(types)s"
+msgstr "タイプが%(types)sの伝説のパーマネントをコントロールしていればアンタップ状態"
+
+#: simulations/primitives.py
+msgid "The colour of its land type"
+msgstr "その土地タイプの色"
+
+#: templates/simulations/_primitives.html
+msgid "Change"
+msgstr "変更"

@@ -301,9 +301,10 @@ class Field:
     `kind`: ``int`` (from `low` to `high`), ``optint`` (blank is "no limit"),
     ``bool``, ``choice`` (one of `choices`), ``multi`` (any of `choices`),
     ``words`` (comma-separated lower-case words: types, subtypes), ``mana``
-    ("2B G"; blank is "any colour of the deck"), ``cost`` ("{2}{B}") or
+    ("2B G"; blank is "any colour of the deck"), ``cost`` ("{2}{B}"),
     ``colors`` (colour letters, each once: "B", "WUBRG"; blank is "one
-    colour, the one the hand needs").
+    colour, the one the hand needs") or ``colour`` (one of `choices`: a
+    colour letter, or what a one-colour mapping such as {"G": 1} makes).
     """
 
     name: str
@@ -489,8 +490,11 @@ class Variants:
         return value.get(self.field, "") if isinstance(value, dict) else ""
 
 
-_COUNT_LABEL = _("How many")
 _LAND_TYPES_HELP = _("Any one of them is enough.")
+#: One colour; empty is the land type's own (Cabal Coffers' {B} for Swamps).
+_SUBTYPE_COLOUR_CHOICES = (("", _("The colour of its land type")), ("W", _("White")),
+                           ("U", _("Blue")), ("B", _("Black")), ("R", _("Red")),
+                           ("G", _("Green")), ("C", _("Colourless")))
 
 VARIANTS = {
     "tapped_unless": Variants(
@@ -522,7 +526,7 @@ VARIANTS = {
             ),
             "turn": (Field("count", "int", _("Up to your turn"), low=1, high=10),),
             "opponent_lands": (
-                Field("count", "int", _COUNT_LABEL,
+                Field("count", "int", _("Lands"),
                       _("Assumed: each of three opponents plays a land a turn."),
                       low=1, high=20),),
             "life_at_most": (Field("count", "int", _("Life at most"), low=1, high=40),),
@@ -562,12 +566,12 @@ VARIANTS = {
                       choices=_LAND_TYPE_CHOICES),),
             "double_subtype": (
                 Field("subtype", "word", _("Lands of this type")),
-                Field("color", "colors", _("Make one more of"),
-                      _("Colour letters, such as B.")),
+                Field("color", "colour", _("Make one more of"),
+                      choices=_SUBTYPE_COLOUR_CHOICES),
             ),
             "per_controlled": (
                 Field("subtype", "word", _("For each land of this type")),
-                Field("color", "colors", _("Of colour"), _("Colour letters, such as B.")),
+                Field("color", "colour", _("Of colour"), choices=_SUBTYPE_COLOUR_CHOICES),
                 Field("activation", "int", _("Generic mana it costs beside tapping"),
                       high=10),
             ),
@@ -579,7 +583,7 @@ VARIANTS = {
                       high=10),
             ),
             "ritual": (
-                Field("color", "colors", _("Of colour"), _("Colour letters, such as B.")),),
+                Field("color", "colour", _("Of colour"), choices=_COLOR_CHOICES[1:]),),
             "multiply": (Field("times", "int", _("Mana multiplied by"), low=2, high=4),),
             "lands_could_produce": (
                 Field("with_counter", "optint", _("Mana with a +1/+1 counter on it"),

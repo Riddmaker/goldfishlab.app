@@ -99,8 +99,9 @@ def blocks(reading, overrides: dict, scopes: dict,
         else:
             status = "card"
         value = overrides[key] if said else read
-        editable = (can_edit(key, value) if status != "off" else can_add(key)) \
-            or key in LISTS
+        # Switched off, the form starts from the reading (`current`).
+        editable = (can_edit(key, value) if status != "off"
+                    else can_add(key) or can_edit(key, read)) or key in LISTS
         block = Block(
             key=key, label=str(primitive.label), help=str(primitive.help),
             text=(gettext("switched off") if status == "off"
@@ -180,7 +181,7 @@ def gone(reading, overrides: dict, scope: str = "deck") -> list[Gone]:
     the lists, whose other entries are still there)."""
     return [
         Gone(key=key, label=str(primitives.BY_KEY[key].label), scope=check.scope,
-             here=check.scope == scope, editable=key in primitives.EDITABLE)
+             here=check.scope == scope, editable=can_add(key))
         for key, check in _checks_by_key(reading).items()
         if check.status == "gone" and key not in LISTS and key not in overrides
     ]
@@ -274,7 +275,7 @@ def _initial(specs, value: dict) -> dict:
             item = ", ".join(item or ())
         elif spec.kind == "mana":
             item = format_mana(item) if item else ""
-        elif spec.kind == "colour":
+        elif spec.kind == "colour" and not isinstance(item, str):
             # One colour, the key of what it makes: {"G": 1} is G.
             item = next(iter(item)) if isinstance(item, dict) and len(item) == 1 else ""
         found[spec.name] = item
@@ -302,7 +303,10 @@ def value_from(key: str, base, cleaned: dict):
         # What it makes is the colour's, as much as one use adds.
         value["produces"] = ({value["produces"]: value["amount"]}
                              if value.get("produces") else None)
-    elif key == "tapped_unless" and "types" in value and not value["types"]:
+    shown = {spec.name for spec in specs}
+    if key == "tapped_unless" and "types" in shown and not value.get("types") \
+            or key == "mana_rule" and "subtype" in shown and not value.get("subtype"):
+        # A condition or a rule about no type at all: nothing to look for.
         raise forms.ValidationError(gettext("Name at least one type."))
     return value
 
@@ -438,7 +442,9 @@ def _apply(specs, value: dict, cleaned: dict) -> dict:
         elif spec.kind == "colors":
             value[spec.name] = _colors(item)
         elif spec.kind == "colour":
-            value[spec.name] = item or ""
+            # Blank where blank is no choice (a ritual's colour) keeps it.
+            blank = any(name == "" for name, _label in spec.choices)
+            value[spec.name] = item or ("" if blank else value.get(spec.name, ""))
     return value
 
 
@@ -538,13 +544,15 @@ def _unless_text(condition) -> str:
         said = [part for part in said if part]
         return f"{text} ({', '.join(said)})" if said else text
     if kind == "control_type":
-        return gettext("untapped if you control a %(types)s") % {"types": types}
+        return gettext("untapped if you control a land of type %(types)s") % {"types": types}
     if kind == "reveal":
-        return gettext("untapped if you reveal a %(types)s card from your hand") % {
+        return gettext("untapped if you reveal a card of type %(types)s from your hand") % {
             "types": types}
     if kind == "permanent":
-        return (gettext("untapped if you control a legendary %(types)s") if condition.legendary
-                else gettext("untapped if you control a %(types)s")) % {"types": types}
+        return (gettext("untapped if you control a legendary permanent of type %(types)s")
+                if condition.legendary
+                else gettext("untapped if you control a permanent of type %(types)s")) % {
+            "types": types}
     if kind == "opponents":
         return ngettext("untapped if you have %(count)s or more opponent",
                         "untapped if you have %(count)s or more opponents", count) % {

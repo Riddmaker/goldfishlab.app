@@ -12672,10 +12672,6 @@ msgstr ""
 "fino ad allora nulla di ciò che hai detto va perso."
 
 #: simulations/primitives.py
-msgid "How many"
-msgstr "Quanti"
-
-#: simulations/primitives.py
 msgid "Any one of them is enough."
 msgstr "Ne basta uno."
 
@@ -12918,10 +12914,6 @@ msgid "Make one more of"
 msgstr "Producono uno in più di"
 
 #: simulations/primitives.py
-msgid "Colour letters, such as B."
-msgstr "Lettere di colore, come B."
-
-#: simulations/primitives.py
 msgid "For each land of this type"
 msgstr "Per ogni terra di questo tipo"
 
@@ -12980,16 +12972,6 @@ msgstr[1] "STAPpata se controlli %(count)s o meno terre"
 
 #: simulations/editor.py
 #, python-format
-msgid "untapped if you control a %(types)s"
-msgstr "STAPpata se controlli un %(types)s"
-
-#: simulations/editor.py
-#, python-format
-msgid "untapped if you reveal a %(types)s card from your hand"
-msgstr "STAPpata se riveli dalla mano una carta %(types)s"
-
-#: simulations/editor.py
-#, python-format
 msgid "untapped if you have %(count)s or more opponent"
 msgid_plural "untapped if you have %(count)s or more opponents"
 msgstr[0] "STAPpata se hai %(count)s o più avversario"
@@ -13016,11 +12998,6 @@ msgstr[1] "STAPpata se un avversario controlla %(count)s o più terre"
 #, python-format
 msgid "untapped if you have %(count)s or less life"
 msgstr "STAPpata se hai %(count)s o meno punti vita"
-
-#: simulations/editor.py
-#, python-format
-msgid "untapped if you control a legendary %(types)s"
-msgstr "STAPpata se controlli un %(types)s leggendario"
 
 #: simulations/editor.py
 msgid "not counting this one"
@@ -13106,3 +13083,31 @@ msgstr ""
 "nella pagina della carta, come le ricerche di terre e gli inneschi. Quante "
 "carte trova una ricerca si imposta nel suo blocco Ricerca, non più sotto "
 "«Come giocarla»."
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a land of type %(types)s"
+msgstr "STAPpata se controlli una terra di tipo %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you reveal a card of type %(types)s from your hand"
+msgstr "STAPpata se riveli dalla mano una carta di tipo %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a permanent of type %(types)s"
+msgstr "STAPpata se controlli un permanente di tipo %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a legendary permanent of type %(types)s"
+msgstr "STAPpata se controlli un permanente leggendario di tipo %(types)s"
+
+#: simulations/primitives.py
+msgid "The colour of its land type"
+msgstr "Il colore del suo tipo di terra"
+
+#: templates/simulations/_primitives.html
+msgid "Change"
+msgstr "Modifica"

@@ -23,7 +23,7 @@ from django.urls import reverse
 from cards import profiles
 from cards.models import OracleCard
 from decks.models import Deck, DeckCard
-from simulations import annotations, editor, primitives, services, unread
+from simulations import annotations, editor, patches, primitives, services, unread
 from simulations.engine import adapter
 from simulations.engine.adapter import DECK_SCOPE
 from simulations.forms import AnnotationForm
@@ -144,6 +144,44 @@ def test_a_store_makes_its_colour_as_much_as_one_use_adds():
     assert form.is_valid(), form.errors
     said = editor.value_from("mana_store", value, form.cleaned_data)
     assert said["produces"] == {"G": 2} and said["kind"] == "charge"
+
+
+def test_a_one_colour_rule_offers_one_colour():
+    """Cabal Coffers' colour, Crypt Ghast's, a counting ritual's: one letter,
+    never a set the engine would play as a colour it does not know."""
+    coffers = {"rule": "per_controlled", "subtype": "swamp", "activation": 2, "color": ""}
+    assert _saved_untouched("mana_rule", coffers) == coffers
+    ritual = {"rule": "ritual", "subtype": "creature", "color": "G", "activation": 0}
+    specs = editor.specs_of("mana_rule", False, ritual)
+    for typed, stored in (("R", "R"), ("", "G")):
+        form = editor.form_class(specs)(_post("mana_rule", {"color": typed}), prefix="mana_rule")
+        assert form.is_valid()
+        assert editor.value_from("mana_rule", ritual, form.cleaned_data)["color"] == stored
+    form = editor.form_class(specs)(_post("mana_rule", {"color": "WU"}), prefix="mana_rule")
+    assert not form.is_valid()
+
+
+def test_a_rule_counts_some_type():
+    coffers = {"rule": "per_controlled", "subtype": "swamp", "activation": 2, "color": "B"}
+    form = editor.form_class(editor.specs_of("mana_rule", False, coffers))(
+        _post("mana_rule", editor.initial("mana_rule", coffers) | {"subtype": ""}),
+        prefix="mana_rule")
+    assert form.is_valid()
+    with pytest.raises(editor.forms.ValidationError):
+        editor.value_from("mana_rule", coffers, form.cleaned_data)
+
+
+def test_a_condition_reads_as_a_sentence():
+    def said(**fields):
+        return editor._unless_text(SimpleNamespace(**({"count": 0, "types": frozenset(),
+                                                     "legendary": False} | fields)))
+
+    assert said(kind="control_type", types={"island", "swamp"}) == (
+        "untapped if you control a land of type Island / Swamp")
+    assert said(kind="permanent", types={"creature"}, legendary=True) == (
+        "untapped if you control a legendary permanent of type Creature")
+    assert said(kind="lands", count=2, at_least=False, other=True, basic=False, type="") == (
+        "untapped if you control 2 or fewer lands (not counting this one)")
 
 
 def test_colours_are_letters_each_once():
@@ -341,7 +379,7 @@ def test_the_migration_says_a_player_s_count_as_the_block(deck):
 
     row.refresh_from_db()
     assert row.overrides == {"tutor": {"to": "hand", "count": 2}, "tutor_life": 1}
-    assert services.patches.is_current(row.patches)
+    assert patches.is_current(row.patches)
     assert _played(deck, deck.seer).tutor == before
 
 
@@ -357,6 +395,22 @@ def test_the_migration_leaves_built_in_rows_and_rows_it_would_change(deck):
     builtin.refresh_from_db()
     mine.refresh_from_db()
     assert builtin.overrides == {"tutor_count": 3}
+    assert mine.overrides == {"tutor_count": 1}
+    assert _played(deck, deck.seer).tutor.count == 1
+
+
+def test_the_migration_leaves_a_count_a_deck_s_block_would_win_over(deck):
+    """A count for all decks beat a deck's Search block; said as a block it
+    would lose to it, and that deck would play another search."""
+    mine = CardAnnotation.objects.create(owner=deck.owner, oracle_card=deck.seer,
+                                         overrides={"tutor_count": 1})
+    CardAnnotation.objects.create(owner=deck.owner, deck=deck.deck, oracle_card=deck.seer,
+                                  overrides={"tutor": {"to": "hand", "count": 3}})
+    assert _played(deck, deck.seer).tutor.count == 1
+
+    _migrate()
+
+    mine.refresh_from_db()
     assert mine.overrides == {"tutor_count": 1}
     assert _played(deck, deck.seer).tutor.count == 1
 

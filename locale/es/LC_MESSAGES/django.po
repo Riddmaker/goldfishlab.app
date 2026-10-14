@@ -12776,10 +12776,6 @@ msgstr ""
 "entonces no se pierde nada de lo que dijiste."
 
 #: simulations/primitives.py
-msgid "How many"
-msgstr "Cuántos"
-
-#: simulations/primitives.py
 msgid "Any one of them is enough."
 msgstr "Basta con uno."
 
@@ -13022,10 +13018,6 @@ msgid "Make one more of"
 msgstr "Producen uno más de"
 
 #: simulations/primitives.py
-msgid "Colour letters, such as B."
-msgstr "Letras de color, como B."
-
-#: simulations/primitives.py
 msgid "For each land of this type"
 msgstr "Por cada tierra de este tipo"
 
@@ -13087,16 +13079,6 @@ msgstr[2] "enderezada si controlas %(count)s o menos tierras"
 
 #: simulations/editor.py
 #, python-format
-msgid "untapped if you control a %(types)s"
-msgstr "enderezada si controlas un %(types)s"
-
-#: simulations/editor.py
-#, python-format
-msgid "untapped if you reveal a %(types)s card from your hand"
-msgstr "enderezada si muestras de tu mano una carta %(types)s"
-
-#: simulations/editor.py
-#, python-format
 msgid "untapped if you have %(count)s or more opponent"
 msgid_plural "untapped if you have %(count)s or more opponents"
 msgstr[0] "enderezada si tienes %(count)s o más oponente"
@@ -13125,11 +13107,6 @@ msgstr[2] "enderezada si un oponente controla %(count)s o más tierras"
 #, python-format
 msgid "untapped if you have %(count)s or less life"
 msgstr "enderezada si tienes %(count)s vidas o menos"
-
-#: simulations/editor.py
-#, python-format
-msgid "untapped if you control a legendary %(types)s"
-msgstr "enderezada si controlas un %(types)s legendario"
 
 #: simulations/editor.py
 msgid "not counting this one"
@@ -13220,3 +13197,31 @@ msgstr ""
 "formulario en la página de la carta, como las búsquedas de tierras y los "
 "disparadores. Cuántas cartas encuentra una búsqueda se indica en su bloque "
 "Búsqueda, ya no en «Cómo jugarla»."
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a land of type %(types)s"
+msgstr "enderezada si controlas una tierra de tipo %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you reveal a card of type %(types)s from your hand"
+msgstr "enderezada si muestras de tu mano una carta de tipo %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a permanent of type %(types)s"
+msgstr "enderezada si controlas un permanente de tipo %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a legendary permanent of type %(types)s"
+msgstr "enderezada si controlas un permanente legendario de tipo %(types)s"
+
+#: simulations/primitives.py
+msgid "The colour of its land type"
+msgstr "El color de su tipo de tierra"
+
+#: templates/simulations/_primitives.html
+msgid "Change"
+msgstr "Cambiar"

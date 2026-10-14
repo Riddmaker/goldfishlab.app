@@ -12844,10 +12844,6 @@ msgstr ""
 "redéfinissez-la ; d'ici là, rien de ce que vous avez dit n'est perdu."
 
 #: simulations/primitives.py
-msgid "How many"
-msgstr "Combien"
-
-#: simulations/primitives.py
 msgid "Any one of them is enough."
 msgstr "Un seul suffit."
 
@@ -13090,10 +13086,6 @@ msgid "Make one more of"
 msgstr "Produisent un de plus de"
 
 #: simulations/primitives.py
-msgid "Colour letters, such as B."
-msgstr "Lettres de couleur, comme B."
-
-#: simulations/primitives.py
 msgid "For each land of this type"
 msgstr "Pour chaque terrain de ce type"
 
@@ -13152,16 +13144,6 @@ msgstr[1] "dégagé si vous contrôlez %(count)s terrains ou moins"
 
 #: simulations/editor.py
 #, python-format
-msgid "untapped if you control a %(types)s"
-msgstr "dégagé si vous contrôlez un %(types)s"
-
-#: simulations/editor.py
-#, python-format
-msgid "untapped if you reveal a %(types)s card from your hand"
-msgstr "dégagé si vous révélez une carte %(types)s de votre main"
-
-#: simulations/editor.py
-#, python-format
 msgid "untapped if you have %(count)s or more opponent"
 msgid_plural "untapped if you have %(count)s or more opponents"
 msgstr[0] "dégagé si vous avez %(count)s adversaire ou plus"
@@ -13188,11 +13170,6 @@ msgstr[1] "dégagé si un adversaire contrôle %(count)s terrains ou plus"
 #, python-format
 msgid "untapped if you have %(count)s or less life"
 msgstr "dégagé si vous avez %(count)s points de vie ou moins"
-
-#: simulations/editor.py
-#, python-format
-msgid "untapped if you control a legendary %(types)s"
-msgstr "dégagé si vous contrôlez un %(types)s légendaire"
 
 #: simulations/editor.py
 msgid "not counting this one"
@@ -13280,3 +13257,31 @@ msgstr ""
 "sur la page de la carte, comme les recherches de terrain et les "
 "déclencheurs. Le nombre de cartes qu'une recherche trouve se règle dans son "
 "bloc Recherche, et non plus sous « Comment la jouer »."
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a land of type %(types)s"
+msgstr "dégagé si vous contrôlez un terrain de type %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you reveal a card of type %(types)s from your hand"
+msgstr "dégagé si vous révélez une carte de type %(types)s de votre main"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a permanent of type %(types)s"
+msgstr "dégagé si vous contrôlez un permanent de type %(types)s"
+
+#: simulations/editor.py
+#, python-format
+msgid "untapped if you control a legendary permanent of type %(types)s"
+msgstr "dégagé si vous contrôlez un permanent légendaire de type %(types)s"
+
+#: simulations/primitives.py
+msgid "The colour of its land type"
+msgstr "La couleur de son type de terrain"
+
+#: templates/simulations/_primitives.html
+msgid "Change"
+msgstr "Modifier"

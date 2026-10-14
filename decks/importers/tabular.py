@@ -43,6 +43,7 @@ party.
 
 import csv
 import io
+import re
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 
@@ -151,8 +152,45 @@ def _candidate(window: list[str], delimiter: str) -> list[str] | None:
 
 
 #: The words a headerless file's columns are given, so the ordinary aliases
-#: read them: `Quantity` and `Name`, then numbered columns nobody maps.
+#: read them: `Quantity` and `Name`, then whatever `_guess` recognises, then
+#: numbered columns nobody maps.
 HEADERLESS = ("Quantity", "Name")
+
+#: Cell shapes a headerless column is recognised by. Only ones no card name,
+#: note or ownership flag can have: a Scryfall printing id, a set code (`5ed`,
+#: `40k`, `ppp1` - short, with a letter in it) and a collector number.
+_SCRYFALL_ID = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.I)
+_SET_CODE = re.compile(r"(?=.*[a-z])[a-z0-9]{2,6}", re.I)
+_COLLECTOR_NUMBER = re.compile(r"\d{1,4}[a-z★]?", re.I)
+
+
+def _guess(cells: list[str], named: set[str]) -> str | None:
+    """The header a headerless column earns by what every cell in it looks like.
+
+    A real Archidekt export ticked with edition and Scryfall id reads
+    `1,Animate Dead,5ed,1f2cd314-...,own exact edition` (P20, E3). Unnamed,
+    its printing was dropped and every card fell back to its name. Each header
+    is given once, the set code only to the first column of that shape, and a
+    collector number only after a set code - a lone number is too ambiguous.
+    """
+    cells = [cell.strip() for cell in cells if cell.strip()]
+    if not cells:
+        return None
+    shapes = (("Scryfall ID", _SCRYFALL_ID), ("Set Code", _SET_CODE),
+              ("Collector Number", _COLLECTOR_NUMBER))
+    for header, shape in shapes:
+        if header in named:
+            continue
+        if header == "Collector Number" and "Set Code" not in named:
+            continue
+        # One case throughout, as every export writes set codes: a category
+        # column of `Ramp`, `Land` and `Draw` has the shape but not the case.
+        if header == "Set Code" and not all(cell in (cell.lower(), cell.upper())
+                                            for cell in cells):
+            continue
+        if all(shape.fullmatch(cell) for cell in cells):
+            return header
+    return None
 
 
 def _headerless(window: list[str], delimiter: str) -> list[str] | None:
@@ -161,7 +199,9 @@ def _headerless(window: list[str], delimiter: str) -> list[str] | None:
     Archidekt's deck CSV is `1,Armed // Dangerous` from the first line down,
     with no header at all (E1.16). A first column that is a small number on
     every line and a second that is text is that shape and nothing else; the
-    columns are then named so the aliases read them as quantity and name.
+    columns are then named so the aliases read them as quantity and name, and
+    any later column whose cells all look like a printing (`_guess`) is named
+    for that.
     """
     rows = _rows_of(window, delimiter)
     if not rows:
@@ -173,7 +213,12 @@ def _headerless(window: list[str], delimiter: str) -> list[str] | None:
         count, name = row[0].strip(), row[1].strip()
         if not (count.isdigit() and len(count) <= 4) or not name or name.isdigit():
             return None
-    return list(HEADERLESS) + [f"Column {index}" for index in range(3, width + 1)]
+
+    headers = list(HEADERLESS)
+    for index in range(2, width):
+        guess = _guess([row[index] for row in rows if len(row) > index], set(headers))
+        headers.append(guess or f"Column {index + 1}")
+    return headers
 
 
 def locate(text: str) -> "Table | None":

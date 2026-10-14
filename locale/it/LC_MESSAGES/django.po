@@ -13111,3 +13111,18 @@ msgstr "Il colore del suo tipo di terra"
 #: templates/simulations/_primitives.html
 msgid "Change"
 msgstr "Modifica"
+
+#: changelog/entries.py
+msgid "Archidekt CSVs keep their editions"
+msgstr "I CSV di Archidekt mantengono le loro edizioni"
+
+#: changelog/entries.py
+msgid ""
+"A CSV exported from Archidekt with the edition and Scryfall id ticked has no"
+" header row. The importer now recognises those two columns anyway, so each "
+"card keeps the printing your list names instead of losing it."
+msgstr ""
+"Un CSV esportato da Archidekt con l’edizione e l’id Scryfall spuntati non ha"
+" una riga di intestazione. Ora l’importazione riconosce comunque queste due "
+"colonne, così ogni carta mantiene la stampa indicata dalla tua lista invece "
+"di perderla."

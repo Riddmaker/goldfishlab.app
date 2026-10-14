@@ -141,8 +141,10 @@
     </details>
   {% endif %}
 
+  {# One anchor for the "Change" and "Add" links, whichever of the two shows. #}
+  {% if choosing_variant or primitive_form %}<div id="editing">{% endif %}
   {% if choosing_variant %}
-    <div id="editing" class="surface-parchment mt-4 border border-parchment-600 p-4">
+    <div class="surface-parchment mt-4 border border-parchment-600 p-4">
       <h4 class="font-display text-lg text-ink-900">{{ editing_label }}</h4>
       <p class="mt-1 text-sm text-ink-700">{% translate "Which one is it?" %}</p>
       <ul class="mt-2 space-y-1 text-sm" data-variants>
@@ -156,7 +158,7 @@
   {% endif %}
 
   {% if primitive_form %}
-    <form id="editing" method="post"
+    <form method="post"
           action="{% url 'simulations:primitive' deck.id card.pk editing %}"
           class="surface-parchment mt-4 space-y-5 border border-parchment-600 p-4">
       {% csrf_token %}
@@ -205,4 +207,5 @@
       </div>
     </form>
   {% endif %}
+  {% if choosing_variant or primitive_form %}</div>{% endif %}
 </section>

@@ -19,6 +19,8 @@ class CardAnnotationAdmin(admin.ModelAdmin):
     list_filter = ("created_at",)
     search_fields = ("oracle_card__front_name", "owner__email", "note")
     autocomplete_fields = ("oracle_card", "owner", "deck")
+    # Written from the overrides on every save (card model phase 2).
+    readonly_fields = ("patches",)
 
 
 @admin.register(SimulationRun)

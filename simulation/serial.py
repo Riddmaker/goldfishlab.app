@@ -65,6 +65,11 @@ def _dataclasses_in(annotation) -> list[type]:
 _discover()
 
 
+def engine_type(name: str) -> type | None:
+    """The engine dataclass a dump names in ``_type``, if it is one of ours."""
+    return _TYPES.get(name)
+
+
 # --- Dumping ---------------------------------------------------------------
 
 def dump(value):

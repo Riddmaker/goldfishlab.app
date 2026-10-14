@@ -71,7 +71,9 @@ often it uploads, at most `SUMMARIES_PER_DAY` summaries a day (guests at most
 a summary whose worker died is closed and refunded, and a waiting run says how many are ahead.
 **Search basics (P3)** followed: `robots.txt`, `sitemap.xml` with the public pages, a canonical
 address on each of them (`SITE_URL`) and `noindex` on every other page, Open Graph and Twitter
-card tags with a shared preview image, and a public pricing page at `/pricing/`.
+card tags with a shared preview image, and a public pricing page at `/pricing/`. In production a
+GET on any other host (www., the hoster's domain) is a 301 to the same path on `SITE_URL`
+(`core/hosts.py`, `SITE_URL_REDIRECT`), and the changelog feed says `X-Robots-Tag: noindex`.
 **Shareable reports (P4)**: the owner of a finished run can share it as `/r/<token>/`, a page
 anybody can read without an account (indexable, but not in the sitemap). It freezes the deck's
 name, commander and card list as they were run, and the written summary only if it was written
@@ -167,6 +169,24 @@ re-derive them on their own:
 
 ```bash
 .venv/Scripts/python manage.py ingest_scryfall --profiles
+```
+
+Both also translate [Forge](https://github.com/Card-Forge/forge)'s card scripts into blocks
+(`cards/forge_import.py`), from the copy of one pinned commit in `cards/data/` - only when the
+pin, the translation or the catalogue changed. The pin moves only by pull request, so a deck's
+numbers never change between two deploys of the same code. New blocks derive the profiles
+again: where the reader left something open, `cards/forge_merge.py` takes it from the blocks,
+family by family (mana, entering tapped, land searches, Treasure, draws), only from an
+ability read whole, never over a reading, and marked `forge` in the profile's source map. What
+neither gives the engine gets a review reason. A change to the translation bumps
+`forge_import.TRANSLATION`, or the next run skips it:
+
+```bash
+# Once: git clone --filter=blob:none --sparse https://github.com/Card-Forge/forge .data/forge
+#       git -C .data/forge sparse-checkout set forge-gui/res/cardsfolder
+# Then check out the commit to pin there, and:
+.venv/Scripts/python manage.py forge_pack            # writes cards/data/, commit both files
+.venv/Scripts/python manage.py forge_disagreements   # where Forge and our reader differ
 ```
 
 Then, for a deck to look at locally:
@@ -300,6 +320,9 @@ written with `COVERAGE_WRITE=1 pytest tests/test_engine_coverage.py` and committ
 python manage.py engine_coverage                  # coverage of today's catalogue and decks
 python manage.py engine_coverage --check          # today's catalogue against the snapshot
 python manage.py engine_coverage --export-fixture # rebuild the slice (full catalogue + precons)
+# Between engine versions, on the whole catalogue (frozen file in .data/, never committed):
+python manage.py engine_coverage --freeze         # freeze today's reading of every card
+python manage.py engine_coverage --diff --explain # every card that moved since, with its cause
 # One turn of the loop, against the local server only: a deck of the most-played cards the
 # engine cannot read, uploaded through /decks/import/ as a local test account, the review
 # walk followed to the end and checked against the engine (report in /tmp). Each turn empties
@@ -421,7 +444,7 @@ msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
 | `goldfishlab/` | Settings (split base/dev/prod), URLs, Celery app |
 | `core/` | Landing page and its ticker of what others are doing (`core/ticker.py`, cached a minute, never the viewer's own), `/styleguide/`, `/healthz/`, `/about/methodology/`, terms, privacy, design-token reader, the rate-limit address rule and the production log formatter |
 | `accounts/` | Custom user identified by email, plus the data export and account deletion (`privacy.py`) and the one-time "privacy policy changed" page (`consent.py`) |
-| `cards/` | The Scryfall catalogue, role tags and the derived card profiles |
+| `cards/` | The Scryfall catalogue, role tags, Forge's card scripts as blocks and the derived card profiles |
 | `decks/` | Decks, the importer and the per-deck analysis screens |
 | `simulations/` | Runs: the engine boundary, Celery tasks, reports, annotations |
 | `combos/` | Commander Spellbook lookups, cached per deck. **No bulk mirror** — see `combos/spellbook.py` |
@@ -569,4 +592,6 @@ Bundled third-party parts keep their own licences: EB Garamond (SIL Open Font Li
 [static/fonts/OFL.txt](static/fonts/OFL.txt)), htmx (Zero-Clause BSD), Tailwind CSS (MIT, build
 time only). Card data and images come from Scryfall and remain Wizards of the Coast's; Goldfish
 Lab is unofficial Fan Content permitted under the Fan Content Policy. Combo data comes from
-Commander Spellbook.
+Commander Spellbook. The card scripts in `cards/data/` come from the
+[Forge](https://github.com/Card-Forge/forge) project under the GNU General Public License v3.0
+([licenses/GPL-3.0.txt](licenses/GPL-3.0.txt)); see [NOTICE](NOTICE).

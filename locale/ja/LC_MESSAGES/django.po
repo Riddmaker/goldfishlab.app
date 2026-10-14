@@ -11036,3 +11036,55 @@ msgid ""
 msgstr ""
 "カテゴリ別・戦略別・カードタイプ別のグラフの数値は、マナ総量のグラフの下にある 1 "
 "つの表にまとめられ、マナ総量のグラフ自体には表がありませんでした。今後はマナ総量を含め、各グラフのすぐ下にその表があり、スクリーンリーダーでも読めます。"
+
+#: simulations/engine/adapter.py
+msgid "as it enters"
+msgstr "戦場に出たとき"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "sacrifice %(count)s × %(what)s"
+msgstr "%(what)s%(count)s体を生け贄に捧げる"
+
+#: simulations/primitives.py
+msgid "How many are sacrificed"
+msgstr "生け贄に捧げる数"
+
+#: simulations/primitives.py
+msgid "Blank or 1: one."
+msgstr "空欄または1：1つ。"
+
+#: cards/forge_merge.py
+msgid "draws cards in a way that is not read yet"
+msgstr "まだ読み取れない方法でカードを引く"
+
+#: cards/forge_merge.py
+msgid "makes Treasure in a way that is not read yet"
+msgstr "まだ読み取れない方法で宝物を生み出す"
+
+#: cards/forge_merge.py
+msgid "searches for lands in a way that is not read yet"
+msgstr "まだ読み取れない方法で土地を探す"
+
+#: changelog/entries.py
+msgid "Cards that draw as they enter, and no free cards from Cycling"
+msgstr "戦場に出たときに引くカードと、サイクリングでのただ引きの廃止"
+
+#: changelog/entries.py
+msgid ""
+"Where our reading of a card's text left something out, the simulation now "
+"also reads the card from Forge's card scripts: creatures and artifacts that "
+"draw as they enter, such as Baleful Strix and Mulldrifter; lands that enter "
+"tapped, such as Boseiju, or unless you reveal an Elf, as Gilt-Leaf Palace; "
+"Treasure, land searches and mana abilities. A spell no longer draws a card "
+"for the Cycling, Clue, Learn or gift written on it, which was a free card "
+"every time it was cast, and Phyrexian Tribute sacrifices its two creatures. "
+"A card that draws or makes Treasure in a way the simulation does not read "
+"yet is now marked, so that you can correct it."
+msgstr ""
+"カードのテキストの読み取りで抜けていた部分について、シミュレーションはForgeのカードスクリプトからも読み取るようになりました：Baleful "
+"StrixやMulldrifterのように戦場に出たときにカードを引くクリーチャーやアーティファクト、Boseijuのようにタップ状態で戦場に出る土地や、Gilt-"
+"Leaf "
+"Palaceのようにエルフを公開しない限りタップ状態で出る土地、宝物、土地探し、マナ能力です。呪文に書かれたサイクリング、手掛かり、履修、贈り物でカードを引くことはなくなりました。これは唱えるたびのただ引きでした。またPhyrexian"
+" "
+"Tributeは2体のクリーチャーを生け贄に捧げます。シミュレーションがまだ読み取れない方法でカードを引いたり宝物を生み出したりするカードには印が付くようになり、修正できます。"

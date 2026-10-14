@@ -318,7 +318,18 @@ def test_an_additional_cost_added_by_hand(deck, client):
         "additional_cost-mana": "", "additional_cost-exile_from_graveyard": "",
         "additional_cost-filter": ""})
     (way,) = card_of(deck.deck, deck.growth).additional_costs
-    assert way.sacrifice == frozenset({"creature"})
+    assert way.sacrifice == frozenset({"creature"}) and way.sacrifice_count == 1
+
+
+def test_an_additional_cost_of_two_creatures(deck, client):
+    client.force_login(deck.owner)
+    post(client, deck, deck.growth, "additional_cost", {
+        "action": "save", "item": "new", "additional_cost-sacrifice": ["creature"],
+        "additional_cost-life": "0", "additional_cost-discard": "0",
+        "additional_cost-mana": "", "additional_cost-exile_from_graveyard": "",
+        "additional_cost-filter": "", "additional_cost-count": "2"})
+    (way,) = card_of(deck.deck, deck.growth).additional_costs
+    assert way.sacrifice_count == 2
 
 
 def test_a_bad_entry_is_refused(deck, client):

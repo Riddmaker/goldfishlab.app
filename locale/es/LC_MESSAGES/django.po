@@ -12583,3 +12583,59 @@ msgstr ""
 "estaban en una sola tabla bajo el gráfico de valor de maná, que no tenía la "
 "suya. Ahora cada gráfico tiene su tabla justo debajo, también el de valor de"
 " maná, y también para lectores de pantalla."
+
+#: simulations/engine/adapter.py
+msgid "as it enters"
+msgstr "al entrar"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "sacrifice %(count)s × %(what)s"
+msgstr "sacrificar %(count)s × %(what)s"
+
+#: simulations/primitives.py
+msgid "How many are sacrificed"
+msgstr "Cuántos se sacrifican"
+
+#: simulations/primitives.py
+msgid "Blank or 1: one."
+msgstr "Vacío o 1: uno."
+
+#: cards/forge_merge.py
+msgid "draws cards in a way that is not read yet"
+msgstr "roba cartas de una forma que aún no se lee"
+
+#: cards/forge_merge.py
+msgid "makes Treasure in a way that is not read yet"
+msgstr "crea Tesoros de una forma que aún no se lee"
+
+#: cards/forge_merge.py
+msgid "searches for lands in a way that is not read yet"
+msgstr "busca tierras de una forma que aún no se lee"
+
+#: changelog/entries.py
+msgid "Cards that draw as they enter, and no free cards from Cycling"
+msgstr "Cartas que roban al entrar, y ninguna carta gratis por Ciclo"
+
+#: changelog/entries.py
+msgid ""
+"Where our reading of a card's text left something out, the simulation now "
+"also reads the card from Forge's card scripts: creatures and artifacts that "
+"draw as they enter, such as Baleful Strix and Mulldrifter; lands that enter "
+"tapped, such as Boseiju, or unless you reveal an Elf, as Gilt-Leaf Palace; "
+"Treasure, land searches and mana abilities. A spell no longer draws a card "
+"for the Cycling, Clue, Learn or gift written on it, which was a free card "
+"every time it was cast, and Phyrexian Tribute sacrifices its two creatures. "
+"A card that draws or makes Treasure in a way the simulation does not read "
+"yet is now marked, so that you can correct it."
+msgstr ""
+"Donde nuestra lectura del texto de una carta omitía algo, la simulación "
+"ahora también lee la carta de los scripts de cartas de Forge: criaturas y "
+"artefactos que roban al entrar, como Baleful Strix y Mulldrifter; tierras "
+"que entran giradas, como Boseiju, o a menos que muestres un Elfo, como Gilt-"
+"Leaf Palace; Tesoros, búsquedas de tierras y habilidades de maná. Un hechizo"
+" ya no roba una carta por el Ciclo, la Pista, Aprender o el regalo que lleva"
+" escrito, que era una carta gratis cada vez que se lanzaba, y Phyrexian "
+"Tribute sacrifica sus dos criaturas. Una carta que roba o crea Tesoros de "
+"una forma que la simulación aún no lee ahora está marcada, para que puedas "
+"corregirla."

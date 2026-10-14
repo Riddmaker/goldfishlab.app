@@ -61,6 +61,7 @@ def start(deck, owner, *, seed: int | None = None,
         cards_with_gaps=conversion.cards_with_gaps,
         copies_total=conversion.copies_total,
         copies_unreadable=conversion.copies_unreadable,
+        engine_version=conversion.engine_version,
     )
 
 
@@ -205,6 +206,7 @@ def fork(session: PlaytestSession, seq: int) -> PlaytestSession:
         cards_with_gaps=session.cards_with_gaps,
         copies_total=session.copies_total,
         copies_unreadable=session.copies_unreadable,
+        engine_version=session.engine_version,
         forked_from=session,
         forked_at_seq=seq,
     )

@@ -26,7 +26,7 @@ import gzip
 import json
 import uuid
 from collections import Counter
-from dataclasses import dataclass, field
+from dataclasses import MISSING, dataclass, field, fields
 from pathlib import Path
 
 from django.conf import settings
@@ -75,12 +75,48 @@ def _canonical(value):
     return value
 
 
+def _defaults(name: str) -> dict:
+    """The dumped default of every field of an engine dataclass that has one."""
+    if name not in _DEFAULTS:
+        cls, found = serial.engine_type(name), {}
+        for item in fields(cls) if cls else ():
+            if item.default is not MISSING:
+                found[item.name] = serial.dump(item.default)
+            elif item.default_factory is not MISSING:
+                found[item.name] = serial.dump(item.default_factory())
+        _DEFAULTS[name] = found
+    return _DEFAULTS[name]
+
+
+_DEFAULTS: dict[str, dict] = {}
+
+
+def _lean(value):
+    """A dump without the fields of nested values that hold their default.
+
+    A field added to an engine class is then no change for the cards that do
+    not use it: without this, every card holding the class would show it.
+    `serial.load` fills the missing fields back in.
+    """
+    if isinstance(value, dict):
+        defaults = _defaults(value["_type"]) if "_type" in value else {}
+        return {key: _lean(item) for key, item in value.items()
+                if key not in defaults or item != defaults[key]}
+    if isinstance(value, list):
+        return [_lean(item) for item in value]
+    return value
+
+
+def _plain_read(read: dict) -> dict:
+    return {key: _canonical(_lean(value)) for key, value in read.items()}
+
+
 def reading(card: Card, gaps) -> dict:
     """One card as a snapshot keeps it: what is unread, and what was read."""
     dumped = serial.dump(card)
-    read = {key: _canonical(value) for key, value in dumped.items()
+    read = {key: value for key, value in dumped.items()
             if key not in ("name", "_type") and value != _DEFAULT.get(key)}
-    return {"unread": reading_reasons(gaps), "read": read}
+    return {"unread": reading_reasons(gaps), "read": _plain_read(read)}
 
 
 def ids(found: dict) -> list[str]:
@@ -136,21 +172,35 @@ class Diff:
             out.append(f"{title}: {len(names)}")
             for name in names[:limit]:
                 old, new = before.get(name), after.get(name)
+                if old and new:
+                    old, new = _leaned(old), _leaned(new)
                 out.append(f"  {name}")
                 if old and new and old != new:
                     out.extend(f"    {line}" for line in _changes(old, new))
         return out
 
 
+def changed_keys(old: dict, new: dict) -> list[str]:
+    """The fields two readings of a card differ in; ``unread`` for the gaps."""
+    old, new = _leaned(old), _leaned(new)
+    keys = ["unread"] if old["unread"] != new["unread"] else []
+    return keys + [key for key in sorted(set(old["read"]) | set(new["read"]))
+                   if old["read"].get(key) != new["read"].get(key)]
+
+
 def _changes(old: dict, new: dict) -> list[str]:
     lines = []
-    if old["unread"] != new["unread"]:
-        lines.append(f"unread: {old['unread']} -> {new['unread']}")
-    for key in sorted(set(old["read"]) | set(new["read"])):
-        if old["read"].get(key) != new["read"].get(key):
+    for key in changed_keys(old, new):
+        if key == "unread":
+            lines.append(f"unread: {old['unread']} -> {new['unread']}")
+        else:
             lines.append(f"{key}: {json.dumps(old['read'].get(key))} -> "
                          f"{json.dumps(new['read'].get(key))}")
     return lines
+
+
+def _leaned(entry: dict) -> dict:
+    return {**entry, "read": _plain_read(entry["read"])}
 
 
 def compare(before: dict, after: dict) -> Diff:
@@ -158,7 +208,8 @@ def compare(before: dict, after: dict) -> Diff:
     diff.added = sorted(set(after) - set(before))
     diff.removed = sorted(set(before) - set(after))
     for name in sorted(set(before) & set(after)):
-        old, new = before[name], after[name]
+        # A snapshot written before `_lean` still holds nested defaults.
+        old, new = _leaned(before[name]), _leaned(after[name])
         if old == new:
             continue
         if not old["unread"] and new["unread"]:
@@ -266,7 +317,7 @@ def export_fixture(cards, path: Path = CARDS_FIXTURE) -> int:
 @transaction.atomic
 def load_fixture(path: Path = CARDS_FIXTURE) -> list:
     """Put the fixed set into an empty catalogue and derive its profiles."""
-    from cards import profiles
+    from cards import forge, forge_import, profiles
     from cards.models import OracleCard, OracleCardTag, Tag, TagEdge
 
     with gzip.open(path, "rt", encoding="utf-8") as handle:
@@ -283,6 +334,10 @@ def load_fixture(path: Path = CARDS_FIXTURE) -> list:
     OracleCardTag.objects.bulk_create(
         [OracleCardTag(oracle_card=cards[card], tag=tags[tag], is_direct=direct, weight=weight)
          for card, tag, direct, weight in data["links"]], batch_size=5_000)
+    # The blocks of the pinned scripts, which fill in what the reader left
+    # open (card model phase 1) - from the committed pack itself, not the
+    # small one the other tests read (`tests/conftest.py`).
+    forge_import.run(forge.PIN.with_name("forge_scripts.jsonl.gz"), force=True)
     profiles.rebuild(OracleCard.objects.filter(pk__in=[card.pk for card in cards]))
     return cards
 

@@ -694,6 +694,15 @@ class Game:
                 if pool.can_pay_cost(cost, life=life, spell=card):
                     options.append((rank, way, None))
                 continue
+            if way.sacrifice_count > 1:
+                # Phyrexian Tribute's two creatures, the first in the fodder
+                # order: permanents, so no Treasure leaves the pool.
+                picked = [found for found in self.fodder(way, pool)
+                          if found not in (TREASURE, LANDER_FODDER)][:way.sacrifice_count]
+                if len(picked) == way.sacrifice_count and pool.can_pay_cost(
+                        cost, life=life, spell=card):
+                    options.append((rank, way, tuple(picked)))
+                continue
             for fodder in self.fodder(way, pool):
                 test = pool
                 if fodder == TREASURE:
@@ -734,8 +743,9 @@ class Game:
             self.graveyard.remove(gone)
             self.exiled.append(gone)
             self.note(f"  -> exiles {gone.name} from the graveyard")
-        if fodder is not None:
-            self.sacrifice(fodder)
+        for each in fodder if isinstance(fodder, tuple) else (fodder,):
+            if each is not None:
+                self.sacrifice(each)
 
     def sacrifice(self, fodder) -> None:
         """Sacrifice a permanent or a token to a cost. A Treasure is taken
@@ -1019,8 +1029,7 @@ class Game:
     def max_x(self, card, pool: ManaPool) -> int:
         """The largest X this pool pays for the card, -1 if not even X=0 (P19 R9).
 
-        Forge's AI does the same (``ComputerUtilMana.determineLeftoverMana``):
-        it tries X = 1, 2, 3 ... and stops at the first it cannot pay.
+        It tries X = 1, 2, 3 ... and stops at the first it cannot pay.
         """
         reductions = reductions_from(self.battlefield)
         best = -1
@@ -1100,7 +1109,10 @@ class Game:
                        and self.power(permanent) >= condition.count
                        for permanent in self.battlefield)
         if kind == "reveal":
-            return any(other is not card and other.subtypes & condition.types
+            # A land type (the Castles), or since engine version 28 a creature
+            # type: Gilt-Leaf Palace's Elf.
+            return any(other is not card
+                       and (other.subtypes | other.creature_types) & condition.types
                        for other in self.hand)
         if kind == "pay_life":
             return self.life - condition.count >= PHYREXIAN_LIFE_FLOOR

@@ -21,3 +21,8 @@ MISTRAL_API_KEY = ""
 # needs another language sets `LANGUAGES` itself (tests/test_i18n.py).
 LANGUAGES_ON = []
 LANGUAGES = LANGUAGES[:1]  # noqa: F405
+
+# Never the production redirect, whatever .env says: the tests that set
+# SITE_URL ask on "testserver" and expect the page, not a 301
+# (tests/test_canonical_host.py switches it on itself).
+SITE_URL_REDIRECT = False

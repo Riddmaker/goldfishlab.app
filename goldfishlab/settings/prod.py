@@ -26,6 +26,8 @@ LEGAL_DETAILS_REQUIRED = True
 # not switching the redirect off.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)  # noqa: F405
+# www. and the hoster's own domain answer with a 301 to SITE_URL (core.hosts).
+SITE_URL_REDIRECT = env.bool("SITE_URL_REDIRECT", default=True)  # noqa: F405
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 LANGUAGE_COOKIE_SECURE = True

@@ -481,6 +481,8 @@ class AdditionalCost:
         discard: Cards discarded, the weakest first.
         mana: Mana paid on top of the printed cost (Redirect Lightning's {2}).
         exile_from_graveyard: A card of this type exiled from the graveyard.
+        sacrifice_count: How many permanents are sacrificed: Phyrexian
+            Tribute's two creatures (engine version 28).
     """
 
     sacrifice: frozenset[str] = field(default_factory=frozenset)
@@ -490,6 +492,7 @@ class AdditionalCost:
     discard: int = 0
     mana: ManaCost | None = None
     exile_from_graveyard: str = ""
+    sacrifice_count: int = 1
 
 
 @dataclass(frozen=True)
@@ -836,7 +839,7 @@ class Card:
     put_back_on_cast: int = 0
     #: P19 R9: how many {X} the cost has - Astral Cornucopia's {X}{X}{X} is
     #: three. 0: no X. The agent casts such a spell last in its main phase,
-    #: with everything left as X, the way Forge's AI picks its X.
+    #: with everything left as X.
     x_count: int = 0
     #: P19 R9: the smallest X worth casting it for. A deck author may want
     #: Stroke of Genius held until X is four.

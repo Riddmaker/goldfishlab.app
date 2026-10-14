@@ -63,6 +63,9 @@ htmlcov/
 # The P19 coverage gate keeps each round's snapshot here (scripts/coverage_gate.py).
 /.coverage-gate/
 
+# Google Search Console exports, shared locally for analysis (may list private URLs).
+/goldfishlab.app-Coverage/
+
 # P20: the end-to-end test protocol - personas, test scripts, test decks and
 # each run's evidence. Operator-only like the test reports above: a list of
 # what is probed and how is a checklist for an attacker, and the personas

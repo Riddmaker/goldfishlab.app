@@ -87,7 +87,7 @@ _ALTAR_KEYS = frozenset({
     "sacrifice", "filter", "amount", "produces", "taps", "life", "other",
 })
 _COST_KEYS = frozenset({
-    "sacrifice", "filter", "life", "life_x", "discard", "mana", "exile_from_graveyard",
+    "sacrifice", "filter", "life", "life_x", "discard", "mana", "exile_from_graveyard", "count",
 })
 
 PRIMITIVES = (
@@ -143,7 +143,8 @@ KEYS = frozenset(BY_KEY)
 _WORD = re.compile(r"^[\w{}+\-/' ]{0,40}$")
 #: The largest number any field takes; everything a card does fits under it.
 _MOST = 99
-_ITEMS = 10
+#: The most entries a list holds; also what a patch may number (`simulations.patches`).
+MAX_ITEMS = 10
 #: Nesting a value may have: a combat object holds a list of triggers, a
 #: trigger a list of types.
 _DEPTH = 4
@@ -172,8 +173,8 @@ def validate(key: str, value):
             raise PrimitiveError(f"mox: {value!r} is not a kind of Mox")
         return value
     if primitive.many:
-        if not isinstance(value, list) or len(value) > _ITEMS:
-            raise PrimitiveError(f"{key}: a list of at most {_ITEMS} entries")
+        if not isinstance(value, list) or len(value) > MAX_ITEMS:
+            raise PrimitiveError(f"{key}: a list of at most {MAX_ITEMS} entries")
         for item in value:
             _object(item, primitive.keys, key, 1)
         return value
@@ -181,6 +182,16 @@ def validate(key: str, value):
     if key == "tutor" and value.get("to") not in ("hand", "graveyard", "battlefield", "top"):
         raise PrimitiveError("tutor: 'to' must be hand, graveyard, battlefield or top")
     return value
+
+
+def validate_fields(key: str, fields) -> dict:
+    """Check some fields of one primitive's object - a patch's `set`
+    (`simulations.patches`); return them unchanged, or raise."""
+    primitive = BY_KEY.get(key)
+    if primitive is None or not primitive.keys:
+        raise PrimitiveError(f"{key!r} has no fields")
+    _object(fields, primitive.keys, key, 1)
+    return fields
 
 
 def _object(value, keys: frozenset[str], where: str, depth: int) -> None:
@@ -204,8 +215,8 @@ def _any(value, keys: frozenset[str], where: str, depth: int) -> None:
         if not _WORD.match(value):
             raise PrimitiveError(f"{where}: {value!r} is not a word the engine reads")
     elif isinstance(value, list):
-        if len(value) > _ITEMS:
-            raise PrimitiveError(f"{where}: at most {_ITEMS} entries")
+        if len(value) > MAX_ITEMS:
+            raise PrimitiveError(f"{where}: at most {MAX_ITEMS} entries")
         for item in value:
             _any(item, keys, where, depth + 1)
     elif isinstance(value, dict):
@@ -470,6 +481,8 @@ ITEM_FIELDS = {
             ("artifact", _("An artifact card")), ("land", _("A land card")))),
         Field("filter", "word", _("The sacrifice must also be"),
               _("Blank for anything. A colour letter, legendary, or a creature type."),
+              more=True),
+        Field("count", "optint", _("How many are sacrificed"), _("Blank or 1: one."), high=3,
               more=True),
     ),
 }

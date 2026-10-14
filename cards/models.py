@@ -28,6 +28,9 @@ class BulkImport(models.Model):
     class Kind(models.TextChoices):
         ORACLE_CARDS = "oracle_cards", "Oracle cards"
         ORACLE_TAGS = "oracle_tags", "Oracle tags"
+        # Forge's card scripts of the pinned commit (`cards.forge_import`);
+        # `scryfall_updated_at` holds the commit's date, `forge_commit` it.
+        FORGE_SCRIPTS = "forge_scripts", "Forge card scripts"
 
     class Status(models.TextChoices):
         RUNNING = "running", "Running"
@@ -55,6 +58,8 @@ class BulkImport(models.Model):
     # Scryfall's "sets:printings" when the nightly job last loaded the cards
     # (phase 12 J18, `cards/refresh.py`). Unchanged means nothing new to fetch.
     sets_fingerprint = models.CharField(max_length=32, blank=True)
+    # The Forge commit a `FORGE_SCRIPTS` run translated.
+    forge_commit = models.CharField(max_length=40, blank=True)
 
     class Meta:
         ordering = ["-started_at"]
@@ -525,3 +530,30 @@ class DerivedProfile(models.Model):
         deck is described that way.
         """
         return int(self.pips.get("B", 0))
+
+
+class ForgeScript(models.Model):
+    """A card as Forge's script of the pinned commit describes it, as blocks.
+
+    Source data, like the card itself: `cards.forge_import` writes it from the
+    packed scripts (GPL-3.0, see NOTICE), and nothing else edits it. A card
+    without a script has no row; our own reader is its only source.
+    """
+
+    oracle_card = models.OneToOneField(
+        OracleCard, on_delete=models.CASCADE, primary_key=True, related_name="forge"
+    )
+    commit = models.CharField(max_length=40)
+    path = models.CharField(max_length=200)
+    #: `simulation.blocks.to_json` of the card's abilities.
+    blocks = models.JSONField(default=list)
+    #: `simulation.blocks.VERSION` they were written in.
+    blocks_version = models.PositiveSmallIntegerField()
+    #: Constructs outside the vocabulary: the card is read only in part.
+    unmodeled = ArrayField(models.CharField(max_length=120), default=list, blank=True)
+    #: Abilities with a condition or a count no block holds yet.
+    unread = ArrayField(models.CharField(max_length=120), default=list, blank=True)
+    imported_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"{self.path} @ {self.commit[:10]}"

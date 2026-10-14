@@ -122,3 +122,22 @@ def test_a_moved_number_is_named():
     before = {"D": {"mulligans": {}, "opening_lands": {}, "turns": [{"mana": 1.0}]}}
     after = {"D": {"mulligans": {}, "opening_lands": {}, "turns": [{"mana": 1.5}]}}
     assert coverage.compare_numbers(before, after) == ["D / turn 1 / mana: 1.0 -> 1.5"]
+
+
+def test_a_nested_field_at_its_default_is_no_change():
+    from dataclasses import replace
+
+    from simulation.cards import AdditionalCost, Card
+
+    card = Card(name="Tribute", mv=3, pips=1, generic=2, kind="sorcery",
+                additional_costs=(AdditionalCost(sacrifice=("creature",)),))
+    read = coverage.reading(card, [])
+    assert "sacrifice_count" not in read["read"]["additional_costs"][0]
+    # A snapshot from before the field existed, or written with every
+    # default spelled out, still compares equal.
+    spelled = {**read, "read": {**read["read"], "additional_costs": [
+        {**read["read"]["additional_costs"][0], "sacrifice_count": 1}]}}
+    assert coverage.compare({"Tribute": spelled}, {"Tribute": read}).empty
+    twice = coverage.reading(replace(card, additional_costs=(
+        AdditionalCost(sacrifice=("creature",), sacrifice_count=2),)), [])
+    assert coverage.compare({"Tribute": read}, {"Tribute": twice}).changed == ["Tribute"]

@@ -515,3 +515,27 @@ def test_the_form_carries_the_payment():
     from playtest.forms import ActionForm
     form = ActionForm({"kind": "cast_spell", "index": 0, "payment": 1})
     assert form.is_valid() and form.action() == actions.CastSpell(index=0, payment=1)
+
+
+# --- card model phase 1 (engine version 28) -------------------------------------
+
+
+TRIBUTE = Card("Phyrexian Tribute", 0, 2, 2, SORCERY, cost=parse("{2}{B}"), additional_costs=(
+    AdditionalCost(sacrifice=frozenset({"creature"}), sacrifice_count=2),))
+
+
+def test_sacrifice_two_creatures_is_read_with_its_count():
+    found = ways("As an additional cost to cast this spell, sacrifice two creatures.\n"
+                 "Destroy target artifact.")
+    assert found == [{"sacrifice": ["creature"], "filter": "", "life": 0, "life_x": False,
+                      "discard": 0, "mana": "", "exile_from_graveyard": "", "count": 2}]
+    assert _way_text(AdditionalCost(sacrifice=frozenset({"creature"}), sacrifice_count=2)) == (
+        "sacrifice 2 × Creature")
+
+
+def test_two_creatures_are_sacrificed_or_it_is_not_cast():
+    game = game_with(lands=[SWAMP, SWAMP, SWAMP], creatures=[BEAR], hand=[TRIBUTE])
+    assert not game.can_cast(TRIBUTE, game.pool)
+    game = game_with(lands=[SWAMP, SWAMP, SWAMP], creatures=[BEAR, SQUIRE], hand=[TRIBUTE])
+    actions.CastSpell(index=0).run(game, None)
+    assert not game.creatures and {BEAR, SQUIRE} <= set(game.graveyard)

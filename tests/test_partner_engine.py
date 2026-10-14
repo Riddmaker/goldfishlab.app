@@ -1,10 +1,10 @@
-"""Two commanders in the engine (P20 F2b, engine v28).
+"""Two commanders in the engine (P20 F2b, engine v29).
 
 Lauf 1 imported Krark and Thrasios as partners and the engine knew one
 commander. Now each is cast from the command zone with its own tax, the
 cheaper one that can be paid first, and "commander on the battlefield" means
 at least one - with a row for the games that had both. A deck with one
-commander plays exactly as in v27: the golden parity tests hold that.
+commander plays exactly as in v28: the golden parity tests hold that.
 """
 
 import random

@@ -286,3 +286,14 @@ def test_the_admin_finds_built_in_corrections_to_check(deck, admin_client):
     change = admin_client.get(reverse("admin:simulations_cardannotation_change",
                                       args=[builtin.pk])).content.decode()
     assert "<code>land_search</code>: changed" in change
+
+
+def test_the_check_is_asked_in_the_page_language(deck, client, settings):
+    settings.LANGUAGES = [("en", "English"), ("de", "Deutsch")]
+    _moved_growth(deck)
+    deck.owner.language = "de"
+    deck.owner.save()
+    client.force_login(deck.owner)
+    url = reverse("simulations:annotate", args=[deck.deck.pk, deck.growth.pk])
+    text = client.get(url, follow=True).content.decode()
+    assert "Meine Korrektur behalten" in text and "bitte prüfen" in text

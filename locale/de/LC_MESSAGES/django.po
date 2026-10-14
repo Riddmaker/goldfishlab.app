@@ -12395,3 +12395,17 @@ msgstr ""
 "Ein höheres Abo bietet jetzt jede Zugzahl, die ein tieferes bietet: Koi hat "
 "die 9 Züge von Goldfish wieder, und Kraken hat die 12 von Koi. Einen Lauf "
 "von vor dem Upgrade kannst du mit denselben Zügen wiederholen."
+
+#: changelog/entries.py
+msgid "Trying the site stays in your language"
+msgstr "Beim Ausprobieren bleibt die Seite in deiner Sprache"
+
+#: changelog/entries.py
+msgid ""
+"A deck tried without an account keeps the language of the page it was "
+"uploaded on: the report and the deck page are no longer in your browser's "
+"language instead."
+msgstr ""
+"Ein Deck, das du ohne Konto ausprobierst, behält die Sprache der Seite, auf "
+"der du es hochgeladen hast: Report und Deckseite erscheinen nicht mehr in "
+"der Sprache deines Browsers."

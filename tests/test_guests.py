@@ -104,6 +104,26 @@ def test_an_upload_makes_a_guest_and_starts_its_simulation(
     assert client.get(run.get_absolute_url()).status_code == 200, "signed in as the guest"
 
 
+def test_a_guest_keeps_the_language_of_the_address_it_came_on(client, _no_workers, settings):
+    """E2.7: an English browser on /de/try/ got its report in English."""
+    settings.LANGUAGES = [("en", "English"), ("de", "Deutsch")]
+    client.post("/de/try/", {"source": "paste", "text": DECK_TEXT},
+                HTTP_ACCEPT_LANGUAGE="en")
+
+    guest = the_guest()
+    run = SimulationRun.objects.get(owner=guest)
+    page = client.get(run.get_absolute_url(), HTTP_ACCEPT_LANGUAGE="en")
+    assert guest.language == "de"
+    assert page.headers["Content-Language"] == "de"
+
+
+def test_a_guest_on_the_english_address_keeps_no_language(client, _no_workers, settings):
+    settings.LANGUAGES = [("en", "English"), ("de", "Deutsch")]
+    upload(client)
+
+    assert the_guest().language == "", "English is what an empty language already means"
+
+
 def test_the_guest_row_is_unusable_outside_its_session(client):
     upload(client)
     guest = the_guest()

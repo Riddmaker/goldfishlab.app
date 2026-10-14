@@ -10912,3 +10912,15 @@ msgid ""
 msgstr ""
 "上位プランは、下位プランで選べるターン数をすべて選べるようになりました。Koi では Goldfish の 9 ターンが復活し、Kraken では "
 "Koi の 12 ターンも選べます。アップグレード前に行ったシミュレーションを同じターン数でもう一度実行できます。"
+
+#: changelog/entries.py
+msgid "Trying the site stays in your language"
+msgstr "お試し中もあなたの言語のままです"
+
+#: changelog/entries.py
+msgid ""
+"A deck tried without an account keeps the language of the page it was "
+"uploaded on: the report and the deck page are no longer in your browser's "
+"language instead."
+msgstr ""
+"アカウントなしで試したデッキは、アップロードしたページの言語を保ちます。レポートとデッキページが、代わりにブラウザの言語で表示されることはなくなりました。"

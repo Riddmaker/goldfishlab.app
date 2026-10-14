@@ -12510,3 +12510,17 @@ msgstr ""
 "formule inférieure propose : Koi retrouve les 9 tours de Goldfish, et Kraken"
 " a les 12 de Koi. Une simulation faite avant de changer de formule peut être"
 " refaite avec les mêmes tours."
+
+#: changelog/entries.py
+msgid "Trying the site stays in your language"
+msgstr "L'essai sans compte reste dans votre langue"
+
+#: changelog/entries.py
+msgid ""
+"A deck tried without an account keeps the language of the page it was "
+"uploaded on: the report and the deck page are no longer in your browser's "
+"language instead."
+msgstr ""
+"Un deck essayé sans compte garde la langue de la page où il a été envoyé : "
+"le rapport et la page du deck ne s'affichent plus dans la langue de votre "
+"navigateur à la place."

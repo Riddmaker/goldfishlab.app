@@ -50,6 +50,13 @@ ENTRIES = (
         "pricing",
     ),
     Entry(
+        date(2026, 10, 14), "trial-language",
+        _("Trying the site stays in your language"),
+        _("A deck tried without an account keeps the language of the page it was uploaded on: "
+          "the report and the deck page are no longer in your browser's language instead."),
+        "guests:try",
+    ),
+    Entry(
         date(2026, 10, 13), "report-numbers",
         _("Every report names a bracket, and every share how exact it is"),
         _("The land count on the deck page counts a double-faced card by its front, as the list "

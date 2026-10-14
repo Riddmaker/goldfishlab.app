@@ -47,8 +47,9 @@ def remember(user) -> bool:
 
     Lauf 1 found accounts with an empty language: only the switcher set it,
     so a person who signed up on /fr/ got English mails (E1.7). Called when
-    an account is made and at every sign-in, which also fills the accounts
-    made before - a migration would have had nothing reliable to read. Only
+    an account or a guest (E2.7) is made and at every sign-in, which also
+    fills the accounts made before - a migration would have had nothing
+    reliable to read. Only
     a language that is switched on is kept, and never the default one:
     English is what an empty language already means, and a stored language
     wins over the address (`accounts.middleware`), so keeping "en" would pin

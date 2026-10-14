@@ -12444,3 +12444,17 @@ msgstr ""
 " Koi recupera los 9 turnos de Goldfish y Kraken tiene los 12 de Koi. Una "
 "simulación hecha antes de mejorar el plan se puede repetir con los mismos "
 "turnos."
+
+#: changelog/entries.py
+msgid "Trying the site stays in your language"
+msgstr "La prueba sin cuenta se queda en tu idioma"
+
+#: changelog/entries.py
+msgid ""
+"A deck tried without an account keeps the language of the page it was "
+"uploaded on: the report and the deck page are no longer in your browser's "
+"language instead."
+msgstr ""
+"Un mazo probado sin cuenta conserva el idioma de la página en la que se "
+"subió: el informe y la página del mazo ya no aparecen en el idioma de tu "
+"navegador."

@@ -12342,3 +12342,17 @@ msgstr ""
 "Un piano superiore offre ora ogni numero di turni che offre uno inferiore: "
 "Koi ha di nuovo i 9 turni di Goldfish e Kraken i 12 di Koi. Una simulazione "
 "fatta prima dell'upgrade si può ripetere con gli stessi turni."
+
+#: changelog/entries.py
+msgid "Trying the site stays in your language"
+msgstr "La prova senza account resta nella tua lingua"
+
+#: changelog/entries.py
+msgid ""
+"A deck tried without an account keeps the language of the page it was "
+"uploaded on: the report and the deck page are no longer in your browser's "
+"language instead."
+msgstr ""
+"Un mazzo provato senza account mantiene la lingua della pagina da cui è "
+"stato caricato: il report e la pagina del mazzo non compaiono più nella "
+"lingua del tuo browser."

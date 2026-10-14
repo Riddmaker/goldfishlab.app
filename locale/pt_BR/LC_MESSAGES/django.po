@@ -12255,3 +12255,16 @@ msgstr ""
 "oferece: o Koi tem de volta os 9 turnos do Goldfish, e o Kraken tem os 12 do"
 " Koi. Uma simulação feita antes do upgrade pode ser repetida com os mesmos "
 "turnos."
+
+#: changelog/entries.py
+msgid "Trying the site stays in your language"
+msgstr "O teste sem conta continua no seu idioma"
+
+#: changelog/entries.py
+msgid ""
+"A deck tried without an account keeps the language of the page it was "
+"uploaded on: the report and the deck page are no longer in your browser's "
+"language instead."
+msgstr ""
+"Um deck testado sem conta mantém o idioma da página em que foi enviado: o "
+"relatório e a página do deck não aparecem mais no idioma do seu navegador."

@@ -49,15 +49,15 @@ def _profile(**fields):
 
 
 def test_add_and_remove_are_relative_to_the_card_data():
-    current = frozenset({"draw", "lifegain"})
-    added = annotations.apply_category({}, "add", "ramp", current)
+    base = frozenset({"draw", "lifegain"})
+    added = annotations.apply_category({}, "add", "ramp", base)
     assert added == {"category_add": ["ramp"]}
-    removed = annotations.apply_category(added, "remove", "lifegain", current | {"ramp"})
+    removed = annotations.apply_category(added, "remove", "lifegain", base)
     assert removed == {"category_add": ["ramp"], "category_remove": ["lifegain"]}
     # Each takes the other back rather than stacking up.
-    assert annotations.apply_category(removed, "add", "lifegain", current) == {
+    assert annotations.apply_category(removed, "add", "lifegain", base) == {
         "category_add": ["ramp"]}
-    assert annotations.apply_category(added, "remove", "ramp", current) == {}
+    assert annotations.apply_category(added, "remove", "ramp", base) == {}
 
 
 def test_a_category_the_card_already_has_is_not_added_twice():
@@ -86,15 +86,21 @@ def test_back_to_the_card_data_keeps_the_rest_and_retires_an_old_list():
 
 def test_a_deck_starts_from_what_it_inherits_and_can_empty_it():
     inherited = {"category_add": ["ramp", "tokens"]}
-    said = annotations.apply_category({}, "remove", "tokens", frozenset({"ramp", "tokens"}),
-                                      inherited)
+    said = annotations.apply_category({}, "remove", "tokens", frozenset(), inherited)
     assert said == {"category_add": ["ramp"]}
     # Emptied, it is stored empty: an absent key would let "all decks" through.
-    emptied = annotations.apply_category(said, "remove", "ramp", frozenset({"ramp"}), inherited)
+    emptied = annotations.apply_category(said, "remove", "ramp", frozenset(), inherited)
     assert emptied == {"category_add": []}
     # A list the change does not touch stays with "all decks".
-    assert annotations.apply_category({}, "remove", "draw", frozenset({"draw", "ramp"}),
+    assert annotations.apply_category({}, "remove", "draw", frozenset({"draw"}),
                                       inherited) == {"category_remove": ["draw"]}
+
+
+def test_a_category_another_deck_added_is_added_for_all_decks_too():
+    # Relative to the card data, not to what this deck counts: a deck's own
+    # addition does not make adding it for all decks a no-op.
+    assert annotations.apply_category({}, "add", "ramp", frozenset({"draw"})) == {
+        "category_add": ["ramp"]}
 
 
 # --- what the engine and the statistics read ----------------------------------------
@@ -105,6 +111,10 @@ def test_the_corrections_change_the_derived_categories():
     found = adapter._categories(profile, {"category_add": ["ramp"],
                                           "category_remove": ["lifegain"]}, DECK_SCOPE)
     assert found == {"draw", "ramp"}
+    # A deck takes away the main role all decks gave: it stays away.
+    away = adapter._categories(profile, {"category_add": ["ramp"], "category_primary": "ramp",
+                                         "category_remove": ["ramp"]}, DECK_SCOPE)
+    assert away == {"draw", "lifegain"}
     # A main role named is counted, an old list's or not.
     old = adapter._categories(profile, {"tags": ["removal"], "category_primary": "ramp"},
                               USER_SCOPE)
@@ -117,6 +127,9 @@ def test_the_owners_main_role_wins_while_the_card_counts_in_it():
     assert adapter.primary_role(card, both, {"category_primary": "ramp"}) == "ramp"
     assert adapter.primary_role(card, frozenset({"draw"}), {"category_primary": "ramp"}) \
         == "draw"
+    # Not before the profile is derived again: no card has a main role yet.
+    before = SimpleNamespace(profile=_profile(categories_version=0))
+    assert adapter.primary_role(before, both, {"category_primary": "ramp"}) == ""
 
 
 def test_engine_tags_replace_only_the_four_the_engine_reads():
@@ -236,15 +249,36 @@ def test_the_migration_converts_an_owners_rows_together_or_not_at_all(deck):
     # decks, key by key: "removal" would stop counting in this deck.
     here = CardAnnotation.objects.create(owner=deck.owner, deck=deck, oracle_card=card,
                                          overrides={"category_add": ["tokens"]})
-    builtin = CardAnnotation.objects.create(oracle_card=card, overrides={"tags": ["ramp"]})
 
     _migrate()
 
-    for row in (mine, here, builtin):
+    for row in (mine, here):
         row.refresh_from_db()
     assert mine.overrides == {"tags": ["removal"]}
     assert here.overrides == {"category_add": ["tokens"]}
-    assert builtin.overrides == {"tags": ["ramp"]}
+
+
+@pytest.mark.django_db
+def test_over_a_built_in_list_the_engine_roles_are_stated_outright(deck):
+    card = _derived_card(deck)
+    # Built in, the list counts for the engine only; the player's said
+    # "removal and nothing else", the engine's four included.
+    builtin = CardAnnotation.objects.create(oracle_card=card,
+                                            overrides={"tags": ["draw_engine"]})
+    row = CardAnnotation.objects.create(owner=deck.owner, deck=deck, oracle_card=card,
+                                        overrides={"tags": ["removal"]})
+    before = _reading(deck, card).card
+    assert not before.tags & set(adapter.runner.ENGINE_ROLE_TAGS)
+
+    _migrate()
+
+    builtin.refresh_from_db()
+    row.refresh_from_db()
+    assert builtin.overrides == {"tags": ["draw_engine"]}
+    assert row.overrides.get("engine_tags") == [] and "tags" not in row.overrides
+    after = _reading(deck, card).card
+    assert after.categories == before.categories
+    assert not after.tags & set(adapter.runner.ENGINE_ROLE_TAGS)
 
 
 # --- the card page ---------------------------------------------------------------------
@@ -308,6 +342,24 @@ def test_a_deck_can_take_away_what_all_decks_add(client, owner, deck):
     block = client.get(reverse("simulations:annotate", args=[deck.pk, card.pk])).context[
         "categories"]
     assert key in dict(block.addable) and key not in {line.key for line in block.lines}
+
+
+@pytest.mark.django_db
+def test_a_deck_can_take_away_the_main_role_all_decks_gave(client, owner, deck):
+    card = _derived_card(deck)
+    client.force_login(owner)
+    key = next(key for key in categories.ROLES
+               if key not in _reading(deck, card).card.categories)
+    client.post(_url(deck, card), {"action": "primary", "key": key, "scope": USER_SCOPE})
+    assert _reading(deck, card).primary == key
+
+    client.post(_url(deck, card), {"action": "remove", "key": key, "scope": DECK_SCOPE})
+
+    reading = _reading(deck, card)
+    assert key not in reading.card.categories and reading.primary != key
+    client.post(_url(deck, card), {"action": "primary", "key": key, "scope": DECK_SCOPE})
+    reading = _reading(deck, card)
+    assert key in reading.card.categories and reading.primary == key
 
 
 @pytest.mark.django_db

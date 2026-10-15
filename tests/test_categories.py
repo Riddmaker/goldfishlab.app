@@ -183,13 +183,15 @@ def test_a_role_both_the_tags_and_a_block_say_comes_first():
 
 
 def test_a_block_adds_a_role_the_tags_miss():
-    found = derive("""Name:Test Shooter
-ManaCost:2 R
-Types:Creature Goblin
+    # An exile says what it takes; a destroy does not (`CONFIRMS`).
+    found = derive("""Name:Test Warden
+ManaCost:2 W
+Types:Creature Human
 PT:1/1
 T:Mode$ ChangesZone | Origin$ Any | Destination$ Battlefield | ValidCard$ Card.Self \
-| Execute$ TrigDestroy
-SVar:TrigDestroy:DB$ Destroy | ValidTgts$ Creature.OppCtrl
+| Execute$ TrigExile
+SVar:TrigExile:DB$ ChangeZone | ValidTgts$ Creature.OppCtrl | Origin$ Battlefield \
+| Destination$ Exile
 """, ["creature"], kind="creature")
     assert found.roles == ("removal",)
     assert found.tempo["triggered:0"]["rate"] == categories.ONE_SHOT
@@ -235,13 +237,62 @@ def test_a_lands_own_mana_and_a_filter_are_no_ramp_and_a_signet_is():
 
 
 def test_a_wipe_sweeps_what_others_have():
-    wrath = derive("Name:Test Wrath\nManaCost:2 W W\nTypes:Sorcery\n"
-                   "A:SP$ DestroyAll | ValidCards$ Creature\n", [], kind="sorcery")
+    exile = derive("Name:Test Exile\nManaCost:2 W W\nTypes:Sorcery\n"
+                   "A:SP$ ChangeZoneAll | Origin$ Battlefield | Destination$ Exile "
+                   "| ChangeType$ Creature\n", [], kind="sorcery")
     tidy = derive("Name:Test Tidy\nManaCost:2\nTypes:Artifact\n"
                   "A:AB$ ChangeZoneAll | Cost$ T | Origin$ Battlefield | Destination$ Exile "
                   "| ChangeType$ Nightmare\n", [], kind="artifact")
-    assert wrath.roles == ("wipe",)
+    assert exile.roles == ("wipe",)
     assert tidy.roles == ()
+
+
+WRATH = "Name:Test Wrath\nManaCost:2 W W\nTypes:Sorcery\nA:SP$ DestroyAll | ValidCards$ Creature\n"
+SPIDERS = ("Name:Test Spiders\nManaCost:5 G G\nTypes:Instant\n"
+           "A:SP$ Destroy | ValidTgts$ Creature.withFlying | SubAbility$ DBGear\n"
+           "SVar:DBGear:DB$ DestroyAll | ValidCards$ Equipment.Attached\n")
+
+
+def test_a_block_that_cannot_say_whom_it_hits_only_backs_a_tag_up():
+    # The block keeps "destroy all" but not what: a wrath and "all Equipment
+    # attached to it" read alike, so only the tag makes a wipe.
+    assert derive(WRATH, ["wipe"], kind="sorcery").roles == ("wipe",)
+    assert derive(WRATH, [], kind="sorcery").roles == ()
+    assert derive(SPIDERS, ["removal"], kind="instant").roles == ("removal",)
+    spike = derive("Name:Test Spike\nManaCost:R\nTypes:Sorcery\n"
+                   "A:SP$ DealDamage | ValidTgts$ Player | NumDmg$ 3\n", [], kind="sorcery")
+    gift = derive("Name:Test Gift\nManaCost:2\nTypes:Sorcery\n"
+                  "A:SP$ Draw | ValidTgts$ Opponent | NumCards$ 2\n", [], kind="sorcery")
+    assert spike.roles == gift.roles == ()
+    # Backed by the tag, the block still counts: removal both say beats
+    # ramp only the tags say.
+    bolt = derive("Name:Test Bolt\nManaCost:R\nTypes:Instant\n"
+                  "A:SP$ DealDamage | ValidTgts$ Any | NumDmg$ 3\n", ["ramp", "removal"],
+                  kind="instant")
+    assert bolt.primary == "removal"
+
+
+def test_a_ward_is_no_counterspell_and_a_blink_no_removal():
+    titan = derive("Name:Test Titan\nManaCost:4 U U\nTypes:Creature Giant\nPT:6/6\n"
+                   "T:Mode$ BecomesTarget | ValidTarget$ Card.Self | ValidSource$ Card.OppCtrl "
+                   "| TriggerZones$ Battlefield | Execute$ TrigCounter\n"
+                   "SVar:TrigCounter:DB$ Counter | Defined$ TriggeredSourceSA | UnlessCost$ 2\n",
+                   [], kind="creature")
+    blink = derive("Name:Test Blink\nManaCost:2\nTypes:Creature Eldrazi\nPT:2/2\n"
+                   "A:AB$ ChangeZone | Cost$ 2 | ValidTgts$ Creature.Other | Origin$ Battlefield "
+                   "| Destination$ Exile | RememberChanged$ True | SubAbility$ DBReturn\n"
+                   "SVar:DBReturn:DB$ ChangeZone | Defined$ Remembered | Origin$ Exile "
+                   "| Destination$ Battlefield\n", [], kind="creature")
+    assert titan.roles == blink.roles == ()
+
+
+def test_a_search_for_a_basic_or_a_desert_is_a_land_search():
+    frontier = derive("Name:Test Frontier\nManaCost:2 R\nTypes:Sorcery\n"
+                      "A:SP$ ChangeZone | Origin$ Library | Destination$ Battlefield "
+                      "| ChangeType$ Land.Basic,Desert | ChangeNum$ 2 | Tapped$ True\n",
+                      [], kind="sorcery")
+    assert frontier.roles == ("ramp",)
+    assert "land_search" in frontier.mechanics
 
 
 # --- the mechanics ------------------------------------------------------------------

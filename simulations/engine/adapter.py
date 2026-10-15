@@ -912,7 +912,10 @@ def engine_readings(oracle_cards, *, builtin: bool = True) -> dict:
     for oracle_id, overrides, document in rows:
         said, _notes = patches.effective(overrides, document, profiles.get(oracle_id))
         merged.setdefault(oracle_id, {}).update(said)
-    annotations = Annotations(overrides=merged, scopes={})
+    # Said as built in: a built-in roles list is the engine's alone, and the
+    # card counts in its derived categories (`_categories`).
+    annotations = Annotations(overrides=merged, scopes={
+        oracle_id: dict.fromkeys(said, BUILTIN_SCOPE) for oracle_id, said in merged.items()})
 
     found = {}
     for oracle_card in cards:
@@ -922,14 +925,18 @@ def engine_readings(oracle_cards, *, builtin: bool = True) -> dict:
     return found
 
 
-def card_with(oracle_card, overrides: dict) -> tuple[Card, list[Gap]]:
+def card_with(oracle_card, overrides: dict,
+              scopes: dict | None = None) -> tuple[Card, list[Gap]]:
     """One card with these overrides and no others, outside any deck.
 
     What a stored correction makes of the card - for comparing it with what
-    later code makes of the same correction (`simulations.parity`).
+    later code makes of the same correction (`simulations.parity`). `scopes`
+    says which scope set each key, where that matters (a built-in ``tags``
+    list counts for the engine only); without it, nobody's in particular.
     """
     gaps: list[Gap] = []
-    annotations = Annotations(overrides={oracle_card.pk: overrides}, scopes={})
+    annotations = Annotations(overrides={oracle_card.pk: overrides},
+                              scopes={oracle_card.pk: scopes or {}})
     return _card_from(oracle_card, annotations, gaps), gaps
 
 
@@ -2465,18 +2472,23 @@ def _categories(profile, overrides: dict, tags_scope: str | None) -> frozenset[s
     on the site vanish from "Card draw" - it is a statement about how the
     engine plays the card, not about what the card is.
     """
+    # The corrections (card model phase 3, PR 10): relative to what is
+    # derived, so a later reading still reaches the card. A main role is
+    # counted, unless a narrower scope took it away.
+    removed = frozenset(overrides.get("category_remove") or ())
+    found = (base_categories(profile, overrides, tags_scope)
+             | frozenset(overrides.get("category_add") or ())) - removed
+    primary = overrides.get("category_primary")
+    return found | {primary} if primary and primary not in removed else found
+
+
+def base_categories(profile, overrides: dict, tags_scope: str | None) -> frozenset[str]:
+    """What the card counts in before its owner's category corrections: the
+    derived categories, or a whole list written before phase 3 (`_categories`)."""
     derived = derived_categories(profile)
     if "tags" in overrides and tags_scope != BUILTIN_SCOPE:
-        found = set(overrides["tags"]) | (derived & frozenset(card_categories.NEW_MECHANICS))
-    else:
-        found = set(derived)
-    # The corrections (card model phase 3, PR 10): relative to what is
-    # derived, so a later reading still reaches the card.
-    found |= set(overrides.get("category_add") or ())
-    found -= set(overrides.get("category_remove") or ())
-    if overrides.get("category_primary"):
-        found.add(overrides["category_primary"])
-    return frozenset(found)
+        return frozenset(overrides["tags"]) | (derived & frozenset(card_categories.NEW_MECHANICS))
+    return derived
 
 
 def _engine_tags(profile, overrides: dict) -> frozenset[str]:
@@ -2510,14 +2522,16 @@ def primary_role(oracle_card, categories: frozenset[str], overrides: dict | None
     The owner's (``category_primary``, PR 10) first; then the derived one
     while the categories hold it; otherwise - the owner replaced the roles -
     the first of theirs in `cards.categories.ROLE_ORDER`. None before the
-    profile is derived again: today's roles name no main one.
+    profile is derived again, the owner's included: today's roles name no
+    main one, and one card with a main role would make the deck page count
+    every other card as having none.
     """
-    said = (overrides or {}).get("category_primary")
-    if said and said in categories:
-        return said
     profile = getattr(oracle_card, "profile", None)
     if not getattr(profile, "categories_version", 0):
         return ""
+    said = (overrides or {}).get("category_primary")
+    if said and said in categories:
+        return said
     if profile.primary_role in categories:
         return profile.primary_role
     return next((role for role in card_categories.ROLE_ORDER if role in categories), "")

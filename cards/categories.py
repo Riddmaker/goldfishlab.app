@@ -113,6 +113,9 @@ class Label:
     #: Of an effect for an opponent: a role it would contradict, never a
     #: mechanic of the card.
     others: bool = False
+    #: A role the block can add where the tags miss it. Not when the block
+    #: cannot say whom it hits (`CONFIRMS`): then it only backs a tag up.
+    adds: bool = True
 
 
 # --- labels -------------------------------------------------------------------------
@@ -127,17 +130,22 @@ RIDERS = frozenset({"create_token", "gain_life", "scry", "surveil", "investigate
 _BENEFITS = frozenset({"draw", "gain_life", "create_token", "move", "add_mana",
                        "scry", "surveil", "investigate"})
 
-#: Tokens that are mana: ramp.
+#: Tokens that are mana: ramp. A colourless artifact token's script starts
+#: ``c_a_`` (``c_a_powerstone``); a Treasure's is shortened to its name.
 _MANA_TOKENS = frozenset({"treasure", "powerstone", "gold"})
 #: A creature token's script: colours, power, toughness, then its kind
-#: (``b_2_2_zombie``, ``c_1_1_a_thopter_flying``, ``gu_0_0_fractal``).
-_CREATURE_TOKEN = re.compile(r"^[wubrgc]+_(?:\d+|x)_(?:\d+|x)_")
+#: (``b_2_2_zombie``, ``c_1_1_a_thopter_flying``, ``gu_0_0_fractal``, ``g_x_x_ooze``).
+_CREATURE_TOKEN = re.compile(r"^[wubrgc]+_(?:\d+|x|y)_(?:\d+|x|y)_")
 #: Creature tokens that sacrifice for mana.
 _SPAWN = re.compile(r"eldrazi_(?:spawn|scion)")
 
 _BASIC_TYPES = ("Plains", "Island", "Swamp", "Mountain", "Forest")
-#: A card the effect names by what the ability already found, not a search.
-_FOUND = ("Remembered", "Imprinted", "TopOfLibrary", "Triggered", "Targeted")
+#: The other land types a search names on its own: "a basic land or a Desert".
+_LAND_TYPES = ("Desert", "Gate", "Town", "Cave", "Lair", "Locus", "Sphere", "Tower", "Mine",
+               "Power-Plant", "Urza's")
+#: A card the effect names by what the ability already found, not a search:
+#: also one chosen from the top of the library (Break Out).
+_FOUND = ("Remembered", "Imprinted", "TopOfLibrary", "Triggered", "Targeted", "Chosen")
 _LIFELINK = "Lifelink"
 #: What a wipe can sweep; a filter naming none of these (Chainer's
 #: Nightmares) is no wipe.
@@ -175,7 +183,8 @@ def _is_yours(what: str) -> bool:
     return "YouCtrl" in what or "YouOwn" in what
 
 
-_LAND_WORD = re.compile(r"\b(?:Land|" + "|".join(_BASIC_TYPES) + r")\b")
+_LAND_WORD = re.compile(r"\b(?:Land|" + "|".join(map(re.escape, _BASIC_TYPES + _LAND_TYPES))
+                        + r")(?![\w'-])")
 
 
 def _lands_only(what: str) -> bool:
@@ -190,14 +199,18 @@ def _negative(value) -> bool:
     return str(value or "").startswith("-")
 
 
-def _token(name: str) -> list[str]:
-    if name in _MANA_TOKENS:
-        return ["treasure", "ramp"] if name == "treasure" else ["ramp"]
-    if "lander" in name:
-        return ["land_search"]
-    if _CREATURE_TOKEN.match(name):
-        return ["tokens", "ramp"] if _SPAWN.search(name) else ["tokens"]
-    return []
+def _token(script: str) -> list[str]:
+    """What a token script makes; several, comma-separated, at once."""
+    found: list[str] = []
+    for name in (part.strip() for part in script.split(",")):
+        kind = name.removeprefix("c_a_").split("_")[0]
+        if kind in _MANA_TOKENS:
+            found += ["treasure", "ramp"] if kind == "treasure" else ["ramp"]
+        elif "lander" in name:
+            found.append("land_search")
+        elif _CREATURE_TOKEN.match(name):
+            found += ["tokens", "ramp"] if _SPAWN.search(name) else ["tokens"]
+    return list(dict.fromkeys(found))
 
 
 def _itself(what: str, ability: b.Ability) -> bool:
@@ -210,8 +223,21 @@ def _itself(what: str, ability: b.Ability) -> bool:
 
 
 def _swept(what: str) -> bool:
+    """Every card of a type, not one the ability already found (Coffin
+    Queen's remembered creature)."""
     return any(part.strip().startswith(_SWEPT) and not _is_yours(part)
+               and not any(word in part for word in _FOUND)
                for part in what.split(","))
+
+
+def _flickers(ability: b.Ability) -> bool:
+    """The ability returns what it exiles (Eldrazi Displacer, Astral Slide,
+    Flicker): a blink, no removal."""
+    return any(effect.verb in ("move", "move_all")
+               and str(effect.arg("from") or "") in ("exile", "all")
+               and str(effect.arg("to") or "") == "battlefield"
+               and any(word in _what(effect) for word in _FOUND)
+               for effect in ability.effects)
 
 
 def _move(effect: b.Effect, ability: b.Ability, *, all_: bool, swap: bool) -> list[str]:
@@ -238,7 +264,7 @@ def _move(effect: b.Effect, ability: b.Ability, *, all_: bool, swap: bool) -> li
             return ["recursion"]
         return ["reanimate", "recursion"]
     if origin == "battlefield" and destination in ("exile", "hand", "library", "graveyard"):
-        if _is_yours(what):
+        if _is_yours(what) or (destination == "exile" and _flickers(ability)):
             return []
         if all_:
             return ["wipe"] if _swept(what) else []
@@ -268,6 +294,8 @@ def _effect_labels(effect: b.Effect, ability: b.Ability, kind: str,
     if verb == "destroy":
         return ["removal"] if effect.arg("target") and not _is_yours(_what(effect)) else []
     if verb == "destroy_all":
+        # What it destroys is not in the block ("all Equipment attached to
+        # it"): only backs up a tagged wipe (`CONFIRMS`).
         return ["wipe"]
     # Not `damage_all` or `sacrifice_all`: a block does not say whom they
     # hit - Snort's damage goes to the players, Animate Dead sacrifices its
@@ -275,7 +303,8 @@ def _effect_labels(effect: b.Effect, ability: b.Ability, kind: str,
     if verb in ("damage", "fight"):
         return ["removal"] if effect.arg("target") else []
     if verb == "sacrifice":
-        # An edict: someone else sacrifices.
+        # A targeted edict: "target player sacrifices". One that names no
+        # target (Grave Pact) has no player in its block; the tags have it.
         return ["removal"] if effect.arg("target") or _for_others(effect) else []
     if verb == "pump":
         return ["removal"] if effect.arg("target") and _negative(effect.arg("toughness")) \
@@ -288,6 +317,12 @@ def _effect_labels(effect: b.Effect, ability: b.Ability, kind: str,
     if verb == "put_counter_all":
         return ["wipe"] if effect.arg("counter") == "M1M1" else []
     if verb == "counter_spell":
+        # Not a ward-like trigger on being targeted (Frost Titan), nor one on
+        # a spell of yours (Blood Funnel, Brain Gorgers).
+        event = ability.event
+        if event is not None and (event.name == "becomes_target" or (
+                event.name == "cast" and event.who != "opponent")):
+            return []
         return ["counterspell"]
     if verb == "gain_control":
         return ["steal"] if effect.arg("target") else []
@@ -314,6 +349,27 @@ _BOOKKEEPING = frozenset({
     "branch", "shuffle", "delayed_trigger", "immediate_trigger", "peek", "reveal_hand",
     "set_state",
 })
+
+
+#: Verbs whose block does not say whom they hit - only ``target`` - so their
+#: role only backs up a tag and never adds one: damage to a player is no
+#: removal (Lava Spike), -1/-1 counters on your own creature neither
+#: (Channeler Initiate), nor destroying a permanent you own (Despotic
+#: Scepter); a "destroy all" may mean Equipment (Eaten by Spiders).
+CONFIRMS = frozenset({"destroy", "damage", "fight", "pump", "put_counter", "destroy_all",
+                      "pump_all", "put_counter_all"})
+
+
+def _adds(effect: b.Effect, ability: b.Ability) -> bool:
+    """Whether the effect's role may add one the tags miss (`Label.adds`).
+    A targeted draw may be an opponent's: "target opponent draws two"; one
+    that replaces a draw gains no card (Chains of Mephistopheles)."""
+    if effect.verb in CONFIRMS:
+        return False
+    if effect.verb == "draw":
+        return not ((effect.arg("target") and not effect.arg("player"))
+                    or ability.kind == b.REPLACEMENT)
+    return True
 
 
 def _main(effect: b.Effect) -> bool:
@@ -347,7 +403,7 @@ def ability_labels(ability: b.Ability, kind: str, *, swap: bool = False) -> list
     for effect in ability.effects:
         others = effect.verb in _BENEFITS and _for_others(effect)
         defining = not others and not (effect.verb in RIDERS and has_main)
-        found += [Label(name, defining=defining, others=others)
+        found += [Label(name, defining=defining, others=others, adds=_adds(effect, ability))
                   for name in _effect_labels(effect, ability, kind, swap)]
     return found
 
@@ -378,7 +434,8 @@ def _rate(ability: b.Ability) -> str:
         return ONE_SHOT
     if ability.kind in (b.ACTIVATED, b.MANA):
         atoms = {cost.atom for cost in ability.costs}
-        return ONE_SHOT if atoms & {"sacrifice_self", "exile_self"} else REPEATABLE
+        return ONE_SHOT if atoms & {"sacrifice_self", "exile_self", "exile_from_hand"} \
+            else REPEATABLE
     if ability.kind in (b.TRIGGERED, b.REPLACEMENT):
         if event is not None and event.who == "self" and not event.filter \
                 and event.name in ("enters", "dies"):
@@ -388,8 +445,11 @@ def _rate(ability: b.Ability) -> str:
 
 
 def _needs(ability: b.Ability) -> str:
-    if (ability.event is not None and ability.event.who == "opponent") or any(
-            effect.arg("unless") for effect in ability.effects):
+    # "Unless" asks an opponent - except a land's own "enters tapped unless
+    # you pay 2 life" (Watery Grave).
+    if (ability.event is not None and ability.event.who == "opponent") or (
+            ability.kind != b.REPLACEMENT
+            and any(effect.arg("unless") for effect in ability.effects)):
         return NEEDS_OPPONENT
     if {cost.atom for cost in ability.costs} & {"sacrifice", "tap_other"}:
         return NEEDS_BOARD
@@ -466,8 +526,10 @@ def derive(kind: str, abilities, role_tags, facts=None) -> Categories:
     defining = {label.name for label in labels if label.defining and label.name in ROLES}
     incidental = {label.name for label in labels
                   if not label.defining and label.name in ROLES} - defining
+    adding = {label.name for label in labels
+              if label.defining and label.adds and label.name in ROLES}
 
-    roles = tagged | defining
+    roles = tagged | adding
     review = []
     whole = read_whole(abilities)
     for role in sorted(tagged & incidental):

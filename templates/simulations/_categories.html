@@ -42,7 +42,7 @@
                 <button type="submit" name="action" value="add" class="text-ink-900 underline">{% translate "Put it back" %}</button>
               </form>
             {% else %}
-              {% if line.is_role and not line.main %}
+              {% if line.is_role and not line.main and categories.derived %}
                 <form method="post" action="{% url 'simulations:category' deck.id card.pk %}">
                   {% csrf_token %}
                   <input type="hidden" name="scope" value="{{ scope }}">

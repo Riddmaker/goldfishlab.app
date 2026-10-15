@@ -47,8 +47,8 @@ FALLBACK_STRATEGIES = 2
 FALLBACK_CARDS = 3
 
 LABELS = dict(SEEN_ROLES + SEEN_STRATEGY_ROLES + SEEN_MECHANIC_ROLES)
-#: The one strategy a land can feed.
-LANDS_FEED = "ramp"
+#: The strategies a land can feed: a fetch land is ramp, and a land search.
+LANDS_FEED = frozenset({"ramp", "land_search"})
 
 
 @dataclass(frozen=True)
@@ -162,7 +162,7 @@ def candidates(readings, key: str, limit: int = CANDIDATES) -> list:
                 legalities__commander="legal")
         .exclude(pk__in=in_deck)
     )
-    if key != LANDS_FEED:
+    if key not in LANDS_FEED:
         cards = cards.exclude(profile__kind=DerivedProfile.Kind.LAND)
     if not any(reading.oracle_card.game_changer for reading in readings):
         cards = cards.exclude(game_changer=True)
@@ -236,4 +236,4 @@ def block(readings, content: dict | None = None) -> dict:
 
 
 __all__ = ["MIN_CARDS", "MORE", "Pick", "Shown", "Strategy", "block", "candidates",
-           "found", "identity", "offered"]
+           "category_filter", "found", "identity", "offered"]

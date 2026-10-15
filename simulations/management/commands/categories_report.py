@@ -11,7 +11,8 @@ Read-only. The categories are derived here, on the fly, from each card's
 blocks and its stored `role_tags` (`cards.categories.derive`), so the gate
 runs without a profile rebuild and nothing in the database changes.
 
-"Today" is what `Card.categories` holds now: `role_tags`. "New" is the
+"Today" is what `Card.categories` holds before a profile is derived again:
+`role_tags`. "New" is the
 primary and secondary role and the mechanics. For each category the two
 counts, then the differences by family, with card names:
 
@@ -38,8 +39,6 @@ from simulations import coverage
 
 FAMILIES = ("gained", "dropped", "kept", "trimmed", "mechanic")
 KEYS = categories.ROLES + categories.MECHANICS
-
-_CHUNK = 1_000
 
 
 def today(role_tags) -> frozenset[str]:
@@ -86,10 +85,17 @@ class Command(BaseCommand):
 
         cards = OracleCard.objects.filter(profile__isnull=False).select_related(
             "profile", "forge").order_by("name")
+        if options["out"] and (options["cards"] or options["decks"]):
+            self.stderr.write("--out writes the catalogue only; ignored here.")
         if options["cards"]:
             names = [name.strip() for name in options["cards"].split(";") if name.strip()]
-            for card in cards.filter(name__in=names):
+            found = list(cards.filter(name__in=names))
+            for card in found:
                 self._card(card)
+            missing = sorted(set(names) - {card.name for card in found})
+            if missing:
+                self.stderr.write("Not found (the full name, both faces of a double-faced "
+                                  "card): " + "; ".join(missing))
             return
         if options["decks"]:
             self._decks(cards, options["explain"])
@@ -177,6 +183,6 @@ class Command(BaseCommand):
                      if before[key] != after[key]]
             self.stdout.write(f"{deck.name}: " + (", ".join(moved) if moved else "no change"))
             if explain:
-                for key in categories.ROLES + categories.TAG_MECHANICS:
+                for key in KEYS:
                     if key in why:
                         self.stdout.write(f"    {key}: " + "; ".join(sorted(why[key])))

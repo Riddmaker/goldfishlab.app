@@ -420,7 +420,7 @@ def save_annotation(*, deck, oracle_card, scope: str, judgements: dict | None = 
     leaves the judgements as stored. `primitive_changes` edits some
     primitives and leaves the rest (`annotations.apply_primitives`); each is
     built once by the adapter before anything is stored. `category_change`
-    is one change to the card's categories, `(action, key, current)`
+    is one change to the card's categories, `(action, key, base, inherited)`
     (`annotations.apply_category`, card model phase 3).
 
     Returns:

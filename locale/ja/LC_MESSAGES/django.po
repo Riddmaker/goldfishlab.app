@@ -1372,17 +1372,6 @@ msgid "Roles worth a second look"
 msgstr "見直す価値のある役割"
 
 #: simulations/blindspots.py
-msgid ""
-"The role vocabulary comes from the Scryfall Tagger community, which is broad"
-" by design: “destroy target creature you control” is filed under removal "
-"alongside “destroy target creature”. The first is an engine piece and the "
-"second answers a threat, and the report's milestone table counts them the "
-"same way."
-msgstr ""
-"役割の語彙は Scryfall Tagger "
-"のコミュニティによるもので、意図的に広く分類されています。「あなたがコントロールするクリーチャー1体を対象とし、それを破壊する」は「クリーチャー1体を対象とし、それを破壊する」と同じく除去に分類されます。前者はエンジンの部品、後者は脅威への対処ですが、レポートのマイルストーン表はどちらも同じように数えます。"
-
-#: simulations/blindspots.py
 msgid "tagged as removal, but it destroys something you control"
 msgstr "除去としてタグ付けされているが、自分のコントロールするものを破壊する"
 
@@ -1877,12 +1866,6 @@ msgstr "今または後のターンにマナを増やすもの：マナ・ロッ
 #: simulations/report.py
 msgid "Cards that draw you cards."
 msgstr "カードを引かせてくれるカード。"
-
-#: simulations/report.py
-msgid ""
-"Gets something off the table: destroy, exile, bounce, damage. Board wipes "
-"count too."
-msgstr "何かを場から取り除くもの：破壊、追放、バウンス、ダメージ。全体除去も含みます。"
 
 #: simulations/report.py
 msgid "Removes many things at once."
@@ -11671,19 +11654,19 @@ msgid ""
 "community's card tags, or from what you said about a card. A spell that can "
 "only fetch lands, such as Cultivate, is ramp rather than a tutor, and a "
 "Treasure that comes beside a spell's card draw, as on Deadly Dispute, makes "
-"it no ramp spell. A card has one main role and at most a second one; "
-"strategies and mechanics such as a sacrifice outlet, lifegain or tokens come"
-" on top, as many as the card has. The chart shows the share of games with "
-"<em>at least one</em> by each turn, because that is the question a deck is "
-"built around: do I see ramp by turn two. <strong>Card types</strong> are "
-"shown as an average count instead: almost every game sees a creature by turn"
-" one, and how many is the part that differs between decks. The <strong>mana "
-"value</strong> bars count spells only — every land is mana value zero and "
-"would drown the curve."
+"it no ramp spell. A card has one main role and at most a second one, or none"
+" at all, like most lands; strategies and mechanics such as a sacrifice "
+"outlet, lifegain or tokens come on top, as many as the card has. The chart "
+"shows the share of games with <em>at least one</em> by each turn, because "
+"that is the question a deck is built around: do I see ramp by turn two. "
+"<strong>Card types</strong> are shown as an average count instead: almost "
+"every game sees a creature by turn one, and how many is the part that "
+"differs between decks. The <strong>mana value</strong> bars count spells "
+"only — every land is mana value zero and would drown the curve."
 msgstr ""
 "<strong>カテゴリー</strong>（ランプ、ドロー、除去など）は、各カードの能力から読み取ったそのカードの働きと、コミュニティのカード・タグを合わせて決まります。あなたがカードについて回答した内容でも決まります。Cultivate"
 " のように土地しか持ってこられない呪文は、サーチ・カードではなくランプです。また Deadly Dispute "
-"のように、呪文のドローに添えて宝物が出るだけなら、その呪文はランプにはなりません。カードには主な役割が1つと、多くても2つ目の役割が1つあります。生け贄の手段、ライフ獲得、トークンなどの戦略やメカニズムは、カードが持つだけ別に加わります。グラフは各ターンまでに<em>少なくとも1枚</em>引いたゲームの割合を示します。「2ターン目までにランプを引けるか」こそが、デッキを組むときの問いだからです。一方、<strong>カード・タイプ</strong>は平均枚数で示します。ほぼすべてのゲームで1ターン目までにクリーチャーを引くので、デッキごとに違うのはその枚数だからです。<strong>マナ総量</strong>の棒グラフは呪文だけを数えます。土地はすべてマナ総量0なので、含めるとカーブが埋もれてしまいます。"
+"のように、呪文のドローに添えて宝物が出るだけなら、その呪文はランプにはなりません。カードには主な役割が1つと、多くても2つ目の役割が1つあります。ほとんどの土地のように、役割がないカードもあります。生け贄の手段、ライフ獲得、トークンなどの戦略やメカニズムは、カードが持つだけ別に加わります。グラフは各ターンまでに<em>少なくとも1枚</em>引いたゲームの割合を示します。「2ターン目までにランプを引けるか」こそが、デッキを組むときの問いだからです。一方、<strong>カード・タイプ</strong>は平均枚数で示します。ほぼすべてのゲームで1ターン目までにクリーチャーを引くので、デッキごとに違うのはその枚数だからです。<strong>マナ総量</strong>の棒グラフは呪文だけを数えます。土地はすべてマナ総量0なので、含めるとカーブが埋もれてしまいます。"
 
 #: templates/core/methodology.html
 msgid ""
@@ -11700,12 +11683,12 @@ msgstr "カードの働きから読み取るカテゴリー"
 #: changelog/entries.py
 msgid ""
 "Ramp, card draw, removal and the rest now come from what each card does, "
-"read off its abilities, together with the community's tags. A card has one "
-"main role, and the deck page counts it there once beside every category it "
-"fits. The report shows six mechanics of their own: lifegain, land search, "
-"Treasure, tokens, death triggers and tax."
+"read off its abilities, together with the community's tags. A card has at "
+"most one main role, and the deck page counts it there once beside every "
+"category it fits. The report shows six mechanics of their own: lifegain, "
+"land search, Treasure, tokens, death triggers and tax."
 msgstr ""
-"ランプ、ドロー、除去などのカテゴリーは、各カードの能力から読み取ったそのカードの働きと、コミュニティのタグを合わせて決まるようになりました。カードには主な役割が1つあり、デッキ・ページでは当てはまる各カテゴリーとは別に、その役割で1回だけ数えます。レポートには、ライフ獲得、土地サーチ、宝物、トークン、死亡誘発、課税の6つのメカニズムが別に表示されます。"
+"ランプ、ドロー、除去などのカテゴリーは、各カードの能力から読み取ったそのカードの働きと、コミュニティのタグを合わせて決まるようになりました。カードには主な役割が多くても1つあり、デッキ・ページでは当てはまる各カテゴリーとは別に、その役割で1回だけ数えます。レポートには、ライフ獲得、土地サーチ、宝物、トークン、死亡誘発、課税の6つのメカニズムが別に表示されます。"
 
 #: simulations/annotations.py simulations/provenance.py
 msgid "Roles the engine reads"
@@ -11815,3 +11798,26 @@ msgid ""
 "either way; the four roles it reads while it plays have a box of their own."
 msgstr ""
 "カードのページの「カテゴリー」で、別の役割を主な役割にしたり、カテゴリーを追加・削除したりできます。1つのデッキだけでも、すべてのデッキにでも設定でき、ワンクリックでカードデータに戻せます。エンジンのプレイはどちらでも変わりません。エンジンがプレイ中に読む4つの役割には専用の欄があります。"
+
+#: simulations/blindspots.py
+msgid ""
+"A card's categories come from what it does and from the Scryfall Tagger "
+"community's tags, which are broad by design: “destroy target creature you "
+"control” can be filed under removal alongside “destroy target creature”. The"
+" first is an engine piece and the second answers a threat, and the report's "
+"milestone table counts them the same way."
+msgstr ""
+"カードのカテゴリーは、そのカードの働きと Scryfall Tagger "
+"のコミュニティのタグから決まり、タグは意図的に広く分類されています。「あなたがコントロールするクリーチャー1体を対象とし、それを破壊する」は「クリーチャー1体を対象とし、それを破壊する」と同じく除去に分類されることがあります。前者はエンジンの部品、後者は脅威への対処ですが、レポートのマイルストーン表はどちらも同じように数えます。"
+
+#: simulations/report.py
+msgid ""
+"Gets something off the table: destroy, exile, bounce, damage. A board wipe "
+"counts too when removal is one of its two roles."
+msgstr "何かを場から取り除くもの：破壊、追放、バウンス、ダメージ。全体除去も、除去が2つの役割のうちの1つなら含みます。"
+
+#: templates/decks/detail.html
+msgid ""
+"A card counts in every category it fits; “main” counts it once, in its main "
+"role."
+msgstr "カードは当てはまるすべてのカテゴリーで数えられます。「主な役割」は各カードを、その主な役割で1回だけ数えます。"

@@ -260,9 +260,9 @@ def _skips_draw_step(cards) -> bool:
 MV_CAP = 7
 
 #: The categories a Commander deck is sorted into (Phase 9, "The category
-#: vocabulary"), read off ``Card.categories``. One community role each: a
-#: narrower role such as ``mana_rock`` always comes with its broader one in the
-#: community tags, so nothing has to be folded together here.
+#: vocabulary"), read off ``Card.categories``: a card's main and second role
+#: (`cards.categories`, card model phase 3), or the community's roles until its
+#: profile is derived again.
 SEEN_CATEGORIES = (
     "ramp", "draw", "removal", "wipe", "tutor", "counterspell", "protection",
     "recursion",

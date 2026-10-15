@@ -567,7 +567,7 @@ SEEN_ROLE_INFO = {
                          "extra lands, rituals."),
     "draw": gettext_noop("Cards that draw you cards."),
     "removal": gettext_noop("Gets something off the table: destroy, exile, bounce, damage. "
-                            "Board wipes count too."),
+                            "A board wipe counts too when removal is one of its two roles."),
     "wipe": gettext_noop("Removes many things at once."),
     "tutor": gettext_noop("Searches your library for a card."),
     "counterspell": gettext_noop("Counters a spell."),
@@ -692,7 +692,9 @@ def seen(result: dict) -> dict | None:
     * **roles** - the share of games that had seen at least one card of the
       category by that turn. "Ramp by turn two" is a yes/no question per game,
       and the share is its answer. **strategies** asks the same of the
-      strategies (phase 11).
+      strategies (phase 11), **mechanics** of the mechanics card model phase 3
+      reads off the blocks - a chart of their own, as a chart has eight
+      colours.
     * **types** - how many cards of each type had been seen, on average.
       Almost every game sees a creature by turn one, so the share would be a
       flat line at the top; the count is the part that differs between decks.

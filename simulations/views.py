@@ -647,15 +647,17 @@ class CategoryView(DeckScopedView):
         scope = CardAnnotateView._scope(request.POST.get("scope"))
         action = request.POST.get("action", "")
         key = request.POST.get("key", "")
-        entry = provenance.for_card(deck, card)
         found = adapter.annotations_for(deck)
         merged, scopes = found.for_card(card.pk), found.scopes.get(card.pk, {})
         inherited = {name: merged[name] for name in annotations.CATEGORY_KEYS
                      if name in merged and scopes.get(name) in _WIDER[scope]}
+        profile = getattr(card, "profile", None)
+        base = (adapter.base_categories(profile, merged, scopes.get("tags"))
+                if profile is not None else frozenset())
         try:
             services.save_annotation(
                 deck=deck, oracle_card=card, scope=scope, note=None,
-                category_change=(action, key, entry.reading.card.categories, inherited),
+                category_change=(action, key, base, inherited),
             )
         except ValidationError as exc:
             messages.error(request, " ".join(exc.messages))

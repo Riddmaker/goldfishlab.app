@@ -384,15 +384,15 @@ CATEGORY_ACTIONS = frozenset({"primary", "add", "remove", "reset"})
 
 
 def apply_category(overrides: dict, action: str, key: str = "",
-                   current: frozenset[str] = frozenset(), inherited: dict | None = None) -> dict:
+                   base: frozenset[str] = frozenset(), inherited: dict | None = None) -> dict:
     """One change to a card's categories, merged into `overrides`.
 
-    Said relative to what is derived, so a later reading still reaches the
-    card: ``add`` takes back a removal or adds the category, ``remove``
-    takes back an addition or removes the category (and a main role it
+    Said relative to `base`, what the card counts in before any correction
+    (`adapter.base_categories`), so a later reading still reaches the card:
+    ``add`` takes back a removal and adds what `base` lacks, ``remove``
+    takes back an addition and removes what `base` has (and a main role it
     was), ``primary`` makes a role the main one (and counts the card in
-    it), ``reset`` goes back to the card data. `current` is what the card
-    counts in now, so a category it already has is not added twice.
+    it), ``reset`` goes back to the card data.
 
     `inherited` is what a wider scope said (all decks, for a deck's row):
     annotation scopes merge key by key, so a list this row did not have
@@ -423,18 +423,21 @@ def apply_category(overrides: dict, action: str, key: str = "",
             legacy = set(kept.pop("tags") or ())
             kept.setdefault("engine_tags", sorted(legacy & set(runner.ENGINE_ROLE_TAGS)))
         return kept
+
     def said(name: str) -> list:
         return list((kept[name] if name in kept else inherited.get(name)) or ())
 
     added = [name for name in said("category_add") if name != key]
     removed = [name for name in said("category_remove") if name != key]
     if action in ("add", "primary"):
-        if key not in current and key not in said("category_remove"):
+        if key not in base:
             added.append(key)
         if action == "primary":
             kept["category_primary"] = key
     elif action == "remove":
-        if key not in said("category_add"):
+        # A main role a wider scope names would count the card again
+        # (`adapter._categories`): its removal is said outright.
+        if key in base or inherited.get("category_primary") == key:
             removed.append(key)
         if kept.get("category_primary") == key:
             kept.pop("category_primary")
@@ -449,13 +452,15 @@ def apply_category(overrides: dict, action: str, key: str = "",
     return kept
 
 
-def tags_as_categories(overrides: dict, derived: frozenset[str], role_tags) -> dict | None:
+def tags_as_categories(overrides: dict, derived: frozenset[str], role_tags,
+                       explicit: bool = False) -> dict | None:
     """A whole list from before card model phase 3 (``tags``) said the new way.
 
     The four roles the engine reads become ``engine_tags`` where they differ
-    from the community roles (`role_tags`); what the card counts as becomes
-    ``category_add`` and ``category_remove`` relative to its `derived`
-    categories (`adapter.derived_categories`), so the statistics count it as
+    from the community roles (`role_tags`), or always when `explicit` (a
+    built-in list under the row would otherwise answer them); what the card
+    counts as becomes ``category_add`` and ``category_remove`` relative to
+    its `derived` categories (`adapter.derived_categories`), so the statistics count it as
     the list did: the list's roles and mechanics, and the mechanics no list
     could name. Keys outside the vocabulary are counted nowhere and go.
     Migration 0017 stores it only where the engine plays the card as before.
@@ -469,7 +474,7 @@ def tags_as_categories(overrides: dict, derived: frozenset[str], role_tags) -> d
     said = {key: value for key, value in overrides.items()
             if key not in ("tags", "category_add", "category_remove")}
     engine = set(runner.ENGINE_ROLE_TAGS)
-    if legacy & engine != set(role_tags) & engine:
+    if explicit or legacy & engine != set(role_tags) & engine:
         said["engine_tags"] = sorted(legacy & engine)
     known = card_categories.ROLES + card_categories.MECHANICS
     target = ((legacy | (derived & set(card_categories.NEW_MECHANICS))

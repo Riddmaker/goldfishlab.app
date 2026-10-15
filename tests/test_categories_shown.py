@@ -190,6 +190,25 @@ def test_candidates_come_from_the_derived_categories(owner, deck):
     assert secondary not in strategies.candidates(readings, "wipe", limit=1000)
 
 
+@pytest.mark.django_db
+def test_a_land_search_strategy_is_offered_lands_too(owner, deck):
+    # A fetch land is a land search: a deck built around it is offered
+    # lands, as a ramp deck is; any other strategy is not.
+    readings = adapter.readings(deck)
+    in_deck = {reading.oracle_card.pk for reading in readings}
+    colours = sorted(strategies.identity(readings))
+    land = (OracleCard.objects.exclude(pk__in=in_deck)
+            .filter(legalities__commander="legal", game_changer=False,
+                    color_identity__contained_by=colours,
+                    profile__kind=DerivedProfile.Kind.LAND).first())
+    assert land is not None
+    DerivedProfile.objects.filter(oracle_card=land).update(
+        categories_version=categories.VERSION, mechanics=["land_search", "tokens"])
+
+    assert land in strategies.candidates(readings, "land_search", limit=1000)
+    assert land not in strategies.candidates(readings, "tokens", limit=1000)
+
+
 def test_a_mechanic_is_a_strategy_with_its_label():
     assert strategies.LABELS["lifegain"] == "Lifegain"
     assert set(analysis.SEEN_MECHANICS) <= set(strategies.LABELS)

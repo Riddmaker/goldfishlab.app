@@ -325,9 +325,8 @@ class AnnotationForm(forms.Form):
             "untaps": _as_bool(data.get("untaps")),
             "kind": data.get("kind") or None,
             "mana_produces": data.get("mana_produces"),
-            # An empty list is a real answer - "this card has no roles at all"
-            # - so it is only `None` when the box saying so is unticked.
-            # An empty list is a real answer: "none of the four".
+            # An empty list is a real answer - "none of the four" - so it is
+            # only `None` when the box saying so is unticked.
             "engine_tags": (list(data.get("engine_tags") or [])
                             if data.get("replace_engine_tags") else None),
             "subtypes": (

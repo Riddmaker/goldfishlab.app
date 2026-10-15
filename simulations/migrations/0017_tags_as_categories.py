@@ -11,10 +11,12 @@ that is what the corrections will be relative to.
 A list is converted only where the engine plays the card exactly as before
 and the statistics count it as before, in every deck the rows reach - the
 roles the engine does not read and the keys outside the vocabulary aside,
-which nothing plays or counts. An owner's rows for one card are converted
-all together or not at all, since a deck's row merges over the one for all
-decks key by key. A row left as it is is still read the old way, and the
-card page offers to retire it.
+which nothing plays or counts. Each key is read with the scope that set it,
+as in a deck: a built-in roles list under the row counts for the engine
+only, so where one is there the four roles are stated outright. An owner's
+rows for one card are converted all together or not at all, since a deck's
+row merges over the one for all decks key by key. A row left as it is is
+still read the old way, and the card page offers to retire it.
 
 Built-in rows are not touched: the reference deck's corrections are a
 statement about how the engine plays the card (`adapter._categories`). The
@@ -51,14 +53,19 @@ def forwards(apps, schema_editor):
                                                   oracle_card_id=oracle_id).first()
         mine = list(annotation_model.objects.filter(owner_id=owner_id,
                                                     oracle_card_id=oracle_id))
-        said = {row.pk: annotations.tags_as_categories(row.overrides or {}, derived,
-                                                       profile.role_tags)
-                for row in mine}
         before = {row.pk: row.overrides or {} for row in mine}
-        after = {pk: said[pk] if said[pk] is not None else before[pk] for pk in before}
-        if any(_plays(adapter, future, _merged(builtin, mine, before, deck))
-               != _plays(adapter, future, _merged(builtin, mine, after, deck))
-               for deck in _decks(mine)):
+        # The fewest keys first; the four roles stated outright if that is
+        # what it takes to play the card as before.
+        for explicit in (False, True):
+            said = {row.pk: annotations.tags_as_categories(before[row.pk], derived,
+                                                           profile.role_tags, explicit)
+                    for row in mine}
+            after = {pk: said[pk] if said[pk] is not None else before[pk] for pk in before}
+            if all(_plays(adapter, future, *_merged(adapter, builtin, mine, before, deck))
+                   == _plays(adapter, future, *_merged(adapter, builtin, mine, after, deck))
+                   for deck in _decks(mine)):
+                break
+        else:
             continue
         for row in mine:
             if said[row.pk] is None:
@@ -92,26 +99,27 @@ def _decks(mine) -> list:
     return [None, *sorted({row.deck_id for row in mine if row.deck_id is not None})]
 
 
-def _merged(builtin, mine, overrides: dict, deck_id) -> dict:
-    """What a deck merges for the card, key by key: built in, then the
-    owner's for all decks, then the deck's own."""
-    merged = dict((builtin.overrides or {}) if builtin is not None else {})
-    for row in mine:
-        if row.deck_id is None:
-            merged |= overrides[row.pk]
-    for row in mine:
-        if row.deck_id is not None and row.deck_id == deck_id:
-            merged |= overrides[row.pk]
-    return merged
+def _merged(adapter, builtin, mine, overrides: dict, deck_id) -> tuple[dict, dict]:
+    """What a deck merges for the card, key by key, and which scope set each
+    key: built in, then the owner's for all decks, then the deck's own."""
+    layers = [(adapter.BUILTIN_SCOPE, builtin.overrides or {})] if builtin is not None else []
+    layers += [(adapter.USER_SCOPE, overrides[row.pk]) for row in mine if row.deck_id is None]
+    layers += [(adapter.DECK_SCOPE, overrides[row.pk]) for row in mine
+               if row.deck_id is not None and row.deck_id == deck_id]
+    merged, scopes = {}, {}
+    for scope, said in layers:
+        merged |= said
+        scopes |= dict.fromkeys(said, scope)
+    return merged, scopes
 
 
-def _plays(adapter, card, overrides: dict):
+def _plays(adapter, card, overrides: dict, scopes: dict):
     """The engine card, with what nothing plays or counts left out: the
     roles the engine does not read, and categories outside the vocabulary."""
     from cards import categories
     from simulations.engine import runner
 
-    found, _gaps = adapter.card_with(card, overrides)
+    found, _gaps = adapter.card_with(card, overrides, scopes)
     known = set(categories.ROLES + categories.MECHANICS)
     return dataclasses.replace(found, tags=found.tags & set(runner.ENGINE_ROLE_TAGS),
                                categories=found.categories & known)

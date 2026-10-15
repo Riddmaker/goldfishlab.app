@@ -238,24 +238,36 @@ class CategoryBlock:
 def categories_block(reading, overrides: dict, scopes: dict,
                      scope: str = "deck") -> CategoryBlock:
     """The card's categories, each with who decided it, and the ones it
-    could be added to. The main role first, then the vocabulary's order."""
+    could be added to. The main role first, then the vocabulary's order.
+
+    A category the card data gives but the card does not count in is shown
+    too, to be put back: taken away by a correction, or left out of a whole
+    list written before phase 3.
+    """
     profile = getattr(reading.oracle_card, "profile", None)
     derived = adapter.derived_categories(profile) if profile is not None else frozenset()
+    tags_scope = scopes.get("tags")
+    base = (adapter.base_categories(profile, overrides, tags_scope)
+            if profile is not None else frozenset())
     current = reading.card.categories
-    legacy = (scopes.get("tags", adapter.DECK_SCOPE)
-              if "tags" in overrides
-              and scopes.get("tags") != adapter.BUILTIN_SCOPE else "")
-    said = set(overrides.get("category_add") or ())
+    legacy = (tags_scope or adapter.DECK_SCOPE) if "tags" in overrides \
+        and tags_scope != adapter.BUILTIN_SCOPE else ""
+    added = set(overrides.get("category_add") or ())
     order = card_categories.ROLES + card_categories.MECHANICS
 
     def status(key: str) -> str:
-        if key == overrides.get("category_primary") and key not in derived:
-            return scopes.get("category_primary", adapter.DECK_SCOPE)
-        if key in said:
+        if key in added:
             return scopes.get("category_add", adapter.DECK_SCOPE)
-        if legacy and key not in derived:
+        if key not in base:
+            return scopes.get("category_primary", adapter.DECK_SCOPE)
+        if key not in derived:
             return legacy
         return "card"
+
+    def gone_by(key: str) -> str:
+        if key in base:
+            return scopes.get("category_remove", adapter.DECK_SCOPE)
+        return legacy
 
     def label(key: str) -> str:
         return gettext(ROLE_NAMES[key]) if key in ROLE_NAMES else key.replace("_", " ")
@@ -266,14 +278,13 @@ def categories_block(reading, overrides: dict, scopes: dict,
     lines = [Category(key=key, label=label(key), status=status(key),
                       is_role=key in card_categories.ROLES, main=key == reading.primary)
              for key in sorted(current, key=rank)]
-    gone_by = scopes.get("category_remove", legacy or adapter.DECK_SCOPE)
-    lines += [Category(key=key, label=label(key), status=gone_by,
+    lines += [Category(key=key, label=label(key), status=gone_by(key),
                        is_role=key in card_categories.ROLES, removed=True)
-              for key in sorted(derived - current, key=rank)]
+              for key in sorted((base | derived) - current, key=rank)]
     return CategoryBlock(
         lines=tuple(lines),
         addable=tuple((key, str(name)) for key, name in CATEGORY_CHOICES
-                      if key not in current and key not in derived),
+                      if key not in current | base | derived),
         legacy=legacy,
         resettable=(legacy == scope
                     or any(scopes.get(key) == scope for key in CATEGORY_KEYS

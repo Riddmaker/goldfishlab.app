@@ -11,13 +11,24 @@ not here. A shim at the bottom of this module keeps the old import paths
 working, because the four vendored test files must stay byte-identical.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import InitVar, dataclass, field, fields
+from functools import cached_property
 
+# The old helper classes live in `simulation.legacy` since card model phase
+# 4 (PR 13); they are re-exported here for the application and the tests.
+from simulation.legacy import (  # noqa: E402,F401  (re-exported)
+    STORE_FREE,
+    STORE_SCALES,
+    STORE_TAP,
+    CostReduction,
+    ManaAbility,
+    SpellFilter,
+    Store,
+    TapMana,
+    TappedUnless,
+)
 from simulation.manacost import (
-    COLORLESS,
-    SUBTYPE_COLORS,
     ManaCost,
-    normalised,
 )
 
 # --- Card kinds ------------------------------------------------------------
@@ -118,186 +129,6 @@ CARD_TYPES = (
     "creature", "planeswalker", "battle", "artifact", "enchantment",
     "instant", "sorcery", "land",
 )
-
-
-@dataclass(frozen=True)
-class TappedUnless:
-    """When a land that enters tapped does not (P19 R3, engine version 7).
-
-    ``kind`` says which question is asked of the game:
-
-    * ``control_type`` - you control a land of one of ``types`` (check lands)
-    * ``lands`` - you control ``count`` or more (``at_least``) or at most
-      ``count`` lands, ``other`` than this one, ``basic`` ones, or of ``type``
-      (fast, slow and battle lands, Mystic Sanctuary)
-    * ``opponents`` - you have ``count`` or more opponents: a Commander table
-      has three
-    * ``reveal`` - you can reveal a card of one of ``types`` from your hand
-    * ``pay_life`` - you pay ``count`` life (shock lands), never below the
-      Phyrexian life floor
-    * ``artifacts`` - you control ``count`` or more artifacts (Mox Opal,
-      Spire of Industry)
-    * ``permanent`` - you control a permanent of one of ``types``, a
-      ``legendary`` one if set (Minas Tirith, Dedicated Commons; P19 R12)
-    * ``turn`` - it is your turn ``count`` or earlier (Starting Town)
-    * ``opponent_lands`` - your opponents control ``count`` or more lands,
-      assuming each of three plays one a turn (the Turbulent lands)
-    * ``life_at_most`` - you have ``count`` or less life; the opponents'
-      life is unknown, so this holds less often than at a table
-    * ``power`` - you control a creature with power ``count`` or greater,
-      by the power printed on it (Fanatic of Rhonas; P19 R18)
-    * ``tap_fodder`` - a permanent of one of ``types`` (a ``legendary`` one
-      if set) is there for this card to tap besides itself: Springleaf
-      Drum, Survivors' Encampment (P19 R19). See ``Game.tap_fodder``.
-
-    Since engine version 8 the same question also guards a mana ability
-    (P19 R4): "Activate only if you control five or more lands" is a
-    ``ManaAbility`` whose ``only_if`` is ``TappedUnless("lands", count=5)``.
-    The name stays because R3 put it into stored games.
-    """
-
-    kind: str
-    types: frozenset[str] = field(default_factory=frozenset)
-    count: int = 0
-    at_least: bool = True
-    other: bool = False
-    basic: bool = False
-    type: str = ""
-    legendary: bool = False
-
-
-@dataclass(frozen=True)
-class SpellFilter:
-    """One kind of spell restricted mana may be spent on (P19 R17).
-
-    "Spend this mana only to cast ..." names one or more of them, any one of
-    which will do: Master of Dark Rites' "Vampire, Cleric, and/or Demon
-    spells" is three filters of one subtype each. Within one filter every
-    field must hold: Eldrazi Temple's "colorless Eldrazi spells" is
-    ``SpellFilter(subtypes={"eldrazi"}, colorless=True)``.
-
-    Attributes:
-        types: Card types, any one of them (``CARD_TYPES``): "artifact or
-            creature spells". Empty: any type.
-        subtypes: Subtypes, any one of them, lower case: "dragon". Empty: any.
-        legendary: A legendary spell only (Plaza of Heroes).
-        colorless: A colourless spell only (Shrine of the Forsaken Gods).
-        multicolored: A spell of two or more colours (Pillar of the Paruns).
-        noncreature: Not a creature spell.
-        only_color: A spell of this one colour and no other (Throne of
-            Eldraine's chosen colour, P19 R18). Empty: any.
-    """
-
-    types: frozenset[str] = field(default_factory=frozenset)
-    subtypes: frozenset[str] = field(default_factory=frozenset)
-    legendary: bool = False
-    colorless: bool = False
-    multicolored: bool = False
-    noncreature: bool = False
-    only_color: str = ""
-
-
-@dataclass(frozen=True)
-class ManaAbility:
-    """A mana ability as a rule rather than as a card name.
-
-    Since colour arrived, the amount produced lives in ``produces``, a canonical
-    colour -> amount mapping. It used to be two integers (``black``,
-    ``colorless``), which forced every non-black source to be read as
-    colourless - a forest made mana that no green spell could spend.
-
-    ``black`` and ``colorless`` survive as properties, because the engine and
-    the adapter ask for them in several places.
-
-    Attributes:
-        rule: One of the four constants above.
-        produces: Mana made by a ``FLAT`` ability, e.g. ``{"B": 1}`` or
-            ``{"green": 1, "colorless": 1}``. Either spelling is accepted.
-        activation_generic: Generic activation cost. Cabal Coffers costs {2};
-            without that cost it would be worth activating from the first swamp
-            onwards, and the early turns would look better than they are. A
-            ``FLAT`` ability can carry one too since engine version 3: a Signet
-            is ``ManaAbility(FLAT, {"U": 1, "B": 1}, activation_generic=1)``,
-            which nets one mana - read without it, it netted two.
-        subtype: The subtype the rule refers to.
-        color: The colour the scaling rules (``PER_CONTROLLED``,
-            ``DOUBLE_SUBTYPE``) make. Empty means the subtype's colour, so
-            black for swamps and green for forests.
-        only_if: A condition the game checks before the ability counts. A
-            card may carry a conditional ``FLAT`` ability first and an
-            unconditional one after it: a Tainted land's {B}/{G} needs a
-            Swamp, its {C} does not.
-    """
-
-    rule: str
-    produces: tuple[tuple[str, int], ...] = ()
-    activation_generic: int = 0
-    subtype: str = ""
-    color: str = ""
-    #: The ability can be activated only while this holds (P19 R4): Temple
-    #: of the False God, a Tainted land, Mox Opal. None: always.
-    only_if: TappedUnless | None = None
-    #: A ``FILTER``'s one mana of input: the colours it may be paid with,
-    #: "WB" for {W/B}; empty for {1}, any mana (P19 R6).
-    pays_with: str = ""
-    #: A ``MULTIPLY``'s factor: 2 for twice as much (P19 R13).
-    times: int = 1
-    #: P19 R17: "Spend this mana only to cast ..." - the spells its mana may
-    #: pay for, any one of these will do. Empty: any spell or ability.
-    spend_only: tuple[SpellFilter, ...] = ()
-
-    def __post_init__(self):
-        # Canonicalise, so that two abilities making the same mana compare
-        # equal - whether they came from the fixture or from the database.
-        object.__setattr__(self, "produces", normalised(self.produces))
-
-    def amount(self, color: str) -> int:
-        """How much mana of this colour the ability makes."""
-        return dict(self.produces).get(color, 0)
-
-    @property
-    def black(self) -> int:
-        return self.amount("B")
-
-    @property
-    def colorless(self) -> int:
-        return self.amount(COLORLESS)
-
-    @property
-    def total(self) -> int:
-        return sum(amount for _, amount in self.produces)
-
-    @property
-    def colored_total(self) -> int:
-        """Mana made that is *coloured*. Colourless does not count."""
-        return sum(amount for source, amount in self.produces if source != COLORLESS)
-
-    @property
-    def scaling_color(self) -> str:
-        """The colour a scaling rule makes mana in.
-
-        Absent an explicit one, the subtype's colour: Cabal Coffers counts
-        swamps and makes black, while Gaea's Cradle needs ``color="G"`` because
-        it counts creatures and names no land type.
-        """
-        return self.color or SUBTYPE_COLORS.get(self.subtype, COLORLESS)
-
-
-@dataclass(frozen=True)
-class CostReduction:
-    """A Jet Medallion style cost reduction.
-
-    Reduces the generic portion **only**, never a coloured symbol - Necropotence
-    still costs {B}{B}{B} with a medallion out.
-    """
-
-    amount: int = 1
-    #: Only spells with at least one pip of this colour benefit.
-    requires_pip: bool = True
-    #: The colour ``requires_pip`` refers to. Jet Medallion discounts black
-    #: spells, Emerald Medallion green ones; black used to be the only colour
-    #: there was.
-    color: str = "B"
 
 
 @dataclass(frozen=True)
@@ -496,78 +327,6 @@ class AdditionalCost:
 
 
 @dataclass(frozen=True)
-class TapMana:
-    """Mana for tapping other permanents, without the card's own {T} (P19 R19).
-
-    Relic of Legends taps a legendary creature for one mana of any colour,
-    Urza an artifact for {U}, Grand Architect a blue creature for {C}{C} only
-    artifact spells may spend. One activation for each permanent there is
-    to tap: only one that makes no mana of its own, which keeps the ramp it
-    is; a creature tapped so does not attack (P19 R22). Grand Architect may
-    tap itself.
-
-    Attributes:
-        types: The card types a permanent tapped may have, any of them;
-            ``permanent`` for any.
-        filter: What it must also be: ``legendary`` or a colour letter.
-        mana: What one activation adds: a colour, ``C`` or a choice key.
-        amount: How much of it.
-        spend_only: The spells it may pay for (P19 R17). Empty: any.
-        tokens: Artifact tokens the card made as it entered, tapped too:
-            Urza's Construct.
-    """
-
-    types: frozenset[str] = field(default_factory=frozenset)
-    filter: str = ""
-    mana: str = ""
-    amount: int = 1
-    spend_only: tuple[SpellFilter, ...] = ()
-    tokens: int = 0
-
-
-#: ``Store.use``: spent whenever a payment needs it, as a Treasure (Pentad
-#: Prism); one use each turn the card taps (Vivid lands, Aether Hub, Wall of
-#: Roots); or one mana for each counter, which stay (Everflowing Chalice).
-STORE_FREE = "free"
-STORE_TAP = "tap"
-STORE_SCALES = "scales"
-
-
-@dataclass(frozen=True)
-class Store:
-    """Mana a permanent keeps as counters, energy or a Food (P19 R20).
-
-    Attributes:
-        use: ``STORE_FREE``, ``STORE_TAP`` or ``STORE_SCALES``.
-        mana: What one use adds - a colour, ``C`` or a choice key; for
-            ``STORE_SCALES`` empty means one colour the hand wants.
-        amount: How much of it, for each counter when it scales.
-        per_use: Counters one use spends (Runaway Steam-Kin: three).
-        energy: The counters are the player's energy, shared by all.
-        start: Counters as it enters.
-        start_from: ``x`` (Astral Cornucopia, Mana Bloom), ``colors``
-            (Sunburst, Converge) or ``kicks`` (Everflowing Chalice, cast as a
-            spell with X); empty: ``start``.
-        grows: ``tap`` - its {T} adds one each turn (Crystalline Crawler);
-            ``use`` - each use adds one before counting (Empowered
-            Autogenerator); ``red_spell`` - one for each red spell cast.
-        empty: With the last counter gone, at the start of the next turn:
-            ``sacrifice`` (storage lands, Gemstone Mine), ``dies`` (Wall of
-            Roots) or ``hand`` (Mana Bloom).
-    """
-
-    use: str = STORE_TAP
-    mana: str = ""
-    amount: int = 1
-    per_use: int = 1
-    energy: bool = False
-    start: int = 0
-    start_from: str = ""
-    grows: str = ""
-    empty: str = ""
-
-
-@dataclass(frozen=True)
 class Growth:
     """+1/+1 counters and what grows with them (P19 R21).
 
@@ -730,6 +489,19 @@ GERM = "Germ"
 NO_ABILITIES: tuple[ManaAbility, ...] = ()
 
 
+class _Unset:
+    """A mana field nobody gave: the card keeps what its blocks say."""
+
+    def __repr__(self) -> str:
+        return "UNSET"
+
+    def __reduce__(self):
+        return "UNSET"
+
+
+UNSET = _Unset()
+
+
 @dataclass(frozen=True)
 class Card:
     """A card, reduced to what the simulation needs.
@@ -767,10 +539,10 @@ class Card:
     # Every one of these has a default, so that the ~70 existing positional
     # ``Card(...)`` calls keep working unchanged - including the ones in the
     # four byte-identical test files.
-    mana_abilities: tuple[ManaAbility, ...] = NO_ABILITIES
-    ritual_gain: int = 0                       # Dark Ritual: +3 black
-    ritual_color: str = "B"                    # ... but Rite of Flame red
-    cost_reduction: CostReduction | None = None
+    mana_abilities: InitVar[tuple[ManaAbility, ...]] = UNSET
+    ritual_gain: InitVar[int] = UNSET                       # Dark Ritual: +3 black
+    ritual_color: InitVar[str] = UNSET                    # ... but Rite of Flame red
+    cost_reduction: InitVar[CostReduction | None] = UNSET
     draw_on_cast: int = 0
     life_on_cast: int = 0
     tutor: TutorSpec | None = None
@@ -792,7 +564,7 @@ class Card:
     #: opened with it on the battlefield and stays tapped from then on; see
     #: ``Game.stays_tapped``. Last, and defaulted, for the same positional
     #: reason as ``cost``.
-    untaps: bool = True
+    untaps: InitVar[bool] = UNSET
 
     #: The card types printed on the front face, lower case: ``{"artifact",
     #: "creature"}`` for an artifact creature. **No rule reads it** - ``kind``
@@ -870,21 +642,21 @@ class Card:
     #: R18: ``named:<name>`` adds one more for each card of that name in the
     #: graveyard (Rite of Flame), ``threshold:<cards>:<amount>`` makes
     #: ``amount`` instead with that many cards there (Cabal Ritual).
-    ritual_counts: str = ""
+    ritual_counts: InitVar[str] = UNSET
     #: P19 R15: the ways its additional cost can be paid, any one of them -
     #: empty for none. "Discard a card" alone stays ``discard_cost``.
     additional_costs: tuple[AdditionalCost, ...] = ()
     #: P19 R15: a mana ability whose cost is sacrificing another permanent -
     #: Ashnod's Altar, Phyrexian Tower: the types it takes (see
     #: :class:`AdditionalCost`), what one gives, and in what colour.
-    sacrifice_mana: AdditionalCost | None = None
-    sacrifice_mana_amount: int = 0
-    sacrifice_mana_color: str = ""
+    sacrifice_mana: InitVar[AdditionalCost | None] = UNSET
+    sacrifice_mana_amount: InitVar[int] = UNSET
+    sacrifice_mana_color: InitVar[str] = UNSET
     #: P19 R15: {T} is part of that ability's cost (Phyrexian Tower).
-    sacrifice_mana_taps: bool = False
+    sacrifice_mana_taps: InitVar[bool] = UNSET
     #: P19 R16: "Sacrifice another creature" - never the altar itself
     #: (Warren Soultrader). Its life, if any, is ``sacrifice_mana.life``.
-    sacrifice_mana_other: bool = False
+    sacrifice_mana_other: InitVar[bool] = UNSET
     #: P19 R16: the triggered abilities the engine plays.
     triggers: tuple[Trigger, ...] = ()
     #: P19 R15: it goes to exile rather than the graveyard once cast - a
@@ -902,20 +674,20 @@ class Card:
     #: Adherent's mana, and what Evolve compares.
     toughness: int = 0
     #: P19 R19: mana for tapping other permanents (Relic of Legends, Urza).
-    tap_mana: TapMana | None = None
+    tap_mana: InitVar[TapMana | None] = UNSET
     #: P19 R19: ``DISCARD_LAND`` or ``IMPRINT``, see there; empty for none.
-    mox: str = ""
+    mox: InitVar[str] = UNSET
     #: P19 R19: cards it mills each time it is tapped for mana (Millikin).
-    mana_mills: int = 0
+    mana_mills: InitVar[int] = UNSET
     #: P19 R20: mana it keeps as counters, energy or a Food. Its
     #: ``mana_abilities`` are what it taps for without them.
-    store: Store | None = None
+    store: InitVar[Store | None] = UNSET
     #: P19 R21: +1/+1 counters and what grows with them.
     growth: Growth | None = None
     #: P19 R21: Growing Rites of Itlimoc - it turns into its land at your end
     #: step once you control this many creatures, and makes mana only then.
     #: 0: no such card.
-    flip: int = 0
+    flip: InitVar[int] = UNSET
     #: P19 R22: it attacks the turn it arrives.
     haste: bool = False
     #: P19 R22: its triggers in combat.
@@ -930,6 +702,59 @@ class Card:
     #: P19 R22: a token the engine made as a card (a Germ): it goes to no
     #: graveyard.
     token: bool = False
+    #: Card model phase 4: what the card does, as blocks
+    #: (:mod:`simulation.blocks`). Since PR 13 the mana family - the sixteen
+    #: fields above marked ``InitVar`` - lives here: a card is still made with
+    #: those arguments, which `simulation.rules.mana.encode` turns into
+    #: blocks, and reading one of them decodes it (`legacy`). The engine reads
+    #: the compiled blocks (`mana`), never the fields.
+    abilities: tuple = ()
+
+    def __post_init__(self, *given):
+        values = {name: value for name, value in zip(MANA_FIELDS, given, strict=True)
+                  if value is not UNSET}
+        if not values:
+            return
+        from simulation.rules import mana
+
+        kept = tuple(each for each in self.abilities if each.form not in mana.FORMS)
+        before = mana.decode(self.abilities) if len(kept) < len(self.abilities) else {}
+        object.__setattr__(self, "abilities", kept + mana.encode({**before, **values}))
+
+    @property
+    def legacy(self) -> dict:
+        """The mana family's fields, decoded from the blocks once: what the
+        application reads until phase 5. Never the engine."""
+        found = self.__dict__.get("_legacy")
+        if found is None:
+            from simulation.rules import mana
+
+            found = self.__dict__["_legacy"] = mana.decode(self.abilities)
+        return found
+
+    @cached_property
+    def mana(self):
+        """The mana family's blocks compiled once (`simulation.rules.mana.ManaView`):
+        what the engine reads."""
+        from simulation.rules import mana
+
+        return mana.compile_view(self.abilities)
+
+    def __hash__(self) -> int:
+        # Over every field, as a frozen dataclass hashes - computed once: a
+        # card's blocks nest deeper than its old fields did, and the engine
+        # counts cards in multisets every turn.
+        found = self.__dict__.get("_hash")
+        if found is None:
+            found = self.__dict__["_hash"] = hash(tuple(
+                getattr(self, name) for name in _HASHED))
+        return found
+
+    def __getstate__(self):
+        # What is compiled, decoded or hashed is made again where the card
+        # arrives: a string's hash differs from one process to the next.
+        return {key: value for key, value in self.__dict__.items()
+                if key not in ("_legacy", "mana", "_hash")}
 
     @property
     def mana_cost(self) -> ManaCost:
@@ -988,6 +813,27 @@ class Card:
 
     def __str__(self) -> str:
         return self.name
+
+
+#: The fields a card's hash is over: every one, as a frozen dataclass's is.
+_HASHED = tuple(item.name for item in fields(Card))
+
+#: The sixteen fields of the mana family, as `Card` takes them (card model,
+#: phase 4, PR 13): in the order they are declared.
+MANA_FIELDS = tuple(name for name, item in Card.__dataclass_fields__.items()
+                     if isinstance(item.type, InitVar))
+
+
+def _legacy_field(name: str) -> property:
+    def read(card):
+        return card.legacy[name]
+    read.__name__ = name
+    read.__doc__ = f"The mana family's ``{name}``, decoded from the card's blocks."
+    return property(read)
+
+
+for _name in MANA_FIELDS:
+    setattr(Card, _name, _legacy_field(_name))
 
 
 def _t(*tags: str) -> frozenset[str]:

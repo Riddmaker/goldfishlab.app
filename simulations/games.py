@@ -351,9 +351,11 @@ def _stable(value):
     """`serial.dump` with every set sorted: a frozenset dumps in hash order,
     which changes from one process to the next."""
     if dataclasses.is_dataclass(value) and not isinstance(value, type):
+        # A card by the fields it is made with, as `serial` writes it: its
+        # reading stays comparable across the move onto blocks (phase 4).
         return {"_type": type(value).__name__,
-                **{item.name: _stable(getattr(value, item.name))
-                   for item in dataclasses.fields(value)}}
+                **{name: _stable(getattr(value, name))
+                   for name, _annotation in serial.fields_of(type(value))}}
     if isinstance(value, (frozenset, set)):
         return sorted((_stable(item) for item in value),
                       key=lambda item: json.dumps(item, sort_keys=True))

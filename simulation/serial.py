@@ -40,6 +40,31 @@ def _register(cls: type) -> type:
     return cls
 
 
+def fields_of(cls) -> list[tuple[str, object]]:
+    """The fields a dump of ``cls`` holds, with their types, in order.
+
+    A `Card` is written as the fields it is made with: its mana family as
+    the sixteen fields it takes (``InitVar``), which make its blocks again
+    when it is loaded, and not the blocks themselves (card model phase 4,
+    PR 13). So a stored deck or game keeps one form for every card, from
+    before PR 13 and after.
+    """
+    found = _FIELDS.get(cls)
+    if found is None:
+        if cls is Card:
+            found = [(name, item.type.type if isinstance(item.type, dataclasses.InitVar)
+                      else item.type)
+                     for name, item in Card.__dataclass_fields__.items()
+                     if name != "abilities"]
+        else:
+            found = [(item.name, item.type) for item in dataclasses.fields(cls)]
+        _FIELDS[cls] = found
+    return found
+
+
+_FIELDS: dict[type, list] = {}
+
+
 def _discover() -> None:
     """Register every dataclass a `Card` can reach, transitively."""
     pending = [Card, DeckDefinition]
@@ -48,8 +73,8 @@ def _discover() -> None:
         if cls.__name__ in _TYPES:
             continue
         _register(cls)
-        for field in dataclasses.fields(cls):
-            for found in _dataclasses_in(field.type):
+        for _name, annotation in fields_of(cls):
+            for found in _dataclasses_in(annotation):
                 pending.append(found)
 
 
@@ -81,8 +106,8 @@ def dump(value):
     """
     if dataclasses.is_dataclass(value) and not isinstance(value, type):
         out = {"_type": type(value).__name__}
-        for field in dataclasses.fields(value):
-            out[field.name] = dump(getattr(value, field.name))
+        for name, _annotation in fields_of(type(value)):
+            out[name] = dump(getattr(value, name))
         return out
     if isinstance(value, (list, tuple, frozenset, set)):
         return [dump(item) for item in value]
@@ -132,9 +157,9 @@ def _load_dataclass(cls: type, data: dict):
             raise ValueError(f"unknown engine type in stored state: {stored!r}")
         cls = _TYPES[stored]
     kwargs = {
-        field.name: load(field.type, data[field.name])
-        for field in dataclasses.fields(cls)
-        if field.name in data
+        name: load(annotation, data[name])
+        for name, annotation in fields_of(cls)
+        if name in data
     }
     return cls(**kwargs)
 

@@ -36,6 +36,7 @@ from simulation.cards import (
 from simulation.game import Game
 from simulation.mana import ManaPool, RestrictedMana, may_spend
 from simulation.manacost import parse
+from simulation.rules.mana import spell_selector
 from simulation.serial import dump_game, load_game
 from simulations import deck_cards, gaps
 from simulations.engine import adapter
@@ -46,8 +47,14 @@ CREATURES = (SpellFilter(types=frozenset({"creature"})),)
 ELVES = (SpellFilter(types=frozenset({"creature"}), subtypes=frozenset({"elf"})),)
 
 
+def spends(filters) -> tuple:
+    """Spell filters as the selectors restricted mana holds since card model
+    phase 4 (PR 13)."""
+    return tuple(spell_selector(each) for each in filters)
+
+
 def restricted(made, spend_only=CREATURES, otherwise=None, source="Source"):
-    return RestrictedMana(dict(made), spend_only, dict(otherwise or {}), source)
+    return RestrictedMana(dict(made), spends(spend_only), dict(otherwise or {}), source)
 
 
 ELF = Card("Elvish Visionary", 2, 0, 1, CREATURE, cost=parse("{1}{G}"),
@@ -142,7 +149,7 @@ def test_a_choice_taken_for_the_wrong_pip_is_not_the_end():
     (SpellFilter(types=frozenset({"artifact"})), Card("Sol Ring", 1, 0, 1, "rock"), True),
 ])
 def test_what_a_filter_lets_pay(wanted, spell, expected):
-    assert may_spend((wanted,), spell) is expected
+    assert may_spend(spends((wanted,)), spell) is expected
 
 
 # --- the game -----------------------------------------------------------------------

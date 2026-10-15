@@ -118,6 +118,7 @@ class Cost:
             creature type.
         x: The amount is X (``life`` of Toxic Deluge).
         other: Never the card itself.
+        selector: See the field.
     """
 
     atom: str
@@ -127,6 +128,10 @@ class Cost:
     filter: str = ""
     x: bool = False
     other: bool = False
+    #: What a tapped or sacrificed permanent must be, as one selector (card
+    #: model phase 4, :mod:`simulation.rules.selector`); the mana family's
+    #: blocks use it in place of ``types`` and ``filter``.
+    selector: Any = None
 
 
 @dataclass(frozen=True)

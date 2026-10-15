@@ -200,7 +200,7 @@ def _scaling_mana_sources(cards) -> int:
     land (Wild Growth, Abundant Growth; P19 R13) is a fixed amount, and does
     not count.
     """
-    return sum(1 for card in cards if any(map(_grows, card.mana_abilities)))
+    return sum(1 for card in cards if any(map(_grows, card.mana.entries)))
 
 
 #: Rules whose amount is fixed however large the board gets: a filter land
@@ -213,7 +213,8 @@ def _grows(ability) -> bool:
     not: its seven are there once the three lands are."""
     if ability.rule in _FIXED_RULES or ability.subtype.startswith("enchanted"):
         return False
-    return not (ability.rule == COUNTS and ability.subtype.startswith("names:"))
+    return not (ability.rule == COUNTS and ability.amount is not None
+                and ability.amount.kind == "all_named")
 
 
 def _has_fast_mana(cards) -> bool:
@@ -233,7 +234,7 @@ def _has_fast_mana(cards) -> bool:
         # Net of what the ability costs to use: a Signet's {1} leaves one
         # mana, which is fixing and not tempo.
         produced = sum(
-            a.total - a.activation_generic for a in card.mana_abilities if a.rule == FLAT
+            a.total - a.activation_generic for a in card.mana.sources if a.rule == FLAT
         )
         if produced > card.mv:
             return True

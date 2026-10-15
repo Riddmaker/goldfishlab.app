@@ -108,7 +108,9 @@ def test_every_field_is_placed_somewhere():
     """A new `Card` field fails here until a block, the face or a hint holds it."""
     examples = {key for values in EXAMPLES.values() for key in values}
     placed = set(blocks.FACE_FIELDS) | set(blocks.HINT_FIELDS) | examples
-    assert {f.name for f in dataclasses.fields(Card)} <= placed
+    # The fields a card is made with; since card model phase 4 its mana family
+    # is in `Card.abilities` already, made from those fields (PR 13).
+    assert {name for name, _annotation in serial.fields_of(Card)} <= placed
 
 
 def test_the_coverage_set_comes_back_the_same():

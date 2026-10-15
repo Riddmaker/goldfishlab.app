@@ -565,7 +565,8 @@ def altars(game, pool) -> list[Action]:
     return [SacrificeForMana(zone=zone, index=index)
             for zone in (LANDS, ROCKS, CREATURES, OTHER)
             for index, card in enumerate(zone_of(game, zone))
-            if card.sacrifice_mana is not None and game.altar_fodder(card, pool)]
+            if card.mana.altar is not None and card.mana.altar.sacrifices
+            and game.altar_fodder(card, pool)]
 
 
 def castable_cost(game, card, x: int = 0):

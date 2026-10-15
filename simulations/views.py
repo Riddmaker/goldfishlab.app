@@ -51,7 +51,7 @@ from simulations import (
     summary,
 )
 from simulations.engine import adapter
-from simulations.engine.adapter import DECK_SCOPE, USER_SCOPE
+from simulations.engine.adapter import BUILTIN_SCOPE, DECK_SCOPE, USER_SCOPE
 from simulations.forms import AnnotationForm, RunForm
 from simulations.models import SimulationRun
 
@@ -493,6 +493,8 @@ class CardAnnotateView(DeckScopedView):
                        if primitive_form is not None else ([], []))
         variants = primitives.VARIANTS.get(editing)
         return {"blocks": shown, "addable": addable, "gone": gone, "editing": editing,
+                "categories": editor.categories_block(
+                    entry.reading, overrides, found.scopes.get(card.pk, {}), scope),
                 "editing_item": "" if not is_list else ("new" if index is None else index),
                 "editing_label": primitives.BY_KEY[editing].label if editing else "",
                 "editing_variant": variants.of(value) if variants and value else "",
@@ -626,6 +628,44 @@ class PrimitiveView(DeckScopedView):
         messages.success(request, gettext("Saved. %(card)s will be read that way from the "
                                           "next run onwards.") % {"card": card.front_name})
         return redirect(CardAnnotateView._url(deck, card, scope) + "#primitives")
+
+
+#: Which scopes a scope's row starts from: annotation scopes merge key by
+#: key, narrowest last (`adapter.annotations_for`).
+_WIDER = {DECK_SCOPE: (USER_SCOPE, BUILTIN_SCOPE), USER_SCOPE: (BUILTIN_SCOPE,)}
+
+
+class CategoryView(DeckScopedView):
+    """Change what one card counts as in the statistics (card model phase 3,
+    PR 10): make a role its main one, add or remove a category, or go back to
+    the card data. Relative to what is derived, so a later reading still
+    reaches the card; the engine's play does not change."""
+
+    def post(self, request, pk, oracle_id):
+        deck = self.get_deck(request, pk)
+        card = self.get_card(deck, oracle_id)
+        scope = CardAnnotateView._scope(request.POST.get("scope"))
+        action = request.POST.get("action", "")
+        key = request.POST.get("key", "")
+        found = adapter.annotations_for(deck)
+        merged, scopes = found.for_card(card.pk), found.scopes.get(card.pk, {})
+        inherited = {name: merged[name] for name in annotations.CATEGORY_KEYS
+                     if name in merged and scopes.get(name) in _WIDER[scope]}
+        profile = getattr(card, "profile", None)
+        base = (adapter.base_categories(profile, merged, scopes.get("tags"))
+                if profile is not None else frozenset())
+        try:
+            services.save_annotation(
+                deck=deck, oracle_card=card, scope=scope, note=None,
+                category_change=(action, key, base, inherited),
+            )
+        except ValidationError as exc:
+            messages.error(request, " ".join(exc.messages))
+        else:
+            messages.success(request, gettext("Saved. %(card)s counts that way in the "
+                                              "statistics from the next run onwards.")
+                             % {"card": card.front_name})
+        return redirect(CardAnnotateView._url(deck, card, scope) + "#categories")
 
 
 class AnnotationDeleteView(DeckScopedView):

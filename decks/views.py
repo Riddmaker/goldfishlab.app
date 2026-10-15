@@ -112,6 +112,7 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
             "filters": filters,
             "type_bars": type_bars,
             "category_bars": category_bars,
+            "unranked": deck_cards.unranked(grid),
         }
 
     @staticmethod

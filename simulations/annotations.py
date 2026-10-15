@@ -32,11 +32,12 @@ from dataclasses import dataclass
 from django.utils.text import format_lazy
 from django.utils.translation import gettext, gettext_lazy, gettext_noop
 
+from cards import categories as card_categories
 from cards.models import DerivedProfile
 from cards.profiles import ROLE_FROM_TAG
 from simulations.engine import runner
 from simulations.models import MANA_SOURCES
-from simulations.report import SEEN_ROLES, SEEN_STRATEGY_ROLES
+from simulations.report import SEEN_MECHANIC_ROLES, SEEN_ROLES, SEEN_STRATEGY_ROLES
 
 _ = gettext_lazy
 
@@ -57,7 +58,7 @@ ROLE_KEYS = sorted(
 #: report's categories and strategies keep their names; the rest are the
 #: engine's own.
 ROLE_NAMES = {
-    **dict(SEEN_ROLES + SEEN_STRATEGY_ROLES),
+    **dict(SEEN_ROLES + SEEN_STRATEGY_ROLES + SEEN_MECHANIC_ROLES),
     "creature": gettext_noop("Creature"),
     "draw_engine": gettext_noop("Draw engine"),
     "gamechanger": gettext_noop("Game Changer"),
@@ -70,6 +71,18 @@ ROLE_NAMES = {
 ROLE_CHOICES = tuple(
     (role, gettext_lazy(ROLE_NAMES[role]) if role in ROLE_NAMES else role.replace("_", " "))
     for role in ROLE_KEYS
+)
+
+#: The roles the engine itself reads (card model phase 3, PR 10): what the
+#: "Roles the engine reads" judgement offers, and all it replaces.
+ENGINE_ROLE_CHOICES = tuple((role, label) for role, label in ROLE_CHOICES
+                            if role in runner.ENGINE_ROLE_TAGS)
+
+#: What a card may count in, for the "Categories" block: the roles, then the
+#: mechanics, in the report's order.
+CATEGORY_CHOICES = tuple(
+    (key, gettext_lazy(ROLE_NAMES[key]) if key in ROLE_NAMES else key.replace("_", " "))
+    for key in card_categories.ROLES + card_categories.MECHANICS
 )
 
 #: Engine card kinds. The same nine values as `DerivedProfile.Kind`, which is
@@ -157,10 +170,12 @@ JUDGEMENTS = (
           "reading this application makes. Worth checking on anything unusual."),
     ),
     Judgement(
-        "tags",
-        _("Roles"),
-        _("What the card does, in the vocabulary the report's milestone table "
-          "counts. Replacing them overrides the community tags completely."),
+        "engine_tags",
+        _("Roles the engine reads"),
+        _("The four roles the engine itself reads while it plays and counts "
+          "milestones: a draw engine, a sacrifice outlet, a creature that comes "
+          "back, a drain. What the card counts as in the statistics is under "
+          "“Categories”."),
     ),
     Judgement(
         "mana_activation",
@@ -359,3 +374,115 @@ def apply_primitives(overrides: dict, changes: dict) -> dict:
         else:
             kept[key] = primitives.validate(key, value)
     return kept
+
+
+#: The keys of the category corrections (card model phase 3, PR 10).
+CATEGORY_KEYS = ("category_primary", "category_add", "category_remove")
+
+#: What the "Categories" block can do with one category.
+CATEGORY_ACTIONS = frozenset({"primary", "add", "remove", "reset"})
+
+
+def apply_category(overrides: dict, action: str, key: str = "",
+                   base: frozenset[str] = frozenset(), inherited: dict | None = None) -> dict:
+    """One change to a card's categories, merged into `overrides`.
+
+    Said relative to `base`, what the card counts in before any correction
+    (`adapter.base_categories`), so a later reading still reaches the card:
+    ``add`` takes back a removal and adds what `base` lacks, ``remove``
+    takes back an addition and removes what `base` has (and a main role it
+    was), ``primary`` makes a role the main one (and counts the card in
+    it), ``reset`` goes back to the card data.
+
+    `inherited` is what a wider scope said (all decks, for a deck's row):
+    annotation scopes merge key by key, so a list this row did not have
+    starts from it when the change touches it, and one it empties is stored
+    empty to stay empty. A list the change does not touch is left to the
+    wider scope.
+
+    ``reset`` also retires a whole list written before phase 3 (``tags``),
+    keeping the four roles the engine reads from it as ``engine_tags``: the
+    games stay as they were and only the statistics go back to the card.
+
+    Returns:
+        dict: The overrides to store. Never the same object as `overrides`.
+
+    Raises:
+        ValueError: On an action or a category outside the vocabulary.
+    """
+    known = card_categories.ROLES + card_categories.MECHANICS
+    if action not in CATEGORY_ACTIONS or (action != "reset" and key not in known) \
+            or (action == "primary" and key not in card_categories.ROLES):
+        raise ValueError(f"{action!r} {key!r} is no change to a card's categories")
+    kept = dict(overrides or {})
+    inherited = inherited or {}
+    if action == "reset":
+        for name in CATEGORY_KEYS:
+            kept.pop(name, None)
+        if "tags" in kept:
+            legacy = set(kept.pop("tags") or ())
+            kept.setdefault("engine_tags", sorted(legacy & set(runner.ENGINE_ROLE_TAGS)))
+        return kept
+
+    def said(name: str) -> list:
+        return list((kept[name] if name in kept else inherited.get(name)) or ())
+
+    added = [name for name in said("category_add") if name != key]
+    removed = [name for name in said("category_remove") if name != key]
+    if action in ("add", "primary"):
+        if key not in base:
+            added.append(key)
+        if action == "primary":
+            kept["category_primary"] = key
+    elif action == "remove":
+        # A main role a wider scope names would count the card again
+        # (`adapter._categories`): its removal is said outright.
+        if key in base or inherited.get("category_primary") == key:
+            removed.append(key)
+        if kept.get("category_primary") == key:
+            kept.pop("category_primary")
+    for name, value in (("category_add", added), ("category_remove", removed)):
+        value = sorted(value, key=known.index)
+        if name not in kept and value == said(name):
+            continue
+        if value or inherited.get(name):
+            kept[name] = value
+        else:
+            kept.pop(name, None)
+    return kept
+
+
+def tags_as_categories(overrides: dict, derived: frozenset[str], role_tags,
+                       explicit: bool = False) -> dict | None:
+    """A whole list from before card model phase 3 (``tags``) said the new way.
+
+    The four roles the engine reads become ``engine_tags`` where they differ
+    from the community roles (`role_tags`), or always when `explicit` (a
+    built-in list under the row would otherwise answer them); what the card
+    counts as becomes ``category_add`` and ``category_remove`` relative to
+    its `derived` categories (`adapter.derived_categories`), so the statistics count it as
+    the list did: the list's roles and mechanics, and the mechanics no list
+    could name. Keys outside the vocabulary are counted nowhere and go.
+    Migration 0017 stores it only where the engine plays the card as before.
+
+    Returns:
+        dict | None: The overrides to store, or `None` for a row without a list.
+    """
+    if "tags" not in overrides:
+        return None
+    legacy = set(overrides["tags"] or ())
+    said = {key: value for key, value in overrides.items()
+            if key not in ("tags", "category_add", "category_remove")}
+    engine = set(runner.ENGINE_ROLE_TAGS)
+    if explicit or legacy & engine != set(role_tags) & engine:
+        said["engine_tags"] = sorted(legacy & engine)
+    known = card_categories.ROLES + card_categories.MECHANICS
+    target = ((legacy | (derived & set(card_categories.NEW_MECHANICS))
+               | set(overrides.get("category_add") or ()))
+              - set(overrides.get("category_remove") or ())) & set(known)
+    have = set(derived) & set(known)
+    if target - have:
+        said["category_add"] = sorted(target - have, key=known.index)
+    if have - target:
+        said["category_remove"] = sorted(have - target, key=known.index)
+    return said

@@ -260,9 +260,9 @@ def _skips_draw_step(cards) -> bool:
 MV_CAP = 7
 
 #: The categories a Commander deck is sorted into (Phase 9, "The category
-#: vocabulary"), read off ``Card.categories``. One community role each: a
-#: narrower role such as ``mana_rock`` always comes with its broader one in the
-#: community tags, so nothing has to be folded together here.
+#: vocabulary"), read off ``Card.categories``: a card's main and second role
+#: (`cards.categories`, card model phase 3), or the community's roles until its
+#: profile is derived again.
 SEEN_CATEGORIES = (
     "ramp", "draw", "removal", "wipe", "tutor", "counterspell", "protection",
     "recursion",
@@ -276,15 +276,22 @@ SEEN_STRATEGIES = (
     "cost_reducer", "evasion",
 )
 
+#: The mechanics card model phase 3 reads off a card's blocks
+#: (`cards.categories.NEW_MECHANICS`), counted like the strategies. A run from
+#: before simply has no group for them.
+SEEN_MECHANICS = (
+    "lifegain", "land_search", "treasure", "tokens", "death_trigger", "tax",
+)
+
 
 def seen_groups(deck) -> tuple[tuple[str, ...], dict[str, tuple[int, ...]]]:
     """The groups a deck's cards are counted in, and which groups each card is in.
 
     Worked out once per run, so that the per-turn count only adds integers. The
-    keys are ``type:creature``, ``role:ramp`` (one of `SEEN_CATEGORIES` or
-    `SEEN_STRATEGIES`) and ``mv:3``, and only the ones this deck has cards in
-    exist - a deck with no planeswalker has no ``type:planeswalker``, which is
-    an absent line on the chart, not a zero.
+    keys are ``type:creature``, ``role:ramp`` (one of `SEEN_CATEGORIES`,
+    `SEEN_STRATEGIES` or `SEEN_MECHANICS`) and ``mv:3``, and only the ones this
+    deck has cards in exist - a deck with no planeswalker has no
+    ``type:planeswalker``, which is an absent line on the chart, not a zero.
 
     **Lands have no mana-value group.** Every land is mana value zero, and
     thirty-seven of them would bury the one question the curve answers: are
@@ -310,7 +317,7 @@ def seen_groups(deck) -> tuple[tuple[str, ...], dict[str, tuple[int, ...]]]:
             continue
         slots = [slot(f"type:{kind}") for kind in sorted(card.types)]
         slots += [slot(f"role:{category}")
-                  for category in SEEN_CATEGORIES + SEEN_STRATEGIES
+                  for category in SEEN_CATEGORIES + SEEN_STRATEGIES + SEEN_MECHANICS
                   if category in card.categories]
         if not card.is_land:
             slots.append(slot(f"mv:{min(card.mv, MV_CAP)}"))

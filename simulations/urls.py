@@ -39,6 +39,11 @@ urlpatterns = [
         name="primitive",
     ),
     path(
+        "decks/<uuid:pk>/tune/<uuid:oracle_id>/category/",
+        views.CategoryView.as_view(),
+        name="category",
+    ),
+    path(
         "decks/<uuid:pk>/tune/<uuid:oracle_id>/forget/",
         views.AnnotationDeleteView.as_view(),
         name="forget",

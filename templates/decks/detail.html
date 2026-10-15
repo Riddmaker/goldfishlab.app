@@ -213,6 +213,19 @@
       <ul class="mt-4 space-y-1.5 border-t border-parchment-300 pt-4">
         {% for bar in category_bars %}{% include "decks/_bar.html" %}{% endfor %}
       </ul>
+      {% if unranked is not None %}
+        <p class="mt-3 text-sm text-ink-700">
+          {% if unranked %}
+            {% blocktranslate trimmed count unranked=unranked %}
+              A card counts in every category it fits; “main” counts it once, in its main role. {{ unranked }} card has none: a land, or a card that serves the plan.
+            {% plural %}
+              A card counts in every category it fits; “main” counts it once, in its main role. {{ unranked }} cards have none: lands, and cards that serve the plan.
+            {% endblocktranslate %}
+          {% else %}
+            {% translate "A card counts in every category it fits; “main” counts it once, in its main role." %}
+          {% endif %}
+        </p>
+      {% endif %}
     </section>
   </div>
 

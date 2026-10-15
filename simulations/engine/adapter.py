@@ -27,6 +27,7 @@ from dataclasses import dataclass, field, replace
 
 from django.utils.translation import gettext, gettext_noop, ngettext
 
+from cards import categories as card_categories
 from decks.models import Deck
 from simulation import ENGINE_VERSION, agent
 from simulation.cards import (
@@ -69,6 +70,7 @@ from simulation.mana import land_color
 from simulation.manacost import COLORLESS, COLORS, ManaCost, choice, mana_label, parse
 from simulations import gaps as gaps_module
 from simulations import patches, primitives
+from simulations.engine import runner
 
 #: Engine kinds that are one-shot spells. Only these may take `draw_on_cast`
 #: from the derived `draws_cards`: a permanent's "draw a card" is almost always
@@ -269,6 +271,11 @@ class Reading:
     #: The owner's corrections whose block changed or is gone since they were
     #: written (`Check`) - "please check". Built-in ones are the operator's.
     checks: list = field(default_factory=list)
+    #: The card's main role, one of `card.categories` (card model phase 3):
+    #: what the deck page's slots count. Empty for a card without one - a
+    #: land, a plan card - and for every card until its profile is derived
+    #: again.
+    primary: str = ""
 
     @property
     def names_type(self) -> bool:
@@ -319,7 +326,9 @@ class Reading:
 
     @property
     def roles(self) -> list[str]:
-        return sorted(self.card.tags)
+        """The roles the engine reads off the card (`runner.ENGINE_ROLE_TAGS`);
+        what the card counts as in the statistics is `card.categories`."""
+        return sorted(self.card.tags & frozenset(runner.ENGINE_ROLE_TAGS))
 
     @property
     def searches(self) -> str:
@@ -855,6 +864,8 @@ def readings(deck: Deck) -> list[Reading]:
                 gaps=gaps,
                 quantity=entry.quantity,
                 checks=annotations.checks_of(entry.oracle_card_id),
+                primary=primary_role(entry.oracle_card, card.categories,
+                                     annotations.for_card(entry.oracle_card_id)),
             )
         )
 
@@ -870,6 +881,7 @@ def readings(deck: Deck) -> list[Reading]:
                 gaps=gaps,
                 is_commander=True,
                 checks=annotations.checks_of(oracle.pk),
+                primary=primary_role(oracle, card.categories, annotations.for_card(oracle.pk)),
             )
         )
 
@@ -900,7 +912,10 @@ def engine_readings(oracle_cards, *, builtin: bool = True) -> dict:
     for oracle_id, overrides, document in rows:
         said, _notes = patches.effective(overrides, document, profiles.get(oracle_id))
         merged.setdefault(oracle_id, {}).update(said)
-    annotations = Annotations(overrides=merged, scopes={})
+    # Said as built in: a built-in roles list is the engine's alone, and the
+    # card counts in its derived categories (`_categories`).
+    annotations = Annotations(overrides=merged, scopes={
+        oracle_id: dict.fromkeys(said, BUILTIN_SCOPE) for oracle_id, said in merged.items()})
 
     found = {}
     for oracle_card in cards:
@@ -910,14 +925,18 @@ def engine_readings(oracle_cards, *, builtin: bool = True) -> dict:
     return found
 
 
-def card_with(oracle_card, overrides: dict) -> tuple[Card, list[Gap]]:
+def card_with(oracle_card, overrides: dict,
+              scopes: dict | None = None) -> tuple[Card, list[Gap]]:
     """One card with these overrides and no others, outside any deck.
 
     What a stored correction makes of the card - for comparing it with what
-    later code makes of the same correction (`simulations.parity`).
+    later code makes of the same correction (`simulations.parity`). `scopes`
+    says which scope set each key, where that matters (a built-in ``tags``
+    list counts for the engine only); without it, nobody's in particular.
     """
     gaps: list[Gap] = []
-    annotations = Annotations(overrides={oracle_card.pk: overrides}, scopes={})
+    annotations = Annotations(overrides={oracle_card.pk: overrides},
+                              scopes={oracle_card.pk: scopes or {}})
     return _card_from(oracle_card, annotations, gaps), gaps
 
 
@@ -1241,8 +1260,8 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         generic=int(overrides.get("generic", profile.generic)),
         kind=kind,
         # The community tag rollup is broad on purpose; a deck author who
-        # disagrees says so here, and Phase 4's role editor writes it.
-        tags=frozenset(overrides.get("tags", profile.role_tags)),
+        # disagrees says so here (`_engine_tags`).
+        tags=_engine_tags(profile, overrides),
         land_type=overrides.get(
             "land_type", "basic_swamp" if profile.is_basic_swamp else ""
         ),
@@ -2438,20 +2457,84 @@ def _printed_subtypes(oracle_card) -> frozenset[str]:
 
 
 def _categories(profile, overrides: dict, tags_scope: str | None) -> frozenset[str]:
-    """The roles the draw statistics sort this card by (`Card.categories`).
+    """The categories the draw statistics sort this card by (`Card.categories`).
 
-    The community's roles, unless the **user** replaced them - on this deck or
-    on all of theirs - in which case their list is the answer, an empty one
-    included. A **built-in** replacement is ignored here: the built-in
-    annotations exist so that the reference deck plays exactly as its original
+    The card's derived categories (`derived_categories`), unless the **user**
+    replaced its roles - on this deck or on all of theirs - in which case
+    their list is the answer, an empty one included, for every key the list
+    could name. The mechanics card model phase 3 added came after every
+    stored list, so no list could name them, and they stay derived.
+
+    A **built-in** replacement is ignored here: the built-in annotations
+    exist so that the reference deck plays exactly as its original
     hand-written list did, which is why Phyrexian Arena is only `draw_engine`
     there. That keeps a game metric right and would make every Phyrexian Arena
     on the site vanish from "Card draw" - it is a statement about how the
     engine plays the card, not about what the card is.
     """
+    # The corrections (card model phase 3, PR 10): relative to what is
+    # derived, so a later reading still reaches the card. A main role is
+    # counted, unless a narrower scope took it away.
+    removed = frozenset(overrides.get("category_remove") or ())
+    found = (base_categories(profile, overrides, tags_scope)
+             | frozenset(overrides.get("category_add") or ())) - removed
+    primary = overrides.get("category_primary")
+    return found | {primary} if primary and primary not in removed else found
+
+
+def base_categories(profile, overrides: dict, tags_scope: str | None) -> frozenset[str]:
+    """What the card counts in before its owner's category corrections: the
+    derived categories, or a whole list written before phase 3 (`_categories`)."""
+    derived = derived_categories(profile)
     if "tags" in overrides and tags_scope != BUILTIN_SCOPE:
-        return frozenset(overrides["tags"])
-    return frozenset(profile.role_tags)
+        return frozenset(overrides["tags"]) | (derived & frozenset(card_categories.NEW_MECHANICS))
+    return derived
+
+
+def _engine_tags(profile, overrides: dict) -> frozenset[str]:
+    """The roles on `Card.tags`, which the engine reads four of
+    (`runner.ENGINE_ROLE_TAGS`).
+
+    A list from before phase 3 (``tags``) is the whole answer, as it was.
+    ``engine_tags`` replaces only the four the engine reads.
+    """
+    tags = set(overrides["tags"]) if "tags" in overrides else set(profile.role_tags)
+    if "engine_tags" in overrides:
+        tags = (tags - set(runner.ENGINE_ROLE_TAGS)) | set(overrides["engine_tags"])
+    return frozenset(tags)
+
+
+def derived_categories(profile) -> frozenset[str]:
+    """A card's roles and mechanics (card model phase 3, `cards.categories`).
+
+    Until the profile is derived that way (`categories_version`), the
+    community roles as before: `role_tags`.
+    """
+    if not getattr(profile, "categories_version", 0):
+        return frozenset(profile.role_tags)
+    roles = {role for role in (profile.primary_role, profile.secondary_role) if role}
+    return frozenset(roles) | frozenset(profile.mechanics)
+
+
+def primary_role(oracle_card, categories: frozenset[str], overrides: dict | None = None) -> str:
+    """The card's main role among its `categories`.
+
+    The owner's (``category_primary``, PR 10) first; then the derived one
+    while the categories hold it; otherwise - the owner replaced the roles -
+    the first of theirs in `cards.categories.ROLE_ORDER`. None before the
+    profile is derived again, the owner's included: today's roles name no
+    main one, and one card with a main role would make the deck page count
+    every other card as having none.
+    """
+    profile = getattr(oracle_card, "profile", None)
+    if not getattr(profile, "categories_version", 0):
+        return ""
+    said = (overrides or {}).get("category_primary")
+    if said and said in categories:
+        return said
+    if profile.primary_role in categories:
+        return profile.primary_role
+    return next((role for role in card_categories.ROLE_ORDER if role in categories), "")
 
 
 def card_types(oracle_card) -> frozenset[str]:

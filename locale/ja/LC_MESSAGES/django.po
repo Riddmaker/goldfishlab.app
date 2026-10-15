@@ -1283,17 +1283,6 @@ msgid ""
 " this application makes. Worth checking on anything unusual."
 msgstr "カードの文章から正規表現で読み取っています。このアプリケーションで最も弱い読み取り方です。変わったカードは確認する価値があります。"
 
-#: simulations/annotations.py simulations/blindspots.py
-#: simulations/provenance.py
-msgid "Roles"
-msgstr "役割"
-
-#: simulations/annotations.py
-msgid ""
-"What the card does, in the vocabulary the report's milestone table counts. "
-"Replacing them overrides the community tags completely."
-msgstr "カードが何をするか。レポートのマイルストーン表が数える語彙で表します。置き換えるとコミュニティのタグは完全に上書きされます。"
-
 #: simulations/annotations.py simulations/provenance.py
 msgid "Costs to tap for mana"
 msgstr "マナのためのタップのコスト"
@@ -1381,17 +1370,6 @@ msgstr ""
 #: simulations/blindspots.py
 msgid "Roles worth a second look"
 msgstr "見直す価値のある役割"
-
-#: simulations/blindspots.py
-msgid ""
-"The role vocabulary comes from the Scryfall Tagger community, which is broad"
-" by design: “destroy target creature you control” is filed under removal "
-"alongside “destroy target creature”. The first is an engine piece and the "
-"second answers a threat, and the report's milestone table counts them the "
-"same way."
-msgstr ""
-"役割の語彙は Scryfall Tagger "
-"のコミュニティによるもので、意図的に広く分類されています。「あなたがコントロールするクリーチャー1体を対象とし、それを破壊する」は「クリーチャー1体を対象とし、それを破壊する」と同じく除去に分類されます。前者はエンジンの部品、後者は脅威への対処ですが、レポートのマイルストーン表はどちらも同じように数えます。"
 
 #: simulations/blindspots.py
 msgid "tagged as removal, but it destroys something you control"
@@ -1570,18 +1548,6 @@ msgid ""
 "A deck-scoped judgement wins over one you set for every deck, which wins "
 "over the application's own default."
 msgstr "デッキ単位の判断は、すべてのデッキ向けに設定した判断より優先され、それはアプリケーションの既定値より優先されます。"
-
-#: simulations/forms.py
-msgid "Replace the roles below"
-msgstr "下の役割で置き換える"
-
-#: simulations/forms.py
-msgid ""
-"Leave this alone to keep the community roles. Tick it and the selection "
-"below becomes the complete list - including an empty one, which is how you "
-"say a card has no role at all."
-msgstr ""
-"コミュニティの役割を使う場合はそのままにしてください。チェックを入れると、下の選択がすべての役割になります。空のままにすれば、そのカードに役割がないことを示せます。"
 
 #: simulations/forms.py
 msgid "Replace the land types below"
@@ -1900,12 +1866,6 @@ msgstr "今または後のターンにマナを増やすもの：マナ・ロッ
 #: simulations/report.py
 msgid "Cards that draw you cards."
 msgstr "カードを引かせてくれるカード。"
-
-#: simulations/report.py
-msgid ""
-"Gets something off the table: destroy, exile, bounce, damage. Board wipes "
-"count too."
-msgstr "何かを場から取り除くもの：破壊、追放、バウンス、ダメージ。全体除去も含みます。"
 
 #: simulations/report.py
 msgid "Removes many things at once."
@@ -3628,22 +3588,6 @@ msgid ""
 "would have been without it."
 msgstr ""
 "各ゲームの各ターンの後に、エンジンはそれまでに引いたカードを数えます。キープした初手と、毎回のドローです。サーチ・カードで見つけたカードはドローではないので数えません。呪文で持ってきた土地も同様です。マリガンでライブラリーの一番下に置いたカードは数えず、統率者も数えません。数えるときに乱数は一切引かないので、ゲームは数えなかった場合とまったく同じゲームになります。"
-
-#: templates/core/methodology.html
-msgid ""
-"<strong>Categories</strong> — ramp, card draw, removal and the rest — come "
-"from the community's card tags, or from what you said about a card. A spell "
-"that can only fetch lands, such as Cultivate, is ramp rather than a tutor. "
-"The chart shows the share of games with <em>at least one</em> by each turn, "
-"because that is the question a deck is built around: do I see ramp by turn "
-"two. <strong>Card types</strong> are shown as an average count instead: "
-"almost every game sees a creature by turn one, and how many is the part that"
-" differs between decks. The <strong>mana value</strong> bars count spells "
-"only — every land is mana value zero and would drown the curve."
-msgstr ""
-"<strong>カテゴリー</strong>（ランプ、ドロー、除去など）は、コミュニティのカード・タグ、またはあなたがカードについて回答した内容から決まります。Cultivate"
-" "
-"のように土地しか持ってこられない呪文は、サーチ・カードではなくランプです。グラフは各ターンまでに<em>少なくとも1枚</em>引いたゲームの割合を示します。「2ターン目までにランプを引けるか」こそが、デッキを組むときの問いだからです。一方、<strong>カード・タイプ</strong>は平均枚数で示します。ほぼすべてのゲームで1ターン目までにクリーチャーを引くので、デッキごとに違うのはその枚数だからです。<strong>マナ総量</strong>の棒グラフは呪文だけを数えます。土地はすべてマナ総量0なので、含めるとカーブが埋もれてしまいます。"
 
 #: templates/core/methodology.html
 #, python-format
@@ -11632,3 +11576,248 @@ msgid ""
 msgstr ""
 "ArchidektからエディションとScryfall "
 "IDにチェックを入れて書き出したCSVにはヘッダー行がありません。インポーターはそれでもこの2つの列を認識するようになったため、各カードはリストに書かれた版を失わずに保持します。"
+
+#: simulations/report.py
+msgid "Lifegain"
+msgstr "ライフ獲得"
+
+#: simulations/report.py
+msgid "Treasure"
+msgstr "宝物"
+
+#: simulations/report.py
+msgid "Tokens"
+msgstr "トークン"
+
+#: simulations/report.py
+msgid "Death trigger"
+msgstr "死亡誘発"
+
+#: simulations/report.py
+msgid "Tax"
+msgstr "課税"
+
+#: simulations/report.py
+msgid ""
+"Gains you life, or does something when you gain life: lifelink included."
+msgstr "ライフを得るか、ライフを得たときに何かをします。絆魂も含みます。"
+
+#: simulations/report.py
+msgid "Searches your library for lands."
+msgstr "ライブラリーから土地を探します。"
+
+#: simulations/report.py
+msgid "Makes Treasure tokens: mana for a later turn."
+msgstr "宝物トークンを生成します。後のターンのためのマナです。"
+
+#: simulations/report.py
+msgid "Makes creature tokens."
+msgstr "クリーチャー・トークンを生成します。"
+
+#: simulations/report.py
+msgid "Does something when another creature dies."
+msgstr "ほかのクリーチャーが死亡したときに何かをします。"
+
+#: simulations/report.py
+msgid "Makes opponents pay more, or pay you, for what they do."
+msgstr "対戦相手の行動に追加の支払いを求めるか、あなたへの支払いを求めます。"
+
+#: templates/simulations/_report.html
+msgid "By mechanic"
+msgstr "メカニズム別"
+
+#: templates/simulations/_report.html
+msgid "Share of games with at least one card of each mechanic, by turn"
+msgstr "各メカニズムのカードを1枚以上引いたゲームの割合（ターン別）"
+
+#: templates/decks/_bar.html
+#, python-format
+msgid "%(slots)s main"
+msgstr "主な役割 %(slots)s"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"A card counts in every category it fits; “main” counts it once, in its main "
+"role. %(unranked)s card has none: a land, or a card that serves the plan."
+msgid_plural ""
+"A card counts in every category it fits; “main” counts it once, in its main "
+"role. %(unranked)s cards have none: lands, and cards that serve the plan."
+msgstr[0] ""
+"カードは当てはまるすべてのカテゴリーで数えられます。「主な役割」は各カードを、その主な役割で1回だけ数えます。主な役割がないカードは "
+"%(unranked)s 枚です。土地と、デッキの計画を支えるカードです。"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Categories</strong> — ramp, card draw, removal and the rest — come "
+"from what each card does, read off its abilities, together with the "
+"community's card tags, or from what you said about a card. A spell that can "
+"only fetch lands, such as Cultivate, is ramp rather than a tutor, and a "
+"Treasure that comes beside a spell's card draw, as on Deadly Dispute, makes "
+"it no ramp spell. A card has one main role and at most a second one, or none"
+" at all, like most lands; strategies and mechanics such as a sacrifice "
+"outlet, lifegain or tokens come on top, as many as the card has. The chart "
+"shows the share of games with <em>at least one</em> by each turn, because "
+"that is the question a deck is built around: do I see ramp by turn two. "
+"<strong>Card types</strong> are shown as an average count instead: almost "
+"every game sees a creature by turn one, and how many is the part that "
+"differs between decks. The <strong>mana value</strong> bars count spells "
+"only — every land is mana value zero and would drown the curve."
+msgstr ""
+"<strong>カテゴリー</strong>（ランプ、ドロー、除去など）は、各カードの能力から読み取ったそのカードの働きと、コミュニティのカード・タグを合わせて決まります。あなたがカードについて回答した内容でも決まります。Cultivate"
+" のように土地しか持ってこられない呪文は、サーチ・カードではなくランプです。また Deadly Dispute "
+"のように、呪文のドローに添えて宝物が出るだけなら、その呪文はランプにはなりません。カードには主な役割が1つと、多くても2つ目の役割が1つあります。ほとんどの土地のように、役割がないカードもあります。生け贄の手段、ライフ獲得、トークンなどの戦略やメカニズムは、カードが持つだけ別に加わります。グラフは各ターンまでに<em>少なくとも1枚</em>引いたゲームの割合を示します。「2ターン目までにランプを引けるか」こそが、デッキを組むときの問いだからです。一方、<strong>カード・タイプ</strong>は平均枚数で示します。ほぼすべてのゲームで1ターン目までにクリーチャーを引くので、デッキごとに違うのはその枚数だからです。<strong>マナ総量</strong>の棒グラフは呪文だけを数えます。土地はすべてマナ総量0なので、含めるとカーブが埋もれてしまいます。"
+
+#: templates/core/methodology.html
+msgid ""
+"Under each category bar, “main” counts the cards whose main role it is. "
+"There every card counts once, so the main roles and the cards with none — "
+"lands, and the cards that serve the plan — add up to the deck."
+msgstr ""
+"各カテゴリーの棒の下にある「主な役割」は、それを主な役割とするカードを数えます。そこでは各カードを1回だけ数えるので、主な役割の数と、主な役割のないカード（土地と、デッキの計画を支えるカード）を合わせるとデッキの枚数になります。"
+
+#: changelog/entries.py
+msgid "Categories read off what a card does"
+msgstr "カードの働きから読み取るカテゴリー"
+
+#: changelog/entries.py
+msgid ""
+"Ramp, card draw, removal and the rest now come from what each card does, "
+"read off its abilities, together with the community's tags. A card has at "
+"most one main role, and the deck page counts it there once beside every "
+"category it fits. The report shows six mechanics of their own: lifegain, "
+"land search, Treasure, tokens, death triggers and tax."
+msgstr ""
+"ランプ、ドロー、除去などのカテゴリーは、各カードの能力から読み取ったそのカードの働きと、コミュニティのタグを合わせて決まるようになりました。カードには主な役割が多くても1つあり、デッキ・ページでは当てはまる各カテゴリーとは別に、その役割で1回だけ数えます。レポートには、ライフ獲得、土地サーチ、宝物、トークン、死亡誘発、課税の6つのメカニズムが別に表示されます。"
+
+#: simulations/annotations.py simulations/provenance.py
+msgid "Roles the engine reads"
+msgstr "エンジンが読む役割"
+
+#: simulations/annotations.py
+msgid ""
+"The four roles the engine itself reads while it plays and counts milestones:"
+" a draw engine, a sacrifice outlet, a creature that comes back, a drain. "
+"What the card counts as in the statistics is under “Categories”."
+msgstr ""
+"エンジン自身がプレイ中に読み、節目を数えるのに使う4つの役割です：ドローエンジン、生け贄の手段、戻ってくるクリーチャー、ドレイン。統計でそのカードが何として数えられるかは「カテゴリー」にあります。"
+
+#: simulations/forms.py
+msgid "Replace the engine's roles below"
+msgstr "下のエンジンの役割で置き換える"
+
+#: simulations/forms.py
+msgid ""
+"Leave this alone to keep the community roles. Tick it and the selection "
+"below is all of the four the card has - including none."
+msgstr ""
+"コミュニティの役割を使う場合はそのままにしてください。チェックを入れると、下の選択がそのカードの持つ4つのうちのすべてになります。何も選ばなくてもかまいません。"
+
+#: simulations/editor.py
+msgid "Removed by you, this deck"
+msgstr "あなたが削除（このデッキ）"
+
+#: simulations/editor.py
+msgid "Removed by you, all decks"
+msgstr "あなたが削除（すべてのデッキ）"
+
+#: simulations/editor.py
+msgid "Removed, built in"
+msgstr "削除（組み込み）"
+
+#: simulations/views.py
+#, python-format
+msgid ""
+"Saved. %(card)s counts that way in the statistics from the next run onwards."
+msgstr "保存しました。次回の実行から%(card)sは統計でこのように数えられます。"
+
+#: simulations/blindspots.py templates/simulations/_categories.html
+msgid "Categories"
+msgstr "カテゴリー"
+
+#: templates/simulations/_categories.html
+msgid ""
+"What the card counts as on the deck page and in the draw statistics. The "
+"engine plays it the same either way."
+msgstr "デッキページとドロー統計でそのカードが何として数えられるかです。エンジンのプレイはどちらでも変わりません。"
+
+#: templates/simulations/_categories.html
+msgid ""
+"Until the card data is read again, these are the community roles, and no "
+"role is the main one."
+msgstr "カードデータが読み直されるまでは、これはコミュニティの役割で、主な役割はありません。"
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier decides this card's categories. “Back to "
+"the card data” retires it; the engine keeps playing the card as it did."
+msgstr ""
+"以前あなたが書いた役割のリストが、このカードのカテゴリーを決めています。「カードデータに戻す」でそのリストを外せます。エンジンはこれまでどおりにカードをプレイします。"
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier, for all your decks, decides this card's "
+"categories."
+msgstr "以前すべてのデッキ向けにあなたが書いた役割のリストが、このカードのカテゴリーを決めています。"
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier, for this deck, decides this card's "
+"categories."
+msgstr "以前このデッキ向けにあなたが書いた役割のリストが、このカードのカテゴリーを決めています。"
+
+#: templates/simulations/_categories.html
+msgid "main role"
+msgstr "主な役割"
+
+#: templates/simulations/_categories.html
+msgid "Put it back"
+msgstr "元に戻す"
+
+#: templates/simulations/_categories.html
+msgid "Make it the main role"
+msgstr "主な役割にする"
+
+#: templates/simulations/_categories.html
+msgid "It counts in no category."
+msgstr "どのカテゴリーにも数えられません。"
+
+#: templates/simulations/_categories.html
+msgid "Add a category"
+msgstr "カテゴリーを追加"
+
+#: changelog/entries.py
+msgid "Correct what a card counts as"
+msgstr "カードが何として数えられるかを修正"
+
+#: changelog/entries.py
+msgid ""
+"On a card's page, under “Categories”, you can make another role its main "
+"one, add a category or take one away, for one deck or for all of yours, and "
+"go back to the card data in one click. The engine plays the card the same "
+"either way; the four roles it reads while it plays have a box of their own."
+msgstr ""
+"カードのページの「カテゴリー」で、別の役割を主な役割にしたり、カテゴリーを追加・削除したりできます。1つのデッキだけでも、すべてのデッキにでも設定でき、ワンクリックでカードデータに戻せます。エンジンのプレイはどちらでも変わりません。エンジンがプレイ中に読む4つの役割には専用の欄があります。"
+
+#: simulations/blindspots.py
+msgid ""
+"A card's categories come from what it does and from the Scryfall Tagger "
+"community's tags, which are broad by design: “destroy target creature you "
+"control” can be filed under removal alongside “destroy target creature”. The"
+" first is an engine piece and the second answers a threat, and the report's "
+"milestone table counts them the same way."
+msgstr ""
+"カードのカテゴリーは、そのカードの働きと Scryfall Tagger "
+"のコミュニティのタグから決まり、タグは意図的に広く分類されています。「あなたがコントロールするクリーチャー1体を対象とし、それを破壊する」は「クリーチャー1体を対象とし、それを破壊する」と同じく除去に分類されることがあります。前者はエンジンの部品、後者は脅威への対処ですが、レポートのマイルストーン表はどちらも同じように数えます。"
+
+#: simulations/report.py
+msgid ""
+"Gets something off the table: destroy, exile, bounce, damage. A board wipe "
+"counts too when removal is one of its two roles."
+msgstr "何かを場から取り除くもの：破壊、追放、バウンス、ダメージ。全体除去も、除去が2つの役割のうちの1つなら含みます。"
+
+#: templates/decks/detail.html
+msgid ""
+"A card counts in every category it fits; “main” counts it once, in its main "
+"role."
+msgstr "カードは当てはまるすべてのカテゴリーで数えられます。「主な役割」は各カードを、その主な役割で1回だけ数えます。"

@@ -819,7 +819,7 @@ def facts(abilities, type_line: str = "") -> dict:
         # when it makes more than it takes (a Signet), not when it converts.
         if ability.kind == b.MANA and "tap" in atoms and atoms <= {"tap", "life", "mana"}:
             for effect in ability.effects:
-                if effect.verb == "add_mana" and _nets_mana(ability, effect):
+                if effect.verb == "add_mana" and b.nets_mana(ability, effect):
                     color = effect.arg("color", "")
                     taps_for |= set(ANY) if color in _ANY_COLOUR else \
                         {letter for letter in color if letter in ANY + "C"}
@@ -844,16 +844,3 @@ def facts(abilities, type_line: str = "") -> dict:
     return {"taps_for": "".join(sorted(taps_for)), "draws": draws,
             "land_search": land_search, "enters_tapped": enters_tapped,
             "treasures": treasures}
-
-
-def _nets_mana(ability, effect) -> bool:
-    """Whether ``effect`` makes more mana than ``ability``'s cost takes."""
-    paid = sum(cost.mana.generic + cost.mana.colorless + sum(n for _, n in cost.mana.pips)
-               + len(cost.mana.hybrid) + len(cost.mana.phyrexian)
-               for cost in ability.costs if cost.atom == "mana" and cost.mana is not None)
-    if not paid:
-        return True
-    n = effect.arg("n", 1)
-    made = (n if isinstance(n, int) else 1) * (len(effect.arg("color", "")) if effect.arg(
-        "all") else 1)
-    return made > paid

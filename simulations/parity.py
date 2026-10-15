@@ -85,8 +85,10 @@ def readings(entries: list[dict]) -> dict:
         card = cards.get(entry["oracle_id"])
         if card is None:
             continue
-        merged = dict(builtin.get(entry["oracle_id"], {})) | played(entry)
-        made, gaps = adapter.card_with(card, merged)
+        under, said = builtin.get(entry["oracle_id"], {}), played(entry)
+        # Who said each key: a built-in roles list counts for the engine only.
+        scopes = dict.fromkeys(under, adapter.BUILTIN_SCOPE) | dict.fromkeys(said, entry["scope"])
+        made, gaps = adapter.card_with(card, dict(under) | said, scopes)
         base = f"{entry['scope']}:{entry['name']}"
         seen[base] = seen.get(base, 0) + 1
         found[f"{base}:{seen[base]}"] = {"overrides": entry["overrides"],

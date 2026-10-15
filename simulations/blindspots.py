@@ -237,16 +237,18 @@ def mislabelled_removal(readings) -> BlindSpot:
         key="mislabelled_removal",
         heading=gettext("Roles worth a second look"),
         detail=gettext(
-            "The role vocabulary comes from the Scryfall Tagger community, "
-            "which is broad by design: “destroy target creature you control” "
-            "is filed under removal alongside “destroy target creature”. The "
+            "A card's categories come from what it does and from the Scryfall "
+            "Tagger community's tags, which are broad by design: “destroy target "
+            "creature you control” can be filed under removal alongside “destroy "
+            "target creature”. The "
             "first is an engine piece and the second answers a threat, and the "
             "report's milestone table counts them the same way."
         ),
-        fix=gettext("Roles"),
+        fix=gettext("Categories"),
     )
     for reading in readings:
-        if REMOVAL_ROLE not in reading.card.tags:
+        # The card's categories (card model phase 3), where the owner moves it.
+        if REMOVAL_ROLE not in reading.card.categories:
             continue
         text = reading.oracle_card.oracle_text or ""
         if _OWN_PERMANENT.search(text) and not _ALSO_THEIRS.search(text):

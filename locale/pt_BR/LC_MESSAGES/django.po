@@ -1377,19 +1377,6 @@ msgstr ""
 "Lido do texto do card por uma expressão regular, a leitura mais fraca que "
 "esta aplicação faz. Vale conferir em qualquer coisa incomum."
 
-#: simulations/annotations.py simulations/blindspots.py
-#: simulations/provenance.py
-msgid "Roles"
-msgstr "Funções"
-
-#: simulations/annotations.py
-msgid ""
-"What the card does, in the vocabulary the report's milestone table counts. "
-"Replacing them overrides the community tags completely."
-msgstr ""
-"O que o card faz, no vocabulário que a tabela de marcos do relatório conta. "
-"Substituí-las anula completamente as tags da comunidade."
-
 #: simulations/annotations.py simulations/provenance.py
 msgid "Costs to tap for mana"
 msgstr "Custa para virar por mana"
@@ -1489,20 +1476,6 @@ msgstr ""
 #: simulations/blindspots.py
 msgid "Roles worth a second look"
 msgstr "Funções que merecem uma segunda olhada"
-
-#: simulations/blindspots.py
-msgid ""
-"The role vocabulary comes from the Scryfall Tagger community, which is broad"
-" by design: “destroy target creature you control” is filed under removal "
-"alongside “destroy target creature”. The first is an engine piece and the "
-"second answers a threat, and the report's milestone table counts them the "
-"same way."
-msgstr ""
-"O vocabulário de funções vem da comunidade do Scryfall Tagger, que é amplo "
-"de propósito: “destrua a criatura alvo que você controla” fica em remoção "
-"junto com “destrua a criatura alvo”. O primeiro é uma peça de engine e o "
-"segundo responde a uma ameaça, e a tabela de marcos do relatório conta os "
-"dois do mesmo jeito."
 
 #: simulations/blindspots.py
 msgid "tagged as removal, but it destroys something you control"
@@ -1688,20 +1661,6 @@ msgid ""
 msgstr ""
 "Uma decisão para este deck prevalece sobre uma que você definiu para todos "
 "os decks, que prevalece sobre o padrão da aplicação."
-
-#: simulations/forms.py
-msgid "Replace the roles below"
-msgstr "Substituir as funções abaixo"
-
-#: simulations/forms.py
-msgid ""
-"Leave this alone to keep the community roles. Tick it and the selection "
-"below becomes the complete list - including an empty one, which is how you "
-"say a card has no role at all."
-msgstr ""
-"Deixe desmarcado para manter as funções da comunidade. Marque e a seleção "
-"abaixo vira a lista completa – inclusive vazia, que é como você diz que um "
-"card não tem função nenhuma."
 
 #: simulations/forms.py
 msgid "Replace the land types below"
@@ -2039,14 +1998,6 @@ msgstr ""
 #: simulations/report.py
 msgid "Cards that draw you cards."
 msgstr "Cards que fazem você comprar cards."
-
-#: simulations/report.py
-msgid ""
-"Gets something off the table: destroy, exile, bounce, damage. Board wipes "
-"count too."
-msgstr ""
-"Tira algo da mesa: destruir, exilar, devolver, causar dano. Board wipes "
-"também contam."
 
 #: simulations/report.py
 msgid "Removes many things at once."
@@ -3936,29 +3887,6 @@ msgstr ""
 " mágica buscou. Cards que um mulligan colocou no fundo não são contados, nem"
 " o seu comandante. A contagem não sorteia nenhum número aleatório, então as "
 "partidas são exatamente as partidas que teriam sido sem ela."
-
-#: templates/core/methodology.html
-msgid ""
-"<strong>Categories</strong> — ramp, card draw, removal and the rest — come "
-"from the community's card tags, or from what you said about a card. A spell "
-"that can only fetch lands, such as Cultivate, is ramp rather than a tutor. "
-"The chart shows the share of games with <em>at least one</em> by each turn, "
-"because that is the question a deck is built around: do I see ramp by turn "
-"two. <strong>Card types</strong> are shown as an average count instead: "
-"almost every game sees a creature by turn one, and how many is the part that"
-" differs between decks. The <strong>mana value</strong> bars count spells "
-"only — every land is mana value zero and would drown the curve."
-msgstr ""
-"<strong>Categorias</strong> — ramp, compra de cards, remoção e o resto — vêm"
-" das tags de cards da comunidade, ou do que você disse sobre um card. Uma "
-"mágica que só pode buscar terrenos, como Cultivate, é ramp e não tutor. O "
-"gráfico mostra a parcela de partidas com <em>pelo menos um</em> até cada "
-"turno, porque essa é a pergunta em torno da qual um deck é construído: vejo "
-"ramp até o turno dois? <strong>Tipos de card</strong> são mostrados, em vez "
-"disso, como contagem média: quase toda partida vê uma criatura até o turno "
-"um, e quantas é a parte que muda entre decks. As barras de <strong>valor de "
-"mana</strong> contam só mágicas — todo terreno tem valor de mana zero e "
-"afogaria a curva."
 
 #: templates/core/methodology.html
 #, python-format
@@ -13035,3 +12963,301 @@ msgstr ""
 "tem linha de cabeçalho. Agora o importador reconhece essas duas colunas "
 "mesmo assim, então cada carta mantém a impressão que sua lista indica em vez"
 " de perdê-la."
+
+#: simulations/report.py
+msgid "Lifegain"
+msgstr "Ganho de vida"
+
+#: simulations/report.py
+msgid "Treasure"
+msgstr "Tesouro"
+
+#: simulations/report.py
+msgid "Tokens"
+msgstr "Fichas"
+
+#: simulations/report.py
+msgid "Death trigger"
+msgstr "Gatilho de morte"
+
+#: simulations/report.py
+msgid "Tax"
+msgstr "Taxa"
+
+#: simulations/report.py
+msgid ""
+"Gains you life, or does something when you gain life: lifelink included."
+msgstr ""
+"Faz você ganhar vida, ou faz algo quando você ganha vida: vínculo com a vida"
+" incluído."
+
+#: simulations/report.py
+msgid "Searches your library for lands."
+msgstr "Busca terrenos no seu grimório."
+
+#: simulations/report.py
+msgid "Makes Treasure tokens: mana for a later turn."
+msgstr "Cria fichas de Tesouro: mana para um turno posterior."
+
+#: simulations/report.py
+msgid "Makes creature tokens."
+msgstr "Cria fichas de criatura."
+
+#: simulations/report.py
+msgid "Does something when another creature dies."
+msgstr "Faz algo quando outra criatura morre."
+
+#: simulations/report.py
+msgid "Makes opponents pay more, or pay you, for what they do."
+msgstr "Faz os oponentes pagarem mais pelo que fazem, ou pagarem a você."
+
+#: templates/simulations/_report.html
+msgid "By mechanic"
+msgstr "Por mecânica"
+
+#: templates/simulations/_report.html
+msgid "Share of games with at least one card of each mechanic, by turn"
+msgstr ""
+"Proporção de partidas com pelo menos um card de cada mecânica, por turno"
+
+#: templates/decks/_bar.html
+#, python-format
+msgid "%(slots)s main"
+msgstr "%(slots)s como papel principal"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"A card counts in every category it fits; “main” counts it once, in its main "
+"role. %(unranked)s card has none: a land, or a card that serves the plan."
+msgid_plural ""
+"A card counts in every category it fits; “main” counts it once, in its main "
+"role. %(unranked)s cards have none: lands, and cards that serve the plan."
+msgstr[0] ""
+"Um card conta em cada categoria em que se encaixa; “como papel principal” "
+"conta-o uma vez só, no seu papel principal. %(unranked)s card não tem "
+"nenhum: um terreno, ou um card a serviço do plano."
+msgstr[1] ""
+"Um card conta em cada categoria em que se encaixa; “como papel principal” "
+"conta-o uma vez só, no seu papel principal. %(unranked)s cards não têm "
+"nenhum: terrenos, e cards a serviço do plano."
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Categories</strong> — ramp, card draw, removal and the rest — come "
+"from what each card does, read off its abilities, together with the "
+"community's card tags, or from what you said about a card. A spell that can "
+"only fetch lands, such as Cultivate, is ramp rather than a tutor, and a "
+"Treasure that comes beside a spell's card draw, as on Deadly Dispute, makes "
+"it no ramp spell. A card has one main role and at most a second one, or none"
+" at all, like most lands; strategies and mechanics such as a sacrifice "
+"outlet, lifegain or tokens come on top, as many as the card has. The chart "
+"shows the share of games with <em>at least one</em> by each turn, because "
+"that is the question a deck is built around: do I see ramp by turn two. "
+"<strong>Card types</strong> are shown as an average count instead: almost "
+"every game sees a creature by turn one, and how many is the part that "
+"differs between decks. The <strong>mana value</strong> bars count spells "
+"only — every land is mana value zero and would drown the curve."
+msgstr ""
+"<strong>Categorias</strong> — ramp, compra de cards, remoção e o resto — vêm"
+" do que cada card faz, lido nas suas habilidades, junto com as tags de cards"
+" da comunidade, ou do que você disse sobre um card. Uma mágica que só pode "
+"buscar terrenos, como Cultivate, é ramp e não tutor, e um Tesouro que vem "
+"junto com a compra de cards de uma mágica, como em Deadly Dispute, não faz "
+"dela uma mágica de ramp. Um card tem um papel principal e no máximo um "
+"segundo, ou nenhum, como a maioria dos terrenos; estratégias e mecânicas "
+"como um sacrifice outlet, ganho de vida ou fichas vêm por cima, tantas "
+"quantas o card tiver. O gráfico mostra a parcela de partidas com <em>pelo "
+"menos um</em> até cada turno, porque essa é a pergunta em torno da qual um "
+"deck é construído: vejo ramp até o turno dois? <strong>Tipos de "
+"card</strong> são mostrados, em vez disso, como contagem média: quase toda "
+"partida vê uma criatura até o turno um, e quantas é a parte que muda entre "
+"decks. As barras de <strong>valor de mana</strong> contam só mágicas — todo "
+"terreno tem valor de mana zero e afogaria a curva."
+
+#: templates/core/methodology.html
+msgid ""
+"Under each category bar, “main” counts the cards whose main role it is. "
+"There every card counts once, so the main roles and the cards with none — "
+"lands, and the cards that serve the plan — add up to the deck."
+msgstr ""
+"Abaixo de cada barra de categoria, “como papel principal” conta os cards "
+"cujo papel principal é esse. Ali cada card conta uma vez só, então os papéis"
+" principais e os cards sem nenhum — os terrenos, e os cards a serviço do "
+"plano — somam o deck."
+
+#: changelog/entries.py
+msgid "Categories read off what a card does"
+msgstr "Categorias lidas do que um card faz"
+
+#: changelog/entries.py
+msgid ""
+"Ramp, card draw, removal and the rest now come from what each card does, "
+"read off its abilities, together with the community's tags. A card has at "
+"most one main role, and the deck page counts it there once beside every "
+"category it fits. The report shows six mechanics of their own: lifegain, "
+"land search, Treasure, tokens, death triggers and tax."
+msgstr ""
+"Ramp, compra de cards, remoção e o resto agora vêm do que cada card faz, "
+"lido nas suas habilidades, junto com as tags da comunidade. Um card tem no "
+"máximo um papel principal, e a página do deck o conta ali uma vez, ao lado "
+"de cada categoria em que se encaixa. O relatório mostra seis mecânicas "
+"próprias: ganho de vida, busca de terrenos, Tesouro, fichas, gatilhos de "
+"morte e taxa."
+
+#: simulations/annotations.py simulations/provenance.py
+msgid "Roles the engine reads"
+msgstr "Funções que o motor lê"
+
+#: simulations/annotations.py
+msgid ""
+"The four roles the engine itself reads while it plays and counts milestones:"
+" a draw engine, a sacrifice outlet, a creature that comes back, a drain. "
+"What the card counts as in the statistics is under “Categories”."
+msgstr ""
+"As quatro funções que o próprio motor lê enquanto joga e conta os marcos: um"
+" motor de compra, uma saída de sacrifício, uma criatura que volta, um dreno."
+" O que a carta conta nas estatísticas fica em “Categorias”."
+
+#: simulations/forms.py
+msgid "Replace the engine's roles below"
+msgstr "Substituir as funções do motor abaixo"
+
+#: simulations/forms.py
+msgid ""
+"Leave this alone to keep the community roles. Tick it and the selection "
+"below is all of the four the card has - including none."
+msgstr ""
+"Deixe desmarcado para manter as funções da comunidade. Marque e a seleção "
+"abaixo é tudo o que a carta tem das quatro – inclusive nenhuma."
+
+#: simulations/editor.py
+msgid "Removed by you, this deck"
+msgstr "Removido por você, este deck"
+
+#: simulations/editor.py
+msgid "Removed by you, all decks"
+msgstr "Removido por você, todos os decks"
+
+#: simulations/editor.py
+msgid "Removed, built in"
+msgstr "Removido, embutido"
+
+#: simulations/views.py
+#, python-format
+msgid ""
+"Saved. %(card)s counts that way in the statistics from the next run onwards."
+msgstr ""
+"Salvo. %(card)s conta assim nas estatísticas a partir da próxima simulação."
+
+#: simulations/blindspots.py templates/simulations/_categories.html
+msgid "Categories"
+msgstr "Categorias"
+
+#: templates/simulations/_categories.html
+msgid ""
+"What the card counts as on the deck page and in the draw statistics. The "
+"engine plays it the same either way."
+msgstr ""
+"O que a carta conta na página do deck e nas estatísticas de compra. O motor "
+"a joga do mesmo jeito em qualquer caso."
+
+#: templates/simulations/_categories.html
+msgid ""
+"Until the card data is read again, these are the community roles, and no "
+"role is the main one."
+msgstr ""
+"Até os dados da carta serem lidos de novo, estas são as funções da "
+"comunidade, e nenhuma é o papel principal."
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier decides this card's categories. “Back to "
+"the card data” retires it; the engine keeps playing the card as it did."
+msgstr ""
+"Uma lista de funções que você escreveu antes decide as categorias desta "
+"carta. “Voltar aos dados da carta” a aposenta; o motor continua jogando a "
+"carta como antes."
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier, for all your decks, decides this card's "
+"categories."
+msgstr ""
+"Uma lista de funções que você escreveu antes, para todos os seus decks, "
+"decide as categorias desta carta."
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier, for this deck, decides this card's "
+"categories."
+msgstr ""
+"Uma lista de funções que você escreveu antes, para este deck, decide as "
+"categorias desta carta."
+
+#: templates/simulations/_categories.html
+msgid "main role"
+msgstr "papel principal"
+
+#: templates/simulations/_categories.html
+msgid "Put it back"
+msgstr "Colocar de volta"
+
+#: templates/simulations/_categories.html
+msgid "Make it the main role"
+msgstr "Tornar o papel principal"
+
+#: templates/simulations/_categories.html
+msgid "It counts in no category."
+msgstr "Ela não conta em nenhuma categoria."
+
+#: templates/simulations/_categories.html
+msgid "Add a category"
+msgstr "Adicionar uma categoria"
+
+#: changelog/entries.py
+msgid "Correct what a card counts as"
+msgstr "Corrigir o que uma carta conta"
+
+#: changelog/entries.py
+msgid ""
+"On a card's page, under “Categories”, you can make another role its main "
+"one, add a category or take one away, for one deck or for all of yours, and "
+"go back to the card data in one click. The engine plays the card the same "
+"either way; the four roles it reads while it plays have a box of their own."
+msgstr ""
+"Na página de uma carta, em “Categorias”, você pode tornar outra função o "
+"papel principal, adicionar uma categoria ou tirar uma, para um deck ou para "
+"todos os seus, e voltar aos dados da carta com um clique. O motor joga a "
+"carta do mesmo jeito em qualquer caso; as quatro funções que ele lê enquanto"
+" joga têm um campo próprio."
+
+#: simulations/blindspots.py
+msgid ""
+"A card's categories come from what it does and from the Scryfall Tagger "
+"community's tags, which are broad by design: “destroy target creature you "
+"control” can be filed under removal alongside “destroy target creature”. The"
+" first is an engine piece and the second answers a threat, and the report's "
+"milestone table counts them the same way."
+msgstr ""
+"As categorias de uma carta vêm do que ela faz e das tags da comunidade do "
+"Scryfall Tagger, que são amplas de propósito: “destrua a criatura alvo que "
+"você controla” pode ficar em remoção junto com “destrua a criatura alvo”. O "
+"primeiro é uma peça de engine e o segundo responde a uma ameaça, e a tabela "
+"de marcos do relatório conta os dois do mesmo jeito."
+
+#: simulations/report.py
+msgid ""
+"Gets something off the table: destroy, exile, bounce, damage. A board wipe "
+"counts too when removal is one of its two roles."
+msgstr ""
+"Tira algo da mesa: destruir, exilar, devolver, causar dano. Um board wipe "
+"também conta quando remoção é um dos seus dois papéis."
+
+#: templates/decks/detail.html
+msgid ""
+"A card counts in every category it fits; “main” counts it once, in its main "
+"role."
+msgstr ""
+"Um card conta em cada categoria em que se encaixa; “como papel principal” "
+"conta-o uma vez só, no seu papel principal."

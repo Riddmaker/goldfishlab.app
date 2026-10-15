@@ -809,10 +809,11 @@ class Card:
     #: same set as ``tags``**, on purpose: ``tags`` is what the game's metrics
     #: read, and the application's built-in annotations may replace it to keep
     #: the reference deck playing exactly as it always has (Phyrexian Arena is
-    #: ``draw_engine`` there and nothing else). The categories are the
-    #: community's reading plus the user's own corrections, never the built-in
-    #: ones; ``simulations/engine/adapter.py`` decides which. Empty for the
-    #: hand-written fixture decks. Last, and defaulted, like ``types``.
+    #: ``draw_engine`` there and nothing else). The categories are the card's
+    #: derived roles and mechanics (card model phase 3) plus the user's own
+    #: corrections, never the built-in ones; ``simulations/engine/adapter.py``
+    #: decides which. Empty for the hand-written fixture decks. Last, and
+    #: defaulted, like ``types``.
     categories: frozenset[str] = field(default_factory=frozenset)
 
     #: P19 R2: lands this card puts onto the battlefield, and when.

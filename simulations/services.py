@@ -409,7 +409,8 @@ def annotation_at(deck, oracle_card, scope: str):
 
 
 def save_annotation(*, deck, oracle_card, scope: str, judgements: dict | None = None,
-                    note: str | None = "", primitive_changes: dict | None = None):
+                    note: str | None = "", primitive_changes: dict | None = None,
+                    category_change: tuple | None = None):
     """Write one judgement, merged into whatever is already stored.
 
     A "Looks right" already on the row is kept, and keeps the row: a row
@@ -418,7 +419,9 @@ def save_annotation(*, deck, oracle_card, scope: str, judgements: dict | None = 
     `judgements` is the whole judgement form (`annotations.apply`); None
     leaves the judgements as stored. `primitive_changes` edits some
     primitives and leaves the rest (`annotations.apply_primitives`); each is
-    built once by the adapter before anything is stored.
+    built once by the adapter before anything is stored. `category_change`
+    is one change to the card's categories, `(action, key, base, inherited)`
+    (`annotations.apply_category`, card model phase 3).
 
     Returns:
         CardAnnotation | None: The row, or `None` when the judgement was empty
@@ -429,7 +432,7 @@ def save_annotation(*, deck, oracle_card, scope: str, judgements: dict | None = 
         django.core.exceptions.ValidationError: From the model's own `clean`,
             which is what rejects a colour the engine would not recognise.
     """
-    from simulations.annotations import apply, apply_primitives
+    from simulations.annotations import apply, apply_category, apply_primitives
     from simulations.models import CardAnnotation
 
     keys = _scope_keys(deck, scope)
@@ -446,6 +449,11 @@ def save_annotation(*, deck, oracle_card, scope: str, judgements: dict | None = 
         # The editor rebuild: one block at a time, the rest untouched.
         try:
             overrides = apply_primitives(overrides, primitive_changes)
+        except ValueError as exc:
+            raise ValidationError(str(exc)) from exc
+    if category_change is not None:
+        try:
+            overrides = apply_category(overrides, *category_change)
         except ValueError as exc:
             raise ValidationError(str(exc)) from exc
     # `None`: the note is not part of this save and stays as it is.

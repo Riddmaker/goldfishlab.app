@@ -48,7 +48,12 @@ from django.utils import timezone
 from django.utils.translation import get_language
 
 from simulations import budget, mistral
-from simulations.report import SEEN_ROLES, SEEN_STRATEGY_ROLES, hypergeometric
+from simulations.report import (
+    SEEN_MECHANIC_ROLES,
+    SEEN_ROLES,
+    SEEN_STRATEGY_ROLES,
+    hypergeometric,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -227,7 +232,7 @@ def facts(deck, readings) -> dict:
     lands = sum(reading.quantity for reading in library if reading.card.is_land)
     usual_min = round(population * KARSTEN_MIN / 99)
     usual_max = round(population * KARSTEN_MAX / 99)
-    labels = dict(SEEN_ROLES + SEEN_STRATEGY_ROLES)
+    labels = dict(SEEN_ROLES + SEEN_STRATEGY_ROLES + SEEN_MECHANIC_ROLES)
     counts = dict.fromkeys(labels, 0)
     cards = []
     for reading in sorted(library, key=lambda reading: reading.oracle_card.front_name):
@@ -431,7 +436,8 @@ def _strategies(value, offered) -> list[dict]:
     return chosen
 
 
-_KEY_BY_LABEL = {label.casefold(): key for key, label in SEEN_ROLES + SEEN_STRATEGY_ROLES}
+_KEY_BY_LABEL = {label.casefold(): key
+                 for key, label in SEEN_ROLES + SEEN_STRATEGY_ROLES + SEEN_MECHANIC_ROLES}
 
 
 def parse(content: str, offered: list[dict] | None = None) -> dict:

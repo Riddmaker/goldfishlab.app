@@ -2,8 +2,10 @@
   One row of the deck page's "What is in it" bars. The faint band behind the
   bar is the common template (`simulations.deck_cards.TEMPLATE`), labelled as
   such in words beside the count - never a verdict, never colour alone.
+  A category also says how many of its cards have it as their main role
+  (`Bar.slots`, card model phase 3).
 {% endcomment %}
-{% load l10n %}
+{% load i18n l10n %}
 <li class="deck-bar-row">
   <a href="?{{ bar.param }}={{ bar.value }}#cards" class="text-ink-900 underline decoration-parchment-600">{{ bar.label }}</a>
   <span class="deck-bar-track" role="presentation">
@@ -14,5 +16,6 @@
   </span>
   <span class="tabular text-sm text-ink-900">
     {{ bar.count }}{% if bar.band_label %}<span class="text-ink-700"> / ~{{ bar.band_label }}</span>{% endif %}
+    {% if bar.slots is not None and bar.count %}<span class="block text-xs text-ink-700">{% blocktranslate with slots=bar.slots %}{{ slots }} main{% endblocktranslate %}</span>{% endif %}
   </span>
 </li>

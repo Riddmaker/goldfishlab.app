@@ -262,6 +262,20 @@ def _additional_cost(atoms: tuple[Cost, ...]) -> AdditionalCost:
     return AdditionalCost(**kwargs)
 
 
+def nets_mana(ability: Ability, effect: Effect) -> bool:
+    """Whether ``effect`` makes more mana than ``ability``'s cost takes: a
+    Signet does, a filter that turns {1} into one of any colour does not."""
+    paid = sum(cost.mana.generic + cost.mana.colorless + sum(n for _, n in cost.mana.pips)
+               + len(cost.mana.hybrid) + len(cost.mana.phyrexian)
+               for cost in ability.costs if cost.atom == "mana" and cost.mana is not None)
+    if not paid:
+        return True
+    n = effect.arg("n", 1)
+    made = (n if isinstance(n, int) else 1) * (len(effect.arg("color", "")) if effect.arg(
+        "all") else 1)
+    return made > paid
+
+
 def _atoms(costs: tuple[Cost, ...]) -> dict[str, Cost]:
     return {atom.atom: atom for atom in costs}
 

@@ -43,6 +43,12 @@
       {% include "simulations/_line_chart.html" with chart=report.seen.strategies name="seen-strategy" title=_("Share of games with at least one card of each strategy, by turn") %}
       {% include "simulations/_seen_numbers.html" with rows=report.seen.strategies.lines turns=report.seen.turns kind="share" corner=share_corner %}
     {% endif %}
+    {% if report.seen.mechanics.lines %}
+      <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "By mechanic" %}</h3>
+      <p class="text-sm text-ink-700">{% translate "Games with at least one, by the end of each turn." %}</p>
+      {% include "simulations/_line_chart.html" with chart=report.seen.mechanics name="seen-mechanic" title=_("Share of games with at least one card of each mechanic, by turn") %}
+      {% include "simulations/_seen_numbers.html" with rows=report.seen.mechanics.lines turns=report.seen.turns kind="share" corner=share_corner %}
+    {% endif %}
     {% if report.seen.types.lines %}
       <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "By card type" %}</h3>
       <p class="text-sm text-ink-700">{% translate "Cards drawn per game, on average. Point at a line for the spread." %}</p>

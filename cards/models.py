@@ -508,6 +508,21 @@ class DerivedProfile(models.Model):
     self_life_loss = models.PositiveSmallIntegerField(null=True, blank=True)
     opponent_life_loss = models.PositiveSmallIntegerField(null=True, blank=True)
 
+    # --- categories (card model phase 3, `cards.categories`) ---
+    # Derived from the blocks and the tags beside `role_tags`, which the
+    # engine still reads. Until `categories_version` is set the profile was
+    # never derived this way, and every reader falls back to `role_tags`:
+    # an empty `primary_role` is an answer (Blood Artist is a plan card, not
+    # a role), not a sign of "not derived yet".
+    primary_role = models.CharField(max_length=16, blank=True, default="")
+    secondary_role = models.CharField(max_length=16, blank=True, default="")
+    mechanics = ArrayField(models.CharField(max_length=32), default=list, blank=True)
+    #: Per ability id: {"rate": one_shot|repeatable|event, "needs": none|board|opponent}.
+    tempo = models.JSONField(default=dict, blank=True)
+    #: Where the tags and the blocks disagree: "dropped:ramp", "incidental:ramp".
+    category_review = ArrayField(models.CharField(max_length=48), default=list, blank=True)
+    categories_version = models.PositiveSmallIntegerField(default=0)
+
     # --- honesty ---
     needs_review = models.BooleanField(default=False, db_index=True)
     review_reasons = ArrayField(models.CharField(max_length=120), default=list, blank=True)

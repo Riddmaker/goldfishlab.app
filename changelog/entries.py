@@ -41,6 +41,29 @@ class Entry:
 
 
 ENTRIES = (
+    # Card model phase 3, PR 10: on the same day as the categories it corrects.
+    Entry(
+        date(2026, 10, 15), "categories-you-correct",
+        _("Correct what a card counts as"),
+        _("On a card's page, under “Categories”, you can make another role its main one, add "
+          "a category or take one away, for one deck or for all of yours, and go back to the "
+          "card data in one click. The engine plays the card the same either way; the four "
+          "roles it reads while it plays have a box of their own."),
+        "methodology", "drew",
+    ),
+    # Card model phase 3. Dated for its deploy: the profiles are derived again
+    # then (`ingest_scryfall --profiles`), and by the nightly job at the latest
+    # in the week after; until then every card keeps its old categories.
+    Entry(
+        date(2026, 10, 15), "categories-from-cards",
+        _("Categories read off what a card does"),
+        _("Ramp, card draw, removal and the rest now come from what each card does, read off "
+          "its abilities, together with the community's tags. A card has at most one main "
+          "role, and the deck page counts it there once beside every category it fits. The "
+          "report shows six mechanics of their own: lifegain, land search, Treasure, tokens, "
+          "death triggers and tax."),
+        "methodology", "drew",
+    ),
     Entry(
         date(2026, 10, 14), "headerless-printings",
         _("Archidekt CSVs keep their editions"),

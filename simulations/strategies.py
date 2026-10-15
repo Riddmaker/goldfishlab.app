@@ -4,13 +4,15 @@ A block on the report: the deck's strategies, the chance of drawing one of
 each by turn four, and cards that would feed them. Three parts, with
 different sources, and the page says which is which (Principle 2):
 
-* **The strategies** are the deck's categories - the eight core ones and the
-  seven of "By strategy" - with at least `MIN_CARDS` cards (P5). One card of a
-  kind is an accident, two are a plan.
+* **The strategies** are the deck's categories - the eight core ones, the
+  seven of "By strategy" and the six of "By mechanic" (card model phase 3) -
+  with at least `MIN_CARDS` cards (P5). One card of a kind is an accident,
+  two are a plan.
 * **The odds** are *calculated* over the list, now and with `MORE` more cards
   of the kind (the deck's size unchanged). What the run *measured* is in "By
   strategy", just above.
-* **The candidates** are catalogue cards: the strategy's role, inside the
+* **The candidates** are catalogue cards: the strategy's role or mechanic as
+  the card's derived categories hold it (`category_filter`), inside the
   deck's colour identity, legal in Commander, not in the deck, not a land
   (except for Ramp), and no Game Changer unless the deck already plays one -
   a suggestion must not push a casual deck into a higher bracket. The most
@@ -26,11 +28,12 @@ because the written part is missing.
 
 from dataclasses import dataclass, field
 
-from django.db.models import F
+from django.db.models import F, Q
 from django.utils.translation import gettext
 
+from cards import categories
 from core.l10n import percent
-from simulations.report import SEEN_ROLES, SEEN_STRATEGY_ROLES
+from simulations.report import SEEN_MECHANIC_ROLES, SEEN_ROLES, SEEN_STRATEGY_ROLES
 from simulations.summary import BY_TURN, SEEN_BY_TURN, at_least_one
 
 #: A category is a strategy from this many cards in the library.
@@ -43,9 +46,9 @@ MORE = 2
 FALLBACK_STRATEGIES = 2
 FALLBACK_CARDS = 3
 
-LABELS = dict(SEEN_ROLES + SEEN_STRATEGY_ROLES)
-#: The one strategy a land can feed.
-LANDS_FEED = "ramp"
+LABELS = dict(SEEN_ROLES + SEEN_STRATEGY_ROLES + SEEN_MECHANIC_ROLES)
+#: The strategies a land can feed: a fetch land is ramp, and a land search.
+LANDS_FEED = frozenset({"ramp", "land_search"})
 
 
 @dataclass(frozen=True)
@@ -135,6 +138,18 @@ def identity(readings) -> set[str]:
     return {colour for reading in readings for colour in reading.oracle_card.color_identity}
 
 
+def category_filter(key: str) -> Q:
+    """Catalogue cards in the category `key`, as `adapter.derived_categories`
+    reads them: a role as the primary or secondary one, a mechanic among the
+    mechanics; the community roles on a profile not derived again yet."""
+    derived = Q(profile__categories_version__gt=0)
+    if key in categories.ROLES:
+        found = Q(profile__primary_role=key) | Q(profile__secondary_role=key)
+    else:
+        found = Q(profile__mechanics__contains=[key])
+    return (derived & found) | (~derived & Q(profile__role_tags__contains=[key]))
+
+
 def candidates(readings, key: str, limit: int = CANDIDATES) -> list:
     """Catalogue cards that would feed the strategy `key`, the most played first."""
     from cards.models import DerivedProfile, OracleCard
@@ -142,12 +157,12 @@ def candidates(readings, key: str, limit: int = CANDIDATES) -> list:
     in_deck = {reading.oracle_card.pk for reading in readings}
     cards = (
         OracleCard.objects
-        .filter(profile__role_tags__contains=[key],
+        .filter(category_filter(key),
                 color_identity__contained_by=sorted(identity(readings)),
                 legalities__commander="legal")
         .exclude(pk__in=in_deck)
     )
-    if key != LANDS_FEED:
+    if key not in LANDS_FEED:
         cards = cards.exclude(profile__kind=DerivedProfile.Kind.LAND)
     if not any(reading.oracle_card.game_changer for reading in readings):
         cards = cards.exclude(game_changer=True)
@@ -221,4 +236,4 @@ def block(readings, content: dict | None = None) -> dict:
 
 
 __all__ = ["MIN_CARDS", "MORE", "Pick", "Shown", "Strategy", "block", "candidates",
-           "found", "identity", "offered"]
+           "category_filter", "found", "identity", "offered"]

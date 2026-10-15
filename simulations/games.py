@@ -34,7 +34,7 @@ import json
 import random
 from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from multiprocessing import get_context
 from pathlib import Path
@@ -105,11 +105,11 @@ _DEFAULT_CARD = Card(name="", mv=0, pips=0, generic=0, kind="land")
 def features(card: Card) -> set[str]:
     """The mechanisms an engine card uses, as names a corpus can count."""
     found = set()
-    for item in fields(Card):
-        if item.name in FACE:
+    for name, _annotation in serial.fields_of(Card):
+        if name in FACE:
             continue
-        if getattr(card, item.name) != getattr(_DEFAULT_CARD, item.name):
-            found.add(f"field:{item.name}")
+        if getattr(card, name) != getattr(_DEFAULT_CARD, name):
+            found.add(f"field:{name}")
     for ability in card.mana_abilities:
         found.add(f"rule:{ability.rule}")
         if ability.only_if is not None:

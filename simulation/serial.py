@@ -162,8 +162,10 @@ GAME_ZONES = ("library", "hand", "lands", "rocks", "creatures",
 #: Card lists on a `Game` that are not zones a card can be moved to, but that a
 #: replay still has to reproduce. Optional on the way in, because a state cached
 #: before engine version 3 has no `stays_tapped` - and nothing was ever held
-#: tapped then, which is exactly what an empty list says.
-GAME_LISTS = ("stays_tapped",)
+#: tapped then, which is exactly what an empty list says. `drawn` since the
+#: card model's phase 4: a state cached before it starts the list empty, as
+#: every loaded game did then.
+GAME_LISTS = ("stays_tapped", "drawn")
 
 GAME_SCALARS = ("life", "turn", "mulligans", "tapped_lands", "tapped_rocks",
                 "land_drop_used", "commander_casts", "mana_available",
@@ -244,10 +246,11 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
     # would have had - invisible in a goldfish, which shuffles only for its
     # opening hand, and impossible to reproduce once it does bite.
     game.rng.setstate(_rng_state(data["rng"]))
+    cards = _deck_cards(deck)
     for name in GAME_ZONES:
-        setattr(game, name, [_load_dataclass(Card, row) for row in data[name]])
+        setattr(game, name, [_card(row, cards) for row in data[name]])
     for name in GAME_LISTS:
-        setattr(game, name, [_load_dataclass(Card, row) for row in data.get(name, [])])
+        setattr(game, name, [_card(row, cards) for row in data.get(name, [])])
     for name in GAME_SCALARS:
         setattr(game, name, data[name])
     for name, missing in LATER_SCALARS.items():
@@ -283,6 +286,26 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
     game.pending_mana = [str(key) for key in data.get("pending_mana", [])]
     game.spells_this_turn = int(data.get("spells_this_turn", 0))
     return game
+
+
+def _deck_cards(deck: DeckDefinition) -> dict:
+    """The deck's own card objects, each by itself: the commanders first."""
+    cards = {}
+    for card in (*deck.commanders, *deck.library):
+        cards.setdefault(card, card)
+    return cards
+
+
+def _card(row: dict, cards: dict) -> Card:
+    """A stored card as the deck's own object when the deck holds one equal
+    to it, and as a new one otherwise (a token the game made).
+
+    The engine asks "is this the commander" by identity, and all copies of a
+    card are one object; a restored game of new objects lost both, so its
+    commander no longer counted as the commander (card model, phase 4).
+    """
+    card = _load_dataclass(Card, row)
+    return cards.get(card, card)
 
 
 def _rng_state(stored):

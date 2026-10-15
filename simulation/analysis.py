@@ -28,6 +28,7 @@ import random
 from collections import Counter
 
 from simulation import agent, combos
+from simulation import trace as game_trace
 from simulation.cards import COUNTS, FILTER, FLAT, LANDS_COULD_PRODUCE
 from simulation.game import Game
 from simulation.manacost import SOURCES
@@ -344,7 +345,7 @@ def _count_seen(game, groups) -> list[int]:
 
 def simulate_game(rng: random.Random, on_the_play: bool = True,
                   turns: int = DEFAULT_TURNS, keep_log: bool = False,
-                  deck=None, watch=(), groups=None):
+                  deck=None, watch=(), groups=None, trace=None):
     """Play one goldfish game and return what was measured.
 
     Args:
@@ -355,12 +356,18 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
         groups: What :func:`seen_groups` returned for this deck. Given, and
             every turn's snapshot carries a ``seen`` count per group; left out,
             and it does not.
+        trace: A list to append the game's :mod:`simulation.trace` records
+            to: one after the opening hand and one after each turn. Left out,
+            and nothing is recorded.
 
     Returns:
         dict: the game's metrics, including the state after each turn.
     """
     game = Game(rng, on_the_play=on_the_play, deck=deck)
     game.take_opening_hand()
+    if trace is not None:
+        trace.append(game_trace.record(game))
+        logged = len(game.log)
 
     commander_names = [commander.name for commander in game.deck.commanders]
 
@@ -378,6 +385,9 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
             # payable - is not one the player can use, and the honest snapshot
             # is the board they actually pass the turn with.
             watcher.look(game, number)
+        if trace is not None:
+            trace.append(game_trace.record(game, logged))
+            logged = len(game.log)
         names = game.permanent_names
         board = list(game.battlefield)
         snapshot = {

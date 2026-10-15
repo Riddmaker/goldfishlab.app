@@ -323,3 +323,39 @@ def test_a_lander_survives_the_trip():
     data = json.loads(json.dumps(serial.dump_game(game)))
     del data["landers"]
     assert serial.load_game(data, chainer.DECK).landers == 0
+
+
+# --- Card objects after a restore (card model, phase 4) -----------------------
+
+
+def test_a_restored_commander_is_still_the_commander():
+    """The engine asks "is this the commander" by identity: a restored game of
+    new card objects offered its commander as sacrifice fodder."""
+    game = Game(random.Random(3), deck=chainer.DECK)
+    game.creatures = [chainer.DECK.commander]
+    back = restored(game)
+    assert back.creatures[0] is chainer.DECK.commander
+    cost = AdditionalCost(sacrifice=frozenset({"creature"}))
+    assert chainer.DECK.commander not in back.fodder(cost)
+
+
+def test_copies_of_a_card_are_one_object_again():
+    game = played()
+    back = restored(game)
+    swamps = {id(card) for card in back.library if card.name == "Swamp"}
+    assert len(swamps) == 1
+
+
+def test_a_token_the_game_made_stays_its_own_card():
+    germ = Card(name="Germ", mv=0, pips=0, generic=0, kind=CREATURE, token=True)
+    game = Game(random.Random(3), deck=chainer.DECK)
+    game.creatures = [germ]
+    assert restored(game).creatures == [germ]
+
+
+def test_the_cards_drawn_survive_the_trip():
+    game = played()
+    assert restored(game).drawn == game.drawn
+    data = json.loads(json.dumps(serial.dump_game(game)))
+    del data["drawn"]
+    assert serial.load_game(data, chainer.DECK).drawn == []

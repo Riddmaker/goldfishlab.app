@@ -16,6 +16,9 @@ Then look at each one, rewrite the snapshots with
 
 and commit them with the change, so the PR shows every reading and every
 number it altered. See `simulations/coverage.py`.
+
+The same cards play the games of the trace decks (card model, phase 4): see
+the section at the end and `simulations/games.py`.
 """
 
 import json
@@ -24,7 +27,9 @@ import os
 import pytest
 from django.contrib.auth import get_user_model
 
-from simulations import coverage
+from simulation import trace
+from simulations import coverage, games
+from simulations.engine import adapter
 from tests.support import forget_module_rows, require_test_database
 
 # Without it pytest-django creates no test database when this module runs on
@@ -33,6 +38,7 @@ from tests.support import forget_module_rows, require_test_database
 pytestmark = pytest.mark.django_db
 
 WRITE = os.environ.get("COVERAGE_WRITE") == "1"
+TRACE_WRITE = os.environ.get("TRACE_WRITE") == "1"
 
 
 @pytest.fixture(scope="module")
@@ -141,3 +147,59 @@ def test_a_nested_field_at_its_default_is_no_change():
     twice = coverage.reading(replace(card, additional_costs=(
         AdditionalCost(sacrifice=("creature",), sacrifice_count=2),)), [])
     assert coverage.compare({"Tribute": read}, {"Tribute": twice}).changed == ["Tribute"]
+
+
+# --- the games of the trace decks (card model, phase 4) -------------------------
+#
+# Every deck of the development database, as card lists from this fixture
+# (`trace_decks.json`), and one deck with two commanders play
+# `games.CI_GAMES` games of eight turns. Each game's records
+# (`simulation.trace`) must give the digests in `game_traces.json`; a game
+# saved and restored before every turn must play exactly as one never saved.
+# Phase 4 moves no game before PR 17; a change meant to move games rewrites
+# them with TRACE_WRITE=1.
+
+
+@pytest.fixture(scope="module")
+def decks(loaded, django_db_blocker):
+    with django_db_blocker.unblock():
+        owner = get_user_model().objects.create_user(email="traces@example.com",
+                                                     password="pw-for-test-only")
+        built = coverage.build_decks(owner, games.TRACE_DECKS)
+        return {deck.name: adapter.convert(deck).definition for deck in built}
+
+
+def test_every_game_plays_as_committed(decks):
+    found = {name: [trace.digests(trace.play(deck, index, games.TURNS))
+                    for index in range(games.CI_GAMES)]
+             for name, deck in decks.items()}
+    if TRACE_WRITE:
+        games.write_traces(found)
+    committed = json.loads(games.TRACES.read_text(encoding="utf-8"))
+    moved = [f"{name}: game {index}, record {_first(old, new)}"
+             for name in sorted(set(committed) | set(found))
+             for index, (old, new) in enumerate(zip(committed.get(name, []),
+                                                    found.get(name, []), strict=False))
+             if old != new]
+    assert sorted(committed) == sorted(found)
+    assert not moved, "\n" + "\n".join(moved[:40])
+
+
+def _first(old: dict, new: dict) -> int:
+    return next(number for number, (was, now) in enumerate(zip(old["turns"], new["turns"],
+                                                                strict=True)) if was != now)
+
+
+def test_a_restored_game_plays_on_as_before(decks):
+    for name, deck in decks.items():
+        for index in range(games.CI_RESTORED):
+            played = trace.play(deck, index, games.TURNS)
+            restored = trace.play_restored(deck, index, games.TURNS)
+            for number, (was, now) in enumerate(zip(played, restored, strict=True)):
+                assert was == now, (f"{name}, game {index}, record {number}: "
+                                    f"{trace.differences(was, now)}")
+
+
+def test_the_decks_are_the_database_decks_and_a_pair(decks):
+    assert len(decks) == len(json.loads(games.TRACE_DECKS.read_text(encoding="utf-8")))
+    assert sum(deck.partner is not None for deck in decks.values()) >= 1

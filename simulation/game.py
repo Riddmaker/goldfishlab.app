@@ -136,8 +136,9 @@ class Game:
         #: a fetched land, not a card milled into the graveyard. What "What you
         #: drew" counts (phase 10 T5.1). A card drawn, put back and drawn again
         #: would count twice; nothing in the engine puts a card back today.
-        #: Not part of a stored playtest state, which shows no draw statistics:
-        #: a loaded game starts it empty.
+        #: Part of a stored playtest state since the card model's phase 4, so a
+        #: restored game traces as one never saved; an older state starts it
+        #: empty.
         self.drawn = []
         self.lands = []            # lands on the battlefield
         self.rocks = []            # mana artifacts on the battlefield

@@ -1416,20 +1416,6 @@ msgstr ""
 "Leído del texto de la carta con una expresión regular, la lectura más débil "
 "que hace esta aplicación. Conviene revisarlo en cualquier caso inusual."
 
-#: simulations/annotations.py simulations/blindspots.py
-#: simulations/provenance.py
-msgid "Roles"
-msgstr "Funciones"
-
-#: simulations/annotations.py
-msgid ""
-"What the card does, in the vocabulary the report's milestone table counts. "
-"Replacing them overrides the community tags completely."
-msgstr ""
-"Lo que hace la carta, con el vocabulario que cuenta la tabla de hitos del "
-"informe. Si las reemplazas, sustituyes por completo las etiquetas de la "
-"comunidad."
-
 #: simulations/annotations.py simulations/provenance.py
 msgid "Costs to tap for mana"
 msgstr "Coste para girarla por maná"
@@ -1732,20 +1718,6 @@ msgid ""
 msgstr ""
 "Un criterio para este mazo prevalece sobre uno que fijes para todos los "
 "mazos, y este sobre el valor por defecto de la aplicación."
-
-#: simulations/forms.py
-msgid "Replace the roles below"
-msgstr "Reemplazar las funciones de abajo"
-
-#: simulations/forms.py
-msgid ""
-"Leave this alone to keep the community roles. Tick it and the selection "
-"below becomes the complete list - including an empty one, which is how you "
-"say a card has no role at all."
-msgstr ""
-"Déjalo sin marcar para conservar las funciones de la comunidad. Márcalo y la"
-" selección de abajo pasa a ser la lista completa, incluso vacía: así indicas"
-" que una carta no tiene ninguna función."
 
 #: simulations/forms.py
 msgid "Replace the land types below"
@@ -13362,3 +13334,132 @@ msgstr ""
 " allí una vez, junto a cada categoría en la que encaja. El informe muestra "
 "seis mecánicas propias: ganancia de vida, búsqueda de tierras, Tesoro, "
 "fichas, disparos al morir e impuesto."
+
+#: simulations/annotations.py simulations/provenance.py
+msgid "Roles the engine reads"
+msgstr "Funciones que lee el motor"
+
+#: simulations/annotations.py
+msgid ""
+"The four roles the engine itself reads while it plays and counts milestones:"
+" a draw engine, a sacrifice outlet, a creature that comes back, a drain. "
+"What the card counts as in the statistics is under “Categories”."
+msgstr ""
+"Las cuatro funciones que el propio motor lee mientras juega y cuenta los "
+"hitos: un motor de robo, una salida de sacrificio, una criatura que vuelve, "
+"un drenaje. Lo que la carta cuenta en las estadísticas está en «Categorías»."
+
+#: simulations/forms.py
+msgid "Replace the engine's roles below"
+msgstr "Reemplazar las funciones del motor de abajo"
+
+#: simulations/forms.py
+msgid ""
+"Leave this alone to keep the community roles. Tick it and the selection "
+"below is all of the four the card has - including none."
+msgstr ""
+"Déjalo sin marcar para conservar las funciones de la comunidad. Márcalo y la"
+" selección de abajo es todo lo que la carta tiene de las cuatro, incluso "
+"ninguna."
+
+#: simulations/editor.py
+msgid "Removed by you, this deck"
+msgstr "Quitado por ti, este mazo"
+
+#: simulations/editor.py
+msgid "Removed by you, all decks"
+msgstr "Quitado por ti, todos los mazos"
+
+#: simulations/editor.py
+msgid "Removed, built in"
+msgstr "Quitado, integrado"
+
+#: simulations/views.py
+#, python-format
+msgid ""
+"Saved. %(card)s counts that way in the statistics from the next run onwards."
+msgstr ""
+"Guardado. %(card)s cuenta así en las estadísticas a partir de la próxima "
+"simulación."
+
+#: simulations/blindspots.py templates/simulations/_categories.html
+msgid "Categories"
+msgstr "Categorías"
+
+#: templates/simulations/_categories.html
+msgid ""
+"What the card counts as on the deck page and in the draw statistics. The "
+"engine plays it the same either way."
+msgstr ""
+"Lo que la carta cuenta en la página del mazo y en las estadísticas de robo. "
+"El motor la juega igual en cualquier caso."
+
+#: templates/simulations/_categories.html
+msgid ""
+"Until the card data is read again, these are the community roles, and no "
+"role is the main one."
+msgstr ""
+"Hasta que se vuelvan a leer los datos de la carta, estas son las funciones "
+"de la comunidad, y ninguna es el rol principal."
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier decides this card's categories. “Back to "
+"the card data” retires it; the engine keeps playing the card as it did."
+msgstr ""
+"Una lista de funciones que escribiste antes decide las categorías de esta "
+"carta. «Volver a los datos de la carta» la retira; el motor sigue jugando la"
+" carta como antes."
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier, for all your decks, decides this card's "
+"categories."
+msgstr ""
+"Una lista de funciones que escribiste antes, para todos tus mazos, decide "
+"las categorías de esta carta."
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier, for this deck, decides this card's "
+"categories."
+msgstr ""
+"Una lista de funciones que escribiste antes, para este mazo, decide las "
+"categorías de esta carta."
+
+#: templates/simulations/_categories.html
+msgid "main role"
+msgstr "rol principal"
+
+#: templates/simulations/_categories.html
+msgid "Put it back"
+msgstr "Volver a ponerla"
+
+#: templates/simulations/_categories.html
+msgid "Make it the main role"
+msgstr "Hacerla el rol principal"
+
+#: templates/simulations/_categories.html
+msgid "It counts in no category."
+msgstr "No cuenta en ninguna categoría."
+
+#: templates/simulations/_categories.html
+msgid "Add a category"
+msgstr "Añadir una categoría"
+
+#: changelog/entries.py
+msgid "Correct what a card counts as"
+msgstr "Corregir lo que cuenta una carta"
+
+#: changelog/entries.py
+msgid ""
+"On a card's page, under “Categories”, you can make another role its main "
+"one, add a category or take one away, for one deck or for all of yours, and "
+"go back to the card data in one click. The engine plays the card the same "
+"either way; the four roles it reads while it plays have a box of their own."
+msgstr ""
+"En la página de una carta, en «Categorías», puedes hacer de otra función su "
+"rol principal, añadir una categoría o quitar una, para un mazo o para todos "
+"los tuyos, y volver a los datos de la carta con un clic. El motor juega la "
+"carta igual en cualquier caso; las cuatro funciones que lee mientras juega "
+"tienen su propio campo."

@@ -85,7 +85,7 @@ def test_a_type_filter_shows_only_that_type(client_in, deck):
 def test_a_category_the_owner_gave_a_card_is_where_the_grid_finds_it(client_in, deck):
     card = next(card for card in _grid(deck) if "counterspell" not in card.categories)
     services.save_annotation(deck=deck, oracle_card=card.oracle_card, scope=DECK_SCOPE,
-                             judgements={"tags": ["counterspell"]})
+                             category_change=("add", "counterspell", card.categories))
 
     response = client_in.get(deck.get_absolute_url(), {"cat": "counterspell"})
 

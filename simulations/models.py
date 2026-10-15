@@ -44,9 +44,11 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from cards import categories
 from cards.models import OracleCard
 from decks.models import Deck
 from simulations import gaps, patches, primitives
+from simulations.engine.runner import ENGINE_ROLE_TAGS
 
 #: The mana a colour annotation may name. Spelled out here rather than imported
 #: from `simulation.manacost`, because the engine stays a stranger to Django and
@@ -96,7 +98,16 @@ ALLOWED_KEYS = {
     "tutor_life": "Life paid to search.",
     "tutor_kind": "Restrict the search to this card kind.",
     "subtypes": "Land subtypes the card carries, e.g. ['swamp'].",
+    # Written before card model phase 3, and no longer by any form: the whole
+    # list, for the engine and the statistics alike. Still read where a row
+    # says it (`adapter._categories`); migration 0017 converts the rest.
     "tags": "Role tags, overriding the ones rolled up from the community tags.",
+    # Card model phase 3: the engine's roles and the card's categories apart.
+    "engine_tags": "The roles the engine reads, replacing only those: draw_engine, "
+                   "sac_outlet, recursive, drain_payoff.",
+    "category_primary": "The card's main role in the statistics.",
+    "category_add": "Categories the card counts in beside its derived ones.",
+    "category_remove": "Derived categories the card does not count in.",
     "enters_tapped": "Override the derived enters-tapped reading.",
     # The editor rebuild: one key per primitive, in the reader's own JSON
     # shape; null means "the card does not do this". See simulations/primitives.py.
@@ -195,6 +206,7 @@ class CardAnnotation(models.Model):
                               f"Known keys: {sorted(ALLOWED_KEYS)}"}
             )
         self._clean_colors()
+        self._clean_categories()
         for key in primitives.KEYS & set(self.overrides):
             try:
                 primitives.validate(key, self.overrides[key])
@@ -229,6 +241,32 @@ class CardAnnotation(models.Model):
         for key in ("ritual_color", "scaling_color"):
             if self.overrides.get(key):
                 self._check_color(key, self.overrides[key])
+
+    def _clean_categories(self):
+        """Only the vocabulary, and only once: a key the statistics do not know
+        would count a card nowhere, without a word."""
+        overrides = self.overrides
+        primary = overrides.get("category_primary")
+        if primary is not None and primary not in categories.ROLES:
+            raise ValidationError({"overrides": f"category_primary: {primary!r} is not a "
+                                                f"role. Use one of {list(categories.ROLES)}."})
+        known = set(categories.ROLES + categories.MECHANICS)
+        for key in ("category_add", "category_remove"):
+            value = overrides.get(key)
+            if value is None:
+                continue
+            if not isinstance(value, list) or not set(value) <= known \
+                    or len(set(value)) != len(value):
+                raise ValidationError({"overrides": f"{key}: a list of categories, each "
+                                                    f"once, from {sorted(known)}."})
+        if set(overrides.get("category_add") or ()) & set(overrides.get("category_remove")
+                                                          or ()):
+            raise ValidationError({"overrides": "a category is both added and removed"})
+        engine = overrides.get("engine_tags")
+        if engine is not None and (not isinstance(engine, list)
+                                   or not set(engine) <= set(ENGINE_ROLE_TAGS)):
+            raise ValidationError({"overrides": f"engine_tags: a list from "
+                                                f"{list(ENGINE_ROLE_TAGS)}."})
 
     @staticmethod
     def _check_color(key: str, color) -> None:

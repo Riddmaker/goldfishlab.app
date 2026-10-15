@@ -1283,17 +1283,6 @@ msgid ""
 " this application makes. Worth checking on anything unusual."
 msgstr "カードの文章から正規表現で読み取っています。このアプリケーションで最も弱い読み取り方です。変わったカードは確認する価値があります。"
 
-#: simulations/annotations.py simulations/blindspots.py
-#: simulations/provenance.py
-msgid "Roles"
-msgstr "役割"
-
-#: simulations/annotations.py
-msgid ""
-"What the card does, in the vocabulary the report's milestone table counts. "
-"Replacing them overrides the community tags completely."
-msgstr "カードが何をするか。レポートのマイルストーン表が数える語彙で表します。置き換えるとコミュニティのタグは完全に上書きされます。"
-
 #: simulations/annotations.py simulations/provenance.py
 msgid "Costs to tap for mana"
 msgstr "マナのためのタップのコスト"
@@ -1570,18 +1559,6 @@ msgid ""
 "A deck-scoped judgement wins over one you set for every deck, which wins "
 "over the application's own default."
 msgstr "デッキ単位の判断は、すべてのデッキ向けに設定した判断より優先され、それはアプリケーションの既定値より優先されます。"
-
-#: simulations/forms.py
-msgid "Replace the roles below"
-msgstr "下の役割で置き換える"
-
-#: simulations/forms.py
-msgid ""
-"Leave this alone to keep the community roles. Tick it and the selection "
-"below becomes the complete list - including an empty one, which is how you "
-"say a card has no role at all."
-msgstr ""
-"コミュニティの役割を使う場合はそのままにしてください。チェックを入れると、下の選択がすべての役割になります。空のままにすれば、そのカードに役割がないことを示せます。"
 
 #: simulations/forms.py
 msgid "Replace the land types below"
@@ -11729,3 +11706,112 @@ msgid ""
 "Treasure, tokens, death triggers and tax."
 msgstr ""
 "ランプ、ドロー、除去などのカテゴリーは、各カードの能力から読み取ったそのカードの働きと、コミュニティのタグを合わせて決まるようになりました。カードには主な役割が1つあり、デッキ・ページでは当てはまる各カテゴリーとは別に、その役割で1回だけ数えます。レポートには、ライフ獲得、土地サーチ、宝物、トークン、死亡誘発、課税の6つのメカニズムが別に表示されます。"
+
+#: simulations/annotations.py simulations/provenance.py
+msgid "Roles the engine reads"
+msgstr "エンジンが読む役割"
+
+#: simulations/annotations.py
+msgid ""
+"The four roles the engine itself reads while it plays and counts milestones:"
+" a draw engine, a sacrifice outlet, a creature that comes back, a drain. "
+"What the card counts as in the statistics is under “Categories”."
+msgstr ""
+"エンジン自身がプレイ中に読み、節目を数えるのに使う4つの役割です：ドローエンジン、生け贄の手段、戻ってくるクリーチャー、ドレイン。統計でそのカードが何として数えられるかは「カテゴリー」にあります。"
+
+#: simulations/forms.py
+msgid "Replace the engine's roles below"
+msgstr "下のエンジンの役割で置き換える"
+
+#: simulations/forms.py
+msgid ""
+"Leave this alone to keep the community roles. Tick it and the selection "
+"below is all of the four the card has - including none."
+msgstr ""
+"コミュニティの役割を使う場合はそのままにしてください。チェックを入れると、下の選択がそのカードの持つ4つのうちのすべてになります。何も選ばなくてもかまいません。"
+
+#: simulations/editor.py
+msgid "Removed by you, this deck"
+msgstr "あなたが削除（このデッキ）"
+
+#: simulations/editor.py
+msgid "Removed by you, all decks"
+msgstr "あなたが削除（すべてのデッキ）"
+
+#: simulations/editor.py
+msgid "Removed, built in"
+msgstr "削除（組み込み）"
+
+#: simulations/views.py
+#, python-format
+msgid ""
+"Saved. %(card)s counts that way in the statistics from the next run onwards."
+msgstr "保存しました。次回の実行から%(card)sは統計でこのように数えられます。"
+
+#: simulations/blindspots.py templates/simulations/_categories.html
+msgid "Categories"
+msgstr "カテゴリー"
+
+#: templates/simulations/_categories.html
+msgid ""
+"What the card counts as on the deck page and in the draw statistics. The "
+"engine plays it the same either way."
+msgstr "デッキページとドロー統計でそのカードが何として数えられるかです。エンジンのプレイはどちらでも変わりません。"
+
+#: templates/simulations/_categories.html
+msgid ""
+"Until the card data is read again, these are the community roles, and no "
+"role is the main one."
+msgstr "カードデータが読み直されるまでは、これはコミュニティの役割で、主な役割はありません。"
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier decides this card's categories. “Back to "
+"the card data” retires it; the engine keeps playing the card as it did."
+msgstr ""
+"以前あなたが書いた役割のリストが、このカードのカテゴリーを決めています。「カードデータに戻す」でそのリストを外せます。エンジンはこれまでどおりにカードをプレイします。"
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier, for all your decks, decides this card's "
+"categories."
+msgstr "以前すべてのデッキ向けにあなたが書いた役割のリストが、このカードのカテゴリーを決めています。"
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier, for this deck, decides this card's "
+"categories."
+msgstr "以前このデッキ向けにあなたが書いた役割のリストが、このカードのカテゴリーを決めています。"
+
+#: templates/simulations/_categories.html
+msgid "main role"
+msgstr "主な役割"
+
+#: templates/simulations/_categories.html
+msgid "Put it back"
+msgstr "元に戻す"
+
+#: templates/simulations/_categories.html
+msgid "Make it the main role"
+msgstr "主な役割にする"
+
+#: templates/simulations/_categories.html
+msgid "It counts in no category."
+msgstr "どのカテゴリーにも数えられません。"
+
+#: templates/simulations/_categories.html
+msgid "Add a category"
+msgstr "カテゴリーを追加"
+
+#: changelog/entries.py
+msgid "Correct what a card counts as"
+msgstr "カードが何として数えられるかを修正"
+
+#: changelog/entries.py
+msgid ""
+"On a card's page, under “Categories”, you can make another role its main "
+"one, add a category or take one away, for one deck or for all of yours, and "
+"go back to the card data in one click. The engine plays the card the same "
+"either way; the four roles it reads while it plays have a box of their own."
+msgstr ""
+"カードのページの「カテゴリー」で、別の役割を主な役割にしたり、カテゴリーを追加・削除したりできます。1つのデッキだけでも、すべてのデッキにでも設定でき、ワンクリックでカードデータに戻せます。エンジンのプレイはどちらでも変わりません。エンジンがプレイ中に読む4つの役割には専用の欄があります。"

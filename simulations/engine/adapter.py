@@ -70,6 +70,7 @@ from simulation.mana import land_color
 from simulation.manacost import COLORLESS, COLORS, ManaCost, choice, mana_label, parse
 from simulations import gaps as gaps_module
 from simulations import patches, primitives
+from simulations.engine import runner
 
 #: Engine kinds that are one-shot spells. Only these may take `draw_on_cast`
 #: from the derived `draws_cards`: a permanent's "draw a card" is almost always
@@ -325,7 +326,9 @@ class Reading:
 
     @property
     def roles(self) -> list[str]:
-        return sorted(self.card.tags)
+        """The roles the engine reads off the card (`runner.ENGINE_ROLE_TAGS`);
+        what the card counts as in the statistics is `card.categories`."""
+        return sorted(self.card.tags & frozenset(runner.ENGINE_ROLE_TAGS))
 
     @property
     def searches(self) -> str:
@@ -861,7 +864,8 @@ def readings(deck: Deck) -> list[Reading]:
                 gaps=gaps,
                 quantity=entry.quantity,
                 checks=annotations.checks_of(entry.oracle_card_id),
-                primary=primary_role(entry.oracle_card, card.categories),
+                primary=primary_role(entry.oracle_card, card.categories,
+                                     annotations.for_card(entry.oracle_card_id)),
             )
         )
 
@@ -877,7 +881,7 @@ def readings(deck: Deck) -> list[Reading]:
                 gaps=gaps,
                 is_commander=True,
                 checks=annotations.checks_of(oracle.pk),
-                primary=primary_role(oracle, card.categories),
+                primary=primary_role(oracle, card.categories, annotations.for_card(oracle.pk)),
             )
         )
 
@@ -1249,8 +1253,8 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         generic=int(overrides.get("generic", profile.generic)),
         kind=kind,
         # The community tag rollup is broad on purpose; a deck author who
-        # disagrees says so here, and Phase 4's role editor writes it.
-        tags=frozenset(overrides.get("tags", profile.role_tags)),
+        # disagrees says so here (`_engine_tags`).
+        tags=_engine_tags(profile, overrides),
         land_type=overrides.get(
             "land_type", "basic_swamp" if profile.is_basic_swamp else ""
         ),
@@ -2463,9 +2467,29 @@ def _categories(profile, overrides: dict, tags_scope: str | None) -> frozenset[s
     """
     derived = derived_categories(profile)
     if "tags" in overrides and tags_scope != BUILTIN_SCOPE:
-        return frozenset(overrides["tags"]) | (
-            derived & frozenset(card_categories.NEW_MECHANICS))
-    return derived
+        found = set(overrides["tags"]) | (derived & frozenset(card_categories.NEW_MECHANICS))
+    else:
+        found = set(derived)
+    # The corrections (card model phase 3, PR 10): relative to what is
+    # derived, so a later reading still reaches the card.
+    found |= set(overrides.get("category_add") or ())
+    found -= set(overrides.get("category_remove") or ())
+    if overrides.get("category_primary"):
+        found.add(overrides["category_primary"])
+    return frozenset(found)
+
+
+def _engine_tags(profile, overrides: dict) -> frozenset[str]:
+    """The roles on `Card.tags`, which the engine reads four of
+    (`runner.ENGINE_ROLE_TAGS`).
+
+    A list from before phase 3 (``tags``) is the whole answer, as it was.
+    ``engine_tags`` replaces only the four the engine reads.
+    """
+    tags = set(overrides["tags"]) if "tags" in overrides else set(profile.role_tags)
+    if "engine_tags" in overrides:
+        tags = (tags - set(runner.ENGINE_ROLE_TAGS)) | set(overrides["engine_tags"])
+    return frozenset(tags)
 
 
 def derived_categories(profile) -> frozenset[str]:
@@ -2480,13 +2504,17 @@ def derived_categories(profile) -> frozenset[str]:
     return frozenset(roles) | frozenset(profile.mechanics)
 
 
-def primary_role(oracle_card, categories: frozenset[str]) -> str:
+def primary_role(oracle_card, categories: frozenset[str], overrides: dict | None = None) -> str:
     """The card's main role among its `categories`.
 
-    The derived one while the categories hold it; otherwise - the owner
-    replaced the roles - the first of theirs in `cards.categories.ROLE_ORDER`.
-    None before the profile is derived again: today's roles name no main one.
+    The owner's (``category_primary``, PR 10) first; then the derived one
+    while the categories hold it; otherwise - the owner replaced the roles -
+    the first of theirs in `cards.categories.ROLE_ORDER`. None before the
+    profile is derived again: today's roles name no main one.
     """
+    said = (overrides or {}).get("category_primary")
+    if said and said in categories:
+        return said
     profile = getattr(oracle_card, "profile", None)
     if not getattr(profile, "categories_version", 0):
         return ""

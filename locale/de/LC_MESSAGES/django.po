@@ -1380,19 +1380,6 @@ msgstr ""
 "Per regulärem Ausdruck aus dem Kartentext gelesen, die schwächste Lesart "
 "dieser Anwendung. Bei allem Ungewöhnlichen lohnt sich ein Blick."
 
-#: simulations/annotations.py simulations/blindspots.py
-#: simulations/provenance.py
-msgid "Roles"
-msgstr "Rollen"
-
-#: simulations/annotations.py
-msgid ""
-"What the card does, in the vocabulary the report's milestone table counts. "
-"Replacing them overrides the community tags completely."
-msgstr ""
-"Was die Karte tut, im Vokabular, das die Meilenstein-Tabelle des Berichts "
-"zählt. Eigene Rollen ersetzen die Community-Tags vollständig."
-
 #: simulations/annotations.py simulations/provenance.py
 msgid "Costs to tap for mana"
 msgstr "Kosten zum Tappen für Mana"
@@ -1691,20 +1678,6 @@ msgid ""
 msgstr ""
 "Eine Einschätzung für ein Deck geht einer für alle Decks vor, und die geht "
 "dem Standard der Anwendung vor."
-
-#: simulations/forms.py
-msgid "Replace the roles below"
-msgstr "Rollen unten ersetzen"
-
-#: simulations/forms.py
-msgid ""
-"Leave this alone to keep the community roles. Tick it and the selection "
-"below becomes the complete list - including an empty one, which is how you "
-"say a card has no role at all."
-msgstr ""
-"Lass das aus, um die Community-Rollen zu behalten. Hak es an, und die "
-"Auswahl unten wird zur vollständigen Liste – auch eine leere, so sagst du, "
-"dass eine Karte gar keine Rolle hat."
 
 #: simulations/forms.py
 msgid "Replace the land types below"
@@ -13306,3 +13279,130 @@ msgstr ""
 " einmal, neben jeder Kategorie, in die sie passt. Der Report zeigt sechs "
 "eigene Mechaniken: Lebensgewinn, Landsuche, Schatz, Spielsteine, Todes-"
 "Trigger und Steuer."
+
+#: simulations/annotations.py simulations/provenance.py
+msgid "Roles the engine reads"
+msgstr "Rollen, die die Engine liest"
+
+#: simulations/annotations.py
+msgid ""
+"The four roles the engine itself reads while it plays and counts milestones:"
+" a draw engine, a sacrifice outlet, a creature that comes back, a drain. "
+"What the card counts as in the statistics is under “Categories”."
+msgstr ""
+"Die vier Rollen, die die Engine selbst liest, während sie spielt und "
+"Meilensteine zählt: eine Zieh-Engine, ein Opferventil, eine Kreatur, die "
+"zurückkommt, ein Drain. Als was die Karte in der Statistik zählt, steht "
+"unter „Kategorien“."
+
+#: simulations/forms.py
+msgid "Replace the engine's roles below"
+msgstr "Rollen der Engine unten ersetzen"
+
+#: simulations/forms.py
+msgid ""
+"Leave this alone to keep the community roles. Tick it and the selection "
+"below is all of the four the card has - including none."
+msgstr ""
+"Lass das aus, um die Community-Rollen zu behalten. Hak es an, und die "
+"Auswahl unten ist alles, was die Karte von den vieren hat – auch keine."
+
+#: simulations/editor.py
+msgid "Removed by you, this deck"
+msgstr "Von dir entfernt, dieses Deck"
+
+#: simulations/editor.py
+msgid "Removed by you, all decks"
+msgstr "Von dir entfernt, alle Decks"
+
+#: simulations/editor.py
+msgid "Removed, built in"
+msgstr "Entfernt, eingebaut"
+
+#: simulations/views.py
+#, python-format
+msgid ""
+"Saved. %(card)s counts that way in the statistics from the next run onwards."
+msgstr "Gespeichert. %(card)s zählt ab dem nächsten Lauf so in der Statistik."
+
+#: simulations/blindspots.py templates/simulations/_categories.html
+msgid "Categories"
+msgstr "Kategorien"
+
+#: templates/simulations/_categories.html
+msgid ""
+"What the card counts as on the deck page and in the draw statistics. The "
+"engine plays it the same either way."
+msgstr ""
+"Als was die Karte auf der Deck-Seite und in der Zieh-Statistik zählt. Die "
+"Engine spielt sie so oder so gleich."
+
+#: templates/simulations/_categories.html
+msgid ""
+"Until the card data is read again, these are the community roles, and no "
+"role is the main one."
+msgstr ""
+"Bis die Kartendaten neu gelesen werden, sind das die Community-Rollen, und "
+"keine Rolle ist die Hauptrolle."
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier decides this card's categories. “Back to "
+"the card data” retires it; the engine keeps playing the card as it did."
+msgstr ""
+"Eine Rollenliste, die du früher geschrieben hast, bestimmt die Kategorien "
+"dieser Karte. „Zurück zur Kartenlesung“ legt sie still; die Engine spielt "
+"die Karte weiter wie bisher."
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier, for all your decks, decides this card's "
+"categories."
+msgstr ""
+"Eine Rollenliste, die du früher für alle deine Decks geschrieben hast, "
+"bestimmt die Kategorien dieser Karte."
+
+#: templates/simulations/_categories.html
+msgid ""
+"A list of roles you wrote earlier, for this deck, decides this card's "
+"categories."
+msgstr ""
+"Eine Rollenliste, die du früher für dieses Deck geschrieben hast, bestimmt "
+"die Kategorien dieser Karte."
+
+#: templates/simulations/_categories.html
+msgid "main role"
+msgstr "Hauptrolle"
+
+#: templates/simulations/_categories.html
+msgid "Put it back"
+msgstr "Wieder aufnehmen"
+
+#: templates/simulations/_categories.html
+msgid "Make it the main role"
+msgstr "Zur Hauptrolle machen"
+
+#: templates/simulations/_categories.html
+msgid "It counts in no category."
+msgstr "Sie zählt in keiner Kategorie."
+
+#: templates/simulations/_categories.html
+msgid "Add a category"
+msgstr "Kategorie hinzufügen"
+
+#: changelog/entries.py
+msgid "Correct what a card counts as"
+msgstr "Korrigieren, als was eine Karte zählt"
+
+#: changelog/entries.py
+msgid ""
+"On a card's page, under “Categories”, you can make another role its main "
+"one, add a category or take one away, for one deck or for all of yours, and "
+"go back to the card data in one click. The engine plays the card the same "
+"either way; the four roles it reads while it plays have a box of their own."
+msgstr ""
+"Auf der Seite einer Karte kannst du unter „Kategorien“ eine andere Rolle zur"
+" Hauptrolle machen, eine Kategorie hinzufügen oder wegnehmen, für ein Deck "
+"oder für alle deine, und mit einem Klick zu den Kartendaten zurückkehren. "
+"Die Engine spielt die Karte so oder so gleich; die vier Rollen, die sie beim"
+" Spielen liest, haben ein eigenes Feld."

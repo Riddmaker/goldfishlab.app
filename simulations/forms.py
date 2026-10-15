@@ -23,9 +23,9 @@ from django.utils.translation import gettext_lazy as _
 from core.l10n import number
 from simulations.annotations import (
     BY_KEY,
+    ENGINE_ROLE_CHOICES,
     JUDGEMENTS,
     KIND_CHOICES,
-    ROLE_CHOICES,
     SUBTYPE_CHOICES,
     ManaTextError,
     format_mana,
@@ -163,7 +163,7 @@ def _as_bool(value):
 #: They come first on a card's page; everything else waits behind "More".
 ANSWERS = {
     "mana_abilities": ("mana_produces", "mana_activation", "untaps"),
-    "profile": ("kind", "mana_produces", "replace_tags", "tags"),
+    "profile": ("kind", "mana_produces", "replace_engine_tags", "engine_tags"),
 }
 #: And what a land adds to them: a land's colours are its land types.
 LAND_ANSWERS = ("replace_subtypes", "subtypes", "enters_tapped")
@@ -205,18 +205,17 @@ class AnnotationForm(forms.Form):
         label=BY_KEY["mana_produces"].label, help_text=BY_KEY["mana_produces"].help,
     )
 
-    replace_tags = forms.BooleanField(
+    replace_engine_tags = forms.BooleanField(
         required=False,
-        label=_("Replace the roles below"),
+        label=_("Replace the engine's roles below"),
         help_text=_(
             "Leave this alone to keep the community roles. Tick it and the "
-            "selection below becomes the complete list - including an empty "
-            "one, which is how you say a card has no role at all."
+            "selection below is all of the four the card has - including none."
         ),
     )
-    tags = forms.MultipleChoiceField(
-        choices=ROLE_CHOICES, required=False,
-        label=BY_KEY["tags"].label, help_text=BY_KEY["tags"].help,
+    engine_tags = forms.MultipleChoiceField(
+        choices=ENGINE_ROLE_CHOICES, required=False,
+        label=BY_KEY["engine_tags"].label, help_text=BY_KEY["engine_tags"].help,
     )
 
     replace_subtypes = forms.BooleanField(
@@ -266,7 +265,7 @@ class AnnotationForm(forms.Form):
             self.fields[key] = _tristate(key)
         self.order_fields(
             ["scope", *[judgement.key for judgement in JUDGEMENTS],
-             "replace_tags", "replace_subtypes", "note"]
+             "replace_engine_tags", "replace_subtypes", "note"]
         )
 
     def split(self, gap_fields, *, is_land: bool, has_x: bool = False,
@@ -328,7 +327,9 @@ class AnnotationForm(forms.Form):
             "mana_produces": data.get("mana_produces"),
             # An empty list is a real answer - "this card has no roles at all"
             # - so it is only `None` when the box saying so is unticked.
-            "tags": list(data.get("tags") or []) if data.get("replace_tags") else None,
+            # An empty list is a real answer: "none of the four".
+            "engine_tags": (list(data.get("engine_tags") or [])
+                            if data.get("replace_engine_tags") else None),
             "subtypes": (
                 list(data.get("subtypes") or [])
                 if data.get("replace_subtypes") else None
@@ -353,9 +354,9 @@ class AnnotationForm(forms.Form):
             initial["kind"] = overrides["kind"]
         if "mana_produces" in overrides:
             initial["mana_produces"] = format_mana(overrides["mana_produces"])
-        if "tags" in overrides:
-            initial["replace_tags"] = True
-            initial["tags"] = list(overrides["tags"])
+        if "engine_tags" in overrides:
+            initial["replace_engine_tags"] = True
+            initial["engine_tags"] = list(overrides["engine_tags"])
         if "subtypes" in overrides:
             initial["replace_subtypes"] = True
             initial["subtypes"] = list(overrides["subtypes"])

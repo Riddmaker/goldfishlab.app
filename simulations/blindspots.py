@@ -243,10 +243,11 @@ def mislabelled_removal(readings) -> BlindSpot:
             "first is an engine piece and the second answers a threat, and the "
             "report's milestone table counts them the same way."
         ),
-        fix=gettext("Roles"),
+        fix=gettext("Categories"),
     )
     for reading in readings:
-        if REMOVAL_ROLE not in reading.card.tags:
+        # The card's categories (card model phase 3), where the owner moves it.
+        if REMOVAL_ROLE not in reading.card.categories:
             continue
         text = reading.oracle_card.oracle_text or ""
         if _OWN_PERMANENT.search(text) and not _ALSO_THEIRS.search(text):

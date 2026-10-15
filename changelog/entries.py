@@ -41,6 +41,16 @@ class Entry:
 
 
 ENTRIES = (
+    # Card model phase 3, PR 10: on the same day as the categories it corrects.
+    Entry(
+        date(2026, 11, 10), "categories-you-correct",
+        _("Correct what a card counts as"),
+        _("On a card's page, under “Categories”, you can make another role its main one, add "
+          "a category or take one away, for one deck or for all of yours, and go back to the "
+          "card data in one click. The engine plays the card the same either way; the four "
+          "roles it reads while it plays have a box of their own."),
+        "methodology", "drew",
+    ),
     # Card model phase 3. Dated for the profile rebuild after the engine
     # freeze: until then every card keeps its old categories, and the entry
     # waits for its day.

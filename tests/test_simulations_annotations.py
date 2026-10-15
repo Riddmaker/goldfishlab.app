@@ -207,10 +207,12 @@ def test_an_unknown_key_cannot_be_written_through_the_editor():
 
 
 def test_an_empty_list_of_roles_is_a_real_answer():
-    """"This card has no role at all" has to be sayable, and is not the same
-    thing as having no opinion about its roles."""
-    assert apply({}, {"tags": []}) == {"tags": []}
-    assert apply({"tags": ["ramp"]}, {"tags": None}) == {}
+    """"This card has none of the engine's roles" has to be sayable, and is
+    not the same thing as having no opinion about them."""
+    assert apply({}, {"engine_tags": []}) == {"engine_tags": []}
+    assert apply({"engine_tags": ["sac_outlet"]}, {"engine_tags": None}) == {}
+    # A list from before card model phase 3 is no judgement the form owns.
+    assert apply({"tags": ["ramp"]}, {"engine_tags": None}) == {"tags": ["ramp"]}
 
 
 # --- the form --------------------------------------------------------------

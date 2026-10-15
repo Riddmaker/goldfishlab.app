@@ -26,8 +26,16 @@ from types import SimpleNamespace
 from django import forms
 from django.utils.translation import gettext, ngettext
 
+from cards import categories as card_categories
 from simulations import primitives
-from simulations.annotations import ManaTextError, format_mana, parse_mana
+from simulations.annotations import (
+    CATEGORY_CHOICES,
+    CATEGORY_KEYS,
+    ROLE_NAMES,
+    ManaTextError,
+    format_mana,
+    parse_mana,
+)
 from simulations.engine import adapter
 
 #: The primitives edited one entry at a time.
@@ -185,6 +193,93 @@ def gone(reading, overrides: dict, scope: str = "deck") -> list[Gone]:
         for key, check in _checks_by_key(reading).items()
         if check.status == "gone" and key not in LISTS and key not in overrides
     ]
+
+
+@dataclass(frozen=True)
+class Category:
+    """One category of one card, as the "Categories" block shows it."""
+
+    key: str
+    label: str
+    #: ``card`` (derived), ``deck``, ``user`` or ``builtin``: who put it there,
+    #: or for a removed one who took it away.
+    status: str
+    is_role: bool
+    main: bool = False
+    #: Derived, but not counted: offered back.
+    removed: bool = False
+
+    @property
+    def status_label(self) -> str:
+        if self.removed:
+            return {"deck": gettext("Removed by you, this deck"),
+                    "user": gettext("Removed by you, all decks"),
+                    "builtin": gettext("Removed, built in")}.get(self.status, "")
+        return Block(key=self.key, label="", help="", text="", status=self.status,
+                     editable=False).status_label
+
+
+@dataclass(frozen=True)
+class CategoryBlock:
+    """What a card counts as in the statistics (card model phase 3, PR 10)."""
+
+    lines: tuple[Category, ...]
+    #: ``(key, label)`` of every category it could be added to.
+    addable: tuple[tuple[str, str], ...]
+    #: The scope of a list written before phase 3 that still decides the
+    #: card's roles, or empty.
+    legacy: str
+    #: The page's scope holds a correction: "Back to the card data" is shown.
+    resettable: bool
+    #: The profile is derived into categories; until then there is no main role.
+    derived: bool
+
+
+def categories_block(reading, overrides: dict, scopes: dict,
+                     scope: str = "deck") -> CategoryBlock:
+    """The card's categories, each with who decided it, and the ones it
+    could be added to. The main role first, then the vocabulary's order."""
+    profile = getattr(reading.oracle_card, "profile", None)
+    derived = adapter.derived_categories(profile) if profile is not None else frozenset()
+    current = reading.card.categories
+    legacy = (scopes.get("tags", adapter.DECK_SCOPE)
+              if "tags" in overrides
+              and scopes.get("tags") != adapter.BUILTIN_SCOPE else "")
+    said = set(overrides.get("category_add") or ())
+    order = card_categories.ROLES + card_categories.MECHANICS
+
+    def status(key: str) -> str:
+        if key == overrides.get("category_primary") and key not in derived:
+            return scopes.get("category_primary", adapter.DECK_SCOPE)
+        if key in said:
+            return scopes.get("category_add", adapter.DECK_SCOPE)
+        if legacy and key not in derived:
+            return legacy
+        return "card"
+
+    def label(key: str) -> str:
+        return gettext(ROLE_NAMES[key]) if key in ROLE_NAMES else key.replace("_", " ")
+
+    def rank(key: str) -> tuple:
+        return (key != reading.primary, order.index(key) if key in order else len(order), key)
+
+    lines = [Category(key=key, label=label(key), status=status(key),
+                      is_role=key in card_categories.ROLES, main=key == reading.primary)
+             for key in sorted(current, key=rank)]
+    gone_by = scopes.get("category_remove", legacy or adapter.DECK_SCOPE)
+    lines += [Category(key=key, label=label(key), status=gone_by,
+                       is_role=key in card_categories.ROLES, removed=True)
+              for key in sorted(derived - current, key=rank)]
+    return CategoryBlock(
+        lines=tuple(lines),
+        addable=tuple((key, str(name)) for key, name in CATEGORY_CHOICES
+                      if key not in current and key not in derived),
+        legacy=legacy,
+        resettable=(legacy == scope
+                    or any(scopes.get(key) == scope for key in CATEGORY_KEYS
+                           if key in overrides)),
+        derived=bool(getattr(profile, "categories_version", 0)),
+    )
 
 
 def _checks_by_key(reading) -> dict:

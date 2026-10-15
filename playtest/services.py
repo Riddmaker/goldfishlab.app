@@ -92,12 +92,16 @@ def state(session: PlaytestSession) -> Game:
 
     Served from `cached_state` when it is exactly current, and replayed from
     the actions otherwise. The cache is keyed on the last live action's `seq`,
-    so a stale one can be recognised rather than trusted.
+    so a stale one can be recognised rather than trusted; one in an older
+    form (`serial.is_current`) counts as stale.
     """
     rows = list(live_actions(session))
     last_seq = rows[-1].seq if rows else 0
 
-    if session.cached_seq == last_seq and session.cached_state:
+    # A state cached in an older form (before card model phase 4) is as
+    # stale as one of another action: replayed, then cached anew.
+    if session.cached_seq == last_seq and session.cached_state \
+            and serial.is_current(session.cached_state):
         return serial.load_game(session.cached_state,
                                 serial.load_deck(session.deck_snapshot))
 

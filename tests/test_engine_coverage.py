@@ -203,3 +203,23 @@ def test_a_restored_game_plays_on_as_before(decks):
 def test_the_decks_are_the_database_decks_and_a_pair(decks):
     assert len(decks) == len(json.loads(games.TRACE_DECKS.read_text(encoding="utf-8")))
     assert sum(deck.partner is not None for deck in decks.values()) >= 1
+
+
+def test_every_zone_holds_its_permanents_after_each_turn(decks):
+    """Card model phase 4, PR 12: the four lists the engine reads are views
+    of its permanents, and stay so whatever a deck plays."""
+    import random
+
+    from simulation import agent
+    from simulation.game import Game
+
+    for name, deck in decks.items():
+        for index in range(3):
+            game = Game(random.Random(trace.game_seed(name, index)), deck=deck)
+            game.take_opening_hand()
+            for _ in range(games.TURNS):
+                agent.take_turn(game)
+                zones = (game.lands, game.rocks, game.creatures, game.other_permanents)
+                assert all(zone.in_step() for zone in zones), (name, index, game.turn)
+                pids = [each.pid for zone in zones for each in zone.permanents]
+                assert len(pids) == len(set(pids)), (name, index, game.turn)

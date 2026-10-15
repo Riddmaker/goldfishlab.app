@@ -159,6 +159,17 @@ def load_deck(data: dict) -> DeckDefinition:
 GAME_ZONES = ("library", "hand", "lands", "rocks", "creatures",
               "other_permanents", "graveyard", "exiled")
 
+#: The zones that hold permanents, each a `simulation.permanent.Zone`.
+BATTLEFIELD = ("lands", "rocks", "creatures", "other_permanents")
+
+#: The form `dump_game` writes (card model, phase 4). Format 2 keeps each
+#: card once, in a table, and each zone as places in it - a battlefield zone
+#: with each permanent's number - so copies come back as one object and the
+#: permanents as the same ones. A state without ``format`` is format 1, every
+#: card written out where it lies; `load_game` still reads it, but a playtest
+#: replays its actions rather than trusting it (`is_current`).
+GAME_FORMAT = 2
+
 #: Card lists on a `Game` that are not zones a card can be moved to, but that a
 #: replay still has to reproduce. Optional on the way in, because a state cached
 #: before engine version 3 has no `stays_tapped` - and nothing was ever held
@@ -184,8 +195,28 @@ def dump_game(game: Game) -> dict:
     but a cached state that silently reseeded would be a bug nobody could
     reproduce, and 625 integers is a cheap way not to have one.
     """
-    state = {name: [dump(card) for card in getattr(game, name)]
-             for name in (*GAME_ZONES, *GAME_LISTS)}
+    table: list = []
+    places: dict[int, int] = {}
+
+    def place(card) -> int:
+        # By object, not by equality: two equal tokens stay two objects.
+        if id(card) not in places:
+            places[id(card)] = len(table)
+            table.append(dump(card))
+        return places[id(card)]
+
+    state = {"format": GAME_FORMAT}
+    for name in GAME_ZONES:
+        zone = getattr(game, name)
+        if name in BATTLEFIELD:
+            state[name] = [[place(card), permanent.pid]
+                           for card, permanent in zip(zone, zone.permanents, strict=True)]
+        else:
+            state[name] = [place(card) for card in zone]
+    for name in GAME_LISTS:
+        state[name] = [place(card) for card in getattr(game, name)]
+    state["cards"] = table
+    state["pids"] = game.pids
     state.update({name: getattr(game, name) for name in GAME_SCALARS})
     state.update({name: getattr(game, name) for name in LATER_SCALARS})
     state["mana_by_color"] = dict(game.mana_by_color)
@@ -247,10 +278,13 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
     # opening hand, and impossible to reproduce once it does bite.
     game.rng.setstate(_rng_state(data["rng"]))
     cards = _deck_cards(deck)
-    for name in GAME_ZONES:
-        setattr(game, name, [_card(row, cards) for row in data[name]])
-    for name in GAME_LISTS:
-        setattr(game, name, [_card(row, cards) for row in data.get(name, [])])
+    if data.get("format") == GAME_FORMAT:
+        _load_places(game, data, [_card(row, cards) for row in data["cards"]])
+    else:
+        for name in GAME_ZONES:
+            setattr(game, name, [_card(row, cards) for row in data[name]])
+        for name in GAME_LISTS:
+            setattr(game, name, [_card(row, cards) for row in data.get(name, [])])
     for name in GAME_SCALARS:
         setattr(game, name, data[name])
     for name, missing in LATER_SCALARS.items():
@@ -286,6 +320,28 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
     game.pending_mana = [str(key) for key in data.get("pending_mana", [])]
     game.spells_this_turn = int(data.get("spells_this_turn", 0))
     return game
+
+
+def is_current(data: dict) -> bool:
+    """Whether a cached state is in the form `dump_game` writes today."""
+    return data.get("format") == GAME_FORMAT
+
+
+def _load_places(game: Game, data: dict, table: list) -> None:
+    """Format 2: each zone from its places in the card table, each permanent
+    with its number."""
+    for name in GAME_ZONES:
+        if name in BATTLEFIELD:
+            rows = data[name]
+            setattr(game, name, [table[place] for place, _pid in rows])
+            for permanent, (_place, pid) in zip(getattr(game, name).permanents, rows,
+                                                 strict=True):
+                permanent.pid = int(pid)
+        else:
+            setattr(game, name, [table[place] for place in data[name]])
+    for name in GAME_LISTS:
+        setattr(game, name, [table[place] for place in data.get(name, [])])
+    game.pids = int(data["pids"])
 
 
 def _deck_cards(deck: DeckDefinition) -> dict:

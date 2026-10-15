@@ -82,6 +82,7 @@ from simulation.manacost import (
     choice,
     is_choice,
 )
+from simulation.permanent import Marks, ZoneField, ident, key, same
 
 #: The tokens the engine keeps as a count or a list rather than as cards,
 #: when one is sacrificed (P19 R15).
@@ -110,7 +111,7 @@ STARTING_HAND_SIZE = 7
 MAX_MULLIGANS = 3          # down to five cards
 
 
-class Game:
+class Game(Marks):
     """One goldfish game: no opponent, no interaction.
 
     That is deliberate. Goldfishing answers "does this deck work and how is it
@@ -118,8 +119,17 @@ class Game:
     ``simulation-recherche.md``.
     """
 
+    #: The battlefield: each a `Zone`, whatever list it is given (card model,
+    #: phase 4). Reading one costs what reading a list costs.
+    lands = ZoneField()
+    rocks = ZoneField()
+    creatures = ZoneField()
+    other_permanents = ZoneField()
+
     def __init__(self, rng: random.Random, on_the_play: bool = True, *,
                  deck=None):
+        #: The number the next permanent gets: one per game, never reused.
+        self.pids = 0
         self.rng = rng
         self.on_the_play = on_the_play
         # Keyword-only and defaulted: ``Game(rng)`` and
@@ -251,6 +261,11 @@ class Game:
         return self.mana_by_color.get("B", 0)
 
     # --- Zone helpers ------------------------------------------------------
+
+    def next_pid(self) -> int:
+        """A new permanent's number."""
+        self.pids += 1
+        return self.pids
 
     @property
     def battlefield(self):
@@ -408,7 +423,7 @@ class Game:
                 return self.spells_this_turn == 2
             return True
         if trigger.event == DIES:
-            return subject is not card if wanted == ANOTHER else True
+            return not same(subject, card) if wanted == ANOTHER else True
         if trigger.event == ENTERS:
             return not wanted or wanted in subject.creature_types
         return True
@@ -451,7 +466,7 @@ class Game:
         if "R" in self._colors_of(card):
             for permanent in self.battlefield:
                 if permanent.store is not None and permanent.store.grows == "red_spell":
-                    self.counters[permanent.name] = self.counters.get(permanent.name, 0) + 1
+                    self.add_kept_counter(permanent)
                     self._bank(permanent)
         self._grow_on_cast(card)
         self.fire(CAST, card)
@@ -509,7 +524,7 @@ class Game:
         """A creature's {T} for something other than mana (P19 R15): not the
         turn it arrived, once a turn, and not a mana creature, whose {T} is
         in the pool already."""
-        return (card.name not in self.arrived and card.name not in self.tapped_creatures
+        return (not self.arrived_now(card) and not self.creature_tapped(card)
                 and not card.mana_abilities)
 
     def activation_fodder(self, card):
@@ -518,14 +533,14 @@ class Game:
         spec = card.land_search
         land = other = None
         if spec.sacrifices_land:
-            lands = [found for found in self.land_fodder() if found is not card
+            lands = [found for found in self.land_fodder() if not same(found, card)
                      and (not spec.land_cost_types or found.subtypes & spec.land_cost_types)]
             if not lands:
                 return None
             land = lands[0]
         if spec.sacrifice_other:
             others = [found for found in self.fodder(AdditionalCost(sacrifice=spec.sacrifice_other))
-                      if found is not card and not isinstance(found, str)]
+                      if not same(found, card) and not isinstance(found, str)]
             if not others:
                 return None
             other = others[0]
@@ -559,7 +574,7 @@ class Game:
         if spec.sacrifice:
             self._sacrifice(card)
         elif card in self.creatures:
-            self.tapped_creatures.append(card.name)
+            self.tap_creature(card)
         self.note(f"{card.name} (activated)")
         for fodder in (land, other):
             if fodder is not None:
@@ -645,7 +660,7 @@ class Game:
                 found.append(LANDER_FODDER)
         commanders = self.deck.commanders
         permanents = [card for card in self.creatures + self.rocks + self.other_permanents
-                      if not any(card is each for each in commanders) and card is not also
+                      if not any(card is each for each in commanders) and not same(card, also)
                       and not self.is_mana_source(card) and self._fits(card, cost)]
         found += sorted(permanents, key=lambda card: ("recursive" not in card.tags,
                                                       card.mv, card.name))
@@ -661,11 +676,11 @@ class Game:
         other lands make too. An untapped one is tapped for its mana first,
         so its mana stays in the pool."""
         counts = Counter(color for land in self.lands for color in land_colors(land))
-        tapped = {id(land) for land in self.lands[:self.tapped_lands]}
+        tapped = {ident(land) for land in self.lands[:self.tapped_lands]}
 
         def loss(land):
             shared = min((counts[color] for color in land_colors(land)), default=0)
-            return (id(land) not in tapped, not land.basic, -shared, land.name)
+            return (ident(land) not in tapped, not land.basic, -shared, land.name)
 
         return sorted(self.lands, key=loss)
 
@@ -760,7 +775,7 @@ class Game:
             self.note("  -> sacrifices a Lander")
             self.fire(SACRIFICED, LANDER_FODDER)
             return
-        index = next((i for i, land in enumerate(self.lands) if land is fodder), None)
+        index = next((i for i, land in enumerate(self.lands) if same(land, fodder)), None)
         if index is not None:
             # This land, not an equal one: the one that came in tapped.
             if index < self.tapped_lands:
@@ -819,7 +834,7 @@ class Game:
             # Its {T} went to this: the land counts as tapped from now on.
             index = next(i for i in range(self.tapped_lands, len(self.lands))
                          if self.lands[i] == card)
-            self.lands.insert(self.tapped_lands, self.lands.pop(index))
+            self.lands.move(index, self.tapped_lands)
             self.tapped_lands += 1
         self.note(f"{card.name} (sacrifice for mana)")
         if card.sacrifice_mana.life:
@@ -917,15 +932,15 @@ class Game:
         most lands make; a bonus that fixes (Utopia Sprawl) the one fewest
         make. Ties go in WUBRG order.
         """
-        if card.name not in self.chosen_colors:
+        if self.chosen_color_of(card) is None:
             granted = granted_subtypes(self.lands)
             made = {color: sum(1 for land in self.lands if color in land_colors(land, granted))
                     for color in COLORS if color in self.deck_colors()}
             most = ability.subtype in CHOSEN_SCOPES
-            self.chosen_colors[card.name] = min(
+            self.choose_color(card, min(
                 made, key=lambda color: (-made[color] if most else made[color],
-                                         COLORS.index(color)))
-        return self.chosen_colors[card.name]
+                                         COLORS.index(color))))
+        return self.chosen_color_of(card)
 
     def wanted_color(self, card) -> str:
         """One colour for "X mana of any one color": the one the hand asks most.
@@ -970,17 +985,16 @@ class Game:
         tapped, _ = self.tap_fodder()
         for found in tapped.values():
             for other in found:
-                if any(other is creature for creature in self.creatures) \
-                        and other.name not in self.fodder_used:
+                if any(same(other, creature) for creature in self.creatures) \
+                        and not self.fodder_tapped(other):
                     # Its {T} went to another card's mana (P19 R19).
-                    self.tapped_creatures.append(other.name)
-                    self.fodder_used.append(other.name)
+                    self.tap_as_fodder(other)
         for card in sources:
             if card.mana_mills and self.mana_ability(card) is not None:
                 self.mill(card.mana_mills, card)
         self.fire(MAIN_PHASE)
-        for key in self.pending_mana:
-            pool.add(key)
+        for mana in self.pending_mana:
+            pool.add(mana)
         self.pending_mana = []
         pool.treasures = list(self.treasures)
         pool.treasure_bonus = self.treasure_bonus()
@@ -1083,7 +1097,7 @@ class Game:
                 # basic land, so it needs two others (fixed in P19 R12).
                 have = len(counted) + (0 if condition.other or not matches(card) else 1)
             else:
-                itself = any(other is card for other in counted)
+                itself = any(same(other, card) for other in counted)
                 have = len(counted) - (1 if condition.other and itself else 0)
             return have >= condition.count if condition.at_least else have <= condition.count
         if kind == "artifacts":
@@ -1096,7 +1110,7 @@ class Game:
         if kind == "permanent":
             return any(permanent.types & condition.types
                        and (permanent.legendary or not condition.legendary)
-                       for permanent in self.battlefield if permanent is not card)
+                       for permanent in self.battlefield if not same(permanent, card))
         if kind == "turn":
             return self.turn <= condition.count
         if kind == "opponent_lands":
@@ -1123,7 +1137,7 @@ class Game:
                 _, left = self.tap_fodder()
                 return any(self._tappable(found, condition.types, _wanted(condition))
                            for found in left)
-            return bool(self.tap_fodder()[0].get(id(card)))
+            return bool(self.tap_fodder()[0].get(ident(card)))
         return False
 
     # --- Tapping other permanents for mana (P19 R19) -------------------------
@@ -1152,7 +1166,7 @@ class Game:
     def tap_fodder(self) -> tuple[dict, list]:
         """Which permanents each card taps for its mana, and what is left.
 
-        Returns ``({id(card): [permanents]}, left)``. Only a permanent that
+        Returns ``({ident(card): [permanents]}, left)``. Only a permanent that
         makes no mana of its own is tapped - a mana creature taps for its
         own - and never one whose {T} went to something else this turn. Each
         is tapped once: the narrowest ask goes first, a legendary creature
@@ -1165,13 +1179,13 @@ class Game:
             return {}, []
         tappers = [card for card in self.battlefield if card.tap_mana is not None]
         own = self._self_tappers()
-        busy = Counter(self.tapped_creatures) - Counter(self.fodder_used)
+        busy = self.busy()
         left = []
         for card in self.creatures + self.rocks + self.other_permanents:
             if self.is_mana_source(card):
                 continue
-            if busy[card.name]:
-                busy[card.name] -= 1
+            if busy[key(card)]:
+                busy[key(card)] -= 1
                 continue
             left.append(card)
         asks = []
@@ -1184,12 +1198,12 @@ class Game:
         found: dict = {}
         for card, types, wanted, one in asks:
             fits = [other for other in left if self._tappable(other, types, wanted)]
-            if not one and self._tappable(card, types, wanted) and not busy[card.name]:
+            if not one and self._tappable(card, types, wanted) and not busy[key(card)]:
                 # Grand Architect: a blue creature itself.
                 fits.append(card)
             taken = fits[:1] if one else fits
-            found[id(card)] = taken
-            left = [other for other in left if not any(other is each for each in taken)]
+            found[ident(card)] = taken
+            left = [other for other in left if not any(same(other, each) for each in taken)]
         return found, left
 
     def _add_tap_mana(self, pool: ManaPool) -> None:
@@ -1199,7 +1213,7 @@ class Game:
             spec = card.tap_mana
             if spec is None:
                 continue
-            count = len(tapped.get(id(card), ())) + spec.tokens
+            count = len(tapped.get(ident(card), ())) + spec.tokens
             if not count:
                 continue
             if spec.spend_only:
@@ -1240,7 +1254,7 @@ class Game:
         Citanul Hierophants' {G}. Rishkar's goes only to a creature with a
         counter on it (P19 R21).
         """
-        countered = card is not None and bool(self.plus_counters.get(card.name))
+        countered = card is not None and bool(self.plus(card))
         best = None
         for permanent in self.battlefield:
             for ability in permanent.mana_abilities:
@@ -1248,7 +1262,7 @@ class Game:
                         ability.subtype == "creature"
                         or (ability.subtype == "creature:counter" and countered)
                         or (ability.subtype == "equipped" and card is not None
-                            and self.attached.get(permanent.name) == card.name)):
+                            and self.is_host_of(card, permanent))):
                     continue
                 if best is None or len(ability.produces[0][0]) > len(best.produces[0][0]):
                     best = ability
@@ -1264,11 +1278,11 @@ class Game:
         """
         if card.mox == IMPRINT:
             # Chrome Mox (P19 R19): the colours of the card it exiled, or none.
-            colors = self.imprinted.get(card.name, "")
+            colors = self.imprinted_on(card)
             return ManaAbility(FLAT, {colors: 1}) if colors else None
         if card.store is not None and (stored := self._store_ability(card)) is not None:
             return stored
-        if card.flip and card.name not in self.flipped:
+        if card.flip and not self.has_flipped(card):
             # Growing Rites of Itlimoc: no mana before it turns (P19 R21).
             return None
         counted = None
@@ -1293,7 +1307,7 @@ class Game:
                 if not colors:
                     continue
                 # Incubation Druid: three with a +1/+1 counter (P19 R21).
-                amount = ability.times if self.plus_counters.get(card.name) else 1
+                amount = ability.times if self.plus(card) else 1
                 return ManaAbility(FLAT, {colors: amount},
                                    activation_generic=ability.activation_generic)
             if ability.rule != FLAT:
@@ -1336,7 +1350,7 @@ class Game:
             return sum(1 for creature in self.creatures if creature.defender), color
         if what.startswith("names:"):
             needed = set(what.split(":", 1)[1].split("|"))
-            here = {land.name for land in self.lands if land is not card}
+            here = {land.name for land in self.lands if not same(land, card)}
             full = sum(amount for _, amount in ability.produces)
             return (full if needed <= here else 0), COLORLESS
         # An Elf, or the deck's chosen type (Three Tree City, P19 R18): of
@@ -1366,7 +1380,7 @@ class Game:
         granted = granted_subtypes(self.lands)
         found: set[str] = set()
         for land in self.lands:
-            if land is card or any(a.rule == LANDS_COULD_PRODUCE for a in land.mana_abilities):
+            if same(land, card) or any(a.rule == LANDS_COULD_PRODUCE for a in land.mana_abilities):
                 continue
             basic = land_color(land, granted)
             if basic is not None:
@@ -1400,8 +1414,7 @@ class Game:
         self.land_drop_used = True
         if tapped:
             # Entered tapped: not a mana source this turn.
-            self.lands.remove(card)
-            self.lands.insert(0, card)
+            self.lands.move(self.lands.index(card), 0)
             self.tapped_lands += 1
         self.note(f"Land: {card.name}" + (" (tapped)" if tapped else ""))
         if card.store is not None:
@@ -1604,15 +1617,14 @@ class Game:
             self._mox(card)
             self.rocks.append(card)
             if card.enters_tapped:
-                self.rocks.remove(card)
-                self.rocks.insert(0, card)
+                self.rocks.move(self.rocks.index(card), 0)
                 self.tapped_rocks += 1
             self.note(f"{card.name}"
                       + (" (tapped)" if card.enters_tapped else ""))
             return
         if card.kind == CREATURE:
             self.creatures.append(card)
-            self.arrived.append(card.name)
+            self.mark_arrived(card)
             self.note(f"{card.name}")
             self._creature_enters(card, x)
             self.fire(ENTERS, card)
@@ -1633,7 +1645,7 @@ class Game:
             elif card.enchants == "creature":
                 targets = self.attach_targets(card) or list(self.creatures)
                 if targets:
-                    self.attached[card.name] = targets[0].name
+                    self.attach(card, targets[0])
                     self.note(f"  -> on {targets[0].name}")
             return
         # Sorcery / instant
@@ -1644,21 +1656,21 @@ class Game:
 
     def power(self, card) -> int:
         """Its printed power and its +1/+1 counters - no pumps, no anthems."""
-        return card.power + self.plus_counters.get(card.name, 0)
+        return card.power + self.plus(card)
 
     def toughness(self, card) -> int:
         """Its printed toughness and its +1/+1 counters."""
-        return card.toughness + self.plus_counters.get(card.name, 0)
+        return card.toughness + self.plus(card)
 
     def _stat_count(self, what: str, card) -> int:
         """Power, toughness or counters, as a counting ability reads them."""
         if what == "power":
             return self.power(card)
         if what == "counters":
-            return self.plus_counters.get(card.name, 0)
+            return self.plus(card)
         if what == "power:greatest":
             return max((self.power(each) for each in self.creatures), default=0)
-        return max((self.toughness(each) for each in self.creatures if each is not card),
+        return max((self.toughness(each) for each in self.creatures if not same(each, card)),
                    default=0)
 
     def add_counters(self, card, count: int) -> None:
@@ -1668,7 +1680,7 @@ class Game:
             return
         count += sum(each.growth.bonus for each in self.battlefield
                      if each.growth is not None)
-        self.plus_counters[card.name] = self.plus_counters.get(card.name, 0) + count
+        self.set_plus(card, self.plus(card) + count)
         self.note(f"  -> {card.name} gets {count} +1/+1 counter(s)")
 
     def _creature_enters(self, card, x: int = 0) -> None:
@@ -1691,7 +1703,7 @@ class Game:
                     self.add_counters(other, 1)
             if spec.draws_on_greatest and all(
                     self.power(card) > self.power(each)
-                    for each in self.creatures if each is not card):
+                    for each in self.creatures if not same(each, card)):
                 drawn = self.draw(1)
                 self.note(f"  -> {other.name}: {len(drawn)} card")
 
@@ -1701,17 +1713,14 @@ class Game:
         there before this turn."""
         def gain(creature) -> int:
             before = self.mana_ability(creature)
-            had = self.plus_counters.get(creature.name, 0)
-            self.plus_counters[creature.name] = had + 1
+            had = self.plus(creature)
+            self.set_plus(creature, had + 1)
             after = self.mana_ability(creature)
-            if had:
-                self.plus_counters[creature.name] = had
-            else:
-                del self.plus_counters[creature.name]
+            self.set_plus(creature, had)
             return ((after.total if after is not None else 0)
                     - (before.total if before is not None else 0))
         ranked = sorted(self.creatures, key=lambda each: (
-            -gain(each), each.name in self.arrived, each.name))
+            -gain(each), self.arrived_now(each), each.name))
         return ranked[:count]
 
     def _grow_on_cast(self, spell) -> None:
@@ -1745,8 +1754,8 @@ class Game:
         """Can ``card`` adapt now - no counters yet, and the mana for it?"""
         growth = card.growth
         return (growth is not None and growth.adapt > 0 and growth.adapt_cost is not None
-                and any(each is card for each in self.creatures)
-                and not self.plus_counters.get(card.name)
+                and any(same(each, card) for each in self.creatures)
+                and not self.plus(card)
                 and pool.can_pay_cost(growth.adapt_cost, life=self.life))
 
     def adapt(self, card, pool: ManaPool) -> None:
@@ -1772,8 +1781,8 @@ class Game:
         """Whether a creature attacks this turn: not the turn it arrived
         unless it has haste, not tapped for something else, no mana ability -
         its {T} is in the pool already - and no defender."""
-        return ((card.name not in self.arrived or card.haste)
-                and card.name not in self.tapped_creatures
+        return ((not self.arrived_now(card) or card.haste)
+                and not self.creature_tapped(card)
                 and self.mana_ability(card) is None and not card.defender)
 
     def attackers(self) -> list:
@@ -1782,19 +1791,18 @@ class Game:
 
     def host(self, card):
         """The creature an Equipment or Aura is on, or None."""
-        name = self.attached.get(card.name)
-        return next((each for each in self.creatures if each.name == name), None)
+        host = self.host_key(card)
+        return next((each for each in self.creatures if key(each) == host), None)
 
     def modified(self, creature) -> bool:
         """Kodama of the West Tree's "modified": an Equipment, an Aura or a
         +1/+1 counter on it."""
-        return bool(self.plus_counters.get(creature.name)) \
-            or creature.name in self.attached.values()
+        return bool(self.plus(creature)) or self.carries(creature)
 
     def deals_damage(self, creature) -> bool:
         """Whether an attacker deals combat damage: it has power, or something
         on it to give it some (a Germ under its Equipment)."""
-        return self.power(creature) > 0 or creature.name in self.attached.values()
+        return self.power(creature) > 0 or self.carries(creature)
 
     def combat_plan(self) -> list[tuple]:
         """What this turn's combat would set off: ``(card, trigger, times)``."""
@@ -1817,10 +1825,10 @@ class Game:
         group = attackers if trigger.event == "attacks" else connected
         who = trigger.who
         if who == "self":
-            return int(any(each is card for each in group))
+            return int(any(same(each, card) for each in group))
         if who in ("equipped", "enchanted"):
             host = self.host(card)
-            return int(host is not None and any(each is host for each in group))
+            return int(host is not None and any(same(each, host) for each in group))
         if who == "any":
             return int(any(not trigger.types or each.creature_types & trigger.types
                            for each in group))
@@ -1855,11 +1863,12 @@ class Game:
         self.combat_done = True
         if not plan:
             # Nothing rides on it: the log stays as it was before P19 R22.
-            self.tapped_creatures.extend(each.name for each in attackers)
+            for each in attackers:
+                self.tap_creature(each)
             return False
         self.note("Combat: " + ", ".join(each.name for each in attackers) + " attack")
         for each in attackers:
-            self.tapped_creatures.append(each.name)
+            self.tap_creature(each)
         treasures = len(self.treasures)
         gained = False
         self.in_combat = True
@@ -1885,8 +1894,8 @@ class Game:
             self.search_lands(card, choose,
                               COMBAT_SEARCH_UNTAPPED if trigger.untapped else COMBAT_SEARCH)
         if trigger.mana and self.pool is not None:
-            for key in trigger.mana:
-                self.pool.add(key)
+            for mana in trigger.mana:
+                self.pool.add(mana)
             if trigger.who == "total":
                 self.note(f"  -> {card.name}: +{len(trigger.mana)}{trigger.mana[:1]} for the "
                           f"combat damage")
@@ -1901,8 +1910,8 @@ class Game:
                     types=frozenset({CREATURE}), creature_types=frozenset({"phyrexian", "germ"}),
                     colors=frozenset({"B"}), token=True)
         self.creatures.append(germ)
-        self.arrived.append(GERM)
-        self.attached[card.name] = GERM
+        self.mark_arrived(germ)
+        self.attach(card, germ)
         self.note(f"  -> a {GERM} token, {card.name} on it")
         self._creature_enters(germ)
         self.fire(ENTERS, germ)
@@ -1910,13 +1919,13 @@ class Game:
     def _detach(self, card) -> None:
         """A permanent left: what was on it falls off - an Aura goes to the
         graveyard - and it is on nothing any more."""
-        self.attached.pop(card.name, None)
+        self.unattach(card)
         for name, host in list(self.attached.items()):
-            if host != card.name:
+            if host != key(card):
                 continue
             del self.attached[name]
             aura = next((each for each in self.other_permanents
-                         if each.name == name and each.enchants == "creature"), None)
+                         if key(each) == name and each.enchants == "creature"), None)
             if aura is not None:
                 self.other_permanents.remove(aura)
                 self.graveyard.append(aura)
@@ -1939,13 +1948,13 @@ class Game:
         taken = set(self.attached.values())
         if self._grants_mana(card):
             found = [each for each in self.creatures if self.mana_ability(each) is None
-                     and each.name not in taken and not each.combat]
+                     and key(each) not in taken and not each.combat]
             return sorted(found, key=lambda each: (self.power(each), each.name))
         found = [each for each in self.creatures
                  if self.mana_ability(each) is None and not each.defender]
         return sorted(found, key=lambda each: (
-            not ((each.name not in self.arrived or each.haste)
-                 and each.name not in self.tapped_creatures),
+            not ((not self.arrived_now(each) or each.haste)
+                 and not self.creature_tapped(each)),
             self.modified(each), each.name))
 
     def can_equip(self, card, pool: ManaPool) -> bool:
@@ -1966,7 +1975,7 @@ class Game:
             raise ValueError(f"{card.name} has no creature {index} to go on")
         pool.pay_cost(card.equip, life=self.life)
         self._spend_treasures(pool)
-        self.attached[card.name] = targets[index].name
+        self.attach(card, targets[index])
         self.note(f"{card.name} equipped to {targets[index].name}")
 
     # --- Mana kept as counters, energy or a Food (P19 R20) ------------------
@@ -1991,7 +2000,7 @@ class Game:
             if count:
                 self.note(f"  -> {count} energy")
             return
-        self.counters[card.name] = count
+        self.keep_counters(card, count)
         if count and store.use != STORE_SCALES:
             self.note(f"  -> {card.name} enters with {count} counter(s)")
         self._bank(card)
@@ -2001,8 +2010,8 @@ class Game:
         store = card.store
         if store.use != STORE_FREE:
             return
-        while self.counters.get(card.name, 0) >= store.per_use:
-            self.counters[card.name] -= store.per_use
+        while self.kept_counters(card) >= store.per_use:
+            self.keep_counters(card, self.kept_counters(card) - store.per_use)
             made = [Stored(store.mana)] * store.amount
             self.treasures.extend(made)
             if self.pool is not None:
@@ -2013,10 +2022,10 @@ class Game:
         is shared: each source in turn takes its share from the player's."""
         store = card.store
         if not store.energy:
-            return self.counters.get(card.name, 0) >= store.per_use
+            return self.kept_counters(card) >= store.per_use
         users = [each for each in self.battlefield
                  if each.store is not None and each.store.energy]
-        index = next((i for i, each in enumerate(users) if each is card), 0)
+        index = next((i for i, each in enumerate(users) if same(each, card)), 0)
         return self.energy >= store.per_use * (index + 1)
 
     def _store_ability(self, card):
@@ -2027,7 +2036,7 @@ class Game:
             return ManaAbility(FLAT, {store.mana: store.amount}) if self._store_ready(card) \
                 else None
         if store.use == STORE_SCALES:
-            count = self.counters.get(card.name, 0) + (1 if store.grows == "use" else 0)
+            count = self.kept_counters(card) + (1 if store.grows == "use" else 0)
             if count <= 0:
                 return None
             return ManaAbility(FLAT, {store.mana or self.wanted_color(card): count * store.amount})
@@ -2039,30 +2048,30 @@ class Game:
         for card in self.battlefield:
             store = card.store
             if store is not None and store.use == STORE_FREE and store.grows == "tap" \
-                    and card.name not in self.arrived and card.name not in self.tapped_creatures:
-                self.counters[card.name] = self.counters.get(card.name, 0) + 1
+                    and not self.arrived_now(card) and not self.creature_tapped(card):
+                self.add_kept_counter(card)
                 self._bank(card)
         for card in sources:
             store = card.store
             if store is None:
                 continue
             if store.use == STORE_SCALES and store.grows == "use":
-                self.counters[card.name] = self.counters.get(card.name, 0) + 1
+                self.add_kept_counter(card)
             if store.use != STORE_TAP or not self._store_ready(card):
                 continue
             if store.energy:
                 self.energy -= store.per_use
                 continue
-            self.counters[card.name] -= store.per_use
-            if self.counters[card.name] < store.per_use and store.empty:
-                self.emptied.append(card.name)
+            self.keep_counters(card, self.kept_counters(card) - store.per_use)
+            if self.kept_counters(card) < store.per_use and store.empty:
+                self.mark_emptied(card)
 
     def _clear_emptied(self) -> None:
         """Last turn's empty storage land is sacrificed, Wall of Roots dies,
         Mana Bloom goes back to the hand."""
         for name in self.emptied:
             for zone in (self.lands, self.rocks, self.creatures, self.other_permanents):
-                card = next((each for each in zone if each.name == name), None)
+                card = next((each for each in zone if key(each) == name), None)
                 if card is None:
                     continue
                 zone.remove(card)
@@ -2115,7 +2124,7 @@ class Game:
                 exiled = max(options, key=lambda other: (other.mv, other.name))
                 self.hand.remove(exiled)
                 self.exiled.append(exiled)
-                self.imprinted[card.name] = choice(self._colors_of(exiled))
+                self.imprint(card, choice(self._colors_of(exiled)))
                 self.note(f"  -> exiles {exiled.name}")
 
     def mill(self, count: int, source=None) -> None:
@@ -2173,7 +2182,7 @@ class Game:
             self.commander_casts += 1
         self.spell_cast(commander)
         self.creatures.append(commander)
-        self.arrived.append(commander.name)
+        self.mark_arrived(commander)
         self.note(f"{commander.name} (commander)")
         self._creature_enters(commander)
         self.fire(ENTERS, commander)
@@ -2304,10 +2313,10 @@ class Game:
         size 7, life never below 25.
         """
         for card in self.other_permanents:
-            if card.flip and card.name not in self.flipped \
+            if card.flip and not self.has_flipped(card) \
                     and len(self.creatures) >= card.flip:
                 # Growing Rites of Itlimoc becomes Itlimoc (P19 R21).
-                self.flipped.append(card.name)
+                self.mark_flipped(card)
                 self.note(f"{card.name} transforms ({len(self.creatures)} creatures)")
         for card in self._triggers(lambda c: c.end_step is not None):
             spec = card.end_step

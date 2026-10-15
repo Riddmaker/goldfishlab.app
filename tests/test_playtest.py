@@ -300,3 +300,20 @@ def test_a_double_click_writes_two_actions_and_no_error(session, monkeypatch):
     assert errors == []
     assert list(session.actions.order_by("seq").values_list("seq", flat=True)) == [1, 2]
     assert len(services.state(session).hand) == 9
+
+
+def test_a_state_cached_in_an_older_form_is_replayed(session):
+    """Card model phase 4: a state cached before format 2 counts as stale,
+    and the session replays its actions and caches the new form."""
+    cached = _play_a_turn(session)
+    session.refresh_from_db()
+    old = dict(session.cached_state)
+    old.pop("format")
+    session.cached_state = old
+    session.save(update_fields=["cached_state"])
+
+    replayed = services.state(session)
+
+    assert replayed.log == cached.log
+    session.refresh_from_db()
+    assert serial.is_current(session.cached_state)

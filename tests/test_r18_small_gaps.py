@@ -33,6 +33,7 @@ from simulation.cards import (
 from simulation.game import Game
 from simulation.mana import may_spend
 from simulation.manacost import parse
+from simulation.rules.mana import spell_selector
 from simulations import deck_cards, gaps
 from simulations.engine import adapter
 from simulations.forms import AnnotationForm
@@ -208,7 +209,7 @@ def test_cabal_ritual_makes_five_with_seven_cards_in_the_graveyard():
 
 
 def test_only_a_spell_of_the_one_colour_may_spend_throne_mana():
-    throne = (SpellFilter(only_color="G"),)
+    throne = (spell_selector(SpellFilter(only_color="G")),)
     assert may_spend(throne, creature("Llanowar Elves", 1))
     gold = Card("Gold Bear", 2, 0, 0, CREATURE, cost=parse("{B}{G}"),
                 types=frozenset({"creature"}), colors=frozenset({"B", "G"}))
@@ -221,7 +222,7 @@ def test_three_tree_city_counts_the_type_in_the_colour_the_hand_wants():
         ManaAbility(FLAT, {"C": 1})))
     elves = [creature(f"Elf {n}", 1) for n in range(4)]
     game = game_with(lands=[city], creatures=elves, hand=[creature("Wanted", 1)])
-    assert game.board_count(city.mana_abilities[0], city) == (4, "G")
+    assert game.board_count(city.mana.sources[0], city) == (4, "G")
 
 
 def test_nimbus_maze_takes_the_first_condition_that_holds():

@@ -9,7 +9,7 @@ first, then the card-advantage engines, then the sacrifice motor.
 """
 
 from simulation import actions
-from simulation.cards import LANDER, PER_CONTROLLED, RITUAL, TYPE_ADDING
+from simulation.cards import LANDER, PER_CONTROLLED, RITUAL
 from simulation.game import TREASURE
 from simulation.mana import (
     ManaPool,
@@ -116,15 +116,15 @@ def _land_score(card, game) -> int:
     like Urborg. The numbers are unchanged.
     """
     lands_out = len(game.lands)
-    scaling_out = any(land.ability(PER_CONTROLLED) is not None for land in game.lands)
-    adder_out = any(land.ability(TYPE_ADDING) is not None for land in game.lands)
+    scaling_out = any(land.mana.source(PER_CONTROLLED) is not None for land in game.lands)
+    adder_out = any(land.mana.land_types for land in game.lands)
 
-    if card.ability(PER_CONTROLLED) is not None:
+    if card.mana.source(PER_CONTROLLED) is not None:
         # Without the subtype giver it taps for nothing and is a dead land drop.
         if adder_out or lands_out >= 3:
             return 95
         return 5
-    if card.ability(TYPE_ADDING) is not None:
+    if card.mana.land_types:
         # With a scaling land already out it is the best land in the deck.
         return 96 if scaling_out else 90
     if any(subtype in SUBTYPE_COLORS for subtype in card.subtypes):
@@ -211,7 +211,7 @@ def _try_altar(game, pool: ManaPool) -> bool:
         if fodder == TREASURE:
             sacrifice_treasure(test.treasures)
         test.pay_cost(game.altar_cost(altar), life=game.life)
-        test.add(altar.sacrifice_mana_color, altar.sacrifice_mana_amount)
+        test.add(altar.mana.altar.color, altar.mana.altar.amount)
         unlocked = [card for card in game.hand
                     if card.kind != RITUAL and card.name not in castable_now
                     and card is not fodder and priority(card) >= RITUAL_THRESHOLD

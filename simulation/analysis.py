@@ -28,6 +28,7 @@ import random
 from collections import Counter
 
 from simulation import agent, combos
+from simulation import trace as game_trace
 from simulation.cards import COUNTS, FILTER, FLAT, LANDS_COULD_PRODUCE
 from simulation.game import Game
 from simulation.manacost import SOURCES
@@ -199,7 +200,7 @@ def _scaling_mana_sources(cards) -> int:
     land (Wild Growth, Abundant Growth; P19 R13) is a fixed amount, and does
     not count.
     """
-    return sum(1 for card in cards if any(map(_grows, card.mana_abilities)))
+    return sum(1 for card in cards if any(map(_grows, card.mana.entries)))
 
 
 #: Rules whose amount is fixed however large the board gets: a filter land
@@ -212,7 +213,8 @@ def _grows(ability) -> bool:
     not: its seven are there once the three lands are."""
     if ability.rule in _FIXED_RULES or ability.subtype.startswith("enchanted"):
         return False
-    return not (ability.rule == COUNTS and ability.subtype.startswith("names:"))
+    return not (ability.rule == COUNTS and ability.amount is not None
+                and ability.amount.kind == "all_named")
 
 
 def _has_fast_mana(cards) -> bool:
@@ -232,7 +234,7 @@ def _has_fast_mana(cards) -> bool:
         # Net of what the ability costs to use: a Signet's {1} leaves one
         # mana, which is fixing and not tempo.
         produced = sum(
-            a.total - a.activation_generic for a in card.mana_abilities if a.rule == FLAT
+            a.total - a.activation_generic for a in card.mana.sources if a.rule == FLAT
         )
         if produced > card.mv:
             return True
@@ -344,7 +346,7 @@ def _count_seen(game, groups) -> list[int]:
 
 def simulate_game(rng: random.Random, on_the_play: bool = True,
                   turns: int = DEFAULT_TURNS, keep_log: bool = False,
-                  deck=None, watch=(), groups=None):
+                  deck=None, watch=(), groups=None, trace=None):
     """Play one goldfish game and return what was measured.
 
     Args:
@@ -355,12 +357,18 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
         groups: What :func:`seen_groups` returned for this deck. Given, and
             every turn's snapshot carries a ``seen`` count per group; left out,
             and it does not.
+        trace: A list to append the game's :mod:`simulation.trace` records
+            to: one after the opening hand and one after each turn. Left out,
+            and nothing is recorded.
 
     Returns:
         dict: the game's metrics, including the state after each turn.
     """
     game = Game(rng, on_the_play=on_the_play, deck=deck)
     game.take_opening_hand()
+    if trace is not None:
+        trace.append(game_trace.record(game))
+        logged = len(game.log)
 
     commander_names = [commander.name for commander in game.deck.commanders]
 
@@ -378,6 +386,9 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
             # payable - is not one the player can use, and the honest snapshot
             # is the board they actually pass the turn with.
             watcher.look(game, number)
+        if trace is not None:
+            trace.append(game_trace.record(game, logged))
+            logged = len(game.log)
         names = game.permanent_names
         board = list(game.battlefield)
         snapshot = {

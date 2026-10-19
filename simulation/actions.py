@@ -565,7 +565,8 @@ def altars(game, pool) -> list[Action]:
     return [SacrificeForMana(zone=zone, index=index)
             for zone in (LANDS, ROCKS, CREATURES, OTHER)
             for index, card in enumerate(zone_of(game, zone))
-            if card.sacrifice_mana is not None and game.altar_fodder(card, pool)]
+            if card.mana.altar is not None and card.mana.altar.sacrifices
+            and game.altar_fodder(card, pool)]
 
 
 def castable_cost(game, card, x: int = 0):
@@ -593,8 +594,17 @@ def _at(game, zone: str, index: int):
 
 
 def _take(game, zone: str, index: int):
-    """Remove and return the card at ``index`` of ``zone``."""
+    """Remove and return the card at ``index`` of ``zone``.
+
+    A tapped land or rock is one of the first ``tapped_*`` of its zone, so
+    taking one away takes one off the count, as a sacrifice does: left as it
+    was, the next land along would look tapped (card model, phase 4).
+    """
     _at(game, zone, index)
+    if zone == LANDS and index < game.tapped_lands:
+        game.tapped_lands -= 1
+    elif zone == ROCKS and index < game.tapped_rocks:
+        game.tapped_rocks -= 1
     return zone_of(game, zone).pop(index)
 
 

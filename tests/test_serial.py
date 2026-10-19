@@ -41,6 +41,7 @@ from simulation.cards import (
 from simulation.fixtures import chainer
 from simulation.game import Game
 from simulation.manacost import Hybrid, ManaCost
+from simulation.rules import mana
 
 #: A card with **every** field set away from its default, including one of each
 #: nested dataclass. The point of it is to fail loudly when a new field or a new
@@ -165,18 +166,24 @@ def test_a_card_with_every_field_set_survives_the_trip():
 def test_every_field_of_a_card_is_actually_written_down():
     """Equality would still hold if a field came back as its default."""
     dumped = serial.dump(EVERYTHING)
-    for field in dataclasses.fields(Card):
-        assert field.name in dumped, f"{field.name} never reached the row"
+    # The fields a card is made with: its mana family as the sixteen fields
+    # it takes, not the blocks they become (card model phase 4, PR 13).
+    for name, _annotation in serial.fields_of(Card):
+        assert name in dumped, f"{name} never reached the row"
+    assert "abilities" not in dumped
 
 
 def test_no_field_of_the_exhaustive_card_was_left_at_its_default():
     """Otherwise the guard above passes while testing nothing."""
     for field in dataclasses.fields(Card):
         default = field.default
-        if default is dataclasses.MISSING:
+        if default is dataclasses.MISSING or field.name == "abilities":
             continue
         assert getattr(EVERYTHING, field.name) != default, (
             f"{field.name} is still at its default, so it is not being tested")
+    for name, default in mana.FIELDS.items():
+        assert getattr(EVERYTHING, name) != default, (
+            f"{name} is still at its default, so it is not being tested")
 
 
 def test_a_frozenset_does_not_come_back_as_a_list():
@@ -323,3 +330,39 @@ def test_a_lander_survives_the_trip():
     data = json.loads(json.dumps(serial.dump_game(game)))
     del data["landers"]
     assert serial.load_game(data, chainer.DECK).landers == 0
+
+
+# --- Card objects after a restore (card model, phase 4) -----------------------
+
+
+def test_a_restored_commander_is_still_the_commander():
+    """The engine asks "is this the commander" by identity: a restored game of
+    new card objects offered its commander as sacrifice fodder."""
+    game = Game(random.Random(3), deck=chainer.DECK)
+    game.creatures = [chainer.DECK.commander]
+    back = restored(game)
+    assert back.creatures[0] is chainer.DECK.commander
+    cost = AdditionalCost(sacrifice=frozenset({"creature"}))
+    assert chainer.DECK.commander not in back.fodder(cost)
+
+
+def test_copies_of_a_card_are_one_object_again():
+    game = played()
+    back = restored(game)
+    swamps = {id(card) for card in back.library if card.name == "Swamp"}
+    assert len(swamps) == 1
+
+
+def test_a_token_the_game_made_stays_its_own_card():
+    germ = Card(name="Germ", mv=0, pips=0, generic=0, kind=CREATURE, token=True)
+    game = Game(random.Random(3), deck=chainer.DECK)
+    game.creatures = [germ]
+    assert restored(game).creatures == [germ]
+
+
+def test_the_cards_drawn_survive_the_trip():
+    game = played()
+    assert restored(game).drawn == game.drawn
+    data = json.loads(json.dumps(serial.dump_game(game)))
+    del data["drawn"]
+    assert serial.load_game(data, chainer.DECK).drawn == []

@@ -28,16 +28,12 @@ files have to stay byte-identical.
 from dataclasses import dataclass, field, replace
 
 from simulation.cards import (
-    ARTIFACT,
     CREATURE,
     DOUBLE_SUBTYPE,
     FILTER,
     FLAT,
     PER_CONTROLLED,
-    ROCK,
     SWAMP_SUBTYPE,
-    TYPE_ADDING,
-    SpellFilter,
 )
 from simulation.manacost import (
     COLORLESS,
@@ -51,6 +47,7 @@ from simulation.manacost import (
     normalised,
     plan_payment,
 )
+from simulation.rules.selector import Selector, selects
 
 
 class Stored(str):
@@ -91,7 +88,7 @@ class RestrictedMana:
     """
 
     made: dict[str, int]
-    spend_only: tuple[SpellFilter, ...]
+    spend_only: tuple[Selector, ...]
     otherwise: dict[str, int] = field(default_factory=dict)
     source: str = ""
     open: bool = True
@@ -109,27 +106,7 @@ class RestrictedMana:
 
 def may_spend(spend_only, spell) -> bool:
     """May restricted mana pay for this spell? ``None`` is an ability's cost."""
-    return spell is not None and any(_fits(wanted, spell) for wanted in spend_only)
-
-
-def _fits(wanted, spell) -> bool:
-    types = spell.types or frozenset({ARTIFACT if spell.kind == ROCK else spell.kind})
-    if wanted.types and not wanted.types & types:
-        return False
-    if wanted.noncreature and CREATURE in types:
-        return False
-    if wanted.subtypes and not wanted.subtypes & (spell.printed_subtypes
-                                                  | spell.creature_types):
-        return False
-    if wanted.legendary and not spell.legendary:
-        return False
-    # A hand-written fixture card has no colours of its own; its cost has.
-    colors = spell.colors if (spell.colors or spell.types) else spell.mana_cost.colors
-    if wanted.colorless and colors:
-        return False
-    if wanted.only_color and set(colors) != {wanted.only_color}:
-        return False
-    return not (wanted.multicolored and len(colors) < 2)
+    return spell is not None and any(selects(wanted)(spell) for wanted in spend_only)
 
 
 class ManaPool:
@@ -568,7 +545,7 @@ def type_adders(cards, subtype: str = SWAMP_SUBTYPE) -> int:
     return sum(
         1
         for card in cards
-        if any(a.rule == TYPE_ADDING and a.subtype == subtype for a in card.mana_abilities)
+        if subtype in card.mana.land_types
     )
 
 
@@ -579,10 +556,10 @@ def granted_subtypes(cards) -> frozenset[str]:
     ``forest``, and together they make every land both.
     """
     return frozenset(
-        ability.subtype
+        subtype
         for card in cards
-        for ability in card.mana_abilities
-        if ability.rule == TYPE_ADDING and ability.subtype
+        for subtype in card.mana.land_types
+        if subtype
     )
 
 
@@ -613,7 +590,7 @@ def land_colors(land, granted: frozenset[str] = frozenset()) -> frozenset[str]:
     """Every colour this land can make, as a basic land type or by its own
     ``FLAT`` ability - what a land search weighs when it picks one."""
     found = set(land_color(land, granted) or "")
-    for ability in land.mana_abilities:
+    for ability in land.mana.sources:
         if ability.rule == FLAT:
             for source, _amount in ability.produces:
                 found.update(letter for letter in source if letter in COLORS)
@@ -656,7 +633,8 @@ def doubler_count(permanents, subtype: str = SWAMP_SUBTYPE) -> int:
     return sum(
         1
         for card in permanents
-        if any(a.rule == DOUBLE_SUBTYPE and a.subtype == subtype for a in card.mana_abilities)
+        if any(each.rule == DOUBLE_SUBTYPE and each.subtype == subtype
+               for each in card.mana.entries)
     )
 
 
@@ -669,9 +647,9 @@ def doublers(permanents) -> dict[str, int]:
     """
     found: dict[str, int] = {}
     for card in permanents:
-        for ability in card.mana_abilities:
-            if ability.rule == DOUBLE_SUBTYPE and ability.subtype:
-                found[ability.subtype] = found.get(ability.subtype, 0) + 1
+        for each in card.mana.entries:
+            if each.rule == DOUBLE_SUBTYPE and each.subtype:
+                found[each.subtype] = found.get(each.subtype, 0) + 1
     return found
 
 
@@ -853,9 +831,9 @@ def reduction_from(permanents) -> int:
     stack, and a different deck brings different ones.
     """
     return sum(
-        card.cost_reduction.amount
+        card.mana.reduction.amount
         for card in permanents
-        if card.cost_reduction is not None
+        if card.mana.reduction is not None
     )
 
 
@@ -867,7 +845,7 @@ def reductions_from(permanents) -> dict[str, int]:
     """
     found: dict[str, int] = {}
     for card in permanents:
-        reduction = card.cost_reduction
+        reduction = card.mana.reduction
         if reduction is None:
             continue
         key = reduction.color if reduction.requires_pip else ""
@@ -935,7 +913,7 @@ def available_mana(all_lands, untapped_lands, untapped_rocks,
     """
     if ability_of is None:
         def ability_of(card):
-            return card.ability(FLAT)
+            return card.mana.source(FLAT)
     if otherwise_of is None:
         otherwise_of = plain_ability
     granted = granted_subtypes(all_lands)
@@ -949,7 +927,7 @@ def available_mana(all_lands, untapped_lands, untapped_rocks,
 
     scaling_land = None
     for land in untapped_lands:
-        ability = land.ability(PER_CONTROLLED)
+        ability = land.mana.source(PER_CONTROLLED)
         if ability is not None:
             # It has no mana ability of its own, only the activation. Under
             # Urborg it is also a swamp and could tap for {B}.
@@ -981,7 +959,7 @@ def available_mana(all_lands, untapped_lands, untapped_rocks,
     # (P19 R6): a filter now, where it is never worse; a converter is left
     # to the payment, which knows whether a colour is missing.
     for source in [*untapped_lands, *untapped_rocks]:
-        filtering = source.ability(FILTER)
+        filtering = source.mana.source(FILTER)
         if filtering is None or source is scaling_land or land_color(source, granted):
             continue
         if ability_of(source) is None:
@@ -1008,7 +986,7 @@ def _add_produced(pool: ManaPool, ability) -> None:
 
 def plain_ability(card):
     """The first ``FLAT`` ability any spell may spend and nothing guards."""
-    for ability in card.mana_abilities:
+    for ability in card.mana.sources:
         if ability.rule == FLAT and not ability.spend_only and ability.only_if is None:
             return ability
     return None
@@ -1070,7 +1048,7 @@ def _best_scaling_line(pool: ManaPool, land, all_lands, granted: frozenset[str],
     activation cost. A naive agent that always activates Coffers loses mana
     early.
     """
-    ability = land.ability(PER_CONTROLLED)
+    ability = land.mana.source(PER_CONTROLLED)
     subtype = ability.subtype
     activation = ability.activation_generic
     scaling_color = ability.scaling_color

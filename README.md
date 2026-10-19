@@ -341,6 +341,35 @@ python manage.py engine_coverage --diff --explain # every card that moved since,
 python scripts/coverage_loop.py --colours URG [--skip 60]
 ```
 
+### Keeping games the same (card model, phase 4)
+
+Phase 4 moves the engine onto blocks one family at a time, and until PR 17 no game may change.
+`simulation/trace.py` writes a game as one record per turn; two engines that play the same game
+write the same records. In CI, the module of `tests/test_engine_coverage.py` also plays every deck
+of the development database (`tests/fixtures/trace_decks.json`, plus one deck with two
+commanders) against the committed digests in `game_traces.json`, and plays each again saving and
+restoring the game before every turn. A change meant to move games rewrites them with
+`TRACE_WRITE=1 pytest tests/test_engine_coverage.py`.
+
+```bash
+# On the development database; files in .data/, never committed. Make the frozen files again
+# from a worktree of the last merged main whenever the database changes.
+python manage.py engine_games --build     # draw the gate corpus once (database decks + drawn)
+python manage.py engine_games --freeze    # 1,000 games of 8 turns per deck, turn digests
+python manage.py engine_games --diff      # the decks whose games moved, and the first turn
+python manage.py engine_numbers --save    # the database decks' numbers, 10,000 games each
+python manage.py engine_numbers --diff    # every number that moved since
+python scripts/bench_engine.py --baseline <worktree of main>   # speed ratio, gate 0.90
+```
+
+The engine plays blocks family by family. Since PR 13 the mana family - mana abilities, rituals,
+cost reduction, altars, tapping others, Moxen, mills, stores, flips - lives in `Card.abilities`,
+built from the atoms in `simulation/rules/` (selector, amount, condition, cost), and the engine
+reads only their compiled view (`card.mana`). A card is still made with the old sixteen fields,
+which `simulation/rules/mana.py` encodes; reading one decodes it, which is what wording, the editor
+and stored decks do until phase 5. `engine_coverage --diff` against the frozen v29 reading is the
+round trip on every card; `tests/test_rules.py` holds that the engine never reads the old fields.
+
 A round that changes `cards/profiles.py` needs the profiles derived again after its deploy
 (`python manage.py ingest_scryfall --profiles`), and every round changes the engine's numbers, so
 the precon pages are simulated again (`python manage.py precons --rerun --sweep`), both on the
@@ -423,7 +452,9 @@ finished, the guests turned away and how long both took. Never against productio
 ```
 
 After a change to `simulation/`, compare the engine's speed before and after with
-`.venv/Scripts/python scripts/bench_engine.py` (best of five, microseconds per game).
+`.venv/Scripts/python scripts/bench_engine.py` (best of five, microseconds per game), or against
+a worktree of main with `--baseline` (medians of five interleaved runs; on a busy machine the
+same engine varies by about 10 % from run to run).
 
 `scripts/screenshots.py` fails on any non-200 response **or any browser console error**. That is
 deliberate: during Phase 0 it caught two bugs that HTTP 200 checks and a green test suite both

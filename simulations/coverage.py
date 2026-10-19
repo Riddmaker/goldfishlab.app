@@ -370,10 +370,12 @@ def build_decks(owner, path: Path = DECKS_FIXTURE) -> list:
 
     built = []
     for spec in json.loads(path.read_text(encoding="utf-8")):
-        names = {name for _quantity, name in spec["cards"]} | {spec["commander"]}
+        names = {name for _quantity, name in spec["cards"]}
+        names |= {spec["commander"], spec.get("partner", "")}
         by_name = {card.name: card for card in OracleCard.objects.filter(name__in=names)}
         deck = Deck.objects.create(owner=owner, name=spec["name"],
-                                   commander=by_name.get(spec["commander"]))
+                                   commander=by_name.get(spec["commander"]),
+                                   partner=by_name.get(spec.get("partner", "")))
         DeckCard.objects.bulk_create([DeckCard(deck=deck, oracle_card=by_name[name],
                                                quantity=quantity)
                                       for quantity, name in spec["cards"]])
@@ -383,10 +385,15 @@ def build_decks(owner, path: Path = DECKS_FIXTURE) -> list:
 
 def numbers(deck) -> dict:
     """One deck simulated with a fixed seed, as the snapshot keeps it."""
+    return definition_numbers(adapter.convert(deck).definition)
+
+
+def definition_numbers(definition, games: int = NUMBER_GAMES) -> dict:
+    """An engine deck simulated with the fixed seed, as the snapshot keeps it."""
     from simulation import analysis
 
-    result = analysis.run(NUMBER_GAMES, on_the_play=False, turns=NUMBER_TURNS,
-                          seed=NUMBER_SEED, deck=adapter.convert(deck).definition)
+    result = analysis.run(games, on_the_play=False, turns=NUMBER_TURNS,
+                          seed=NUMBER_SEED, deck=definition)
     turns = []
     for stats in result["turn_stats"]:
         turns.append({key: round(value.mean, 6) if isinstance(value, analysis.Histogram)

@@ -547,9 +547,9 @@ class Card:
     draw_on_cast: InitVar[int] = UNSET
     life_on_cast: InitVar[int] = UNSET
     tutor: InitVar[TutorSpec | None] = UNSET
-    upkeep: UpkeepSpec | None = None
-    end_step: EndStepSpec | None = None
-    skips_draw_step: bool = False              # Necropotence
+    upkeep: InitVar[UpkeepSpec | None] = UNSET
+    end_step: InitVar[EndStepSpec | None] = UNSET
+    skips_draw_step: InitVar[bool] = UNSET     # Necropotence
     priority: int | None = None                # replaces agent.PRIORITY
     accelerant: bool = False                   # replaces game.ACCELERANTS
     subtypes: frozenset[str] = field(default_factory=frozenset)
@@ -598,8 +598,8 @@ class Card:
     #: P19 R7: Treasure tokens it makes as it resolves - a spell, or a
     #: permanent's "When this creature enters" (Big Score: 2, Rapacious
     #: Dragon: 2). Each is one mana of ``treasure_mana``, sacrificed when spent.
-    treasures: int = 0
-    treasure_mana: str = ""
+    treasures: InitVar[int] = UNSET
+    treasure_mana: InitVar[str] = UNSET
     #: P19 R14: Lander tokens it makes as it resolves or enters, each a
     #: :data:`LANDER` search to activate later.
     landers: InitVar[int] = UNSET
@@ -659,7 +659,7 @@ class Card:
     #: (Warren Soultrader). Its life, if any, is ``sacrifice_mana.life``.
     sacrifice_mana_other: InitVar[bool] = UNSET
     #: P19 R16: the triggered abilities the engine plays.
-    triggers: tuple[Trigger, ...] = ()
+    triggers: InitVar[tuple[Trigger, ...]] = UNSET
     #: P19 R15: it goes to exile rather than the graveyard once cast - a
     #: Spirit Guide, a ritual exiled from the hand for its mana.
     exiled_on_cast: InitVar[bool] = UNSET
@@ -684,7 +684,7 @@ class Card:
     #: ``mana_abilities`` are what it taps for without them.
     store: InitVar[Store | None] = UNSET
     #: P19 R21: +1/+1 counters and what grows with them.
-    growth: Growth | None = None
+    growth: InitVar[Growth | None] = UNSET
     #: P19 R21: Growing Rites of Itlimoc - it turns into its land at your end
     #: step once you control this many creatures, and makes mana only then.
     #: 0: no such card.
@@ -692,25 +692,28 @@ class Card:
     #: P19 R22: it attacks the turn it arrives.
     haste: bool = False
     #: P19 R22: its triggers in combat.
-    combat: tuple[CombatTrigger, ...] = ()
+    combat: InitVar[tuple[CombatTrigger, ...]] = UNSET
     #: P19 R22: an Equipment's equip cost - read only where something rides
     #: on it (a trigger in combat, Paradise Mantle's mana). None: not equipped.
-    equip: ManaCost | None = None
+    equip: InitVar[ManaCost | None] = UNSET
     #: P19 R22: Living weapon - it enters with a 0/0 Germ attached.
-    germ: bool = False
+    germ: InitVar[bool] = UNSET
     #: P19 R22: each Treasure makes this much more mana (Goldspan Dragon).
-    treasure_bonus: int = 0
+    treasure_bonus: InitVar[int] = UNSET
     #: P19 R22: a token the engine made as a card (a Germ): it goes to no
     #: graveyard.
     token: bool = False
     #: Card model phase 4: what the card does, as blocks
-    #: (:mod:`simulation.blocks`). Two families live here: since PR 13 the
-    #: sixteen fields of the mana family, since PR 14 the thirteen of lands,
-    #: costs and spells - the fields above marked ``InitVar``. A card is still
+    #: (:mod:`simulation.blocks`). Every rule of the card lives here, in
+    #: three families: since PR 13 the sixteen fields of the mana family,
+    #: since PR 14 the thirteen of lands, costs and spells, since PR 15 the
+    #: eleven of triggers, turns and combat - the fields above marked
+    #: ``InitVar``. What is left as a field is printed on the card or a play
+    #: hint (`simulation.blocks.FACE_FIELDS`, `HINT_FIELDS`). A card is still
     #: made with those arguments, which each family's ``encode``
-    #: (`simulation.rules.mana`, `simulation.rules.play`) turns into blocks,
-    #: and reading one of them decodes it (`legacy`). The engine reads the
-    #: compiled blocks (`mana`, `play`), never the fields.
+    #: (`simulation.rules.mana`, `play`, `turns`) turns into blocks, and
+    #: reading one of them decodes it (`legacy`). The engine reads the
+    #: compiled blocks (`mana`, `play`, `turn`), never the fields.
     abilities: tuple = ()
 
     def __post_init__(self, *given):
@@ -732,7 +735,7 @@ class Card:
 
     @property
     def legacy(self) -> dict:
-        """Both families' fields, decoded from the blocks once: what the
+        """Every family's fields, decoded from the blocks once: what the
         application reads until phase 5. Never the engine."""
         found = self.__dict__.get("_legacy")
         if found is None:
@@ -758,6 +761,14 @@ class Card:
 
         return play.compile_view(self.abilities)
 
+    @cached_property
+    def turn(self):
+        """The blocks of triggers, turns and combat compiled once
+        (`simulation.rules.turns.TurnView`): what the engine reads."""
+        from simulation.rules import turns
+
+        return turns.compile_view(self.abilities)
+
     def __hash__(self) -> int:
         # Over every field, as a frozen dataclass hashes - computed once: a
         # card's blocks nest deeper than its old fields did, and the engine
@@ -772,7 +783,7 @@ class Card:
         # What is compiled, decoded or hashed is made again where the card
         # arrives: a string's hash differs from one process to the next.
         return {key: value for key, value in self.__dict__.items()
-                if key not in ("_legacy", "mana", "play", "_hash")}
+                if key not in ("_legacy", "mana", "play", "turn", "_hash")}
 
     @property
     def mana_cost(self) -> ManaCost:
@@ -848,9 +859,9 @@ def _families() -> tuple:
     """The modules of the families, each with ``FIELDS``, ``FORMS``,
     ``encode`` and ``decode``. Imported when first asked: they import this
     module."""
-    from simulation.rules import mana, play
+    from simulation.rules import mana, play, turns
 
-    return (mana, play)
+    return (mana, play, turns)
 
 
 @functools.cache
@@ -964,10 +975,11 @@ _LEGACY = frozenset({
 })
 
 
-#: The sixteen fields of the mana family (PR 13) and the thirteen of lands,
-#: costs and spells (PR 14), as `Card` takes them - worked out when first
-#: asked, like the families.
-_FAMILY_FIELDS = {"MANA_FIELDS": 0, "PLAY_FIELDS": 1}
+#: The sixteen fields of the mana family (PR 13), the thirteen of lands,
+#: costs and spells (PR 14) and the eleven of triggers, turns and combat
+#: (PR 15), as `Card` takes them - worked out when first asked, like the
+#: families.
+_FAMILY_FIELDS = {"MANA_FIELDS": 0, "PLAY_FIELDS": 1, "TURN_FIELDS": 2}
 
 
 def __getattr__(name: str):

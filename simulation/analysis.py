@@ -243,7 +243,7 @@ def _has_fast_mana(cards) -> bool:
 
 def _skips_draw_step(cards) -> bool:
     """The Necropotence effect: the draw step traded for card advantage."""
-    return any(card.skips_draw_step for card in cards)
+    return any(card.turn.skips_draw_step for card in cards)
 
 
 # --- What was seen ----------------------------------------------------------

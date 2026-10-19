@@ -557,7 +557,7 @@ def adaptations(game, pool) -> list[Action]:
 def equips(game, pool) -> list[Action]:
     """The Equipment that can be equipped now (P19 R22)."""
     return [Equip(zone=OTHER, index=index) for index, card in enumerate(game.other_permanents)
-            if card.equip is not None and game.can_equip(card, pool)]
+            if card.turn.equip is not None and game.can_equip(card, pool)]
 
 
 def altars(game, pool) -> list[Action]:

@@ -376,13 +376,13 @@ class Game(Marks):
     def make_treasures(self, card) -> None:
         """The Treasure tokens a card makes as it resolves (P19 R7), counted
         ones included: Brass's Bounty's one for each land (P19 R16)."""
-        for trigger in card.triggers:
+        for trigger in card.turn.triggers:
             if trigger.event == RESOLVES:
                 self._apply(card, trigger)
-        if not card.treasures:
+        if not card.turn.treasures:
             return
-        self._add_treasures(card.treasure_mana, card.treasures)
-        self.note(f"  -> {card.treasures} Treasure")
+        self._add_treasures(card.turn.treasure_mana, card.turn.treasures)
+        self.note(f"  -> {card.turn.treasures} Treasure")
 
     def _spend_treasures(self, pool: ManaPool) -> None:
         """The Treasures left once a payment is made. Each one gone was
@@ -409,11 +409,11 @@ class Game(Marks):
         still sees its own leaving (Pawn of Ulamog). The order is
         :meth:`_triggers`', so the same game always plays the same way.
         """
-        sources = self._triggers(lambda c: any(t.event == event for t in c.triggers))
-        if gone is not None and any(t.event == event for t in gone.triggers):
+        sources = self._triggers(lambda c: any(t.event == event for t in c.turn.triggers))
+        if gone is not None and any(t.event == event for t in gone.turn.triggers):
             sources.append(gone)
         for card in sources:
-            for trigger in card.triggers:
+            for trigger in card.turn.triggers:
                 if trigger.event == event and self._applies(trigger, card, subject):
                     self._apply(card, trigger)
 
@@ -629,7 +629,7 @@ class Game(Marks):
         return (card.kind == ROCK or bool(view.entries)
                 or (view.altar is not None and view.altar.sacrifices)
                 or view.tap_other is not None or view.store is not None
-                or any(trigger.mana or trigger.treasures for trigger in card.triggers))
+                or any(trigger.mana or trigger.treasures for trigger in card.turn.triggers))
 
     @staticmethod
     def types_of(card) -> frozenset[str]:
@@ -1536,7 +1536,7 @@ class Game(Marks):
             self.note(f"{card.name}")
             self._creature_enters(card, x)
             self.fire(ENTERS, card)
-            if card.treasure_bonus and self.pool is not None:
+            if card.turn.treasure_bonus and self.pool is not None:
                 self.pool.treasure_bonus = self.treasure_bonus()
             return
         if card.kind in (PLANESWALKER,):
@@ -1546,9 +1546,9 @@ class Game(Marks):
         if card.kind in (ENCHANTMENT, ARTIFACT):
             self.other_permanents.append(card)
             self.note(f"{card.name}")
-            if card.growth is not None and card.growth.look:
+            if card.turn.growth is not None and card.turn.growth.look:
                 self._look_for_creature(card)
-            if card.germ:
+            if card.turn.germ:
                 self._make_germ(card)
             elif card.enchants == "creature":
                 targets = self.attach_targets(card) or list(self.creatures)
@@ -1586,21 +1586,21 @@ class Game(Marks):
         Hopes or Hardened Scales."""
         if count <= 0:
             return
-        count += sum(each.growth.bonus for each in self.battlefield
-                     if each.growth is not None)
+        count += sum(each.turn.growth.bonus for each in self.battlefield
+                     if each.turn.growth is not None)
         self.set_plus(card, self.plus(card) + count)
         self.note(f"  -> {card.name} gets {count} +1/+1 counter(s)")
 
     def _creature_enters(self, card, x: int = 0) -> None:
         """The counters a creature arrives with, and what its arrival grows."""
-        growth = card.growth
+        growth = card.turn.growth
         if growth is not None:
             self.add_counters(card, x if growth.enters_x else growth.enters)
             if growth.puts:
                 for target in self.counter_targets(growth.puts):
                     self.add_counters(target, 1)
         for other in list(self.creatures):
-            spec = other.growth
+            spec = other.turn.growth
             if other is card or spec is None:
                 continue
             for grows in spec.grows:
@@ -1635,7 +1635,7 @@ class Game(Marks):
         """Vivi Ornitier's noncreature spells, Topiary Lecturer's Increment."""
         noncreature = CREATURE not in self.types_of(spell)
         for creature in list(self.creatures):
-            spec = creature.growth
+            spec = creature.turn.growth
             if spec is None:
                 continue
             for grows in spec.grows:
@@ -1648,8 +1648,8 @@ class Game(Marks):
     def _look_for_creature(self, card) -> None:
         """Growing Rites of Itlimoc: a creature from the top cards into the
         hand - the one of highest mana value - the rest to the bottom."""
-        seen = self.library[:card.growth.look]
-        del self.library[:card.growth.look]
+        seen = self.library[:card.turn.growth.look]
+        del self.library[:card.turn.growth.look]
         creatures = [each for each in seen if CREATURE in self.types_of(each)]
         if creatures:
             found = max(creatures, key=lambda each: (each.mv, each.name))
@@ -1660,7 +1660,7 @@ class Game(Marks):
 
     def can_adapt(self, card, pool: ManaPool) -> bool:
         """Can ``card`` adapt now - no counters yet, and the mana for it?"""
-        growth = card.growth
+        growth = card.turn.growth
         return (growth is not None and growth.adapt > 0 and growth.adapt_cost is not None
                 and any(same(each, card) for each in self.creatures)
                 and not self.plus(card)
@@ -1670,9 +1670,9 @@ class Game(Marks):
         """Pay for Adapt and put the counters on (Incubation Druid)."""
         if not self.can_adapt(card, pool):
             raise ValueError(f"{card.name} cannot adapt from {pool}")
-        pool.pay_cost(card.growth.adapt_cost, life=self.life)
+        pool.pay_cost(card.turn.growth.adapt_cost, life=self.life)
         self.note(f"{card.name} adapts")
-        self.add_counters(card, card.growth.adapt)
+        self.add_counters(card, card.turn.growth.adapt)
 
     # --- Combat, Equipment and Auras (P19 R22) -------------------------------
     #
@@ -1683,7 +1683,7 @@ class Game(Marks):
 
     def treasure_bonus(self) -> int:
         """How much more each Treasure makes: Goldspan Dragon's one."""
-        return max((card.treasure_bonus for card in self.battlefield), default=0)
+        return max((card.turn.treasure_bonus for card in self.battlefield), default=0)
 
     def can_attack(self, card) -> bool:
         """Whether a creature attacks this turn: not the turn it arrived
@@ -1721,8 +1721,8 @@ class Game(Marks):
             return []
         connected = [each for each in attackers if self.deals_damage(each)]
         plan = []
-        for card in self._triggers(lambda each: bool(each.combat)):
-            for trigger in card.combat:
+        for card in self._triggers(lambda each: bool(each.turn.combat)):
+            for trigger in card.turn.combat:
                 times = self._combat_times(card, trigger, attackers, connected)
                 if times:
                     plan.append((card, trigger, times))
@@ -1856,7 +1856,7 @@ class Game(Marks):
         taken = set(self.attached.values())
         if self._grants_mana(card):
             found = [each for each in self.creatures if self.mana_ability(each) is None
-                     and key(each) not in taken and not each.combat]
+                     and key(each) not in taken and not each.turn.combat]
             return sorted(found, key=lambda each: (self.power(each), each.name))
         found = [each for each in self.creatures
                  if self.mana_ability(each) is None and not each.defender]
@@ -1868,9 +1868,9 @@ class Game(Marks):
     def can_equip(self, card, pool: ManaPool) -> bool:
         """Can ``card`` be equipped now: an Equipment on the battlefield on no
         creature, something to put it on, and the mana for it."""
-        return (card.equip is not None and any(each is card for each in self.other_permanents)
+        return (card.turn.equip is not None and any(each is card for each in self.other_permanents)
                 and self.host(card) is None and bool(self.attach_targets(card))
-                and pool.can_pay_cost(card.equip, life=self.life))
+                and pool.can_pay_cost(card.turn.equip, life=self.life))
 
     def equip(self, card, pool: ManaPool, pick: int | None = None) -> None:
         """Pay the equip cost and put ``card`` on a creature; ``pick`` indexes
@@ -1881,7 +1881,7 @@ class Game(Marks):
         index = 0 if pick is None else pick
         if not 0 <= index < len(targets):
             raise ValueError(f"{card.name} has no creature {index} to go on")
-        pool.pay_cost(card.equip, life=self.life)
+        pool.pay_cost(card.turn.equip, life=self.life)
         self._spend_treasures(pool)
         self.attach(card, targets[index])
         self.note(f"{card.name} equipped to {targets[index].name}")
@@ -2131,14 +2131,14 @@ class Game(Marks):
             self.fire(OPPONENT_TURNS)
 
         if self.turn > 1 or not self.on_the_play:
-            skipper = self._first(lambda c: c.skips_draw_step)
+            skipper = self._first(lambda c: c.turn.skips_draw_step)
             if skipper is not None:
                 self.note(f"{skipper.name}: draw step skipped")
             else:
                 self.draw(1)
 
-        for card in self._triggers(lambda c: c.upkeep is not None):
-            spec = card.upkeep
+        for card in self._triggers(lambda c: c.turn.upkeep is not None):
+            spec = card.turn.upkeep
             drawn = self.draw(spec.draw)
             if spec.life_per_mv:
                 self.life -= sum(c.mv for c in drawn)
@@ -2210,8 +2210,8 @@ class Game(Marks):
                 # Growing Rites of Itlimoc becomes Itlimoc (P19 R21).
                 self.mark_flipped(card)
                 self.note(f"{card.name} transforms ({len(self.creatures)} creatures)")
-        for card in self._triggers(lambda c: c.end_step is not None):
-            spec = card.end_step
+        for card in self._triggers(lambda c: c.turn.end_step is not None):
+            spec = card.turn.end_step
             want = max(0, spec.max_hand - len(self.hand))
             affordable = max(0, self.life - spec.life_floor)
             pay = min(want, affordable)

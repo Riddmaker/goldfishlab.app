@@ -74,7 +74,7 @@ def test_the_family_is_every_field_card_takes():
     assert tuple(play.FIELDS) == PLAY_FIELDS
     assert set(FAMILY) == set(play.FIELDS)
     assert all(FAMILY[name] != default for name, default in play.FIELDS.items())
-    assert set(MANA_FIELDS) | set(PLAY_FIELDS) == set(INIT_FIELDS)
+    assert not set(MANA_FIELDS) & set(PLAY_FIELDS) and set(PLAY_FIELDS) <= set(INIT_FIELDS)
     assert not mana.FORMS & play.FORMS
 
 

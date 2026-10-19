@@ -466,7 +466,7 @@ class Game(Marks):
     def spell_cast(self, card) -> None:
         """A spell was cast: count it, and fire what that sets off. A card
         exiled from the hand for its mana (a Spirit Guide) was not cast."""
-        if card.exiled_on_cast:
+        if card.play.exiled:
             return
         self.spells_this_turn += 1
         if "R" in self._colors_of(card):
@@ -480,9 +480,9 @@ class Game(Marks):
 
     def make_landers(self, card) -> None:
         """The Lander tokens a card makes as it resolves or enters (P19 R14)."""
-        if card.landers:
-            self.landers += card.landers
-            self.note(f"  -> {card.landers} Lander")
+        if card.play.landers:
+            self.landers += card.play.landers
+            self.note(f"  -> {card.play.landers} Lander")
 
     # --- Activated land searches (P19 R14) ---------------------------------
 
@@ -498,7 +498,7 @@ class Game(Marks):
         """
         if card is None:
             return LANDER.cost if self.landers else None
-        spec = card.land_search
+        spec = card.play.search
         if spec is None or spec.when != "activate" or card not in self.battlefield:
             return None
         cost = spec.cost or ManaCost()
@@ -537,7 +537,7 @@ class Game(Marks):
     def activation_fodder(self, card):
         """What else ``card``'s activated search costs - ``(land, other)``,
         either None when not asked - or None when it cannot be paid now."""
-        spec = card.land_search
+        spec = card.play.search
         land = other = None
         if spec.sacrifices_land:
             lands = [found for found in self.land_fodder() if not same(found, card)
@@ -577,7 +577,7 @@ class Game(Marks):
             self.fire(SACRIFICED, LANDER_FODDER)
             return self.search_lands(None, choose, LANDER)
         land, other = self.activation_fodder(card)
-        spec = card.land_search
+        spec = card.play.search
         if spec.sacrifice:
             self._sacrifice(card)
         elif card in self.creatures:
@@ -695,7 +695,7 @@ class Game(Marks):
         base = effective_mana_cost(card, reductions_from(self.battlefield), x)
         others = [other for other in self.hand if other is not card]
         options = []
-        for way in card.additional_costs:
+        for way in card.play.ways:
             cost = base.plus(way.mana) if way.mana is not None else base
             if self.life < way.life or len(others) < way.discard:
                 continue
@@ -736,7 +736,7 @@ class Game(Marks):
         """How ``card`` is paid for now: ``(way, fodder)`` - ``(None, None)``
         for a card without an additional cost - or None when it cannot be.
         ``pick`` chooses among :meth:`payment_options`; None takes the first."""
-        if not card.additional_costs:
+        if not card.play.ways:
             cost = effective_mana_cost(card, reductions_from(self.battlefield), x)
             return (None, None) if pool.can_pay_cost(cost, life=self.life, spell=card) else None
         options = self.payment_options(card, pool, x)
@@ -1020,7 +1020,8 @@ class Game(Marks):
             return False
         if card.needs_creature_on_bf and not self.creatures:
             return False
-        if card.discard_cost and len([c for c in self.hand if c is not card]) < card.discard_cost:
+        discards = card.play.discard_cost
+        if discards and len([c for c in self.hand if c is not card]) < discards:
             return False
         if card.mana.mox == DISCARD_LAND and not any(other.is_land for other in self.hand):
             return False
@@ -1028,7 +1029,7 @@ class Game(Marks):
             return False
         if card.x_count:
             return self.max_x(card, pool) >= card.x_min and (
-                not card.additional_costs
+                not card.play.ways
                 or self.additional_payment(card, pool, card.x_min) is not None)
         return self.additional_payment(card, pool) is not None
 
@@ -1074,10 +1075,8 @@ class Game(Marks):
         Asked before the land is on the battlefield, so "other lands" are all
         of them. Pure: a shock land's life is paid by :meth:`_enters_tapped`.
         """
-        condition = land.tapped_unless
-        if condition is None:
-            return False
-        return self.holds(condition, land, entering=True)
+        holds = land.play.untapped_holds
+        return holds is not None and holds(self, land, True)
 
     def holds(self, condition, card, *, entering: bool = False) -> bool:
         """Whether a condition about this board is met (P19 R3 and R4).
@@ -1306,12 +1305,13 @@ class Game(Marks):
 
     def _enters_tapped(self, land) -> bool:
         """Whether this land enters tapped, paying a shock land's life if not."""
-        if not land.enters_tapped:
+        if not land.play.enters_tapped:
             return False
         if not self.untaps_on_entering(land):
             return True
-        if land.tapped_unless.kind == "pay_life":
-            self.life -= land.tapped_unless.count
+        condition = land.play.untapped_if
+        if condition.kind == "pay_life":
+            self.life -= condition.count
         return False
 
     def play_land(self, card) -> None:
@@ -1343,7 +1343,7 @@ class Game(Marks):
         self.search_lands(card, choose)
 
     def search_lands(self, card, choose=None, spec=None, x: int = 0) -> int:
-        """Carry out ``card.land_search`` (or ``spec``, a Lander's). Returns
+        """Carry out ``card.play.search`` (or ``spec``, a Lander's). Returns
         how many lands it found. ``x`` is what X was paid as (Open the Way).
 
         ``choose(game, options)`` picks each land; without it, the one that
@@ -1351,7 +1351,7 @@ class Game(Marks):
         (:func:`best_land`). The library is not shuffled afterwards: its order
         is random already, and taking cards out of it does not change that.
         """
-        spec = spec or card.land_search
+        spec = spec or card.play.search
         if spec.condition == "opponent_more_lands" and not self.opponent_has_more_lands():
             self.note("  -> no opponent has more lands")
             return 0
@@ -1495,8 +1495,8 @@ class Game(Marks):
         self._spend_treasures(pool)
         if card in self.hand:
             self.hand.remove(card)
-        if card.discard_cost:
-            self.discard(card.discard_cost)
+        if card.play.discard_cost:
+            self.discard(card.play.discard_cost)
         self._pay_additional(way, fodder)
         self.spell_cast(card)
         self._resolve(card, pool, x, colors)
@@ -1518,17 +1518,17 @@ class Game(Marks):
         if card.kind == RITUAL:
             color, gain = self.ritual_mana(card)
             pool.add(color, gain)
-            (self.exiled if card.exiled_on_cast else self.graveyard).append(card)
+            (self.exiled if card.play.exiled else self.graveyard).append(card)
             self.note(f"{card.name} -> +{gain}{color} mana")
             return
         if card.kind == ROCK:
             self._mox(card)
             self.rocks.append(card)
-            if card.enters_tapped:
+            if card.play.enters_tapped:
                 self.rocks.move(self.rocks.index(card), 0)
                 self.tapped_rocks += 1
             self.note(f"{card.name}"
-                      + (" (tapped)" if card.enters_tapped else ""))
+                      + (" (tapped)" if card.play.enters_tapped else ""))
             return
         if card.kind == CREATURE:
             self.creatures.append(card)
@@ -2022,7 +2022,7 @@ class Game(Marks):
         if card.mana.mox == DISCARD_LAND:
             lands = [other for other in self.hand if other.is_land]
             if lands:
-                land = min(lands, key=lambda other: (not other.enters_tapped, other.name))
+                land = min(lands, key=lambda other: (not other.play.enters_tapped, other.name))
                 self.hand.remove(land)
                 self.graveyard.append(land)
                 self.note(f"  -> discards {land.name}")
@@ -2153,8 +2153,8 @@ class Game(Marks):
         with the rest."""
         if self.turn == 1:
             return
-        for card in self._triggers(lambda c: c.land_search is not None
-                                   and c.land_search.when == "opponents"):
+        for card in self._triggers(lambda c: c.play.search is not None
+                                   and c.play.search.when == "opponents"):
             for _ in range(self.OPPONENTS):
                 if not self.search_lands(card):
                     break
@@ -2164,8 +2164,8 @@ class Game(Marks):
         once an opponent is assumed to have three creatures (P19 R23)."""
         if self.turn < self.OPPONENT_CREATURES_FROM:
             return []
-        return self._triggers(lambda c: c.tutor is not None
-                              and c.tutor.upkeep == OPPONENT_CREATURES)
+        return self._triggers(lambda c: c.play.tutor is not None
+                              and c.play.tutor.upkeep == OPPONENT_CREATURES)
 
     def delirium(self) -> bool:
         """Four or more card types among the cards in the graveyard."""
@@ -2232,6 +2232,6 @@ def best_land(game, options):
 
     def score(land):
         colors = land_colors(land)
-        return (-len(colors - have), -len(colors), land.enters_tapped, land.name)
+        return (-len(colors - have), -len(colors), land.play.enters_tapped, land.name)
 
     return min(options, key=score)

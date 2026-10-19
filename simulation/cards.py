@@ -11,6 +11,7 @@ not here. A shim at the bottom of this module keeps the old import paths
 working, because the four vendored test files must stay byte-identical.
 """
 
+import functools
 from dataclasses import InitVar, dataclass, field, fields
 from functools import cached_property
 
@@ -529,7 +530,7 @@ class Card:
     kind: str
     tags: frozenset[str] = field(default_factory=frozenset)
     land_type: str = ""
-    enters_tapped: bool = False
+    enters_tapped: InitVar[bool] = UNSET
     goldfish_castable: bool = True
     needs_creature_in_yard: bool = False
     needs_creature_on_bf: bool = False
@@ -543,9 +544,9 @@ class Card:
     ritual_gain: InitVar[int] = UNSET                       # Dark Ritual: +3 black
     ritual_color: InitVar[str] = UNSET                    # ... but Rite of Flame red
     cost_reduction: InitVar[CostReduction | None] = UNSET
-    draw_on_cast: int = 0
-    life_on_cast: int = 0
-    tutor: TutorSpec | None = None
+    draw_on_cast: InitVar[int] = UNSET
+    life_on_cast: InitVar[int] = UNSET
+    tutor: InitVar[TutorSpec | None] = UNSET
     upkeep: UpkeepSpec | None = None
     end_step: EndStepSpec | None = None
     skips_draw_step: bool = False              # Necropotence
@@ -589,11 +590,11 @@ class Card:
     categories: frozenset[str] = field(default_factory=frozenset)
 
     #: P19 R2: lands this card puts onto the battlefield, and when.
-    land_search: LandSearch | None = None
+    land_search: InitVar[LandSearch | None] = UNSET
     #: A basic land - what "search for a basic land card" may find.
     basic: bool = False
     #: P19 R3: with ``enters_tapped``, the condition under which it does not.
-    tapped_unless: TappedUnless | None = None
+    tapped_unless: InitVar[TappedUnless | None] = UNSET
     #: P19 R7: Treasure tokens it makes as it resolves - a spell, or a
     #: permanent's "When this creature enters" (Big Score: 2, Rapacious
     #: Dragon: 2). Each is one mana of ``treasure_mana``, sacrificed when spent.
@@ -601,15 +602,15 @@ class Card:
     treasure_mana: str = ""
     #: P19 R14: Lander tokens it makes as it resolves or enters, each a
     #: :data:`LANDER` search to activate later.
-    landers: int = 0
+    landers: InitVar[int] = UNSET
     #: P19 R7: "As an additional cost to cast this spell, discard a card."
-    discard_cost: int = 0
+    discard_cost: InitVar[int] = UNSET
     #: P19 R8: cards discarded right after ``draw_on_cast`` - Faithless
     #: Looting draws two, then discards two.
-    discard_on_cast: int = 0
+    discard_on_cast: InitVar[int] = UNSET
     #: P19 R8: cards put back on top of the library after that draw -
     #: Brainstorm draws three, then puts two back.
-    put_back_on_cast: int = 0
+    put_back_on_cast: InitVar[int] = UNSET
     #: P19 R9: how many {X} the cost has - Astral Cornucopia's {X}{X}{X} is
     #: three. 0: no X. The agent casts such a spell last in its main phase,
     #: with everything left as X.
@@ -622,7 +623,7 @@ class Card:
     x_max: int = 0
     #: P19 R9: it draws X cards (Stroke of Genius, Blue Sun's Zenith), on
     #: top of ``draw_on_cast``.
-    draws_x: bool = False
+    draws_x: InitVar[bool] = UNSET
     #: P19 R11: the creature types on the front face, lower case - what
     #: Elvish Archdruid counts. Empty for everything else.
     creature_types: frozenset[str] = field(default_factory=frozenset)
@@ -645,7 +646,7 @@ class Card:
     ritual_counts: InitVar[str] = UNSET
     #: P19 R15: the ways its additional cost can be paid, any one of them -
     #: empty for none. "Discard a card" alone stays ``discard_cost``.
-    additional_costs: tuple[AdditionalCost, ...] = ()
+    additional_costs: InitVar[tuple[AdditionalCost, ...]] = UNSET
     #: P19 R15: a mana ability whose cost is sacrificing another permanent -
     #: Ashnod's Altar, Phyrexian Tower: the types it takes (see
     #: :class:`AdditionalCost`), what one gives, and in what colour.
@@ -661,7 +662,7 @@ class Card:
     triggers: tuple[Trigger, ...] = ()
     #: P19 R15: it goes to exile rather than the graveyard once cast - a
     #: Spirit Guide, a ritual exiled from the hand for its mana.
-    exiled_on_cast: bool = False
+    exiled_on_cast: InitVar[bool] = UNSET
     #: P19 R17: every subtype on the front face, lower case - "aura",
     #: "equipment", "dragon": what restricted mana asks a spell about.
     #: ``subtypes`` holds the basic land types only.
@@ -703,33 +704,42 @@ class Card:
     #: graveyard.
     token: bool = False
     #: Card model phase 4: what the card does, as blocks
-    #: (:mod:`simulation.blocks`). Since PR 13 the mana family - the sixteen
-    #: fields above marked ``InitVar`` - lives here: a card is still made with
-    #: those arguments, which `simulation.rules.mana.encode` turns into
-    #: blocks, and reading one of them decodes it (`legacy`). The engine reads
-    #: the compiled blocks (`mana`), never the fields.
+    #: (:mod:`simulation.blocks`). Two families live here: since PR 13 the
+    #: sixteen fields of the mana family, since PR 14 the thirteen of lands,
+    #: costs and spells - the fields above marked ``InitVar``. A card is still
+    #: made with those arguments, which each family's ``encode``
+    #: (`simulation.rules.mana`, `simulation.rules.play`) turns into blocks,
+    #: and reading one of them decodes it (`legacy`). The engine reads the
+    #: compiled blocks (`mana`, `play`), never the fields.
     abilities: tuple = ()
 
     def __post_init__(self, *given):
-        values = {name: value for name, value in zip(MANA_FIELDS, given, strict=True)
+        values = {name: value for name, value in zip(INIT_FIELDS, given, strict=True)
                   if value is not UNSET}
         if not values:
             return
-        from simulation.rules import mana
-
-        kept = tuple(each for each in self.abilities if each.form not in mana.FORMS)
-        before = mana.decode(self.abilities) if len(kept) < len(self.abilities) else {}
-        object.__setattr__(self, "abilities", kept + mana.encode({**before, **values}))
+        forms = _forms()
+        parts = [tuple(each for each in self.abilities if each.form not in forms)]
+        for family in _families():
+            mine = tuple(each for each in self.abilities if each.form in family.FORMS)
+            own = {name: value for name, value in values.items() if name in family.FIELDS}
+            if own:
+                mine = family.encode({**(family.decode(mine) if mine else {}), **own})
+            parts.append(mine)
+        # Always in the same order - other blocks, then each family's - so
+        # that a card changed with `dataclasses.replace` equals one made so.
+        object.__setattr__(self, "abilities", sum(parts, ()))
 
     @property
     def legacy(self) -> dict:
-        """The mana family's fields, decoded from the blocks once: what the
+        """Both families' fields, decoded from the blocks once: what the
         application reads until phase 5. Never the engine."""
         found = self.__dict__.get("_legacy")
         if found is None:
-            from simulation.rules import mana
-
-            found = self.__dict__["_legacy"] = mana.decode(self.abilities)
+            found = {}
+            for family in _families():
+                found.update(family.decode(self.abilities))
+            self.__dict__["_legacy"] = found
         return found
 
     @cached_property
@@ -739,6 +749,14 @@ class Card:
         from simulation.rules import mana
 
         return mana.compile_view(self.abilities)
+
+    @cached_property
+    def play(self):
+        """The blocks of lands, costs and spells compiled once
+        (`simulation.rules.play.PlayView`): what the engine reads."""
+        from simulation.rules import play
+
+        return play.compile_view(self.abilities)
 
     def __hash__(self) -> int:
         # Over every field, as a frozen dataclass hashes - computed once: a
@@ -754,7 +772,7 @@ class Card:
         # What is compiled, decoded or hashed is made again where the card
         # arrives: a string's hash differs from one process to the next.
         return {key: value for key, value in self.__dict__.items()
-                if key not in ("_legacy", "mana", "_hash")}
+                if key not in ("_legacy", "mana", "play", "_hash")}
 
     @property
     def mana_cost(self) -> ManaCost:
@@ -818,21 +836,43 @@ class Card:
 #: The fields a card's hash is over: every one, as a frozen dataclass's is.
 _HASHED = tuple(item.name for item in fields(Card))
 
-#: The sixteen fields of the mana family, as `Card` takes them (card model,
-#: phase 4, PR 13): in the order they are declared.
-MANA_FIELDS = tuple(name for name, item in Card.__dataclass_fields__.items()
-                     if isinstance(item.type, InitVar))
+#: The fields `Card` takes as arguments and keeps as blocks (card model, phase
+#: 4): the mana family since PR 13, lands, costs and spells since PR 14; in
+#: the order they are declared.
+INIT_FIELDS = tuple(name for name, item in Card.__dataclass_fields__.items()
+                    if isinstance(item.type, InitVar))
+
+
+@functools.cache
+def _families() -> tuple:
+    """The modules of the families, each with ``FIELDS``, ``FORMS``,
+    ``encode`` and ``decode``. Imported when first asked: they import this
+    module."""
+    from simulation.rules import mana, play
+
+    return (mana, play)
+
+
+@functools.cache
+def _forms() -> frozenset[str]:
+    """Every ``form`` a family's block has."""
+    return frozenset().union(*(family.FORMS for family in _families()))
+
+
+def _family_fields(index: int) -> tuple[str, ...]:
+    family = _families()[index]
+    return tuple(each for each in INIT_FIELDS if each in family.FIELDS)
 
 
 def _legacy_field(name: str) -> property:
     def read(card):
         return card.legacy[name]
     read.__name__ = name
-    read.__doc__ = f"The mana family's ``{name}``, decoded from the card's blocks."
+    read.__doc__ = f"The field ``{name}``, decoded from the card's blocks."
     return property(read)
 
 
-for _name in MANA_FIELDS:
+for _name in INIT_FIELDS:
     setattr(Card, _name, _legacy_field(_name))
 
 
@@ -924,7 +964,15 @@ _LEGACY = frozenset({
 })
 
 
+#: The sixteen fields of the mana family (PR 13) and the thirteen of lands,
+#: costs and spells (PR 14), as `Card` takes them - worked out when first
+#: asked, like the families.
+_FAMILY_FIELDS = {"MANA_FIELDS": 0, "PLAY_FIELDS": 1}
+
+
 def __getattr__(name: str):
+    if name in _FAMILY_FIELDS:
+        return _family_fields(_FAMILY_FIELDS[name])
     if name in _LEGACY:
         from simulation.fixtures import chainer
 
@@ -933,4 +981,4 @@ def __getattr__(name: str):
 
 
 def __dir__():
-    return sorted(set(globals()) | _LEGACY)
+    return sorted(set(globals()) | _LEGACY | set(_FAMILY_FIELDS))

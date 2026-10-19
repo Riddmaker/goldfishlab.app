@@ -365,10 +365,14 @@ python scripts/bench_engine.py --baseline <worktree of main>   # speed ratio, ga
 The engine plays blocks family by family. Since PR 13 the mana family - mana abilities, rituals,
 cost reduction, altars, tapping others, Moxen, mills, stores, flips - lives in `Card.abilities`,
 built from the atoms in `simulation/rules/` (selector, amount, condition, cost), and the engine
-reads only their compiled view (`card.mana`). A card is still made with the old sixteen fields,
-which `simulation/rules/mana.py` encodes; reading one decodes it, which is what wording, the editor
-and stored decks do until phase 5. `engine_coverage --diff` against the frozen v29 reading is the
-round trip on every card; `tests/test_rules.py` holds that the engine never reads the old fields.
+reads only their compiled view (`card.mana`). Since PR 14 lands, costs and spells follow the same
+way - entering tapped and its condition, land searches, Landers, tutors, additional costs, exile on
+cast, what a spell draws, discards, puts back or costs in life - with their view `card.play`. A card
+is still made with the old fields, which `simulation/rules/mana.py` and `simulation/rules/play.py`
+encode; reading one decodes it, which is what wording, the editor and stored decks do until phase
+5. `engine_coverage --diff` against the frozen v29 reading is the round trip on every card;
+`tests/test_rules.py` and `tests/test_play_family.py` hold that the engine never reads the old
+fields.
 
 A round that changes `cards/profiles.py` needs the profiles derived again after its deploy
 (`python manage.py ingest_scryfall --profiles`), and every round changes the engine's numbers, so

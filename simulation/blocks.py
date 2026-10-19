@@ -84,7 +84,7 @@ CHOOSE = "choose"
 VERSION = 1
 
 
-def _args(value, *, skip=()) -> tuple[tuple[str, Any], ...]:
+def changed_args(value, *, skip=()) -> tuple[tuple[str, Any], ...]:
     """A dataclass's fields that differ from their defaults, sorted by name."""
     out = []
     for item in dataclasses.fields(value):
@@ -298,7 +298,7 @@ def _enc_mana(card):
             costs.append(Cost("mana", mana=ManaCost(generic=value.activation_generic)))
         yield Ability(MANA, "mana", costs=tuple(costs),
                       conds=(value.only_if,) if value.only_if else (),
-                      effects=(Effect("add_mana", _args(value, skip=("activation_generic",
+                      effects=(Effect("add_mana", changed_args(value, skip=("activation_generic",
                                                                      "only_if"))),))
 
 
@@ -411,7 +411,7 @@ def _enc_tutor(card):
     event = Event("upkeep", filter=value.upkeep) if value.upkeep else None
     kind = TRIGGERED if event else RESOLVES
     yield Ability(kind, "tutor", costs=costs, event=event,
-                  effects=(Effect("search", _args(value, skip=("life", "upkeep"))),))
+                  effects=(Effect("search", changed_args(value, skip=("life", "upkeep"))),))
 
 
 def _dec_tutor(abilities):
@@ -426,7 +426,7 @@ def _enc_cost_reduction(card):
     if card.cost_reduction is not None:
         yield Ability(STATIC, "cost_reduction",
                       effects=(Effect("reduce_cost",
-                                      _args(card.cost_reduction) + (("set", True),)),))
+                                      changed_args(card.cost_reduction) + (("set", True),)),))
 
 
 def _dec_cost_reduction(abilities):
@@ -458,7 +458,7 @@ def _enc_end_step(card):
     if card.end_step is not None:
         yield Ability(TRIGGERED, "end_step", event=Event("end_step"),
                       effects=(Effect("pay_life_draw",
-                                      _args(card.end_step) + (("set", True),)),))
+                                      changed_args(card.end_step) + (("set", True),)),))
 
 
 def _dec_end_step(abilities):
@@ -500,7 +500,7 @@ _LAND_SEARCH_COST_FIELDS = ("taps", "cost", "life", "sacrifice", "sacrifices_lan
                             "condition")
 
 #: ``LandSearch.when`` -> the ability's kind and event.
-_LAND_SEARCH_WHEN = {
+LAND_SEARCH_WHEN = {
     "cast": (RESOLVES, None),
     "enters": (TRIGGERED, "enters_self"),
     "play": (TRIGGERED, "played"),
@@ -510,11 +510,11 @@ _LAND_SEARCH_WHEN = {
 
 
 def _land_search_ability(value: LandSearch, form: str) -> Ability:
-    kind, event = _LAND_SEARCH_WHEN.get(value.when, (TRIGGERED, value.when))
+    kind, event = LAND_SEARCH_WHEN.get(value.when, (TRIGGERED, value.when))
     return Ability(kind, form, costs=_land_search_costs(value),
                    event=Event(event) if event else None,
                    conds=(Cond(kind=value.condition),) if value.condition else (),
-                   effects=(Effect("search_land", _args(value, skip=_LAND_SEARCH_COST_FIELDS)
+                   effects=(Effect("search_land", changed_args(value, skip=_LAND_SEARCH_COST_FIELDS)
                                    + (("when", value.when),)),))
 
 
@@ -626,7 +626,7 @@ def _enc_triggers(card):
                                    value.mana_color, value.draw, value.life, value.counter)
         # A trigger that does nothing the engine plays still holds its place.
         yield Ability(TRIGGERED, "trigger", event=Event(value.event, filter=value.filter),
-                      effects=effects or (Effect("nothing", _args(value, skip=("event",
+                      effects=effects or (Effect("nothing", changed_args(value, skip=("event",
                                                                                "filter"))),))
 
 
@@ -690,7 +690,7 @@ def _enc_tap_mana(card):
         return
     yield Ability(MANA, "tap_mana",
                   costs=(Cost("tap_other", amount=1, types=value.types, filter=value.filter),),
-                  effects=(Effect("add_mana", _args(value, skip=("types", "filter"))
+                  effects=(Effect("add_mana", changed_args(value, skip=("types", "filter"))
                                   + (("set", True),)),))
 
 
@@ -705,7 +705,7 @@ def _dec_tap_mana(abilities):
 def _enc_store(card):
     if card.store is not None:
         yield Ability(MANA, "store", effects=(Effect("stored_mana",
-                                                     _args(card.store) + (("set", True),)),))
+                                                     changed_args(card.store) + (("set", True),)),))
 
 
 def _dec_store(abilities):
@@ -717,7 +717,7 @@ def _dec_store(abilities):
 def _enc_growth(card):
     if card.growth is not None:
         value = card.growth
-        effects = [Effect("counters", _args(value, skip=("adapt", "adapt_cost"))
+        effects = [Effect("counters", changed_args(value, skip=("adapt", "adapt_cost"))
                           + (("set", True),))]
         if value.adapt or value.adapt_cost is not None:
             effects.append(Effect("adapt", (("n", value.adapt),)))
@@ -945,7 +945,7 @@ def _tupled(value):
 
 
 def _cost_json(cost: Cost) -> dict:
-    out = {name: _plain(value) for name, value in _args(cost)}
+    out = {name: _plain(value) for name, value in changed_args(cost)}
     if cost.mana is not None:
         out["mana"] = str(cost.mana)
     return out
@@ -968,7 +968,7 @@ def to_json(abilities) -> list[dict]:
     for ability in abilities:
         if ability.conds:
             raise ValueError(f"conditions are not stored yet: {ability.id}")
-        entry = {name: value for name, value in _args(ability, skip=(
+        entry = {name: value for name, value in changed_args(ability, skip=(
             "effects", "costs", "options", "event", "conds"))}
         if ability.effects:
             entry["effects"] = [{"verb": effect.verb,
@@ -981,7 +981,7 @@ def to_json(abilities) -> list[dict]:
             entry["options"] = [[_cost_json(cost) for cost in option]
                                 for option in ability.options]
         if ability.event is not None:
-            entry["event"] = {name: _plain(value) for name, value in _args(ability.event)}
+            entry["event"] = {name: _plain(value) for name, value in changed_args(ability.event)}
             entry["event"]["name"] = ability.event.name
         if "unread" in entry:
             entry["unread"] = list(entry["unread"])

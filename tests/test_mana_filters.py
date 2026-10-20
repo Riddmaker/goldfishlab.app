@@ -17,6 +17,7 @@ from simulation.cards import FILTER, FLAT, LAND, Card, ManaAbility
 from simulation.game import Game
 from simulation.mana import ManaPool
 from simulation.manacost import parse
+from tests.engine_builders import tap
 
 
 def production(text: str):
@@ -65,7 +66,7 @@ TOWER = land("Command Tower", abilities=[ManaAbility(FLAT, {"WUB": 1})])
 def game_with(lands):
     game = Game(random.Random(1))
     game.lands = list(lands)
-    game.tapped_lands = 0
+    tap(game, lands=0)
     return game
 
 

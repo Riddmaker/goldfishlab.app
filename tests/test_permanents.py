@@ -1,4 +1,4 @@
-"""Card model phase 4, PR 12: permanents, and the one rule for whose state is whose.
+"""Card model phase 4, PR 12 and 17: permanents, and whose state is whose.
 
 No Django, like the engine.
 """
@@ -12,7 +12,7 @@ from simulation import agent, serial
 from simulation.cards import CREATURE, Card
 from simulation.fixtures import chainer
 from simulation.game import Game
-from simulation.permanent import Zone, ident, key, same
+from simulation.permanent import Zone, ident, same
 from tests.engine_builders import FILLER, game_with
 
 BEAR = Card("Bear", 2, 1, 1, CREATURE, types=frozenset({"creature"}), power=2, toughness=2)
@@ -27,11 +27,18 @@ def played(seed: int = 4, turns: int = 5) -> Game:
     return game
 
 
-def test_the_rule_is_names_and_objects_today():
-    copy = Card("Bear", 2, 1, 1, CREATURE, types=frozenset({"creature"}), power=2, toughness=2)
-    assert key(BEAR) == key(copy) == "Bear"
+def test_one_permanent_is_one_object():
+    copy = BEAR.twin()
+    assert copy == BEAR and hash(copy) == hash(BEAR)
     assert same(BEAR, BEAR) and not same(BEAR, copy)
     assert ident(BEAR) != ident(copy)
+
+
+def test_each_copy_in_a_library_is_its_own_object():
+    library = chainer.DECK.shuffled(random.Random(1))
+    assert sorted(card.name for card in library) == \
+        sorted(card.name for card in chainer.DECK.library)
+    assert len({id(card) for card in library}) == len(library)
 
 
 def test_every_battlefield_list_is_a_zone_whatever_it_is_given():
@@ -97,16 +104,17 @@ def test_the_permanents_stay_in_step_through_whole_games():
 # --- marks ------------------------------------------------------------------------
 
 
-def test_marks_are_kept_by_key():
+def test_marks_are_kept_by_permanent_number():
     game = game_with(creatures=[BEAR, GERM])
+    bear, germ = (permanent.pid for permanent in game.creatures.permanents)
     game.mark_arrived(BEAR)
     game.tap_as_fodder(GERM)
     game.set_plus(BEAR, 2)
     game.attach(GERM, BEAR)
-    assert game.arrived == ["Bear"] and game.arrived_now(BEAR)
+    assert game.arrived == [bear] and game.arrived_now(BEAR)
     assert game.creature_tapped(GERM) and game.fodder_tapped(GERM)
-    assert not game.busy()["Germ"]
-    assert game.plus_counters == {"Bear": 2} and game.plus(BEAR) == 2
+    assert not game.busy()[germ]
+    assert game.plus_counters == {bear: 2} and game.plus(BEAR) == 2
     assert game.carries(BEAR) and game.is_host_of(BEAR, GERM)
     game.set_plus(BEAR, 0)
     assert game.plus_counters == {}
@@ -114,7 +122,35 @@ def test_marks_are_kept_by_key():
     assert not game.carries(BEAR)
 
 
-# --- saved games, format 2 -----------------------------------------------------
+def test_two_germs_keep_their_own_counters_and_equipment():
+    other = GERM.twin()
+    game = game_with(creatures=[GERM, other], others=[FILLER])
+    game.set_plus(GERM, 3)
+    game.attach(FILLER, other)
+    assert game.plus(GERM) == 3 and game.plus(other) == 0
+    assert game.carries(other) and not game.carries(GERM)
+    assert game.host(FILLER) is other
+
+
+def test_a_card_that_comes_back_is_a_new_permanent():
+    game = game_with(creatures=[BEAR])
+    game.mark_arrived(BEAR)
+    game.tap_creature(BEAR)
+    game.creatures.remove(BEAR)
+    # Leaving, it keeps its number: what happens as it leaves finds its state.
+    assert game.creature_tapped(BEAR)
+    game.creatures.append(BEAR)
+    assert not game.creature_tapped(BEAR) and not game.arrived_now(BEAR)
+
+
+def test_a_card_never_on_the_battlefield_has_no_marks_to_write():
+    game = game_with(creatures=[])
+    assert not game.arrived_now(BEAR) and game.plus(BEAR) == 0
+    with pytest.raises(ValueError):
+        game.mark_arrived(BEAR)
+
+
+# --- saved games -----------------------------------------------------
 
 
 def restored(game: Game) -> Game:
@@ -125,8 +161,9 @@ def test_a_saved_game_keeps_each_card_once_and_each_permanent_number():
     game = played()
     data = serial.dump_game(game)
     assert data["format"] == serial.GAME_FORMAT
-    names = [row["name"] for row in data["cards"]]
-    assert len(names) == len(set(names))
+    objects = {id(card) for name in (*serial.GAME_ZONES, *serial.GAME_LISTS)
+               for card in getattr(game, name)}
+    assert len(data["cards"]) == len(objects)
     back = restored(game)
     for name in serial.BATTLEFIELD:
         zone, again = getattr(game, name), getattr(back, name)
@@ -134,6 +171,7 @@ def test_a_saved_game_keeps_each_card_once_and_each_permanent_number():
             [permanent.pid for permanent in zone.permanents]
         assert again.in_step()
     assert back.pids == game.pids
+    assert back.arrived == game.arrived and back.attached == game.attached
 
 
 def test_two_equal_tokens_come_back_as_two_objects():
@@ -144,12 +182,12 @@ def test_two_equal_tokens_come_back_as_two_objects():
     assert back.creatures[0] is not back.creatures[1]
 
 
-def test_a_state_in_the_older_form_still_loads_and_is_not_current():
-    game = played()
-    old = {name: [serial.dump(card) for card in getattr(game, name)]
-           for name in (*serial.GAME_ZONES, *serial.GAME_LISTS)}
-    data = {**json.loads(json.dumps(serial.dump_game(game))), **old}
-    del data["format"], data["cards"], data["pids"]
+@pytest.mark.parametrize("older", [None, 1, 2])
+def test_a_state_in_an_older_form_is_not_current_and_is_not_loaded(older):
+    data = json.loads(json.dumps(serial.dump_game(played())))
+    data.pop("format")
+    if older is not None:
+        data["format"] = older
     assert not serial.is_current(data)
-    back = serial.load_game(json.loads(json.dumps(data)), chainer.DECK)
-    assert back.lands == game.lands and back.hand == game.hand
+    with pytest.raises(ValueError):
+        serial.load_game(data, chainer.DECK)

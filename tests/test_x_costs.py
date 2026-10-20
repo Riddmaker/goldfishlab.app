@@ -18,6 +18,7 @@ from simulation.cards import CREATURE, INSTANT, LAND, Card, CostReduction
 from simulation.game import Game
 from simulation.mana import effective_mana_cost
 from simulation.manacost import parse
+from tests.engine_builders import tap
 
 Kind = DerivedProfile.Kind
 
@@ -75,7 +76,7 @@ FILLER = Card("Filler", 9, 0, 9, CREATURE, cost=parse("{9}"))
 def game_with(lands, hand, library=()):
     game = Game(random.Random(1))
     game.lands, game.hand, game.library = list(lands), list(hand), list(library)
-    game.tapped_lands = 0
+    tap(game, lands=0)
     return game
 
 

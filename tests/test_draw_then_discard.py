@@ -16,6 +16,7 @@ from simulation.cards import CREATURE, LAND, SORCERY, Card
 from simulation.game import Game
 from simulation.manacost import parse
 from simulations.engine import adapter
+from tests.engine_builders import tap
 
 # --- the reader -----------------------------------------------------------------
 
@@ -92,7 +93,7 @@ DRAGON = Card("Dragon", 7, 0, 6, CREATURE, cost=parse("{6}{R}"))
 def game_with(lands, hand, library=()):
     game = Game(random.Random(1))
     game.lands, game.hand, game.library = list(lands), list(hand), list(library)
-    game.tapped_lands = 0
+    tap(game, lands=0)
     return game
 
 

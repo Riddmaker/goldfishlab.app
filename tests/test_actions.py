@@ -17,6 +17,7 @@ import pytest
 
 from simulation import actions, agent
 from simulation.game import Game
+from tests.engine_builders import tap
 
 
 def fresh(seed: int = 7) -> Game:
@@ -281,11 +282,11 @@ def test_moving_a_tapped_land_away_takes_it_off_the_count():
     hand left the count, and the next land looked tapped (card model, phase 4)."""
     game = opened()
     game.lands = game.lands[:1] * 3
-    game.tapped_lands = 1
+    tap(game, lands=1)
     actions.apply(game, actions.MoveCard(from_zone=actions.LANDS, index=0,
                                          to_zone=actions.GRAVEYARD), agent.POLICY)
     assert game.tapped_lands == 0
-    game.tapped_lands = 1
+    tap(game, lands=1)
     actions.apply(game, actions.MoveCard(from_zone=actions.LANDS, index=1,
                                          to_zone=actions.GRAVEYARD), agent.POLICY)
     assert game.tapped_lands == 1

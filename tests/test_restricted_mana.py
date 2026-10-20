@@ -42,6 +42,7 @@ from simulations import deck_cards, gaps
 from simulations.engine import adapter
 from simulations.forms import AnnotationForm
 from simulations.models import CardAnnotation
+from tests.engine_builders import tap
 
 CREATURES = (SpellFilter(types=frozenset({"creature"})),)
 ELVES = (SpellFilter(types=frozenset({"creature"}), subtypes=frozenset({"elf"})),)
@@ -175,7 +176,8 @@ PLAZA = Card("Plaza of Heroes", 0, 0, 0, LAND, mana_abilities=(
 def game_with(lands, hand=(), commander=None):
     game = Game(random.Random(1), deck=DeckDefinition("R17", commander, (FOREST,)))
     game.library, game.lands, game.hand = [], list(lands), list(hand)
-    game.tapped_lands, game.turn = 0, 3
+    game.turn = 3
+    tap(game, lands=0)
     actions.OpenMainPhase().run(game, None)
     return game
 

@@ -450,23 +450,18 @@ class MoveCard(Action):
 
 @dataclass(frozen=True)
 class TapPermanent(Action):
-    """Tap one more land or rock, for a human tracking mana by hand.
-
-    The engine models tapped permanents as a count at the front of the zone
-    rather than a flag per card, so this moves the boundary rather than
-    marking a particular permanent.
-    """
+    """Tap one more land or rock, for a human tracking mana by hand: the
+    first untapped one, since the board shows the tapped ones first."""
 
     kind = "tap_permanent"
     zone: str = LANDS
 
     def run(self, game, policy) -> None:
-        if self.zone == LANDS:
-            game.tapped_lands = min(game.tapped_lands + 1, len(game.lands))
-        elif self.zone == ROCKS:
-            game.tapped_rocks = min(game.tapped_rocks + 1, len(game.rocks))
-        else:
+        if self.zone not in (LANDS, ROCKS):
             raise IllegalAction(f"{self.zone} does not tap for mana")
+        zone = zone_of(game, self.zone)
+        if zone.tapped_count < len(zone):
+            zone.tap(zone.tapped_count)
 
 
 # --- Carrying an action out ------------------------------------------------
@@ -594,17 +589,9 @@ def _at(game, zone: str, index: int):
 
 
 def _take(game, zone: str, index: int):
-    """Remove and return the card at ``index`` of ``zone``.
-
-    A tapped land or rock is one of the first ``tapped_*`` of its zone, so
-    taking one away takes one off the count, as a sacrifice does: left as it
-    was, the next land along would look tapped (card model, phase 4).
-    """
+    """Remove and return the card at ``index`` of ``zone``; a permanent
+    takes its tapped flag with it."""
     _at(game, zone, index)
-    if zone == LANDS and index < game.tapped_lands:
-        game.tapped_lands -= 1
-    elif zone == ROCKS and index < game.tapped_rocks:
-        game.tapped_rocks -= 1
     return zone_of(game, zone).pop(index)
 
 

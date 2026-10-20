@@ -70,7 +70,7 @@ def _zone(game, zone: str, card):
     if zone == "graveyard":
         return game.graveyard
     if zone == "untapped_lands":
-        return game._untapped(game.lands[game.tapped_lands:])
+        return game._untapped(game.lands.untapped())
     raise ValueError(f"no such zone: {zone}")
 
 

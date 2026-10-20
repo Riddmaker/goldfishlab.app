@@ -188,29 +188,20 @@ GAME_ZONES = ("library", "hand", "lands", "rocks", "creatures",
 #: The zones that hold permanents, each a `simulation.permanent.Zone`.
 BATTLEFIELD = ("lands", "rocks", "creatures", "other_permanents")
 
-#: The form `dump_game` writes (card model, phase 4). Format 2 keeps each
-#: card once, in a table, and each zone as places in it - a battlefield zone
-#: with each permanent's number - so copies come back as one object and the
-#: permanents as the same ones. A state without ``format`` is format 1, every
-#: card written out where it lies; `load_game` still reads it, but a playtest
-#: replays its actions rather than trusting it (`is_current`).
-GAME_FORMAT = 2
+#: The form `dump_game` writes (card model, phase 4). Each card object once,
+#: in a table, and each zone as places in it - a battlefield zone with each
+#: permanent's number - so every copy comes back as an object of its own and
+#: the permanents as the same ones. Format 3 (PR 17) keeps every mark by the
+#: permanent's number instead of the card's name. `load_game` reads only this
+#: format: a playtest replays its actions from an older state (`is_current`).
+GAME_FORMAT = 3
 
 #: Card lists on a `Game` that are not zones a card can be moved to, but that a
-#: replay still has to reproduce. Optional on the way in, because a state cached
-#: before engine version 3 has no `stays_tapped` - and nothing was ever held
-#: tapped then, which is exactly what an empty list says. `drawn` since the
-#: card model's phase 4: a state cached before it starts the list empty, as
-#: every loaded game did then.
-GAME_LISTS = ("stays_tapped", "drawn")
+#: replay still has to reproduce.
+GAME_LISTS = ("drawn",)
 
-GAME_SCALARS = ("life", "turn", "mulligans", "tapped_lands", "tapped_rocks",
-                "land_drop_used", "commander_casts", "mana_available",
-                "first_hand_lands", "phase", "on_the_play")
-
-#: Scalars added after states were first cached, with the value an older
-#: state means by leaving them out: no second commander was ever cast.
-LATER_SCALARS = {"partner_casts": 0}
+GAME_SCALARS = ("life", "turn", "mulligans", "land_drop_used", "commander_casts",
+                "partner_casts", "mana_available", "first_hand_lands", "phase", "on_the_play")
 
 
 def dump_game(game: Game) -> dict:
@@ -235,7 +226,7 @@ def dump_game(game: Game) -> dict:
     for name in GAME_ZONES:
         zone = getattr(game, name)
         if name in BATTLEFIELD:
-            state[name] = [[place(card), permanent.pid]
+            state[name] = [[place(card), permanent.pid, permanent.tapped, permanent.held]
                            for card, permanent in zip(zone, zone.permanents, strict=True)]
         else:
             state[name] = [place(card) for card in zone]
@@ -243,8 +234,8 @@ def dump_game(game: Game) -> dict:
         state[name] = [place(card) for card in getattr(game, name)]
     state["cards"] = table
     state["pids"] = game.pids
+    state["pid_names"] = dict(game.pid_names)
     state.update({name: getattr(game, name) for name in GAME_SCALARS})
-    state.update({name: getattr(game, name) for name in LATER_SCALARS})
     state["mana_by_color"] = dict(game.mana_by_color)
     state["log"] = list(game.log)
     state["pool"] = game.pool.by_color() if game.pool is not None else None
@@ -302,49 +293,41 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
     # game second leaves a session whose next shuffle differs from the one it
     # would have had - invisible in a goldfish, which shuffles only for its
     # opening hand, and impossible to reproduce once it does bite.
+    if not is_current(data):
+        raise ValueError("a state in an older format: replay its actions instead")
     game.rng.setstate(_rng_state(data["rng"]))
-    cards = _deck_cards(deck)
-    if data.get("format") == GAME_FORMAT:
-        _load_places(game, data, [_card(row, cards) for row in data["cards"]])
-    else:
-        for name in GAME_ZONES:
-            setattr(game, name, [_card(row, cards) for row in data[name]])
-        for name in GAME_LISTS:
-            setattr(game, name, [_card(row, cards) for row in data.get(name, [])])
+    cards, used = _deck_cards(deck), set()
+    _load_places(game, data, [_card(row, cards, used) for row in data["cards"]])
     for name in GAME_SCALARS:
         setattr(game, name, data[name])
-    for name, missing in LATER_SCALARS.items():
-        setattr(game, name, data.get(name, missing))
     game.mana_by_color = dict(data["mana_by_color"])
     game.log = list(data["log"])
     game.pool = None if data["pool"] is None else ManaPool(**data["pool"])
     if game.pool is not None:
-        game.pool.converters = list(data.get("pool_converters", []))
-        game.pool.treasures = _with_stored(data.get("pool_treasures", []),
-                                           data.get("pool_stored", []))
+        game.pool.converters = list(data["pool_converters"])
+        game.pool.treasures = _with_stored(data["pool_treasures"], data["pool_stored"])
         game.pool.restricted = [_load_dataclass(RestrictedMana, row)
-                                for row in data.get("pool_restricted", [])]
-        game.pool.treasure_bonus = int(data.get("pool_treasure_bonus", 0))
-    game.treasures = _with_stored(data.get("treasures", []), data.get("stored", []))
-    game.counters = {str(name): int(count) for name, count in data.get("counters", {}).items()}
-    game.energy = int(data.get("energy", 0))
-    game.emptied = [str(name) for name in data.get("emptied", [])]
-    game.plus_counters = {str(name): int(count)
-                          for name, count in data.get("plus_counters", {}).items()}
-    game.flipped = [str(name) for name in data.get("flipped", [])]
-    game.attached = {str(name): str(host) for name, host in data.get("attached", {}).items()}
-    game.combat_done = bool(data.get("combat_done", False))
-    game.landers = int(data.get("landers", 0))
-    game.arrived = [str(name) for name in data.get("arrived", [])]
-    game.tapped_creatures = [str(name) for name in data.get("tapped_creatures", [])]
+                                for row in data["pool_restricted"]]
+        game.pool.treasure_bonus = int(data["pool_treasure_bonus"])
+    game.treasures = _with_stored(data["treasures"], data["stored"])
+    game.counters = {int(pid): int(count) for pid, count in data["counters"].items()}
+    game.energy = int(data["energy"])
+    game.emptied = [int(pid) for pid in data["emptied"]]
+    game.plus_counters = {int(pid): int(count) for pid, count in data["plus_counters"].items()}
+    game.flipped = [int(pid) for pid in data["flipped"]]
+    game.attached = {int(pid): int(host) for pid, host in data["attached"].items()}
+    game.combat_done = bool(data["combat_done"])
+    game.landers = int(data["landers"])
+    game.arrived = [int(pid) for pid in data["arrived"]]
+    game.tapped_creatures = [int(pid) for pid in data["tapped_creatures"]]
     # P19 R13: Caged Sun's colour, chosen once.
-    game.chosen_colors = dict(data.get("chosen_colors", {}))
+    game.chosen_colors = {int(pid): color for pid, color in data["chosen_colors"].items()}
     # P19 R19: creatures tapped for another card's mana; Chrome Mox's colours.
-    game.fodder_used = [str(name) for name in data.get("fodder_used", [])]
-    game.imprinted = dict(data.get("imprinted", {}))
+    game.fodder_used = [int(pid) for pid in data["fodder_used"]]
+    game.imprinted = {int(pid): colors for pid, colors in data["imprinted"].items()}
     # P19 R16: mana waiting for the pool, and the spells cast this turn.
-    game.pending_mana = [str(key) for key in data.get("pending_mana", [])]
-    game.spells_this_turn = int(data.get("spells_this_turn", 0))
+    game.pending_mana = [str(key) for key in data["pending_mana"]]
+    game.spells_this_turn = int(data["spells_this_turn"])
     return game
 
 
@@ -354,20 +337,21 @@ def is_current(data: dict) -> bool:
 
 
 def _load_places(game: Game, data: dict, table: list) -> None:
-    """Format 2: each zone from its places in the card table, each permanent
-    with its number."""
+    """Each zone from its places in the card table, each permanent with its
+    number and whether it is tapped or held."""
     for name in GAME_ZONES:
         if name in BATTLEFIELD:
             rows = data[name]
-            setattr(game, name, [table[place] for place, _pid in rows])
-            for permanent, (_place, pid) in zip(getattr(game, name).permanents, rows,
-                                                 strict=True):
-                permanent.pid = int(pid)
+            setattr(game, name, [table[row[0]] for row in rows])
+            for permanent, (_place, pid, tapped, held) in zip(getattr(game, name).permanents,
+                                                              rows, strict=True):
+                permanent.pid, permanent.tapped, permanent.held = int(pid), tapped, held
         else:
             setattr(game, name, [table[place] for place in data[name]])
     for name in GAME_LISTS:
-        setattr(game, name, [table[place] for place in data.get(name, [])])
+        setattr(game, name, [table[place] for place in data[name]])
     game.pids = int(data["pids"])
+    game.pid_names = {int(pid): name for pid, name in data["pid_names"].items()}
 
 
 def _deck_cards(deck: DeckDefinition) -> dict:
@@ -378,16 +362,20 @@ def _deck_cards(deck: DeckDefinition) -> dict:
     return cards
 
 
-def _card(row: dict, cards: dict) -> Card:
-    """A stored card as the deck's own object when the deck holds one equal
-    to it, and as a new one otherwise (a token the game made).
+def _card(row: dict, cards: dict, used: set) -> Card:
+    """A stored card as the deck's own object the first time the deck holds
+    one equal to it, and as a new one otherwise (another copy, a token).
 
-    The engine asks "is this the commander" by identity, and all copies of a
-    card are one object; a restored game of new objects lost both, so its
-    commander no longer counted as the commander (card model, phase 4).
+    The engine asks "is this the commander" by identity, so a restored
+    commander has to be the deck's; and each copy is an object of its own, so
+    a second copy may not become the first (card model, phase 4).
     """
     card = _load_dataclass(Card, row)
-    return cards.get(card, card)
+    own = cards.get(card)
+    if own is None or id(own) in used:
+        return card
+    used.add(id(own))
+    return own
 
 
 def _rng_state(stored):

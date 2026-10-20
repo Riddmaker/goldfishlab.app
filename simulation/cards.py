@@ -779,6 +779,14 @@ class Card:
                 getattr(self, name) for name in _HASHED))
         return found
 
+    def twin(self) -> "Card":
+        """Another copy of this card: equal to it, but an object of its own,
+        with what is compiled shared. Each copy in a game is its own object,
+        so each permanent keeps its own state (card model PR 17)."""
+        other = object.__new__(Card)
+        other.__dict__.update(self.__dict__)
+        return other
+
     def __getstate__(self):
         # What is compiled, decoded or hashed is made again where the card
         # arrives: a string's hash differs from one process to the next.
@@ -936,8 +944,12 @@ class DeckDefinition:
         return sum(1 for card in self.library if card.is_land)
 
     def shuffled(self, rng) -> list[Card]:
-        """A fresh, shuffled copy of the library."""
-        library = list(self.library)
+        """A fresh, shuffled copy of the library, each copy of a card its own
+        object (`Card.twin`): two Forests on the battlefield are two permanents."""
+        library, seen = [], set()
+        for card in self.library:
+            library.append(card.twin() if id(card) in seen else card)
+            seen.add(id(card))
         rng.shuffle(library)
         return library
 

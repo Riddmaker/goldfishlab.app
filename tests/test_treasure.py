@@ -17,6 +17,7 @@ from simulation.cards import CREATURE, INSTANT, LAND, Card, DeckDefinition
 from simulation.game import Game
 from simulation.mana import ManaPool
 from simulation.manacost import parse
+from tests.engine_builders import tap
 
 Kind = DerivedProfile.Kind
 REMINDER = (' (They\'re artifacts with "{T}, Sacrifice this token: Add one mana of any '
@@ -85,7 +86,7 @@ GIANT = Card("Giant", 6, 0, 5, CREATURE, cost=parse("{5}{G}"))
 def game_with(lands, hand, library=()):
     game = Game(random.Random(1))
     game.lands, game.hand, game.library = list(lands), list(hand), list(library)
-    game.tapped_lands = 0
+    tap(game, lands=0)
     return game
 
 

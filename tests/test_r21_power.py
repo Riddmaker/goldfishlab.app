@@ -38,8 +38,10 @@ from simulation.cards import (
 from simulation.game import Game
 from simulation.mana import ManaPool
 from simulation.manacost import parse
+from simulation.trace import named
 from simulations import deck_cards
 from simulations.engine import adapter
+from tests.engine_builders import marks, tap
 
 ANY = "WUBRG"
 
@@ -176,7 +178,7 @@ def game_with(creatures=(), other=(), hand=(), library=()):
     game.hand = list(hand)
     game.library = list(library) or [creature(f"Filler {n}", types=()) for n in range(20)]
     game.lands, game.rocks = [], []
-    game.tapped_lands = game.tapped_rocks = 0
+    tap(game, lands=0, rocks=0)
     return game
 
 
@@ -207,14 +209,14 @@ def test_marwyn_taps_for_her_power_and_grows_with_each_elf():
     game = game_with(creatures=[MARWYN])
     assert next_turn(game) == {"G": 1}
     game.cast(creature("Llanowar Elves"), ManaPool(G=2))
-    assert game.plus_counters == {"Marwyn, the Nurturer": 1}
+    assert named(game, "plus_counters") == {"Marwyn, the Nurturer": 1}
     assert next_turn(game) == {"G": 2}
 
 
 def test_kami_adds_one_to_every_placement():
     game = game_with(creatures=[KAMI, MARWYN])
     game.cast(creature("Llanowar Elves"), ManaPool(G=2))
-    assert game.plus_counters == {"Marwyn, the Nurturer": 2}
+    assert named(game, "plus_counters") == {"Marwyn, the Nurturer": 2}
     assert game.power(MARWYN) == 3
 
 
@@ -223,7 +225,7 @@ def test_gyre_sage_evolves_by_printed_power_and_counters():
     assert next_turn(game) == {}
     game.cast(creature("Bear", 2, 2, types=()), ManaPool(G=2))
     game.cast(creature("Small", 1, 1, types=()), ManaPool(G=2))
-    assert game.plus_counters == {"Gyre Sage": 1}
+    assert named(game, "plus_counters") == {"Gyre Sage": 1}
     assert next_turn(game) == {"G": 1}
 
 
@@ -232,7 +234,7 @@ def test_rishkar_puts_his_counters_where_they_make_most_mana():
     game = game_with(creatures=[bear, DRUID], hand=[RISHKAR])
     game.lands = [FOREST]
     game.cast(RISHKAR, ManaPool(G=3))
-    assert set(game.plus_counters) == {"Incubation Druid", "Bear"}
+    assert set(named(game, "plus_counters")) == {"Incubation Druid", "Bear"}
     # The Druid's three, the Bear's granted {G}, the Forest's {G}.
     assert next_turn(game) == {"G": 5}
 
@@ -243,7 +245,7 @@ def test_incubation_druid_adapts_with_spare_mana():
     pool = ManaPool(G=5)
     assert [type(each) for each in actions.adaptations(game, pool)] == [actions.Adapt]
     game.adapt(DRUID, pool)
-    assert game.plus_counters == {"Incubation Druid": 3}
+    assert named(game, "plus_counters") == {"Incubation Druid": 3}
     assert not game.can_adapt(DRUID, ManaPool(G=5))
     assert next_turn(game) == {"G": 4}
 
@@ -253,7 +255,7 @@ def test_the_agent_adapts_when_nothing_else_wants_the_mana():
     game.lands = [FOREST] * 4
     game.hand = []
     agent.take_turn(game)
-    assert game.plus_counters == {"Incubation Druid": 3}
+    assert named(game, "plus_counters") == {"Incubation Druid": 3}
 
 
 def test_vivi_grows_with_noncreature_spells():
@@ -316,20 +318,21 @@ def test_growing_rites_looks_for_a_creature_and_turns_at_four():
     assert [each.name for each in game.hand] == ["Huge"]
     assert [each.name for each in game.library[-3:]] == ["Land", "Tiny", "F0"]
     game.end_step()
-    assert game.flipped == []
+    assert named(game, "flipped") == []
     assert next_turn(game) == {}
     game.creatures.append(creature("C3"))
     game.end_step()
-    assert game.flipped == ["Growing Rites of Itlimoc"]
+    assert named(game, "flipped") == ["Growing Rites of Itlimoc"]
     assert next_turn(game) == {"G": 4}
 
 
 def test_a_saved_game_keeps_counters_and_flips():
     game = game_with(creatures=[MARWYN])
-    game.plus_counters = {"Marwyn, the Nurturer": 2}
-    game.flipped = ["Growing Rites of Itlimoc"]
+    marks(game, plus_counters={"Marwyn, the Nurturer": 2})
+    marks(game, flipped=["Growing Rites of Itlimoc"])
     loaded = serial.load_game(serial.dump_game(game), game.deck)
-    assert (loaded.plus_counters, loaded.flipped) == (game.plus_counters, game.flipped)
+    assert (named(loaded, "plus_counters"), named(loaded, "flipped")) == (
+        named(game, "plus_counters"), named(game, "flipped"))
     assert loaded.creatures[0].growth == MARWYN.growth
 
 

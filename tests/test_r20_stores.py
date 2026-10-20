@@ -39,8 +39,10 @@ from simulation.cards import (
 from simulation.game import TREASURE, Game
 from simulation.mana import ManaPool, Stored, has_treasure
 from simulation.manacost import parse
+from simulation.trace import named
 from simulations import deck_cards
 from simulations.engine import adapter
+from tests.engine_builders import marks, tap
 
 ANY = "WUBRG"
 
@@ -160,7 +162,7 @@ def game_with(lands=(), rocks=(), creatures=(), other=(), hand=()):
     game.lands, game.rocks, game.creatures = list(lands), list(rocks), list(creatures)
     game.other_permanents, game.hand = list(other), list(hand)
     game.library = [filler(f"Filler {n}") for n in range(20)]
-    game.tapped_lands = game.tapped_rocks = 0
+    tap(game, lands=0, rocks=0)
     return game
 
 
@@ -206,8 +208,8 @@ def test_kept_counters_are_no_treasure_an_altar_may_sacrifice():
 
 def test_a_vivid_land_spends_a_counter_each_turn_then_taps_for_its_colour():
     game = game_with()
-    game._store_enters(VIVID)
     game.lands = [VIVID]
+    game._store_enters(VIVID)
     assert [next_turn(game) for _ in range(3)] == [{ANY: 1}, {ANY: 1}, {"U": 1}]
 
 
@@ -227,8 +229,8 @@ def test_a_storage_land_is_sacrificed_as_the_next_turn_begins():
     bog = stored("Peat Bog", Store(STORE_TAP, "B", amount=2, start=2, empty="sacrifice"),
                  LAND, types=("land",))
     game = game_with()
-    game._store_enters(bog)
     game.lands = [bog]
+    game._store_enters(bog)
     assert [next_turn(game) for _ in range(2)] == [{"B": 2}, {"B": 2}]
     assert next_turn(game) == {} and bog in game.graveyard and not game.lands
 
@@ -237,8 +239,8 @@ def test_wall_of_roots_makes_green_five_times_then_dies():
     wall = stored("Wall of Roots", Store(STORE_TAP, "G", start=5, empty="dies"), CREATURE,
                   mv=2, cost="{1}{G}", types=("creature",))
     game = game_with()
-    game._store_enters(wall)
     game.creatures = [wall]
+    game._store_enters(wall)
     assert [next_turn(game) for _ in range(5)] == [{"G": 1}] * 5
     next_turn(game)
     assert wall in game.graveyard and "Wall of Roots dies" in game.log
@@ -249,7 +251,7 @@ def test_mana_bloom_enters_with_x_and_returns_to_hand():
                    ENCHANTMENT, mv=1, cost="{X}{G}", types=("enchantment",))
     game = game_with()
     game._resolve(bloom, ManaPool(), x=2)
-    assert bloom in game.other_permanents and game.counters["Mana Bloom"] == 2
+    assert bloom in game.other_permanents and named(game, "counters")["Mana Bloom"] == 2
     assert [next_turn(game) for _ in range(2)] == [{ANY: 1}, {ANY: 1}]
     next_turn(game)
     assert bloom in game.hand and bloom not in game.other_permanents
@@ -269,8 +271,8 @@ def test_everflowing_chalice_taps_for_one_per_kick():
 def test_empowered_autogenerator_makes_one_more_each_turn():
     generator = stored("Empowered Autogenerator", Store(STORE_SCALES, "", grows="use"), mv=4)
     game = game_with(hand=[filler("Green Spell")])
-    game._store_enters(generator)
     game.rocks = [generator]
+    game._store_enters(generator)
     made = [next_turn(game) for _ in range(3)]
     assert [sum(each.values()) for each in made] == [1, 2, 3]
     assert all(len(each) == 1 for each in made)
@@ -285,9 +287,9 @@ def test_runaway_steam_kin_turns_three_red_spells_into_three_red():
     game._store_enters(kin)
     for _ in range(2):
         game.spell_cast(bolt)
-    assert game.treasures == [] and game.counters["Runaway Steam-Kin"] == 2
+    assert game.treasures == [] and named(game, "counters")["Runaway Steam-Kin"] == 2
     game.spell_cast(bolt)
-    assert game.treasures == ["R", "R", "R"] and game.counters["Runaway Steam-Kin"] == 0
+    assert game.treasures == ["R", "R", "R"] and named(game, "counters")["Runaway Steam-Kin"] == 0
 
 
 def test_crystalline_crawler_taps_for_one_more_counter_each_turn():
@@ -295,8 +297,8 @@ def test_crystalline_crawler_taps_for_one_more_counter_each_turn():
                                                          grows="tap"), CREATURE,
                      mv=4, types=("artifact", "creature"))
     game = game_with()
-    game._store_enters(crawler, colors=2)
     game.creatures = [crawler]
+    game._store_enters(crawler, colors=2)
     assert len(game.treasures) == 2
     next_turn(game)
     assert len(game.treasures) == 3
@@ -304,13 +306,13 @@ def test_crystalline_crawler_taps_for_one_more_counter_each_turn():
 
 def test_a_saved_game_keeps_counters_energy_and_kept_mana():
     game = game_with()
+    game.lands = [VIVID, HUB]
     game._store_enters(VIVID)
     game._store_enters(HUB)
-    game.lands = [VIVID, HUB]
     game.treasures = [ANY, Stored(ANY)]
-    game.emptied = ["Peat Bog"]
+    marks(game, emptied=["Peat Bog"])
     loaded = serial.load_game(serial.dump_game(game), game.deck)
-    assert (loaded.counters, loaded.energy, loaded.emptied) == (
+    assert (named(loaded, "counters"), loaded.energy, named(loaded, "emptied")) == (
         {"Vivid Creek": 2}, 1, ["Peat Bog"])
     assert [isinstance(key, Stored) for key in loaded.treasures] == [False, True]
     assert loaded.lands[0].store == VIVID.store

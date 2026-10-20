@@ -49,6 +49,7 @@ from simulation.mana import ManaPool
 from simulation.manacost import parse
 from simulations import deck_cards
 from simulations.engine import adapter
+from tests.engine_builders import marks, tap
 
 ANY = "WUBRG"
 TO_HAND = {"tutor", "tutor-to", "tutor-to-hand"}
@@ -257,7 +258,7 @@ def game_with(library=(), hand=(), creatures=(), lands=(), other=(), graveyard=(
     game.library, game.hand = list(library), list(hand)
     game.creatures, game.lands, game.rocks = list(creatures), list(lands), []
     game.other_permanents, game.graveyard = list(other), list(graveyard)
-    game.tapped_lands = game.tapped_rocks = 0
+    tap(game, lands=0, rocks=0)
     game.turn = turn
     return game
 
@@ -355,7 +356,7 @@ def test_land_searches_by_power_with_gates_and_a_sacrifice():
     assert len(game.lands) == 3
     traverse = spell("Traverse the Outlands", 5, land_search=LandSearch(by_power=True))
     game = game_with(library=[FOREST] * 9, creatures=[creature("Big", 5), BEAR])
-    game.plus_counters = {"Big": 1}
+    marks(game, plus_counters={"Big": 1})
     resolve(game, traverse)
     assert len(game.lands) == 6
 
@@ -403,7 +404,7 @@ def test_sword_of_hearth_and_home_finds_an_untapped_land():
                  equip=parse("{2}"), combat=(CombatTrigger(event="damage", who="equipped",
                                                            search=True, untapped=True),))
     game = game_with(library=[FOREST] * 3, creatures=[BEAR], other=[sword])
-    game.attached = {sword.name: BEAR.name}
+    marks(game, attached={sword.name: BEAR.name})
     game.pool = ManaPool()
     game.combat()
     assert len(game.lands) == 1 and game.pool.total == 1

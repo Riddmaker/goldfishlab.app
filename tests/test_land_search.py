@@ -14,6 +14,7 @@ from simulation import actions
 from simulation.cards import CREATURE, FLAT, LAND, SORCERY, Card, LandSearch, ManaAbility
 from simulation.game import Game, best_land
 from simulation.manacost import parse
+from tests.engine_builders import tap
 
 Kind = DerivedProfile.Kind
 
@@ -134,7 +135,7 @@ def game_with(library, *, hand=(), lands=(), life=40):
     game.library = list(library)
     game.hand = list(hand)
     game.lands = list(lands)
-    game.tapped_lands = 0
+    tap(game, lands=0)
     game.life = life
     return game
 

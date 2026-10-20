@@ -37,6 +37,7 @@ from simulation.cards import (
 from simulation.game import Game
 from simulation.manacost import parse
 from simulations.engine.adapter import _ability_text
+from tests.engine_builders import marks
 
 Kind = DerivedProfile.Kind
 
@@ -202,7 +203,7 @@ def test_an_aura_needs_its_land_to_be_cast():
 
 def test_utopia_sprawl_adds_its_chosen_colour_only_with_a_forest():
     game = board([ISLAND], others=[SPRAWL])
-    game.chosen_colors = {"Utopia Sprawl": "U"}
+    marks(game, chosen_colors={"Utopia Sprawl": "U"})
     assert made(game) == {"U": 1}
     game.lands.append(FOREST)
     assert made(game) == {"U": 2, "G": 1}
@@ -215,7 +216,7 @@ def deck_of(*costs):
 
 
 def test_a_colour_is_chosen_once_and_by_what_the_bonus_is_for():
-    game = board([FOREST, FOREST, ISLAND], others=[SPRAWL],
+    game = board([FOREST, FOREST, ISLAND], others=[SPRAWL, CAGED_SUN],
                  deck=deck_of("{G}", "{U}", "{B}"))
     # Caged Sun pays off on the colour most lands make; Utopia Sprawl fixes
     # the one fewest make - black, which no land here does.
@@ -246,7 +247,7 @@ def test_badgermole_cub_adds_to_creatures_tapped_for_mana():
 
 def test_caged_sun_makes_a_choice_land_tap_for_its_colour():
     game = board([FOREST, TOWER, ISLAND], rocks=[CAGED_SUN])
-    game.chosen_colors = {"Caged Sun": "G"}
+    marks(game, chosen_colors={"Caged Sun": "G"})
     assert made(game) == {"G": 4, "U": 1}
 
 

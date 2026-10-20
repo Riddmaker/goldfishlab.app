@@ -313,9 +313,9 @@ class Reading:
         """
         if self.card.is_land:
             return gettext("no cost")
-        if self.card.additional_costs:
+        if self.card.play.ways:
             # P19 R15: what else is paid, any one of the ways.
-            ways = " / ".join(_way_text(way) for way in self.card.additional_costs)
+            ways = " / ".join(_way_text(way) for way in self.card.play.ways)
             return gettext("%(cost)s, and %(extra)s") % {"cost": self.card.mana_cost,
                                                          "extra": ways}
         return str(self.card.mana_cost)
@@ -343,9 +343,9 @@ class Reading:
         different places - the zone from a community tag, the number from the
         printed text - so a person checking it needs to see both at once.
         """
-        spec = self.card.tutor
-        if spec is None and self.card.land_search is not None:
-            return _land_search_text(self.card.land_search)
+        spec = self.card.play.tutor
+        if spec is None and self.card.play.search is not None:
+            return _land_search_text(self.card.play.search)
         if spec is None:
             return gettext("nothing")
         if spec.kind or spec.types:
@@ -396,14 +396,14 @@ class Reading:
 
     @property
     def skips_draw_step(self) -> str:
-        return gettext("yes") if self.card.skips_draw_step else gettext("no")
+        return gettext("yes") if self.card.turn.skips_draw_step else gettext("no")
 
     @property
     def triggers(self) -> str:
         """The triggers the engine plays (P19 R16), in combat too (P19 R22),
         in words."""
-        return "; ".join([*(_trigger_text(trigger) for trigger in self.card.triggers),
-                          *(_combat_text(trigger) for trigger in self.card.combat)])
+        return "; ".join([*(_trigger_text(trigger) for trigger in self.card.turn.triggers),
+                          *(_combat_text(trigger) for trigger in self.card.turn.combat)])
 
     @property
     def effective_priority(self) -> int:
@@ -429,13 +429,13 @@ class Reading:
         basic = land_color(self.card, frozenset()) if self.card.is_land else None
         if basic is not None:
             return gettext("1 %(color)s (as a basic land)") % {"color": mana_label(basic)}
-        if not self.card.mana_abilities:
+        if not self.card.mana.entries:
             return gettext("nothing")
-        text = "; ".join(_ability_text(ability) for ability in self.card.mana_abilities)
+        text = "; ".join(_ability_text(source) for source in self.card.mana.entries)
         if any(gap.field == "assumed_mana" for gap in self.gaps):
             text = gettext("%(mana)s - assuming your opponents' lands make these colours") % {
                 "mana": text}
-        if not self.card.untaps:
+        if not self.card.mana.untaps:
             text = gettext("%(mana)s - once, then it stays tapped") % {"mana": text}
         return text
 
@@ -444,14 +444,14 @@ class Reading:
         """What tapping it for mana costs beside the tap, in words."""
         cost = sum(
             ability.activation_generic
-            for ability in self.card.mana_abilities
+            for ability in self.card.mana.entries
             if ability.rule == FLAT
         )
         return f"{{{cost}}}" if cost else gettext("nothing beyond tapping")
 
     @property
     def untaps(self) -> bool:
-        return self.card.untaps
+        return self.card.mana.untaps
 
 
 #: How each scaling rule reads on the provenance panel. The engine's constants
@@ -653,7 +653,7 @@ def _way_text(way: AdditionalCost) -> str:
 
 
 def _ability_text(ability) -> str:
-    """One mana ability, in words."""
+    """One mana ability as the engine plays it (`rules.mana.Source`), in words."""
     if ability.rule == FLAT:
         produced = " + ".join(
             f"{amount} {mana_label(color)}" for color, amount in ability.produces
@@ -699,15 +699,16 @@ _SPELL_WORDS = {
 
 
 def spells_text(filters) -> str:
-    """The spells restricted mana pays for, in words: "legendary spells or
-    Dragon creature spells". Only spells: the engine pays no ability with it."""
+    """The spells restricted mana pays for (selectors), in words: "legendary
+    spells or Dragon creature spells". Only spells: the engine pays no ability
+    with it."""
     parts = []
     for wanted in filters:
         words = [gettext(_SPELL_WORDS[flag]) for flag in
                  ("legendary", "colorless", "multicolored", "noncreature")
                  if getattr(wanted, flag)]
-        if wanted.subtypes:
-            words.append("/".join(sorted(subtype.title() for subtype in wanted.subtypes)))
+        if wanted.named_types:
+            words.append("/".join(sorted(subtype.title() for subtype in wanted.named_types)))
         if wanted.types:
             words.append("/".join(gettext(_SPELL_WORDS[kind]) for kind in sorted(wanted.types)))
         if wanted.only_color:

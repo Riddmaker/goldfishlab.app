@@ -25,7 +25,6 @@ from playtest.models import PlaytestSession
 from simulation import actions
 from simulation.game import LANDER_FODDER, TREASURE
 from simulation.manacost import COLORLESS, COLORS, mana_label
-from simulation.rules.mana import spell_filter
 from simulations.engine.adapter import spells_text
 
 #: The board fragment htmx swaps in. The whole page includes it too, so the two
@@ -228,8 +227,7 @@ def restricted_mana(pool) -> list[str]:
         made = " + ".join(f"{amount} {mana_label(key)}" for key, amount in each.made.items()
                           if amount)
         text = gettext("%(mana)s for %(spells)s") % {
-            "mana": made, "spells": spells_text(
-                tuple(spell_filter(wanted) for wanted in each.spend_only))} if made else ""
+            "mana": made, "spells": spells_text(each.spend_only)} if made else ""
         if each.open and each.otherwise:
             other = " + ".join(f"{amount} {mana_label(key)}"
                                for key, amount in each.otherwise.items())

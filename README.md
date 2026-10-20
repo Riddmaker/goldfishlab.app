@@ -429,11 +429,15 @@ makes "all the old tests still pass" mean anything.
 ```bash
 .venv/Scripts/python -m pytest -m "not slow"    # fast loop
 .venv/Scripts/python -m pytest                  # includes the statistical validation
+.venv/Scripts/python -m pytest -n auto          # the same, one worker per core (14 at most)
 .venv/Scripts/python -m ruff check .
 .venv/Scripts/python -m djlint templates/ --lint
 .venv/Scripts/python -m pip_audit -r requirements.txt   # production pins only
 # pytest runs on goldfishlab.settings.test: development's settings plus a fast
 # password hasher (PBKDF2 cost every create_user 0.7 s and the suite twice as long).
+# In parallel each worker gets its own test database and its own Redis cache
+# database, which caps a run at 14 workers. The fixture write modes
+# (COVERAGE_WRITE, TRACE_WRITE, PARITY_WRITE) run serially, on their own file.
 
 # Visual check against the running stack. Screenshots go to a scratch
 # directory, never into the repository. Add --email/--password to include the

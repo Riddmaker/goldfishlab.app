@@ -11,7 +11,7 @@ What these tests hold:
    keeps is printed or a play hint (`simulation.blocks`).
 
 The whole catalogue's round trip is `engine_coverage --diff` against the
-frozen v29 reading; in CI it is the coverage snapshot of the 3,070 cards.
+latest frozen reading; in CI it is the coverage snapshot of the 3,070 cards.
 """
 
 import ast

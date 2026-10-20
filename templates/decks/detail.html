@@ -78,7 +78,7 @@
           {% include "decks/_commander_form.html" with action=commander_url submit_label=save_label %}
         </div>
       {% endif %}
-      <form method="post" action="{% url 'simulations:create' deck.id %}" class="mt-5">
+      <form id="simulate" method="post" action="{% url 'simulations:create' deck.id %}" class="mt-5">
         {% csrf_token %}
         <div class="flex flex-wrap gap-3">
           <button type="submit"

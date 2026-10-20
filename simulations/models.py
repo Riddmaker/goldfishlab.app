@@ -47,6 +47,7 @@ from django.utils.translation import gettext_lazy as _
 from cards import categories
 from cards.models import OracleCard
 from decks.models import Deck
+from simulation import ENGINE_VERSION
 from simulations import gaps, patches, primitives
 
 #: The mana a colour annotation may name. Spelled out here rather than imported
@@ -406,6 +407,12 @@ class SimulationRun(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse("simulations:detail", args=[self.id])
+
+    @property
+    def older_engine(self) -> bool:
+        """Played by an engine older than today's, so a run now could give
+        other numbers (card model PR 17, D17.6)."""
+        return self.status == self.Status.DONE and self.engine_version < ENGINE_VERSION
 
     @property
     def played_without_commander(self) -> bool:

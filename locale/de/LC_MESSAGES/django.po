@@ -13442,3 +13442,54 @@ msgstr ""
 "Als was die Karte auf der Deck-Seite und in der Zieh-Statistik zählt. Nach "
 "vier davon spielt die Engine: Opfer-Outlet, wiederkehrende Kreatur, Drain "
 "und Kartenziehen, wenn die Karte immer wieder zieht."
+
+#: templates/simulations/_older_engine.html
+#, python-format
+msgid ""
+"Played by an older version of the engine (v%(version)s). The engine has "
+"learned since, so a run today can give other numbers."
+msgstr ""
+"Mit einer älteren Version der Engine gespielt (v%(version)s). Die Engine hat"
+" seither dazugelernt, ein Lauf heute kann also andere Zahlen ergeben."
+
+#: templates/simulations/_older_engine.html
+msgid "Run it again"
+msgstr "Neu laufen lassen"
+
+#: templates/core/methodology.html
+msgid ""
+"The share of games in which each milestone was true by the end of that turn."
+" They are read from the cards' categories, the ones you can correct on a "
+"card's page, so a deck built differently gets the same chart without "
+"anything here changing. A card that draws counts as a draw engine only when "
+"it draws again and again. The chart draws the eight most frequent; a rarer "
+"ninth stays in the numbers under it."
+msgstr ""
+"Der Anteil der Spiele, in denen jeder Meilenstein am Ende des jeweiligen "
+"Zugs erreicht war. Sie werden aus den Kategorien der Karten gelesen, also "
+"denen, die du auf der Seite einer Karte korrigieren kannst; ein anders "
+"gebautes Deck bekommt so dasselbe Diagramm, ohne dass sich hier etwas "
+"ändert. Eine Karte, die zieht, zählt nur dann als Draw-Engine, wenn sie "
+"immer wieder zieht. Das Diagramm zeichnet die acht häufigsten; ein "
+"seltenerer neunter bleibt in den Zahlen darunter."
+
+#: changelog/entries.py
+msgid "Every card plays on its own, and by its categories"
+msgstr "Jede Karte spielt für sich, und nach ihren Kategorien"
+
+#: changelog/entries.py
+msgid ""
+"Two copies of a card, or two tokens with the same name, now keep their own "
+"counters, equipment and tapped state. The four roles the engine plays a card"
+" in - sacrifice outlet, recursive creature, drain, and card draw that "
+"happens again and again - come from the card's categories, so a correction "
+"under “Categories” changes the games too. A report made with an older engine"
+" says so and offers a new run."
+msgstr ""
+"Zwei Exemplare einer Karte oder zwei gleichnamige Spielsteine behalten jetzt"
+" ihre eigenen Marken, Ausrüstungen und ihren eigenen getappten Zustand. Die "
+"vier Rollen, in denen die Engine eine Karte spielt - Opfer-Outlet, "
+"wiederkehrende Kreatur, Drain und Kartenziehen, das immer wieder geschieht "
+"-, kommen aus den Kategorien der Karte, eine Korrektur unter „Kategorien“ "
+"ändert also auch die Spiele. Ein Report aus einer älteren Engine sagt das "
+"und bietet einen neuen Lauf an."

@@ -22,6 +22,7 @@ from decks import services as deck_services
 from decks.models import DeckCard
 from sharing import services, text
 from sharing.models import SharedReport
+from simulation import ENGINE_VERSION
 from simulations import report, summary, tasks
 from simulations import services as run_services
 from simulations.models import CardAnnotation, DeckSummary, SimulationRun
@@ -424,3 +425,32 @@ def test_the_run_page_loads_the_copy_script_only_once_finished(client, owner, ru
     client.force_login(owner)
 
     assert "js/share" in client.get(run.get_absolute_url()).content.decode()
+
+
+# --- a report played by an older engine (card model PR 17, D17.6) ----------------
+
+
+def test_a_run_by_todays_engine_says_nothing_about_it(client, owner, run, shared):
+    client.force_login(owner)
+    assert "data-older-engine" not in client.get(run.get_absolute_url()).content.decode()
+    assert "data-older-engine" not in _public(client, shared).content.decode()
+
+
+def test_an_older_engine_is_named_and_its_owner_offered_a_new_run(client, owner, run, shared):
+    SimulationRun.objects.filter(pk=run.pk).update(engine_version=ENGINE_VERSION - 1)
+    client.force_login(owner)
+
+    page = client.get(run.get_absolute_url()).content.decode()
+
+    assert "data-older-engine" in page
+    assert f"{run.deck.get_absolute_url()}#simulate" in page
+
+
+def test_a_shared_report_names_the_older_engine_but_offers_no_run(client, run, shared):
+    cache.clear()
+    SimulationRun.objects.filter(pk=run.pk).update(engine_version=ENGINE_VERSION - 1)
+
+    page = _public(client, shared).content.decode()
+
+    assert "data-older-engine" in page
+    assert "#simulate" not in page

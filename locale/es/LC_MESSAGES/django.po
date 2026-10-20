@@ -13500,3 +13500,53 @@ msgstr ""
 "Lo que la carta cuenta en la página del mazo y en las estadísticas de robo. "
 "El motor juega según cuatro de ellas: un outlet de sacrificio, una criatura "
 "recursiva, un drenaje y el robo cuando la carta roba una y otra vez."
+
+#: templates/simulations/_older_engine.html
+#, python-format
+msgid ""
+"Played by an older version of the engine (v%(version)s). The engine has "
+"learned since, so a run today can give other numbers."
+msgstr ""
+"Jugado con una versión anterior del motor (v%(version)s). El motor ha "
+"aprendido desde entonces, así que una simulación hoy puede dar otras cifras."
+
+#: templates/simulations/_older_engine.html
+msgid "Run it again"
+msgstr "Volver a simular"
+
+#: templates/core/methodology.html
+msgid ""
+"The share of games in which each milestone was true by the end of that turn."
+" They are read from the cards' categories, the ones you can correct on a "
+"card's page, so a deck built differently gets the same chart without "
+"anything here changing. A card that draws counts as a draw engine only when "
+"it draws again and again. The chart draws the eight most frequent; a rarer "
+"ninth stays in the numbers under it."
+msgstr ""
+"El porcentaje de partidas en las que cada hito se cumplía al final de ese "
+"turno. Se leen de las categorías de las cartas, las que puedes corregir en "
+"la página de una carta, así que un mazo construido de otra forma obtiene el "
+"mismo gráfico sin que cambie nada aquí. Una carta que roba solo cuenta como "
+"motor de robo si roba una y otra vez. El gráfico dibuja los ocho más "
+"frecuentes; un noveno más raro sigue en las cifras de debajo."
+
+#: changelog/entries.py
+msgid "Every card plays on its own, and by its categories"
+msgstr "Cada carta juega por su cuenta, y según sus categorías"
+
+#: changelog/entries.py
+msgid ""
+"Two copies of a card, or two tokens with the same name, now keep their own "
+"counters, equipment and tapped state. The four roles the engine plays a card"
+" in - sacrifice outlet, recursive creature, drain, and card draw that "
+"happens again and again - come from the card's categories, so a correction "
+"under “Categories” changes the games too. A report made with an older engine"
+" says so and offers a new run."
+msgstr ""
+"Dos copias de una carta, o dos fichas con el mismo nombre, ahora conservan "
+"sus propios contadores, equipos y su propio estado girado. Los cuatro roles "
+"en los que el motor juega una carta - outlet de sacrificio, criatura "
+"recursiva, drenaje y robo que se repite una y otra vez - vienen de las "
+"categorías de la carta, así que una corrección en «Categorías» también "
+"cambia las partidas. Un informe hecho con un motor anterior lo indica y "
+"ofrece una nueva simulación."

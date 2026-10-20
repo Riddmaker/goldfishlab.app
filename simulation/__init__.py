@@ -194,6 +194,13 @@ boundary, not the symptom.
 #:    that can be paid is cast first, "your commander attacks" fires for each,
 #:    and "commander on the battlefield" means at least one - with a count of
 #:    the games that have both. A deck with one commander plays as in 28.
-ENGINE_VERSION = 29
+#: 30: card model phase 4, PR 17. Each permanent keeps its own state: two
+#:    copies of one card, or two Germs, no longer share counters, equipment
+#:    or being tapped. The engine's four roles (sacrifice outlet, recursive
+#:    creature, drain, draw engine) are read off the card's categories, so a
+#:    category correction changes play too; a draw engine is a card whose
+#:    drawing ability happens again and again. Games are seeded per block of
+#:    250, so how a run is cut into chunks decides no game.
+ENGINE_VERSION = 30
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

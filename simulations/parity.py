@@ -75,8 +75,12 @@ def readings(entries: list[dict]) -> dict:
 
     def played(entry) -> dict:
         card = cards.get(entry["oracle_id"])
-        return patches.effective(entry["overrides"], entry.get("patches"),
-                                 getattr(card, "profile", None))[0]
+        profile = getattr(card, "profile", None)
+        document = entry.get("patches")
+        if not patches.is_current(document):
+            # An export from before PR 16b: its overrides, written again.
+            document = patches.from_overrides(entry["overrides"], profile)
+        return patches.effective(document, profile)[0]
 
     builtin = {entry["oracle_id"]: played(entry) for entry in entries
                if entry["scope"] == "builtin" and entry["oracle_id"] in cards}

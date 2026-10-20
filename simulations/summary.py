@@ -180,18 +180,22 @@ def fingerprint(deck) -> str:
     engine would merge for this deck - an owner's answer about a card changes
     what the deck does, which is T6.2's "or cards were annotated".
     """
+    from simulations import patches
     from simulations.engine.adapter import cards_filter, scope_filter
     from simulations.models import CardAnnotation
 
     rows = (
         CardAnnotation.objects.filter(cards_filter(deck)).filter(scope_filter(deck))
-        .values_list("oracle_card_id", "owner_id", "deck_id", "overrides").distinct()
+        .values_list("oracle_card_id", "owner_id", "deck_id", "patches")
     )
-    annotations = sorted(
-        json.dumps([str(card), str(owner), str(deck_id), overrides], sort_keys=True,
-                   default=str)
-        for card, owner, deck_id, overrides in rows
-    )
+    # Over each correction as its owner stated it - what the overrides column
+    # held until card model phase 4 (PR 16b) - so every stored print stays
+    # valid. Distinct, as the rows of the old column were.
+    annotations = sorted({
+        json.dumps([str(card), str(owner), str(deck_id), patches.overrides_of(document)],
+                   sort_keys=True, default=str)
+        for card, owner, deck_id, document in rows
+    })
     text = "|".join([*_list_parts(deck), "annotations", *annotations])
     return hashlib.sha256(text.encode()).hexdigest()
 

@@ -1,14 +1,16 @@
-"""Card model phase 4, PR 16a: a profile's mechanisms as one field.
+"""Card model phase 4, PR 16: a profile's mechanisms as one field.
 
 What these tests hold:
 
-1. **The mechanism columns are named once**: `cards.mechanisms.COLUMNS`
-   holds every column of the profile that is not identity, cost, tags,
-   categories or review, each with the model's default.
-2. **The field round-trips**: `unpack(pack(...))` gives every column back,
-   defaults are left out, the tutor's four columns sit under ``tutor``.
-3. **Every write keeps it**: a derived catalogue and a saved profile carry
-   ``blocks`` equal to their columns.
+1. **The profile's columns are what is not a mechanism**: identity, cost,
+   tags, categories, review, and `blocks`; every mechanism of
+   `cards.mechanisms.COLUMNS` is a property over `blocks` (PR 16b).
+2. **The field round-trips**: `unpack(pack(...))` gives every mechanism
+   back, defaults are left out, the tutor's four sit under ``tutor``.
+3. **A property reads and writes the field**: the default where it says
+   nothing, the default written takes the key out, a save keeps it.
+4. **Every write keeps it**: a derived catalogue carries blocks equal to
+   what its mechanisms read.
 """
 
 import pytest
@@ -16,14 +18,14 @@ import pytest
 from cards import mechanisms
 from cards.models import DerivedProfile, OracleCard
 
-#: The profile's columns that are not mechanisms.
-OTHER = {"oracle_card", "mv", "pips", "generic", "colorless", "has_x", "kind",
-         "is_basic_swamp", "role_tags", "produces_mana", "mana_colors", "mana_amount",
-         "primary_role", "secondary_role", "mechanics", "tempo", "category_review",
-         "categories_version", "blocks", "needs_review", "review_reasons", "source_map",
-         "derived_at"}
+#: The profile's columns: everything that is not a mechanism.
+COLUMNS = {"oracle_card", "mv", "pips", "generic", "colorless", "has_x", "kind",
+           "is_basic_swamp", "role_tags", "produces_mana", "mana_colors", "mana_amount",
+           "primary_role", "secondary_role", "mechanics", "tempo", "category_review",
+           "categories_version", "blocks", "needs_review", "review_reasons", "source_map",
+           "derived_at"}
 
-#: A value away from the default for every column.
+#: A value away from the default for every mechanism.
 EVERY = {
     "enters_tapped": True, "mana_produces": {"B": 1}, "mana_activation": 1,
     "mana_untaps": False, "mana_condition": {"if": {"kind": "lands", "count": 5}},
@@ -42,32 +44,37 @@ EVERY = {
 }
 
 
-def test_every_column_is_a_mechanism_or_named_as_something_else():
+def test_the_columns_are_what_is_not_a_mechanism():
     names = {field.name for field in DerivedProfile._meta.concrete_fields}
-    assert set(mechanisms.COLUMNS) | OTHER == names
-    assert not set(mechanisms.COLUMNS) & OTHER
+    assert names == COLUMNS
+    assert not set(mechanisms.COLUMNS) & names
+    assert all(isinstance(getattr(DerivedProfile, column), property)
+               for column in mechanisms.COLUMNS)
 
 
-@pytest.mark.parametrize("column", list(mechanisms.COLUMNS))
-def test_a_column_has_the_models_default(column):
-    assert mechanisms.default(column) == DerivedProfile._meta.get_field(column).get_default()
-
-
-def test_every_column_comes_back():
+def test_every_mechanism_comes_back():
     assert set(EVERY) == set(mechanisms.COLUMNS)
     profile = DerivedProfile(**EVERY)
-    blocks = mechanisms.pack(profile)
-    assert mechanisms.unpack(blocks) == EVERY
-    assert blocks["tutor"] == {name: EVERY[name] for name in mechanisms.GROUPS["tutor"]}
-    assert "tutor_to" not in blocks
+    assert {column: getattr(profile, column) for column in mechanisms.COLUMNS} == EVERY
+    assert mechanisms.pack(profile) == profile.blocks
+    assert mechanisms.unpack(profile.blocks) == EVERY
+    assert profile.blocks["tutor"] == {name: EVERY[name] for name in mechanisms.GROUPS["tutor"]}
+    assert "tutor_to" not in profile.blocks
 
 
 def test_defaults_are_left_out():
     profile = DerivedProfile()
-    assert mechanisms.pack(profile) == {}
-    assert mechanisms.unpack({}) == {column: mechanisms.default(column)
-                                     for column in mechanisms.COLUMNS}
-    assert mechanisms.default("triggers") is not mechanisms.default("triggers")
+    assert profile.blocks == {} and mechanisms.pack(profile) == {}
+    assert {column: getattr(profile, column) for column in mechanisms.COLUMNS} == {
+        column: mechanisms.default(column) for column in mechanisms.COLUMNS}
+    assert profile.triggers is not DerivedProfile().triggers
+
+
+def test_writing_the_default_takes_the_key_out():
+    profile = DerivedProfile(draws_cards=2, tutor_to="hand", tutor_count=1)
+    profile.draws_cards = None
+    profile.tutor_to, profile.tutor_count = "", None
+    assert profile.blocks == {}
 
 
 @pytest.mark.django_db
@@ -76,14 +83,12 @@ def test_a_derived_catalogue_carries_its_blocks(catalogue):
     assert profiles and any(profile.blocks for profile in profiles)
     for profile in profiles:
         assert profile.blocks == mechanisms.pack(profile), profile
-        assert mechanisms.unpack(profile.blocks) == {
-            column: getattr(profile, column) for column in mechanisms.COLUMNS}
 
 
 @pytest.mark.django_db
-def test_a_saved_profile_writes_its_blocks(catalogue):
+def test_a_saved_mechanism_is_kept_in_its_field(catalogue):
     profile = OracleCard.objects.filter(profile__isnull=False).first().profile
     profile.draws_cards = 3
     profile.save(update_fields=["draws_cards"])
-    profile.refresh_from_db()
-    assert profile.blocks["draws_cards"] == 3
+    profile = DerivedProfile.objects.get(pk=profile.pk)
+    assert profile.draws_cards == 3 and profile.blocks["draws_cards"] == 3

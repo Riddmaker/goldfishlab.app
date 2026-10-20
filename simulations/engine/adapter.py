@@ -907,10 +907,10 @@ def engine_readings(oracle_cards, *, builtin: bool = True) -> dict:
     merged: dict = {}
     rows = CardAnnotation.objects.filter(
         owner__isnull=True, deck__isnull=True, oracle_card__in=cards
-    ).values_list("oracle_card_id", "overrides", "patches") if builtin else ()
+    ).values_list("oracle_card_id", "patches") if builtin else ()
     profiles = {card.pk: getattr(card, "profile", None) for card in cards}
-    for oracle_id, overrides, document in rows:
-        said, _notes = patches.effective(overrides, document, profiles.get(oracle_id))
+    for oracle_id, document in rows:
+        said, _notes = patches.effective(document, profiles.get(oracle_id))
         merged.setdefault(oracle_id, {}).update(said)
     # Said as built in: a built-in roles list is the engine's alone, and the
     # card counts in its derived categories (`_categories`).
@@ -1144,7 +1144,7 @@ def annotations_for(deck: Deck) -> Annotations:
         CardAnnotation.objects.filter(relevant)
         .filter(scope_filter(deck))
         .order_by("owner_id", "deck_id")
-        .values_list("oracle_card_id", "owner_id", "deck_id", "overrides", "patches")
+        .values_list("oracle_card_id", "owner_id", "deck_id", "patches")
         .distinct()
     )
     profiles = _profiles_of(oracle_id for oracle_id, *_rest, document in rows
@@ -1157,9 +1157,9 @@ def annotations_for(deck: Deck) -> Annotations:
     # overwrites only the keys it sets, so a deck-scoped annotation can change
     # one field without restating the rest.
     ordered = sorted(rows, key=lambda row: (row[1] is not None, row[2] is not None))
-    for oracle_id, owner_id, deck_id, overrides, document in ordered:
+    for oracle_id, owner_id, deck_id, document in ordered:
         scope = _scope_name(owner_id, deck_id)
-        said, found = patches.effective(overrides, document, profiles.get(oracle_id))
+        said, found = patches.effective(document, profiles.get(oracle_id))
         merged.setdefault(oracle_id, {}).update(said)
         scopes.setdefault(oracle_id, {}).update(dict.fromkeys(said, scope))
         _keep_notes(notes, oracle_id, said, [

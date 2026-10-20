@@ -10,12 +10,10 @@ the Search block, and a player's row that said it the old way is said the
 new way where the engine plays the card the same (migration 0016).
 """
 
-import importlib
 import uuid
 from types import SimpleNamespace
 
 import pytest
-from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.http import QueryDict
 from django.urls import reverse
@@ -23,7 +21,7 @@ from django.urls import reverse
 from cards import profiles
 from cards.models import OracleCard
 from decks.models import Deck, DeckCard
-from simulations import annotations, editor, patches, primitives, services, unread
+from simulations import annotations, editor, primitives, services, unread
 from simulations.engine import adapter
 from simulations.engine.adapter import DECK_SCOPE
 from simulations.forms import AnnotationForm
@@ -363,58 +361,6 @@ def test_a_count_is_said_as_the_search_block():
         "tutor": {"to": "graveyard", "count": 2}, "tutor_kind": "creature"}
 
 
-def _migrate():
-    importlib.import_module("simulations.migrations.0016_tutor_count_as_block").forwards(
-        apps, None)
-
-
-def test_the_migration_says_a_player_s_count_as_the_block(deck):
-    row = CardAnnotation.objects.create(owner=deck.owner, deck=deck.deck,
-                                        oracle_card=deck.seer,
-                                        overrides={"tutor_count": 2, "tutor_life": 1})
-    before = _played(deck, deck.seer).tutor
-    assert before.count == 2
-
-    _migrate()
-
-    row.refresh_from_db()
-    assert row.overrides == {"tutor": {"to": "hand", "count": 2}, "tutor_life": 1}
-    assert patches.is_current(row.patches)
-    assert _played(deck, deck.seer).tutor == before
-
-
-def test_the_migration_leaves_built_in_rows_and_rows_it_would_change(deck):
-    builtin = CardAnnotation.objects.create(oracle_card=deck.seer,
-                                            overrides={"tutor_count": 3})
-    # Under the built-in count, the block alone would lose to it: left as it is.
-    mine = CardAnnotation.objects.create(owner=deck.owner, deck=deck.deck,
-                                         oracle_card=deck.seer, overrides={"tutor_count": 1})
-
-    _migrate()
-
-    builtin.refresh_from_db()
-    mine.refresh_from_db()
-    assert builtin.overrides == {"tutor_count": 3}
-    assert mine.overrides == {"tutor_count": 1}
-    assert _played(deck, deck.seer).tutor.count == 1
-
-
-def test_the_migration_leaves_a_count_a_deck_s_block_would_win_over(deck):
-    """A count for all decks beat a deck's Search block; said as a block it
-    would lose to it, and that deck would play another search."""
-    mine = CardAnnotation.objects.create(owner=deck.owner, oracle_card=deck.seer,
-                                         overrides={"tutor_count": 1})
-    CardAnnotation.objects.create(owner=deck.owner, deck=deck.deck, oracle_card=deck.seer,
-                                  overrides={"tutor": {"to": "hand", "count": 3}})
-    assert _played(deck, deck.seer).tutor.count == 1
-
-    _migrate()
-
-    mine.refresh_from_db()
-    assert mine.overrides == {"tutor_count": 1}
-    assert _played(deck, deck.seer).tutor.count == 1
-
-
 # --- what is read from patches -----------------------------------------------------------
 
 
@@ -429,13 +375,3 @@ def test_players_answers_are_counted_by_what_they_say_today(deck):
     assert players == 2 and common[0][1] == 2
 
 
-def test_a_write_past_save_plays_the_overrides_it_wrote(deck):
-    """The `of` guard (A2): stale patches are never played over newer overrides."""
-    row = CardAnnotation.objects.create(owner=deck.owner, deck=deck.deck,
-                                        oracle_card=deck.crypt,
-                                        overrides={"tapped_unless": {"kind": "pay_life",
-                                                                     "life": 3}})
-    CardAnnotation.objects.filter(pk=row.pk).update(
-        overrides={"tapped_unless": {"kind": "pay_life", "life": 4}})
-
-    assert _played(deck, deck.crypt).tapped_unless.count == 4

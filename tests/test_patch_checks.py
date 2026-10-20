@@ -60,7 +60,10 @@ def correct(deck, card, key, value, scope=DECK_SCOPE):
 
 def move(card, **fields):
     """The reader reads the card differently now (an ingest, a new Forge pin)."""
-    DerivedProfile.objects.filter(oracle_card=card).update(**fields)
+    profile = DerivedProfile.objects.get(oracle_card=card)
+    for name, value in fields.items():
+        setattr(profile, name, value)
+    profile.save()
 
 
 def search_of(card):

@@ -441,7 +441,7 @@ def save_annotation(*, deck, oracle_card, scope: str, judgements: dict | None = 
     # reading, so a block this save does not touch keeps what the reader has
     # learned since it was written - and one whose block is gone stays, to be
     # checked, rather than vanish with an unrelated save.
-    overrides = patches.stated(existing.overrides, existing.patches,
+    overrides = patches.stated(existing.patches,
                                getattr(oracle_card, "profile", None)) if existing else {}
     if judgements is not None:
         overrides = apply(overrides, judgements)
@@ -525,16 +525,15 @@ def settle_checks(*, deck, oracle_card, scope: str, keys=None) -> bool:
 def _settle(annotation, oracle_card, keys) -> bool:
     """Settle `keys` (None: all) of one row's checks; whether any were open."""
     profile = getattr(oracle_card, "profile", None)
-    _said, notes = patches.effective(annotation.overrides, annotation.patches, profile)
+    _said, notes = patches.effective(annotation.patches, profile)
     wanted = {note.key for note in notes if keys is None or note.key in keys}
     if not wanted:
         return False
-    annotation.overrides, annotation.patches = patches.settle(
-        annotation.overrides, annotation.patches, profile, wanted)
-    if not annotation.overrides and not annotation.note and not annotation.confirmed:
+    kept, annotation.patches = patches.settle(annotation.patches, profile, wanted)
+    if not kept and not annotation.note and not annotation.confirmed:
         annotation.delete()
     else:
-        annotation.save(update_fields=["overrides", "patches", "updated_at"])
+        annotation.save(update_fields=["patches", "updated_at"])
     return True
 
 

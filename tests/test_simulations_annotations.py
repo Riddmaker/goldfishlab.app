@@ -550,7 +550,7 @@ def test_a_judgement_changes_the_next_run_in_the_expected_direction(deck, owner)
     def mana_on_last_turn():
         result = runner.read(
             runner.run_chunk(
-                120, run_seed=7, index=0, turns=3, on_the_play=True,
+                120, run_seed=7, first_block=0, turns=3, on_the_play=True,
                 deck=adapter.deck_definition(deck),
             )
         )

@@ -573,17 +573,31 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
 # add up to the same thing regardless of the order they come back in, and they
 # have to fit through a message broker.
 
+#: Games are seeded in blocks of this many (card model PR 17c): block ``b`` of
+#: a run plays with `chunk_seed(run_seed, b)`, and a chunk plays whole blocks.
+#: How many chunks a run is cut into follows the deck's measured speed; with
+#: the seeds fixed per block it no longer decides a single game.
+SEED_BLOCK = 250
+
+
+def blocks_of(games: int, first_block: int = 0) -> list[tuple[int, int]]:
+    """``(block, games)`` for ``games`` played from ``first_block`` on: whole
+    blocks, the last one holding what is left."""
+    return [(first_block + number, min(SEED_BLOCK, games - number * SEED_BLOCK))
+            for number in range(-(-games // SEED_BLOCK))]
+
 
 def chunk_seed(run_seed: int, index: int) -> int:
-    """The seed for chunk ``index`` of the run seeded with ``run_seed``.
+    """The seed for block ``index`` (`SEED_BLOCK`) of the run seeded with
+    ``run_seed``.
 
     **A chunked run is not bit-identical to a single run with the same seed,
     and deliberately so.** Making it so would mean seeding each game
     separately, which changes the random stream of every existing run and with
     it every number in the golden parity snapshot. What is guaranteed instead:
 
-    * the same ``(run_seed, index, iterations)`` always replays exactly, so a
-      stored result can be reproduced;
+    * the same ``(run_seed, block, games)`` always replays exactly, however
+      the run is cut into chunks, so a stored result can be reproduced;
     * a chunked run and a single run of the same size are the same experiment
       and agree to within sampling error, which is what
       ``tests/test_analysis_chunks.py`` asserts.
@@ -597,11 +611,11 @@ def chunk_seed(run_seed: int, index: int) -> int:
 
 
 def sample_seed(run_seed: int, index: int, key: str) -> int:
-    """The seed for one combo's own sample within chunk ``index``.
+    """The seed for one combo's own sample within block ``index``.
 
     A hypothetical deck - the real one with a missing card added - is a
     different experiment and needs a stream of its own. Derived from the key as
-    well as the index so that two combos measured in the same chunk do not play
+    well as the index so that two combos measured in the same block do not play
     the same hundred games as each other, which would make their percentages
     agree for a reason that has nothing to do with the decks.
     """
@@ -611,24 +625,21 @@ def sample_seed(run_seed: int, index: int, key: str) -> int:
     return int.from_bytes(digest.digest(), "big")
 
 
-def run_chunk(iterations: int, run_seed: int, index: int, *,
+def run_chunk(iterations: int, run_seed: int, first_block: int, *,
               on_the_play: bool = True, turns: int = DEFAULT_TURNS,
               deck=None, watch=()) -> dict:
-    """One chunk of a larger run, as something a broker can carry.
+    """One chunk of a larger run, as something a broker can carry: the
+    ``iterations`` games from block ``first_block`` on (`blocks_of`), each
+    block with its own seed.
 
     The unit of work a Celery task performs. Returns the JSON form, because
     that is what has to travel back - a few kB of counters, whatever the
     iteration count.
     """
-    result = run(
-        iterations,
-        on_the_play=on_the_play,
-        turns=turns,
-        seed=chunk_seed(run_seed, index),
-        deck=deck,
-        watch=watch,
-    )
-    return as_json(result)
+    return merge(
+        as_json(run(games, on_the_play=on_the_play, turns=turns,
+                    seed=chunk_seed(run_seed, block), deck=deck, watch=watch))
+        for block, games in blocks_of(iterations, first_block))
 
 
 def as_json(result: dict) -> dict:

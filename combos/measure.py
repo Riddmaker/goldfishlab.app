@@ -119,13 +119,13 @@ class Hypothetical:
     games: int = 0
 
     def share(self, chunks: int, index: int) -> int:
-        """This chunk's slice of the sample.
+        """Block ``index``'s slice of the sample, of ``chunks`` blocks.
 
         Split by remainder rather than rounded, so the slices add up to exactly
         `games` - a sample that quietly plays 997 of the 1,000 games it claims
         would put a wrong denominator under every percentage it produces.
         """
-        if chunks < 1:
+        if not 0 <= index < chunks:
             return 0
         base, extra = divmod(self.games, chunks)
         return base + (1 if index < extra else 0)
@@ -240,16 +240,21 @@ def budget(games_total: int, candidates: int) -> tuple[int, int]:
     return count, min(MAX_SAMPLE, room // count)
 
 
-def samples_for(run, plan: Plan, index: int, chunks: int) -> list:
-    """The hypothetical decks this chunk plays, built for the engine.
+def samples_for(run, plan: Plan, first_block: int, games: int) -> list:
+    """The hypothetical decks the chunk of ``games`` from seed block
+    ``first_block`` on plays, built for the engine. Each sample is split over
+    the run's seed blocks, so its games do not depend on how the run is cut
+    into chunks.
 
     One `adapter.convert` per hypothetical per chunk, which is the same work
     the chunk already does once for the deck itself.
     """
+    total = len(runner.blocks_of(run.games_total))
+    blocks = [block for block, _games in runner.blocks_of(games, first_block)]
     samples = []
     for item in plan.hypotheticals:
-        games = item.share(chunks, index)
-        if games < 1:
+        shares = tuple((block, item.share(total, block)) for block in blocks)
+        if not any(share for _block, share in shares):
             continue
         samples.append(runner.Sample(
             key=item.entry.combo_id,
@@ -258,7 +263,7 @@ def samples_for(run, plan: Plan, index: int, chunks: int) -> list:
             deck=replace(adapter.deck_definition(run.deck, adding=item.card),
                          key_cards=plan.key_cards | _pieces((item.watch,))),
             watch=item.watch,
-            games=games,
+            blocks=shares,
         ))
     return samples
 

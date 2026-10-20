@@ -173,9 +173,10 @@ def test_a_chunk_without_wins_adds_no_games_to_them():
 
 def test_a_combo_a_card_is_missing_for_never_counts():
     """The hypothetical deck has the card; the player's deck does not."""
-    sample = runner.Sample(key="away", deck=None, watch=watch("away", "Swamp"), games=10)
+    sample = runner.Sample(key="away", deck=None, watch=watch("away", "Swamp"),
+                           blocks=((0, 10),))
 
-    payload = runner.run_chunk(10, run_seed=1, index=0, turns=2, on_the_play=True,
+    payload = runner.run_chunk(10, run_seed=1, first_block=0, turns=2, on_the_play=True,
                                deck=None, samples=[sample])
 
     assert "wins" not in payload

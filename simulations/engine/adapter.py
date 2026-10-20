@@ -29,7 +29,7 @@ from django.utils.translation import gettext, gettext_noop, ngettext
 
 from cards import categories as card_categories
 from decks.models import Deck
-from simulation import ENGINE_VERSION, agent
+from simulation import ENGINE_VERSION, agent, blocks
 from simulation.cards import (
     CARD_TYPES,
     COMBAT_SEARCH,
@@ -37,14 +37,19 @@ from simulation.cards import (
     COUNTS,
     DISCARD_LAND,
     DOUBLE_SUBTYPE,
+    DRAW_ENGINE,
+    ENGINE_ROLES,
     EXTRA,
     FILTER,
     FLAT,
     GRANT,
     IMPRINT,
+    INSTANT,
     LANDS_COULD_PRODUCE,
     MULTIPLY,
     PER_CONTROLLED,
+    RITUAL,
+    SORCERY,
     STORE_FREE,
     STORE_SCALES,
     STORE_TAP,
@@ -70,7 +75,6 @@ from simulation.mana import land_color
 from simulation.manacost import COLORLESS, COLORS, ManaCost, choice, mana_label, parse
 from simulations import gaps as gaps_module
 from simulations import patches, primitives
-from simulations.engine import runner
 
 #: Engine kinds that are one-shot spells. Only these may take `draw_on_cast`
 #: from the derived `draws_cards`: a permanent's "draw a card" is almost always
@@ -326,9 +330,9 @@ class Reading:
 
     @property
     def roles(self) -> list[str]:
-        """The roles the engine reads off the card (`runner.ENGINE_ROLE_TAGS`);
-        what the card counts as in the statistics is `card.categories`."""
-        return sorted(self.card.tags & frozenset(runner.ENGINE_ROLE_TAGS))
+        """The roles the engine plays the card by, read off its categories
+        (`engine_roles`)."""
+        return sorted(self.card.engine_roles)
 
     @property
     def searches(self) -> str:
@@ -1253,15 +1257,15 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
     mana_abilities = _mana_abilities(profile, overrides, kind, name, gaps, deck_colors, chosen,
                                      color)
 
+    categories = _categories(profile, overrides)
     card = Card(
         name=name,
         mv=profile.mv,
         pips=int(overrides.get("pips", profile.black_pips)),
         generic=int(overrides.get("generic", profile.generic)),
         kind=kind,
-        # The community tag rollup is broad on purpose; a deck author who
-        # disagrees says so here (`_engine_tags`).
-        tags=_engine_tags(profile, overrides),
+        # Read off the categories, corrections included (card model PR 17).
+        engine_roles=engine_roles(categories, profile),
         land_type=overrides.get(
             "land_type", "basic_swamp" if profile.is_basic_swamp else ""
         ),
@@ -1303,8 +1307,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         subtypes=_subtypes(oracle_card, profile, overrides),
         untaps=bool(overrides.get("untaps", getattr(profile, "mana_untaps", True))),
         types=card_types(oracle_card),
-        categories=_categories(profile, overrides,
-                               annotations.scope_of(oracle_card.pk, "tags")),
+        categories=categories,
         land_search=_land_search(profile),
         basic=oracle_card.type_line.startswith("Basic"),
         tapped_unless=_tapped_unless(profile, overrides),
@@ -2456,52 +2459,94 @@ def _printed_subtypes(oracle_card) -> frozenset[str]:
     return frozenset(printed & BASIC_LAND_SUBTYPES)
 
 
-def _categories(profile, overrides: dict, tags_scope: str | None) -> frozenset[str]:
-    """The categories the draw statistics sort this card by (`Card.categories`).
+def _categories(profile, overrides: dict) -> frozenset[str]:
+    """The categories of the card (`Card.categories`): what the draw
+    statistics sort it by, and what the engine's roles are read off
+    (`engine_roles`).
 
-    The card's derived categories (`derived_categories`), unless the **user**
-    replaced its roles - on this deck or on all of theirs - in which case
-    their list is the answer, an empty one included, for every key the list
-    could name. The mechanics card model phase 3 added came after every
-    stored list, so no list could name them, and they stay derived.
-
-    A **built-in** replacement is ignored here: the built-in annotations
-    exist so that the reference deck plays exactly as its original
-    hand-written list did, which is why Phyrexian Arena is only `draw_engine`
-    there. That keeps a game metric right and would make every Phyrexian Arena
-    on the site vanish from "Card draw" - it is a statement about how the
-    engine plays the card, not about what the card is.
+    The card's derived categories (`derived_categories`) and every
+    correction of them, relative to them, so a later reading still reaches
+    the card (card model phase 3, PR 10). A main role is counted, unless a
+    narrower scope took it away.
     """
-    # The corrections (card model phase 3, PR 10): relative to what is
-    # derived, so a later reading still reaches the card. A main role is
-    # counted, unless a narrower scope took it away.
     removed = frozenset(overrides.get("category_remove") or ())
-    found = (base_categories(profile, overrides, tags_scope)
+    found = (derived_categories(profile)
              | frozenset(overrides.get("category_add") or ())) - removed
     primary = overrides.get("category_primary")
     return found | {primary} if primary and primary not in removed else found
 
 
-def base_categories(profile, overrides: dict, tags_scope: str | None) -> frozenset[str]:
-    """What the card counts in before its owner's category corrections: the
-    derived categories, or a whole list written before phase 3 (`_categories`)."""
-    derived = derived_categories(profile)
-    if "tags" in overrides and tags_scope != BUILTIN_SCOPE:
-        return frozenset(overrides["tags"]) | (derived & frozenset(card_categories.NEW_MECHANICS))
-    return derived
+#: The kinds that are spells: one cast, one resolution.
+ONE_SHOT_KINDS = frozenset({SORCERY, INSTANT, RITUAL})
+#: The categories version whose tempo says which abilities draw.
+DRAWS_VERSION = 2
 
 
-def _engine_tags(profile, overrides: dict) -> frozenset[str]:
-    """The roles on `Card.tags`, which the engine reads four of
-    (`runner.ENGINE_ROLE_TAGS`).
+def engine_roles(categories: frozenset[str], profile) -> frozenset[str]:
+    """Which of the engine's four roles (`simulation.cards.ENGINE_ROLES`) the
+    card plays by, read off its categories (card model PR 17).
 
-    A list from before phase 3 (``tags``) is the whole answer, as it was.
-    ``engine_tags`` replaces only the four the engine reads.
+    A sacrifice outlet, a recursive creature and a drain are categories of
+    their own. A draw engine is a card that draws (``draw``) with an ability
+    that happens again and again (a rate in `cards.categories.REPEATS`) -
+    the ability that draws (``draws``), where the blocks tell which one: a
+    card that draws once on entering and taps for mana is no draw engine.
+    Where none of them draws in so many words (digging, a mode, a
+    correction), any of them but a mana ability: a land that cycles is
+    none. A card without blocks (or with keywords only), or derived before
+    abilities said whether they draw (categories version 1), has no tempo
+    to tell: there a permanent that draws is one, and a spell only when the
+    community says so. Until the profile is derived (``categories_version``), its
+    categories are the community roles, which name all four themselves.
     """
-    tags = set(overrides["tags"]) if "tags" in overrides else set(profile.role_tags)
-    if "engine_tags" in overrides:
-        tags = (tags - set(runner.ENGINE_ROLE_TAGS)) | set(overrides["engine_tags"])
-    return frozenset(tags)
+    roles = categories & ENGINE_ROLES
+    version = getattr(profile, "categories_version", 0)
+    if not version:
+        return roles
+    tempo = getattr(profile, "tempo", None) or {}
+    if tempo and version >= DRAWS_VERSION:
+        drawing = [each for each in tempo.values() if each.get("draws")] or [
+            each for key, each in tempo.items() if not key.startswith(f"{blocks.MANA}:")]
+        repeats = any(each.get("rate") in card_categories.REPEATS for each in drawing)
+    else:
+        repeats = profile.kind not in ONE_SHOT_KINDS or DRAW_ENGINE in profile.role_tags
+    return (roles - {DRAW_ENGINE}) | ({DRAW_ENGINE} if "draw" in categories and repeats
+                                      else frozenset())
+
+
+def roles_as_categories(overrides: dict, profile, wanted) -> tuple[dict, frozenset[str]]:
+    """``overrides`` with the category corrections under which the engine
+    plays the card in exactly the roles ``wanted`` (`engine_roles`): how a
+    list of engine roles from before card model PR 17 is said now.
+
+    A role is added or taken away by its category; a draw engine by
+    ``draw``. Returns the overrides, and the roles the categories cannot
+    give - a draw engine on a card no ability of which repeats, or any role
+    of a profile not derived yet.
+    """
+    said = dict(overrides)
+    added = list(said.get("category_add") or ())
+    removed = list(said.get("category_remove") or ())
+    have = engine_roles(_categories(profile, said), profile)
+    for role in sorted(ENGINE_ROLES):
+        key = "draw" if role == DRAW_ENGINE else role
+        if role in wanted and role not in have:
+            if key in removed:
+                removed.remove(key)
+            elif key not in added:
+                added.append(key)
+        elif role in have and role not in wanted:
+            if key in added:
+                added.remove(key)
+            elif key not in removed:
+                removed.append(key)
+    order = card_categories.ROLES + card_categories.MECHANICS
+    for name, value in (("category_add", added), ("category_remove", removed)):
+        if value:
+            said[name] = sorted(value, key=order.index)
+        else:
+            said.pop(name, None)
+    return said, frozenset(wanted) ^ engine_roles(_categories(profile, said), profile)
 
 
 def derived_categories(profile) -> frozenset[str]:

@@ -30,6 +30,23 @@ pytestmark = pytest.mark.django_db
 
 HAND_ANNOTATED = [COMMANDER, SWAMP, *UTILITY_LANDS, *SPELLS]
 
+#: The player's own roles for the cards, as the research wrote them. The engine
+#: fixture keeps only the four roles the engine plays by (PR 17b); the rest of
+#: the shorthand lives on here, because it is the ground truth these tests need.
+HAND_ROLES = {
+    "draw": {"Night's Whisper"},
+    "gamechanger": {"Necropotence", "Tergrid, God of Fright"},
+    "reanimate": {"Animate Dead", "Chainer, Dementia Master", "Living Death",
+                  "Necromancy", "Reanimate", "Victimize"},
+    "recursive": {"Bloodghast", "Gravecrawler", "Nether Traitor", "Reassembling Skeleton"},
+    "removal": {"Feed the Swarm", "Fleshbag Marauder", "Infernal Grasp", "Innocent Blood",
+                "Nekrataal", "Phyrexian Tribute", "Snuff Out", "Terror", "Tragic Slip"},
+    "ritual": {"Cabal Ritual", "Dark Ritual"},
+    "sac_outlet": {"Ashnod's Altar", "Carrion Feeder", "Gate to Phyrexia",
+                   "Helm of Possession", "Phyrexian Tower"},
+    "tutor": {"Demonic Tutor", "Grim Tutor"},
+}
+
 # Judgement calls, not bugs. Each entry is (card, what the deriver says, what
 # the player says) and each has a reason it can never be fixed by more regex.
 KNOWN_KIND_DIVERGENCES = {
@@ -121,7 +138,7 @@ def test_enters_tapped_matches_exactly(deck):
 def test_recursive_creatures_match_exactly(deck):
     """The verified 4/4. `recursion-self` is the tag that means 'comes back'."""
     derived = {c.name for c, p in deck if "recursive" in p.role_tags}
-    hand = {c.name for c in HAND_ANNOTATED if "recursive" in c.tags}
+    hand = HAND_ROLES["recursive"]
     assert derived == hand
     assert len(hand) == 4
 
@@ -135,7 +152,7 @@ def test_every_hand_marked_sac_outlet_is_found(deck):
     assertion that matters; the extra is named so it cannot grow unnoticed.
     """
     derived = {c.name for c, p in deck if "sac_outlet" in p.role_tags}
-    hand = {c.name for c in HAND_ANNOTATED if "sac_outlet" in c.tags}
+    hand = HAND_ROLES["sac_outlet"]
 
     assert hand <= derived, f"missed hand-annotated sac outlets: {hand - derived}"
     assert len(hand) == 5
@@ -144,7 +161,7 @@ def test_every_hand_marked_sac_outlet_is_found(deck):
 
 def test_rituals_match_exactly(deck):
     derived = {c.name for c, p in deck if "ritual" in p.role_tags}
-    hand = {c.name for c in HAND_ANNOTATED if "ritual" in c.tags}
+    hand = HAND_ROLES["ritual"]
     assert derived == hand == {"Dark Ritual", "Cabal Ritual"}
 
 
@@ -170,7 +187,7 @@ def test_the_official_game_changer_list_overrides_the_hand_annotation(deck):
     published list, never a local opinion about it.
     """
     derived = {c.name for c, p in deck if "gamechanger" in p.role_tags}
-    hand = {c.name for c in HAND_ANNOTATED if "gamechanger" in c.tags}
+    hand = HAND_ROLES["gamechanger"]
 
     assert hand <= derived
     assert derived - hand == {"Demonic Tutor"}
@@ -187,7 +204,7 @@ def test_community_tags_are_broader_than_one_players_shorthand(deck):
     """
     for role in ("removal", "reanimate", "tutor", "draw"):
         derived = {c.name for c, p in deck if role in p.role_tags}
-        hand = {c.name for c in HAND_ANNOTATED if role in c.tags}
+        hand = HAND_ROLES[role]
         assert hand <= derived, f"{role}: deriver missed {hand - derived}"
         assert len(derived) <= 3 * max(len(hand), 5), f"{role}: over-reporting ran away"
 

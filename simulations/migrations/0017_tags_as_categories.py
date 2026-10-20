@@ -117,12 +117,11 @@ def _plays(adapter, card, overrides: dict, scopes: dict):
     """The engine card, with what nothing plays or counts left out: the
     roles the engine does not read, and categories outside the vocabulary."""
     from cards import categories
-    from simulations.engine import runner
 
     found, _gaps = adapter.card_with(card, overrides, scopes)
     known = set(categories.ROLES + categories.MECHANICS)
-    return dataclasses.replace(found, tags=found.tags & set(runner.ENGINE_ROLE_TAGS),
-                               categories=found.categories & known)
+    # The engine's roles are its own field since card model PR 17b.
+    return dataclasses.replace(found, categories=found.categories & known)
 
 
 class Migration(migrations.Migration):

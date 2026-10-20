@@ -32,7 +32,7 @@ from tests.support import forget_module_rows, load_catalogue
 pytestmark = pytest.mark.django_db
 
 
-#: Everything the engine reads off a card. `tags` is included: the seeded
+#: Everything the engine reads off a card. `engine_roles` is included: the seeded
 #: annotations carry the deck author's own roles, which is what its numbers
 #: were researched with.
 #
@@ -42,7 +42,7 @@ pytestmark = pytest.mark.django_db
 # is the same object either way. Comparing the raw field would report a
 # difference in how the cost is written down as if it were a different cost.
 ENGINE_FIELDS = [
-    "mv", "pips", "generic", "mana_cost", "kind", "tags", "land_type",
+    "mv", "pips", "generic", "mana_cost", "kind", "engine_roles", "land_type",
     "enters_tapped", "goldfish_castable", "needs_creature_in_yard",
     "needs_creature_on_bf", "mana_abilities", "ritual_gain", "ritual_color",
     "cost_reduction", "draw_on_cast", "life_on_cast", "tutor", "upkeep",

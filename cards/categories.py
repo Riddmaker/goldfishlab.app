@@ -36,7 +36,9 @@ from simulation import blocks as b
 
 #: Stored beside the categories (`DerivedProfile.categories_version`); 0 there
 #: means "not derived yet", and every reader falls back to `role_tags`.
-VERSION = 1
+#: 2: a tempo entry says whether its ability draws (``draws``), and a card's
+#: own cycling or leaving happens once (card model PR 17).
+VERSION = 2
 
 #: The roles: the eight the report counts (`simulation.analysis.SEEN_CATEGORIES`).
 ROLES = ("ramp", "draw", "removal", "wipe", "tutor", "counterspell", "protection",
@@ -440,6 +442,10 @@ def _rate(ability: b.Ability) -> str:
         if event is not None and event.who == "self" and not event.filter \
                 and event.name in ("enters", "dies"):
             return ONE_SHOT
+        # Cycled, or gone from where it was: the card is no longer there.
+        if event is not None and event.who == "self" and event.name in ("cycled",
+                                                                      "zone_change"):
+            return ONE_SHOT
         return EVENT
     return REPEATABLE
 
@@ -456,8 +462,10 @@ def _needs(ability: b.Ability) -> str:
     return NEEDS_NOTHING
 
 
-def tempo(abilities) -> dict[str, dict[str, str]]:
-    """Per ability id: how often it happens and what it needs.
+def tempo(abilities, kind: str = "") -> dict[str, dict]:
+    """Per ability id: how often it happens and what it needs, and
+    ``draws`` on an ability that draws cards (the engine's draw engine is
+    one that happens again and again).
 
     A cast cost and a static ability that is only a keyword or only
     unmodelled say nothing about tempo and are left out.
@@ -470,6 +478,9 @@ def tempo(abilities) -> dict[str, dict[str, str]]:
                 effect.verb in (b.KEYWORD, b.UNMODELED) for effect in ability.effects):
             continue
         found[ability.id] = {"rate": _rate(ability), "needs": _needs(ability)}
+        if any(label.name == "draw" and label.defining
+               for label in ability_labels(ability, kind)):
+            found[ability.id]["draws"] = True
     return found
 
 
@@ -547,6 +558,6 @@ def derive(kind: str, abilities, role_tags, facts=None) -> Categories:
         primary=ranked[0] if ranked else "",
         secondary=ranked[1] if len(ranked) > 1 else "",
         mechanics=tuple(name for name in MECHANICS if name in mechanics),
-        tempo=tempo(abilities),
+        tempo=tempo(abilities, kind),
         review=tuple(review),
     )

@@ -15,7 +15,7 @@ died at 99%. Chunks give progress, cancellation and restart for free.
 from dataclasses import dataclass
 
 from simulation import analysis, combos
-from simulation.cards import CARD_TYPES
+from simulation.cards import CARD_TYPES, ENGINE_ROLES
 from simulation.manacost import SUBTYPE_COLORS
 
 #: The mana sources a run reports, WUBRG then colourless, and which stored
@@ -31,22 +31,15 @@ COLOR_FIELD = analysis.COLOR_FIELD
 SEEN_CARD_TYPES = CARD_TYPES
 SEEN_MV_CAP = analysis.MV_CAP
 
+#: The four roles the engine plays a card in, re-exported for the same reason:
+#: the migrations that turn lists of them into categories read them here.
+ENGINE_ROLE_TAGS = ENGINE_ROLES
+
 #: The land types that make a land tap for a colour, and which colour each
 #: one makes. Re-exported because the annotation editor offers them: a land
 #: type is not decoration in this engine, it is what a basic land taps for and
 #: what Cabal Coffers counts.
 LAND_SUBTYPE_COLORS = dict(SUBTYPE_COLORS)
-
-#: The role tags the analysis reads off a card to decide whether a milestone
-#: fired. Re-exported for the same reason: the annotation editor offers them as
-#: roles a user may set, and a typo there would silently zero a report row
-#: rather than raise anything.
-ENGINE_ROLE_TAGS = (
-    analysis.DRAW_ENGINE_TAG,
-    analysis.SAC_OUTLET_TAG,
-    analysis.RECURSIVE_TAG,
-    analysis.DRAIN_TAG,
-)
 
 #: What a combo measurement is made of, re-exported for the same reason as
 #: `MANA_SOURCES` below it: `combos/measure.py` builds these out of database

@@ -6,13 +6,12 @@ What these tests hold:
    ``category_remove`` change the derived categories, so a later reading
    still reaches the card; ``category_primary`` names the main role; "Back
    to the card data" takes all three back.
-2. **The engine's roles are apart.** The judgement form offers only the four
-   roles the engine reads (``engine_tags``), and replaces only those.
+2. **The engine plays by the categories** (card model PR 17): its four roles
+   are read off them, so one correction moves the statistics and the games.
 3. **Only the vocabulary is stored**, each category once, never both added
    and removed.
-4. **A whole list from before is converted** (migration 0017) only where the
-   engine plays the card and the statistics count it as before; otherwise
-   it stays, and the card page can retire it.
+4. **A whole list from before is converted** (migrations 0017 and 0019) so
+   the engine plays the card and the statistics count it as before.
 5. **The card page** shows the categories with who decided each, and every
    change is a plain form post on the owner's own deck.
 """
@@ -27,10 +26,10 @@ from django.urls import reverse
 
 from cards import categories
 from decks import services as deck_services
+from simulation.cards import DRAW_ENGINE
 from simulations import annotations, provenance
 from simulations.engine import adapter
 from simulations.engine.adapter import DECK_SCOPE, USER_SCOPE
-from simulations.forms import AnnotationForm
 from simulations.models import CardAnnotation
 
 User = get_user_model()
@@ -74,12 +73,9 @@ def test_a_mechanic_is_no_main_role_and_an_unknown_key_no_category():
             annotations.apply_category({}, action, key)
 
 
-def test_back_to_the_card_data_keeps_the_rest_and_retires_an_old_list():
+def test_back_to_the_card_data_keeps_the_rest():
     stored = {"priority": 5, "category_add": ["ramp"], "category_primary": "ramp"}
     assert annotations.apply_category(stored, "reset") == {"priority": 5}
-    old = {"tags": ["removal", "sac_outlet", "creature"]}
-    # The games stay as they were; only the statistics go back to the card.
-    assert annotations.apply_category(old, "reset") == {"engine_tags": ["sac_outlet"]}
 
 
 def test_a_deck_starts_from_what_it_inherits_and_can_empty_it():
@@ -107,16 +103,14 @@ def test_a_category_another_deck_added_is_added_for_all_decks_too():
 def test_the_corrections_change_the_derived_categories():
     profile = _profile()
     found = adapter._categories(profile, {"category_add": ["ramp"],
-                                          "category_remove": ["lifegain"]}, DECK_SCOPE)
+                                          "category_remove": ["lifegain"]})
     assert found == {"draw", "ramp"}
     # A deck takes away the main role all decks gave: it stays away.
     away = adapter._categories(profile, {"category_add": ["ramp"], "category_primary": "ramp",
-                                         "category_remove": ["ramp"]}, DECK_SCOPE)
+                                         "category_remove": ["ramp"]})
     assert away == {"draw", "lifegain"}
-    # A main role named is counted, an old list's or not.
-    old = adapter._categories(profile, {"tags": ["removal"], "category_primary": "ramp"},
-                              USER_SCOPE)
-    assert old == {"removal", "lifegain", "ramp"}
+    assert adapter._categories(profile, {"category_primary": "ramp"}) == {
+        "draw", "lifegain", "ramp"}
 
 
 def test_the_owners_main_role_wins_while_the_card_counts_in_it():
@@ -130,28 +124,73 @@ def test_the_owners_main_role_wins_while_the_card_counts_in_it():
     assert adapter.primary_role(before, both, {"category_primary": "ramp"}) == ""
 
 
-def test_engine_tags_replace_only_the_four_the_engine_reads():
-    profile = _profile(role_tags=["creature", "draw", "draw_engine"])
-    assert adapter._engine_tags(profile, {"engine_tags": ["sac_outlet"]}) == {
-        "creature", "draw", "sac_outlet"}
-    # An old list is still the whole answer.
-    assert adapter._engine_tags(profile, {"tags": ["ramp"]}) == {"ramp"}
+def _engine(**fields):
+    return _profile(**({"kind": "enchantment", "tempo": {}} | fields))
 
 
-def test_the_form_offers_the_four_engine_roles_and_says_none():
-    field = AnnotationForm().fields["engine_tags"]
-    assert {key for key, _ in field.choices} == set(adapter.runner.ENGINE_ROLE_TAGS)
-    form = AnnotationForm({"scope": DECK_SCOPE, "replace_engine_tags": "on"})
-    assert form.is_valid(), form.errors
-    assert form.judgements()["engine_tags"] == []
-    assert AnnotationForm.initial_for(SimpleNamespace(
-        overrides={"engine_tags": ["recursive"]}, note="")) == {
-        "note": "", "replace_engine_tags": True, "engine_tags": ["recursive"]}
+REPEATS = {"triggered:0": {"rate": "event", "needs": "none", "draws": True}}
+ONCE = {"resolves:0": {"rate": "one_shot", "needs": "none", "draws": True}}
+#: Draws once when it enters, and taps for mana again and again.
+ELSEWHERE = {"triggered:0": {"rate": "one_shot", "needs": "none", "draws": True},
+             "mana:0": {"rate": "repeatable", "needs": "none"}}
 
 
-def test_the_provenance_row_is_the_engine_s_roles():
-    assert provenance.ANNOTATION_KEY["roles"] == "engine_tags"
-    assert "tags" in provenance.PRIMITIVE_KEYS["roles"]
+def test_three_engine_roles_are_categories_of_their_own():
+    found = adapter.engine_roles(frozenset({"sac_outlet", "recursive", "drain_payoff",
+                                            "removal"}), _engine())
+    assert found == {"sac_outlet", "recursive", "drain_payoff"}
+
+
+@pytest.mark.parametrize(("fields", "engine"), [
+    # Drawing again and again is a draw engine; drawing once is a draw spell.
+    ({"tempo": REPEATS}, True),
+    ({"tempo": ONCE}, False),
+    # The ability that repeats has to be the one that draws ...
+    ({"tempo": ELSEWHERE}, False),
+    # ... where the blocks name one: a card that digs, said to draw.
+    ({"tempo": {"triggered:0": {"rate": "event", "needs": "none"}}}, True),
+    # Without blocks there is no tempo: a permanent that draws is one ...
+    ({}, True),
+    # ... a spell only when the community says so.
+    ({"kind": "sorcery"}, False),
+    ({"kind": "sorcery", "role_tags": ["draw", "draw_engine"]}, True),
+    # Derived before an ability said whether it draws: the same as no blocks.
+    ({"tempo": ELSEWHERE, "categories_version": 1}, True),
+    ({"tempo": ONCE, "categories_version": 1, "kind": "sorcery"}, False),
+])
+def test_a_draw_engine_is_a_card_that_draws_again_and_again(fields, engine):
+    profile = _engine(**fields)
+    assert (DRAW_ENGINE in adapter.engine_roles(frozenset({"draw"}), profile)) is engine
+    assert not adapter.engine_roles(frozenset(), profile)
+
+
+def test_before_the_profile_is_derived_the_community_names_the_four():
+    profile = _engine(categories_version=0, tempo=ONCE)
+    assert adapter.engine_roles(frozenset({"draw", "draw_engine", "ramp"}), profile) == {
+        DRAW_ENGINE}
+
+
+def test_a_list_of_engine_roles_is_said_in_categories():
+    profile = _engine(tempo=REPEATS)
+    said, missed = adapter.roles_as_categories({"priority": 3}, profile,
+                                               {"sac_outlet"})
+    assert said == {"priority": 3, "category_add": ["sac_outlet"],
+                    "category_remove": ["draw"]}
+    assert not missed
+    assert adapter.engine_roles(adapter._categories(profile, said), profile) == {
+        "sac_outlet"}
+    # A correction the list takes back goes rather than stacking up.
+    back, _ = adapter.roles_as_categories(said, profile, {DRAW_ENGINE})
+    assert back == {"priority": 3}
+    # A draw spell cannot be made a draw engine by its categories.
+    _, missed = adapter.roles_as_categories({}, _engine(tempo=ONCE), {DRAW_ENGINE})
+    assert missed == {DRAW_ENGINE}
+
+
+def test_the_provenance_row_reads_the_categories():
+    row = next(spec for spec in provenance.FIELDS if spec.attribute == "roles")
+    assert row.fallback == "categories"
+    assert "roles" not in provenance.ANNOTATION_KEY
 
 
 # --- what is stored -------------------------------------------------------------------
@@ -163,7 +202,8 @@ def test_the_provenance_row_is_the_engine_s_roles():
     {"category_add": ["ramp", "ramp"]},
     {"category_add": "ramp"},
     {"category_add": ["ramp"], "category_remove": ["ramp"]},
-    {"engine_tags": ["ramp"]},
+    {"engine_tags": ["sac_outlet"]},
+    {"tags": ["ramp"]},
 ])
 @pytest.mark.django_db
 def test_only_the_vocabulary_is_stored_and_each_key_once(overrides, catalogue):
@@ -303,23 +343,6 @@ def test_an_unknown_change_stores_nothing(client, owner, deck):
                            follow=True)
     assert response.status_code == 200
     assert not CardAnnotation.objects.filter(oracle_card=card, owner=owner).exists()
-
-
-@pytest.mark.django_db
-def test_an_old_list_is_named_and_can_be_retired(client, owner, deck):
-    card = _derived_card(deck)
-    CardAnnotation.objects.create(owner=owner, deck=deck, oracle_card=card,
-                                  overrides={"tags": ["removal", "recursive"]})
-    client.force_login(owner)
-    page = client.get(reverse("simulations:annotate", args=[deck.pk, card.pk]))
-    assert page.context["categories"].legacy == DECK_SCOPE
-    assert "data-legacy" in page.content.decode()
-
-    client.post(_url(deck, card), {"action": "reset", "scope": DECK_SCOPE})
-
-    assert CardAnnotation.objects.get(oracle_card=card, deck=deck).overrides == {
-        "engine_tags": ["recursive"]}
-    assert "recursive" in _reading(deck, card).card.tags
 
 
 @pytest.mark.django_db

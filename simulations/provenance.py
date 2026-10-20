@@ -6,12 +6,13 @@ the level of a deck - "57 of 183 cards described in full". This module makes it
 at the level of a field, which is where somebody who does not believe a result
 can actually check it.
 
-Five sources, in descending confidence:
+Six sources, in descending confidence:
 
 ===========  ================================================================
 `scryfall`   Structured data off the card. Mana cost, type line. Ground truth.
 `tags`       The Scryfall Tagger community. Broad, and sometimes opinionated.
 `regex`      A pattern over English prose. The weakest claim here.
+`categories` Read off what the card counts as (card model PR 17).
 `builtin`    A default this application ships, applying to every deck.
 `you`        A judgement the user recorded - `user` scope or `deck` scope.
 ===========  ================================================================
@@ -59,6 +60,11 @@ SOURCES = {
     ),
     "user": (_("You, for all your decks"), _("A judgement you recorded.")),
     "deck": (_("You, for this deck"), _("A judgement you recorded for this deck only.")),
+    "categories": (
+        _("The card's categories"),
+        _("Read off what the card counts as, under “Categories”: correct it "
+          "there and the engine plays it that way."),
+    ),
     "engine": (
         _("Nobody — the engine's own rule"),
         _("No one said, so the engine's fallback applies. Worth a look if the "
@@ -127,9 +133,9 @@ FIELDS = (
     FieldSpec("subtypes", _("Land types"), ("is_basic_swamp",), "scryfall",
               lands_only=True),
     FieldSpec("enters_tapped", _("Enters tapped"), ("enters_tapped",), "regex"),
-    # Only the four the engine reads (card model phase 3, PR 10); what the
-    # card counts as in the statistics has its own block on the editor.
-    FieldSpec("roles", _("Roles the engine reads"), ("role_tags",), "scryfall"),
+    # Read off the card's categories (card model PR 17), which are corrected
+    # in their own block on the editor.
+    FieldSpec("roles", _("Roles the engine reads"), (), "categories"),
     # Two sources on one row, and the row says so: the zone is a community tag,
     # the number is a pattern over the printed text. `source_of` takes the
     # weakest of the two, which is the honest summary of a value that is only
@@ -156,7 +162,6 @@ ANNOTATION_KEY = {
     "untaps": "untaps",
     "subtypes": "subtypes",
     "enters_tapped": "enters_tapped",
-    "roles": "engine_tags",
     "searches": "tutor_count",
     "effective_priority": "priority",
     "accelerant": "accelerant",
@@ -170,9 +175,6 @@ PRIMITIVE_KEYS = {
     "enters_tapped": ("tapped_unless",),
     "searches": ("tutor", "land_search"),
     "triggers": ("triggers", "combat"),
-    # A list written before card model phase 3 that migration 0017 could
-    # not convert still answers the row.
-    "roles": ("tags",),
 }
 
 #: Rows whose engine default is a fine answer rather than a weakness. The cast

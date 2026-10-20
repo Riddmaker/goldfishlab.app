@@ -164,7 +164,7 @@ def test_the_correction_is_caused_by_the_card_we_think_it_is(golden):
         "Necropotence", "Phyrexian Arena", "Dark Confidant", "Greed",
         "Dread Presence", "Morbid Opportunist", "Braids, Arisen Nightmare",
     }
-    tagged = {card.name for card in chainer.SPELLS if "draw_engine" in card.tags}
+    tagged = {card.name for card in chainer.SPELLS if "draw_engine" in card.engine_roles}
 
     assert tagged - old_names == {CORRECTED_CARD}
     assert not old_names - tagged, "a card left the tag set; the correction changed shape"

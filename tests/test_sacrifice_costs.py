@@ -168,7 +168,7 @@ DISPUTE = Card("Deadly Dispute", 2, 1, 1, INSTANT, cost=parse("{1}{B}"), draw_on
 BEAR = Card("Grizzly Bears", 2, 0, 2, CREATURE, cost=parse("{1}{G}"))
 SQUIRE = Card("Squire", 2, 0, 2, CREATURE, cost=parse("{1}{W}"))
 BLOODGHAST = Card("Bloodghast", 2, 2, 0, CREATURE, cost=parse("{B}{B}"),
-                  tags=frozenset({"recursive"}))
+                  engine_roles=frozenset({"recursive"}))
 ELF = Card("Llanowar Elves", 1, 0, 1, CREATURE, cost=parse("{G}"),
            mana_abilities=(ManaAbility(FLAT, {"G": 1}),))
 COMMANDER = Card("Commander", 3, 0, 3, CREATURE, cost=parse("{2}{B}"))

@@ -255,7 +255,7 @@ def test_the_mapping_does_not_claim_cards_the_deck_author_did_not(catalogue):
     report that never happened.
     """
     truth = {card.name for card in chainer.DECK.library
-             if "draw_engine" in card.tags}
+             if "draw_engine" in card.engine_roles}
     claimed = {name for name, profile in catalogue.items()
                if "draw_engine" in profile.role_tags and name in
                {card.name for card in chainer.DECK.library}}

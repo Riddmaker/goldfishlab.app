@@ -23,7 +23,6 @@ from django.utils.translation import gettext_lazy as _
 from core.l10n import number
 from simulations.annotations import (
     BY_KEY,
-    ENGINE_ROLE_CHOICES,
     JUDGEMENTS,
     KIND_CHOICES,
     SUBTYPE_CHOICES,
@@ -163,7 +162,7 @@ def _as_bool(value):
 #: They come first on a card's page; everything else waits behind "More".
 ANSWERS = {
     "mana_abilities": ("mana_produces", "mana_activation", "untaps"),
-    "profile": ("kind", "mana_produces", "replace_engine_tags", "engine_tags"),
+    "profile": ("kind", "mana_produces"),
 }
 #: And what a land adds to them: a land's colours are its land types.
 LAND_ANSWERS = ("replace_subtypes", "subtypes", "enters_tapped")
@@ -203,19 +202,6 @@ class AnnotationForm(forms.Form):
     mana_produces = forms.CharField(
         required=False, max_length=64,
         label=BY_KEY["mana_produces"].label, help_text=BY_KEY["mana_produces"].help,
-    )
-
-    replace_engine_tags = forms.BooleanField(
-        required=False,
-        label=_("Replace the engine's roles below"),
-        help_text=_(
-            "Leave this alone to keep the community roles. Tick it and the "
-            "selection below is all of the four the card has - including none."
-        ),
-    )
-    engine_tags = forms.MultipleChoiceField(
-        choices=ENGINE_ROLE_CHOICES, required=False,
-        label=BY_KEY["engine_tags"].label, help_text=BY_KEY["engine_tags"].help,
     )
 
     replace_subtypes = forms.BooleanField(
@@ -265,7 +251,7 @@ class AnnotationForm(forms.Form):
             self.fields[key] = _tristate(key)
         self.order_fields(
             ["scope", *[judgement.key for judgement in JUDGEMENTS],
-             "replace_engine_tags", "replace_subtypes", "note"]
+             "replace_subtypes", "note"]
         )
 
     def split(self, gap_fields, *, is_land: bool, has_x: bool = False,
@@ -325,10 +311,6 @@ class AnnotationForm(forms.Form):
             "untaps": _as_bool(data.get("untaps")),
             "kind": data.get("kind") or None,
             "mana_produces": data.get("mana_produces"),
-            # An empty list is a real answer - "none of the four" - so it is
-            # only `None` when the box saying so is unticked.
-            "engine_tags": (list(data.get("engine_tags") or [])
-                            if data.get("replace_engine_tags") else None),
             "subtypes": (
                 list(data.get("subtypes") or [])
                 if data.get("replace_subtypes") else None
@@ -353,9 +335,6 @@ class AnnotationForm(forms.Form):
             initial["kind"] = overrides["kind"]
         if "mana_produces" in overrides:
             initial["mana_produces"] = format_mana(overrides["mana_produces"])
-        if "engine_tags" in overrides:
-            initial["replace_engine_tags"] = True
-            initial["engine_tags"] = list(overrides["engine_tags"])
         if "subtypes" in overrides:
             initial["replace_subtypes"] = True
             initial["subtypes"] = list(overrides["subtypes"])

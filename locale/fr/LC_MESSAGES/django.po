@@ -13532,3 +13532,33 @@ msgid ""
 msgstr ""
 "Une carte compte dans chaque catégorie où elle a sa place ; « en rôle "
 "principal » ne la compte qu'une fois, dans son rôle principal."
+
+#: simulations/provenance.py
+msgid "The card's categories"
+msgstr "Les catégories de la carte"
+
+#: simulations/provenance.py
+msgid ""
+"Read off what the card counts as, under “Categories”: correct it there and "
+"the engine plays it that way."
+msgstr ""
+"Déduit de ce que la carte compte, sous « Catégories » : corrigez-le là, et "
+"le moteur la joue ainsi."
+
+#: simulations/views.py
+#, python-format
+msgid "Saved. %(card)s counts and plays that way from the next run onwards."
+msgstr ""
+"Enregistré. %(card)s compte et se joue ainsi à partir de la prochaine "
+"simulation."
+
+#: templates/simulations/_categories.html
+msgid ""
+"What the card counts as on the deck page and in the draw statistics. The "
+"engine plays by four of them: a sacrifice outlet, a recursive creature, a "
+"drain, and card draw when it draws again and again."
+msgstr ""
+"Ce que la carte compte sur la page du deck et dans les statistiques de "
+"pioche. Le moteur joue selon quatre d'entre elles : un outlet de sacrifice, "
+"une créature récursive, un drain, et la pioche quand la carte pioche encore "
+"et encore."

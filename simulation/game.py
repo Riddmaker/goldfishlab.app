@@ -42,6 +42,7 @@ from simulation.cards import (
     OPPONENT_TURNS,
     PER_LAND,
     PLANESWALKER,
+    RECURSIVE,
     RESOLVES,
     RITUAL,
     ROCK,
@@ -657,7 +658,7 @@ class Game(Marks):
         permanents = [card for card in self.creatures + self.rocks + self.other_permanents
                       if not any(card is each for each in commanders) and not same(card, also)
                       and not self.is_mana_source(card) and self._fits(card, cost)]
-        found += sorted(permanents, key=lambda card: ("recursive" not in card.tags,
+        found += sorted(permanents, key=lambda card: (RECURSIVE not in card.engine_roles,
                                                       card.mv, card.name))
         if also is not None and self._fits(also, cost):
             found.append(also)

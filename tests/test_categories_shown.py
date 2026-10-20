@@ -53,15 +53,6 @@ def test_a_derived_profile_gives_its_roles_and_mechanics():
     assert adapter.derived_categories(profile) == {"draw", "sac_outlet", "lifegain"}
 
 
-def test_the_owners_list_wins_over_what_it_could_name():
-    profile = _profile(primary_role="draw", mechanics=["sac_outlet", "lifegain"])
-    found = adapter._categories(profile, {"tags": ["removal"]}, adapter.USER_SCOPE)
-    # The list drops draw and the sacrifice outlet; lifegain came after it.
-    assert found == {"removal", "lifegain"}
-    builtin = adapter._categories(profile, {"tags": ["removal"]}, adapter.BUILTIN_SCOPE)
-    assert builtin == {"draw", "sac_outlet", "lifegain"}
-
-
 def test_the_main_role_is_the_derived_one_or_the_first_in_the_order():
     card = SimpleNamespace(profile=_profile(primary_role="draw", secondary_role="ramp"))
     assert adapter.primary_role(card, frozenset({"draw", "ramp"})) == "draw"

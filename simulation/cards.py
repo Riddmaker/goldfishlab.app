@@ -514,7 +514,8 @@ class Card:
             mana - Sol Ring and Mind Stone cannot.
         generic: Generic portion of the cost (mv == pips + generic).
         kind: Card kind, see the constants above.
-        tags: The card's roles, for the metrics.
+        engine_roles: Which of the four roles the engine plays by the card
+            is (`ENGINE_ROLES`): read off its categories by the adapter.
         land_type: Lands only, see the land subtypes above.
         enters_tapped: Enters the battlefield tapped (decisive on turns 1-3).
         goldfish_castable: False for cards with no legal target when there is no
@@ -528,7 +529,7 @@ class Card:
     pips: int
     generic: int
     kind: str
-    tags: frozenset[str] = field(default_factory=frozenset)
+    engine_roles: frozenset[str] = field(default_factory=frozenset)
     land_type: str = ""
     enters_tapped: InitVar[bool] = UNSET
     goldfish_castable: bool = True
@@ -578,15 +579,10 @@ class Card:
     types: frozenset[str] = field(default_factory=frozenset)
 
     #: The deck-building categories a player would sort the card into - ramp,
-    #: draw, removal and the rest - for the draw statistics only. **Not the
-    #: same set as ``tags``**, on purpose: ``tags`` is what the game's metrics
-    #: read, and the application's built-in annotations may replace it to keep
-    #: the reference deck playing exactly as it always has (Phyrexian Arena is
-    #: ``draw_engine`` there and nothing else). The categories are the card's
-    #: derived roles and mechanics (card model phase 3) plus the user's own
-    #: corrections, never the built-in ones; ``simulations/engine/adapter.py``
-    #: decides which. Empty for the hand-written fixture decks. Last, and
-    #: defaulted, like ``types``.
+    #: draw, removal and the rest - for the draw statistics. The card's
+    #: derived roles and mechanics (card model phase 3) and every correction
+    #: of them; ``engine_roles`` is read off them (PR 17). Empty for the
+    #: hand-written fixture decks. Last, and defaulted, like ``types``.
     categories: frozenset[str] = field(default_factory=frozenset)
 
     #: P19 R2: lands this card puts onto the battlefield, and when.
@@ -895,9 +891,19 @@ for _name in INIT_FIELDS:
     setattr(Card, _name, _legacy_field(_name))
 
 
-def _t(*tags: str) -> frozenset[str]:
-    """Shorthand for a tag set."""
-    return frozenset(tags)
+#: The four roles the engine plays by: what a tutor finds before a bigger
+#: spell, what is sacrificed first, and the milestones (card model PR 17).
+DRAW_ENGINE, SAC_OUTLET, RECURSIVE, DRAIN = ("draw_engine", "sac_outlet", "recursive",
+                                             "drain_payoff")
+ENGINE_ROLES = frozenset({DRAW_ENGINE, SAC_OUTLET, RECURSIVE, DRAIN})
+
+
+def _t(*roles: str) -> frozenset[str]:
+    """Shorthand for a set of engine roles."""
+    unknown = set(roles) - ENGINE_ROLES
+    if unknown:
+        raise ValueError(f"no engine role: {', '.join(sorted(unknown))}")
+    return frozenset(roles)
 
 
 # --- Deck definition -------------------------------------------------------

@@ -11821,3 +11821,26 @@ msgid ""
 "A card counts in every category it fits; “main” counts it once, in its main "
 "role."
 msgstr "カードは当てはまるすべてのカテゴリーで数えられます。「主な役割」は各カードを、その主な役割で1回だけ数えます。"
+
+#: simulations/provenance.py
+msgid "The card's categories"
+msgstr "カードのカテゴリー"
+
+#: simulations/provenance.py
+msgid ""
+"Read off what the card counts as, under “Categories”: correct it there and "
+"the engine plays it that way."
+msgstr "「カテゴリー」でカードが何として数えられるかから読み取ります。そこで修正すると、エンジンはそのようにプレイします。"
+
+#: simulations/views.py
+#, python-format
+msgid "Saved. %(card)s counts and plays that way from the next run onwards."
+msgstr "保存しました。次回の実行から%(card)sはこのように数えられ、プレイされます。"
+
+#: templates/simulations/_categories.html
+msgid ""
+"What the card counts as on the deck page and in the draw statistics. The "
+"engine plays by four of them: a sacrifice outlet, a recursive creature, a "
+"drain, and card draw when it draws again and again."
+msgstr ""
+"デッキページとドロー統計でそのカードが何として数えられるかです。エンジンはそのうち4つに従ってプレイします。生け贄の手段、再利用できるクリーチャー、ドレイン、そして何度も引くときのカードドローです。"

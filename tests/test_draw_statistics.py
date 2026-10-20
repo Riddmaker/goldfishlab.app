@@ -30,8 +30,8 @@ from simulations.engine import runner
 from simulations.engine.adapter import card_types
 
 
-def _card(name, kind, mv=0, *, types=(), categories=(), tags=()):
-    return Card(name, mv, 0, mv, kind, frozenset(tags), types=frozenset(types),
+def _card(name, kind, mv=0, *, types=(), categories=(), roles=()):
+    return Card(name, mv, 0, mv, kind, frozenset(roles), types=frozenset(types),
                 categories=frozenset(categories))
 
 
@@ -63,10 +63,10 @@ def test_every_card_is_filed_under_its_types_roles_and_mana_value():
     assert groups_of(BLAST) == {"type:sorcery", "role:draw", "role:removal", "mv:1"}
 
 
-def test_the_categories_are_read_from_categories_not_from_the_game_tags():
-    """`tags` is what the game's metrics read, and the built-in annotations
-    may rewrite it; the statistics must not follow them there."""
-    arena = _card("Arena", SORCERY, 3, tags={"draw_engine"}, categories={"draw"})
+def test_the_categories_are_read_from_categories_not_from_the_engine_roles():
+    """`engine_roles` is what the game plays the card in; the statistics count
+    its categories, never its roles."""
+    arena = _card("Arena", SORCERY, 3, roles={"draw_engine"}, categories={"draw"})
     keys, table = analysis.seen_groups(DeckDefinition(name="d", commander=None,
                                                       library=(arena,)))
 
@@ -281,26 +281,6 @@ def test_the_count_survives_being_stored():
 ])
 def test_the_type_line_gives_the_printed_types(type_line, expected):
     assert card_types(SimpleNamespace(type_line=type_line)) == frozenset(expected)
-
-
-@pytest.mark.parametrize(("tags", "scope", "expected"), [
-    # Nobody replaced the roles: the community's.
-    (None, None, {"draw", "draw_engine"}),
-    # The built-in annotation replaced them for the game - not for the chart.
-    (["draw_engine"], "builtin", {"draw", "draw_engine"}),
-    # The user did, on this deck or on all of theirs: their list, as given.
-    (["draw_engine"], "deck", {"draw_engine"}),
-    (["removal"], "user", {"removal"}),
-    # An empty list is an answer too: "this card has no role at all".
-    ([], "deck", set()),
-])
-def test_only_the_users_own_roles_replace_the_community_ones(tags, scope, expected):
-    from simulations.engine.adapter import _categories
-
-    profile = SimpleNamespace(role_tags=["draw", "draw_engine"])
-    overrides = {} if tags is None else {"tags": tags}
-
-    assert _categories(profile, overrides, scope) == frozenset(expected)
 
 
 # --- the chart geometry --------------------------------------------------------

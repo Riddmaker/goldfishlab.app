@@ -34,25 +34,11 @@ from django.utils.translation import gettext, gettext_lazy, gettext_noop
 
 from cards import categories as card_categories
 from cards.models import DerivedProfile
-from cards.profiles import ROLE_FROM_TAG
 from simulations.engine import runner
 from simulations.models import MANA_SOURCES
 from simulations.report import SEEN_MECHANIC_ROLES, SEEN_ROLES, SEEN_STRATEGY_ROLES
 
 _ = gettext_lazy
-
-#: Roles a card may be given. The community tag vocabulary, plus the three the
-#: deriver adds itself, plus the ones the analysis reads for its milestone
-#: table. `draw_engine` used to be described here as "a pure judgement that no
-#: tag supplies"; that was written without looking. The DAG has `draw-engine`
-#: on 1,667 cards, it agrees with the reference deck's author six times out of
-#: six, and Phase 5b mapped it - which is what finally let that milestone fire
-#: for a deck somebody imported rather than only for the fixture.
-ROLE_KEYS = sorted(
-    set(ROLE_FROM_TAG.values())
-    | {"gamechanger", "creature", "land"}
-    | set(runner.ENGINE_ROLE_TAGS)
-)
 
 #: What a page calls each role, in English (translated where shown). The
 #: report's categories and strategies keep their names; the rest are the
@@ -67,16 +53,6 @@ ROLE_NAMES = {
     "recursive": gettext_noop("Recursive creature"),
     "ritual": gettext_noop("Ritual"),
 }
-
-ROLE_CHOICES = tuple(
-    (role, gettext_lazy(ROLE_NAMES[role]) if role in ROLE_NAMES else role.replace("_", " "))
-    for role in ROLE_KEYS
-)
-
-#: The roles the engine itself reads (card model phase 3, PR 10): what the
-#: "Roles the engine reads" judgement offers, and all it replaces.
-ENGINE_ROLE_CHOICES = tuple((role, label) for role, label in ROLE_CHOICES
-                            if role in runner.ENGINE_ROLE_TAGS)
 
 #: What a card may count in, for the "Categories" block: the roles, then the
 #: mechanics, in the report's order.
@@ -168,14 +144,6 @@ JUDGEMENTS = (
         _("Enters tapped"),
         _("Read off the card text by a regular expression, which is the weakest "
           "reading this application makes. Worth checking on anything unusual."),
-    ),
-    Judgement(
-        "engine_tags",
-        _("Roles the engine reads"),
-        _("The four roles the engine itself reads while it plays and counts "
-          "milestones: a draw engine, a sacrifice outlet, a creature that comes "
-          "back, a drain. What the card counts as in the statistics is under "
-          "“Categories”."),
     ),
     Judgement(
         "mana_activation",
@@ -400,10 +368,6 @@ def apply_category(overrides: dict, action: str, key: str = "",
     empty to stay empty. A list the change does not touch is left to the
     wider scope.
 
-    ``reset`` also retires a whole list written before phase 3 (``tags``),
-    keeping the four roles the engine reads from it as ``engine_tags``: the
-    games stay as they were and only the statistics go back to the card.
-
     Returns:
         dict: The overrides to store. Never the same object as `overrides`.
 
@@ -419,9 +383,6 @@ def apply_category(overrides: dict, action: str, key: str = "",
     if action == "reset":
         for name in CATEGORY_KEYS:
             kept.pop(name, None)
-        if "tags" in kept:
-            legacy = set(kept.pop("tags") or ())
-            kept.setdefault("engine_tags", sorted(legacy & set(runner.ENGINE_ROLE_TAGS)))
         return kept
 
     def said(name: str) -> list:

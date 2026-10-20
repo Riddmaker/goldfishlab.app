@@ -151,7 +151,7 @@ def test_a_run_from_before_the_fingerprint_cannot_be_shared(run):
 def _answer_a_card(run):
     entry = run.deck.entries.first()
     CardAnnotation.objects.create(owner=run.owner, deck=run.deck, oracle_card=entry.oracle_card,
-                                  overrides={"tags": ["ramp"]})
+                                  overrides={"category_add": ["ramp"]})
 
 
 def test_an_answer_about_a_card_since_does_not_stop_the_share(client, owner, run):

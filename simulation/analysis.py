@@ -29,7 +29,16 @@ from collections import Counter
 
 from simulation import agent, combos
 from simulation import trace as game_trace
-from simulation.cards import COUNTS, FILTER, FLAT, LANDS_COULD_PRODUCE
+from simulation.cards import (
+    COUNTS,
+    DRAIN,
+    DRAW_ENGINE,
+    FILTER,
+    FLAT,
+    LANDS_COULD_PRODUCE,
+    RECURSIVE,
+    SAC_OUTLET,
+)
 from simulation.game import Game
 from simulation.manacost import SOURCES
 
@@ -176,18 +185,18 @@ class Histogram:
 
 # --- Metric groups ---------------------------------------------------------
 #
-# The tags are on the cards. A different deck brings different cards and gets
-# the same metrics without a line changing here.
+# The roles are on the cards (`Card.engine_roles`). A different deck brings
+# different cards and gets the same metrics without a line changing here.
 
-SAC_OUTLET_TAG = "sac_outlet"
-RECURSIVE_TAG = "recursive"
-DRAIN_TAG = "drain_payoff"
-DRAW_ENGINE_TAG = "draw_engine"
+SAC_OUTLET_TAG = SAC_OUTLET
+RECURSIVE_TAG = RECURSIVE
+DRAIN_TAG = DRAIN
+DRAW_ENGINE_TAG = DRAW_ENGINE
 
 
-def _tagged(cards, tag: str) -> bool:
-    """Is at least one card with this tag on the battlefield?"""
-    return any(tag in card.tags for card in cards)
+def _tagged(cards, role: str) -> bool:
+    """Is at least one card in this engine role on the battlefield?"""
+    return any(role in card.engine_roles for card in cards)
 
 
 def _scaling_mana_sources(cards) -> int:

@@ -116,7 +116,9 @@ def test_vampiric_rites_is_draw_with_both_strategies_it_feeds():
     assert (found.primary, found.secondary) == ("draw", "")
     # The double category asked for: today it carries no lifegain at all.
     assert found.mechanics == ("sac_outlet", "lifegain")
-    assert found.tempo["activated:0"] == {"rate": "repeatable", "needs": "board"}
+    # It draws, again and again: a draw engine.
+    assert found.tempo["activated:0"] == {"rate": "repeatable", "needs": "board",
+                                          "draws": True}
 
 
 def test_blood_artist_is_a_plan_card_with_no_role():
@@ -133,6 +135,21 @@ def test_smothering_tithe_is_ramp_with_treasure_and_tax_and_never_draw():
     assert "draw" not in found.keys
     assert found.mechanics == ("treasure", "tax")
     assert found.tempo["triggered:0"] == {"rate": "event", "needs": "opponent"}
+
+
+GEMPALM_POLLUTER = """Name:Gempalm Polluter
+ManaCost:5 B
+Types:Creature Zombie
+PT:4/3
+K:Cycling:B B
+T:Mode$ Cycled | ValidCard$ Card.Self | Execute$ TrigLoseLife
+SVar:TrigLoseLife:DB$ LoseLife | ValidTgts$ Player | LifeAmount$ 1
+"""
+
+
+def test_a_card_cycling_itself_does_it_once():
+    found = derive(GEMPALM_POLLUTER, ["draw"], kind="creature")
+    assert found.tempo == {"triggered:0": {"rate": "one_shot", "needs": "none"}}
 
 
 def test_rhystic_study_is_draw_and_tax():

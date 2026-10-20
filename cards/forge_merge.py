@@ -309,10 +309,9 @@ def land_search(profile, abilities, card) -> None:
 
 
 _GRANTS = "only grants a mana ability to another permanent"
-#: Token owners that are you as the card enters or resolves: the controller
-#: of the card that triggered, which is the card itself, or "you and target
-#: opponent each" (Bloodroot Apothecary) - the opponent's is no goldfish's.
-_YOURS = frozenset({None, "TriggeredCardController", "TargetedAndYou"})
+#: Token owners that are you as the card enters or resolves: you, or the
+#: controller of the card that triggered (`forge_import._player`).
+_YOURS = frozenset({None, "controller"})
 
 
 def treasures(profile, abilities, card) -> None:

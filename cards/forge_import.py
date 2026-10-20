@@ -34,7 +34,7 @@ from simulation import blocks as b
 
 #: Raised with every change to how a script is translated, so the next run
 #: translates every script again although the pin did not move.
-TRANSLATION = 7
+TRANSLATION = 8
 
 #: More scripts than this share failing to translate stops the run, and the
 #: blocks of the last good run stay.
@@ -210,6 +210,31 @@ def _types(valid: str) -> frozenset[str]:
     return frozenset(word.lower() for word in words if word and word not in _ANY_TYPE)
 
 
+#: Forge's "that player" who is you after all: the controller of the card
+#: that triggered, which is the card itself, or "you and target opponent
+#: each" (Bloodroot Apothecary), whose other half is no goldfish's.
+_CONTROLLERS = frozenset({"TriggeredCardController", "TargetedAndYou"})
+#: Forge's players who are somebody else: "its controller" of a target (Path
+#: to Exile, Beast Within), the attacking or defending player.
+_OTHERS = frozenset({"TargetedController", "TargetedOwner", "TargetedOrController",
+                     "RememberedController", "RememberedOwner", "TriggeredDefendingPlayer",
+                     "TriggeredAttackingPlayer"})
+
+
+def _player(defined: str) -> str:
+    """Who an effect is for, other than you, in the interpreter's words (card
+    model PR 20): ``controller`` (the card's own, so you), ``opponent``,
+    ``other`` (someone else) or ``any`` ("target player", "each player",
+    "that player": possibly you)."""
+    if defined in _CONTROLLERS:
+        return "controller"
+    if "Opp" in defined:
+        return "opponent"
+    if "Other" in defined or defined in _OTHERS:
+        return "other"
+    return "any"
+
+
 def _whose(valid: str) -> str:
     if "Card.Self" in valid or valid == "Self":
         return "self"
@@ -258,7 +283,7 @@ def _args(step: forge.Ability, reading: _Reading) -> tuple:
             args["tapped"] = True
         if params.get("TokenOwner", "You") != "You":
             # An Offer You Can't Refuse: "Its controller creates two Treasure".
-            args["owner"] = params["TokenOwner"]
+            args["owner"] = _player(params["TokenOwner"])
     elif step.head in ("ChangeZone", "ChangeZoneAll"):
         args["from"] = params.get("Origin", "").lower()
         args["to"] = params.get("Destination", "").lower()
@@ -268,7 +293,7 @@ def _args(step: forge.Ability, reading: _Reading) -> tuple:
         if params.get("Tapped") == "True":
             args["tapped"] = True
         if params.get("DefinedPlayer"):
-            args["player"] = params["DefinedPlayer"]
+            args["player"] = _player(params["DefinedPlayer"])
     elif step.head in ("PutCounter", "PutCounterAll", "RemoveCounter"):
         args["counter"] = params.get("CounterType", "")
     elif step.head in ("Pump", "PumpAll"):
@@ -280,7 +305,7 @@ def _args(step: forge.Ability, reading: _Reading) -> tuple:
         args["who"] = who.lower()
     elif who and step.head in _PLAYER_APIS:
         # "Each opponent draws a card", "Its controller loses 2 life".
-        args["player"] = who
+        args["player"] = _player(who)
     if params.get("ValidTgts"):
         args["target"] = True
     if params.get("UnlessCost"):

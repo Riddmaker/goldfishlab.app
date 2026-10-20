@@ -154,23 +154,17 @@ _LIFELINK = "Lifelink"
 #: Nightmares) is no wipe.
 _SWEPT = ("Creature", "Permanent", "Artifact", "Enchantment", "Planeswalker", "Land")
 
-#: A ``player`` or ``owner`` who is somebody else: "its controller" of a
-#: target (Path to Exile, Beast Within), an opponent, the attacking player.
-#: "Target player", "each player" and "that player" on your own trigger may
-#: be you, and count as yours.
-_OTHERS = frozenset({"TargetedController", "TargetedOwner", "TargetedOrController",
-                     "RememberedController", "RememberedOwner", "TriggeredDefendingPlayer",
-                     "TriggeredAttackingPlayer"})
+#: A ``player`` or ``owner`` who is somebody else (`forge_import._player`):
+#: "its controller" of a target (Path to Exile, Beast Within), an opponent,
+#: the attacking player. "Target player", "each player" and "that player" on
+#: your own trigger (``any``) may be you, and count as yours.
+_SOMEBODY_ELSE = frozenset({"opponent", "other"})
 
 
 def _for_others(effect: b.Effect) -> bool:
     """Whether the effect's benefit goes to someone else: "its controller
     searches", "each opponent draws", "its controller creates"."""
-    for name in ("player", "owner"):
-        value = str(effect.arg(name) or "")
-        if "Opp" in value or "Other" in value or value in _OTHERS:
-            return True
-    return False
+    return any(effect.arg(name) in _SOMEBODY_ELSE for name in ("player", "owner"))
 
 
 def _what(effect: b.Effect) -> str:

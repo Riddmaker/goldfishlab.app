@@ -388,7 +388,7 @@ SVar:DBTreasure:DB$ Token | TokenAmount$ 2 | TokenScript$ c_a_treasure_sac \
 | TokenOwner$ TargetedController
 """)
     token = only(found, b.RESOLVES).effects[1]
-    assert (token.arg("token"), token.arg("owner")) == ("treasure", "TargetedController")
+    assert (token.arg("token"), token.arg("owner")) == ("treasure", "other")
 
 
 def test_a_draw_for_another_player_says_who_draws():
@@ -398,7 +398,7 @@ A:SP$ Draw | NumCards$ 1 | Defined$ Player.Opponent | SubAbility$ DBDraw
 SVar:DBDraw:DB$ Draw | NumCards$ 2 | Defined$ You
 """)
     first, second = only(found, b.RESOLVES).effects
-    assert (first.arg("player"), first.arg("who")) == ("Player.Opponent", None)
+    assert (first.arg("player"), first.arg("who")) == ("opponent", None)
     assert (second.arg("player"), second.arg("who")) == (None, "you")
 
 
@@ -418,3 +418,14 @@ def test_an_opponents_spell_is_the_opponents():
         "Player.Opponent | Execute$ TrigDraw | TriggerZones$ Battlefield\n"
         "SVar:TrigDraw:DB$ Draw | Defined$ You | NumCards$ 1\n"))
     assert found[0].event.who == "opponent"
+
+
+@pytest.mark.parametrize("defined, word", [
+    ("TriggeredCardController", "controller"), ("TargetedAndYou", "controller"),
+    ("Player.Opponent", "opponent"), ("OppNonActive", "opponent"),
+    ("TargetedController", "other"), ("Player.Other", "other"),
+    ("Player", "any"), ("TargetedPlayer", "any"),
+])
+def test_a_player_is_named_in_the_interpreters_words(defined, word):
+    """Card model PR 20: one vocabulary for whose an effect is."""
+    assert forge_import._player(defined) == word

@@ -400,3 +400,21 @@ SVar:DBDraw:DB$ Draw | NumCards$ 2 | Defined$ You
     first, second = only(found, b.RESOLVES).effects
     assert (first.arg("player"), first.arg("who")) == ("Player.Opponent", None)
     assert (second.arg("player"), second.arg("who")) == (None, "you")
+
+
+def test_casting_this_spell_is_the_cards_own_event():
+    """Card model PR 19: "When you cast this spell" is no player's casting."""
+    found = forge_import.translate(forge.parse(
+        "Name:Test Titan\nTypes:Creature\n"
+        "T:Mode$ SpellCast | ValidCard$ Card.Self | Execute$ TrigDraw\n"
+        "SVar:TrigDraw:DB$ Draw | Defined$ You | NumCards$ 4\n"))
+    assert found[0].event == b.Event("cast", who="self")
+
+
+def test_an_opponents_spell_is_the_opponents():
+    found = forge_import.translate(forge.parse(
+        "Name:Test Sentinel\nTypes:Artifact Creature\n"
+        "T:Mode$ SpellCast | ValidCard$ Card.nonCreature | ValidActivatingPlayer$ "
+        "Player.Opponent | Execute$ TrigDraw | TriggerZones$ Battlefield\n"
+        "SVar:TrigDraw:DB$ Draw | Defined$ You | NumCards$ 1\n"))
+    assert found[0].event.who == "opponent"

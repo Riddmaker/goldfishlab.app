@@ -424,6 +424,9 @@ class Trigger:
         draw: Cards it draws.
         life: Life it costs (Lotho: 1).
         counter: +1/+1 counters it puts on the card itself (Crime Novelist).
+        connive: Times the card connives (A.I.M. Scientists; card model PR
+            19): draw a card, discard a card, and a +1/+1 counter on it if
+            the discarded card was no land.
     """
 
     event: str
@@ -435,6 +438,7 @@ class Trigger:
     draw: int = 0
     life: int = 0
     counter: int = 0
+    connive: int = 0
 
 
 @dataclass(frozen=True)

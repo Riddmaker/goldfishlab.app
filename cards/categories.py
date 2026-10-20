@@ -37,8 +37,9 @@ from simulation import blocks as b
 #: Stored beside the categories (`DerivedProfile.categories_version`); 0 there
 #: means "not derived yet", and every reader falls back to `role_tags`.
 #: 2: a tempo entry says whether its ability draws (``draws``), and a card's
-#: own cycling or leaving happens once (card model PR 17).
-VERSION = 2
+#: own cycling or leaving happens once (card model PR 17). 3: so does a trigger
+#: on casting the card itself (Hydroid Krasis; card model PR 19).
+VERSION = 3
 
 #: The roles: the eight the report counts (`simulation.analysis.SEEN_CATEGORIES`).
 ROLES = ("ramp", "draw", "removal", "wipe", "tutor", "counterspell", "protection",
@@ -442,8 +443,8 @@ def _rate(ability: b.Ability) -> str:
         if event is not None and event.who == "self" and not event.filter \
                 and event.name in ("enters", "dies"):
             return ONE_SHOT
-        # Cycled, or gone from where it was: the card is no longer there.
-        if event is not None and event.who == "self" and event.name in ("cycled",
+        # Cycled, cast (Kozilek), or gone from where it was: once per card.
+        if event is not None and event.who == "self" and event.name in ("cycled", "cast",
                                                                       "zone_change"):
             return ONE_SHOT
         return EVENT

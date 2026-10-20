@@ -575,6 +575,8 @@ def _trigger_text(trigger: Trigger) -> str:
         made.append(gettext("costs %(life)s life") % {"life": trigger.life})
     if trigger.counter:
         made.append(gettext("a +1/+1 counter on it"))
+    if trigger.connive:
+        made.append(gettext("connives"))
     return gettext("%(when)s: %(what)s") % {"when": when, "what": ", ".join(made)}
 
 
@@ -2317,8 +2319,9 @@ def _triggers(profile, overrides: dict, deck_colors: frozenset[str]) -> tuple[Tr
             draw=int(read.get("draw", 0)),
             life=int(read.get("life", 0)),
             counter=int(read.get("counter", 0)),
+            connive=int(read.get("connive", 0)),
         )
-        if trigger.treasures or trigger.mana or trigger.draw:
+        if trigger.treasures or trigger.mana or trigger.draw or trigger.connive:
             found.append(trigger)
     return tuple(found)
 

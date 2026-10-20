@@ -54,6 +54,7 @@ _LAND_SEARCH_KEYS = frozenset({
 })
 _TRIGGER_KEYS = frozenset({
     "event", "filter", "treasures", "spawn", "mana", "color", "draw", "life", "tax", "counter",
+    "connive",
 })
 _COMBAT_KEYS = frozenset({
     "triggers", "equip", "aura", "germ", "treasure_bonus", "vehicle",
@@ -628,6 +629,9 @@ ITEM_FIELDS = {
         Field("draw", "int", _("Cards drawn"), high=3),
         Field("life", "int", _("Life it costs"), high=5, more=True),
         Field("counter", "int", _("+1/+1 counters on it"), high=3, more=True),
+        Field("connive", "int", _("Times it connives"),
+              _("Draw a card, then discard a card; a +1/+1 counter on it if that was no "
+                "land."), high=2, more=True),
     ),
     "combat": (
         Field("event", "choice", _("When"), choices=(

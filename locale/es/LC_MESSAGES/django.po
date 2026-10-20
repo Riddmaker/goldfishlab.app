@@ -13550,3 +13550,37 @@ msgstr ""
 "categorías de la carta, así que una corrección en «Categorías» también "
 "cambia las partidas. Un informe hecho con un motor anterior lo indica y "
 "ofrece una nueva simulación."
+
+#: simulations/engine/adapter.py
+msgid "connives"
+msgstr "conspira"
+
+#: simulations/primitives.py
+msgid "Times it connives"
+msgstr "Veces que conspira"
+
+#: simulations/primitives.py
+msgid ""
+"Draw a card, then discard a card; a +1/+1 counter on it if that was no land."
+msgstr ""
+"Roba una carta y luego descarta una carta; un contador +1/+1 sobre él si no "
+"era una tierra."
+
+#: changelog/entries.py
+msgid "Cards that connive, and a draw on casting counted once"
+msgstr "Cartas que conspiran, y un robo al lanzar contado una vez"
+
+#: changelog/entries.py
+msgid ""
+"A creature that connives as it enters, such as A.I.M. Scientists, now draws "
+"a card, discards the weakest one and gets a +1/+1 counter when that was no "
+"land. A draw on casting the card itself, such as Hydroid Krasis' or "
+"Kozilek's, happens once and no longer counts as card draw that happens again"
+" and again. A report made with an older engine says so and offers a new run."
+msgstr ""
+"Una criatura que conspira al entrar, como A.I.M. Scientists, ahora roba una "
+"carta, descarta la más débil y recibe un contador +1/+1 si no era una "
+"tierra. Un robo al lanzar la propia carta, como el de Hydroid Krasis o el de"
+" Kozilek, ocurre una vez y ya no cuenta como robo que ocurre una y otra vez."
+" Un informe hecho con un motor más antiguo lo indica y ofrece una nueva "
+"simulación."

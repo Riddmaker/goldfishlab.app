@@ -11882,3 +11882,33 @@ msgid ""
 " says so and offers a new run."
 msgstr ""
 "同じカードの2枚目や、同じ名前の2つのトークンは、それぞれ自分のカウンター、装備、タップ状態を持つようになりました。エンジンがカードをプレイする4つの役割（生け贄の手段、再利用できるクリーチャー、ドレイン、何度も繰り返すカードドロー）はカードのカテゴリーから決まるので、「カテゴリー」での修正はゲームにも反映されます。古いエンジンで作られたレポートにはその旨が表示され、新しい実行を勧めます。"
+
+#: simulations/engine/adapter.py
+msgid "connives"
+msgstr "謀議を行う"
+
+#: simulations/primitives.py
+msgid "Times it connives"
+msgstr "謀議を行う回数"
+
+#: simulations/primitives.py
+msgid ""
+"Draw a card, then discard a card; a +1/+1 counter on it if that was no land."
+msgstr "カードを1枚引き、その後カードを1枚捨てる。それが土地でなかったなら、その上に+1/+1カウンターを1個置く。"
+
+#: changelog/entries.py
+msgid "Cards that connive, and a draw on casting counted once"
+msgstr "謀議を行うカードと、唱えたときのドローは1回として数える"
+
+#: changelog/entries.py
+msgid ""
+"A creature that connives as it enters, such as A.I.M. Scientists, now draws "
+"a card, discards the weakest one and gets a +1/+1 counter when that was no "
+"land. A draw on casting the card itself, such as Hydroid Krasis' or "
+"Kozilek's, happens once and no longer counts as card draw that happens again"
+" and again. A report made with an older engine says so and offers a new run."
+msgstr ""
+"A.I.M. Scientists "
+"のように戦場に出たときに謀議を行うクリーチャーは、カードを1枚引き、最も弱いカードを捨て、それが土地でなかったなら+1/+1カウンターを得るようになりました。Hydroid"
+" Krasis や Kozilek "
+"のようにカード自身を唱えたときのドローは1回だけ起こり、何度も繰り返されるドローとしては数えられなくなりました。古いエンジンで作られたレポートはそのことを示し、新しい実行を提案します。"

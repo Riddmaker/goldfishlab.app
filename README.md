@@ -377,7 +377,9 @@ encode; reading one decodes it, which is what wording, the editor and stored dec
 engine never reads the old fields. Since PR 17 (engine v30) each permanent keeps its own state
 (`simulation/permanent.py`), the engine's four roles - sacrifice outlet, recursive creature, drain,
 draw engine - are read off the card's categories (`adapter.engine_roles`), and games are seeded per
-block of 250 (`analysis.SEED_BLOCK`), so how a run is cut into chunks decides no game.
+block of 250 (`analysis.SEED_BLOCK`), so how a run is cut into chunks decides no game. Since PR 19
+(engine v31) a trigger on casting the card itself happens once (no draw engine), and a creature
+that connives as it enters draws, discards and grows on a nonland discard (`forge_merge.connives`).
 
 A round that changes `cards/profiles.py` needs the profiles derived again after its deploy
 (`python manage.py ingest_scryfall --profiles`), and every round changes the engine's numbers, so

@@ -604,7 +604,8 @@ def _dec_sacrifice_mana(abilities):
             "sacrifice_mana_color": ability.effects[0].arg("color")}
 
 
-def _trigger_effects(treasures, treasure_mana, mana, mana_color, draw, life, counter):
+def _trigger_effects(treasures, treasure_mana, mana, mana_color, draw, life, counter,
+                     connive):
     effects = []
     if treasures:
         effects.append(Effect("create_token", (("mana", treasure_mana), ("n", treasures),
@@ -617,13 +618,16 @@ def _trigger_effects(treasures, treasure_mana, mana, mana_color, draw, life, cou
         effects.append(Effect("lose_life", (("n", life),)))
     if counter:
         effects.append(Effect("put_counter", (("n", counter), ("on", "self"))))
+    if connive:
+        effects.append(Effect("connive", (("n", connive),)))
     return tuple(effects)
 
 
 def _enc_triggers(card):
     for value in card.triggers:
         effects = _trigger_effects(value.treasures, value.treasure_mana, value.mana,
-                                   value.mana_color, value.draw, value.life, value.counter)
+                                   value.mana_color, value.draw, value.life, value.counter,
+                                   value.connive)
         # A trigger that does nothing the engine plays still holds its place.
         yield Ability(TRIGGERED, "trigger", event=Event(value.event, filter=value.filter),
                       effects=effects or (Effect("nothing", changed_args(value, skip=("event",
@@ -645,6 +649,8 @@ def _dec_triggers(abilities):
                 kwargs["life"] = effect.arg("n")
             elif effect.verb == "put_counter":
                 kwargs["counter"] = effect.arg("n")
+            elif effect.verb == "connive":
+                kwargs["connive"] = effect.arg("n")
             else:
                 kwargs.update(dict(effect.args))
         found.append(Trigger(**kwargs))

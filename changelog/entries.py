@@ -43,6 +43,17 @@ class Entry:
 ENTRIES = (
     # Card model phase 4, PR 17: engine v30. Dated for its merge; move it if
     # the merge moves (never inside the engine freeze, 9 to 18 November).
+    # Card model phase 5, PR 19 (engine v31).
+    Entry(
+        date(2026, 10, 20), "connive-and-cast-draws",
+        _("Cards that connive, and a draw on casting counted once"),
+        _("A creature that connives as it enters, such as A.I.M. Scientists, now draws a "
+          "card, discards the weakest one and gets a +1/+1 counter when that was no land. A "
+          "draw on casting the card itself, such as Hydroid Krasis' or Kozilek's, happens "
+          "once and no longer counts as card draw that happens again and again. A report made "
+          "with an older engine says so and offers a new run."),
+        "methodology", "report-milestones",
+    ),
     Entry(
         date(2026, 10, 20), "each-card-its-own",
         _("Every card plays on its own, and by its categories"),

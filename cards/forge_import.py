@@ -34,7 +34,7 @@ from simulation import blocks as b
 
 #: Raised with every change to how a script is translated, so the next run
 #: translates every script again although the pin did not move.
-TRANSLATION = 6
+TRANSLATION = 7
 
 #: More scripts than this share failing to translate stops the run, and the
 #: blocks of the last good run stay.
@@ -213,7 +213,8 @@ def _types(valid: str) -> frozenset[str]:
 def _whose(valid: str) -> str:
     if "Card.Self" in valid or valid == "Self":
         return "self"
-    if "OppCtrl" in valid or "OppOwn" in valid or valid.startswith("Opponent"):
+    if "OppCtrl" in valid or "OppOwn" in valid or valid.startswith(("Opponent",
+                                                                     "Player.Opponent")):
         return "opponent"
     if "YouCtrl" in valid or "YouOwn" in valid or valid == "You":
         return "you"
@@ -383,6 +384,9 @@ def _event(ability: forge.Ability) -> b.Event:
         name = PHASES.get(params.get("Phase", ""), _snake(params.get("Phase", "phase")))
         return b.Event(name, who=_whose(params.get("ValidPlayer", "")) or "each")
     if mode in ("SpellCast", "AbilityCast"):
+        # "When you cast this spell" (Hydroid Krasis) names the card, not a player.
+        if _whose(valid) == "self":
+            return b.Event(EVENTS[mode], who="self")
         return b.Event(EVENTS[mode], who=_whose(params.get("ValidActivatingPlayer", "")),
                        types=_types(valid))
     if mode == "DamageDone":

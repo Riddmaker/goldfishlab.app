@@ -13430,3 +13430,37 @@ msgstr ""
 "categorie della carta, quindi una correzione sotto «Categorie» cambia anche "
 "le partite. Un report fatto con un motore più vecchio lo dice e propone una "
 "nuova simulazione."
+
+#: simulations/engine/adapter.py
+msgid "connives"
+msgstr "trama"
+
+#: simulations/primitives.py
+msgid "Times it connives"
+msgstr "Quante volte trama"
+
+#: simulations/primitives.py
+msgid ""
+"Draw a card, then discard a card; a +1/+1 counter on it if that was no land."
+msgstr ""
+"Pesca una carta, poi scarta una carta; un segnalino +1/+1 su di esso se non "
+"era una terra."
+
+#: changelog/entries.py
+msgid "Cards that connive, and a draw on casting counted once"
+msgstr "Carte che tramano, e una pescata al lancio contata una volta"
+
+#: changelog/entries.py
+msgid ""
+"A creature that connives as it enters, such as A.I.M. Scientists, now draws "
+"a card, discards the weakest one and gets a +1/+1 counter when that was no "
+"land. A draw on casting the card itself, such as Hydroid Krasis' or "
+"Kozilek's, happens once and no longer counts as card draw that happens again"
+" and again. A report made with an older engine says so and offers a new run."
+msgstr ""
+"Una creatura che trama quando entra, come A.I.M. Scientists, ora pesca una "
+"carta, scarta la più debole e riceve un segnalino +1/+1 se non era una "
+"terra. Una pescata al lancio della carta stessa, come quella di Hydroid "
+"Krasis o di Kozilek, avviene una volta e non conta più come pescata che si "
+"ripete di continuo. Un report fatto con un motore più vecchio lo dice e "
+"propone una nuova simulazione."

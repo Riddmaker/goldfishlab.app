@@ -500,3 +500,13 @@ T:Mode$ ChangesZone | Origin$ Any | Destination$ Battlefield | ValidCard$ Card.S
 SVar:TrigSearch:DB$ ChangeZone | Origin$ Library | Destination$ Battlefield | ChangeType$ {what}
 """, [], kind="creature")
     assert (found.roles, found.mechanics) == (("ramp",), ("land_search",))
+
+
+def test_a_trigger_on_casting_the_card_itself_happens_once():
+    """Card model PR 19: Hydroid Krasis' draw is no draw engine."""
+    found = derive("""Name:Test Titan
+Types:Creature
+T:Mode$ SpellCast | ValidCard$ Card.Self | Execute$ TrigDraw
+SVar:TrigDraw:DB$ Draw | Defined$ You | NumCards$ 4
+""", ["draw"], kind="creature")
+    assert found.tempo["triggered:0"]["rate"] == "one_shot"

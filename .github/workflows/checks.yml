@@ -81,4 +81,5 @@ jobs:
       - name: Tests
         # Includes the slow statistical validation: Monte Carlo against the
         # exact hypergeometric distribution. Skipped locally, never in CI.
-        run: pytest -q
+        # One worker per core; each has its own test and cache database.
+        run: pytest -q -n auto

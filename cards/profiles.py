@@ -30,7 +30,7 @@ from dataclasses import dataclass, field
 
 from django.utils.translation import gettext_noop
 
-from cards import categories, forge_merge
+from cards import categories, forge_merge, mechanisms
 from cards.models import DerivedProfile, OracleCard
 
 # --- source labels, as they appear in DerivedProfile.source_map --------------
@@ -3345,6 +3345,8 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
     profiles = [derive(card, slugs_by_card.get(str(card.pk), set()), branches=branches,
                        revivals=revivals, forge=forge.get(str(card.pk), ()))
                 for card in batch]
+    for profile in profiles:
+        profile.blocks = mechanisms.pack(profile)
     DerivedProfile.objects.bulk_create(
         profiles,
         batch_size=len(profiles),
@@ -3368,7 +3370,7 @@ def _flush_profiles(batch: list[OracleCard], link_model, branches: frozenset[str
             "draws_x",
             "extra_cost",
             "primary_role", "secondary_role", "mechanics", "tempo", "category_review",
-            "categories_version",
+            "categories_version", "blocks",
             "needs_review", "review_reasons", "source_map", "derived_at",
         ],
         unique_fields=["oracle_card"],

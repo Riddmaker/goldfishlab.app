@@ -14,6 +14,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from cards import mechanisms
 from cards.names import front_face, normalise
 
 
@@ -523,6 +524,11 @@ class DerivedProfile(models.Model):
     category_review = ArrayField(models.CharField(max_length=48), default=list, blank=True)
     categories_version = models.PositiveSmallIntegerField(default=0)
 
+    #: Card model phase 4, PR 16: the mechanism columns above as one field,
+    #: keyed by patch id (see `cards.mechanisms`). Written beside the columns
+    #: since PR 16a; the only place they live from PR 16b on.
+    blocks = models.JSONField(default=dict, blank=True)
+
     # --- honesty ---
     needs_review = models.BooleanField(default=False, db_index=True)
     review_reasons = ArrayField(models.CharField(max_length=120), default=list, blank=True)
@@ -535,6 +541,14 @@ class DerivedProfile(models.Model):
 
     def __str__(self) -> str:
         return f"profile of {self.oracle_card_id}"
+
+    def save(self, *args, **kwargs):
+        # The blocks follow the columns, whoever wrote them (PR 16a).
+        self.blocks = mechanisms.pack(self)
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None and "blocks" not in update_fields:
+            kwargs["update_fields"] = [*update_fields, "blocks"]
+        super().save(*args, **kwargs)
 
     @property
     def black_pips(self) -> int:

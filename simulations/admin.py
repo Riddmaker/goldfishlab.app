@@ -16,7 +16,7 @@ from simulations.models import CardAnnotation, SimulationRun, UnreadCard
 def _checks(annotation) -> list:
     """The row's patches whose block changed or is gone (`patches.Note`)."""
     profile = getattr(annotation.oracle_card, "profile", None)
-    return patches.effective(annotation.overrides, annotation.patches, profile)[1]
+    return patches.effective(annotation.patches, profile)[1]
 
 
 class BuiltinCheckFilter(admin.SimpleListFilter):
@@ -38,7 +38,7 @@ class BuiltinCheckFilter(admin.SimpleListFilter):
         if self.value() != "builtin":
             return queryset
         rows = (CardAnnotation.objects.filter(owner__isnull=True, deck__isnull=True)
-                .exclude(overrides={}).select_related("oracle_card__profile"))
+                .exclude(patches={}).select_related("oracle_card__profile"))
         return queryset.filter(pk__in=[row.pk for row in rows if _checks(row)])
 
 

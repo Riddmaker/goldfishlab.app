@@ -122,8 +122,8 @@ def answers(oracle_card) -> tuple[int, list[tuple[str, int]]]:
     profile = getattr(oracle_card, "profile", None)
     values = Counter(
         json.dumps(said, sort_keys=True)
-        for said in (patches.stated(overrides, document, profile)
-                     for overrides, document in rows.values_list("overrides", "patches"))
+        for said in (patches.stated(document, profile)
+                     for document in rows.values_list("patches", flat=True))
         if said
     )
     return players, values.most_common(ANSWERS)

@@ -66,7 +66,7 @@ def test_the_export_names_no_owner_and_no_deck(corrected, django_db_blocker, tmp
     out = tmp_path / "corrections.json"
     with django_db_blocker.unblock():
         call_command("annotations_export", out=str(out), stdout=io.StringIO())
-        stored = CardAnnotation.objects.exclude(overrides={}).count()
+        stored = CardAnnotation.objects.exclude(patches={}).count()
     rows = json.loads(out.read_text(encoding="utf-8"))
     assert {key for row in rows for key in row} == {
         "oracle_id", "name", "scope", "overrides", "patches", "count", "engine_version"}
@@ -87,10 +87,10 @@ def test_every_correction_plays_the_same_from_its_patches(corrected, django_db_b
     from simulations import patches
 
     with django_db_blocker.unblock():
-        rows = list(CardAnnotation.objects.exclude(overrides={})
+        rows = list(CardAnnotation.objects.exclude(patches={})
                     .select_related("oracle_card__profile"))
     assert rows
     for row in rows:
         profile = getattr(row.oracle_card, "profile", None)
-        said, notes = patches.effective(row.overrides, row.patches, profile)
+        said, notes = patches.effective(row.patches, profile)
         assert (said, notes) == (row.overrides, []), row.oracle_card.name

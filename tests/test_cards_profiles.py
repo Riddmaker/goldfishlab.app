@@ -107,10 +107,8 @@ def test_every_unresolved_mana_source_is_flagged(catalogue):
     says how the mana is made, an altar's sacrifice does (P19 R15), a
     trigger does (P19 R16: Smothering Tithe) or one in combat (P19 R22:
     Goldspan Dragon)."""
-    unresolved = DerivedProfile.objects.filter(produces_mana=True, mana_amount=None,
-                                               mana_rule__isnull=True,
-                                               sacrifice_mana__isnull=True, triggers=[],
-                                               combat__isnull=True)
+    unresolved = DerivedProfile.objects.filter(produces_mana=True, mana_amount=None).exclude(
+        blocks__has_any_keys=["mana_rule", "sacrifice_mana", "triggers", "combat"])
     assert unresolved.exists()
     assert not unresolved.filter(needs_review=False).exists()
 
@@ -142,7 +140,7 @@ def test_a_shock_lands_condition_is_read_rather_than_guessed(catalogue):
 
 def test_a_card_that_taps_other_permanents_does_not_enter_tapped_itself(catalogue):
     """The regex is anchored to the card's own name for exactly this reason."""
-    for profile in DerivedProfile.objects.filter(enters_tapped=True):
+    for profile in DerivedProfile.objects.filter(blocks__enters_tapped=True):
         text = profile.oracle_card.oracle_text.lower()
         assert "enters" in text and "tapped" in text
 

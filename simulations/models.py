@@ -27,13 +27,13 @@ would make that expensive enough to discourage it. The keys are validated
 against `ALLOWED_KEYS`, so a typo is an error rather than a silently ignored
 setting.
 
-**Patches beside them (card model, phase 2).** Every save also writes the
+**Stored as patches (card model, phases 2 and 4).** A save writes the
 overrides as `patches` - each corrected primitive as a patch on the block of
-the reading it corrects (`simulations.patches`) - and the engine plays the
-patches. Both are written until phase 4 drops the column (decision D12), so
-code from before phase 2 can still be rolled back to and reads the overrides
-it always read, and the deck fingerprint (`summary.fingerprint`) still hashes
-them.
+the reading it corrects (`simulations.patches`), beside the face values and
+each primitive as it was said - and the engine plays the patches. Since
+phase 4 (PR 16b) there is no overrides column: `overrides` reads the
+document back in the stated form, and setting it is how a correction
+changes.
 """
 
 import uuid
@@ -139,9 +139,10 @@ class CardAnnotation(models.Model):
         OracleCard, on_delete=models.CASCADE, related_name="annotations"
     )
 
-    overrides = models.JSONField(default=dict, blank=True)
-    #: The same correction as patches on the reading's blocks, written on every
-    #: save (`simulations.patches.from_overrides`); what the engine plays.
+    #: The correction: patches on the reading's blocks, with the face values
+    #: and each primitive as it was said (`simulations.patches`). What the
+    #: engine plays, and since card model phase 4 (PR 16b) the only place a
+    #: correction is stored; `overrides` reads it in the stated form.
     patches = models.JSONField(default=dict, blank=True)
     note = models.TextField(blank=True, help_text="Why, for the provenance panel.")
     #: "Looks right": the user read what the engine made of this card and
@@ -183,20 +184,32 @@ class CardAnnotation(models.Model):
         # go wherever the overrides go.
         fields = kwargs.get("update_fields")
         if fields is not None and "overrides" in fields:
-            kwargs["update_fields"] = {*fields, "patches"}
+            kwargs["update_fields"] = {*fields, "patches"} - {"overrides"}
         return super().save(*args, **kwargs)
 
     def _write_patches(self) -> None:
-        """The overrides as patches, unless the stored ones already say them."""
-        overrides = self.overrides or {}
-        if not overrides:
+        """Overrides set since the row was read, as patches; the patches
+        stored before keep what did not change."""
+        pending = self.__dict__.pop("_overrides", None)
+        if pending is None:
+            return
+        if not pending:
             self.patches = {}
             return
-        if patches.is_current(self.patches) \
-                and self.patches.get("of") == patches.digest(overrides):
-            return
         profile = getattr(self.oracle_card, "profile", None)
-        self.patches = patches.from_overrides(overrides, profile, previous=self.patches)
+        self.patches = patches.from_overrides(pending, profile, previous=self.patches)
+
+    @property
+    def overrides(self) -> dict:
+        """The correction as its owner stated it: what the editor, the forms
+        and the exports read. Set it to change the correction; `save` writes
+        it as patches against the card's reading."""
+        pending = self.__dict__.get("_overrides")
+        return dict(pending) if pending is not None else patches.overrides_of(self.patches)
+
+    @overrides.setter
+    def overrides(self, value) -> None:
+        self.__dict__["_overrides"] = dict(value or {})
 
     def clean(self):
         unknown = set(self.overrides) - set(ALLOWED_KEYS)

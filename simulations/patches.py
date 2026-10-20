@@ -24,12 +24,12 @@ reading under it has changed since" - and "this block is gone".
 
 The patch document also carries the judgements that are not blocks
 (priority, tags, kind and the rest of `annotations`) as they are, under
-``face``, and the digest of the `overrides` it was written with (``of``):
-code from before phase 2 writes only `overrides`, and a document that no
-longer matches them is out of date and is not played. ``said`` keeps the
-digest of each primitive's value as it was said, so a correction whose block
-is gone - not played, waiting for its owner - survives a save of another
-block (`stated`) until its owner keeps or discards it (`settle`).
+``face``, and each primitive's value as it was said, under ``said``: a
+correction whose block is gone - not played, waiting for its owner -
+survives a save of another block (`stated`) until its owner keeps or
+discards it (`settle`). ``face`` and ``said`` together are the correction
+as its owner stated it (`overrides_of`); since card model phase 4 (PR 16b,
+version 2) the document is the only place a correction is stored.
 
 `from_overrides` writes a document and checks it: compiled against the same
 reading it gives exactly the overrides back, key by key, or that key becomes
@@ -42,7 +42,7 @@ from dataclasses import dataclass
 
 from simulations import primitives
 
-VERSION = 1
+VERSION = 2
 
 #: The patch operations, by where they apply.
 SINGLE_OPS = frozenset({"set", "keep", "replace"})
@@ -121,7 +121,7 @@ def from_overrides(overrides: dict, profile, previous: dict | None = None,
             says - the ones their owner has just checked (`settle`).
 
     Returns:
-        dict: ``{"v", "of", "said", "face", "blocks"}``.
+        dict: ``{"v", "said", "face", "blocks"}``.
     """
     overrides = dict(overrides or {})
     kept = _previous_by_key(previous, profile)
@@ -129,16 +129,15 @@ def from_overrides(overrides: dict, profile, previous: dict | None = None,
     said: dict = {}
     for key in sorted(primitives.KEYS & set(overrides)):
         value = overrides[key]
-        said[key] = digest(value)
+        said[key] = value
         before = kept.get(key)
         if key not in fresh and before is not None \
-                and (before[1] == said[key] or before[0] == value):
+                and (before[1] == value or before[0] == value):
             blocks.extend(before[2])
             continue
         blocks.extend(_exact(key, value, profile))
     return {
         "v": VERSION,
-        "of": digest(overrides),
         "said": said,
         "face": {key: value for key, value in overrides.items() if key not in primitives.KEYS},
         "blocks": blocks,
@@ -146,9 +145,9 @@ def from_overrides(overrides: dict, profile, previous: dict | None = None,
 
 
 def _previous_by_key(previous: dict | None, profile) -> dict:
-    """`{key: (value it compiles to, digest it was said with, its patches)}` of a
+    """`{key: (value it compiles to, value it was said with, its patches)}` of a
     stored document. A block that is gone compiles to nothing (`_GONE`); its
-    patches are kept by the digest alone."""
+    patches are kept by the said value alone."""
     if not is_current(previous):
         return {}
     values, _notes = compile_blocks(previous["blocks"], profile)
@@ -246,23 +245,25 @@ def is_current(document) -> bool:
     return isinstance(document, dict) and document.get("v") == VERSION
 
 
-def effective(overrides: dict, document: dict | None, profile) -> tuple[dict, list[Note]]:
-    """What a stored correction says now: the overrides the engine plays.
+def overrides_of(document: dict | None) -> dict:
+    """The correction as its owner stated it: the face and every primitive
+    as said. What `CardAnnotation.overrides` reads."""
+    if not is_current(document):
+        return {}
+    return {**document["face"], **document["said"]}
 
-    A row without a current document, or one whose document was written for
-    other overrides, plays its overrides as they are. That is the guard for
-    every write that is not `CardAnnotation.save` - code from before phase 2
-    after a rollback, a `QuerySet.update`, a fixture loaded raw: the newer
-    word is the overrides', and stale patches are never played over it.
-    """
-    overrides = overrides or {}
-    if not is_current(document) or document.get("of") != digest(overrides):
-        return dict(overrides), []
+
+def effective(document: dict | None, profile) -> tuple[dict, list[Note]]:
+    """What a stored correction says now: the overrides the engine plays,
+    each patch applied to today's reading, and a note for every patch whose
+    block changed or is gone."""
+    if not is_current(document):
+        return {}, []
     values, notes = compile_blocks(document["blocks"], profile)
     return {**document["face"], **values}, notes
 
 
-def stated(overrides: dict, document: dict | None, profile) -> dict:
+def stated(document: dict | None, profile) -> dict:
     """What a stored correction says, for writing it again: `effective`, and
     each correction whose block is gone as it was said.
 
@@ -270,16 +271,16 @@ def stated(overrides: dict, document: dict | None, profile) -> dict:
     are not the engine's to drop either: saving another block must not take
     the "please check" away before its owner has seen it.
     """
-    said, notes = effective(overrides, document, profile)
+    said, notes = effective(document, profile)
     if not notes:
         return said
+    owned = overrides_of(document)
     gone = {note.key for note in notes
-            if note.status == "gone" and not is_list(note.key) and note.key in overrides}
-    return said | {key: overrides[key] for key in gone}
+            if note.status == "gone" and not is_list(note.key) and note.key in owned}
+    return said | {key: owned[key] for key in gone}
 
 
-def settle(overrides: dict, document: dict | None, profile,
-           keys) -> tuple[dict, dict]:
+def settle(document: dict | None, profile, keys) -> tuple[dict, dict]:
     """Its owner has checked these primitives: the correction as it plays now.
 
     A block that changed under its correction is written again against
@@ -290,8 +291,8 @@ def settle(overrides: dict, document: dict | None, profile,
         tuple: The overrides and the document to store.
     """
     keys = frozenset(keys)
-    said, notes = effective(overrides, document, profile)
-    carried = stated(overrides, document, profile)
+    said, notes = effective(document, profile)
+    carried = stated(document, profile)
     gone = {note.key for note in notes if note.status == "gone" and note.key not in said}
     kept = {key: value for key, value in carried.items()
             if key not in keys or key not in gone}
@@ -441,14 +442,17 @@ def validate(document) -> dict:
         raise PatchError("not a patch document of this version")
     if not isinstance(document.get("face"), dict) or not isinstance(document.get("blocks"), list):
         raise PatchError("a patch document has a face and a list of blocks")
-    if not isinstance(document.get("of"), str) or len(document["of"]) != 16:
-        raise PatchError("a patch document names the overrides it was written with")
     if primitives.KEYS & set(document["face"]):
         raise PatchError("a primitive is a block, not a face value")
-    said = document.get("said", {})
-    if not isinstance(said, dict) or set(said) - primitives.KEYS or not all(
-            isinstance(value, str) and len(value) == 16 for value in said.values()):
-        raise PatchError("a patch document says each primitive's digest")
+    said = document.get("said")
+    if not isinstance(said, dict) or set(said) - primitives.KEYS:
+        raise PatchError("a patch document says each primitive's value")
+    for key, value in said.items():
+        if value is not None:
+            try:
+                primitives.validate(key, value)
+            except primitives.PrimitiveError as exc:
+                raise PatchError(str(exc)) from exc
     if len(document["blocks"]) > _MOST_PATCHES:
         raise PatchError("too many patches")
     for patch in document["blocks"]:

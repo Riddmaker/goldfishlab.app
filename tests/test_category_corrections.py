@@ -17,12 +17,10 @@ What these tests hold:
    change is a plain form post on the owner's own deck.
 """
 
-import importlib
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.urls import reverse
@@ -214,71 +212,6 @@ def _derived_card(deck):
     return next(reading.oracle_card for reading in adapter.readings(deck)
                 if reading.oracle_card.profile.categories_version
                 and not reading.card.is_land)
-
-
-def _migrate():
-    importlib.import_module("simulations.migrations.0017_tags_as_categories").forwards(
-        apps, None)
-
-
-@pytest.mark.django_db
-def test_the_migration_converts_a_list_that_plays_and_counts_the_same(deck):
-    card = _derived_card(deck)
-    before = _reading(deck, card).card
-    old = sorted({"removal", "lifegain"} | (before.tags & {"sac_outlet"}))
-    row = CardAnnotation.objects.create(owner=deck.owner, deck=deck, oracle_card=card,
-                                        overrides={"tags": old})
-    counted = _reading(deck, card).card.categories
-
-    _migrate()
-
-    row.refresh_from_db()
-    assert "tags" not in row.overrides
-    after = _reading(deck, card).card
-    assert after.categories == counted
-    assert after.tags & set(adapter.runner.ENGINE_ROLE_TAGS) \
-        == set(old) & set(adapter.runner.ENGINE_ROLE_TAGS)
-
-
-@pytest.mark.django_db
-def test_the_migration_converts_an_owners_rows_together_or_not_at_all(deck):
-    card = _derived_card(deck)
-    mine = CardAnnotation.objects.create(owner=deck.owner, deck=None, oracle_card=card,
-                                         overrides={"tags": ["removal"]})
-    # The deck's own list of additions would hide the converted one for all
-    # decks, key by key: "removal" would stop counting in this deck.
-    here = CardAnnotation.objects.create(owner=deck.owner, deck=deck, oracle_card=card,
-                                         overrides={"category_add": ["tokens"]})
-
-    _migrate()
-
-    for row in (mine, here):
-        row.refresh_from_db()
-    assert mine.overrides == {"tags": ["removal"]}
-    assert here.overrides == {"category_add": ["tokens"]}
-
-
-@pytest.mark.django_db
-def test_over_a_built_in_list_the_engine_roles_are_stated_outright(deck):
-    card = _derived_card(deck)
-    # Built in, the list counts for the engine only; the player's said
-    # "removal and nothing else", the engine's four included.
-    builtin = CardAnnotation.objects.create(oracle_card=card,
-                                            overrides={"tags": ["draw_engine"]})
-    row = CardAnnotation.objects.create(owner=deck.owner, deck=deck, oracle_card=card,
-                                        overrides={"tags": ["removal"]})
-    before = _reading(deck, card).card
-    assert not before.tags & set(adapter.runner.ENGINE_ROLE_TAGS)
-
-    _migrate()
-
-    builtin.refresh_from_db()
-    row.refresh_from_db()
-    assert builtin.overrides == {"tags": ["draw_engine"]}
-    assert row.overrides.get("engine_tags") == [] and "tags" not in row.overrides
-    after = _reading(deck, card).card
-    assert after.categories == before.categories
-    assert not after.tags & set(adapter.runner.ENGINE_ROLE_TAGS)
 
 
 # --- the card page ---------------------------------------------------------------------

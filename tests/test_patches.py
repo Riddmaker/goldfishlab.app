@@ -5,12 +5,10 @@ reader's, and a reading that moved under a correction is noted. Converting a
 stored correction never changes what the engine plays (gate C).
 """
 
-import importlib
 import uuid
 from types import SimpleNamespace
 
 import pytest
-from django.apps import apps
 from django.contrib.auth import get_user_model
 
 from cards import profiles
@@ -38,7 +36,7 @@ def _profile(**fields):
 
 def _round_trip(overrides, profile):
     document = patches.from_overrides(overrides, profile)
-    said, notes = patches.effective(overrides, document, profile)
+    said, notes = patches.effective(document, profile)
     return document, said, notes
 
 
@@ -55,7 +53,7 @@ def test_a_field_said_is_a_set_and_the_rest_stays_the_reading():
     # The reader learns the land enters untapped: the correction keeps its
     # count, takes the fix, and says the reading under it moved.
     later = _profile(land_search=SEARCH | {"tapped": False})
-    now, notes = patches.effective(overrides, document, later)
+    now, notes = patches.effective(document, later)
     assert now["land_search"] == {"battlefield": 2, "tapped": False, "basic": True}
     assert notes == [patches.Note("land_search", "land_search", "changed")]
 
@@ -63,7 +61,7 @@ def test_a_field_said_is_a_set_and_the_rest_stays_the_reading():
 def test_a_block_that_is_gone_is_not_set_and_is_noted():
     overrides = {"land_search": SEARCH | {"battlefield": 2}}
     document = patches.from_overrides(overrides, _profile(land_search=SEARCH))
-    now, notes = patches.effective(overrides, document, _profile())
+    now, notes = patches.effective(document, _profile())
     assert "land_search" not in now
     assert notes == [patches.Note("land_search", "land_search", "gone")]
 
@@ -79,7 +77,7 @@ def test_the_reading_said_again_is_a_keep_that_follows_the_reader():
     overrides = {"land_search": dict(SEARCH)}
     document, said, _notes = _round_trip(overrides, _profile(land_search=SEARCH))
     assert document["blocks"][0]["op"] == "keep"
-    now, notes = patches.effective(overrides, document,
+    now, notes = patches.effective(document,
                                    _profile(land_search=SEARCH | {"battlefield": 2}))
     assert now["land_search"]["battlefield"] == 2
     assert [note.status for note in notes] == ["changed"]
@@ -108,7 +106,7 @@ def test_one_entry_of_a_list_is_patched_and_the_others_kept():
 
     # A new trigger read in front: the corrected one is found by what it was.
     later = _profile(triggers=[{"event": "dies", "treasures": 1}, LANDFALL, CAST])
-    now, notes = patches.effective(overrides, document, later)
+    now, notes = patches.effective(document, later)
     assert now["triggers"] == [{"event": "dies", "treasures": 1}, LANDFALL,
                                CAST | {"draw": 2}]
     assert notes == []
@@ -129,7 +127,7 @@ def test_an_entry_that_changed_is_found_by_its_kind_and_noted():
     overrides = {"triggers": [LANDFALL | {"mana": 2}]}
     document = patches.from_overrides(overrides, read)
     later = _profile(triggers=[LANDFALL | {"filter": "basic"}])
-    now, notes = patches.effective(overrides, document, later)
+    now, notes = patches.effective(document, later)
     assert now["triggers"] == [LANDFALL | {"filter": "basic", "mana": 2}]
     assert notes == [patches.Note("triggers", "triggers:0", "changed")]
 
@@ -138,7 +136,7 @@ def test_an_entry_whose_kind_is_gone_is_noted_and_the_rest_plays():
     read = _profile(triggers=[LANDFALL])
     overrides = {"triggers": [LANDFALL | {"mana": 2}]}
     document = patches.from_overrides(overrides, read)
-    now, notes = patches.effective(overrides, document, _profile(triggers=[CAST]))
+    now, notes = patches.effective(document, _profile(triggers=[CAST]))
     assert now["triggers"] == [CAST]
     assert notes == [patches.Note("triggers", "triggers:0", "gone")]
 
@@ -150,12 +148,12 @@ def test_an_added_entry_the_reader_learns_to_read_is_not_played_twice():
     assert document["blocks"] == [{"id": "triggers", "op": "add", "value": extra}]
 
     # The reader reads the same entry now: it is the reader's, said once.
-    now, notes = patches.effective(overrides, document, _profile(triggers=[LANDFALL, extra]))
+    now, notes = patches.effective(document, _profile(triggers=[LANDFALL, extra]))
     assert now["triggers"] == [LANDFALL, extra] and notes == []
 
     # It reads one of the same kind: the added one takes its place, to check.
     read = {"event": "upkeep", "draw": 2}
-    now, notes = patches.effective(overrides, document, _profile(triggers=[read]))
+    now, notes = patches.effective(document, _profile(triggers=[read]))
     assert now["triggers"] == [extra]
     assert notes == [patches.Note("triggers", "triggers", "changed")]
 
@@ -168,50 +166,48 @@ def test_the_tutor_is_one_block_of_four_fields():
     assert document["blocks"][0]["fields"] == {"to": "battlefield"}
 
 
-def test_overrides_written_by_older_code_play_as_they_are():
+def test_a_document_states_its_overrides_without_a_reading():
     read = _profile(land_search=SEARCH)
-    document = patches.from_overrides({"land_search": SEARCH | {"battlefield": 2}}, read)
-    # A rollback saved other overrides and left the document as it was.
-    newer = {"priority": 40}
-    assert patches.effective(newer, document, read) == (newer, [])
-    assert patches.effective(newer, {}, read) == (newer, [])
+    overrides = {"land_search": SEARCH | {"battlefield": 2}, "priority": 40}
+    document = patches.from_overrides(overrides, read)
+    assert patches.overrides_of(document) == overrides
+    assert patches.overrides_of({}) == {} and patches.effective({}, read) == ({}, [])
 
 
 def test_an_unchanged_primitive_keeps_its_patches_through_a_save():
     read = _profile(land_search=SEARCH)
     first = patches.from_overrides({"land_search": SEARCH | {"battlefield": 2}}, read)
     later = _profile(land_search=SEARCH | {"tapped": False})
-    current, _notes = patches.effective({"land_search": SEARCH | {"battlefield": 2}},
-                                        first, later)
+    current, _notes = patches.effective(first, later)
     second = patches.from_overrides(current | {"priority": 60}, later, previous=first)
     assert second["blocks"] == first["blocks"]
-    assert patches.effective(current | {"priority": 60}, second, later)[1] == [
+    assert patches.effective(second, later)[1] == [
         patches.Note("land_search", "land_search", "changed")]
 
 
 def test_a_gone_correction_stays_through_a_save_of_another_block():
     said = {"land_search": SEARCH | {"battlefield": 2}}
     first = patches.from_overrides(said, _profile(land_search=SEARCH))
-    assert first["said"] == {"land_search": patches.digest(said["land_search"])}
+    assert first["said"] == said
     later = _profile()
 
     # Not played, but still said: a save of another block writes it again.
-    carried = patches.stated(said, first, later)
+    carried = patches.stated(first, later)
     assert carried == said
-    assert "land_search" not in patches.effective(said, first, later)[0]
+    assert "land_search" not in patches.effective(first, later)[0]
     second = patches.from_overrides(carried | {"treasures": 1}, later, previous=first)
     assert [patch for patch in second["blocks"] if patch["id"] == "land_search"] \
         == first["blocks"]
-    assert patches.effective(carried | {"treasures": 1}, second, later)[1] == [
+    assert patches.effective(second, later)[1] == [
         patches.Note("land_search", "land_search", "gone")]
 
 
 def _engine_neutral(overrides, document, later, keys):
     """`settle` plays what was played, and leaves nothing to check on `keys`."""
-    before, _notes = patches.effective(overrides, document, later)
-    kept, settled = patches.settle(overrides, document, later, keys)
-    after, notes = patches.effective(kept, settled, later)
-    assert after == before
+    before, _notes = patches.effective(document, later)
+    kept, settled = patches.settle(document, later, keys)
+    after, notes = patches.effective(settled, later)
+    assert after == before and patches.overrides_of(settled) == kept
     assert not [note for note in notes if note.key in keys]
     return kept, settled
 
@@ -237,7 +233,7 @@ def test_settling_a_list_lets_a_gone_entry_go_and_keeps_the_rest():
     overrides = {"triggers": [LANDFALL | {"mana": 2}, CAST | {"draw": 3}]}
     document = patches.from_overrides(overrides, _profile(triggers=[LANDFALL, CAST]))
     later = _profile(triggers=[CAST | {"filter": "instant"}])
-    assert {note.status for note in patches.effective(overrides, document, later)[1]} \
+    assert {note.status for note in patches.effective(document, later)[1]} \
         == {"gone", "changed"}
     kept, _settled = _engine_neutral(overrides, document, later, {"triggers"})
     assert kept["triggers"] == [CAST | {"filter": "instant", "draw": 3}]
@@ -249,28 +245,29 @@ def test_settling_one_block_leaves_the_others_to_check():
                                                           triggers=[LANDFALL]))
     later = _profile(triggers=[LANDFALL | {"filter": "basic"}])
     kept, settled = _engine_neutral(overrides, document, later, {"triggers"})
-    assert patches.effective(kept, settled, later)[1] == [
+    assert patches.effective(settled, later)[1] == [
         patches.Note("land_search", "land_search", "gone")]
 
 
 @pytest.mark.parametrize("document", [
-    {"v": 99, "of": "0" * 16, "face": {}, "blocks": []},
-    {"v": 1, "of": "short", "face": {}, "blocks": []},
-    {"v": 1, "of": "0" * 16, "face": {"triggers": []}, "blocks": []},
-    {"v": 1, "of": "0" * 16, "face": {}, "blocks": [{"id": "nothing", "op": "keep"}]},
-    {"v": 1, "of": "0" * 16, "face": {}, "blocks": [{"id": "land_search:1", "op": "keep"}]},
-    {"v": 1, "of": "0" * 16, "face": {}, "blocks": [{"id": "triggers", "op": "set"}]},
-    {"v": 1, "of": "0" * 16, "face": {}, "blocks": [
+    {"v": 99, "said": {}, "face": {}, "blocks": []},
+    {"v": 1, "of": "0" * 16, "said": {}, "face": {}, "blocks": []},
+    {"v": 2, "said": {}, "face": {"triggers": []}, "blocks": []},
+    {"v": 2, "said": {}, "face": {}, "blocks": [{"id": "nothing", "op": "keep"}]},
+    {"v": 2, "said": {}, "face": {}, "blocks": [{"id": "land_search:1", "op": "keep"}]},
+    {"v": 2, "said": {}, "face": {}, "blocks": [{"id": "triggers", "op": "set"}]},
+    {"v": 2, "said": {}, "face": {}, "blocks": [
         {"id": "land_search", "op": "set", "fields": {"evil": 1}}]},
-    {"v": 1, "of": "0" * 16, "face": {}, "blocks": [
+    {"v": 2, "said": {}, "face": {}, "blocks": [
         {"id": "land_search", "op": "set", "fields": {"battlefield": "<script>"}}]},
-    {"v": 1, "of": "0" * 16, "face": {}, "blocks": [
+    {"v": 2, "said": {}, "face": {}, "blocks": [
         {"id": "triggers", "op": "add", "value": {"event": "x", "evil": 1}}]},
-    {"v": 1, "of": "0" * 16, "face": {}, "blocks": [
+    {"v": 2, "said": {}, "face": {}, "blocks": [
         {"id": "land_search", "op": "keep", "drop": ["evil"]}]},
-    {"v": 1, "of": "0" * 16, "said": {"priority": "0" * 16}, "face": {}, "blocks": []},
-    {"v": 1, "of": "0" * 16, "said": {"land_search": "short"}, "face": {}, "blocks": []},
-    {"v": 1, "of": "0" * 16, "said": [], "face": {}, "blocks": []},
+    {"v": 2, "said": {"priority": 10}, "face": {}, "blocks": []},
+    {"v": 2, "said": {"land_search": {"battlefield": "<script>"}}, "face": {}, "blocks": []},
+    {"v": 2, "said": [], "face": {}, "blocks": []},
+    {"v": 2, "face": {}, "blocks": []},
 ])
 def test_a_document_the_engine_cannot_store_is_refused(document):
     with pytest.raises(patches.PatchError):
@@ -307,6 +304,14 @@ def _triggers(deck, card):
                 if reading.oracle_card.pk == card.pk).triggers
 
 
+def _reread(card, **fields):
+    """The reader reads the card differently now."""
+    profile = DerivedProfile.objects.get(oracle_card=card)
+    for name, value in fields.items():
+        setattr(profile, name, value)
+    profile.save()
+
+
 def test_a_saved_correction_is_played_from_its_patches(cobra_deck):
     read = cobra_deck.cobra.profile.triggers
     assert len(read) == 1 and read[0]["mana"] == 1
@@ -321,8 +326,7 @@ def test_a_saved_correction_is_played_from_its_patches(cobra_deck):
 
     # The reader learns more about the trigger: the correction keeps its mana,
     # takes the rest, and the deck is told to check it.
-    DerivedProfile.objects.filter(oracle_card=cobra_deck.cobra).update(
-        triggers=[read[0] | {"filter": "basic"}])
+    _reread(cobra_deck.cobra, triggers=[read[0] | {"filter": "basic"}])
     found = adapter.annotations_for(cobra_deck.deck)
     assert found.for_card(cobra_deck.cobra.pk)["triggers"] == [
         read[0] | {"filter": "basic", "mana": 2}]
@@ -340,42 +344,13 @@ def test_a_saved_correction_is_played_from_its_patches(cobra_deck):
     assert adapter.annotations_for(cobra_deck.deck).notes[cobra_deck.cobra.pk]
 
 
-def test_the_migration_converts_without_moving_a_card(cobra_deck):
-    read = cobra_deck.cobra.profile.triggers
-    row = CardAnnotation.objects.create(
-        owner=cobra_deck.owner, deck=cobra_deck.deck, oracle_card=cobra_deck.cobra,
-        overrides={"triggers": [read[0] | {"mana": 3}], "priority": 10})
-    CardAnnotation.objects.filter(pk=row.pk).update(patches={})
-    migration = importlib.import_module("simulations.migrations.0011_patches")
-    migration.forwards(apps, None)
-    row.refresh_from_db()
-    assert patches.is_current(row.patches)
-    said, notes = patches.effective(row.overrides, row.patches, cobra_deck.cobra.profile)
-    assert said == row.overrides and notes == []
-
-
-def test_the_migration_says_each_primitive_digest(cobra_deck):
-    read = cobra_deck.cobra.profile.triggers
-    overrides = {"triggers": [read[0] | {"mana": 3}], "priority": 10}
-    row = CardAnnotation.objects.create(owner=cobra_deck.owner, deck=cobra_deck.deck,
-                                        oracle_card=cobra_deck.cobra, overrides=overrides)
-    written = dict(row.patches)
-    CardAnnotation.objects.filter(pk=row.pk).update(
-        patches={key: value for key, value in written.items() if key != "said"})
-    migration = importlib.import_module("simulations.migrations.0015_patches_said")
-    migration.forwards(apps, None)
-    row.refresh_from_db()
-    assert row.patches == written
-    assert row.patches["said"] == {"triggers": patches.digest(overrides["triggers"])}
-
-
 def test_a_gone_correction_survives_an_unrelated_save(cobra_deck):
     read = cobra_deck.cobra.profile.triggers
     services.save_annotation(deck=cobra_deck.deck, oracle_card=cobra_deck.cobra,
                              scope=DECK_SCOPE,
                              primitive_changes={"triggers": [read[0] | {"mana": 2}],
                                                 "treasures": 1})
-    DerivedProfile.objects.filter(oracle_card=cobra_deck.cobra).update(triggers=[])
+    _reread(cobra_deck.cobra, triggers=[])
     services.save_annotation(
         deck=cobra_deck.deck, oracle_card=OracleCard.objects.get(pk=cobra_deck.cobra.pk),
         scope=DECK_SCOPE, primitive_changes={"treasures": 2})

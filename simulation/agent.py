@@ -129,7 +129,7 @@ def _land_score(card, game) -> int:
         return 96 if scaling_out else 90
     if any(subtype in SUBTYPE_COLORS for subtype in card.subtypes):
         return 80          # a basic land type: makes colour and can be counted
-    search = card.land_search
+    search = card.play.search
     if search is not None and search.when == "play":
         # A fetch land: as good as the land it finds, a little less for the
         # life it may cost; a tapped one like any land that enters tapped,
@@ -137,7 +137,7 @@ def _land_score(card, game) -> int:
         untapped = not search.tapped or (search.untap_at
                                          and lands_out + 1 >= search.untap_at)
         return 79 if untapped else 25
-    if card.enters_tapped and not game.untaps_on_entering(card):
+    if card.play.enters_tapped and not game.untaps_on_entering(card):
         return 20          # useless this turn
     # What it would tap for once played: Temple of the False God taps for
     # nothing before the fifth land, a Tainted land for {C} without its type.
@@ -280,7 +280,7 @@ def _activation_gain(game, card):
     Landscape - or a colour the lands cannot make yet: Urza's Cave trades
     itself for a land of the colour that is missing.
     """
-    spec = card.land_search if card is not None else LANDER
+    spec = card.play.search if card is not None else LANDER
     lost_land = card if card is not None and card in game.lands else None
     if card is not None and spec.sacrifices_land:
         # Elvish Reclaimer, Knight of the Reliquary: a land for a land (P19 R15).
@@ -326,7 +326,7 @@ def _worth_its_land(game, card, pool: ManaPool) -> bool:
     fodder = payment[1] if payment is not None else None
     if fodder is None or isinstance(fodder, str) or not any(land is fodder for land in game.lands):
         return True
-    return card.land_search is not None and _search_gain(game, card.land_search, fodder) is not None
+    return card.play.search is not None and _search_gain(game, card.play.search, fodder) is not None
 
 
 def _try_activation(game, pool: ManaPool) -> bool:

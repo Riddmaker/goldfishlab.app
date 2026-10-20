@@ -41,7 +41,7 @@ from simulation.cards import (
 from simulation.fixtures import chainer
 from simulation.game import Game
 from simulation.manacost import Hybrid, ManaCost
-from simulation.rules import mana
+from simulation.rules import mana, play
 
 #: A card with **every** field set away from its default, including one of each
 #: nested dataclass. The point of it is to fail loudly when a new field or a new
@@ -166,7 +166,7 @@ def test_a_card_with_every_field_set_survives_the_trip():
 def test_every_field_of_a_card_is_actually_written_down():
     """Equality would still hold if a field came back as its default."""
     dumped = serial.dump(EVERYTHING)
-    # The fields a card is made with: its mana family as the sixteen fields
+    # The fields a card is made with: its two families as the fields
     # it takes, not the blocks they become (card model phase 4, PR 13).
     for name, _annotation in serial.fields_of(Card):
         assert name in dumped, f"{name} never reached the row"
@@ -181,7 +181,7 @@ def test_no_field_of_the_exhaustive_card_was_left_at_its_default():
             continue
         assert getattr(EVERYTHING, field.name) != default, (
             f"{field.name} is still at its default, so it is not being tested")
-    for name, default in mana.FIELDS.items():
+    for name, default in {**mana.FIELDS, **play.FIELDS}.items():
         assert getattr(EVERYTHING, name) != default, (
             f"{name} is still at its default, so it is not being tested")
 

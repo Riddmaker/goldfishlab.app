@@ -43,11 +43,12 @@ def _register(cls: type) -> type:
 def fields_of(cls) -> list[tuple[str, object]]:
     """The fields a dump of ``cls`` holds, with their types, in order.
 
-    A `Card` is written as the fields it is made with: its mana family as
-    the sixteen fields it takes (``InitVar``), which make its blocks again
-    when it is loaded, and not the blocks themselves (card model phase 4,
-    PR 13). So a stored deck or game keeps one form for every card, from
-    before PR 13 and after.
+    A `Card` is written as the fields it is made with: its families - mana
+    since PR 13; lands, costs and spells since PR 14; triggers, turns and
+    combat since PR 15 - as the fields it takes (``InitVar``), which make
+    its blocks again when it is loaded, and not the blocks themselves (card
+    model phase 4). So a stored deck or game keeps one form for every card,
+    from before PR 13 and after.
     """
     found = _FIELDS.get(cls)
     if found is None:

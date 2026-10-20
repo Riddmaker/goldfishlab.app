@@ -13,9 +13,9 @@ while a game is played:
 * cost atoms - :class:`simulation.blocks.Cost` with a selector.
 
 :mod:`~simulation.rules.mana` is the first family on them: the encoder and
-decoder of the sixteen mana fields, and the view the engine reads. PR 14 and
-15 add the families of lands, costs and spells, and of triggers, turns and
-combat, with the atoms they need.
+decoder of the sixteen mana fields, and the view the engine reads.
+:mod:`~simulation.rules.play` is the second (PR 14): lands, costs and spells;
+:mod:`~simulation.rules.turns` the third (PR 15): triggers, turns and combat.
 
 Nothing here imports Django, like the rest of :mod:`simulation`.
 """

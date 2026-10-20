@@ -129,7 +129,7 @@ class BeginTurn(Action):
             # Defense of the Heart (P19 R23): sacrificed, then its search.
             game.note(f"{card.name}: an opponent controls three creatures (assumed)")
             game._sacrifice(card)
-            run_tutor(game, card.tutor, policy)
+            run_tutor(game, card.play.tutor, policy)
         # Mana does not survive the turn it was made in. The agent never
         # noticed, because it reopens the pool at every main phase - but a
         # human who taps out on turn one and spends nothing would otherwise
@@ -149,7 +149,7 @@ class PlayLand(Action):
     def run(self, game, policy) -> None:
         card = _at(game, HAND, self.index)
         game.play_land(card)
-        if card.land_search is not None and card.land_search.when == "play":
+        if card.play.search is not None and card.play.search.when == "play":
             game.play_fetch(card, _land_chooser(policy))
 
 
@@ -203,7 +203,7 @@ class CastSpell(Action):
         # HTTP 500 that htmx then swallowed in silence.
         cost = castable_cost(game, card, x)
         if game.additional_payment(card, pool, x, self.payment) is None:
-            if card.additional_costs and pool.can_pay_cost(cost, life=game.life):
+            if card.play.ways and pool.can_pay_cost(cost, life=game.life):
                 raise IllegalAction(f"{card.name}'s additional cost cannot be paid now")
             raise IllegalAction(f"{card.name} costs {cost}; the floating mana is {pool}")
         game.cast(card, pool, x, self.payment)
@@ -540,7 +540,7 @@ def activations(game, pool) -> list[Action]:
         ActivateSearch(zone=zone, index=index)
         for zone in (LANDS, ROCKS, CREATURES, OTHER)
         for index, card in enumerate(zone_of(game, zone))
-        if card.land_search is not None and card.land_search.when == "activate"
+        if card.play.search is not None and card.play.search.when == "activate"
         and game.can_activate(card, pool)
     ]
     if game.can_activate(None, pool):
@@ -557,7 +557,7 @@ def adaptations(game, pool) -> list[Action]:
 def equips(game, pool) -> list[Action]:
     """The Equipment that can be equipped now (P19 R22)."""
     return [Equip(zone=OTHER, index=index) for index, card in enumerate(game.other_permanents)
-            if card.equip is not None and game.can_equip(card, pool)]
+            if card.turn.equip is not None and game.can_equip(card, pool)]
 
 
 def altars(game, pool) -> list[Action]:
@@ -624,20 +624,20 @@ def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
     to ``policy``; without one, the search takes the most expensive card, which
     is a placeholder for the human being asked and never used by the agent.
     """
-    if card.tutor is not None and not card.tutor.upkeep:
-        run_tutor(game, card.tutor, policy, x)
+    if card.play.tutor is not None and not card.play.tutor.upkeep:
+        run_tutor(game, card.play.tutor, policy, x)
 
     _arrival(game, card, policy, x)
 
-    drawn = card.draw_on_cast + (x if card.draws_x else 0)
+    drawn = card.play.draw + (x if card.play.draws_x else 0)
     if drawn:
         game.draw(drawn)
-        game.life -= card.life_on_cast
-        game.note(f"  -> {drawn} cards, {card.life_on_cast} life")
-    if card.discard_on_cast:
-        game.discard(card.discard_on_cast)
-    if card.put_back_on_cast:
-        game.put_back(card.put_back_on_cast)
+        game.life -= card.play.life
+        game.note(f"  -> {drawn} cards, {card.play.life} life")
+    if card.play.discard:
+        game.discard(card.play.discard)
+    if card.play.put_back:
+        game.put_back(card.play.put_back)
 
 
 def run_tutor(game, spec, policy, x: int = 0) -> None:
@@ -741,7 +741,7 @@ def _arrival(game, card, policy, x: int = 0) -> None:
     Shared by a cast card and a card a tutor put onto the battlefield (P19
     R10): Wood Elves found by Green Sun's Zenith still fetch their Forest.
     """
-    search = card.land_search
+    search = card.play.search
     if search is not None and search.when in ("cast", "enters"):
         game.search_lands(card, _land_chooser(policy), x=x)
         if search.sacrifice and card in game.creatures:

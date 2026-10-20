@@ -126,4 +126,38 @@ def complete(messages: list[dict], *, max_tokens: int, temperature: float = 0.3,
         raise MistralError("Mistral's answer did not have the expected shape") from None
 
 
-__all__ = ["Completion", "MistralError", "complete", "is_configured", "model"]
+MODELS_ENDPOINT = "https://api.mistral.ai/v1/models"
+
+
+def available_models() -> set[str]:
+    """Every model id and alias the key may use (`GET /v1/models`: a list
+    object whose ``data`` entries carry ``id`` and ``aliases``), so a
+    comparison names models that exist rather than guessed ids.
+
+    Raises:
+        MistralError: not configured, unreachable, or an unexpected answer.
+    """
+    if not is_configured():
+        raise MistralError("Mistral is not configured")
+    request = urllib.request.Request(  # noqa: S310 - a fixed https URL
+        MODELS_ENDPOINT, method="GET",
+        headers={"Accept": "application/json",
+                 "Authorization": f"Bearer {settings.MISTRAL_API_KEY}"})
+    try:
+        with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:  # noqa: S310
+            payload = json.loads(response.read(MAX_RESPONSE_BYTES * 8))
+        found = set()
+        for entry in payload["data"]:
+            found.add(str(entry["id"]))
+            found.update(str(alias) for alias in entry.get("aliases") or ())
+        return found
+    except urllib.error.HTTPError as exc:
+        raise MistralError(f"Mistral answered HTTP {exc.code}") from None
+    except (urllib.error.URLError, TimeoutError, OSError):
+        raise MistralError("Mistral could not be reached") from None
+    except (ValueError, KeyError, TypeError):
+        raise MistralError("Mistral's model list did not have the expected shape") from None
+
+
+__all__ = ["Completion", "MistralError", "available_models", "complete", "is_configured",
+           "model"]

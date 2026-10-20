@@ -316,6 +316,14 @@ players answered for them, in aggregate. Beat closes the ones the engine reads n
 (`simulations.mail_unread`); no new cards, no mail. A card set to *Won't fix* (it needs an
 opponent) is still counted and no longer mailed. The plan behind it is issue #36.
 
+Language-model drafts of a card's building blocks start as a comparison (card model phase 5):
+`python manage.py draft_compare --models mistral-medium-2604 <a larger model>` sends cards the
+reader reads, with a few others as examples, to each model and scores the answers against the
+reading - per card, and per building block right, missed or added - with the tokens they cost. It
+needs `MISTRAL_API_KEY`, checks the model ids against Mistral's model list, stores nothing and
+writes the answers to `.data/draft_compare.json`. A review queue follows only if more than half of
+the cards come back exactly right.
+
 ### Teaching the engine more cards (P19)
 
 Each round of issue #36 teaches the engine a class of cards it could not read, and

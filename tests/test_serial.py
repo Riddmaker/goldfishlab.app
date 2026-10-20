@@ -42,6 +42,8 @@ from simulation.fixtures import chainer
 from simulation.game import Game
 from simulation.manacost import Hybrid, ManaCost
 from simulation.rules import mana, play
+from simulation.trace import named
+from tests.engine_builders import hold, marks
 
 #: A card with **every** field set away from its default, including one of each
 #: nested dataclass. The point of it is to fail loudly when a new field or a new
@@ -52,7 +54,7 @@ EVERYTHING = Card(
     pips=2,
     generic=3,
     kind=CREATURE,
-    tags=frozenset({"ramp", "draw"}),
+    engine_roles=frozenset({"draw_engine", "recursive"}),
     land_type="coffers",
     enters_tapped=True,
     goldfish_castable=False,
@@ -283,35 +285,27 @@ def test_a_permanent_that_stays_tapped_survives_the_trip():
     they already spent.
     """
     game = Game(random.Random(3), deck=chainer.DECK)
-    game.stays_tapped = [EVERYTHING]
+    game.rocks = [EVERYTHING]
+    hold(game, EVERYTHING)
     restored = serial.load_game(json.loads(json.dumps(serial.dump_game(game))),
                                 chainer.DECK)
     assert restored.stays_tapped == [EVERYTHING]
 
 
-def test_a_state_cached_before_version_three_still_loads():
-    game = Game(random.Random(3), deck=chainer.DECK)
-    data = json.loads(json.dumps(serial.dump_game(game)))
-    del data["stays_tapped"]
-    assert serial.load_game(data, chainer.DECK).stays_tapped == []
-
-
 def test_a_chosen_colour_survives_the_trip():
     """Caged Sun chose once (P19 R13); a reload must not choose again."""
     game = Game(random.Random(3), deck=chainer.DECK)
-    game.chosen_colors = {"Caged Sun": "G"}
-    assert restored(game).chosen_colors == {"Caged Sun": "G"}
-    data = json.loads(json.dumps(serial.dump_game(game)))
-    del data["chosen_colors"]
-    assert serial.load_game(data, chainer.DECK).chosen_colors == {}
+    marks(game, chosen_colors={"Caged Sun": "G"})
+    assert named(restored(game), "chosen_colors") == {"Caged Sun": "G"}
 
 
 def test_the_creatures_that_arrived_survive_the_trip():
     """A creature's {T} waits a turn (P19 R15); a reload keeps that."""
     game = Game(random.Random(3), deck=chainer.DECK)
-    game.arrived, game.tapped_creatures = ["Wight of the Reliquary"], ["Knight"]
+    marks(game, arrived=["Wight of the Reliquary"], tapped_creatures=["Knight"])
     back = restored(game)
-    assert (back.arrived, back.tapped_creatures) == (["Wight of the Reliquary"], ["Knight"])
+    assert (named(back, "arrived"), named(back, "tapped_creatures")) == (
+        ["Wight of the Reliquary"], ["Knight"])
 
 
 def test_mana_waiting_for_the_pool_survives_the_trip():
@@ -327,9 +321,6 @@ def test_a_lander_survives_the_trip():
     game = Game(random.Random(3), deck=chainer.DECK)
     game.landers = 2
     assert restored(game).landers == 2
-    data = json.loads(json.dumps(serial.dump_game(game)))
-    del data["landers"]
-    assert serial.load_game(data, chainer.DECK).landers == 0
 
 
 # --- Card objects after a restore (card model, phase 4) -----------------------
@@ -346,11 +337,11 @@ def test_a_restored_commander_is_still_the_commander():
     assert chainer.DECK.commander not in back.fodder(cost)
 
 
-def test_copies_of_a_card_are_one_object_again():
+def test_each_copy_of_a_card_comes_back_as_its_own_object():
     game = played()
     back = restored(game)
-    swamps = {id(card) for card in back.library if card.name == "Swamp"}
-    assert len(swamps) == 1
+    swamps = [card for card in back.library if card.name == "Swamp"]
+    assert len({id(card) for card in swamps}) == len(swamps) > 1
 
 
 def test_a_token_the_game_made_stays_its_own_card():
@@ -363,6 +354,3 @@ def test_a_token_the_game_made_stays_its_own_card():
 def test_the_cards_drawn_survive_the_trip():
     game = played()
     assert restored(game).drawn == game.drawn
-    data = json.loads(json.dumps(serial.dump_game(game)))
-    del data["drawn"]
-    assert serial.load_game(data, chainer.DECK).drawn == []

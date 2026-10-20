@@ -36,7 +36,7 @@
    {
     "black": 0.62,
     "commander": 0,
-    "drain": 0,
+    "drain": 28,
     "draw_engine": 3,
     "engine_online": 0,
     "lands": 2.0,
@@ -56,7 +56,7 @@
    {
     "black": 0.952,
     "commander": 4,
-    "drain": 6,
+    "drain": 80,
     "draw_engine": 37,
     "engine_online": 0,
     "lands": 2.924,
@@ -76,7 +76,7 @@
    {
     "black": 1.402,
     "commander": 19,
-    "drain": 33,
+    "drain": 178,
     "draw_engine": 105,
     "engine_online": 0,
     "lands": 3.732,
@@ -96,7 +96,7 @@
    {
     "black": 1.953,
     "commander": 88,
-    "drain": 75,
+    "drain": 283,
     "draw_engine": 231,
     "engine_online": 0,
     "lands": 4.448,
@@ -116,7 +116,7 @@
    {
     "black": 2.511,
     "commander": 262,
-    "drain": 109,
+    "drain": 377,
     "draw_engine": 424,
     "engine_online": 0,
     "lands": 5.078,
@@ -136,7 +136,7 @@
    {
     "black": 3.01,
     "commander": 497,
-    "drain": 136,
+    "drain": 452,
     "draw_engine": 636,
     "engine_online": 0,
     "lands": 5.618,
@@ -156,7 +156,7 @@
    {
     "black": 3.42,
     "commander": 684,
-    "drain": 148,
+    "drain": 499,
     "draw_engine": 777,
     "engine_online": 0,
     "lands": 6.13,

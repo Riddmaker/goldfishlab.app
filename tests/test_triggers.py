@@ -38,6 +38,7 @@ from simulations import blindspots, deck_cards
 from simulations.engine.adapter import Gap, Reading, _trigger_text
 from simulations.engine.adapter import _triggers as adapter_triggers
 from simulations.primitives import keep_taps_for_scope
+from tests.engine_builders import tap
 
 # --- the reader -----------------------------------------------------------------
 
@@ -215,7 +216,7 @@ def game_with(library=(), *, lands=(), creatures=(), others=(), hand=(), open_ma
     game.creatures = list(creatures)
     game.other_permanents = list(others)
     game.hand = list(hand)
-    game.tapped_lands = 0
+    tap(game, lands=0)
     game.turn = 3
     if open_main:
         actions.OpenMainPhase().run(game, None)

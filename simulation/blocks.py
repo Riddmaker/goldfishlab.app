@@ -202,7 +202,7 @@ FACE_FIELDS = (
 
 #: A deck author's judgement, not rules text: kept beside the blocks.
 HINT_FIELDS = (
-    "tags", "categories", "goldfish_castable", "needs_creature_in_yard",
+    "engine_roles", "categories", "goldfish_castable", "needs_creature_in_yard",
     "needs_creature_on_bf", "priority", "accelerant", "x_min",
 )
 

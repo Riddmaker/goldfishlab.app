@@ -42,8 +42,10 @@ from simulation.cards import (
 from simulation.game import Game
 from simulation.mana import ManaPool
 from simulation.manacost import parse
+from simulation.trace import named
 from simulations import deck_cards
 from simulations.engine import adapter
+from tests.engine_builders import marks, tap
 
 ANY = "WUBRG"
 
@@ -211,7 +213,7 @@ def game_with(creatures=(), other=(), hand=(), library=(), lands=(), commander=N
     game.hand = list(hand)
     game.library = list(library) or [FOREST] * 5 + [creature(f"Filler {n}") for n in range(20)]
     game.lands, game.rocks = list(lands), []
-    game.tapped_lands = game.tapped_rocks = 0
+    tap(game, lands=0, rocks=0)
     return game
 
 
@@ -220,15 +222,15 @@ def test_who_attacks():
     wall = Card("Wall", 2, 0, 2, CREATURE, types=frozenset({"creature"}), defender=True)
     new = creature("Newcomer")
     game = game_with(creatures=[BEAR, elf, wall, new, LANNERY])
-    game.arrived = ["Newcomer", "Captain Lannery Storm"]
+    marks(game, arrived=["Newcomer", "Captain Lannery Storm"])
     assert [each.name for each in game.attackers()] == ["Bear", "Captain Lannery Storm"]
-    game.tapped_creatures = ["Bear"]
+    marks(game, tapped_creatures=["Bear"])
     assert [each.name for each in game.attackers()] == ["Captain Lannery Storm"]
 
 
 def test_lannery_storm_attacks_with_haste_and_makes_a_treasure():
     game = game_with(creatures=[LANNERY])
-    game.arrived = [LANNERY.name]
+    marks(game, arrived=[LANNERY.name])
     game.pool = ManaPool()
     assert game.combat() is True
     assert game.treasures == [ANY] and game.pool.treasures == [ANY]
@@ -237,7 +239,7 @@ def test_lannery_storm_attacks_with_haste_and_makes_a_treasure():
 
 def test_a_treasure_needs_an_attacker():
     game = game_with(creatures=[creature("Ragavan", combat=(treasure_on("damage"),))])
-    game.arrived = ["Ragavan"]
+    marks(game, arrived=["Ragavan"])
     game.pool = ManaPool()
     assert game.combat() is False and game.treasures == []
 
@@ -247,7 +249,7 @@ def test_sword_of_the_animist_is_equipped_and_finds_a_land():
     pool = ManaPool(R=2)
     assert actions.equips(game, pool) == [actions.Equip(zone=actions.OTHER, index=0)]
     game.equip(SWORD, pool)
-    assert game.attached == {SWORD.name: "Bear"} and pool.total == 0
+    assert named(game, "attached") == {SWORD.name: "Bear"} and pool.total == 0
     assert not game.can_equip(SWORD, ManaPool(R=2))
     game.pool = pool
     game.combat()
@@ -259,8 +261,8 @@ def test_kodama_finds_a_land_for_each_modified_creature():
         CombatTrigger(event="damage", who="modified", search=True),))
     countered, plain = creature("Countered"), creature("Plain")
     game = game_with(creatures=[kodama, countered, plain, BEAR], other=[SWORD])
-    game.plus_counters = {"Countered": 1}
-    game.attached = {SWORD.name: "Bear"}
+    marks(game, plus_counters={"Countered": 1})
+    marks(game, attached={SWORD.name: "Bear"})
     game.pool = ManaPool()
     game.combat()
     # The Bear's Sword finds one more: three lands.
@@ -322,9 +324,9 @@ def test_an_aura_goes_on_an_attacker_and_falls_off_with_it():
     assert not game.can_cast(impetus, ManaPool(R=3))
     game = game_with(creatures=[elf, BEAR], hand=[impetus])
     game.cast(impetus, ManaPool(R=3))
-    assert game.attached == {"Shiny Impetus": "Bear"}
+    assert named(game, "attached") == {"Shiny Impetus": "Bear"}
     game.sacrifice(BEAR)
-    assert game.attached == {} and impetus in game.graveyard
+    assert named(game, "attached") == {} and impetus in game.graveyard
 
 
 def test_living_weapon_makes_a_germ_that_attacks_next_turn():
@@ -334,7 +336,7 @@ def test_living_weapon_makes_a_germ_that_attacks_next_turn():
     game = game_with()
     game.cast(bitterthorn, ManaPool(colorless=3))
     assert [each.name for each in game.creatures] == [GERM]
-    assert game.attached == {bitterthorn.name: GERM}
+    assert named(game, "attached") == {bitterthorn.name: GERM}
     assert game.attackers() == []
     game.begin_turn()
     game.pool = ManaPool()
@@ -350,7 +352,7 @@ def test_paradise_mantle_makes_mana_from_the_next_turn():
                                                                   subtype="equipped"),))
     game = game_with(creatures=[BEAR], other=[mantle])
     game.equip(mantle, ManaPool(colorless=1))
-    assert game.attached == {"Paradise Mantle": "Bear"}
+    assert named(game, "attached") == {"Paradise Mantle": "Bear"}
     game.begin_turn()
     assert game.open_pool().by_color() == {ANY: 1}
     assert game.attackers() == []
@@ -360,7 +362,7 @@ def test_mana_a_trigger_adds_in_combat_is_lost():
     cobra = replace(creature("Lotus Cobra", 2, 1, types=("snake",), cost="{1}{G}"),
                     triggers=(Trigger(LANDFALL, mana=1, mana_color=ANY),))
     game = game_with(creatures=[cobra, BEAR], other=[SWORD])
-    game.attached = {SWORD.name: "Bear"}
+    marks(game, attached={SWORD.name: "Bear"})
     game.pool = ManaPool()
     game.combat()
     assert len(game.lands) == 1 and game.pool.total == 0
@@ -370,18 +372,18 @@ def test_the_agent_equips_with_spare_mana_and_attacks():
     game = game_with(creatures=[BEAR], other=[SWORD], lands=[MOUNTAIN, MOUNTAIN])
     game.library = [FOREST] * 3 + [creature(f"Filler {n}") for n in range(20)]
     agent.take_turn(game)
-    assert game.attached == {SWORD.name: "Bear"}
+    assert named(game, "attached") == {SWORD.name: "Bear"}
     assert len(game.lands) == 3 and "Combat: Bear attack" in game.log
 
 
 def test_a_saved_game_keeps_what_is_attached():
     game = game_with(creatures=[BEAR], other=[SWORD])
-    game.attached = {SWORD.name: "Bear"}
+    marks(game, attached={SWORD.name: "Bear"})
     game.combat_done = True
     game.pool = ManaPool(R=1)
     game.pool.treasure_bonus = 1
     loaded = serial.load_game(serial.dump_game(game), game.deck)
-    assert loaded.attached == game.attached and loaded.combat_done
+    assert named(loaded, "attached") == named(game, "attached") and loaded.combat_done
     assert loaded.pool.treasure_bonus == 1
     assert loaded.other_permanents[0].combat == SWORD.combat
 

@@ -31,7 +31,9 @@ SCALARS = ("turn", "life", "mulligans", "tapped_lands", "tapped_rocks",
            "mana_available", "spells_this_turn", "combat_done", "landers",
            "energy")
 
-#: The ten attributes that keep a permanent's state by its name.
+#: The ten attributes that keep a permanent's state by its number, written
+#: by the permanent's card name, so the record reads the same however the
+#: engine numbers its permanents.
 BY_NAME = ("arrived", "tapped_creatures", "chosen_colors", "fodder_used",
            "imprinted", "counters", "emptied", "plus_counters", "flipped",
            "attached")
@@ -56,10 +58,19 @@ def _treasures(keys) -> list[str]:
     return [f"stored:{key}" if isinstance(key, Stored) else str(key) for key in keys]
 
 
-def _by_name(value):
+def named(game, attribute: str):
+    """One of the ten marks with each permanent's number written as its card
+    name - what is attached to what by name on both sides."""
+    names = game.pid_names
+
+    def name(pid) -> str:
+        return names.get(pid, str(pid))
+
+    value = getattr(game, attribute)
     if isinstance(value, dict):
-        return {str(key): item for key, item in sorted(value.items())}
-    return [str(item) for item in value]
+        return dict(sorted((name(pid), name(item) if attribute == "attached" else item)
+                           for pid, item in value.items()))
+    return [name(pid) for pid in value]
 
 
 def record(game, logged: int = 0) -> dict:
@@ -67,9 +78,10 @@ def record(game, logged: int = 0) -> dict:
     state = {name: _names(getattr(game, name)) for name in ZONES}
     state["library"] = _digest(_names(game.library), TURN_DIGEST)
     state["library_size"] = len(game.library)
-    state["stays_tapped"] = _names(game.stays_tapped)
+    # A set: which ones are held, not in what order.
+    state["stays_tapped"] = sorted(_names(game.stays_tapped))
     state.update({name: getattr(game, name) for name in SCALARS})
-    state.update({name: _by_name(getattr(game, name)) for name in BY_NAME})
+    state.update({name: named(game, name) for name in BY_NAME})
     state["treasures"] = _treasures(game.treasures)
     state["pending_mana"] = [str(key) for key in game.pending_mana]
     state["mana_by_color"] = dict(sorted(game.mana_by_color.items()))

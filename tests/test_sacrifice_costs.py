@@ -34,6 +34,7 @@ from simulation.cards import (
 from simulation.game import LANDER_FODDER, TREASURE, Game
 from simulation.manacost import parse
 from simulations.engine.adapter import _way_text
+from tests.engine_builders import tap
 
 Kind = DerivedProfile.Kind
 
@@ -167,7 +168,7 @@ DISPUTE = Card("Deadly Dispute", 2, 1, 1, INSTANT, cost=parse("{1}{B}"), draw_on
 BEAR = Card("Grizzly Bears", 2, 0, 2, CREATURE, cost=parse("{1}{G}"))
 SQUIRE = Card("Squire", 2, 0, 2, CREATURE, cost=parse("{1}{W}"))
 BLOODGHAST = Card("Bloodghast", 2, 2, 0, CREATURE, cost=parse("{B}{B}"),
-                  tags=frozenset({"recursive"}))
+                  engine_roles=frozenset({"recursive"}))
 ELF = Card("Llanowar Elves", 1, 0, 1, CREATURE, cost=parse("{G}"),
            mana_abilities=(ManaAbility(FLAT, {"G": 1}),))
 COMMANDER = Card("Commander", 3, 0, 3, CREATURE, cost=parse("{2}{B}"))
@@ -180,7 +181,7 @@ def game_with(library=(), *, lands=(), creatures=(), others=(), hand=(), command
     game.creatures = list(creatures)
     game.other_permanents = list(others)
     game.hand = list(hand)
-    game.tapped_lands = 0
+    tap(game, lands=0)
     game.turn = 3
     actions.OpenMainPhase().run(game, None)
     return game
@@ -296,7 +297,7 @@ def test_harrow_trades_one_land_for_two_untapped():
 
 def test_a_land_that_came_in_tapped_is_sacrificed_first():
     game = game_with([SWAMP, ISLAND], lands=[ISLAND, FOREST, FOREST, FOREST], hand=[HARROW])
-    game.tapped_lands = 1
+    tap(game, lands=1)
     assert game.land_fodder()[0] is game.lands[0]
 
 

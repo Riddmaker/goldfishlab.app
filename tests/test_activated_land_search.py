@@ -38,6 +38,7 @@ from simulation.cards import (
 )
 from simulation.game import Game
 from simulation.manacost import parse
+from tests.engine_builders import tap
 
 Kind = DerivedProfile.Kind
 
@@ -181,7 +182,7 @@ def game_with(library, *, lands=(), others=(), creatures=(), hand=()):
     game.other_permanents = list(others)
     game.creatures = list(creatures)
     game.hand = list(hand)
-    game.tapped_lands = 0
+    tap(game, lands=0)
     game.turn = 3
     actions.OpenMainPhase().run(game, None)
     return game
@@ -218,7 +219,7 @@ def test_a_land_that_taps_for_it_gives_up_its_own_mana():
 
 def test_a_land_that_entered_tapped_cannot_pay_its_tap():
     game = game_with([ISLAND], lands=[MYRIAD, FOREST, FOREST, FOREST])
-    game.tapped_lands = 1
+    tap(game, lands=1)
     assert not game.can_activate(MYRIAD, game.pool)
 
 

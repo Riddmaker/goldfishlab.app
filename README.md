@@ -372,9 +372,12 @@ PR 15 triggers, turns and combat (upkeep, end step, +1/+1 counters, combat trigg
 Treasures) with `card.turn`. What `Card` keeps as fields is printed on the card or a play hint. A
 card is still made with the old fields, which `simulation/rules/mana.py`, `play.py` and `turns.py`
 encode; reading one decodes it, which is what wording, the editor and stored decks do until phase
-5. `engine_coverage --diff` against the frozen v29 reading is the round trip on every card;
+5. `engine_coverage --diff` against the latest frozen reading is the round trip on every card;
 `tests/test_rules.py`, `tests/test_play_family.py` and `tests/test_turns_family.py` hold that the
-engine never reads the old fields.
+engine never reads the old fields. Since PR 17 (engine v30) each permanent keeps its own state
+(`simulation/permanent.py`), the engine's four roles - sacrifice outlet, recursive creature, drain,
+draw engine - are read off the card's categories (`adapter.engine_roles`), and games are seeded per
+block of 250 (`analysis.SEED_BLOCK`), so how a run is cut into chunks decides no game.
 
 A round that changes `cards/profiles.py` needs the profiles derived again after its deploy
 (`python manage.py ingest_scryfall --profiles`), and every round changes the engine's numbers, so

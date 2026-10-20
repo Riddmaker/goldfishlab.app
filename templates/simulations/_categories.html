@@ -3,27 +3,16 @@
   Card model phase 3, PR 10: what the card counts as in the statistics -
   its main role, its other categories, who decided each - and a plain form
   post per change. Said relative to the card data, so a later reading still
-  reaches the card. The engine's play is not changed here.
+  reaches the card. Since PR 17 the engine's roles are read off them too.
 {% endcomment %}
 <section id="categories" class="mt-6 border-t border-parchment-300 pt-5">
   <h3 class="font-display text-xl text-ink-900">{% translate "Categories" %}</h3>
   <p class="mt-1 text-sm text-ink-700">
-    {% translate "What the card counts as on the deck page and in the draw statistics. The engine plays it the same either way." %}
+    {% translate "What the card counts as on the deck page and in the draw statistics. The engine plays by four of them: a sacrifice outlet, a recursive creature, a drain, and card draw when it draws again and again." %}
   </p>
   {% if not categories.derived %}
     <p class="mt-1 text-sm text-ink-700" data-not-derived>
       {% translate "Until the card data is read again, these are the community roles, and no role is the main one." %}
-    </p>
-  {% endif %}
-  {% if categories.legacy %}
-    <p class="mt-2 border-l-2 border-blood-600 pl-3 text-sm text-ink-900" data-legacy>
-      {% if categories.legacy == scope %}
-        {% translate "A list of roles you wrote earlier decides this card's categories. “Back to the card data” retires it; the engine keeps playing the card as it did." %}
-      {% elif categories.legacy == "user" %}
-        {% translate "A list of roles you wrote earlier, for all your decks, decides this card's categories." %}
-      {% else %}
-        {% translate "A list of roles you wrote earlier, for this deck, decides this card's categories." %}
-      {% endif %}
     </p>
   {% endif %}
   {% if categories.lines %}

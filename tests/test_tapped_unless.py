@@ -9,6 +9,7 @@ from cards.profiles import _enters_tapped
 from simulation import actions
 from simulation.cards import LAND, Card, LandSearch, TappedUnless
 from simulation.game import Game
+from tests.engine_builders import tap
 
 
 def read(text: str):
@@ -66,7 +67,8 @@ FOREST, ISLAND = land("Forest", "forest", basic=True), land("Island", "island", 
 def play(land_card, *, lands=(), hand=(), life=40):
     game = Game(random.Random(1))
     game.library, game.hand, game.lands = [], [land_card, *hand], list(lands)
-    game.tapped_lands, game.life = 0, life
+    game.life = life
+    tap(game, lands=0)
     actions.PlayLand(index=0).run(game, None)
     return game
 
@@ -111,7 +113,7 @@ def test_a_shock_land_pays_two_life_but_not_below_the_floor():
 def test_a_shock_land_fetched_tapped_pays_nothing():
     shock = land("Breeding Pool", "forest", unless=TappedUnless("pay_life", count=2))
     game = Game(random.Random(1))
-    game.library, game.lands, game.tapped_lands = [shock], [], 0
+    game.library, game.lands = [shock], []
     game.search_lands(Card("Wilds", 0, 0, 0, LAND, land_search=LandSearch(basic=False)))
     assert (game.tapped_lands, game.life) == (1, 40)
 
@@ -138,7 +140,7 @@ def test_minas_tirith_needs_a_legendary_creature():
     plain = Card("Grizzly Bears", 2, 1, 1, "creature", types=frozenset({"creature"}))
     legend = Card("Tuvasa", 3, 3, 0, "creature", types=frozenset({"creature"}), legendary=True)
     game = Game(random.Random(1))
-    game.library, game.hand, game.lands, game.tapped_lands = [], [tirith], [], 0
+    game.library, game.hand, game.lands = [], [tirith], []
     game.creatures = [plain]
     assert not game.untaps_on_entering(tirith)
     game.creatures = [plain, legend]

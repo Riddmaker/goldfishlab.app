@@ -41,6 +41,19 @@ class Entry:
 
 
 ENTRIES = (
+    # Card model phase 4, PR 17: engine v30. Dated for its merge; move it if
+    # the merge moves (never inside the engine freeze, 9 to 18 November).
+    Entry(
+        date(2026, 10, 20), "each-card-its-own",
+        _("Every card plays on its own, and by its categories"),
+        _("Two copies of a card, or two tokens with the same name, now keep their own "
+          "counters, equipment and tapped state. The four roles the engine plays a card in - "
+          "sacrifice outlet, recursive creature, drain, and card draw that happens again and "
+          "again - come from the card's categories, so a correction under “Categories” "
+          "changes the games too. A report made with an older engine says so and offers a "
+          "new run."),
+        "methodology", "report-milestones",
+    ),
     # Card model phase 3, PR 10: on the same day as the categories it corrects.
     Entry(
         date(2026, 10, 15), "categories-you-correct",

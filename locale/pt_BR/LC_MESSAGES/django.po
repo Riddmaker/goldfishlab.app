@@ -13261,3 +13261,80 @@ msgid ""
 msgstr ""
 "Um card conta em cada categoria em que se encaixa; “como papel principal” "
 "conta-o uma vez só, no seu papel principal."
+
+#: simulations/provenance.py
+msgid "The card's categories"
+msgstr "As categorias da carta"
+
+#: simulations/provenance.py
+msgid ""
+"Read off what the card counts as, under “Categories”: correct it there and "
+"the engine plays it that way."
+msgstr ""
+"Lido a partir do que a carta conta, em “Categorias”: corrija lá e o motor a "
+"joga assim."
+
+#: simulations/views.py
+#, python-format
+msgid "Saved. %(card)s counts and plays that way from the next run onwards."
+msgstr "Salvo. %(card)s conta e é jogada assim a partir da próxima simulação."
+
+#: templates/simulations/_categories.html
+msgid ""
+"What the card counts as on the deck page and in the draw statistics. The "
+"engine plays by four of them: a sacrifice outlet, a recursive creature, a "
+"drain, and card draw when it draws again and again."
+msgstr ""
+"O que a carta conta na página do deck e nas estatísticas de compra. O motor "
+"joga por quatro delas: um sacrifice outlet, uma criatura recorrente, um "
+"dreno e a compra quando a carta compra de novo e de novo."
+
+#: templates/simulations/_older_engine.html
+#, python-format
+msgid ""
+"Played by an older version of the engine (v%(version)s). The engine has "
+"learned since, so a run today can give other numbers."
+msgstr ""
+"Jogado com uma versão mais antiga do motor (v%(version)s). O motor aprendeu "
+"desde então, então uma simulação hoje pode dar outros números."
+
+#: templates/simulations/_older_engine.html
+msgid "Run it again"
+msgstr "Simular de novo"
+
+#: templates/core/methodology.html
+msgid ""
+"The share of games in which each milestone was true by the end of that turn."
+" They are read from the cards' categories, the ones you can correct on a "
+"card's page, so a deck built differently gets the same chart without "
+"anything here changing. A card that draws counts as a draw engine only when "
+"it draws again and again. The chart draws the eight most frequent; a rarer "
+"ninth stays in the numbers under it."
+msgstr ""
+"A parcela de partidas em que cada marco era verdadeiro até o fim daquele "
+"turno. Eles são lidos das categorias dos cards, as que você pode corrigir na"
+" página de um card, então um deck construído de outro jeito recebe o mesmo "
+"gráfico sem que nada aqui mude. Um card que compra só conta como motor de "
+"compra quando compra de novo e de novo. O gráfico desenha os oito mais "
+"frequentes; um nono mais raro fica nos números abaixo dele."
+
+#: changelog/entries.py
+msgid "Every card plays on its own, and by its categories"
+msgstr "Cada card joga por conta própria, e pelas suas categorias"
+
+#: changelog/entries.py
+msgid ""
+"Two copies of a card, or two tokens with the same name, now keep their own "
+"counters, equipment and tapped state. The four roles the engine plays a card"
+" in - sacrifice outlet, recursive creature, drain, and card draw that "
+"happens again and again - come from the card's categories, so a correction "
+"under “Categories” changes the games too. A report made with an older engine"
+" says so and offers a new run."
+msgstr ""
+"Duas cópias de um card, ou duas fichas com o mesmo nome, agora mantêm seus "
+"próprios marcadores, equipamentos e seu próprio estado virado. As quatro "
+"funções em que o motor joga um card - sacrifice outlet, criatura recorrente,"
+" dreno e compra que se repete de novo e de novo - vêm das categorias do "
+"card, então uma correção em “Categorias” também muda as partidas. Um "
+"relatório feito com um motor mais antigo avisa isso e oferece uma nova "
+"simulação."

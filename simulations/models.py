@@ -47,8 +47,8 @@ from django.utils.translation import gettext_lazy as _
 from cards import categories
 from cards.models import OracleCard
 from decks.models import Deck
+from simulation import ENGINE_VERSION
 from simulations import gaps, patches, primitives
-from simulations.engine.runner import ENGINE_ROLE_TAGS
 
 #: The mana a colour annotation may name. Spelled out here rather than imported
 #: from `simulation.manacost`, because the engine stays a stranger to Django and
@@ -98,13 +98,7 @@ ALLOWED_KEYS = {
     "tutor_life": "Life paid to search.",
     "tutor_kind": "Restrict the search to this card kind.",
     "subtypes": "Land subtypes the card carries, e.g. ['swamp'].",
-    # Written before card model phase 3, and no longer by any form: the whole
-    # list, for the engine and the statistics alike. Still read where a row
-    # says it (`adapter._categories`); migration 0017 converts the rest.
-    "tags": "Role tags, overriding the ones rolled up from the community tags.",
-    # Card model phase 3: the engine's roles and the card's categories apart.
-    "engine_tags": "The roles the engine reads, replacing only those: draw_engine, "
-                   "sac_outlet, recursive, drain_payoff.",
+    # Card model phase 3; since PR 17 the engine's roles are read off them too.
     "category_primary": "The card's main role in the statistics.",
     "category_add": "Categories the card counts in beside its derived ones.",
     "category_remove": "Derived categories the card does not count in.",
@@ -275,11 +269,6 @@ class CardAnnotation(models.Model):
         if set(overrides.get("category_add") or ()) & set(overrides.get("category_remove")
                                                           or ()):
             raise ValidationError({"overrides": "a category is both added and removed"})
-        engine = overrides.get("engine_tags")
-        if engine is not None and (not isinstance(engine, list)
-                                   or not set(engine) <= set(ENGINE_ROLE_TAGS)):
-            raise ValidationError({"overrides": f"engine_tags: a list from "
-                                                f"{list(ENGINE_ROLE_TAGS)}."})
 
     @staticmethod
     def _check_color(key: str, color) -> None:
@@ -418,6 +407,12 @@ class SimulationRun(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse("simulations:detail", args=[self.id])
+
+    @property
+    def older_engine(self) -> bool:
+        """Played by an engine older than today's, so a run now could give
+        other numbers (card model PR 17, D17.6)."""
+        return self.status == self.Status.DONE and self.engine_version < ENGINE_VERSION
 
     @property
     def played_without_commander(self) -> bool:

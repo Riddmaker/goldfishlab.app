@@ -22,6 +22,7 @@ from core import seo
 from datapages.models import Precon
 from sharing import services, text
 from sharing.models import SharedReport
+from simulation import ENGINE_VERSION
 from simulations import report
 from simulations.models import SimulationRun
 
@@ -64,7 +65,9 @@ class StopView(LoginRequiredMixin, View):
 def rendered(request, shared: SharedReport, url: str) -> dict:
     """The report's body, description and text, from the cache when it is
     there. Also the precon pages' (P11), which are shared reports too."""
-    key = f"sharing:report:{shared.token}:{get_language()}"
+    # The engine version too: a report played by an older engine says so
+    # (`simulations/_older_engine.html`) from the deploy on, not a day later.
+    key = f"sharing:report:{shared.token}:{get_language()}:{ENGINE_VERSION}"
     parts = cache.get(key)
     if parts is None:
         run = shared.run

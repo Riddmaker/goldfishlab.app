@@ -255,7 +255,7 @@ def test_the_fingerprint_moves_with_the_cards_and_the_annotations(owner, deck):
     assert second != first
 
     CardAnnotation.objects.create(owner=owner, deck=deck, oracle_card=entry.oracle_card,
-                                  overrides={"tags": ["ramp"]})
+                                  overrides={"category_add": ["ramp"]})
     assert summary.fingerprint(deck) != second
 
 

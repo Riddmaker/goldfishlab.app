@@ -361,7 +361,7 @@ def test_the_pieces_of_a_held_combo_are_the_decks_key_cards(run, contained):
 def test_a_hypothetical_deck_knows_the_pieces_of_its_combo(run, one_away, monkeypatch):
     monkeypatch.setattr(measure, "MIN_SAMPLE", 5)
 
-    samples = measure.samples_for(run, measure.plan_for(run), index=0, chunks=2)
+    samples = measure.samples_for(run, measure.plan_for(run), first_block=0, games=run.games_total)
 
     assert "Ashnod's Altar" in samples[0].deck.key_cards
 
@@ -493,7 +493,7 @@ def test_the_hypothetical_deck_is_one_card_larger_and_nothing_is_cut(deck):
 def test_the_added_card_is_the_one_the_combo_was_missing(run, one_away, monkeypatch):
     monkeypatch.setattr(measure, "MIN_SAMPLE", 5)
 
-    samples = measure.samples_for(run, measure.plan_for(run), index=0, chunks=2)
+    samples = measure.samples_for(run, measure.plan_for(run), first_block=0, games=run.games_total)
 
     assert [sample.key for sample in samples] == ["away-1"]
     assert any(card.name == "Ashnod's Altar" for card in samples[0].deck.library)

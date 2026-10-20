@@ -639,7 +639,7 @@ class CategoryView(DeckScopedView):
     """Change what one card counts as in the statistics (card model phase 3,
     PR 10): make a role its main one, add or remove a category, or go back to
     the card data. Relative to what is derived, so a later reading still
-    reaches the card; the engine's play does not change."""
+    reaches the card; the engine's roles follow (card model PR 17)."""
 
     def post(self, request, pk, oracle_id):
         deck = self.get_deck(request, pk)
@@ -652,8 +652,7 @@ class CategoryView(DeckScopedView):
         inherited = {name: merged[name] for name in annotations.CATEGORY_KEYS
                      if name in merged and scopes.get(name) in _WIDER[scope]}
         profile = getattr(card, "profile", None)
-        base = (adapter.base_categories(profile, merged, scopes.get("tags"))
-                if profile is not None else frozenset())
+        base = adapter.derived_categories(profile) if profile is not None else frozenset()
         try:
             services.save_annotation(
                 deck=deck, oracle_card=card, scope=scope, note=None,
@@ -662,8 +661,8 @@ class CategoryView(DeckScopedView):
         except ValidationError as exc:
             messages.error(request, " ".join(exc.messages))
         else:
-            messages.success(request, gettext("Saved. %(card)s counts that way in the "
-                                              "statistics from the next run onwards.")
+            messages.success(request, gettext("Saved. %(card)s counts and plays that way "
+                                              "from the next run onwards.")
                              % {"card": card.front_name})
         return redirect(CardAnnotateView._url(deck, card, scope) + "#categories")
 

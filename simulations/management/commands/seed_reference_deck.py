@@ -27,6 +27,7 @@ from django.db import transaction
 from decks import seeding
 from decks.models import Deck, DeckCard
 from simulation.fixtures import chainer
+from simulations.engine import adapter
 from simulations.fixtures import annotation_overrides
 from simulations.models import CardAnnotation
 from simulations.primitives import keep_taps_for_scope
@@ -129,8 +130,14 @@ class Command(BaseCommand):
             )
             # The author's "taps for" meant every mana reading of the card,
             # as it did before the editor rebuild: Ashnod's Altar is no altar here.
-            overrides = keep_taps_for_scope(
-                overrides, getattr(cards[card.name], "profile", None))
+            profile = getattr(cards[card.name], "profile", None)
+            overrides = keep_taps_for_scope(overrides, profile)
+            # The deck's roles for the engine, said in the card's categories.
+            overrides, missed = adapter.roles_as_categories(overrides, profile,
+                                                            card.engine_roles)
+            if missed:
+                self.stdout.write(f"{card.name}: the categories cannot give "
+                                  f"{', '.join(sorted(missed))}")
             if not overrides:
                 continue
             _, created = CardAnnotation.objects.update_or_create(

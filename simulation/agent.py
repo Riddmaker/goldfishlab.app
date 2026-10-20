@@ -9,7 +9,7 @@ first, then the card-advantage engines, then the sacrifice motor.
 """
 
 from simulation import actions
-from simulation.cards import LANDER, PER_CONTROLLED, RITUAL
+from simulation.cards import DRAIN, DRAW_ENGINE, LANDER, PER_CONTROLLED, RITUAL, SAC_OUTLET
 from simulation.game import TREASURE
 from simulation.mana import (
     ManaPool,
@@ -56,9 +56,9 @@ class _AgentPolicy:
 POLICY = _AgentPolicy()
 
 
-#: Tags that make a card worth finding before a bigger spell: the engines the
+#: Roles that make a card worth finding before a bigger spell: the engines the
 #: milestones already count. Combo pieces come from the deck (`key_cards`).
-ENGINE_TAGS = frozenset({"draw_engine", "sac_outlet", "drain_payoff"})
+ENGINE_TAGS = frozenset({DRAW_ENGINE, SAC_OUTLET, DRAIN})
 
 
 def _unprioritised_target(game, options):
@@ -80,7 +80,7 @@ def _unprioritised_target(game, options):
 
     key_names = game.deck.key_cards
     key = [card for card in spells
-           if card.name in key_names or card.tags & ENGINE_TAGS]
+           if card.name in key_names or card.engine_roles & ENGINE_TAGS]
     pool = key or spells
     reach = game.mana_available + 1
     castable = [card for card in pool if card.mv <= reach]

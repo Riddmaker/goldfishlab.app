@@ -16,6 +16,7 @@ from simulation import actions
 from simulation.cards import CREATURE, LAND, ROCK, SORCERY, Card, LandSearch, TutorSpec
 from simulation.game import Game
 from simulation.manacost import parse
+from tests.engine_builders import tap
 
 TAGS = {"tutor", "tutor-creature", "tutor-to-battlefield", "tutor-mv"}
 
@@ -71,7 +72,7 @@ SIGNET = Card("Signet", 2, 0, 2, ROCK, cost=parse("{2}"), types=frozenset({"arti
 def game_with(lands, hand, library=()):
     game = Game(random.Random(1))
     game.lands, game.hand, game.library = list(lands), list(hand), list(library)
-    game.tapped_lands = 0
+    tap(game, lands=0)
     return game
 
 

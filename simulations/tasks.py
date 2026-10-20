@@ -84,8 +84,9 @@ def run_simulation(run_id: str) -> str:
     # exactly that. Verified by watching which worker picks the chunks up.
     queue = services.queue_of(run)
     header = [
-        simulate_chunk.s(str(run.pk), index, games).set(queue=queue)
-        for index, games in enumerate(plan)
+        simulate_chunk.s(str(run.pk), index, games, first_block).set(queue=queue)
+        for index, (games, first_block) in enumerate(zip(plan, runner.first_blocks(plan),
+                                                         strict=True))
     ]
     # When a chunk raises, Celery does not call the chord callback at all - it
     # fails the callback and calls its errbacks instead (see
@@ -102,8 +103,10 @@ def run_simulation(run_id: str) -> str:
 
 
 @shared_task(name="simulations.simulate_chunk")
-def simulate_chunk(run_id: str, index: int, games: int):
-    """Play one chunk of one run.
+def simulate_chunk(run_id: str, index: int, games: int, first_block: int | None = None):
+    """Play one chunk of one run: ``games`` from seed block ``first_block``
+    on (card model PR 17c). A chunk queued before that names no block and
+    plays from block ``index``.
 
     The cancellation check costs one cheap query per chunk - roughly one query
     per fifteen seconds of work - which is what buys a cancel that does not
@@ -120,11 +123,12 @@ def simulate_chunk(run_id: str, index: int, games: int):
         # JSON travels between tasks, and the plan holds engine objects. It is
         # deterministic, so every chunk watches the same combos.
         plan = measure.plan_for(run)
-        samples = measure.samples_for(run, plan, index, run.chunks_total)
+        first_block = index if first_block is None else first_block
+        samples = measure.samples_for(run, plan, first_block, games)
         payload = runner.run_chunk(
             games,
             run_seed=run.seed,
-            index=index,
+            first_block=first_block,
             turns=run.turns,
             on_the_play=run.on_the_play,
             deck=measure.with_key_cards(conversion.definition, plan),

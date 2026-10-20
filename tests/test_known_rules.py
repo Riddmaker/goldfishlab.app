@@ -14,6 +14,7 @@ from cards.models import DerivedProfile, OracleCard
 from cards.profiles import _activation_condition, _mana_production, _mana_rule, _tutor
 from simulation.cards import ARTIFACT, FLAT, LAND, ROCK, Card, ManaAbility, TappedUnless
 from simulation.game import Game
+from tests.engine_builders import tap
 
 Kind = DerivedProfile.Kind
 
@@ -146,7 +147,7 @@ TRINKET = Card("Trinket", 1, 0, 1, ARTIFACT, types=frozenset({ARTIFACT}))
 def game_with(lands=(), rocks=(), others=()):
     game = Game(random.Random(1))
     game.lands, game.rocks, game.other_permanents = list(lands), list(rocks), list(others)
-    game.tapped_lands = game.tapped_rocks = 0
+    tap(game, lands=0, rocks=0)
     return game
 
 

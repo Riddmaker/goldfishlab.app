@@ -38,8 +38,10 @@ from simulation.cards import (
 )
 from simulation.game import Game
 from simulation.manacost import parse
+from simulation.trace import named
 from simulations import deck_cards
 from simulations.engine import adapter
+from tests.engine_builders import marks, tap
 
 ANY = "WUBRG"
 
@@ -169,7 +171,7 @@ def game_with(lands=(), rocks=(), creatures=(), other=(), hand=(), library=()):
     game.lands, game.rocks, game.creatures = list(lands), list(rocks), list(creatures)
     game.other_permanents, game.hand = list(other), list(hand)
     game.library = list(library)
-    game.tapped_lands = game.tapped_rocks = 0
+    tap(game, lands=0, rocks=0)
     return game
 
 
@@ -223,9 +225,9 @@ def test_grand_architect_taps_itself_for_artifact_mana():
 
 def test_a_creature_tapped_for_mana_cannot_pay_another_tap_this_turn():
     game = game_with(rocks=[DRUM], creatures=[BEAR])
-    game.arrived = []
+    marks(game, arrived=[])
     game.open_pool()
-    assert "Grizzly Bears" in game.tapped_creatures
+    assert "Grizzly Bears" in named(game, "tapped_creatures")
     assert not game.creature_can_tap(BEAR)
     # The pool asked again in the same turn still sees the Drum's creature.
     assert game.mana().by_color() == {ANY: 1}
@@ -256,7 +258,7 @@ def test_chrome_mox_exiles_the_most_expensive_coloured_card_and_makes_its_colour
     game = game_with(hand=[chrome, BEAR, big])
     pool = game.mana()
     game.cast(chrome, pool)
-    assert game.exiled == [big] and game.imprinted == {"Chrome Mox": "BG"}
+    assert game.exiled == [big] and named(game, "imprinted") == {"Chrome Mox": "BG"}
     assert game.mana().by_color() == {"BG": 1}
 
 
@@ -271,11 +273,11 @@ def test_millikin_mills_a_card_when_the_pool_opens():
 
 def test_a_saved_game_keeps_the_imprint_and_the_tapped_creatures():
     game = game_with(rocks=[DRUM], creatures=[BEAR])
-    game.imprinted = {"Chrome Mox": "R"}
+    marks(game, imprinted={"Chrome Mox": "R"})
     game.open_pool()
     loaded = serial.load_game(serial.dump_game(game), game.deck)
-    assert loaded.imprinted == {"Chrome Mox": "R"}
-    assert loaded.fodder_used == ["Grizzly Bears"]
+    assert named(loaded, "imprinted") == {"Chrome Mox": "R"}
+    assert named(loaded, "fodder_used") == ["Grizzly Bears"]
 
 
 # --- the adapter and the deck page --------------------------------------------------

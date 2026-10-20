@@ -77,7 +77,7 @@ PROCESSES = 12
 
 #: Card fields that are the printed face or a hint, not a mechanism.
 FACE = frozenset({
-    "name", "mv", "pips", "generic", "kind", "tags", "cost", "types", "subtypes",
+    "name", "mv", "pips", "generic", "kind", "engine_roles", "cost", "types", "subtypes",
     "printed_subtypes", "creature_types", "legendary", "colors", "power", "toughness",
     "categories", "priority", "accelerant", "basic", "goldfish_castable", "token",
 })

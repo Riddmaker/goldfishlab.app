@@ -170,6 +170,17 @@ def test_a_plan_adds_up_to_exactly_what_was_asked_for():
         assert all(size > 0 for size in plan)
 
 
+def test_a_chunk_plays_whole_seed_blocks_whatever_the_speed():
+    """Card model PR 17c: a faster engine cuts a run into other chunks, but
+    every chunk starts on a seed block, so the same games are played."""
+    for rate in (None, 100, 10_000):
+        plan = runner.chunk_plan(123_457, turns=6, usec_per_game=rate)
+        assert all(size % runner.SEED_BLOCK == 0 for size in plan[:-1])
+        starts = runner.first_blocks(plan)
+        assert starts[0] == 0
+        assert starts[-1] * runner.SEED_BLOCK + plan[-1] == 123_457
+
+
 def test_a_plan_never_floods_the_queue():
     """One huge run must not push thousands of tasks past everybody else's."""
     assert len(runner.chunk_plan(10_000_000, turns=10)) <= runner.MAX_CHUNKS

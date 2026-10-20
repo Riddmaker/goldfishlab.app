@@ -42,6 +42,7 @@ from simulation.cards import (
     OPPONENT_TURNS,
     PER_LAND,
     PLANESWALKER,
+    RECURSIVE,
     RESOLVES,
     RITUAL,
     ROCK,
@@ -81,7 +82,7 @@ from simulation.manacost import (
     choice,
     is_choice,
 )
-from simulation.permanent import Marks, ZoneField, ident, key, same
+from simulation.permanent import Marks, ZoneField, ident, same
 from simulation.rules.amount import devotion
 from simulation.rules.condition import check, tap_wanted
 from simulation.rules.mana import flat
@@ -136,6 +137,11 @@ class Game(Marks):
                  deck=None):
         #: The number the next permanent gets: one per game, never reused.
         self.pids = 0
+        #: Each card's permanent, by the card object: the one it is, or the
+        #: last one it was (`Marks.pid_of`). Kept by the zones.
+        self.where = {}
+        #: Each permanent's card name, by number: what the trace writes.
+        self.pid_names = {}
         self.rng = rng
         self.on_the_play = on_the_play
         # Keyword-only and defaulted: ``Game(rng)`` and
@@ -165,13 +171,6 @@ class Game(Marks):
         self.life = STARTING_LIFE
         self.turn = 0
         self.mulligans = 0
-        self.tapped_lands = 0
-        self.tapped_rocks = 0
-        #: Permanents that "don't untap during your untap step" and have
-        #: already been tapped for mana - Mana Vault after its first turn.
-        #: A list rather than a count at the front of a zone, because
-        #: ``begin_turn`` resets those counts and these must survive it.
-        self.stays_tapped: list = []
         self.land_drop_used = False
         self.commander_casts = 0
         #: The second commander's casts, for its own tax (P20 F2b).
@@ -514,7 +513,7 @@ class Game(Marks):
         when its {T} goes to an ability instead - {C} as generic, a colour as
         itself, the mana on top included. None when it cannot be: it came in
         tapped, or it made a choice of colours."""
-        if card not in self.lands[self.tapped_lands:]:
+        if not any(each is card for each in self.lands.untapped()):
             return None
         pool = available_mana(self.lands, [card], [], doublers(self.battlefield),
                               ability_of=self.mana_ability,
@@ -594,15 +593,9 @@ class Game(Marks):
         """Put a permanent into the graveyard; of two equal lands, the
         untapped one."""
         if card in self.lands:
-            index = len(self.lands) - 1 - self.lands[::-1].index(card)
-            if index < self.tapped_lands:
-                self.tapped_lands -= 1
-            self.lands.pop(index)
+            self.lands.pop(len(self.lands) - 1 - self.lands[::-1].index(card))
         elif card in self.rocks:
-            index = len(self.rocks) - 1 - self.rocks[::-1].index(card)
-            if index < self.tapped_rocks:
-                self.tapped_rocks -= 1
-            self.rocks.pop(index)
+            self.rocks.pop(len(self.rocks) - 1 - self.rocks[::-1].index(card))
         elif card in self.creatures:
             self.creatures.remove(card)
             if not card.token:
@@ -665,7 +658,7 @@ class Game(Marks):
         permanents = [card for card in self.creatures + self.rocks + self.other_permanents
                       if not any(card is each for each in commanders) and not same(card, also)
                       and not self.is_mana_source(card) and self._fits(card, cost)]
-        found += sorted(permanents, key=lambda card: ("recursive" not in card.tags,
+        found += sorted(permanents, key=lambda card: (RECURSIVE not in card.engine_roles,
                                                       card.mv, card.name))
         if also is not None and self._fits(also, cost):
             found.append(also)
@@ -679,7 +672,8 @@ class Game(Marks):
         other lands make too. An untapped one is tapped for its mana first,
         so its mana stays in the pool."""
         counts = Counter(color for land in self.lands for color in land_colors(land))
-        tapped = {ident(land) for land in self.lands[:self.tapped_lands]}
+        tapped = {ident(land) for land, permanent
+                  in zip(self.lands, self.lands.permanents, strict=True) if permanent.tapped}
 
         def loss(land):
             shared = min((counts[color] for color in land_colors(land)), default=0)
@@ -781,8 +775,6 @@ class Game(Marks):
         index = next((i for i, land in enumerate(self.lands) if same(land, fodder)), None)
         if index is not None:
             # This land, not an equal one: the one that came in tapped.
-            if index < self.tapped_lands:
-                self.tapped_lands -= 1
             self.graveyard.append(self.lands.pop(index))
         else:
             self._sacrifice(fodder)
@@ -837,10 +829,10 @@ class Game(Marks):
         altar = card.mana.altar
         if altar.taps:
             # Its {T} went to this: the land counts as tapped from now on.
-            index = next(i for i in range(self.tapped_lands, len(self.lands))
-                         if self.lands[i] == card)
-            self.lands.move(index, self.tapped_lands)
-            self.tapped_lands += 1
+            index = next(i for i, (land, permanent)
+                         in enumerate(zip(self.lands, self.lands.permanents, strict=True))
+                         if not permanent.tapped and land == card)
+            self.lands.tap(index)
         self.note(f"{card.name} (sacrifice for mana)")
         if altar.life:
             self.life -= altar.life
@@ -883,8 +875,8 @@ class Game(Marks):
         once, at the start of the main phase, so every creature in it has been
         on the battlefield since the turn began.
         """
-        untapped_lands = self._untapped(self.lands[self.tapped_lands:])
-        untapped_rocks = self._untapped(self.rocks[self.tapped_rocks:])
+        untapped_lands = self._untapped(self.lands.untapped())
+        untapped_rocks = self._untapped(self.rocks.untapped())
         dorks = self._untapped(
             [card for card in self.creatures if self.mana_ability(card) is not None]
         ) + self._stored_others()
@@ -962,14 +954,30 @@ class Game(Marks):
 
     def _untapped(self, cards) -> list:
         """These permanents, without the ones that stayed tapped from before."""
-        held = Counter(self.stays_tapped)
-        free = []
-        for card in cards:
-            if held[card]:
-                held[card] -= 1
-                continue
-            free.append(card)
-        return free
+        return [card for card in cards if not self._held(card)]
+
+    def _held(self, card) -> bool:
+        permanent = self.where.get(id(card))
+        return permanent is not None and permanent.card is card and permanent.held
+
+    @property
+    def tapped_lands(self) -> int:
+        """How many lands are tapped."""
+        return self.lands.tapped_count
+
+    @property
+    def tapped_rocks(self) -> int:
+        """How many mana rocks are tapped."""
+        return self.rocks.tapped_count
+
+    @property
+    def stays_tapped(self) -> list:
+        """The permanents that "don't untap during your untap step" and were
+        already tapped for mana - Mana Vault after its first turn."""
+        return [card for zone in (self.lands, self.rocks, self.creatures,
+                                  self.other_permanents)
+                for card, permanent in zip(zone, zone.permanents, strict=True)
+                if permanent.held]
 
     def open_pool(self) -> ManaPool:
         """Tap everything for this turn's pool, and remember what stays tapped.
@@ -980,8 +988,8 @@ class Game(Marks):
         {C}{C}{C}, and nobody pays that.
         """
         sources = (
-            self._untapped(self.lands[self.tapped_lands:])
-            + self._untapped(self.rocks[self.tapped_rocks:])
+            self._untapped(self.lands.untapped())
+            + self._untapped(self.rocks.untapped())
             + self._untapped([c for c in self.creatures if self.mana_ability(c) is not None])
             + self._stored_others()
         )
@@ -1006,7 +1014,7 @@ class Game(Marks):
         for card in sources:
             own = self.mana_ability(card)
             if not card.mana.untaps and own is not None and not own.activation_generic:
-                self.stays_tapped.append(card)
+                self.where[id(card)].held = True
         return pool
 
     def can_cast(self, card, pool: ManaPool) -> bool:
@@ -1094,8 +1102,8 @@ class Game(Marks):
     def _self_tappers(self) -> list:
         """The untapped sources whose ability taps another permanent besides
         themselves: Springleaf Drum, Survivors' Encampment."""
-        sources = (self._untapped(self.lands[self.tapped_lands:])
-                   + self._untapped(self.rocks[self.tapped_rocks:])
+        sources = (self._untapped(self.lands.untapped())
+                   + self._untapped(self.rocks.untapped())
                    + self._untapped(self.creatures))
         return [card for card in sources if _taps_another(card)]
 
@@ -1120,8 +1128,8 @@ class Game(Marks):
         for card in self.creatures + self.rocks + self.other_permanents:
             if self.is_mana_source(card):
                 continue
-            if busy[key(card)]:
-                busy[key(card)] -= 1
+            if busy[self.pid_of(card)]:
+                busy[self.pid_of(card)] -= 1
                 continue
             left.append(card)
         asks = []
@@ -1140,7 +1148,7 @@ class Game(Marks):
         for card, selector, one in asks:
             tappable = selects(selector)
             fits = [other for other in left if tappable(other)]
-            if not one and tappable(card) and not busy[key(card)]:
+            if not one and tappable(card) and not busy[self.pid_of(card)]:
                 # Grand Architect: a blue creature itself.
                 fits.append(card)
             taken = fits[:1] if one else fits
@@ -1322,8 +1330,7 @@ class Game(Marks):
         self.land_drop_used = True
         if tapped:
             # Entered tapped: not a mana source this turn.
-            self.lands.move(self.lands.index(card), 0)
-            self.tapped_lands += 1
+            self.lands.tap(self.lands.index(card), first=True)
         self.note(f"Land: {card.name}" + (" (tapped)" if tapped else ""))
         if card.mana.store is not None:
             self._store_enters(card)
@@ -1335,10 +1342,7 @@ class Game(Marks):
         A goldfish has no reason to hold a fetch land back, and "at once" is
         also when its land is most use - untapped, it is in this turn's pool.
         """
-        index = self.lands.index(card)
-        if index < self.tapped_lands:
-            self.tapped_lands -= 1
-        self.lands.pop(index)
+        self.lands.remove(card)
         self.graveyard.append(card)
         self.search_lands(card, choose)
 
@@ -1457,21 +1461,22 @@ class Game(Marks):
         its mana straight away - the pool is opened once a turn, and would
         otherwise never see it.
         """
+        # What the board adds is read before the land is on it, as it was.
+        tapping = not tapped and self.pool is not None
+        board = (doublers(self.battlefield), self.mana_extras(per_source=True)) \
+            if tapping else None
+        self.lands.append(land)
         if land.mana.store is not None:
             self._store_enters(land)
-        if not tapped and self.pool is not None:
-            made = available_mana(self.lands + [land], [land], [], doublers(self.battlefield),
-                                  extras=self.mana_extras(per_source=True),
+        if tapping:
+            made = available_mana(list(self.lands), [land], [], board[0], extras=board[1],
                                   otherwise_of=self.plain_mana_ability)
             for source, amount in made.by_color().items():
                 self.pool.add(source, amount)
             self.pool.restricted.extend(made.restricted)
             tapped = True
         if tapped:
-            self.lands.insert(0, land)
-            self.tapped_lands += 1
-        else:
-            self.lands.append(land)
+            self.lands.tap(len(self.lands) - 1, first=True)
         self.note(f"  -> {land.name} onto the battlefield" + (" (tapped)" if tapped else ""))
         self.fire(LANDFALL, land)
 
@@ -1522,11 +1527,11 @@ class Game(Marks):
             self.note(f"{card.name} -> +{gain}{color} mana")
             return
         if card.kind == ROCK:
-            self._mox(card)
+            # On the battlefield first: what a Chrome Mox imprints is its own.
             self.rocks.append(card)
+            self._mox(card)
             if card.play.enters_tapped:
-                self.rocks.move(self.rocks.index(card), 0)
-                self.tapped_rocks += 1
+                self.rocks.tap(self.rocks.index(card), first=True)
             self.note(f"{card.name}"
                       + (" (tapped)" if card.play.enters_tapped else ""))
             return
@@ -1699,8 +1704,8 @@ class Game(Marks):
 
     def host(self, card):
         """The creature an Equipment or Aura is on, or None."""
-        host = self.host_key(card)
-        return next((each for each in self.creatures if key(each) == host), None)
+        host = self.host_pid(card)
+        return None if host is None else self.permanent_by(host, (self.creatures,))
 
     def modified(self, creature) -> bool:
         """Kodama of the West Tree's "modified": an Equipment, an Aura or a
@@ -1828,16 +1833,15 @@ class Game(Marks):
         """A permanent left: what was on it falls off - an Aura goes to the
         graveyard - and it is on nothing any more."""
         self.unattach(card)
-        for name, host in list(self.attached.items()):
-            if host != key(card):
+        for pid, host in list(self.attached.items()):
+            if host != self.pid_of(card):
                 continue
-            del self.attached[name]
-            aura = next((each for each in self.other_permanents
-                         if key(each) == name and each.enchants == "creature"), None)
-            if aura is not None:
+            del self.attached[pid]
+            aura = self.permanent_by(pid, (self.other_permanents,))
+            if aura is not None and aura.enchants == "creature":
                 self.other_permanents.remove(aura)
                 self.graveyard.append(aura)
-                self.note(f"  -> {name} goes to the graveyard")
+                self.note(f"  -> {aura.name} goes to the graveyard")
 
     def _grants_mana(self, card) -> bool:
         """Paradise Mantle: what it is on taps for mana."""
@@ -1856,7 +1860,7 @@ class Game(Marks):
         taken = set(self.attached.values())
         if self._grants_mana(card):
             found = [each for each in self.creatures if self.mana_ability(each) is None
-                     and key(each) not in taken and not each.turn.combat]
+                     and self.pid_of(each) not in taken and not each.turn.combat]
             return sorted(found, key=lambda each: (self.power(each), each.name))
         found = [each for each in self.creatures
                  if self.mana_ability(each) is None and not each.defender]
@@ -1977,23 +1981,21 @@ class Game(Marks):
     def _clear_emptied(self) -> None:
         """Last turn's empty storage land is sacrificed, Wall of Roots dies,
         Mana Bloom goes back to the hand."""
-        for name in self.emptied:
+        for pid in self.emptied:
             for zone in (self.lands, self.rocks, self.creatures, self.other_permanents):
-                card = next((each for each in zone if key(each) == name), None)
+                card = self.permanent_by(pid, (zone,))
                 if card is None:
                     continue
                 zone.remove(card)
                 self._detach(card)
-                if card in self.stays_tapped:
-                    self.stays_tapped.remove(card)
-                self.counters.pop(name, None)
+                self.counters.pop(pid, None)
                 if card.mana.store.empty == "hand":
                     self.hand.append(card)
-                    self.note(f"{name} returns to hand")
+                    self.note(f"{card.name} returns to hand")
                 else:
                     self.graveyard.append(card)
-                    self.note(f"{name} " + ("dies" if card.mana.store.empty == "dies"
-                                            else "is sacrificed"))
+                    self.note(f"{card.name} " + ("dies" if card.mana.store.empty == "dies"
+                                                 else "is sacrificed"))
                 break
         self.emptied = []
 
@@ -2116,8 +2118,8 @@ class Game(Marks):
         self.turn += 1
         self.note(f"--- Turn {self.turn} ---")
         self._opponents_end_steps()
-        self.tapped_lands = 0      # untap
-        self.tapped_rocks = 0
+        self.lands.untap()
+        self.rocks.untap()
         self.land_drop_used = False
         self.arrived = []
         self.tapped_creatures = []

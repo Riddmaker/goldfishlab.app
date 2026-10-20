@@ -11821,3 +11821,64 @@ msgid ""
 "A card counts in every category it fits; “main” counts it once, in its main "
 "role."
 msgstr "カードは当てはまるすべてのカテゴリーで数えられます。「主な役割」は各カードを、その主な役割で1回だけ数えます。"
+
+#: simulations/provenance.py
+msgid "The card's categories"
+msgstr "カードのカテゴリー"
+
+#: simulations/provenance.py
+msgid ""
+"Read off what the card counts as, under “Categories”: correct it there and "
+"the engine plays it that way."
+msgstr "「カテゴリー」でカードが何として数えられるかから読み取ります。そこで修正すると、エンジンはそのようにプレイします。"
+
+#: simulations/views.py
+#, python-format
+msgid "Saved. %(card)s counts and plays that way from the next run onwards."
+msgstr "保存しました。次回の実行から%(card)sはこのように数えられ、プレイされます。"
+
+#: templates/simulations/_categories.html
+msgid ""
+"What the card counts as on the deck page and in the draw statistics. The "
+"engine plays by four of them: a sacrifice outlet, a recursive creature, a "
+"drain, and card draw when it draws again and again."
+msgstr ""
+"デッキページとドロー統計でそのカードが何として数えられるかです。エンジンはそのうち4つに従ってプレイします。生け贄の手段、再利用できるクリーチャー、ドレイン、そして何度も引くときのカードドローです。"
+
+#: templates/simulations/_older_engine.html
+#, python-format
+msgid ""
+"Played by an older version of the engine (v%(version)s). The engine has "
+"learned since, so a run today can give other numbers."
+msgstr ""
+"古いバージョンのエンジン（v%(version)s）でプレイされました。エンジンはその後改良されているため、今実行すると別の数値になることがあります。"
+
+#: templates/simulations/_older_engine.html
+msgid "Run it again"
+msgstr "もう一度実行する"
+
+#: templates/core/methodology.html
+msgid ""
+"The share of games in which each milestone was true by the end of that turn."
+" They are read from the cards' categories, the ones you can correct on a "
+"card's page, so a deck built differently gets the same chart without "
+"anything here changing. A card that draws counts as a draw engine only when "
+"it draws again and again. The chart draws the eight most frequent; a rarer "
+"ninth stays in the numbers under it."
+msgstr ""
+"各マイルストーンがそのターンの終わりまでに達成されていたゲームの割合です。マイルストーンはカードのカテゴリー（カードのページで修正できるもの）から読み取るので、異なる構成のデッキでも、ここを何も変えずに同じグラフが得られます。カードを引くカードは、何度も繰り返し引く場合にだけドローエンジンとして数えます。グラフは頻度の高い上位8つを描きます。それより稀な9つ目は、グラフの下の数値に残ります。"
+
+#: changelog/entries.py
+msgid "Every card plays on its own, and by its categories"
+msgstr "どのカードも個別に、そしてカテゴリーに従ってプレイされます"
+
+#: changelog/entries.py
+msgid ""
+"Two copies of a card, or two tokens with the same name, now keep their own "
+"counters, equipment and tapped state. The four roles the engine plays a card"
+" in - sacrifice outlet, recursive creature, drain, and card draw that "
+"happens again and again - come from the card's categories, so a correction "
+"under “Categories” changes the games too. A report made with an older engine"
+" says so and offers a new run."
+msgstr ""
+"同じカードの2枚目や、同じ名前の2つのトークンは、それぞれ自分のカウンター、装備、タップ状態を持つようになりました。エンジンがカードをプレイする4つの役割（生け贄の手段、再利用できるクリーチャー、ドレイン、何度も繰り返すカードドロー）はカードのカテゴリーから決まるので、「カテゴリー」での修正はゲームにも反映されます。古いエンジンで作られたレポートにはその旨が表示され、新しい実行を勧めます。"

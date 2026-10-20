@@ -1,0 +1,18 @@
+{% load i18n %}
+{% comment %}
+  Card model PR 17 (D17.6): a run played by an older engine says so beside
+  its numbers. The owner gets the way to a new run; a shared report, cached
+  for everybody (sharing.views.rendered, keyed by the engine version), only
+  the note.
+{% endcomment %}
+{% if run.older_engine %}
+  <p class="mt-3 border-l-2 border-parchment-600 pl-3 text-parchment-200" data-older-engine>
+    {% blocktranslate trimmed with version=run.engine_version %}
+      Played by an older version of the engine (v{{ version }}). The engine
+      has learned since, so a run today can give other numbers.
+    {% endblocktranslate %}
+    {% if not shared %}
+      <a href="{{ run.deck.get_absolute_url }}#simulate" class="underline">{% translate "Run it again" %}</a>
+    {% endif %}
+  </p>
+{% endif %}

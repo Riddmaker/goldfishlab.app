@@ -38,6 +38,7 @@ from simulations import deck_cards, gaps
 from simulations.engine import adapter
 from simulations.forms import AnnotationForm
 from simulations.models import CardAnnotation
+from tests.engine_builders import tap
 
 Kind = DerivedProfile.Kind
 
@@ -180,7 +181,7 @@ def game_with(lands=(), creatures=(), graveyard=(), hand=()):
     game = Game(random.Random(1), deck=DeckDefinition("R18", None, (creature("Filler", 1),)))
     game.lands, game.creatures = list(lands), list(creatures)
     game.graveyard, game.hand = list(graveyard), list(hand)
-    game.tapped_lands = game.tapped_rocks = 0
+    tap(game, lands=0, rocks=0)
     return game
 
 

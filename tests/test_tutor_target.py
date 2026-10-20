@@ -33,7 +33,7 @@ TAPPED = _card("Gloomy Bog", LAND, enters_tapped=True)
 SOL_RING = _card("Sol Ring", "rock", 1)
 CULTIVATE = _card("Cultivate", SORCERY, 3)
 DRAGON = _card("Big Dragon", CREATURE, 7)
-ENGINE = _card("Card Engine", "enchantment", 4, tags=frozenset({"draw_engine"}))
+ENGINE = _card("Card Engine", "enchantment", 4, engine_roles=frozenset({"draw_engine"}))
 
 
 def _choose(options, *, mana=3, key_cards=frozenset()):

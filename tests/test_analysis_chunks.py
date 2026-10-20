@@ -101,18 +101,33 @@ def test_a_chunk_seed_is_stable_across_processes():
 
 def test_two_runs_of_the_same_chunk_are_identical():
     """The reproducibility a stored run promises."""
-    first = analysis.run_chunk(120, run_seed=7, index=2, turns=2)
-    second = analysis.run_chunk(120, run_seed=7, index=2, turns=2)
+    first = analysis.run_chunk(120, run_seed=7, first_block=2, turns=2)
+    second = analysis.run_chunk(120, run_seed=7, first_block=2, turns=2)
 
     assert first == second
 
 
 def test_different_chunks_of_one_run_are_different_games():
     """Otherwise a 50,000 game run would be one 1,000 game run counted 50 times."""
-    first = analysis.run_chunk(120, run_seed=7, index=0, turns=2)
-    second = analysis.run_chunk(120, run_seed=7, index=1, turns=2)
+    first = analysis.run_chunk(120, run_seed=7, first_block=0, turns=2)
+    second = analysis.run_chunk(120, run_seed=7, first_block=1, turns=2)
 
     assert first != second
+
+
+def test_a_run_plays_the_same_games_however_it_is_cut_into_chunks():
+    """Card model PR 17c: seeds belong to blocks, not chunks, so the chunk
+    count - which follows the deck's measured speed - decides no game."""
+    whole = analysis.run_chunk(600, run_seed=7, first_block=0, turns=2)
+    cut = analysis.merge([analysis.run_chunk(250, run_seed=7, first_block=0, turns=2),
+                          analysis.run_chunk(350, run_seed=7, first_block=1, turns=2)])
+
+    assert whole == cut
+
+
+def test_the_last_block_holds_what_is_left():
+    assert analysis.blocks_of(600, first_block=4) == [(4, 250), (5, 250), (6, 100)]
+    assert analysis.blocks_of(250) == [(0, 250)]
 
 
 # --- Merging ---------------------------------------------------------------
@@ -120,7 +135,7 @@ def test_different_chunks_of_one_run_are_different_games():
 
 def _chunks(count: int, size: int, seed: int = 99, turns: int = 2):
     return [
-        analysis.run_chunk(size, run_seed=seed, index=index, turns=turns)
+        analysis.run_chunk(size, run_seed=seed, first_block=index, turns=turns)
         for index in range(count)
     ]
 
@@ -162,8 +177,8 @@ def test_merging_one_chunk_changes_nothing():
 
 def test_chunks_from_different_scenarios_refuse_to_merge():
     """Averaging a six-turn run into a three-turn one looks fine and means nothing."""
-    three = analysis.run_chunk(40, run_seed=1, index=0, turns=3)
-    six = analysis.run_chunk(40, run_seed=1, index=1, turns=6)
+    three = analysis.run_chunk(40, run_seed=1, first_block=0, turns=3)
+    six = analysis.run_chunk(40, run_seed=1, first_block=1, turns=6)
 
     with pytest.raises(ValueError, match="different scenarios"):
         analysis.merge([three, six])

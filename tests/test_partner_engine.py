@@ -96,11 +96,9 @@ def test_a_deck_with_one_commander_keeps_its_result_shape():
     assert "both_commanders" not in result["turn_stats"][0]
 
 
-def test_a_stored_playtest_state_keeps_the_second_tax_and_reads_old_ones():
+def test_a_stored_playtest_state_keeps_the_second_tax():
     game = Game(random.Random(1), deck=deck())
     game.partner_casts = 2
 
     state = serial.dump_game(game)
     assert serial.load_game(state, deck()).partner_casts == 2
-    del state["partner_casts"]
-    assert serial.load_game(state, deck()).partner_casts == 0

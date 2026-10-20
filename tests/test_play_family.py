@@ -12,7 +12,7 @@ What these tests hold:
    `actions.py` and `analysis.py` read the family through ``card.play``.
 
 The whole catalogue's round trip is `engine_coverage --diff` against the
-frozen v29 reading; in CI it is the coverage snapshot of the 3,070 cards.
+latest frozen reading; in CI it is the coverage snapshot of the 3,070 cards.
 """
 
 import ast

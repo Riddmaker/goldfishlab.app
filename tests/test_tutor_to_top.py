@@ -17,6 +17,7 @@ from simulation import actions
 from simulation.cards import CREATURE, INSTANT, LAND, SORCERY, Card, TutorSpec
 from simulation.game import Game
 from simulation.manacost import parse
+from tests.engine_builders import tap
 
 TAGS = {"tutor"}
 
@@ -67,7 +68,7 @@ RITUAL = Card("Ritual", 2, 1, 1, SORCERY, cost=parse("{1}{B}"), types=frozenset(
 def game_with(hand, library):
     game = Game(random.Random(1))
     game.lands, game.hand, game.library = [SWAMP, SWAMP], list(hand), list(library)
-    game.tapped_lands = 0
+    tap(game, lands=0)
     actions.OpenMainPhase().run(game, None)
     return game
 

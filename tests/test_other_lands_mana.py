@@ -17,6 +17,7 @@ from simulation.game import Game
 from simulations import gaps
 from simulations.engine import adapter
 from simulations.models import CardAnnotation
+from tests.engine_builders import tap
 from tests.support import load_catalogue
 
 Kind = DerivedProfile.Kind
@@ -52,7 +53,7 @@ WASTES = land("Wastes", abilities=[ManaAbility(FLAT, {"C": 1})])
 def game_with(lands=(), creatures=()):
     game = Game(random.Random(1))
     game.lands, game.creatures = list(lands), list(creatures)
-    game.tapped_lands = 0
+    tap(game, lands=0)
     return game
 
 

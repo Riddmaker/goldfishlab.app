@@ -1,4 +1,4 @@
-"""Permanents, and the one rule that says whose state is whose (card model, phase 4).
+"""Permanents, and whose state is whose (card model, phase 4).
 
 Until phase 4 the battlefield was four lists of card objects shared by every
 copy of a card, and the state of a permanent - arrived this turn, tapped,
@@ -6,24 +6,21 @@ its counters, what is attached to it - was kept by the card's **name**. Two
 copies of a card were one object and one name, so two Germs shared their
 counters and their equipment.
 
-PR 12 changes no game. It gives every permanent an object of its own
-(`Permanent`, with a number counted per game) and puts the two questions the
-engine asks behind one rule each:
+PR 12 gave every permanent an object of its own (`Permanent`, with a number
+counted per game). PR 17 keeps every mark by that number:
 
-* `key` - under which key a permanent's state is kept. Today the card's name.
-* `same` - whether two are one permanent. Today the same card object;
-  `ident` is the same question as a value a set can hold.
-
-The marks kept by name (`Marks`) go through `key` and nothing else. PR 17
-changes `key` to the permanent's number and `same` to the permanent, and
-every copy then keeps its own state: one place each, not sixty.
+* each copy of a card in a game is an object of its own (`Card.twin`), so
+  `same` - whether two are one permanent - is whether they are one object,
+  and `ident` is that question as a value a set can hold;
+* `Marks` keeps a permanent's state under its number (`Marks.pid_of`), so a
+  copy, a Germ or a card that left and came back starts with none.
 
 The four battlefield lists stay lists of cards, in today's order, because
 the agent, the analysis, the combos, the playtest board and the tests read
 cards. Each is a `Zone`: a list that keeps its permanents beside its cards,
 so reading it costs what reading a list costs, and every way of changing it
 - the game's own moves, an action, a test that writes ``game.lands = [...]``
-- keeps both in step.
+- keeps both in step, and keeps the game's index from card to permanent.
 
 **Nothing here imports Django**, like the rest of :mod:`simulation`.
 """
@@ -31,13 +28,8 @@ so reading it costs what reading a list costs, and every way of changing it
 from collections import Counter
 
 
-def key(card) -> str:
-    """The key a permanent's state is kept under: today its card's name."""
-    return card.name
-
-
 def same(one, other) -> bool:
-    """Whether two are one permanent: today the same card object."""
+    """Whether two are one permanent: the same card object."""
     return one is other
 
 
@@ -47,13 +39,17 @@ def ident(card) -> int:
 
 
 class Permanent:
-    """One permanent on the battlefield: its card and its number in the game."""
+    """One permanent on the battlefield: its card, its number in the game,
+    whether it is tapped, and whether it is held tapped - a Mana Vault used
+    once does not untap in its controller's untap step."""
 
-    __slots__ = ("card", "pid")
+    __slots__ = ("card", "pid", "tapped", "held")
 
     def __init__(self, card, pid: int):
         self.card = card
         self.pid = pid
+        self.tapped = False
+        self.held = False
 
     def __repr__(self) -> str:
         return f"Permanent({self.card.name!r}, {self.pid})"
@@ -72,10 +68,14 @@ class Zone(list):
     def __init__(self, game, cards=()):
         super().__init__(cards)
         self._game = game
-        self.permanents = [Permanent(card, game.next_pid()) for card in self]
+        self.permanents = [self._new(card) for card in self]
 
     def _new(self, card) -> Permanent:
-        return Permanent(card, self._game.next_pid())
+        """A permanent for a card that comes in, in the game's index."""
+        permanent = Permanent(card, self._game.next_pid())
+        self._game.where[id(card)] = permanent
+        self._game.pid_names[permanent.pid] = card.name
+        return permanent
 
     def append(self, card) -> None:
         super().append(card)
@@ -98,6 +98,12 @@ class Zone(list):
         card = super().pop(index)
         self.permanents.pop(index)
         return card
+
+    def index(self, card, *args) -> int:
+        """Where ``card`` is: this very object first, so of two equal copies
+        the one asked about; an equal card if the object is not here."""
+        found = next((at for at, each in enumerate(self) if each is card), None)
+        return super().index(card, *args) if found is None or args else found
 
     def remove(self, card) -> None:
         del self[self.index(card)]
@@ -139,6 +145,32 @@ class Zone(list):
         super().insert(to, card)
         self.permanents.insert(to, permanent)
 
+    # --- tapped ---------------------------------------------------------------
+
+    @property
+    def tapped_count(self) -> int:
+        return sum(permanent.tapped for permanent in self.permanents)
+
+    def untapped(self) -> list:
+        """The cards of the untapped permanents, in the zone's order."""
+        return [card for card, permanent in zip(self, self.permanents, strict=True)
+                if not permanent.tapped]
+
+    def tap(self, index: int, *, first: bool = False) -> None:
+        """Tap the permanent at ``index``. Tapped permanents stand before the
+        untapped ones, as the board shows them: this one goes first, or after
+        the others tapped already."""
+        to = 0 if first else sum(permanent.tapped for at, permanent
+                                 in enumerate(self.permanents) if at != index)
+        self.permanents[index].tapped = True
+        self.move(index, to)
+
+    def untap(self) -> None:
+        """The untap step. A held permanent stays out of the mana all the
+        same: `Game` asks `held` beside `tapped`."""
+        for permanent in self.permanents:
+            permanent.tapped = False
+
     def in_step(self) -> bool:
         """Whether each permanent holds the card at its place."""
         return len(self) == len(self.permanents) and all(
@@ -162,108 +194,133 @@ class ZoneField:
 
 
 class Marks:
-    """The state `Game` keeps for permanents by `key`, as named questions.
+    """The state `Game` keeps for permanents by number, as named questions.
 
-    The ten attributes themselves stay on the game with today's names and
-    meaning, because a stored playtest and the trace write them: lists where
-    a count by key matters (a creature tapped twice, once for another card's
-    mana), and marks that outlive the permanent (a store emptied this turn).
+    The ten attributes stay on the game with their names, because a stored
+    playtest and the trace write them: lists where a count matters (a
+    creature tapped twice, once for another card's mana), and marks that
+    outlive the permanent (a store emptied this turn). A card that left the
+    battlefield keeps the number it had until it comes in again, so what
+    happens as it leaves still finds its state; coming back, it is a new
+    permanent with none.
     """
+
+    def pid_of(self, card) -> int | None:
+        """The number of the permanent ``card`` is or last was; None for a
+        card that never was one."""
+        permanent = self.where.get(id(card))
+        return None if permanent is None or permanent.card is not card else permanent.pid
+
+    def _pid(self, card) -> int:
+        found = self.pid_of(card)
+        if found is None:
+            raise ValueError(f"{card.name} has never been on the battlefield")
+        return found
+
+    def permanent_by(self, pid, zones) -> object | None:
+        """The card of permanent ``pid`` in one of ``zones``, if it is there."""
+        for zone in zones:
+            for card, permanent in zip(zone, zone.permanents, strict=True):
+                if permanent.pid == pid:
+                    return card
+        return None
 
     # --- arrived and tapped creatures ---------------------------------------
 
     def arrived_now(self, card) -> bool:
         """Did it enter this turn?"""
-        return key(card) in self.arrived
+        return self.pid_of(card) in self.arrived
 
     def mark_arrived(self, card) -> None:
-        self.arrived.append(key(card))
+        self.arrived.append(self._pid(card))
 
     def creature_tapped(self, card) -> bool:
         """Was its {T} used this turn?"""
-        return key(card) in self.tapped_creatures
+        return self.pid_of(card) in self.tapped_creatures
 
     def tap_creature(self, card) -> None:
-        self.tapped_creatures.append(key(card))
+        self.tapped_creatures.append(self._pid(card))
 
     def fodder_tapped(self, card) -> bool:
         """Was it tapped for another card's mana this turn?"""
-        return key(card) in self.fodder_used
+        return self.pid_of(card) in self.fodder_used
 
     def tap_as_fodder(self, card) -> None:
         """Tapped for another card's mana: tapped, and that card's."""
-        self.tapped_creatures.append(key(card))
-        self.fodder_used.append(key(card))
+        self.tapped_creatures.append(self._pid(card))
+        self.fodder_used.append(self._pid(card))
 
     def busy(self) -> Counter:
-        """By key, the creatures tapped this turn for anything but another
+        """By number, the creatures tapped this turn for anything but another
         card's mana."""
         return Counter(self.tapped_creatures) - Counter(self.fodder_used)
 
     # --- choices made as it entered ------------------------------------------
 
     def chosen_color_of(self, card) -> str | None:
-        return self.chosen_colors.get(key(card))
+        return self.chosen_colors.get(self.pid_of(card))
 
     def choose_color(self, card, color: str) -> None:
-        self.chosen_colors[key(card)] = color
+        self.chosen_colors[self._pid(card)] = color
 
     def imprinted_on(self, card) -> str:
         """The colours of the card a Chrome Mox exiled; empty for none."""
-        return self.imprinted.get(key(card), "")
+        return self.imprinted.get(self.pid_of(card), "")
 
     def imprint(self, card, colors: str) -> None:
-        self.imprinted[key(card)] = colors
+        self.imprinted[self._pid(card)] = colors
 
     # --- counters ------------------------------------------------------------
 
     def kept_counters(self, card) -> int:
         """The counters it keeps for its mana."""
-        return self.counters.get(key(card), 0)
+        return self.counters.get(self.pid_of(card), 0)
 
     def keep_counters(self, card, count: int) -> None:
-        self.counters[key(card)] = count
+        self.counters[self._pid(card)] = count
 
     def add_kept_counter(self, card) -> None:
-        self.counters[key(card)] = self.counters.get(key(card), 0) + 1
+        pid = self._pid(card)
+        self.counters[pid] = self.counters.get(pid, 0) + 1
 
     def plus(self, card) -> int:
         """Its +1/+1 counters."""
-        return self.plus_counters.get(key(card), 0)
+        return self.plus_counters.get(self.pid_of(card), 0)
 
     def set_plus(self, card, count: int) -> None:
         """Set its +1/+1 counters; none leaves no entry, as before."""
         if count:
-            self.plus_counters[key(card)] = count
+            self.plus_counters[self._pid(card)] = count
         else:
-            self.plus_counters.pop(key(card), None)
+            self.plus_counters.pop(self.pid_of(card), None)
 
     def mark_emptied(self, card) -> None:
         """Its last counter went this turn."""
-        self.emptied.append(key(card))
+        self.emptied.append(self._pid(card))
 
     # --- what turned, and what is attached -------------------------------------
 
     def has_flipped(self, card) -> bool:
-        return key(card) in self.flipped
+        return self.pid_of(card) in self.flipped
 
     def mark_flipped(self, card) -> None:
-        self.flipped.append(key(card))
+        self.flipped.append(self._pid(card))
 
-    def host_key(self, card) -> str | None:
-        """The key of the creature it is attached to, if any."""
-        return self.attached.get(key(card))
+    def host_pid(self, card) -> int | None:
+        """The number of the creature it is attached to, if any."""
+        return self.attached.get(self.pid_of(card))
 
     def attach(self, card, host) -> None:
-        self.attached[key(card)] = key(host)
+        self.attached[self._pid(card)] = self._pid(host)
 
     def unattach(self, card) -> None:
-        self.attached.pop(key(card), None)
+        self.attached.pop(self.pid_of(card), None)
 
     def carries(self, creature) -> bool:
         """Is something attached to it?"""
-        return key(creature) in self.attached.values()
+        return self.pid_of(creature) in self.attached.values()
 
     def is_host_of(self, creature, card) -> bool:
         """Is ``card`` attached to ``creature``?"""
-        return self.attached.get(key(card)) == key(creature)
+        host = self.attached.get(self.pid_of(card))
+        return host is not None and host == self.pid_of(creature)

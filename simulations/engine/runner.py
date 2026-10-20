@@ -15,7 +15,7 @@ died at 99%. Chunks give progress, cancellation and restart for free.
 from dataclasses import dataclass
 
 from simulation import analysis, combos
-from simulation.cards import CARD_TYPES
+from simulation.cards import CARD_TYPES, ENGINE_ROLES
 from simulation.manacost import SUBTYPE_COLORS
 
 #: The mana sources a run reports, WUBRG then colourless, and which stored
@@ -31,22 +31,19 @@ COLOR_FIELD = analysis.COLOR_FIELD
 SEEN_CARD_TYPES = CARD_TYPES
 SEEN_MV_CAP = analysis.MV_CAP
 
+#: Games are seeded per block of this many; a chunk plays whole blocks.
+SEED_BLOCK = analysis.SEED_BLOCK
+blocks_of = analysis.blocks_of
+
+#: The four roles the engine plays a card in, re-exported for the same reason:
+#: the migrations that turn lists of them into categories read them here.
+ENGINE_ROLE_TAGS = ENGINE_ROLES
+
 #: The land types that make a land tap for a colour, and which colour each
 #: one makes. Re-exported because the annotation editor offers them: a land
 #: type is not decoration in this engine, it is what a basic land taps for and
 #: what Cabal Coffers counts.
 LAND_SUBTYPE_COLORS = dict(SUBTYPE_COLORS)
-
-#: The role tags the analysis reads off a card to decide whether a milestone
-#: fired. Re-exported for the same reason: the annotation editor offers them as
-#: roles a user may set, and a typo there would silently zero a report row
-#: rather than raise anything.
-ENGINE_ROLE_TAGS = (
-    analysis.DRAW_ENGINE_TAG,
-    analysis.SAC_OUTLET_TAG,
-    analysis.RECURSIVE_TAG,
-    analysis.DRAIN_TAG,
-)
 
 #: What a combo measurement is made of, re-exported for the same reason as
 #: `MANA_SOURCES` below it: `combos/measure.py` builds these out of database
@@ -72,14 +69,20 @@ class Sample:
     drawn. So it gets a deck of its own - the real one with that card added -
     and a sample of its own, played alongside the run.
 
-    `games` is per chunk, and it is always smaller than the run: the hypothetical
-    is a side question, and the answer is reported to whole percent.
+    `blocks` holds its games per seed block of the chunk, ``(block, games)``;
+    they are always fewer than the run's: the hypothetical is a side
+    question, and the answer is reported to whole percent.
     """
 
     key: str
     deck: object
     watch: object
-    games: int
+    blocks: tuple[tuple[int, int], ...]
+
+    @property
+    def games(self) -> int:
+        """The games this chunk plays for it."""
+        return sum(games for _block, games in self.blocks)
 
 
 #: How long a chunk should take. Short enough that a cancellation is felt
@@ -129,7 +132,10 @@ def chunk_plan(games_total: int, turns: int,
                usec_per_game: float | None = None) -> list[int]:
     """How many games each chunk plays, in order.
 
-    The last chunk absorbs the remainder, so the sizes add up to exactly
+    Every chunk but the last plays whole seed blocks (`analysis.SEED_BLOCK`),
+    so chunk ``i`` starts at block ``sum(plan[:i]) // SEED_BLOCK`` and the
+    games are the same however many chunks the speed asks for. The last
+    chunk absorbs the remainder, so the sizes add up to exactly
     `games_total` - a run that simulates 99,750 of the 100,000 games it
     promised would be a quiet lie in every number it reports.
 
@@ -139,31 +145,42 @@ def chunk_plan(games_total: int, turns: int,
     if games_total < 1:
         raise ValueError("a run needs at least one game")
 
-    size = chunk_size_for(turns, usec_per_game)
-    count = max(1, min(MAX_CHUNKS, -(-games_total // size)))
-    size = -(-games_total // count)
-
-    plan = [size] * count
+    blocks = -(-games_total // SEED_BLOCK)
+    size = -(-chunk_size_for(turns, usec_per_game) // SEED_BLOCK)
+    count = max(1, min(MAX_CHUNKS, -(-blocks // size)))
+    size = -(-blocks // count)
+    plan = [min(size, blocks - start) * SEED_BLOCK for start in range(0, blocks, size)]
     plan[-1] -= sum(plan) - games_total
-    return [games for games in plan if games > 0]
+    return plan
 
 
-def run_chunk(games: int, run_seed: int, index: int, *, turns: int,
+def first_blocks(plan: list[int]) -> list[int]:
+    """The seed block each chunk of `chunk_plan` starts at."""
+    starts, games = [], 0
+    for size in plan:
+        starts.append(games // SEED_BLOCK)
+        games += size
+    return starts
+
+
+def run_chunk(games: int, run_seed: int, first_block: int, *, turns: int,
               on_the_play: bool, deck, watch=(), samples=()) -> dict:
-    """Play one chunk and return what a broker can carry back.
+    """Play one chunk - ``games`` from seed block ``first_block`` on - and
+    return what a broker can carry back.
 
     Args:
         watch: combos measured in the chunk's own games. They ride along for
             nothing - the games are played either way - which is why every
             combo the deck already contains is watched and only the
             hypotheticals are rationed.
-        samples: hypothetical decks, each with games of its own. These are the
-            extra cost, and `combos/measure.py` is where it is bounded.
+        samples: hypothetical decks, each with games of its own in each of
+            the chunk's blocks. These are the extra cost, and
+            `combos/measure.py` is where it is bounded.
     """
     payload = analysis.run_chunk(
         games,
         run_seed=run_seed,
-        index=index,
+        first_block=first_block,
         on_the_play=on_the_play,
         turns=turns,
         deck=deck,
@@ -171,20 +188,17 @@ def run_chunk(games: int, run_seed: int, index: int, *, turns: int,
     )
 
     for sample in samples:
-        if sample.games < 1:
-            continue
-        # A run of its own rather than a chunk of one: the seed has to depend
-        # on which combo this is, or two hypotheticals measured in the same
-        # chunk would play the same games and agree for the wrong reason.
-        result = analysis.as_json(analysis.run(
-            sample.games,
-            on_the_play=on_the_play,
-            turns=turns,
-            seed=analysis.sample_seed(run_seed, index, sample.key),
-            deck=sample.deck,
-            watch=(sample.watch,),
-        ))
-        payload.setdefault("combos", {}).update(result.get("combos") or {})
+        # A run of its own per block rather than a chunk: the seed has to
+        # depend on which combo this is, or two hypotheticals measured in the
+        # same block would play the same games and agree for the wrong reason.
+        played = [analysis.as_json(analysis.run(
+            games, on_the_play=on_the_play, turns=turns,
+            seed=analysis.sample_seed(run_seed, block, sample.key),
+            deck=sample.deck, watch=(sample.watch,),
+        )) for block, games in sample.blocks if games > 0]
+        if played:
+            result = analysis.merge(played)
+            payload.setdefault("combos", {}).update(result.get("combos") or {})
 
     return payload
 

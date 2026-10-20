@@ -8,8 +8,8 @@ one reason: to seed the reference deck into the database so that the round trip
 can be checked for equality. If a field survives that loop unchanged, the
 boundary really does carry it; if it does not, the golden test says which one.
 
-Only the judgements go through here. Cost, type and role tags are read from the
-card by `cards.profiles` and must **not** be written as annotations - otherwise
+Only the judgements go through here. Cost and type are read from the card by
+`cards.profiles` and must **not** be written as annotations - otherwise
 the golden test would be comparing the fixture with itself and proving nothing
 about the derivation.
 """
@@ -81,11 +81,9 @@ def annotation_overrides(card) -> dict:
 
     if card.subtypes:
         overrides["subtypes"] = sorted(card.subtypes)
-    if card.tags:
-        # Roles are a judgement too: the community tag DAG calls Grave Pact
-        # removal, the deck author calls it a lock piece. Both are defensible,
-        # and the deck's own reading is what its numbers were researched with.
-        overrides["tags"] = sorted(card.tags)
+    # The engine roles are a judgement too, but one said in the card's
+    # categories, against its profile: `seed_reference_deck` does that
+    # (`adapter.roles_as_categories`).
 
     return overrides
 

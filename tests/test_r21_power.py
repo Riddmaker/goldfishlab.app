@@ -35,6 +35,7 @@ from simulation.cards import (
     ManaAbility,
     TappedUnless,
 )
+from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.mana import ManaPool
 from simulation.manacost import parse
@@ -333,7 +334,7 @@ def test_a_saved_game_keeps_counters_and_flips():
     loaded = serial.load_game(serial.dump_game(game), game.deck)
     assert (named(loaded, "plus_counters"), named(loaded, "flipped")) == (
         named(game, "plus_counters"), named(game, "flipped"))
-    assert loaded.creatures[0].growth == MARWYN.growth
+    assert card_fields(loaded.creatures[0])["growth"] == card_fields(MARWYN)["growth"]
 
 
 # --- the adapter and the deck page --------------------------------------------------
@@ -399,7 +400,7 @@ def test_every_card_states_its_assumption_beside_it(power_deck):
     assert "Incubation Druid first" in assumed(found["rishkar"])
     assert "adapts as soon as the mana left" in assumed(found["druid"])
     rites = found["rites"]
-    assert rites.card.flip == 4 and rites.card.kind == ENCHANTMENT
+    assert card_fields(rites.card)["flip"] == 4 and rites.card.kind == ENCHANTMENT
     assert "turns into its land at your end step" in assumed(rites)
     assert "highest mana value" in assumed(rites)
 

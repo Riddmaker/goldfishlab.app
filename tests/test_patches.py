@@ -301,7 +301,7 @@ def cobra_deck(db):
 
 def _triggers(deck, card):
     return next(reading.card for reading in adapter.readings(deck)
-                if reading.oracle_card.pk == card.pk).triggers
+                if reading.oracle_card.pk == card.pk).turn.triggers
 
 
 def _reread(card, **fields):

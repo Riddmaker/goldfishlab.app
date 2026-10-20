@@ -29,6 +29,7 @@ Nothing here imports Django, like the rest of :mod:`simulation`.
 import dataclasses
 from collections import Counter
 from dataclasses import dataclass, field
+from types import SimpleNamespace
 from typing import Any
 
 from simulation.cards import (
@@ -47,6 +48,7 @@ from simulation.cards import (
     TutorSpec,
     UpkeepSpec,
 )
+from simulation.cards import fields as card_fields
 from simulation.manacost import ManaCost
 
 #: A condition block. The engine's question type is general already: it
@@ -824,6 +826,8 @@ def to_blocks(card: Card) -> CardBlocks:
     """The card as blocks. Lossless: `from_blocks` gives the same card back."""
     printed = tuple((name, getattr(card, name)) for name in FACE_FIELDS)
     hints = tuple((name, getattr(card, name)) for name in HINT_FIELDS)
+    # The phase 0 forms read the fields the card was made with.
+    card = SimpleNamespace(**dict(printed), **dict(hints), **card_fields(card))
     extra = ()
     if not (card.ritual_gain or card.ritual_counts) and \
             card.ritual_color != _RITUAL_COLOR_DEFAULT:

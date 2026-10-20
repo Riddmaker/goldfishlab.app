@@ -36,6 +36,7 @@ from simulation.cards import (
     TapMana,
     TappedUnless,
 )
+from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.manacost import parse
 from simulation.trace import named
@@ -284,7 +285,7 @@ def test_a_saved_game_keeps_the_imprint_and_the_tapped_creatures():
 
 
 def test_the_card_page_says_what_the_drum_taps():
-    text = adapter._ability_text(DRUM.mana_abilities[0])
+    text = adapter._ability_text(DRUM.mana.entries[0])
     assert "if you control an untapped creature to tap for it" in text
 
 
@@ -343,8 +344,8 @@ def test_every_card_states_its_assumption_beside_it(drum_deck):
     assert "after the turn's land drop" in assumed(found["diamond"])[0]
     assert "the most expensive one" in assumed(found["chrome"])[0]
     assert "mills a card each time" in assumed(found["millikin"])[0]
-    assert found["relic"].card.tap_mana.mana == "G"
-    assert found["diamond"].card.mox == DISCARD_LAND
+    assert card_fields(found["relic"].card)["tap_mana"].mana == "G"
+    assert card_fields(found["diamond"].card)["mox"] == DISCARD_LAND
 
 
 def test_the_deck_page_shows_the_drum_s_assumption(drum_deck, client):

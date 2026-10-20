@@ -41,6 +41,7 @@ from simulation.cards import (
     TapMana,
     TappedUnless,
 )
+from simulation.cards import fields as card_fields
 from simulation.fixtures import chainer
 from simulation.game import Game
 from simulation.manacost import parse
@@ -253,10 +254,11 @@ def test_a_card_made_with_fields_is_a_card_made_with_blocks():
     card = Card("Everything", 3, 1, 2, CREATURE, **FAMILY)
     again = Card("Everything", 3, 1, 2, CREATURE, abilities=mana.encode(FAMILY))
     assert card == again and hash(card) == hash(again)
-    assert {name: getattr(card, name) for name in MANA_FIELDS} == FAMILY
+    assert {name: card_fields(card)[name] for name in MANA_FIELDS} == FAMILY
     # Changing one field keeps the others.
     changed = dataclasses.replace(card, ritual_gain=5)
-    assert changed.ritual_gain == 5 and changed.store == FAMILY["store"]
+    made_with = card_fields(changed)
+    assert made_with["ritual_gain"] == 5 and made_with["store"] == FAMILY["store"]
     assert dataclasses.replace(card, priority=3).abilities == card.abilities
 
 
@@ -326,3 +328,18 @@ def test_the_engine_never_reads_the_old_fields(module):
             assert node.attr != "ability", f"{module}:{node.lineno} asks .ability()"
         if isinstance(node, ast.Name):
             assert node.id not in OLD_CLASSES, f"{module}:{node.lineno} names {node.id}"
+
+
+def test_a_field_a_card_is_made_with_is_no_longer_read_off_it():
+    """Card model PR 20: the application reads the compiled views; a field
+    read off the card fails loudly instead of answering its default."""
+    from simulation.cards import FieldGone
+
+    card = Card("Everything", 3, 1, 2, CREATURE, **FAMILY)
+    with pytest.raises(FieldGone, match="card.mana"):
+        bool(card.store)
+    with pytest.raises(FieldGone):
+        list(card.mana_abilities)
+    # `dataclasses.replace` hands the unread fields back untouched.
+    assert dataclasses.replace(card, ritual_gain=5).mana.ritual.gain == 5
+    assert card_fields(card)["store"] == FAMILY["store"]

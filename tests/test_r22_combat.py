@@ -39,6 +39,7 @@ from simulation.cards import (
     ManaAbility,
     Trigger,
 )
+from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.mana import ManaPool
 from simulation.manacost import parse
@@ -385,7 +386,7 @@ def test_a_saved_game_keeps_what_is_attached():
     loaded = serial.load_game(serial.dump_game(game), game.deck)
     assert named(loaded, "attached") == named(game, "attached") and loaded.combat_done
     assert loaded.pool.treasure_bonus == 1
-    assert loaded.other_permanents[0].combat == SWORD.combat
+    assert card_fields(loaded.other_permanents[0])["combat"] == card_fields(SWORD)["combat"]
 
 
 def test_advancing_into_combat_fights_it():
@@ -452,11 +453,11 @@ def test_every_card_states_its_assumption_beside_it(combat_deck):
         grid = deck_cards.GridCard(reading=reading, open=False, answered=False)
         assert grid.assumptions, name
     sword = found["sword"]
-    assert sword.card.equip == parse("{2}")
+    assert card_fields(sword.card)["equip"] == parse("{2}")
     assert "is equipped, with mana left" in assumed(sword)
     assert "basic land" in sword.triggers
     goldspan = found["goldspan"]
-    assert goldspan.card.haste and goldspan.card.treasure_bonus == 1
+    assert goldspan.card.haste and card_fields(goldspan.card)["treasure_bonus"] == 1
     assert "at once with haste" in assumed(goldspan)
     assert "add two mana" in assumed(goldspan)
     ragavan = found["ragavan"]

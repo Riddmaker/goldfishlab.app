@@ -35,6 +35,7 @@ from simulation.cards import (
     Trigger,
     UpkeepSpec,
 )
+from simulation.cards import fields as card_fields
 from simulation.manacost import parse
 from simulation.rules import mana, play, turns
 
@@ -95,7 +96,7 @@ def test_a_card_made_with_fields_is_a_card_made_with_blocks():
                  abilities=mana.encode({"ritual_gain": 2}) + play.encode({"draw_on_cast": 1})
                  + turns.encode(FAMILY))
     assert card == again and hash(card) == hash(again)
-    assert {name: getattr(card, name) for name in TURN_FIELDS} == FAMILY
+    assert {name: card_fields(card)[name] for name in TURN_FIELDS} == FAMILY
     changed = dataclasses.replace(card, germ=False)
     assert changed == Card("Everything", 3, 1, 2, CREATURE, ritual_gain=2, draw_on_cast=1,
                            **{**FAMILY, "germ": False})

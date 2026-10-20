@@ -30,6 +30,7 @@ from simulation.cards import (
     SpellFilter,
     TappedUnless,
 )
+from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.mana import may_spend
 from simulation.manacost import parse
@@ -187,9 +188,9 @@ def game_with(lands=(), creatures=(), graveyard=(), hand=()):
 
 def test_fanatic_of_rhonas_needs_a_creature_with_power_four():
     alone = game_with(creatures=[FANATIC])
-    assert not alone.holds(FANATIC.mana_abilities[0].only_if, FANATIC)
+    assert not alone.holds(card_fields(FANATIC)["mana_abilities"][0].only_if, FANATIC)
     beside = game_with(creatures=[FANATIC, creature("Craw Wurm", 6)])
-    assert beside.holds(FANATIC.mana_abilities[0].only_if, FANATIC)
+    assert beside.holds(card_fields(FANATIC)["mana_abilities"][0].only_if, FANATIC)
 
 
 def ritual(name, gain, counts, color):
@@ -266,9 +267,10 @@ def test_a_colour_outside_the_deck_s_colours_is_never_chosen():
 
 
 def test_the_card_page_says_what_the_power_condition_is():
-    assert adapter._ability_text(FANATIC.mana_abilities[0]) == (
+    assert adapter._ability_text(FANATIC.mana.entries[0]) == (
         "4 G if you control a creature with power 4 or greater")
-    assert adapter.spells_text((SpellFilter(only_color="G"),)) == "monocoloured G spells"
+    assert adapter.spells_text((spell_selector(SpellFilter(only_color="G")),)) == (
+        "monocoloured G spells")
 
 
 @pytest.fixture
@@ -313,7 +315,7 @@ TEXT = "chooses {G}, the colour most mana symbols in this deck's costs ask for (
 
 def test_the_banner_makes_the_deck_s_colour_as_a_stated_assumption(banner_deck):
     reading = reading_of(banner_deck.deck, banner_deck.banner)
-    assert reading.card.mana_abilities[0].produces == (("G", 1),)
+    assert card_fields(reading.card)["mana_abilities"][0].produces == (("G", 1),)
     assumed = [gap for gap in reading.gaps if gap.field == "assumed_color"]
     assert [gap.text for gap in assumed] == [TEXT]
     assert gaps.kind_of("assumed_color") == gaps.JUDGEMENT
@@ -324,14 +326,15 @@ def test_the_banner_makes_the_deck_s_colour_as_a_stated_assumption(banner_deck):
 
 
 def test_the_throne_pays_for_spells_of_that_colour_only(banner_deck):
-    ability = reading_of(banner_deck.deck, banner_deck.throne).card.mana_abilities[0]
+    throne = reading_of(banner_deck.deck, banner_deck.throne).card
+    ability = card_fields(throne)["mana_abilities"][0]
     assert ability.produces == (("G", 4),)
     assert ability.spend_only == (SpellFilter(only_color="G"),)
 
 
 def test_three_tree_city_counts_the_deck_s_type_and_says_so(banner_deck):
     reading = reading_of(banner_deck.deck, banner_deck.city)
-    assert reading.card.mana_abilities[0].subtype == "elf"
+    assert card_fields(reading.card)["mana_abilities"][0].subtype == "elf"
     assert [gap.field for gap in reading.gaps if gap.field.startswith("assumed")] == [
         "assumed_type"]
     assert reading.names_type
@@ -349,7 +352,7 @@ def test_an_annotation_chooses_another_colour_and_the_assumption_goes(banner_dec
                                   oracle_card=banner_deck.banner,
                                   overrides={"chosen_color": "R"})
     reading = reading_of(banner_deck.deck, banner_deck.banner)
-    assert reading.card.mana_abilities[0].produces == (("R", 1),)
+    assert card_fields(reading.card)["mana_abilities"][0].produces == (("R", 1),)
     assert not [gap for gap in reading.gaps if gap.field == "assumed_color"]
 
 

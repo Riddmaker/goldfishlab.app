@@ -34,6 +34,7 @@ from simulation.cards import (
     TappedUnless,
     TutorSpec,
 )
+from simulation.cards import fields as card_fields
 from simulation.manacost import parse
 from simulation.rules import mana, play
 from simulation.rules.condition import Condition
@@ -95,23 +96,23 @@ def test_a_card_made_with_fields_is_a_card_made_with_blocks():
     again = Card("Everything", 3, 1, 2, SORCERY,
                  abilities=mana.encode({"ritual_gain": 2}) + play.encode(FAMILY))
     assert card == again and hash(card) == hash(again)
-    assert {name: getattr(card, name) for name in PLAY_FIELDS} == FAMILY
-    assert card.ritual_gain == 2
+    assert {name: card_fields(card)[name] for name in PLAY_FIELDS} == FAMILY
+    assert card_fields(card)["ritual_gain"] == 2
 
 
 def test_a_changed_card_equals_one_made_so():
     card = Card("Everything", 3, 1, 2, SORCERY, ritual_gain=2, **FAMILY)
     changed = dataclasses.replace(card, ritual_gain=5)
     assert changed == Card("Everything", 3, 1, 2, SORCERY, ritual_gain=5, **FAMILY)
-    assert changed.land_search == FAMILY["land_search"]
+    assert card_fields(changed)["land_search"] == FAMILY["land_search"]
     fewer = dataclasses.replace(card, landers=0)
-    assert fewer.landers == 0 and fewer.draws_x
+    assert card_fields(fewer)["landers"] == 0 and card_fields(fewer)["draws_x"]
     assert dataclasses.replace(card, priority=3).abilities == card.abilities
 
 
 def test_enters_tapped_is_still_the_eighth_argument():
     land = Card("Tapland", 0, 0, 0, LAND, frozenset(), "", True)
-    assert land.enters_tapped and land.play.enters_tapped
+    assert card_fields(land)["enters_tapped"] and land.play.enters_tapped
 
 
 def test_a_stored_card_keeps_the_field_form():

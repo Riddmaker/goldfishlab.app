@@ -11,6 +11,7 @@ import pytest
 from cards import forge, forge_import, forge_merge, profiles, refresh
 from cards.models import DerivedProfile, ForgeScript, OracleCard
 from simulation import blocks as b
+from simulation.cards import fields as card_fields
 from simulations.engine import adapter
 
 
@@ -340,7 +341,7 @@ def test_the_engine_draws_as_the_card_arrives():
     strix = Card("Strix", 0, 0, 2, CREATURE, triggers=(Trigger("resolves", draw=1, life=1),))
     game.make_treasures(strix)
     assert (len(game.hand), game.life) == (1, 39)
-    assert "as it enters" in adapter._trigger_text(strix.triggers[0])
+    assert "as it enters" in adapter._trigger_text(card_fields(strix)["triggers"][0])
 
 
 def test_a_spells_draw_the_reader_missed_is_taken():
@@ -444,4 +445,4 @@ def test_the_engine_connives_and_grows_on_a_nonland():
     game.hand = [Card("Big", 0, 0, 7, CREATURE)]
     game.make_treasures(spy)
     assert game.graveyard[-1].kind == CREATURE and game.plus(spy) == 1
-    assert "connives" in adapter._trigger_text(spy.triggers[0])
+    assert "connives" in adapter._trigger_text(card_fields(spy)["triggers"][0])

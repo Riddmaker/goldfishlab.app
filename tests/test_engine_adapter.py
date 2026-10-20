@@ -24,6 +24,8 @@ from django.core.management import call_command
 from cards.names import normalise
 from decks.models import Deck
 from simulation import analysis
+from simulation.cards import fields as card_fields
+from simulation.cards import value as card_value
 from simulation.fixtures import chainer
 from simulations.engine import adapter
 from simulations.models import CardAnnotation
@@ -136,10 +138,10 @@ def test_every_engine_field_matches_the_fixture(converted):
     for name, want in expected.items():
         got = built[name]
         for attribute in ENGINE_FIELDS:
-            if getattr(got, attribute) != getattr(want, attribute):
+            if card_value(got, attribute) != card_value(want, attribute):
                 mismatches.append(
-                    f"{name}.{attribute}: db={getattr(got, attribute)!r} "
-                    f"fixture={getattr(want, attribute)!r}"
+                    f"{name}.{attribute}: db={card_value(got, attribute)!r} "
+                    f"fixture={card_value(want, attribute)!r}"
                 )
     assert not mismatches, "\n".join(mismatches)
 
@@ -147,7 +149,7 @@ def test_every_engine_field_matches_the_fixture(converted):
 def test_the_commander_matches_field_for_field(converted):
     got, want = converted.definition.commander, chainer.COMMANDER
     for attribute in ENGINE_FIELDS:
-        assert getattr(got, attribute) == getattr(want, attribute), attribute
+        assert card_value(got, attribute) == card_value(want, attribute), attribute
 
 
 def test_the_deck_definitions_are_equal(converted):
@@ -273,7 +275,8 @@ def test_a_deck_scoped_annotation_beats_a_builtin_one(seeded):
     assert card.priority == 1, "the deck-scoped annotation did not win"
 
     # Everything else about the card still comes from the built-in annotation.
-    assert card.mana_abilities == chainer.SPELLS[0].mana_abilities or card.accelerant
+    assert (card_fields(card)["mana_abilities"]
+            == card_fields(chainer.SPELLS[0])["mana_abilities"] or card.accelerant)
 
 
 def test_an_unknown_override_key_is_rejected(seeded):
@@ -485,7 +488,7 @@ def test_the_signet_still_makes_black_in_this_deck(converted):
     from simulation.cards import FLAT, ManaAbility
 
     signet = next(c for c in converted.definition.library if c.name == "Arcane Signet")
-    assert signet.mana_abilities == (ManaAbility(FLAT, {"B": 1}),)
+    assert card_fields(signet)["mana_abilities"] == (ManaAbility(FLAT, {"B": 1}),)
 
 
 def test_a_choice_of_colours_is_no_longer_a_gap(converted):

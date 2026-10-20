@@ -271,7 +271,7 @@ def test_the_agent_reaches_the_same_state_the_actions_do():
 def test_a_tutor_without_a_policy_still_finds_something():
     """The playtest asks a person; nothing may crash while nobody has answered."""
     game = opened()
-    game.hand.append(next(c for c in game.library if c.tutor is not None))
+    game.hand.append(next(c for c in game.library if c.play.tutor is not None))
     before = len(game.library)
     actions._apply_cast_effect(game, game.hand[-1], None)
     assert len(game.library) < before

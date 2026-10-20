@@ -31,6 +31,7 @@ from simulation.cards import (
     ManaAbility,
     TutorSpec,
 )
+from simulation.cards import fields as card_fields
 from simulation.game import LANDER_FODDER, TREASURE, Game
 from simulation.manacost import parse
 from simulations.engine.adapter import _way_text
@@ -210,7 +211,8 @@ def test_tokens_go_first_to_an_artifact_cost():
     game.treasures = ["WUBRG"]
     game.pool.treasures = ["WUBRG"]
     game.landers = 1
-    assert game.fodder(DISPUTE.additional_costs[0], game.pool) == [TREASURE, LANDER_FODDER, BEAR]
+    way = card_fields(DISPUTE)["additional_costs"][0]
+    assert game.fodder(way, game.pool) == [TREASURE, LANDER_FODDER, BEAR]
 
 
 def test_village_rites_sacrifices_and_draws():

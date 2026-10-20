@@ -46,38 +46,39 @@ def annotation_overrides(card) -> dict:
         overrides["needs_creature_in_yard"] = True
     if card.needs_creature_on_bf:
         overrides["needs_creature_on_bf"] = True
-    if card.skips_draw_step:
+    if card.turn.skips_draw_step:
         overrides["skips_draw_step"] = True
 
     _mana(card, overrides)
 
-    if card.ritual_gain:
-        overrides["ritual_gain"] = card.ritual_gain
-    if card.cost_reduction is not None:
-        overrides["cost_reduction"] = card.cost_reduction.amount
-    if card.draw_on_cast:
-        overrides["draw_on_cast"] = card.draw_on_cast
-    if card.life_on_cast:
-        overrides["life_on_cast"] = card.life_on_cast
+    mana, play, turn = card.mana, card.play, card.turn
+    if mana.ritual is not None and mana.ritual.gain:
+        overrides["ritual_gain"] = mana.ritual.gain
+    if mana.reduction is not None:
+        overrides["cost_reduction"] = mana.reduction.amount
+    if play.draw:
+        overrides["draw_on_cast"] = play.draw
+    if play.life:
+        overrides["life_on_cast"] = play.life
 
-    if card.tutor is not None:
-        overrides["tutor_count"] = card.tutor.count
-        overrides["tutor_to_hand"] = card.tutor.to_hand
-        if card.tutor.life:
-            overrides["tutor_life"] = card.tutor.life
-        if card.tutor.kind:
-            overrides["tutor_kind"] = card.tutor.kind
+    if play.tutor is not None:
+        overrides["tutor_count"] = play.tutor.count
+        overrides["tutor_to_hand"] = play.tutor.to_hand
+        if play.tutor.life:
+            overrides["tutor_life"] = play.tutor.life
+        if play.tutor.kind:
+            overrides["tutor_kind"] = play.tutor.kind
 
-    if card.upkeep is not None:
-        overrides["upkeep_draw"] = card.upkeep.draw
-        if card.upkeep.life:
-            overrides["upkeep_life"] = card.upkeep.life
-        if card.upkeep.life_per_mv:
+    if turn.upkeep is not None:
+        overrides["upkeep_draw"] = turn.upkeep.draw
+        if turn.upkeep.life:
+            overrides["upkeep_life"] = turn.upkeep.life
+        if turn.upkeep.life_per_mv:
             overrides["upkeep_life_per_mv"] = True
 
-    if card.end_step is not None:
-        overrides["end_step_max_hand"] = card.end_step.max_hand
-        overrides["end_step_life_floor"] = card.end_step.life_floor
+    if turn.end_step is not None:
+        overrides["end_step_max_hand"] = turn.end_step.max_hand
+        overrides["end_step_life_floor"] = turn.end_step.life_floor
 
     if card.subtypes:
         overrides["subtypes"] = sorted(card.subtypes)
@@ -96,7 +97,7 @@ def _mana(card, overrides: dict) -> None:
     and the adapter would then fall back to the derived reading - which for
     Ashnod's Altar says two colourless mana the engine cannot actually make.
     """
-    scaling = [a for a in card.mana_abilities if a.rule != FLAT]
+    scaling = [a for a in card.mana.entries if a.rule != FLAT]
     if scaling:
         ability = scaling[0]
         overrides["scaling_rule"] = RULE_NAMES[ability.rule]
@@ -109,7 +110,7 @@ def _mana(card, overrides: dict) -> None:
         return
 
     produced: dict[str, int] = {}
-    for ability in (a for a in card.mana_abilities if a.rule == FLAT):
+    for ability in (a for a in card.mana.entries if a.rule == FLAT):
         for color, amount in ability.produces:
             produced[color] = produced.get(color, 0) + amount
     overrides["mana_produces"] = produced

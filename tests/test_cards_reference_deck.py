@@ -23,6 +23,7 @@ import pytest
 from cards.models import DerivedProfile, OracleCard
 from cards.names import normalise
 from simulation.cards import COMMANDER, SPELLS, SWAMP, UTILITY_LANDS
+from simulation.cards import fields as card_fields
 from tests.support import forget_module_rows, load_catalogue
 
 pytestmark = pytest.mark.django_db
@@ -128,7 +129,7 @@ def test_basic_swamps_are_identified(deck):
 def test_enters_tapped_matches_exactly(deck):
     """The verified 2/2: Bojuka Bog and Charcoal Diamond, and nothing else."""
     derived = {c.name for c, p in deck if p.enters_tapped}
-    hand = {c.name for c in HAND_ANNOTATED if c.enters_tapped}
+    hand = {c.name for c in HAND_ANNOTATED if card_fields(c)["enters_tapped"]}
     assert derived == hand == {"Bojuka Bog", "Charcoal Diamond"}
 
 

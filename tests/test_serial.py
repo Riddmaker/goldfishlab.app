@@ -38,6 +38,8 @@ from simulation.cards import (
     TutorSpec,
     UpkeepSpec,
 )
+from simulation.cards import fields as card_fields
+from simulation.cards import value as card_value
 from simulation.fixtures import chainer
 from simulation.game import Game
 from simulation.manacost import Hybrid, ManaCost
@@ -181,17 +183,17 @@ def test_no_field_of_the_exhaustive_card_was_left_at_its_default():
         default = field.default
         if default is dataclasses.MISSING or field.name == "abilities":
             continue
-        assert getattr(EVERYTHING, field.name) != default, (
+        assert card_value(EVERYTHING, field.name) != default, (
             f"{field.name} is still at its default, so it is not being tested")
     for name, default in {**mana.FIELDS, **play.FIELDS}.items():
-        assert getattr(EVERYTHING, name) != default, (
+        assert card_value(EVERYTHING, name) != default, (
             f"{name} is still at its default, so it is not being tested")
 
 
 def test_a_frozenset_does_not_come_back_as_a_list():
     """`Card` is hashable and compared by value; a list would break both."""
     assert isinstance(roundtrip(EVERYTHING).subtypes, frozenset)
-    assert isinstance(roundtrip(EVERYTHING).mana_abilities, tuple)
+    assert isinstance(card_fields(roundtrip(EVERYTHING))["mana_abilities"], tuple)
 
 
 def test_a_stored_type_nobody_knows_is_refused():

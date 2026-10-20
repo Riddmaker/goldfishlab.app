@@ -73,6 +73,8 @@ from simulation.cards import (
 )
 from simulation.mana import land_color
 from simulation.manacost import COLORLESS, COLORS, ManaCost, choice, mana_label, parse
+from simulation.rules.mana import ritual_counts_of
+from simulation.rules.selector import wanted_of
 from simulations import gaps as gaps_module
 from simulations import patches, primitives
 
@@ -452,6 +454,10 @@ class Reading:
     @property
     def untaps(self) -> bool:
         return self.card.mana.untaps
+
+    @property
+    def enters_tapped(self) -> bool:
+        return self.card.play.enters_tapped
 
 
 #: How each scaling rule reads on the provenance panel. The engine's constants
@@ -1377,10 +1383,17 @@ _TAPS_EACH = {
 }
 
 
+def _counts_ritual(card: Card) -> bool:
+    """A ritual whose mana is counted (Cabal Ritual's threshold, Priest of
+    Titania's Elves), read off its block."""
+    return any(ability.form == "ritual" and ritual_counts_of(ability.effects[0].arg("amount"))
+               for ability in card.abilities)
+
+
 def _record_tapping(card: Card, gaps: list[Gap]) -> None:
     """P19 R19: what the engine assumes about tapping other permanents, the
     Moxen and a mill cost - stated on the card list, beside the card."""
-    tapping = next((ability.only_if for ability in card.mana_abilities
+    tapping = next((ability.only_if for ability in card.mana.entries
                     if ability.only_if is not None and ability.only_if.kind == "tap_fodder"),
                    None)
     if tapping is not None:
@@ -1388,24 +1401,25 @@ def _record_tapping(card: Card, gaps: list[Gap]) -> None:
                 else "artifact or creature" if "artifact" in tapping.types
                 else "legendary creature" if tapping.legendary else "creature")
         gaps.append(Gap(card.name, "assumed_cost", _TAPS_ONE[kind]))
-    if card.tap_mana is not None:
-        types = card.tap_mana.types
+    tap = card.mana.tap_other
+    if tap is not None:
+        types, wanted = wanted_of(tap.selector)
         kind = ("permanent" if "permanent" in types else "artifact" if "artifact" in types
-                else "legendary creature" if card.tap_mana.filter == "legendary"
+                else "legendary creature" if wanted == "legendary"
                 else "creature")
         gaps.append(Gap(card.name, "assumed_cost", _TAPS_EACH[kind]))
-        if card.tap_mana.tokens:
+        if tap.tokens:
             gaps.append(Gap(card.name, "assumed_cost", gettext_noop(
                 "taps the artifact token it makes as it enters too")))
-    if card.mox == DISCARD_LAND:
+    if card.mana.mox == DISCARD_LAND:
         gaps.append(Gap(card.name, "assumed_cost", gettext_noop(
             "is cast only with a land card left in hand after the turn's land drop, and "
             "discards it - one that would enter tapped first")))
-    elif card.mox == IMPRINT:
+    elif card.mana.mox == IMPRINT:
         gaps.append(Gap(card.name, "assumed_cost", gettext_noop(
             "is cast only with a coloured nonartifact, nonland card in hand; it exiles the "
             "most expensive one, the card a discard would take, and makes its colours")))
-    if card.mana_mills:
+    if card.mana.mills:
         gaps.append(Gap(card.name, "assumed_cost", gettext_noop(
             "is tapped for mana every turn, and mills a card each time")))
 
@@ -1474,7 +1488,7 @@ _STORE_EMPTY = {
 def _record_store(card: Card, found: dict, gaps: list[Gap]) -> None:
     """P19 R20: what the engine assumes about mana kept as counters, energy
     or a Food - stated on the card list, beside the card."""
-    store = card.store
+    store = card.mana.store
     if store is None:
         return
     said = []
@@ -1580,7 +1594,7 @@ def _record_growth(card: Card, rule: dict, gaps: list[Gap]) -> None:
         said.append(gettext_noop(
             "turns into its land at your end step once you control enough creatures, and makes "
             "mana from your next turn on; it never counts as a land drop"))
-    growth = card.growth
+    growth = card.turn.growth
     if growth is not None:
         if growth.puts:
             said.append(gettext_noop(
@@ -1703,7 +1717,7 @@ def _record_search(card: Card, found: dict, gaps: list[Gap]) -> None:
     list, beside the card."""
     keys = [key for key in ("land_tapped", "gifts", "upkeep", "exiled", "symmetry",
                             "opponents") if found.get(key)]
-    search = card.land_search
+    search = card.play.search
     if search is not None and search.tempting:
         keys.append("tempting")
     if search is not None and search.reveal:
@@ -1717,7 +1731,8 @@ def _record_combat(card: Card, found: dict, gaps: list[Gap]) -> None:
     """P19 R22: what the engine assumes about combat - stated on the card
     list, beside the card."""
     said = []
-    for trigger in card.combat:
+    turn = card.turn
+    for trigger in turn.combat:
         if trigger.who in ("equipped", "enchanted"):
             key = "host_" + trigger.event
         elif trigger.who in ("any", "modified", "commander", "curse", "total"):
@@ -1733,20 +1748,20 @@ def _record_combat(card: Card, found: dict, gaps: list[Gap]) -> None:
         if any(read.get("flicker") for read in found.get("triggers") or ()) \
                 and _FLICKER_SAID not in said:
             said.append(_FLICKER_SAID)
-    if any(trigger.treasures for trigger in card.combat):
+    if any(trigger.treasures for trigger in turn.combat):
         said.append(gettext_noop(
             "the Treasure made in combat can be spent in your second main phase"))
-    if card.equip is not None and card.germ:
+    if turn.equip is not None and turn.germ:
         said.append(gettext_noop(
             "its Germ token, a 0/0 the Equipment makes a 1/1, attacks from the turn after it "
             "enters; it is equipped again only if the Germ is gone"))
-    elif card.equip is not None and any(ability.rule == GRANT and ability.subtype == "equipped"
-                                       for ability in card.mana_abilities):
+    elif turn.equip is not None and any(ability.rule == GRANT and ability.subtype == "equipped"
+                                       for ability in card.mana.entries):
         said.append(gettext_noop(
             "is equipped, with mana left after the turn's spells, to the weakest creature "
             "without a mana ability or anything else on it; that creature taps for mana from "
             "the next turn and no longer attacks"))
-    elif card.equip is not None:
+    elif turn.equip is not None:
         said.append(gettext_noop(
             "is equipped, with mana left after the turn's spells, to a creature without a mana "
             "ability that can attack this turn - one with nothing else on it and no counters "
@@ -1755,7 +1770,7 @@ def _record_combat(card: Card, found: dict, gaps: list[Gap]) -> None:
         said.append(gettext_noop(
             "goes on a creature without a mana ability that can attack this turn as it is "
             "cast - one with nothing else on it first; it needs a creature to be cast"))
-    if card.treasure_bonus:
+    if turn.treasure_bonus:
         said.append(gettext_noop(
             "makes each of your Treasures add two mana while it is on the battlefield; the "
             "two may be of different colours"))
@@ -2652,14 +2667,16 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
         for reason in profile.review_reasons:
             gaps.append(Gap(card.name, "profile", reason))
 
-    if profile.produces_mana and profile.mana_amount is None and not card.mana_abilities \
-            and not card.treasures and not card.ritual_counts and card.sacrifice_mana is None \
-            and not card.triggers and card.tap_mana is None and card.store is None \
-            and not card.combat:
+    mana, turn, play = card.mana, card.turn, card.play
+    if profile.produces_mana and profile.mana_amount is None and not mana.entries \
+            and not turn.treasures and not _counts_ritual(card) \
+            and not (mana.altar is not None and mana.altar.sacrifices) \
+            and not turn.triggers and mana.tap_other is None and mana.store is None \
+            and not turn.combat:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("makes mana, but how much could not be read")))
 
-    if card.land_search is not None and card.land_search.condition == "opponent_more_lands":
+    if play.search is not None and play.search.condition == "opponent_more_lands":
         gaps.append(Gap(card.name, "assumed_lands", gettext_noop(
             "searches when you have fewer lands than turns gone by, assuming each opponent "
             "plays a land a turn")))
@@ -2682,27 +2699,27 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
         _record_growth(card, getattr(profile, "mana_rule", None) or {}, gaps)
     _record_combat(card, getattr(profile, "combat", None) or {}, gaps)
 
-    if any(way.life_x for way in card.additional_costs):
+    if any(way.life_x for way in play.ways):
         gaps.append(Gap(card.name, "assumed_cost", gettext_noop(
             "pays X life with X = 0: in a goldfish there is nothing for X to hit")))
 
-    if card.tapped_unless is not None and card.tapped_unless.kind == "opponent_lands":
+    if play.untapped_if is not None and play.untapped_if.kind == "opponent_lands":
         gaps.append(Gap(card.name, "assumed_lands", gettext_noop(
             "enters untapped from your fourth turn, assuming each opponent plays a land "
             "a turn")))
 
-    if card.mana_abilities and _OPPONENTS_LANDS.search(card_text) \
+    if mana.entries and _OPPONENTS_LANDS.search(card_text) \
             and not _overrides_mana(overrides):
         gaps.append(Gap(card.name, "assumed_mana", gettext_noop(
             "makes your deck's colours, assuming your opponents' lands make them")))
 
-    fetches = card.land_search is not None and card.land_search.when == "play"
+    fetches = play.search is not None and play.search.when == "play"
     # A land with a basic land type taps for its colour (Dryad Arbor), and one
     # whose text adds no mana and lists none really makes none: Maze of Ith,
     # Dark Depths. Neither is something the engine failed to read (P19 R4).
     typed = land_color(card, frozenset()) is not None
     makes_none = not profile.produces_mana and not _COPIES.search(card_text)
-    if card.is_land and not card.mana_abilities and not fetches and not typed \
+    if card.is_land and not mana.entries and not fetches and not typed \
             and not makes_none:
         gaps.append(Gap(card.name, "mana_abilities",
                         gettext_noop("a land that taps for nothing the engine can see")))

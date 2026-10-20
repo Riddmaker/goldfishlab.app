@@ -179,6 +179,6 @@ def test_the_agent_holds_temple_back_until_it_makes_mana():
 def test_the_card_page_says_when_the_mana_comes():
     from simulations.engine.adapter import _ability_text
 
-    assert _ability_text(TEMPLE.mana_abilities[0]) == "2 C if you control 5 or more lands"
-    assert _ability_text(TAINTED.mana_abilities[0]) == (
+    assert _ability_text(TEMPLE.mana.entries[0]) == "2 C if you control 5 or more lands"
+    assert _ability_text(TAINTED.mana.entries[0]) == (
         "1 B/G if you control a land of type Swamp")

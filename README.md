@@ -379,8 +379,10 @@ cast, what a spell draws, discards, puts back or costs in life - with their view
 PR 15 triggers, turns and combat (upkeep, end step, +1/+1 counters, combat triggers, equip, Germs,
 Treasures) with `card.turn`. What `Card` keeps as fields is printed on the card or a play hint. A
 card is still made with the old fields, which `simulation/rules/mana.py`, `play.py` and `turns.py`
-encode; reading one decodes it, which is what wording, the editor and stored decks do until phase
-5. `engine_coverage --diff` against the latest frozen reading is the round trip on every card;
+encode. Since PR 20 nothing reads those fields off a card: the engine, the wording, the editor
+and the reports read the compiled views (`card.mana`, `card.play`, `card.turn`), and a field read
+off the card fails (`cards.FieldGone`); `cards.fields(card)` decodes them for a stored deck or
+game. `engine_coverage --diff` against the latest frozen reading is the round trip on every card;
 `tests/test_rules.py`, `tests/test_play_family.py` and `tests/test_turns_family.py` hold that the
 engine never reads the old fields. Since PR 17 (engine v30) each permanent keeps its own state
 (`simulation/permanent.py`), the engine's four roles - sacrifice outlet, recursive creature, drain,

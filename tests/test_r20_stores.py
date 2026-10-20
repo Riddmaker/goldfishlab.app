@@ -36,6 +36,7 @@ from simulation.cards import (
     ManaAbility,
     Store,
 )
+from simulation.cards import fields as card_fields
 from simulation.game import TREASURE, Game
 from simulation.mana import ManaPool, Stored, has_treasure
 from simulation.manacost import parse
@@ -315,7 +316,7 @@ def test_a_saved_game_keeps_counters_energy_and_kept_mana():
     assert (named(loaded, "counters"), loaded.energy, named(loaded, "emptied")) == (
         {"Vivid Creek": 2}, 1, ["Peat Bog"])
     assert [isinstance(key, Stored) for key in loaded.treasures] == [False, True]
-    assert loaded.lands[0].store == VIVID.store
+    assert card_fields(loaded.lands[0])["store"] == card_fields(VIVID)["store"]
 
 
 # --- the adapter and the deck page --------------------------------------------------
@@ -368,7 +369,7 @@ def test_every_card_states_its_assumption_beside_it(store_deck):
              for name in ("prism", "hub", "chalice", "wall", "goose")}
     for name, reading in found.items():
         assert not reading.unreadable, name
-        assert reading.card.store is not None, name
+        assert reading.card.mana.store is not None, name
         grid = deck_cards.GridCard(reading=reading, open=False, answered=False)
         assert grid.assumptions == assumed(reading) and grid.assumptions, name
     assert "as a Treasure is spent" in assumed(found["prism"])[0]

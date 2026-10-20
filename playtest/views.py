@@ -150,8 +150,9 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
             "zone": zone,
             "activatable": index in activatable,
             "payments": payments(card) if payments and index in castable
-            and card.additional_costs else [],
-            "altar": altars(card) if altars and card.sacrifice_mana is not None else [],
+            and card.play.ways else [],
+            "altar": altars(card) if altars and card.mana.altar is not None
+            and card.mana.altar.sacrifices else [],
             "adaptable": index in adaptable,
             "equip": equips(card) if equips else [],
         }
@@ -202,7 +203,7 @@ def equip_labels(game):
     if pool is None:
         return None
     return lambda card: ([each.name for each in game.attach_targets(card)]
-                         if card.equip is not None and game.can_equip(card, pool) else [])
+                         if card.turn.equip is not None and game.can_equip(card, pool) else [])
 
 
 def pips(pool) -> list[tuple[str, int]]:

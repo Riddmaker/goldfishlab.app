@@ -45,6 +45,7 @@ from django.db import connections, transaction
 from simulation import ENGINE_VERSION, serial
 from simulation import trace as game_trace
 from simulation.cards import Card
+from simulation.cards import value as card_value
 from simulations import coverage, differential
 from simulations.engine import adapter
 
@@ -108,20 +109,20 @@ def features(card: Card) -> set[str]:
     for name, _annotation in serial.fields_of(Card):
         if name in FACE:
             continue
-        if getattr(card, name) != getattr(_DEFAULT_CARD, name):
+        if card_value(card, name) != card_value(_DEFAULT_CARD, name):
             found.add(f"field:{name}")
-    for ability in card.mana_abilities:
+    for ability in card.mana.entries:
         found.add(f"rule:{ability.rule}")
         if ability.only_if is not None:
             found.add(f"condition:{ability.only_if.kind}")
-    if card.tapped_unless is not None:
-        found.add(f"condition:{card.tapped_unless.kind}")
-    for trigger in card.triggers:
+    if card.play.untapped_if is not None:
+        found.add(f"condition:{card.play.untapped_if.kind}")
+    for trigger in card.turn.triggers:
         found.add(f"trigger:{trigger.event}")
-    for trigger in card.combat:
+    for trigger in card.turn.combat:
         found.add(f"combat:{trigger.who}:{trigger.event}")
-    if card.land_search is not None:
-        found.add(f"search:{card.land_search.when}")
+    if card.play.search is not None:
+        found.add(f"search:{card.play.search.when}")
     return found
 
 

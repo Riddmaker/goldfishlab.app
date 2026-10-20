@@ -13,6 +13,7 @@ import pytest
 from cards.models import DerivedProfile, OracleCard
 from cards.profiles import _mana_rule
 from simulation.cards import CREATURE, FLAT, LAND, LANDS_COULD_PRODUCE, Card, ManaAbility
+from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulations import gaps
 from simulations.engine import adapter
@@ -89,7 +90,7 @@ def orchard(db):
 def test_exotic_orchard_makes_the_deck_colours_as_a_stated_assumption(orchard):
     card, found = adapter.engine_readings([orchard], builtin=False)[orchard.pk]
 
-    assert card.mana_abilities == (ManaAbility(FLAT, {"WUBRG": 1}),)
+    assert card_fields(card)["mana_abilities"] == (ManaAbility(FLAT, {"WUBRG": 1}),)
     assumed = [gap for gap in found if gap.field == "assumed_mana"]
     assert assumed and gaps.kind_of("assumed_mana") == gaps.JUDGEMENT
     assert not gaps.of_kind(found, gaps.READING), "it is no longer a card the engine cannot read"

@@ -31,10 +31,11 @@ from pathlib import Path
 
 from cards import forge
 from simulation import blocks as b
+from simulation.rules.selector import Selector
 
 #: Raised with every change to how a script is translated, so the next run
 #: translates every script again although the pin did not move.
-TRANSLATION = 8
+TRANSLATION = 9
 
 #: More scripts than this share failing to translate stops the run, and the
 #: blocks of the last good run stay.
@@ -186,10 +187,13 @@ class _Reading:
         self.unread: list[str] = []
 
     def amount(self, value: str):
-        """An amount: a number, ``count:<what>`` for a count, or ``x``."""
-        if value.isdigit():
+        """An amount: a number, ``count:<what>`` for a count, or ``x`` for
+        the X paid."""
+        if value.removeprefix("-").isdigit():
             return int(value)
         body = self.svars.get(value, "")
+        if body == "Count$xPaid":
+            return "x"
         if body.startswith("Count$"):
             head = re.match(r"Count\$([A-Za-z]+)", body)
             return f"count:{head.group(1) if head else body[6:]}"
@@ -208,6 +212,105 @@ def _types(valid: str) -> frozenset[str]:
     ``Permanent`` name no type."""
     words = {part.split(".")[0].split("+")[0].strip() for part in valid.split(",")}
     return frozenset(word.lower() for word in words if word and word not in _ANY_TYPE)
+
+
+#: Forge's card types, as the engine names them; ``Permanent`` is any permanent.
+_CARD_TYPES = frozenset({"Artifact", "Battle", "Creature", "Enchantment", "Instant", "Land",
+                         "Planeswalker", "Sorcery", "Kindred", "Tribal", "Permanent"})
+_BASIC_LAND_TYPES = frozenset({"Plains", "Island", "Swamp", "Mountain", "Forest"})
+#: Cards the ability or its trigger already found, by the word Forge's
+#: expression names them with ("TriggeredNewCardLKICopy", "Card.IsRemembered").
+_FOUND = {"Remembered": "remembered", "Imprinted": "imprinted",
+          "TopOfLibrary": "top_of_library", "Triggered": "triggered",
+          "Targeted": "targeted", "Chosen": "chosen"}
+#: Forge's names for a card by reference that name no type ("Parent", "You").
+_REFERENCES = frozenset({"ReplacedCard", "Parent", "Enchanted", "Equipped", "ExiledWith",
+                         "ExiledWithSource", "Player", "You", "Opponent", "Defined",
+                         "OriginalHost", "Valid", "Spell", "Ability"})
+_COLOR_WORDS = {"White": "W", "Blue": "U", "Black": "B", "Red": "R", "Green": "G"}
+_WHOSE = {"YouCtrl": "you", "YouOwn": "you", "OppCtrl": "opponent", "OppOwn": "opponent"}
+
+
+def _which(valid: str) -> tuple[b.Which, ...]:
+    """Forge's ``ChangeType``/``ValidTgts``/``Defined`` card expression in the
+    interpreter's words (card model phase 5): one `Which` per alternative.
+
+    ``Creature.YouCtrl+nonToken,Artifact`` is a creature you control that is
+    no token (``nonToken`` stays unread), or an artifact; ``EACH Forest &
+    Plains`` is one of each.
+    """
+    each = valid.startswith("EACH ")
+    parts = re.split(r"[,&]", valid[5:] if each else valid)
+    return tuple(_which_one(part.strip(), each) for part in parts if part.strip())
+
+
+def _which_one(part: str, each: bool) -> b.Which:
+    base, _sep, rest = part.partition(".")
+    unread = set()
+    if base.startswith("Valid") and " " in base:
+        # "ValidHand Land.IsRemembered": a zone, then the expression.
+        zone, _sep, base = base.partition(" ")
+        unread.add(zone)
+    # "Spawner>TriggeredCard": a card related to a found one, not that card.
+    found = {word for name, word in _FOUND.items()
+             if (name in base and ">" not in base) or any(
+                 name in prop for prop in rest.split("+") if not prop.startswith("!"))}
+    types, subtypes, named, not_types = set(), set(), set(), set()
+    cards: dict = {}
+    whose, itself, other, kind = "", False, False, ""
+
+    def word(name: str) -> bool:
+        """A type or subtype; False for anything else."""
+        if name in _CARD_TYPES:
+            types.add(name.lower())
+        elif name in _BASIC_LAND_TYPES:
+            subtypes.add(name.lower())
+        elif name.replace("-", "").replace("'", "").isalpha() and name[:1].isupper() \
+                and name not in _REFERENCES \
+                and not any(found_name in name for found_name in _FOUND):
+            named.add(name.lower())
+        else:
+            return False
+        return True
+
+    if base in ("Self", "CARDNAME", "CorrectedSelf"):
+        itself = True
+    elif base == "Card":
+        kind = "card"
+    elif word(base):
+        kind = base.lower()
+    elif not any(name in base for name in _FOUND):
+        unread.add(base)
+    for prop in (prop for prop in rest.split("+") if prop):
+        if prop in _WHOSE:
+            whose = _WHOSE[prop]
+        elif prop in ("Self", "StrictlySelf"):
+            itself = True
+        elif prop in ("Other", "StrictlyOther"):
+            other = True
+        elif prop == "Basic":
+            cards["basic"] = True
+        elif prop == "Legendary":
+            cards["legendary"] = True
+        elif prop in _COLOR_WORDS:
+            cards["color"] = _COLOR_WORDS[prop]
+        elif prop == "Colorless":
+            cards["colorless"] = True
+        elif prop == "MultiColor":
+            cards["multicolored"] = True
+        elif prop.startswith("named") and len(prop) > 5:
+            cards["names"] = frozenset({prop[5:].replace(";", ",")})
+        elif prop.startswith("non") and prop[3:] in _CARD_TYPES:
+            not_types.add(prop[3:].lower())
+        elif any(name in prop for name in _FOUND) and not prop.startswith("!"):
+            pass
+        elif not word(prop):
+            unread.add(prop)
+    selector = Selector(types=frozenset(types), subtypes=frozenset(subtypes),
+                        named_types=frozenset(named), **cards)
+    return b.Which(cards=selector, base=kind, whose=whose, itself=itself, other=other,
+                   found=frozenset(found), not_types=frozenset(not_types), each=each,
+                   unread=frozenset(unread))
 
 
 #: Forge's "that player" who is you after all: the controller of the card
@@ -289,7 +392,7 @@ def _args(step: forge.Ability, reading: _Reading) -> tuple:
         args["to"] = params.get("Destination", "").lower()
         what = params.get("ChangeType") or params.get("ValidTgts") or params.get("Defined", "")
         if what:
-            args["what"] = what
+            args["what"] = _which(what)
         if params.get("Tapped") == "True":
             args["tapped"] = True
         if params.get("DefinedPlayer"):
@@ -823,7 +926,6 @@ def report(comparison: Comparison) -> str:
 ANY = "WUBRG"
 
 _BASIC_TYPES = {"Plains": "W", "Island": "U", "Swamp": "B", "Mountain": "R", "Forest": "G"}
-_LAND_WORDS = ("Land", *_BASIC_TYPES)
 #: Colours a deck decides: read as any colour, as the engine plays them.
 _ANY_COLOUR = frozenset({"any", "identity", "chosen", "reflected"})
 
@@ -862,7 +964,8 @@ def facts(abilities, type_line: str = "") -> dict:
         for effect in ability.effects:
             if effect.verb == "move" and effect.arg("from") == "library" and \
                     effect.arg("to") == "battlefield" and not effect.arg("player") and \
-                    any(word in str(effect.arg("what", "")) for word in _LAND_WORDS):
+                    any("land" in which.cards.types or which.cards.subtypes
+                        for which in effect.arg("what", ())):
                 land_search = True
             if effect.verb == "create_token" and effect.arg("token") == "treasure" \
                     and not effect.arg("owner"):

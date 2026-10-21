@@ -142,17 +142,13 @@ _CREATURE_TOKEN = re.compile(r"^[wubrgc]+_(?:\d+|x|y)_(?:\d+|x|y)_")
 #: Creature tokens that sacrifice for mana.
 _SPAWN = re.compile(r"eldrazi_(?:spawn|scion)")
 
-_BASIC_TYPES = ("Plains", "Island", "Swamp", "Mountain", "Forest")
 #: The other land types a search names on its own: "a basic land or a Desert".
-_LAND_TYPES = ("Desert", "Gate", "Town", "Cave", "Lair", "Locus", "Sphere", "Tower", "Mine",
-               "Power-Plant", "Urza's")
-#: A card the effect names by what the ability already found, not a search:
-#: also one chosen from the top of the library (Break Out).
-_FOUND = ("Remembered", "Imprinted", "TopOfLibrary", "Triggered", "Targeted", "Chosen")
+_LAND_TYPES = frozenset({"desert", "gate", "town", "cave", "lair", "locus", "sphere", "tower",
+                         "mine", "power-plant", "urza's"})
 _LIFELINK = "Lifelink"
 #: What a wipe can sweep; a filter naming none of these (Chainer's
 #: Nightmares) is no wipe.
-_SWEPT = ("Creature", "Permanent", "Artifact", "Enchantment", "Planeswalker", "Land")
+_SWEPT = frozenset({"creature", "permanent", "artifact", "enchantment", "planeswalker", "land"})
 
 #: A ``player`` or ``owner`` who is somebody else (`forge_import._player`):
 #: "its controller" of a target (Path to Exile, Beast Within), an opponent,
@@ -167,27 +163,34 @@ def _for_others(effect: b.Effect) -> bool:
     return any(effect.arg(name) in _SOMEBODY_ELSE for name in ("player", "owner"))
 
 
-def _what(effect: b.Effect) -> str:
-    return str(effect.arg("what") or "")
+def _what(effect: b.Effect) -> tuple[b.Which, ...]:
+    """The cards the effect is about, one `Which` per alternative."""
+    return effect.arg("what") or ()
 
 
-def _is_self(what: str) -> bool:
-    return "Self" in what or what == "CARDNAME"
+def _is_self(what: tuple[b.Which, ...]) -> bool:
+    return any(which.itself for which in what)
 
 
-def _is_yours(what: str) -> bool:
+def _is_yours(what: tuple[b.Which, ...]) -> bool:
     """A filter that only finds your own: Ephemerate's blink is no removal."""
-    return "YouCtrl" in what or "YouOwn" in what
+    return any(which.whose == "you" for which in what)
 
 
-_LAND_WORD = re.compile(r"\b(?:Land|" + "|".join(map(re.escape, _BASIC_TYPES + _LAND_TYPES))
-                        + r")(?![\w'-])")
+def _found(what: tuple[b.Which, ...]) -> bool:
+    """A card the ability already found, not a search (`Which.found`)."""
+    return any(which.found for which in what)
 
 
-def _lands_only(what: str) -> bool:
+def _land(which: b.Which) -> bool:
+    cards = which.cards
+    return "land" in cards.types or bool(cards.subtypes) or bool(
+        cards.named_types & _LAND_TYPES)
+
+
+def _lands_only(what: tuple[b.Which, ...]) -> bool:
     """``Land.Basic``, ``Card.Plains``, ``EACH Forest & Plains``: lands only."""
-    parts = [part.strip() for part in re.split(r"[,&]", what) if part.strip()]
-    return bool(parts) and all(_LAND_WORD.search(part.replace(".", " ")) for part in parts)
+    return bool(what) and all(_land(which) for which in what)
 
 
 def _negative(value) -> bool:
@@ -210,21 +213,20 @@ def _token(script: str) -> list[str]:
     return list(dict.fromkeys(found))
 
 
-def _itself(what: str, ability: b.Ability) -> bool:
+def _itself(what: tuple[b.Which, ...], ability: b.Ability) -> bool:
     """The card moves itself: "return this card", "return it" on its own
     death (the Enduring cycle), or no card named at all (Bloodghast)."""
     if _is_self(what) or not what:
         return True
-    return what.startswith("Triggered") and ability.event is not None \
+    return not what[0].base and "triggered" in what[0].found and ability.event is not None \
         and ability.event.who == "self"
 
 
-def _swept(what: str) -> bool:
+def _swept(what: tuple[b.Which, ...]) -> bool:
     """Every card of a type, not one the ability already found (Coffin
     Queen's remembered creature)."""
-    return any(part.strip().startswith(_SWEPT) and not _is_yours(part)
-               and not any(word in part for word in _FOUND)
-               for part in what.split(","))
+    return any(which.base in _SWEPT and which.whose != "you" and not which.found
+               for which in what)
 
 
 def _flickers(ability: b.Ability) -> bool:
@@ -233,7 +235,7 @@ def _flickers(ability: b.Ability) -> bool:
     return any(effect.verb in ("move", "move_all")
                and str(effect.arg("from") or "") in ("exile", "all")
                and str(effect.arg("to") or "") == "battlefield"
-               and any(word in _what(effect) for word in _FOUND)
+               and _found(_what(effect))
                for effect in ability.effects)
 
 
@@ -251,7 +253,7 @@ def _move(effect: b.Effect, ability: b.Ability, *, all_: bool, swap: bool) -> li
             # Crop Rotation.
             return ["land_search", "ramp"] if destination == "battlefield" and not swap \
                 else ["land_search"]
-        if all_ or not what or any(word in what for word in _FOUND):
+        if all_ or not what or _found(what):
             return []
         return ["tutor"]
     if "graveyard" in origin and destination == "hand":

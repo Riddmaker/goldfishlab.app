@@ -50,6 +50,7 @@ from simulation.cards import (
 )
 from simulation.cards import fields as card_fields
 from simulation.manacost import ManaCost
+from simulation.rules.selector import ANY, Selector
 
 #: A condition block. The engine's question type is general already: it
 #: guards lands entering tapped and mana abilities alike.
@@ -83,7 +84,9 @@ KEYWORD = "keyword"
 CHOOSE = "choose"
 
 #: The version of the block format, stored beside every block written.
-VERSION = 1
+#: 2: an effect's ``what`` is a tuple of `Which`, not a source's string
+#: (card model phase 5).
+VERSION = 2
 
 
 def changed_args(value, *, skip=()) -> tuple[tuple[str, Any], ...]:
@@ -146,6 +149,43 @@ class Event:
     filter: str = ""
     who: str = ""
     types: frozenset[str] = field(default_factory=frozenset)
+
+
+@dataclass(frozen=True)
+class Which:
+    """Which cards an effect is about, as a source reads them (card model
+    phase 5): one alternative of an effect's ``what``.
+
+    What the cards must be is the engine's own `Selector`; the rest names
+    cards by where they stand to the ability, which a block reads but the
+    engine never plays.
+
+    Attributes:
+        cards: What they must be: types, subtypes, basic, colour, names.
+        base: The kind of card named first (``creature``, ``land``,
+            ``forest``), or ``card`` / ``permanent`` for any; "" when the
+            alternative names a card by reference only.
+        whose: ``you`` or ``opponent``: who controls or owns them.
+        itself: The card itself.
+        other: Never the card itself.
+        found: Cards the ability or its trigger already found, by how
+            (``remembered``, ``triggered``, ``targeted``, ``chosen``,
+            ``imprinted``, ``top_of_library``).
+        not_types: Types they must not have ("nonland permanent").
+        each: One of each alternative, not one of them ("a Forest and a
+            Plains").
+        unread: A source's words no block holds yet ("cmcLE3").
+    """
+
+    cards: Selector = ANY
+    base: str = ""
+    whose: str = ""
+    itself: bool = False
+    other: bool = False
+    found: frozenset[str] = field(default_factory=frozenset)
+    not_types: frozenset[str] = field(default_factory=frozenset)
+    each: bool = False
+    unread: frozenset[str] = field(default_factory=frozenset)
 
 
 @dataclass(frozen=True)
@@ -943,6 +983,9 @@ def reconcile(old: CardBlocks, new: CardBlocks) -> dict[str, tuple[str | None, s
 
 
 def _plain(value):
+    if isinstance(value, Which | Selector):
+        return {"_which" if isinstance(value, Which) else "_cards": True,
+                **{name: _plain(item) for name, item in changed_args(value)}}
     if isinstance(value, frozenset | set):
         return sorted(value)
     if isinstance(value, tuple):
@@ -951,7 +994,17 @@ def _plain(value):
 
 
 def _tupled(value):
+    if isinstance(value, dict):
+        return _which(value)
     return tuple(_tupled(item) for item in value) if isinstance(value, list) else value
+
+
+def _which(data: dict):
+    """A `Which` or its `Selector`, as `_plain` wrote them."""
+    kwargs = {key: frozenset(item) if isinstance(item, list) else
+              _which(item) if isinstance(item, dict) else item
+              for key, item in data.items() if key not in ("_which", "_cards")}
+    return Which(**kwargs) if data.get("_which") else Selector(**kwargs)
 
 
 def _cost_json(cost: Cost) -> dict:

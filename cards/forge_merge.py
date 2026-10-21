@@ -208,33 +208,29 @@ _SEARCH_UNREAD = (
     "tutors to more than one zone; not modelled",
     "searches for lands at a cost the engine does not pay",
 )
-_BASIC_TYPES = ("Plains", "Island", "Swamp", "Mountain", "Forest")
+#: What a land search's cards may be named as: a land, a card of a basic
+#: land type, or that land type itself.
+_LAND_BASES = frozenset({"land", "card", "plains", "island", "swamp", "mountain", "forest"})
 #: What may stand beside the search in its ability: nothing the engine skips.
 _SEARCH_COMPANIONS = frozenset({"shuffle"})
 
 
-def _lands(what: str) -> tuple[bool, list[str]] | None:
-    """Forge's ``ChangeType`` of a land search as (basic only, land types),
-    or None for one the engine cannot describe: "Land.Basic" -> (True, []),
-    "Forest,Plains" -> (False, ["forest", "plains"])."""
+def _lands(what: tuple[b.Which, ...]) -> tuple[bool, list[str]] | None:
+    """A land search's cards (`forge_import._which`) as (basic only, land
+    types), or None for one the engine cannot describe: "Land.Basic" ->
+    (True, []), "Forest,Plains" -> (False, ["forest", "plains"])."""
     basics, types = set(), set()
-    for part in what.split(","):
-        base, _, rest = part.strip().partition(".")
-        props = set(rest.split("+")) - {""}
-        if base in _BASIC_TYPES:
-            types.add(base.casefold())
-        elif base in ("Land", "Card"):
-            named = props & set(_BASIC_TYPES)
-            if len(named) > 1 or (base == "Card" and not named):
-                return None
-            types |= {name.casefold() for name in named}
-            props -= named
-        else:
+    for which in what:
+        cards = which.cards
+        if which.base not in _LAND_BASES or which.whose or which.itself or which.other \
+                or which.found or which.not_types or which.unread or which.each \
+                or cards.types - {"land"} or cards.named_types or cards.legendary \
+                or cards.color or cards.colorless or cards.multicolored or cards.names \
+                or len(cards.subtypes) > 1 or (which.base == "card" and not cards.subtypes):
             return None
-        if props - {"Basic"}:
-            return None
-        basics.add("Basic" in props)
-    if len(basics) != 1 or (types and len(types) != len(what.split(","))):
+        types |= cards.subtypes
+        basics.add(cards.basic)
+    if len(basics) != 1 or (types and len(types) != len(what)):
         return None
     return basics.pop(), sorted(types)
 
@@ -289,7 +285,7 @@ def land_search(profile, abilities, card) -> None:
         return
     move = moves[0]
     n = move.arg("n", 1)
-    lands = _lands(str(move.arg("what", "")))
+    lands = _lands(move.arg("what", ()))
     when = _search_when(ability, profile)
     if move.arg("to") != "battlefield" or move.arg("player") or move.arg("target") \
             or not isinstance(n, int) or lands is None or when is None:
@@ -461,7 +457,8 @@ def _family(ability: b.Ability) -> str | None:
             return "treasure"
         if effect.verb == "move" and effect.arg("from") == "library" \
                 and effect.arg("to") == "battlefield" and not effect.arg("player") \
-                and "Land" in str(effect.arg("what", "")):
+                and any("land" in which.cards.types or which.cards.subtypes
+                        for which in effect.arg("what", ())):
             return "land_search"
     return None
 

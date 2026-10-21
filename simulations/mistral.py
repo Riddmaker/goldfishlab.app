@@ -9,8 +9,11 @@ reference describes it (checked 2026-10-02): `POST /v1/chat/completions` with
 `model`, `messages`, `temperature`, `max_tokens` and
 `response_format: {"type": "json_object"}`; the answer is
 `choices[0].message.content`, and `usage` counts `prompt_tokens` and
-`completion_tokens`. JSON mode makes the answer parse; what it says is checked
-by `simulations.summary.parse`, never trusted.
+`completion_tokens`. A reasoning model (Mistral Large 4, checked 2026-10-21 in
+its reasoning guide) answers `content` as a list of chunks, `thinking` ones and
+`text` ones; the text chunks are the answer. Greedy sampling (temperature 0)
+needs `top_p` 1 there, so it is sent with it. JSON mode makes the answer
+parse; what it says is checked by `simulations.summary.parse`, never trusted.
 
 **The key is never logged, printed or put in an exception.** An error says what
 went wrong with the request, not what was in its headers.
@@ -81,6 +84,7 @@ def complete(messages: list[dict], *, max_tokens: int, temperature: float = 0.3,
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
+        **({"top_p": 1} if temperature == 0 else {}),
         "response_format": {"type": "json_object"},
     }).encode("utf-8")
 
@@ -117,13 +121,24 @@ def complete(messages: list[dict], *, max_tokens: int, temperature: float = 0.3,
         content = payload["choices"][0]["message"]["content"]
         usage = payload.get("usage") or {}
         return Completion(
-            content=content if isinstance(content, str) else "",
+            content=_text(content),
             model=str(payload.get("model") or model_name or model()),
             prompt_tokens=int(usage.get("prompt_tokens") or 0),
             completion_tokens=int(usage.get("completion_tokens") or 0),
         )
     except (ValueError, KeyError, IndexError, TypeError):
         raise MistralError("Mistral's answer did not have the expected shape") from None
+
+
+def _text(content) -> str:
+    """The answer of `content`: the string itself, or a reasoning model's
+    ``text`` chunks joined, its ``thinking`` chunks left out."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return "".join(chunk.get("text", "") for chunk in content
+                       if isinstance(chunk, dict) and chunk.get("type") == "text")
+    return ""
 
 
 MODELS_ENDPOINT = "https://api.mistral.ai/v1/models"

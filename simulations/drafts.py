@@ -19,8 +19,9 @@ from dataclasses import dataclass, field
 
 from simulations import mistral, primitives
 
-#: An answer is a handful of small objects.
-MAX_TOKENS = 1_200
+#: An answer is a handful of small objects, but a reasoning model (Mistral
+#: Large 4) spends its thinking from the same budget before it answers.
+MAX_TOKENS = 8_000
 #: The schema and the examples are the prompt's bulk; the card is short.
 TEMPERATURE = 0.0
 
@@ -110,6 +111,8 @@ class Score:
     cards: int = 0
     #: The answer was no JSON object, or the call failed.
     unusable: int = 0
+    #: Why calls failed, by the error's words, so a failing model shows why.
+    errors: dict = field(default_factory=dict)
     #: Every primitive of the card right, and nothing more.
     exact: int = 0
     #: Per primitive: right, wrong or missing (the key had it), extra (it did not).
@@ -142,7 +145,8 @@ class Score:
 
     def summary(self) -> dict:
         return {"model": self.model, "cards": self.cards, "exact": self.exact,
-                "unusable": self.unusable, "right": self.right, "missed": self.missed,
+                "unusable": self.unusable, "errors": self.errors, "right": self.right,
+                "missed": self.missed,
                 "extra": self.extra, "prompt_tokens": self.prompt_tokens,
                 "completion_tokens": self.completion_tokens,
                 "seconds": round(self.seconds, 1)}
@@ -166,7 +170,8 @@ def compare(models: list[str], cards: list, examples: list) -> list[Score]:
             try:
                 completion = mistral.complete(messages(card, examples), max_tokens=MAX_TOKENS,
                                               temperature=TEMPERATURE, model_name=name)
-            except mistral.MistralError:
+            except mistral.MistralError as exc:
+                score.errors[str(exc)] = score.errors.get(str(exc), 0) + 1
                 score.add(card.name, truth(profile), None)
                 continue
             finally:

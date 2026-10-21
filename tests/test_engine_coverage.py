@@ -138,11 +138,14 @@ def test_a_nested_field_at_its_default_is_no_change():
     card = Card(name="Tribute", mv=3, pips=1, generic=2, kind="sorcery",
                 additional_costs=(AdditionalCost(sacrifice=("creature",)),))
     read = coverage.reading(card, [])
-    assert "sacrifice_count" not in read["read"]["additional_costs"][0]
-    # A snapshot from before the field existed, or written with every
-    # default spelled out, still compares equal.
-    spelled = {**read, "read": {**read["read"], "additional_costs": [
-        {**read["read"]["additional_costs"][0], "sacrifice_count": 1}]}}
+    [cast] = [each for each in read["read"]["abilities"] if each["form"] == "cast_costs"]
+    [atom] = cast["options"][0]
+    assert "x" not in atom and atom["amount"] == 1
+    # A snapshot from before a field existed, or written with every default
+    # spelled out, still compares equal.
+    spelled = {**read, "read": {**read["read"], "abilities": [
+        {**each, "options": [[{**atom, "x": False}]]} if each is cast else each
+        for each in read["read"]["abilities"]]}}
     assert coverage.compare({"Tribute": spelled}, {"Tribute": read}).empty
     twice = coverage.reading(replace(card, additional_costs=(
         AdditionalCost(sacrifice=("creature",), sacrifice_count=2),)), [])

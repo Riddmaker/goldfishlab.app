@@ -110,12 +110,12 @@ def test_every_field_is_placed_somewhere():
     placed = set(blocks.FACE_FIELDS) | set(blocks.HINT_FIELDS) | examples
     # The fields a card is made with; since card model phase 4 its mana family
     # is in `Card.abilities` already, made from those fields (PR 13).
-    assert {name for name, _annotation in serial.fields_of(Card)} <= placed
+    assert {name for name, _annotation in serial.legacy_fields_of()} <= placed
 
 
 def test_the_coverage_set_comes_back_the_same():
     for name, entry in coverage.load_snapshot().items():
-        card = serial.load(Card, {**coverage._DEFAULT, **entry["read"], "name": name})
+        card = coverage.card_of(name, entry["read"])
         _round_trips(card)
 
 

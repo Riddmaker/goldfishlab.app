@@ -14,4 +14,4 @@ def test_a_card_digest_reads_the_fields_it_is_made_with():
     digest = games._digest(games._stable(spy))
     assert digest == games._digest(games._stable(same))
     assert digest != games._digest(games._stable(other))
-    assert "field:triggers" in games.features(spy)
+    assert "form:trigger" in games.features(spy)

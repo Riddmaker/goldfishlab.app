@@ -262,10 +262,10 @@ def test_a_card_made_with_fields_is_a_card_made_with_blocks():
     assert dataclasses.replace(card, priority=3).abilities == card.abilities
 
 
-def test_a_stored_card_keeps_the_field_form():
+def test_a_stored_card_keeps_its_blocks():
     card = Card("Everything", 3, 1, 2, CREATURE, **FAMILY)
     dumped = serial.dump(card)
-    assert "abilities" not in dumped and dumped["store"]["_type"] == "Store"
+    assert "store" not in dumped and dumped["abilities"]
     assert serial.load(Card, dumped) == card
 
 

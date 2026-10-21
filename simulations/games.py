@@ -45,7 +45,6 @@ from django.db import connections, transaction
 from simulation import ENGINE_VERSION, serial
 from simulation import trace as game_trace
 from simulation.cards import Card
-from simulation.cards import value as card_value
 from simulations import coverage, differential
 from simulations.engine import adapter
 
@@ -107,10 +106,14 @@ def features(card: Card) -> set[str]:
     """The mechanisms an engine card uses, as names a corpus can count."""
     found = set()
     for name, _annotation in serial.fields_of(Card):
-        if name in FACE:
+        if name in FACE or name == "abilities":
             continue
-        if card_value(card, name) != card_value(_DEFAULT_CARD, name):
+        if getattr(card, name) != getattr(_DEFAULT_CARD, name):
             found.add(f"field:{name}")
+    # Since the decoder retired (phase 5) a mechanism is a block's form. The
+    # corpus of 2026-10 was drawn by the fields cards were made with; it is
+    # kept, not drawn again.
+    found.update(f"form:{ability.form}" for ability in card.abilities if ability.form)
     for ability in card.mana.entries:
         found.add(f"rule:{ability.rule}")
         if ability.only_if is not None:
@@ -130,8 +133,7 @@ def catalogue_features(path: Path) -> dict[str, set[str]]:
     """Each Commander card's features by oracle id, from a frozen reading."""
     found = {}
     for name, entry in differential.load(path)["cards"].items():
-        card = serial.load(Card, {**coverage._DEFAULT, **entry["read"],
-                                  "name": name.rsplit(" [", 1)[0]})
+        card = coverage.card_of(name.rsplit(" [", 1)[0], entry["read"])
         found[entry["id"]] = features(card)
     return found
 
@@ -352,11 +354,9 @@ def _stable(value):
     """`serial.dump` with every set sorted: a frozenset dumps in hash order,
     which changes from one process to the next."""
     if dataclasses.is_dataclass(value) and not isinstance(value, type):
-        # A card by the fields it is made with, as `serial` writes it: its
-        # reading stays comparable across the move onto blocks (phase 4).
+        # A card as `serial` writes it: printed, with its blocks (phase 5).
         return {"_type": type(value).__name__,
-                **{name: _stable(card_value(value, name) if isinstance(value, Card)
-                                 else getattr(value, name))
+                **{name: _stable(getattr(value, name))
                    for name, _annotation in serial.fields_of(type(value))}}
     if isinstance(value, (frozenset, set)):
         return sorted((_stable(item) for item in value),
@@ -415,6 +415,7 @@ def freeze(path: Path | None = None, corpus_path: Path = CORPUS,
     played = play([deck for deck, _cards in built], games, processes=processes)
     data = {
         "engine_version": ENGINE_VERSION,
+        "form": coverage.FORM,
         "frozen_at": datetime.now(UTC).isoformat(),
         "imports": differential.imports(),
         "games": games,
@@ -455,10 +456,14 @@ def diff(path: Path, corpus_path: Path = CORPUS, processes: int = PROCESSES) -> 
     played = play([deck for deck, _cards in built], frozen["games"], frozen["turns"],
                   processes=processes)
     moved = []
+    # A freeze from before the block form (phase 5) digests each card by
+    # other words: only its games compare.
+    same_form = frozen.get("form", 1) == coverage.FORM
     for before, (deck, cards), now in zip(frozen["decks"], built, played, strict=True):
         found = DeckDiff(name=before["name"])
-        found.cards = sorted(name for name in set(before["cards"]) | set(cards)
-                             if before["cards"].get(name) != cards.get(name))
+        if same_form:
+            found.cards = sorted(name for name in set(before["cards"]) | set(cards)
+                                 if before["cards"].get(name) != cards.get(name))
         for index, (old, new) in enumerate(zip(before["games"], now["games"], strict=True)):
             if old["game"] == new["game"]:
                 continue

@@ -170,11 +170,29 @@ def test_a_card_with_every_field_set_survives_the_trip():
 def test_every_field_of_a_card_is_actually_written_down():
     """Equality would still hold if a field came back as its default."""
     dumped = serial.dump(EVERYTHING)
-    # The fields a card is made with: its two families as the fields
-    # it takes, not the blocks they become (card model phase 4, PR 13).
+    # Printed, the play hints and the blocks (card model phase 5); not the
+    # fields it was made with.
     for name, _annotation in serial.fields_of(Card):
         assert name in dumped, f"{name} never reached the row"
-    assert "abilities" not in dumped
+    assert dumped["abilities"] and "mana_abilities" not in dumped
+
+
+def test_a_card_stored_in_the_old_form_comes_back_the_same():
+    """A playtest stored before phase 5 wrote a card as the fields it was
+    made with; its deck must load as the same card."""
+    old = {"_type": "Card", **{name: serial.dump(card_value(EVERYTHING, name))
+                               for name, _annotation in serial.legacy_fields_of()}}
+
+    assert serial.load(Card, json.loads(json.dumps(old))) == EVERYTHING
+
+
+def test_a_set_inside_an_effect_comes_back_as_a_set():
+    """An effect's arguments are typed `Any`: the dump has to say a set is one."""
+    found = roundtrip(EVERYTHING)
+
+    assert found.abilities == EVERYTHING.abilities
+    assert any(isinstance(value, frozenset) for ability in found.abilities
+               for effect in ability.effects for _key, value in effect.args)
 
 
 def test_no_field_of_the_exhaustive_card_was_left_at_its_default():

@@ -131,6 +131,7 @@ def freeze(path: Path | None = None) -> int:
     found = readings(catalogue())
     data = {
         "engine_version": ENGINE_VERSION,
+        "form": coverage.FORM,
         "frozen_at": datetime.now(UTC).isoformat(),
         "imports": imports(),
         "cards": found,
@@ -142,8 +143,12 @@ def freeze(path: Path | None = None) -> int:
 
 
 def load(path: Path) -> dict:
+    """A frozen file, its readings in today's form (`coverage.upgraded`)."""
     with gzip.open(path, "rt", encoding="utf-8") as handle:
-        return json.load(handle)
+        data = json.load(handle)
+    data["cards"] = coverage.upgraded(data["cards"], data.get("form", 1))
+    data["form"] = coverage.FORM
+    return data
 
 
 def diff(path: Path) -> tuple[coverage.Diff, dict, dict, list[str]]:
@@ -177,12 +182,11 @@ def round_trip(path: Path) -> dict:
     """
     from collections import Counter
 
-    from simulation import blocks, serial
-    from simulation.cards import Card
+    from simulation import blocks
 
     lost, extra, verbs, abilities = [], 0, Counter(), Counter()
     for name, entry in load(path)["cards"].items():
-        card = serial.load(Card, {**coverage._DEFAULT, **entry["read"], "name": name})
+        card = coverage.card_of(name, entry["read"])
         found = blocks.to_blocks(card)
         if blocks.from_blocks(found) != card:
             lost.append(name)

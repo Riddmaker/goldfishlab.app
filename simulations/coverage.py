@@ -58,20 +58,20 @@ TOP = 2_000
 #: A card nobody named: every field at its default, to leave out of a reading.
 _DEFAULT = serial.dump(Card(name="", mv=0, pips=0, generic=0, kind="land"))
 
+#: The form of a reading: 2 since the decoder retired (card model phase 5),
+#: a card as printed with its blocks; 1 before, the fields it was made with.
+#: A frozen file says which it holds; one without the mark holds form 1.
+FORM = 2
+
 
 def _canonical(value):
-    """Lists sorted where their order means nothing, so a snapshot is stable.
-
-    A frozenset dumps in hash order, which changes between runs; every list in
-    a card's dump is either a set or a tuple whose order the engine does not
-    read twice (mana abilities are tried in turn, but stored sorted they still
-    say the same thing to a reader of the diff).
-    """
+    """Keys sorted, so a snapshot is stable. Sets are written sorted by
+    `serial.dump` itself; every list keeps its order - a card's blocks, an
+    effect's arguments - since the order is part of what it says."""
     if isinstance(value, dict):
         return {key: _canonical(item) for key, item in sorted(value.items())}
     if isinstance(value, list):
-        items = [_canonical(item) for item in value]
-        return sorted(items, key=lambda item: json.dumps(item, sort_keys=True))
+        return [_canonical(item) for item in value]
     return value
 
 
@@ -113,10 +113,29 @@ def _plain_read(read: dict) -> dict:
 
 def reading(card: Card, gaps) -> dict:
     """One card as a snapshot keeps it: what is unread, and what was read."""
+    return {"unread": reading_reasons(gaps), "read": _read(card)}
+
+
+def _read(card: Card) -> dict:
     dumped = serial.dump(card)
     read = {key: value for key, value in dumped.items()
             if key not in ("name", "_type") and value != _DEFAULT.get(key)}
-    return {"unread": reading_reasons(gaps), "read": _plain_read(read)}
+    return _plain_read(read)
+
+
+def card_of(name: str, read: dict, form: int = FORM) -> Card:
+    """The engine card a reading of ``form`` holds."""
+    base = _DEFAULT if form == FORM else serial.legacy_default()
+    return serial.load(Card, {**base, **read, "name": name})
+
+
+def upgraded(entries: dict, form: int) -> dict:
+    """Readings of an older ``form`` in today's, by the same keys: a frozen
+    file from before phase 5 compares with today's code as it would have."""
+    if form == FORM:
+        return entries
+    return {name: {**entry, "read": _read(card_of(name, entry["read"], form))}
+            for name, entry in entries.items()}
 
 
 def ids(found: dict) -> list[str]:
@@ -181,22 +200,52 @@ class Diff:
 
 
 def changed_keys(old: dict, new: dict) -> list[str]:
-    """The fields two readings of a card differ in; ``unread`` for the gaps."""
+    """The fields two readings of a card differ in, a block by its form;
+    ``unread`` for the gaps."""
     old, new = _leaned(old), _leaned(new)
     keys = ["unread"] if old["unread"] != new["unread"] else []
-    return keys + [key for key in sorted(set(old["read"]) | set(new["read"]))
-                   if old["read"].get(key) != new["read"].get(key)]
+    for key in sorted(set(old["read"]) | set(new["read"])):
+        was, now = old["read"].get(key), new["read"].get(key)
+        if was == now:
+            continue
+        if key == "abilities":
+            keys += _changed_forms(was or [], now or [])
+        else:
+            keys.append(key)
+    return keys
+
+
+def _changed_forms(was: list, now: list) -> list[str]:
+    """The forms whose blocks differ between two readings' ``abilities``."""
+    def by_form(found):
+        grouped: dict[str, list] = {}
+        for each in found:
+            grouped.setdefault(each.get("form") or each.get("kind", ""), []).append(each)
+        return grouped
+
+    was, now = by_form(was), by_form(now)
+    return [form for form in sorted(set(was) | set(now)) if was.get(form) != now.get(form)]
 
 
 def _changes(old: dict, new: dict) -> list[str]:
     lines = []
+    forms = {each.get("form") or each.get("kind", ""): each
+             for entry in (old, new) for each in entry["read"].get("abilities", ())}
     for key in changed_keys(old, new):
         if key == "unread":
             lines.append(f"unread: {old['unread']} -> {new['unread']}")
+        elif key in forms and key not in old["read"] and key not in new["read"]:
+            lines.append(f"{key}: {json.dumps(_of_form(old, key))} -> "
+                         f"{json.dumps(_of_form(new, key))}")
         else:
             lines.append(f"{key}: {json.dumps(old['read'].get(key))} -> "
                          f"{json.dumps(new['read'].get(key))}")
     return lines
+
+
+def _of_form(entry: dict, form: str) -> list:
+    return [each for each in entry["read"].get("abilities", ())
+            if (each.get("form") or each.get("kind", "")) == form]
 
 
 def _leaned(entry: dict) -> dict:

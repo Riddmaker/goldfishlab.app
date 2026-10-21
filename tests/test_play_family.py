@@ -115,10 +115,10 @@ def test_enters_tapped_is_still_the_eighth_argument():
     assert card_fields(land)["enters_tapped"] and land.play.enters_tapped
 
 
-def test_a_stored_card_keeps_the_field_form():
+def test_a_stored_card_keeps_its_blocks():
     card = Card("Everything", 3, 1, 2, SORCERY, **FAMILY)
     dumped = serial.dump(card)
-    assert "abilities" not in dumped and dumped["land_search"]["_type"] == "LandSearch"
+    assert "land_search" not in dumped and dumped["abilities"]
     assert serial.load(Card, dumped) == card
 
 

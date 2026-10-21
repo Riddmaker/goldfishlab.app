@@ -67,7 +67,43 @@ def test_a_failed_call_is_unusable_not_fatal(monkeypatch):
         raise mistral.MistralError("Mistral answered HTTP 500")
 
     monkeypatch.setattr(mistral, "complete", complete)
-    assert drafts.compare(["m"], [profile("A", treasures=1)], [])[0].unusable == 1
+    score = drafts.compare(["m"], [profile("A", treasures=1)], [])[0]
+    assert score.unusable == 1
+    # The report says why, so a model that never answers shows its error.
+    assert score.errors == {"Mistral answered HTTP 500": 1}
+
+
+class _Answer:
+    def __init__(self, payload):
+        self.raw = json.dumps(payload).encode()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def read(self, _limit):
+        return self.raw
+
+
+def test_a_reasoning_models_answer_is_its_text_chunks(monkeypatch, settings):
+    settings.MISTRAL_API_KEY = "test-key"
+    sent = []
+
+    def urlopen(request, timeout):
+        sent.append(json.loads(request.data))
+        return _Answer({"model": "mistral-large-4", "usage": {}, "choices": [{"message": {
+            "content": [{"type": "thinking", "thinking": [{"type": "text", "text": "hm"}]},
+                        {"type": "text", "text": '{"treasures": 1}'}]}}]})
+
+    monkeypatch.setattr(mistral.urllib.request, "urlopen", urlopen)
+    completion = mistral.complete([], max_tokens=10, temperature=0.0, model_name="m")
+    assert completion.content == '{"treasures": 1}'
+    # Greedy sampling is sent with top_p 1, which Large 4 requires.
+    assert sent[0]["top_p"] == 1
+    mistral.complete([], max_tokens=10, temperature=0.3, model_name="m")
+    assert "top_p" not in sent[1]
 
 
 @pytest.mark.django_db

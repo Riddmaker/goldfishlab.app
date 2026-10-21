@@ -480,3 +480,31 @@ def test_the_playtest_can_post_equip_and_combat():
     form = ActionForm({"kind": "equip", "zone": "other_permanents", "index": 0, "target": 1})
     assert form.is_valid()
     assert form.action() == actions.Equip(zone=actions.OTHER, index=0, target=1)
+
+
+# --- connive in combat (card model phase 5, engine v32) ------------------------------
+
+
+def test_a_creature_that_connives_as_it_attacks():
+    """Ultron, Unlimited: it draws, discards the weakest card and grows when
+    that was no land; the card drawn is cast in a second main phase."""
+    ultron = creature("Ultron", 4, 4, mv=6, combat=(
+        CombatTrigger(event="attacks", who="self", connive=1),))
+    huge = creature("Huge", 9, 9, mv=9, cost="{7}{R}{R}")
+    cheap = creature("Cheap", 1, 1, mv=1, cost="{R}")
+    game = game_with(creatures=[ultron], hand=[huge], lands=[MOUNTAIN])
+    game.library = [cheap] + [creature(f"Filler {n}", mv=9, cost="{7}{R}{R}")
+                              for n in range(20)]
+    agent.take_turn(game)
+    assert huge in game.graveyard and game.plus(ultron) == 1
+    assert any(each.name == "Cheap" for each in game.creatures)
+    assert "  -> Ultron: connives" in game.log
+
+
+def test_a_connive_needs_an_attacker():
+    ultron = creature("Ultron", combat=(CombatTrigger(event="attacks", who="self", connive=1),))
+    game = game_with(creatures=[ultron])
+    marks(game, arrived=["Ultron"])
+    game.pool = ManaPool()
+    game.combat()
+    assert game.graveyard == [] and game.plus(ultron) == 0

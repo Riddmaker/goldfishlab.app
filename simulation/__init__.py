@@ -206,6 +206,10 @@ boundary, not the symptom.
 #:    neither is an opponent's spell (Esper Sentinel) the deck's own. A
 #:    creature that connives as it enters (A.I.M. Scientists) draws, discards
 #:    and grows when the discard was no land.
-ENGINE_VERSION = 31
+#: 32: card model phase 5. A creature that connives in combat (Ultron,
+#:    Unlimited as it attacks, Norman Osborn as it deals combat damage)
+#:    connives, and a combat that draws a card has a second main phase; Mob
+#:    Lookout's "target creature you control connives" is itself.
+ENGINE_VERSION = 32
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

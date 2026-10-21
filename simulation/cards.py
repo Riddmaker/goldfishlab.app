@@ -461,6 +461,9 @@ class CombatTrigger:
         mana: Mana it adds and keeps to the end of the turn, "RRRGGG".
         search: A basic land onto the battlefield, tapped - ``untapped``
             (Sword of Hearth and Home), not.
+        connive: Times the card itself connives (Ultron, Unlimited; card
+            model phase 5): draw a card, discard a card, and a +1/+1 counter
+            on it if the discarded card was no land.
 
     P19 R23: ``who`` ``total`` is Neheb, the Eternal: ``mana`` once for each
     point of combat damage the attackers deal, which in a goldfish is the
@@ -475,6 +478,7 @@ class CombatTrigger:
     mana: str = ""
     search: bool = False
     untapped: bool = False
+    connive: int = 0
 
 
 #: What a Lander token does (P19 R14): "{2}, {T}, Sacrifice this token: Search

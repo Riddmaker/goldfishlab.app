@@ -429,6 +429,46 @@ def test_a_connive_the_engine_would_play_otherwise_is_not_taken(script):
     assert connived_by(script).triggers == []
 
 
+def test_target_creature_you_control_connives_is_the_card_itself():
+    """Mob Lookout (card model phase 5): the goldfish picks the card itself."""
+    profile = connived_by(ENTERS.replace("TrigToken", "TrigConnive")
+                          + "SVar:TrigConnive:DB$ Connive | ValidTgts$ Creature.YouCtrl\n")
+    assert profile.triggers == [{"event": "resolves", "connive": 1}]
+
+
+def combat_connived_by(script: str, kind="creature") -> DerivedProfile:
+    profile = DerivedProfile(kind=kind, combat={}, source_map={})
+    forge_merge.combat_connives(profile, blocks_of(f"Name:Test\nTypes:Creature\n{script}"),
+                                None)
+    return profile
+
+
+@pytest.mark.parametrize(("script", "trigger"), [
+    ("T:Mode$ Attacks | ValidCard$ Card.Self | Execute$ TrigConnive\n",
+     {"event": "attacks", "who": "self", "connive": 1}),
+    ("T:Mode$ DamageDone | ValidSource$ Card.Self | ValidTarget$ Player | CombatDamage$ True "
+     "| Execute$ TrigConnive\n", {"event": "damage", "who": "self", "connive": 1}),
+])
+def test_a_creature_that_connives_in_combat(script, trigger):
+    profile = combat_connived_by(script + "SVar:TrigConnive:DB$ Connive\n")
+    assert profile.combat == {"triggers": [trigger]}
+    assert profile.source_map == {"combat": "forge"}
+
+
+def test_another_creature_conniving_in_combat_is_not_taken():
+    attack = "T:Mode$ Attacks | ValidCard$ Card.Self | Execute$ TrigConnive\n"
+    assert combat_connived_by(
+        attack + "SVar:TrigConnive:DB$ Connive | ValidTgts$ Creature.attacking\n").combat == {}
+    # Swordsman: "whenever an equipped creature you control attacks, it
+    # connives" - the attacker, not Swordsman.
+    assert combat_connived_by(
+        "T:Mode$ Attacks | ValidCard$ Creature.YouCtrl+equipped | Execute$ TrigConnive\n"
+        "SVar:TrigConnive:DB$ Connive | Defined$ TriggeredAttackerLKICopy\n").combat == {}
+    # An Equipment's creature connives, not the Equipment.
+    assert combat_connived_by(attack + "SVar:TrigConnive:DB$ Connive\n",
+                              kind="other").combat == {}
+
+
 def test_the_engine_connives_and_grows_on_a_nonland():
     from simulation.cards import CREATURE, LAND, Card, Trigger
     from simulation.game import Game

@@ -86,6 +86,7 @@ def take(profile, field: str, value, *, answers: tuple[str, ...] = ()) -> None:
 
 #: Kinds whose mana is the spell's own, as it resolves: not a mana ability.
 _ONE_SHOT = frozenset({"instant", "sorcery", "ritual"})
+_CREATURE = "creature"
 _LETTERS = frozenset("WUBRGC")
 #: Reasons a mana ability read whole answers.
 _MANA_UNREAD = (
@@ -208,33 +209,29 @@ _SEARCH_UNREAD = (
     "tutors to more than one zone; not modelled",
     "searches for lands at a cost the engine does not pay",
 )
-_BASIC_TYPES = ("Plains", "Island", "Swamp", "Mountain", "Forest")
+#: What a land search's cards may be named as: a land, a card of a basic
+#: land type, or that land type itself.
+_LAND_BASES = frozenset({"land", "card", "plains", "island", "swamp", "mountain", "forest"})
 #: What may stand beside the search in its ability: nothing the engine skips.
 _SEARCH_COMPANIONS = frozenset({"shuffle"})
 
 
-def _lands(what: str) -> tuple[bool, list[str]] | None:
-    """Forge's ``ChangeType`` of a land search as (basic only, land types),
-    or None for one the engine cannot describe: "Land.Basic" -> (True, []),
-    "Forest,Plains" -> (False, ["forest", "plains"])."""
+def _lands(what: tuple[b.Which, ...]) -> tuple[bool, list[str]] | None:
+    """A land search's cards (`forge_import._which`) as (basic only, land
+    types), or None for one the engine cannot describe: "Land.Basic" ->
+    (True, []), "Forest,Plains" -> (False, ["forest", "plains"])."""
     basics, types = set(), set()
-    for part in what.split(","):
-        base, _, rest = part.strip().partition(".")
-        props = set(rest.split("+")) - {""}
-        if base in _BASIC_TYPES:
-            types.add(base.casefold())
-        elif base in ("Land", "Card"):
-            named = props & set(_BASIC_TYPES)
-            if len(named) > 1 or (base == "Card" and not named):
-                return None
-            types |= {name.casefold() for name in named}
-            props -= named
-        else:
+    for which in what:
+        cards = which.cards
+        if which.base not in _LAND_BASES or which.whose or which.itself or which.other \
+                or which.found or which.not_types or which.unread or which.each \
+                or cards.types - {"land"} or cards.named_types or cards.legendary \
+                or cards.color or cards.colorless or cards.multicolored or cards.names \
+                or len(cards.subtypes) > 1 or (which.base == "card" and not cards.subtypes):
             return None
-        if props - {"Basic"}:
-            return None
-        basics.add("Basic" in props)
-    if len(basics) != 1 or (types and len(types) != len(what.split(","))):
+        types |= cards.subtypes
+        basics.add(cards.basic)
+    if len(basics) != 1 or (types and len(types) != len(what)):
         return None
     return basics.pop(), sorted(types)
 
@@ -289,7 +286,7 @@ def land_search(profile, abilities, card) -> None:
         return
     move = moves[0]
     n = move.arg("n", 1)
-    lands = _lands(str(move.arg("what", "")))
+    lands = _lands(move.arg("what", ()))
     when = _search_when(ability, profile)
     if move.arg("to") != "battlefield" or move.arg("player") or move.arg("target") \
             or not isinstance(n, int) or lands is None or when is None:
@@ -425,8 +422,9 @@ def connives(profile, abilities, card) -> None:
     Our reader reads connive nowhere.
 
     Taken from an ability read whole that does nothing else and makes the
-    card itself connive; Mob Lookout's "target creature connives" is another
-    creature's.
+    card itself connive. "Target creature you control connives" (Mob
+    Lookout) is the card itself when it is a creature: the goldfish's choice
+    (card model phase 5).
     """
     if profile.kind in _ONE_SHOT:
         return
@@ -436,11 +434,65 @@ def connives(profile, abilities, card) -> None:
     if len(found) != 1 or not complete(found[0]) or found[0].mode:
         return
     effects = found[0].effects
-    if len(effects) != 1 or effects[0].arg("target") or effects[0].arg("n", 1) != 1:
+    if len(effects) != 1 or effects[0].arg("n", 1) != 1 or not (
+            _may_be_itself(effects[0], profile) if effects[0].arg("target")
+            else _itself(effects[0])):
         return
     if any(trigger.get("connive") for trigger in profile.triggers or ()):
         return
     take(profile, "triggers", [*(profile.triggers or ()), {"event": "resolves", "connive": 1}])
+
+
+def _may_be_itself(effect: b.Effect, profile) -> bool:
+    """A target the card itself may be: "target creature you control", on a
+    creature - not "another", nor an opponent's."""
+    what = effect.arg("what", ())
+    return profile.kind == _CREATURE and bool(what) and all(
+        which.whose == "you" and not which.other and not which.found and not which.unread
+        and which.base == "creature" and not which.not_types for which in what)
+
+
+def _itself(effect: b.Effect) -> bool:
+    """The card itself connives: no one named, itself, or the attacker or
+    source that set off its own trigger."""
+    return all(which.itself or (which.found == {"triggered"} and not which.base)
+               for which in effect.arg("what", ()))
+
+
+#: Forge's combat events the engine plays a connive at (`CombatTrigger`):
+#: the card attacks, you attack, the card deals combat damage to a player.
+_COMBAT_CONNIVES = {
+    b.Event("attacks", who="self"): "attacks",
+    b.Event("damage", filter="combat", who="self"): "damage",
+}
+
+
+def combat_connives(profile, abilities, card) -> None:
+    """A creature that connives in combat - Ultron, Unlimited as it attacks,
+    Norman Osborn as it deals combat damage (card model phase 5).
+
+    Taken from an ability read whole that does nothing else and makes the
+    card itself connive. Another creature conniving (Raffine's attacker,
+    Swordsman's equipped attacker) is not.
+    """
+    if profile.kind != _CREATURE:
+        return
+    found = [ability for ability in abilities
+             if ability.kind == b.TRIGGERED
+             and any(effect.verb == "connive" for effect in ability.effects)]
+    taken = []
+    for ability in found:
+        when = _COMBAT_CONNIVES.get(ability.event)
+        effects = ability.effects
+        if when is None or not complete(ability) or ability.mode or len(effects) != 1 \
+                or effects[0].arg("target") or effects[0].arg("n", 1) != 1 \
+                or not _itself(effects[0]):
+            continue
+        taken.append({"event": when, "who": "self", "connive": 1})
+    combat = dict(profile.combat or {})
+    if not taken or any(trigger.get("connive") for trigger in combat.get("triggers") or ()):
+        return
+    take(profile, "combat", {**combat, "triggers": [*(combat.get("triggers") or ()), *taken]})
 
 
 #: What a card does that the goldfish plays, when Forge reads it and the
@@ -461,7 +513,8 @@ def _family(ability: b.Ability) -> str | None:
             return "treasure"
         if effect.verb == "move" and effect.arg("from") == "library" \
                 and effect.arg("to") == "battlefield" and not effect.arg("player") \
-                and "Land" in str(effect.arg("what", "")):
+                and any("land" in which.cards.types or which.cards.subtypes
+                        for which in effect.arg("what", ())):
             return "land_search"
     return None
 
@@ -502,7 +555,7 @@ def unread(profile, abilities, card) -> None:
 #: The families, in order: each reads the blocks and the profile, and takes
 #: what its rule allows. `unread` comes last: it says what none of them took.
 FAMILIES: list[Callable] = [mana, enters_tapped, land_search, treasures, draws, connives,
-                            unread]
+                            combat_connives, unread]
 
 
 def merge(profile, abilities, card) -> None:

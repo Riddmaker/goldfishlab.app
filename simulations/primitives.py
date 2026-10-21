@@ -60,7 +60,7 @@ _COMBAT_KEYS = frozenset({
     "triggers", "equip", "aura", "germ", "treasure_bonus", "vehicle",
     # One trigger in combat.
     "event", "who", "types", "treasures", "mana", "search", "untapped", "flicker",
-    "most_life", "extra",
+    "most_life", "extra", "connive",
 })
 _TUTOR_KEYS = frozenset({
     "to", "count", "kind", "types", "max_mv", "color", "plus_sacrificed", "land_tapped",
@@ -651,6 +651,9 @@ ITEM_FIELDS = {
               _("Letters, such as RRRGGG. Blank: none.")),
         Field("search", "bool", _("Finds a basic land")),
         Field("untapped", "bool", _("The land enters untapped"), more=True),
+        Field("connive", "int", _("Times it connives"),
+              _("Draw a card, then discard a card; a +1/+1 counter on it if that was no "
+                "land."), high=2, more=True),
         Field("equip", "cost", _("Equip cost"), _("For an Equipment, such as {2}."), more=True),
         Field("aura", "bool", _("An Aura that goes on a creature"), more=True),
         Field("treasure_bonus", "int", _("Each Treasure makes this much more"), high=2,

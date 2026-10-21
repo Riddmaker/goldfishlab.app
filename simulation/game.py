@@ -463,14 +463,18 @@ class Game(Marks):
         if trigger.counter:
             # Crime Novelist grows with each artifact it sees go (P19 R23).
             self.add_counters(card, trigger.counter)
-        for _ in range(trigger.connive):
-            # Connive: a loot that grows the card when the discard is no land.
+        made.extend(["connives"] * self.connive(card, trigger.connive))
+        if made:
+            self.note(f"  -> {card.name}: {', '.join(made)}")
+
+    def connive(self, card, times: int) -> int:
+        """``card`` connives ``times`` times: a loot that grows it when the
+        discard is no land (card model PR 19). How many times it did."""
+        for _ in range(times):
             self.draw(1)
             if any(not discarded.is_land for discarded in self.discard(1)):
                 self.add_counters(card, 1)
-            made.append("connives")
-        if made:
-            self.note(f"  -> {card.name}: {', '.join(made)}")
+        return times
 
     def spell_cast(self, card) -> None:
         """A spell was cast: count it, and fire what that sets off. A card
@@ -1809,6 +1813,9 @@ class Game(Marks):
 
     def _combat_effect(self, card, trigger, choose=None) -> bool:
         """What one trigger in combat does; whether it added mana."""
+        if trigger.connive:
+            self.connive(card, trigger.connive)
+            self.note(f"  -> {card.name}: connives")
         if trigger.treasures:
             self._add_treasures(trigger.treasure_mana, trigger.treasures)
             self.note(f"  -> {card.name}: {trigger.treasures} Treasure")

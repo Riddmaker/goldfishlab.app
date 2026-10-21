@@ -9,6 +9,7 @@ import pytest
 from cards import forge, forge_import, refresh
 from cards.models import BulkImport, ForgeScript, OracleCard
 from simulation import blocks as b
+from simulation.rules.selector import Selector
 from tests.conftest import FORGE_COMMIT, FORGE_SCRIPTS
 
 
@@ -83,8 +84,9 @@ A:AB$ ChangeZone | Cost$ T PayLife<1> Sac<1/CARDNAME> | Origin$ Library \
 """), b.ACTIVATED)
     assert ability.costs == (b.Cost("tap"), b.Cost("life", amount=1),
                              b.Cost("sacrifice_self", amount=1))
-    assert ability.effects[0].args == (("from", "library"), ("to", "battlefield"),
-                                       ("what", "Island,Swamp"))
+    assert ability.effects[0].args == (("from", "library"), ("to", "battlefield"), (
+        "what", tuple(b.Which(cards=Selector(subtypes=frozenset({land})), base=land)
+                      for land in ("island", "swamp"))))
 
 
 def test_a_spell_that_costs_two_creatures_keeps_the_amount():
@@ -429,3 +431,30 @@ def test_an_opponents_spell_is_the_opponents():
 def test_a_player_is_named_in_the_interpreters_words(defined, word):
     """Card model PR 20: one vocabulary for whose an effect is."""
     assert forge_import._player(defined) == word
+
+
+def test_a_card_expression_reads_in_the_interpreters_words():
+    """Card model phase 5: Forge's card expressions as `Which`, one per
+    alternative; words without a block stay in ``unread``."""
+    mine, artifact = forge_import._which("Creature.YouCtrl+nonToken,Artifact")
+    assert mine == b.Which(cards=Selector(types=frozenset({"creature"})), base="creature",
+                           whose="you", unread=frozenset({"nonToken"}))
+    assert artifact.base == "artifact" and not artifact.whose
+    nonland, = forge_import._which("Permanent.nonLand+OppCtrl")
+    assert nonland.not_types == {"land"} and nonland.whose == "opponent"
+    basic, = forge_import._which("Land.Basic")
+    assert basic.cards.basic and basic.cards.types == {"land"}
+    # A card named by reference: found, itself, or one of each.
+    assert forge_import._which("Card.IsRemembered")[0].found == {"remembered"}
+    assert forge_import._which("TriggeredNewCardLKICopy")[0].found == {"triggered"}
+    assert not forge_import._which("Creature.!IsRemembered")[0].found
+    assert forge_import._which("Self")[0].itself
+    assert all(which.each for which in forge_import._which("EACH Forest & Plains"))
+    assert forge_import._which("Card.namedCommand Tower")[0].cards.names == {"Command Tower"}
+
+
+def test_an_amount_reads_in_our_words():
+    reading = forge_import._Reading({"X": "Count$xPaid", "Y": "Count$Valid Creature"})
+    assert reading.amount("3") == 3 and reading.amount("-2") == -2
+    assert reading.amount("X") == "x" and reading.amount("Y") == "count:Valid"
+    assert not reading.unread

@@ -385,7 +385,8 @@ def take_turn(game) -> None:
 
     It does not use ``AdvancePhase``: stepping through empty phases would only
     make the log longer. A second main phase is played only when combat
-    brought mana or Treasure, or a spell with X waited for it (P19 R22).
+    brought mana, Treasure or a card, or a spell with X waited for it (P19
+    R22).
     """
     _do(game, actions.BeginTurn())
 
@@ -400,12 +401,14 @@ def take_turn(game) -> None:
     _main_phase(game, pool)
 
     # P19 R22: combat, then a second main phase for what it brought - or for
-    # a spell with X that waited for it.
+    # a spell with X that waited for it. Card model phase 5: or for a card
+    # drawn in combat (a creature that connives as it attacks).
     held = any(card.x_count for card in game.hand) and game.combat_expected()
     treasures = len(game.treasures)
     total = pool.total
+    draws = any(trigger.connive for _card, trigger, _times in game.combat_plan())
     _do(game, actions.Combat())
-    if held or len(game.treasures) > treasures or pool.total > total:
+    if held or draws or len(game.treasures) > treasures or pool.total > total:
         game.phase = actions.MAIN2
         _main_phase(game, pool)
 

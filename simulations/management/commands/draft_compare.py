@@ -61,6 +61,8 @@ class Command(BaseCommand):
                               f"{score.unusable} unusable, "
                               f"{score.prompt_tokens}+{score.completion_tokens} tokens, "
                               f"{score.seconds:.0f} s")
+            if score.errors:
+                self.stdout.write(f"  errors {score.errors}")
             self.stdout.write(f"  right {score.right}")
             self.stdout.write(f"  missed {score.missed}")
             self.stdout.write(f"  extra {score.extra}")

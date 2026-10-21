@@ -13372,3 +13372,21 @@ msgstr ""
 "a de Kozilek, acontece uma vez e não conta mais como compra que acontece de "
 "novo e de novo. Um relatório feito com um motor mais antigo diz isso e "
 "oferece uma nova simulação."
+
+#: changelog/entries.py
+msgid "More cards that connive"
+msgstr "Mais cards que conspiram"
+
+#: changelog/entries.py
+msgid ""
+"A creature that connives as it attacks or deals combat damage, such as "
+"Ultron, Unlimited or Norman Osborn, now connives in every combat it attacks "
+"in, and a card drawn that way can be cast in the second main phase. Mob "
+"Lookout's connive goes to itself. A report made with an older engine says so"
+" and offers a new run."
+msgstr ""
+"Uma criatura que conspira ao atacar ou causar dano de combate, como Ultron, "
+"Unlimited ou Norman Osborn, agora conspira em todo combate em que ataca, e "
+"um card comprado assim pode ser conjurado na segunda fase principal. A "
+"conspiração de Mob Lookout vai para ele mesmo. Um relatório feito com um "
+"motor mais antigo informa isso e oferece uma nova simulação."

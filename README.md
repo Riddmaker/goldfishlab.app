@@ -143,7 +143,7 @@ docker compose up
 even with `DEBUG=True`, and gunicorn's `--reload` only watches `.py` files — so a template fix
 sits on disk, correct, while the browser keeps showing the old page.
 
-**Changing the engine needs `docker compose restart web worker worker_short`.** The workers are
+**Changing the engine needs `docker compose restart web worker worker_short worker_summaries`.** The workers are
 what run `simulation/`, and they do not reload. A report once came back missing a whole table
 because the run had been computed by a worker still holding the previous version in memory.
 

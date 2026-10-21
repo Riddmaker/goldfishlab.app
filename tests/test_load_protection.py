@@ -243,6 +243,20 @@ def test_two_attempts_end_inside_the_soft_time_limit(settings):
         "visibility_timeout"]
 
 
+def test_a_summary_has_its_own_queue_and_a_worker_for_it():
+    """A summary waits on Mistral; on the short queue's one process every small
+    run waited with it. Both ways the workers start must consume its queue."""
+    from pathlib import Path
+
+    from django.conf import settings as django_settings
+
+    assert tasks.write_summary.queue == tasks.SUMMARY_QUEUE == "summaries"
+    root = Path(django_settings.BASE_DIR)
+    for name in ("start.sh", "docker-compose.yml"):
+        text = (root / name).read_text(encoding="utf-8")
+        assert "--queues=summaries" in text and "--pool=threads" in text, name
+
+
 def test_a_summary_whose_worker_died_is_closed_once(key, owner, deck, no_runs, queued):
     _start(owner, deck)
     DeckSummary.objects.update(updated_at=timezone.now() - timedelta(minutes=11))

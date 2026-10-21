@@ -320,13 +320,22 @@ def close_stale_summaries() -> int:
 
 #: Two attempts of `mistral.TIMEOUT_SECONDS` and the pause between them, and
 #: room to read the deck and keep the answer. Its own limits, like the card
-#: refresh's: the default ones are a simulation chunk's.
+#: refresh's: the default ones are a simulation chunk's. Celery's thread pool,
+#: which runs summaries in production, enforces no time limit (5.6's
+#: `concurrency/thread.py` takes none): there the two bounded attempts are the
+#: limit, and `close_stale_summaries` the backstop for a worker that died.
 SUMMARY_SOFT_TIME_LIMIT = 170
 SUMMARY_TIME_LIMIT = 200
 
+#: The summaries' own queue. A summary waits on Mistral for up to a minute,
+#: and on the short queue's single process every small run waited with it. Its
+#: worker is a thread pool beside worker-short's (start.sh,
+#: CELERY_SUMMARY_WORKER=1): the call waits on the network, not the CPU.
+SUMMARY_QUEUE = "summaries"
 
-@shared_task(name="simulations.write_summary", soft_time_limit=SUMMARY_SOFT_TIME_LIMIT,
-             time_limit=SUMMARY_TIME_LIMIT)
+
+@shared_task(name="simulations.write_summary", queue=SUMMARY_QUEUE,
+             soft_time_limit=SUMMARY_SOFT_TIME_LIMIT, time_limit=SUMMARY_TIME_LIMIT)
 def write_summary(summary_id: str) -> str:
     """Have Mistral write a deck's summary, check it, and keep it.
 

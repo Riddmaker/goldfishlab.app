@@ -2,7 +2,8 @@
 # Container entrypoint.
 #
 # ROLE=web     : run migrations, then gunicorn on 8080
-# ROLE=worker  : wait for the schema, then a Celery worker
+# ROLE=worker  : wait for the schema, then a Celery worker (and, with
+#                CELERY_SUMMARY_WORKER=1, the deck summaries' worker beside it)
 #
 # Migrations run from the WEB role only. Web and worker both calling migrate
 # on a fresh database deadlock on the migration lock, and the symptom is an
@@ -64,6 +65,22 @@ raise SystemExit(1 if executor.migration_plan(executor.loader.graph.leaf_nodes()
     BEAT=""
     if [ "${CELERY_BEAT:-0}" = "1" ]; then
       BEAT="--beat --schedule /tmp/celerybeat-schedule"
+    fi
+    # CELERY_SUMMARY_WORKER=1 runs the deck summaries' worker beside this one
+    # (the manifest sets it on worker-short): a thread pool on the "summaries"
+    # queue, since a summary waits on Mistral, not the CPU, and must not hold
+    # the short queue's one process for a minute. Restarted if it exits; it
+    # stops with the container.
+    if [ "${CELERY_SUMMARY_WORKER:-0}" = "1" ]; then
+      (
+        while true; do
+          celery -A goldfishlab worker --loglevel=info --queues=summaries \
+            --pool=threads --concurrency="${CELERY_SUMMARY_CONCURRENCY:-4}" \
+            --hostname="summaries@%h"
+          echo "The summary worker exited; restarting in 5 s." >&2
+          sleep 5
+        done
+      ) &
     fi
     # $BEAT is deliberately unquoted: empty, it must vanish rather than become
     # an empty argument.

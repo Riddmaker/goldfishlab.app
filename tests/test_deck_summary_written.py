@@ -398,6 +398,10 @@ def test_the_task_keeps_a_checked_answer(key, deck, monkeypatch):
     assert row.content["weaknesses"] == ["Few ways to draw cards."]
     assert [card["name"] for card in row.content["strategies"][0]["cards"]] == [real], \
         "the task checks the picks against what it offered (phase 11 E)"
+    # The case, for feedback on it: what was sent and what came back unchecked.
+    assert row.facts["strategies"][0]["strategy"] == offered["strategy"]
+    assert "Invented Card" in row.raw_answer
+    assert row.reasoning_effort == "none"
     assert row.model_name == "mistral-small-2603"
     assert row.prompt_version == summary.PROMPT_VERSION
     assert (row.prompt_tokens, row.completion_tokens) == (1200, 300)
@@ -610,3 +614,125 @@ def test_the_export_holds_the_summaries(owner, deck):
 
     assert data["deck_summaries"][0]["content"] == GOOD
     assert data["account"]["deck_summaries"] is True
+
+
+# --- feedback on a summary ---------------------------------------------------------------
+
+
+def _written(deck, **fields):
+    return DeckSummary.objects.create(
+        deck=deck, fingerprint=summary.fingerprint(deck), status=DeckSummary.Status.DONE,
+        content=summary.parse(json.dumps(GOOD)), model_name="mistral-large-4-0",
+        reasoning_effort="none", prompt_version=summary.PROMPT_VERSION, language="de",
+        facts={"commander": {"name": "Teval"}}, raw_answer=json.dumps(GOOD), **fields)
+
+
+def _feedback(client, run, **data):
+    return client.post(reverse("simulations:summary_feedback", args=[run.pk]), data,
+                       HTTP_HX_REQUEST="true")
+
+
+def test_a_written_summary_asks_whether_it_helped(key, client, owner, deck, finished):
+    _written(deck)
+
+    block = _page(client, owner, finished)
+    block = block[block.index('id="summary"'):block.index('id="advanced"')]
+
+    assert "Was this summary helpful?" in block
+    assert reverse("simulations:summary_feedback", args=[finished.pk]) in block
+    assert "Anything we should know?" not in block, "the comment field comes after an answer"
+
+
+def test_feedback_keeps_the_whole_case_and_a_second_click_changes_it(key, client, owner,
+                                                                     deck, finished):
+    from simulations.models import SummaryFeedback
+
+    row = _written(deck)
+    client.force_login(owner)
+
+    answered = _feedback(client, finished, helpful="0").content.decode()
+    _feedback(client, finished, comment="  It called my deck aggressive. " + "x" * 600)
+    _feedback(client, finished, helpful="1")
+
+    given = SummaryFeedback.objects.get()
+    assert given.helpful is True
+    assert given.comment.startswith("It called my deck aggressive.")
+    assert len(given.comment) == SummaryFeedback.COMMENT_MAX
+    assert (given.facts, given.raw_answer, given.content) == (row.facts, row.raw_answer,
+                                                              row.content)
+    assert (given.model_name, given.reasoning_effort, given.prompt_version, given.language) \
+        == ("mistral-large-4-0", "none", summary.PROMPT_VERSION, "de")
+    assert "Anything we should know?" in answered
+    assert 'aria-pressed="true"' in answered
+
+
+def test_a_summary_written_again_gets_fresh_feedback_and_the_old_case_stays(
+        key, client, owner, deck, finished):
+    from simulations.models import SummaryFeedback
+
+    row = _written(deck)
+    client.force_login(owner)
+    _feedback(client, finished, helpful="0")
+    DeckSummary.objects.filter(pk=row.pk).update(
+        content={"feel": "Another text."}, updated_at=timezone.now() + timedelta(minutes=1))
+
+    _feedback(client, finished, helpful="1")
+
+    old, new = SummaryFeedback.objects.order_by("created_at")
+    assert (old.helpful, new.helpful) == (False, True)
+    assert old.content["feel"] != "Another text." and new.content["feel"] == "Another text."
+
+
+def test_no_feedback_without_an_answer_or_on_another_users_run(key, client, owner, deck,
+                                                               finished):
+    from simulations.models import SummaryFeedback
+
+    _written(deck)
+    client.force_login(owner)
+    _feedback(client, finished, comment="A word with no answer.")
+    other = User.objects.create_user(email="other@example.com", password="pw-test-1234")
+    client.force_login(other)
+
+    assert _feedback(client, finished, helpful="1").status_code == 404
+    assert not SummaryFeedback.objects.exists()
+
+
+def test_feedback_without_javascript_goes_back_to_the_summary(key, client, owner, deck,
+                                                              finished):
+    _written(deck)
+    client.force_login(owner)
+
+    response = client.post(reverse("simulations:summary_feedback", args=[finished.pk]),
+                           {"helpful": "1"})
+
+    assert response.status_code == 302
+    assert response["Location"].endswith(f"{finished.get_absolute_url()}#summary")
+
+
+def test_the_feedback_export_holds_the_cases_unhelpful_first_and_nobody(
+        key, client, owner, deck, finished, tmp_path):
+    from django.core.management import call_command
+
+    _written(deck)
+    client.force_login(owner)
+    _feedback(client, finished, helpful="0")
+    _feedback(client, finished, comment="Too generic.")
+    out = tmp_path / "feedback.jsonl"
+
+    call_command("summary_feedback", "--out", str(out), stdout=io.StringIO())
+
+    case = json.loads(out.read_text(encoding="utf-8").splitlines()[0])
+    assert (case["helpful"], case["comment"]) == (False, "Too generic.")
+    assert case["facts"] == {"commander": {"name": "Teval"}}
+    assert case["messages"] == summary.messages(case["facts"], "de")
+    assert "user" not in case and owner.email not in out.read_text(encoding="utf-8")
+
+
+def test_the_export_holds_the_feedback(key, client, owner, deck, finished):
+    from accounts import privacy
+
+    _written(deck)
+    client.force_login(owner)
+    _feedback(client, finished, helpful="1")
+
+    assert privacy.export(owner)["summary_feedback"][0]["helpful"] is True

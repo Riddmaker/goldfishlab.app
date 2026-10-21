@@ -371,7 +371,11 @@ def write_summary(summary_id: str) -> str:
         status=DeckSummary.Status.DONE,
         content=content,
         model_name=completion.model[:64],
+        reasoning_effort=mistral.reasoning_effort()[:16],
         prompt_version=summary.PROMPT_VERSION,
+        # The case, for feedback on it (SummaryFeedback).
+        facts=deck_facts,
+        raw_answer=completion.content,
         prompt_tokens=completion.prompt_tokens,
         completion_tokens=completion.completion_tokens,
         updated_at=timezone.now(),

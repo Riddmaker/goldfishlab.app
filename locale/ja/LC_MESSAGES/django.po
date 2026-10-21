@@ -11928,3 +11928,48 @@ msgstr ""
 "攻撃したときや戦闘ダメージを与えたときに謀議を行うクリーチャー（Ultron, UnlimitedやNorman "
 "Osbornなど）は、攻撃するたびに謀議を行うようになり、そうして引いたカードは第2メイン・フェイズに唱えられます。Mob "
 "Lookoutの謀議は自分自身に行われます。古いエンジンで作られたレポートにはその旨が表示され、再実行を提案します。"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Was this summary helpful?"
+msgstr "この概要は役に立ちましたか？"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Helpful"
+msgstr "役に立った"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Not helpful"
+msgstr "役に立たなかった"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Thanks, glad it helped."
+msgstr "ありがとうございます。お役に立ててうれしいです。"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Thanks, that helps us make the summaries better."
+msgstr "ありがとうございます。概要の改善に役立てます。"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Anything we should know? (optional)"
+msgstr "何かお気づきの点はありますか？（任意）"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Send"
+msgstr "送信"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Thanks for the comment. We read every one."
+msgstr "コメントありがとうございます。すべて拝読しています。"
+
+#: templates/core/privacy.html
+msgid ""
+"Feedback on a deck summary, if you give it: helpful or not, your comment, "
+"and a copy of the summary and of the facts about the deck it was written "
+"from"
+msgstr "デッキ概要へのフィードバック（送信した場合）：役に立ったかどうか、コメント、そして概要とその作成に使われたデッキの情報のコピー"
+
+#: templates/core/privacy.html
+msgid ""
+"To find the summaries that went wrong and make them better (legitimate "
+"interest)"
+msgstr "うまくいかなかった概要を見つけて改善するため（正当な利益）"

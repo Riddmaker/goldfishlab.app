@@ -13482,3 +13482,52 @@ msgstr ""
 "cui attacca, e una carta pescata così può essere lanciata nella seconda fase"
 " principale. La trama di Mob Lookout va a se stesso. Un report fatto con un "
 "motore più vecchio lo dice e propone una nuova simulazione."
+
+#: templates/simulations/_summary_feedback.html
+msgid "Was this summary helpful?"
+msgstr "Questo riepilogo ti è stato utile?"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Helpful"
+msgstr "Utile"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Not helpful"
+msgstr "Non utile"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Thanks, glad it helped."
+msgstr "Grazie, siamo contenti che ti sia stato utile."
+
+#: templates/simulations/_summary_feedback.html
+msgid "Thanks, that helps us make the summaries better."
+msgstr "Grazie, ci aiuta a migliorare i riepiloghi."
+
+#: templates/simulations/_summary_feedback.html
+msgid "Anything we should know? (optional)"
+msgstr "Vuoi dirci qualcosa? (facoltativo)"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Send"
+msgstr "Invia"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Thanks for the comment. We read every one."
+msgstr "Grazie per il commento. Li leggiamo tutti."
+
+#: templates/core/privacy.html
+msgid ""
+"Feedback on a deck summary, if you give it: helpful or not, your comment, "
+"and a copy of the summary and of the facts about the deck it was written "
+"from"
+msgstr ""
+"Il feedback su un riepilogo del mazzo, se lo dai: utile o no, il tuo "
+"commento e una copia del riepilogo e dei dati sul mazzo da cui è stato "
+"scritto"
+
+#: templates/core/privacy.html
+msgid ""
+"To find the summaries that went wrong and make them better (legitimate "
+"interest)"
+msgstr ""
+"Per trovare i riepiloghi non riusciti e migliorarli (interesse legittimo)"

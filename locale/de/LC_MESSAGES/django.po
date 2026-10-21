@@ -13546,3 +13546,53 @@ msgstr ""
 "zweiten Hauptphase gewirkt werden. Mob Lookouts Intrige geht an sich selbst."
 " Ein Report, der mit einer älteren Engine erstellt wurde, sagt das und "
 "bietet einen neuen Lauf an."
+
+#: templates/simulations/_summary_feedback.html
+msgid "Was this summary helpful?"
+msgstr "War diese Zusammenfassung hilfreich?"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Helpful"
+msgstr "Hilfreich"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Not helpful"
+msgstr "Nicht hilfreich"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Thanks, glad it helped."
+msgstr "Danke, schön, dass sie dir geholfen hat."
+
+#: templates/simulations/_summary_feedback.html
+msgid "Thanks, that helps us make the summaries better."
+msgstr "Danke, das hilft uns, die Zusammenfassungen besser zu machen."
+
+#: templates/simulations/_summary_feedback.html
+msgid "Anything we should know? (optional)"
+msgstr "Möchtest du uns noch etwas sagen? (freiwillig)"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Send"
+msgstr "Senden"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Thanks for the comment. We read every one."
+msgstr "Danke für deinen Kommentar. Wir lesen jeden."
+
+#: templates/core/privacy.html
+msgid ""
+"Feedback on a deck summary, if you give it: helpful or not, your comment, "
+"and a copy of the summary and of the facts about the deck it was written "
+"from"
+msgstr ""
+"Feedback zu einer Deck-Zusammenfassung, wenn du welches gibst: hilfreich "
+"oder nicht, dein Kommentar und eine Kopie der Zusammenfassung und der Fakten"
+" zum Deck, aus denen sie geschrieben wurde"
+
+#: templates/core/privacy.html
+msgid ""
+"To find the summaries that went wrong and make them better (legitimate "
+"interest)"
+msgstr ""
+"Um misslungene Zusammenfassungen zu finden und sie zu verbessern "
+"(berechtigtes Interesse)"

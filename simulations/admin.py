@@ -10,7 +10,7 @@ from django.contrib import admin
 from django.utils.html import format_html, format_html_join
 
 from simulations import patches, unread
-from simulations.models import CardAnnotation, SimulationRun, UnreadCard
+from simulations.models import CardAnnotation, SimulationRun, SummaryFeedback, UnreadCard
 
 
 def _checks(annotation) -> list:
@@ -161,3 +161,26 @@ class UnreadCardAdmin(admin.ModelAdmin):
     @admin.action(description="Open again")
     def reopen(self, request, queryset):
         queryset.update(status=UnreadCard.Status.OPEN, read_since=None)
+
+
+@admin.register(SummaryFeedback)
+class SummaryFeedbackAdmin(admin.ModelAdmin):
+    """Feedback on deck summaries, read here; worked through in bulk with
+    `manage.py summary_feedback`. Read-only: it is what people said, and the
+    case as it was."""
+
+    list_display = ("created_at", "helpful", "language", "model_name", "prompt_version",
+                    "short_comment")
+    list_filter = ("helpful", "language", "model_name", "prompt_version")
+    search_fields = ("comment",)
+    readonly_fields = tuple(field.name for field in SummaryFeedback._meta.fields)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    @admin.display(description="comment")
+    def short_comment(self, obj):
+        return obj.comment[:80]

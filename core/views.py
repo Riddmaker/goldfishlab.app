@@ -114,7 +114,9 @@ class PrivacyView(TemplateView):
     # representative (D2, C1, M3, M4); accounts.consent.CONSENT_VERSION.
     # Also 2026-10-08: the changelog mail, opt-in (C7) - not a change anybody
     # must agree to again: nothing changes for whoever does not switch it on.
-    extra_context = {"updated": date(2026, 10, 8)}
+    # 2026-10-21: feedback on a deck summary, kept with its case - opt-in too,
+    # so no new consent either.
+    extra_context = {"updated": date(2026, 10, 21)}
 
 
 class ImprintView(TemplateView):

@@ -651,6 +651,45 @@ def writing(user, deck):
     return row
 
 
+def feedback_for(user, row):
+    """This viewer's feedback on the summary as it is written now, or None."""
+    from simulations.models import DeckSummary, SummaryFeedback
+
+    if row is None or row.status != DeckSummary.Status.DONE:
+        return None
+    return SummaryFeedback.objects.filter(user=user, summary=row,
+                                          written_at=row.updated_at).first()
+
+
+def give_feedback(user, row, *, helpful: bool | None = None, comment: str | None = None):
+    """Keep a viewer's "was this helpful?", or the word they add to it.
+
+    The first answer copies the whole case (`SummaryFeedback`); a second click
+    changes the answer, and a comment is added to the answer it follows.
+    Returns the feedback, or None when there is nothing to keep: no written
+    summary, or a comment with no answer before it.
+    """
+    from simulations.models import DeckSummary, SummaryFeedback
+
+    if row is None or row.status != DeckSummary.Status.DONE:
+        return None
+    given = feedback_for(user, row)
+    if given is None:
+        if helpful is None:
+            return None
+        given = SummaryFeedback(
+            user=user, summary=row, written_at=row.updated_at, helpful=helpful,
+            model_name=row.model_name, reasoning_effort=row.reasoning_effort,
+            prompt_version=row.prompt_version, language=row.language, facts=row.facts,
+            raw_answer=row.raw_answer, content=row.content)
+    elif helpful is not None:
+        given.helpful = helpful
+    if comment is not None:
+        given.comment = comment.strip()[:SummaryFeedback.COMMENT_MAX]
+    given.save()
+    return given
+
+
 def state(user, deck) -> dict:
     """What the summary block shows about the written part, for this viewer.
 
@@ -686,6 +725,10 @@ def state(user, deck) -> dict:
         "pending": pending,
         "current": current,
         "failed": stored is not None and stored.status == DeckSummary.Status.FAILED,
+        # "Was this helpful?" on a written summary, and what this viewer said.
+        "rateable": (stored is not None and stored.status == DeckSummary.Status.DONE
+                     and bool((stored.content or {}).get("feel"))),
+        "feedback": feedback_for(user, stored),
         "offer": offer,
         "short": short,
         "paused": paused,
@@ -694,5 +737,5 @@ def state(user, deck) -> dict:
 
 
 __all__ = ["BY_TURN", "PROMPT_VERSION", "SEEN_BY_TURN", "WRITE_IN", "at_least_one", "begin",
-           "claim", "due", "facts", "fingerprint", "language", "messages", "missing", "parse",
-           "state", "write_in", "writing"]
+           "claim", "due", "facts", "feedback_for", "fingerprint", "give_feedback", "language",
+           "messages", "missing", "parse", "state", "write_in", "writing"]

@@ -277,6 +277,32 @@ class SummaryWriteView(OwnedRunsMixin, View):
         return redirect(back)
 
 
+@method_decorator(ratelimit(key="user", rate="20/m", method="POST"), name="post")
+class SummaryFeedbackView(OwnedRunsMixin, View):
+    """"Was this helpful?" under a deck summary, and the optional word after it.
+
+    Posted from a run page: the run is fetched through the owner's runs, so a
+    guessed id is a 404, and the summary is that run's deck's. `helpful` is
+    "1" or "0"; `comment` is cut to `SummaryFeedback.COMMENT_MAX`. htmx swaps
+    the answer in place; without it, back to the summary.
+    """
+
+    def post(self, request, pk):
+        from simulations.models import DeckSummary
+
+        run = get_object_or_404(self.get_queryset(), pk=pk)
+        row = DeckSummary.objects.filter(deck=run.deck).first()
+        answer = request.POST.get("helpful")
+        helpful = {"1": True, "0": False}.get(answer)
+        comment = request.POST.get("comment") if "comment" in request.POST else None
+        feedback = summary.give_feedback(request.user, row, helpful=helpful, comment=comment)
+        if not request.headers.get("HX-Request"):
+            return redirect(f"{run.get_absolute_url()}#summary")
+        rateable = row is not None and row.status == DeckSummary.Status.DONE
+        return render(request, "simulations/_summary_feedback.html",
+                      {"run": run, "written": {"rateable": rateable, "feedback": feedback}})
+
+
 class SummarySwitchView(LoginRequiredMixin, View):
     """Deck summaries on or off, for the whole account (phase 10 H, T6.5).
 

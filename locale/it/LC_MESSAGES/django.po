@@ -13620,3 +13620,109 @@ msgstr ""
 "come quelle di Wrenn and Realmbreaker o di Karametra's Favor, ora producono "
 "mana. Un report fatto con un motore più vecchio lo dice e propone una nuova "
 "simulazione."
+
+#: cards/profiles.py
+msgid "draws, and does more that the engine does not play"
+msgstr "pesca, e fa altro che il motore non gioca"
+
+#: cards/profiles.py
+msgid ""
+"searches for lands on the card's other face, which the engine does not cast"
+msgstr "cerca terre sull'altra faccia della carta, che il motore non lancia"
+
+#: cards/profiles.py
+msgid ""
+"searches for lands in one mode of a modal spell, which the engine does not "
+"play"
+msgstr ""
+"cerca terre in una modalità di una magia modale, che il motore non gioca"
+
+#: cards/profiles.py
+msgid "searches for lands as a card dies, which the engine does not play"
+msgstr "cerca terre quando una carta muore, cosa che il motore non gioca"
+
+#: playtest/views.py
+msgid "Search activated"
+msgstr "Ricerca attivata"
+
+#: simulations/editor.py
+#, python-format
+msgid "tap %(per)s %(what)s at once: %(amount)s mana"
+msgstr "TAPpare %(per)s %(what)s insieme: %(amount)s mana"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, if you control %(count)s lands or fewer"
+msgstr "%(search)s, se controlli %(count)s terre o meno"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "on its second chapter, the turn after it enters: %(search)s"
+msgstr "al suo secondo capitolo, il turno dopo che entra: %(search)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"uses its loyalty ability for mana each turn from the turn after it arrives, "
+"and never its other abilities"
+msgstr ""
+"usa la sua abilità di fedeltà per il mana ogni turno dal turno dopo il suo "
+"arrivo, e mai le sue altre abilità"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, not legendary"
+msgstr "%(what)s, non leggendaria"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, any permanent"
+msgstr "%(what)s, qualsiasi permanente"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(what)s with mana value exactly %(plus)s more than the creature sacrificed"
+msgstr ""
+"%(what)s con valore di mana esattamente %(plus)s in più della creatura "
+"sacrificata"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(cost)s and {T}, once a turn: %(search)s"
+msgstr "%(cost)s e {T}, una volta per turno: %(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "{T}, once a turn: %(search)s"
+msgstr "{T}, una volta per turno: %(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, basic"
+msgstr "%(what)s, base"
+
+#: changelog/entries.py
+msgid "More searches, planeswalker mana and draws that count"
+msgstr "Più ricerche, mana dei planeswalker e pescate che contano"
+
+#: changelog/entries.py
+msgid ""
+"Cards that search for a creature or a permanent and put it onto the "
+"battlefield, such as Ramosian Sergeant, Captain America, Liberator or "
+"Neoform, now find it. A planeswalker that adds mana for loyalty, such as "
+"Chandra, Torch of Defiance, makes it each turn from the turn after it "
+"arrives, and Heritage Druid taps three Elves at once. Binding the Old Gods "
+"finds its Forest on its second chapter, Edge of Autumn only with four lands "
+"or fewer. Spells and creatures that draw by a count, such as Champion of "
+"Dusk or Minions' Murmurs, now draw that many. A report made with an older "
+"engine says so and offers a new run."
+msgstr ""
+"Le carte che cercano una creatura o un permanente e lo mettono sul campo di "
+"battaglia, come Ramosian Sergeant, Captain America, Liberator o Neoform, ora"
+" lo trovano. Un planeswalker che aggiunge mana per la fedeltà, come Chandra,"
+" Torch of Defiance, lo produce ogni turno dal turno dopo il suo arrivo, e "
+"Heritage Druid TAPpa tre Elfi insieme. Binding the Old Gods trova la sua "
+"Foresta al secondo capitolo, Edge of Autumn solo con quattro terre o meno. "
+"Le magie e le creature che pescano in base a un conteggio, come Champion of "
+"Dusk o Minions' Murmurs, ora pescano altrettante carte. Un report fatto con "
+"un motore più vecchio lo segnala e propone una nuova simulazione."

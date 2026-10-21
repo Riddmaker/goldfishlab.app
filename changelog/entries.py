@@ -41,6 +41,20 @@ class Entry:
 
 
 ENTRIES = (
+    # Engine v34.
+    Entry(
+        date(2026, 10, 21), "searches-loyalty-mana-counted-draws",
+        _("More searches, planeswalker mana and draws that count"),
+        _("Cards that search for a creature or a permanent and put it onto the battlefield, "
+          "such as Ramosian Sergeant, Captain America, Liberator or Neoform, now find it. A "
+          "planeswalker that adds mana for loyalty, such as Chandra, Torch of Defiance, makes it "
+          "each turn from the turn after it arrives, and Heritage Druid taps three Elves at "
+          "once. Binding the Old Gods finds its Forest on its second chapter, Edge of Autumn "
+          "only with four lands or fewer. Spells and creatures that draw by a count, such as "
+          "Champion of Dusk or Minions' Murmurs, now draw that many. A report made with an "
+          "older engine says so and offers a new run."),
+        "methodology", "report-milestones",
+    ),
     # Card model phase 4, PR 17: engine v30. Dated for its merge; move it if
     # the merge moves (never inside the engine freeze, 9 to 18 November).
     # Card model phase 5, PR 19 (engine v31).

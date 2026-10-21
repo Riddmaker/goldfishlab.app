@@ -12051,3 +12051,101 @@ msgstr ""
 "Godsは他のクリーチャー2体を生け贄に捧げて{B}{B}とカード1枚を得ます。カードがあなたの土地、ある種類のクリーチャー、またはエンチャントしているクリーチャーに与えるマナ能力（Wrenn"
 " and RealmbreakerやKarametra's "
 "Favorのものなど）がマナを出すようになりました。古いエンジンで作られたレポートにはその旨が表示され、再実行を提案します。"
+
+#: cards/profiles.py
+msgid "draws, and does more that the engine does not play"
+msgstr "カードを引き、さらにエンジンがプレイしない効果も持つ"
+
+#: cards/profiles.py
+msgid ""
+"searches for lands on the card's other face, which the engine does not cast"
+msgstr "カードのもう一方の面で土地をサーチする（エンジンはその面を唱えません）"
+
+#: cards/profiles.py
+msgid ""
+"searches for lands in one mode of a modal spell, which the engine does not "
+"play"
+msgstr "モード呪文のモードの1つで土地をサーチする（エンジンはそのモードをプレイしません）"
+
+#: cards/profiles.py
+msgid "searches for lands as a card dies, which the engine does not play"
+msgstr "カードが死亡したときに土地をサーチする（エンジンはプレイしません）"
+
+#: playtest/views.py
+msgid "Search activated"
+msgstr "サーチを起動"
+
+#: simulations/editor.py
+#, python-format
+msgid "tap %(per)s %(what)s at once: %(amount)s mana"
+msgstr "%(what)sを%(per)s体同時にタップ：マナ%(amount)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, if you control %(count)s lands or fewer"
+msgstr "%(search)s（土地を%(count)s個以下コントロールしている場合）"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "on its second chapter, the turn after it enters: %(search)s"
+msgstr "第2章で、戦場に出た次のターンに：%(search)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"uses its loyalty ability for mana each turn from the turn after it arrives, "
+"and never its other abilities"
+msgstr "戦場に出た次のターンから毎ターン忠誠度能力でマナを出し、他の能力は使わない"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, not legendary"
+msgstr "%(what)s（伝説でない）"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, any permanent"
+msgstr "%(what)s（任意のパーマネント）"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(what)s with mana value exactly %(plus)s more than the creature sacrificed"
+msgstr "%(what)s（生け贄に捧げたクリーチャーよりマナ総量がちょうど%(plus)s多い）"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(cost)s and {T}, once a turn: %(search)s"
+msgstr "%(cost)sと{T}、1ターンに1回：%(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "{T}, once a turn: %(search)s"
+msgstr "{T}、1ターンに1回：%(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, basic"
+msgstr "%(what)s（基本）"
+
+#: changelog/entries.py
+msgid "More searches, planeswalker mana and draws that count"
+msgstr "サーチの拡充、プレインズウォーカーのマナ、数を数えるドロー"
+
+#: changelog/entries.py
+msgid ""
+"Cards that search for a creature or a permanent and put it onto the "
+"battlefield, such as Ramosian Sergeant, Captain America, Liberator or "
+"Neoform, now find it. A planeswalker that adds mana for loyalty, such as "
+"Chandra, Torch of Defiance, makes it each turn from the turn after it "
+"arrives, and Heritage Druid taps three Elves at once. Binding the Old Gods "
+"finds its Forest on its second chapter, Edge of Autumn only with four lands "
+"or fewer. Spells and creatures that draw by a count, such as Champion of "
+"Dusk or Minions' Murmurs, now draw that many. A report made with an older "
+"engine says so and offers a new run."
+msgstr ""
+"クリーチャーやパーマネントをサーチして戦場に出すカード（Ramosian Sergeant、Captain America, "
+"Liberator、Neoformなど）が、それを見つけるようになりました。忠誠度でマナを出すプレインズウォーカー（Chandra, Torch of "
+"Defianceなど）は、戦場に出た次のターンから毎ターンマナを出し、Heritage Druidはエルフ3体を同時にタップします。Binding "
+"the Old Godsは第2章で森を見つけ、Edge of "
+"Autumnは土地が4つ以下のときだけ見つけます。数に応じて引く呪文やクリーチャー（Champion of Dusk、Minions' "
+"Murmursなど）は、その枚数を引くようになりました。古いエンジンで作られたレポートにはその旨が表示され、再実行を提案します。"

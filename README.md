@@ -408,6 +408,12 @@ Engine v33 plays Eldrazi Spawn and Scion made as a card enters, resolves or is c
 the main phase, Priest of Forgotten Gods (an altar for two creatures that draws), and more mana
 abilities a card gives: to your lands, to creatures of one type, to the enchanted creature, and two
 of one colour on the enchanted land (`profiles._grant`).
+Engine v34 searches onto the battlefield for more kinds of card (not legendary, any permanent, a
+creature type, Neoform's mana value one more than what was sacrificed), as a creature enters and
+as a {T} ability once a turn (`profiles._onto_battlefield`); a planeswalker's "+N: Add ..." each
+turn from the turn after it arrives, and several creatures tapped at once for mana (Heritage
+Druid); land searches on a Saga's second chapter, as a spell is cast, as a door unlocks and with
+four lands or fewer; and cards drawn by a count, with as much life lost (`profiles._counted_draw`).
 
 A round that changes `cards/profiles.py` needs the profiles derived again after its deploy
 (`python manage.py ingest_scryfall --profiles`), and every round changes the engine's numbers, so

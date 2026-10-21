@@ -13744,3 +13744,108 @@ msgstr ""
 "tipo o a la criatura que encanta, como las de Wrenn and Realmbreaker o "
 "Karametra's Favor, ahora producen maná. Un informe hecho con un motor más "
 "antiguo lo indica y ofrece una nueva simulación."
+
+#: cards/profiles.py
+msgid "draws, and does more that the engine does not play"
+msgstr "roba, y hace algo más que el motor no juega"
+
+#: cards/profiles.py
+msgid ""
+"searches for lands on the card's other face, which the engine does not cast"
+msgstr "busca tierras en la otra cara de la carta, que el motor no lanza"
+
+#: cards/profiles.py
+msgid ""
+"searches for lands in one mode of a modal spell, which the engine does not "
+"play"
+msgstr "busca tierras en un modo de un hechizo modal, que el motor no juega"
+
+#: cards/profiles.py
+msgid "searches for lands as a card dies, which the engine does not play"
+msgstr "busca tierras cuando una carta muere, algo que el motor no juega"
+
+#: playtest/views.py
+msgid "Search activated"
+msgstr "Búsqueda activada"
+
+#: simulations/editor.py
+#, python-format
+msgid "tap %(per)s %(what)s at once: %(amount)s mana"
+msgstr "girar %(per)s %(what)s a la vez: %(amount)s maná"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, if you control %(count)s lands or fewer"
+msgstr "%(search)s, si controlas %(count)s tierras o menos"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "on its second chapter, the turn after it enters: %(search)s"
+msgstr "en su segundo capítulo, el turno después de entrar: %(search)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"uses its loyalty ability for mana each turn from the turn after it arrives, "
+"and never its other abilities"
+msgstr ""
+"usa su habilidad de lealtad para maná cada turno desde el turno después de "
+"llegar, y nunca sus otras habilidades"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, not legendary"
+msgstr "%(what)s, no legendaria"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, any permanent"
+msgstr "%(what)s, cualquier permanente"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(what)s with mana value exactly %(plus)s more than the creature sacrificed"
+msgstr ""
+"%(what)s con valor de maná exactamente %(plus)s más que la criatura "
+"sacrificada"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(cost)s and {T}, once a turn: %(search)s"
+msgstr "%(cost)s y {T}, una vez por turno: %(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "{T}, once a turn: %(search)s"
+msgstr "{T}, una vez por turno: %(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, basic"
+msgstr "%(what)s, básica"
+
+#: changelog/entries.py
+msgid "More searches, planeswalker mana and draws that count"
+msgstr "Más búsquedas, maná de planeswalkers y robos que cuentan"
+
+#: changelog/entries.py
+msgid ""
+"Cards that search for a creature or a permanent and put it onto the "
+"battlefield, such as Ramosian Sergeant, Captain America, Liberator or "
+"Neoform, now find it. A planeswalker that adds mana for loyalty, such as "
+"Chandra, Torch of Defiance, makes it each turn from the turn after it "
+"arrives, and Heritage Druid taps three Elves at once. Binding the Old Gods "
+"finds its Forest on its second chapter, Edge of Autumn only with four lands "
+"or fewer. Spells and creatures that draw by a count, such as Champion of "
+"Dusk or Minions' Murmurs, now draw that many. A report made with an older "
+"engine says so and offers a new run."
+msgstr ""
+"Las cartas que buscan una criatura o un permanente y lo ponen en el campo de"
+" batalla, como Ramosian Sergeant, Captain America, Liberator o Neoform, "
+"ahora lo encuentran. Un planeswalker que agrega maná por lealtad, como "
+"Chandra, Torch of Defiance, lo produce cada turno desde el turno después de "
+"llegar, y Heritage Druid gira tres Elfos a la vez. Binding the Old Gods "
+"encuentra su Bosque en su segundo capítulo, Edge of Autumn solo con cuatro "
+"tierras o menos. Los hechizos y criaturas que roban según un recuento, como "
+"Champion of Dusk o Minions' Murmurs, ahora roban esa cantidad. Un informe "
+"hecho con un motor anterior lo indica y ofrece una nueva simulación."

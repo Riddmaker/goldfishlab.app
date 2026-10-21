@@ -217,6 +217,14 @@ boundary, not the symptom.
 #:    draws; mana abilities given to your lands, to creatures of one type, to
 #:    the enchanted creature, and two of one colour to the enchanted land.
 #:    Chromatic Lantern taps for its own beside its grant.
-ENGINE_VERSION = 33
+#: 34: searches onto the battlefield for more kinds of card (not legendary,
+#:    any permanent, a creature type, a mana value one more than what was
+#:    sacrificed), as a creature enters and as a {T} ability once a turn; a
+#:    basic land to the top. A planeswalker's "+N: Add ..." each turn from the
+#:    turn after it arrives; several creatures tapped at once for mana
+#:    (Heritage Druid). Land searches on a Saga's second chapter, as a spell
+#:    is cast, as a door unlocks, with four lands or fewer. Cards drawn by a
+#:    count (Champion of Dusk's Vampires), and as much life lost.
+ENGINE_VERSION = 34
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

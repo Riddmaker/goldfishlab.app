@@ -48,6 +48,7 @@ from simulation.cards import (
     LANDS_COULD_PRODUCE,
     MULTIPLY,
     PER_CONTROLLED,
+    PLANESWALKER,
     RITUAL,
     SORCERY,
     STORE_FREE,
@@ -1428,6 +1429,10 @@ def _record_tapping(card: Card, gaps: list[Gap]) -> None:
                 else "artifact or creature" if "artifact" in tapping.types
                 else "legendary creature" if tapping.legendary else "creature")
         gaps.append(Gap(card.name, "assumed_cost", _TAPS_ONE[kind]))
+    if card.kind == PLANESWALKER and card.mana.entries:
+        gaps.append(Gap(card.name, "assumed_cost", gettext_noop(
+            "uses its loyalty ability for mana each turn from the turn after it arrives, and "
+            "never its other abilities")))
     tap = card.mana.tap_other
     if tap is not None:
         types, wanted = wanted_of(tap.selector)
@@ -2354,7 +2359,7 @@ def _tap_mana(profile, deck_colors: frozenset[str], chosen: str | None,
             return None
     return TapMana(types=frozenset(found["types"]), filter=found.get("filter", ""),
                    mana=mana, amount=int(found["amount"]), spend_only=spend_only,
-                   tokens=int(found.get("token", 0)))
+                   tokens=int(found.get("token", 0)), per=int(found.get("per") or 1))
 
 
 def _triggers(profile, overrides: dict, deck_colors: frozenset[str]) -> tuple[Trigger, ...]:

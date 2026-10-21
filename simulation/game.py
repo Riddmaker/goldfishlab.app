@@ -949,9 +949,11 @@ class Game(Marks):
         return pool
 
     def _stored_others(self) -> list:
-        """Enchantments that tap for kept counters (Mana Bloom, P19 R20)."""
+        """Enchantments that tap for kept counters (Mana Bloom, P19 R20), and
+        (v34) a planeswalker's "+1: Add {R}{R}", used once each turn."""
         return self._untapped([card for card in self.other_permanents
-                               if (card.mana.store is not None or card.mana.flip)
+                               if (card.mana.store is not None or card.mana.flip
+                                   or card.kind == PLANESWALKER)
                                and self.mana_ability(card) is not None])
 
     def mana_extras(self, *, per_source: bool = False) -> list[Extra]:
@@ -1221,7 +1223,9 @@ class Game(Marks):
             if not one and tappable(card) and not busy[self.pid_of(card)]:
                 # Grand Architect: a blue creature itself.
                 fits.append(card)
-            taken = fits[:1] if one else fits
+            per = 1 if one else card.mana.tap_other.per
+            # v34: Heritage Druid taps its Elves three at a time.
+            taken = fits[:1] if one else fits[:len(fits) // per * per]
             found[ident(card)] = taken
             left = [other for other in left if not any(same(other, each) for each in taken)]
         return found, left
@@ -1233,7 +1237,7 @@ class Game(Marks):
             spec = card.mana.tap_other
             if spec is None:
                 continue
-            count = len(tapped.get(ident(card), ())) + spec.tokens
+            count = len(tapped.get(ident(card), ())) // spec.per + spec.tokens
             if not count:
                 continue
             if spec.spend:

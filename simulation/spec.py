@@ -228,6 +228,8 @@ class TapMana:
         spend_only: The spells it may pay for (P19 R17). Empty: any.
         tokens: Artifact tokens the card made as it entered, tapped too:
             Urza's Construct.
+        per: How many one activation taps (v34): Heritage Druid's three
+            Elves for {G}{G}{G}.
     """
 
     types: frozenset[str] = field(default_factory=frozenset)
@@ -236,6 +238,7 @@ class TapMana:
     amount: int = 1
     spend_only: tuple[SpellFilter, ...] = ()
     tokens: int = 0
+    per: int = 1
 
 
 #: ``Store.use``: spent whenever a payment needs it, as a Treasure (Pentad

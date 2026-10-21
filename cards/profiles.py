@@ -1801,6 +1801,9 @@ class ManaClause:
     sacrifices: dict | None = None
     #: P19 R15: {T} is part of the cost.
     taps: bool = False
+    #: v34: a planeswalker's "+1:" or "0:" - once a turn, as a tap; its
+    #: loyalty never falls.
+    loyalty: bool = False
     #: P19 R15: "Exile this card from your hand" is the cost (Elvish Spirit
     #: Guide): mana once, out of the hand.
     from_hand: bool = False
@@ -1915,6 +1918,13 @@ _TAP_ANOTHER = re.compile(
     r"Tap an untapped (?:(?P<filter>legendary|nontoken|white|blue|black|red|green) )?"
     r"(?:(?P<what>artifact or creature|creature|artifact|permanent)"
     r"|(?P<subtype>[A-Z][a-z]+)) you control")
+#: v34: a loyalty cost that adds loyalty or none.
+_LOYALTY_UP = re.compile(r"\+\d+|0")
+#: v34: tapping several at once - Heritage Druid's "Tap three untapped Elves
+#: you control", Supportive Parents' "two untapped creatures".
+_TAP_SEVERAL = re.compile(
+    r"Tap (?P<n>two|three|four|five) untapped (?:(?P<what>creatures)|(?P<subtype>[A-Z][a-z]+))"
+    r" you control")
 _MILL_A_CARD = re.compile(r"Mill a card", re.IGNORECASE)
 #: Urza's Construct: an artifact token the card makes as it enters, tapped
 #: for the card's own ability as any other artifact (P19 R19).
@@ -1955,11 +1965,21 @@ def _store_cost(part: str, card: OracleCard) -> dict | None:
     return None
 
 
-def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
-    """Split `{1}, {T}, Sacrifice this artifact` into what the engine can pay."""
+def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard, *,
+               front: bool = True) -> None:
+    """Split `{1}, {T}, Sacrifice this artifact` into what the engine can pay.
+
+    ``front``: the ability is on the face the card is cast as.
+    """
     for part in (piece.strip() for piece in cost_text.split(",")):
         if part == "{T}":
             clause.taps = True
+            continue
+        if _LOYALTY_UP.fullmatch(part) and front \
+                and "Planeswalker" in (card.type_line or "").split("//")[0]:
+            # v34: Chandra, Torch of Defiance's "+1: Add {R}{R}." - used each
+            # turn, never her other abilities. Not Arlinn's at night.
+            clause.taps = clause.loyalty = True
             continue
         if not part:
             continue
@@ -1991,6 +2011,16 @@ def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
             # {W/B} or {G}: one mana of these colours goes in (P19 R6).
             clause.pays_with = "".join(sorted(set(found.group(1).upper()) - {"/"},
                                               key="WUBRG".index))
+            continue
+        if (found := _TAP_SEVERAL.fullmatch(part)) is not None and (
+                found.group("subtype") or "").lower().removesuffix("s") not in _NOT_CREATURE_TYPES:
+            # v34: one activation for each group of them - not The Cabbage
+            # Merchant's Foods.
+            subtype = found.group("subtype") or ""
+            clause.taps_other = {"types": ["creature"],
+                                 "filter": _TYPE_PLURALS.get(
+                                     subtype, subtype.lower().removesuffix("s")),
+                                 "per": _word_number(found.group("n"))}
             continue
         if (found := _TAP_ANOTHER.fullmatch(part)) is not None:
             # Springleaf Drum, Relic of Legends, Urza (P19 R19).
@@ -2106,8 +2136,11 @@ def _mana_clauses(card: OracleCard, *, is_spell: bool) -> list[ManaClause]:
     """Every `Add` in the card's own text - quoted, granted abilities removed."""
     found = []
     own = _GRANTED.sub("", card.oracle_text or "")
+    front = True
     for raw in own.split("\n"):
         line = raw.strip()
+        if line == "//":
+            front = False
         # Reminder text: a Watery Grave's mana ability is "({T}: Add {U} or {B}.)".
         if line.startswith("(") and line.endswith(")"):
             line = line[1:-1]
@@ -2116,7 +2149,7 @@ def _mana_clauses(card: OracleCard, *, is_spell: bool) -> list[ManaClause]:
             if ":" in before:
                 cost_text, _, prefix = before.rpartition(":")
                 clause = ManaClause(is_ability=True)
-                _read_cost(clause, _ABILITY_WORD.sub("", cost_text), card)
+                _read_cost(clause, _ABILITY_WORD.sub("", cost_text), card, front=front)
             else:
                 prefix = _ABILITY_WORD.sub("", before)
                 clause = ManaClause(is_ability=False)
@@ -2143,6 +2176,10 @@ def _mana_clauses(card: OracleCard, *, is_spell: bool) -> list[ManaClause]:
                 clause.store["once"] = True
             if not clause.problem and _RESTRICTED.search(after):
                 _restrict(clause, after, card)
+                if clause.loyalty and not clause.problem:
+                    # v34: Jaya Ballard, Sarkhan - not played yet.
+                    clause.problem = gettext_noop(
+                        "its mana is restricted to certain spells or moments")
             if not clause.problem and _NOT_FOR_GENERIC.search(after):
                 # Jegantha: mana the engine's pool would spend anywhere.
                 clause.problem = gettext_noop(
@@ -2400,7 +2437,8 @@ def _read_store(card: OracleCard, stores: list[ManaClause], notes: set) -> dict 
         store["empty"] = "dies"
     else:
         start = None
-        if (found := re.search(rf"enters (?:tapped )?with {_NUMBER_OR_X} {counter} counters? "
+        if (found := re.search(rf"enters (?:tapped (?:and )?)?with {_NUMBER_OR_X} {counter} "
+                               r"counters? "
                                r"on it(?P<each> for each (?:colou?r of mana spent|time it "
                                r"was kicked))?", text, re.IGNORECASE)) is not None:
             if found.group("each") and "kicked" in found.group("each"):

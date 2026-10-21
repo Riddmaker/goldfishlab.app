@@ -83,7 +83,7 @@ _GROWTH_KEYS = frozenset({
     "enters", "enters_x", "grows", "adapt", "bonus", "puts", "draws_on_greatest", "look",
 })
 _TAP_MANA_KEYS = frozenset({
-    "types", "filter", "amount", "produces", "spend_only", "token",
+    "types", "filter", "amount", "produces", "spend_only", "token", "per",
 })
 _ALTAR_KEYS = frozenset({
     "sacrifice", "filter", "amount", "produces", "taps", "life", "other", "count", "draw",

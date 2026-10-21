@@ -267,7 +267,7 @@ def encode(values: dict) -> tuple[Ability, ...]:
     tap = get("tap_mana")
     if tap is not None:
         found.append(Ability(MANA, "tap_mana", costs=(Cost(
-            "tap_other", amount=1, selector=wanted(tap.types, tap.filter)),),
+            "tap_other", amount=tap.per, selector=wanted(tap.types, tap.filter)),),
             effects=(Effect("add_mana", _args(
                 mana=tap.mana, n=tap.amount, tokens=tap.tokens,
                 spend=tuple(spell_selector(each) for each in tap.spend_only))),)))
@@ -430,6 +430,8 @@ class TapOther:
     tokens: int
     selects: Any = None
     spends: Any = None
+    #: v34: how many one activation taps (Heritage Druid: three Elves).
+    per: int = 1
 
 
 @dataclass(frozen=True)
@@ -538,7 +540,8 @@ def compile_view(abilities) -> ManaView:
             selector, spend = ability.costs[0].selector, effect.arg("spend")
             found["tap_other"] = TapOther(selector, effect.arg("mana"), effect.arg("n"), spend,
                                           effect.arg("tokens"), compile_selector(selector),
-                                          _compiled_spend(spend) if spend else None)
+                                          _compiled_spend(spend) if spend else None,
+                                          ability.costs[0].amount)
         elif form == "mox":
             found["mox"] = effect.arg("mode")
         elif form == "mana_mills":

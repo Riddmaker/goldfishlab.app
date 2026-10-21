@@ -355,7 +355,8 @@ def _stable(value):
         # A card by the fields it is made with, as `serial` writes it: its
         # reading stays comparable across the move onto blocks (phase 4).
         return {"_type": type(value).__name__,
-                **{name: _stable(getattr(value, name))
+                **{name: _stable(card_value(value, name) if isinstance(value, Card)
+                                 else getattr(value, name))
                    for name, _annotation in serial.fields_of(type(value))}}
     if isinstance(value, (frozenset, set)):
         return sorted((_stable(item) for item in value),

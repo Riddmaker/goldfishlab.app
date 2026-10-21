@@ -13648,3 +13648,22 @@ msgstr ""
 "elle-même, comme celle d'Hydroid Krasis ou de Kozilek, a lieu une fois et ne"
 " compte plus comme une pioche qui se répète encore et encore. Un rapport "
 "fait avec un moteur plus ancien le dit et propose une nouvelle simulation."
+
+#: changelog/entries.py
+msgid "More cards that connive"
+msgstr "Plus de cartes qui conspirent"
+
+#: changelog/entries.py
+msgid ""
+"A creature that connives as it attacks or deals combat damage, such as "
+"Ultron, Unlimited or Norman Osborn, now connives in every combat it attacks "
+"in, and a card drawn that way can be cast in the second main phase. Mob "
+"Lookout's connive goes to itself. A report made with an older engine says so"
+" and offers a new run."
+msgstr ""
+"Une créature qui conspire quand elle attaque ou inflige des blessures de "
+"combat, comme Ultron, Unlimited ou Norman Osborn, conspire désormais à "
+"chaque combat où elle attaque, et une carte piochée ainsi peut être lancée "
+"pendant la seconde phase principale. La conspiration de Mob Lookout va à "
+"lui-même. Un rapport fait avec un moteur plus ancien l'indique et propose "
+"une nouvelle simulation."

@@ -711,6 +711,8 @@ def _enc_combat(card):
         if value.search or value.untapped:
             effects.append(Effect("search_land", (("search", value.search),
                                                   ("untapped", value.untapped))))
+        if value.connive:
+            effects.append(Effect("connive", (("n", value.connive),)))
         yield Ability(TRIGGERED, "combat",
                       event=Event(value.event, who=value.who, types=value.types),
                       effects=tuple(effects))
@@ -726,6 +728,8 @@ def _dec_combat(abilities):
                 kwargs.update(treasures=effect.arg("n"), treasure_mana=effect.arg("mana"))
             elif effect.verb == "add_mana":
                 kwargs["mana"] = effect.arg("mana")
+            elif effect.verb == "connive":
+                kwargs["connive"] = effect.arg("n")
             else:
                 kwargs.update(search=effect.arg("search"), untapped=effect.arg("untapped"))
         found.append(CombatTrigger(**kwargs))

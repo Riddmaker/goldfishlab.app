@@ -35,7 +35,7 @@ from simulation.rules.selector import Selector
 
 #: Raised with every change to how a script is translated, so the next run
 #: translates every script again although the pin did not move.
-TRANSLATION = 9
+TRANSLATION = 10
 
 #: More scripts than this share failing to translate stops the run, and the
 #: blocks of the last good run stay.
@@ -411,6 +411,11 @@ def _args(step: forge.Ability, reading: _Reading) -> tuple:
         args["player"] = _player(who)
     if params.get("ValidTgts"):
         args["target"] = True
+    if step.head == "Connive" and (params.get("ValidTgts") or params.get("Defined")):
+        # Which creature connives - the card itself, a target (which may be
+        # it), the attacker that set it off (card model phase 5). Only here:
+        # a removal's target would change its reading.
+        args["what"] = _which(params.get("ValidTgts") or params["Defined"])
     if params.get("UnlessCost"):
         args["unless"] = params["UnlessCost"]
     if params.get("OptionalDecider") or params.get("Optional"):

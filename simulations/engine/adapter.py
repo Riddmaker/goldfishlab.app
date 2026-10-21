@@ -619,6 +619,8 @@ def _combat_text(trigger: CombatTrigger) -> str:
     elif trigger.mana:
         what = gettext("%(mana)s, kept to the second main phase") % {
             "mana": "".join(f"{{{key}}}" for key in trigger.mana)}
+    elif trigger.connive:
+        what = gettext("connives")
     else:
         what = ngettext("%(count)s Treasure", "%(count)s Treasures",
                         trigger.treasures) % {"count": trigger.treasures}
@@ -1630,7 +1632,8 @@ def _combat(oracle_card, profile, deck_colors: frozenset[str]) -> dict:
                       treasures=int(read.get("treasures") or 0),
                       treasure_mana=_any_colour(deck_colors) if read.get("treasures") else "",
                       mana=str(read.get("mana") or ""), search=bool(read.get("search")),
-                      untapped=bool(read.get("untapped")))
+                      untapped=bool(read.get("untapped")),
+                      connive=int(read.get("connive") or 0))
         for read in found.get("triggers") or ())
     return {
         "haste": "Haste" in (oracle_card.keywords or []),

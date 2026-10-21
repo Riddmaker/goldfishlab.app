@@ -45,6 +45,15 @@ ENTRIES = (
     # the merge moves (never inside the engine freeze, 9 to 18 November).
     # Card model phase 5, PR 19 (engine v31).
     Entry(
+        date(2026, 10, 21), "connive-in-combat",
+        _("More cards that connive"),
+        _("A creature that connives as it attacks or deals combat damage, such as Ultron, "
+          "Unlimited or Norman Osborn, now connives in every combat it attacks in, and a card "
+          "drawn that way can be cast in the second main phase. Mob Lookout's connive goes to "
+          "itself. A report made with an older engine says so and offers a new run."),
+        "methodology", "report-milestones",
+    ),
+    Entry(
         date(2026, 10, 20), "connive-and-cast-draws",
         _("Cards that connive, and a draw on casting counted once"),
         _("A creature that connives as it enters, such as A.I.M. Scientists, now draws a "

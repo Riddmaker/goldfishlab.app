@@ -86,6 +86,7 @@ def take(profile, field: str, value, *, answers: tuple[str, ...] = ()) -> None:
 
 #: Kinds whose mana is the spell's own, as it resolves: not a mana ability.
 _ONE_SHOT = frozenset({"instant", "sorcery", "ritual"})
+_CREATURE = "creature"
 _LETTERS = frozenset("WUBRGC")
 #: Reasons a mana ability read whole answers.
 _MANA_UNREAD = (
@@ -421,8 +422,9 @@ def connives(profile, abilities, card) -> None:
     Our reader reads connive nowhere.
 
     Taken from an ability read whole that does nothing else and makes the
-    card itself connive; Mob Lookout's "target creature connives" is another
-    creature's.
+    card itself connive. "Target creature you control connives" (Mob
+    Lookout) is the card itself when it is a creature: the goldfish's choice
+    (card model phase 5).
     """
     if profile.kind in _ONE_SHOT:
         return
@@ -432,11 +434,65 @@ def connives(profile, abilities, card) -> None:
     if len(found) != 1 or not complete(found[0]) or found[0].mode:
         return
     effects = found[0].effects
-    if len(effects) != 1 or effects[0].arg("target") or effects[0].arg("n", 1) != 1:
+    if len(effects) != 1 or effects[0].arg("n", 1) != 1 or not (
+            _may_be_itself(effects[0], profile) if effects[0].arg("target")
+            else _itself(effects[0])):
         return
     if any(trigger.get("connive") for trigger in profile.triggers or ()):
         return
     take(profile, "triggers", [*(profile.triggers or ()), {"event": "resolves", "connive": 1}])
+
+
+def _may_be_itself(effect: b.Effect, profile) -> bool:
+    """A target the card itself may be: "target creature you control", on a
+    creature - not "another", nor an opponent's."""
+    what = effect.arg("what", ())
+    return profile.kind == _CREATURE and bool(what) and all(
+        which.whose == "you" and not which.other and not which.found and not which.unread
+        and which.base == "creature" and not which.not_types for which in what)
+
+
+def _itself(effect: b.Effect) -> bool:
+    """The card itself connives: no one named, itself, or the attacker or
+    source that set off its own trigger."""
+    return all(which.itself or (which.found == {"triggered"} and not which.base)
+               for which in effect.arg("what", ()))
+
+
+#: Forge's combat events the engine plays a connive at (`CombatTrigger`):
+#: the card attacks, you attack, the card deals combat damage to a player.
+_COMBAT_CONNIVES = {
+    b.Event("attacks", who="self"): "attacks",
+    b.Event("damage", filter="combat", who="self"): "damage",
+}
+
+
+def combat_connives(profile, abilities, card) -> None:
+    """A creature that connives in combat - Ultron, Unlimited as it attacks,
+    Norman Osborn as it deals combat damage (card model phase 5).
+
+    Taken from an ability read whole that does nothing else and makes the
+    card itself connive. Another creature conniving (Raffine's attacker,
+    Swordsman's equipped attacker) is not.
+    """
+    if profile.kind != _CREATURE:
+        return
+    found = [ability for ability in abilities
+             if ability.kind == b.TRIGGERED
+             and any(effect.verb == "connive" for effect in ability.effects)]
+    taken = []
+    for ability in found:
+        when = _COMBAT_CONNIVES.get(ability.event)
+        effects = ability.effects
+        if when is None or not complete(ability) or ability.mode or len(effects) != 1 \
+                or effects[0].arg("target") or effects[0].arg("n", 1) != 1 \
+                or not _itself(effects[0]):
+            continue
+        taken.append({"event": when, "who": "self", "connive": 1})
+    combat = dict(profile.combat or {})
+    if not taken or any(trigger.get("connive") for trigger in combat.get("triggers") or ()):
+        return
+    take(profile, "combat", {**combat, "triggers": [*(combat.get("triggers") or ()), *taken]})
 
 
 #: What a card does that the goldfish plays, when Forge reads it and the
@@ -499,7 +555,7 @@ def unread(profile, abilities, card) -> None:
 #: The families, in order: each reads the blocks and the profile, and takes
 #: what its rule allows. `unread` comes last: it says what none of them took.
 FAMILIES: list[Callable] = [mana, enters_tapped, land_search, treasures, draws, connives,
-                            unread]
+                            combat_connives, unread]
 
 
 def merge(profile, abilities, card) -> None:

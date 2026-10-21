@@ -1,15 +1,16 @@
-"""The engine card's old helper classes (card model, phase 4).
+"""The classes a card's mana rules are written in (card model, phase 4 and 5).
 
 Until PR 13 the engine played these: a mana ability as a ``ManaAbility`` with
 its rule, ``SpellFilter``, ``TapMana``, ``Store`` and ``CostReduction``. Since
 PR 13 the engine plays blocks (:mod:`simulation.rules.mana`), and these
-classes are what the adapter compiles a card into, what the encoder reads and
-what the decoder gives back: the application reads them so until phase 5
-(wording, the editor, provenance, the coverage snapshot, a stored deck).
+classes are how a card's rules are written down: what the adapter compiles a
+profile into and a test or a fixture deck spells out, which
+:mod:`simulation.build` turns into blocks. Nothing turns blocks back into
+them since the decoder retired (phase 5).
 
 ``TappedUnless`` - a land that enters tapped unless a condition holds - is
-here too: the engine asks it as a :class:`~simulation.rules.condition.Condition`,
-and it leaves the card with its family in PR 14.
+here too: it is written so, and the engine asks it as a
+:class:`~simulation.rules.condition.Condition`.
 
 **The engine never imports this module** (`tests/test_rules.py` holds it):
 :mod:`simulation.game`, :mod:`simulation.mana` and :mod:`simulation.agent`

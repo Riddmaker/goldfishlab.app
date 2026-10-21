@@ -8,8 +8,10 @@ working as they are. Marks are kept by permanent number since PR 17: `marks`
 sets them by card name, and `simulation.trace.named` reads them so.
 """
 
+import dataclasses
 import random
 
+from simulation import build
 from simulation.cards import CREATURE, Card, DeckDefinition
 from simulation.game import Game
 
@@ -93,3 +95,27 @@ def marks(game: Game, **by_name) -> Game:
         else:
             setattr(game, attribute, [pid(name) for name in value])
     return game
+
+
+def rules(card: Card, **fields) -> tuple[tuple, tuple]:
+    """The card's blocks of the forms ``fields`` make, and the blocks they
+    make (`simulation.build.blocks`): equal when the card was made with
+    them. Name every field that shares a form - a ritual's gain and colour,
+    an altar's cost and its mana. Nothing turns blocks back into fields
+    since the decoder retired (card model phase 5), so a test compares
+    blocks, or reads the views (`Card.play`, `Card.turn`)."""
+    made = build.blocks(**fields)
+    forms = {ability.form for ability in made}
+    if not forms:
+        raise ValueError("these fields make no block: ask the card's view")
+    return tuple(each for each in card.abilities if each.form in forms), made
+
+
+def with_rules(card: Card, **fields) -> Card:
+    """The card with the blocks ``fields`` make in place of its blocks of the
+    same forms (`simulation.build.blocks`). Name every field that shares a
+    form: nothing reads the card's other ones back."""
+    made = build.blocks(**fields)
+    forms = {ability.form for ability in made}
+    kept = tuple(each for each in card.abilities if each.form not in forms)
+    return dataclasses.replace(card, abilities=kept + made)

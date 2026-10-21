@@ -386,12 +386,14 @@ reads only their compiled view (`card.mana`). Since PR 14 lands, costs and spell
 way - entering tapped and its condition, land searches, Landers, tutors, additional costs, exile on
 cast, what a spell draws, discards, puts back or costs in life - with their view `card.play`; since
 PR 15 triggers, turns and combat (upkeep, end step, +1/+1 counters, combat triggers, equip, Germs,
-Treasures) with `card.turn`. What `Card` keeps as fields is printed on the card or a play hint. A
-card is still made with the old fields, which `simulation/rules/mana.py`, `play.py` and `turns.py`
-encode. Since PR 20 nothing reads those fields off a card: the engine, the wording, the editor
-and the reports read the compiled views (`card.mana`, `card.play`, `card.turn`), and a field read
-off the card fails (`cards.FieldGone`); `cards.fields(card)` decodes them for a stored deck or
-game. `engine_coverage --diff` against the latest frozen reading is the round trip on every card;
+Treasures) with `card.turn`. What `Card` keeps as fields is printed on the card or a play hint, beside its blocks. A
+card's rules are written as the fields of `simulation.build.MadeWith` - what the adapter compiles,
+what a test spells out - which `simulation.build.card` turns into blocks with the encoders of
+`simulation/rules/mana.py`, `play.py` and `turns.py`. Nothing turns blocks back into fields (the
+decoder retired in phase 5): the engine, the wording, the editor and the reports read the compiled
+views (`card.mana`, `card.play`, `card.turn`), and a card is stored as its blocks
+(`simulation/serial.py`, which still loads a card stored the old way). `engine_coverage --diff`
+against the latest frozen reading compares every card;
 `tests/test_rules.py`, `tests/test_play_family.py` and `tests/test_turns_family.py` hold that the
 engine never reads the old fields. Since PR 17 (engine v30) each permanent keeps its own state
 (`simulation/permanent.py`), the engine's four roles - sacrifice outlet, recursive creature, drain,
@@ -401,6 +403,11 @@ block of 250 (`analysis.SEED_BLOCK`), so how a run is cut into chunks decides no
 that connives as it enters draws, discards and grows on a nonland discard (`forge_merge.connives`).
 Since engine v32 so does one that connives as it attacks or deals combat damage
 (`forge_merge.combat_connives`), and a combat that draws a card has a second main phase.
+Engine v33 plays Eldrazi Spawn and Scion made as a card enters, resolves or is cast
+(`forge_merge.treasures`, a Treasure that adds {C}), mana from a trigger as a creature enters or at
+the main phase, Priest of Forgotten Gods (an altar for two creatures that draws), and more mana
+abilities a card gives: to your lands, to creatures of one type, to the enchanted creature, and two
+of one colour on the enchanted land (`profiles._grant`).
 
 A round that changes `cards/profiles.py` needs the profiles derived again after its deploy
 (`python manage.py ingest_scryfall --profiles`), and every round changes the engine's numbers, so

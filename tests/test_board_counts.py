@@ -12,8 +12,8 @@ import random
 import pytest
 
 from cards.profiles import _counting_rule
+from simulation import build
 from simulation.cards import COUNTS, CREATURE, FLAT, LAND, Card, ManaAbility
-from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.manacost import parse
 
@@ -58,7 +58,7 @@ def counting(name, subtype, color="G", activation=0, kind=LAND, plain=None, **ex
                              activation_generic=activation, **extra)]
     if plain:
         abilities.append(ManaAbility(FLAT, plain))
-    return Card(name, 0, 0, 0, kind, mana_abilities=tuple(abilities))
+    return build.card(name, 0, 0, 0, kind, mana_abilities=tuple(abilities))
 
 
 def creature(name, *types, cost="{1}{G}"):
@@ -81,8 +81,7 @@ def test_cradle_makes_one_green_for_each_creature():
 
 def test_archdruid_counts_elves_itself_included():
     archdruid = counting("Elvish Archdruid", "elf", kind=CREATURE)
-    archdruid = Card(archdruid.name, 3, 0, 1, CREATURE,
-                     mana_abilities=card_fields(archdruid)["mana_abilities"],
+    archdruid = Card(archdruid.name, 3, 0, 1, CREATURE, abilities=archdruid.abilities,
                      creature_types=frozenset({"elf", "druid"}))
     board = game()
     board.creatures = [archdruid, creature("Llanowar Elves", "elf", "druid"), creature("Bear")]

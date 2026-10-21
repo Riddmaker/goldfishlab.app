@@ -11,13 +11,18 @@ not here. A shim at the bottom of this module keeps the old import paths
 working, because the four vendored test files must stay byte-identical.
 """
 
-import functools
-from dataclasses import InitVar, dataclass, field, fields
+from dataclasses import dataclass, field, fields
 from functools import cached_property
 
-# The old helper classes live in `simulation.legacy` since card model phase
-# 4 (PR 13); they are re-exported here for the application and the tests.
-from simulation.legacy import (  # noqa: E402,F401  (re-exported)
+from simulation.blocks import Ability
+from simulation.manacost import (
+    ManaCost,
+)
+
+# The classes a card's mana rules are written in live in `simulation.spec`
+# (card model phase 4); they are re-exported here for the application and the
+# tests.
+from simulation.spec import (  # noqa: E402,F401  (re-exported)
     STORE_FREE,
     STORE_SCALES,
     STORE_TAP,
@@ -27,9 +32,6 @@ from simulation.legacy import (  # noqa: E402,F401  (re-exported)
     Store,
     TapMana,
     TappedUnless,
-)
-from simulation.manacost import (
-    ManaCost,
 )
 
 # --- Card kinds ------------------------------------------------------------
@@ -498,19 +500,6 @@ GERM = "Germ"
 NO_ABILITIES: tuple[ManaAbility, ...] = ()
 
 
-class _Unset:
-    """A mana field nobody gave: the card keeps what its blocks say."""
-
-    def __repr__(self) -> str:
-        return "UNSET"
-
-    def __reduce__(self):
-        return "UNSET"
-
-
-UNSET = _Unset()
-
-
 @dataclass(frozen=True)
 class Card:
     """A card, reduced to what the simulation needs.
@@ -539,7 +528,6 @@ class Card:
     kind: str
     engine_roles: frozenset[str] = field(default_factory=frozenset)
     land_type: str = ""
-    enters_tapped: InitVar[bool] = UNSET
     goldfish_castable: bool = True
     needs_creature_in_yard: bool = False
     needs_creature_on_bf: bool = False
@@ -549,16 +537,6 @@ class Card:
     # Every one of these has a default, so that the ~70 existing positional
     # ``Card(...)`` calls keep working unchanged - including the ones in the
     # four byte-identical test files.
-    mana_abilities: InitVar[tuple[ManaAbility, ...]] = UNSET
-    ritual_gain: InitVar[int] = UNSET                       # Dark Ritual: +3 black
-    ritual_color: InitVar[str] = UNSET                    # ... but Rite of Flame red
-    cost_reduction: InitVar[CostReduction | None] = UNSET
-    draw_on_cast: InitVar[int] = UNSET
-    life_on_cast: InitVar[int] = UNSET
-    tutor: InitVar[TutorSpec | None] = UNSET
-    upkeep: InitVar[UpkeepSpec | None] = UNSET
-    end_step: InitVar[EndStepSpec | None] = UNSET
-    skips_draw_step: InitVar[bool] = UNSET     # Necropotence
     priority: int | None = None                # replaces agent.PRIORITY
     accelerant: bool = False                   # replaces game.ACCELERANTS
     subtypes: frozenset[str] = field(default_factory=frozenset)
@@ -569,12 +547,6 @@ class Card:
     #: ``Card("Test", 1, 1, 0, LAND)`` has to keep meaning what it meant.
     cost: ManaCost | None = None
 
-    #: False for a permanent that "doesn't untap during your untap step" -
-    #: Mana Vault, Grim Monolith. It makes its mana the first time the pool is
-    #: opened with it on the battlefield and stays tapped from then on; see
-    #: ``Game.stays_tapped``. Last, and defaulted, for the same positional
-    #: reason as ``cost``.
-    untaps: InitVar[bool] = UNSET
 
     #: The card types printed on the front face, lower case: ``{"artifact",
     #: "creature"}`` for an artifact creature. **No rule reads it** - ``kind``
@@ -593,28 +565,8 @@ class Card:
     #: hand-written fixture decks. Last, and defaulted, like ``types``.
     categories: frozenset[str] = field(default_factory=frozenset)
 
-    #: P19 R2: lands this card puts onto the battlefield, and when.
-    land_search: InitVar[LandSearch | None] = UNSET
     #: A basic land - what "search for a basic land card" may find.
     basic: bool = False
-    #: P19 R3: with ``enters_tapped``, the condition under which it does not.
-    tapped_unless: InitVar[TappedUnless | None] = UNSET
-    #: P19 R7: Treasure tokens it makes as it resolves - a spell, or a
-    #: permanent's "When this creature enters" (Big Score: 2, Rapacious
-    #: Dragon: 2). Each is one mana of ``treasure_mana``, sacrificed when spent.
-    treasures: InitVar[int] = UNSET
-    treasure_mana: InitVar[str] = UNSET
-    #: P19 R14: Lander tokens it makes as it resolves or enters, each a
-    #: :data:`LANDER` search to activate later.
-    landers: InitVar[int] = UNSET
-    #: P19 R7: "As an additional cost to cast this spell, discard a card."
-    discard_cost: InitVar[int] = UNSET
-    #: P19 R8: cards discarded right after ``draw_on_cast`` - Faithless
-    #: Looting draws two, then discards two.
-    discard_on_cast: InitVar[int] = UNSET
-    #: P19 R8: cards put back on top of the library after that draw -
-    #: Brainstorm draws three, then puts two back.
-    put_back_on_cast: InitVar[int] = UNSET
     #: P19 R9: how many {X} the cost has - Astral Cornucopia's {X}{X}{X} is
     #: three. 0: no X. The agent casts such a spell last in its main phase,
     #: with everything left as X.
@@ -625,9 +577,6 @@ class Card:
     #: P19 R23: the largest X allowed (Open the Way: the number of players).
     #: 0: no limit.
     x_max: int = 0
-    #: P19 R9: it draws X cards (Stroke of Genius, Blue Sun's Zenith), on
-    #: top of ``draw_on_cast``.
-    draws_x: InitVar[bool] = UNSET
     #: P19 R11: the creature types on the front face, lower case - what
     #: Elvish Archdruid counts. Empty for everything else.
     creature_types: frozenset[str] = field(default_factory=frozenset)
@@ -641,32 +590,6 @@ class Card:
     #: P19 R13: an Aura's target: ``land`` or a land type (``forest``); P19
     #: R22: ``creature`` (Shiny Impetus). It cannot be cast without one.
     enchants: str = ""
-    #: P19 R13: a ritual whose mana counts the board when it resolves:
-    #: ``creature`` (Battle Hymn) or ``tapped:<land type>`` (High Tide: each
-    #: such land in this turn's pool, less the one that paid for it). P19
-    #: R18: ``named:<name>`` adds one more for each card of that name in the
-    #: graveyard (Rite of Flame), ``threshold:<cards>:<amount>`` makes
-    #: ``amount`` instead with that many cards there (Cabal Ritual).
-    ritual_counts: InitVar[str] = UNSET
-    #: P19 R15: the ways its additional cost can be paid, any one of them -
-    #: empty for none. "Discard a card" alone stays ``discard_cost``.
-    additional_costs: InitVar[tuple[AdditionalCost, ...]] = UNSET
-    #: P19 R15: a mana ability whose cost is sacrificing another permanent -
-    #: Ashnod's Altar, Phyrexian Tower: the types it takes (see
-    #: :class:`AdditionalCost`), what one gives, and in what colour.
-    sacrifice_mana: InitVar[AdditionalCost | None] = UNSET
-    sacrifice_mana_amount: InitVar[int] = UNSET
-    sacrifice_mana_color: InitVar[str] = UNSET
-    #: P19 R15: {T} is part of that ability's cost (Phyrexian Tower).
-    sacrifice_mana_taps: InitVar[bool] = UNSET
-    #: P19 R16: "Sacrifice another creature" - never the altar itself
-    #: (Warren Soultrader). Its life, if any, is ``sacrifice_mana.life``.
-    sacrifice_mana_other: InitVar[bool] = UNSET
-    #: P19 R16: the triggered abilities the engine plays.
-    triggers: InitVar[tuple[Trigger, ...]] = UNSET
-    #: P19 R15: it goes to exile rather than the graveyard once cast - a
-    #: Spirit Guide, a ritual exiled from the hand for its mana.
-    exiled_on_cast: InitVar[bool] = UNSET
     #: P19 R17: every subtype on the front face, lower case - "aura",
     #: "equipment", "dragon": what restricted mana asks a spell about.
     #: ``subtypes`` holds the basic land types only.
@@ -678,65 +601,21 @@ class Card:
     #: P19 R21: the toughness printed on it, 0 for none or "*" - Arbor
     #: Adherent's mana, and what Evolve compares.
     toughness: int = 0
-    #: P19 R19: mana for tapping other permanents (Relic of Legends, Urza).
-    tap_mana: InitVar[TapMana | None] = UNSET
-    #: P19 R19: ``DISCARD_LAND`` or ``IMPRINT``, see there; empty for none.
-    mox: InitVar[str] = UNSET
-    #: P19 R19: cards it mills each time it is tapped for mana (Millikin).
-    mana_mills: InitVar[int] = UNSET
-    #: P19 R20: mana it keeps as counters, energy or a Food. Its
-    #: ``mana_abilities`` are what it taps for without them.
-    store: InitVar[Store | None] = UNSET
-    #: P19 R21: +1/+1 counters and what grows with them.
-    growth: InitVar[Growth | None] = UNSET
-    #: P19 R21: Growing Rites of Itlimoc - it turns into its land at your end
-    #: step once you control this many creatures, and makes mana only then.
-    #: 0: no such card.
-    flip: InitVar[int] = UNSET
     #: P19 R22: it attacks the turn it arrives.
     haste: bool = False
-    #: P19 R22: its triggers in combat.
-    combat: InitVar[tuple[CombatTrigger, ...]] = UNSET
-    #: P19 R22: an Equipment's equip cost - read only where something rides
-    #: on it (a trigger in combat, Paradise Mantle's mana). None: not equipped.
-    equip: InitVar[ManaCost | None] = UNSET
-    #: P19 R22: Living weapon - it enters with a 0/0 Germ attached.
-    germ: InitVar[bool] = UNSET
-    #: P19 R22: each Treasure makes this much more mana (Goldspan Dragon).
-    treasure_bonus: InitVar[int] = UNSET
     #: P19 R22: a token the engine made as a card (a Germ): it goes to no
     #: graveyard.
     token: bool = False
     #: Card model phase 4: what the card does, as blocks
     #: (:mod:`simulation.blocks`). Every rule of the card lives here, in
-    #: three families: since PR 13 the sixteen fields of the mana family,
-    #: since PR 14 the thirteen of lands, costs and spells, since PR 15 the
-    #: eleven of triggers, turns and combat - the fields above marked
-    #: ``InitVar``. What is left as a field is printed on the card or a play
-    #: hint (`simulation.blocks.FACE_FIELDS`, `HINT_FIELDS`). A card is still
-    #: made with those arguments, which each family's ``encode``
-    #: (`simulation.rules.mana`, `play`, `turns`) turns into blocks. Since
-    #: PR 20 nothing reads them off the card: the engine and the application
-    #: read the compiled blocks (`mana`, `play`, `turn`), and `fields`
-    #: decodes them for storing.
-    abilities: tuple = ()
-
-    def __post_init__(self, *given):
-        values = {name: value for name, value in zip(INIT_FIELDS, given, strict=True)
-                  if value is not UNSET and not isinstance(value, _Gone)}
-        if not values:
-            return
-        forms = _forms()
-        parts = [tuple(each for each in self.abilities if each.form not in forms)]
-        for family in _families():
-            mine = tuple(each for each in self.abilities if each.form in family.FORMS)
-            own = {name: value for name, value in values.items() if name in family.FIELDS}
-            if own:
-                mine = family.encode({**(family.decode(mine) if mine else {}), **own})
-            parts.append(mine)
-        # Always in the same order - other blocks, then each family's - so
-        # that a card changed with `dataclasses.replace` equals one made so.
-        object.__setattr__(self, "abilities", sum(parts, ()))
+    #: three families: mana (PR 13), lands, costs and spells (PR 14), and
+    #: triggers, turns and combat (PR 15). The fields above are printed on
+    #: the card or a play hint (`simulation.blocks.FACE_FIELDS`,
+    #: `HINT_FIELDS`). A card's rules are written as the fields of
+    #: `simulation.build.MadeWith`, which `simulation.build.card` turns into
+    #: blocks; the engine and the application read the compiled blocks
+    #: (`mana`, `play`, `turn`).
+    abilities: tuple[Ability, ...] = ()
 
     @cached_property
     def mana(self):
@@ -781,10 +660,10 @@ class Card:
         return other
 
     def __getstate__(self):
-        # What is compiled, decoded or hashed is made again where the card
+        # What is compiled or hashed is made again where the card
         # arrives: a string's hash differs from one process to the next.
         return {key: value for key, value in self.__dict__.items()
-                if key not in ("_fields", "mana", "play", "turn", "_hash")}
+                if key not in ("mana", "play", "turn", "_hash")}
 
     @property
     def mana_cost(self) -> ManaCost:
@@ -851,93 +730,6 @@ class Card:
 
 #: The fields a card's hash is over: every one, as a frozen dataclass's is.
 _HASHED = tuple(item.name for item in fields(Card))
-
-#: The fields `Card` takes as arguments and keeps as blocks (card model, phase
-#: 4): the mana family since PR 13, lands, costs and spells since PR 14; in
-#: the order they are declared.
-INIT_FIELDS = tuple(name for name, item in Card.__dataclass_fields__.items()
-                    if isinstance(item.type, InitVar))
-
-
-@functools.cache
-def _families() -> tuple:
-    """The modules of the families, each with ``FIELDS``, ``FORMS``,
-    ``encode`` and ``decode``. Imported when first asked: they import this
-    module."""
-    from simulation.rules import mana, play, turns
-
-    return (mana, play, turns)
-
-
-@functools.cache
-def _forms() -> frozenset[str]:
-    """Every ``form`` a family's block has."""
-    return frozenset().union(*(family.FORMS for family in _families()))
-
-
-def _family_fields(index: int) -> tuple[str, ...]:
-    family = _families()[index]
-    return tuple(each for each in INIT_FIELDS if each in family.FIELDS)
-
-
-def fields(card: Card) -> dict:
-    """The fields the card was made with (the ``InitVar`` ones), decoded from
-    its blocks once: the form a stored deck or game keeps
-    (`simulation.serial`), and what a test compares. The engine and the
-    application read the compiled views (`Card.mana`, `play`, `turn`) instead
-    (card model PR 20)."""
-    found = card.__dict__.get("_fields")
-    if found is None:
-        found = {}
-        for family in _families():
-            found.update(family.decode(card.abilities))
-        card.__dict__["_fields"] = found
-    return found
-
-
-def value(card: Card, name: str):
-    """One field of the card, printed or made with: `fields` for the second."""
-    made_with = fields(card)
-    return made_with[name] if name in made_with else getattr(card, name)
-
-
-class FieldGone(RuntimeError):
-    """A field a card is made with was read off the card (card model PR 20)."""
-
-
-class _Gone:
-    """What reading a field a card is made with gives: something that fails
-    as soon as it is used. `dataclasses.replace` reads every ``InitVar`` and
-    hands it back to the new card, which takes it as "not given"."""
-
-    __slots__ = ("name",)
-
-    def __init__(self, name: str):
-        self.name = name
-
-    def _fail(self, *args, **kwargs):
-        raise FieldGone(f"Card.{self.name} is only an argument since card model PR 20: "
-                        f"read the compiled view (card.mana, card.play, card.turn), or "
-                        f"cards.fields(card)[{self.name!r}] for the stored form")
-
-    __bool__ = __eq__ = __ne__ = __iter__ = __len__ = __getitem__ = __hash__ = _fail
-    __lt__ = __gt__ = __le__ = __ge__ = __add__ = __radd__ = __int__ = __str__ = _fail
-
-    def __getattr__(self, attribute):
-        self._fail()
-
-
-def _gone(name: str) -> property:
-    def read(card):
-        return _Gone(name)
-    read.__name__ = name
-    return property(read)
-
-
-# Without these the class default (`UNSET`) would answer a read in silence.
-for _name in INIT_FIELDS:
-    setattr(Card, _name, _gone(_name))
-
 
 #: The four roles the engine plays by: what a tutor finds before a bigger
 #: spell, what is sacrificed first, and the milestones (card model PR 17).
@@ -1041,16 +833,7 @@ _LEGACY = frozenset({
 })
 
 
-#: The sixteen fields of the mana family (PR 13), the thirteen of lands,
-#: costs and spells (PR 14) and the eleven of triggers, turns and combat
-#: (PR 15), as `Card` takes them - worked out when first asked, like the
-#: families.
-_FAMILY_FIELDS = {"MANA_FIELDS": 0, "PLAY_FIELDS": 1, "TURN_FIELDS": 2}
-
-
 def __getattr__(name: str):
-    if name in _FAMILY_FIELDS:
-        return _family_fields(_FAMILY_FIELDS[name])
     if name in _LEGACY:
         from simulation.fixtures import chainer
 
@@ -1059,4 +842,4 @@ def __getattr__(name: str):
 
 
 def __dir__():
-    return sorted(set(globals()) | _LEGACY | set(_FAMILY_FIELDS))
+    return sorted(set(globals()) | _LEGACY)

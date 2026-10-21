@@ -13456,3 +13456,75 @@ msgstr ""
 "probabilidades do seu próprio deck e baseiam os conselhos nas estratégias "
 "mais fracas dele. O relatório espera o resumo e aparece completo. Abaixo de "
 "um resumo, você pode dizer se ele ajudou e, se quiser, deixar um comentário."
+
+#: simulations/editor.py
+#, python-format
+msgid "%(count)s Eldrazi Spawn as it resolves (one {C})"
+msgid_plural "%(count)s Eldrazi Spawn as it resolves (one {C} each)"
+msgstr[0] "%(count)s Cria Eldrazi ao resolver (um {C})"
+msgstr[1] "%(count)s Crias Eldrazi ao resolver (um {C} cada)"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(cost)s: %(amount)s mana and %(count)s card"
+msgid_plural "%(cost)s: %(amount)s mana and %(count)s cards"
+msgstr[0] "%(cost)s: %(amount)s mana e %(count)s card"
+msgstr[1] "%(cost)s: %(amount)s mana e %(count)s cards"
+
+#: simulations/engine/adapter.py
+msgid "the enchanted land taps for two mana of any one colour"
+msgstr "o terreno encantado vira para dois manas de uma mesma cor qualquer"
+
+#: simulations/engine/adapter.py
+msgid "your lands tap for one mana of any colour"
+msgstr "seus terrenos viram para um mana de qualquer cor"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "the creature it enchants taps for %(mana)s"
+msgstr "a criatura encantada vira para %(mana)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your %(type)s creatures tap for %(mana)s"
+msgstr "suas criaturas do tipo %(type)s viram para %(mana)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your other %(type)s creatures tap for %(mana)s"
+msgstr "suas outras criaturas do tipo %(type)s viram para %(mana)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"goes, as it is cast, on the weakest creature without a mana ability or "
+"anything else on it; that creature taps for mana from the next turn and no "
+"longer attacks; it needs a creature to be cast"
+msgstr ""
+"vai, ao ser conjurada, para a criatura mais fraca sem habilidade de mana nem"
+" mais nada nela; essa criatura vira para gerar mana a partir do turno "
+"seguinte e não ataca mais; precisa de uma criatura para ser conjurada"
+
+#: changelog/entries.py
+msgid "Eldrazi Spawn, Priest of Forgotten Gods and mana given to other cards"
+msgstr "Crias Eldrazi, Priest of Forgotten Gods e mana dado a outros cards"
+
+#: changelog/entries.py
+msgid ""
+"Eldrazi Spawn and Scion made as a card enters, resolves or is cast, such as "
+"Kozilek's Predator's or Skittering Invasion's, now each add {C} when "
+"sacrificed. Mana a creature adds as it enters and Frontier Siege's mana at "
+"your first main phase are added. Priest of Forgotten Gods sacrifices two "
+"other creatures for {B}{B} and a card. Mana abilities a card gives your "
+"lands, creatures of one type or the creature it enchants, such as Wrenn and "
+"Realmbreaker's or Karametra's Favor's, now make mana. A report made with an "
+"older engine says so and offers a new run."
+msgstr ""
+"As Crias e os Rebentos Eldrazi que um card cria ao entrar, ao resolver ou ao"
+" ser conjurado, como os de Kozilek's Predator ou Skittering Invasion, agora "
+"adicionam {C} cada um ao serem sacrificados. O mana que uma criatura "
+"adiciona ao entrar e o de Frontier Siege na sua primeira fase principal são "
+"adicionados. Priest of Forgotten Gods sacrifica duas outras criaturas por "
+"{B}{B} e um card. As habilidades de mana que um card dá aos seus terrenos, "
+"às criaturas de um tipo ou à criatura que encanta, como as de Wrenn and "
+"Realmbreaker ou Karametra's Favor, agora geram mana. Um relatório feito com "
+"um motor mais antigo informa isso e oferece uma nova simulação."

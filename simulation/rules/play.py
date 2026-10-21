@@ -1,4 +1,4 @@
-"""Lands, costs and spells as blocks: encoder, decoder and what the engine reads (phase 4, PR 14).
+"""Lands, costs and spells as blocks: encoder and what the engine reads (phase 4, PR 14).
 
 Thirteen fields of the old engine card said how a card is played: whether a
 land enters tapped and the condition under which it does not, the lands a
@@ -9,12 +9,10 @@ PR 14 turns them into blocks the way PR 13 turned the mana family: the
 `Condition` atom where the board is asked, `Cost` atoms with a `Selector`
 where something is paid.
 
-Three functions, as in :mod:`simulation.rules.mana`:
+Two functions, as in :mod:`simulation.rules.mana`:
 
 * `encode` turns the thirteen fields, as the adapter compiles them, into
-  blocks.
-* `decode` turns the blocks back into exactly those fields, for the
-  application until phase 5.
+  blocks (`simulation.build`).
 * `compile_view` turns a card's blocks into a `PlayView` once: what the
   engine asks while it plays.
 
@@ -44,7 +42,6 @@ from simulation.blocks import (
     changed_args,
 )
 from simulation.cards import AdditionalCost, LandSearch, TutorSpec
-from simulation.legacy import TappedUnless
 from simulation.rules.condition import Condition, check
 from simulation.rules.selector import Selector, wanted, wanted_of
 
@@ -177,7 +174,7 @@ def encode(values: dict) -> tuple[Ability, ...]:
     return tuple(found)
 
 
-# --- decoding ------------------------------------------------------------------------------------
+# --- what a block holds, for the view ---------------------------------------------------------
 
 
 def _way(atoms: tuple[Cost, ...]) -> AdditionalCost:
@@ -223,16 +220,16 @@ def _tutor_of(ability: Ability) -> TutorSpec:
                      upkeep=ability.event.filter if ability.event else "")
 
 
-def _decode(abilities, unless) -> dict:
-    """The fields from blocks; ``unless`` makes the condition a land enters
-    untapped under, from its `Condition`."""
+def _read(abilities) -> dict:
+    """What the blocks say, by the field each came from: defaults where none
+    says."""
     out = dict(FIELDS)
     by_verb = {verb: name for name, verb in _RESOLVES}
     for ability in abilities:
         form = ability.form
         if form == "enters_tapped":
             out["enters_tapped"] = not ability.effects[0].arg("off", False)
-            out["tapped_unless"] = unless(ability.conds[0]) if ability.conds else None
+            out["tapped_unless"] = ability.conds[0] if ability.conds else None
         elif form == "land_search":
             out["land_search"] = _search_of(ability)
         elif form == "tutor":
@@ -252,11 +249,6 @@ def _decode(abilities, unless) -> dict:
         elif form == "exiled_on_cast":
             out["exiled_on_cast"] = True
     return out
-
-
-def decode(abilities) -> dict:
-    """The family's fields from blocks, every one: defaults where none says."""
-    return _decode(abilities, lambda condition: TappedUnless(**vars(condition)))
 
 
 # --- what the engine reads ----------------------------------------------------------------
@@ -295,7 +287,7 @@ def compile_view(abilities) -> PlayView:
     """The engine's view of a card's blocks of lands, costs and spells."""
     if not any(each.form in FORMS for each in abilities):
         return NO_PLAY
-    values = _decode(abilities, lambda condition: condition)
+    values = _read(abilities)
     unless = values["tapped_unless"]
     return PlayView(
         enters_tapped=values["enters_tapped"], untapped_if=unless,

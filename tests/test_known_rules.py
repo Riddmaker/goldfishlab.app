@@ -12,6 +12,7 @@ import pytest
 
 from cards.models import DerivedProfile, OracleCard
 from cards.profiles import _activation_condition, _mana_production, _mana_rule, _tutor
+from simulation import build
 from simulation.cards import ARTIFACT, FLAT, LAND, ROCK, Card, ManaAbility, TappedUnless
 from simulation.game import Game
 from tests.engine_builders import tap
@@ -128,8 +129,8 @@ def test_a_search_by_the_targets_controller_is_not_our_tutor():
 
 
 def land(name, subtypes=(), abilities=(), types=frozenset({"land"})):
-    return Card(name, 0, 0, 0, LAND, subtypes=frozenset(subtypes),
-                mana_abilities=tuple(abilities), types=types)
+    return build.card(name, 0, 0, 0, LAND, subtypes=frozenset(subtypes),
+                      mana_abilities=tuple(abilities), types=types)
 
 
 SWAMP = land("Swamp", {"swamp"})
@@ -139,7 +140,7 @@ TAINTED = land("Tainted Wood", abilities=[
     ManaAbility(FLAT, {"BG": 1}, only_if=TappedUnless("control_type",
                                                       types=frozenset({"swamp"}))),
     ManaAbility(FLAT, {"C": 1})])
-OPAL = Card("Mox Opal", 0, 0, 0, ROCK, types=frozenset({ARTIFACT}), mana_abilities=(
+OPAL = build.card("Mox Opal", 0, 0, 0, ROCK, types=frozenset({ARTIFACT}), mana_abilities=(
     ManaAbility(FLAT, {"WUBRG": 1}, only_if=TappedUnless("artifacts", count=3)),))
 TRINKET = Card("Trinket", 1, 0, 1, ARTIFACT, types=frozenset({ARTIFACT}))
 

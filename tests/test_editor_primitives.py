@@ -19,7 +19,6 @@ from django.urls import reverse
 from cards import profiles
 from cards.models import OracleCard
 from decks.models import Deck, DeckCard
-from simulation.cards import fields as card_fields
 from simulations import annotations, primitives, provenance, services
 from simulations.engine import adapter
 from simulations.engine.adapter import DECK_SCOPE
@@ -124,7 +123,7 @@ def card_of(deck, oracle_card):
 
 
 def test_a_land_search_added_by_hand_is_played(deck):
-    assert card_fields(card_of(deck.deck, deck.growth))["land_search"] is None
+    assert card_of(deck.deck, deck.growth).play.search is None
     services.save_annotation(deck=deck.deck, oracle_card=deck.growth, scope=DECK_SCOPE,
                              primitive_changes={"land_search": RAMPANT})
     search = card_of(deck.deck, deck.growth).play.search
@@ -135,13 +134,13 @@ def test_a_land_search_added_by_hand_is_played(deck):
 
 
 def test_a_primitive_switched_off_and_back(deck):
-    assert card_fields(card_of(deck.deck, deck.cobra))["triggers"]
+    assert card_of(deck.deck, deck.cobra).turn.triggers
     services.save_annotation(deck=deck.deck, oracle_card=deck.cobra, scope=DECK_SCOPE,
                              primitive_changes={"triggers": None})
-    assert card_fields(card_of(deck.deck, deck.cobra))["triggers"] == ()
+    assert card_of(deck.deck, deck.cobra).turn.triggers == ()
     services.save_annotation(deck=deck.deck, oracle_card=deck.cobra, scope=DECK_SCOPE,
                              primitive_changes={"triggers": annotations.RESET})
-    assert card_fields(card_of(deck.deck, deck.cobra))["triggers"]
+    assert card_of(deck.deck, deck.cobra).turn.triggers
     assert not CardAnnotation.objects.filter(oracle_card=deck.cobra).exists()
 
 
@@ -150,21 +149,20 @@ def test_a_search_to_hand_by_hand(deck):
                              primitive_changes={"tutor": {"to": "hand", "count": 1,
                                                           "types": ["creature"],
                                                           "max_mv": 3}})
-    tutor = card_fields(card_of(deck.deck, deck.growth))["tutor"]
+    tutor = card_of(deck.deck, deck.growth).play.tutor
     assert tutor.to_hand and tutor.types == frozenset({"creature"}) and tutor.max_mv == 3
 
 
 def test_taps_for_no_longer_switches_the_altar_off(deck):
-    assert card_fields(card_of(deck.deck, deck.altar))["sacrifice_mana"] is not None
+    assert card_of(deck.deck, deck.altar).mana.altar is not None
     services.save_annotation(
         deck=deck.deck, oracle_card=deck.altar, scope=DECK_SCOPE,
         judgements={key: None for key in annotations.EDITABLE_KEYS} | {"mana_produces": {}})
     card = card_of(deck.deck, deck.altar)
-    made_with = card_fields(card)
-    assert made_with["mana_abilities"] == () and made_with["sacrifice_mana"] is not None
+    assert not card.mana.entries and card.mana.altar is not None
     services.save_annotation(deck=deck.deck, oracle_card=deck.altar, scope=DECK_SCOPE,
                              primitive_changes={"sacrifice_mana": None})
-    assert card_fields(card_of(deck.deck, deck.altar))["sacrifice_mana"] is None
+    assert card_of(deck.deck, deck.altar).mana.altar is None
 
 
 def test_a_primitive_the_engine_cannot_play_is_refused(deck):
@@ -229,7 +227,7 @@ def test_a_land_search_added_through_the_form(deck, client):
         "land_search-condition": "", "land_search-repeat": "0", "land_search-tempting": "0",
         "land_search-life": "0"})
     assert response.status_code == 302
-    search = card_fields(card_of(deck.deck, deck.growth))["land_search"]
+    search = card_of(deck.deck, deck.growth).play.search
     assert search.battlefield == 2 and search.tapped and search.basic
     text = page(client, deck, deck.growth).content.decode()
     assert "Yours, this deck" in text and "Back to the card data" in text
@@ -238,10 +236,10 @@ def test_a_land_search_added_through_the_form(deck, client):
 def test_off_and_back_through_the_page(deck, client):
     client.force_login(deck.owner)
     assert post(client, deck, deck.cobra, "triggers", {"action": "off"}).status_code == 302
-    assert card_fields(card_of(deck.deck, deck.cobra))["triggers"] == ()
+    assert card_of(deck.deck, deck.cobra).turn.triggers == ()
     assert "switched off" in page(client, deck, deck.cobra).content.decode()
     post(client, deck, deck.cobra, "triggers", {"action": "reset"})
-    assert card_fields(card_of(deck.deck, deck.cobra))["triggers"]
+    assert card_of(deck.deck, deck.cobra).turn.triggers
 
 
 def test_a_bad_box_is_refused_with_its_reason(deck, client):
@@ -263,7 +261,7 @@ def test_a_search_with_types_through_the_form(deck, client):
     post(client, deck, deck.growth, "tutor", {
         "action": "save", "tutor-to": "hand", "tutor-count": "1", "tutor-kind": "",
         "tutor-types": "Aura, equipment", "tutor-max_mv": "", "tutor-color": ""})
-    tutor = card_fields(card_of(deck.deck, deck.growth))["tutor"]
+    tutor = card_of(deck.deck, deck.growth).play.tutor
     assert tutor.types == frozenset({"aura", "equipment"}) and tutor.max_mv is None
 
 
@@ -290,12 +288,12 @@ def test_a_trigger_entry_changed_added_and_removed(deck, client):
     text = page(client, deck, deck.cobra, "?edit=triggers&item=0").content.decode()
     assert 'name="item" value="0"' in text and "Narrowed to" in text
     post(client, deck, deck.cobra, "triggers", {"action": "save", "item": "0", **TRIGGER_BOXES})
-    (trigger,) = card_fields(card_of(deck.deck, deck.cobra))["triggers"]
+    (trigger,) = card_of(deck.deck, deck.cobra).turn.triggers
     assert (trigger.event, trigger.mana, trigger.mana_color) == ("landfall", 2, "G")
     post(client, deck, deck.cobra, "triggers", {
         "action": "save", "item": "new", **TRIGGER_BOXES, "triggers-event": "cast",
         "triggers-mana": "0", "triggers-color": "", "triggers-treasures": "1"})
-    assert [each.event for each in card_fields(card_of(deck.deck, deck.cobra))["triggers"]] == [
+    assert [each.event for each in card_of(deck.deck, deck.cobra).turn.triggers] == [
         "landfall", "cast"]
     post(client, deck, deck.cobra, "triggers", {"action": "remove", "item": "0"})
     assert [each.event for each in card_of(deck.deck, deck.cobra).turn.triggers] == ["cast"]
@@ -309,7 +307,7 @@ def test_a_combat_trigger_added_with_its_equip_cost(deck, client):
         "combat-equip": "{2}", "combat-treasure_bonus": "0"})
     card = card_of(deck.deck, deck.growth)
     assert card.turn.combat[0].who == "equipped" and card.turn.combat[0].search
-    assert str(card_fields(card)["equip"]) == "{2}"
+    assert str(card.turn.equip) == "{2}"
 
 
 def test_an_additional_cost_added_by_hand(deck, client):
@@ -319,7 +317,7 @@ def test_an_additional_cost_added_by_hand(deck, client):
         "additional_cost-life": "0", "additional_cost-discard": "0",
         "additional_cost-mana": "", "additional_cost-exile_from_graveyard": "",
         "additional_cost-filter": ""})
-    (way,) = card_fields(card_of(deck.deck, deck.growth))["additional_costs"]
+    (way,) = card_of(deck.deck, deck.growth).play.ways
     assert way.sacrifice == frozenset({"creature"}) and way.sacrifice_count == 1
 
 
@@ -330,7 +328,7 @@ def test_an_additional_cost_of_two_creatures(deck, client):
         "additional_cost-life": "0", "additional_cost-discard": "0",
         "additional_cost-mana": "", "additional_cost-exile_from_graveyard": "",
         "additional_cost-filter": "", "additional_cost-count": "2"})
-    (way,) = card_fields(card_of(deck.deck, deck.growth))["additional_costs"]
+    (way,) = card_of(deck.deck, deck.growth).play.ways
     assert way.sacrifice_count == 2
 
 

@@ -14,6 +14,7 @@ import random
 
 import pytest
 
+from simulation import build
 from simulation.agent import _land_score
 from simulation.cards import (
     DOUBLE_SUBTYPE,
@@ -48,18 +49,18 @@ PLAINS = Card("Plains", 0, 0, 0, LAND, subtypes=frozenset({"plains"}))
 SWAMP = Card("Swamp", 0, 0, 0, LAND, subtypes=frozenset({SWAMP_SUBTYPE}))
 
 #: A land with no subtype at all, so only its own ability speaks for it.
-TOWER = Card("Tower", 0, 0, 0, LAND, mana_abilities=(ManaAbility(FLAT, {"C": 1}),))
+TOWER = build.card("Tower", 0, 0, 0, LAND, mana_abilities=(ManaAbility(FLAT, {"C": 1}),))
 
 #: Urborg's green twin: every land is also a Forest.
-YAVIMAYA = Card("Yavimaya", 0, 0, 0, LAND,
-                mana_abilities=(ManaAbility(TYPE_ADDING, subtype=FOREST_SUBTYPE),))
+YAVIMAYA = build.card("Yavimaya", 0, 0, 0, LAND,
+                      mana_abilities=(ManaAbility(TYPE_ADDING, subtype=FOREST_SUBTYPE),))
 
 #: Crypt Ghast for Forests.
-GREEN_GHAST = Card("Green Ghast", 4, 0, 4, "creature",
-                   mana_abilities=(ManaAbility(DOUBLE_SUBTYPE, subtype=FOREST_SUBTYPE),))
+GREEN_GHAST = build.card("Green Ghast", 4, 0, 4, "creature",
+                         mana_abilities=(ManaAbility(DOUBLE_SUBTYPE, subtype=FOREST_SUBTYPE),))
 
-BLACK_GHAST = Card("Crypt Ghast", 4, 1, 3, "creature",
-                   mana_abilities=(ManaAbility(DOUBLE_SUBTYPE, subtype=SWAMP_SUBTYPE),))
+BLACK_GHAST = build.card("Crypt Ghast", 4, 1, 3, "creature",
+                         mana_abilities=(ManaAbility(DOUBLE_SUBTYPE, subtype=SWAMP_SUBTYPE),))
 
 
 # --- production: the ability ------------------------------------------------
@@ -170,9 +171,9 @@ def test_a_land_of_two_types_makes_a_choice():
 
 def test_a_green_coffers_scales_in_green():
     forests = [FOREST] * 4
-    coffers = Card("Green Coffers", 0, 0, 0, LAND,
-                   mana_abilities=(ManaAbility(PER_CONTROLLED, subtype=FOREST_SUBTYPE,
-                                               activation_generic=2),))
+    coffers = build.card("Green Coffers", 0, 0, 0, LAND,
+                         mana_abilities=(ManaAbility(PER_CONTROLLED, subtype=FOREST_SUBTYPE,
+                                                     activation_generic=2),))
     lands = [coffers, *forests]
 
     pool = available_mana(lands, lands, [], {})
@@ -184,8 +185,8 @@ def test_a_green_coffers_scales_in_green():
 def test_a_colourless_land_still_sorts_below_a_coloured_one():
     """The land-choice rule asked `flat.black == 0`, which read every green
     land as colourless and played it last."""
-    green_rock_land = Card("Green Land", 0, 0, 0, LAND,
-                           mana_abilities=(ManaAbility(FLAT, {"G": 1}),))
+    green_rock_land = build.card("Green Land", 0, 0, 0, LAND,
+                                 mana_abilities=(ManaAbility(FLAT, {"G": 1}),))
     game = Game(random.Random(0))
     assert _land_score(green_rock_land, game) > _land_score(TOWER, game)
 
@@ -206,10 +207,10 @@ def test_a_two_colour_cost_needs_both_colours():
 
 
 def test_a_medallion_only_helps_its_own_colour():
-    jet = Card("Jet Medallion", 2, 0, 2, "rock",
-               cost_reduction=CostReduction(amount=1, color="B"))
-    emerald = Card("Emerald Medallion", 2, 0, 2, "rock",
-                   cost_reduction=CostReduction(amount=1, color="G"))
+    jet = build.card("Jet Medallion", 2, 0, 2, "rock",
+                     cost_reduction=CostReduction(amount=1, color="B"))
+    emerald = build.card("Emerald Medallion", 2, 0, 2, "rock",
+                         cost_reduction=CostReduction(amount=1, color="G"))
 
     black_spell = Card("Black Spell", 3, 1, 2, SORCERY, cost=parse("{2}{B}"))
     assert effective_mana_cost(black_spell, reductions_from([jet])).generic == 1
@@ -219,25 +220,25 @@ def test_a_medallion_only_helps_its_own_colour():
 def test_medallions_of_both_colours_stack_on_a_gold_spell():
     """Two Medallions really do both apply. The rules say so, and a simulation
     that maximised instead of summing would undercount the deck."""
-    jet = Card("Jet Medallion", 2, 0, 2, "rock",
-               cost_reduction=CostReduction(amount=1, color="B"))
-    emerald = Card("Emerald Medallion", 2, 0, 2, "rock",
-                   cost_reduction=CostReduction(amount=1, color="G"))
+    jet = build.card("Jet Medallion", 2, 0, 2, "rock",
+                     cost_reduction=CostReduction(amount=1, color="B"))
+    emerald = build.card("Emerald Medallion", 2, 0, 2, "rock",
+                         cost_reduction=CostReduction(amount=1, color="G"))
     gold = Card("Gold Spell", 5, 0, 0, SORCERY, cost=parse("{3}{B}{G}"))
 
     assert effective_mana_cost(gold, reductions_from([jet, emerald])).generic == 1
 
 
 def test_an_unconditional_reducer_helps_everything():
-    helm = Card("Helm of Awakening", 2, 0, 2, "rock",
-                cost_reduction=CostReduction(amount=1, requires_pip=False))
+    helm = build.card("Helm of Awakening", 2, 0, 2, "rock",
+                      cost_reduction=CostReduction(amount=1, requires_pip=False))
     green = Card("Green Spell", 3, 0, 0, SORCERY, cost=parse("{2}{G}"))
     assert effective_mana_cost(green, reductions_from([helm])).generic == 1
 
 
 def test_a_reduction_never_eats_a_coloured_pip():
-    jet = Card("Jet Medallion", 2, 0, 2, "rock",
-               cost_reduction=CostReduction(amount=3, color="B"))
+    jet = build.card("Jet Medallion", 2, 0, 2, "rock",
+                     cost_reduction=CostReduction(amount=3, color="B"))
     necro = Card("Necropotence", 3, 3, 0, SORCERY, cost=parse("{B}{B}{B}"))
     assert effective_mana_cost(necro, reductions_from([jet])) == necro.mana_cost
 
@@ -280,8 +281,8 @@ def test_casting_spends_the_colours_the_cost_asked_for():
 def test_a_red_ritual_adds_red():
     """`ritual_gain` was black by definition; now the colour is the card's."""
     mountain = Card("Mountain", 0, 0, 0, LAND, subtypes=frozenset({"mountain"}))
-    ritual = Card("Rite of Flame", 1, 0, 0, RITUAL, cost=parse("{R}"),
-                  ritual_gain=2, ritual_color="R")
+    ritual = build.card("Rite of Flame", 1, 0, 0, RITUAL, cost=parse("{R}"),
+                        ritual_gain=2, ritual_color="R")
     game = _two_colour_game([ritual], [mountain])
     pool = game.mana()
 

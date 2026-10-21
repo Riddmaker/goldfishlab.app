@@ -24,11 +24,10 @@ from django.core.management import call_command
 from cards.names import normalise
 from decks.models import Deck
 from simulation import analysis
-from simulation.cards import fields as card_fields
-from simulation.cards import value as card_value
 from simulation.fixtures import chainer
 from simulations.engine import adapter
 from simulations.models import CardAnnotation
+from tests.engine_builders import rules
 from tests.support import forget_module_rows, load_catalogue
 
 pytestmark = pytest.mark.django_db
@@ -45,11 +44,26 @@ pytestmark = pytest.mark.django_db
 # difference in how the cost is written down as if it were a different cost.
 ENGINE_FIELDS = [
     "mv", "pips", "generic", "mana_cost", "kind", "engine_roles", "land_type",
-    "enters_tapped", "goldfish_castable", "needs_creature_in_yard",
-    "needs_creature_on_bf", "mana_abilities", "ritual_gain", "ritual_color",
-    "cost_reduction", "draw_on_cast", "life_on_cast", "tutor", "upkeep",
-    "end_step", "skips_draw_step", "priority", "accelerant", "subtypes",
+    "goldfish_castable", "needs_creature_in_yard", "needs_creature_on_bf", "priority",
+    "accelerant", "subtypes",
 ]
+
+#: The forms of the rules the fixture deck spells out: a card's rules are
+#: its blocks, compared form by form (card model phase 5).
+ENGINE_FORMS = ("enters_tapped", "mana_abilities", "ritual", "cost_reduction",
+                "spell_resolves", "tutor", "upkeep", "end_step", "skips_draw")
+
+
+def _of_form(card, form: str) -> tuple:
+    return tuple(each for each in card.abilities if each.form == form)
+
+
+def _mismatches(name: str, got, want) -> list[str]:
+    found = [f"{name}.{attribute}: db={getattr(got, attribute)!r} "
+             f"fixture={getattr(want, attribute)!r}"
+             for attribute in ENGINE_FIELDS if getattr(got, attribute) != getattr(want, attribute)]
+    return found + [f"{name}.{form}: db={_of_form(got, form)!r} fixture={_of_form(want, form)!r}"
+                    for form in ENGINE_FORMS if _of_form(got, form) != _of_form(want, form)]
 
 # The one name that differs, and the database is the one that is right.
 #
@@ -136,20 +150,13 @@ def test_every_engine_field_matches_the_fixture(converted):
 
     mismatches = []
     for name, want in expected.items():
-        got = built[name]
-        for attribute in ENGINE_FIELDS:
-            if card_value(got, attribute) != card_value(want, attribute):
-                mismatches.append(
-                    f"{name}.{attribute}: db={card_value(got, attribute)!r} "
-                    f"fixture={card_value(want, attribute)!r}"
-                )
+        mismatches += _mismatches(name, built[name], want)
     assert not mismatches, "\n".join(mismatches)
 
 
 def test_the_commander_matches_field_for_field(converted):
     got, want = converted.definition.commander, chainer.COMMANDER
-    for attribute in ENGINE_FIELDS:
-        assert card_value(got, attribute) == card_value(want, attribute), attribute
+    assert not _mismatches(want.name, got, want)
 
 
 def test_the_deck_definitions_are_equal(converted):
@@ -179,7 +186,9 @@ def test_the_deck_definitions_are_equal(converted):
         return replace(card, name=normalise(card.name), cost=card.mana_cost,
                        types=frozenset(), categories=frozenset(), basic=False,
                        creature_types=frozenset(), legendary=False,
-                       colors=frozenset(), defender=False, additional_costs=(),
+                       colors=frozenset(), defender=False,
+                       abilities=tuple(each for each in card.abilities
+                                       if each.form != "cast_costs"),
                        printed_subtypes=frozenset(), power=0, toughness=0,
                        haste=False)
 
@@ -275,8 +284,8 @@ def test_a_deck_scoped_annotation_beats_a_builtin_one(seeded):
     assert card.priority == 1, "the deck-scoped annotation did not win"
 
     # Everything else about the card still comes from the built-in annotation.
-    assert (card_fields(card)["mana_abilities"]
-            == card_fields(chainer.SPELLS[0])["mana_abilities"] or card.accelerant)
+    assert (_of_form(card, "mana_abilities") == _of_form(chainer.SPELLS[0], "mana_abilities")
+            or card.accelerant)
 
 
 def test_an_unknown_override_key_is_rejected(seeded):
@@ -488,7 +497,8 @@ def test_the_signet_still_makes_black_in_this_deck(converted):
     from simulation.cards import FLAT, ManaAbility
 
     signet = next(c for c in converted.definition.library if c.name == "Arcane Signet")
-    assert card_fields(signet)["mana_abilities"] == (ManaAbility(FLAT, {"B": 1}),)
+    got, made = rules(signet, mana_abilities=(ManaAbility(FLAT, {"B": 1}),))
+    assert got == made
 
 
 def test_a_choice_of_colours_is_no_longer_a_gap(converted):

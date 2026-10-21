@@ -19,6 +19,7 @@ from cards import profiles
 from cards.models import DerivedProfile, OracleCard
 from cards.profiles import _counting_rule, _extra_rule, _mana_production
 from decks.models import Deck, DeckCard
+from simulation import build
 from simulation.cards import (
     CREATURE,
     FLAT,
@@ -30,10 +31,10 @@ from simulation.cards import (
     SpellFilter,
     TappedUnless,
 )
-from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.mana import may_spend
 from simulation.manacost import parse
+from simulation.rules import mana
 from simulation.rules.mana import spell_selector
 from simulations import deck_cards, gaps
 from simulations.engine import adapter
@@ -168,9 +169,9 @@ def test_a_hybrid_cost_is_no_reason_to_review():
 
 
 def creature(name, power, mana=()):
-    return Card(name, 2, 0, 2, CREATURE, cost=parse("{1}{G}"), types=frozenset({"creature"}),
-                power=power, mana_abilities=tuple(mana), creature_types=frozenset({"elf"}),
-                colors=frozenset({"G"}))
+    return build.card(name, 2, 0, 2, CREATURE, cost=parse("{1}{G}"), types=frozenset({"creature"}),
+                      power=power, mana_abilities=tuple(mana), creature_types=frozenset({"elf"}),
+                      colors=frozenset({"G"}))
 
 
 FANATIC = creature("Fanatic of Rhonas", 1, (
@@ -188,14 +189,14 @@ def game_with(lands=(), creatures=(), graveyard=(), hand=()):
 
 def test_fanatic_of_rhonas_needs_a_creature_with_power_four():
     alone = game_with(creatures=[FANATIC])
-    assert not alone.holds(card_fields(FANATIC)["mana_abilities"][0].only_if, FANATIC)
+    assert not alone.holds(FANATIC.mana.entries[0].only_if, FANATIC)
     beside = game_with(creatures=[FANATIC, creature("Craw Wurm", 6)])
-    assert beside.holds(card_fields(FANATIC)["mana_abilities"][0].only_if, FANATIC)
+    assert beside.holds(FANATIC.mana.entries[0].only_if, FANATIC)
 
 
 def ritual(name, gain, counts, color):
-    return Card(name, 1, 0, 0, RITUAL, ritual_gain=gain, ritual_color=color,
-                ritual_counts=counts, types=frozenset({"sorcery"}))
+    return build.card(name, 1, 0, 0, RITUAL, ritual_gain=gain, ritual_color=color,
+                      ritual_counts=counts, types=frozenset({"sorcery"}))
 
 
 def test_rite_of_flame_adds_one_for_each_copy_in_the_graveyard():
@@ -219,7 +220,7 @@ def test_only_a_spell_of_the_one_colour_may_spend_throne_mana():
 
 
 def test_three_tree_city_counts_the_type_in_the_colour_the_hand_wants():
-    city = Card("Three Tree City", 0, 0, 0, LAND, mana_abilities=(
+    city = build.card("Three Tree City", 0, 0, 0, LAND, mana_abilities=(
         ManaAbility("counts", subtype="elf", activation_generic=2),
         ManaAbility(FLAT, {"C": 1})))
     elves = [creature(f"Elf {n}", 1) for n in range(4)]
@@ -228,13 +229,13 @@ def test_three_tree_city_counts_the_type_in_the_colour_the_hand_wants():
 
 
 def test_nimbus_maze_takes_the_first_condition_that_holds():
-    island = Card("Island", 0, 0, 0, LAND, subtypes=frozenset({"island"}), basic=True,
-                  mana_abilities=(ManaAbility(FLAT, {"U": 1}),))
-    maze = Card("Nimbus Maze", 0, 0, 0, LAND, mana_abilities=(
+    island = build.card("Island", 0, 0, 0, LAND, subtypes=frozenset({"island"}), basic=True,
+                        mana_abilities=(ManaAbility(FLAT, {"U": 1}),))
+    maze = build.card("Nimbus Maze", 0, 0, 0, LAND, mana_abilities=(
         ManaAbility(FLAT, {"W": 1}, only_if=TappedUnless("control_type",
-                                                         types=frozenset({"island"}))),
+                                                               types=frozenset({"island"}))),
         ManaAbility(FLAT, {"U": 1}, only_if=TappedUnless("control_type",
-                                                         types=frozenset({"plains"}))),
+                                                               types=frozenset({"plains"}))),
         ManaAbility(FLAT, {"C": 1})))
     assert game_with(lands=[maze]).mana().by_color() == {"C": 1}
     assert game_with(lands=[maze, island]).mana().by_color() == {"W": 1, "U": 1}
@@ -315,7 +316,7 @@ TEXT = "chooses {G}, the colour most mana symbols in this deck's costs ask for (
 
 def test_the_banner_makes_the_deck_s_colour_as_a_stated_assumption(banner_deck):
     reading = reading_of(banner_deck.deck, banner_deck.banner)
-    assert card_fields(reading.card)["mana_abilities"][0].produces == (("G", 1),)
+    assert reading.card.mana.entries[0].produces == (("G", 1),)
     assumed = [gap for gap in reading.gaps if gap.field == "assumed_color"]
     assert [gap.text for gap in assumed] == [TEXT]
     assert gaps.kind_of("assumed_color") == gaps.JUDGEMENT
@@ -327,14 +328,14 @@ def test_the_banner_makes_the_deck_s_colour_as_a_stated_assumption(banner_deck):
 
 def test_the_throne_pays_for_spells_of_that_colour_only(banner_deck):
     throne = reading_of(banner_deck.deck, banner_deck.throne).card
-    ability = card_fields(throne)["mana_abilities"][0]
+    ability = throne.mana.entries[0]
     assert ability.produces == (("G", 4),)
-    assert ability.spend_only == (SpellFilter(only_color="G"),)
+    assert ability.spend_only == (mana.spell_selector(SpellFilter(only_color="G")),)
 
 
 def test_three_tree_city_counts_the_deck_s_type_and_says_so(banner_deck):
     reading = reading_of(banner_deck.deck, banner_deck.city)
-    assert card_fields(reading.card)["mana_abilities"][0].subtype == "elf"
+    assert reading.card.mana.entries[0].subtype == "elf"
     assert [gap.field for gap in reading.gaps if gap.field.startswith("assumed")] == [
         "assumed_type"]
     assert reading.names_type
@@ -352,7 +353,7 @@ def test_an_annotation_chooses_another_colour_and_the_assumption_goes(banner_dec
                                   oracle_card=banner_deck.banner,
                                   overrides={"chosen_color": "R"})
     reading = reading_of(banner_deck.deck, banner_deck.banner)
-    assert card_fields(reading.card)["mana_abilities"][0].produces == (("R", 1),)
+    assert reading.card.mana.entries[0].produces == (("R", 1),)
     assert not [gap for gap in reading.gaps if gap.field == "assumed_color"]
 
 

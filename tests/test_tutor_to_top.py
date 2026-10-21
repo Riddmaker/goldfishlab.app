@@ -13,7 +13,7 @@ import pytest
 
 from cards.models import OracleCard
 from cards.profiles import _tutor
-from simulation import actions
+from simulation import actions, build
 from simulation.cards import CREATURE, INSTANT, LAND, SORCERY, Card, TutorSpec
 from simulation.game import Game
 from simulation.manacost import parse
@@ -55,12 +55,12 @@ def test_an_ability_or_a_spree_mode_stays_a_gap(text):
 
 
 SWAMP = Card("Swamp", 0, 0, 0, LAND, subtypes=frozenset({"swamp"}), basic=True)
-VAMPIRIC = Card("Vampiric Tutor", 1, 1, 0, INSTANT, cost=parse("{B}"),
-                tutor=TutorSpec(to_hand=False, to_top=True, life=2))
+VAMPIRIC = build.card("Vampiric Tutor", 1, 1, 0, INSTANT, cost=parse("{B}"),
+                      tutor=TutorSpec(to_hand=False, to_top=True, life=2))
 #: Paid with {B} here: the test board has Swamps.
-MYSTICAL = Card("Mystical Tutor", 1, 1, 0, INSTANT, cost=parse("{B}"),
-                tutor=TutorSpec(to_hand=False, to_top=True,
-                                types=frozenset({"instant", "sorcery"})))
+MYSTICAL = build.card("Mystical Tutor", 1, 1, 0, INSTANT, cost=parse("{B}"),
+                      tutor=TutorSpec(to_hand=False, to_top=True,
+                                      types=frozenset({"instant", "sorcery"})))
 BIG = Card("Big Creature", 7, 0, 7, CREATURE, cost=parse("{7}"), types=frozenset({"creature"}))
 RITUAL = Card("Ritual", 2, 1, 1, SORCERY, cost=parse("{1}{B}"), types=frozenset({"sorcery"}))
 

@@ -499,6 +499,9 @@ _CONDITIONAL_SENTENCE = re.compile(r"^(?:For each|When|Whenever|If|At|Until)\b",
 _TREASURE_REMINDER = re.compile(r"\((?:It's an artifact|They're artifacts) with \"\{T\}, "
                                 r"Sacrifice this (?:token|artifact): Add one mana of any "
                                 r"color\.\"\)")
+#: An Eldrazi Spawn's or Scion's quoted mana ability (engine v33): the token's,
+#: which the engine plays as a Treasure that adds {C}.
+_SPAWN_ABILITY = re.compile(r"[\"“]Sacrifice this (?:token|creature): Add \{C\}\.[\"”]")
 
 #: Gamble's tax. Same first sentence as Demonic Tutor, and the difference is the
 #: whole card - the engine would search up the best card in the library and then
@@ -754,7 +757,7 @@ _ENCHANTED_EXTRA = re.compile(
     r"additional (?:(?P<symbols>(?:\{[WUBRG]\})+)|(?P<n>one|two) mana (?:of any color|in any "
     r"combination of colors)|(?P<chosen>one mana of the chosen color))\.$", re.MULTILINE)
 #: "Enchant land" / "Enchant Forest": what the Aura needs to be cast.
-_ENCHANT = re.compile(r"^Enchant (?P<what>land|Forest)$", re.MULTILINE)
+_ENCHANT = re.compile(r"^Enchant (?P<what>land|Forest|creature)$", re.MULTILINE)
 #: "Whenever you tap a land for mana, add one mana of any type that land
 #: produced." (Mirari's Wake, Vorinclex, Zendikar Resurgent; "a player taps"
 #: for Mana Flare and Heartbeat of Spring - in a goldfish, only you do;
@@ -782,9 +785,23 @@ _MULTIPLY = re.compile(
 #: "Creatures you control have "{T}: Add one mana of any color."" (Cryptolith
 #: Rite, Enduring Vitality, Elven Chorus; Citanul Hierophants' {G}) and
 #: "Enchanted land has "{T}: Add one mana of any color."" (Abundant Growth).
+#: Engine v33: your lands (Wrenn and Realmbreaker), the enchanted creature
+#: (Karametra's Favor), creatures of one type (Tyvar Kell's Elves, Manaweft
+#: Sliver), and two of one colour on the enchanted land (Gift of Paradise).
 _GRANT = re.compile(
-    r"^(?P<who>Creatures you control have|Enchanted land has|Equipped creature has) \"\{T\}: Add "
-    r"(?:(?P<any>one mana of any color)|\{(?P<color>[WUBRG])\})\.\"$", re.MULTILINE)
+    r"^(?P<who>Creatures you control have|Enchanted land has|Equipped creature has"
+    r"|Lands you control have|Enchanted creature has"
+    r"|(?P<other>Other )?(?P<type>[A-Z][a-z]+)(?: creatures)? you control have) \"\{T\}: Add "
+    r"(?:(?P<any>one mana of any color)|(?P<two>two mana of any one color)"
+    r"|\{(?P<color>[WUBRG])\})\.\"$", re.MULTILINE)
+#: A creature type as a grant names it: "Elves" is an elf.
+_TYPE_PLURALS = {"Elves": "elf", "Dwarves": "dwarf", "Wolves": "wolf"}
+#: What a grant may name that is no creature type: Jaheira's tokens, the
+#: Foods of Night of the Sweets' Revenge. Not read.
+_NOT_CREATURE_TYPES = frozenset({
+    "token", "artifact", "permanent", "enchantment", "planeswalker", "food", "treasure",
+    "clue", "blood", "vehicle", "equipment", "nontoken", "nonland",
+})
 #: "{T}: For each color among permanents you control, add one mana of that
 #: color." (Bloom Tender - after its "Vivid -" - and Faeburrow Elder.)
 _COLORS_AMONG = re.compile(
@@ -1041,6 +1058,11 @@ _TRIGGER_EVENTS = (
     ("cast", "second", re.compile(r"Whenever a player casts their second spell each turn")),
     ("upkeep", "", re.compile(r"At the beginning of your upkeep")),
     ("main", "", re.compile(r"At the beginning of your (?:first|precombat) main phase")),
+    # Engine v33: Frontier Siege's Khans, played in the first main phase only.
+    ("main", "", re.compile(r"At the beginning of each of your main phases")),
+    # Engine v33: Outcaster Trailblazer's mana as it enters. Its Treasure is
+    # `treasures`, read apart.
+    ("resolves", "", re.compile(r"When (?:this creature|~) enters")),
     ("dies", "another", re.compile(r"Whenever another creature you control dies")),
     ("dies", "", re.compile(
         r"Whenever (?P<self>[\w,' ]+?) or another nontoken creature you control dies")),
@@ -1055,9 +1077,10 @@ _TRIGGER_EFFECT = re.compile(
     r"(?:create (?P<treasures>a|one|two|three) Treasure tokens?"
     r"|create a Food token or a Treasure token)"
     r"|lose (?P<life>\d+) life and create a Treasure token"
-    r"|create a 0/1 colorless Eldrazi Spawn creature token(?P<spawn>)"
-    r"(?: with \"Sacrifice this token: Add \{C\}\.\"|\. It has \"Sacrifice this token: Add "
-    r"\{C\}\.\")"
+    # Engine v33: Scion too, more than one, and "It has" / "They have".
+    r"|create (?P<spawn>a|one|two|three) (?:0/1|1/1) colorless Eldrazi (?:Spawn|Scion) "
+    r"creature tokens?(?: with|\. (?:It has|They have)) \"Sacrifice this (?:token|creature): "
+    r"Add \{C\}\.\""
     # P19 R23: Crime Novelist's counter comes with its mana.
     r"|(?P<counter>put a \+1/\+1 counter on this creature and )?"
     r"add (?:(?P<any>one mana of any color)|(?P<pips>(?:\{[WUBRGC]\})+)))"
@@ -1078,8 +1101,8 @@ _COMBAT_TREASURE = re.compile(
     r"Whenever [^.\"]*?(?:attacks|is attacked|becomes blocked|deals? combat damage)\b[^.\"]*?, "
     r"(?:you )?(?:create (?:a|one|two) (?:Treasure|Gold) tokens?|add \{)", re.IGNORECASE)
 #: A line that makes mana or a mana token, outside its reminder text.
-_MANA_LINE = re.compile(r"\badd\b|\bcreate\b[^.]*\b(?:Treasure|Eldrazi Spawn|Gold)\b",
-                        re.IGNORECASE)
+_MANA_LINE = re.compile(
+    r"\badd\b|\bcreate\b[^.]*\b(?:Treasure|Eldrazi (?:Spawn|Scion)|Gold)\b", re.IGNORECASE)
 _REMINDER = re.compile(r"\s*\([^)]*\)")
 #: "For each land you control, create a Treasure token." (Brass's Bounty.)
 _TREASURE_PER_LAND = re.compile(r"^For each land you control, create a Treasure token\.$")
@@ -1087,6 +1110,11 @@ _TREASURE_PER_LAND = re.compile(r"^For each land you control, create a Treasure 
 _TREASURE_ALTAR = re.compile(
     r"^(?:Pay (?P<life>\d+) life, )?Sacrifice (?P<another>another )?(?P<what>creature|artifact)"
     r": Create a Treasure token\.$")
+#: Engine v33: Priest of Forgotten Gods, an altar for two others at once; what
+#: the opponents lose is not played.
+_MANY_ALTAR = re.compile(
+    r"^\{T\}, Sacrifice (?P<n>two|three) other (?P<what>creature|artifact)s: [^\"]*?\bYou add "
+    r"(?P<pips>(?:\{(?P<color>[WUBRGC])\})(?:\{(?P=color)\})*)(?P<draw> and draw a card)?\.$")
 #: Notes a read trigger explains: the only mana the card has is its trigger's.
 _TRIGGER_EXPLAINS = frozenset({
     "produces mana, but no readable 'Add' clause",
@@ -1120,7 +1148,8 @@ def _trigger_line(line: str, card: OracleCard) -> dict | None:
         return {"event": "opponents", "treasures": 1, "tax": found.group("tax")}
     if (found := _OPPONENT_DRAW.match(line)) is not None:
         return {"event": "opponents", "draw": 1, "tax": found.group("tax")}
-    line = re.sub(r"^[A-Z][\w' ]+ — ", "", line)
+    # An ability word, or a mode chosen as it enters (Frontier Siege's "• Khans").
+    line = re.sub(r"^(?:• )?[A-Z][\w' ]+ — ", "", line)
     for event, wanted, pattern in _TRIGGER_EVENTS:
         start = pattern.match(line)
         if start is None:
@@ -1131,9 +1160,11 @@ def _trigger_line(line: str, card: OracleCard) -> dict | None:
         effect = _TRIGGER_EFFECT.fullmatch(line, start.end())
         if effect is None:
             return None
+        if event == "resolves" and not (effect.group("any") or effect.group("pips")):
+            return None
         read = {"event": event, "filter": groups.get("type", "").lower() or wanted}
         if effect.group("spawn") is not None:
-            read |= {"treasures": 1, "spawn": True}
+            read |= {"treasures": _word_number(effect.group("spawn")), "spawn": True}
         elif (effect.group("any") or effect.group("pips")) and event == "upkeep" \
                 and not effect.group("keep"):
             # Mana made in the upkeep is gone by the main phase.
@@ -1322,9 +1353,17 @@ def _combat(card: OracleCard, kind: str) -> tuple[dict | None, frozenset[str]]:
 
 def _treasure_altar(card: OracleCard) -> dict | None:
     """Warren Soultrader's "Pay 1 life, Sacrifice another creature: Create a
-    Treasure token." as an altar for one mana of any colour (P19 R16)."""
+    Treasure token." as an altar for one mana of any colour (P19 R16), and
+    Priest of Forgotten Gods' two creatures for {B}{B} and a card (v33)."""
     for raw in (card.oracle_text or "").splitlines():
-        found = _TREASURE_ALTAR.match(_REMINDER.sub("", raw).strip())
+        line = _REMINDER.sub("", raw).strip()
+        if (found := _MANY_ALTAR.match(line)) is not None:
+            amount = found.group("pips").count("{")
+            return {"sacrifice": [found.group("what")], "filter": "", "amount": amount,
+                    "produces": {found.group("color"): amount}, "taps": True, "life": 0,
+                    "other": True, "count": _word_number(found.group("n")),
+                    "draw": 1 if found.group("draw") else 0}
+        found = _TREASURE_ALTAR.match(line)
         if found is not None:
             return {"sacrifice": [found.group("what")], "filter": "", "amount": 1,
                     "produces": None, "taps": False, "life": int(found.group("life") or 0),
@@ -1547,19 +1586,43 @@ def _extra_rule(text: str, kind: str) -> dict | None:
         return {"rule": "grant", "subtype": "creature:counter", "activation": 0, "color": "",
                 "produces": {found.group("color"): 1}}
     if (found := _GRANT.search(text)) is not None:
-        if found.group("who").startswith("Equipped"):
-            # P19 R22: Paradise Mantle - the creature it is equipped to.
-            return {"rule": "grant", "subtype": "equipped", "activation": 0, "color": "",
-                    "produces": {"WUBRG" if found.group("any") else found.group("color"): 1}}
-        if found.group("who").startswith("Enchanted"):
-            if not found.group("any") or (enchant := _ENCHANT.search(text)) is None \
-                    or enchant.group("what") != "land":
-                return None
-            return {"rule": "grant", "subtype": "enchanted", "activation": 0, "color": "",
-                    "enchants": "land", "produces": {"WUBRG": 1}}
-        return {"rule": "grant", "subtype": "creature", "activation": 0, "color": "",
-                "produces": {"WUBRG" if found.group("any") else found.group("color"): 1}}
+        return _grant(found, text)
     return None
+
+
+def _grant(found: re.Match, text: str) -> dict | None:
+    """A mana ability given to other permanents, as a ``grant`` rule."""
+    who = found.group("who")
+    produces = {"WUBRG" if found.group("any") else found.group("color"): 1}
+    rule = {"rule": "grant", "activation": 0, "color": ""}
+    if found.group("two"):
+        # Engine v33: only the enchanted land taps for two (Gift of Paradise).
+        if not who.startswith("Enchanted land"):
+            return None
+        produces = {"WUBRG": 2}
+    if who.startswith("Equipped"):
+        # P19 R22: Paradise Mantle - the creature it is equipped to.
+        return rule | {"subtype": "equipped", "produces": produces}
+    if who.startswith("Enchanted"):
+        enchant = _ENCHANT.search(text)
+        what = "land" if who == "Enchanted land has" else "creature"
+        if "WUBRG" not in produces or enchant is None or enchant.group("what") != what:
+            return None
+        subtype = "enchanted" if what == "land" else "enchanted_creature"
+        return rule | {"subtype": subtype, "enchants": what, "produces": produces}
+    if who.startswith("Lands"):
+        if "WUBRG" not in produces:
+            return None
+        return rule | {"subtype": "land", "produces": produces}
+    if found.group("type"):
+        kind = _TYPE_PLURALS.get(found.group("type"), found.group("type").lower())
+        if not who.endswith("creatures you control have") and kind.endswith("s"):
+            kind = kind[:-1]
+        if kind in _NOT_CREATURE_TYPES:
+            return None
+        scope = "other_type" if found.group("other") else "type"
+        return rule | {"subtype": f"{scope}:{kind}", "produces": produces}
+    return rule | {"subtype": "creature", "produces": produces}
 
 
 def _counting_rule(text: str, card: OracleCard | None = None) -> dict | None:

@@ -53,6 +53,18 @@ ENTRIES = (
           "you like."),
     ),
     Entry(
+        date(2026, 10, 21), "spawn-and-granted-mana",
+        _("Eldrazi Spawn, Priest of Forgotten Gods and mana given to other cards"),
+        _("Eldrazi Spawn and Scion made as a card enters, resolves or is cast, such as Kozilek's "
+          "Predator's or Skittering Invasion's, now each add {C} when sacrificed. Mana a "
+          "creature adds as it enters and Frontier Siege's mana at your first main phase are "
+          "added. Priest of Forgotten Gods sacrifices two other creatures for {B}{B} and a card. "
+          "Mana abilities a card gives your lands, creatures of one type or the creature it "
+          "enchants, such as Wrenn and Realmbreaker's or Karametra's Favor's, now make mana. A "
+          "report made with an older engine says so and offers a new run."),
+        "methodology", "report-milestones",
+    ),
+    Entry(
         date(2026, 10, 21), "connive-in-combat",
         _("More cards that connive"),
         _("A creature that connives as it attacks or deals combat damage, such as Ultron, "

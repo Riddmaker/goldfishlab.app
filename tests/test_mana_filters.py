@@ -13,7 +13,8 @@ import pytest
 
 from cards.models import OracleCard
 from cards.profiles import _mana_production
-from simulation.cards import FILTER, FLAT, LAND, Card, ManaAbility
+from simulation import build
+from simulation.cards import FILTER, FLAT, LAND, ManaAbility
 from simulation.game import Game
 from simulation.mana import ManaPool
 from simulation.manacost import parse
@@ -51,8 +52,8 @@ def test_a_filter_with_a_cost_it_cannot_pay_stays_a_gap():
 
 
 def land(name, subtypes=(), abilities=()):
-    return Card(name, 0, 0, 0, LAND, subtypes=frozenset(subtypes),
-                mana_abilities=tuple(abilities), types=frozenset({"land"}))
+    return build.card(name, 0, 0, 0, LAND, subtypes=frozenset(subtypes),
+                      mana_abilities=tuple(abilities), types=frozenset({"land"}))
 
 
 HEATH = land("Fetid Heath", abilities=[ManaAbility(FLAT, {"C": 1}),

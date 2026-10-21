@@ -20,7 +20,7 @@ from cards import profiles
 from cards.models import OracleCard
 from cards.profiles import derive
 from decks.models import Deck, DeckCard
-from simulation import actions, agent, serial
+from simulation import actions, agent, build, serial
 from simulation.cards import (
     COUNTS,
     CREATURE,
@@ -35,7 +35,6 @@ from simulation.cards import (
     ManaAbility,
     TappedUnless,
 )
-from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.mana import ManaPool
 from simulation.manacost import parse
@@ -168,9 +167,9 @@ def test_a_power_from_someone_else_is_not_read():
 
 def creature(name, power=1, toughness=1, mana=(), growth=None, types=("elf",), mv=2,
              cost="{1}{G}"):
-    return Card(name, mv, 0, mv, CREATURE, cost=parse(cost), types=frozenset({"creature"}),
-                creature_types=frozenset(types), mana_abilities=tuple(mana), power=power,
-                toughness=toughness, growth=growth, colors=frozenset("G"))
+    return build.card(name, mv, 0, mv, CREATURE, cost=parse(cost), types=frozenset({"creature"}),
+                      creature_types=frozenset(types), mana_abilities=tuple(mana), power=power,
+                      toughness=toughness, growth=growth, colors=frozenset("G"))
 
 
 def game_with(creatures=(), other=(), hand=(), library=()):
@@ -202,8 +201,8 @@ RISHKAR = creature("Rishkar, Peema Renegade", 2, 2,
                    Growth(puts=2), mv=3, cost="{2}{G}")
 DRUID = creature("Incubation Druid", 0, 2, (ManaAbility(LANDS_COULD_PRODUCE, times=3),),
                  Growth(adapt=3, adapt_cost=parse("{3}{G}{G}")))
-FOREST = Card("Forest", 0, 0, 0, "land", basic=True, subtypes=frozenset({"forest"}),
-              mana_abilities=(ManaAbility(FLAT, {"G": 1}),))
+FOREST = build.card("Forest", 0, 0, 0, "land", basic=True, subtypes=frozenset({"forest"}),
+                    mana_abilities=(ManaAbility(FLAT, {"G": 1}),))
 
 
 def test_marwyn_taps_for_her_power_and_grows_with_each_elf():
@@ -308,10 +307,10 @@ def test_power_four_counts_counters():
 
 
 def test_growing_rites_looks_for_a_creature_and_turns_at_four():
-    rites = Card("Growing Rites of Itlimoc", 3, 0, 3, ENCHANTMENT, cost=parse("{2}{G}"),
-                 types=frozenset({"enchantment"}), flip=4, growth=Growth(look=4),
-                 mana_abilities=(ManaAbility(COUNTS, subtype="creature", color="G"),
-                                 ManaAbility(FLAT, {"G": 1})))
+    rites = build.card("Growing Rites of Itlimoc", 3, 0, 3, ENCHANTMENT, cost=parse("{2}{G}"),
+                       types=frozenset({"enchantment"}), flip=4, growth=Growth(look=4),
+                       mana_abilities=(ManaAbility(COUNTS, subtype="creature", color="G"),
+                                       ManaAbility(FLAT, {"G": 1})))
     library = [Card("Land", 0, 0, 0, "land"), creature("Huge", 6, 6, mv=6, types=()),
                creature("Tiny", 1, 1, types=())] + [creature(f"F{n}") for n in range(10)]
     game = game_with(creatures=[creature(f"C{n}") for n in range(3)], library=library)
@@ -334,7 +333,7 @@ def test_a_saved_game_keeps_counters_and_flips():
     loaded = serial.load_game(serial.dump_game(game), game.deck)
     assert (named(loaded, "plus_counters"), named(loaded, "flipped")) == (
         named(game, "plus_counters"), named(game, "flipped"))
-    assert card_fields(loaded.creatures[0])["growth"] == card_fields(MARWYN)["growth"]
+    assert loaded.creatures[0].abilities == MARWYN.abilities
 
 
 # --- the adapter and the deck page --------------------------------------------------
@@ -400,7 +399,7 @@ def test_every_card_states_its_assumption_beside_it(power_deck):
     assert "Incubation Druid first" in assumed(found["rishkar"])
     assert "adapts as soon as the mana left" in assumed(found["druid"])
     rites = found["rites"]
-    assert card_fields(rites.card)["flip"] == 4 and rites.card.kind == ENCHANTMENT
+    assert rites.card.mana.flip == 4 and rites.card.kind == ENCHANTMENT
     assert "turns into its land at your end step" in assumed(rites)
     assert "highest mana value" in assumed(rites)
 

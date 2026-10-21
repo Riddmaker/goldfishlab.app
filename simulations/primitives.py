@@ -85,7 +85,7 @@ _TAP_MANA_KEYS = frozenset({
     "types", "filter", "amount", "produces", "spend_only", "token",
 })
 _ALTAR_KEYS = frozenset({
-    "sacrifice", "filter", "amount", "produces", "taps", "life", "other",
+    "sacrifice", "filter", "amount", "produces", "taps", "life", "other", "count", "draw",
 })
 _COST_KEYS = frozenset({
     "sacrifice", "filter", "life", "life_x", "discard", "mana", "exile_from_graveyard", "count",

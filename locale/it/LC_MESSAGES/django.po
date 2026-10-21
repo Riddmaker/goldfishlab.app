@@ -13547,3 +13547,76 @@ msgstr ""
 "probabilità del tuo mazzo e basano i consigli sulle sue strategie più "
 "deboli. Il report aspetta il riepilogo e compare per intero. Sotto un "
 "riepilogo puoi dire se ti è stato utile e, se vuoi, aggiungere due parole."
+
+#: simulations/editor.py
+#, python-format
+msgid "%(count)s Eldrazi Spawn as it resolves (one {C})"
+msgid_plural "%(count)s Eldrazi Spawn as it resolves (one {C} each)"
+msgstr[0] "%(count)s Progenie Eldrazi alla risoluzione (un {C})"
+msgstr[1] "%(count)s Progenie Eldrazi alla risoluzione (un {C} ciascuna)"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(cost)s: %(amount)s mana and %(count)s card"
+msgid_plural "%(cost)s: %(amount)s mana and %(count)s cards"
+msgstr[0] "%(cost)s: %(amount)s mana e %(count)s carta"
+msgstr[1] "%(cost)s: %(amount)s mana e %(count)s carte"
+
+#: simulations/engine/adapter.py
+msgid "the enchanted land taps for two mana of any one colour"
+msgstr "la terra incantata si TAPpa per due mana di un qualsiasi colore"
+
+#: simulations/engine/adapter.py
+msgid "your lands tap for one mana of any colour"
+msgstr "le tue terre si TAPpano per un mana di qualsiasi colore"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "the creature it enchants taps for %(mana)s"
+msgstr "la creatura incantata si TAPpa per %(mana)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your %(type)s creatures tap for %(mana)s"
+msgstr "le tue creature di tipo %(type)s si TAPpano per %(mana)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your other %(type)s creatures tap for %(mana)s"
+msgstr "le tue altre creature di tipo %(type)s si TAPpano per %(mana)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"goes, as it is cast, on the weakest creature without a mana ability or "
+"anything else on it; that creature taps for mana from the next turn and no "
+"longer attacks; it needs a creature to be cast"
+msgstr ""
+"va, quando viene lanciata, sulla creatura più debole senza abilità di mana "
+"né altro addosso; quella creatura si TAPpa per mana dal turno successivo e "
+"non attacca più; serve una creatura per lanciarla"
+
+#: changelog/entries.py
+msgid "Eldrazi Spawn, Priest of Forgotten Gods and mana given to other cards"
+msgstr "Progenie Eldrazi, Priest of Forgotten Gods e mana dato ad altre carte"
+
+#: changelog/entries.py
+msgid ""
+"Eldrazi Spawn and Scion made as a card enters, resolves or is cast, such as "
+"Kozilek's Predator's or Skittering Invasion's, now each add {C} when "
+"sacrificed. Mana a creature adds as it enters and Frontier Siege's mana at "
+"your first main phase are added. Priest of Forgotten Gods sacrifices two "
+"other creatures for {B}{B} and a card. Mana abilities a card gives your "
+"lands, creatures of one type or the creature it enchants, such as Wrenn and "
+"Realmbreaker's or Karametra's Favor's, now make mana. A report made with an "
+"older engine says so and offers a new run."
+msgstr ""
+"Le Progenie e i Germogli Eldrazi che una carta crea entrando, risolvendosi o"
+" venendo lanciata, come quelli di Kozilek's Predator o di Skittering "
+"Invasion, ora aggiungono ciascuno {C} quando vengono sacrificati. Il mana "
+"che una creatura aggiunge entrando e quello di Frontier Siege nella tua "
+"prima fase principale vengono aggiunti. Priest of Forgotten Gods sacrifica "
+"altre due creature per {B}{B} e una carta. Le abilità di mana che una carta "
+"dà alle tue terre, alle creature di un tipo o alla creatura che incanta, "
+"come quelle di Wrenn and Realmbreaker o di Karametra's Favor, ora producono "
+"mana. Un report fatto con un motore più vecchio lo dice e propone una nuova "
+"simulazione."

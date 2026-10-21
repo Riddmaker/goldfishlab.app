@@ -2,17 +2,17 @@
 
 What these tests hold:
 
-1. **The family round-trips**: the thirteen fields become blocks and come
-   back exactly; a card made with fields equals one made with blocks, and
-   a card changed with `dataclasses.replace` equals one made so.
+1. **The family makes blocks**: each of the thirteen fields makes a block,
+   and a card made with fields (`simulation.build`) equals one made with
+   the blocks they make.
 2. **The view holds what the engine asks**: a land's condition compiled,
    its search, its tutor, the ways its additional cost is paid, what it
    does as it resolves.
 3. **The engine reads blocks only**: `game.py`, `mana.py`, `agent.py`,
    `actions.py` and `analysis.py` read the family through ``card.play``.
 
-The whole catalogue's round trip is `engine_coverage --diff` against the
-latest frozen reading; in CI it is the coverage snapshot of the 3,070 cards.
+The whole catalogue is `engine_coverage --diff` against the latest frozen
+reading; in CI it is the coverage snapshot of the 3,070 cards.
 """
 
 import ast
@@ -21,12 +21,9 @@ from pathlib import Path
 
 import pytest
 
-from simulation import serial
+from simulation import build, serial
 from simulation.cards import (
-    INIT_FIELDS,
     LAND,
-    MANA_FIELDS,
-    PLAY_FIELDS,
     SORCERY,
     AdditionalCost,
     Card,
@@ -34,7 +31,6 @@ from simulation.cards import (
     TappedUnless,
     TutorSpec,
 )
-from simulation.cards import fields as card_fields
 from simulation.manacost import parse
 from simulation.rules import mana, play
 from simulation.rules.condition import Condition
@@ -72,58 +68,39 @@ FAMILY = {
 
 
 def test_the_family_is_every_field_card_takes():
-    assert tuple(play.FIELDS) == PLAY_FIELDS
-    assert set(FAMILY) == set(play.FIELDS)
+    assert set(FAMILY) == set(play.FIELDS) and set(play.FIELDS) <= set(build.FIELDS)
     assert all(FAMILY[name] != default for name, default in play.FIELDS.items())
-    assert not set(MANA_FIELDS) & set(PLAY_FIELDS) and set(PLAY_FIELDS) <= set(INIT_FIELDS)
+    assert not set(mana.FIELDS) & set(play.FIELDS)
     assert not mana.FORMS & play.FORMS
 
 
-def test_every_field_comes_back_exactly():
-    assert play.decode(play.encode(FAMILY)) == FAMILY
-    assert play.decode(play.encode({})) == play.FIELDS
-    assert play.encode({}) == ()
+def test_a_field_at_its_default_makes_no_block():
+    assert play.encode({}) == () and play.encode(play.FIELDS) == ()
 
 
 @pytest.mark.parametrize("name", list(FAMILY))
-def test_each_field_comes_back_alone(name):
-    assert play.decode(play.encode({name: FAMILY[name]})) == {**play.FIELDS,
-                                                               name: FAMILY[name]}
+def test_each_field_makes_a_block_of_the_family(name):
+    found = play.encode({name: FAMILY[name]})
+    assert found and {each.form for each in found} <= play.FORMS
 
 
 def test_a_card_made_with_fields_is_a_card_made_with_blocks():
-    card = Card("Everything", 3, 1, 2, SORCERY, ritual_gain=2, **FAMILY)
+    card = build.card("Everything", 3, 1, 2, SORCERY, ritual_gain=2, **FAMILY)
     again = Card("Everything", 3, 1, 2, SORCERY,
                  abilities=mana.encode({"ritual_gain": 2}) + play.encode(FAMILY))
     assert card == again and hash(card) == hash(again)
-    assert {name: card_fields(card)[name] for name in PLAY_FIELDS} == FAMILY
-    assert card_fields(card)["ritual_gain"] == 2
-
-
-def test_a_changed_card_equals_one_made_so():
-    card = Card("Everything", 3, 1, 2, SORCERY, ritual_gain=2, **FAMILY)
-    changed = dataclasses.replace(card, ritual_gain=5)
-    assert changed == Card("Everything", 3, 1, 2, SORCERY, ritual_gain=5, **FAMILY)
-    assert card_fields(changed)["land_search"] == FAMILY["land_search"]
-    fewer = dataclasses.replace(card, landers=0)
-    assert card_fields(fewer)["landers"] == 0 and card_fields(fewer)["draws_x"]
     assert dataclasses.replace(card, priority=3).abilities == card.abilities
 
 
-def test_enters_tapped_is_still_the_eighth_argument():
-    land = Card("Tapland", 0, 0, 0, LAND, frozenset(), "", True)
-    assert card_fields(land)["enters_tapped"] and land.play.enters_tapped
-
-
-def test_a_stored_card_keeps_the_field_form():
-    card = Card("Everything", 3, 1, 2, SORCERY, **FAMILY)
+def test_a_stored_card_keeps_its_blocks():
+    card = build.card("Everything", 3, 1, 2, SORCERY, **FAMILY)
     dumped = serial.dump(card)
-    assert "abilities" not in dumped and dumped["land_search"]["_type"] == "LandSearch"
+    assert "land_search" not in dumped and dumped["abilities"]
     assert serial.load(Card, dumped) == card
 
 
 def test_the_view_holds_what_the_engine_asks():
-    view = Card("Everything", 3, 1, 2, SORCERY, **FAMILY).play
+    view = build.card("Everything", 3, 1, 2, SORCERY, **FAMILY).play
     assert view.enters_tapped and view.untapped_if == Condition("pay_life", count=2)
     assert view.search == FAMILY["land_search"] and view.tutor == FAMILY["tutor"]
     assert view.ways == FAMILY["additional_costs"] and view.discard_cost == 1
@@ -135,16 +112,16 @@ def test_the_view_holds_what_the_engine_asks():
 
 def test_a_land_asks_its_compiled_condition():
     swamp = Card("Swamp", 0, 0, 0, LAND, subtypes=frozenset({"swamp"}))
-    check = Card("Check Land", 0, 0, 0, LAND, enters_tapped=True,
-                 tapped_unless=TappedUnless("control_type", types=frozenset({"swamp"})))
+    check = build.card("Check Land", 0, 0, 0, LAND, enters_tapped=True,
+                       tapped_unless=TappedUnless("control_type", types=frozenset({"swamp"})))
     assert game_with(lands=[swamp]).untaps_on_entering(check)
     assert not game_with().untaps_on_entering(check)
     assert not game_with(lands=[swamp]).untaps_on_entering(swamp)
 
 
 def test_a_shock_land_pays_its_life_from_the_view():
-    shock = Card("Shock Land", 0, 0, 0, LAND, enters_tapped=True,
-                 tapped_unless=TappedUnless("pay_life", count=2))
+    shock = build.card("Shock Land", 0, 0, 0, LAND, enters_tapped=True,
+                       tapped_unless=TappedUnless("pay_life", count=2))
     game = game_with(hand=[shock])
     game.play_land(shock)
     assert game.life == 38 and game.tapped_lands == 0

@@ -131,6 +131,7 @@ def freeze(path: Path | None = None) -> int:
     found = readings(catalogue())
     data = {
         "engine_version": ENGINE_VERSION,
+        "form": coverage.FORM,
         "frozen_at": datetime.now(UTC).isoformat(),
         "imports": imports(),
         "cards": found,
@@ -142,8 +143,12 @@ def freeze(path: Path | None = None) -> int:
 
 
 def load(path: Path) -> dict:
+    """A frozen file, its readings in today's form (`coverage.upgraded`)."""
     with gzip.open(path, "rt", encoding="utf-8") as handle:
-        return json.load(handle)
+        data = json.load(handle)
+    data["cards"] = coverage.upgraded(data["cards"], data.get("form", 1))
+    data["form"] = coverage.FORM
+    return data
 
 
 def diff(path: Path) -> tuple[coverage.Diff, dict, dict, list[str]]:
@@ -165,32 +170,6 @@ def diff(path: Path) -> tuple[coverage.Diff, dict, dict, list[str]]:
         notes.append(f"Forge's scripts are of another commit since the freeze "
                      f"({forge_before[:10]}, now {(forge_after or 'none')[:10]})")
     return coverage.compare(frozen["cards"], now), frozen["cards"], now, notes
-
-
-def round_trip(path: Path) -> dict:
-    """Every frozen card through blocks and back (card model, phase 0).
-
-    Returns how many cards there were, the ones that did not come back the
-    same, how many carry a value nothing reads (`blocks.Face.extra`), how many
-    abilities the cards have, and how often each verb, cost atom and event is
-    used.
-    """
-    from collections import Counter
-
-    from simulation import blocks, serial
-    from simulation.cards import Card
-
-    lost, extra, verbs, abilities = [], 0, Counter(), Counter()
-    for name, entry in load(path)["cards"].items():
-        card = serial.load(Card, {**coverage._DEFAULT, **entry["read"], "name": name})
-        found = blocks.to_blocks(card)
-        if blocks.from_blocks(found) != card:
-            lost.append(name)
-        extra += bool(found.face.extra)
-        abilities[len(found.abilities)] += 1
-        verbs.update(blocks.verbs(found))
-    return {"cards": sum(abilities.values()), "lost": lost, "extra": extra,
-            "abilities": dict(sorted(abilities.items())), "verbs": verbs}
 
 
 # --- explaining a diff (gate B) -------------------------------------------------

@@ -29,7 +29,7 @@ from django.utils.translation import gettext, gettext_noop, ngettext
 
 from cards import categories as card_categories
 from decks.models import Deck
-from simulation import ENGINE_VERSION, agent, blocks
+from simulation import ENGINE_VERSION, agent, blocks, build
 from simulation.cards import (
     CARD_TYPES,
     COMBAT_SEARCH,
@@ -739,8 +739,21 @@ def _extra_text(ability) -> str:
         return gettext("a permanent tapped for mana makes %(times)s times as much") % {
             "times": ability.times}
     if ability.rule == GRANT:
+        if ability.subtype == "enchanted" and ability.produces[0][1] > 1:
+            return gettext("the enchanted land taps for two mana of any one colour")
         if ability.subtype == "enchanted":
             return gettext("the enchanted land taps for one mana of any colour")
+        if ability.subtype == "land":
+            return gettext("your lands tap for one mana of any colour")
+        if ability.subtype == "enchanted_creature":
+            return gettext("the creature it enchants taps for %(mana)s") % {"mana": mana}
+        scope, _, kind = ability.subtype.partition(":")
+        if scope == "type":
+            return gettext("your %(type)s creatures tap for %(mana)s") % {
+                "type": kind.capitalize(), "mana": mana}
+        if scope == "other_type":
+            return gettext("your other %(type)s creatures tap for %(mana)s") % {
+                "type": kind.capitalize(), "mana": mana}
         if ability.subtype == "creature:counter":
             return gettext("your creatures with a counter tap for %(mana)s") % {"mana": mana}
         if ability.subtype == "equipped":
@@ -1269,7 +1282,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
                                      color)
 
     categories = _categories(profile, overrides)
-    card = Card(
+    card = build.card(
         name=name,
         mv=profile.mv,
         pips=int(overrides.get("pips", profile.black_pips)),
@@ -1323,7 +1336,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         basic=oracle_card.type_line.startswith("Basic"),
         tapped_unless=_tapped_unless(profile, overrides),
         treasures=int(getattr(profile, "treasures", 0) or 0),
-        treasure_mana=_any_colour(deck_colors) if getattr(profile, "treasures", 0) else "",
+        treasure_mana=_treasure_mana(profile, deck_colors),
         landers=int(getattr(profile, "landers", 0) or 0),
         discard_cost=int(getattr(profile, "discard_cost", 0) or 0),
         additional_costs=_additional_costs(profile),
@@ -1769,7 +1782,14 @@ def _record_combat(card: Card, found: dict, gaps: list[Gap]) -> None:
             "is equipped, with mana left after the turn's spells, to a creature without a mana "
             "ability that can attack this turn - one with nothing else on it and no counters "
             "first; it stays there"))
-    if card.enchants == "creature":
+    if card.enchants == "creature" and any(
+            ability.rule == GRANT and ability.subtype == "enchanted_creature"
+            for ability in card.mana.entries):
+        said.append(gettext_noop(
+            "goes, as it is cast, on the weakest creature without a mana ability or anything "
+            "else on it; that creature taps for mana from the next turn and no longer attacks; "
+            "it needs a creature to be cast"))
+    elif card.enchants == "creature":
         said.append(gettext_noop(
             "goes on a creature without a mana ability that can attack this turn as it is "
             "cast - one with nothing else on it first; it needs a creature to be cast"))
@@ -1895,10 +1915,11 @@ def _mana_abilities(profile, overrides: dict, kind: str, name: str,
                            color=read_rule.get("color", ""),
                            times=int(read_rule.get("times")
                                      or read_rule.get("with_counter") or 1))
-        if read_rule["rule"] != "counts" or not profile.mana_amount:
+        if read_rule["rule"] not in ("counts", "grant") or not profile.mana_amount:
             return (rule,)
         # Cabal Stronghold, Urza's Mine: the counting ability and the plain
-        # {C} beside it; the game taps for the better (P19 R11).
+        # {C} beside it; the game taps for the better (P19 R11). Engine v33:
+        # Chromatic Lantern taps for its own beside what it gives the lands.
         return (rule, _flat(getattr(profile, "mana_produces", None), profile.mana_colors,
                             profile.mana_amount, 0, deck_colors, None))
 
@@ -2048,6 +2069,14 @@ def _flat(exact: dict | None, mana_colors, amount: int, activation: int,
 def _any_colour(deck_colors: frozenset[str]) -> str:
     """"One mana of any color", as the deck spends it: a choice of its colours."""
     return choice([color for color in COLORS if color in deck_colors] or COLORS)
+
+
+def _treasure_mana(profile, deck_colors: frozenset[str]) -> str:
+    """What one of the tokens it makes as it resolves adds: an Eldrazi Spawn's
+    {C} (engine v33), else a Treasure's colour of the deck's choice."""
+    if not getattr(profile, "treasures", 0):
+        return ""
+    return COLORLESS if getattr(profile, "spawn", False) else _any_colour(deck_colors)
 
 
 class EffectiveProfile:
@@ -2284,10 +2313,12 @@ def _sacrifice_mana(profile, deck_colors: frozenset[str]) -> dict:
         return {}
     return {"sacrifice_mana": AdditionalCost(sacrifice=frozenset(found["sacrifice"]),
                                              sacrifice_filter=found.get("filter", ""),
-                                             life=int(found.get("life", 0))),
+                                             life=int(found.get("life", 0)),
+                                             sacrifice_count=int(found.get("count", 1))),
             "sacrifice_mana_amount": int(found["amount"]), "sacrifice_mana_color": color,
             "sacrifice_mana_taps": bool(found.get("taps")),
-            "sacrifice_mana_other": bool(found.get("other"))}
+            "sacrifice_mana_other": bool(found.get("other")),
+            "sacrifice_mana_draw": int(found.get("draw", 0))}
 
 
 def _tap_mana(profile, deck_colors: frozenset[str], chosen: str | None,

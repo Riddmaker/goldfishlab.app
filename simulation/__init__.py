@@ -210,6 +210,13 @@ boundary, not the symptom.
 #:    Unlimited as it attacks, Norman Osborn as it deals combat damage)
 #:    connives, and a combat that draws a card has a second main phase; Mob
 #:    Lookout's "target creature you control connives" is itself.
-ENGINE_VERSION = 32
+#: 33: card model phase 5, PR 23. Eldrazi Spawn and Scion a card makes as
+#:    it enters, resolves or is cast (a Treasure that adds {C}); mana from a
+#:    trigger as a creature enters and at the main phase (Frontier Siege's
+#:    first only); Priest of Forgotten Gods, an altar for two creatures that
+#:    draws; mana abilities given to your lands, to creatures of one type, to
+#:    the enchanted creature, and two of one colour to the enchanted land.
+#:    Chromatic Lantern taps for its own beside its grant.
+ENGINE_VERSION = 33
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

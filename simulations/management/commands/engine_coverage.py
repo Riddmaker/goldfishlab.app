@@ -6,7 +6,6 @@
     manage.py engine_coverage --freeze         # freeze the whole catalogue's reading
     manage.py engine_coverage --diff           # today's code against the frozen reading
     manage.py engine_coverage --diff --explain # and the cause of every card that moved
-    manage.py engine_coverage --blocks         # every frozen card through blocks and back
 
 The gate itself is `tests/test_engine_coverage.py`, on the committed fixture;
 `COVERAGE_WRITE=1` makes it write the snapshots instead of comparing. This
@@ -35,7 +34,6 @@ class Command(BaseCommand):
         group.add_argument("--export-fixture", action="store_true")
         group.add_argument("--freeze", action="store_true")
         group.add_argument("--diff", action="store_true")
-        group.add_argument("--blocks", action="store_true")
         parser.add_argument("--frozen", help="the frozen file (default: the newest in .data/)")
         parser.add_argument("--explain", action="store_true",
                             help="with --diff: give every moved card its causes, and fail "
@@ -66,10 +64,6 @@ class Command(BaseCommand):
             self._diff(options)
             return
 
-        if options["blocks"]:
-            self._blocks(options)
-            return
-
         if options["check"]:
             from cards.models import OracleCard
 
@@ -95,17 +89,6 @@ class Command(BaseCommand):
         if path is None or not path.exists():
             raise CommandError("nothing frozen yet: run engine_coverage --freeze first")
         return path
-
-    def _blocks(self, options):
-        found = differential.round_trip(self._frozen(options))
-        self.stdout.write(f"{found['cards']} cards, abilities per card {found['abilities']}, "
-                          f"{found['extra']} with a value nothing reads")
-        for name, count in found["verbs"].most_common():
-            self.stdout.write(f"  {count:6d}  {name}")
-        if found["lost"]:
-            raise CommandError(f"{len(found['lost'])} card(s) changed on the way: "
-                               f"{', '.join(found['lost'][:options['limit']])}")
-        self.stdout.write("every card came back the same")
 
     def _diff(self, options):
         path = self._frozen(options)

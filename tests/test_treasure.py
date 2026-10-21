@@ -12,7 +12,7 @@ import pytest
 
 from cards.models import DerivedProfile, OracleCard
 from cards.profiles import _treasures, derive
-from simulation import actions, serial
+from simulation import actions, build, serial
 from simulation.cards import CREATURE, INSTANT, LAND, Card, DeckDefinition
 from simulation.game import Game
 from simulation.mana import ManaPool
@@ -77,8 +77,8 @@ def land(name, subtype):
 
 
 MOUNTAIN, FOREST = land("Mountain", "mountain"), land("Forest", "forest")
-SCORE = Card("Big Score", 4, 0, 3, INSTANT, cost=parse("{3}{R}"), treasures=2,
-             treasure_mana="RG", discard_cost=1, draw_on_cast=2)
+SCORE = build.card("Big Score", 4, 0, 3, INSTANT, cost=parse("{3}{R}"), treasures=2,
+                   treasure_mana="RG", discard_cost=1, draw_on_cast=2)
 BEAR = Card("Bear", 2, 0, 1, CREATURE, cost=parse("{1}{G}"))
 GIANT = Card("Giant", 6, 0, 5, CREATURE, cost=parse("{5}{G}"))
 

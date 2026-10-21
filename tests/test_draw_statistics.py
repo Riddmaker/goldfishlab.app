@@ -22,7 +22,7 @@ import pytest
 from django.template.loader import render_to_string
 
 from cards.profiles import ROLE_FROM_TAG
-from simulation import analysis
+from simulation import analysis, build
 from simulation.cards import CREATURE, LAND, SORCERY, Card, DeckDefinition
 from simulation.game import Game
 from simulations import charts, report
@@ -149,8 +149,8 @@ def test_a_tutored_card_is_not_a_drawn_card():
     from simulation.fixtures import chainer
 
     swamp = next(card for card in chainer.DECK.library if card.name == "Swamp")
-    tutor = Card("Tutor", 1, 0, 1, SORCERY, tutor=TutorSpec(to_hand=True, count=1),
-                 types=frozenset({"sorcery"}))
+    tutor = build.card("Tutor", 1, 0, 1, SORCERY, tutor=TutorSpec(to_hand=True, count=1),
+                       types=frozenset({"sorcery"}))
     deck = DeckDefinition(name="tutors", commander=None,
                           library=(swamp,) * 38 + (tutor,) * 30 + (BEAR,) * 31)
     rng = random.Random(3)

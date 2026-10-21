@@ -1,4 +1,4 @@
-"""The mana family as blocks: encoder, decoder and what the engine reads (phase 4, PR 13).
+"""The mana family as blocks: encoder and what the engine reads (phase 4, PR 13).
 
 Sixteen fields of the old engine card said how a card makes mana: its mana
 abilities and their rules, rituals, cost reduction, staying tapped,
@@ -9,19 +9,16 @@ built from the atoms in :mod:`simulation.rules`: a `Selector` where a card is
 picked, an `Amount` where something is counted, a `Condition` where the
 board is asked, a `Cost` atom where something is paid.
 
-Three functions:
+Two functions:
 
 * `encode` turns the sixteen fields, as the adapter compiles them, into
-  blocks. Nothing about the adapter changes.
-* `decode` turns the blocks back into exactly those fields. The application
-  reads them so until phase 5 (wording, the editor, provenance, the coverage
-  snapshot, a stored deck), and the gate holds that every card of the
-  catalogue comes back exactly.
+  blocks (`simulation.build`).
 * `compile_view` turns a card's blocks into a `ManaView` once: what the
-  engine asks while it plays. The engine never reads the fields.
+  engine and the application read. Nothing reads the fields; until phase
+  5 a `decode` turned the blocks back into them for storing.
 
-Each block names the field it came from (``form``), so the decoder knows
-where it goes; the order of a card's mana abilities is their ``slot``.
+Each block names the field it came from (``form``); the order of a card's
+mana abilities is their ``slot``.
 """
 
 from dataclasses import dataclass
@@ -29,18 +26,14 @@ from typing import Any
 
 from simulation import cards
 from simulation.blocks import MANA, RESOLVES, STATIC, TRIGGERED, Ability, Cost, Effect, Event
-from simulation.legacy import (
-    CostReduction,
-    ManaAbility,
-    SpellFilter,
-    Store,
-    TapMana,
-    TappedUnless,
-)
 from simulation.manacost import COLORLESS, SUBTYPE_COLORS, ManaCost, normalised
 from simulation.rules.amount import Amount, compile_amount
 from simulation.rules.condition import Condition, check
 from simulation.rules.selector import Selector, compile_selector, wanted, wanted_of
+from simulation.spec import (
+    ManaAbility,
+    SpellFilter,
+)
 
 # --- the sixteen fields ------------------------------------------------------------------
 
@@ -58,6 +51,7 @@ FIELDS: dict[str, Any] = {
     "sacrifice_mana_color": "",
     "sacrifice_mana_taps": False,
     "sacrifice_mana_other": False,
+    "sacrifice_mana_draw": 0,
     "tap_mana": None,
     "mox": "",
     "mana_mills": 0,
@@ -208,13 +202,6 @@ def spell_selector(spell_filter: SpellFilter) -> Selector:
                     printed_colors=True)
 
 
-def spell_filter(selector: Selector) -> SpellFilter:
-    return SpellFilter(types=selector.types, subtypes=selector.named_types,
-                       legendary=selector.legendary, colorless=selector.colorless,
-                       multicolored=selector.multicolored, noncreature=selector.noncreature,
-                       only_color=selector.only_color)
-
-
 # --- encoding ---------------------------------------------------------------------------------
 
 
@@ -274,7 +261,8 @@ def encode(values: dict) -> tuple[Ability, ...]:
         found.append(Ability(STATIC, "untaps", effects=(Effect("doesnt_untap"),)))
     sacrifice = get("sacrifice_mana")
     if sacrifice is not None or get("sacrifice_mana_amount") or get("sacrifice_mana_color") \
-            or get("sacrifice_mana_taps") or get("sacrifice_mana_other"):
+            or get("sacrifice_mana_taps") or get("sacrifice_mana_other") \
+            or get("sacrifice_mana_draw"):
         found.append(_altar(sacrifice, get))
     tap = get("tap_mana")
     if tap is not None:
@@ -320,92 +308,11 @@ def _altar(sacrifice, get) -> Ability:
                               filter=sacrifice.exile_from_graveyard))
     elif get("sacrifice_mana_other"):
         costs.append(Cost("nothing_sacrificed", other=True))
-    return Ability(MANA, "sacrifice_mana", costs=tuple(costs), effects=(Effect("add_mana", _args(
-        color=get("sacrifice_mana_color"), n=get("sacrifice_mana_amount"))),))
-
-
-# --- decoding ------------------------------------------------------------------------------------
-
-
-def decode(abilities) -> dict:
-    """The family's fields from blocks, every one: defaults where none says."""
-    out = dict(FIELDS)
-    mana = sorted((each for each in abilities if each.form == "mana_abilities"),
-                  key=lambda each: each.slot)
-    out["mana_abilities"] = tuple(_mana_ability_of(each) for each in mana)
-    for ability in abilities:
-        form = ability.form
-        if form not in FORMS or form == "mana_abilities":
-            continue
-        effect = ability.effects[0] if ability.effects else None
-        if form == "ritual":
-            amount = effect.arg("amount")
-            out.update(ritual_gain=effect.arg("n"), ritual_color=effect.arg("color"),
-                       ritual_counts=ritual_counts_of(amount))
-        elif form == "cost_reduction":
-            out["cost_reduction"] = CostReduction(amount=effect.arg("n"),
-                                                  requires_pip=effect.arg("pip"),
-                                                  color=effect.arg("color"))
-        elif form == "untaps":
-            out["untaps"] = False
-        elif form == "sacrifice_mana":
-            out.update(_altar_of(ability))
-        elif form == "tap_mana":
-            types, filter_ = wanted_of(ability.costs[0].selector)
-            out["tap_mana"] = TapMana(types=types, filter=filter_, mana=effect.arg("mana"),
-                                      amount=effect.arg("n"), tokens=effect.arg("tokens"),
-                                      spend_only=tuple(spell_filter(each)
-                                                       for each in effect.arg("spend")))
-        elif form == "mox":
-            out["mox"] = effect.arg("mode")
-        elif form == "mana_mills":
-            out["mana_mills"] = effect.arg("n")
-        elif form == "store":
-            out["store"] = Store(per_use=ability.costs[0].amount, mana=effect.arg("mana"),
-                                 amount=effect.arg("n"), use=effect.arg("use"),
-                                 energy=effect.arg("energy"), start=effect.arg("start"),
-                                 start_from=effect.arg("start_from"), grows=effect.arg("grows"),
-                                 empty=effect.arg("empty"))
-        elif form == "flip":
-            out["flip"] = effect.arg("creatures")
-    return out
-
-
-def _mana_ability_of(ability: Ability) -> ManaAbility:
-    effect = ability.effects[0]
-    args = dict(effect.args)
-    rule = args.pop("rule", None) or _VERBS[(ability.kind, effect.verb,
-                                             ability.event.filter if ability.event else None)]
-    args.pop("amount", None)
-    spend = args.pop("spend", ())
-    mana = next((cost for cost in ability.costs if cost.atom == "mana"), None)
-    condition = ability.conds[0] if ability.conds else None
-    return ManaAbility(rule, **args,
-                       activation_generic=mana.mana.generic if mana else 0,
-                       only_if=TappedUnless(**vars(condition)) if condition else None,
-                       spend_only=tuple(spell_filter(each) for each in spend))
-
-
-def _altar_of(ability: Ability) -> dict:
-    atoms = {cost.atom: cost for cost in ability.costs}
-    effect = ability.effects[0]
-    out = {"sacrifice_mana_taps": "tap" in atoms,
-           "sacrifice_mana_amount": effect.arg("n"),
-           "sacrifice_mana_color": effect.arg("color")}
-    sacrifice = atoms.get("sacrifice")
-    if sacrifice is None:
-        out["sacrifice_mana_other"] = "nothing_sacrificed" in atoms
-        return out
-    types, filter_ = wanted_of(sacrifice.selector)
-    life, mana = atoms.get("life"), atoms.get("mana")
-    discard, exile = atoms.get("discard"), atoms.get("exile_from_graveyard")
-    out["sacrifice_mana_other"] = sacrifice.other
-    out["sacrifice_mana"] = cards.AdditionalCost(
-        sacrifice=types, sacrifice_filter=filter_, sacrifice_count=sacrifice.amount,
-        life=life.amount if life else 0, life_x=life.x if life else False,
-        discard=discard.amount if discard else 0, mana=mana.mana if mana else None,
-        exile_from_graveyard=exile.filter if exile else "")
-    return out
+    effects = [Effect("add_mana", _args(color=get("sacrifice_mana_color"),
+                                        n=get("sacrifice_mana_amount")))]
+    if get("sacrifice_mana_draw"):
+        effects.append(Effect("draw", _args(n=get("sacrifice_mana_draw"))))
+    return Ability(MANA, "sacrifice_mana", costs=tuple(costs), effects=tuple(effects))
 
 
 # --- what the engine reads ----------------------------------------------------------------
@@ -495,6 +402,8 @@ class Altar:
     taps: bool
     other: bool
     selects: Any = None
+    #: Engine v33: cards drawn beside the mana (Priest of Forgotten Gods).
+    draw: int = 0
 
     @property
     def sacrifices(self) -> bool:
@@ -657,7 +566,8 @@ def _compiled_altar(ability: Ability) -> Altar:
     effect = ability.effects[0]
     sacrifice, life = atoms.get("sacrifice"), atoms.get("life")
     selector = sacrifice.selector if sacrifice is not None else None
+    draw = next((each.arg("n") for each in ability.effects if each.verb == "draw"), 0)
     return Altar(selector, sacrifice.amount if sacrifice else 0, life.amount if life else 0,
                  effect.arg("color"), effect.arg("n"), "tap" in atoms,
                  bool(sacrifice and sacrifice.other) or "nothing_sacrificed" in atoms,
-                 compile_selector(selector) if selector is not None else None)
+                 compile_selector(selector) if selector is not None else None, draw)

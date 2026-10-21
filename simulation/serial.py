@@ -20,14 +20,20 @@ that serialises the rest, and :mod:`tests.test_serial` asserts exactly that.
 """
 
 import dataclasses
+import json
 import random
 import types
 import typing
 
+from simulation import build
+from simulation.blocks import Ability, Cost, Effect, Event, Which
 from simulation.cards import Card, DeckDefinition
-from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.mana import ManaPool, RestrictedMana, Stored
+from simulation.manacost import ManaCost
+from simulation.rules.amount import Amount
+from simulation.rules.condition import Condition
+from simulation.rules.selector import Selector
 
 #: Dataclasses reachable from a deck, by name. Loading consults this rather
 #: than anything importable, so a crafted payload cannot name an arbitrary
@@ -44,22 +50,15 @@ def _register(cls: type) -> type:
 def fields_of(cls) -> list[tuple[str, object]]:
     """The fields a dump of ``cls`` holds, with their types, in order.
 
-    A `Card` is written as the fields it is made with: its families - mana
-    since PR 13; lands, costs and spells since PR 14; triggers, turns and
-    combat since PR 15 - as the fields it takes (``InitVar``), which make
-    its blocks again when it is loaded, and not the blocks themselves (card
-    model phase 4). So a stored deck or game keeps one form for every card,
-    from before PR 13 and after.
+    A `Card` is written as what is printed on it, its play hints and its
+    blocks (``abilities``), since the decoder retired (card model phase 5).
+    Before, a card was written as the fields it was made with; `load` still
+    reads that form (`legacy_fields_of`), so a deck a playtest stored before
+    comes back as the same card.
     """
     found = _FIELDS.get(cls)
     if found is None:
-        if cls is Card:
-            found = [(name, item.type.type if isinstance(item.type, dataclasses.InitVar)
-                      else item.type)
-                     for name, item in Card.__dataclass_fields__.items()
-                     if name != "abilities"]
-        else:
-            found = [(item.name, item.type) for item in dataclasses.fields(cls)]
+        found = [(item.name, item.type) for item in dataclasses.fields(cls)]
         _FIELDS[cls] = found
     return found
 
@@ -67,9 +66,22 @@ def fields_of(cls) -> list[tuple[str, object]]:
 _FIELDS: dict[type, list] = {}
 
 
+def legacy_fields_of() -> list[tuple[str, object]]:
+    """The fields a card was written with before its blocks were (phase 5):
+    the printed ones and the ones it was made with (`build.MadeWith`)."""
+    return ([(item.name, item.type) for item in dataclasses.fields(Card)
+             if item.name != "abilities"]
+            + [(item.name, item.type) for item in dataclasses.fields(build.MadeWith)])
+
+
 def _discover() -> None:
     """Register every dataclass a `Card` can reach, transitively."""
-    pending = [Card, DeckDefinition]
+    # The blocks hold atoms in fields typed `Any` - an effect's arguments, a
+    # cost's selector - so those are named here; the old form's helper
+    # classes are reached through `legacy_fields_of`.
+    pending = [Card, DeckDefinition, Ability, Effect, Cost, Event, Which, Selector, Amount,
+               Condition, ManaCost, *(found for _name, annotation in legacy_fields_of()
+                                      for found in _dataclasses_in(annotation))]
     while pending:
         cls = pending.pop()
         if cls.__name__ in _TYPES:
@@ -99,24 +111,53 @@ def engine_type(name: str) -> type | None:
 
 # --- Dumping ---------------------------------------------------------------
 
-def dump(value):
+def dump(value, annotation=None):
     """One engine value, as something `json.dumps` will accept.
 
     Dataclasses carry their type name so that loading knows what to rebuild.
     Tuples and frozensets become lists; the annotation on the other side says
-    what they were, so the shape is not lost.
+    what they were, so the shape is not lost. Where the annotation is `Any` -
+    an effect's arguments - it cannot, so a set there is written as
+    ``{"_set": [...]}``.
     """
     if dataclasses.is_dataclass(value) and not isinstance(value, type):
         out = {"_type": type(value).__name__}
-        made_with = card_fields(value) if isinstance(value, Card) else {}
-        for name, _annotation in fields_of(type(value)):
-            out[name] = dump(made_with[name] if name in made_with else getattr(value, name))
+        for name, field_type in fields_of(type(value)):
+            out[name] = dump(getattr(value, name), field_type)
         return out
-    if isinstance(value, (list, tuple, frozenset, set)):
-        return [dump(item) for item in value]
+    if isinstance(value, (frozenset, set)):
+        # Sorted: a set iterates in hash order, which changes from one process
+        # to the next, and a dump is compared and digested.
+        items = sorted((dump(item, typing.Any if annotation is typing.Any else None)
+                        for item in value), key=_order)
+        return {"_set": items} if annotation is typing.Any else items
+    if isinstance(value, (list, tuple)):
+        return [dump(item, each) for item, each in zip(value, _item_types(annotation, value),
+                                                       strict=True)]
     if isinstance(value, dict):
         return {str(key): dump(item) for key, item in value.items()}
     return value
+
+
+def _order(item) -> str:
+    return json.dumps(item, sort_keys=True)
+
+
+def _item_types(annotation, value) -> list:
+    """The annotation of each item of a tuple or list."""
+    if annotation is typing.Any:
+        return [typing.Any] * len(value)
+    args = typing.get_args(annotation)
+    if typing.get_origin(annotation) in (types.UnionType, typing.Union):
+        wanted = [arg for arg in args if arg is not type(None)]
+        return _item_types(wanted[0], value) if len(wanted) == 1 else [None] * len(value)
+    if len(args) == 2 and args[1] is Ellipsis:
+        return [args[0]] * len(value)
+    if args and typing.get_origin(annotation) is tuple and len(args) == len(value):
+        return list(args)
+    if args and typing.get_origin(annotation) is list:
+        return [args[0]] * len(value)
+    return [None] * len(value)
 
 
 # --- Loading ---------------------------------------------------------------
@@ -126,8 +167,17 @@ def load(annotation, value):
     if value is None:
         return None
 
+    if annotation is typing.Any:
+        return _load_any(value)
+    if isinstance(value, dict) and "_set" in value:
+        value = value["_set"]
+
     if dataclasses.is_dataclass(annotation) and isinstance(value, dict):
         return _load_dataclass(annotation, value)
+    if isinstance(value, dict) and "_type" in value:
+        # An annotation that names its class by a string (a `Selector`'s
+        # alternatives): the dump says which.
+        return _load_any(value)
 
     origin = typing.get_origin(annotation)
     args = typing.get_args(annotation)
@@ -152,6 +202,22 @@ def load(annotation, value):
     return value
 
 
+def _load_any(value):
+    """A value whose annotation is `Any`, by its own shape: a dataclass by its
+    ``_type``, a set by ``_set``, a list as a tuple."""
+    if isinstance(value, dict):
+        if "_set" in value:
+            return frozenset(_load_any(item) for item in value["_set"])
+        if "_type" in value:
+            if value["_type"] not in _TYPES:
+                raise ValueError(f"unknown engine type in stored state: {value['_type']!r}")
+            return _load_dataclass(_TYPES[value["_type"]], value)
+        return value
+    if isinstance(value, list):
+        return tuple(_load_any(item) for item in value)
+    return value
+
+
 def _load_dataclass(cls: type, data: dict):
     """Rebuild one dataclass, checking it is the one that was stored."""
     stored = data.get("_type")
@@ -159,12 +225,40 @@ def _load_dataclass(cls: type, data: dict):
         if stored not in _TYPES:
             raise ValueError(f"unknown engine type in stored state: {stored!r}")
         cls = _TYPES[stored]
+    if cls is Card and "abilities" not in data:
+        return _legacy_card(data)
     kwargs = {
         name: load(annotation, data[name])
         for name, annotation in fields_of(cls)
         if name in data
     }
     return cls(**kwargs)
+
+
+def legacy_default() -> dict:
+    """The old form of a card with every field at its default, the way a lean
+    record of that form (a frozen reading, a snapshot before phase 5) is
+    filled back in."""
+    if not _LEGACY_DEFAULT:
+        # The card nobody named that such a record left out: a land.
+        nobody = Card(name="", mv=0, pips=0, generic=0, kind="land")
+        made_with = build.MadeWith()
+        for name, annotation in legacy_fields_of():
+            value = getattr(made_with if name in build.FIELDS else nobody, name)
+            _LEGACY_DEFAULT[name] = dump(value, annotation)
+        _LEGACY_DEFAULT["_type"] = "Card"
+    return _LEGACY_DEFAULT
+
+
+_LEGACY_DEFAULT: dict = {}
+
+
+def _legacy_card(data: dict) -> Card:
+    """A card written before its blocks were: made again with the fields it
+    was made with (`legacy_fields_of`), which `build.card` turns into its
+    blocks."""
+    return build.card(**{name: load(annotation, data[name])
+                         for name, annotation in legacy_fields_of() if name in data})
 
 
 # --- Decks -----------------------------------------------------------------
@@ -196,7 +290,7 @@ BATTLEFIELD = ("lands", "rocks", "creatures", "other_permanents")
 #: the permanents as the same ones. Format 3 (PR 17) keeps every mark by the
 #: permanent's number instead of the card's name. `load_game` reads only this
 #: format: a playtest replays its actions from an older state (`is_current`).
-GAME_FORMAT = 3
+GAME_FORMAT = 4
 
 #: Card lists on a `Game` that are not zones a card can be moved to, but that a
 #: replay still has to reproduce.

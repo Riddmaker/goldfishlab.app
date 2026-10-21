@@ -20,7 +20,7 @@ from cards import profiles
 from cards.models import OracleCard
 from cards.profiles import _mana_production
 from decks.models import Deck, DeckCard
-from simulation import serial
+from simulation import build, serial
 from simulation.cards import (
     CREATURE,
     ENCHANTMENT,
@@ -36,7 +36,6 @@ from simulation.cards import (
     ManaAbility,
     Store,
 )
-from simulation.cards import fields as card_fields
 from simulation.game import TREASURE, Game
 from simulation.mana import ManaPool, Stored, has_treasure
 from simulation.manacost import parse
@@ -173,9 +172,9 @@ def next_turn(game):
 
 
 def stored(name, store, kind=ROCK, mv=0, cost="", mana=(), types=("artifact",), colors=""):
-    return Card(name, mv, 0, mv, kind, cost=parse(cost) if cost else None,
-                types=frozenset(types), mana_abilities=tuple(mana), store=store,
-                colors=frozenset(colors))
+    return build.card(name, mv, 0, mv, kind, cost=parse(cost) if cost else None,
+                      types=frozenset(types), mana_abilities=tuple(mana), store=store,
+                      colors=frozenset(colors))
 
 
 PRISM = stored("Pentad Prism", Store(STORE_FREE, ANY, start_from="colors"), mv=2, cost="{2}")
@@ -259,9 +258,9 @@ def test_mana_bloom_enters_with_x_and_returns_to_hand():
 
 
 def test_everflowing_chalice_taps_for_one_per_kick():
-    chalice = Card("Everflowing Chalice", 0, 0, 0, ROCK, cost=parse("{0}"),
-                   types=frozenset({"artifact"}), x_count=2,
-                   store=Store(STORE_SCALES, "C", start_from="kicks"))
+    chalice = build.card("Everflowing Chalice", 0, 0, 0, ROCK, cost=parse("{0}"),
+                         types=frozenset({"artifact"}), x_count=2,
+                         store=Store(STORE_SCALES, "C", start_from="kicks"))
     game = game_with(hand=[chalice])
     pool = ManaPool(colorless=4)
     assert game.max_x(chalice, pool) == 2
@@ -316,7 +315,7 @@ def test_a_saved_game_keeps_counters_energy_and_kept_mana():
     assert (named(loaded, "counters"), loaded.energy, named(loaded, "emptied")) == (
         {"Vivid Creek": 2}, 1, ["Peat Bog"])
     assert [isinstance(key, Stored) for key in loaded.treasures] == [False, True]
-    assert card_fields(loaded.lands[0])["store"] == card_fields(VIVID)["store"]
+    assert loaded.lands[0].abilities == VIVID.abilities
 
 
 # --- the adapter and the deck page --------------------------------------------------

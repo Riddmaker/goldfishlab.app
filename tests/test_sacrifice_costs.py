@@ -15,7 +15,7 @@ import pytest
 
 from cards.models import DerivedProfile, OracleCard
 from cards.profiles import _additional_cost, _land_search, _mana_production, _tutor, derive
-from simulation import actions, agent
+from simulation import actions, agent, build
 from simulation.cards import (
     ARTIFACT,
     CREATURE,
@@ -31,7 +31,6 @@ from simulation.cards import (
     ManaAbility,
     TutorSpec,
 )
-from simulation.cards import fields as card_fields
 from simulation.game import LANDER_FODDER, TREASURE, Game
 from simulation.manacost import parse
 from simulations.engine.adapter import _way_text
@@ -155,23 +154,23 @@ def test_the_card_page_says_what_else_is_paid():
 
 
 def land(name, subtype, *, tapped_in=False):
-    return Card(name, 0, 0, 0, LAND, subtypes=frozenset({subtype}), basic=True,
-                enters_tapped=tapped_in)
+    return build.card(name, 0, 0, 0, LAND, subtypes=frozenset({subtype}), basic=True,
+                      enters_tapped=tapped_in)
 
 
 FOREST, SWAMP, ISLAND = land("Forest", "forest"), land("Swamp", "swamp"), land("Island", "island")
 SAC_CREATURE = (AdditionalCost(sacrifice=frozenset({"creature"})),)
-RITES = Card("Village Rites", 1, 1, 0, INSTANT, cost=parse("{B}"), draw_on_cast=2,
-             additional_costs=SAC_CREATURE)
-DISPUTE = Card("Deadly Dispute", 2, 1, 1, INSTANT, cost=parse("{1}{B}"), draw_on_cast=2,
-               treasures=1, additional_costs=(
-                   AdditionalCost(sacrifice=frozenset({"artifact", "creature"})),))
+RITES = build.card("Village Rites", 1, 1, 0, INSTANT, cost=parse("{B}"), draw_on_cast=2,
+                   additional_costs=SAC_CREATURE)
+DISPUTE = build.card("Deadly Dispute", 2, 1, 1, INSTANT, cost=parse("{1}{B}"), draw_on_cast=2,
+                     treasures=1, additional_costs=(
+                         AdditionalCost(sacrifice=frozenset({"artifact", "creature"})),))
 BEAR = Card("Grizzly Bears", 2, 0, 2, CREATURE, cost=parse("{1}{G}"))
 SQUIRE = Card("Squire", 2, 0, 2, CREATURE, cost=parse("{1}{W}"))
 BLOODGHAST = Card("Bloodghast", 2, 2, 0, CREATURE, cost=parse("{B}{B}"),
                   engine_roles=frozenset({"recursive"}))
-ELF = Card("Llanowar Elves", 1, 0, 1, CREATURE, cost=parse("{G}"),
-           mana_abilities=(ManaAbility(FLAT, {"G": 1}),))
+ELF = build.card("Llanowar Elves", 1, 0, 1, CREATURE, cost=parse("{G}"),
+                 mana_abilities=(ManaAbility(FLAT, {"G": 1}),))
 COMMANDER = Card("Commander", 3, 0, 3, CREATURE, cost=parse("{2}{B}"))
 
 
@@ -211,7 +210,7 @@ def test_tokens_go_first_to_an_artifact_cost():
     game.treasures = ["WUBRG"]
     game.pool.treasures = ["WUBRG"]
     game.landers = 1
-    way = card_fields(DISPUTE)["additional_costs"][0]
+    way = DISPUTE.play.ways[0]
     assert game.fodder(way, game.pool) == [TREASURE, LANDER_FODDER, BEAR]
 
 
@@ -247,7 +246,7 @@ def test_the_player_picks_another_fodder():
     assert BEAR in game.graveyard and BLOODGHAST in game.creatures
 
 
-BITTER = Card("Bitter Triumph", 2, 1, 1, INSTANT, cost=parse("{1}{B}"), additional_costs=(
+BITTER = build.card("Bitter Triumph", 2, 1, 1, INSTANT, cost=parse("{1}{B}"), additional_costs=(
     AdditionalCost(discard=1), AdditionalCost(life=3)))
 
 
@@ -265,7 +264,8 @@ def test_below_the_floor_it_discards_instead():
 
 
 def test_mana_as_the_other_way_is_paid_on_top():
-    redirect = Card("Redirect Lightning", 1, 0, 0, INSTANT, cost=parse("{R}"), additional_costs=(
+    redirect = build.card(
+        "Redirect Lightning", 1, 0, 0, INSTANT, cost=parse("{R}"), additional_costs=(
         AdditionalCost(life=5), AdditionalCost(mana=parse("{2}"))))
     game = game_with(lands=[land("Mountain", "mountain")] * 3, hand=[redirect])
     game.life = 28
@@ -274,19 +274,19 @@ def test_mana_as_the_other_way_is_paid_on_top():
 
 
 def test_x_life_is_paid_with_nothing():
-    deluge = Card("Toxic Deluge", 3, 1, 2, SORCERY, cost=parse("{2}{B}"),
-                  additional_costs=(AdditionalCost(life_x=True),))
+    deluge = build.card("Toxic Deluge", 3, 1, 2, SORCERY, cost=parse("{2}{B}"),
+                        additional_costs=(AdditionalCost(life_x=True),))
     game = game_with(lands=[SWAMP] * 3, hand=[deluge])
     actions.CastSpell(index=0).run(game, None)
     assert game.life == 40 and deluge in game.graveyard
 
 
-HARROW = Card("Harrow", 3, 0, 2, INSTANT, cost=parse("{2}{G}"),
-              land_search=LandSearch(battlefield=2, tapped=False),
-              additional_costs=(AdditionalCost(sacrifice=frozenset({"land"})),))
-ROTATION = Card("Crop Rotation", 1, 0, 0, INSTANT, cost=parse("{G}"),
-                land_search=LandSearch(tapped=False, basic=False),
-                additional_costs=(AdditionalCost(sacrifice=frozenset({"land"})),))
+HARROW = build.card("Harrow", 3, 0, 2, INSTANT, cost=parse("{2}{G}"),
+                    land_search=LandSearch(battlefield=2, tapped=False),
+                    additional_costs=(AdditionalCost(sacrifice=frozenset({"land"})),))
+ROTATION = build.card("Crop Rotation", 1, 0, 0, INSTANT, cost=parse("{G}"),
+                      land_search=LandSearch(tapped=False, basic=False),
+                      additional_costs=(AdditionalCost(sacrifice=frozenset({"land"})),))
 
 
 def test_harrow_trades_one_land_for_two_untapped():
@@ -312,16 +312,17 @@ def test_crop_rotation_only_for_a_missing_colour():
 
 
 def test_a_land_is_never_fodder_for_anything_else():
-    culling = Card("Dark Bargain", 1, 1, 0, RITUAL, cost=parse("{B}"), ritual_gain=2,
-                   additional_costs=(AdditionalCost(sacrifice=frozenset({"land"})),))
+    culling = build.card("Dark Bargain", 1, 1, 0, RITUAL, cost=parse("{B}"), ritual_gain=2,
+                         additional_costs=(AdditionalCost(sacrifice=frozenset({"land"})),))
     game = game_with(lands=[SWAMP, SWAMP], hand=[culling])
     assert not agent._worth_its_land(game, culling, game.pool)
 
 
 def test_eldritch_evolution_finds_up_to_two_more():
-    evolution = Card("Eldritch Evolution", 3, 0, 1, SORCERY, cost=parse("{1}{G}{G}"),
-                     tutor=TutorSpec(to_battlefield=True, kind="creature", max_mv_sacrificed=2),
-                     additional_costs=SAC_CREATURE)
+    evolution = build.card(
+        "Eldritch Evolution", 3, 0, 1, SORCERY, cost=parse("{1}{G}{G}"),
+        tutor=TutorSpec(to_battlefield=True, kind="creature", max_mv_sacrificed=2),
+        additional_costs=SAC_CREATURE)
     big = Card("Big", 5, 0, 5, CREATURE, cost=parse("{5}"), types=frozenset({"creature"}))
     four = Card("Four", 4, 0, 4, CREATURE, cost=parse("{4}"), types=frozenset({"creature"}))
     game = game_with([big, four], lands=[FOREST] * 3, creatures=[BEAR], hand=[evolution])
@@ -330,8 +331,8 @@ def test_eldritch_evolution_finds_up_to_two_more():
 
 
 def test_springbloom_druid_keeps_its_lands_without_two_to_find():
-    druid = Card("Springbloom Druid", 3, 0, 2, CREATURE, cost=parse("{2}{G}"),
-                 land_search=LandSearch(battlefield=2, when="enters", sacrifices_land=True))
+    druid = build.card("Springbloom Druid", 3, 0, 2, CREATURE, cost=parse("{2}{G}"),
+                       land_search=LandSearch(battlefield=2, when="enters", sacrifices_land=True))
     game = game_with([ISLAND], lands=[FOREST] * 3, hand=[druid])
     actions.CastSpell(index=0).run(game, None)
     assert len(game.lands) == 3
@@ -379,17 +380,17 @@ def test_a_food_is_not_an_altar():
     assert reading.sacrifice is None and reading.notes
 
 
-ASHNOD = Card("Ashnod's Altar", 3, 0, 3, ARTIFACT, cost=parse("{3}"),
-              sacrifice_mana=AdditionalCost(sacrifice=frozenset({"creature"})),
-              sacrifice_mana_amount=2, sacrifice_mana_color="C")
-TOWER = Card("Phyrexian Tower", 0, 0, 0, LAND, mana_abilities=(ManaAbility(FLAT, {"C": 1}),),
-             sacrifice_mana=AdditionalCost(sacrifice=frozenset({"creature"})),
-             sacrifice_mana_amount=2, sacrifice_mana_color="B", sacrifice_mana_taps=True)
-SKIRK = Card("Skirk Prospector", 1, 0, 0, CREATURE, cost=parse("{R}"),
-             creature_types=frozenset({"goblin"}),
-             sacrifice_mana=AdditionalCost(sacrifice=frozenset({"creature"}),
-                                           sacrifice_filter="goblin"),
-             sacrifice_mana_amount=1, sacrifice_mana_color="R")
+ASHNOD = build.card("Ashnod's Altar", 3, 0, 3, ARTIFACT, cost=parse("{3}"),
+                    sacrifice_mana=AdditionalCost(sacrifice=frozenset({"creature"})),
+                    sacrifice_mana_amount=2, sacrifice_mana_color="C")
+TOWER = build.card("Phyrexian Tower", 0, 0, 0, LAND, mana_abilities=(ManaAbility(FLAT, {"C": 1}),),
+                   sacrifice_mana=AdditionalCost(sacrifice=frozenset({"creature"})),
+                   sacrifice_mana_amount=2, sacrifice_mana_color="B", sacrifice_mana_taps=True)
+SKIRK = build.card("Skirk Prospector", 1, 0, 0, CREATURE, cost=parse("{R}"),
+                   creature_types=frozenset({"goblin"}),
+                   sacrifice_mana=AdditionalCost(sacrifice=frozenset({"creature"}),
+                                                 sacrifice_filter="goblin"),
+                   sacrifice_mana_amount=1, sacrifice_mana_color="R")
 FIVE = Card("Five Drop", 5, 0, 5, CREATURE, cost=parse("{5}"), priority=80)
 
 
@@ -433,8 +434,8 @@ def test_a_spirit_guide_is_a_free_ritual_from_the_hand():
 
 
 def test_a_spirit_guide_goes_to_exile():
-    guide = Card("Elvish Spirit Guide", 3, 0, 0, RITUAL, cost=parse(""), ritual_gain=1,
-                 ritual_color="G", exiled_on_cast=True)
+    guide = build.card("Elvish Spirit Guide", 3, 0, 0, RITUAL, cost=parse(""), ritual_gain=1,
+                       ritual_color="G", exiled_on_cast=True)
     game = game_with(lands=[FOREST], hand=[guide])
     actions.CastSpell(index=0).run(game, None)
     assert guide in game.exiled and game.pool.total == 2
@@ -476,9 +477,9 @@ def test_embodiment_of_spring_sacrifices_itself():
     assert (spec["cost"], spec["taps"], spec["sacrifice"]) == ("{1}{U}", True, True)
 
 
-WIGHT = Card("Wight of the Reliquary", 4, 0, 2, CREATURE, cost=parse("{2}{B}{G}"),
-             land_search=LandSearch(basic=False, when="activate", taps=True,
-                                    sacrifice_other=frozenset({"creature"})))
+WIGHT = build.card("Wight of the Reliquary", 4, 0, 2, CREATURE, cost=parse("{2}{B}{G}"),
+                   land_search=LandSearch(basic=False, when="activate", taps=True,
+                                          sacrifice_other=frozenset({"creature"})))
 
 
 def test_a_creature_cannot_tap_the_turn_it_arrived():
@@ -523,7 +524,7 @@ def test_the_form_carries_the_payment():
 # --- card model phase 1 (engine version 28) -------------------------------------
 
 
-TRIBUTE = Card("Phyrexian Tribute", 0, 2, 2, SORCERY, cost=parse("{2}{B}"), additional_costs=(
+TRIBUTE = build.card("Phyrexian Tribute", 0, 2, 2, SORCERY, cost=parse("{2}{B}"), additional_costs=(
     AdditionalCost(sacrifice=frozenset({"creature"}), sacrifice_count=2),))
 
 

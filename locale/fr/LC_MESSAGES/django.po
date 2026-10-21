@@ -13732,3 +13732,79 @@ msgstr ""
 "ses stratégies les plus faibles. Le rapport attend le résumé et s'affiche en"
 " entier. Sous un résumé, vous pouvez dire s'il vous a aidé, et ajouter un "
 "mot si vous le souhaitez."
+
+#: simulations/editor.py
+#, python-format
+msgid "%(count)s Eldrazi Spawn as it resolves (one {C})"
+msgid_plural "%(count)s Eldrazi Spawn as it resolves (one {C} each)"
+msgstr[0] "%(count)s Rejeton eldrazi à la résolution (un {C})"
+msgstr[1] "%(count)s Rejetons eldrazi à la résolution (un {C} chacun)"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(cost)s: %(amount)s mana and %(count)s card"
+msgid_plural "%(cost)s: %(amount)s mana and %(count)s cards"
+msgstr[0] "%(cost)s : %(amount)s mana et %(count)s carte"
+msgstr[1] "%(cost)s : %(amount)s mana et %(count)s cartes"
+
+#: simulations/engine/adapter.py
+msgid "the enchanted land taps for two mana of any one colour"
+msgstr ""
+"le terrain enchanté s'engage pour deux manas d'une même couleur au choix"
+
+#: simulations/engine/adapter.py
+msgid "your lands tap for one mana of any colour"
+msgstr "vos terrains s'engagent pour un mana de n'importe quelle couleur"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "the creature it enchants taps for %(mana)s"
+msgstr "la créature enchantée s'engage pour %(mana)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your %(type)s creatures tap for %(mana)s"
+msgstr "vos créatures de type %(type)s s'engagent pour %(mana)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your other %(type)s creatures tap for %(mana)s"
+msgstr "vos autres créatures de type %(type)s s'engagent pour %(mana)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"goes, as it is cast, on the weakest creature without a mana ability or "
+"anything else on it; that creature taps for mana from the next turn and no "
+"longer attacks; it needs a creature to be cast"
+msgstr ""
+"va, quand elle est lancée, sur la créature la plus faible sans capacité de "
+"mana ni rien d'autre sur elle ; cette créature s'engage pour du mana à "
+"partir du tour suivant et n'attaque plus ; il faut une créature pour la "
+"lancer"
+
+#: changelog/entries.py
+msgid "Eldrazi Spawn, Priest of Forgotten Gods and mana given to other cards"
+msgstr ""
+"Rejetons eldrazi, Priest of Forgotten Gods et mana donné à d'autres cartes"
+
+#: changelog/entries.py
+msgid ""
+"Eldrazi Spawn and Scion made as a card enters, resolves or is cast, such as "
+"Kozilek's Predator's or Skittering Invasion's, now each add {C} when "
+"sacrificed. Mana a creature adds as it enters and Frontier Siege's mana at "
+"your first main phase are added. Priest of Forgotten Gods sacrifices two "
+"other creatures for {B}{B} and a card. Mana abilities a card gives your "
+"lands, creatures of one type or the creature it enchants, such as Wrenn and "
+"Realmbreaker's or Karametra's Favor's, now make mana. A report made with an "
+"older engine says so and offers a new run."
+msgstr ""
+"Les Rejetons et Scions eldrazi qu'une carte crée en arrivant, en se "
+"résolvant ou en étant lancée, comme ceux de Kozilek's Predator ou de "
+"Skittering Invasion, ajoutent maintenant chacun {C} quand ils sont "
+"sacrifiés. Le mana qu'une créature ajoute en arrivant et celui de Frontier "
+"Siege à votre première phase principale sont ajoutés. Priest of Forgotten "
+"Gods sacrifie deux autres créatures pour {B}{B} et une carte. Les capacités "
+"de mana qu'une carte donne à vos terrains, aux créatures d'un type ou à la "
+"créature qu'elle enchante, comme celles de Wrenn and Realmbreaker ou de "
+"Karametra's Favor, produisent maintenant du mana. Un rapport fait avec un "
+"moteur plus ancien l'indique et propose une nouvelle simulation."

@@ -149,6 +149,7 @@ def mana(profile, abilities, card) -> None:
 
 _TAPPED_UNREAD = ("text mentions entering tapped, but the condition was not readable",)
 _SELF_ENTERS = b.Event("enters", who="self")
+_SELF_CAST = b.Event("cast", who="self")
 
 
 def _unless(cost: str) -> dict | None:
@@ -309,6 +310,10 @@ _GRANTS = "only grants a mana ability to another permanent"
 #: Token owners that are you as the card enters or resolves: you, or the
 #: controller of the card that triggered (`forge_import._player`).
 _YOURS = frozenset({None, "controller"})
+#: The tokens sacrificed for mana as the engine plays a Treasure, by Forge's
+#: token script: whether each is an Eldrazi Spawn or Scion ({C}).
+_MANA_TOKENS = {"treasure": False, "c_0_1_eldrazi_spawn_sac": True,
+                "c_1_1_eldrazi_scion_sac": True}
 
 
 def treasures(profile, abilities, card) -> None:
@@ -322,19 +327,24 @@ def treasures(profile, abilities, card) -> None:
     for an activation is not: the engine plays none of those moments, and a
     card with one of them beside (Patron of the Arts, as it enters or dies)
     is played with the one it does play.
+
+    Eldrazi Spawn and Scion (engine v33) are taken the same way, as Treasure
+    that adds {C} (``spawn``) - only where the card makes no Treasure too.
     """
-    from cards.profiles import _GRANTED, _TREASURE_REMINDER
+    from cards.profiles import _GRANTED, _SPAWN_ABILITY, _TREASURE_REMINDER
 
     if profile.treasures:
         return
-    made = 0
+    made = {}
     for ability in abilities:
         tokens = [effect for effect in ability.effects
-                  if effect.verb == "create_token" and effect.arg("token") == "treasure"]
+                  if effect.verb == "create_token" and effect.arg("token") in _MANA_TOKENS]
         if not tokens:
             continue
+        # Engine v33: "When you cast this spell" makes its tokens before the
+        # permanent resolves, which the engine plays as one moment.
         arrives = (ability.kind == b.RESOLVES and profile.kind in _ONE_SHOT) or (
-            ability.kind == b.TRIGGERED and ability.event == _SELF_ENTERS
+            ability.kind == b.TRIGGERED and ability.event in (_SELF_ENTERS, _SELF_CAST)
             and profile.kind not in _ONE_SHOT)
         n = tokens[0].arg("n", 1)
         others = [effect for effect in ability.effects if effect not in tokens]
@@ -344,13 +354,18 @@ def treasures(profile, abilities, card) -> None:
                 or not isinstance(n, int):
             # Played at none of its moments, which only under-reads the card.
             continue
-        made += n
-    if not made:
+        spawn = _MANA_TOKENS[tokens[0].arg("token")]
+        made[spawn] = made.get(spawn, 0) + n
+    if not made or len(made) > 1:
         return
+    ((spawn, count),) = made.items()
     text = (card.oracle_text or "") if card is not None else ""
-    # The only "Add" was the Treasure's own reminder text, as `derive` says.
-    answers = () if _GRANTED.search(_TREASURE_REMINDER.sub("", text)) else (_GRANTS,)
-    take(profile, "treasures", made, answers=answers)
+    # The only "Add" was the token's own reminder text, as `derive` says.
+    rest = _SPAWN_ABILITY.sub("", _TREASURE_REMINDER.sub("", text))
+    answers = () if _GRANTED.search(rest) else (_GRANTS,)
+    take(profile, "treasures", count, answers=answers)
+    if spawn:
+        take(profile, "spawn", True)
 
 
 #: What may stand beside a draw: nothing that touches your hand or library,

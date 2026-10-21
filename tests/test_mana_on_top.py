@@ -111,13 +111,11 @@ def test_mana_on_top_is_read(text, kind, expected):
 
 
 @pytest.mark.parametrize("text, kind", [
-    # The count of Elves on the bonus, a land creature, two of one colour
-    # and a restriction: none of them is what the engine plays.
+    # The count of Elves on the bonus, a land creature and a restriction: none
+    # of them is what the engine plays (two of one colour is since v33).
     ("Enchant land\nWhenever enchanted land is tapped for mana, its controller adds an "
      "additional {G} for each Elf on the battlefield.", Kind.ENCHANTMENT),
     ("Whenever you tap a land creature for mana, add an additional {G}.", Kind.CREATURE),
-    ("Enchant land\nEnchanted land has \"{T}: Add two mana of any one color.\"",
-     Kind.ENCHANTMENT),
     ("Creatures you control have \"{T}: Add {C}. This mana can't be spent to cast a "
      "nonartifact spell.\"", Kind.ARTIFACT),
     ("Whenever a player taps a land for mana, that player adds one mana of any type that land "

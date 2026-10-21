@@ -28,6 +28,7 @@ from django.utils.translation import gettext, ngettext
 
 from cards import categories as card_categories
 from simulation.cards import AdditionalCost
+from simulation.manacost import COLORLESS
 from simulation.rules.selector import wanted_of
 from simulations import primitives
 from simulations.annotations import (
@@ -600,13 +601,21 @@ def _text(key: str, reading) -> str:
         return _store_text(mana.store) if mana.store else ""
     if key == "growth":
         return _growth_text(turn.growth) if turn.growth else ""
+    if key == "treasures" and turn.treasure_mana == COLORLESS:
+        return ngettext("%(count)s Eldrazi Spawn as it resolves (one {C})",
+                        "%(count)s Eldrazi Spawn as it resolves (one {C} each)",
+                        turn.treasures) % {"count": turn.treasures}
     if key == "treasures":
         return ngettext("%(count)s Treasure as it resolves", "%(count)s Treasures as it resolves",
                         turn.treasures) % {"count": turn.treasures}
     altar = next((each for each in card.abilities if each.form == "sacrifice_mana"), None)
     if key == "sacrifice_mana" and altar is not None and mana.altar.sacrifices:
-        return gettext("%(cost)s: %(amount)s mana") % {
-            "cost": adapter._way_text(_sacrifice_of(altar)), "amount": mana.altar.amount}
+        said = {"cost": adapter._way_text(_sacrifice_of(altar)), "amount": mana.altar.amount}
+        if mana.altar.draw:
+            return ngettext("%(cost)s: %(amount)s mana and %(count)s card",
+                            "%(cost)s: %(amount)s mana and %(count)s cards",
+                            mana.altar.draw) % {**said, "count": mana.altar.draw}
+        return gettext("%(cost)s: %(amount)s mana") % said
     if key == "tap_mana" and mana.tap_other is not None:
         return gettext("tap %(what)s: %(amount)s mana each") % {
             "what": " / ".join(sorted(wanted_of(mana.tap_other.selector)[0])),

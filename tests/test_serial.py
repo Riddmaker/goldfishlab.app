@@ -102,6 +102,7 @@ RULES = {
     "sacrifice_mana_color": "B",
     "sacrifice_mana_taps": True,
     "sacrifice_mana_other": True,
+    "sacrifice_mana_draw": 1,
     "triggers": (Trigger("cast", filter="instant_sorcery", treasures=1, treasure_mana="C",
                       mana=1, mana_color="R", draw=1, life=1),),
     "exiled_on_cast": True,

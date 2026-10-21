@@ -11986,3 +11986,68 @@ msgid ""
 "helped, and add a word if you like."
 msgstr ""
 "デッキ概要をより大きなモデルが書くようになりました。あなたのデッキ自身の確率を引用し、最も弱い戦略をもとに助言します。レポートは概要を待ってからまとめて表示されます。概要の下で役に立ったかどうかを伝え、よろしければひとことコメントを添えることができます。"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(count)s Eldrazi Spawn as it resolves (one {C})"
+msgid_plural "%(count)s Eldrazi Spawn as it resolves (one {C} each)"
+msgstr[0] "解決時にエルドラージ・落とし子%(count)s体（それぞれ{C}1点）"
+
+#: simulations/editor.py
+#, python-format
+msgid "%(cost)s: %(amount)s mana and %(count)s card"
+msgid_plural "%(cost)s: %(amount)s mana and %(count)s cards"
+msgstr[0] "%(cost)s：マナ%(amount)sとカード%(count)s枚"
+
+#: simulations/engine/adapter.py
+msgid "the enchanted land taps for two mana of any one colour"
+msgstr "エンチャントされている土地は任意の1色のマナ2点を出す"
+
+#: simulations/engine/adapter.py
+msgid "your lands tap for one mana of any colour"
+msgstr "あなたの土地は任意の色のマナ1点を出す"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "the creature it enchants taps for %(mana)s"
+msgstr "エンチャントされているクリーチャーはタップで%(mana)sを出します"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your %(type)s creatures tap for %(mana)s"
+msgstr "あなたの%(type)sクリーチャーはタップして%(mana)sを出す"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "your other %(type)s creatures tap for %(mana)s"
+msgstr "あなたの他の%(type)sクリーチャーはタップして%(mana)sを出す"
+
+#: simulations/engine/adapter.py
+msgid ""
+"goes, as it is cast, on the weakest creature without a mana ability or "
+"anything else on it; that creature taps for mana from the next turn and no "
+"longer attacks; it needs a creature to be cast"
+msgstr ""
+"唱えられるとき、マナ能力も他に付いているものも持たない最も弱いクリーチャーに付きます。そのクリーチャーは次のターンからタップでマナを出し、攻撃しなくなります。唱えるにはクリーチャーが必要です"
+
+#: changelog/entries.py
+msgid "Eldrazi Spawn, Priest of Forgotten Gods and mana given to other cards"
+msgstr "エルドラージ・落とし子、Priest of Forgotten Gods、他のカードに与えられるマナ"
+
+#: changelog/entries.py
+msgid ""
+"Eldrazi Spawn and Scion made as a card enters, resolves or is cast, such as "
+"Kozilek's Predator's or Skittering Invasion's, now each add {C} when "
+"sacrificed. Mana a creature adds as it enters and Frontier Siege's mana at "
+"your first main phase are added. Priest of Forgotten Gods sacrifices two "
+"other creatures for {B}{B} and a card. Mana abilities a card gives your "
+"lands, creatures of one type or the creature it enchants, such as Wrenn and "
+"Realmbreaker's or Karametra's Favor's, now make mana. A report made with an "
+"older engine says so and offers a new run."
+msgstr ""
+"カードが戦場に出たとき、解決したとき、唱えられたときに生成するエルドラージ・落とし子と末裔（Kozilek's PredatorやSkittering "
+"Invasionのものなど）は、生け贄に捧げるとそれぞれ{C}を加えるようになりました。クリーチャーが戦場に出たときに加えるマナと、最初のメイン・フェイズでのFrontier"
+" Siegeのマナが加わります。Priest of Forgotten "
+"Godsは他のクリーチャー2体を生け贄に捧げて{B}{B}とカード1枚を得ます。カードがあなたの土地、ある種類のクリーチャー、またはエンチャントしているクリーチャーに与えるマナ能力（Wrenn"
+" and RealmbreakerやKarametra's "
+"Favorのものなど）がマナを出すようになりました。古いエンジンで作られたレポートにはその旨が表示され、再実行を提案します。"

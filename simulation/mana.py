@@ -783,7 +783,8 @@ def _enchanted_lands(pool: "ManaPool", tapped: list, extras, granted: frozenset[
         wanted = extra.scope.partition(":")[2]
         if any(not wanted or wanted in subtypes_of(land, granted) for land, _ in lands):
             pool.add(extra.mana, extra.amount)
-    fixes = sum(1 for extra in extras if extra.fixes)
+    # Engine v33: a grant to every land fixes each of them.
+    fixes = sum(len(lands) if extra.scope == "lands" else 1 for extra in extras if extra.fixes)
     # On a land that makes one mana of a single colour, a colourless one first.
     plain = sorted(
         (key for _, made in lands for key in made

@@ -51,6 +51,7 @@ FIELDS: dict[str, Any] = {
     "sacrifice_mana_color": "",
     "sacrifice_mana_taps": False,
     "sacrifice_mana_other": False,
+    "sacrifice_mana_draw": 0,
     "tap_mana": None,
     "mox": "",
     "mana_mills": 0,
@@ -260,7 +261,8 @@ def encode(values: dict) -> tuple[Ability, ...]:
         found.append(Ability(STATIC, "untaps", effects=(Effect("doesnt_untap"),)))
     sacrifice = get("sacrifice_mana")
     if sacrifice is not None or get("sacrifice_mana_amount") or get("sacrifice_mana_color") \
-            or get("sacrifice_mana_taps") or get("sacrifice_mana_other"):
+            or get("sacrifice_mana_taps") or get("sacrifice_mana_other") \
+            or get("sacrifice_mana_draw"):
         found.append(_altar(sacrifice, get))
     tap = get("tap_mana")
     if tap is not None:
@@ -306,8 +308,11 @@ def _altar(sacrifice, get) -> Ability:
                               filter=sacrifice.exile_from_graveyard))
     elif get("sacrifice_mana_other"):
         costs.append(Cost("nothing_sacrificed", other=True))
-    return Ability(MANA, "sacrifice_mana", costs=tuple(costs), effects=(Effect("add_mana", _args(
-        color=get("sacrifice_mana_color"), n=get("sacrifice_mana_amount"))),))
+    effects = [Effect("add_mana", _args(color=get("sacrifice_mana_color"),
+                                        n=get("sacrifice_mana_amount")))]
+    if get("sacrifice_mana_draw"):
+        effects.append(Effect("draw", _args(n=get("sacrifice_mana_draw"))))
+    return Ability(MANA, "sacrifice_mana", costs=tuple(costs), effects=tuple(effects))
 
 
 # --- what the engine reads ----------------------------------------------------------------
@@ -397,6 +402,8 @@ class Altar:
     taps: bool
     other: bool
     selects: Any = None
+    #: Engine v33: cards drawn beside the mana (Priest of Forgotten Gods).
+    draw: int = 0
 
     @property
     def sacrifices(self) -> bool:
@@ -559,7 +566,8 @@ def _compiled_altar(ability: Ability) -> Altar:
     effect = ability.effects[0]
     sacrifice, life = atoms.get("sacrifice"), atoms.get("life")
     selector = sacrifice.selector if sacrifice is not None else None
+    draw = next((each.arg("n") for each in ability.effects if each.verb == "draw"), 0)
     return Altar(selector, sacrifice.amount if sacrifice else 0, life.amount if life else 0,
                  effect.arg("color"), effect.arg("n"), "tap" in atoms,
                  bool(sacrifice and sacrifice.other) or "nothing_sacrificed" in atoms,
-                 compile_selector(selector) if selector is not None else None)
+                 compile_selector(selector) if selector is not None else None, draw)

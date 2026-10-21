@@ -403,6 +403,11 @@ block of 250 (`analysis.SEED_BLOCK`), so how a run is cut into chunks decides no
 that connives as it enters draws, discards and grows on a nonland discard (`forge_merge.connives`).
 Since engine v32 so does one that connives as it attacks or deals combat damage
 (`forge_merge.combat_connives`), and a combat that draws a card has a second main phase.
+Engine v33 plays Eldrazi Spawn and Scion made as a card enters, resolves or is cast
+(`forge_merge.treasures`, a Treasure that adds {C}), mana from a trigger as a creature enters or at
+the main phase, Priest of Forgotten Gods (an altar for two creatures that draws), and more mana
+abilities a card gives: to your lands, to creatures of one type, to the enchanted creature, and two
+of one colour on the enchanted land (`profiles._grant`).
 
 A round that changes `cards/profiles.py` needs the profiles derived again after its deploy
 (`python manage.py ingest_scryfall --profiles`), and every round changes the engine's numbers, so

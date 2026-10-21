@@ -225,6 +225,7 @@ FAMILY = {
     "sacrifice_mana_color": "R",
     "sacrifice_mana_taps": True,
     "sacrifice_mana_other": True,
+    "sacrifice_mana_draw": 1,
     "tap_mana": TapMana(types=frozenset({"creature"}), filter="legendary", mana="WUBRG",
                         amount=2, spend_only=(SpellFilter(legendary=True),), tokens=1),
     "mox": "imprint",
@@ -300,7 +301,8 @@ ENGINE = ("game.py", "mana.py", "agent.py", "actions.py", "analysis.py")
 #: also the name of something in the compiled view, and the old classes.
 FORBIDDEN = {"mana_abilities", "ritual_gain", "ritual_color", "ritual_counts", "cost_reduction",
              "sacrifice_mana", "sacrifice_mana_amount", "sacrifice_mana_color",
-             "sacrifice_mana_taps", "sacrifice_mana_other", "tap_mana", "mana_mills", "legacy"}
+             "sacrifice_mana_taps", "sacrifice_mana_other", "sacrifice_mana_draw", "tap_mana",
+             "mana_mills", "legacy"}
 OLD_CLASSES = {"ManaAbility", "SpellFilter", "TapMana", "CostReduction", "Store"}
 
 

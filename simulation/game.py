@@ -95,6 +95,15 @@ LANDER_FODDER = "Lander"
 
 STARTING_LIFE = 40
 
+
+def _token_name(mana: str) -> str:
+    """What the log calls a token sacrificed for mana: an Eldrazi Spawn's is {C}."""
+    return "Eldrazi Spawn" if mana == COLORLESS else "Treasure"
+
+#: Grants to the creature a card is attached to: Paradise Mantle's equipped
+#: one (P19 R22), Karametra's Favor's enchanted one (engine v33).
+HOSTED_GRANTS = frozenset({"equipped", "enchanted_creature"})
+
 #: The card types delirium counts (P19 R23).
 DELIRIUM_TYPES = frozenset({"artifact", "battle", "creature", "enchantment", "instant",
                             "kindred", "land", "planeswalker", "sorcery"})
@@ -385,7 +394,7 @@ class Game(Marks):
         if not card.turn.treasures:
             return
         self._add_treasures(card.turn.treasure_mana, card.turn.treasures)
-        self.note(f"  -> {card.turn.treasures} Treasure")
+        self.note(f"  -> {card.turn.treasures} {_token_name(card.turn.treasure_mana)}")
 
     def _spend_treasures(self, pool: ManaPool) -> None:
         """The Treasures left once a payment is made. Each one gone was
@@ -446,7 +455,7 @@ class Game(Marks):
             count = trigger.treasures * (len(self.lands) if trigger.filter == PER_LAND else 1)
             if count:
                 self._add_treasures(trigger.treasure_mana, count)
-                made.append(f"{count} Treasure")
+                made.append(f"{count} {_token_name(trigger.treasure_mana)}")
         if trigger.mana and self.in_combat:
             # Lotus Cobra's mana for a land found in combat empties before the
             # second main phase (P19 R22).
@@ -804,8 +813,11 @@ class Game(Marks):
             return None
         if not altar.taps:
             return ManaCost()
+        if card in self.creatures:
+            # Engine v33: Priest of Forgotten Gods taps as a creature does.
+            return ManaCost() if self.creature_can_tap(card) else None
         if card not in self.lands:
-            # A creature's or an artifact's {T} is not tracked: not used.
+            # An artifact's {T} is not tracked: not used.
             return None
         return self._own_mana_as_cost(card)
 
@@ -820,7 +832,10 @@ class Game(Marks):
         also = None if altar.other else card
         if altar.life and self.life - altar.life < PHYREXIAN_LIFE_FLOOR:
             return []
-        for fodder in self.fodder(altar, pool, also=also):
+        found = self.fodder(altar, pool, also=also)
+        if len(found) < altar.count:
+            return []
+        for fodder in found:
             test = pool.copy()
             if fodder == TREASURE:
                 sacrifice_treasure(test.treasures)
@@ -835,13 +850,20 @@ class Game(Marks):
         index = 0 if pick is None else pick
         if not 0 <= index < len(options):
             raise ValueError(f"{card.name} has nothing to sacrifice")
-        fodder = options[index]
-        if fodder == TREASURE:
-            sacrifice_treasure(pool.treasures)
+        altar = card.mana.altar
+        # Engine v33: an altar that takes more than one (Priest of Forgotten
+        # Gods) takes the picked one first, then the rest in fodder order.
+        rest = [other for other in self.fodder(altar, pool, also=None if altar.other else card)
+                if other is not options[index]]
+        fodders = [options[index], *rest[:altar.count - 1]]
+        for fodder in fodders:
+            if fodder == TREASURE:
+                sacrifice_treasure(pool.treasures)
         pool.pay_cost(self.altar_cost(card), life=self.life)
         self._spend_treasures(pool)
-        altar = card.mana.altar
-        if altar.taps:
+        if altar.taps and card in self.creatures:
+            self.tap_creature(card)
+        elif altar.taps:
             # Its {T} went to this: the land counts as tapped from now on.
             index = next(i for i, (land, permanent)
                          in enumerate(zip(self.lands, self.lands.permanents, strict=True))
@@ -850,8 +872,11 @@ class Game(Marks):
         self.note(f"{card.name} (sacrifice for mana)")
         if altar.life:
             self.life -= altar.life
-        self.sacrifice(fodder)
+        for fodder in fodders:
+            self.sacrifice(fodder)
         pool.add(altar.color, altar.amount)
+        if altar.draw:
+            self.draw(altar.draw)
 
     def opponent_has_more_lands(self) -> bool:
         """Does an opponent control more lands than you? On the assumption
@@ -928,6 +953,14 @@ class Game(Marks):
                 elif ability.rule == GRANT and ability.subtype == "enchanted" \
                         and not per_source:
                     found.append(Extra("enchanted", fixes=True))
+                    if ability.produces[0][1] > 1:
+                        # Engine v33: Gift of Paradise's two, played as the
+                        # land's one of any colour and one more of any.
+                        found.append(Extra("enchanted", choice(COLORS),
+                                           ability.produces[0][1] - 1))
+                elif ability.rule == GRANT and ability.subtype == "land" and not per_source:
+                    # Engine v33: Wrenn and Realmbreaker - every land fixes.
+                    found.append(Extra("lands", fixes=True))
         return found
 
     def deck_colors(self) -> frozenset[str]:
@@ -1225,12 +1258,22 @@ class Game(Marks):
                 if ability.rule != GRANT or not (
                         ability.subtype == "creature"
                         or (ability.subtype == "creature:counter" and countered)
-                        or (ability.subtype == "equipped" and card is not None
-                            and self.is_host_of(card, permanent))):
+                        or (ability.subtype in HOSTED_GRANTS and card is not None
+                            and self.is_host_of(card, permanent))
+                        or (card is not None and self._of_granted_type(
+                            ability.subtype, card, permanent))):
                     continue
                 if best is None or len(ability.produces[0][0]) > len(best.produces[0][0]):
                     best = ability
         return None if best is None else flat(best.produces)
+
+    @staticmethod
+    def _of_granted_type(subtype: str, card, permanent) -> bool:
+        """Engine v33: a grant to creatures of one type - Tyvar Kell's Elves;
+        "other" ones leave the granting creature out (Thranduil)."""
+        scope, _, kind = subtype.partition(":")
+        return (scope == "type" or (scope == "other_type" and not same(card, permanent))) \
+            and kind in card.creature_types
 
     def _own_mana_ability(self, card, *, entering: bool = False):
         """The card's own ``FLAT`` ability on this board, or None.
@@ -1862,7 +1905,7 @@ class Game(Marks):
 
     def _grants_mana(self, card) -> bool:
         """Paradise Mantle: what it is on taps for mana."""
-        return any(ability.rule == GRANT and ability.subtype == "equipped"
+        return any(ability.rule == GRANT and ability.subtype in HOSTED_GRANTS
                    for ability in card.mana.entries)
 
     def attach_targets(self, card) -> list:

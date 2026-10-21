@@ -96,6 +96,8 @@ class MadeWith:
     #: P19 R16: "Sacrifice another creature" - never the altar itself
     #: (Warren Soultrader). Its life, if any, is ``sacrifice_mana.life``.
     sacrifice_mana_other: bool = False
+    #: Engine v33: cards drawn beside the mana (Priest of Forgotten Gods).
+    sacrifice_mana_draw: int = 0
     #: P19 R16: the triggered abilities the engine plays.
     triggers: tuple[Trigger, ...] = ()
     #: P19 R15: it goes to exile rather than the graveyard once cast - a

@@ -69,6 +69,9 @@ COLUMNS: dict[str, Any] = {
     #: P19 R7: Treasure tokens it makes as it resolves (a spell's sentence, a
     #: permanent's "When this creature enters"). See `cards.profiles._treasures`.
     "treasures": 0,
+    #: Engine v33: the tokens `treasures` counts are Eldrazi Spawn or Scion,
+    #: each sacrificed for {C} (Kozilek's Predator, Skittering Invasion).
+    "spawn": False,
     #: P19 R14: Lander tokens it makes the same way. See `cards.profiles._landers`.
     "landers": 0,
     #: P19 R7: "As an additional cost to cast this spell, discard a card."

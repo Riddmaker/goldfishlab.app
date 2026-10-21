@@ -13493,3 +13493,37 @@ msgstr ""
 "-, kommen aus den Kategorien der Karte, eine Korrektur unter „Kategorien“ "
 "ändert also auch die Spiele. Ein Report aus einer älteren Engine sagt das "
 "und bietet einen neuen Lauf an."
+
+#: simulations/engine/adapter.py
+msgid "connives"
+msgstr "intrigiert"
+
+#: simulations/primitives.py
+msgid "Times it connives"
+msgstr "Wie oft es intrigiert"
+
+#: simulations/primitives.py
+msgid ""
+"Draw a card, then discard a card; a +1/+1 counter on it if that was no land."
+msgstr ""
+"Eine Karte ziehen, dann eine Karte abwerfen; eine +1/+1-Marke darauf, wenn "
+"es kein Land war."
+
+#: changelog/entries.py
+msgid "Cards that connive, and a draw on casting counted once"
+msgstr "Karten, die intrigieren, und ein Ziehen beim Wirken zählt einmal"
+
+#: changelog/entries.py
+msgid ""
+"A creature that connives as it enters, such as A.I.M. Scientists, now draws "
+"a card, discards the weakest one and gets a +1/+1 counter when that was no "
+"land. A draw on casting the card itself, such as Hydroid Krasis' or "
+"Kozilek's, happens once and no longer counts as card draw that happens again"
+" and again. A report made with an older engine says so and offers a new run."
+msgstr ""
+"Eine Kreatur, die beim Eintreten intrigiert, wie A.I.M. Scientists, zieht "
+"jetzt eine Karte, wirft die schwächste ab und erhält eine +1/+1-Marke, wenn "
+"das kein Land war. Ein Ziehen beim Wirken der Karte selbst, wie bei Hydroid "
+"Krasis oder Kozilek, geschieht einmal und zählt nicht mehr als Kartenziehen,"
+" das immer wieder geschieht. Ein Report mit einer älteren Engine sagt das "
+"und bietet einen neuen Lauf an."

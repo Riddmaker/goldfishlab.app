@@ -201,6 +201,11 @@ boundary, not the symptom.
 #:    category correction changes play too; a draw engine is a card whose
 #:    drawing ability happens again and again. Games are seeded per block of
 #:    250, so how a run is cut into chunks decides no game.
-ENGINE_VERSION = 30
+#: 31: card model phase 5, PR 19. A card's "when you cast this spell" draw
+#:    (Hydroid Krasis, the Kozileks) happens once, so it is no draw engine;
+#:    neither is an opponent's spell (Esper Sentinel) the deck's own. A
+#:    creature that connives as it enters (A.I.M. Scientists) draws, discards
+#:    and grows when the discard was no land.
+ENGINE_VERSION = 31
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

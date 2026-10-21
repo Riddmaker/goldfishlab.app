@@ -25,7 +25,6 @@ from playtest.models import PlaytestSession
 from simulation import actions
 from simulation.game import LANDER_FODDER, TREASURE
 from simulation.manacost import COLORLESS, COLORS, mana_label
-from simulation.rules.mana import spell_filter
 from simulations.engine.adapter import spells_text
 
 #: The board fragment htmx swaps in. The whole page includes it too, so the two
@@ -151,8 +150,9 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
             "zone": zone,
             "activatable": index in activatable,
             "payments": payments(card) if payments and index in castable
-            and card.additional_costs else [],
-            "altar": altars(card) if altars and card.sacrifice_mana is not None else [],
+            and card.play.ways else [],
+            "altar": altars(card) if altars and card.mana.altar is not None
+            and card.mana.altar.sacrifices else [],
             "adaptable": index in adaptable,
             "equip": equips(card) if equips else [],
         }
@@ -203,7 +203,7 @@ def equip_labels(game):
     if pool is None:
         return None
     return lambda card: ([each.name for each in game.attach_targets(card)]
-                         if card.equip is not None and game.can_equip(card, pool) else [])
+                         if card.turn.equip is not None and game.can_equip(card, pool) else [])
 
 
 def pips(pool) -> list[tuple[str, int]]:
@@ -228,8 +228,7 @@ def restricted_mana(pool) -> list[str]:
         made = " + ".join(f"{amount} {mana_label(key)}" for key, amount in each.made.items()
                           if amount)
         text = gettext("%(mana)s for %(spells)s") % {
-            "mana": made, "spells": spells_text(
-                tuple(spell_filter(wanted) for wanted in each.spend_only))} if made else ""
+            "mana": made, "spells": spells_text(each.spend_only)} if made else ""
         if each.open and each.otherwise:
             other = " + ".join(f"{amount} {mana_label(key)}"
                                for key, amount in each.otherwise.items())

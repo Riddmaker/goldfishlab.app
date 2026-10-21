@@ -36,6 +36,7 @@ from simulation.cards import (
     LandSearch,
     ManaAbility,
 )
+from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.manacost import parse
 from tests.engine_builders import tap
@@ -285,11 +286,11 @@ def test_knight_of_the_white_orchid_searches_only_when_behind():
 def test_the_card_page_names_the_cost():
     from simulations.engine.adapter import _land_search_text
 
-    assert _land_search_text(BAUBLE.land_search) == (
+    assert _land_search_text(card_fields(BAUBLE)["land_search"]) == (
         "{2}, {T}, sacrifice it: 1 basic land onto the battlefield, tapped")
-    assert _land_search_text(HART.land_search) == (
+    assert _land_search_text(card_fields(HART)["land_search"]) == (
         "{3}, sacrifice it: 2 basic lands onto the battlefield, tapped")
-    assert "of one land type" in _land_search_text(MYRIAD.land_search)
+    assert "of one land type" in _land_search_text(card_fields(MYRIAD)["land_search"])
 
 
 # --- the report's scaling sources -----------------------------------------------

@@ -306,9 +306,9 @@ def _rows(reading: adapter.Reading, scopes: dict) -> list[Row]:
         )
         for spec in FIELDS
         if (spec.applies_to_lands or not is_land) and (is_land or not spec.lands_only)
-        and (reading.card.mana_abilities or not spec.mana_only)
+        and (reading.card.mana.entries or not spec.mana_only)
         and (reading.card.x_count or not spec.x_only)
-        and (reading.card.triggers or not spec.triggers_only)
+        and (reading.card.turn.triggers or not spec.triggers_only)
     ]
 
 

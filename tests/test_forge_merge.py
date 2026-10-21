@@ -11,6 +11,7 @@ import pytest
 from cards import forge, forge_import, forge_merge, profiles, refresh
 from cards.models import DerivedProfile, ForgeScript, OracleCard
 from simulation import blocks as b
+from simulation.cards import fields as card_fields
 from simulations.engine import adapter
 
 
@@ -340,7 +341,7 @@ def test_the_engine_draws_as_the_card_arrives():
     strix = Card("Strix", 0, 0, 2, CREATURE, triggers=(Trigger("resolves", draw=1, life=1),))
     game.make_treasures(strix)
     assert (len(game.hand), game.life) == (1, 39)
-    assert "as it enters" in adapter._trigger_text(strix.triggers[0])
+    assert "as it enters" in adapter._trigger_text(card_fields(strix)["triggers"][0])
 
 
 def test_a_spells_draw_the_reader_missed_is_taken():
@@ -398,3 +399,50 @@ def test_a_draw_the_engine_plays_needs_no_reason():
     forge_merge.merge(profile, blocks_of("Name:Test\nTypes:Sorcery\nA:SP$ Draw | NumCards$ 2\n"),
                       None)
     assert profile.draws_cards == 2 and not profile.review_reasons
+
+
+# --- connive (card model PR 19) ----------------------------------------------------
+
+
+def connived_by(script: str) -> DerivedProfile:
+    profile = DerivedProfile(kind="creature", triggers=[], source_map={})
+    forge_merge.connives(profile, blocks_of(f"Name:Test\nTypes:Creature\n{script}"), None)
+    return profile
+
+
+def test_a_creature_that_connives_as_it_enters():
+    profile = connived_by(ENTERS.replace("TrigToken", "TrigConnive")
+                          + "SVar:TrigConnive:DB$ Connive\n")
+    assert profile.triggers == [{"event": "resolves", "connive": 1}]
+    assert profile.source_map == {"triggers": "forge"}
+
+
+@pytest.mark.parametrize("script", [
+    # Another creature connives.
+    ENTERS.replace("TrigToken", "TrigConnive")
+    + "SVar:TrigConnive:DB$ Connive | ValidTgts$ Creature.Other+YouCtrl\n",
+    # As it attacks: a trigger in combat, which draws nothing in the engine.
+    "T:Mode$ Attacks | ValidCard$ Card.Self | Execute$ TrigConnive\n"
+    "SVar:TrigConnive:DB$ Connive\n",
+])
+def test_a_connive_the_engine_would_play_otherwise_is_not_taken(script):
+    assert connived_by(script).triggers == []
+
+
+def test_the_engine_connives_and_grows_on_a_nonland():
+    from simulation.cards import CREATURE, LAND, Card, Trigger
+    from simulation.game import Game
+
+    game = Game(random.Random(1))
+    spy = Card("Spy", 0, 0, 2, CREATURE, triggers=(Trigger("resolves", connive=1),))
+    game.creatures.append(spy)
+    game.library = [Card("Drawn", 0, 0, 0, CREATURE)]
+    game.hand = [Card(f"Forest {n}", 0, 0, 0, LAND) for n in range(5)]
+    game.make_treasures(spy)
+    # Five lands and a creature in hand: a land is the weakest, no counter.
+    assert (len(game.hand), len(game.graveyard), game.plus(spy)) == (5, 1, 0)
+    game.library = [Card("Drawn again", 0, 0, 0, CREATURE)]
+    game.hand = [Card("Big", 0, 0, 7, CREATURE)]
+    game.make_treasures(spy)
+    assert game.graveyard[-1].kind == CREATURE and game.plus(spy) == 1
+    assert "connives" in adapter._trigger_text(card_fields(spy)["triggers"][0])

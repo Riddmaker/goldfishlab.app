@@ -29,6 +29,7 @@ Nothing here imports Django, like the rest of :mod:`simulation`.
 import dataclasses
 from collections import Counter
 from dataclasses import dataclass, field
+from types import SimpleNamespace
 from typing import Any
 
 from simulation.cards import (
@@ -47,6 +48,7 @@ from simulation.cards import (
     TutorSpec,
     UpkeepSpec,
 )
+from simulation.cards import fields as card_fields
 from simulation.manacost import ManaCost
 
 #: A condition block. The engine's question type is general already: it
@@ -604,7 +606,8 @@ def _dec_sacrifice_mana(abilities):
             "sacrifice_mana_color": ability.effects[0].arg("color")}
 
 
-def _trigger_effects(treasures, treasure_mana, mana, mana_color, draw, life, counter):
+def _trigger_effects(treasures, treasure_mana, mana, mana_color, draw, life, counter,
+                     connive):
     effects = []
     if treasures:
         effects.append(Effect("create_token", (("mana", treasure_mana), ("n", treasures),
@@ -617,13 +620,16 @@ def _trigger_effects(treasures, treasure_mana, mana, mana_color, draw, life, cou
         effects.append(Effect("lose_life", (("n", life),)))
     if counter:
         effects.append(Effect("put_counter", (("n", counter), ("on", "self"))))
+    if connive:
+        effects.append(Effect("connive", (("n", connive),)))
     return tuple(effects)
 
 
 def _enc_triggers(card):
     for value in card.triggers:
         effects = _trigger_effects(value.treasures, value.treasure_mana, value.mana,
-                                   value.mana_color, value.draw, value.life, value.counter)
+                                   value.mana_color, value.draw, value.life, value.counter,
+                                   value.connive)
         # A trigger that does nothing the engine plays still holds its place.
         yield Ability(TRIGGERED, "trigger", event=Event(value.event, filter=value.filter),
                       effects=effects or (Effect("nothing", changed_args(value, skip=("event",
@@ -645,6 +651,8 @@ def _dec_triggers(abilities):
                 kwargs["life"] = effect.arg("n")
             elif effect.verb == "put_counter":
                 kwargs["counter"] = effect.arg("n")
+            elif effect.verb == "connive":
+                kwargs["connive"] = effect.arg("n")
             else:
                 kwargs.update(dict(effect.args))
         found.append(Trigger(**kwargs))
@@ -818,6 +826,8 @@ def to_blocks(card: Card) -> CardBlocks:
     """The card as blocks. Lossless: `from_blocks` gives the same card back."""
     printed = tuple((name, getattr(card, name)) for name in FACE_FIELDS)
     hints = tuple((name, getattr(card, name)) for name in HINT_FIELDS)
+    # The phase 0 forms read the fields the card was made with.
+    card = SimpleNamespace(**dict(printed), **dict(hints), **card_fields(card))
     extra = ()
     if not (card.ritual_gain or card.ritual_counts) and \
             card.ritual_color != _RITUAL_COLOR_DEFAULT:

@@ -316,6 +316,14 @@ players answered for them, in aggregate. Beat closes the ones the engine reads n
 (`simulations.mail_unread`); no new cards, no mail. A card set to *Won't fix* (it needs an
 opponent) is still counted and no longer mailed. The plan behind it is issue #36.
 
+Language-model drafts of a card's building blocks start as a comparison (card model phase 5):
+`python manage.py draft_compare --models mistral-medium-2604 <a larger model>` sends cards the
+reader reads, with a few others as examples, to each model and scores the answers against the
+reading - per card, and per building block right, missed or added - with the tokens they cost. It
+needs `MISTRAL_API_KEY`, checks the model ids against Mistral's model list, stores nothing and
+writes the answers to `.data/draft_compare.json`. A review queue follows only if more than half of
+the cards come back exactly right.
+
 ### Teaching the engine more cards (P19)
 
 Each round of issue #36 teaches the engine a class of cards it could not read, and
@@ -371,13 +379,17 @@ cast, what a spell draws, discards, puts back or costs in life - with their view
 PR 15 triggers, turns and combat (upkeep, end step, +1/+1 counters, combat triggers, equip, Germs,
 Treasures) with `card.turn`. What `Card` keeps as fields is printed on the card or a play hint. A
 card is still made with the old fields, which `simulation/rules/mana.py`, `play.py` and `turns.py`
-encode; reading one decodes it, which is what wording, the editor and stored decks do until phase
-5. `engine_coverage --diff` against the latest frozen reading is the round trip on every card;
+encode. Since PR 20 nothing reads those fields off a card: the engine, the wording, the editor
+and the reports read the compiled views (`card.mana`, `card.play`, `card.turn`), and a field read
+off the card fails (`cards.FieldGone`); `cards.fields(card)` decodes them for a stored deck or
+game. `engine_coverage --diff` against the latest frozen reading is the round trip on every card;
 `tests/test_rules.py`, `tests/test_play_family.py` and `tests/test_turns_family.py` hold that the
 engine never reads the old fields. Since PR 17 (engine v30) each permanent keeps its own state
 (`simulation/permanent.py`), the engine's four roles - sacrifice outlet, recursive creature, drain,
 draw engine - are read off the card's categories (`adapter.engine_roles`), and games are seeded per
-block of 250 (`analysis.SEED_BLOCK`), so how a run is cut into chunks decides no game.
+block of 250 (`analysis.SEED_BLOCK`), so how a run is cut into chunks decides no game. Since PR 19
+(engine v31) a trigger on casting the card itself happens once (no draw engine), and a creature
+that connives as it enters draws, discards and grows on a nonland discard (`forge_merge.connives`).
 
 A round that changes `cards/profiles.py` needs the profiles derived again after its deploy
 (`python manage.py ingest_scryfall --profiles`), and every round changes the engine's numbers, so

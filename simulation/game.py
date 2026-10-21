@@ -350,13 +350,17 @@ class Game(Marks):
                 self.drawn.remove(worst)
             self.library.append(worst)
 
-    def discard(self, count: int) -> None:
-        """Discard the weakest cards - the additional cost of Big Score (P19 R7)."""
+    def discard(self, count: int) -> list:
+        """Discard the weakest cards - the additional cost of Big Score (P19 R7);
+        the cards discarded."""
+        discarded = []
         for _ in range(min(count, len(self.hand))):
             worst = self._worst_in_hand()
             self.hand.remove(worst)
             self.graveyard.append(worst)
+            discarded.append(worst)
             self.note(f"  -> discards {worst.name}")
+        return discarded
 
     def enter_battlefield(self, card) -> None:
         """Put a permanent onto the battlefield without casting it - what a
@@ -459,6 +463,12 @@ class Game(Marks):
         if trigger.counter:
             # Crime Novelist grows with each artifact it sees go (P19 R23).
             self.add_counters(card, trigger.counter)
+        for _ in range(trigger.connive):
+            # Connive: a loot that grows the card when the discard is no land.
+            self.draw(1)
+            if any(not discarded.is_land for discarded in self.discard(1)):
+                self.add_counters(card, 1)
+            made.append("connives")
         if made:
             self.note(f"  -> {card.name}: {', '.join(made)}")
 

@@ -150,7 +150,7 @@ def test_the_three_hand_annotated_tutors_are_reproduced_exactly(catalogue):
     by_name = {card.name: card for card in chainer.DECK.library}
 
     for name in ("Demonic Tutor", "Buried Alive", "Grim Tutor"):
-        hand_written = by_name[name].tutor
+        hand_written = by_name[name].play.tutor
         derived = catalogue[name]
 
         assert derived.tutor_count == hand_written.count, name

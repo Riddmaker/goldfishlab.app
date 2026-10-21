@@ -309,10 +309,9 @@ def land_search(profile, abilities, card) -> None:
 
 
 _GRANTS = "only grants a mana ability to another permanent"
-#: Token owners that are you as the card enters or resolves: the controller
-#: of the card that triggered, which is the card itself, or "you and target
-#: opponent each" (Bloodroot Apothecary) - the opponent's is no goldfish's.
-_YOURS = frozenset({None, "TriggeredCardController", "TargetedAndYou"})
+#: Token owners that are you as the card enters or resolves: you, or the
+#: controller of the card that triggered (`forge_import._player`).
+_YOURS = frozenset({None, "controller"})
 
 
 def treasures(profile, abilities, card) -> None:
@@ -420,6 +419,30 @@ def draws(profile, abilities, card) -> None:
     take(profile, "triggers", [*(profile.triggers or ()), entry])
 
 
+def connives(profile, abilities, card) -> None:
+    """A permanent that connives as it enters - A.I.M. Scientists: it draws
+    a card, discards one, and grows when that was no land (card model PR 19).
+    Our reader reads connive nowhere.
+
+    Taken from an ability read whole that does nothing else and makes the
+    card itself connive; Mob Lookout's "target creature connives" is another
+    creature's.
+    """
+    if profile.kind in _ONE_SHOT:
+        return
+    found = [ability for ability in abilities
+             if ability.kind == b.TRIGGERED and ability.event == _SELF_ENTERS
+             and any(effect.verb == "connive" for effect in ability.effects)]
+    if len(found) != 1 or not complete(found[0]) or found[0].mode:
+        return
+    effects = found[0].effects
+    if len(effects) != 1 or effects[0].arg("target") or effects[0].arg("n", 1) != 1:
+        return
+    if any(trigger.get("connive") for trigger in profile.triggers or ()):
+        return
+    take(profile, "triggers", [*(profile.triggers or ()), {"event": "resolves", "connive": 1}])
+
+
 #: What a card does that the goldfish plays, when Forge reads it and the
 #: engine does not: said, where it said nothing (card model phase 1).
 _SILENT = {
@@ -478,7 +501,8 @@ def unread(profile, abilities, card) -> None:
 
 #: The families, in order: each reads the blocks and the profile, and takes
 #: what its rule allows. `unread` comes last: it says what none of them took.
-FAMILIES: list[Callable] = [mana, enters_tapped, land_search, treasures, draws, unread]
+FAMILIES: list[Callable] = [mana, enters_tapped, land_search, treasures, draws, connives,
+                            unread]
 
 
 def merge(profile, abilities, card) -> None:

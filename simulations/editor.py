@@ -27,6 +27,8 @@ from django import forms
 from django.utils.translation import gettext, ngettext
 
 from cards import categories as card_categories
+from simulation.cards import AdditionalCost
+from simulation.rules.selector import wanted_of
 from simulations import primitives
 from simulations.annotations import (
     CATEGORY_CHOICES,
@@ -587,31 +589,50 @@ def _cost(text: str) -> str:
 def _text(key: str, reading) -> str:
     """What the engine makes of one primitive of the card, in words."""
     card = reading.card
+    play, turn, mana = card.play, card.turn, card.mana
     if key == "land_search":
-        return adapter._land_search_text(card.land_search) if card.land_search else ""
+        return adapter._land_search_text(play.search) if play.search else ""
     if key == "tutor":
-        return reading.searches if card.tutor else ""
+        return reading.searches if play.tutor else ""
     if key == "tapped_unless":
-        return _unless_text(card.tapped_unless) if card.tapped_unless else ""
+        return _unless_text(play.untapped_if) if play.untapped_if else ""
     if key == "mana_store":
-        return _store_text(card.store) if card.store else ""
+        return _store_text(mana.store) if mana.store else ""
     if key == "growth":
-        return _growth_text(card.growth) if card.growth else ""
+        return _growth_text(turn.growth) if turn.growth else ""
     if key == "treasures":
         return ngettext("%(count)s Treasure as it resolves", "%(count)s Treasures as it resolves",
-                        card.treasures) % {"count": card.treasures}
-    if key == "sacrifice_mana" and card.sacrifice_mana is not None:
+                        turn.treasures) % {"count": turn.treasures}
+    altar = next((each for each in card.abilities if each.form == "sacrifice_mana"), None)
+    if key == "sacrifice_mana" and altar is not None and mana.altar.sacrifices:
         return gettext("%(cost)s: %(amount)s mana") % {
-            "cost": adapter._way_text(card.sacrifice_mana), "amount": card.sacrifice_mana_amount}
-    if key == "tap_mana" and card.tap_mana is not None:
+            "cost": adapter._way_text(_sacrifice_of(altar)), "amount": mana.altar.amount}
+    if key == "tap_mana" and mana.tap_other is not None:
         return gettext("tap %(what)s: %(amount)s mana each") % {
-            "what": " / ".join(sorted(card.tap_mana.types)), "amount": card.tap_mana.amount}
+            "what": " / ".join(sorted(wanted_of(mana.tap_other.selector)[0])),
+            "amount": mana.tap_other.amount}
     if key == "mox":
         return {"discard_land": gettext("discards a land card to enter"),
-                "imprint": gettext("exiles a coloured card for its colours")}.get(card.mox, "")
+                "imprint": gettext("exiles a coloured card for its colours")}.get(mana.mox, "")
     if key == "mana_rule":
         return reading.taps_for
     return gettext("read from the card")
+
+
+def _sacrifice_of(ability) -> AdditionalCost:
+    """What an altar's sacrifice asks, read off its cost atoms, in the shape
+    `adapter._way_text` words."""
+    atoms = {cost.atom: cost for cost in ability.costs}
+    sacrifice = atoms["sacrifice"]
+    types, wanted = wanted_of(sacrifice.selector)
+    life, discard = atoms.get("life"), atoms.get("discard")
+    mana, exile = atoms.get("mana"), atoms.get("exile_from_graveyard")
+    return AdditionalCost(sacrifice=types, sacrifice_filter=wanted,
+                          sacrifice_count=sacrifice.amount, life=life.amount if life else 0,
+                          life_x=life.x if life else False,
+                          discard=discard.amount if discard else 0,
+                          mana=mana.mana if mana else None,
+                          exile_from_graveyard=exile.filter if exile else "")
 
 
 def _unless_text(condition) -> str:

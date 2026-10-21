@@ -8,6 +8,7 @@ from cards.models import OracleCard
 from cards.profiles import _enters_tapped
 from simulation import actions
 from simulation.cards import LAND, Card, LandSearch, TappedUnless
+from simulation.cards import fields as card_fields
 from simulation.game import Game
 from tests.engine_builders import tap
 
@@ -187,7 +188,7 @@ def test_the_turbulent_assumption_is_a_stated_judgement_not_a_gap(db):
                     "control eight or more lands.")
     profiles.rebuild(OracleCard.objects.filter(pk=fen.pk))
     card, found = adapter.engine_readings([fen], builtin=False)[fen.pk]
-    assert card.tapped_unless == TappedUnless("opponent_lands", count=8)
+    assert card_fields(card)["tapped_unless"] == TappedUnless("opponent_lands", count=8)
     assumed = [gap for gap in found if gap.field == "assumed_lands"]
     assert assumed and gaps.kind_of("assumed_lands") == gaps.JUDGEMENT
     assert not gaps.of_kind(found, gaps.READING)

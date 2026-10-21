@@ -42,14 +42,15 @@ _CHUNK = 1_000
 
 def our_facts(card: Card) -> dict:
     """The five facts as our reader and the engine see the card."""
-    taps_for = {letter for ability in card.mana_abilities if ability.rule == "flat"
+    play, turn = card.play, card.turn
+    taps_for = {letter for ability in card.mana.entries if ability.rule == "flat"
                 for key, _amount in ability.produces for letter in key}
-    treasures = bool(card.treasures or any(t.treasures for t in card.triggers)
-                     or any(t.treasures for t in card.combat))
+    treasures = bool(turn.treasures or any(t.treasures for t in turn.triggers)
+                     or any(t.treasures for t in turn.combat))
     return {"taps_for": "".join(sorted(taps_for)),
-            "draws": "x" if card.draws_x else card.draw_on_cast,
-            "land_search": card.land_search is not None,
-            "enters_tapped": card.enters_tapped or card.tapped_unless is not None,
+            "draws": "x" if play.draws_x else play.draw,
+            "land_search": play.search is not None,
+            "enters_tapped": play.enters_tapped or play.untapped_if is not None,
             "treasures": treasures}
 
 

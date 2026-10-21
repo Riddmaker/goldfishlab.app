@@ -276,7 +276,7 @@ def test_a_rainbow_land_offers_the_commanders_colours_as_a_choice(build):
     reading = _by_name(build(FIVE_COLOUR))["Command Tower"]
 
     assert not reading.unreadable
-    assert [ability.produces for ability in reading.card.mana_abilities] == [(("WUBRG", 1),)]
+    assert [ability.produces for ability in reading.card.mana.entries] == [(("WUBRG", 1),)]
 
 
 def test_the_simulation_reports_more_than_one_colour(build):

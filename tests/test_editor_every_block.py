@@ -21,6 +21,7 @@ from django.urls import reverse
 from cards import profiles
 from cards.models import OracleCard
 from decks.models import Deck, DeckCard
+from simulation.cards import fields as card_fields
 from simulations import annotations, editor, primitives, services, unread
 from simulations.engine import adapter
 from simulations.engine.adapter import DECK_SCOPE
@@ -275,7 +276,7 @@ def test_the_shock_land_s_life_is_changed_on_its_page(deck, client):
 
     row = CardAnnotation.objects.get(oracle_card=deck.crypt)
     assert row.overrides == {"tapped_unless": {"kind": "pay_life", "life": 3}}
-    assert _played(deck, deck.crypt).tapped_unless.count == 3
+    assert card_fields(_played(deck, deck.crypt))["tapped_unless"].count == 3
 
 
 def test_a_condition_is_picked_first_then_filled_in(deck, client):
@@ -321,7 +322,7 @@ def test_counters_are_added_to_a_creature_by_hand(deck, client):
 
     assert CardAnnotation.objects.get(oracle_card=deck.seer).overrides == {
         "growth": {"enters": 2}}
-    assert _played(deck, deck.seer).growth.enters == 2
+    assert card_fields(_played(deck, deck.seer))["growth"].enters == 2
     assert "enters with 2 +1/+1 counters" in _page(client, deck, deck.seer)
 
 

@@ -424,6 +424,9 @@ class Trigger:
         draw: Cards it draws.
         life: Life it costs (Lotho: 1).
         counter: +1/+1 counters it puts on the card itself (Crime Novelist).
+        connive: Times the card connives (A.I.M. Scientists; card model PR
+            19): draw a card, discard a card, and a +1/+1 counter on it if
+            the discarded card was no land.
     """
 
     event: str
@@ -435,6 +438,7 @@ class Trigger:
     draw: int = 0
     life: int = 0
     counter: int = 0
+    connive: int = 0
 
 
 @dataclass(frozen=True)
@@ -707,14 +711,15 @@ class Card:
     #: ``InitVar``. What is left as a field is printed on the card or a play
     #: hint (`simulation.blocks.FACE_FIELDS`, `HINT_FIELDS`). A card is still
     #: made with those arguments, which each family's ``encode``
-    #: (`simulation.rules.mana`, `play`, `turns`) turns into blocks, and
-    #: reading one of them decodes it (`legacy`). The engine reads the
-    #: compiled blocks (`mana`, `play`, `turn`), never the fields.
+    #: (`simulation.rules.mana`, `play`, `turns`) turns into blocks. Since
+    #: PR 20 nothing reads them off the card: the engine and the application
+    #: read the compiled blocks (`mana`, `play`, `turn`), and `fields`
+    #: decodes them for storing.
     abilities: tuple = ()
 
     def __post_init__(self, *given):
         values = {name: value for name, value in zip(INIT_FIELDS, given, strict=True)
-                  if value is not UNSET}
+                  if value is not UNSET and not isinstance(value, _Gone)}
         if not values:
             return
         forms = _forms()
@@ -728,18 +733,6 @@ class Card:
         # Always in the same order - other blocks, then each family's - so
         # that a card changed with `dataclasses.replace` equals one made so.
         object.__setattr__(self, "abilities", sum(parts, ()))
-
-    @property
-    def legacy(self) -> dict:
-        """Every family's fields, decoded from the blocks once: what the
-        application reads until phase 5. Never the engine."""
-        found = self.__dict__.get("_legacy")
-        if found is None:
-            found = {}
-            for family in _families():
-                found.update(family.decode(self.abilities))
-            self.__dict__["_legacy"] = found
-        return found
 
     @cached_property
     def mana(self):
@@ -787,7 +780,7 @@ class Card:
         # What is compiled, decoded or hashed is made again where the card
         # arrives: a string's hash differs from one process to the next.
         return {key: value for key, value in self.__dict__.items()
-                if key not in ("_legacy", "mana", "play", "turn", "_hash")}
+                if key not in ("_fields", "mana", "play", "turn", "_hash")}
 
     @property
     def mana_cost(self) -> ManaCost:
@@ -809,7 +802,10 @@ class Card:
     @property
     def produces_mana(self) -> bool:
         """Does the card make mana, whether tapped or cast?"""
-        return bool(self.mana_abilities) or self.ritual_gain > 0 or bool(self.ritual_counts)
+        ritual = self.mana.ritual
+        return bool(self.mana.entries) or (ritual is not None and (
+            ritual.gain > 0 or any(each.form == "ritual" and each.effects[0].arg("amount").kind
+                                   != "fixed" for each in self.abilities)))
 
     @property
     def is_accelerant(self) -> bool:
@@ -827,9 +823,10 @@ class Card:
         """
         return self.accelerant
 
-    def ability(self, rule: str) -> ManaAbility | None:
-        """The first mana ability with this rule, if there is one."""
-        for ability in self.mana_abilities:
+    def ability(self, rule: str):
+        """The first mana ability with this rule, as the engine plays it
+        (`simulation.rules.mana.Source`), if there is one."""
+        for ability in self.mana.entries:
             if ability.rule == rule:
                 return ability
         return None
@@ -879,16 +876,63 @@ def _family_fields(index: int) -> tuple[str, ...]:
     return tuple(each for each in INIT_FIELDS if each in family.FIELDS)
 
 
-def _legacy_field(name: str) -> property:
+def fields(card: Card) -> dict:
+    """The fields the card was made with (the ``InitVar`` ones), decoded from
+    its blocks once: the form a stored deck or game keeps
+    (`simulation.serial`), and what a test compares. The engine and the
+    application read the compiled views (`Card.mana`, `play`, `turn`) instead
+    (card model PR 20)."""
+    found = card.__dict__.get("_fields")
+    if found is None:
+        found = {}
+        for family in _families():
+            found.update(family.decode(card.abilities))
+        card.__dict__["_fields"] = found
+    return found
+
+
+def value(card: Card, name: str):
+    """One field of the card, printed or made with: `fields` for the second."""
+    made_with = fields(card)
+    return made_with[name] if name in made_with else getattr(card, name)
+
+
+class FieldGone(RuntimeError):
+    """A field a card is made with was read off the card (card model PR 20)."""
+
+
+class _Gone:
+    """What reading a field a card is made with gives: something that fails
+    as soon as it is used. `dataclasses.replace` reads every ``InitVar`` and
+    hands it back to the new card, which takes it as "not given"."""
+
+    __slots__ = ("name",)
+
+    def __init__(self, name: str):
+        self.name = name
+
+    def _fail(self, *args, **kwargs):
+        raise FieldGone(f"Card.{self.name} is only an argument since card model PR 20: "
+                        f"read the compiled view (card.mana, card.play, card.turn), or "
+                        f"cards.fields(card)[{self.name!r}] for the stored form")
+
+    __bool__ = __eq__ = __ne__ = __iter__ = __len__ = __getitem__ = __hash__ = _fail
+    __lt__ = __gt__ = __le__ = __ge__ = __add__ = __radd__ = __int__ = __str__ = _fail
+
+    def __getattr__(self, attribute):
+        self._fail()
+
+
+def _gone(name: str) -> property:
     def read(card):
-        return card.legacy[name]
+        return _Gone(name)
     read.__name__ = name
-    read.__doc__ = f"The field ``{name}``, decoded from the card's blocks."
     return property(read)
 
 
+# Without these the class default (`UNSET`) would answer a read in silence.
 for _name in INIT_FIELDS:
-    setattr(Card, _name, _legacy_field(_name))
+    setattr(Card, _name, _gone(_name))
 
 
 #: The four roles the engine plays by: what a tutor finds before a bigger

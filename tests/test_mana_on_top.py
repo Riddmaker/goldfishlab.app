@@ -34,6 +34,7 @@ from simulation.cards import (
     DeckDefinition,
     ManaAbility,
 )
+from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.manacost import parse
 from simulations.engine.adapter import _ability_text
@@ -192,7 +193,7 @@ def test_wild_growth_is_not_added_again_for_a_land_entering_mid_turn():
 def test_an_aura_needs_its_land_to_be_cast():
     sprawl = Card("Utopia Sprawl", 1, 0, 0, ENCHANTMENT, cost=parse("{G}"),
                   types=frozenset({"enchantment"}), enchants="forest",
-                  mana_abilities=SPRAWL.mana_abilities)
+                  mana_abilities=card_fields(SPRAWL)["mana_abilities"])
     game = board([ISLAND], rocks=[SOL_RING])
     actions.OpenMainPhase().run(game, None)
     game.pool.add("G", 1)
@@ -220,10 +221,11 @@ def test_a_colour_is_chosen_once_and_by_what_the_bonus_is_for():
                  deck=deck_of("{G}", "{U}", "{B}"))
     # Caged Sun pays off on the colour most lands make; Utopia Sprawl fixes
     # the one fewest make - black, which no land here does.
-    assert game.chosen_color(CAGED_SUN, CAGED_SUN.mana_abilities[0]) == "G"
-    assert game.chosen_color(SPRAWL, SPRAWL.mana_abilities[0]) == "B"
+    assert game.chosen_color(CAGED_SUN, card_fields(CAGED_SUN)["mana_abilities"][0]) == "G"
+    assert game.chosen_color(SPRAWL, card_fields(SPRAWL)["mana_abilities"][0]) == "B"
     game.lands = [ISLAND] * 5
-    assert game.chosen_color(CAGED_SUN, CAGED_SUN.mana_abilities[0]) == "G", "chosen once"
+    sun = card_fields(CAGED_SUN)["mana_abilities"][0]
+    assert game.chosen_color(CAGED_SUN, sun) == "G", "chosen once"
 
 
 def test_mirari_s_wake_adds_one_of_what_each_land_made():
@@ -326,8 +328,8 @@ def test_high_tide_counts_the_islands_in_the_pool_less_the_one_that_paid():
 
 
 def test_the_card_page_says_what_comes_on_top():
-    assert _ability_text(WILD_GROWTH.mana_abilities[0]) == (
+    assert _ability_text(WILD_GROWTH.mana.entries[0]) == (
         "1 G more when the enchanted land is tapped for mana")
-    assert _ability_text(REFLECTION.mana_abilities[0]) == (
+    assert _ability_text(REFLECTION.mana.entries[0]) == (
         "a permanent tapped for mana makes 2 times as much")
-    assert _ability_text(CRYPTOLITH.mana_abilities[0]) == "your creatures tap for 1 W/U/B/R/G"
+    assert _ability_text(CRYPTOLITH.mana.entries[0]) == "your creatures tap for 1 W/U/B/R/G"

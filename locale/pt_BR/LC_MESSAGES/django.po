@@ -13338,3 +13338,37 @@ msgstr ""
 "card, então uma correção em “Categorias” também muda as partidas. Um "
 "relatório feito com um motor mais antigo avisa isso e oferece uma nova "
 "simulação."
+
+#: simulations/engine/adapter.py
+msgid "connives"
+msgstr "conspira"
+
+#: simulations/primitives.py
+msgid "Times it connives"
+msgstr "Vezes que conspira"
+
+#: simulations/primitives.py
+msgid ""
+"Draw a card, then discard a card; a +1/+1 counter on it if that was no land."
+msgstr ""
+"Compre um card e depois descarte um card; um marcador +1/+1 nele se não era "
+"um terreno."
+
+#: changelog/entries.py
+msgid "Cards that connive, and a draw on casting counted once"
+msgstr "Cards que conspiram, e uma compra ao conjurar contada uma vez"
+
+#: changelog/entries.py
+msgid ""
+"A creature that connives as it enters, such as A.I.M. Scientists, now draws "
+"a card, discards the weakest one and gets a +1/+1 counter when that was no "
+"land. A draw on casting the card itself, such as Hydroid Krasis' or "
+"Kozilek's, happens once and no longer counts as card draw that happens again"
+" and again. A report made with an older engine says so and offers a new run."
+msgstr ""
+"Uma criatura que conspira ao entrar, como A.I.M. Scientists, agora compra um"
+" card, descarta o mais fraco e recebe um marcador +1/+1 se não era um "
+"terreno. Uma compra ao conjurar o próprio card, como a de Hydroid Krasis ou "
+"a de Kozilek, acontece uma vez e não conta mais como compra que acontece de "
+"novo e de novo. Um relatório feito com um motor mais antigo diz isso e "
+"oferece uma nova simulação."

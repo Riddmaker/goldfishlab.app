@@ -175,8 +175,8 @@ LOCAL_PRICES = env.bool("LOCAL_PRICES", default=False)
 # Read by the web process (whether a summary is due) AND by the short-queue
 # worker that writes it, so production needs it on both node groups.
 MISTRAL_API_KEY = env("MISTRAL_API_KEY", default="")
-# Chosen by F7 (docs/phases/phase-10-test-findings.md): the test decks were
-# summarised by each candidate and checked against their lists.
+# Chosen by F7 (phase 10 test findings, not kept in the repo): the test decks
+# were summarised by each candidate and checked against their lists.
 MISTRAL_MODEL = env("MISTRAL_MODEL", default="mistral-medium-2604")
 # Load protection (P1): at most this many summaries are started a day,
 # Europe/Zurich, and guests take at most GUEST_SUMMARIES_PER_DAY of them, so

@@ -13613,3 +13613,38 @@ msgstr ""
 "catégories de la carte : une correction sous « Catégories » change donc "
 "aussi les parties. Un rapport fait avec un moteur plus ancien le dit et "
 "propose une nouvelle simulation."
+
+#: simulations/engine/adapter.py
+msgid "connives"
+msgstr "conspire"
+
+#: simulations/primitives.py
+msgid "Times it connives"
+msgstr "Nombre de fois où il conspire"
+
+#: simulations/primitives.py
+msgid ""
+"Draw a card, then discard a card; a +1/+1 counter on it if that was no land."
+msgstr ""
+"Piochez une carte, puis défaussez-vous d'une carte ; un marqueur +1/+1 "
+"dessus si ce n'était pas un terrain."
+
+#: changelog/entries.py
+msgid "Cards that connive, and a draw on casting counted once"
+msgstr ""
+"Les cartes qui conspirent, et une pioche au lancement comptée une fois"
+
+#: changelog/entries.py
+msgid ""
+"A creature that connives as it enters, such as A.I.M. Scientists, now draws "
+"a card, discards the weakest one and gets a +1/+1 counter when that was no "
+"land. A draw on casting the card itself, such as Hydroid Krasis' or "
+"Kozilek's, happens once and no longer counts as card draw that happens again"
+" and again. A report made with an older engine says so and offers a new run."
+msgstr ""
+"Une créature qui conspire en arrivant, comme A.I.M. Scientists, pioche "
+"maintenant une carte, se défausse de la plus faible et reçoit un marqueur "
+"+1/+1 si ce n'était pas un terrain. Une pioche au lancement de la carte "
+"elle-même, comme celle d'Hydroid Krasis ou de Kozilek, a lieu une fois et ne"
+" compte plus comme une pioche qui se répète encore et encore. Un rapport "
+"fait avec un moteur plus ancien le dit et propose une nouvelle simulation."

@@ -338,10 +338,11 @@ def test_no_creature_type_means_no_spell_for_the_chosen_type():
 
 
 def test_the_card_page_says_which_spells_its_mana_pays_for():
-    assert adapter._ability_text(CAVERN.mana_abilities[0]) == (
+    assert adapter._ability_text(CAVERN.mana.entries[0]) == (
         "1 W/U/B/R/G, only for Elf creature spells")
-    assert adapter.spells_text((SpellFilter(legendary=True),
-                                SpellFilter(subtypes=frozenset({"eldrazi"}), colorless=True))) == (
+    assert adapter.spells_text((
+        spell_selector(SpellFilter(legendary=True)),
+        spell_selector(SpellFilter(subtypes=frozenset({"eldrazi"}), colorless=True)))) == (
         "legendary spells or colourless Eldrazi spells")
 
 
@@ -375,7 +376,7 @@ def elf_deck(db):
 def test_the_cavern_names_the_deck_s_type_as_a_stated_assumption(elf_deck):
     reading = next(each for each in adapter.readings(elf_deck.deck)
                    if each.oracle_card.pk == elf_deck.cavern.pk)
-    assert reading.card.mana_abilities[0].spend_only[0].subtypes == frozenset({"elf"})
+    assert reading.card.mana.entries[0].spend_only[0].named_types == frozenset({"elf"})
     assumed = [gap for gap in reading.gaps if gap.field == "assumed_type"]
     assert [gap.text for gap in assumed] == [
         "names Elf as its creature type, the most common one in this deck (3 cards)"]
@@ -398,7 +399,7 @@ def test_an_annotation_names_another_type_and_the_assumption_goes(elf_deck):
                                   overrides={"chosen_type": "goblin"})
     reading = next(each for each in adapter.readings(elf_deck.deck)
                    if each.oracle_card.pk == elf_deck.cavern.pk)
-    assert reading.card.mana_abilities[0].spend_only[0].subtypes == frozenset({"goblin"})
+    assert reading.card.mana.entries[0].spend_only[0].named_types == frozenset({"goblin"})
     assert not [gap for gap in reading.gaps if gap.field == "assumed_type"]
 
 

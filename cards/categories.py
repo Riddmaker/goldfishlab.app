@@ -37,8 +37,9 @@ from simulation import blocks as b
 #: Stored beside the categories (`DerivedProfile.categories_version`); 0 there
 #: means "not derived yet", and every reader falls back to `role_tags`.
 #: 2: a tempo entry says whether its ability draws (``draws``), and a card's
-#: own cycling or leaving happens once (card model PR 17).
-VERSION = 2
+#: own cycling or leaving happens once (card model PR 17). 3: so does a trigger
+#: on casting the card itself (Hydroid Krasis; card model PR 19).
+VERSION = 3
 
 #: The roles: the eight the report counts (`simulation.analysis.SEEN_CATEGORIES`).
 ROLES = ("ramp", "draw", "removal", "wipe", "tutor", "counterspell", "protection",
@@ -153,23 +154,17 @@ _LIFELINK = "Lifelink"
 #: Nightmares) is no wipe.
 _SWEPT = ("Creature", "Permanent", "Artifact", "Enchantment", "Planeswalker", "Land")
 
-#: A ``player`` or ``owner`` who is somebody else: "its controller" of a
-#: target (Path to Exile, Beast Within), an opponent, the attacking player.
-#: "Target player", "each player" and "that player" on your own trigger may
-#: be you, and count as yours.
-_OTHERS = frozenset({"TargetedController", "TargetedOwner", "TargetedOrController",
-                     "RememberedController", "RememberedOwner", "TriggeredDefendingPlayer",
-                     "TriggeredAttackingPlayer"})
+#: A ``player`` or ``owner`` who is somebody else (`forge_import._player`):
+#: "its controller" of a target (Path to Exile, Beast Within), an opponent,
+#: the attacking player. "Target player", "each player" and "that player" on
+#: your own trigger (``any``) may be you, and count as yours.
+_SOMEBODY_ELSE = frozenset({"opponent", "other"})
 
 
 def _for_others(effect: b.Effect) -> bool:
     """Whether the effect's benefit goes to someone else: "its controller
     searches", "each opponent draws", "its controller creates"."""
-    for name in ("player", "owner"):
-        value = str(effect.arg(name) or "")
-        if "Opp" in value or "Other" in value or value in _OTHERS:
-            return True
-    return False
+    return any(effect.arg(name) in _SOMEBODY_ELSE for name in ("player", "owner"))
 
 
 def _what(effect: b.Effect) -> str:
@@ -442,8 +437,8 @@ def _rate(ability: b.Ability) -> str:
         if event is not None and event.who == "self" and not event.filter \
                 and event.name in ("enters", "dies"):
             return ONE_SHOT
-        # Cycled, or gone from where it was: the card is no longer there.
-        if event is not None and event.who == "self" and event.name in ("cycled",
+        # Cycled, cast (Kozilek), or gone from where it was: once per card.
+        if event is not None and event.who == "self" and event.name in ("cycled", "cast",
                                                                       "zone_change"):
             return ONE_SHOT
         return EVENT

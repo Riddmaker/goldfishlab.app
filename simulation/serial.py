@@ -25,6 +25,7 @@ import types
 import typing
 
 from simulation.cards import Card, DeckDefinition
+from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.mana import ManaPool, RestrictedMana, Stored
 
@@ -107,8 +108,9 @@ def dump(value):
     """
     if dataclasses.is_dataclass(value) and not isinstance(value, type):
         out = {"_type": type(value).__name__}
+        made_with = card_fields(value) if isinstance(value, Card) else {}
         for name, _annotation in fields_of(type(value)):
-            out[name] = dump(getattr(value, name))
+            out[name] = dump(made_with[name] if name in made_with else getattr(value, name))
         return out
     if isinstance(value, (list, tuple, frozenset, set)):
         return [dump(item) for item in value]

@@ -10,16 +10,18 @@ that a failure gives the run back exactly once.
 import io
 import json
 import urllib.error
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.utils import timezone
 
 from billing.models import UsageRecord
 from billing.quotas import used
 from decks import services as deck_services
-from simulations import mistral, services, summary, tasks
+from simulations import mistral, services, summary, tasks, views
 from simulations.engine import adapter
 from simulations.models import CardAnnotation, DeckSummary, SimulationRun
 
@@ -475,8 +477,53 @@ def test_a_version_one_summary_shows_without_a_title(key, client, owner, deck, f
     assert "Write a summary" not in block, "our prompt change rewrites nothing"
 
 
-def test_a_summary_being_written_polls(key, client, owner, deck, finished):
+def test_the_page_waits_for_the_summary_started_with_the_run(key, client, owner, deck,
+                                                             finished):
+    """The bar carries on after the games while the summary is written, and
+    the page shows once, whole: the poll reloads it only when the summary is in."""
     _pending(deck)
+    progress = reverse("simulations:progress", args=[finished.pk])
+
+    body = _page(client, owner, finished)
+    poll = client.get(progress, HTTP_HX_REQUEST="true")
+
+    assert 'id="summary"' not in body and 'id="advanced"' not in body, "no report yet"
+    assert "Writing your deck summary" in body and progress in body
+    assert "js/run-progress.js" in body
+    assert "HX-Refresh" not in poll.headers
+    fragment = poll.content.decode()
+    assert 'hx-trigger="every 2s"' in fragment
+    assert f'data-pct="{views.WRITING_CEILING}"' in fragment, "short of full"
+    assert "data-expected" in fragment
+
+    DeckSummary.objects.filter(deck=deck).update(status=DeckSummary.Status.DONE)
+    assert client.get(progress, HTTP_HX_REQUEST="true").headers["HX-Refresh"] == "true"
+
+
+def test_the_page_stops_waiting_for_a_summary_that_takes_too_long(key, client, owner, deck,
+                                                                  finished):
+    _pending(deck)
+    DeckSummary.objects.update(
+        updated_at=timezone.now() - summary.HOLD_AT_MOST - timedelta(seconds=1))
+
+    body = _page(client, owner, finished)
+
+    assert 'id="summary"' in body, "the report, with the summary's own line"
+
+
+def test_the_page_does_not_wait_with_summaries_hidden(key, client, owner, deck, finished):
+    _pending(deck)
+    owner.deck_summaries = False
+    owner.save()
+
+    assert 'id="advanced"' in _page(client, owner, finished)
+
+
+def test_a_summary_being_written_polls(key, client, owner, deck, finished):
+    """Past the page's wait, the summary block polls on its own."""
+    _pending(deck)
+    DeckSummary.objects.update(
+        updated_at=timezone.now() - summary.HOLD_AT_MOST - timedelta(seconds=1))
 
     body = _page(client, owner, finished)
     fragment = client.get(reverse("simulations:summary", args=[finished.pk]),

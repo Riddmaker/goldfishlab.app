@@ -620,6 +620,37 @@ def close_stale(now=None) -> int:
     return closed
 
 
+#: About how long a summary takes to write: Large 4 without reasoning took 20 s
+#: on average and 39 s at its slowest on 21 decks (2026-10-21). Paces the run
+#: page's bar while it waits for one, nothing else.
+WRITING_SECONDS = 30
+
+#: How long the run page holds its report back for a summary being written:
+#: the summary task's two attempts and the pause between them
+#: (`tasks.SUMMARY_SOFT_TIME_LIMIT`). Past that the report shows, with the
+#: summary's own "being written" line, which reloads the page once it is in.
+HOLD_AT_MOST = timedelta(seconds=170)
+
+
+def writing(user, deck):
+    """The summary being written for this viewer's deck, while it is worth
+    waiting for; None otherwise.
+
+    The run page waits for it: its progress bar carries on until the summary
+    is in, and the page shows once, whole, instead of the report first and the
+    summary popping in half a minute later.
+    """
+    from simulations.models import DeckSummary
+
+    if not user.deck_summaries or not mistral.is_configured():
+        return None
+    row = DeckSummary.objects.filter(deck=deck, status=DeckSummary.Status.PENDING).only(
+        "updated_at").first()
+    if row is None or timezone.now() - row.updated_at > HOLD_AT_MOST:
+        return None
+    return row
+
+
 def state(user, deck) -> dict:
     """What the summary block shows about the written part, for this viewer.
 
@@ -664,4 +695,4 @@ def state(user, deck) -> dict:
 
 __all__ = ["BY_TURN", "PROMPT_VERSION", "SEEN_BY_TURN", "WRITE_IN", "at_least_one", "begin",
            "claim", "due", "facts", "fingerprint", "language", "messages", "missing", "parse",
-           "state", "write_in"]
+           "state", "write_in", "writing"]

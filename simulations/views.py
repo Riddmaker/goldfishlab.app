@@ -107,22 +107,27 @@ class RunCreateView(LoginRequiredMixin, View):
         return redirect(run.get_absolute_url())
 
 
-def _pace(run: SimulationRun) -> dict | None:
+def _pace(run: SimulationRun, writing=None) -> dict | None:
     """What the smoothed progress bar needs (phase 10 T3.1), while it runs.
 
     Elapsed time is counted here, on the server's clock, so a visitor whose
     own clock is wrong still sees the bar start where it should - from the
     moment the run was asked for while it waits in the queue, from the moment
     a worker started it once it plays. A queue can be long, and the script
-    holds the bar low while `queued` says so.
+    holds the bar low while `queued` says so. `writing` is the deck summary
+    the page waits for (`summary.writing`): it was started with the run and is
+    written beside it, so the bar should take as long as the slower of the two.
     """
-    if run.is_finished:
+    if run.is_finished and writing is None:
         return None
     since = run.started_at or run.created_at
     queued = run.started_at is None
     # P1: while it waits, the runs before it and about how long they take.
     queue = services.queue_ahead(run) if queued else None
     expected = services.expected_seconds(run) + (queue.seconds if queue else 0)
+    if writing is not None:
+        expected = max(expected, (writing.updated_at - since).total_seconds()
+                       + summary.WRITING_SECONDS)
     return {
         "elapsed": (timezone.now() - since).total_seconds(),
         "expected": expected,
@@ -130,6 +135,28 @@ def _pace(run: SimulationRun) -> dict | None:
         "ahead": queue.ahead if queue else 0,
         "wait_minutes": max(1, round(queue.seconds / 60)) if queue else 0,
     }
+
+
+#: Where the bar may go on its own while the summary is still being written
+#: after the games are done: short of full, which would say the page is ready.
+WRITING_CEILING = 95
+
+
+def _bar(run: SimulationRun, user) -> dict:
+    """The progress panel's state: the games, and the deck summary the page
+    waits for once they are done.
+
+    `working` is true while the panel polls: the run plays, or it is done and
+    its summary is still being written (`holding`). The page shows its report
+    only once both are over, so it appears whole.
+    """
+    writing = summary.writing(user, run.deck)
+    holding = writing is not None and run.status == SimulationRun.Status.DONE
+    pct = run.progress_pct
+    if writing is not None:
+        pct = min(pct, WRITING_CEILING)
+    return {"pace": _pace(run, writing), "holding": holding,
+            "working": not run.is_finished or holding, "pct": pct}
 
 
 class RunDetailView(OwnedRunsMixin, DetailView):
@@ -141,8 +168,8 @@ class RunDetailView(OwnedRunsMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         run = self.object
-        context["pace"] = _pace(run)
-        if run.status == SimulationRun.Status.DONE and run.result:
+        context.update(_bar(run, self.request.user))
+        if run.status == SimulationRun.Status.DONE and run.result and not context["holding"]:
             context["report"] = report.build(run)
             # Read from the deck as it stands now, not from the run: these are
             # properties of the cards rather than of the simulation, and the
@@ -178,9 +205,10 @@ class RunProgressView(OwnedRunsMixin, DetailView):
     broker call. That is what makes polling it every two seconds cheap enough
     to be the whole mechanism.
 
-    When the run has finished, the answer to a poll is `HX-Refresh`, which
-    tells htmx to reload the page - so the report appears by itself, the
-    polling stops with it, and still not a line of JavaScript was written.
+    When the run has finished, and the deck summary started with it is written
+    (`_bar`), the answer to a poll is `HX-Refresh`, which tells htmx to reload
+    the page - so the report appears by itself, the polling stops with it, and
+    still not a line of JavaScript was written.
     """
 
     template_name = "simulations/_progress.html"
@@ -188,12 +216,12 @@ class RunProgressView(OwnedRunsMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["pace"] = _pace(self.object)
+        context.update(_bar(self.object, self.request.user))
         return context
 
     def render_to_response(self, context, **kwargs):
         response = super().render_to_response(context, **kwargs)
-        if self.object.is_finished and self.request.headers.get("HX-Request"):
+        if not context["working"] and self.request.headers.get("HX-Request"):
             response.headers["HX-Refresh"] = "true"
         return response
 

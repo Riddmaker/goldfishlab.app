@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from simulation.blocks import (
+    ACTIVATED,
     CAST,
     LAND_SEARCH_WHEN,
     REPLACEMENT,
@@ -134,9 +135,15 @@ def _land_search(search: LandSearch) -> Ability:
 
 def _tutor(tutor: TutorSpec) -> Ability:
     event = Event("upkeep", filter=tutor.upkeep) if tutor.upkeep else None
-    return Ability(TRIGGERED if event else RESOLVES, "tutor",
-                   costs=(Cost("life", amount=tutor.life),) if tutor.life else (), event=event,
-                   effects=(Effect("search", changed_args(tutor, skip=("life", "upkeep"))),))
+    costs = (Cost("life", amount=tutor.life),) if tutor.life else ()
+    kind = TRIGGERED if event else RESOLVES
+    if tutor.activate:
+        # v34: Moggcatcher's "{3}, {T}: ".
+        kind = ACTIVATED
+        costs += (Cost("tap"),) + ((Cost("mana", mana=tutor.cost),) if tutor.cost else ())
+    return Ability(kind, "tutor", costs=costs, event=event,
+                   effects=(Effect("search", changed_args(
+                       tutor, skip=("life", "upkeep", "activate", "cost"))),))
 
 
 def encode(values: dict) -> tuple[Ability, ...]:
@@ -215,9 +222,12 @@ def _search_of(ability: Ability) -> LandSearch:
 
 
 def _tutor_of(ability: Ability) -> TutorSpec:
-    life = next((cost for cost in ability.costs if cost.atom == "life"), None)
-    return TutorSpec(**dict(ability.effects[0].args), life=life.amount if life else 0,
-                     upkeep=ability.event.filter if ability.event else "")
+    atoms = {cost.atom: cost for cost in ability.costs}
+    return TutorSpec(**dict(ability.effects[0].args),
+                     life=atoms["life"].amount if "life" in atoms else 0,
+                     upkeep=ability.event.filter if ability.event else "",
+                     activate=ability.kind == ACTIVATED,
+                     cost=atoms["mana"].mana if "mana" in atoms else None)
 
 
 def _read(abilities) -> dict:

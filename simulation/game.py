@@ -520,10 +520,16 @@ class Game(Marks):
         """
         if card is None:
             return LANDER.cost if self.landers else None
-        spec = card.play.search
-        if spec is None or spec.when != "activate" or card not in self.battlefield:
+        spec = self.activated(card)
+        if spec is None or card not in self.battlefield:
             return None
         cost = spec.cost or ManaCost()
+        if spec is card.play.tutor:
+            # v34: Moggcatcher, Planar Bridge - {T}, once a turn; a creature
+            # not the turn it arrived.
+            if card in self.creatures:
+                return cost if self.creature_can_tap(card) else None
+            return None if self.creature_tapped(card) or card.mana.entries else cost
         if not spec.taps or card not in self.lands:
             if spec.taps and card in self.creatures and not self.creature_can_tap(card):
                 return None
@@ -556,10 +562,22 @@ class Game(Marks):
         return (not self.arrived_now(card) and not self.creature_tapped(card)
                 and not card.mana.entries)
 
+    @staticmethod
+    def activated(card):
+        """``card``'s search played as an ability - its activated land search,
+        or (v34) its activated tutor - or None."""
+        search = card.play.search
+        if search is not None and search.when == "activate":
+            return search
+        tutor = card.play.tutor
+        return tutor if tutor is not None and tutor.activate else None
+
     def activation_fodder(self, card):
         """What else ``card``'s activated search costs - ``(land, other)``,
         either None when not asked - or None when it cannot be paid now."""
         spec = card.play.search
+        if self.activated(card) is not spec:
+            return None, None
         land = other = None
         if spec.sacrifices_land:
             lands = [found for found in self.land_fodder() if not same(found, card)
@@ -600,6 +618,11 @@ class Game(Marks):
             return self.search_lands(None, choose, LANDER)
         land, other = self.activation_fodder(card)
         spec = card.play.search
+        if self.activated(card) is not spec:
+            # v34: an activated tutor; the caller searches (`actions.run_tutor`).
+            self.tap_creature(card)
+            self.note(f"{card.name} (activated)")
+            return 0
         if spec.sacrifice:
             self._sacrifice(card)
         elif card in self.creatures:

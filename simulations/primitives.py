@@ -65,6 +65,7 @@ _COMBAT_KEYS = frozenset({
 _TUTOR_KEYS = frozenset({
     "to", "count", "kind", "types", "max_mv", "color", "plus_sacrificed", "land_tapped",
     "gifts", "random_discard", "delirium_any", "upkeep", "exiled", "symmetry", "opponents",
+    "nonlegendary", "permanent", "basic", "exact", "activated", "cost",
 })
 _CONDITION_KEYS = frozenset({
     "kind", "types", "count", "life", "at_least", "other", "basic", "type", "legendary",

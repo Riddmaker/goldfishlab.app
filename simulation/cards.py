@@ -209,6 +209,19 @@ class TutorSpec:
     #: P19 R23: Defense of the Heart - not as it is cast but in an upkeep,
     #: once an opponent is assumed to have three creatures; it is sacrificed.
     upkeep: str = ""
+    #: v34: onto the battlefield, a card that is no legendary one (Woodland
+    #: Bellower), or any permanent card (Planar Bridge); on top, a basic
+    #: land (Embermouth Sentinel).
+    nonlegendary: bool = False
+    permanent: bool = False
+    basic: bool = False
+    #: v34: Neoform - exactly ``max_mv_sacrificed`` more than what was
+    #: sacrificed, not up to it.
+    exact_mv: bool = False
+    #: v34: an ability of a permanent that costs ``cost`` and {T}, once a
+    #: turn (Moggcatcher), not something it does as it resolves.
+    activate: bool = False
+    cost: ManaCost | None = None
 
 
 #: ``TutorSpec.upkeep``: an opponent controls three or more creatures.

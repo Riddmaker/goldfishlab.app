@@ -370,12 +370,24 @@ class Reading:
             if spec.color:
                 what = gettext("%(what)s (%(color)s)") % {"what": what,
                                                           "color": mana_label(spec.color)}
+            if spec.nonlegendary:
+                what = gettext("%(what)s, not legendary") % {"what": what}
+            if spec.permanent:
+                what = gettext("%(what)s, any permanent") % {"what": what}
             if spec.max_mv_sacrificed is not None:
-                what = gettext("%(what)s with mana value up to %(plus)s more than the "
-                               "creature sacrificed") % {"what": what,
-                                                         "plus": spec.max_mv_sacrificed}
+                what = (gettext("%(what)s with mana value exactly %(plus)s more than the "
+                                "creature sacrificed") if spec.exact_mv
+                        else gettext("%(what)s with mana value up to %(plus)s more than the "
+                                     "creature sacrificed")) % {
+                    "what": what, "plus": spec.max_mv_sacrificed}
             text = gettext("%(what)s onto the battlefield") % {"what": what}
+            if spec.activate:
+                text = (gettext("%(cost)s and {T}, once a turn: %(search)s") % {
+                    "cost": spec.cost, "search": text} if spec.cost
+                    else gettext("{T}, once a turn: %(search)s") % {"search": text})
         elif spec.to_top:
+            if spec.basic:
+                what = gettext("%(what)s, basic") % {"what": what}
             text = gettext("%(what)s on top of the library, drawn next turn") % {"what": what}
         elif spec.gifts:
             text = gettext("%(found)s cards, %(count)s of them to hand and the rest to the "
@@ -2421,7 +2433,8 @@ def _tutor(profile, overrides: dict) -> TutorSpec | None:
     if profile.tutor_to == "top":
         # P19 R12: Vampiric Tutor. `tutor_filter` holds the card types it may find.
         battlefield = {"to_top": True,
-                       "types": frozenset((limit or {}).get("types", ()))}
+                       "types": frozenset((limit or {}).get("types", ())),
+                       "basic": bool((limit or {}).get("basic"))}
     elif profile.tutor_to == "hand" and limit is not None:
         # P19 R23: types or subtypes, a mana value limit, and the shapes of
         # Archdruid's Charm, Gifts Ungiven, Gamble and Demonic Counsel.
@@ -2437,7 +2450,15 @@ def _tutor(profile, overrides: dict) -> TutorSpec | None:
                        "max_mv_x": max_mv == "X",
                        "max_mv": max_mv if isinstance(max_mv, int) else None,
                        "max_mv_sacrificed": limit.get("plus_sacrificed"),
-                       "upkeep": limit.get("upkeep") or ""}
+                       "upkeep": limit.get("upkeep") or "",
+                       # v34: Godo's Equipment, Woodland Bellower, Neoform,
+                       # Moggcatcher's "{3}, {T}: ".
+                       "types": frozenset(limit.get("types") or ()),
+                       "nonlegendary": bool(limit.get("nonlegendary")),
+                       "permanent": bool(limit.get("permanent")),
+                       "exact_mv": bool(limit.get("exact")),
+                       "activate": bool(limit.get("activated")),
+                       "cost": parse(limit["cost"]) if limit.get("cost") else None}
     return TutorSpec(
         **battlefield,
         to_hand=TUTOR_ZONES[profile.tutor_to],

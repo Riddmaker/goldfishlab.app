@@ -280,6 +280,10 @@ def _activation_gain(game, card):
     Landscape - or a colour the lands cannot make yet: Urza's Cave trades
     itself for a land of the colour that is missing.
     """
+    if card is not None and game.activated(card) is card.play.tutor:
+        # v34: Moggcatcher - worth a permanent, when the library holds one.
+        found = actions.battlefield_predicate(card.play.tutor, 0, game)
+        return (1, False) if any(found(each) for each in game.library) else None
     spec = card.play.search if card is not None else LANDER
     lost_land = card if card is not None and card in game.lands else None
     if card is not None and spec.sacrifices_land:

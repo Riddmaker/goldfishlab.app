@@ -371,12 +371,36 @@ _SEARCH_CLAUSE = re.compile(r"Search your library for", re.IGNORECASE)
 #: Sun's Zenith, Chord of Calling, Finale of Devastation (its graveyard is not
 #: searched: a goldfish's graveyard rarely holds the card, and the library
 #: alone can only under-read it), Whir of Invention, Natural Order.
+#: v34: an enchantment (Zur's search, were it not in combat), a subtype
+#: (Godo's Equipment, Moggcatcher's "Goblin permanent card"), "nonlegendary"
+#: (Woodland Bellower), and any permanent (Planar Bridge). ``after`` is what
+#: follows "onto the battlefield": nothing is played but nothing.
 _TO_BATTLEFIELD = re.compile(
-    r"Search your library(?: and/or graveyard)? for an? "
-    r"(?:(?P<color>white|blue|black|red|green) )?(?P<what>creature|artifact) card"
+    r"[Ss]earch your library(?: and/or graveyard)? for an? "
+    r"(?P<nonlegendary>nonlegendary )?(?:(?P<color>white|blue|black|red|green) )?"
+    r"(?:(?P<what>creature|artifact|enchantment|permanent)"
+    r"|(?P<sub>[A-Z][a-z]+)(?: (?P<of>permanent|creature))?) card"
     r"(?: with mana value (?P<mv>X|\d+) or less)?"
-    r"(?:,| and) put (?:it|that card) onto the battlefield",
-    re.IGNORECASE)
+    r"(?:,| and) put (?:it|that card) onto the battlefield(?P<after>[^.,]*)")
+#: v34: the subtypes a search onto the battlefield is not played for: an Aura
+#: or a Curse is attached as it arrives, and a land's is a land search.
+_NOT_TUTORED_SUBTYPES = frozenset({
+    "Aura", "Curse", "Gate", "Desert", "Cave", "Town", "Plains", "Island", "Swamp",
+    "Mountain", "Forest"})
+#: v34: what the card does with the card it found later on - Zirilan exiles
+#: its Dragon, Nahiri returns hers, Stonehewer Giant attaches its Equipment.
+_FOUND_UNDONE = re.compile(r"\b(?:[Ee]xile it|[Rr]eturn it|attach it)\b")
+#: v34: a spell copied or repeated, which the engine does not play:
+#: Dragonstorm's storm, Enduring Ideal's epic.
+_COPIED = re.compile(r"^(?:Storm|Epic)\b", re.MULTILINE)
+#: v34: the lead of a search as a creature enters, with the card's name as ~.
+_TUTOR_ENTERS = re.compile(
+    r"^when (?:this (?:creature|artifact|enchantment|permanent)|~) enters, "
+    r"(?:if you cast it, )?(?:you may )?$")
+#: v34: an ability that costs mana and {T} alone - Moggcatcher's "{3}, {T}: ",
+#: Planar Bridge's "{8}, {T}: ". Once a turn, and a creature's not the turn
+#: it arrived.
+_TUTOR_ACTIVATED = re.compile(r"^(?:(?P<cost>(?:\{(?:\d+|[wubrg])\})+), )?\{t\}: $")
 #: P19 R15: Eldritch Evolution - "a creature card with mana value X or less,
 #: where X is 2 plus the sacrificed creature's mana value. Put that card onto
 #: the battlefield".
@@ -384,12 +408,18 @@ _PLUS_SACRIFICED = re.compile(
     r"Search your library for a creature card with mana value X or less, where X is "
     r"(?P<n>\w+) plus the sacrificed creature's mana value\. Put that card onto the battlefield",
     re.IGNORECASE)
+#: v34: Neoform - "a creature card with mana value equal to 1 plus the
+#: sacrificed creature's mana value, put that card onto the battlefield",
+#: exactly that much. Its +1/+1 counter is not played.
+_EQUAL_SACRIFICED = re.compile(
+    r"^Search your library for a creature card with mana value equal to (?P<n>\w+) plus the "
+    r"sacrificed creature's mana value, put that card onto the battlefield", re.MULTILINE)
 _COLOR_LETTER = {"white": "W", "blue": "U", "black": "B", "red": "R", "green": "G"}
 #: P19 R12: Vampiric Tutor, Mystical Tutor, Worldly Tutor: "Search your library
 #: for a[n instant or sorcery] card, [reveal it, ]then shuffle and put that
 #: card on top." Its zone is in the text, not in a tag.
 _TO_TOP = re.compile(
-    r"Search your library for an? (?:(?P<what>[a-z]+(?: or [a-z]+)?) )?card, "
+    r"Search your library for an? (?P<basic>basic )?(?:(?P<what>[a-z]+(?: or [a-z]+)?) )?card, "
     r"(?:reveal it, )?then shuffle and put (?:that|the) card on top\.",
     re.IGNORECASE)
 _TOP_TYPES = frozenset({"artifact", "creature", "enchantment", "instant", "sorcery",
@@ -2637,23 +2667,17 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
     if len(_SEARCH_CLAUSE.findall(text)) > 1:
         return Tutor(reason=gettext_noop("searches the library more than once; not modelled"))
     found = _TO_BATTLEFIELD.search(text)
-    line_start = text.rfind("\n", 0, found.start()) + 1 if found else 0
-    if found is not None and ":" not in text[line_start:found.start()] and (
-            (found.group("mv") or "").upper() != "X" or "{X}" in (card.mana_cost or "")):
-        # Read whole off the text, so the tags' "battlefield" and "a mana value
-        # limit" (`tutor-mv`) are both answered, not unexpressible (P19 R10).
-        # Not an ability's search (Tezzeret's "-X:"): the engine plays what a
-        # card does as it is cast or enters, and X is the X of its own cost.
-        color = (found.group("color") or "").lower()
-        limit = found.group("mv")
-        return Tutor(zone="battlefield", count=1, kind=found.group("what").lower(),
-                     filter={"color": _COLOR_LETTER.get(color, ""),
-                             "max_mv": None if limit is None else
-                             ("X" if limit.upper() == "X" else int(limit))})
+    if found is not None and (read := _onto_battlefield(card, text, found)) is not None:
+        return read
     found = _PLUS_SACRIFICED.search(text)
     if found is not None and (plus := _word_number(found.group("n"))) is not None:
         return Tutor(zone="battlefield", count=1, kind="creature",
                      filter={"color": "", "max_mv": None, "plus_sacrificed": plus})
+    found = _EQUAL_SACRIFICED.search(text)
+    if found is not None and (plus := _word_number(found.group("n"))) is not None:
+        return Tutor(zone="battlefield", count=1, kind="creature",
+                     filter={"color": "", "max_mv": None, "plus_sacrificed": plus,
+                             "exact": True})
     found = _TO_TOP.search(text)
     line_start = text.rfind("\n", 0, found.start()) + 1 if found else 0
     if found is not None and ":" not in text[line_start:found.start()] \
@@ -2662,8 +2686,12 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
         # Grove's "{1}, Sacrifice: Search ...", an ability the engine does not
         # use, and not Insatiable Avarice's spree mode, whose {2} nobody pays.
         types = (found.group("what") or "").lower().split(" or ") if found.group("what") else []
-        if all(kind in _TOP_TYPES for kind in types):
-            return Tutor(zone="top", count=1, filter={"types": sorted(types)})
+        if all(kind in _TOP_TYPES for kind in types) and (
+                not found.group("basic") or types == ["land"]):
+            # v34: Embermouth Sentinel's basic land; with a Dragon it goes
+            # onto the battlefield instead, which is not played.
+            return Tutor(zone="top", count=1, filter={"types": sorted(types)}
+                         | ({"basic": True} if found.group("basic") else {}))
     if not _SEARCH_YOUR_LIBRARY.search(text) and _THEIR_LIBRARY.search(text):
         # Path to Exile: the search is the target's controller's, and the
         # target is an opponent's creature or land a goldfish does not have.
@@ -2712,6 +2740,64 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
                      filter={"random_discard": 1})
 
     return Tutor(zone=zone, count=count, kind=kinds.pop() if kinds else "")
+
+
+def _onto_battlefield(card: OracleCard, text: str, found: re.Match) -> Tutor | None:
+    """One card straight onto the battlefield, read whole off the text (P19
+    R10, v34), or None for a search this does not read.
+
+    The tags' "battlefield" and "a mana value limit" (`tutor-mv`) are both
+    answered, not unexpressible. Played as a spell resolves, as the card
+    enters, or as an ability that costs mana and {T} alone (v34) - not in
+    combat (Zur), not as it dies (Academy Rector), not a planeswalker's
+    (Tezzeret's "-X:"). X is the X of the card's own cost.
+    """
+    sub = found.group("sub")
+    if sub in _NOT_TUTORED_SUBTYPES or found.group("after").strip() or _COPIED.search(text):
+        return None
+    line_start = text.rfind("\n", 0, found.start()) + 1
+    line_end = text.find("\n", found.end())
+    if _FOUND_UNDONE.search(text[found.end():line_end if line_end >= 0 else None]):
+        return None
+    name = card.front_name or card.name or ""
+    lead = text[line_start:found.start()]
+    for each in (name, name.split(",")[0]) if name else ():
+        # Its name, and a legendary card's short name: "When Godo enters".
+        lead = lead.replace(each, "~")
+    lead = lead.lower()
+    limit = found.group("mv")
+    if limit is not None and limit.upper() == "X" and "{X}" not in (card.mana_cost or ""):
+        return None
+    if _ADDITIONAL_COST.search(text):
+        additional = _additional_cost(card)
+        if additional.reason or (additional.ways is None and not additional.optional):
+            # Savage Order's creature with power 4 or greater: a cost the
+            # engine does not pay is no search it plays for free. Natural
+            # Order's green creature is paid.
+            return None
+    activated = _TUTOR_ACTIVATED.match(lead)
+    if lead and not _TUTOR_ENTERS.match(lead) and activated is None:
+        return None
+    what = (found.group("what") or "").lower()
+    if what == "permanent" and activated is None:
+        # Wargate, a permanent card for X: the engine's pick would be the
+        # best card there is, as it does not know what the deck plays it for.
+        return None
+    color = (found.group("color") or "").lower()
+    read = {"color": _COLOR_LETTER.get(color, ""),
+            "max_mv": None if limit is None else ("X" if limit.upper() == "X" else int(limit))}
+    if sub:
+        read["types"] = [sub.lower()]
+        what = "creature" if found.group("of") == "creature" else ""
+    elif what == "permanent":
+        read["permanent"], what = True, ""
+    if found.group("nonlegendary"):
+        read["nonlegendary"] = True
+    if activated is not None:
+        read["activated"] = True
+        if activated.group("cost"):
+            read["cost"] = activated.group("cost").upper()
+    return Tutor(zone="battlefield", count=1, kind=what, filter=read)
 
 
 def _special_tutor(text: str) -> Tutor | None:

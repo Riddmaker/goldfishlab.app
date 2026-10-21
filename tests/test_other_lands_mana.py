@@ -12,13 +12,13 @@ import pytest
 
 from cards.models import DerivedProfile, OracleCard
 from cards.profiles import _mana_rule
-from simulation.cards import CREATURE, FLAT, LAND, LANDS_COULD_PRODUCE, Card, ManaAbility
-from simulation.cards import fields as card_fields
+from simulation import build
+from simulation.cards import CREATURE, FLAT, LAND, LANDS_COULD_PRODUCE, ManaAbility
 from simulation.game import Game
 from simulations import gaps
 from simulations.engine import adapter
 from simulations.models import CardAnnotation
-from tests.engine_builders import tap
+from tests.engine_builders import rules, tap
 from tests.support import load_catalogue
 
 Kind = DerivedProfile.Kind
@@ -42,8 +42,8 @@ def test_a_copy_of_your_own_lands_is_a_rule(text):
 
 
 def land(name, subtypes=(), abilities=()):
-    return Card(name, 0, 0, 0, LAND, subtypes=frozenset(subtypes),
-                mana_abilities=tuple(abilities), types=frozenset({"land"}))
+    return build.card(name, 0, 0, 0, LAND, subtypes=frozenset(subtypes),
+                      mana_abilities=tuple(abilities), types=frozenset({"land"}))
 
 
 POOL = land("Reflecting Pool", abilities=[ManaAbility(LANDS_COULD_PRODUCE)])
@@ -72,8 +72,8 @@ def test_two_reflecting_pools_alone_make_nothing():
 
 
 def test_incubation_druid_taps_like_a_mana_creature():
-    druid = Card("Incubation Druid", 2, 0, 1, CREATURE,
-                 mana_abilities=(ManaAbility(LANDS_COULD_PRODUCE),))
+    druid = build.card("Incubation Druid", 2, 0, 1, CREATURE,
+                       mana_abilities=(ManaAbility(LANDS_COULD_PRODUCE),))
     pool = game_with([SWAMP], [druid]).mana()
     assert pool.amount("B") == 2
 
@@ -90,7 +90,8 @@ def orchard(db):
 def test_exotic_orchard_makes_the_deck_colours_as_a_stated_assumption(orchard):
     card, found = adapter.engine_readings([orchard], builtin=False)[orchard.pk]
 
-    assert card_fields(card)["mana_abilities"] == (ManaAbility(FLAT, {"WUBRG": 1}),)
+    got, made = rules(card, mana_abilities=(ManaAbility(FLAT, {"WUBRG": 1}),))
+    assert got == made
     assumed = [gap for gap in found if gap.field == "assumed_mana"]
     assert assumed and gaps.kind_of("assumed_mana") == gaps.JUDGEMENT
     assert not gaps.of_kind(found, gaps.READING), "it is no longer a card the engine cannot read"

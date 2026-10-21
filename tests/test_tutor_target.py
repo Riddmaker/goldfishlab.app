@@ -11,12 +11,11 @@ import random
 
 import pytest
 
-from simulation import agent, analysis
+from simulation import agent, analysis, build
 from simulation.cards import (
     CREATURE,
     LAND,
     SORCERY,
-    Card,
     DeckDefinition,
     TutorSpec,
 )
@@ -25,7 +24,7 @@ from simulation.game import Game
 
 
 def _card(name, kind, mv=0, **extra):
-    return Card(name, mv, 0, mv, kind, **extra)
+    return build.card(name, mv, 0, mv, kind, **extra)
 
 
 FOREST = _card("Forest", LAND, subtypes=frozenset({"Forest"}))

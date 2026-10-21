@@ -21,7 +21,7 @@ from cards.models import OracleCard
 from cards.profiles import _mana_production, _spend_only
 from decks.models import Deck, DeckCard
 from playtest.views import restricted_mana
-from simulation import actions
+from simulation import actions, build
 from simulation.cards import (
     CREATURE,
     FLAT,
@@ -157,18 +157,18 @@ def test_what_a_filter_lets_pay(wanted, spell, expected):
 
 
 def basic(name, subtype, color):
-    return Card(name, 0, 0, 0, LAND, subtypes=frozenset({subtype}), basic=True,
-                mana_abilities=(ManaAbility(FLAT, {color: 1}),))
+    return build.card(name, 0, 0, 0, LAND, subtypes=frozenset({subtype}), basic=True,
+                      mana_abilities=(ManaAbility(FLAT, {color: 1}),))
 
 
 FOREST = basic("Forest", "forest", "G")
-CAVERN = Card("Cavern of Souls", 0, 0, 0, LAND, mana_abilities=(
+CAVERN = build.card("Cavern of Souls", 0, 0, 0, LAND, mana_abilities=(
     ManaAbility(FLAT, {"WUBRG": 1}, spend_only=ELVES), ManaAbility(FLAT, {"C": 1})))
-SHRINE = Card("Shrine of the Forsaken Gods", 0, 0, 0, LAND, mana_abilities=(
+SHRINE = build.card("Shrine of the Forsaken Gods", 0, 0, 0, LAND, mana_abilities=(
     ManaAbility(FLAT, {"C": 2}, only_if=TappedUnless("lands", count=7),
-                spend_only=(SpellFilter(colorless=True),)),
+                      spend_only=(SpellFilter(colorless=True),)),
     ManaAbility(FLAT, {"C": 1})))
-PLAZA = Card("Plaza of Heroes", 0, 0, 0, LAND, mana_abilities=(
+PLAZA = build.card("Plaza of Heroes", 0, 0, 0, LAND, mana_abilities=(
     ManaAbility(FLAT, {"WUBRG": 1}, spend_only=(SpellFilter(legendary=True),)),
     ManaAbility(FLAT, {"C": 1})))
 

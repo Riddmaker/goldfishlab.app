@@ -3,7 +3,6 @@
 import unittest
 from collections import Counter
 
-from simulation.cards import fields as card_fields
 from simulation.cards import (COMMANDER, SPELLS, SWAMP_COUNT, UTILITY_LANDS,
                               build_deck, land_count)
 
@@ -68,7 +67,7 @@ class TestDeckComposition(unittest.TestCase):
     def test_tapped_lands_flagged(self):
         """Bojuka Bog kommt getappt - in Runde 1-3 entscheidend."""
         bog = next(c for c in UTILITY_LANDS if c.name == "Bojuka Bog")
-        self.assertTrue(card_fields(bog)["enters_tapped"])
+        self.assertTrue(bog.play.enters_tapped)
 
 
 if __name__ == "__main__":

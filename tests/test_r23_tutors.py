@@ -16,7 +16,6 @@ said on the deck page.
 
 import random
 import uuid
-from dataclasses import replace
 from types import SimpleNamespace
 
 import pytest
@@ -26,7 +25,7 @@ from cards import profiles
 from cards.models import OracleCard
 from cards.profiles import derive
 from decks.models import Deck, DeckCard
-from simulation import actions
+from simulation import actions, build
 from simulation.cards import (
     ARTIFACT,
     CREATURE,
@@ -49,7 +48,7 @@ from simulation.mana import ManaPool
 from simulation.manacost import parse
 from simulations import deck_cards
 from simulations.engine import adapter
-from tests.engine_builders import marks, tap
+from tests.engine_builders import marks, tap, with_rules
 
 ANY = "WUBRG"
 TO_HAND = {"tutor", "tutor-to", "tutor-to-hand"}
@@ -238,14 +237,14 @@ def creature(name, power=2, mv=2, types=("human",)):
 
 
 def spell(name, kind=SORCERY, mv=2, subtypes=(), tutor=None, land_search=None, **kwargs):
-    return Card(name, mv, 0, mv, kind, cost=parse(f"{{{mv}}}"), types=frozenset({kind}),
-                printed_subtypes=frozenset(subtypes), tutor=tutor, land_search=land_search,
-                **kwargs)
+    return build.card(name, mv, 0, mv, kind, cost=parse(f"{{{mv}}}"), types=frozenset({kind}),
+                      printed_subtypes=frozenset(subtypes), tutor=tutor, land_search=land_search,
+                      **kwargs)
 
 
 def land(name="Forest", basic=True, subtypes=("forest",), color="G"):
-    return Card(name, 0, 0, 0, "land", basic=basic, subtypes=frozenset(subtypes),
-                types=frozenset({"land"}), mana_abilities=(ManaAbility(FLAT, {color: 1}),))
+    return build.card(name, 0, 0, 0, "land", basic=basic, subtypes=frozenset(subtypes),
+                      types=frozenset({"land"}), mana_abilities=(ManaAbility(FLAT, {color: 1}),))
 
 
 FOREST, PLAINS = land(), land("Plains", subtypes=("plains",), color="W")
@@ -277,7 +276,7 @@ def test_a_search_finds_a_subtype_up_to_a_mana_value():
     big = spell("Big", INSTANT, 3)
     seeker = TutorSpec(types=frozenset({"instant", "sorcery"}), max_mv=2)
     game = game_with(library=[big, small, creature("Elf", mv=1)])
-    resolve(game, replace(creature("Spellseeker"), tutor=seeker))
+    resolve(game, with_rules(creature("Spellseeker"), tutor=seeker))
     assert game.hand == [small]
 
 
@@ -362,7 +361,7 @@ def test_land_searches_by_power_with_gates_and_a_sacrifice():
 
 
 def test_claim_jumper_searches_twice_while_behind():
-    jumper = replace(creature("Claim Jumper", 3, 3), land_search=LandSearch(
+    jumper = with_rules(creature("Claim Jumper", 3, 3), land_search=LandSearch(
         basic=False, types=frozenset({"plains"}), when="enters",
         condition="opponent_more_lands", repeat=1))
     game = game_with(library=[PLAINS] * 4, turn=5, lands=[FOREST])
@@ -375,7 +374,7 @@ def test_claim_jumper_searches_twice_while_behind():
 
 
 def test_keeper_of_the_accord_searches_in_the_opponents_end_steps():
-    keeper = replace(creature("Keeper of the Accord", 3, 4), land_search=LandSearch(
+    keeper = with_rules(creature("Keeper of the Accord", 3, 4), land_search=LandSearch(
         types=frozenset({"plains"}), when="opponents", condition="opponent_more_lands"))
     game = game_with(library=[PLAINS] * 5 + [BEAR] * 5, creatures=[keeper], lands=[FOREST],
                      turn=3)
@@ -400,9 +399,9 @@ def test_tempt_with_discovery_and_open_the_way():
 
 
 def test_sword_of_hearth_and_home_finds_an_untapped_land():
-    sword = Card("Sword of Hearth and Home", 3, 0, 3, ARTIFACT, types=frozenset({"artifact"}),
-                 equip=parse("{2}"), combat=(CombatTrigger(event="damage", who="equipped",
-                                                           search=True, untapped=True),))
+    sword = build.card("Sword of Hearth and Home", 3, 0, 3, ARTIFACT, types=frozenset({"artifact"}),
+                       equip=parse("{2}"), combat=(CombatTrigger(event="damage", who="equipped",
+                                                                 search=True, untapped=True),))
     game = game_with(library=[FOREST] * 3, creatures=[BEAR], other=[sword])
     marks(game, attached={sword.name: BEAR.name})
     game.pool = ManaPool()
@@ -411,7 +410,7 @@ def test_sword_of_hearth_and_home_finds_an_untapped_land():
 
 
 def test_neheb_adds_red_for_each_point_of_combat_damage():
-    neheb = replace(creature("Neheb, the Eternal", 4, 5), combat=(
+    neheb = with_rules(creature("Neheb, the Eternal", 4, 5), combat=(
         CombatTrigger(event="damage", who="total", mana="R"),))
     game = game_with(creatures=[neheb, creature("Bear", 2)])
     game.pool = ManaPool()
@@ -421,7 +420,7 @@ def test_neheb_adds_red_for_each_point_of_combat_damage():
 
 
 def test_crime_novelist_sees_a_treasure_spent():
-    novelist = replace(creature("Crime Novelist", 3, 3), triggers=(
+    novelist = with_rules(creature("Crime Novelist", 3, 3), triggers=(
         Trigger(event=SACRIFICED, filter="artifact", mana=1, mana_color="R", counter=1),))
     game = game_with(creatures=[novelist])
     game.treasures = [ANY]

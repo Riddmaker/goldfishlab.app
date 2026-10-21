@@ -2,16 +2,17 @@
 
 What these tests hold:
 
-1. **The family round-trips**: the eleven fields become blocks and come
-   back exactly; a card made with fields equals one made with blocks.
+1. **The family makes blocks**: each of the eleven fields makes a block,
+   and a card made with fields (`simulation.build`) equals one made with
+   the blocks they make; the view reads every field back.
 2. **The view holds what the engine asks.**
 3. **The engine reads blocks only**: `game.py`, `agent.py`, `actions.py` and
    `analysis.py` read the family through ``card.turn``.
 4. **The engine card is face, hints and abilities**: every field `Card`
    keeps is printed or a play hint (`simulation.blocks`).
 
-The whole catalogue's round trip is `engine_coverage --diff` against the
-latest frozen reading; in CI it is the coverage snapshot of the 3,070 cards.
+The whole catalogue is `engine_coverage --diff` against the latest frozen
+reading; in CI it is the coverage snapshot of the 3,070 cards.
 """
 
 import ast
@@ -20,14 +21,10 @@ from pathlib import Path
 
 import pytest
 
-from simulation import serial
+from simulation import build, serial
 from simulation.blocks import FACE_FIELDS, HINT_FIELDS
 from simulation.cards import (
     CREATURE,
-    INIT_FIELDS,
-    MANA_FIELDS,
-    PLAY_FIELDS,
-    TURN_FIELDS,
     Card,
     CombatTrigger,
     EndStepSpec,
@@ -35,7 +32,6 @@ from simulation.cards import (
     Trigger,
     UpkeepSpec,
 )
-from simulation.cards import fields as card_fields
 from simulation.manacost import parse
 from simulation.rules import mana, play, turns
 
@@ -67,51 +63,45 @@ FAMILY = {
 
 
 def test_the_family_is_every_field_card_takes():
-    assert tuple(turns.FIELDS) == TURN_FIELDS
     assert set(FAMILY) == set(turns.FIELDS)
     assert all(FAMILY[name] != default for name, default in turns.FIELDS.items())
-    assert set(MANA_FIELDS) | set(PLAY_FIELDS) | set(TURN_FIELDS) == set(INIT_FIELDS)
+    assert set(mana.FIELDS) | set(play.FIELDS) | set(turns.FIELDS) == set(build.FIELDS)
     assert not turns.FORMS & (mana.FORMS | play.FORMS)
 
 
-def test_every_field_comes_back_exactly():
-    assert turns.decode(turns.encode(FAMILY)) == FAMILY
-    assert turns.decode(turns.encode({})) == turns.FIELDS
-    assert turns.encode({}) == ()
+def test_a_field_at_its_default_makes_no_block():
+    assert turns.encode({}) == () and turns.encode(turns.FIELDS) == ()
 
 
 @pytest.mark.parametrize("name", list(FAMILY))
-def test_each_field_comes_back_alone(name):
-    assert turns.decode(turns.encode({name: FAMILY[name]})) == {**turns.FIELDS,
-                                                                 name: FAMILY[name]}
+def test_each_field_comes_back_alone_in_the_view(name):
+    view = turns.compile_view(turns.encode({name: FAMILY[name]}))
+    assert {field: getattr(view, field) for field in turns.FIELDS} == {**turns.FIELDS,
+                                                                       name: FAMILY[name]}
 
 
 def test_treasure_mana_alone_is_kept():
-    assert turns.decode(turns.encode({"treasure_mana": "G"}))["treasure_mana"] == "G"
+    assert turns.compile_view(turns.encode({"treasure_mana": "G"})).treasure_mana == "G"
 
 
 def test_a_card_made_with_fields_is_a_card_made_with_blocks():
-    card = Card("Everything", 3, 1, 2, CREATURE, ritual_gain=2, draw_on_cast=1, **FAMILY)
+    card = build.card("Everything", 3, 1, 2, CREATURE, ritual_gain=2, draw_on_cast=1, **FAMILY)
     again = Card("Everything", 3, 1, 2, CREATURE,
                  abilities=mana.encode({"ritual_gain": 2}) + play.encode({"draw_on_cast": 1})
                  + turns.encode(FAMILY))
     assert card == again and hash(card) == hash(again)
-    assert {name: card_fields(card)[name] for name in TURN_FIELDS} == FAMILY
-    changed = dataclasses.replace(card, germ=False)
-    assert changed == Card("Everything", 3, 1, 2, CREATURE, ritual_gain=2, draw_on_cast=1,
-                           **{**FAMILY, "germ": False})
 
 
 def test_a_stored_card_keeps_its_blocks():
-    card = Card("Everything", 3, 1, 2, CREATURE, **FAMILY)
+    card = build.card("Everything", 3, 1, 2, CREATURE, **FAMILY)
     dumped = serial.dump(card)
     assert "growth" not in dumped and dumped["abilities"]
     assert serial.load(Card, dumped) == card
 
 
 def test_the_view_holds_what_the_engine_asks():
-    view = Card("Everything", 3, 1, 2, CREATURE, **FAMILY).turn
-    assert {name: getattr(view, name) for name in TURN_FIELDS} == FAMILY
+    view = build.card("Everything", 3, 1, 2, CREATURE, **FAMILY).turn
+    assert {name: getattr(view, name) for name in turns.FIELDS} == FAMILY
     assert Card("Bear", 2, 0, 2, CREATURE).turn is turns.NO_TURN
 
 

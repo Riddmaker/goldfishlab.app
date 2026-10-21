@@ -25,6 +25,7 @@ import random
 import types
 import typing
 
+from simulation import build
 from simulation.blocks import Ability, Cost, Effect, Event, Which
 from simulation.cards import Card, DeckDefinition
 from simulation.game import Game
@@ -57,25 +58,20 @@ def fields_of(cls) -> list[tuple[str, object]]:
     """
     found = _FIELDS.get(cls)
     if found is None:
-        found = [(item.name, ABILITIES if cls is Card and item.name == "abilities"
-                  else item.type) for item in dataclasses.fields(cls)]
+        found = [(item.name, item.type) for item in dataclasses.fields(cls)]
         _FIELDS[cls] = found
     return found
 
 
-#: What a card's ``abilities`` hold: `Card` cannot say so itself, since
-#: :mod:`simulation.blocks` imports it.
-ABILITIES = tuple[Ability, ...]
+_FIELDS: dict[type, list] = {}
 
 
 def legacy_fields_of() -> list[tuple[str, object]]:
     """The fields a card was written with before its blocks were (phase 5):
-    the printed ones and the ones it was made with."""
-    return [(name, item.type.type if isinstance(item.type, dataclasses.InitVar) else item.type)
-            for name, item in Card.__dataclass_fields__.items() if name != "abilities"]
-
-
-_FIELDS: dict[type, list] = {}
+    the printed ones and the ones it was made with (`build.MadeWith`)."""
+    return ([(item.name, item.type) for item in dataclasses.fields(Card)
+             if item.name != "abilities"]
+            + [(item.name, item.type) for item in dataclasses.fields(build.MadeWith)])
 
 
 def _discover() -> None:
@@ -244,14 +240,12 @@ def legacy_default() -> dict:
     record of that form (a frozen reading, a snapshot before phase 5) is
     filled back in."""
     if not _LEGACY_DEFAULT:
-        from simulation.rules import mana, play, turns
-
         # The card nobody named that such a record left out: a land.
         nobody = Card(name="", mv=0, pips=0, generic=0, kind="land")
-        made_with = {**mana.FIELDS, **play.FIELDS, **turns.FIELDS}
+        made_with = build.MadeWith()
         for name, annotation in legacy_fields_of():
-            _LEGACY_DEFAULT[name] = dump(made_with[name] if name in made_with
-                                         else getattr(nobody, name), annotation)
+            value = getattr(made_with if name in build.FIELDS else nobody, name)
+            _LEGACY_DEFAULT[name] = dump(value, annotation)
         _LEGACY_DEFAULT["_type"] = "Card"
     return _LEGACY_DEFAULT
 
@@ -261,9 +255,10 @@ _LEGACY_DEFAULT: dict = {}
 
 def _legacy_card(data: dict) -> Card:
     """A card written before its blocks were: made again with the fields it
-    was made with (`legacy_fields_of`), which turns them into its blocks."""
-    return Card(**{name: load(annotation, data[name])
-                   for name, annotation in legacy_fields_of() if name in data})
+    was made with (`legacy_fields_of`), which `build.card` turns into its
+    blocks."""
+    return build.card(**{name: load(annotation, data[name])
+                         for name, annotation in legacy_fields_of() if name in data})
 
 
 # --- Decks -----------------------------------------------------------------

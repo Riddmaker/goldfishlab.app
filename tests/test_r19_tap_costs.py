@@ -20,7 +20,7 @@ from cards import profiles
 from cards.models import OracleCard
 from cards.profiles import _mana_production
 from decks.models import Deck, DeckCard
-from simulation import serial
+from simulation import build, serial
 from simulation.cards import (
     ARTIFACT,
     CREATURE,
@@ -36,7 +36,6 @@ from simulation.cards import (
     TapMana,
     TappedUnless,
 )
-from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.manacost import parse
 from simulation.trace import named
@@ -147,24 +146,24 @@ def test_millikin_mills_a_card_for_its_mana():
 
 
 def creature(name, *, legendary=False, colors="G", mana=(), creature_types=("elf",)):
-    return Card(name, 2, 0, 2, CREATURE, cost=parse("{1}{G}"), types=frozenset({"creature"}),
-                legendary=legendary, colors=frozenset(colors), mana_abilities=tuple(mana),
-                creature_types=frozenset(creature_types))
+    return build.card(name, 2, 0, 2, CREATURE, cost=parse("{1}{G}"), types=frozenset({"creature"}),
+                      legendary=legendary, colors=frozenset(colors), mana_abilities=tuple(mana),
+                      creature_types=frozenset(creature_types))
 
 
 def taps_creature(name="Springleaf Drum", kind=ROCK, otherwise=()):
-    return Card(name, 1, 0, 1, kind, types=frozenset({"artifact" if kind == ROCK else kind}),
-                mana_abilities=(ManaAbility(FLAT, {ANY: 1}, only_if=TappedUnless(
-                    "tap_fodder", types=frozenset({"creature"}))), *otherwise))
+    return build.card(name, 1, 0, 1, kind, types=frozenset({"artifact" if kind == ROCK else kind}),
+                      mana_abilities=(ManaAbility(FLAT, {ANY: 1}, only_if=TappedUnless(
+                          "tap_fodder", types=frozenset({"creature"}))), *otherwise))
 
 
 DRUM = taps_creature()
 ENCAMPMENT = taps_creature("Survivors' Encampment", LAND, (ManaAbility(FLAT, {"C": 1}),))
 ELF = creature("Llanowar Elves", mana=(ManaAbility(FLAT, {"G": 1}),))
 BEAR = creature("Grizzly Bears")
-RELIC = Card("Relic of Legends", 3, 0, 3, ROCK, types=frozenset({"artifact"}),
-             mana_abilities=(ManaAbility(FLAT, {ANY: 1}),),
-             tap_mana=TapMana(types=frozenset({"creature"}), filter="legendary", mana=ANY))
+RELIC = build.card("Relic of Legends", 3, 0, 3, ROCK, types=frozenset({"artifact"}),
+                   mana_abilities=(ManaAbility(FLAT, {ANY: 1}),),
+                   tap_mana=TapMana(types=frozenset({"creature"}), filter="legendary", mana=ANY))
 
 
 def game_with(lands=(), rocks=(), creatures=(), other=(), hand=(), library=()):
@@ -206,19 +205,20 @@ def test_the_narrowest_ask_takes_its_creature_first():
 
 
 def test_urza_taps_each_artifact_and_his_construct():
-    urza = Card("Urza, Lord High Artificer", 4, 0, 2, CREATURE, types=frozenset({"creature"}),
-                legendary=True,
-                tap_mana=TapMana(types=frozenset({"artifact"}), mana="U", tokens=1))
+    urza = build.card("Urza, Lord High Artificer", 4, 0, 2, CREATURE, types=frozenset({"creature"}),
+                      legendary=True,
+                      tap_mana=TapMana(types=frozenset({"artifact"}), mana="U", tokens=1))
     bauble = Card("Mishra's Bauble", 0, 0, 0, ARTIFACT, types=frozenset({"artifact"}))
     assert game_with(creatures=[urza], other=[bauble]).mana().by_color() == {"U": 2}
 
 
 def test_grand_architect_taps_itself_for_artifact_mana():
-    architect = Card("Grand Architect", 3, 0, 1, CREATURE, types=frozenset({"creature"}),
-                     colors=frozenset({"U"}), creature_types=frozenset({"vedalken"}),
-                     tap_mana=TapMana(types=frozenset({"creature"}), filter="U", mana="C",
-                                      amount=2,
-                                      spend_only=(SpellFilter(types=frozenset({"artifact"})),)))
+    architect = build.card(
+        "Grand Architect", 3, 0, 1, CREATURE, types=frozenset({"creature"}),
+        colors=frozenset({"U"}), creature_types=frozenset({"vedalken"}),
+        tap_mana=TapMana(types=frozenset({"creature"}), filter="U", mana="C",
+                         amount=2,
+                         spend_only=(SpellFilter(types=frozenset({"artifact"})),)))
     pool = game_with(creatures=[architect, BEAR]).mana()
     assert pool.total == 0
     assert [each.made for each in pool.restricted] == [{"C": 2}]
@@ -235,12 +235,12 @@ def test_a_creature_tapped_for_mana_cannot_pay_another_tap_this_turn():
 
 
 def test_mox_diamond_needs_a_land_card_and_discards_a_tapped_one_first():
-    diamond = Card("Mox Diamond", 0, 0, 0, ROCK, types=frozenset({"artifact"}),
-                   mox=DISCARD_LAND, mana_abilities=(ManaAbility(FLAT, {ANY: 1}),))
+    diamond = build.card("Mox Diamond", 0, 0, 0, ROCK, types=frozenset({"artifact"}),
+                         mox=DISCARD_LAND, mana_abilities=(ManaAbility(FLAT, {ANY: 1}),))
     game = game_with(hand=[diamond])
     assert not game.can_cast(diamond, game.mana())
     forest = Card("Forest", 0, 0, 0, LAND, basic=True)
-    tapped = Card("Temple", 0, 0, 0, LAND, enters_tapped=True)
+    tapped = build.card("Temple", 0, 0, 0, LAND, enters_tapped=True)
     game = game_with(hand=[diamond, forest, tapped])
     pool = game.mana()
     assert game.can_cast(diamond, pool)
@@ -250,7 +250,7 @@ def test_mox_diamond_needs_a_land_card_and_discards_a_tapped_one_first():
 
 
 def test_chrome_mox_exiles_the_most_expensive_coloured_card_and_makes_its_colours():
-    chrome = Card("Chrome Mox", 0, 0, 0, ROCK, types=frozenset({"artifact"}), mox=IMPRINT)
+    chrome = build.card("Chrome Mox", 0, 0, 0, ROCK, types=frozenset({"artifact"}), mox=IMPRINT)
     sol_ring = Card("Sol Ring", 1, 0, 1, ROCK, types=frozenset({"artifact"}))
     game = game_with(hand=[chrome, sol_ring])
     assert not game.can_cast(chrome, game.mana())
@@ -264,8 +264,8 @@ def test_chrome_mox_exiles_the_most_expensive_coloured_card_and_makes_its_colour
 
 
 def test_millikin_mills_a_card_when_the_pool_opens():
-    millikin = Card("Millikin", 2, 0, 2, CREATURE, types=frozenset({"artifact", "creature"}),
-                    mana_abilities=(ManaAbility(FLAT, {"C": 1}),), mana_mills=1)
+    millikin = build.card("Millikin", 2, 0, 2, CREATURE, types=frozenset({"artifact", "creature"}),
+                          mana_abilities=(ManaAbility(FLAT, {"C": 1}),), mana_mills=1)
     top = creature("Top Card")
     game = game_with(creatures=[millikin], library=[top, BEAR])
     game.open_pool()
@@ -344,8 +344,8 @@ def test_every_card_states_its_assumption_beside_it(drum_deck):
     assert "after the turn's land drop" in assumed(found["diamond"])[0]
     assert "the most expensive one" in assumed(found["chrome"])[0]
     assert "mills a card each time" in assumed(found["millikin"])[0]
-    assert card_fields(found["relic"].card)["tap_mana"].mana == "G"
-    assert card_fields(found["diamond"].card)["mox"] == DISCARD_LAND
+    assert found["relic"].card.mana.tap_other.mana == "G"
+    assert found["diamond"].card.mana.mox == DISCARD_LAND
 
 
 def test_the_deck_page_shows_the_drum_s_assumption(drum_deck, client):

@@ -12,7 +12,7 @@ import pytest
 
 from cards.models import OracleCard
 from cards.profiles import _tutor
-from simulation import actions
+from simulation import actions, build
 from simulation.cards import CREATURE, LAND, ROCK, SORCERY, Card, LandSearch, TutorSpec
 from simulation.game import Game
 from simulation.manacost import parse
@@ -54,15 +54,16 @@ def test_an_ability_that_searches_is_not_what_the_card_does_when_cast():
 
 
 FOREST = Card("Forest", 0, 0, 0, LAND, subtypes=frozenset({"forest"}), basic=True)
-ZENITH = Card("Green Sun's Zenith", 1, 0, 0, SORCERY, cost=parse("{X}{G}"), x_count=1,
-              tutor=TutorSpec(to_hand=False, to_battlefield=True, kind="creature",
-                              color="G", max_mv_x=True))
-WHIR = Card("Whir of Invention", 3, 0, 0, SORCERY, cost=parse("{X}{U}{U}{U}"), x_count=1,
-            tutor=TutorSpec(to_hand=False, to_battlefield=True, kind="artifact", max_mv_x=True))
-ELVES = Card("Wood Elves", 3, 0, 2, CREATURE, cost=parse("{2}{G}"),
-             types=frozenset({"creature"}),
-             land_search=LandSearch(battlefield=1, tapped=False, types=frozenset({"forest"}),
-                                    when="enters"))
+ZENITH = build.card("Green Sun's Zenith", 1, 0, 0, SORCERY, cost=parse("{X}{G}"), x_count=1,
+                    tutor=TutorSpec(to_hand=False, to_battlefield=True, kind="creature",
+                                    color="G", max_mv_x=True))
+WHIR = build.card(
+    "Whir of Invention", 3, 0, 0, SORCERY, cost=parse("{X}{U}{U}{U}"), x_count=1,
+    tutor=TutorSpec(to_hand=False, to_battlefield=True, kind="artifact", max_mv_x=True))
+ELVES = build.card("Wood Elves", 3, 0, 2, CREATURE, cost=parse("{2}{G}"),
+                   types=frozenset({"creature"}),
+                   land_search=LandSearch(battlefield=1, tapped=False, types=frozenset({"forest"}),
+                                          when="enters"))
 TITAN = Card("Primeval Titan", 6, 0, 4, CREATURE, cost=parse("{4}{G}{G}"),
              types=frozenset({"creature"}))
 GOLEM = Card("Golem", 3, 0, 3, CREATURE, cost=parse("{3}"), types=frozenset({"creature"}))

@@ -1,40 +1,39 @@
-"""Triggers, turns and combat as blocks: encoder, decoder, the engine's view (phase 4, PR 15).
+"""Triggers, turns and combat as blocks: encoder and what the engine reads (phase 4, PR 15).
 
 Eleven fields of the old engine card said what a card does while turns
 pass: its triggered abilities, its upkeep and end step, a skipped draw
 step, its +1/+1 counters, its triggers in combat, an Equipment's equip
 cost, a Germ, the Treasures it makes as it resolves or enters and the
-mana they make, and a Treasure bonus. PR 15 turns them into blocks the way
-PR 13 and 14 turned the mana family and lands, costs and spells; with it
-every rule of the old card is a block, and the card is printed face, play
-hints and abilities.
+mana they make, and a Treasure bonus. PR 15 turned them into blocks the way
+PR 13 and 14 turned the mana family and lands, costs and spells.
 
-The blocks are the ones phase 0 described these structures with
-(:data:`simulation.blocks.FORMS`, proven lossless on the whole catalogue
-then): one encoder and one decoder per structure, used here as they are.
-Treasures, which phase 0 kept in a spell's resolve block, get a block of
-their own (``treasures``), since the resolve block belongs to PR 14.
+Two functions, as in :mod:`simulation.rules.mana`:
 
-Three functions, as in :mod:`simulation.rules.mana`:
-
-* `encode` turns the eleven fields into blocks;
-* `decode` turns the blocks back into exactly those fields, for the
-  application until phase 5;
+* `encode` turns the eleven fields into blocks (`simulation.build`), one
+  encoder per structure;
 * `compile_view` turns a card's blocks into a `TurnView` once: what the
   engine asks while it plays.
 
 A trigger, an upkeep, an end step, a growth and a combat trigger reach the
-engine in today's shapes (`Trigger`, `UpkeepSpec`, `EndStepSpec`, `Growth`,
-`CombatTrigger`), as a land search does since PR 14: the engine's turn
-code takes them so, and they move to atoms when phase 5 needs it.
+engine in the shapes its turn code takes (`Trigger`, `UpkeepSpec`,
+`EndStepSpec`, `Growth`, `CombatTrigger`), read off their blocks' atoms.
 """
 
 from dataclasses import dataclass
 from types import SimpleNamespace
 from typing import Any
 
-from simulation.blocks import FORMS as STRUCTURES
-from simulation.blocks import RESOLVES, Ability, Effect
+from simulation.blocks import (
+    ACTIVATED,
+    RESOLVES,
+    STATIC,
+    TRIGGERED,
+    Ability,
+    Cost,
+    Effect,
+    Event,
+    changed_args,
+)
 from simulation.cards import CombatTrigger, EndStepSpec, Growth, Trigger, UpkeepSpec
 from simulation.manacost import ManaCost
 
@@ -56,8 +55,7 @@ FIELDS: dict[str, Any] = {
     "treasure_bonus": 0,
 }
 
-#: The phase 0 structures of the family: the key of each in
-#: `simulation.blocks.FORMS`, and the ``form`` its blocks carry.
+#: The structures of the family, and the ``form`` their blocks carry.
 _STRUCTURES = {"upkeep": "upkeep", "end_step": "end_step", "skips_draw": "skips_draw",
                "triggers": "trigger", "combat": "combat", "growth": "growth",
                "equip": "equip", "germ": "germ", "treasure_bonus": "treasure_bonus"}
@@ -76,7 +74,7 @@ def encode(values: dict) -> tuple[Ability, ...]:
     card = SimpleNamespace(**{**FIELDS, **values})
     found: list[Ability] = []
     for key in _STRUCTURES:
-        found.extend(STRUCTURES[key][0](card))
+        found.extend(_ENCODERS[key](card))
     if card.treasures or card.treasure_mana:
         # The mana of Treasures a card does not make is a value nothing
         # reads; it is kept so that the card comes back the same.
@@ -85,8 +83,204 @@ def encode(values: dict) -> tuple[Ability, ...]:
     return tuple(found)
 
 
-def decode(abilities) -> dict:
-    """The family's fields from blocks, every one: defaults where none says."""
+# --- one encoder and one reader per structure -----------------------------------------
+
+
+def _enc_upkeep(card):
+    value = card.upkeep
+    if value is None:
+        return
+    effects = [Effect("draw", (("n", value.draw),))]
+    if value.life or value.life_per_mv:
+        effects.append(Effect("lose_life", tuple(sorted(
+            [("n", value.life)] + ([("per", "drawn_mv")] if value.life_per_mv else [])))))
+    yield Ability(TRIGGERED, "upkeep", event=Event("upkeep"), effects=tuple(effects))
+
+
+def _upkeep_of(abilities):
+    effects = {effect.verb: effect for effect in abilities[0].effects}
+    life = effects.get("lose_life")
+    return {"upkeep": UpkeepSpec(draw=effects["draw"].arg("n"),
+                                 life=life.arg("n") if life else 0,
+                                 life_per_mv=bool(life and life.arg("per")))}
+
+
+def _enc_end_step(card):
+    if card.end_step is not None:
+        yield Ability(TRIGGERED, "end_step", event=Event("end_step"),
+                      effects=(Effect("pay_life_draw",
+                                      changed_args(card.end_step) + (("set", True),)),))
+
+
+def _end_step_of(abilities):
+    args = dict(abilities[0].effects[0].args)
+    args.pop("set")
+    return {"end_step": EndStepSpec(**args)}
+
+
+def _enc_skips_draw(card):
+    if card.skips_draw_step:
+        yield Ability(STATIC, "skips_draw", effects=(Effect("skip_draw_step"),))
+
+
+def _skips_draw_of(abilities):
+    return {"skips_draw_step": True}
+
+
+def _trigger_effects(treasures, treasure_mana, mana, mana_color, draw, life, counter,
+                     connive):
+    effects = []
+    if treasures:
+        effects.append(Effect("create_token", (("mana", treasure_mana), ("n", treasures),
+                                               ("token", "treasure"))))
+    if mana:
+        effects.append(Effect("add_mana", (("color", mana_color), ("n", mana))))
+    if draw:
+        effects.append(Effect("draw", (("n", draw),)))
+    if life:
+        effects.append(Effect("lose_life", (("n", life),)))
+    if counter:
+        effects.append(Effect("put_counter", (("n", counter), ("on", "self"))))
+    if connive:
+        effects.append(Effect("connive", (("n", connive),)))
+    return tuple(effects)
+
+
+def _enc_triggers(card):
+    for value in card.triggers:
+        effects = _trigger_effects(value.treasures, value.treasure_mana, value.mana,
+                                   value.mana_color, value.draw, value.life, value.counter,
+                                   value.connive)
+        # A trigger that does nothing the engine plays still holds its place.
+        yield Ability(TRIGGERED, "trigger", event=Event(value.event, filter=value.filter),
+                      effects=effects or (Effect("nothing", changed_args(value, skip=("event",
+                                                                               "filter"))),))
+
+
+def _triggers_of(abilities):
+    found = []
+    for ability in abilities:
+        kwargs: dict[str, Any] = {"event": ability.event.name, "filter": ability.event.filter}
+        for effect in ability.effects:
+            if effect.verb == "create_token":
+                kwargs.update(treasures=effect.arg("n"), treasure_mana=effect.arg("mana"))
+            elif effect.verb == "add_mana":
+                kwargs.update(mana=effect.arg("n"), mana_color=effect.arg("color"))
+            elif effect.verb == "draw":
+                kwargs["draw"] = effect.arg("n")
+            elif effect.verb == "lose_life":
+                kwargs["life"] = effect.arg("n")
+            elif effect.verb == "put_counter":
+                kwargs["counter"] = effect.arg("n")
+            elif effect.verb == "connive":
+                kwargs["connive"] = effect.arg("n")
+            else:
+                kwargs.update(dict(effect.args))
+        found.append(Trigger(**kwargs))
+    return {"triggers": tuple(found)}
+
+
+def _enc_combat(card):
+    for value in card.combat:
+        effects = []
+        if value.treasures:
+            effects.append(Effect("create_token", (("mana", value.treasure_mana),
+                                                   ("n", value.treasures),
+                                                   ("token", "treasure"))))
+        if value.mana:
+            effects.append(Effect("add_mana", (("mana", value.mana), ("until", "end_of_turn"))))
+        if value.search or value.untapped:
+            effects.append(Effect("search_land", (("search", value.search),
+                                                  ("untapped", value.untapped))))
+        if value.connive:
+            effects.append(Effect("connive", (("n", value.connive),)))
+        yield Ability(TRIGGERED, "combat",
+                      event=Event(value.event, who=value.who, types=value.types),
+                      effects=tuple(effects))
+
+
+def _combat_of(abilities):
+    found = []
+    for ability in abilities:
+        kwargs: dict[str, Any] = {"event": ability.event.name, "who": ability.event.who,
+                                  "types": ability.event.types}
+        for effect in ability.effects:
+            if effect.verb == "create_token":
+                kwargs.update(treasures=effect.arg("n"), treasure_mana=effect.arg("mana"))
+            elif effect.verb == "add_mana":
+                kwargs["mana"] = effect.arg("mana")
+            elif effect.verb == "connive":
+                kwargs["connive"] = effect.arg("n")
+            else:
+                kwargs.update(search=effect.arg("search"), untapped=effect.arg("untapped"))
+        found.append(CombatTrigger(**kwargs))
+    return {"combat": tuple(found)}
+
+
+def _enc_growth(card):
+    if card.growth is not None:
+        value = card.growth
+        effects = [Effect("counters", changed_args(value, skip=("adapt", "adapt_cost"))
+                          + (("set", True),))]
+        if value.adapt or value.adapt_cost is not None:
+            effects.append(Effect("adapt", (("n", value.adapt),)))
+        costs = (Cost("mana", mana=value.adapt_cost),) if value.adapt_cost else ()
+        yield Ability(STATIC, "growth", costs=costs, effects=tuple(effects))
+
+
+def _growth_of(abilities):
+    ability = abilities[0]
+    args = dict(ability.effects[0].args)
+    args.pop("set")
+    adapt = next((effect for effect in ability.effects if effect.verb == "adapt"), None)
+    mana = next((cost for cost in ability.costs if cost.atom == "mana"), None)
+    return {"growth": Growth(**args, adapt=adapt.arg("n") if adapt else 0,
+                             adapt_cost=mana.mana if mana else None)}
+
+
+def _enc_equip(card):
+    if card.equip is not None:
+        yield Ability(ACTIVATED, "equip", costs=(Cost("mana", mana=card.equip),),
+                      effects=(Effect("attach"),))
+
+
+def _equip_of(abilities):
+    return {"equip": abilities[0].costs[0].mana}
+
+
+def _enc_germ(card):
+    if card.germ:
+        yield Ability(TRIGGERED, "germ", event=Event("enters_self"),
+                      effects=(Effect("create_token", (("attach", True), ("n", 1),
+                                                       ("token", "germ"))),))
+
+
+def _germ_of(abilities):
+    return {"germ": True}
+
+
+def _enc_treasure_bonus(card):
+    if card.treasure_bonus:
+        yield Ability(STATIC, "treasure_bonus",
+                      effects=(Effect("more_mana", (("from", "treasure"),
+                                                    ("n", card.treasure_bonus))),))
+
+
+def _treasure_bonus_of(abilities):
+    return {"treasure_bonus": abilities[0].effects[0].arg("n")}
+
+
+_ENCODERS = {"upkeep": _enc_upkeep, "end_step": _enc_end_step, "skips_draw": _enc_skips_draw,
+             "triggers": _enc_triggers, "combat": _enc_combat, "growth": _enc_growth,
+             "equip": _enc_equip, "germ": _enc_germ, "treasure_bonus": _enc_treasure_bonus}
+_READERS = {"upkeep": _upkeep_of, "end_step": _end_step_of, "skips_draw": _skips_draw_of,
+            "triggers": _triggers_of, "combat": _combat_of, "growth": _growth_of,
+            "equip": _equip_of, "germ": _germ_of, "treasure_bonus": _treasure_bonus_of}
+
+
+def _read(abilities) -> dict:
+    """What the blocks say, by the field each came from: defaults where none
+    says."""
     out = dict(FIELDS)
     grouped: dict[str, list[Ability]] = {}
     for ability in abilities:
@@ -96,7 +290,7 @@ def decode(abilities) -> dict:
         elif ability.form in _BY_FORM:
             grouped.setdefault(_BY_FORM[ability.form], []).append(ability)
     for key, found in grouped.items():
-        out.update(STRUCTURES[key][1](found))
+        out.update(_READERS[key](found))
     return out
 
 
@@ -128,4 +322,4 @@ def compile_view(abilities) -> TurnView:
     """The engine's view of a card's blocks of triggers, turns and combat."""
     if not any(each.form in FORMS for each in abilities):
         return NO_TURN
-    return TurnView(**decode(abilities))
+    return TurnView(**_read(abilities))

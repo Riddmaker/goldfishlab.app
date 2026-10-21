@@ -10,8 +10,8 @@ import pytest
 
 from cards.models import DerivedProfile, OracleCard
 from cards.profiles import _land_search
-from simulation import actions
-from simulation.cards import CREATURE, FLAT, LAND, SORCERY, Card, LandSearch, ManaAbility
+from simulation import actions, build
+from simulation.cards import CREATURE, FLAT, LAND, SORCERY, LandSearch, ManaAbility
 from simulation.game import Game, best_land
 from simulation.manacost import parse
 from tests.engine_builders import tap
@@ -122,8 +122,9 @@ def test_a_search_to_hand_is_not_a_land_search():
 
 
 def land(name, subtype="", *, basic=True, tapped=False, search=None):
-    return Card(name, 0, 0, 0, LAND, subtypes=frozenset({subtype}) if subtype else frozenset(),
-                basic=basic, enters_tapped=tapped, land_search=search)
+    return build.card(
+        name, 0, 0, 0, LAND, subtypes=frozenset({subtype}) if subtype else frozenset(),
+        basic=basic, enters_tapped=tapped, land_search=search)
 
 
 FOREST, ISLAND, SWAMP = land("Forest", "forest"), land("Island", "island"), land("Swamp", "swamp")
@@ -141,7 +142,7 @@ def game_with(library, *, hand=(), lands=(), life=40):
 
 
 def spell(name, search, kind=SORCERY, cost="{1}{G}"):
-    return Card(name, 2, 0, 1, kind, cost=parse(cost), land_search=search)
+    return build.card(name, 2, 0, 1, kind, cost=parse(cost), land_search=search)
 
 
 def cast(game, card):
@@ -199,8 +200,8 @@ def test_fabled_passage_comes_in_untapped_from_the_fourth_land():
 
 
 def test_sakura_tribe_elder_is_sacrificed_for_its_land():
-    elder = Card("Sakura-Tribe Elder", 2, 0, 1, CREATURE, cost=parse("{1}{G}"),
-                 land_search=LandSearch(when="enters", sacrifice=True))
+    elder = build.card("Sakura-Tribe Elder", 2, 0, 1, CREATURE, cost=parse("{1}{G}"),
+                       land_search=LandSearch(when="enters", sacrifice=True))
     game = game_with([FOREST], lands=[FOREST, FOREST])
     cast(game, elder)
     assert elder in game.graveyard and elder not in game.creatures
@@ -210,8 +211,8 @@ def test_sakura_tribe_elder_is_sacrificed_for_its_land():
 def test_the_search_takes_the_land_with_a_new_colour():
     game = game_with([], lands=[FOREST, FOREST])
     assert best_land(game, [FOREST, ISLAND]) is ISLAND
-    tri = Card("Tri-land", 0, 0, 0, LAND, enters_tapped=True,
-               mana_abilities=(ManaAbility(FLAT, {"UBR": 1}),))
+    tri = build.card("Tri-land", 0, 0, 0, LAND, enters_tapped=True,
+                     mana_abilities=(ManaAbility(FLAT, {"UBR": 1}),))
     assert best_land(game, [ISLAND, tri]) is tri
 
 

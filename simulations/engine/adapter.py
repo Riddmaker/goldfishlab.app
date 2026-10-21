@@ -29,7 +29,7 @@ from django.utils.translation import gettext, gettext_noop, ngettext
 
 from cards import categories as card_categories
 from decks.models import Deck
-from simulation import ENGINE_VERSION, agent, blocks
+from simulation import ENGINE_VERSION, agent, blocks, build
 from simulation.cards import (
     CARD_TYPES,
     COMBAT_SEARCH,
@@ -1269,7 +1269,7 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
                                      color)
 
     categories = _categories(profile, overrides)
-    card = Card(
+    card = build.card(
         name=name,
         mv=profile.mv,
         pips=int(overrides.get("pips", profile.black_pips)),

@@ -19,7 +19,7 @@ import pytest
 
 from cards.models import DerivedProfile, OracleCard
 from cards.profiles import _land_search, _landers, derive
-from simulation import actions, agent
+from simulation import actions, agent, build
 from simulation.analysis import _scaling_mana_sources
 from simulation.cards import (
     ARTIFACT,
@@ -36,7 +36,6 @@ from simulation.cards import (
     LandSearch,
     ManaAbility,
 )
-from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.manacost import parse
 from tests.engine_builders import tap
@@ -156,15 +155,17 @@ def test_the_landers_search_is_not_the_cards_own(text, type_line, gap):
 
 def land(name, subtype="", *, basic=True, search=None, colorless=False):
     abilities = (ManaAbility(FLAT, {"C": 1}),) if colorless else ()
-    return Card(name, 0, 0, 0, LAND, subtypes=frozenset({subtype}) if subtype else frozenset(),
-                basic=basic, land_search=search, mana_abilities=abilities)
+    return build.card(
+        name, 0, 0, 0, LAND, subtypes=frozenset({subtype}) if subtype else frozenset(),
+        basic=basic, land_search=search, mana_abilities=abilities)
 
 
 FOREST, ISLAND, SWAMP = land("Forest", "forest"), land("Island", "island"), land("Swamp", "swamp")
 PLAINS = land("Plains", "plains")
-BAUBLE = Card("Wayfarer's Bauble", 1, 0, 1, ARTIFACT, cost=parse("{1}"), land_search=LandSearch(
-    when="activate", cost=parse("{2}"), taps=True, sacrifice=True))
-HART = Card("Burnished Hart", 3, 0, 3, CREATURE, cost=parse("{3}"), land_search=LandSearch(
+BAUBLE = build.card("Wayfarer's Bauble", 1, 0, 1, ARTIFACT, cost=parse("{1}"),
+                    land_search=LandSearch(when="activate", cost=parse("{2}"), taps=True,
+                                           sacrifice=True))
+HART = build.card("Burnished Hart", 3, 0, 3, CREATURE, cost=parse("{3}"), land_search=LandSearch(
     battlefield=2, when="activate", cost=parse("{3}"), sacrifice=True))
 MYRIAD = land("Myriad Landscape", basic=False, colorless=True, search=LandSearch(
     battlefield=2, when="activate", cost=parse("{2}"), taps=True, sacrifice=True,
@@ -240,7 +241,7 @@ def test_a_lander_is_a_basic_land_for_two():
 
 
 def test_a_lander_maker_makes_its_token():
-    maker = Card("Galactic Wayfarer", 3, 0, 2, CREATURE, cost=parse("{2}{G}"), landers=1)
+    maker = build.card("Galactic Wayfarer", 3, 0, 2, CREATURE, cost=parse("{2}{G}"), landers=1)
     game = game_with([], lands=[FOREST, FOREST, FOREST], hand=[maker])
     actions.CastSpell(index=0).run(game, None)
     assert game.landers == 1
@@ -271,9 +272,10 @@ def test_hart_is_activated_for_two_lands():
 
 
 def test_knight_of_the_white_orchid_searches_only_when_behind():
-    knight = Card("Knight of the White Orchid", 2, 2, 0, CREATURE, cost=parse("{W}{W}"),
-                  land_search=LandSearch(tapped=False, basic=False, types=frozenset({"plains"}),
-                                         when="enters", condition="opponent_more_lands"))
+    knight = build.card(
+        "Knight of the White Orchid", 2, 2, 0, CREATURE, cost=parse("{W}{W}"),
+        land_search=LandSearch(tapped=False, basic=False, types=frozenset({"plains"}),
+                               when="enters", condition="opponent_more_lands"))
     ahead = game_with([PLAINS], lands=[PLAINS, PLAINS], hand=[knight])
     actions.CastSpell(index=0).run(ahead, None)
     assert PLAINS in ahead.library
@@ -286,18 +288,18 @@ def test_knight_of_the_white_orchid_searches_only_when_behind():
 def test_the_card_page_names_the_cost():
     from simulations.engine.adapter import _land_search_text
 
-    assert _land_search_text(card_fields(BAUBLE)["land_search"]) == (
+    assert _land_search_text(BAUBLE.play.search) == (
         "{2}, {T}, sacrifice it: 1 basic land onto the battlefield, tapped")
-    assert _land_search_text(card_fields(HART)["land_search"]) == (
+    assert _land_search_text(HART.play.search) == (
         "{3}, sacrifice it: 2 basic lands onto the battlefield, tapped")
-    assert "of one land type" in _land_search_text(card_fields(MYRIAD)["land_search"])
+    assert "of one land type" in _land_search_text(MYRIAD.play.search)
 
 
 # --- the report's scaling sources -----------------------------------------------
 
 
 def source(name, ability):
-    return Card(name, 0, 0, 0, LAND, mana_abilities=(ability,))
+    return build.card(name, 0, 0, 0, LAND, mana_abilities=(ability,))
 
 
 def test_a_fixed_amount_does_not_grow_with_the_board():

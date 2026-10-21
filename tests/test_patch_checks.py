@@ -17,7 +17,6 @@ from django.urls import reverse
 from cards import profiles
 from cards.models import DerivedProfile, OracleCard
 from decks.models import Deck, DeckCard
-from simulation.cards import fields as card_fields
 from simulations import review, services
 from simulations.engine import adapter
 from simulations.engine.adapter import BUILTIN_SCOPE, DECK_SCOPE, USER_SCOPE
@@ -212,7 +211,7 @@ def test_back_to_the_card_data_ends_the_check(deck, client):
     client.force_login(deck.owner)
     act(client, deck, deck.growth, "land_search", "reset")
     assert not CardAnnotation.objects.filter(oracle_card=deck.growth).exists()
-    assert card_fields(engine_card(deck, deck.growth))["land_search"] is not None
+    assert engine_card(deck, deck.growth).play.search is not None
     assert search_of(deck.growth) == read | {"tapped": False}
 
 

@@ -6,10 +6,10 @@ import pytest
 
 from cards.models import OracleCard
 from cards.profiles import _enters_tapped
-from simulation import actions
+from simulation import actions, build
 from simulation.cards import LAND, Card, LandSearch, TappedUnless
-from simulation.cards import fields as card_fields
 from simulation.game import Game
+from simulation.rules.condition import Condition
 from tests.engine_builders import tap
 
 
@@ -58,8 +58,9 @@ def test_a_condition_it_cannot_read_stays_a_gap():
 
 
 def land(name, subtype="", *, basic=False, unless=None):
-    return Card(name, 0, 0, 0, LAND, subtypes=frozenset({subtype}) if subtype else frozenset(),
-                basic=basic, enters_tapped=unless is not None, tapped_unless=unless)
+    return build.card(
+        name, 0, 0, 0, LAND, subtypes=frozenset({subtype}) if subtype else frozenset(),
+        basic=basic, enters_tapped=unless is not None, tapped_unless=unless)
 
 
 FOREST, ISLAND = land("Forest", "forest", basic=True), land("Island", "island", basic=True)
@@ -115,7 +116,7 @@ def test_a_shock_land_fetched_tapped_pays_nothing():
     shock = land("Breeding Pool", "forest", unless=TappedUnless("pay_life", count=2))
     game = Game(random.Random(1))
     game.library, game.lands = [shock], []
-    game.search_lands(Card("Wilds", 0, 0, 0, LAND, land_search=LandSearch(basic=False)))
+    game.search_lands(build.card("Wilds", 0, 0, 0, LAND, land_search=LandSearch(basic=False)))
     assert (game.tapped_lands, game.life) == (1, 40)
 
 
@@ -188,7 +189,7 @@ def test_the_turbulent_assumption_is_a_stated_judgement_not_a_gap(db):
                     "control eight or more lands.")
     profiles.rebuild(OracleCard.objects.filter(pk=fen.pk))
     card, found = adapter.engine_readings([fen], builtin=False)[fen.pk]
-    assert card_fields(card)["tapped_unless"] == TappedUnless("opponent_lands", count=8)
+    assert card.play.untapped_if == Condition.of(TappedUnless("opponent_lands", count=8))
     assumed = [gap for gap in found if gap.field == "assumed_lands"]
     assert assumed and gaps.kind_of("assumed_lands") == gaps.JUDGEMENT
     assert not gaps.of_kind(found, gaps.READING)

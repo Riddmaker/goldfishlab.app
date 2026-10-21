@@ -23,7 +23,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from simulation import blocks  # noqa: E402
+from simulation import (
+    blocks,  # noqa: E402
+    build,
+)
 from simulation.cards import FLAT, LAND, LANDFALL, Card, ManaAbility, Trigger  # noqa: E402
 from simulation.fixtures import chainer  # noqa: E402
 from simulation.game import Game  # noqa: E402
@@ -34,21 +37,21 @@ NUMBER = 20_000
 
 
 def _land(name, color, **extra):
-    return Card(name=name, mv=0, pips=0, generic=0, kind=LAND,
-                mana_abilities=(ManaAbility(FLAT, ((color, 1),)),), **extra)
+    return build.card(name=name, mv=0, pips=0, generic=0, kind=LAND,
+                      mana_abilities=(ManaAbility(FLAT, ((color, 1),)),), **extra)
 
 
 SOURCES = [
     _land("Forest", "G"), _land("Island", "U"), _land("Swamp", "B"),
     _land("Mountain", "R"), _land("Plains", "W"), _land("Forest 2", "G"),
-    Card(name="Sol Ring", mv=1, pips=0, generic=1, kind="rock",
-         mana_abilities=(ManaAbility(FLAT, (("C", 2),)),)),
-    Card(name="Talisman", mv=2, pips=0, generic=2, kind="rock",
-         mana_abilities=(ManaAbility(FLAT, (("U", 1),)), ManaAbility(FLAT, (("B", 1),)))),
-    Card(name="Elf", mv=1, pips=1, generic=0, kind="creature",
-         mana_abilities=(ManaAbility(FLAT, (("G", 1),)),)),
-    Card(name="Monolith", mv=3, pips=0, generic=3, kind="rock",
-         mana_abilities=(ManaAbility(FLAT, (("C", 3),)),)),
+    build.card(name="Sol Ring", mv=1, pips=0, generic=1, kind="rock",
+               mana_abilities=(ManaAbility(FLAT, (("C", 2),)),)),
+    build.card(name="Talisman", mv=2, pips=0, generic=2, kind="rock",
+               mana_abilities=(ManaAbility(FLAT, (("U", 1),)), ManaAbility(FLAT, (("B", 1),)))),
+    build.card(name="Elf", mv=1, pips=1, generic=0, kind="creature",
+               mana_abilities=(ManaAbility(FLAT, (("G", 1),)),)),
+    build.card(name="Monolith", mv=3, pips=0, generic=3, kind="rock",
+               mana_abilities=(ManaAbility(FLAT, (("C", 3),)),)),
 ]
 
 
@@ -72,7 +75,7 @@ def _compile_add_mana(effect):
 
 def compile_tap(card):
     """The card's first plain mana ability, as one call into the pool."""
-    for ability in blocks.to_blocks(card).abilities:
+    for ability in card.abilities:
         effect = ability.effects[0]
         if (ability.kind == blocks.MANA and effect.verb == "add_mana"
                 and effect.arg("rule") == FLAT and not ability.conds
@@ -84,7 +87,7 @@ def compile_tap(card):
 def compile_triggers(card):
     """The card's triggered abilities, by event: a closure per ability."""
     found: dict[str, list] = {}
-    for ability in blocks.to_blocks(card).abilities:
+    for ability in card.abilities:
         if ability.kind != blocks.TRIGGERED or ability.form != "trigger":
             continue
         steps = []
@@ -129,10 +132,10 @@ def tap_compiled():
     return pool
 
 
-COBRA = Card(name="Cobra", mv=3, pips=1, generic=2, kind="creature",
-             triggers=(Trigger(LANDFALL, mana=1, mana_color="G"),))
-TITHE = Card(name="Tithe", mv=4, pips=1, generic=3, kind="enchantment",
-             triggers=(Trigger(LANDFALL, treasures=1, treasure_mana="C"),))
+COBRA = build.card(name="Cobra", mv=3, pips=1, generic=2, kind="creature",
+                   triggers=(Trigger(LANDFALL, mana=1, mana_color="G"),))
+TITHE = build.card(name="Tithe", mv=4, pips=1, generic=3, kind="enchantment",
+                   triggers=(Trigger(LANDFALL, treasures=1, treasure_mana="C"),))
 BOARD = [*SOURCES, COBRA, TITHE,
          Card(name="Bear", mv=2, pips=1, generic=1, kind="creature"),
          Card(name="Wall", mv=1, pips=1, generic=0, kind="creature"),

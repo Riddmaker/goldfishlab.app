@@ -18,7 +18,7 @@ import pytest
 
 from cards.models import DerivedProfile, OracleCard
 from cards.profiles import _mana_rule
-from simulation import actions
+from simulation import actions, build
 from simulation.cards import (
     COUNTS,
     CREATURE,
@@ -34,7 +34,6 @@ from simulation.cards import (
     DeckDefinition,
     ManaAbility,
 )
-from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.manacost import parse
 from simulations.engine.adapter import _ability_text
@@ -133,24 +132,24 @@ def test_what_the_engine_does_not_play_is_not_read(text, kind):
 
 FOREST = Card("Forest", 0, 0, 0, LAND, subtypes=frozenset({"forest"}), basic=True)
 ISLAND = Card("Island", 0, 0, 0, LAND, subtypes=frozenset({"island"}), basic=True)
-WASTES = Card("Wastes", 0, 0, 0, LAND, mana_abilities=(ManaAbility(FLAT, {"C": 1}),),
-              basic=True)
-TOWER = Card("Command Tower", 0, 0, 0, LAND, mana_abilities=(ManaAbility(FLAT, {"UG": 1}),))
-SOL_RING = Card("Sol Ring", 1, 0, 1, ROCK, mana_abilities=(ManaAbility(FLAT, {"C": 2}),))
-SIGNET = Card("Simic Signet", 2, 0, 2, ROCK,
-              mana_abilities=(ManaAbility(FLAT, {"G": 1, "U": 1}, activation_generic=1),))
+WASTES = build.card("Wastes", 0, 0, 0, LAND, mana_abilities=(ManaAbility(FLAT, {"C": 1}),),
+                    basic=True)
+TOWER = build.card("Command Tower", 0, 0, 0, LAND, mana_abilities=(ManaAbility(FLAT, {"UG": 1}),))
+SOL_RING = build.card("Sol Ring", 1, 0, 1, ROCK, mana_abilities=(ManaAbility(FLAT, {"C": 2}),))
+SIGNET = build.card("Simic Signet", 2, 0, 2, ROCK,
+                    mana_abilities=(ManaAbility(FLAT, {"G": 1, "U": 1}, activation_generic=1),))
 BEAR = Card("Bear", 2, 0, 1, CREATURE, cost=parse("{1}{G}"), types=frozenset({"creature"}),
             colors=frozenset({"G"}))
-ELF = Card("Llanowar Elves", 1, 0, 0, CREATURE, cost=parse("{G}"),
-           types=frozenset({"creature"}), mana_abilities=(ManaAbility(FLAT, {"G": 1}),))
-PRIEST = Card("Big Dork", 2, 0, 1, CREATURE, types=frozenset({"creature"}),
-              mana_abilities=(ManaAbility(FLAT, {"G": 2}),))
+ELF = build.card("Llanowar Elves", 1, 0, 0, CREATURE, cost=parse("{G}"),
+                 types=frozenset({"creature"}), mana_abilities=(ManaAbility(FLAT, {"G": 1}),))
+PRIEST = build.card("Big Dork", 2, 0, 1, CREATURE, types=frozenset({"creature"}),
+                    mana_abilities=(ManaAbility(FLAT, {"G": 2}),))
 
 
 def permanent(name, rule, subtype="", produces=(), kind=ENCHANTMENT, enchants="", **extra):
     types = {ENCHANTMENT: {"enchantment"}, CREATURE: {"creature"}}.get(kind, {"artifact"})
-    return Card(name, 1, 0, 1, kind, types=frozenset(types), enchants=enchants,
-                mana_abilities=(ManaAbility(rule, produces, subtype=subtype, **extra),))
+    return build.card(name, 1, 0, 1, kind, types=frozenset(types), enchants=enchants,
+                      mana_abilities=(ManaAbility(rule, produces, subtype=subtype, **extra),))
 
 
 WILD_GROWTH = permanent("Wild Growth", EXTRA, "enchanted", {"G": 1}, enchants="land")
@@ -193,7 +192,7 @@ def test_wild_growth_is_not_added_again_for_a_land_entering_mid_turn():
 def test_an_aura_needs_its_land_to_be_cast():
     sprawl = Card("Utopia Sprawl", 1, 0, 0, ENCHANTMENT, cost=parse("{G}"),
                   types=frozenset({"enchantment"}), enchants="forest",
-                  mana_abilities=card_fields(SPRAWL)["mana_abilities"])
+                  abilities=SPRAWL.abilities)
     game = board([ISLAND], rocks=[SOL_RING])
     actions.OpenMainPhase().run(game, None)
     game.pool.add("G", 1)
@@ -221,10 +220,10 @@ def test_a_colour_is_chosen_once_and_by_what_the_bonus_is_for():
                  deck=deck_of("{G}", "{U}", "{B}"))
     # Caged Sun pays off on the colour most lands make; Utopia Sprawl fixes
     # the one fewest make - black, which no land here does.
-    assert game.chosen_color(CAGED_SUN, card_fields(CAGED_SUN)["mana_abilities"][0]) == "G"
-    assert game.chosen_color(SPRAWL, card_fields(SPRAWL)["mana_abilities"][0]) == "B"
+    assert game.chosen_color(CAGED_SUN, CAGED_SUN.mana.entries[0]) == "G"
+    assert game.chosen_color(SPRAWL, SPRAWL.mana.entries[0]) == "B"
     game.lands = [ISLAND] * 5
-    sun = card_fields(CAGED_SUN)["mana_abilities"][0]
+    sun = CAGED_SUN.mana.entries[0]
     assert game.chosen_color(CAGED_SUN, sun) == "G", "chosen once"
 
 
@@ -281,9 +280,9 @@ def test_abundant_growth_turns_a_colourless_land_first():
 
 
 def test_bloom_tender_makes_each_colour_among_your_permanents():
-    tender = Card("Bloom Tender", 2, 0, 1, CREATURE, types=frozenset({"creature"}),
-                  colors=frozenset({"G"}),
-                  mana_abilities=(ManaAbility(COUNTS, subtype="colors_among"),))
+    tender = build.card("Bloom Tender", 2, 0, 1, CREATURE, types=frozenset({"creature"}),
+                        colors=frozenset({"G"}),
+                        mana_abilities=(ManaAbility(COUNTS, subtype="colors_among"),))
     game = board([FOREST], creatures=[tender])
     assert dict(game.mana_ability(tender).produces) == {"G": 1}
     game.creatures.append(Card("Gold", 2, 0, 0, CREATURE, colors=frozenset({"W", "U"})))
@@ -291,9 +290,9 @@ def test_bloom_tender_makes_each_colour_among_your_permanents():
 
 
 def test_sanctum_weaver_counts_the_enchantments_itself_included():
-    weaver = Card("Sanctum Weaver", 2, 0, 1, CREATURE,
-                  types=frozenset({"creature", "enchantment"}), colors=frozenset({"G"}),
-                  mana_abilities=(ManaAbility(COUNTS, subtype="enchantment"),))
+    weaver = build.card("Sanctum Weaver", 2, 0, 1, CREATURE,
+                        types=frozenset({"creature", "enchantment"}), colors=frozenset({"G"}),
+                        mana_abilities=(ManaAbility(COUNTS, subtype="enchantment"),))
     game = board([FOREST], creatures=[weaver], others=[WILD_GROWTH],
                  deck=deck_of("{G}", "{W}"))
     game.hand = [Card("White Spell", 2, 0, 0, ENCHANTMENT, cost=parse("{W}{W}"))]
@@ -302,20 +301,20 @@ def test_sanctum_weaver_counts_the_enchantments_itself_included():
 
 
 def test_overgrown_battlement_counts_creatures_with_defender():
-    wall = Card("Overgrown Battlement", 2, 0, 1, CREATURE, defender=True,
-                mana_abilities=(ManaAbility(COUNTS, subtype="creature:defender", color="G"),))
+    wall = build.card("Overgrown Battlement", 2, 0, 1, CREATURE, defender=True,
+                      mana_abilities=(ManaAbility(COUNTS, subtype="creature:defender", color="G"),))
     game = board(creatures=[wall, BEAR, Card("Wall", 1, 0, 1, CREATURE, defender=True)])
     assert dict(game.mana_ability(wall).produces) == {"G": 2}
 
 
 def test_battle_hymn_makes_one_red_for_each_creature():
-    hymn = Card("Battle Hymn", 2, 0, 1, RITUAL, ritual_color="R", ritual_counts="creature")
+    hymn = build.card("Battle Hymn", 2, 0, 1, RITUAL, ritual_color="R", ritual_counts="creature")
     assert board(creatures=[BEAR, ELF, PRIEST]).ritual_mana(hymn) == ("R", 3)
 
 
 def test_high_tide_counts_the_islands_in_the_pool_less_the_one_that_paid():
-    tide = Card("High Tide", 1, 0, 0, RITUAL, cost=parse("{U}"), ritual_color="U",
-                ritual_counts="tapped:island")
+    tide = build.card("High Tide", 1, 0, 0, RITUAL, cost=parse("{U}"), ritual_color="U",
+                      ritual_counts="tapped:island")
     game = board([ISLAND, ISLAND, ISLAND, FOREST])
     game.hand = [tide]
     actions.OpenMainPhase().run(game, None)

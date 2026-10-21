@@ -13,7 +13,7 @@ import pytest
 from cards.models import DerivedProfile, OracleCard
 from cards.profiles import _draw, derive
 from playtest.forms import ActionForm
-from simulation import actions, agent
+from simulation import actions, agent, build
 from simulation.cards import CREATURE, INSTANT, LAND, Card, CostReduction
 from simulation.game import Game
 from simulation.mana import effective_mana_cost
@@ -65,8 +65,8 @@ def test_an_x_that_makes_lands_stays_a_gap():
 
 
 ISLAND = Card("Island", 0, 0, 0, LAND, subtypes=frozenset({"island"}))
-STROKE = Card("Stroke of Genius", 3, 0, 2, INSTANT, cost=parse("{X}{2}{U}"), x_count=1,
-              draws_x=True)
+STROKE = build.card("Stroke of Genius", 3, 0, 2, INSTANT, cost=parse("{X}{2}{U}"), x_count=1,
+                    draws_x=True)
 CORNUCOPIA = Card("Astral Cornucopia", 0, 0, 0, "artifact", cost=parse("{X}{X}{X}"),
                   x_count=3)
 BEAR = Card("Bear", 2, 0, 1, CREATURE, cost=parse("{1}{U}"))
@@ -83,8 +83,8 @@ def game_with(lands, hand, library=()):
 def test_x_is_generic_mana_for_each_x_and_reduced_like_it():
     assert str(effective_mana_cost(STROKE, x=4)) == "{6}{U}"
     assert str(effective_mana_cost(CORNUCOPIA, x=2)) == "{6}"
-    medallion = Card("Medallion", 2, 0, 2, "artifact", cost=parse("{2}"),
-                     cost_reduction=CostReduction(amount=1, color="U"))
+    medallion = build.card("Medallion", 2, 0, 2, "artifact", cost=parse("{2}"),
+                           cost_reduction=CostReduction(amount=1, color="U"))
     game = game_with([ISLAND] * 4, [STROKE])
     game.other_permanents.append(medallion)
     actions.OpenMainPhase().run(game, None)
@@ -102,8 +102,8 @@ def test_an_x_spell_waits_for_its_minimum():
     game = game_with([ISLAND] * 3, [STROKE])
     actions.OpenMainPhase().run(game, None)
     assert not game.can_cast(STROKE, game.pool), "X = 0 is not worth a card"
-    patient = Card("Stroke of Genius", 3, 0, 2, INSTANT, cost=parse("{X}{2}{U}"),
-                   x_count=1, draws_x=True, x_min=4)
+    patient = build.card("Stroke of Genius", 3, 0, 2, INSTANT, cost=parse("{X}{2}{U}"),
+                         x_count=1, draws_x=True, x_min=4)
     game = game_with([ISLAND] * 6, [patient])
     actions.OpenMainPhase().run(game, None)
     assert not game.can_cast(patient, game.pool)

@@ -11,7 +11,7 @@ import pytest
 
 from cards.models import OracleCard
 from cards.profiles import _draw, derive
-from simulation import actions
+from simulation import actions, build
 from simulation.cards import CREATURE, LAND, SORCERY, Card
 from simulation.game import Game
 from simulation.manacost import parse
@@ -81,10 +81,10 @@ def test_a_person_who_sets_the_draw_also_sets_what_follows_it():
 
 MOUNTAIN = Card("Mountain", 0, 0, 0, LAND, subtypes=frozenset({"mountain"}))
 ISLAND = Card("Island", 0, 0, 0, LAND, subtypes=frozenset({"island"}))
-LOOTING = Card("Faithless Looting", 1, 0, 0, SORCERY, cost=parse("{R}"), draw_on_cast=2,
-               discard_on_cast=2)
-BRAINSTORM = Card("Brainstorm", 1, 0, 0, SORCERY, cost=parse("{U}"), draw_on_cast=3,
-                  put_back_on_cast=2)
+LOOTING = build.card("Faithless Looting", 1, 0, 0, SORCERY, cost=parse("{R}"), draw_on_cast=2,
+                     discard_on_cast=2)
+BRAINSTORM = build.card("Brainstorm", 1, 0, 0, SORCERY, cost=parse("{U}"), draw_on_cast=3,
+                        put_back_on_cast=2)
 BEAR = Card("Bear", 2, 0, 1, CREATURE, cost=parse("{1}{G}"))
 GIANT = Card("Giant", 6, 0, 5, CREATURE, cost=parse("{5}{G}"))
 DRAGON = Card("Dragon", 7, 0, 6, CREATURE, cost=parse("{6}{R}"))

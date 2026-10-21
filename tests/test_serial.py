@@ -14,7 +14,7 @@ import random
 
 import pytest
 
-from simulation import agent, serial
+from simulation import agent, build, serial
 from simulation.cards import (
     CREATURE,
     FILTER,
@@ -38,8 +38,6 @@ from simulation.cards import (
     TutorSpec,
     UpkeepSpec,
 )
-from simulation.cards import fields as card_fields
-from simulation.cards import value as card_value
 from simulation.fixtures import chainer
 from simulation.game import Game
 from simulation.manacost import Hybrid, ManaCost
@@ -47,22 +45,12 @@ from simulation.rules import mana, play
 from simulation.trace import named
 from tests.engine_builders import hold, marks
 
-#: A card with **every** field set away from its default, including one of each
-#: nested dataclass. The point of it is to fail loudly when a new field or a new
-#: field type arrives that `serial.load` does not know how to rebuild.
-EVERYTHING = Card(
-    name="Everything At Once",
-    mv=5,
-    pips=2,
-    generic=3,
-    kind=CREATURE,
-    engine_roles=frozenset({"draw_engine", "recursive"}),
-    land_type="coffers",
-    enters_tapped=True,
-    goldfish_castable=False,
-    needs_creature_in_yard=True,
-    needs_creature_on_bf=True,
-    mana_abilities=(
+#: The rules of a card with every field set away from its default, as the
+#: fields it is made with (`simulation.build.MadeWith`), including one of
+#: each nested dataclass.
+RULES = {
+    "enters_tapped": True,
+    "mana_abilities": (
         ManaAbility(rule=FLAT, produces=(("B", 1), ("C", 1))),
         ManaAbility(rule=PER_CONTROLLED, activation_generic=2,
                     subtype="swamp", color="G"),
@@ -75,83 +63,100 @@ EVERYTHING = Card(
                         legendary=True, colorless=True, multicolored=True, noncreature=True,
                         only_color="G"),)),
     ),
-    ritual_gain=3,
-    ritual_color="R",
-    cost_reduction=CostReduction(amount=2, requires_pip=False, color="U"),
-    draw_on_cast=2,
-    life_on_cast=1,
-    tutor=TutorSpec(to_hand=False, count=3, life=3, kind=CREATURE, to_battlefield=True,
+    "ritual_gain": 3,
+    "ritual_color": "R",
+    "cost_reduction": CostReduction(amount=2, requires_pip=False, color="U"),
+    "draw_on_cast": 2,
+    "life_on_cast": 1,
+    "tutor": TutorSpec(to_hand=False, count=3, life=3, kind=CREATURE, to_battlefield=True,
                     color="G", max_mv=4, max_mv_x=True, to_top=True,
                     types=frozenset({"artifact", "enchantment"}), max_mv_sacrificed=2),
-    upkeep=UpkeepSpec(draw=2, life=1, life_per_mv=True),
-    end_step=EndStepSpec(max_hand=6, life_floor=20),
-    skips_draw_step=True,
-    priority=91,
-    accelerant=True,
-    subtypes=frozenset({"swamp", "forest"}),
-    cost=ManaCost(pips=(("B", 2),), generic=3, colorless=1,
-                  hybrid=(Hybrid(colors=("W", "U")),), phyrexian=("G",),
-                  has_x=True),
-    untaps=False,
-    land_search=LandSearch(battlefield=2, hand=1, tapped=False, basic=False,
+    "upkeep": UpkeepSpec(draw=2, life=1, life_per_mv=True),
+    "end_step": EndStepSpec(max_hand=6, life_floor=20),
+    "skips_draw_step": True,
+    "untaps": False,
+    "land_search": LandSearch(battlefield=2, hand=1, tapped=False, basic=False,
                            types=frozenset({"forest", "island"}), life=1, when="play",
                            sacrifice=True, untap_at=4,
                            cost=ManaCost(pips=(("G", 1),), generic=2), taps=True,
                            share_type=True, each=True, condition="opponent_more_lands",
                            sacrifices_land=True, land_cost_types=frozenset({"forest"}),
                            sacrifice_other=frozenset({"creature"}), discard=1),
-    basic=True,
-    tapped_unless=TappedUnless(kind="lands", types=frozenset({"island"}), count=3,
+    "tapped_unless": TappedUnless(kind="lands", types=frozenset({"island"}), count=3,
                                at_least=False, other=True, basic=True, type="island",
                                legendary=True),
-    treasures=2,
-    treasure_mana="RG",
-    landers=1,
-    discard_cost=1,
-    discard_on_cast=2,
-    put_back_on_cast=2,
+    "treasures": 2,
+    "treasure_mana": "RG",
+    "landers": 1,
+    "discard_cost": 1,
+    "discard_on_cast": 2,
+    "put_back_on_cast": 2,
+    "draws_x": True,
+    "ritual_counts": "tapped:island",
+    "additional_costs": (AdditionalCost(sacrifice=frozenset({"artifact", "creature"}),
+                                     sacrifice_filter="G", life=3, life_x=True, discard=1,
+                                     mana=ManaCost(generic=2), exile_from_graveyard="creature"),
+                      AdditionalCost(life=5)),
+    "sacrifice_mana": AdditionalCost(sacrifice=frozenset({"creature"}), sacrifice_filter="goblin"),
+    "sacrifice_mana_amount": 2,
+    "sacrifice_mana_color": "B",
+    "sacrifice_mana_taps": True,
+    "sacrifice_mana_other": True,
+    "triggers": (Trigger("cast", filter="instant_sorcery", treasures=1, treasure_mana="C",
+                      mana=1, mana_color="R", draw=1, life=1),),
+    "exiled_on_cast": True,
+    "tap_mana": TapMana(types=frozenset({"creature"}), filter="U", mana="C", amount=2,
+                     spend_only=(SpellFilter(types=frozenset({"artifact"})),), tokens=1),
+    "mox": "imprint",
+    "mana_mills": 1,
+    "store": Store("free", "R", amount=3, per_use=3, start_from="colors", grows="red_spell",
+                empty="dies"),
+    "growth": Growth(enters=1, enters_x=True, grows=("evolve", "enters:elf"), adapt=3,
+                  adapt_cost=ManaCost(pips=(("G", 2),), generic=3), bonus=1, puts=2,
+                  draws_on_greatest=True, look=4),
+    "flip": 4,
+    "combat": (CombatTrigger(event="damage", who="any", types=frozenset({"ninja"}), treasures=1,
+                          treasure_mana="WUBRG", mana="RG", search=True),),
+    "equip": ManaCost(generic=2),
+    "germ": True,
+    "treasure_bonus": 1,
+}
+
+#: A card with **every** field set away from its default. The point of it is
+#: to fail loudly when a new field or a new field type arrives that
+#: `serial.load` does not know how to rebuild.
+EVERYTHING = build.card(
+    name="Everything At Once",
+    mv=5,
+    pips=2,
+    generic=3,
+    kind=CREATURE,
+    engine_roles=frozenset({"draw_engine", "recursive"}),
+    land_type="coffers",
+    goldfish_castable=False,
+    needs_creature_in_yard=True,
+    needs_creature_on_bf=True,
+    priority=91,
+    accelerant=True,
+    subtypes=frozenset({"swamp", "forest"}),
+    cost=ManaCost(pips=(("B", 2),), generic=3, colorless=1,
+                  hybrid=(Hybrid(colors=("W", "U")),), phyrexian=("G",),
+                  has_x=True),
+    basic=True,
     x_count=3,
     x_min=2,
     x_max=4,
-    draws_x=True,
     creature_types=frozenset({"elf"}),
     legendary=True,
     colors=frozenset({"B", "G"}),
     defender=True,
     enchants="forest",
-    ritual_counts="tapped:island",
-    additional_costs=(AdditionalCost(sacrifice=frozenset({"artifact", "creature"}),
-                                     sacrifice_filter="G", life=3, life_x=True, discard=1,
-                                     mana=ManaCost(generic=2), exile_from_graveyard="creature"),
-                      AdditionalCost(life=5)),
-    sacrifice_mana=AdditionalCost(sacrifice=frozenset({"creature"}), sacrifice_filter="goblin"),
-    sacrifice_mana_amount=2,
-    sacrifice_mana_color="B",
-    sacrifice_mana_taps=True,
-    sacrifice_mana_other=True,
-    triggers=(Trigger("cast", filter="instant_sorcery", treasures=1, treasure_mana="C",
-                      mana=1, mana_color="R", draw=1, life=1),),
-    exiled_on_cast=True,
     printed_subtypes=frozenset({"elf", "druid"}),
     power=4,
-    tap_mana=TapMana(types=frozenset({"creature"}), filter="U", mana="C", amount=2,
-                     spend_only=(SpellFilter(types=frozenset({"artifact"})),), tokens=1),
-    mox="imprint",
-    mana_mills=1,
-    store=Store("free", "R", amount=3, per_use=3, start_from="colors", grows="red_spell",
-                empty="dies"),
     toughness=5,
-    growth=Growth(enters=1, enters_x=True, grows=("evolve", "enters:elf"), adapt=3,
-                  adapt_cost=ManaCost(pips=(("G", 2),), generic=3), bonus=1, puts=2,
-                  draws_on_greatest=True, look=4),
-    flip=4,
     haste=True,
-    combat=(CombatTrigger(event="damage", who="any", types=frozenset({"ninja"}), treasures=1,
-                          treasure_mana="WUBRG", mana="RG", search=True),),
-    equip=ManaCost(generic=2),
-    germ=True,
-    treasure_bonus=1,
     token=True,
+    **RULES,
 )
 
 
@@ -180,8 +185,10 @@ def test_every_field_of_a_card_is_actually_written_down():
 def test_a_card_stored_in_the_old_form_comes_back_the_same():
     """A playtest stored before phase 5 wrote a card as the fields it was
     made with; its deck must load as the same card."""
-    old = {"_type": "Card", **{name: serial.dump(card_value(EVERYTHING, name))
-                               for name, _annotation in serial.legacy_fields_of()}}
+    printed = {item.name: getattr(EVERYTHING, item.name) for item in dataclasses.fields(Card)
+               if item.name != "abilities"}
+    old = {"_type": "Card", **{name: serial.dump(value)
+                               for name, value in {**printed, **RULES}.items()}}
 
     assert serial.load(Card, json.loads(json.dumps(old))) == EVERYTHING
 
@@ -201,17 +208,17 @@ def test_no_field_of_the_exhaustive_card_was_left_at_its_default():
         default = field.default
         if default is dataclasses.MISSING or field.name == "abilities":
             continue
-        assert card_value(EVERYTHING, field.name) != default, (
+        assert getattr(EVERYTHING, field.name) != default, (
             f"{field.name} is still at its default, so it is not being tested")
     for name, default in {**mana.FIELDS, **play.FIELDS}.items():
-        assert card_value(EVERYTHING, name) != default, (
+        assert RULES[name] != default, (
             f"{name} is still at its default, so it is not being tested")
 
 
 def test_a_frozenset_does_not_come_back_as_a_list():
     """`Card` is hashable and compared by value; a list would break both."""
     assert isinstance(roundtrip(EVERYTHING).subtypes, frozenset)
-    assert isinstance(card_fields(roundtrip(EVERYTHING))["mana_abilities"], tuple)
+    assert isinstance(roundtrip(EVERYTHING).abilities, tuple)
 
 
 def test_a_stored_type_nobody_knows_is_refused():

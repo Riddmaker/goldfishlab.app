@@ -5,13 +5,13 @@ What these tests hold:
 1. **The atoms** - selector, amount, condition - answer as the engine's old
    dialects did: a spell filter, a "wanted" string, the counting strings,
    the kinds `Game.holds` asked.
-2. **The mana family round-trips**: the sixteen fields become blocks and come
-   back exactly; a card made with fields equals one made with blocks.
+2. **The mana family makes blocks**: a card made with the sixteen fields
+   (`simulation.build`) equals one made with the blocks they make.
 3. **The engine reads blocks only**: `game.py`, `mana.py`, `agent.py`,
-   `actions.py` and `analysis.py` never import `simulation.legacy` and never
+   `actions.py` and `analysis.py` never import `simulation.spec` and never
    read a field of the mana family.
 
-The whole catalogue's round trip is `engine_coverage --diff` against the
+The whole catalogue is `engine_coverage --diff` against the
 latest frozen reading; in CI it is the coverage snapshot of the 3,070 cards.
 No Django, like the engine.
 """
@@ -23,13 +23,12 @@ from pathlib import Path
 
 import pytest
 
-from simulation import serial
+from simulation import build, serial
 from simulation.cards import (
     COUNTS,
     CREATURE,
     FLAT,
     LAND,
-    MANA_FIELDS,
     ROCK,
     AdditionalCost,
     Card,
@@ -41,7 +40,6 @@ from simulation.cards import (
     TapMana,
     TappedUnless,
 )
-from simulation.cards import fields as card_fields
 from simulation.fixtures import chainer
 from simulation.game import Game
 from simulation.manacost import parse
@@ -81,7 +79,6 @@ RING = Card("Sol Ring", 1, 0, 1, ROCK)
 ])
 def test_a_spend_limit_reads_a_spell_as_its_filter_did(spell_filter, card, expected):
     assert compile_selector(mana.spell_selector(spell_filter))(card) is expected
-    assert mana.spell_filter(mana.spell_selector(spell_filter)) == spell_filter
 
 
 @pytest.mark.parametrize("types, wanted_, card, expected", [
@@ -239,38 +236,30 @@ FAMILY = {
 
 
 def test_the_family_is_every_field_card_takes():
-    assert tuple(mana.FIELDS) == MANA_FIELDS
-    assert set(FAMILY) == set(mana.FIELDS)
+    assert set(FAMILY) == set(mana.FIELDS) and set(mana.FIELDS) <= set(build.FIELDS)
     assert all(FAMILY[name] != default for name, default in mana.FIELDS.items())
 
 
-def test_every_field_comes_back_exactly():
-    assert mana.decode(mana.encode(FAMILY)) == FAMILY
-    assert mana.decode(mana.encode({})) == mana.FIELDS
+def test_a_field_at_its_default_makes_no_block():
     assert mana.encode({}) == ()
 
 
 def test_a_card_made_with_fields_is_a_card_made_with_blocks():
-    card = Card("Everything", 3, 1, 2, CREATURE, **FAMILY)
+    card = build.card("Everything", 3, 1, 2, CREATURE, **FAMILY)
     again = Card("Everything", 3, 1, 2, CREATURE, abilities=mana.encode(FAMILY))
     assert card == again and hash(card) == hash(again)
-    assert {name: card_fields(card)[name] for name in MANA_FIELDS} == FAMILY
-    # Changing one field keeps the others.
-    changed = dataclasses.replace(card, ritual_gain=5)
-    made_with = card_fields(changed)
-    assert made_with["ritual_gain"] == 5 and made_with["store"] == FAMILY["store"]
     assert dataclasses.replace(card, priority=3).abilities == card.abilities
 
 
 def test_a_stored_card_keeps_its_blocks():
-    card = Card("Everything", 3, 1, 2, CREATURE, **FAMILY)
+    card = build.card("Everything", 3, 1, 2, CREATURE, **FAMILY)
     dumped = serial.dump(card)
     assert "store" not in dumped and dumped["abilities"]
     assert serial.load(Card, dumped) == card
 
 
 def test_the_view_holds_what_the_engine_asks():
-    view = Card("Everything", 3, 1, 2, CREATURE, **FAMILY).mana
+    view = build.card("Everything", 3, 1, 2, CREATURE, **FAMILY).mana
     assert [each.rule for each in view.entries] == [
         each.rule for each in FAMILY["mana_abilities"]]
     assert [each.rule for each in view.sources] == [
@@ -296,8 +285,8 @@ def test_the_reference_deck_reads_as_its_rules():
 
 
 def test_a_ritual_adds_what_its_amount_counts():
-    rite = Card("Rite of Flame", 1, 1, 0, "ritual", ritual_gain=2, ritual_color="R",
-                ritual_counts="named:Rite of Flame")
+    rite = build.card("Rite of Flame", 1, 1, 0, "ritual", ritual_gain=2, ritual_color="R",
+                      ritual_counts="named:Rite of Flame")
     game = Game(random.Random(1), deck=DeckDefinition("R", None, (rite,)))
     game.graveyard = [rite, rite]
     assert game.ritual_mana(rite) == ("R", 4)
@@ -321,7 +310,7 @@ def test_the_engine_never_reads_the_old_fields(module):
     tree = ast.parse(path.read_text(encoding="utf-8"))
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom):
-            assert node.module != "simulation.legacy", module
+            assert node.module != "simulation.spec", module
             assert not {alias.name for alias in node.names} & OLD_CLASSES, module
         if isinstance(node, ast.Attribute):
             assert node.attr not in FORBIDDEN, f"{module}:{node.lineno} reads .{node.attr}"
@@ -330,16 +319,11 @@ def test_the_engine_never_reads_the_old_fields(module):
             assert node.id not in OLD_CLASSES, f"{module}:{node.lineno} names {node.id}"
 
 
-def test_a_field_a_card_is_made_with_is_no_longer_read_off_it():
-    """Card model PR 20: the application reads the compiled views; a field
-    read off the card fails loudly instead of answering its default."""
-    from simulation.cards import FieldGone
-
-    card = Card("Everything", 3, 1, 2, CREATURE, **FAMILY)
-    with pytest.raises(FieldGone, match="card.mana"):
-        bool(card.store)
-    with pytest.raises(FieldGone):
-        list(card.mana_abilities)
-    # `dataclasses.replace` hands the unread fields back untouched.
-    assert dataclasses.replace(card, ritual_gain=5).mana.ritual.gain == 5
-    assert card_fields(card)["store"] == FAMILY["store"]
+def test_a_field_a_card_is_made_with_is_no_card_field():
+    """Since the decoder retired (card model phase 5) a card is printed,
+    hinted and its blocks: the fields of its rules are only how it is made."""
+    card = build.card("Everything", 3, 1, 2, CREATURE, **FAMILY)
+    with pytest.raises(AttributeError):
+        card.store  # noqa: B018
+    with pytest.raises(TypeError):
+        Card("Everything", 3, 1, 2, CREATURE, ritual_gain=5)

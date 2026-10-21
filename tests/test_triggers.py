@@ -18,7 +18,7 @@ import pytest
 
 from cards.models import OracleCard
 from cards.profiles import _treasure_altar, _triggers, derive
-from simulation import actions
+from simulation import actions, build
 from simulation.cards import (
     CREATURE,
     ENCHANTMENT,
@@ -165,48 +165,52 @@ def land(name, subtype):
 
 
 FOREST, ISLAND = land("Forest", "forest"), land("Island", "island")
-COBRA = Card("Lotus Cobra", 2, 0, 1, CREATURE, cost=parse("{1}{G}"),
-             triggers=(Trigger("landfall", mana=1, mana_color="G"),))
-KILN = Card("Storm-Kiln Artist", 4, 0, 3, CREATURE, cost=parse("{3}{R}"),
-            triggers=(Trigger("cast", filter="instant_sorcery", treasures=1,
-                              treasure_mana="R"),))
-BIRGI = Card("Birgi", 3, 0, 3, CREATURE, cost=parse("{3}"),
-             triggers=(Trigger("cast", mana=1, mana_color="R"),))
-LOTHO = Card("Lotho", 3, 0, 1, CREATURE, cost=parse("{1}{B}{R}"),
-             triggers=(Trigger("cast", filter="second", treasures=1, treasure_mana="B", life=1),))
-PLUNDERER = Card("Pitiless Plunderer", 4, 1, 3, CREATURE, cost=parse("{3}{B}"),
-                 triggers=(Trigger("dies", filter="another", treasures=1, treasure_mana="B"),))
-PAWN = Card("Pawn of Ulamog", 3, 2, 1, CREATURE, cost=parse("{1}{B}{B}"),
-            triggers=(Trigger("dies", treasures=1, treasure_mana="C"),))
-GANAX = Card("Ganax", 6, 0, 6, CREATURE, cost=parse("{6}"),
-             creature_types=frozenset({"dragon"}),
-             triggers=(Trigger("enters", filter="dragon", treasures=1, treasure_mana="R"),))
+COBRA = build.card("Lotus Cobra", 2, 0, 1, CREATURE, cost=parse("{1}{G}"),
+                   triggers=(Trigger("landfall", mana=1, mana_color="G"),))
+KILN = build.card("Storm-Kiln Artist", 4, 0, 3, CREATURE, cost=parse("{3}{R}"),
+                  triggers=(Trigger("cast", filter="instant_sorcery", treasures=1,
+                                    treasure_mana="R"),))
+BIRGI = build.card("Birgi", 3, 0, 3, CREATURE, cost=parse("{3}"),
+                   triggers=(Trigger("cast", mana=1, mana_color="R"),))
+LOTHO = build.card(
+    "Lotho", 3, 0, 1, CREATURE, cost=parse("{1}{B}{R}"),
+    triggers=(Trigger("cast", filter="second", treasures=1, treasure_mana="B", life=1),))
+PLUNDERER = build.card(
+    "Pitiless Plunderer", 4, 1, 3, CREATURE, cost=parse("{3}{B}"),
+    triggers=(Trigger("dies", filter="another", treasures=1, treasure_mana="B"),))
+PAWN = build.card("Pawn of Ulamog", 3, 2, 1, CREATURE, cost=parse("{1}{B}{B}"),
+                  triggers=(Trigger("dies", treasures=1, treasure_mana="C"),))
+GANAX = build.card("Ganax", 6, 0, 6, CREATURE, cost=parse("{6}"),
+                   creature_types=frozenset({"dragon"}),
+                   triggers=(Trigger("enters", filter="dragon", treasures=1, treasure_mana="R"),))
 DRAGON = Card("Shivan Dragon", 6, 0, 6, CREATURE, cost=parse("{6}"),
               creature_types=frozenset({"dragon"}))
-ZONE = Card("Awakening Zone", 3, 1, 2, ENCHANTMENT, cost=parse("{2}{G}"),
-            triggers=(Trigger("upkeep", treasures=1, treasure_mana="C"),))
-TITHE = Card("Smothering Tithe", 4, 0, 4, ENCHANTMENT, cost=parse("{4}"),
-             triggers=(Trigger("opponents", treasures=1, treasure_mana="W"),))
-STUDY = Card("Rhystic Study", 3, 0, 3, ENCHANTMENT, cost=parse("{3}"),
-             triggers=(Trigger("opponents", draw=1),))
-RAPTOR = Card("Hulking Raptor", 5, 2, 3, CREATURE, cost=parse("{2}{G}{G}{G}"),
-              triggers=(Trigger("main", mana=2, mana_color="G"),))
-BOUNTY = Card("Brass's Bounty", 7, 0, 7, SORCERY, cost=parse("{7}"),
-              types=frozenset({"sorcery"}),
-              triggers=(Trigger("resolves", filter="per_land", treasures=1, treasure_mana="R"),))
-RITUAL_CARD = Card("Desperate Ritual", 2, 0, 1, RITUAL, cost=parse("{2}"), ritual_gain=3,
-                   ritual_color="R", types=frozenset({"instant"}))
+ZONE = build.card("Awakening Zone", 3, 1, 2, ENCHANTMENT, cost=parse("{2}{G}"),
+                  triggers=(Trigger("upkeep", treasures=1, treasure_mana="C"),))
+TITHE = build.card("Smothering Tithe", 4, 0, 4, ENCHANTMENT, cost=parse("{4}"),
+                   triggers=(Trigger("opponents", treasures=1, treasure_mana="W"),))
+STUDY = build.card("Rhystic Study", 3, 0, 3, ENCHANTMENT, cost=parse("{3}"),
+                   triggers=(Trigger("opponents", draw=1),))
+RAPTOR = build.card("Hulking Raptor", 5, 2, 3, CREATURE, cost=parse("{2}{G}{G}{G}"),
+                    triggers=(Trigger("main", mana=2, mana_color="G"),))
+BOUNTY = build.card(
+    "Brass's Bounty", 7, 0, 7, SORCERY, cost=parse("{7}"),
+    types=frozenset({"sorcery"}),
+    triggers=(Trigger("resolves", filter="per_land", treasures=1, treasure_mana="R"),))
+RITUAL_CARD = build.card("Desperate Ritual", 2, 0, 1, RITUAL, cost=parse("{2}"), ritual_gain=3,
+                         ritual_color="R", types=frozenset({"instant"}))
 BEAR = Card("Grizzly Bears", 2, 0, 2, CREATURE, cost=parse("{1}{G}"))
-RITES = Card("Village Rites", 1, 1, 0, INSTANT, cost=parse("{G}"), draw_on_cast=2,
-             types=frozenset({"instant"}),
-             additional_costs=(AdditionalCost(sacrifice=frozenset({"creature"})),))
-GUIDE = Card("Simian Spirit Guide", 3, 0, 0, RITUAL, cost=parse(""), ritual_gain=1,
-             ritual_color="R", exiled_on_cast=True)
-SOULTRADER = Card("Warren Soultrader", 3, 1, 2, CREATURE, cost=parse("{2}{B}"),
-                  sacrifice_mana=AdditionalCost(sacrifice=frozenset({"creature"}), life=1),
-                  sacrifice_mana_amount=1, sacrifice_mana_color="B", sacrifice_mana_other=True)
-FETCH = Card("Evolving Wilds", 0, 0, 0, LAND,
-             land_search=LandSearch(when="play", tapped=True))
+RITES = build.card("Village Rites", 1, 1, 0, INSTANT, cost=parse("{G}"), draw_on_cast=2,
+                   types=frozenset({"instant"}),
+                   additional_costs=(AdditionalCost(sacrifice=frozenset({"creature"})),))
+GUIDE = build.card("Simian Spirit Guide", 3, 0, 0, RITUAL, cost=parse(""), ritual_gain=1,
+                   ritual_color="R", exiled_on_cast=True)
+SOULTRADER = build.card(
+    "Warren Soultrader", 3, 1, 2, CREATURE, cost=parse("{2}{B}"),
+    sacrifice_mana=AdditionalCost(sacrifice=frozenset({"creature"}), life=1),
+    sacrifice_mana_amount=1, sacrifice_mana_color="B", sacrifice_mana_other=True)
+FETCH = build.card("Evolving Wilds", 0, 0, 0, LAND,
+                   land_search=LandSearch(when="play", tapped=True))
 
 
 def game_with(library=(), *, lands=(), creatures=(), others=(), hand=(), open_main=True):
@@ -291,8 +295,8 @@ def test_pawn_of_ulamog_leaves_a_spawn_behind():
 
 
 def test_a_sakura_tribe_elder_dies_too():
-    elder = Card("Sakura-Tribe Elder", 2, 0, 1, CREATURE, cost=parse("{1}{G}"),
-                 land_search=LandSearch(when="enters", sacrifice=True, tapped=True))
+    elder = build.card("Sakura-Tribe Elder", 2, 0, 1, CREATURE, cost=parse("{1}{G}"),
+                       land_search=LandSearch(when="enters", sacrifice=True, tapped=True))
     game = game_with([FOREST], lands=[FOREST, FOREST], creatures=[PLUNDERER], hand=[elder])
     actions.CastSpell(index=0).run(game, None)
     assert elder in game.graveyard and game.treasures == ["B"]

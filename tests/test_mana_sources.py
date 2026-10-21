@@ -21,7 +21,7 @@ did. These tests pin the new behaviour instead.
 
 import random
 
-from simulation import actions, analysis
+from simulation import actions, analysis, build
 from simulation.cards import (
     CREATURE,
     FLAT,
@@ -38,12 +38,12 @@ from simulation.manacost import ManaCost, parse, plan_payment
 
 SWAMP = Card("Swamp", 0, 0, 0, LAND, subtypes=frozenset({"swamp"}))
 ISLAND = Card("Island", 0, 0, 0, LAND, subtypes=frozenset({"island"}))
-ELVES = Card("Llanowar Elves", 1, 0, 0, CREATURE,
-             mana_abilities=(ManaAbility(FLAT, {"G": 1}),), cost=parse("{G}"))
-SIGNET = Card("Dimir Signet", 2, 0, 2, ROCK,
-              mana_abilities=(ManaAbility(FLAT, {"U": 1, "B": 1}, activation_generic=1),))
-VAULT = Card("Mana Vault", 1, 0, 1, ROCK,
-             mana_abilities=(ManaAbility(FLAT, {"C": 3}),), untaps=False)
+ELVES = build.card("Llanowar Elves", 1, 0, 0, CREATURE,
+                   mana_abilities=(ManaAbility(FLAT, {"G": 1}),), cost=parse("{G}"))
+SIGNET = build.card("Dimir Signet", 2, 0, 2, ROCK,
+                    mana_abilities=(ManaAbility(FLAT, {"U": 1, "B": 1}, activation_generic=1),))
+VAULT = build.card("Mana Vault", 1, 0, 1, ROCK,
+                   mana_abilities=(ManaAbility(FLAT, {"C": 3}),), untaps=False)
 FILLER = Card("Filler", 9, 0, 9, SORCERY)
 
 
@@ -95,8 +95,8 @@ def test_a_signet_with_nothing_to_pay_for_it_makes_nothing():
 def test_a_signet_is_fixing_and_not_fast_mana():
     """{2} for a net one: the fast-mana milestone must not count it."""
     assert not analysis._has_fast_mana([SIGNET])
-    assert analysis._has_fast_mana([Card("Sol Ring", 1, 0, 1, ROCK,
-                                         mana_abilities=(ManaAbility(FLAT, {"C": 2}),))])
+    assert analysis._has_fast_mana([build.card("Sol Ring", 1, 0, 1, ROCK,
+                                               mana_abilities=(ManaAbility(FLAT, {"C": 2}),))])
 
 
 # --- once, and then it stays tapped -------------------------------------------

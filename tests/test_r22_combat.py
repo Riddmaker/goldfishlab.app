@@ -13,7 +13,6 @@ cast. Every assumption is said on the deck page.
 
 import random
 import uuid
-from dataclasses import replace
 from types import SimpleNamespace
 
 import pytest
@@ -23,7 +22,7 @@ from cards import profiles
 from cards.models import OracleCard
 from cards.profiles import derive
 from decks.models import Deck, DeckCard
-from simulation import actions, agent, serial
+from simulation import actions, agent, build, serial
 from simulation.cards import (
     ARTIFACT,
     CREATURE,
@@ -39,14 +38,13 @@ from simulation.cards import (
     ManaAbility,
     Trigger,
 )
-from simulation.cards import fields as card_fields
 from simulation.game import Game
 from simulation.mana import ManaPool
 from simulation.manacost import parse
 from simulation.trace import named
 from simulations import deck_cards
 from simulations.engine import adapter
-from tests.engine_builders import marks, tap
+from tests.engine_builders import marks, tap, with_rules
 
 ANY = "WUBRG"
 
@@ -187,23 +185,23 @@ def test_mana_in_combat_without_keeping_it_is_not_read():
 
 def creature(name, power=2, toughness=2, combat=(), mana=(), haste=False, types=("human",),
              mv=2, cost="{1}{R}"):
-    return Card(name, mv, 0, mv, CREATURE, cost=parse(cost), types=frozenset({"creature"}),
-                creature_types=frozenset(types), power=power, toughness=toughness,
-                combat=tuple(combat), mana_abilities=tuple(mana), haste=haste,
-                colors=frozenset("R"))
+    return build.card(name, mv, 0, mv, CREATURE, cost=parse(cost), types=frozenset({"creature"}),
+                      creature_types=frozenset(types), power=power, toughness=toughness,
+                      combat=tuple(combat), mana_abilities=tuple(mana), haste=haste,
+                      colors=frozenset("R"))
 
 
 def treasure_on(event="attacks", who="self", count=1):
     return CombatTrigger(event=event, who=who, treasures=count, treasure_mana=ANY)
 
 
-FOREST = Card("Forest", 0, 0, 0, "land", basic=True, subtypes=frozenset({"forest"}),
-              mana_abilities=(ManaAbility(FLAT, {"G": 1}),))
-MOUNTAIN = Card("Mountain", 0, 0, 0, "land", basic=True, subtypes=frozenset({"mountain"}),
-                mana_abilities=(ManaAbility(FLAT, {"R": 1}),))
-SWORD = Card("Sword of the Animist", 2, 0, 2, ARTIFACT, cost=parse("{2}"),
-             types=frozenset({"artifact"}), equip=parse("{2}"),
-             combat=(CombatTrigger(event="attacks", who="equipped", search=True),))
+FOREST = build.card("Forest", 0, 0, 0, "land", basic=True, subtypes=frozenset({"forest"}),
+                    mana_abilities=(ManaAbility(FLAT, {"G": 1}),))
+MOUNTAIN = build.card("Mountain", 0, 0, 0, "land", basic=True, subtypes=frozenset({"mountain"}),
+                      mana_abilities=(ManaAbility(FLAT, {"R": 1}),))
+SWORD = build.card("Sword of the Animist", 2, 0, 2, ARTIFACT, cost=parse("{2}"),
+                   types=frozenset({"artifact"}), equip=parse("{2}"),
+                   combat=(CombatTrigger(event="attacks", who="equipped", search=True),))
 LANNERY = creature("Captain Lannery Storm", combat=(treasure_on(),), haste=True, mv=3)
 BEAR = creature("Bear")
 
@@ -272,7 +270,7 @@ def test_kodama_finds_a_land_for_each_modified_creature():
 
 def test_goldspan_dragon_makes_each_treasure_two():
     goldspan = creature("Goldspan Dragon", 4, 4, combat=(treasure_on(),), haste=True, mv=5)
-    goldspan = replace(goldspan, treasure_bonus=1)
+    goldspan = with_rules(goldspan, treasure_bonus=1)
     game = game_with(creatures=[goldspan])
     game.begin_turn()
     pool = game.open_pool()
@@ -305,8 +303,8 @@ def test_an_x_spell_waits_for_combat_mana():
 
 
 def test_curse_of_opulence_makes_gold_when_you_attack():
-    curse = Card("Curse of Opulence", 1, 0, 1, ENCHANTMENT, types=frozenset({"enchantment"}),
-                 combat=(treasure_on(who="curse"),))
+    curse = build.card("Curse of Opulence", 1, 0, 1, ENCHANTMENT, types=frozenset({"enchantment"}),
+                       combat=(treasure_on(who="curse"),))
     game = game_with(other=[curse])
     game.pool = ManaPool()
     assert game.combat() is False and game.treasures == []
@@ -317,9 +315,9 @@ def test_curse_of_opulence_makes_gold_when_you_attack():
 
 
 def test_an_aura_goes_on_an_attacker_and_falls_off_with_it():
-    impetus = Card("Shiny Impetus", 3, 0, 3, ENCHANTMENT, cost=parse("{2}{R}"),
-                   types=frozenset({"enchantment"}), enchants="creature",
-                   combat=(treasure_on(who="enchanted"),))
+    impetus = build.card("Shiny Impetus", 3, 0, 3, ENCHANTMENT, cost=parse("{2}{R}"),
+                         types=frozenset({"enchantment"}), enchants="creature",
+                         combat=(treasure_on(who="enchanted"),))
     elf = creature("Llanowar Elves", 1, 1, mana=(ManaAbility(FLAT, {"G": 1}),))
     game = game_with(hand=[impetus])
     assert not game.can_cast(impetus, ManaPool(R=3))
@@ -331,9 +329,9 @@ def test_an_aura_goes_on_an_attacker_and_falls_off_with_it():
 
 
 def test_living_weapon_makes_a_germ_that_attacks_next_turn():
-    bitterthorn = Card("Bitterthorn, Nissa's Animus", 3, 0, 3, ARTIFACT, cost=parse("{3}"),
-                       types=frozenset({"artifact"}), equip=parse("{3}"), germ=True,
-                       combat=(CombatTrigger(event="attacks", who="equipped", search=True),))
+    bitterthorn = build.card("Bitterthorn, Nissa's Animus", 3, 0, 3, ARTIFACT, cost=parse("{3}"),
+                             types=frozenset({"artifact"}), equip=parse("{3}"), germ=True,
+                             combat=(CombatTrigger(event="attacks", who="equipped", search=True),))
     game = game_with()
     game.cast(bitterthorn, ManaPool(colorless=3))
     assert [each.name for each in game.creatures] == [GERM]
@@ -348,9 +346,9 @@ def test_living_weapon_makes_a_germ_that_attacks_next_turn():
 
 
 def test_paradise_mantle_makes_mana_from_the_next_turn():
-    mantle = Card("Paradise Mantle", 0, 0, 0, ARTIFACT, types=frozenset({"artifact"}),
-                  equip=parse("{1}"), mana_abilities=(ManaAbility(GRANT, {ANY: 1},
-                                                                  subtype="equipped"),))
+    mantle = build.card("Paradise Mantle", 0, 0, 0, ARTIFACT, types=frozenset({"artifact"}),
+                        equip=parse("{1}"), mana_abilities=(ManaAbility(GRANT, {ANY: 1},
+                                                                        subtype="equipped"),))
     game = game_with(creatures=[BEAR], other=[mantle])
     game.equip(mantle, ManaPool(colorless=1))
     assert named(game, "attached") == {"Paradise Mantle": "Bear"}
@@ -360,8 +358,8 @@ def test_paradise_mantle_makes_mana_from_the_next_turn():
 
 
 def test_mana_a_trigger_adds_in_combat_is_lost():
-    cobra = replace(creature("Lotus Cobra", 2, 1, types=("snake",), cost="{1}{G}"),
-                    triggers=(Trigger(LANDFALL, mana=1, mana_color=ANY),))
+    cobra = with_rules(creature("Lotus Cobra", 2, 1, types=("snake",), cost="{1}{G}"),
+                       triggers=(Trigger(LANDFALL, mana=1, mana_color=ANY),))
     game = game_with(creatures=[cobra, BEAR], other=[SWORD])
     marks(game, attached={SWORD.name: "Bear"})
     game.pool = ManaPool()
@@ -386,7 +384,7 @@ def test_a_saved_game_keeps_what_is_attached():
     loaded = serial.load_game(serial.dump_game(game), game.deck)
     assert named(loaded, "attached") == named(game, "attached") and loaded.combat_done
     assert loaded.pool.treasure_bonus == 1
-    assert card_fields(loaded.other_permanents[0])["combat"] == card_fields(SWORD)["combat"]
+    assert loaded.other_permanents[0].abilities == SWORD.abilities
 
 
 def test_advancing_into_combat_fights_it():
@@ -453,11 +451,11 @@ def test_every_card_states_its_assumption_beside_it(combat_deck):
         grid = deck_cards.GridCard(reading=reading, open=False, answered=False)
         assert grid.assumptions, name
     sword = found["sword"]
-    assert card_fields(sword.card)["equip"] == parse("{2}")
+    assert sword.card.turn.equip == parse("{2}")
     assert "is equipped, with mana left" in assumed(sword)
     assert "basic land" in sword.triggers
     goldspan = found["goldspan"]
-    assert goldspan.card.haste and card_fields(goldspan.card)["treasure_bonus"] == 1
+    assert goldspan.card.haste and goldspan.card.turn.treasure_bonus == 1
     assert "at once with haste" in assumed(goldspan)
     assert "add two mana" in assumed(goldspan)
     ragavan = found["ragavan"]

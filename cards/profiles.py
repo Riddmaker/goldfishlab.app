@@ -2799,9 +2799,9 @@ def _onto_battlefield(card: OracleCard, text: str, found: re.Match) -> Tutor | N
         return None
     name = card.front_name or card.name or ""
     lead = text[line_start:found.start()]
-    for each in (name, name.split(",")[0]) if name else ():
+    for named in (name, name.split(",")[0]) if name else ():
         # Its name, and a legendary card's short name: "When Godo enters".
-        lead = lead.replace(each, "~")
+        lead = lead.replace(named, "~")
     lead = lead.lower()
     limit = found.group("mv")
     if limit is not None and limit.upper() == "X" and "{X}" not in (card.mana_cost or ""):
@@ -2885,7 +2885,7 @@ _ALL_TO_BATTLEFIELD = re.compile(
 _ONE_EACH = re.compile(r"^one onto the battlefield tapped and the other into your hand$")
 _CAST = ""
 _ENTERS = re.compile(
-    r"^when (?:this|~) (?:creature|artifact|enchantment|permanent) enters, (?:you may )?$")
+    r"^when (?:this (?:creature|artifact|enchantment|permanent)|~) enters, (?:you may )?$")
 #: The New Capenna lands: "When this land enters, sacrifice it. When you do,
 #: search ..." - a fetch land in two sentences.
 _SACRIFICED_ON_ENTERING = re.compile(
@@ -2924,7 +2924,21 @@ _COMBAT_SEARCH = "searches for lands in combat, which the engine does not play"
 #: P19 R15: Springbloom Druid - "When this creature enters, you may sacrifice
 #: a land. If you do, search ...".
 _SACRIFICE_LAND_FIRST = re.compile(
-    r"When (?:this creature|~) enters, you may sacrifice a land\. If you do, search your library")
+    r"When (?:this (?:creature|Spacecraft)|~) enters, you may sacrifice a land(?: or Lander)?\. "
+    r"If you do, search your library")
+#: v34: a Saga's second chapter - the turn after it enters, after the draw
+#: step (Binding the Old Gods).
+_SECOND_CHAPTER = re.compile(r"^ii — (?:[^—]+ — )?$")
+#: v34: Sowing Mycospawn's "When you cast this spell, search ...", and a
+#: Room's "When you unlock this door" - unlocked as it is cast.
+_AS_CAST = re.compile(r"^when you cast this spell, (?:you may )?$")
+_UNLOCKED = re.compile(r"^when you unlock this door, (?:you may )?$")
+#: v34: Edge of Autumn - "If you control four or fewer lands, search ...".
+_FEW_LANDS = re.compile(r"^if you control (?P<n>\w+) or fewer lands, (?:you may )?$")
+#: v34: an ability word before a spell's search (Exploding Borders' "Domain —").
+_ABILITY_WORD_LEAD = re.compile(r"^(?!(?:i|ii|iii|iv|v|vi)\b)[a-z' ]+ — ")
+#: v34: the searches named for what they are rather than a condition.
+_DIES_LEAD = re.compile(r"\bdies\b|put into a graveyard from the battlefield")
 #: Krosan Verge: "a Forest card and a Plains card".
 _ONE_OF_EACH = re.compile(r"^(\w+) card and an? (\w+)$")
 #: P19 R23: Keeper of the Accord - in each opponent's end step.
@@ -3101,19 +3115,37 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
         return LandSearch(reason=gettext_noop(
             "searches for lands, but where they go could not be read"))
 
-    lead = match.group("lead").strip().lower()
+    lead = match.group("lead").strip()
+    name = card.front_name or card.name or ""
+    for named in (name, name.split(",")[0]) if name else ():
+        # v34: "When Casal enters".
+        lead = lead.replace(named, "~")
+    lead = lead.lower()
     lead = f"{lead} " if lead else ""
+    spell = kind in (DerivedProfile.Kind.SORCERY, DerivedProfile.Kind.INSTANT)
+    if spell and len(re.findall(r"^[A-Z][\w' ]+ — ", text, re.MULTILINE)) == 1:
+        # Not Team Acceleration, whose two "Team ... —" lines are a choice.
+        lead = _ABILITY_WORD_LEAD.sub("", lead)
     life, sacrifice = 0, False
     cost, taps, condition = "", False, ""
+    lands_at_most = 0
     sacrifices_land, land_cost_types, sacrifice_other, discard = False, [], [], 0
     tapping = _creature_tap(lead) if kind == DerivedProfile.Kind.CREATURE else None
-    spell = kind in (DerivedProfile.Kind.SORCERY, DerivedProfile.Kind.INSTANT)
     activated = _ACTIVATED.match(lead)
+    few = _FEW_LANDS.match(lead)
     if not lead and spell:
         when = "cast"
-    elif _ENTERS.match(lead) or _FIRST_CHAPTER.match(lead) or _ENTERS_OR_ATTACKS.match(lead):
+    elif few is not None and spell and _word_number(few.group("n")):
+        # v34: Edge of Autumn.
+        when, lands_at_most = "cast", _word_number(few.group("n"))
+    elif _ENTERS.match(lead) or _FIRST_CHAPTER.match(lead) or _ENTERS_OR_ATTACKS.match(lead) \
+            or _UNLOCKED.match(lead):
         # P19 R22: Primeval Herald's attack is `_combat`'s.
         when = "enters"
+    elif _AS_CAST.match(lead):
+        when = "cast"
+    elif _SECOND_CHAPTER.match(lead):
+        when = "chapter2"
     elif _ENTERS_IF_BEHIND.match(lead):
         when, condition = "enters", "opponent_more_lands"
     elif _OPPONENT_END_IF_BEHIND.match(lead):
@@ -3150,6 +3182,16 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     elif _IN_COMBAT.search(lead):
         return LandSearch(reason=gettext_noop(
             "searches for lands in combat, which the engine does not play"))
+    elif not lead and 0 <= text.find("\n//\n") < match.start():
+        # v34: Beanstalk Giant's Fertile Footsteps.
+        return LandSearch(reason=gettext_noop(
+            "searches for lands on the card's other face, which the engine does not cast"))
+    elif lead.startswith("• "):
+        return LandSearch(reason=gettext_noop(
+            "searches for lands in one mode of a modal spell, which the engine does not play"))
+    elif _DIES_LEAD.search(lead):
+        return LandSearch(reason=gettext_noop(
+            "searches for lands as a card dies, which the engine does not play"))
     else:
         return LandSearch(reason=gettext_noop(
             "searches for lands under a condition the engine cannot read"))
@@ -3169,7 +3211,7 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
         share_type=bool(match.group("share")), each=each is not None and bool(types),
         condition=condition, sacrifices_land=sacrifices_land,
         land_cost_types=land_cost_types, sacrifice_other=sacrifice_other,
-        discard=discard, **extra,
+        discard=discard, **extra, **({"lands_at_most": lands_at_most} if lands_at_most else {}),
     ))
 
 

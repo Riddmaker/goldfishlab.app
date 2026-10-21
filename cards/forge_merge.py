@@ -209,6 +209,9 @@ _SEARCH_UNREAD = (
     "searches the library more than once; not modelled",
     "tutors to more than one zone; not modelled",
     "searches for lands at a cost the engine does not pay",
+    "searches for lands on the card's other face, which the engine does not cast",
+    "searches for lands in one mode of a modal spell, which the engine does not play",
+    "searches for lands as a card dies, which the engine does not play",
 )
 #: What a land search's cards may be named as: a land, a card of a basic
 #: land type, or that land type itself.

@@ -297,6 +297,8 @@ def _search_gain(game, spec, lost_land):
     lands gained, then a colour the lands lack - or None for nothing."""
     if spec.condition == "opponent_more_lands" and not game.opponent_has_more_lands():
         return None
+    if spec.lands_at_most and len(game.lands) > spec.lands_at_most:
+        return None
     options = [land for land in game.library if land.is_land
                and (land.basic or not spec.basic)
                and (not spec.types or land.subtypes & spec.types)]

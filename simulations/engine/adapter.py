@@ -539,6 +539,12 @@ def _land_search_text(search: LandSearch) -> str:
                                      "power": search.power_at}
     if search.condition == "opponent_more_lands":
         text = gettext("%(search)s, if an opponent controls more lands") % {"search": text}
+    if search.lands_at_most:
+        text = gettext("%(search)s, if you control %(count)s lands or fewer") % {
+            "search": text, "count": search.lands_at_most}
+    if search.when == "chapter2":
+        text = gettext("on its second chapter, the turn after it enters: %(search)s") % {
+            "search": text}
     if search.repeat:
         text = gettext("%(search)s, then once more") % {"search": text}
     if search.when == "opponents":
@@ -2309,7 +2315,7 @@ def _land_search(profile) -> LandSearch | None:
         power_at=int(found.get("power_at", 0)), power_count=int(found.get("power_count", 0)),
         by_power=bool(found.get("by_power")), repeat=int(found.get("repeat", 0)),
         tempting=int(found.get("tempting", 0)), by_x=bool(found.get("by_x")),
-        reveal=bool(found.get("reveal")),
+        reveal=bool(found.get("reveal")), lands_at_most=int(found.get("lands_at_most", 0)),
     )
 
 

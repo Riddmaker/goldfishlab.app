@@ -278,6 +278,11 @@ class LandSearch:
             opponent assumed to take the offer.
         by_x: P19 R23: X lands (Open the Way); ``reveal``: off the top of the
             library rather than searched for.
+        lands_at_most: v34: Edge of Autumn - only while you control this many
+            lands or fewer. 0: however many.
+
+    ``when`` is also ``chapter2`` (v34): a Saga's second chapter, the turn
+    after it entered, after the draw step (Binding the Old Gods).
     """
 
     battlefield: int = 1
@@ -306,6 +311,7 @@ class LandSearch:
     tempting: int = 0
     by_x: bool = False
     reveal: bool = False
+    lands_at_most: int = 0
 
 
 @dataclass(frozen=True)

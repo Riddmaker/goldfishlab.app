@@ -1443,6 +1443,10 @@ class Game(Marks):
         if spec.condition == "opponent_more_lands" and not self.opponent_has_more_lands():
             self.note("  -> no opponent has more lands")
             return 0
+        if spec.lands_at_most and len(self.lands) > spec.lands_at_most:
+            # v34: Edge of Autumn.
+            self.note(f"  -> more than {spec.lands_at_most} lands")
+            return 0
         if spec.reveal:
             return self._reveal_lands(spec, x)
         battlefield = self._lands_searched(spec)
@@ -1635,6 +1639,9 @@ class Game(Marks):
         if card.kind in (ENCHANTMENT, ARTIFACT):
             self.other_permanents.append(card)
             self.note(f"{card.name}")
+            if card.play.search is not None and card.play.search.when == "chapter2":
+                # v34: its second chapter comes next turn.
+                self.mark_arrived(card)
             if card.turn.growth is not None and card.turn.growth.look:
                 self._look_for_creature(card)
             if card.turn.germ:
@@ -2208,6 +2215,9 @@ class Game(Marks):
         self.lands.untap()
         self.rocks.untap()
         self.land_drop_used = False
+        # v34: a Saga that arrived last turn reaches its second chapter now.
+        chapters = [card for card in self.battlefield if card.play.search is not None
+                    and card.play.search.when == "chapter2" and self.arrived_now(card)]
         self.arrived = []
         self.tapped_creatures = []
         self.fodder_used = []
@@ -2225,6 +2235,9 @@ class Game(Marks):
                 self.note(f"{skipper.name}: draw step skipped")
             else:
                 self.draw(1)
+        for card in chapters:
+            self.note(f"{card.name}: chapter II")
+            self.search_lands(card)
 
         for card in self._triggers(lambda c: c.turn.upkeep is not None):
             spec = card.turn.upkeep

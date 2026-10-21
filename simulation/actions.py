@@ -29,6 +29,7 @@ rabbit hole. The user is the judge.
 from dataclasses import asdict, dataclass
 
 from simulation.mana import effective_mana_cost, reductions_from
+from simulation.rules.amount import compile_amount
 
 # --- Phases ----------------------------------------------------------------
 #
@@ -624,6 +625,13 @@ def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
         game.draw(drawn)
         game.life -= card.play.life
         game.note(f"  -> {drawn} cards, {card.play.life} life")
+    if card.play.draw_by is not None:
+        # v34: Rishkar's Expertise, Minions' Murmurs.
+        counted = compile_amount(card.play.draw_by)(game, card)
+        game.draw(counted)
+        lost = counted if card.play.lose_drawn else 0
+        game.life -= lost
+        game.note(f"  -> {counted} cards, {lost} life")
     if card.play.discard:
         game.discard(card.play.discard)
     if card.play.put_back:

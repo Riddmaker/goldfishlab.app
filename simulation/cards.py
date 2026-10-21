@@ -13,6 +13,7 @@ working, because the four vendored test files must stay byte-identical.
 
 from dataclasses import dataclass, field, fields
 from functools import cached_property
+from typing import Any
 
 from simulation.blocks import Ability
 from simulation.manacost import (
@@ -448,6 +449,9 @@ class Trigger:
         connive: Times the card connives (A.I.M. Scientists; card model PR
             19): draw a card, discard a card, and a +1/+1 counter on it if
             the discarded card was no land.
+        draw_by: v34: cards drawn by a count (`simulation.rules.amount.Amount`)
+            instead - Champion of Dusk's Vampires; ``lose_drawn``: as much
+            life lost.
     """
 
     event: str
@@ -460,6 +464,8 @@ class Trigger:
     life: int = 0
     counter: int = 0
     connive: int = 0
+    draw_by: Any = None
+    lose_drawn: bool = False
 
 
 @dataclass(frozen=True)

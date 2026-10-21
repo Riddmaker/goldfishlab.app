@@ -83,7 +83,7 @@ from simulation.manacost import (
     is_choice,
 )
 from simulation.permanent import Marks, ZoneField, ident, same
-from simulation.rules.amount import devotion
+from simulation.rules.amount import compile_amount, devotion
 from simulation.rules.condition import check, tap_wanted
 from simulation.rules.mana import flat
 from simulation.rules.selector import PERMANENT, selects, wanted, wanted_of
@@ -469,6 +469,13 @@ class Game(Marks):
         if trigger.draw:
             drawn = self.draw(trigger.draw)
             made.append(f"{len(drawn)} card")
+        if trigger.draw_by is not None:
+            # v34: Champion of Dusk - a card for each Vampire, a life each.
+            count = compile_amount(trigger.draw_by)(self, card)
+            drawn = self.draw(count)
+            if trigger.lose_drawn:
+                self.life -= count
+            made.append(f"{len(drawn)} card" + (f", {count} life" if trigger.lose_drawn else ""))
         if trigger.counter:
             # Crime Novelist grows with each artifact it sees go (P19 R23).
             self.add_counters(card, trigger.counter)

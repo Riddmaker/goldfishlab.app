@@ -425,10 +425,11 @@ def draws(profile, abilities, card) -> None:
     n, life = drawn
     if profile.kind in _ONE_SHOT:
         # A spell's life is no field the engine reads from the reader.
-        if profile.draws_cards is None and not profile.draws_x and not life:
+        if profile.draws_cards is None and not profile.draws_x and not profile.draw_by \
+                and not life:
             take(profile, "draws_cards", n)
         return
-    if any(trigger.get("draw") for trigger in profile.triggers or ()):
+    if profile.draw_by or any(trigger.get("draw") for trigger in profile.triggers or ()):
         return
     entry = {"event": "resolves", "draw": n, **({"life": life} if life else {})}
     take(profile, "triggers", [*(profile.triggers or ()), entry])
@@ -539,7 +540,7 @@ def _family(ability: b.Ability) -> str | None:
 
 def _played(profile, family: str) -> bool:
     if family == "draw":
-        return bool(profile.draws_cards or profile.draws_x
+        return bool(profile.draws_cards or profile.draws_x or profile.draw_by
                     or any(trigger.get("draw") for trigger in profile.triggers or ()))
     if family == "treasure":
         return bool(profile.treasures or any(

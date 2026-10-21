@@ -3066,6 +3066,109 @@ def _draw(text: str) -> Draw:
     return draw
 
 
+#: v34: cards drawn by a count - "you draw X cards and you lose X life, where
+#: X is ...", "Draw cards equal to ...". Not a target player's (Monumental
+#: Corruption): a goldfish's target would be its own, which the engine does
+#: not ask.
+_DRAW_X_LOSE = re.compile(
+    r"^(?:When (?P<enters>[^,]+) enters, )?(?:You )?draws? X cards and (?:you )?lose X life, "
+    r"where X is (?P<x>[^.]+)\.$", re.IGNORECASE | re.MULTILINE)
+_GAIN_AND_DRAW_X = re.compile(
+    r"^You gain X life and draw X cards, where X is (?P<x>[^.]+)\.", re.MULTILINE)
+_DRAW_EQUAL = re.compile(
+    r"^(?:When (?P<enters>[^,]+) enters, )?(?:You )?[Dd]raw cards equal to "
+    r"(?P<x>[^.,]+?(?:, rounded down)?)"
+    r"(?P<then>, then [^.]+)?\.", re.MULTILINE)
+#: A rider on the draw that only under-reads it: Momentous Fall's life.
+_HARMLESS_THEN = re.compile(r"^, then you gain life equal to its toughness$")
+_COUNTED_TYPES = {"creatures": ("creatures", {}), "artifacts": ("battlefield", {
+    "types": ["artifact"]}), "permanents": ("battlefield", {"types": ["permanent"]})}
+_COUNTED_X = re.compile(
+    r"^(?P<half>half )?the number of (?P<what>[A-Za-z]+) you control(?P<down>, rounded down)?$")
+_GRAVEYARD_X = re.compile(
+    r"^the number of instant and sorcery cards in your graveyard$")
+_GREATEST_X = re.compile(
+    r"^the (?:greatest|highest) (?P<stat>power|toughness|mana value) among "
+    r"(?P<what>creatures|artifacts|permanents) you control$")
+_SACRIFICED_X = re.compile(
+    r"^(?:the sacrificed creature's (?P<power>power)|the mana value of the sacrificed "
+    r"(?:creature|permanent|artifact))$")
+_DEVOTION_X = re.compile(r"^your devotion to (?P<color>white|blue|black|red|green)$")
+
+
+def _draw_amount(x: str) -> dict | None:
+    """"the number of Vampires you control" as a stored amount, or None."""
+    x = x.strip()
+    if (found := _COUNTED_X.match(x)) is not None and bool(found.group("half")) == bool(
+            found.group("down")):
+        what = found.group("what")
+        if what in _COUNTED_TYPES:
+            zone, selector = _COUNTED_TYPES[what]
+        elif what[0].isupper():
+            singular = _TYPE_PLURALS.get(what, what.lower().removesuffix("s"))
+            if singular in _NOT_CREATURE_TYPES:
+                return None
+            zone, selector = "creatures", {"creature_types": [singular]}
+        else:
+            return None
+        return {"kind": "count", "zone": zone, **selector,
+                **({"half": True} if found.group("half") else {})}
+    if _GRAVEYARD_X.match(x):
+        return {"kind": "count", "zone": "graveyard", "types": ["instant", "sorcery"]}
+    if (found := _GREATEST_X.match(x)) is not None:
+        stat, what = found.group("stat"), found.group("what")
+        if stat == "mana value":
+            return {"kind": "stat", "stat": "mv:greatest",
+                    "types": ["permanent" if what == "permanents" else what[:-1]]}
+        return {"kind": "stat", "stat": f"{stat}:greatest"} if what == "creatures" else None
+    if (found := _SACRIFICED_X.match(x)) is not None:
+        return {"kind": "stat", "stat": "sacrificed:power" if found.group("power")
+                else "sacrificed:mv"}
+    if (found := _DEVOTION_X.match(x)) is not None:
+        return {"kind": "devotion", "color": _COLOR_LETTER[found.group("color")]}
+    if x == "the number of opponents you have":
+        return {"kind": "fixed", "n": PLAYERS - 1}
+    return None
+
+
+def _counted_draw(card: OracleCard, kind: str) -> tuple[dict | None, bool]:
+    """Cards drawn by a count (v34): ``({"amount", "lose"}, more)``, ``more``
+    when the spell also does what the engine does not play (Rishkar's
+    Expertise's free spell). ``(None, False)`` when there is none."""
+    text = _REMINDER.sub("", card.oracle_text or "")
+    found = _DRAW_X_LOSE.search(text) or _GAIN_AND_DRAW_X.search(text) or _DRAW_EQUAL.search(text)
+    if found is None:
+        return None, False
+    spell = kind in (DerivedProfile.Kind.SORCERY, DerivedProfile.Kind.INSTANT)
+    enters = found.groupdict().get("enters")
+    name = card.front_name or card.name or ""
+    if enters is None and not spell:
+        return None, False
+    if enters is not None and (spell or not (
+            enters.startswith("this ") or enters in (name, name.split(",")[0]))):
+        return None, False
+    amount = _draw_amount(found.group("x"))
+    if amount is None:
+        return None, False
+    reading = {"amount": amount, "lose": found.re is _DRAW_X_LOSE}
+    if not spell:
+        return reading, False
+    line_start = text.rfind("\n", 0, found.start()) + 1
+    line_end = text.find("\n", found.end())
+    line_end = len(text) if line_end < 0 else line_end
+    others = [line for line in (text[:line_start] + text[line_end:]).split("\n")
+              if line.strip() and not line.startswith(_DRAW_BOILERPLATE)]
+    then = found.groupdict().get("then") or ""
+    more = bool(others) or bool(text[found.end():line_end].strip()) or bool(
+        text[line_start:found.start()].strip()) or bool(then and not _HARMLESS_THEN.match(then))
+    return reading, more
+
+
+#: Lines beside a counted draw that change nothing the engine plays.
+_DRAW_BOILERPLATE = ("As an additional cost to cast this spell",
+                     "This spell can't be countered")
+
+
 def _land_search(card: OracleCard, kind: str) -> LandSearch:
     """Read a search that puts lands onto the battlefield, or say why not.
 
@@ -3333,6 +3436,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     # a draw, a gift's the opponent's. Read as the spell's own, each was a
     # free card every time it was cast (card model phase 1).
     draw = _draw(_REMINDER.sub("", text))
+    draw_by, draw_more = (None, False) if draw.cards is not None or (
+        draw.x and cost.has_x) else _counted_draw(card, kind)
     amount = mana.amount
     if mana.one_shot and kind in (DerivedProfile.Kind.ARTIFACT, DerivedProfile.Kind.ROCK):
         # Lotus Petal: "{T}, Sacrifice this artifact: Add one mana of any
@@ -3404,6 +3509,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     # Since engine version 13 an X is paid (P19 R9): all that is left, last
     # in the main phase. What X then does is a gap only where it feeds
     # something the engine plays and cannot read yet.
+    if draw_more:
+        reasons.append(gettext_noop("draws, and does more that the engine does not play"))
     if cost.has_x and draw.x_unread:
         reasons.append(gettext_noop("draws or discards by X in a way that is not modelled"))
     if cost.has_x and _X_LANDS.search(text) and not (land.spec or {}).get("by_x"):
@@ -3450,6 +3557,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         puts_back=draw.puts_back,
         # Only a cost with X says what X is; Painful Truths counts colours.
         draws_x=draw.x and cost.has_x,
+        draw_by=draw_by,
         extra_cost=draw.extra_cost,
         self_life_loss=_first_number(_SELF_LOSS, text),
         opponent_life_loss=opponent_loss,
@@ -3504,6 +3612,7 @@ def _source_map(tags: set[str], tapped: bool, mana: ManaReading,
         "discards_after": REGEX,
         "puts_back": REGEX,
         "draws_x": REGEX,
+        "draw_by": REGEX,
         "self_life_loss": REGEX,
         "opponent_life_loss": REGEX,
     }

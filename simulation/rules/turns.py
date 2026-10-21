@@ -151,6 +151,10 @@ def _enc_triggers(card):
         effects = _trigger_effects(value.treasures, value.treasure_mana, value.mana,
                                    value.mana_color, value.draw, value.life, value.counter,
                                    value.connive)
+        if value.draw_by is not None:
+            # v34: Champion of Dusk draws a card for each Vampire.
+            effects += (Effect("draw", (("by", value.draw_by),)
+                               + ((("lose", True),) if value.lose_drawn else ())),)
         # A trigger that does nothing the engine plays still holds its place.
         yield Ability(TRIGGERED, "trigger", event=Event(value.event, filter=value.filter),
                       effects=effects or (Effect("nothing", changed_args(value, skip=("event",
@@ -166,6 +170,8 @@ def _triggers_of(abilities):
                 kwargs.update(treasures=effect.arg("n"), treasure_mana=effect.arg("mana"))
             elif effect.verb == "add_mana":
                 kwargs.update(mana=effect.arg("n"), mana_color=effect.arg("color"))
+            elif effect.verb == "draw" and effect.arg("by") is not None:
+                kwargs.update(draw_by=effect.arg("by"), lose_drawn=effect.arg("lose", False))
             elif effect.verb == "draw":
                 kwargs["draw"] = effect.arg("n")
             elif effect.verb == "lose_life":

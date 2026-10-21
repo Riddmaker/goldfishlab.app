@@ -128,6 +128,11 @@ COLUMNS: dict[str, Any] = {
     "puts_back": 0,
     #: P19 R9: "Draw X cards" - Stroke of Genius, Blue Sun's Zenith.
     "draws_x": False,
+    #: v34: cards drawn by a count - Minions' Murmurs, Champion of Dusk:
+    #: {"amount": {"kind", "zone", "types", "creature_types", "half", "stat",
+    #: "color", "n"}, "lose": as much life lost}, see
+    #: `cards.profiles._counted_draw`. Null: none.
+    "draw_by": None,
     #: P19 R8: the spree mode the draw sits in, paid on top of the printed
     #: cost: "{B}{B}" on Insatiable Avarice. Empty: none.
     "extra_cost": "",

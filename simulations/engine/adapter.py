@@ -74,8 +74,9 @@ from simulation.cards import (
 )
 from simulation.mana import land_color
 from simulation.manacost import COLORLESS, COLORS, ManaCost, choice, mana_label, parse
+from simulation.rules.amount import Amount
 from simulation.rules.mana import ritual_counts_of
-from simulation.rules.selector import wanted_of
+from simulation.rules.selector import Selector, wanted_of
 from simulations import gaps as gaps_module
 from simulations import patches, primitives
 
@@ -1332,6 +1333,10 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         x_max=int((getattr(profile, "land_search", None) or {}).get("x_max", 0)),
         draws_x=(kind in ONE_SHOT_KINDS and "draw_on_cast" not in overrides
                  and bool(getattr(profile, "draws_x", False))),
+        draw_by=_draw_by(profile) if kind in ONE_SHOT_KINDS and "draw_on_cast" not in overrides
+        else None,
+        lose_drawn=kind in ONE_SHOT_KINDS and "draw_on_cast" not in overrides
+        and bool((getattr(profile, "draw_by", None) or {}).get("lose")),
         creature_types=creature_types(oracle_card),
         legendary="Legendary" in (oracle_card.type_line or "").split("//", 1)[0],
         colors=frozenset(oracle_card.colors or ()) & frozenset(COLORS),
@@ -2396,7 +2401,27 @@ def _triggers(profile, overrides: dict, deck_colors: frozenset[str]) -> tuple[Tr
         )
         if trigger.treasures or trigger.mana or trigger.draw or trigger.connive:
             found.append(trigger)
+    if (counted := _draw_by(profile)) is not None and profile.kind not in ONE_SHOT_KINDS:
+        # v34: Champion of Dusk draws a card for each Vampire as it enters.
+        found.append(Trigger(event="resolves", draw_by=counted, lose_drawn=bool(
+            profile.draw_by.get("lose"))))
     return tuple(found)
+
+
+def _draw_by(profile) -> Amount | None:
+    """The cards it draws by a count (v34), as the engine counts them."""
+    read = (getattr(profile, "draw_by", None) or {}).get("amount")
+    if not read:
+        return None
+    if read["kind"] == "fixed":
+        return Amount("fixed", n=int(read["n"]))
+    if read["kind"] == "devotion":
+        return Amount("devotion", color=read["color"])
+    selector = Selector(types=frozenset(read.get("types", ())),
+                        creature_types=frozenset(read.get("creature_types", ())))
+    if read["kind"] == "stat":
+        return Amount("stat", stat=read["stat"], selector=selector)
+    return Amount("count", zone=read["zone"], selector=selector, half=bool(read.get("half")))
 
 
 def _additional_costs(profile) -> tuple[AdditionalCost, ...]:

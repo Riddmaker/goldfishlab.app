@@ -15,7 +15,12 @@ The kinds:
 * ``best_devotion`` - your devotion to the colour you are most devoted to,
   ``color`` first on a tie; the colour comes with it
 * ``stat`` - ``stat`` of the card or the board: ``power``, ``counters``,
-  ``power:greatest``, ``toughness:greatest_other``
+  ``power:greatest``, ``toughness:greatest_other``; v34: ``toughness:greatest``
+  (the card's own counted), ``mv:greatest`` among the permanents ``selector``
+  selects, ``sacrificed:power`` and ``sacrificed:mv`` of what the last
+  additional cost sacrificed (Life's Legacy)
+
+v34: ``half`` halves a count, rounded down (Imskir Iron-Eater).
 * ``all_named`` - ``n`` when you control lands of every one of ``names``
   besides this one, else none
 * ``threshold`` - ``more`` once ``zone`` holds ``at_least`` cards, else ``n``
@@ -44,6 +49,7 @@ class Amount:
     names: frozenset[str] = frozenset()
     at_least: int = 0
     more: int = 0
+    half: bool = False
 
 
 def compile_amount(amount: Amount):
@@ -91,9 +97,12 @@ def _count(amount):
         return by_type
     selects = compile_selector(amount.selector or Selector())
 
+    half = amount.half
+
     def count(game, card) -> int:
         found = sum(1 for each in _zone(game, zone, card) if selects(each))
-        return max(found - less, 0) + n
+        found = max(found - less, 0) + n
+        return found // 2 if half else found
     return count
 
 
@@ -127,6 +136,7 @@ def _best_devotion(amount):
 
 def _stat(amount):
     stat = amount.stat
+    selects = compile_selector(amount.selector or Selector())
 
     def value(game, card) -> int:
         if stat == "power":
@@ -135,6 +145,15 @@ def _stat(amount):
             return game.plus(card)
         if stat == "power:greatest":
             return max((game.power(each) for each in game.creatures), default=0)
+        if stat == "toughness:greatest":
+            return max((game.toughness(each) for each in game.creatures), default=0)
+        if stat == "mv:greatest":
+            return max((each.mv for each in game.battlefield if selects(each)), default=0)
+        if stat.startswith("sacrificed:"):
+            gone = game.last_sacrificed
+            if gone is None or isinstance(gone, str):
+                return 0
+            return gone.power if stat == "sacrificed:power" else gone.mv
         return max((game.toughness(each) for each in game.creatures
                     if not same(each, card)), default=0)
     return value

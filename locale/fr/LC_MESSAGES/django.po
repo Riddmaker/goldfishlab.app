@@ -13715,3 +13715,20 @@ msgid ""
 "To find the summaries that went wrong and make them better (legitimate "
 "interest)"
 msgstr "Pour repérer les résumés ratés et les améliorer (intérêt légitime)"
+
+#: changelog/entries.py
+msgid "Better deck summaries, and a word on them"
+msgstr "De meilleurs résumés de deck, et votre avis sur eux"
+
+#: changelog/entries.py
+msgid ""
+"Deck summaries are now written by a larger model: they quote your deck's own"
+" odds and build their advice on its weakest strategies. The report waits for"
+" the summary and appears whole. Under a summary you can say whether it "
+"helped, and add a word if you like."
+msgstr ""
+"Les résumés de deck sont désormais écrits par un modèle plus grand : ils "
+"citent les probabilités de votre propre deck et fondent leurs conseils sur "
+"ses stratégies les plus faibles. Le rapport attend le résumé et s'affiche en"
+" entier. Sous un résumé, vous pouvez dire s'il vous a aidé, et ajouter un "
+"mot si vous le souhaitez."

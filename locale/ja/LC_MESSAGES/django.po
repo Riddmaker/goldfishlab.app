@@ -11973,3 +11973,16 @@ msgid ""
 "To find the summaries that went wrong and make them better (legitimate "
 "interest)"
 msgstr "うまくいかなかった概要を見つけて改善するため（正当な利益）"
+
+#: changelog/entries.py
+msgid "Better deck summaries, and a word on them"
+msgstr "より良いデッキ概要と、そのご感想"
+
+#: changelog/entries.py
+msgid ""
+"Deck summaries are now written by a larger model: they quote your deck's own"
+" odds and build their advice on its weakest strategies. The report waits for"
+" the summary and appears whole. Under a summary you can say whether it "
+"helped, and add a word if you like."
+msgstr ""
+"デッキ概要をより大きなモデルが書くようになりました。あなたのデッキ自身の確率を引用し、最も弱い戦略をもとに助言します。レポートは概要を待ってからまとめて表示されます。概要の下で役に立ったかどうかを伝え、よろしければひとことコメントを添えることができます。"

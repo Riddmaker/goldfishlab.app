@@ -13531,3 +13531,19 @@ msgid ""
 "interest)"
 msgstr ""
 "Per trovare i riepiloghi non riusciti e migliorarli (interesse legittimo)"
+
+#: changelog/entries.py
+msgid "Better deck summaries, and a word on them"
+msgstr "Riepiloghi del mazzo migliori, e il tuo parere"
+
+#: changelog/entries.py
+msgid ""
+"Deck summaries are now written by a larger model: they quote your deck's own"
+" odds and build their advice on its weakest strategies. The report waits for"
+" the summary and appears whole. Under a summary you can say whether it "
+"helped, and add a word if you like."
+msgstr ""
+"I riepiloghi del mazzo ora li scrive un modello più grande: citano le "
+"probabilità del tuo mazzo e basano i consigli sulle sue strategie più "
+"deboli. Il report aspetta il riepilogo e compare per intero. Sotto un "
+"riepilogo puoi dire se ti è stato utile e, se vuoi, aggiungere due parole."

@@ -96,6 +96,15 @@ policy describes the counts.
 comparisons free, large series with a plan at CHF 9 a month). The feature is not built; a click
 is counted once per session and answered honestly (`metrics/doors.py`). The stats page holds the
 clicks against reports viewed: gate G3 passes at 5 % of 200 or more.
+**Summaries on Large 4 (2026-10-21)**: the deck summary is written by `mistral-large-4-0` with
+`reasoning_effort: "none"` (`MISTRAL_MODEL`, `MISTRAL_REASONING_EFFORT`), chosen by comparing it
+with `mistral-medium-2604` on 21 decks in all seven languages. Summaries have their own queue,
+`summaries`, consumed by a thread pool beside worker-short's worker (`CELERY_SUMMARY_WORKER=1`,
+`start.sh`; `worker_summaries` in compose), so a summary never holds up a small run. The run page
+waits for the summary started with it in the progress bar and shows once, whole. Under a written
+summary, "Was this summary helpful?" keeps the answer, an optional comment and a copy of the whole
+case (`SummaryFeedback`); `python manage.py summary_feedback` writes the cases to
+`.data/summary_feedback.jsonl`, unhelpful first, with nobody named.
 
 **Data pages (P11)**: every Commander precon since 2025, simulated the same way (10,000 games, 6
 turns, the multiplayer draw rule) and public in every language: a sortable table at

@@ -236,7 +236,25 @@ def test_running_out_of_time_closes_the_summary_and_refunds(key, owner, deck, no
 
 def test_two_attempts_end_inside_the_soft_time_limit(settings):
     worst = 2 * mistral.TIMEOUT_SECONDS + mistral.RETRY_WAIT
-    assert worst < settings.CELERY_TASK_SOFT_TIME_LIMIT - 15
+    assert worst < tasks.SUMMARY_SOFT_TIME_LIMIT - 15
+    assert tasks.SUMMARY_SOFT_TIME_LIMIT < tasks.SUMMARY_TIME_LIMIT
+    # The broker must not hand a summary to a second worker while it runs.
+    assert tasks.SUMMARY_TIME_LIMIT < settings.CELERY_BROKER_TRANSPORT_OPTIONS[
+        "visibility_timeout"]
+
+
+def test_a_summary_has_its_own_queue_and_a_worker_for_it():
+    """A summary waits on Mistral; on the short queue's one process every small
+    run waited with it. Both ways the workers start must consume its queue."""
+    from pathlib import Path
+
+    from django.conf import settings as django_settings
+
+    assert tasks.write_summary.queue == tasks.SUMMARY_QUEUE == "summaries"
+    root = Path(django_settings.BASE_DIR)
+    for name in ("start.sh", "docker-compose.yml"):
+        text = (root / name).read_text(encoding="utf-8")
+        assert "--queues=summaries" in text and "--pool=threads" in text, name
 
 
 def test_a_summary_whose_worker_died_is_closed_once(key, owner, deck, no_runs, queued):

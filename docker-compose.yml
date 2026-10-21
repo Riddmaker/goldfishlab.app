@@ -76,6 +76,30 @@ services:
       redis:
         condition: service_healthy
 
+  # The deck summaries' queue, as in production's worker-short
+  # (CELERY_SUMMARY_WORKER=1, start.sh): a thread pool, since a summary waits
+  # on Mistral and must not hold worker_short's one process.
+  worker_summaries:
+    build: .
+    command: >
+      celery -A goldfishlab worker --loglevel=info --queues=summaries
+      --pool=threads --concurrency=4
+    environment:
+      DJANGO_SETTINGS_MODULE: goldfishlab.settings.dev
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: "True"
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - .:/app
+    depends_on:
+      web:
+        condition: service_started
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   # Phase 12: extracts every translatable string into locale/<lang>/LC_MESSAGES/django.po.
   # A tool, not a service: `docker compose run --rm i18n`, never started by `up`
   # (profile). `makemessages` needs GNU xgettext, which neither Windows nor the

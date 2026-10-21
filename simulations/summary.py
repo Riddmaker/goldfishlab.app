@@ -85,7 +85,8 @@ PROMPT_VERSION = 5
 
 #: Room for the JSON answer. Each part is "not longer than a paragraph"
 #: (T6.1); this is generous and still bounds the cost of a runaway answer.
-MAX_TOKENS = 1600
+#: Large 4 wrote up to 1,665 tokens, in Japanese the most (2026-10-21).
+MAX_TOKENS = 3000
 
 TITLE_MAX = 40
 TAGLINE_MAX = 200
@@ -619,6 +620,76 @@ def close_stale(now=None) -> int:
     return closed
 
 
+#: About how long a summary takes to write: Large 4 without reasoning took 20 s
+#: on average and 39 s at its slowest on 21 decks (2026-10-21). Paces the run
+#: page's bar while it waits for one, nothing else.
+WRITING_SECONDS = 30
+
+#: How long the run page holds its report back for a summary being written:
+#: the summary task's two attempts and the pause between them
+#: (`tasks.SUMMARY_SOFT_TIME_LIMIT`). Past that the report shows, with the
+#: summary's own "being written" line, which reloads the page once it is in.
+HOLD_AT_MOST = timedelta(seconds=170)
+
+
+def writing(user, deck):
+    """The summary being written for this viewer's deck, while it is worth
+    waiting for; None otherwise.
+
+    The run page waits for it: its progress bar carries on until the summary
+    is in, and the page shows once, whole, instead of the report first and the
+    summary popping in half a minute later.
+    """
+    from simulations.models import DeckSummary
+
+    if not user.deck_summaries or not mistral.is_configured():
+        return None
+    row = DeckSummary.objects.filter(deck=deck, status=DeckSummary.Status.PENDING).only(
+        "updated_at").first()
+    if row is None or timezone.now() - row.updated_at > HOLD_AT_MOST:
+        return None
+    return row
+
+
+def feedback_for(user, row):
+    """This viewer's feedback on the summary as it is written now, or None."""
+    from simulations.models import DeckSummary, SummaryFeedback
+
+    if row is None or row.status != DeckSummary.Status.DONE:
+        return None
+    return SummaryFeedback.objects.filter(user=user, summary=row,
+                                          written_at=row.updated_at).first()
+
+
+def give_feedback(user, row, *, helpful: bool | None = None, comment: str | None = None):
+    """Keep a viewer's "was this helpful?", or the word they add to it.
+
+    The first answer copies the whole case (`SummaryFeedback`); a second click
+    changes the answer, and a comment is added to the answer it follows.
+    Returns the feedback, or None when there is nothing to keep: no written
+    summary, or a comment with no answer before it.
+    """
+    from simulations.models import DeckSummary, SummaryFeedback
+
+    if row is None or row.status != DeckSummary.Status.DONE:
+        return None
+    given = feedback_for(user, row)
+    if given is None:
+        if helpful is None:
+            return None
+        given = SummaryFeedback(
+            user=user, summary=row, written_at=row.updated_at, helpful=helpful,
+            model_name=row.model_name, reasoning_effort=row.reasoning_effort,
+            prompt_version=row.prompt_version, language=row.language, facts=row.facts,
+            raw_answer=row.raw_answer, content=row.content)
+    elif helpful is not None:
+        given.helpful = helpful
+    if comment is not None:
+        given.comment = comment.strip()[:SummaryFeedback.COMMENT_MAX]
+    given.save()
+    return given
+
+
 def state(user, deck) -> dict:
     """What the summary block shows about the written part, for this viewer.
 
@@ -654,6 +725,10 @@ def state(user, deck) -> dict:
         "pending": pending,
         "current": current,
         "failed": stored is not None and stored.status == DeckSummary.Status.FAILED,
+        # "Was this helpful?" on a written summary, and what this viewer said.
+        "rateable": (stored is not None and stored.status == DeckSummary.Status.DONE
+                     and bool((stored.content or {}).get("feel"))),
+        "feedback": feedback_for(user, stored),
         "offer": offer,
         "short": short,
         "paused": paused,
@@ -662,5 +737,5 @@ def state(user, deck) -> dict:
 
 
 __all__ = ["BY_TURN", "PROMPT_VERSION", "SEEN_BY_TURN", "WRITE_IN", "at_least_one", "begin",
-           "claim", "due", "facts", "fingerprint", "language", "messages", "missing", "parse",
-           "state", "write_in"]
+           "claim", "due", "facts", "feedback_for", "fingerprint", "give_feedback", "language",
+           "messages", "missing", "parse", "state", "write_in", "writing"]

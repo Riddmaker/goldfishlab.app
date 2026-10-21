@@ -13390,3 +13390,69 @@ msgstr ""
 "um card comprado assim pode ser conjurado na segunda fase principal. A "
 "conspiração de Mob Lookout vai para ele mesmo. Um relatório feito com um "
 "motor mais antigo informa isso e oferece uma nova simulação."
+
+#: templates/simulations/_summary_feedback.html
+msgid "Was this summary helpful?"
+msgstr "Este resumo foi útil?"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Helpful"
+msgstr "Útil"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Not helpful"
+msgstr "Não foi útil"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Thanks, glad it helped."
+msgstr "Obrigado, que bom que ajudou."
+
+#: templates/simulations/_summary_feedback.html
+msgid "Thanks, that helps us make the summaries better."
+msgstr "Obrigado, isso nos ajuda a melhorar os resumos."
+
+#: templates/simulations/_summary_feedback.html
+msgid "Anything we should know? (optional)"
+msgstr "Algo que devemos saber? (opcional)"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Send"
+msgstr "Enviar"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Thanks for the comment. We read every one."
+msgstr "Obrigado pelo comentário. Lemos todos."
+
+#: templates/core/privacy.html
+msgid ""
+"Feedback on a deck summary, if you give it: helpful or not, your comment, "
+"and a copy of the summary and of the facts about the deck it was written "
+"from"
+msgstr ""
+"Seu feedback sobre um resumo de deck, se você der: útil ou não, seu "
+"comentário e uma cópia do resumo e dos dados do deck a partir dos quais ele "
+"foi escrito"
+
+#: templates/core/privacy.html
+msgid ""
+"To find the summaries that went wrong and make them better (legitimate "
+"interest)"
+msgstr ""
+"Para encontrar os resumos que saíram errados e melhorá-los (interesse "
+"legítimo)"
+
+#: changelog/entries.py
+msgid "Better deck summaries, and a word on them"
+msgstr "Resumos de deck melhores, e a sua opinião sobre eles"
+
+#: changelog/entries.py
+msgid ""
+"Deck summaries are now written by a larger model: they quote your deck's own"
+" odds and build their advice on its weakest strategies. The report waits for"
+" the summary and appears whole. Under a summary you can say whether it "
+"helped, and add a word if you like."
+msgstr ""
+"Os resumos de deck agora são escritos por um modelo maior: eles citam as "
+"probabilidades do seu próprio deck e baseiam os conselhos nas estratégias "
+"mais fracas dele. O relatório espera o resumo e aparece completo. Abaixo de "
+"um resumo, você pode dizer se ele ajudou e, se quiser, deixar um comentário."

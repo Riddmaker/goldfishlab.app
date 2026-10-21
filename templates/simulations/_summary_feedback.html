@@ -1,0 +1,65 @@
+{% load i18n %}
+{% comment %}
+  "Was this helpful?" under a written deck summary, and after an answer an
+  optional word (`simulations.views.SummaryFeedbackView`). One root element,
+  swapped whole by htmx; without JavaScript the forms post and come back to
+  the summary. Small on purpose: two buttons, then one field, never asked.
+  The answer keeps a copy of the whole case for us to work through
+  (`SummaryFeedback`). Needs `run` and `written` (`rateable`, `feedback`).
+{% endcomment %}
+{% if written.rateable %}
+  {% url 'simulations:summary_feedback' run.id as action %}
+  <div id="summary-feedback" class="mt-2">
+    <form method="post"
+          action="{{ action }}"
+          hx-post="{{ action }}"
+          hx-target="#summary-feedback"
+          hx-swap="outerHTML"
+          class="flex flex-wrap items-center gap-2">
+      {% csrf_token %}
+      <span>{% translate "Was this summary helpful?" %}</span>
+      <button type="submit"
+              name="helpful"
+              value="1"
+              aria-pressed="{% if written.feedback and written.feedback.helpful %}true{% else %}false{% endif %}"
+              class="border px-2 {% if written.feedback and written.feedback.helpful %}border-ink-800 bg-parchment-300{% else %}border-parchment-600{% endif %}">
+        <span aria-hidden="true">👍</span><span class="sr-only">{% translate "Helpful" %}</span>
+      </button>
+      <button type="submit"
+              name="helpful"
+              value="0"
+              aria-pressed="{% if written.feedback and not written.feedback.helpful %}true{% else %}false{% endif %}"
+              class="border px-2 {% if written.feedback and not written.feedback.helpful %}border-ink-800 bg-parchment-300{% else %}border-parchment-600{% endif %}">
+        <span aria-hidden="true">👎</span><span class="sr-only">{% translate "Not helpful" %}</span>
+      </button>
+    </form>
+    {% if written.feedback %}
+      <p class="mt-1" role="status">
+        {% if written.feedback.helpful %}
+          {% translate "Thanks, glad it helped." %}
+        {% else %}
+          {% translate "Thanks, that helps us make the summaries better." %}
+        {% endif %}
+      </p>
+      {% if written.feedback.comment %}
+        <p class="mt-1">{% translate "Thanks for the comment. We read every one." %}</p>
+      {% else %}
+        <form method="post"
+              action="{{ action }}"
+              hx-post="{{ action }}"
+              hx-target="#summary-feedback"
+              hx-swap="outerHTML"
+              class="mt-2">
+          {% csrf_token %}
+          <label for="summary-comment" class="block">{% translate "Anything we should know? (optional)" %}</label>
+          <textarea id="summary-comment"
+                    name="comment"
+                    rows="2"
+                    maxlength="500"
+                    class="mt-1 block w-full max-w-2xl border border-parchment-600 bg-parchment-50 px-3 py-2 text-ink-900"></textarea>
+          <button type="submit" class="mt-1 text-ink-900 underline">{% translate "Send" %}</button>
+        </form>
+      {% endif %}
+    {% endif %}
+  </div>
+{% endif %}

@@ -45,6 +45,14 @@ ENTRIES = (
     # the merge moves (never inside the engine freeze, 9 to 18 November).
     # Card model phase 5, PR 19 (engine v31).
     Entry(
+        date(2026, 10, 21), "better-deck-summaries",
+        _("Better deck summaries, and a word on them"),
+        _("Deck summaries are now written by a larger model: they quote your deck's own odds "
+          "and build their advice on its weakest strategies. The report waits for the summary "
+          "and appears whole. Under a summary you can say whether it helped, and add a word if "
+          "you like."),
+    ),
+    Entry(
         date(2026, 10, 21), "connive-in-combat",
         _("More cards that connive"),
         _("A creature that connives as it attacks or deals combat damage, such as Ultron, "

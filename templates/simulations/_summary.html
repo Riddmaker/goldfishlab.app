@@ -26,6 +26,7 @@
     {% if written.content.feel %}
       <p>{% translate "Written by Mistral AI. It can be wrong. Its numbers are calculated from your list, not measured by this run." %}</p>
     {% endif %}
+    {% include "simulations/_summary_feedback.html" %}
     {% if not written.pending and not written.current %}
       {% if written.failed %}
         <p class="mt-1">{% translate "The summary could not be written this time. Nothing was taken from your runs." %}</p>

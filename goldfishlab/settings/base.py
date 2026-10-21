@@ -175,13 +175,18 @@ LOCAL_PRICES = env.bool("LOCAL_PRICES", default=False)
 # Read by the web process (whether a summary is due) AND by the short-queue
 # worker that writes it, so production needs it on both node groups.
 MISTRAL_API_KEY = env("MISTRAL_API_KEY", default="")
-# Chosen by F7 (phase 10 test findings, not kept in the repo): the test decks
-# were summarised by each candidate and checked against their lists.
-MISTRAL_MODEL = env("MISTRAL_MODEL", default="mistral-medium-2604")
+# Chosen on 2026-10-21 (card model rebuild doc, "Second comparison"): on 21
+# decks in all seven languages, Large 4 without reasoning wrote the better
+# summary 20 times out of 21 against mistral-medium-2604, and with its reasoning
+# on it was no better, five times slower and three times dearer. Blank effort
+# sends none and leaves the model's default.
+MISTRAL_MODEL = env("MISTRAL_MODEL", default="mistral-large-4-0")
+MISTRAL_REASONING_EFFORT = env("MISTRAL_REASONING_EFFORT", default="none")
 # Load protection (P1): at most this many summaries are started a day,
 # Europe/Zurich, and guests take at most GUEST_SUMMARIES_PER_DAY of them, so
 # a crowd of visitors never spends the members' share. A day's ceiling is the
-# bill's: at mistral-medium about CHF 0.004 a summary, 200 cost under CHF 1.
+# bill's: at Large 4 without reasoning about USD 0.02 a summary (10,000 tokens
+# in, 1,200 out), 300 a day cost about USD 5.
 # `simulations.budget` counts them; core.alerts mails at 80 %.
 SUMMARIES_PER_DAY = env.int("SUMMARIES_PER_DAY", default=200)
 GUEST_SUMMARIES_PER_DAY = env.int("GUEST_SUMMARIES_PER_DAY", default=100)

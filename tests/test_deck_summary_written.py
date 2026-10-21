@@ -10,16 +10,18 @@ that a failure gives the run back exactly once.
 import io
 import json
 import urllib.error
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.utils import timezone
 
 from billing.models import UsageRecord
 from billing.quotas import used
 from decks import services as deck_services
-from simulations import mistral, services, summary, tasks
+from simulations import mistral, services, summary, tasks, views
 from simulations.engine import adapter
 from simulations.models import CardAnnotation, DeckSummary, SimulationRun
 
@@ -125,6 +127,23 @@ def test_the_client_sends_json_mode_and_reads_the_answer(key, monkeypatch):
     assert seen["auth"] == "Bearer test-key-not-real"
     assert json.loads(completion.content)["tactics"] == GOOD["tactics"]
     assert (completion.prompt_tokens, completion.completion_tokens) == (1200, 300)
+
+
+def test_the_client_sends_the_configured_reasoning_effort(key, monkeypatch, settings):
+    seen = []
+
+    def urlopen(request, timeout):
+        seen.append(json.loads(request.data))
+        return _Response(_answer(GOOD))
+
+    monkeypatch.setattr(mistral.urllib.request, "urlopen", urlopen)
+    settings.MISTRAL_REASONING_EFFORT = "none"
+    mistral.complete([], max_tokens=50)
+    mistral.complete([], max_tokens=50, effort="high")
+    settings.MISTRAL_REASONING_EFFORT = ""
+    mistral.complete([], max_tokens=50)
+
+    assert [body.get("reasoning_effort") for body in seen] == ["none", "high", None]
 
 
 def test_the_client_retries_once_and_never_names_the_key(key, monkeypatch):
@@ -379,6 +398,10 @@ def test_the_task_keeps_a_checked_answer(key, deck, monkeypatch):
     assert row.content["weaknesses"] == ["Few ways to draw cards."]
     assert [card["name"] for card in row.content["strategies"][0]["cards"]] == [real], \
         "the task checks the picks against what it offered (phase 11 E)"
+    # The case, for feedback on it: what was sent and what came back unchecked.
+    assert row.facts["strategies"][0]["strategy"] == offered["strategy"]
+    assert "Invented Card" in row.raw_answer
+    assert row.reasoning_effort == "none"
     assert row.model_name == "mistral-small-2603"
     assert row.prompt_version == summary.PROMPT_VERSION
     assert (row.prompt_tokens, row.completion_tokens) == (1200, 300)
@@ -458,8 +481,53 @@ def test_a_version_one_summary_shows_without_a_title(key, client, owner, deck, f
     assert "Write a summary" not in block, "our prompt change rewrites nothing"
 
 
-def test_a_summary_being_written_polls(key, client, owner, deck, finished):
+def test_the_page_waits_for_the_summary_started_with_the_run(key, client, owner, deck,
+                                                             finished):
+    """The bar carries on after the games while the summary is written, and
+    the page shows once, whole: the poll reloads it only when the summary is in."""
     _pending(deck)
+    progress = reverse("simulations:progress", args=[finished.pk])
+
+    body = _page(client, owner, finished)
+    poll = client.get(progress, HTTP_HX_REQUEST="true")
+
+    assert 'id="summary"' not in body and 'id="advanced"' not in body, "no report yet"
+    assert "Writing your deck summary" in body and progress in body
+    assert "js/run-progress.js" in body
+    assert "HX-Refresh" not in poll.headers
+    fragment = poll.content.decode()
+    assert 'hx-trigger="every 2s"' in fragment
+    assert f'data-pct="{views.WRITING_CEILING}"' in fragment, "short of full"
+    assert "data-expected" in fragment
+
+    DeckSummary.objects.filter(deck=deck).update(status=DeckSummary.Status.DONE)
+    assert client.get(progress, HTTP_HX_REQUEST="true").headers["HX-Refresh"] == "true"
+
+
+def test_the_page_stops_waiting_for_a_summary_that_takes_too_long(key, client, owner, deck,
+                                                                  finished):
+    _pending(deck)
+    DeckSummary.objects.update(
+        updated_at=timezone.now() - summary.HOLD_AT_MOST - timedelta(seconds=1))
+
+    body = _page(client, owner, finished)
+
+    assert 'id="summary"' in body, "the report, with the summary's own line"
+
+
+def test_the_page_does_not_wait_with_summaries_hidden(key, client, owner, deck, finished):
+    _pending(deck)
+    owner.deck_summaries = False
+    owner.save()
+
+    assert 'id="advanced"' in _page(client, owner, finished)
+
+
+def test_a_summary_being_written_polls(key, client, owner, deck, finished):
+    """Past the page's wait, the summary block polls on its own."""
+    _pending(deck)
+    DeckSummary.objects.update(
+        updated_at=timezone.now() - summary.HOLD_AT_MOST - timedelta(seconds=1))
 
     body = _page(client, owner, finished)
     fragment = client.get(reverse("simulations:summary", args=[finished.pk]),
@@ -546,3 +614,125 @@ def test_the_export_holds_the_summaries(owner, deck):
 
     assert data["deck_summaries"][0]["content"] == GOOD
     assert data["account"]["deck_summaries"] is True
+
+
+# --- feedback on a summary ---------------------------------------------------------------
+
+
+def _written(deck, **fields):
+    return DeckSummary.objects.create(
+        deck=deck, fingerprint=summary.fingerprint(deck), status=DeckSummary.Status.DONE,
+        content=summary.parse(json.dumps(GOOD)), model_name="mistral-large-4-0",
+        reasoning_effort="none", prompt_version=summary.PROMPT_VERSION, language="de",
+        facts={"commander": {"name": "Teval"}}, raw_answer=json.dumps(GOOD), **fields)
+
+
+def _feedback(client, run, **data):
+    return client.post(reverse("simulations:summary_feedback", args=[run.pk]), data,
+                       HTTP_HX_REQUEST="true")
+
+
+def test_a_written_summary_asks_whether_it_helped(key, client, owner, deck, finished):
+    _written(deck)
+
+    block = _page(client, owner, finished)
+    block = block[block.index('id="summary"'):block.index('id="advanced"')]
+
+    assert "Was this summary helpful?" in block
+    assert reverse("simulations:summary_feedback", args=[finished.pk]) in block
+    assert "Anything we should know?" not in block, "the comment field comes after an answer"
+
+
+def test_feedback_keeps_the_whole_case_and_a_second_click_changes_it(key, client, owner,
+                                                                     deck, finished):
+    from simulations.models import SummaryFeedback
+
+    row = _written(deck)
+    client.force_login(owner)
+
+    answered = _feedback(client, finished, helpful="0").content.decode()
+    _feedback(client, finished, comment="  It called my deck aggressive. " + "x" * 600)
+    _feedback(client, finished, helpful="1")
+
+    given = SummaryFeedback.objects.get()
+    assert given.helpful is True
+    assert given.comment.startswith("It called my deck aggressive.")
+    assert len(given.comment) == SummaryFeedback.COMMENT_MAX
+    assert (given.facts, given.raw_answer, given.content) == (row.facts, row.raw_answer,
+                                                              row.content)
+    assert (given.model_name, given.reasoning_effort, given.prompt_version, given.language) \
+        == ("mistral-large-4-0", "none", summary.PROMPT_VERSION, "de")
+    assert "Anything we should know?" in answered
+    assert 'aria-pressed="true"' in answered
+
+
+def test_a_summary_written_again_gets_fresh_feedback_and_the_old_case_stays(
+        key, client, owner, deck, finished):
+    from simulations.models import SummaryFeedback
+
+    row = _written(deck)
+    client.force_login(owner)
+    _feedback(client, finished, helpful="0")
+    DeckSummary.objects.filter(pk=row.pk).update(
+        content={"feel": "Another text."}, updated_at=timezone.now() + timedelta(minutes=1))
+
+    _feedback(client, finished, helpful="1")
+
+    old, new = SummaryFeedback.objects.order_by("created_at")
+    assert (old.helpful, new.helpful) == (False, True)
+    assert old.content["feel"] != "Another text." and new.content["feel"] == "Another text."
+
+
+def test_no_feedback_without_an_answer_or_on_another_users_run(key, client, owner, deck,
+                                                               finished):
+    from simulations.models import SummaryFeedback
+
+    _written(deck)
+    client.force_login(owner)
+    _feedback(client, finished, comment="A word with no answer.")
+    other = User.objects.create_user(email="other@example.com", password="pw-test-1234")
+    client.force_login(other)
+
+    assert _feedback(client, finished, helpful="1").status_code == 404
+    assert not SummaryFeedback.objects.exists()
+
+
+def test_feedback_without_javascript_goes_back_to_the_summary(key, client, owner, deck,
+                                                              finished):
+    _written(deck)
+    client.force_login(owner)
+
+    response = client.post(reverse("simulations:summary_feedback", args=[finished.pk]),
+                           {"helpful": "1"})
+
+    assert response.status_code == 302
+    assert response["Location"].endswith(f"{finished.get_absolute_url()}#summary")
+
+
+def test_the_feedback_export_holds_the_cases_unhelpful_first_and_nobody(
+        key, client, owner, deck, finished, tmp_path):
+    from django.core.management import call_command
+
+    _written(deck)
+    client.force_login(owner)
+    _feedback(client, finished, helpful="0")
+    _feedback(client, finished, comment="Too generic.")
+    out = tmp_path / "feedback.jsonl"
+
+    call_command("summary_feedback", "--out", str(out), stdout=io.StringIO())
+
+    case = json.loads(out.read_text(encoding="utf-8").splitlines()[0])
+    assert (case["helpful"], case["comment"]) == (False, "Too generic.")
+    assert case["facts"] == {"commander": {"name": "Teval"}}
+    assert case["messages"] == summary.messages(case["facts"], "de")
+    assert "user" not in case and owner.email not in out.read_text(encoding="utf-8")
+
+
+def test_the_export_holds_the_feedback(key, client, owner, deck, finished):
+    from accounts import privacy
+
+    _written(deck)
+    client.force_login(owner)
+    _feedback(client, finished, helpful="1")
+
+    assert privacy.export(owner)["summary_feedback"][0]["helpful"] is True

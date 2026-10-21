@@ -7,7 +7,7 @@
   {% endblocktranslate %}
 {% endblock %}
 {% block head %}
-  {% if not run.is_finished %}
+  {% if working %}
     <script src="{% static 'js/run-progress.js' %}" defer></script>
   {% elif share %}
     <script src="{% static 'js/share.js' %}" defer></script>
@@ -54,12 +54,12 @@
   {% endcomment %}
   <section class="surface-parchment mt-6 p-6" aria-label="{% translate "Progress" %}">
     <div class="flex items-start gap-4 sm:gap-6">
-      {% if not run.is_finished %}
+      {% if working %}
         {% include "core/_logo.html" with id="run-logo" class="logo-animated run-logo" %}
       {% endif %}
       <div class="min-w-0 flex-1">
         {% include "simulations/_progress.html" %}
-        {% if not run.is_finished %}
+        {% if working %}
           {% include "simulations/_waiting.html" %}
         {% endif %}
       </div>

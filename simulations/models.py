@@ -524,8 +524,17 @@ class DeckSummary(models.Model):
     #: "tactics": str}. Empty until it is written.
     content = models.JSONField(default=dict, blank=True)
     model_name = models.CharField(max_length=64, blank=True)
+    #: `settings.MISTRAL_REASONING_EFFORT` when it was written; blank: none sent.
+    reasoning_effort = models.CharField(max_length=16, blank=True)
     prompt_version = models.PositiveSmallIntegerField(default=0)
     language = models.CharField(max_length=8, default="en")
+    #: What it was written from and what came back, kept so feedback on it can
+    #: be worked through later (`SummaryFeedback`): the facts as sent
+    #: (`summary.facts`; with `prompt_version` and `language` they rebuild the
+    #: whole prompt) and Mistral's answer before `summary.parse` checked it.
+    #: One row a deck, replaced when the deck's summary is written again.
+    facts = models.JSONField(default=dict, blank=True)
+    raw_answer = models.TextField(blank=True)
     prompt_tokens = models.PositiveIntegerField(default=0)
     completion_tokens = models.PositiveIntegerField(default=0)
     charged = models.BooleanField(default=False)
@@ -540,6 +549,48 @@ class DeckSummary(models.Model):
 
     def __str__(self) -> str:
         return f"Summary of {self.deck_id} ({self.status})"
+
+
+class SummaryFeedback(models.Model):
+    """A viewer's "was this helpful?" on a deck summary, with an optional word.
+
+    A copy of the whole case is kept with it - the facts, the prompt version
+    and language, the model, the raw answer and the checked one - because the
+    summary itself is replaced once the deck changes, and a case is only worth
+    working through as it was. One per viewer and written summary: a second
+    click changes it (`summary.feedback_for`).
+    """
+
+    COMMENT_MAX = 500
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             related_name="summary_feedback")
+    #: The summary it was given on, while it stands; the copy below is the case.
+    summary = models.ForeignKey(DeckSummary, null=True, blank=True,
+                                on_delete=models.SET_NULL, related_name="feedback")
+    helpful = models.BooleanField()
+    comment = models.TextField(max_length=COMMENT_MAX, blank=True)
+    model_name = models.CharField(max_length=64, blank=True)
+    reasoning_effort = models.CharField(max_length=16, blank=True)
+    prompt_version = models.PositiveSmallIntegerField(default=0)
+    language = models.CharField(max_length=8, default="en")
+    facts = models.JSONField(default=dict, blank=True)
+    raw_answer = models.TextField(blank=True)
+    content = models.JSONField(default=dict, blank=True)
+    #: When the summary it is about was written, so a summary written again
+    #: gets fresh feedback rather than the old one's.
+    written_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [models.UniqueConstraint(fields=["user", "summary", "written_at"],
+                                               name="one_feedback_per_written_summary")]
+
+    def __str__(self) -> str:
+        return f"{'Helpful' if self.helpful else 'Not helpful'}: {self.summary_id}"
 
 
 class SummaryDay(models.Model):

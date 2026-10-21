@@ -127,6 +127,23 @@ def test_the_client_sends_json_mode_and_reads_the_answer(key, monkeypatch):
     assert (completion.prompt_tokens, completion.completion_tokens) == (1200, 300)
 
 
+def test_the_client_sends_the_configured_reasoning_effort(key, monkeypatch, settings):
+    seen = []
+
+    def urlopen(request, timeout):
+        seen.append(json.loads(request.data))
+        return _Response(_answer(GOOD))
+
+    monkeypatch.setattr(mistral.urllib.request, "urlopen", urlopen)
+    settings.MISTRAL_REASONING_EFFORT = "none"
+    mistral.complete([], max_tokens=50)
+    mistral.complete([], max_tokens=50, effort="high")
+    settings.MISTRAL_REASONING_EFFORT = ""
+    mistral.complete([], max_tokens=50)
+
+    assert [body.get("reasoning_effort") for body in seen] == ["none", "high", None]
+
+
 def test_the_client_retries_once_and_never_names_the_key(key, monkeypatch):
     calls = []
 

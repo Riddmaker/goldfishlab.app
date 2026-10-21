@@ -236,7 +236,11 @@ def test_running_out_of_time_closes_the_summary_and_refunds(key, owner, deck, no
 
 def test_two_attempts_end_inside_the_soft_time_limit(settings):
     worst = 2 * mistral.TIMEOUT_SECONDS + mistral.RETRY_WAIT
-    assert worst < settings.CELERY_TASK_SOFT_TIME_LIMIT - 15
+    assert worst < tasks.SUMMARY_SOFT_TIME_LIMIT - 15
+    assert tasks.SUMMARY_SOFT_TIME_LIMIT < tasks.SUMMARY_TIME_LIMIT
+    # The broker must not hand a summary to a second worker while it runs.
+    assert tasks.SUMMARY_TIME_LIMIT < settings.CELERY_BROKER_TRANSPORT_OPTIONS[
+        "visibility_timeout"]
 
 
 def test_a_summary_whose_worker_died_is_closed_once(key, owner, deck, no_runs, queued):

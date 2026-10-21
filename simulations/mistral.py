@@ -12,7 +12,10 @@ reference describes it (checked 2026-10-02): `POST /v1/chat/completions` with
 `completion_tokens`. A reasoning model (Mistral Large 4, checked 2026-10-21 in
 its reasoning guide) answers `content` as a list of chunks, `thinking` ones and
 `text` ones; the text chunks are the answer. Greedy sampling (temperature 0)
-needs `top_p` 1 there, so it is sent with it. JSON mode makes the answer
+needs `top_p` 1 there, so it is sent with it. `reasoning_effort` ("none" or
+"high", checked 2026-10-21 in the adjustable reasoning guide) is sent when
+`MISTRAL_REASONING_EFFORT` names one: Large 4 reasons by default, and its
+thinking took the whole answer budget. JSON mode makes the answer
 parse; what it says is checked by `simulations.summary.parse`, never trusted.
 
 **The key is never logged, printed or put in an exception.** An error says what
@@ -34,10 +37,11 @@ ENDPOINT = "https://api.mistral.ai/v1/chat/completions"
 
 #: One attempt's socket timeout. The call runs in a Celery task, not a web
 #: request, so it may take longer than Spellbook's. Two attempts and the
-#: pause between them must end well inside the task's soft time limit
-#: (CELERY_TASK_SOFT_TIME_LIMIT, 120 s): at 60 s they did not, and a slow
-#: answer left the summary "being written" for good (P1).
-TIMEOUT_SECONDS = 45
+#: pause between them must end well inside the summary task's soft time limit
+#: (`tasks.SUMMARY_SOFT_TIME_LIMIT`): when they did not, a slow answer left the
+#: summary "being written" for good (P1). Large 4 without reasoning took 39 s
+#: at its slowest on 21 decks (2026-10-21), hence twice that.
+TIMEOUT_SECONDS = 75
 
 #: One retry, on the statuses that mean "try again later", after this pause.
 RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
@@ -69,8 +73,13 @@ def model() -> str:
     return settings.MISTRAL_MODEL
 
 
+def reasoning_effort() -> str:
+    """The configured reasoning effort; blank sends none, the model's default."""
+    return getattr(settings, "MISTRAL_REASONING_EFFORT", "")
+
+
 def complete(messages: list[dict], *, max_tokens: int, temperature: float = 0.3,
-             model_name: str | None = None) -> Completion:
+             model_name: str | None = None, effort: str | None = None) -> Completion:
     """One chat completion in JSON mode.
 
     Raises:
@@ -79,12 +88,14 @@ def complete(messages: list[dict], *, max_tokens: int, temperature: float = 0.3,
     """
     if not is_configured():
         raise MistralError("Mistral is not configured")
+    effort = reasoning_effort() if effort is None else effort
     body = json.dumps({
         "model": model_name or model(),
         "messages": messages,
         "temperature": temperature,
         "max_tokens": max_tokens,
         **({"top_p": 1} if temperature == 0 else {}),
+        **({"reasoning_effort": effort} if effort else {}),
         "response_format": {"type": "json_object"},
     }).encode("utf-8")
 

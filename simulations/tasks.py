@@ -318,7 +318,15 @@ def close_stale_summaries() -> int:
     return summary.close_stale()
 
 
-@shared_task(name="simulations.write_summary")
+#: Two attempts of `mistral.TIMEOUT_SECONDS` and the pause between them, and
+#: room to read the deck and keep the answer. Its own limits, like the card
+#: refresh's: the default ones are a simulation chunk's.
+SUMMARY_SOFT_TIME_LIMIT = 170
+SUMMARY_TIME_LIMIT = 200
+
+
+@shared_task(name="simulations.write_summary", soft_time_limit=SUMMARY_SOFT_TIME_LIMIT,
+             time_limit=SUMMARY_TIME_LIMIT)
 def write_summary(summary_id: str) -> str:
     """Have Mistral write a deck's summary, check it, and keep it.
 

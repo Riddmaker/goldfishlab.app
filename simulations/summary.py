@@ -85,7 +85,8 @@ PROMPT_VERSION = 5
 
 #: Room for the JSON answer. Each part is "not longer than a paragraph"
 #: (T6.1); this is generous and still bounds the cost of a runaway answer.
-MAX_TOKENS = 1600
+#: Large 4 wrote up to 1,665 tokens, in Japanese the most (2026-10-21).
+MAX_TOKENS = 3000
 
 TITLE_MAX = 40
 TAGLINE_MAX = 200

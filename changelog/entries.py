@@ -41,6 +41,18 @@ class Entry:
 
 
 ENTRIES = (
+    # Engine v35.
+    Entry(
+        date(2026, 10, 22), "commander-first",
+        _("Your commander comes down as soon as it can be paid"),
+        _("Until now the engine cast the cheapest spell in hand first, and your commander waited "
+          "behind every one of them: in many decks it was out by turn 4 in only a few games of a "
+          "hundred. It is now cast as soon as it can be paid, after fast mana such as Sol Ring "
+          "and a few staples, and whatever mana is left that turn is still spent. The "
+          "methodology page also says now what the engine assumes about combat and the "
+          "opponents. A report made with an older engine says so and offers a new run."),
+        "methodology", "reading",
+    ),
     # Engine v34.
     Entry(
         date(2026, 10, 21), "searches-loyalty-mana-counted-draws",

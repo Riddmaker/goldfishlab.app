@@ -3435,15 +3435,6 @@ msgstr "<strong>対戦相手と相互作用。</strong>打ち消されること�
 
 #: templates/core/methodology.html
 msgid ""
-"<strong>Combat.</strong> Nothing attacks or blocks, so nobody takes combat "
-"damage and no creature dies. Your own life still moves: Necropotence, Dark "
-"Confidant and Phyrexian mana are paid for."
-msgstr ""
-"<strong>戦闘。</strong>攻撃もブロックも行われないため、誰も戦闘ダメージを受けず、クリーチャーも死亡しません。ただし自分のライフは変動します。Necropotence、Dark"
-" Confidant、ファイレクシア・マナの支払いは行われます。"
-
-#: templates/core/methodology.html
-msgid ""
 "<strong>Printed keywords.</strong> Flying, deathtouch and trample are shown "
 "on a card because a person reads them. They change no number here, and we "
 "never count them as if they did."
@@ -3672,19 +3663,6 @@ msgid ""
 "text we could not turn into behaviour — and the result lists every one."
 msgstr ""
 "どの結果にも、<strong>エンジンがデッキのどれだけをカード自体から読み取れたか</strong>が、すべての枚数を数えて表示されます。30枚の沼は100枚中の30枚です。そこに欠けがあれば、それは<em>私たちの</em>落ち度です。テキストを動作に変換できなかったカードであり、結果にはそれがすべて一覧表示されます。"
-
-#: templates/core/methodology.html
-msgid ""
-"What it counts is only that. When several spells are affordable, the engine "
-"casts the <strong>cheapest first</strong> — its own rule, not a reading of "
-"your deck's plan, with a built-in order for a few dozen well-known cards "
-"such as rituals and fast mana. We used to ask for a casting order card by "
-"card and scored decks on how much of it had been given; on the deck we "
-"measured, <strong>161 of 217 gaps were that question</strong>, so the score "
-"mostly reported how much hand-annotation a deck had received. We stopped "
-"asking: this is a tool for statistics about a deck, not for steering a game."
-msgstr ""
-"数えているのはそれだけです。複数の呪文を唱えられるとき、エンジンは<strong>最も軽いものから</strong>唱えます。これはエンジン自身のルールで、あなたのデッキのプランを読み取ったものではありません。儀式やファストマナなど、よく知られた数十枚のカードには組み込みの順序があります。以前はカードごとに唱える順序を尋ね、その回答がどれだけあるかでデッキを採点していました。計測したデッキでは<strong>217件の欠けのうち161件がその質問</strong>で、スコアは主にデッキにどれだけ手作業の注釈が付けられたかを表していました。そこで尋ねるのをやめました。これはデッキの統計のためのツールであって、ゲームを操作するためのものではありません。"
 
 #: templates/core/methodology.html
 msgid ""
@@ -12149,3 +12127,60 @@ msgstr ""
 "the Old Godsは第2章で森を見つけ、Edge of "
 "Autumnは土地が4つ以下のときだけ見つけます。数に応じて引く呪文やクリーチャー（Champion of Dusk、Minions' "
 "Murmursなど）は、その枚数を引くようになりました。古いエンジンで作られたレポートにはその旨が表示され、再実行を提案します。"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Combat, beyond its triggers.</strong> Every creature that can attack"
+" does, each turn, so that what it does as it attacks or deals combat damage "
+"to a player is played. Nothing blocks, no damage is added up and no creature"
+" dies. Your own life still moves: Necropotence, Dark Confidant and Phyrexian"
+" mana are paid for."
+msgstr ""
+"<strong>戦闘（誘発を除く）。</strong>攻撃できるクリーチャーは毎ターンすべて攻撃し、攻撃したときやプレイヤーに戦闘ダメージを与えたときの効果が処理されます。ブロックは行われず、ダメージは合計されず、クリーチャーも死亡しません。ただし自分のライフは変動します。Necropotence、Dark"
+" Confidant、ファイレクシア・マナの支払いは行われます。"
+
+#: templates/core/methodology.html
+msgid ""
+"Where a card asks about the opponents, the engine assumes a table of "
+"<strong>three</strong>: each plays a land in each of their turns, and from "
+"turn 4 an opponent controls three creatures. That is enough for a card that "
+"checks it - Claim Jumper, Keeper of the Accord, Defense of the Heart - and "
+"it is all we assume about them."
+msgstr ""
+"カードが対戦相手について問う場合、エンジンは<strong>3人</strong>の卓を想定します。各対戦相手は自分の各ターンに土地を1枚プレイし、4ターン目からは対戦相手1人がクリーチャーを3体コントロールします。これはそれを確認するカード"
+" - Claim Jumper、Keeper of the Accord、Defense of the Heart - "
+"には十分で、対戦相手について想定するのはそれだけです。"
+
+#: templates/core/methodology.html
+msgid ""
+"What it counts is only that. When several spells are affordable, the engine "
+"casts the <strong>cheapest first</strong> — its own rule, not a reading of "
+"your deck's plan, with a built-in order for a few dozen well-known cards "
+"such as rituals and fast mana. Your <strong>commander comes before all of "
+"them but fast mana and a few staples</strong>, as soon as it can be paid, "
+"because that is how a Commander deck is played; what is left that turn is "
+"still spent. We used to ask for a casting order card by card and scored "
+"decks on how much of it had been given; on the deck we measured, <strong>161"
+" of 217 gaps were that question</strong>, so the score mostly reported how "
+"much hand-annotation a deck had received. We stopped asking: this is a tool "
+"for statistics about a deck, not for steering a game."
+msgstr ""
+"数えているのはそれだけです。複数の呪文を唱えられるとき、エンジンは<strong>最も軽いものから</strong>唱えます。これはエンジン自身のルールで、あなたのデッキのプランを読み取ったものではありません。儀式やファストマナなど、よく知られた数十枚のカードには組み込みの順序があります。<strong>統率者は、ファストマナといくつかの定番カードを除くすべてより先に</strong>、支払えるようになり次第唱えられます。統率者デッキはそう遊ぶものだからです。そのターンに残ったマナはそのまま使われます。以前はカードごとに唱える順序を尋ね、その回答がどれだけあるかでデッキを採点していました。計測したデッキでは<strong>217件の欠けのうち161件がその質問</strong>で、スコアは主にデッキにどれだけ手作業の注釈が付けられたかを表していました。そこで尋ねるのをやめました。これはデッキの統計のためのツールであって、ゲームを操作するためのものではありません。"
+
+#: changelog/entries.py
+msgid "Your commander comes down as soon as it can be paid"
+msgstr "統率者は支払えるようになり次第唱えられます"
+
+#: changelog/entries.py
+msgid ""
+"Until now the engine cast the cheapest spell in hand first, and your "
+"commander waited behind every one of them: in many decks it was out by turn "
+"4 in only a few games of a hundred. It is now cast as soon as it can be "
+"paid, after fast mana such as Sol Ring and a few staples, and whatever mana "
+"is left that turn is still spent. The methodology page also says now what "
+"the engine assumes about combat and the opponents. A report made with an "
+"older engine says so and offers a new run."
+msgstr ""
+"これまでエンジンは手札で最も軽い呪文から唱えていたため、統率者はそのすべての後回しになっていました。多くのデッキで、4ターン目までに統率者が戦場に出ていたのは100ゲーム中わずか数ゲームでした。今後は、Sol"
+" "
+"Ringのようなファストマナといくつかの定番カードの後、支払えるようになり次第唱えられ、そのターンに残ったマナはそのまま使われます。方法論のページでは、エンジンが戦闘と対戦相手について何を想定しているかも説明しています。古いエンジンで作成されたレポートにはその旨が表示され、新しい実行が提案されます。"

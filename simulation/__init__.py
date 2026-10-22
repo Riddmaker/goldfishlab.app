@@ -225,6 +225,10 @@ boundary, not the symptom.
 #:    (Heritage Druid). Land searches on a Saga's second chapter, as a spell
 #:    is cast, as a door unlocks, with four lands or fewer. Cards drawn by a
 #:    count (Champion of Dusk's Vampires), and as much life lost.
-ENGINE_VERSION = 34
+#: 35: the commander is cast as soon as it can be paid, before every spell
+#:    without a priority of its own and after only fast mana and a few
+#:    staples (agent.COMMANDER_PRIORITY); a deck that ranks its commander
+#:    keeps that rank.
+ENGINE_VERSION = 35
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

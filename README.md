@@ -414,6 +414,9 @@ as a {T} ability once a turn (`profiles._onto_battlefield`); a planeswalker's "+
 turn from the turn after it arrives, and several creatures tapped at once for mana (Heritage
 Druid); land searches on a Saga's second chapter, as a spell is cast, as a door unlocks and with
 four lands or fewer; and cards drawn by a count, with as much life lost (`profiles._counted_draw`).
+Engine v35 casts the commander as soon as it can be paid: before every spell without a priority
+of its own, after only fast mana and a few staples (`agent.COMMANDER_PRIORITY`). It changes no
+card's reading, only the order the agent casts in, so no profiles need deriving for it.
 
 A round that changes `cards/profiles.py` needs the profiles derived again after its deploy
 (`python manage.py ingest_scryfall --profiles`), and every round changes the engine's numbers, so

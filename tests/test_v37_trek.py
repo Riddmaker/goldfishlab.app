@@ -8,17 +8,32 @@ What these tests hold:
    commander's mana value while it is on the battlefield - whichever is more.
 3. **Starfleet Academy**: {C}, or for {5} as much mana as the creature types
    among your creatures, the Borg left out.
+4. **Captain Kirk, Boldly Going**: a basic land to hand as it enters and as
+   it attacks; the named card and the graveyard are not searched.
 """
 
 import random
+import uuid
 
 from cards.models import OracleCard
 from cards.profiles import derive
 from simulation import actions, build
-from simulation.cards import COUNTS, CREATURE, FLAT, LAND, ROCK, Card, DeckDefinition, Trigger
+from simulation.cards import (
+    COUNTS,
+    CREATURE,
+    FLAT,
+    LAND,
+    ROCK,
+    Card,
+    CombatTrigger,
+    DeckDefinition,
+    LandSearch,
+    Trigger,
+)
 from simulation.game import Game
 from simulation.manacost import parse
 from simulation.spec import ManaAbility
+from simulations.engine import adapter
 from tests.engine_builders import tap
 from tests.test_triggers import read
 
@@ -57,6 +72,38 @@ def test_starfleet_academy_counts_creature_types_without_the_borg():
     assert profile.mana_rule == {"rule": "counts", "subtype": "creature_types:borg",
                                  "color": "", "activation": 5}
     assert profile.review_reasons == []
+
+
+KIRK_TEXT = ("Vigilance\nSpacecraft creatures you control get +3/+3.\nWhenever Captain Kirk "
+             "enters or attacks, search your library and/or graveyard for a basic land card or a "
+             "card named Starship Enterprise, reveal it, and put it into your hand. If you search "
+             "your library this way, shuffle.")
+
+
+def kirk_oracle():
+    card = OracleCard(pk=uuid.uuid4(), name="Captain Kirk, Boldly Going",
+                      front_name="Captain Kirk, Boldly Going", oracle_text=KIRK_TEXT,
+                      type_line="Legendary Creature — Human Officer", power="3", toughness="3",
+                      mana_cost="{2}{W}", cmc=3, keywords=["Vigilance"])
+    card.profile = derive(card, set(), forge=[])
+    return card
+
+
+def test_kirk_finds_a_basic_land_as_it_enters_and_attacks():
+    profile = kirk_oracle().profile
+    assert profile.land_search["battlefield"] == 0 and profile.land_search["hand"] == 1
+    assert profile.land_search["basic"] and profile.land_search["when"] == "enters"
+    assert profile.combat == {"triggers": [{"event": "attacks", "who": "self", "to_hand": True}]}
+    assert profile.review_reasons == [] and profile.tutor_to == ""
+
+
+def test_kirk_is_said_on_the_card_list_as_lands_to_hand():
+    oracle_card = kirk_oracle()
+    card, gaps = adapter.engine_readings([oracle_card], builtin=False)[oracle_card.pk]
+    assert card.play.search.hand == 1 and card.play.search.battlefield == 0
+    assert card.turn.combat == (CombatTrigger(event="attacks", who="self", to_hand=True),)
+    assert [gap.field for gap in gaps if gap.field != "priority"] == ["assumed_trigger"]
+    assert adapter._combat_text(card.turn.combat[0]) == "whenever it attacks: 1 basic land to hand"
 
 
 # --- the engine -------------------------------------------------------------------------
@@ -125,3 +172,25 @@ def test_starfleet_academy_pays_five_only_for_more():
     many.append(creature("Drone", "borg", "cyborg"))
     # Human, officer, vulcan and the five: eight, the Borg's types not among them.
     assert game_with(lands=[FOREST] * 5 + [ACADEMY], creatures=many).pool.total == 8
+
+
+PLAINS = Card("Plains", 0, 0, 0, LAND, subtypes=frozenset({"plains"}), basic=True)
+VAULT = Card("Vault", 0, 0, 0, LAND)
+KIRK = build.card("Captain Kirk, Boldly Going", 3, 1, 2, CREATURE, cost=parse("{2}{W}"),
+                  types=frozenset({"creature"}), power=3, toughness=3,
+                  land_search=LandSearch(battlefield=0, hand=1, when="enters"),
+                  combat=(CombatTrigger(event="attacks", who="self", to_hand=True),))
+
+
+def test_kirk_s_land_goes_to_hand_a_basic_one():
+    game = game_with(creatures=[KIRK])
+    game.library = [VAULT, PLAINS, creature("Bear")]
+    assert game.search_lands(KIRK) == 1
+    assert game.hand == [PLAINS] and game.lands == [] and game.library[0] is VAULT
+
+
+def test_kirk_finds_another_as_it_attacks():
+    game = game_with(creatures=[KIRK])
+    game.library = [PLAINS, FOREST, creature("Bear")]
+    assert game.combat() is False
+    assert len(game.hand) == 1 and game.hand[0].is_land and len(game.library) == 2

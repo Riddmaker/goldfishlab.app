@@ -198,6 +198,9 @@ def _enc_combat(card):
         if value.search or value.untapped:
             effects.append(Effect("search_land", (("search", value.search),
                                                   ("untapped", value.untapped))))
+        if value.to_hand:
+            # Engine v37: Captain Kirk's basic land to hand.
+            effects.append(Effect("search_land", (("to_hand", True),)))
         if value.connive:
             effects.append(Effect("connive", (("n", value.connive),)))
         yield Ability(TRIGGERED, "combat",
@@ -217,6 +220,8 @@ def _combat_of(abilities):
                 kwargs["mana"] = effect.arg("mana")
             elif effect.verb == "connive":
                 kwargs["connive"] = effect.arg("n")
+            elif effect.arg("to_hand"):
+                kwargs["to_hand"] = True
             else:
                 kwargs.update(search=effect.arg("search"), untapped=effect.arg("untapped"))
         found.append(CombatTrigger(**kwargs))

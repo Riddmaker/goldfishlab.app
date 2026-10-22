@@ -488,6 +488,8 @@ class CombatTrigger:
         mana: Mana it adds and keeps to the end of the turn, "RRRGGG".
         search: A basic land onto the battlefield, tapped - ``untapped``
             (Sword of Hearth and Home), not.
+        to_hand: Engine v37: a basic land into the hand (Captain Kirk,
+            Boldly Going).
         connive: Times the card itself connives (Ultron, Unlimited; card
             model phase 5): draw a card, discard a card, and a +1/+1 counter
             on it if the discarded card was no land.
@@ -506,6 +508,7 @@ class CombatTrigger:
     search: bool = False
     untapped: bool = False
     connive: int = 0
+    to_hand: bool = False
 
 
 #: What a Lander token does (P19 R14): "{2}, {T}, Sacrifice this token: Search
@@ -516,6 +519,8 @@ LANDER = LandSearch(when="activate", cost=ManaCost(generic=2), taps=True, sacrif
 COMBAT_SEARCH = LandSearch(when="combat")
 #: P19 R23: Sword of Hearth and Home's land enters untapped.
 COMBAT_SEARCH_UNTAPPED = LandSearch(when="combat", tapped=False)
+#: Engine v37: Captain Kirk, Boldly Going - a basic land to hand.
+COMBAT_SEARCH_TO_HAND = LandSearch(when="combat", battlefield=0, hand=1)
 
 #: P19 R22: Living weapon's token, a 0/0 the Equipment makes a 1/1 or more.
 GERM = "Germ"

@@ -1274,6 +1274,11 @@ _COMBAT_EFFECT = re.compile(
     r"and phases end\."
     r"|(?P<search>search your library for a basic land card, put it onto the battlefield "
     r"tapped, then shuffle\.)"
+    # Engine v37: Captain Kirk, Boldly Going - the land; the named card and the
+    # graveyard are not searched.
+    r"|(?P<to_hand>search your library and/or graveyard for a basic land card or a card named "
+    r"[^,.]+, reveal it, and put it into your hand\. If you search your library this way, "
+    r"shuffle\.)"
     # P19 R23: Sword of Hearth and Home - its creature to flicker is not used.
     r"|(?P<flicker>exile up to one target creature you own, then search your library for a "
     r"basic land card\. Put both cards onto the battlefield under your control, then "
@@ -1332,6 +1337,8 @@ def _combat_trigger(line: str, card: OracleCard, host: str = "") -> dict | None:
     read = {"event": "damage" if "damage" in event else "attacks"} | who
     if effect.group("search") is not None:
         read["search"] = True
+    elif effect.group("to_hand") is not None:
+        read["to_hand"] = True
     elif effect.group("flicker") is not None:
         read |= {"search": True, "untapped": True, "flicker": True}
     elif effect.group("pips"):
@@ -2987,6 +2994,14 @@ _REPEAT_ONCE = re.compile(
     r" card and put it onto the battlefield tapped\. Then if an opponent controls more lands "
     r"than you, repeat this process once\. If you search your library this way, shuffle\.")
 #: P19 R23: Tempt with Discovery, whole.
+#: Engine v37: Captain Kirk, Boldly Going - a basic land to hand as it enters,
+#: and as it attacks (`_combat`). The named card and the graveyard are not
+#: searched: a goldfish's graveyard rarely holds a land, and the library alone
+#: can only under-read it.
+_LAND_OR_NAMED_TO_HAND = re.compile(
+    r"^Whenever (?P<who>[^,\n]+?) enters or attacks, search your library and/or graveyard for "
+    r"a basic land card or a card named [^,.\n]+, reveal it, and put it into your hand\. If you "
+    r"search your library this way, shuffle\.$", re.MULTILINE)
 _TEMPT = re.compile(
     r"^Tempting offer — Search your library for a land card and put it onto the battlefield\. "
     r"Each opponent may search their library for a land card and put it onto the battlefield\. "
@@ -3202,6 +3217,9 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
         # P19 R23: one land, and one more for each opponent who searches too.
         return LandSearch(spec=_search_spec(battlefield=1, tapped=False, basic=False,
                                             tempting=TEMPTED_OPPONENTS))
+    if (found := _LAND_OR_NAMED_TO_HAND.search(text)) is not None \
+            and _names_itself(found.group("who"), card):
+        return LandSearch(spec=_search_spec(battlefield=0, hand=1, basic=True, when="enters"))
     if _REVEAL_X_LANDS.match(text):
         return LandSearch(spec=_search_spec(battlefield=0, tapped=True, basic=False,
                                             by_x=True, reveal=True, x_max=PLAYERS))

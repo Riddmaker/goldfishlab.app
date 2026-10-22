@@ -20,6 +20,7 @@ from simulation.cards import (
     CAST,
     COLORLESS_SPELL,
     COMBAT_SEARCH,
+    COMBAT_SEARCH_TO_HAND,
     COMBAT_SEARCH_UNTAPPED,
     COUNTS,
     CREATURE,
@@ -1907,6 +1908,9 @@ class Game(Marks):
             self.note(f"  -> {card.name}: searches for a basic land")
             self.search_lands(card, choose,
                               COMBAT_SEARCH_UNTAPPED if trigger.untapped else COMBAT_SEARCH)
+        if trigger.to_hand:
+            self.note(f"  -> {card.name}: searches for a basic land to hand")
+            self.search_lands(card, choose, COMBAT_SEARCH_TO_HAND)
         if trigger.mana and self.pool is not None:
             for mana in trigger.mana:
                 self.pool.add(mana)

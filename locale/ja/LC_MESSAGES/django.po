@@ -12261,12 +12261,6 @@ msgstr "なし"
 msgid "With"
 msgstr "あり"
 
-#: templates/simulations/_report.html
-#, python-format
-msgid "Measured in %(games)s game."
-msgid_plural "Measured in %(games)s games."
-msgstr[0] "%(games)sゲームで計測。"
-
 #: templates/core/methodology.html
 msgid "Stress test"
 msgstr "ストレステスト"
@@ -12308,3 +12302,9 @@ msgid ""
 "report made with an older engine says so and offers a new run."
 msgstr ""
 "新しいレポートには、卓が反撃したときに何が起きるかが表示されるようになりました。統率者が初めて戦場に出た直後に1回破壊される場合と、5ターン目の前に全体除去が来る場合です。同じゲームをそれぞれありとなしでプレイし、最後のターンのマナ、統率者、マイルストーンを比べ、統率者がどれだけ早く戻ったかを示します。どちらも明記した想定であり、実際の卓を計測したものではありません。何を想定しているかは方法論のページに記載しています。古いエンジンで作成されたレポートにはその旨が表示され、新しい実行が提案されます。"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "Measured in %(shown)s game."
+msgid_plural "Measured in %(shown)s games."
+msgstr[0] "%(shown)sゲームで計測。"

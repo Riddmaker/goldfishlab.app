@@ -13933,13 +13933,6 @@ msgstr "Ohne"
 msgid "With"
 msgstr "Mit"
 
-#: templates/simulations/_report.html
-#, python-format
-msgid "Measured in %(games)s game."
-msgid_plural "Measured in %(games)s games."
-msgstr[0] "Gemessen in %(games)s Spiel."
-msgstr[1] "Gemessen in %(games)s Spielen."
-
 #: templates/core/methodology.html
 msgid "Stress test"
 msgstr "Stresstest"
@@ -14001,3 +13994,10 @@ msgstr ""
 "zurück war. Beides sind benannte Annahmen, keine Messungen echter Tische; "
 "die Methodik-Seite sagt, was sie annehmen. Ein Report, der mit einer älteren"
 " Engine erstellt wurde, sagt das und bietet einen neuen Lauf an."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "Measured in %(shown)s game."
+msgid_plural "Measured in %(shown)s games."
+msgstr[0] "Gemessen in %(shown)s Spiel."
+msgstr[1] "Gemessen in %(shown)s Spielen."

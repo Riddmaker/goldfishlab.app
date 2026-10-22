@@ -179,10 +179,10 @@
           </table>
         </div>
         <p class="mt-2 text-xs text-ink-700">
-          {% blocktranslate trimmed count games=scenario.games %}
-            Measured in {{ games }} game.
+          {% blocktranslate trimmed with shown=scenario.games|intcomma count games=scenario.games %}
+            Measured in {{ shown }} game.
           {% plural %}
-            Measured in {{ games }} games.
+            Measured in {{ shown }} games.
           {% endblocktranslate %}
         </p>
       {% endif %}

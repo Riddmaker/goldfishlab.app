@@ -14059,13 +14059,6 @@ msgstr "Sans"
 msgid "With"
 msgstr "Avec"
 
-#: templates/simulations/_report.html
-#, python-format
-msgid "Measured in %(games)s game."
-msgid_plural "Measured in %(games)s games."
-msgstr[0] "Mesuré sur %(games)s partie."
-msgstr[1] "Mesuré sur %(games)s parties."
-
 #: templates/core/methodology.html
 msgid "Stress test"
 msgstr "Test de résistance"
@@ -14128,3 +14121,10 @@ msgstr ""
 "est revenu. Ce sont deux hypothèses nommées, pas des mesures de vraies "
 "tables ; la page de méthodologie dit ce qu'elles supposent. Un rapport fait "
 "avec un moteur plus ancien le signale et propose une nouvelle simulation."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "Measured in %(shown)s game."
+msgid_plural "Measured in %(shown)s games."
+msgstr[0] "Mesuré sur %(shown)s partie."
+msgstr[1] "Mesuré sur %(shown)s parties."

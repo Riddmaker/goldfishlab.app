@@ -99,8 +99,8 @@ TAPPED_FOR_MANA = "tapped_for_mana"
 
 #: A counting ability whose blank colour is "the one the hand wants".
 _WANTED_WHEN_BLANK = ("power", "counters", "power:greatest", "toughness:greatest_other",
-                      "enchantment")
-_STATS = ("power", "counters", "power:greatest", "toughness:greatest_other")
+                      "mv:commander", "enchantment")
+_STATS = ("power", "counters", "power:greatest", "toughness:greatest_other", "mv:commander")
 
 
 def counted(what: str, produces: tuple = ()) -> Amount:
@@ -115,7 +115,7 @@ def counted(what: str, produces: tuple = ()) -> Amount:
     if what.startswith("graveyard:"):
         return Amount("count", zone="graveyard", selector=Selector(
             types=frozenset({"creature"}), cost_color=what.split(":", 1)[1]))
-    if what in _STATS:
+    if what in _STATS or what.startswith("creature_types"):
         return Amount("stat", stat=what)
     if what.startswith("devotion:"):
         return Amount("devotion", color=what.split(":", 1)[1])

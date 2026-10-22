@@ -870,6 +870,13 @@ _RITUAL_THRESHOLD = re.compile(
 _COUNTS_CHOSEN_TYPE = re.compile(
     r"^(?:\{(?P<cost>\d+)\}, )?\{T\}: Choose a color\. Add an amount of mana of that color "
     r"equal to the number of creatures you control of the chosen type\.$", re.MULTILINE)
+#: Engine v37: Starfleet Academy - "Federation — {5}, {T}: Choose a color. Add an
+#: amount of mana of that color equal to the number of creature types among
+#: non-Borg creatures you control."
+_COUNTS_CREATURE_TYPES = re.compile(
+    r"^(?:[A-Z][\w' ]+ — )?(?:\{(?P<cost>\d+)\}, )?\{T\}: Choose a color\. Add an amount of "
+    r"mana of that color equal to the number of creature types among "
+    r"(?:non-(?P<but>[A-Z][a-z]+) )?creatures you control\.$", re.MULTILINE)
 #: P19 R21: mana by power or toughness. "{T}: Add X mana of any one color,
 #: where X is this creature's power." (Kami of Whispered Hopes), "{T}: Add an
 #: amount of {G} equal to Marwyn's power.", "{G}, {T}: Add X mana in any
@@ -882,6 +889,8 @@ _COUNTS_STAT = re.compile(
     r"(?:X mana (?:(?P<one>of any one color)|in any combination of (?:colors|\{(?P<a>[WUBRG])\} "
     r"and/or \{(?P<b>[WUBRG])\})), where X is|an amount of \{(?P<color>[WUBRG])\} equal to) "
     r"(?:the greatest (?P<stat>power|toughness) among (?P<other>other )?creatures you control"
+    # Engine v37: Command Chair.
+    r"|(?P<commanders>the greatest mana value among commanders you control)"
     r"|(?P<whose>[^.\n]+?)'s power)\."
     r"(?P<once> Activate only during your turn and only once each turn\.)?$", re.MULTILINE)
 #: P19 R21: "{T}: Add {G} for each +1/+1 counter on this creature." (Gyre Sage)
@@ -1087,6 +1096,9 @@ _TRIGGER_EVENTS = (
     ("cast", "", re.compile(r"Whenever you cast a spell")),
     ("cast", "second", re.compile(r"Whenever a player casts their second spell each turn")),
     ("upkeep", "", re.compile(r"At the beginning of your upkeep")),
+    # Engine v37: Quark, Humble Proprietor - the opponents' upkeeps too, played
+    # as one Treasure for each player in yours.
+    ("upkeep", "each", re.compile(r"At the beginning of each upkeep")),
     ("main", "", re.compile(r"At the beginning of your (?:first|precombat) main phase")),
     # Engine v33: Frontier Siege's Khans, played in the first main phase only.
     ("main", "", re.compile(r"At the beginning of each of your main phases")),
@@ -1113,7 +1125,9 @@ _TRIGGER_EFFECT = re.compile(
     r"Add \{C\}\.\""
     # P19 R23: Crime Novelist's counter comes with its mana.
     r"|(?P<counter>put a \+1/\+1 counter on this creature and )?"
-    r"add (?:(?P<any>one mana of any color)|(?P<pips>(?:\{[WUBRGC]\})+)))"
+    # Engine v37: Dal R'El's "add {R} or {G}", one mana of either.
+    r"add (?:(?P<any>one mana of any color)|(?P<either>\{[WUBRG]\} or \{[WUBRG]\})"
+    r"|(?P<pips>(?:\{[WUBRGC]\})+)))"
     # The Spawn's quoted ability ends the line itself.
     r"(?:\.(?P<keep> Until end of turn, you don't lose this mana as steps and phases end\.)?)?$")
 #: P19 R16: what the opponents do in a round, played on an assumption the card
@@ -1190,17 +1204,21 @@ def _trigger_line(line: str, card: OracleCard) -> dict | None:
         effect = _TRIGGER_EFFECT.fullmatch(line, start.end())
         if effect is None:
             return None
-        if event == "resolves" and not (effect.group("any") or effect.group("pips")):
+        adds = effect.group("any") or effect.group("either") or effect.group("pips")
+        if event == "resolves" and not adds:
             return None
         read = {"event": event, "filter": groups.get("type", "").lower() or wanted}
         if effect.group("spawn") is not None:
             read |= {"treasures": _word_number(effect.group("spawn")), "spawn": True}
-        elif (effect.group("any") or effect.group("pips")) and event == "upkeep" \
-                and not effect.group("keep"):
+        elif adds and event == "upkeep" and not effect.group("keep"):
             # Mana made in the upkeep is gone by the main phase.
             return None
         elif effect.group("any"):
             read |= {"mana": 1, "color": "any"}
+        elif effect.group("either"):
+            # The choice key, in WUBRG order: `simulation.manacost.choice`.
+            pips = re.findall(r"\{(\w)\}", effect.group("either"))
+            read |= {"mana": 1, "color": "".join(c for c in "WUBRG" if c in pips)}
         elif effect.group("pips"):
             pips = re.findall(r"\{(\w)\}", effect.group("pips"))
             if len(set(pips)) != 1:
@@ -1208,6 +1226,8 @@ def _trigger_line(line: str, card: OracleCard) -> dict | None:
             read |= {"mana": len(pips), "color": pips[0]}
         else:
             read["treasures"] = _word_number(effect.group("treasures") or "a")
+            if wanted == "each":
+                read["treasures"] *= PLAYERS
         if effect.group("life"):
             read["life"] = int(effect.group("life"))
         if effect.group("counter"):
@@ -1259,6 +1279,11 @@ _COMBAT_EFFECT = re.compile(
     r"and phases end\."
     r"|(?P<search>search your library for a basic land card, put it onto the battlefield "
     r"tapped, then shuffle\.)"
+    # Engine v37: Captain Kirk, Boldly Going - the land; the named card and the
+    # graveyard are not searched.
+    r"|(?P<to_hand>search your library and/or graveyard for a basic land card or a card named "
+    r"[^,.]+, reveal it, and put it into your hand\. If you search your library this way, "
+    r"shuffle\.)"
     # P19 R23: Sword of Hearth and Home - its creature to flicker is not used.
     r"|(?P<flicker>exile up to one target creature you own, then search your library for a "
     r"basic land card\. Put both cards onto the battlefield under your control, then "
@@ -1317,6 +1342,8 @@ def _combat_trigger(line: str, card: OracleCard, host: str = "") -> dict | None:
     read = {"event": "damage" if "damage" in event else "attacks"} | who
     if effect.group("search") is not None:
         read["search"] = True
+    elif effect.group("to_hand") is not None:
+        read["to_hand"] = True
     elif effect.group("flicker") is not None:
         read |= {"search": True, "untapped": True, "flicker": True}
     elif effect.group("pips"):
@@ -1340,7 +1367,8 @@ def _combat(card: OracleCard, kind: str) -> tuple[dict | None, frozenset[str]]:
     Living weapon - each only where a trigger or a granted mana ability
     (Paradise Mantle) rides on it. "treasure_bonus": Goldspan's Treasures
     make one more. "vehicle": a Vehicle whose search as it enters is read,
-    never crewed.
+    never crewed. "treasure_lock" (engine v37): Quark's "You can't sacrifice
+    Treasure tokens."
     """
     found: dict = {"triggers": []}
     read: set[str] = set()
@@ -1358,6 +1386,11 @@ def _combat(card: OracleCard, kind: str) -> tuple[dict | None, frozenset[str]]:
             read.add(line)
         elif _TREASURE_BONUS.match(line):
             found["treasure_bonus"] = 1
+            read.add(line)
+        elif line == "You can't sacrifice Treasure tokens.":
+            # Engine v37: Quark, Humble Proprietor - no Treasure is spent
+            # while it is out, nor sacrificed to an altar.
+            found["treasure_lock"] = True
             read.add(line)
         elif (loss := _POSTCOMBAT_LOSS.match(line)) is not None:
             found["triggers"].append({"event": "damage", "who": "total",
@@ -1461,9 +1494,10 @@ def _mana_rule(card: OracleCard, kind: str) -> dict | None:
 def _stat_rule(text: str, card: OracleCard) -> dict | None:
     """Mana by power, toughness or the card's own +1/+1 counters (P19 R21).
 
-    ``subtype`` "power" (its own), "power:greatest", "toughness:greatest_other"
-    or "counters"; ``color`` a colour, "" for one colour the hand settles,
-    "WUBRG" or "UR" for any combination of those; ``pays`` the colour of an
+    ``subtype`` "power" (its own), "power:greatest", "toughness:greatest_other",
+    "counters" or "mv:commander" (engine v37: Command Chair); ``color`` a
+    colour, "" for one colour the hand settles, "WUBRG" or "UR" for any
+    combination of those; ``pays`` the colour of an
     activation cost, which the engine pays as generic; ``once`` for Vivi's
     {0} once a turn, played as a {T}.
     """
@@ -1481,6 +1515,8 @@ def _stat_rule(text: str, card: OracleCard) -> dict | None:
         if not _names_itself(found.group("whose"), card):
             return None
         subtype = "power"
+    elif found.group("commanders"):
+        subtype = "mv:commander"
     elif found.group("stat") == "power" and not found.group("other"):
         subtype = "power:greatest"
     elif found.group("stat") == "toughness" and found.group("other"):
@@ -1695,6 +1731,11 @@ def _counting_rule(text: str, card: OracleCard | None = None) -> dict | None:
         # P19 R18: Three Tree City; one colour, the one the hand wants.
         return {"rule": "counts", "subtype": "chosen_type", "color": "",
                 "activation": int(found.group("cost") or 0)}
+    if (found := _COUNTS_CREATURE_TYPES.search(text)) is not None:
+        # Engine v37: Starfleet Academy; "creature_types:borg" leaves the Borg out.
+        but = found.group("but")
+        return {"rule": "counts", "subtype": "creature_types" + (f":{but.lower()}" if but else ""),
+                "color": "", "activation": int(found.group("cost") or 0)}
     if (found := _DEVOTION.search(text)) is not None:
         return {"rule": "counts", "subtype": "devotion", "color": "",
                 "activation": int(found.group("cost"))}
@@ -2752,6 +2793,13 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
 
     zone = zones.pop()
     if zone == "battlefield":
+        found = _SEARCH_YOUR_LIBRARY.search(text)
+        lead = text[text.rfind("\n", 0, found.start()) + 1:found.start()]
+        if ":" in lead and _TUTOR_ACTIVATED.match(lead.lower()) is None:
+            # Engine v37: Captain Jean-Luc Picard's "Tap seven untapped
+            # Officers you control:" - an ability the engine does not pay for.
+            return Tutor(zone=zone, count=count, reason=gettext_noop(
+                "tutors as an ability whose cost the engine does not pay"))
         return Tutor(zone=zone, count=count,
                      reason=gettext_noop(
                          "tutors onto the battlefield, which the engine cannot do"))
@@ -2965,6 +3013,14 @@ _REPEAT_ONCE = re.compile(
     r" card and put it onto the battlefield tapped\. Then if an opponent controls more lands "
     r"than you, repeat this process once\. If you search your library this way, shuffle\.")
 #: P19 R23: Tempt with Discovery, whole.
+#: Engine v37: Captain Kirk, Boldly Going - a basic land to hand as it enters,
+#: and as it attacks (`_combat`). The named card and the graveyard are not
+#: searched: a goldfish's graveyard rarely holds a land, and the library alone
+#: can only under-read it.
+_LAND_OR_NAMED_TO_HAND = re.compile(
+    r"^Whenever (?P<who>[^,\n]+?) enters or attacks, search your library and/or graveyard for "
+    r"a basic land card or a card named [^,.\n]+, reveal it, and put it into your hand\. If you "
+    r"search your library this way, shuffle\.$", re.MULTILINE)
 _TEMPT = re.compile(
     r"^Tempting offer — Search your library for a land card and put it onto the battlefield\. "
     r"Each opponent may search their library for a land card and put it onto the battlefield\. "
@@ -3180,6 +3236,9 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
         # P19 R23: one land, and one more for each opponent who searches too.
         return LandSearch(spec=_search_spec(battlefield=1, tapped=False, basic=False,
                                             tempting=TEMPTED_OPPONENTS))
+    if (found := _LAND_OR_NAMED_TO_HAND.search(text)) is not None \
+            and _names_itself(found.group("who"), card):
+        return LandSearch(spec=_search_spec(battlefield=0, hand=1, basic=True, when="enters"))
     if _REVEAL_X_LANDS.match(text):
         return LandSearch(spec=_search_spec(battlefield=0, tapped=True, basic=False,
                                             by_x=True, reveal=True, x_max=PLAYERS))

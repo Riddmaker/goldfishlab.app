@@ -13,6 +13,7 @@ from core import seo, ticker
 from core.tokens import color_families
 from decks.analysis import KARSTEN_MAX, KARSTEN_MIN
 from goldfishlab import celery_app
+from simulation import karsten
 from simulations.provenance import SOURCES
 
 logger = logging.getLogger(__name__)
@@ -90,8 +91,17 @@ class MethodologyView(TemplateView):
         # Where a card's value can come from - the old card list's preamble,
         # read off the same table the card pages label their rows with.
         # The land band the deck page draws, from the constant it judges by.
+        # P16: Karsten's coloured-source table beside the engine's, which
+        # tests/test_karsten.py keeps true.
+        karsten_rows = [{"cost": cost, "karsten": karsten.PUBLISHED[cost],
+                         "engine": karsten.REQUIRED[cost],
+                         "more": karsten.REQUIRED[cost] - karsten.PUBLISHED[cost]}
+                        for cost in karsten.PUBLISHED]
         return {**super().get_context_data(**kwargs), "sources": SOURCES,
-                "karsten_min": KARSTEN_MIN, "karsten_max": KARSTEN_MAX}
+                "karsten_min": KARSTEN_MIN, "karsten_max": KARSTEN_MAX,
+                "karsten_rows": karsten_rows, "karsten_source": karsten.SOURCE,
+                "karsten_same": sum(1 for row in karsten_rows if not row["more"]),
+                "karsten_costs": len(karsten_rows)}
 
 
 class TermsView(TemplateView):

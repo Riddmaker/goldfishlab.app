@@ -53,12 +53,14 @@ FIELDS: dict[str, Any] = {
     "equip": None,
     "germ": False,
     "treasure_bonus": 0,
+    "treasure_lock": False,
 }
 
 #: The structures of the family, and the ``form`` their blocks carry.
 _STRUCTURES = {"upkeep": "upkeep", "end_step": "end_step", "skips_draw": "skips_draw",
                "triggers": "trigger", "combat": "combat", "growth": "growth",
-               "equip": "equip", "germ": "germ", "treasure_bonus": "treasure_bonus"}
+               "equip": "equip", "germ": "germ", "treasure_bonus": "treasure_bonus",
+               "treasure_lock": "treasure_lock"}
 
 #: The ``form`` of every block of the family.
 FORMS = frozenset(_STRUCTURES.values()) | {"treasures"}
@@ -198,6 +200,9 @@ def _enc_combat(card):
         if value.search or value.untapped:
             effects.append(Effect("search_land", (("search", value.search),
                                                   ("untapped", value.untapped))))
+        if value.to_hand:
+            # Engine v37: Captain Kirk's basic land to hand.
+            effects.append(Effect("search_land", (("to_hand", True),)))
         if value.connive:
             effects.append(Effect("connive", (("n", value.connive),)))
         yield Ability(TRIGGERED, "combat",
@@ -217,6 +222,8 @@ def _combat_of(abilities):
                 kwargs["mana"] = effect.arg("mana")
             elif effect.verb == "connive":
                 kwargs["connive"] = effect.arg("n")
+            elif effect.arg("to_hand"):
+                kwargs["to_hand"] = True
             else:
                 kwargs.update(search=effect.arg("search"), untapped=effect.arg("untapped"))
         found.append(CombatTrigger(**kwargs))
@@ -276,12 +283,24 @@ def _treasure_bonus_of(abilities):
     return {"treasure_bonus": abilities[0].effects[0].arg("n")}
 
 
+def _enc_treasure_lock(card):
+    if card.treasure_lock:
+        yield Ability(STATIC, "treasure_lock",
+                      effects=(Effect("cannot_sacrifice", (("what", "treasure"),)),))
+
+
+def _treasure_lock_of(abilities):
+    return {"treasure_lock": True}
+
+
 _ENCODERS = {"upkeep": _enc_upkeep, "end_step": _enc_end_step, "skips_draw": _enc_skips_draw,
              "triggers": _enc_triggers, "combat": _enc_combat, "growth": _enc_growth,
-             "equip": _enc_equip, "germ": _enc_germ, "treasure_bonus": _enc_treasure_bonus}
+             "equip": _enc_equip, "germ": _enc_germ, "treasure_bonus": _enc_treasure_bonus,
+             "treasure_lock": _enc_treasure_lock}
 _READERS = {"upkeep": _upkeep_of, "end_step": _end_step_of, "skips_draw": _skips_draw_of,
             "triggers": _triggers_of, "combat": _combat_of, "growth": _growth_of,
-            "equip": _equip_of, "germ": _germ_of, "treasure_bonus": _treasure_bonus_of}
+            "equip": _equip_of, "germ": _germ_of, "treasure_bonus": _treasure_bonus_of,
+            "treasure_lock": _treasure_lock_of}
 
 
 def _read(abilities) -> dict:
@@ -319,6 +338,7 @@ class TurnView:
     equip: ManaCost | None = None
     germ: bool = False
     treasure_bonus: int = 0
+    treasure_lock: bool = False
 
 
 NO_TURN = TurnView()

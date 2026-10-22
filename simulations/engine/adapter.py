@@ -33,6 +33,7 @@ from simulation import ENGINE_VERSION, agent, blocks, build
 from simulation.cards import (
     CARD_TYPES,
     COMBAT_SEARCH,
+    COMBAT_SEARCH_TO_HAND,
     COMBAT_SEARCH_UNTAPPED,
     COUNTS,
     DISCARD_LAND,
@@ -490,16 +491,17 @@ RULE_TEXT = {
 def _land_search_text(search: LandSearch) -> str:
     """A land search, in words: what, how many, where, at what price."""
     types = " / ".join(sorted(subtype.capitalize() for subtype in search.types))
+    # Engine v37: Captain Kirk's search puts its land into the hand alone.
+    count = search.battlefield or search.hand
     if search.by_power:
         what = gettext("as many basic lands as the greatest power among your creatures")
     elif search.reveal:
         what = gettext("X lands off the top of the library")
     elif search.basic:
-        what = ngettext("%(count)s basic land", "%(count)s basic lands",
-                        search.battlefield) % {"count": search.battlefield}
+        what = ngettext("%(count)s basic land", "%(count)s basic lands", count) % {
+            "count": count}
     else:
-        what = ngettext("%(count)s land", "%(count)s lands",
-                        search.battlefield) % {"count": search.battlefield}
+        what = ngettext("%(count)s land", "%(count)s lands", count) % {"count": count}
     if types:
         what = f"{what} ({types})"
     if search.also:
@@ -511,9 +513,13 @@ def _land_search_text(search: LandSearch) -> str:
         what = gettext("%(what)s of one land type") % {"what": what}
     elif search.each:
         what = gettext("%(what)s, one of each") % {"what": what}
-    text = (gettext("%(what)s onto the battlefield, tapped") if search.tapped
-            else gettext("%(what)s onto the battlefield")) % {"what": what}
-    if search.hand:
+    if not search.battlefield and search.hand:
+        text = gettext("%(what)s to hand") % {"what": what}
+    elif search.tapped:
+        text = gettext("%(what)s onto the battlefield, tapped") % {"what": what}
+    else:
+        text = gettext("%(what)s onto the battlefield") % {"what": what}
+    if search.hand and search.battlefield:
         text = gettext("%(search)s, and %(count)s to hand") % {"search": text,
                                                               "count": search.hand}
     if search.life:
@@ -566,6 +572,7 @@ _TRIGGER_WHEN = {
     ("cast", "colorless"): gettext_noop("whenever you cast a colourless spell"),
     ("cast", "second"): gettext_noop("on your second spell each turn"),
     ("upkeep", ""): gettext_noop("each upkeep"),
+    ("upkeep", "each"): gettext_noop("in each upkeep of a round, yours and three opponents'"),
     ("main", ""): gettext_noop("at each first main phase"),
     ("dies", "another"): gettext_noop("whenever another creature of yours dies"),
     ("dies", ""): gettext_noop("whenever it or another creature of yours dies"),
@@ -637,6 +644,8 @@ def _combat_text(trigger: CombatTrigger) -> str:
         when = f"{when} ({' / '.join(sorted(kind.capitalize() for kind in trigger.types))})"
     if trigger.search:
         what = _land_search_text(COMBAT_SEARCH_UNTAPPED if trigger.untapped else COMBAT_SEARCH)
+    elif trigger.to_hand:
+        what = _land_search_text(COMBAT_SEARCH_TO_HAND)
     elif trigger.who == "total":
         what = "".join(f"{{{key}}}" for key in trigger.mana)
     elif trigger.mana:
@@ -810,6 +819,8 @@ _STAT_TEXT = {
     "toughness:greatest_other": gettext_noop(
         "%(color)s equal to the greatest toughness among your other creatures"),
     "counters": gettext_noop("one %(color)s for each +1/+1 counter on it"),
+    "mv:commander": gettext_noop(
+        "%(color)s equal to your commander's mana value while it is on the battlefield"),
 }
 
 
@@ -837,6 +848,14 @@ def _counts_text(ability) -> str:
         return gettext("as much as your devotion to your best colour, in that colour")
     if what.startswith("devotion:"):
         return gettext("as much %(color)s as your devotion to it") % {"color": color}
+    if what.startswith("creature_types"):
+        # Engine v37: Starfleet Academy.
+        but = what.partition(":")[2]
+        if but:
+            return gettext("mana of one colour equal to the number of creature types among "
+                           "your non-%(type)s creatures") % {"type": but.capitalize()}
+        return gettext("mana of one colour equal to the number of creature types among your "
+                       "creatures")
     if what in _STAT_TEXT:
         if not color:
             color = gettext("mana of one colour")
@@ -1676,7 +1695,7 @@ def _combat(oracle_card, profile, deck_colors: frozenset[str]) -> dict:
                       treasures=int(read.get("treasures") or 0),
                       treasure_mana=_any_colour(deck_colors) if read.get("treasures") else "",
                       mana=str(read.get("mana") or ""), search=bool(read.get("search")),
-                      untapped=bool(read.get("untapped")),
+                      untapped=bool(read.get("untapped")), to_hand=bool(read.get("to_hand")),
                       connive=int(read.get("connive") or 0))
         for read in found.get("triggers") or ())
     return {
@@ -1685,6 +1704,7 @@ def _combat(oracle_card, profile, deck_colors: frozenset[str]) -> dict:
         "equip": parse(found["equip"]) if found.get("equip") else None,
         "germ": bool(found.get("germ")),
         "treasure_bonus": int(found.get("treasure_bonus") or 0),
+        "treasure_lock": bool(found.get("treasure_lock")),
     }
 
 
@@ -1828,6 +1848,10 @@ def _record_combat(card: Card, found: dict, gaps: list[Gap]) -> None:
         said.append(gettext_noop(
             "makes each of your Treasures add two mana while it is on the battlefield; the "
             "two may be of different colours"))
+    if turn.treasure_lock:
+        said.append(gettext_noop(
+            "while it is on the battlefield no Treasure of yours is spent or sacrificed; they "
+            "are kept, and can be spent from the first turn after it leaves"))
     if any(read.get("extra") for read in found.get("triggers") or ()):
         said.append(gettext_noop(
             "the rest of its trigger - a card exiled from an opponent's library - is not "
@@ -2776,6 +2800,12 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
             "plays a land a turn")))
 
     for read in getattr(profile, "triggers", None) or []:
+        if read["event"] == "upkeep" and read.get("filter") == "each":
+            # Engine v37: Quark's Treasure in every upkeep, made in yours.
+            gaps.append(Gap(card.name, "assumed_trigger", gettext_noop(
+                "makes the Treasures of the three opponents' upkeeps in yours, assuming three "
+                "opponents")))
+            continue
         if read["event"] != "opponents":
             continue
         # P19 R16: the opponents' round, assumed - stated on the card list.

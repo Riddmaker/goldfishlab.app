@@ -19,8 +19,9 @@ ENGINE_MODULES = {"test_cards", "test_mana", "test_game", "test_statistics"}
 
 # Draws 200_000 samples in setUpClass to validate the Monte Carlo against the
 # exact hypergeometric distribution. The most important test in the repo, and
-# far too slow for the inner loop.
-SLOW_MODULES = {"test_statistics"}
+# far too slow for the inner loop. test_karsten (P16) plays Karsten's table,
+# about half a minute.
+SLOW_MODULES = {"test_statistics", "test_karsten"}
 
 
 def pytest_collection_modifyitems(items):

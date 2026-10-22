@@ -47,7 +47,7 @@ def test_an_ability_that_searches_is_not_what_the_card_does_when_cast():
                       "artifact card with mana value X or less, put it onto the battlefield, "
                       "then shuffle.", cost="{3}{U}{U}")
     tutor = _tutor(tezzeret, TAGS | {"tutor-artifact"})
-    assert tutor.filter is None and "cannot do" in tutor.reason
+    assert tutor.filter is None and "does not pay" in tutor.reason
 
 
 # --- the engine -----------------------------------------------------------------

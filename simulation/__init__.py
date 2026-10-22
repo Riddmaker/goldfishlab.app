@@ -233,6 +233,11 @@ boundary, not the symptom.
 #:    comes down, and every creature destroyed before turn 5 - each played on
 #:    a copy of the game in a run's first 2,000 games; every other number is
 #:    as in 35.
-ENGINE_VERSION = 36
+#: 37: the Star Trek cards it could not read - a trigger's "add {R} or {G}",
+#:    mana by your commander's mana value and by the creature types among
+#:    your creatures, a basic land to hand as a creature enters and attacks,
+#:    and "You can't sacrifice Treasure tokens" (Quark). Every game of the
+#:    corpus and every number is as in 36.
+ENGINE_VERSION = 37
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

@@ -13933,13 +13933,6 @@ msgstr "Ohne"
 msgid "With"
 msgstr "Mit"
 
-#: templates/simulations/_report.html
-#, python-format
-msgid "Measured in %(games)s game."
-msgid_plural "Measured in %(games)s games."
-msgstr[0] "Gemessen in %(games)s Spiel."
-msgstr[1] "Gemessen in %(games)s Spielen."
-
 #: templates/core/methodology.html
 msgid "Stress test"
 msgstr "Stresstest"
@@ -14001,3 +13994,204 @@ msgstr ""
 "zurück war. Beides sind benannte Annahmen, keine Messungen echter Tische; "
 "die Methodik-Seite sagt, was sie annehmen. Ein Report, der mit einer älteren"
 " Engine erstellt wurde, sagt das und bietet einen neuen Lauf an."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "Measured in %(shown)s game."
+msgid_plural "Measured in %(shown)s games."
+msgstr[0] "Gemessen in %(shown)s Spiel."
+msgstr[1] "Gemessen in %(shown)s Spielen."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(color)s equal to your commander's mana value while it is on the "
+"battlefield"
+msgstr ""
+"%(color)s in Höhe des Manawerts deines Commanders, solange er im Spiel ist"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"mana of one colour equal to the number of creature types among your "
+"non-%(type)s creatures"
+msgstr ""
+"Mana einer Farbe in Höhe der Anzahl Kreaturentypen unter deinen "
+"Nicht-%(type)s-Kreaturen"
+
+#: simulations/engine/adapter.py
+msgid ""
+"mana of one colour equal to the number of creature types among your "
+"creatures"
+msgstr ""
+"Mana einer Farbe in Höhe der Anzahl Kreaturentypen unter deinen Kreaturen"
+
+#: simulations/engine/adapter.py
+msgid ""
+"while it is on the battlefield no Treasure of yours is spent or sacrificed; "
+"they are kept, and can be spent from the first turn after it leaves"
+msgstr ""
+"solange sie im Spiel ist, wird keiner deiner Schätze ausgegeben oder "
+"geopfert; sie bleiben liegen und können ab dem ersten Zug, nachdem sie das "
+"Spiel verlassen hat, ausgegeben werden"
+
+#: simulations/engine/adapter.py
+msgid "in each upkeep of a round, yours and three opponents'"
+msgstr ""
+"in jedem Versorgungssegment einer Runde, deinem und dem von drei Gegnern"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes the Treasures of the three opponents' upkeeps in yours, assuming three"
+" opponents"
+msgstr ""
+"macht die Schätze aus den Versorgungssegmenten der drei Gegner in deinem – "
+"angenommen, es sind drei Gegner"
+
+#: cards/profiles.py
+msgid "tutors as an ability whose cost the engine does not pay"
+msgstr ""
+"sucht Karten mit einer Fähigkeit, deren Kosten die Engine nicht bezahlt"
+
+#: changelog/entries.py
+msgid "Star Trek cards the engine now plays"
+msgstr "Star-Trek-Karten, die die Engine jetzt spielt"
+
+#: changelog/entries.py
+msgid ""
+"Five cards of the Star Trek set are now played. Dal R'El adds red or green "
+"mana for each land you play. Command Chair taps for three mana or for your "
+"commander's mana value, whichever is more. Starfleet Academy pays {5} for a "
+"mana for each creature type among your creatures when that makes more. "
+"Captain Kirk, Boldly Going finds a basic land as it enters and each time it "
+"attacks. Quark makes a Treasure in every upkeep, but while it is out no "
+"Treasure of yours can be spent. Captain Jean-Luc Picard's search and Saurian"
+" Explorer's Planet are not played, and the card list says why. A report made"
+" with an older engine says so and offers a new run."
+msgstr ""
+"Fünf Karten des Star-Trek-Sets werden jetzt gespielt. Dal R'El macht für "
+"jedes Land, das du spielst, rotes oder grünes Mana. Command Chair tappt für "
+"drei Mana oder für den Manawert deines Commanders, je nachdem, was mehr ist."
+" Starfleet Academy zahlt {5} für ein Mana pro Kreaturentyp unter deinen "
+"Kreaturen, wenn das mehr ergibt. Captain Kirk, Boldly Going sucht ein "
+"Standardland, wenn er ins Spiel kommt und jedes Mal, wenn er angreift. Quark"
+" macht in jedem Versorgungssegment einen Schatz, aber solange er im Spiel "
+"ist, kannst du keinen deiner Schätze ausgeben. Die Suche von Captain Jean-"
+"Luc Picard und der Planet von Saurian Explorer werden nicht gespielt; die "
+"Kartenliste sagt, warum. Ein Report mit einer älteren Engine sagt das und "
+"bietet einen neuen Lauf an."
+
+#: templates/core/methodology.html
+msgid "Checked against Karsten"
+msgstr "Geprüft an Karsten"
+
+#: templates/core/methodology.html
+msgctxt "Karsten table"
+msgid "Mana cost"
+msgstr "Manakosten"
+
+#: templates/core/methodology.html
+msgctxt "Karsten table"
+msgid "Karsten"
+msgstr "Karsten"
+
+#: templates/core/methodology.html
+msgctxt "Karsten table"
+msgid "Engine"
+msgstr "Engine"
+
+#: templates/core/methodology.html
+#, python-format
+msgid ""
+"Frank Karsten's %(article)s (2022) is the standard answer to how many "
+"sources of a colour a deck needs to cast a spell on curve. For a 99-card "
+"deck he assumes 41 lands, the free first mulligan and a draw on turn 1. A "
+"spell counts as cast on curve when enough sources of its colour have been "
+"drawn by the turn equal to its mana value, among the games that drew that "
+"many lands. \"Consistently\" means 89%% plus the mana value: 90%% for a one-"
+"drop, 93%% for a four-drop."
+msgstr ""
+"Frank Karstens %(article)s (2022) ist die Standardantwort auf die Frage, wie"
+" viele Quellen einer Farbe ein Deck braucht, um einen Spruch nach Kurve zu "
+"wirken. Für ein Deck mit 99 Karten nimmt er 41 Länder an, den freien ersten "
+"Mulligan und einen Draw in Zug 1. Ein Spruch gilt als nach Kurve gewirkt, "
+"wenn bis zu dem Zug, der seinem Manawert entspricht, genug Quellen seiner "
+"Farbe gezogen wurden, gezählt unter den Spielen, die bis dahin so viele "
+"Länder gezogen haben. «Zuverlässig» heisst 89%% plus Manawert: 90%% für "
+"einen Einser, 93%% für einen Vierer."
+
+#: templates/core/methodology.html
+msgid ""
+"We ask his question twice, counting the way he does. With <strong>his "
+"mulligan rule</strong>, the count reaches his number of sources for every "
+"mana cost in his table and falls short with one source fewer: the counting "
+"is his. With <strong>the engine's</strong> shuffle, mulligan rule and draws,"
+" the ones every report uses, the answer is in the table below."
+msgstr ""
+"Wir stellen seine Frage zweimal und zählen dabei wie er. Mit <strong>seiner "
+"Mulligan-Regel</strong> erreicht die Zählung für jede Manakosten seiner "
+"Tabelle das Ziel bei seiner Zahl von Quellen und verfehlt es mit einer "
+"Quelle weniger: Die Zählung ist seine. Mit dem Mischen, der Mulligan-Regel "
+"und den Draws <strong>der Engine</strong>, also denen, die jeder Report "
+"verwendet, steht die Antwort in der Tabelle unten."
+
+#: templates/core/methodology.html
+msgid ""
+"Sources of one colour among 41 lands, in Karsten's order. \"C\" is one "
+"coloured mana symbol, the digit the generic part: 2CC is a four-drop with "
+"two pips of the colour."
+msgstr ""
+"Quellen einer Farbe unter 41 Ländern, in Karstens Reihenfolge. «C» ist ein "
+"farbiges Manasymbol, die Ziffer der generische Teil: 2CC ist ein Vierer mit "
+"zwei Symbolen der Farbe."
+
+#: templates/core/methodology.html
+#, python-format
+msgid ""
+"The engine needs the same number for %(same)s of the %(costs)s costs and one"
+" or two more for the rest. The reason is the mulligan rule. Karsten throws "
+"back a free seven with two lands; the engine keeps every hand with two to "
+"five. A game that starts from two lands and still finds its lands in time "
+"usually has just enough of them, where a three-land start has some to spare,"
+" and every spare land is one more chance at the colour. Let the engine throw"
+" back that hand too, and it needs Karsten's number for every cost."
+msgstr ""
+"Die Engine braucht bei %(same)s der %(costs)s Kosten dieselbe Zahl und bei "
+"den übrigen eine oder zwei mehr. Der Grund ist die Mulligan-Regel. Karsten "
+"wirft eine freie Siebnerhand mit zwei Ländern zurück; die Engine behält jede"
+" Hand mit zwei bis fünf. Ein Spiel, das mit zwei Ländern beginnt und seine "
+"Länder trotzdem rechtzeitig findet, hat meist gerade genug davon, während "
+"ein Start mit drei Ländern welche übrig hat, und jedes übrige Land ist eine "
+"Chance mehr auf die Farbe. Lässt man die Engine diese Hand ebenfalls "
+"zurückwerfen, braucht sie bei jeden Kosten Karstens Zahl."
+
+#: templates/core/methodology.html
+msgid ""
+"Not checked yet: gold cards, for which Karsten adds one source to each "
+"colour, and decks with mana rocks or card selection, which his table leaves "
+"out too. The test suite replays these checks."
+msgstr ""
+"Noch nicht geprüft: mehrfarbige Karten, für die Karsten jeder Farbe eine "
+"Quelle zuschlägt, und Decks mit Manasteinen oder Kartenauswahl, die auch "
+"seine Tabelle weglässt. Die Testsuite spielt diese Prüfungen nach."
+
+#: changelog/entries.py
+msgid "The engine checked against Karsten's mana table"
+msgstr "Die Engine geprüft an Karstens Mana-Tabelle"
+
+#: changelog/entries.py
+msgid ""
+"The methodology page now sets the engine beside Frank Karsten's table of how"
+" many sources of a colour a Commander deck needs to cast its spells on "
+"curve. Counted his way and with his mulligan rule, it gives his numbers. "
+"With the engine's own rule it needs the same number for most mana costs and "
+"one or two more for the others, because it keeps two-land opening hands that"
+" Karsten sends back. The page shows the table and why."
+msgstr ""
+"Die Methodik-Seite stellt die Engine jetzt neben Frank Karstens Tabelle, wie"
+" viele Quellen einer Farbe ein Commander-Deck braucht, um seine Sprüche nach"
+" Kurve zu wirken. Auf seine Art und mit seiner Mulligan-Regel gezählt, "
+"ergibt sie seine Zahlen. Mit der eigenen Regel der Engine braucht es bei den"
+" meisten Manakosten dieselbe Zahl und bei den anderen eine oder zwei mehr, "
+"weil die Engine Starthände mit zwei Ländern behält, die Karsten "
+"zurückschickt. Die Seite zeigt die Tabelle und den Grund."

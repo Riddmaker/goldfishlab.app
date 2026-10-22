@@ -179,10 +179,10 @@
           </table>
         </div>
         <p class="mt-2 text-xs text-ink-700">
-          {% blocktranslate trimmed count games=scenario.games %}
-            Measured in {{ games }} game.
+          {% blocktranslate trimmed with shown=scenario.games|intcomma count games=scenario.games %}
+            Measured in {{ shown }} game.
           {% plural %}
-            Measured in {{ games }} games.
+            Measured in {{ shown }} games.
           {% endblocktranslate %}
         </p>
       {% endif %}
@@ -224,27 +224,29 @@
       {% translate "How much of each colour the mana could pay — means only." %}
       {% include "core/_why.html" with anchor="report-colour" %}
     </p>
-    <table class="mt-5 w-full text-left text-sm">
-      <thead>
-        <tr class="border-b border-parchment-600 text-ink-700">
-          <th scope="col" class="py-1.5 pr-3">{% translate "Turn" %}</th>
-          {% for letter, label in report.color_columns %}
-            <th scope="col" class="py-1.5 pr-3">{{ label }}</th>
-          {% endfor %}
-          <th scope="col" class="py-1.5">{% translate "Total" %}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in report.color_rows %}
-          <tr class="border-b border-parchment-300">
-            <th scope="row" class="tabular py-1.5 pr-3 font-normal text-ink-900">{{ row.turn }}</th>
-            {% for amount in row.amounts %}
-              <td class="tabular py-1.5 pr-3 text-ink-900">{{ amount|floatformat:"2" }}</td>
+    <div class="mt-5 overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead>
+          <tr class="border-b border-parchment-600 text-ink-700">
+            <th scope="col" class="py-1.5 pr-3">{% translate "Turn" %}</th>
+            {% for letter, label in report.color_columns %}
+              <th scope="col" class="py-1.5 pr-3">{{ label }}</th>
             {% endfor %}
-            <td class="tabular py-1.5 text-ink-700">{{ row.total|floatformat:"2" }}</td>
+            <th scope="col" class="py-1.5">{% translate "Total" %}</th>
           </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {% for row in report.color_rows %}
+            <tr class="border-b border-parchment-300">
+              <th scope="row" class="tabular py-1.5 pr-3 font-normal text-ink-900">{{ row.turn }}</th>
+              {% for amount in row.amounts %}
+                <td class="tabular py-1.5 pr-3 text-ink-900">{{ amount|floatformat:"2" }}</td>
+              {% endfor %}
+              <td class="tabular py-1.5 text-ink-700">{{ row.total|floatformat:"2" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </section>
 {% endif %}

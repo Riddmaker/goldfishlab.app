@@ -7,7 +7,11 @@ real opening hand, plays land drops, casts spells in a sensible order and does i
 of times — then reports what actually happened.
 
 The simulation engine is validated against the exact hypergeometric distribution, so its numbers
-agree with closed-form mathematics wherever closed-form mathematics applies.
+agree with closed-form mathematics wherever closed-form mathematics applies. It is also checked
+against Frank Karsten's coloured-source table for 99-card decks: counted his way with his mulligan
+rule it gives his numbers, and the engine's own rule needs the same or one to two sources more
+(`python manage.py engine_karsten`, `tests/test_karsten.py`, the methodology page's "Checked
+against Karsten").
 
 > Unofficial Fan Content permitted under the Wizards of the Coast Fan Content Policy.
 > Not approved or endorsed by Wizards. Portions of the materials used are property of

@@ -41,6 +41,18 @@ class Entry:
 
 
 ENTRIES = (
+    # P16, no engine change.
+    Entry(
+        date(2026, 10, 22), "checked-against-karsten",
+        _("The engine checked against Karsten's mana table"),
+        _("The methodology page now sets the engine beside Frank Karsten's table of how many "
+          "sources of a colour a Commander deck needs to cast its spells on curve. Counted his "
+          "way and with his mulligan rule, it gives his numbers. With the engine's own rule it "
+          "needs the same number for most mana costs and one or two more for the others, "
+          "because it keeps two-land opening hands that Karsten sends back. The page shows the "
+          "table and why."),
+        "methodology", "karsten",
+    ),
     # Engine v37.
     Entry(
         date(2026, 10, 22), "star-trek-cards",

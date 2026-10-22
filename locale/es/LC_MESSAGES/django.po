@@ -14135,3 +14135,119 @@ msgstr ""
 "Tesoros. La búsqueda de Captain Jean-Luc Picard y el Planeta de Saurian "
 "Explorer no se juegan, y la lista de cartas dice por qué. Un informe hecho "
 "con un motor anterior lo indica y ofrece una nueva simulación."
+
+#: templates/core/methodology.html
+msgid "Checked against Karsten"
+msgstr "Comprobado frente a Karsten"
+
+#: templates/core/methodology.html
+msgctxt "Karsten table"
+msgid "Mana cost"
+msgstr "Coste de maná"
+
+#: templates/core/methodology.html
+msgctxt "Karsten table"
+msgid "Karsten"
+msgstr "Karsten"
+
+#: templates/core/methodology.html
+msgctxt "Karsten table"
+msgid "Engine"
+msgstr "Motor"
+
+#: templates/core/methodology.html
+#, python-format
+msgid ""
+"Frank Karsten's %(article)s (2022) is the standard answer to how many "
+"sources of a colour a deck needs to cast a spell on curve. For a 99-card "
+"deck he assumes 41 lands, the free first mulligan and a draw on turn 1. A "
+"spell counts as cast on curve when enough sources of its colour have been "
+"drawn by the turn equal to its mana value, among the games that drew that "
+"many lands. \"Consistently\" means 89%% plus the mana value: 90%% for a one-"
+"drop, 93%% for a four-drop."
+msgstr ""
+"El artículo %(article)s de Frank Karsten (2022) es la respuesta de "
+"referencia a cuántas fuentes de un color necesita un mazo para lanzar un "
+"hechizo en curva. Para un mazo de 99 cartas supone 41 tierras, el primer "
+"mulligan gratis y un robo en el turno 1. Un hechizo cuenta como lanzado en "
+"curva cuando, para el turno igual a su valor de maná, se han robado "
+"suficientes fuentes de su color, entre las partidas que robaron esa cantidad"
+" de tierras. «Con consistencia» significa 89%% más el valor de maná: 90%% "
+"para un hechizo de uno, 93%% para uno de cuatro."
+
+#: templates/core/methodology.html
+msgid ""
+"We ask his question twice, counting the way he does. With <strong>his "
+"mulligan rule</strong>, the count reaches his number of sources for every "
+"mana cost in his table and falls short with one source fewer: the counting "
+"is his. With <strong>the engine's</strong> shuffle, mulligan rule and draws,"
+" the ones every report uses, the answer is in the table below."
+msgstr ""
+"Hacemos su pregunta dos veces, contando como él. Con <strong>su regla de "
+"mulligan</strong>, el recuento alcanza su número de fuentes para cada coste "
+"de maná de su tabla y se queda corto con una fuente menos: el recuento es el"
+" suyo. Con el barajado, la regla de mulligan y los robos <strong>del "
+"motor</strong>, los que usa cada informe, la respuesta está en la tabla de "
+"abajo."
+
+#: templates/core/methodology.html
+msgid ""
+"Sources of one colour among 41 lands, in Karsten's order. \"C\" is one "
+"coloured mana symbol, the digit the generic part: 2CC is a four-drop with "
+"two pips of the colour."
+msgstr ""
+"Fuentes de un color entre 41 tierras, en el orden de Karsten. «C» es un "
+"símbolo de maná de color y el dígito la parte genérica: 2CC es un hechizo de"
+" cuatro con dos símbolos del color."
+
+#: templates/core/methodology.html
+#, python-format
+msgid ""
+"The engine needs the same number for %(same)s of the %(costs)s costs and one"
+" or two more for the rest. The reason is the mulligan rule. Karsten throws "
+"back a free seven with two lands; the engine keeps every hand with two to "
+"five. A game that starts from two lands and still finds its lands in time "
+"usually has just enough of them, where a three-land start has some to spare,"
+" and every spare land is one more chance at the colour. Let the engine throw"
+" back that hand too, and it needs Karsten's number for every cost."
+msgstr ""
+"El motor necesita el mismo número para %(same)s de los %(costs)s costes y "
+"una o dos fuentes más para el resto. La razón es la regla de mulligan. "
+"Karsten devuelve una mano gratuita de siete con dos tierras; el motor se "
+"queda cualquier mano con entre dos y cinco. Una partida que empieza con dos "
+"tierras y aun así encuentra sus tierras a tiempo suele tener las justas, "
+"mientras que un comienzo con tres tierras tiene alguna de sobra, y cada "
+"tierra de sobra es una oportunidad más de tener el color. Si el motor "
+"también devuelve esa mano, necesita el número de Karsten para cada coste."
+
+#: templates/core/methodology.html
+msgid ""
+"Not checked yet: gold cards, for which Karsten adds one source to each "
+"colour, and decks with mana rocks or card selection, which his table leaves "
+"out too. The test suite replays these checks."
+msgstr ""
+"Aún sin comprobar: las cartas multicolor, para las que Karsten añade una "
+"fuente a cada color, y los mazos con rocas de maná o selección de cartas, "
+"que su tabla también deja fuera. El conjunto de pruebas repite estas "
+"comprobaciones."
+
+#: changelog/entries.py
+msgid "The engine checked against Karsten's mana table"
+msgstr "El motor comprobado frente a la tabla de maná de Karsten"
+
+#: changelog/entries.py
+msgid ""
+"The methodology page now sets the engine beside Frank Karsten's table of how"
+" many sources of a colour a Commander deck needs to cast its spells on "
+"curve. Counted his way and with his mulligan rule, it gives his numbers. "
+"With the engine's own rule it needs the same number for most mana costs and "
+"one or two more for the others, because it keeps two-land opening hands that"
+" Karsten sends back. The page shows the table and why."
+msgstr ""
+"La página de metodología ahora pone el motor junto a la tabla de Frank "
+"Karsten sobre cuántas fuentes de un color necesita un mazo de Commander para"
+" lanzar sus hechizos en curva. Contando a su manera y con su regla de "
+"mulligan, salen sus números. Con la regla propia del motor hace falta el "
+"mismo número para la mayoría de los costes de maná y una o dos fuentes más "
+"para los demás, porque el motor se queda manos iniciales con dos tierras que"
+" Karsten devuelve. La página muestra la tabla y el porqué."

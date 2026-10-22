@@ -12373,3 +12373,89 @@ msgstr ""
 "Goingは戦場に出たときと攻撃するたびに基本土地を探します。Quarkは各アップキープに宝物を1つ生成しますが、これが戦場にある間、あなたの宝物は使えません。Captain"
 " Jean-Luc Picardのサーチと Saurian "
 "Explorerの惑星はプレイされず、カードリストにその理由が書かれています。古いエンジンで作られたレポートはそのことを示し、新しい実行を提案します。"
+
+#: templates/core/methodology.html
+msgid "Checked against Karsten"
+msgstr "カーステンとの照合"
+
+#: templates/core/methodology.html
+msgctxt "Karsten table"
+msgid "Mana cost"
+msgstr "マナ・コスト"
+
+#: templates/core/methodology.html
+msgctxt "Karsten table"
+msgid "Karsten"
+msgstr "カーステン"
+
+#: templates/core/methodology.html
+msgctxt "Karsten table"
+msgid "Engine"
+msgstr "エンジン"
+
+#: templates/core/methodology.html
+#, python-format
+msgid ""
+"Frank Karsten's %(article)s (2022) is the standard answer to how many "
+"sources of a colour a deck needs to cast a spell on curve. For a 99-card "
+"deck he assumes 41 lands, the free first mulligan and a draw on turn 1. A "
+"spell counts as cast on curve when enough sources of its colour have been "
+"drawn by the turn equal to its mana value, among the games that drew that "
+"many lands. \"Consistently\" means 89%% plus the mana value: 90%% for a one-"
+"drop, 93%% for a four-drop."
+msgstr ""
+"フランク・カーステンの%(article)s（2022年）は、呪文をカーブ通りに唱えるのにデッキがその色の発生源をいくつ必要とするかについての定番の答えです。99枚のデッキについて、彼は土地41枚、最初のマリガンが無料、1ターン目のドローありを前提にしています。呪文のマナ総量と同じターンまでにその色の発生源を十分に引いていれば、カーブ通りに唱えられたと数えます。対象はそのターンまでにその枚数の土地を引いたゲームだけです。「安定して」とは89%%にマナ総量を足した確率で、1マナの呪文なら90%%、4マナなら93%%です。"
+
+#: templates/core/methodology.html
+msgid ""
+"We ask his question twice, counting the way he does. With <strong>his "
+"mulligan rule</strong>, the count reaches his number of sources for every "
+"mana cost in his table and falls short with one source fewer: the counting "
+"is his. With <strong>the engine's</strong> shuffle, mulligan rule and draws,"
+" the ones every report uses, the answer is in the table below."
+msgstr ""
+"私たちは彼の問いを2回、彼と同じ数え方で立てます。<strong>彼のマリガン・ルール</strong>では、表のすべてのマナ・コストで彼の発生源の数ちょうどで目標に届き、1つ少ないと届きません。つまり数え方は彼のものと同じです。<strong>エンジン</strong>のシャッフル、マリガン・ルール、ドロー（すべてのレポートで使うもの）での答えは下の表のとおりです。"
+
+#: templates/core/methodology.html
+msgid ""
+"Sources of one colour among 41 lands, in Karsten's order. \"C\" is one "
+"coloured mana symbol, the digit the generic part: 2CC is a four-drop with "
+"two pips of the colour."
+msgstr ""
+"41枚の土地のうち、ある1色の発生源の数。並びはカーステンの順です。「C」は色マナ・シンボル1つ、数字は不特定マナの部分です。2CCはその色のシンボルを2つ含む4マナの呪文です。"
+
+#: templates/core/methodology.html
+#, python-format
+msgid ""
+"The engine needs the same number for %(same)s of the %(costs)s costs and one"
+" or two more for the rest. The reason is the mulligan rule. Karsten throws "
+"back a free seven with two lands; the engine keeps every hand with two to "
+"five. A game that starts from two lands and still finds its lands in time "
+"usually has just enough of them, where a three-land start has some to spare,"
+" and every spare land is one more chance at the colour. Let the engine throw"
+" back that hand too, and it needs Karsten's number for every cost."
+msgstr ""
+"エンジンは%(costs)s個のコストのうち%(same)s個でカーステンと同じ数を必要とし、残りでは1つか2つ多く必要とします。理由はマリガン・ルールです。カーステンは土地2枚の無料の7枚の手札を戻しますが、エンジンは土地2〜5枚の手札をすべてキープします。土地2枚で始まってそれでも間に合うように土地を引いたゲームは、たいてい土地がぎりぎりです。一方、土地3枚で始まったゲームには余りがあり、余った土地1枚ごとにその色を引くチャンスが1回増えます。エンジンにもその手札を戻させると、すべてのコストでカーステンと同じ数になります。"
+
+#: templates/core/methodology.html
+msgid ""
+"Not checked yet: gold cards, for which Karsten adds one source to each "
+"colour, and decks with mana rocks or card selection, which his table leaves "
+"out too. The test suite replays these checks."
+msgstr ""
+"未確認のもの：多色のカード（カーステンは各色に発生源を1つ足します）と、マナ・アーティファクトやカード選別を含むデッキ（これは彼の表でも扱っていません）。テスト・スイートはこれらの照合を再現します。"
+
+#: changelog/entries.py
+msgid "The engine checked against Karsten's mana table"
+msgstr "エンジンをカーステンのマナ表と照合"
+
+#: changelog/entries.py
+msgid ""
+"The methodology page now sets the engine beside Frank Karsten's table of how"
+" many sources of a colour a Commander deck needs to cast its spells on "
+"curve. Counted his way and with his mulligan rule, it gives his numbers. "
+"With the engine's own rule it needs the same number for most mana costs and "
+"one or two more for the others, because it keeps two-land opening hands that"
+" Karsten sends back. The page shows the table and why."
+msgstr ""
+"方法論のページで、エンジンをフランク・カーステンの表と並べて示すようになりました。統率者デッキが呪文をカーブ通りに唱えるのに、ある色の発生源がいくつ必要かを示す表です。彼のやり方と彼のマリガン・ルールで数えると、彼の数字と一致します。エンジン自身のルールでは、ほとんどのマナ・コストで同じ数、残りでは1つか2つ多く必要になります。カーステンが戻す土地2枚の初手を、エンジンはキープするからです。ページでは表とその理由を示しています。"

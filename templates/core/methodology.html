@@ -487,6 +487,77 @@
       </p>
     </div>
 
+    <h2 id="karsten" class="mt-12 font-display text-2xl text-parchment-100">{% translate "Checked against Karsten" %}</h2>
+    <div class="mt-4 surface-parchment p-6">
+      {% comment %} simulation/karsten.py; tests/test_karsten.py keeps the table true. {% endcomment %}
+      <p class="text-ink-900">
+        {% blocktranslate trimmed with article='<a class="underline hover:text-ink-700" lang="en" href="'|add:karsten_source|add:'">How Many Sources Do You Need to Consistently Cast Your Spells?</a>'|safe %}
+          Frank Karsten's {{ article }} (2022) is the standard answer to how many
+          sources of a colour a deck needs to cast a spell on curve. For a 99-card
+          deck he assumes 41 lands, the free first mulligan and a draw on turn 1. A
+          spell counts as cast on curve when enough sources of its colour have been
+          drawn by the turn equal to its mana value, among the games that drew that
+          many lands. "Consistently" means 89% plus the mana value: 90% for a
+          one-drop, 93% for a four-drop.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          We ask his question twice, counting the way he does. With <strong>his
+          mulligan rule</strong>, the count reaches his number of sources for every
+          mana cost in his table and falls short with one source fewer: the counting
+          is his. With <strong>the engine's</strong> shuffle, mulligan rule and draws,
+          the ones every report uses, the answer is in the table below.
+        {% endblocktranslate %}
+      </p>
+      <div class="mt-4 overflow-x-auto">
+        <table class="w-full text-left text-sm text-ink-900 tabular-nums">
+          <thead>
+            <tr class="border-b border-ink-300">
+              <th class="py-2 pr-4 font-display">{% translate "Mana cost" context "Karsten table" %}</th>
+              <th class="py-2 pr-4 text-right font-display">{% translate "Karsten" context "Karsten table" %}</th>
+              <th class="py-2 text-right font-display">{% translate "Engine" context "Karsten table" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in karsten_rows %}
+              <tr class="border-b border-ink-200{% if row.more %} font-semibold{% endif %}">
+                <td class="py-1 pr-4 font-mono">{{ row.cost }}</td>
+                <td class="py-1 pr-4 text-right">{{ row.karsten }}</td>
+                <td class="py-1 text-right">{{ row.engine }}{% if row.more %} (+{{ row.more }}){% endif %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-2 text-sm text-ink-700">
+        {% blocktranslate trimmed %}
+          Sources of one colour among 41 lands, in Karsten's order. "C" is one
+          coloured mana symbol, the digit the generic part: 2CC is a four-drop with
+          two pips of the colour.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed with same=karsten_same costs=karsten_costs %}
+          The engine needs the same number for {{ same }} of the {{ costs }} costs
+          and one or two more for the rest. The reason is the mulligan rule. Karsten
+          throws back a free seven with two lands; the engine keeps every hand with
+          two to five. A game that starts from two lands and still finds its lands in
+          time usually has just enough of them, where a three-land start has some to
+          spare, and every spare land is one more chance at the colour. Let the
+          engine throw back that hand too, and it needs Karsten's number for every
+          cost.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-sm text-ink-700">
+        {% blocktranslate trimmed %}
+          Not checked yet: gold cards, for which Karsten adds one source to each
+          colour, and decks with mana rocks or card selection, which his table leaves
+          out too. The test suite replays these checks.
+        {% endblocktranslate %}
+      </p>
+    </div>
+
     <h2 class="mt-12 font-display text-2xl text-parchment-100">{% translate "Where this comes from" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <ul class="space-y-3 text-ink-900">

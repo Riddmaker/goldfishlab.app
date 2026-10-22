@@ -7,7 +7,7 @@ core (about 13 MB, once) and packs `simulation/` from this checkout. Then it
 serves that folder on the local network and prints the address to open on a
 phone in the same Wi-Fi. Stop it with Ctrl+C. Only that folder is served.
 
-A tool for the P22 spike, kept on its own branch: never merged.
+A tool for the P22 spike: delete it once the spike is decided.
 """
 
 import functools

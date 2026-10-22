@@ -421,6 +421,13 @@ Engine v36 adds the stress test: the commander destroyed once right after it fir
 (`Game.remove_commander`) and every creature destroyed before turn 5 (`Game.board_wipe`), each
 played on a copy of the game (`analysis._copy`) in a run's first 2,000 games (`STRESS_BLOCKS`).
 Every other number is as in v35; the frozen v36 files are v35's, checked equal by `--diff`.
+Engine v37 reads the Star Trek cards it could not: a trigger's "add {R} or {G}" (Dal R'El), mana
+by your commander's mana value (Command Chair, `mv:commander`) and by the creature types among
+your creatures (Starfleet Academy, `creature_types`), a basic land to hand as a creature enters
+and attacks (Captain Kirk, `COMBAT_SEARCH_TO_HAND`), and Quark's Treasure in every upkeep with
+its "You can't sacrifice Treasure tokens" (`Game.locked_treasures`). A search onto the
+battlefield at a cost the engine does not pay now says so. The v36 files were frozen again on
+the catalogue of 22 October, which holds the Star Trek cards, before v37 was compared with them.
 
 A round that changes `cards/profiles.py` needs the profiles derived again after its deploy
 (`python manage.py ingest_scryfall --profiles`), and every round changes the engine's numbers, so

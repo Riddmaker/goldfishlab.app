@@ -14001,3 +14001,82 @@ msgid "Measured in %(shown)s game."
 msgid_plural "Measured in %(shown)s games."
 msgstr[0] "Gemessen in %(shown)s Spiel."
 msgstr[1] "Gemessen in %(shown)s Spielen."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(color)s equal to your commander's mana value while it is on the "
+"battlefield"
+msgstr ""
+"%(color)s in Höhe des Manawerts deines Commanders, solange er im Spiel ist"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"mana of one colour equal to the number of creature types among your "
+"non-%(type)s creatures"
+msgstr ""
+"Mana einer Farbe in Höhe der Anzahl Kreaturentypen unter deinen "
+"Nicht-%(type)s-Kreaturen"
+
+#: simulations/engine/adapter.py
+msgid ""
+"mana of one colour equal to the number of creature types among your "
+"creatures"
+msgstr ""
+"Mana einer Farbe in Höhe der Anzahl Kreaturentypen unter deinen Kreaturen"
+
+#: simulations/engine/adapter.py
+msgid ""
+"while it is on the battlefield no Treasure of yours is spent or sacrificed; "
+"they are kept, and can be spent from the first turn after it leaves"
+msgstr ""
+"solange sie im Spiel ist, wird keiner deiner Schätze ausgegeben oder "
+"geopfert; sie bleiben liegen und können ab dem ersten Zug, nachdem sie das "
+"Spiel verlassen hat, ausgegeben werden"
+
+#: simulations/engine/adapter.py
+msgid "in each upkeep of a round, yours and three opponents'"
+msgstr ""
+"in jedem Versorgungssegment einer Runde, deinem und dem von drei Gegnern"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes the Treasures of the three opponents' upkeeps in yours, assuming three"
+" opponents"
+msgstr ""
+"macht die Schätze aus den Versorgungssegmenten der drei Gegner in deinem – "
+"angenommen, es sind drei Gegner"
+
+#: cards/profiles.py
+msgid "tutors as an ability whose cost the engine does not pay"
+msgstr ""
+"sucht Karten mit einer Fähigkeit, deren Kosten die Engine nicht bezahlt"
+
+#: changelog/entries.py
+msgid "Star Trek cards the engine now plays"
+msgstr "Star-Trek-Karten, die die Engine jetzt spielt"
+
+#: changelog/entries.py
+msgid ""
+"Five cards of the Star Trek set are now played. Dal R'El adds red or green "
+"mana for each land you play. Command Chair taps for three mana or for your "
+"commander's mana value, whichever is more. Starfleet Academy pays {5} for a "
+"mana for each creature type among your creatures when that makes more. "
+"Captain Kirk, Boldly Going finds a basic land as it enters and each time it "
+"attacks. Quark makes a Treasure in every upkeep, but while it is out no "
+"Treasure of yours can be spent. Captain Jean-Luc Picard's search and Saurian"
+" Explorer's Planet are not played, and the card list says why. A report made"
+" with an older engine says so and offers a new run."
+msgstr ""
+"Fünf Karten des Star-Trek-Sets werden jetzt gespielt. Dal R'El macht für "
+"jedes Land, das du spielst, rotes oder grünes Mana. Command Chair tappt für "
+"drei Mana oder für den Manawert deines Commanders, je nachdem, was mehr ist."
+" Starfleet Academy zahlt {5} für ein Mana pro Kreaturentyp unter deinen "
+"Kreaturen, wenn das mehr ergibt. Captain Kirk, Boldly Going sucht ein "
+"Standardland, wenn er ins Spiel kommt und jedes Mal, wenn er angreift. Quark"
+" macht in jedem Versorgungssegment einen Schatz, aber solange er im Spiel "
+"ist, kannst du keinen deiner Schätze ausgeben. Die Suche von Captain Jean-"
+"Luc Picard und der Planet von Saurian Explorer werden nicht gespielt; die "
+"Kartenliste sagt, warum. Ein Report mit einer älteren Engine sagt das und "
+"bietet einen neuen Lauf an."

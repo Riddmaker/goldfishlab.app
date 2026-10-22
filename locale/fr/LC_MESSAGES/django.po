@@ -14128,3 +14128,83 @@ msgid "Measured in %(shown)s game."
 msgid_plural "Measured in %(shown)s games."
 msgstr[0] "Mesuré sur %(shown)s partie."
 msgstr[1] "Mesuré sur %(shown)s parties."
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(color)s equal to your commander's mana value while it is on the "
+"battlefield"
+msgstr ""
+"%(color)s égal à la valeur de mana de votre commandant tant qu'il est sur le"
+" champ de bataille"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"mana of one colour equal to the number of creature types among your "
+"non-%(type)s creatures"
+msgstr ""
+"du mana d'une même couleur égal au nombre de types de créature parmi vos "
+"créatures non-%(type)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"mana of one colour equal to the number of creature types among your "
+"creatures"
+msgstr ""
+"du mana d'une même couleur égal au nombre de types de créature parmi vos "
+"créatures"
+
+#: simulations/engine/adapter.py
+msgid ""
+"while it is on the battlefield no Treasure of yours is spent or sacrificed; "
+"they are kept, and can be spent from the first turn after it leaves"
+msgstr ""
+"tant qu'elle est sur le champ de bataille, aucun de vos Trésors n'est "
+"dépensé ni sacrifié ; ils sont gardés et peuvent être dépensés dès le "
+"premier tour après qu'elle l'a quitté"
+
+#: simulations/engine/adapter.py
+msgid "in each upkeep of a round, yours and three opponents'"
+msgstr ""
+"à chaque entretien d'un tour de table, le vôtre et ceux de trois adversaires"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes the Treasures of the three opponents' upkeeps in yours, assuming three"
+" opponents"
+msgstr ""
+"crée les Trésors des entretiens des trois adversaires pendant le vôtre, en "
+"supposant trois adversaires"
+
+#: cards/profiles.py
+msgid "tutors as an ability whose cost the engine does not pay"
+msgstr "tutor par une capacité dont le moteur ne paie pas le coût"
+
+#: changelog/entries.py
+msgid "Star Trek cards the engine now plays"
+msgstr "Les cartes Star Trek que le moteur joue désormais"
+
+#: changelog/entries.py
+msgid ""
+"Five cards of the Star Trek set are now played. Dal R'El adds red or green "
+"mana for each land you play. Command Chair taps for three mana or for your "
+"commander's mana value, whichever is more. Starfleet Academy pays {5} for a "
+"mana for each creature type among your creatures when that makes more. "
+"Captain Kirk, Boldly Going finds a basic land as it enters and each time it "
+"attacks. Quark makes a Treasure in every upkeep, but while it is out no "
+"Treasure of yours can be spent. Captain Jean-Luc Picard's search and Saurian"
+" Explorer's Planet are not played, and the card list says why. A report made"
+" with an older engine says so and offers a new run."
+msgstr ""
+"Cinq cartes de l'extension Star Trek sont désormais jouées. Dal R'El ajoute "
+"du mana rouge ou vert pour chaque terrain que vous jouez. Command Chair "
+"s'engage pour trois manas ou pour la valeur de mana de votre commandant, "
+"selon ce qui est le plus. Starfleet Academy paie {5} pour un mana par type "
+"de créature parmi vos créatures quand cela rapporte plus. Captain Kirk, "
+"Boldly Going trouve un terrain de base quand il arrive et chaque fois qu'il "
+"attaque. Quark crée un Trésor à chaque entretien, mais tant qu'il est en "
+"jeu, aucun de vos Trésors ne peut être dépensé. La recherche de Captain "
+"Jean-Luc Picard et la Planète de Saurian Explorer ne sont pas jouées, et la "
+"liste des cartes dit pourquoi. Un rapport fait avec un moteur plus ancien le"
+" signale et propose une nouvelle simulation."

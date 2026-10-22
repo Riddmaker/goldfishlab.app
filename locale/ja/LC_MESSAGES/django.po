@@ -12308,3 +12308,68 @@ msgstr ""
 msgid "Measured in %(shown)s game."
 msgid_plural "Measured in %(shown)s games."
 msgstr[0] "%(shown)sゲームで計測。"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(color)s equal to your commander's mana value while it is on the "
+"battlefield"
+msgstr "あなたの統率者が戦場にある間、そのマナ総量に等しい%(color)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"mana of one colour equal to the number of creature types among your "
+"non-%(type)s creatures"
+msgstr "あなたの%(type)sでないクリーチャーの中のクリーチャー・タイプの数に等しい単一の色のマナ"
+
+#: simulations/engine/adapter.py
+msgid ""
+"mana of one colour equal to the number of creature types among your "
+"creatures"
+msgstr "あなたのクリーチャーの中のクリーチャー・タイプの数に等しい単一の色のマナ"
+
+#: simulations/engine/adapter.py
+msgid ""
+"while it is on the battlefield no Treasure of yours is spent or sacrificed; "
+"they are kept, and can be spent from the first turn after it leaves"
+msgstr "これが戦場にある間、あなたの宝物は使われも生け贄にもされません。宝物は残り、これが戦場を離れた後の最初のターンから使えます"
+
+#: simulations/engine/adapter.py
+msgid "in each upkeep of a round, yours and three opponents'"
+msgstr "1巡の各アップキープ（あなたと対戦相手3人）"
+
+#: simulations/engine/adapter.py
+msgid ""
+"makes the Treasures of the three opponents' upkeeps in yours, assuming three"
+" opponents"
+msgstr "対戦相手3人のアップキープの宝物をあなたのアップキープに生成する（対戦相手3人と仮定）"
+
+#: cards/profiles.py
+msgid "tutors as an ability whose cost the engine does not pay"
+msgstr "エンジンが支払わないコストの能力でサーチする"
+
+#: changelog/entries.py
+msgid "Star Trek cards the engine now plays"
+msgstr "エンジンがプレイするようになったスタートレックのカード"
+
+#: changelog/entries.py
+msgid ""
+"Five cards of the Star Trek set are now played. Dal R'El adds red or green "
+"mana for each land you play. Command Chair taps for three mana or for your "
+"commander's mana value, whichever is more. Starfleet Academy pays {5} for a "
+"mana for each creature type among your creatures when that makes more. "
+"Captain Kirk, Boldly Going finds a basic land as it enters and each time it "
+"attacks. Quark makes a Treasure in every upkeep, but while it is out no "
+"Treasure of yours can be spent. Captain Jean-Luc Picard's search and Saurian"
+" Explorer's Planet are not played, and the card list says why. A report made"
+" with an older engine says so and offers a new run."
+msgstr ""
+"スタートレックのセットの5枚のカードがプレイされるようになりました。Dal "
+"R'Elはあなたが土地をプレイするたびに赤か緑のマナを加えます。Command "
+"Chairは3マナか、あなたの統率者のマナ総量のうち多いほうのマナを出します。Starfleet "
+"Academyは、あなたのクリーチャーの中のクリーチャー・タイプ1つにつき1マナのほうが多くなるときに{5}を支払います。Captain Kirk, "
+"Boldly "
+"Goingは戦場に出たときと攻撃するたびに基本土地を探します。Quarkは各アップキープに宝物を1つ生成しますが、これが戦場にある間、あなたの宝物は使えません。Captain"
+" Jean-Luc Picardのサーチと Saurian "
+"Explorerの惑星はプレイされず、カードリストにその理由が書かれています。古いエンジンで作られたレポートはそのことを示し、新しい実行を提案します。"

@@ -1495,8 +1495,9 @@ def _stat_rule(text: str, card: OracleCard) -> dict | None:
     """Mana by power, toughness or the card's own +1/+1 counters (P19 R21).
 
     ``subtype`` "power" (its own), "power:greatest", "toughness:greatest_other",
-    "counters" or "mv:commander" (engine v37: Command Chair); ``color`` a colour, "" for one colour the hand settles,
-    "WUBRG" or "UR" for any combination of those; ``pays`` the colour of an
+    "counters" or "mv:commander" (engine v37: Command Chair); ``color`` a
+    colour, "" for one colour the hand settles, "WUBRG" or "UR" for any
+    combination of those; ``pays`` the colour of an
     activation cost, which the engine pays as generic; ``once`` for Vivi's
     {0} once a turn, played as a {T}.
     """

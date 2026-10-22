@@ -41,6 +41,20 @@ class Entry:
 
 
 ENTRIES = (
+    # Engine v37.
+    Entry(
+        date(2026, 10, 22), "star-trek-cards",
+        _("Star Trek cards the engine now plays"),
+        _("Five cards of the Star Trek set are now played. Dal R'El adds red or green mana for "
+          "each land you play. Command Chair taps for three mana or for your commander's mana "
+          "value, whichever is more. Starfleet Academy pays {5} for a mana for each creature "
+          "type among your creatures when that makes more. Captain Kirk, Boldly Going finds a "
+          "basic land as it enters and each time it attacks. Quark makes a Treasure in every "
+          "upkeep, but while it is out no Treasure of yours can be spent. Captain Jean-Luc "
+          "Picard's search and Saurian Explorer's Planet are not played, and the card list "
+          "says why. A report made with an older engine says so and offers a new run."),
+        "methodology", "reading",
+    ),
     # Engine v36.
     Entry(
         date(2026, 10, 22), "stress-test",

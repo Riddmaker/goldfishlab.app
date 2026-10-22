@@ -185,6 +185,8 @@ def run_chunk(games: int, run_seed: int, first_block: int, *, turns: int,
         turns=turns,
         deck=deck,
         watch=watch,
+        # v36: the stress test, in the run's first 2,000 games.
+        stress=True,
     )
 
     for sample in samples:

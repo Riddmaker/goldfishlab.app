@@ -2212,6 +2212,48 @@ class Game(Marks):
                  if self.can_cast_commander(pool, commander)]
         return sorted(found, key=lambda commander: self._commander_cost(commander).mv)
 
+    # --- The table strikes back (v36, the stress test) ------------------------
+    #
+    # Two named disruptions, played in the opponents' turns on a copy of a game
+    # (`simulation.analysis`): a goldfish never meets them, so every number
+    # outside the stress test stays what it was.
+
+    def remove_commander(self) -> bool:
+        """An opponent destroys your commander: it dies and goes back to the
+        command zone, where its tax has grown by two with the cast that put it
+        out. The first commander on the battlefield; False with none there."""
+        names = {commander.name for commander in self.deck.commanders}
+        commander = next((card for card in self.creatures
+                          if card.name in names and not card.token), None)
+        if commander is None:
+            return False
+        self._destroyed(commander, names)
+        return True
+
+    def board_wipe(self) -> int:
+        """Every creature is destroyed at once, tokens and commanders too;
+        artifacts, enchantments and lands stay. Returns how many died.
+
+        The creatures with a "dies" trigger die last, so a Blood Artist sees
+        the others go, as it would in a real wipe where all die together.
+        """
+        names = {commander.name for commander in self.deck.commanders}
+        dying = sorted(self.creatures,
+                       key=lambda card: any(t.event == DIES for t in card.turn.triggers))
+        for card in dying:
+            self._destroyed(card, names)
+        return len(dying)
+
+    def _destroyed(self, card, commanders) -> None:
+        """A creature dies: to the graveyard, a token to nowhere, a commander
+        to the command zone."""
+        self.creatures.remove(card)
+        if not card.token and card.name not in commanders:
+            self.graveyard.append(card)
+        self._detach(card)
+        self.note(f"  -> {card.name} is destroyed")
+        self.fire(DIES, card, gone=card)
+
     # --- The turn ----------------------------------------------------------
 
     def begin_turn(self) -> None:

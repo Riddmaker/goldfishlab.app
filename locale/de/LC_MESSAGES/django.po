@@ -13917,12 +13917,12 @@ msgstr "Stresstest: wenn der Tisch zurückschlägt"
 #: templates/simulations/_report.html
 #, python-format
 msgid ""
-"The same games, once as they went and once with the table striking back - "
-"compared on turn %(turn)s. An assumption, said beside each, not a "
+"The same games, once as they went and once with the table striking back, "
+"side by side on turn %(turn)s. An assumption, said beside each, not a "
 "measurement of real tables."
 msgstr ""
 "Dieselben Spiele, einmal wie sie liefen und einmal mit einem Tisch, der "
-"zurückschlägt - verglichen in Zug %(turn)s. Eine Annahme, die jeweils "
+"zurückschlägt, nebeneinander in Zug %(turn)s. Eine Annahme, die jeweils "
 "dabeisteht, keine Messung echter Tische."
 
 #: templates/simulations/_report.html

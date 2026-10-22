@@ -12247,11 +12247,11 @@ msgstr "ストレステスト：卓が反撃したら"
 #: templates/simulations/_report.html
 #, python-format
 msgid ""
-"The same games, once as they went and once with the table striking back - "
-"compared on turn %(turn)s. An assumption, said beside each, not a "
+"The same games, once as they went and once with the table striking back, "
+"side by side on turn %(turn)s. An assumption, said beside each, not a "
 "measurement of real tables."
 msgstr ""
-"同じゲームを、実際の展開のままと、卓が反撃した場合の2通りで比べます（%(turn)sターン目で比較）。それぞれに記した想定であり、実際の卓を計測したものではありません。"
+"同じゲームを、実際の展開のままと卓が反撃した場合の2通りで、%(turn)sターン目の結果を並べて示します。それぞれに記した想定であり、実際の卓を計測したものではありません。"
 
 #: templates/simulations/_report.html
 msgid "Without"

@@ -13849,12 +13849,12 @@ msgstr "Stress test: quando il tavolo reagisce"
 #: templates/simulations/_report.html
 #, python-format
 msgid ""
-"The same games, once as they went and once with the table striking back - "
-"compared on turn %(turn)s. An assumption, said beside each, not a "
+"The same games, once as they went and once with the table striking back, "
+"side by side on turn %(turn)s. An assumption, said beside each, not a "
 "measurement of real tables."
 msgstr ""
 "Le stesse partite, una volta come sono andate e una volta con il tavolo che "
-"reagisce - confrontate al turno %(turn)s. Un'ipotesi, indicata accanto a "
+"reagisce, fianco a fianco al turno %(turn)s. Un'ipotesi, indicata accanto a "
 "ciascuna, non una misura di tavoli reali."
 
 #: templates/simulations/_report.html

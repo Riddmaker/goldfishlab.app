@@ -14043,12 +14043,12 @@ msgstr "Test de résistance : quand la table riposte"
 #: templates/simulations/_report.html
 #, python-format
 msgid ""
-"The same games, once as they went and once with the table striking back - "
-"compared on turn %(turn)s. An assumption, said beside each, not a "
+"The same games, once as they went and once with the table striking back, "
+"side by side on turn %(turn)s. An assumption, said beside each, not a "
 "measurement of real tables."
 msgstr ""
 "Les mêmes parties, une fois telles qu'elles se sont déroulées et une fois "
-"avec la table qui riposte - comparées au tour %(turn)s. Une hypothèse, "
+"avec la table qui riposte, côte à côte au tour %(turn)s. Une hypothèse, "
 "indiquée à côté de chacune, pas une mesure de vraies tables."
 
 #: templates/simulations/_report.html

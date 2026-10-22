@@ -229,6 +229,10 @@ boundary, not the symptom.
 #:    without a priority of its own and after only fast mana and a few
 #:    staples (agent.COMMANDER_PRIORITY); a deck that ranks its commander
 #:    keeps that rank.
-ENGINE_VERSION = 35
+#: 36: the stress test - the commander destroyed once right after it first
+#:    comes down, and every creature destroyed before turn 5 - each played on
+#:    a copy of the game in a run's first 2,000 games; every other number is
+#:    as in 35.
+ENGINE_VERSION = 36
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

@@ -13972,13 +13972,13 @@ msgstr "Prueba de estrés: cuando la mesa responde"
 #: templates/simulations/_report.html
 #, python-format
 msgid ""
-"The same games, once as they went and once with the table striking back - "
-"compared on turn %(turn)s. An assumption, said beside each, not a "
+"The same games, once as they went and once with the table striking back, "
+"side by side on turn %(turn)s. An assumption, said beside each, not a "
 "measurement of real tables."
 msgstr ""
-"Las mismas partidas, una vez tal como fueron y otra con la mesa respondiendo"
-" - comparadas en el turno %(turn)s. Una suposición, indicada junto a cada "
-"una, no una medición de mesas reales."
+"Las mismas partidas, una vez tal como fueron y otra con la mesa "
+"respondiendo, lado a lado en el turno %(turn)s. Una suposición, indicada "
+"junto a cada una, no una medición de mesas reales."
 
 #: templates/simulations/_report.html
 msgid "Without"

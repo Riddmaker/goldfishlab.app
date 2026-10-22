@@ -8,6 +8,8 @@ The rules this rests on (see CLAUDE.md for the sources):
 * **In multiplayer Commander the first mulligan is free.** That is why
   ``cards_to_bottom`` computes ``mulligans - 1`` and not ``mulligans``. Without
   that rule every keep rate would come out too pessimistic.
+* Because it is free, the first seven needs one land more to be kept
+  (``keeps_free_seven``, engine v38), as in Frank Karsten's mana tables.
 """
 
 import random
@@ -343,6 +345,23 @@ class Game(Marks):
             accel = sum(1 for card in hand if card.is_accelerant)
             return accel >= 2
         return False
+
+    def keeps_free_seven(self, hand) -> bool:
+        """The keep rule for the first seven, which costs nothing to throw back.
+
+        It needs one land more than ``keepable``: 3 to 5 lands, or 2 lands
+        with at least 2 cheap accelerants - the accelerants standing in for a
+        land, as in the one-land rule. A one-lander goes back. This is Frank
+        Karsten's rule for the free seven (engine v38); with it the engine
+        needs his number of coloured sources for every cost in his table
+        (``simulation.karsten``).
+        """
+        if not self.keepable(hand):
+            return False
+        lands = sum(1 for card in hand if card.is_land)
+        if lands >= 3:
+            return True
+        return lands == 2 and sum(1 for card in hand if card.is_accelerant) >= 2
 
     @staticmethod
     def cards_to_bottom(mulligans: int) -> int:
@@ -939,7 +958,8 @@ class Game(Marks):
             if first:
                 self.first_hand_lands = sum(1 for card in self.hand if card.is_land)
                 first = False
-            if self.keepable(self.hand) or self.mulligans >= MAX_MULLIGANS:
+            keep = self.keeps_free_seven if self.mulligans == 0 else self.keepable
+            if keep(self.hand) or self.mulligans >= MAX_MULLIGANS:
                 break
             self.mulligans += 1
         bottom = self.cards_to_bottom(self.mulligans)

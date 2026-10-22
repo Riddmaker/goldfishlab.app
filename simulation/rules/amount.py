@@ -18,7 +18,10 @@ The kinds:
   ``power:greatest``, ``toughness:greatest_other``; v34: ``toughness:greatest``
   (the card's own counted), ``mv:greatest`` among the permanents ``selector``
   selects, ``sacrificed:power`` and ``sacrificed:mv`` of what the last
-  additional cost sacrificed (Life's Legacy)
+  additional cost sacrificed (Life's Legacy); v37: ``mv:commander``, the
+  greatest mana value among your commanders on the battlefield (Command Chair);
+  v37: ``creature_types``, the creature types among your creatures, and
+  ``creature_types:borg`` without the Borg among them (Starfleet Academy)
 
 v34: ``half`` halves a count, rounded down (Imskir Iron-Eater).
 * ``all_named`` - ``n`` when you control lands of every one of ``names``
@@ -149,6 +152,14 @@ def _stat(amount):
             return max((game.toughness(each) for each in game.creatures), default=0)
         if stat == "mv:greatest":
             return max((each.mv for each in game.battlefield if selects(each)), default=0)
+        if stat.startswith("creature_types"):
+            but = stat.partition(":")[2]
+            return len(frozenset().union(*(each.creature_types for each in game.creatures
+                                           if but not in each.creature_types)))
+        if stat == "mv:commander":
+            names = {each.name for each in game.deck.commanders}
+            return max((each.mv for each in game.battlefield
+                        if each.name in names and not each.token), default=0)
         if stat.startswith("sacrificed:"):
             gone = game.last_sacrificed
             if gone is None or isinstance(gone, str):

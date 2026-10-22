@@ -810,6 +810,8 @@ _STAT_TEXT = {
     "toughness:greatest_other": gettext_noop(
         "%(color)s equal to the greatest toughness among your other creatures"),
     "counters": gettext_noop("one %(color)s for each +1/+1 counter on it"),
+    "mv:commander": gettext_noop(
+        "%(color)s equal to your commander's mana value while it is on the battlefield"),
 }
 
 
@@ -837,6 +839,14 @@ def _counts_text(ability) -> str:
         return gettext("as much as your devotion to your best colour, in that colour")
     if what.startswith("devotion:"):
         return gettext("as much %(color)s as your devotion to it") % {"color": color}
+    if what.startswith("creature_types"):
+        # Engine v37: Starfleet Academy.
+        but = what.partition(":")[2]
+        if but:
+            return gettext("mana of one colour equal to the number of creature types among "
+                           "your non-%(type)s creatures") % {"type": but.capitalize()}
+        return gettext("mana of one colour equal to the number of creature types among your "
+                       "creatures")
     if what in _STAT_TEXT:
         if not color:
             color = gettext("mana of one colour")

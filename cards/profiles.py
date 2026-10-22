@@ -870,6 +870,13 @@ _RITUAL_THRESHOLD = re.compile(
 _COUNTS_CHOSEN_TYPE = re.compile(
     r"^(?:\{(?P<cost>\d+)\}, )?\{T\}: Choose a color\. Add an amount of mana of that color "
     r"equal to the number of creatures you control of the chosen type\.$", re.MULTILINE)
+#: Engine v37: Starfleet Academy - "Federation — {5}, {T}: Choose a color. Add an
+#: amount of mana of that color equal to the number of creature types among
+#: non-Borg creatures you control."
+_COUNTS_CREATURE_TYPES = re.compile(
+    r"^(?:[A-Z][\w' ]+ — )?(?:\{(?P<cost>\d+)\}, )?\{T\}: Choose a color\. Add an amount of "
+    r"mana of that color equal to the number of creature types among "
+    r"(?:non-(?P<but>[A-Z][a-z]+) )?creatures you control\.$", re.MULTILINE)
 #: P19 R21: mana by power or toughness. "{T}: Add X mana of any one color,
 #: where X is this creature's power." (Kami of Whispered Hopes), "{T}: Add an
 #: amount of {G} equal to Marwyn's power.", "{G}, {T}: Add X mana in any
@@ -882,6 +889,8 @@ _COUNTS_STAT = re.compile(
     r"(?:X mana (?:(?P<one>of any one color)|in any combination of (?:colors|\{(?P<a>[WUBRG])\} "
     r"and/or \{(?P<b>[WUBRG])\})), where X is|an amount of \{(?P<color>[WUBRG])\} equal to) "
     r"(?:the greatest (?P<stat>power|toughness) among (?P<other>other )?creatures you control"
+    # Engine v37: Command Chair.
+    r"|(?P<commanders>the greatest mana value among commanders you control)"
     r"|(?P<whose>[^.\n]+?)'s power)\."
     r"(?P<once> Activate only during your turn and only once each turn\.)?$", re.MULTILINE)
 #: P19 R21: "{T}: Add {G} for each +1/+1 counter on this creature." (Gyre Sage)
@@ -1113,7 +1122,9 @@ _TRIGGER_EFFECT = re.compile(
     r"Add \{C\}\.\""
     # P19 R23: Crime Novelist's counter comes with its mana.
     r"|(?P<counter>put a \+1/\+1 counter on this creature and )?"
-    r"add (?:(?P<any>one mana of any color)|(?P<pips>(?:\{[WUBRGC]\})+)))"
+    # Engine v37: Dal R'El's "add {R} or {G}", one mana of either.
+    r"add (?:(?P<any>one mana of any color)|(?P<either>\{[WUBRG]\} or \{[WUBRG]\})"
+    r"|(?P<pips>(?:\{[WUBRGC]\})+)))"
     # The Spawn's quoted ability ends the line itself.
     r"(?:\.(?P<keep> Until end of turn, you don't lose this mana as steps and phases end\.)?)?$")
 #: P19 R16: what the opponents do in a round, played on an assumption the card
@@ -1190,17 +1201,21 @@ def _trigger_line(line: str, card: OracleCard) -> dict | None:
         effect = _TRIGGER_EFFECT.fullmatch(line, start.end())
         if effect is None:
             return None
-        if event == "resolves" and not (effect.group("any") or effect.group("pips")):
+        adds = effect.group("any") or effect.group("either") or effect.group("pips")
+        if event == "resolves" and not adds:
             return None
         read = {"event": event, "filter": groups.get("type", "").lower() or wanted}
         if effect.group("spawn") is not None:
             read |= {"treasures": _word_number(effect.group("spawn")), "spawn": True}
-        elif (effect.group("any") or effect.group("pips")) and event == "upkeep" \
-                and not effect.group("keep"):
+        elif adds and event == "upkeep" and not effect.group("keep"):
             # Mana made in the upkeep is gone by the main phase.
             return None
         elif effect.group("any"):
             read |= {"mana": 1, "color": "any"}
+        elif effect.group("either"):
+            # The choice key, in WUBRG order: `simulation.manacost.choice`.
+            pips = re.findall(r"\{(\w)\}", effect.group("either"))
+            read |= {"mana": 1, "color": "".join(c for c in "WUBRG" if c in pips)}
         elif effect.group("pips"):
             pips = re.findall(r"\{(\w)\}", effect.group("pips"))
             if len(set(pips)) != 1:
@@ -1461,8 +1476,8 @@ def _mana_rule(card: OracleCard, kind: str) -> dict | None:
 def _stat_rule(text: str, card: OracleCard) -> dict | None:
     """Mana by power, toughness or the card's own +1/+1 counters (P19 R21).
 
-    ``subtype`` "power" (its own), "power:greatest", "toughness:greatest_other"
-    or "counters"; ``color`` a colour, "" for one colour the hand settles,
+    ``subtype`` "power" (its own), "power:greatest", "toughness:greatest_other",
+    "counters" or "mv:commander" (engine v37: Command Chair); ``color`` a colour, "" for one colour the hand settles,
     "WUBRG" or "UR" for any combination of those; ``pays`` the colour of an
     activation cost, which the engine pays as generic; ``once`` for Vivi's
     {0} once a turn, played as a {T}.
@@ -1481,6 +1496,8 @@ def _stat_rule(text: str, card: OracleCard) -> dict | None:
         if not _names_itself(found.group("whose"), card):
             return None
         subtype = "power"
+    elif found.group("commanders"):
+        subtype = "mv:commander"
     elif found.group("stat") == "power" and not found.group("other"):
         subtype = "power:greatest"
     elif found.group("stat") == "toughness" and found.group("other"):
@@ -1695,6 +1712,11 @@ def _counting_rule(text: str, card: OracleCard | None = None) -> dict | None:
         # P19 R18: Three Tree City; one colour, the one the hand wants.
         return {"rule": "counts", "subtype": "chosen_type", "color": "",
                 "activation": int(found.group("cost") or 0)}
+    if (found := _COUNTS_CREATURE_TYPES.search(text)) is not None:
+        # Engine v37: Starfleet Academy; "creature_types:borg" leaves the Borg out.
+        but = found.group("but")
+        return {"rule": "counts", "subtype": "creature_types" + (f":{but.lower()}" if but else ""),
+                "color": "", "activation": int(found.group("cost") or 0)}
     if (found := _DEVOTION.search(text)) is not None:
         return {"rule": "counts", "subtype": "devotion", "color": "",
                 "activation": int(found.group("cost"))}

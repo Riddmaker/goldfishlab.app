@@ -48,6 +48,7 @@ from simulation.cards import (
     LANDS_COULD_PRODUCE,
     MULTIPLY,
     PER_CONTROLLED,
+    PLANESWALKER,
     RITUAL,
     SORCERY,
     STORE_FREE,
@@ -73,8 +74,9 @@ from simulation.cards import (
 )
 from simulation.mana import land_color
 from simulation.manacost import COLORLESS, COLORS, ManaCost, choice, mana_label, parse
+from simulation.rules.amount import Amount
 from simulation.rules.mana import ritual_counts_of
-from simulation.rules.selector import wanted_of
+from simulation.rules.selector import Selector, wanted_of
 from simulations import gaps as gaps_module
 from simulations import patches, primitives
 
@@ -370,12 +372,24 @@ class Reading:
             if spec.color:
                 what = gettext("%(what)s (%(color)s)") % {"what": what,
                                                           "color": mana_label(spec.color)}
+            if spec.nonlegendary:
+                what = gettext("%(what)s, not legendary") % {"what": what}
+            if spec.permanent:
+                what = gettext("%(what)s, any permanent") % {"what": what}
             if spec.max_mv_sacrificed is not None:
-                what = gettext("%(what)s with mana value up to %(plus)s more than the "
-                               "creature sacrificed") % {"what": what,
-                                                         "plus": spec.max_mv_sacrificed}
+                what = (gettext("%(what)s with mana value exactly %(plus)s more than the "
+                                "creature sacrificed") if spec.exact_mv
+                        else gettext("%(what)s with mana value up to %(plus)s more than the "
+                                     "creature sacrificed")) % {
+                    "what": what, "plus": spec.max_mv_sacrificed}
             text = gettext("%(what)s onto the battlefield") % {"what": what}
+            if spec.activate:
+                text = (gettext("%(cost)s and {T}, once a turn: %(search)s") % {
+                    "cost": spec.cost, "search": text} if spec.cost
+                    else gettext("{T}, once a turn: %(search)s") % {"search": text})
         elif spec.to_top:
+            if spec.basic:
+                what = gettext("%(what)s, basic") % {"what": what}
             text = gettext("%(what)s on top of the library, drawn next turn") % {"what": what}
         elif spec.gifts:
             text = gettext("%(found)s cards, %(count)s of them to hand and the rest to the "
@@ -526,6 +540,12 @@ def _land_search_text(search: LandSearch) -> str:
                                      "power": search.power_at}
     if search.condition == "opponent_more_lands":
         text = gettext("%(search)s, if an opponent controls more lands") % {"search": text}
+    if search.lands_at_most:
+        text = gettext("%(search)s, if you control %(count)s lands or fewer") % {
+            "search": text, "count": search.lands_at_most}
+    if search.when == "chapter2":
+        text = gettext("on its second chapter, the turn after it enters: %(search)s") % {
+            "search": text}
     if search.repeat:
         text = gettext("%(search)s, then once more") % {"search": text}
     if search.when == "opponents":
@@ -1313,6 +1333,10 @@ def _card_from(oracle_card, annotations: Annotations, gaps: list[Gap],
         x_max=int((getattr(profile, "land_search", None) or {}).get("x_max", 0)),
         draws_x=(kind in ONE_SHOT_KINDS and "draw_on_cast" not in overrides
                  and bool(getattr(profile, "draws_x", False))),
+        draw_by=_draw_by(profile) if kind in ONE_SHOT_KINDS and "draw_on_cast" not in overrides
+        else None,
+        lose_drawn=kind in ONE_SHOT_KINDS and "draw_on_cast" not in overrides
+        and bool((getattr(profile, "draw_by", None) or {}).get("lose")),
         creature_types=creature_types(oracle_card),
         legendary="Legendary" in (oracle_card.type_line or "").split("//", 1)[0],
         colors=frozenset(oracle_card.colors or ()) & frozenset(COLORS),
@@ -1416,6 +1440,10 @@ def _record_tapping(card: Card, gaps: list[Gap]) -> None:
                 else "artifact or creature" if "artifact" in tapping.types
                 else "legendary creature" if tapping.legendary else "creature")
         gaps.append(Gap(card.name, "assumed_cost", _TAPS_ONE[kind]))
+    if card.kind == PLANESWALKER and card.mana.entries:
+        gaps.append(Gap(card.name, "assumed_cost", gettext_noop(
+            "uses its loyalty ability for mana each turn from the turn after it arrives, and "
+            "never its other abilities")))
     tap = card.mana.tap_other
     if tap is not None:
         types, wanted = wanted_of(tap.selector)
@@ -2292,7 +2320,7 @@ def _land_search(profile) -> LandSearch | None:
         power_at=int(found.get("power_at", 0)), power_count=int(found.get("power_count", 0)),
         by_power=bool(found.get("by_power")), repeat=int(found.get("repeat", 0)),
         tempting=int(found.get("tempting", 0)), by_x=bool(found.get("by_x")),
-        reveal=bool(found.get("reveal")),
+        reveal=bool(found.get("reveal")), lands_at_most=int(found.get("lands_at_most", 0)),
     )
 
 
@@ -2342,7 +2370,7 @@ def _tap_mana(profile, deck_colors: frozenset[str], chosen: str | None,
             return None
     return TapMana(types=frozenset(found["types"]), filter=found.get("filter", ""),
                    mana=mana, amount=int(found["amount"]), spend_only=spend_only,
-                   tokens=int(found.get("token", 0)))
+                   tokens=int(found.get("token", 0)), per=int(found.get("per") or 1))
 
 
 def _triggers(profile, overrides: dict, deck_colors: frozenset[str]) -> tuple[Trigger, ...]:
@@ -2373,7 +2401,27 @@ def _triggers(profile, overrides: dict, deck_colors: frozenset[str]) -> tuple[Tr
         )
         if trigger.treasures or trigger.mana or trigger.draw or trigger.connive:
             found.append(trigger)
+    if (counted := _draw_by(profile)) is not None and profile.kind not in ONE_SHOT_KINDS:
+        # v34: Champion of Dusk draws a card for each Vampire as it enters.
+        found.append(Trigger(event="resolves", draw_by=counted, lose_drawn=bool(
+            profile.draw_by.get("lose"))))
     return tuple(found)
+
+
+def _draw_by(profile) -> Amount | None:
+    """The cards it draws by a count (v34), as the engine counts them."""
+    read = (getattr(profile, "draw_by", None) or {}).get("amount")
+    if not read:
+        return None
+    if read["kind"] == "fixed":
+        return Amount("fixed", n=int(read["n"]))
+    if read["kind"] == "devotion":
+        return Amount("devotion", color=read["color"])
+    selector = Selector(types=frozenset(read.get("types", ())),
+                        creature_types=frozenset(read.get("creature_types", ())))
+    if read["kind"] == "stat":
+        return Amount("stat", stat=read["stat"], selector=selector)
+    return Amount("count", zone=read["zone"], selector=selector, half=bool(read.get("half")))
 
 
 def _additional_costs(profile) -> tuple[AdditionalCost, ...]:
@@ -2421,7 +2469,8 @@ def _tutor(profile, overrides: dict) -> TutorSpec | None:
     if profile.tutor_to == "top":
         # P19 R12: Vampiric Tutor. `tutor_filter` holds the card types it may find.
         battlefield = {"to_top": True,
-                       "types": frozenset((limit or {}).get("types", ()))}
+                       "types": frozenset((limit or {}).get("types", ())),
+                       "basic": bool((limit or {}).get("basic"))}
     elif profile.tutor_to == "hand" and limit is not None:
         # P19 R23: types or subtypes, a mana value limit, and the shapes of
         # Archdruid's Charm, Gifts Ungiven, Gamble and Demonic Counsel.
@@ -2437,7 +2486,15 @@ def _tutor(profile, overrides: dict) -> TutorSpec | None:
                        "max_mv_x": max_mv == "X",
                        "max_mv": max_mv if isinstance(max_mv, int) else None,
                        "max_mv_sacrificed": limit.get("plus_sacrificed"),
-                       "upkeep": limit.get("upkeep") or ""}
+                       "upkeep": limit.get("upkeep") or "",
+                       # v34: Godo's Equipment, Woodland Bellower, Neoform,
+                       # Moggcatcher's "{3}, {T}: ".
+                       "types": frozenset(limit.get("types") or ()),
+                       "nonlegendary": bool(limit.get("nonlegendary")),
+                       "permanent": bool(limit.get("permanent")),
+                       "exact_mv": bool(limit.get("exact")),
+                       "activate": bool(limit.get("activated")),
+                       "cost": parse(limit["cost"]) if limit.get("cost") else None}
     return TutorSpec(
         **battlefield,
         to_hand=TUTOR_ZONES[profile.tutor_to],

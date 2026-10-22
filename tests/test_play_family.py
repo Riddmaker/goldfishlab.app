@@ -33,7 +33,9 @@ from simulation.cards import (
 )
 from simulation.manacost import parse
 from simulation.rules import mana, play
+from simulation.rules.amount import Amount
 from simulation.rules.condition import Condition
+from simulation.rules.selector import Selector
 from tests.engine_builders import game_with
 
 #: Every field of the family away from its default.
@@ -55,6 +57,9 @@ FAMILY = {
     "discard_on_cast": 2,
     "put_back_on_cast": 2,
     "draws_x": True,
+    "draw_by": Amount("count", zone="creatures",
+                      selector=Selector(creature_types=frozenset({"vampire"})), half=True),
+    "lose_drawn": True,
     "additional_costs": (
         AdditionalCost(sacrifice=frozenset({"creature"}), sacrifice_filter="legendary",
                        sacrifice_count=2),
@@ -80,7 +85,9 @@ def test_a_field_at_its_default_makes_no_block():
 
 @pytest.mark.parametrize("name", list(FAMILY))
 def test_each_field_makes_a_block_of_the_family(name):
-    found = play.encode({name: FAMILY[name]})
+    # The life lost with a counted draw is a part of that draw (v34).
+    paired = {"draw_by": FAMILY["draw_by"]} if name == "lose_drawn" else {}
+    found = play.encode({name: FAMILY[name], **paired})
     assert found and {each.form for each in found} <= play.FORMS
 
 

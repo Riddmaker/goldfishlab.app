@@ -29,6 +29,7 @@ rabbit hole. The user is the judge.
 from dataclasses import asdict, dataclass
 
 from simulation.mana import effective_mana_cost, reductions_from
+from simulation.rules.amount import compile_amount
 
 # --- Phases ----------------------------------------------------------------
 #
@@ -242,7 +243,8 @@ class CastCommander(Action):
 @dataclass(frozen=True)
 class ActivateSearch(Action):
     """Activate the land search of the permanent at ``index`` in ``zone``:
-    Wayfarer's Bauble, Myriad Landscape (P19 R14). Paid out of the pool."""
+    Wayfarer's Bauble, Myriad Landscape (P19 R14) - or its tutor, Moggcatcher
+    (v34). Paid out of the pool."""
 
     kind = "activate_search"
     zone: str = LANDS
@@ -254,6 +256,9 @@ class ActivateSearch(Action):
         if not game.can_activate(card, pool):
             raise IllegalAction(f"{card.name} cannot be activated now; the floating mana is {pool}")
         game.activate(card, pool, _land_chooser(policy))
+        if game.activated(card) is card.play.tutor:
+            # v34: Moggcatcher - paid for and tapped; now the search.
+            run_tutor(game, card.play.tutor, policy)
 
 
 @dataclass(frozen=True)
@@ -530,13 +535,12 @@ def legal_actions(game) -> list[Action]:
 
 
 def activations(game, pool) -> list[Action]:
-    """The land searches that can be activated now (P19 R14)."""
+    """The land searches and tutors (v34) that can be activated now (P19 R14)."""
     found: list[Action] = [
         ActivateSearch(zone=zone, index=index)
         for zone in (LANDS, ROCKS, CREATURES, OTHER)
         for index, card in enumerate(zone_of(game, zone))
-        if card.play.search is not None and card.play.search.when == "activate"
-        and game.can_activate(card, pool)
+        if game.activated(card) is not None and game.can_activate(card, pool)
     ]
     if game.can_activate(None, pool):
         found.append(ActivateLander())
@@ -621,6 +625,13 @@ def _apply_cast_effect(game, card, policy, x: int = 0) -> None:
         game.draw(drawn)
         game.life -= card.play.life
         game.note(f"  -> {drawn} cards, {card.play.life} life")
+    if card.play.draw_by is not None:
+        # v34: Rishkar's Expertise, Minions' Murmurs.
+        counted = compile_amount(card.play.draw_by)(game, card)
+        game.draw(counted)
+        lost = counted if card.play.lose_drawn else 0
+        game.life -= lost
+        game.note(f"  -> {counted} cards, {lost} life")
     if card.play.discard:
         game.discard(card.play.discard)
     if card.play.put_back:
@@ -632,9 +643,10 @@ def run_tutor(game, spec, policy, x: int = 0) -> None:
     or onto the battlefield."""
     game.life -= spec.life
     if spec.to_battlefield:
-        predicate = _battlefield_predicate(spec, x, game)
+        predicate = battlefield_predicate(spec, x, game)
     elif spec.to_top:
-        predicate = (lambda c: bool(c.types & spec.types)) if spec.types else None
+        predicate = (lambda c: bool(c.types & spec.types)
+                     and (not spec.basic or c.basic)) if spec.types else None
     else:
         predicate = _hand_predicate(spec, game)
     if spec.gifts:
@@ -741,7 +753,11 @@ def _arrival(game, card, policy, x: int = 0) -> None:
     game.make_landers(card)
 
 
-def _battlefield_predicate(spec, x: int, game=None):
+#: v34: the cards that are no permanent: what "a permanent card" leaves out.
+_SPELLS = frozenset({"instant", "sorcery", "ritual"})
+
+
+def battlefield_predicate(spec, x: int, game=None):
     """Which library cards a search onto the battlefield may find (P19 R10)."""
     limit = x if spec.max_mv_x else spec.max_mv
     if spec.max_mv_sacrificed is not None:
@@ -753,8 +769,18 @@ def _battlefield_predicate(spec, x: int, game=None):
         types = card.types or frozenset({card.kind})
         if spec.kind and spec.kind not in types:
             return False
+        if spec.permanent and types & _SPELLS:
+            return False
+        if spec.types and not (types | card.printed_subtypes | card.creature_types) & spec.types:
+            # v34: Godo's Equipment, Moggcatcher's Goblin.
+            return False
+        if spec.nonlegendary and card.legendary:
+            return False
         if spec.color and spec.color not in card.mana_cost.colors:
             return False
+        if spec.exact_mv:
+            # v34: Neoform - exactly one more.
+            return card.mv == limit
         return limit is None or card.mv <= limit
 
     return matches

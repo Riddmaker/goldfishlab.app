@@ -83,7 +83,7 @@ from simulation.manacost import (
     is_choice,
 )
 from simulation.permanent import Marks, ZoneField, ident, same
-from simulation.rules.amount import devotion
+from simulation.rules.amount import compile_amount, devotion
 from simulation.rules.condition import check, tap_wanted
 from simulation.rules.mana import flat
 from simulation.rules.selector import PERMANENT, selects, wanted, wanted_of
@@ -469,6 +469,13 @@ class Game(Marks):
         if trigger.draw:
             drawn = self.draw(trigger.draw)
             made.append(f"{len(drawn)} card")
+        if trigger.draw_by is not None:
+            # v34: Champion of Dusk - a card for each Vampire, a life each.
+            count = compile_amount(trigger.draw_by)(self, card)
+            drawn = self.draw(count)
+            if trigger.lose_drawn:
+                self.life -= count
+            made.append(f"{len(drawn)} card" + (f", {count} life" if trigger.lose_drawn else ""))
         if trigger.counter:
             # Crime Novelist grows with each artifact it sees go (P19 R23).
             self.add_counters(card, trigger.counter)
@@ -520,10 +527,16 @@ class Game(Marks):
         """
         if card is None:
             return LANDER.cost if self.landers else None
-        spec = card.play.search
-        if spec is None or spec.when != "activate" or card not in self.battlefield:
+        spec = self.activated(card)
+        if spec is None or card not in self.battlefield:
             return None
         cost = spec.cost or ManaCost()
+        if spec is card.play.tutor:
+            # v34: Moggcatcher, Planar Bridge - {T}, once a turn; a creature
+            # not the turn it arrived.
+            if card in self.creatures:
+                return cost if self.creature_can_tap(card) else None
+            return None if self.creature_tapped(card) or card.mana.entries else cost
         if not spec.taps or card not in self.lands:
             if spec.taps and card in self.creatures and not self.creature_can_tap(card):
                 return None
@@ -556,10 +569,22 @@ class Game(Marks):
         return (not self.arrived_now(card) and not self.creature_tapped(card)
                 and not card.mana.entries)
 
+    @staticmethod
+    def activated(card):
+        """``card``'s search played as an ability - its activated land search,
+        or (v34) its activated tutor - or None."""
+        search = card.play.search
+        if search is not None and search.when == "activate":
+            return search
+        tutor = card.play.tutor
+        return tutor if tutor is not None and tutor.activate else None
+
     def activation_fodder(self, card):
         """What else ``card``'s activated search costs - ``(land, other)``,
         either None when not asked - or None when it cannot be paid now."""
         spec = card.play.search
+        if self.activated(card) is not spec:
+            return None, None
         land = other = None
         if spec.sacrifices_land:
             lands = [found for found in self.land_fodder() if not same(found, card)
@@ -600,6 +625,11 @@ class Game(Marks):
             return self.search_lands(None, choose, LANDER)
         land, other = self.activation_fodder(card)
         spec = card.play.search
+        if self.activated(card) is not spec:
+            # v34: an activated tutor; the caller searches (`actions.run_tutor`).
+            self.tap_creature(card)
+            self.note(f"{card.name} (activated)")
+            return 0
         if spec.sacrifice:
             self._sacrifice(card)
         elif card in self.creatures:
@@ -926,9 +956,11 @@ class Game(Marks):
         return pool
 
     def _stored_others(self) -> list:
-        """Enchantments that tap for kept counters (Mana Bloom, P19 R20)."""
+        """Enchantments that tap for kept counters (Mana Bloom, P19 R20), and
+        (v34) a planeswalker's "+1: Add {R}{R}", used once each turn."""
         return self._untapped([card for card in self.other_permanents
-                               if (card.mana.store is not None or card.mana.flip)
+                               if (card.mana.store is not None or card.mana.flip
+                                   or card.kind == PLANESWALKER)
                                and self.mana_ability(card) is not None])
 
     def mana_extras(self, *, per_source: bool = False) -> list[Extra]:
@@ -1198,7 +1230,9 @@ class Game(Marks):
             if not one and tappable(card) and not busy[self.pid_of(card)]:
                 # Grand Architect: a blue creature itself.
                 fits.append(card)
-            taken = fits[:1] if one else fits
+            per = 1 if one else card.mana.tap_other.per
+            # v34: Heritage Druid taps its Elves three at a time.
+            taken = fits[:1] if one else fits[:len(fits) // per * per]
             found[ident(card)] = taken
             left = [other for other in left if not any(same(other, each) for each in taken)]
         return found, left
@@ -1210,7 +1244,7 @@ class Game(Marks):
             spec = card.mana.tap_other
             if spec is None:
                 continue
-            count = len(tapped.get(ident(card), ())) + spec.tokens
+            count = len(tapped.get(ident(card), ())) // spec.per + spec.tokens
             if not count:
                 continue
             if spec.spend:
@@ -1416,6 +1450,10 @@ class Game(Marks):
         if spec.condition == "opponent_more_lands" and not self.opponent_has_more_lands():
             self.note("  -> no opponent has more lands")
             return 0
+        if spec.lands_at_most and len(self.lands) > spec.lands_at_most:
+            # v34: Edge of Autumn.
+            self.note(f"  -> more than {spec.lands_at_most} lands")
+            return 0
         if spec.reveal:
             return self._reveal_lands(spec, x)
         battlefield = self._lands_searched(spec)
@@ -1608,6 +1646,9 @@ class Game(Marks):
         if card.kind in (ENCHANTMENT, ARTIFACT):
             self.other_permanents.append(card)
             self.note(f"{card.name}")
+            if card.play.search is not None and card.play.search.when == "chapter2":
+                # v34: its second chapter comes next turn.
+                self.mark_arrived(card)
             if card.turn.growth is not None and card.turn.growth.look:
                 self._look_for_creature(card)
             if card.turn.germ:
@@ -2181,6 +2222,9 @@ class Game(Marks):
         self.lands.untap()
         self.rocks.untap()
         self.land_drop_used = False
+        # v34: a Saga that arrived last turn reaches its second chapter now.
+        chapters = [card for card in self.battlefield if card.play.search is not None
+                    and card.play.search.when == "chapter2" and self.arrived_now(card)]
         self.arrived = []
         self.tapped_creatures = []
         self.fodder_used = []
@@ -2198,6 +2242,9 @@ class Game(Marks):
                 self.note(f"{skipper.name}: draw step skipped")
             else:
                 self.draw(1)
+        for card in chapters:
+            self.note(f"{card.name}: chapter II")
+            self.search_lands(card)
 
         for card in self._triggers(lambda c: c.turn.upkeep is not None):
             spec = card.turn.upkeep

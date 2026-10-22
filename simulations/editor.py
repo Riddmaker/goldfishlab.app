@@ -617,9 +617,11 @@ def _text(key: str, reading) -> str:
                             mana.altar.draw) % {**said, "count": mana.altar.draw}
         return gettext("%(cost)s: %(amount)s mana") % said
     if key == "tap_mana" and mana.tap_other is not None:
-        return gettext("tap %(what)s: %(amount)s mana each") % {
-            "what": " / ".join(sorted(wanted_of(mana.tap_other.selector)[0])),
-            "amount": mana.tap_other.amount}
+        said = {"what": " / ".join(sorted(wanted_of(mana.tap_other.selector)[0])),
+                "amount": mana.tap_other.amount, "per": mana.tap_other.per}
+        if mana.tap_other.per > 1:
+            return gettext("tap %(per)s %(what)s at once: %(amount)s mana") % said
+        return gettext("tap %(what)s: %(amount)s mana each") % said
     if key == "mox":
         return {"discard_land": gettext("discards a land card to enter"),
                 "imprint": gettext("exiles a coloured card for its colours")}.get(mana.mox, "")

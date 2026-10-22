@@ -105,7 +105,7 @@ ACTION_NAMES = {
     "set_life": gettext_noop("Life changed"),
     "move_card": gettext_noop("Card moved"),
     "tap_permanent": gettext_noop("Permanent tapped"),
-    "activate_search": gettext_noop("Land search activated"),
+    "activate_search": gettext_noop("Search activated"),
     "activate_lander": gettext_noop("Lander activated"),
     "sacrifice_mana": gettext_noop("Sacrificed for mana"),
     "adapt": gettext_noop("Adapted"),

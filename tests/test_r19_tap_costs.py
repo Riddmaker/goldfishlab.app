@@ -115,12 +115,13 @@ def test_a_creature_type_an_artifact_or_creature_and_nontoken_are_read():
     assert meria.tap_mana["filter"] == ""
 
 
-def test_tapping_two_permanents_stays_a_gap():
-    reading = _mana_production(card("Tap two untapped Elves you control: Add {G}.",
-                                    type_line="Creature — Elf Druid", produced=("G",)))
+def test_tapping_two_foods_stays_a_gap():
+    # Two Elves at once are read since engine v34 (tests/test_v34_mana_costs.py).
+    reading = _mana_production(card("Tap two untapped Foods you control: Add one mana of any "
+                                    "color.", type_line="Legendary Creature — Rabbit"))
     assert reading.amount is None and reading.tap_mana is None
     assert reading.notes == [
-        "a mana ability that costs 'Tap two untapped Elves you control' is not modelled"]
+        "a mana ability that costs 'Tap two untapped Foods you control' is not modelled"]
 
 
 def test_mox_diamond_and_chrome_mox_are_read():

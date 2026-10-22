@@ -65,6 +65,7 @@ _COMBAT_KEYS = frozenset({
 _TUTOR_KEYS = frozenset({
     "to", "count", "kind", "types", "max_mv", "color", "plus_sacrificed", "land_tapped",
     "gifts", "random_discard", "delirium_any", "upkeep", "exiled", "symmetry", "opponents",
+    "nonlegendary", "permanent", "basic", "exact", "activated", "cost",
 })
 _CONDITION_KEYS = frozenset({
     "kind", "types", "count", "life", "at_least", "other", "basic", "type", "legendary",
@@ -82,7 +83,7 @@ _GROWTH_KEYS = frozenset({
     "enters", "enters_x", "grows", "adapt", "bonus", "puts", "draws_on_greatest", "look",
 })
 _TAP_MANA_KEYS = frozenset({
-    "types", "filter", "amount", "produces", "spend_only", "token",
+    "types", "filter", "amount", "produces", "spend_only", "token", "per",
 })
 _ALTAR_KEYS = frozenset({
     "sacrifice", "filter", "amount", "produces", "taps", "life", "other", "count", "draw",

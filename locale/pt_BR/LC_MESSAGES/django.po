@@ -13528,3 +13528,109 @@ msgstr ""
 "às criaturas de um tipo ou à criatura que encanta, como as de Wrenn and "
 "Realmbreaker ou Karametra's Favor, agora geram mana. Um relatório feito com "
 "um motor mais antigo informa isso e oferece uma nova simulação."
+
+#: cards/profiles.py
+msgid "draws, and does more that the engine does not play"
+msgstr "compra cards e faz mais coisas que o motor não joga"
+
+#: cards/profiles.py
+msgid ""
+"searches for lands on the card's other face, which the engine does not cast"
+msgstr "busca terrenos na outra face do card, que o motor não conjura"
+
+#: cards/profiles.py
+msgid ""
+"searches for lands in one mode of a modal spell, which the engine does not "
+"play"
+msgstr "busca terrenos em um modo de uma mágica modal, que o motor não joga"
+
+#: cards/profiles.py
+msgid "searches for lands as a card dies, which the engine does not play"
+msgstr "busca terrenos quando um card morre, o que o motor não joga"
+
+#: playtest/views.py
+msgid "Search activated"
+msgstr "Busca ativada"
+
+#: simulations/editor.py
+#, python-format
+msgid "tap %(per)s %(what)s at once: %(amount)s mana"
+msgstr "virar %(per)s %(what)s de uma vez: %(amount)s mana"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, if you control %(count)s lands or fewer"
+msgstr "%(search)s, se você controlar %(count)s terrenos ou menos"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "on its second chapter, the turn after it enters: %(search)s"
+msgstr "no seu segundo capítulo, no turno depois de entrar: %(search)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"uses its loyalty ability for mana each turn from the turn after it arrives, "
+"and never its other abilities"
+msgstr ""
+"usa sua habilidade de lealdade para mana a cada turno a partir do turno "
+"depois de chegar, e nunca suas outras habilidades"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, not legendary"
+msgstr "%(what)s, não lendário"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, any permanent"
+msgstr "%(what)s, qualquer permanente"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(what)s with mana value exactly %(plus)s more than the creature sacrificed"
+msgstr ""
+"%(what)s com valor de mana exatamente %(plus)s a mais que a criatura "
+"sacrificada"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(cost)s and {T}, once a turn: %(search)s"
+msgstr "%(cost)s e {T}, uma vez por turno: %(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "{T}, once a turn: %(search)s"
+msgstr "{T}, uma vez por turno: %(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, basic"
+msgstr "%(what)s, básico"
+
+#: changelog/entries.py
+msgid "More searches, planeswalker mana and draws that count"
+msgstr "Mais buscas, mana de planeswalkers e compras que contam"
+
+#: changelog/entries.py
+msgid ""
+"Cards that search for a creature or a permanent and put it onto the "
+"battlefield, such as Ramosian Sergeant, Captain America, Liberator or "
+"Neoform, now find it. A planeswalker that adds mana for loyalty, such as "
+"Chandra, Torch of Defiance, makes it each turn from the turn after it "
+"arrives, and Heritage Druid taps three Elves at once. Binding the Old Gods "
+"finds its Forest on its second chapter, Edge of Autumn only with four lands "
+"or fewer. Spells and creatures that draw by a count, such as Champion of "
+"Dusk or Minions' Murmurs, now draw that many. A report made with an older "
+"engine says so and offers a new run."
+msgstr ""
+"Cards que buscam uma criatura ou uma permanente e a colocam no campo de "
+"batalha, como Ramosian Sergeant, Captain America, Liberator ou Neoform, "
+"agora a encontram. Um planeswalker que adiciona mana por lealdade, como "
+"Chandra, Torch of Defiance, faz isso a cada turno a partir do turno depois "
+"de chegar, e Heritage Druid vira três Elfos de uma vez. Binding the Old Gods"
+" encontra sua Floresta no segundo capítulo, Edge of Autumn só com quatro "
+"terrenos ou menos. Mágicas e criaturas que compram conforme uma contagem, "
+"como Champion of Dusk ou Minions' Murmurs, agora compram essa quantidade. Um"
+" relatório feito com um motor mais antigo avisa e oferece uma nova "
+"simulação."

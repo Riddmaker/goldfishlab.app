@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from simulation.blocks import (
+    ACTIVATED,
     CAST,
     LAND_SEARCH_WHEN,
     REPLACEMENT,
@@ -63,6 +64,8 @@ FIELDS: dict[str, Any] = {
     "draws_x": False,
     "additional_costs": (),
     "exiled_on_cast": False,
+    "draw_by": None,
+    "lose_drawn": False,
 }
 
 #: The ``form`` of every block of the family.
@@ -134,9 +137,15 @@ def _land_search(search: LandSearch) -> Ability:
 
 def _tutor(tutor: TutorSpec) -> Ability:
     event = Event("upkeep", filter=tutor.upkeep) if tutor.upkeep else None
-    return Ability(TRIGGERED if event else RESOLVES, "tutor",
-                   costs=(Cost("life", amount=tutor.life),) if tutor.life else (), event=event,
-                   effects=(Effect("search", changed_args(tutor, skip=("life", "upkeep"))),))
+    costs = (Cost("life", amount=tutor.life),) if tutor.life else ()
+    kind = TRIGGERED if event else RESOLVES
+    if tutor.activate:
+        # v34: Moggcatcher's "{3}, {T}: ".
+        kind = ACTIVATED
+        costs += (Cost("tap"),) + ((Cost("mana", mana=tutor.cost),) if tutor.cost else ())
+    return Ability(kind, "tutor", costs=costs, event=event,
+                   effects=(Effect("search", changed_args(
+                       tutor, skip=("life", "upkeep", "activate", "cost"))),))
 
 
 def encode(values: dict) -> tuple[Ability, ...]:
@@ -164,6 +173,10 @@ def encode(values: dict) -> tuple[Ability, ...]:
     if get("draw_on_cast") or get("draws_x"):
         effects.append(Effect("draw", (("n", get("draw_on_cast")),)
                               + ((("x", True),) if get("draws_x") else ())))
+    if get("draw_by") is not None:
+        # v34: Rishkar's Expertise draws by the greatest power.
+        effects.append(Effect("draw", (("by", get("draw_by")),)
+                              + ((("lose", True),) if get("lose_drawn") else ())))
     effects += [Effect(verb, (("n", get(name)),)) for name, verb in _RESOLVES if get(name)]
     if get("landers"):
         effects.append(Effect("create_token", (("n", get("landers")), ("token", "lander"))))
@@ -215,9 +228,12 @@ def _search_of(ability: Ability) -> LandSearch:
 
 
 def _tutor_of(ability: Ability) -> TutorSpec:
-    life = next((cost for cost in ability.costs if cost.atom == "life"), None)
-    return TutorSpec(**dict(ability.effects[0].args), life=life.amount if life else 0,
-                     upkeep=ability.event.filter if ability.event else "")
+    atoms = {cost.atom: cost for cost in ability.costs}
+    return TutorSpec(**dict(ability.effects[0].args),
+                     life=atoms["life"].amount if "life" in atoms else 0,
+                     upkeep=ability.event.filter if ability.event else "",
+                     activate=ability.kind == ACTIVATED,
+                     cost=atoms["mana"].mana if "mana" in atoms else None)
 
 
 def _read(abilities) -> dict:
@@ -239,7 +255,10 @@ def _read(abilities) -> dict:
             out["additional_costs"] = tuple(_way(option) for option in ability.options)
         elif form == "spell_resolves":
             for effect in ability.effects:
-                if effect.verb == "draw":
+                if effect.verb == "draw" and effect.arg("by") is not None:
+                    out["draw_by"] = effect.arg("by")
+                    out["lose_drawn"] = effect.arg("lose", False)
+                elif effect.verb == "draw":
                     out["draw_on_cast"] = effect.arg("n")
                     out["draws_x"] = effect.arg("x", False)
                 elif effect.verb == "create_token":
@@ -278,6 +297,9 @@ class PlayView:
     put_back: int = 0
     life: int = 0
     landers: int = 0
+    #: v34: cards drawn by a count (an `Amount`), and as much life lost.
+    draw_by: Any = None
+    lose_drawn: bool = False
 
 
 NO_PLAY = PlayView()
@@ -297,4 +319,4 @@ def compile_view(abilities) -> PlayView:
         exiled=values["exiled_on_cast"], draw=values["draw_on_cast"],
         draws_x=values["draws_x"], discard=values["discard_on_cast"],
         put_back=values["put_back_on_cast"], life=values["life_on_cast"],
-        landers=values["landers"])
+        landers=values["landers"], draw_by=values["draw_by"], lose_drawn=values["lose_drawn"])

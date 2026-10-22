@@ -38,6 +38,7 @@ EVERY = {
     "mana_store": {"use": "free"}, "growth": {"enters": 2}, "combat": {"germ": True},
     "triggers": [{"event": "landfall", "treasures": 1}], "cost_reduction": 1,
     "draws_cards": 2, "discards_after": 1, "puts_back": 2, "draws_x": True,
+    "draw_by": {"amount": {"kind": "count", "zone": "creatures"}, "lose": True},
     "extra_cost": "{B}{B}", "tutor_to": "hand", "tutor_count": 1, "tutor_kind": "creature",
     "tutor_filter": {"types": ["creature"]}, "land_search": {"battlefield": 1},
     "tapped_unless": {"kind": "pay_life", "count": 2}, "skips_draw_step": True,

@@ -13,6 +13,7 @@ working, because the four vendored test files must stay byte-identical.
 
 from dataclasses import dataclass, field, fields
 from functools import cached_property
+from typing import Any
 
 from simulation.blocks import Ability
 from simulation.manacost import (
@@ -209,6 +210,19 @@ class TutorSpec:
     #: P19 R23: Defense of the Heart - not as it is cast but in an upkeep,
     #: once an opponent is assumed to have three creatures; it is sacrificed.
     upkeep: str = ""
+    #: v34: onto the battlefield, a card that is no legendary one (Woodland
+    #: Bellower), or any permanent card (Planar Bridge); on top, a basic
+    #: land (Embermouth Sentinel).
+    nonlegendary: bool = False
+    permanent: bool = False
+    basic: bool = False
+    #: v34: Neoform - exactly ``max_mv_sacrificed`` more than what was
+    #: sacrificed, not up to it.
+    exact_mv: bool = False
+    #: v34: an ability of a permanent that costs ``cost`` and {T}, once a
+    #: turn (Moggcatcher), not something it does as it resolves.
+    activate: bool = False
+    cost: ManaCost | None = None
 
 
 #: ``TutorSpec.upkeep``: an opponent controls three or more creatures.
@@ -265,6 +279,11 @@ class LandSearch:
             opponent assumed to take the offer.
         by_x: P19 R23: X lands (Open the Way); ``reveal``: off the top of the
             library rather than searched for.
+        lands_at_most: v34: Edge of Autumn - only while you control this many
+            lands or fewer. 0: however many.
+
+    ``when`` is also ``chapter2`` (v34): a Saga's second chapter, the turn
+    after it entered, after the draw step (Binding the Old Gods).
     """
 
     battlefield: int = 1
@@ -293,6 +312,7 @@ class LandSearch:
     tempting: int = 0
     by_x: bool = False
     reveal: bool = False
+    lands_at_most: int = 0
 
 
 @dataclass(frozen=True)
@@ -429,6 +449,9 @@ class Trigger:
         connive: Times the card connives (A.I.M. Scientists; card model PR
             19): draw a card, discard a card, and a +1/+1 counter on it if
             the discarded card was no land.
+        draw_by: v34: cards drawn by a count (`simulation.rules.amount.Amount`)
+            instead - Champion of Dusk's Vampires; ``lose_drawn``: as much
+            life lost.
     """
 
     event: str
@@ -441,6 +464,8 @@ class Trigger:
     life: int = 0
     counter: int = 0
     connive: int = 0
+    draw_by: Any = None
+    lose_drawn: bool = False
 
 
 @dataclass(frozen=True)

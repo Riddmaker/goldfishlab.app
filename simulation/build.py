@@ -16,6 +16,7 @@ storing; a card stored so still loads, through `MadeWith`.
 """
 
 from dataclasses import dataclass, fields
+from typing import Any
 
 from simulation.cards import (
     AdditionalCost,
@@ -75,6 +76,9 @@ class MadeWith:
     #: P19 R9: it draws X cards (Stroke of Genius, Blue Sun's Zenith), on
     #: top of ``draw_on_cast``.
     draws_x: bool = False
+    #: v34: a spell's cards drawn by a count, and as much life lost.
+    draw_by: Any = None
+    lose_drawn: bool = False
     #: P19 R13: a ritual whose mana counts the board when it resolves:
     #: ``creature`` (Battle Hymn) or ``tapped:<land type>`` (High Tide: each
     #: such land in this turn's pool, less the one that paid for it). P19

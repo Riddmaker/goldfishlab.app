@@ -371,12 +371,36 @@ _SEARCH_CLAUSE = re.compile(r"Search your library for", re.IGNORECASE)
 #: Sun's Zenith, Chord of Calling, Finale of Devastation (its graveyard is not
 #: searched: a goldfish's graveyard rarely holds the card, and the library
 #: alone can only under-read it), Whir of Invention, Natural Order.
+#: v34: an enchantment (Zur's search, were it not in combat), a subtype
+#: (Godo's Equipment, Moggcatcher's "Goblin permanent card"), "nonlegendary"
+#: (Woodland Bellower), and any permanent (Planar Bridge). ``after`` is what
+#: follows "onto the battlefield": nothing is played but nothing.
 _TO_BATTLEFIELD = re.compile(
-    r"Search your library(?: and/or graveyard)? for an? "
-    r"(?:(?P<color>white|blue|black|red|green) )?(?P<what>creature|artifact) card"
+    r"[Ss]earch your library(?: and/or graveyard)? for an? "
+    r"(?P<nonlegendary>nonlegendary )?(?:(?P<color>white|blue|black|red|green) )?"
+    r"(?:(?P<what>creature|artifact|enchantment|permanent)"
+    r"|(?P<sub>[A-Z][a-z]+)(?: (?P<of>permanent|creature))?) card"
     r"(?: with mana value (?P<mv>X|\d+) or less)?"
-    r"(?:,| and) put (?:it|that card) onto the battlefield",
-    re.IGNORECASE)
+    r"(?:,| and) put (?:it|that card) onto the battlefield(?P<after>[^.,]*)")
+#: v34: the subtypes a search onto the battlefield is not played for: an Aura
+#: or a Curse is attached as it arrives, and a land's is a land search.
+_NOT_TUTORED_SUBTYPES = frozenset({
+    "Aura", "Curse", "Gate", "Desert", "Cave", "Town", "Plains", "Island", "Swamp",
+    "Mountain", "Forest"})
+#: v34: what the card does with the card it found later on - Zirilan exiles
+#: its Dragon, Nahiri returns hers, Stonehewer Giant attaches its Equipment.
+_FOUND_UNDONE = re.compile(r"\b(?:[Ee]xile it|[Rr]eturn it|attach it)\b")
+#: v34: a spell copied or repeated, which the engine does not play:
+#: Dragonstorm's storm, Enduring Ideal's epic.
+_COPIED = re.compile(r"^(?:Storm|Epic)\b", re.MULTILINE)
+#: v34: the lead of a search as a creature enters, with the card's name as ~.
+_TUTOR_ENTERS = re.compile(
+    r"^when (?:this (?:creature|artifact|enchantment|permanent)|~) enters, "
+    r"(?:if you cast it, )?(?:you may )?$")
+#: v34: an ability that costs mana and {T} alone - Moggcatcher's "{3}, {T}: ",
+#: Planar Bridge's "{8}, {T}: ". Once a turn, and a creature's not the turn
+#: it arrived.
+_TUTOR_ACTIVATED = re.compile(r"^(?:(?P<cost>(?:\{(?:\d+|[wubrg])\})+), )?\{t\}: $")
 #: P19 R15: Eldritch Evolution - "a creature card with mana value X or less,
 #: where X is 2 plus the sacrificed creature's mana value. Put that card onto
 #: the battlefield".
@@ -384,12 +408,18 @@ _PLUS_SACRIFICED = re.compile(
     r"Search your library for a creature card with mana value X or less, where X is "
     r"(?P<n>\w+) plus the sacrificed creature's mana value\. Put that card onto the battlefield",
     re.IGNORECASE)
+#: v34: Neoform - "a creature card with mana value equal to 1 plus the
+#: sacrificed creature's mana value, put that card onto the battlefield",
+#: exactly that much. Its +1/+1 counter is not played.
+_EQUAL_SACRIFICED = re.compile(
+    r"^Search your library for a creature card with mana value equal to (?P<n>\w+) plus the "
+    r"sacrificed creature's mana value, put that card onto the battlefield", re.MULTILINE)
 _COLOR_LETTER = {"white": "W", "blue": "U", "black": "B", "red": "R", "green": "G"}
 #: P19 R12: Vampiric Tutor, Mystical Tutor, Worldly Tutor: "Search your library
 #: for a[n instant or sorcery] card, [reveal it, ]then shuffle and put that
 #: card on top." Its zone is in the text, not in a tag.
 _TO_TOP = re.compile(
-    r"Search your library for an? (?:(?P<what>[a-z]+(?: or [a-z]+)?) )?card, "
+    r"Search your library for an? (?P<basic>basic )?(?:(?P<what>[a-z]+(?: or [a-z]+)?) )?card, "
     r"(?:reveal it, )?then shuffle and put (?:that|the) card on top\.",
     re.IGNORECASE)
 _TOP_TYPES = frozenset({"artifact", "creature", "enchantment", "instant", "sorcery",
@@ -1771,6 +1801,9 @@ class ManaClause:
     sacrifices: dict | None = None
     #: P19 R15: {T} is part of the cost.
     taps: bool = False
+    #: v34: a planeswalker's "+1:" or "0:" - once a turn, as a tap; its
+    #: loyalty never falls.
+    loyalty: bool = False
     #: P19 R15: "Exile this card from your hand" is the cost (Elvish Spirit
     #: Guide): mana once, out of the hand.
     from_hand: bool = False
@@ -1885,6 +1918,13 @@ _TAP_ANOTHER = re.compile(
     r"Tap an untapped (?:(?P<filter>legendary|nontoken|white|blue|black|red|green) )?"
     r"(?:(?P<what>artifact or creature|creature|artifact|permanent)"
     r"|(?P<subtype>[A-Z][a-z]+)) you control")
+#: v34: a loyalty cost that adds loyalty or none.
+_LOYALTY_UP = re.compile(r"\+\d+|0")
+#: v34: tapping several at once - Heritage Druid's "Tap three untapped Elves
+#: you control", Supportive Parents' "two untapped creatures".
+_TAP_SEVERAL = re.compile(
+    r"Tap (?P<n>two|three|four|five) untapped (?:(?P<what>creatures)|(?P<subtype>[A-Z][a-z]+))"
+    r" you control")
 _MILL_A_CARD = re.compile(r"Mill a card", re.IGNORECASE)
 #: Urza's Construct: an artifact token the card makes as it enters, tapped
 #: for the card's own ability as any other artifact (P19 R19).
@@ -1925,11 +1965,21 @@ def _store_cost(part: str, card: OracleCard) -> dict | None:
     return None
 
 
-def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
-    """Split `{1}, {T}, Sacrifice this artifact` into what the engine can pay."""
+def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard, *,
+               front: bool = True) -> None:
+    """Split `{1}, {T}, Sacrifice this artifact` into what the engine can pay.
+
+    ``front``: the ability is on the face the card is cast as.
+    """
     for part in (piece.strip() for piece in cost_text.split(",")):
         if part == "{T}":
             clause.taps = True
+            continue
+        if _LOYALTY_UP.fullmatch(part) and front \
+                and "Planeswalker" in (card.type_line or "").split("//")[0]:
+            # v34: Chandra, Torch of Defiance's "+1: Add {R}{R}." - used each
+            # turn, never her other abilities. Not Arlinn's at night.
+            clause.taps = clause.loyalty = True
             continue
         if not part:
             continue
@@ -1961,6 +2011,16 @@ def _read_cost(clause: ManaClause, cost_text: str, card: OracleCard) -> None:
             # {W/B} or {G}: one mana of these colours goes in (P19 R6).
             clause.pays_with = "".join(sorted(set(found.group(1).upper()) - {"/"},
                                               key="WUBRG".index))
+            continue
+        if (found := _TAP_SEVERAL.fullmatch(part)) is not None and (
+                found.group("subtype") or "").lower().removesuffix("s") not in _NOT_CREATURE_TYPES:
+            # v34: one activation for each group of them - not The Cabbage
+            # Merchant's Foods.
+            subtype = found.group("subtype") or ""
+            clause.taps_other = {"types": ["creature"],
+                                 "filter": _TYPE_PLURALS.get(
+                                     subtype, subtype.lower().removesuffix("s")),
+                                 "per": _word_number(found.group("n"))}
             continue
         if (found := _TAP_ANOTHER.fullmatch(part)) is not None:
             # Springleaf Drum, Relic of Legends, Urza (P19 R19).
@@ -2076,8 +2136,11 @@ def _mana_clauses(card: OracleCard, *, is_spell: bool) -> list[ManaClause]:
     """Every `Add` in the card's own text - quoted, granted abilities removed."""
     found = []
     own = _GRANTED.sub("", card.oracle_text or "")
+    front = True
     for raw in own.split("\n"):
         line = raw.strip()
+        if line == "//":
+            front = False
         # Reminder text: a Watery Grave's mana ability is "({T}: Add {U} or {B}.)".
         if line.startswith("(") and line.endswith(")"):
             line = line[1:-1]
@@ -2086,7 +2149,7 @@ def _mana_clauses(card: OracleCard, *, is_spell: bool) -> list[ManaClause]:
             if ":" in before:
                 cost_text, _, prefix = before.rpartition(":")
                 clause = ManaClause(is_ability=True)
-                _read_cost(clause, _ABILITY_WORD.sub("", cost_text), card)
+                _read_cost(clause, _ABILITY_WORD.sub("", cost_text), card, front=front)
             else:
                 prefix = _ABILITY_WORD.sub("", before)
                 clause = ManaClause(is_ability=False)
@@ -2113,6 +2176,10 @@ def _mana_clauses(card: OracleCard, *, is_spell: bool) -> list[ManaClause]:
                 clause.store["once"] = True
             if not clause.problem and _RESTRICTED.search(after):
                 _restrict(clause, after, card)
+                if clause.loyalty and not clause.problem:
+                    # v34: Jaya Ballard, Sarkhan - not played yet.
+                    clause.problem = gettext_noop(
+                        "its mana is restricted to certain spells or moments")
             if not clause.problem and _NOT_FOR_GENERIC.search(after):
                 # Jegantha: mana the engine's pool would spend anywhere.
                 clause.problem = gettext_noop(
@@ -2370,7 +2437,8 @@ def _read_store(card: OracleCard, stores: list[ManaClause], notes: set) -> dict 
         store["empty"] = "dies"
     else:
         start = None
-        if (found := re.search(rf"enters (?:tapped )?with {_NUMBER_OR_X} {counter} counters? "
+        if (found := re.search(rf"enters (?:tapped (?:and )?)?with {_NUMBER_OR_X} {counter} "
+                               r"counters? "
                                r"on it(?P<each> for each (?:colou?r of mana spent|time it "
                                r"was kicked))?", text, re.IGNORECASE)) is not None:
             if found.group("each") and "kicked" in found.group("each"):
@@ -2637,23 +2705,17 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
     if len(_SEARCH_CLAUSE.findall(text)) > 1:
         return Tutor(reason=gettext_noop("searches the library more than once; not modelled"))
     found = _TO_BATTLEFIELD.search(text)
-    line_start = text.rfind("\n", 0, found.start()) + 1 if found else 0
-    if found is not None and ":" not in text[line_start:found.start()] and (
-            (found.group("mv") or "").upper() != "X" or "{X}" in (card.mana_cost or "")):
-        # Read whole off the text, so the tags' "battlefield" and "a mana value
-        # limit" (`tutor-mv`) are both answered, not unexpressible (P19 R10).
-        # Not an ability's search (Tezzeret's "-X:"): the engine plays what a
-        # card does as it is cast or enters, and X is the X of its own cost.
-        color = (found.group("color") or "").lower()
-        limit = found.group("mv")
-        return Tutor(zone="battlefield", count=1, kind=found.group("what").lower(),
-                     filter={"color": _COLOR_LETTER.get(color, ""),
-                             "max_mv": None if limit is None else
-                             ("X" if limit.upper() == "X" else int(limit))})
+    if found is not None and (read := _onto_battlefield(card, text, found)) is not None:
+        return read
     found = _PLUS_SACRIFICED.search(text)
     if found is not None and (plus := _word_number(found.group("n"))) is not None:
         return Tutor(zone="battlefield", count=1, kind="creature",
                      filter={"color": "", "max_mv": None, "plus_sacrificed": plus})
+    found = _EQUAL_SACRIFICED.search(text)
+    if found is not None and (plus := _word_number(found.group("n"))) is not None:
+        return Tutor(zone="battlefield", count=1, kind="creature",
+                     filter={"color": "", "max_mv": None, "plus_sacrificed": plus,
+                             "exact": True})
     found = _TO_TOP.search(text)
     line_start = text.rfind("\n", 0, found.start()) + 1 if found else 0
     if found is not None and ":" not in text[line_start:found.start()] \
@@ -2662,8 +2724,12 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
         # Grove's "{1}, Sacrifice: Search ...", an ability the engine does not
         # use, and not Insatiable Avarice's spree mode, whose {2} nobody pays.
         types = (found.group("what") or "").lower().split(" or ") if found.group("what") else []
-        if all(kind in _TOP_TYPES for kind in types):
-            return Tutor(zone="top", count=1, filter={"types": sorted(types)})
+        if all(kind in _TOP_TYPES for kind in types) and (
+                not found.group("basic") or types == ["land"]):
+            # v34: Embermouth Sentinel's basic land; with a Dragon it goes
+            # onto the battlefield instead, which is not played.
+            return Tutor(zone="top", count=1, filter={"types": sorted(types)}
+                         | ({"basic": True} if found.group("basic") else {}))
     if not _SEARCH_YOUR_LIBRARY.search(text) and _THEIR_LIBRARY.search(text):
         # Path to Exile: the search is the target's controller's, and the
         # target is an opponent's creature or land a goldfish does not have.
@@ -2714,6 +2780,64 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
     return Tutor(zone=zone, count=count, kind=kinds.pop() if kinds else "")
 
 
+def _onto_battlefield(card: OracleCard, text: str, found: re.Match) -> Tutor | None:
+    """One card straight onto the battlefield, read whole off the text (P19
+    R10, v34), or None for a search this does not read.
+
+    The tags' "battlefield" and "a mana value limit" (`tutor-mv`) are both
+    answered, not unexpressible. Played as a spell resolves, as the card
+    enters, or as an ability that costs mana and {T} alone (v34) - not in
+    combat (Zur), not as it dies (Academy Rector), not a planeswalker's
+    (Tezzeret's "-X:"). X is the X of the card's own cost.
+    """
+    sub = found.group("sub")
+    if sub in _NOT_TUTORED_SUBTYPES or found.group("after").strip() or _COPIED.search(text):
+        return None
+    line_start = text.rfind("\n", 0, found.start()) + 1
+    line_end = text.find("\n", found.end())
+    if _FOUND_UNDONE.search(text[found.end():line_end if line_end >= 0 else None]):
+        return None
+    name = card.front_name or card.name or ""
+    lead = text[line_start:found.start()]
+    for named in (name, name.split(",")[0]) if name else ():
+        # Its name, and a legendary card's short name: "When Godo enters".
+        lead = lead.replace(named, "~")
+    lead = lead.lower()
+    limit = found.group("mv")
+    if limit is not None and limit.upper() == "X" and "{X}" not in (card.mana_cost or ""):
+        return None
+    if _ADDITIONAL_COST.search(text):
+        additional = _additional_cost(card)
+        if additional.reason or (additional.ways is None and not additional.optional):
+            # Savage Order's creature with power 4 or greater: a cost the
+            # engine does not pay is no search it plays for free. Natural
+            # Order's green creature is paid.
+            return None
+    activated = _TUTOR_ACTIVATED.match(lead)
+    if lead and not _TUTOR_ENTERS.match(lead) and activated is None:
+        return None
+    what = (found.group("what") or "").lower()
+    if what == "permanent" and activated is None:
+        # Wargate, a permanent card for X: the engine's pick would be the
+        # best card there is, as it does not know what the deck plays it for.
+        return None
+    color = (found.group("color") or "").lower()
+    read = {"color": _COLOR_LETTER.get(color, ""),
+            "max_mv": None if limit is None else ("X" if limit.upper() == "X" else int(limit))}
+    if sub:
+        read["types"] = [sub.lower()]
+        what = "creature" if found.group("of") == "creature" else ""
+    elif what == "permanent":
+        read["permanent"], what = True, ""
+    if found.group("nonlegendary"):
+        read["nonlegendary"] = True
+    if activated is not None:
+        read["activated"] = True
+        if activated.group("cost"):
+            read["cost"] = activated.group("cost").upper()
+    return Tutor(zone="battlefield", count=1, kind=what, filter=read)
+
+
 def _special_tutor(text: str) -> Tutor | None:
     """The searches of one shape each, read whole off the text (P19 R23), or
     None: Demonic Counsel, Gifts Ungiven, Archdruid's Charm, Defense of the
@@ -2761,7 +2885,7 @@ _ALL_TO_BATTLEFIELD = re.compile(
 _ONE_EACH = re.compile(r"^one onto the battlefield tapped and the other into your hand$")
 _CAST = ""
 _ENTERS = re.compile(
-    r"^when (?:this|~) (?:creature|artifact|enchantment|permanent) enters, (?:you may )?$")
+    r"^when (?:this (?:creature|artifact|enchantment|permanent)|~) enters, (?:you may )?$")
 #: The New Capenna lands: "When this land enters, sacrifice it. When you do,
 #: search ..." - a fetch land in two sentences.
 _SACRIFICED_ON_ENTERING = re.compile(
@@ -2800,7 +2924,21 @@ _COMBAT_SEARCH = "searches for lands in combat, which the engine does not play"
 #: P19 R15: Springbloom Druid - "When this creature enters, you may sacrifice
 #: a land. If you do, search ...".
 _SACRIFICE_LAND_FIRST = re.compile(
-    r"When (?:this creature|~) enters, you may sacrifice a land\. If you do, search your library")
+    r"When (?:this (?:creature|Spacecraft)|~) enters, you may sacrifice a land(?: or Lander)?\. "
+    r"If you do, search your library")
+#: v34: a Saga's second chapter - the turn after it enters, after the draw
+#: step (Binding the Old Gods).
+_SECOND_CHAPTER = re.compile(r"^ii — (?:[^—]+ — )?$")
+#: v34: Sowing Mycospawn's "When you cast this spell, search ...", and a
+#: Room's "When you unlock this door" - unlocked as it is cast.
+_AS_CAST = re.compile(r"^when you cast this spell, (?:you may )?$")
+_UNLOCKED = re.compile(r"^when you unlock this door, (?:you may )?$")
+#: v34: Edge of Autumn - "If you control four or fewer lands, search ...".
+_FEW_LANDS = re.compile(r"^if you control (?P<n>\w+) or fewer lands, (?:you may )?$")
+#: v34: an ability word before a spell's search (Exploding Borders' "Domain —").
+_ABILITY_WORD_LEAD = re.compile(r"^(?!(?:i|ii|iii|iv|v|vi)\b)[a-z' ]+ — ")
+#: v34: the searches named for what they are rather than a condition.
+_DIES_LEAD = re.compile(r"\bdies\b|put into a graveyard from the battlefield")
 #: Krosan Verge: "a Forest card and a Plains card".
 _ONE_OF_EACH = re.compile(r"^(\w+) card and an? (\w+)$")
 #: P19 R23: Keeper of the Accord - in each opponent's end step.
@@ -2928,6 +3066,109 @@ def _draw(text: str) -> Draw:
     return draw
 
 
+#: v34: cards drawn by a count - "you draw X cards and you lose X life, where
+#: X is ...", "Draw cards equal to ...". Not a target player's (Monumental
+#: Corruption): a goldfish's target would be its own, which the engine does
+#: not ask.
+_DRAW_X_LOSE = re.compile(
+    r"^(?:When (?P<enters>[^,]+) enters, )?(?:You )?draws? X cards and (?:you )?lose X life, "
+    r"where X is (?P<x>[^.]+)\.$", re.IGNORECASE | re.MULTILINE)
+_GAIN_AND_DRAW_X = re.compile(
+    r"^You gain X life and draw X cards, where X is (?P<x>[^.]+)\.", re.MULTILINE)
+_DRAW_EQUAL = re.compile(
+    r"^(?:When (?P<enters>[^,]+) enters, )?(?:You )?[Dd]raw cards equal to "
+    r"(?P<x>[^.,]+?(?:, rounded down)?)"
+    r"(?P<then>, then [^.]+)?\.", re.MULTILINE)
+#: A rider on the draw that only under-reads it: Momentous Fall's life.
+_HARMLESS_THEN = re.compile(r"^, then you gain life equal to its toughness$")
+_COUNTED_TYPES = {"creatures": ("creatures", {}), "artifacts": ("battlefield", {
+    "types": ["artifact"]}), "permanents": ("battlefield", {"types": ["permanent"]})}
+_COUNTED_X = re.compile(
+    r"^(?P<half>half )?the number of (?P<what>[A-Za-z]+) you control(?P<down>, rounded down)?$")
+_GRAVEYARD_X = re.compile(
+    r"^the number of instant and sorcery cards in your graveyard$")
+_GREATEST_X = re.compile(
+    r"^the (?:greatest|highest) (?P<stat>power|toughness|mana value) among "
+    r"(?P<what>creatures|artifacts|permanents) you control$")
+_SACRIFICED_X = re.compile(
+    r"^(?:the sacrificed creature's (?P<power>power)|the mana value of the sacrificed "
+    r"(?:creature|permanent|artifact))$")
+_DEVOTION_X = re.compile(r"^your devotion to (?P<color>white|blue|black|red|green)$")
+
+
+def _draw_amount(x: str) -> dict | None:
+    """"the number of Vampires you control" as a stored amount, or None."""
+    x = x.strip()
+    if (found := _COUNTED_X.match(x)) is not None and bool(found.group("half")) == bool(
+            found.group("down")):
+        what = found.group("what")
+        if what in _COUNTED_TYPES:
+            zone, selector = _COUNTED_TYPES[what]
+        elif what[0].isupper():
+            singular = _TYPE_PLURALS.get(what, what.lower().removesuffix("s"))
+            if singular in _NOT_CREATURE_TYPES:
+                return None
+            zone, selector = "creatures", {"creature_types": [singular]}
+        else:
+            return None
+        return {"kind": "count", "zone": zone, **selector,
+                **({"half": True} if found.group("half") else {})}
+    if _GRAVEYARD_X.match(x):
+        return {"kind": "count", "zone": "graveyard", "types": ["instant", "sorcery"]}
+    if (found := _GREATEST_X.match(x)) is not None:
+        stat, what = found.group("stat"), found.group("what")
+        if stat == "mana value":
+            return {"kind": "stat", "stat": "mv:greatest",
+                    "types": ["permanent" if what == "permanents" else what[:-1]]}
+        return {"kind": "stat", "stat": f"{stat}:greatest"} if what == "creatures" else None
+    if (found := _SACRIFICED_X.match(x)) is not None:
+        return {"kind": "stat", "stat": "sacrificed:power" if found.group("power")
+                else "sacrificed:mv"}
+    if (found := _DEVOTION_X.match(x)) is not None:
+        return {"kind": "devotion", "color": _COLOR_LETTER[found.group("color")]}
+    if x == "the number of opponents you have":
+        return {"kind": "fixed", "n": PLAYERS - 1}
+    return None
+
+
+def _counted_draw(card: OracleCard, kind: str) -> tuple[dict | None, bool]:
+    """Cards drawn by a count (v34): ``({"amount", "lose"}, more)``, ``more``
+    when the spell also does what the engine does not play (Rishkar's
+    Expertise's free spell). ``(None, False)`` when there is none."""
+    text = _REMINDER.sub("", card.oracle_text or "")
+    found = _DRAW_X_LOSE.search(text) or _GAIN_AND_DRAW_X.search(text) or _DRAW_EQUAL.search(text)
+    if found is None:
+        return None, False
+    spell = kind in (DerivedProfile.Kind.SORCERY, DerivedProfile.Kind.INSTANT)
+    enters = found.groupdict().get("enters")
+    name = card.front_name or card.name or ""
+    if enters is None and not spell:
+        return None, False
+    if enters is not None and (spell or not (
+            enters.startswith("this ") or enters in (name, name.split(",")[0]))):
+        return None, False
+    amount = _draw_amount(found.group("x"))
+    if amount is None:
+        return None, False
+    reading = {"amount": amount, "lose": found.re is _DRAW_X_LOSE}
+    if not spell:
+        return reading, False
+    line_start = text.rfind("\n", 0, found.start()) + 1
+    line_end = text.find("\n", found.end())
+    line_end = len(text) if line_end < 0 else line_end
+    others = [line for line in (text[:line_start] + text[line_end:]).split("\n")
+              if line.strip() and not line.startswith(_DRAW_BOILERPLATE)]
+    then = found.groupdict().get("then") or ""
+    more = bool(others) or bool(text[found.end():line_end].strip()) or bool(
+        text[line_start:found.start()].strip()) or bool(then and not _HARMLESS_THEN.match(then))
+    return reading, more
+
+
+#: Lines beside a counted draw that change nothing the engine plays.
+_DRAW_BOILERPLATE = ("As an additional cost to cast this spell",
+                     "This spell can't be countered")
+
+
 def _land_search(card: OracleCard, kind: str) -> LandSearch:
     """Read a search that puts lands onto the battlefield, or say why not.
 
@@ -2977,19 +3218,37 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
         return LandSearch(reason=gettext_noop(
             "searches for lands, but where they go could not be read"))
 
-    lead = match.group("lead").strip().lower()
+    lead = match.group("lead").strip()
+    name = card.front_name or card.name or ""
+    for named in (name, name.split(",")[0]) if name else ():
+        # v34: "When Casal enters".
+        lead = lead.replace(named, "~")
+    lead = lead.lower()
     lead = f"{lead} " if lead else ""
+    spell = kind in (DerivedProfile.Kind.SORCERY, DerivedProfile.Kind.INSTANT)
+    if spell and len(re.findall(r"^[A-Z][\w' ]+ — ", text, re.MULTILINE)) == 1:
+        # Not Team Acceleration, whose two "Team ... —" lines are a choice.
+        lead = _ABILITY_WORD_LEAD.sub("", lead)
     life, sacrifice = 0, False
     cost, taps, condition = "", False, ""
+    lands_at_most = 0
     sacrifices_land, land_cost_types, sacrifice_other, discard = False, [], [], 0
     tapping = _creature_tap(lead) if kind == DerivedProfile.Kind.CREATURE else None
-    spell = kind in (DerivedProfile.Kind.SORCERY, DerivedProfile.Kind.INSTANT)
     activated = _ACTIVATED.match(lead)
+    few = _FEW_LANDS.match(lead)
     if not lead and spell:
         when = "cast"
-    elif _ENTERS.match(lead) or _FIRST_CHAPTER.match(lead) or _ENTERS_OR_ATTACKS.match(lead):
+    elif few is not None and spell and _word_number(few.group("n")):
+        # v34: Edge of Autumn.
+        when, lands_at_most = "cast", _word_number(few.group("n"))
+    elif _ENTERS.match(lead) or _FIRST_CHAPTER.match(lead) or _ENTERS_OR_ATTACKS.match(lead) \
+            or _UNLOCKED.match(lead):
         # P19 R22: Primeval Herald's attack is `_combat`'s.
         when = "enters"
+    elif _AS_CAST.match(lead):
+        when = "cast"
+    elif _SECOND_CHAPTER.match(lead):
+        when = "chapter2"
     elif _ENTERS_IF_BEHIND.match(lead):
         when, condition = "enters", "opponent_more_lands"
     elif _OPPONENT_END_IF_BEHIND.match(lead):
@@ -3026,6 +3285,16 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
     elif _IN_COMBAT.search(lead):
         return LandSearch(reason=gettext_noop(
             "searches for lands in combat, which the engine does not play"))
+    elif not lead and 0 <= text.find("\n//\n") < match.start():
+        # v34: Beanstalk Giant's Fertile Footsteps.
+        return LandSearch(reason=gettext_noop(
+            "searches for lands on the card's other face, which the engine does not cast"))
+    elif lead.startswith("• "):
+        return LandSearch(reason=gettext_noop(
+            "searches for lands in one mode of a modal spell, which the engine does not play"))
+    elif _DIES_LEAD.search(lead):
+        return LandSearch(reason=gettext_noop(
+            "searches for lands as a card dies, which the engine does not play"))
     else:
         return LandSearch(reason=gettext_noop(
             "searches for lands under a condition the engine cannot read"))
@@ -3045,7 +3314,7 @@ def _land_search(card: OracleCard, kind: str) -> LandSearch:
         share_type=bool(match.group("share")), each=each is not None and bool(types),
         condition=condition, sacrifices_land=sacrifices_land,
         land_cost_types=land_cost_types, sacrifice_other=sacrifice_other,
-        discard=discard, **extra,
+        discard=discard, **extra, **({"lands_at_most": lands_at_most} if lands_at_most else {}),
     ))
 
 
@@ -3167,6 +3436,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     # a draw, a gift's the opponent's. Read as the spell's own, each was a
     # free card every time it was cast (card model phase 1).
     draw = _draw(_REMINDER.sub("", text))
+    draw_by, draw_more = (None, False) if draw.cards is not None or (
+        draw.x and cost.has_x) else _counted_draw(card, kind)
     amount = mana.amount
     if mana.one_shot and kind in (DerivedProfile.Kind.ARTIFACT, DerivedProfile.Kind.ROCK):
         # Lotus Petal: "{T}, Sacrifice this artifact: Add one mana of any
@@ -3238,6 +3509,8 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
     # Since engine version 13 an X is paid (P19 R9): all that is left, last
     # in the main phase. What X then does is a gap only where it feeds
     # something the engine plays and cannot read yet.
+    if draw_more:
+        reasons.append(gettext_noop("draws, and does more that the engine does not play"))
     if cost.has_x and draw.x_unread:
         reasons.append(gettext_noop("draws or discards by X in a way that is not modelled"))
     if cost.has_x and _X_LANDS.search(text) and not (land.spec or {}).get("by_x"):
@@ -3284,6 +3557,7 @@ def derive(card: OracleCard, tag_slugs: set[str] | None = None, *,
         puts_back=draw.puts_back,
         # Only a cost with X says what X is; Painful Truths counts colours.
         draws_x=draw.x and cost.has_x,
+        draw_by=draw_by,
         extra_cost=draw.extra_cost,
         self_life_loss=_first_number(_SELF_LOSS, text),
         opponent_life_loss=opponent_loss,
@@ -3338,6 +3612,7 @@ def _source_map(tags: set[str], tapped: bool, mana: ManaReading,
         "discards_after": REGEX,
         "puts_back": REGEX,
         "draws_x": REGEX,
+        "draw_by": REGEX,
         "self_life_loss": REGEX,
         "opponent_life_loss": REGEX,
     }

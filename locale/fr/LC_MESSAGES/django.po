@@ -13808,3 +13808,114 @@ msgstr ""
 "créature qu'elle enchante, comme celles de Wrenn and Realmbreaker ou de "
 "Karametra's Favor, produisent maintenant du mana. Un rapport fait avec un "
 "moteur plus ancien l'indique et propose une nouvelle simulation."
+
+#: cards/profiles.py
+msgid "draws, and does more that the engine does not play"
+msgstr "pioche, et fait davantage que le moteur ne joue pas"
+
+#: cards/profiles.py
+msgid ""
+"searches for lands on the card's other face, which the engine does not cast"
+msgstr ""
+"cherche des terrains sur l'autre face de la carte, que le moteur ne lance "
+"pas"
+
+#: cards/profiles.py
+msgid ""
+"searches for lands in one mode of a modal spell, which the engine does not "
+"play"
+msgstr ""
+"cherche des terrains dans un mode d'un sort modal, que le moteur ne joue pas"
+
+#: cards/profiles.py
+msgid "searches for lands as a card dies, which the engine does not play"
+msgstr ""
+"cherche des terrains quand une carte meurt, ce que le moteur ne joue pas"
+
+#: playtest/views.py
+msgid "Search activated"
+msgstr "Recherche activée"
+
+#: simulations/editor.py
+#, python-format
+msgid "tap %(per)s %(what)s at once: %(amount)s mana"
+msgstr "engager %(per)s %(what)s à la fois : %(amount)s mana"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(search)s, if you control %(count)s lands or fewer"
+msgstr "%(search)s, si vous contrôlez %(count)s terrains ou moins"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "on its second chapter, the turn after it enters: %(search)s"
+msgstr "à son deuxième chapitre, le tour après son arrivée : %(search)s"
+
+#: simulations/engine/adapter.py
+msgid ""
+"uses its loyalty ability for mana each turn from the turn after it arrives, "
+"and never its other abilities"
+msgstr ""
+"utilise sa capacité de loyauté pour du mana à chaque tour à partir du tour "
+"après son arrivée, et jamais ses autres capacités"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, not legendary"
+msgstr "%(what)s, non légendaire"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, any permanent"
+msgstr "%(what)s, n'importe quel permanent"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid ""
+"%(what)s with mana value exactly %(plus)s more than the creature sacrificed"
+msgstr ""
+"%(what)s de valeur de mana exactement %(plus)s de plus que la créature "
+"sacrifiée"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(cost)s and {T}, once a turn: %(search)s"
+msgstr "%(cost)s et {T}, une fois par tour : %(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "{T}, once a turn: %(search)s"
+msgstr "{T}, une fois par tour : %(search)s"
+
+#: simulations/engine/adapter.py
+#, python-format
+msgid "%(what)s, basic"
+msgstr "%(what)s, de base"
+
+#: changelog/entries.py
+msgid "More searches, planeswalker mana and draws that count"
+msgstr ""
+"Plus de recherches, le mana des planeswalkers et des pioches qui comptent"
+
+#: changelog/entries.py
+msgid ""
+"Cards that search for a creature or a permanent and put it onto the "
+"battlefield, such as Ramosian Sergeant, Captain America, Liberator or "
+"Neoform, now find it. A planeswalker that adds mana for loyalty, such as "
+"Chandra, Torch of Defiance, makes it each turn from the turn after it "
+"arrives, and Heritage Druid taps three Elves at once. Binding the Old Gods "
+"finds its Forest on its second chapter, Edge of Autumn only with four lands "
+"or fewer. Spells and creatures that draw by a count, such as Champion of "
+"Dusk or Minions' Murmurs, now draw that many. A report made with an older "
+"engine says so and offers a new run."
+msgstr ""
+"Les cartes qui cherchent une créature ou un permanent et le mettent sur le "
+"champ de bataille, comme Ramosian Sergeant, Captain America, Liberator ou "
+"Neoform, le trouvent désormais. Un planeswalker qui ajoute du mana pour de "
+"la loyauté, comme Chandra, Torch of Defiance, le produit à chaque tour à "
+"partir du tour après son arrivée, et Heritage Druid engage trois Elfes à la "
+"fois. Binding the Old Gods trouve sa Forêt à son deuxième chapitre, Edge of "
+"Autumn seulement avec quatre terrains ou moins. Les sorts et créatures qui "
+"piochent selon un compte, comme Champion of Dusk ou Minions' Murmurs, "
+"piochent désormais autant de cartes. Un rapport fait avec un moteur plus "
+"ancien le signale et propose une nouvelle simulation."

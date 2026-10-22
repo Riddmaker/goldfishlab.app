@@ -42,6 +42,8 @@ from simulation.fixtures import chainer
 from simulation.game import Game
 from simulation.manacost import Hybrid, ManaCost
 from simulation.rules import mana, play
+from simulation.rules.amount import Amount
+from simulation.rules.selector import Selector
 from simulation.trace import named
 from tests.engine_builders import hold, marks
 
@@ -92,6 +94,9 @@ RULES = {
     "discard_on_cast": 2,
     "put_back_on_cast": 2,
     "draws_x": True,
+    "draw_by": Amount("count", zone="creatures",
+                      selector=Selector(creature_types=frozenset({"vampire"})), half=True),
+    "lose_drawn": True,
     "ritual_counts": "tapped:island",
     "additional_costs": (AdditionalCost(sacrifice=frozenset({"artifact", "creature"}),
                                      sacrifice_filter="G", life=3, life_x=True, discard=1,

@@ -95,7 +95,7 @@ def test_an_enchantment_fetches_when_it_enters():
     # An opponent's creature dying: a goldfish has no opponent. (Their lands
     # are an assumption since P19 R14 - Knight of the White Orchid.)
     ("Whenever a creature an opponent controls dies, you may search your library for a "
-     "Plains card, put it onto the battlefield, then shuffle.", Kind.CREATURE, "condition"),
+     "Plains card, put it onto the battlefield, then shuffle.", Kind.CREATURE, "dies"),
     # A cost nothing pays: a card exiled from the graveyard (a creature's {T}
     # is played since P19 R15 - Wight of the Reliquary).
     ("{T}, Exile a Treefolk card from your graveyard: Search your library for up to two "

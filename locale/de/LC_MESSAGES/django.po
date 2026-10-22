@@ -3713,17 +3713,6 @@ msgstr ""
 
 #: templates/core/methodology.html
 msgid ""
-"<strong>Combat.</strong> Nothing attacks or blocks, so nobody takes combat "
-"damage and no creature dies. Your own life still moves: Necropotence, Dark "
-"Confidant and Phyrexian mana are paid for."
-msgstr ""
-"<strong>Kampf.</strong> Nichts greift an oder blockt, also nimmt niemand "
-"Kampfschaden und keine Kreatur stirbt. Dein eigenes Leben ändert sich "
-"trotzdem: Necropotence, Dark Confidant und phyrexianisches Mana werden "
-"bezahlt."
-
-#: templates/core/methodology.html
-msgid ""
 "<strong>Printed keywords.</strong> Flying, deathtouch and trample are shown "
 "on a card because a person reads them. They change no number here, and we "
 "never count them as if they did."
@@ -4022,28 +4011,6 @@ msgstr ""
 "dreißig von hundert Karten. Eine Lücke dort ist <em>unsere</em> – eine "
 "Karte, deren Text wir nicht in Verhalten übersetzen konnten –, und das "
 "Ergebnis listet jede einzelne auf."
-
-#: templates/core/methodology.html
-msgid ""
-"What it counts is only that. When several spells are affordable, the engine "
-"casts the <strong>cheapest first</strong> — its own rule, not a reading of "
-"your deck's plan, with a built-in order for a few dozen well-known cards "
-"such as rituals and fast mana. We used to ask for a casting order card by "
-"card and scored decks on how much of it had been given; on the deck we "
-"measured, <strong>161 of 217 gaps were that question</strong>, so the score "
-"mostly reported how much hand-annotation a deck had received. We stopped "
-"asking: this is a tool for statistics about a deck, not for steering a game."
-msgstr ""
-"Gezählt wird nur das. Wenn mehrere Zauber bezahlbar sind, wirkt die Engine "
-"den <strong>günstigsten zuerst</strong> – ihre eigene Regel, keine Lesart "
-"des Plans deines Decks, mit einer eingebauten Reihenfolge für ein paar "
-"Dutzend bekannte Karten wie Rituale und Fast Mana. Früher haben wir Karte "
-"für Karte nach einer Wirkreihenfolge gefragt und Decks danach bewertet, wie "
-"viel davon angegeben war; bei dem Deck, das wir gemessen haben, "
-"<strong>waren 161 von 217 Lücken diese Frage</strong>, der Wert zeigte also "
-"vor allem, wie viel Handarbeit in ein Deck gesteckt worden war. Wir fragen "
-"nicht mehr: Das ist ein Werkzeug für Statistiken über ein Deck, nicht zum "
-"Steuern eines Spiels."
 
 #: templates/core/methodology.html
 msgid ""
@@ -13796,3 +13763,241 @@ msgstr ""
 "Anzahl ziehen, wie Champion of Dusk oder Minions' Murmurs, ziehen jetzt so "
 "viele Karten. Ein Report, der mit einer älteren Engine erstellt wurde, sagt "
 "das und bietet einen neuen Lauf an."
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Combat, beyond its triggers.</strong> Every creature that can attack"
+" does, each turn, so that what it does as it attacks or deals combat damage "
+"to a player is played. Nothing blocks, no damage is added up and no creature"
+" dies. Your own life still moves: Necropotence, Dark Confidant and Phyrexian"
+" mana are paid for."
+msgstr ""
+"<strong>Kampf, abgesehen von seinen Auslösern.</strong> Jede Kreatur, die "
+"angreifen kann, greift jeden Zug an, damit gespielt wird, was sie beim "
+"Angreifen oder beim Zufügen von Kampfschaden an einen Spieler tut. Nichts "
+"blockt, kein Schaden wird zusammengezählt und keine Kreatur stirbt. Dein "
+"eigenes Leben ändert sich trotzdem: Necropotence, Dark Confidant und "
+"phyrexianisches Mana werden bezahlt."
+
+#: templates/core/methodology.html
+msgid ""
+"Where a card asks about the opponents, the engine assumes a table of "
+"<strong>three</strong>: each plays a land in each of their turns, and from "
+"turn 4 an opponent controls three creatures. That is enough for a card that "
+"checks it - Claim Jumper, Keeper of the Accord, Defense of the Heart - and "
+"it is all we assume about them."
+msgstr ""
+"Wo eine Karte nach den Gegnern fragt, nimmt die Engine einen Tisch mit "
+"<strong>drei</strong> an: Jeder spielt in jedem seiner Züge ein Land, und ab"
+" Zug 4 kontrolliert ein Gegner drei Kreaturen. Das reicht für eine Karte, "
+"die das prüft - Claim Jumper, Keeper of the Accord, Defense of the Heart - "
+"und mehr nehmen wir über sie nicht an."
+
+#: templates/core/methodology.html
+msgid ""
+"What it counts is only that. When several spells are affordable, the engine "
+"casts the <strong>cheapest first</strong> — its own rule, not a reading of "
+"your deck's plan, with a built-in order for a few dozen well-known cards "
+"such as rituals and fast mana. Your <strong>commander comes before all of "
+"them but fast mana and a few staples</strong>, as soon as it can be paid, "
+"because that is how a Commander deck is played; what is left that turn is "
+"still spent. We used to ask for a casting order card by card and scored "
+"decks on how much of it had been given; on the deck we measured, <strong>161"
+" of 217 gaps were that question</strong>, so the score mostly reported how "
+"much hand-annotation a deck had received. We stopped asking: this is a tool "
+"for statistics about a deck, not for steering a game."
+msgstr ""
+"Gezählt wird nur das. Wenn mehrere Zauber bezahlbar sind, wirkt die Engine "
+"den <strong>günstigsten zuerst</strong> – ihre eigene Regel, keine Lesart "
+"des Plans deines Decks, mit einer eingebauten Reihenfolge für ein paar "
+"Dutzend bekannte Karten wie Rituale und Fast Mana. Dein <strong>Commander "
+"kommt vor allen außer Fast Mana und ein paar Standardkarten</strong>, sobald"
+" er bezahlbar ist, denn so wird ein Commander-Deck gespielt; was in diesem "
+"Zug übrig bleibt, wird trotzdem ausgegeben. Früher haben wir Karte für Karte"
+" nach einer Wirkreihenfolge gefragt und Decks danach bewertet, wie viel "
+"davon angegeben war; bei dem Deck, das wir gemessen haben, <strong>waren 161"
+" von 217 Lücken diese Frage</strong>, der Wert zeigte also vor allem, wie "
+"viel Handarbeit in ein Deck gesteckt worden war. Wir fragen nicht mehr: Das "
+"ist ein Werkzeug für Statistiken über ein Deck, nicht zum Steuern eines "
+"Spiels."
+
+#: changelog/entries.py
+msgid "Your commander comes down as soon as it can be paid"
+msgstr "Dein Commander kommt, sobald er bezahlbar ist"
+
+#: changelog/entries.py
+msgid ""
+"Until now the engine cast the cheapest spell in hand first, and your "
+"commander waited behind every one of them: in many decks it was out by turn "
+"4 in only a few games of a hundred. It is now cast as soon as it can be "
+"paid, after fast mana such as Sol Ring and a few staples, and whatever mana "
+"is left that turn is still spent. The methodology page also says now what "
+"the engine assumes about combat and the opponents. A report made with an "
+"older engine says so and offers a new run."
+msgstr ""
+"Bisher wirkte die Engine zuerst den günstigsten Zauber auf der Hand, und "
+"dein Commander wartete hinter jedem davon: In vielen Decks war er bis Zug 4 "
+"nur in wenigen von hundert Spielen draußen. Jetzt wird er gewirkt, sobald er"
+" bezahlbar ist, nach Fast Mana wie Sol Ring und ein paar Standardkarten, und"
+" was in diesem Zug an Mana übrig bleibt, wird trotzdem ausgegeben. Die "
+"Methodik-Seite sagt jetzt auch, was die Engine über den Kampf und die Gegner"
+" annimmt. Ein Report, der mit einer älteren Engine erstellt wurde, sagt das "
+"und bietet einen neuen Lauf an."
+
+#: simulations/report.py
+msgid "Your commander is removed"
+msgstr "Dein Commander wird entfernt"
+
+#: simulations/report.py
+msgid ""
+"An opponent destroys your commander once, in their turns right after it "
+"first comes down. It goes back to the command zone and costs two more."
+msgstr ""
+"Ein Gegner zerstört deinen Commander einmal, in seinen Zügen direkt nachdem "
+"er zum ersten Mal ins Spiel kam. Er geht zurück in die Command Zone und "
+"kostet zwei mehr."
+
+#: simulations/report.py
+msgid "A board wipe before turn 5"
+msgstr "Ein Board Wipe vor Zug 5"
+
+#: simulations/report.py
+msgid ""
+"Every creature dies in the opponents' turns after your turn 4: tokens, mana "
+"creatures and your commander too. Artifacts, enchantments and lands stay."
+msgstr ""
+"Jede Kreatur stirbt in den Zügen der Gegner nach deinem Zug 4: auch Token, "
+"Mana-Kreaturen und dein Commander. Artefakte, Verzauberungen und Länder "
+"bleiben."
+
+#: simulations/report.py
+msgid ""
+"A wipe before turn 5 needs a run of six turns or more to show what follows "
+"it."
+msgstr ""
+"Ein Wipe vor Zug 5 braucht einen Lauf von sechs oder mehr Zügen, um zu "
+"zeigen, was danach kommt."
+
+#: simulations/report.py
+msgid "Your commander never came down early enough to be removed."
+msgstr "Dein Commander kam nie früh genug ins Spiel, um entfernt zu werden."
+
+#: simulations/report.py
+msgid "Average mana"
+msgstr "Mana im Schnitt"
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"It was back the next turn in %(next)s of games, and by turn %(turn)s in "
+"%(by)s."
+msgstr ""
+"Er war in %(next)s der Spiele im nächsten Zug zurück und bis Zug %(turn)s in"
+" %(by)s."
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"After the wipe you had %(hit)s mana on turn %(turn)s instead of %(base)s."
+msgstr "Nach dem Wipe hattest du in Zug %(turn)s %(hit)s Mana statt %(base)s."
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"Where your commander was out, it was back by turn %(turn)s in %(by)s of "
+"games."
+msgstr ""
+"Wo dein Commander draußen war, war er in %(by)s der Spiele bis Zug %(turn)s "
+"zurück."
+
+#: templates/simulations/_report.html
+msgid "Stress test: when the table strikes back"
+msgstr "Stresstest: wenn der Tisch zurückschlägt"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"The same games, once as they went and once with the table striking back, "
+"side by side on turn %(turn)s. An assumption, said beside each, not a "
+"measurement of real tables."
+msgstr ""
+"Dieselben Spiele, einmal wie sie liefen und einmal mit einem Tisch, der "
+"zurückschlägt, nebeneinander in Zug %(turn)s. Eine Annahme, die jeweils "
+"dabeisteht, keine Messung echter Tische."
+
+#: templates/simulations/_report.html
+msgid "Without"
+msgstr "Ohne"
+
+#: templates/simulations/_report.html
+msgid "With"
+msgstr "Mit"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "Measured in %(games)s game."
+msgid_plural "Measured in %(games)s games."
+msgstr[0] "Gemessen in %(games)s Spiel."
+msgstr[1] "Gemessen in %(games)s Spielen."
+
+#: templates/core/methodology.html
+msgid "Stress test"
+msgstr "Stresstest"
+
+#: templates/core/methodology.html
+msgid ""
+"A goldfish meets no opponent, so the report adds two moments when the table "
+"strikes back: your commander destroyed once, in the opponents' turns right "
+"after it first comes down, and every creature destroyed before your turn 5. "
+"Each is played on a copy of the game taken at that moment, so the game with "
+"it and the game without it are the same game until then, and the difference "
+"is the disruption alone. The rest of the report is untouched by it."
+msgstr ""
+"Ein Goldfish trifft auf keinen Gegner, darum fügt der Report zwei Momente "
+"hinzu, in denen der Tisch zurückschlägt: dein Commander wird einmal "
+"zerstört, in den Zügen der Gegner direkt nachdem er zum ersten Mal ins Spiel"
+" kam, und jede Kreatur wird vor deinem Zug 5 zerstört. Beides wird auf einer"
+" Kopie des Spiels in genau diesem Moment gespielt, sodass das Spiel mit und "
+"ohne die Störung bis dahin dasselbe Spiel ist und der Unterschied allein von"
+" der Störung kommt. Der Rest des Reports bleibt davon unberührt."
+
+#: templates/core/methodology.html
+msgid ""
+"Both are assumptions, named as such: nobody has published when real tables "
+"remove a commander or cast a wipe, so we do not pretend to know. A destroyed"
+" commander goes back to the command zone and costs two more; a wipe takes "
+"tokens and mana creatures too, while artifacts, enchantments and lands stay."
+" Indestructible and regeneration are not played. The stress test runs in the"
+" first 2,000 games of a run, and the wipe only in runs of six turns or more."
+msgstr ""
+"Beides sind Annahmen, als solche benannt: Niemand hat veröffentlicht, wann "
+"echte Tische einen Commander entfernen oder einen Wipe spielen, also tun wir"
+" nicht so, als wüssten wir es. Ein zerstörter Commander geht zurück in die "
+"Command Zone und kostet zwei mehr; ein Wipe nimmt auch Token und Mana-"
+"Kreaturen mit, während Artefakte, Verzauberungen und Länder bleiben. "
+"Unzerstörbarkeit und Regeneration werden nicht gespielt. Der Stresstest "
+"läuft in den ersten 2.000 Spielen eines Laufs, der Wipe nur in Läufen von "
+"sechs oder mehr Zügen."
+
+#: changelog/entries.py
+msgid "A stress test: your commander removed, a board wipe"
+msgstr "Ein Stresstest: dein Commander entfernt, ein Board Wipe"
+
+#: changelog/entries.py
+msgid ""
+"Every new report now shows what happens when the table strikes back: your "
+"commander destroyed once, right after it first comes down, and a board wipe "
+"before turn 5. The same games are played with and without each, and the "
+"report compares the last turn - mana, your commander, the milestones - and "
+"says how soon your commander was back. Both are named assumptions, not "
+"measurements of real tables; the methodology page says what they assume. A "
+"report made with an older engine says so and offers a new run."
+msgstr ""
+"Jeder neue Report zeigt jetzt, was passiert, wenn der Tisch zurückschlägt: "
+"dein Commander wird einmal zerstört, direkt nachdem er zum ersten Mal ins "
+"Spiel kam, und ein Board Wipe kommt vor Zug 5. Dieselben Spiele werden mit "
+"und ohne beides gespielt, und der Report vergleicht den letzten Zug - Mana, "
+"deinen Commander, die Meilensteine - und sagt, wie schnell dein Commander "
+"zurück war. Beides sind benannte Annahmen, keine Messungen echter Tische; "
+"die Methodik-Seite sagt, was sie annehmen. Ein Report, der mit einer älteren"
+" Engine erstellt wurde, sagt das und bietet einen neuen Lauf an."

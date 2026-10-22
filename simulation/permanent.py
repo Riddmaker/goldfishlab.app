@@ -25,6 +25,7 @@ so reading it costs what reading a list costs, and every way of changing it
 **Nothing here imports Django**, like the rest of :mod:`simulation`.
 """
 
+import copy
 from collections import Counter
 
 
@@ -76,6 +77,17 @@ class Zone(list):
         self._game.where[id(card)] = permanent
         self._game.pid_names[permanent.pid] = card.name
         return permanent
+
+    def __deepcopy__(self, memo):
+        """A copy of the game's zone for a copy of the game (the stress test):
+        the same cards and copies of their permanents, numbers kept - never
+        new ones, as `append` would give."""
+        copied = Zone.__new__(Zone)
+        memo[id(self)] = copied
+        list.extend(copied, self)
+        copied._game = copy.deepcopy(self._game, memo)
+        copied.permanents = copy.deepcopy(self.permanents, memo)
+        return copied
 
     def append(self, card) -> None:
         super().append(card)

@@ -546,6 +546,12 @@ class Card:
         needs_creature_on_bf: Needs one of your own creatures (a sacrifice cost).
     """
 
+    def __deepcopy__(self, memo):
+        """A card is a value that never changes: a copy of a game (the stress
+        test's, `simulation.analysis`) shares its cards rather than cloning
+        them, which also keeps the game's ``id(card)`` keys valid."""
+        return self
+
     name: str
     mv: int
     pips: int

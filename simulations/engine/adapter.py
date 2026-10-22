@@ -423,7 +423,10 @@ class Reading:
 
     @property
     def effective_priority(self) -> int:
-        """What the agent will actually use, default rule included."""
+        """What the agent will actually use, default rule included - the
+        commander's own default too (v35)."""
+        if self.is_commander:
+            return agent.commander_priority(self.card)
         return agent.priority(self.card)
 
     @property

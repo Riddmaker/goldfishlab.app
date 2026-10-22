@@ -139,6 +139,56 @@
     </details>
   </section>
 {% endif %}
+{% if report.stress %}
+  <section id="stress" class="surface-parchment mt-6 p-6">
+    <h2 class="font-display text-2xl text-ink-900">{% translate "Stress test: when the table strikes back" %}</h2>
+    <p class="mt-1 text-sm text-ink-700">
+      {% blocktranslate trimmed with turn=report.stress.turns %}
+        The same games, once as they went and once with the table striking back, side by side on turn {{ turn }}. An assumption, said beside each, not a measurement of real tables.
+      {% endblocktranslate %}
+      {% include "core/_why.html" with anchor="stress" %}
+    </p>
+    {% for scenario in report.stress.scenarios %}
+      <h3 class="font-display mt-5 text-lg text-ink-900">{{ scenario.title }}</h3>
+      <p class="mt-1 text-sm text-ink-700">{{ scenario.assumption }}</p>
+      <p class="mt-2 text-ink-900">{{ scenario.sentence }}</p>
+      {% if scenario.rows %}
+        <div class="mt-3 overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr class="border-b border-parchment-600 text-ink-700">
+                <th scope="col" class="py-1.5 pr-3">{% blocktranslate with turn=report.stress.turns %}Turn {{ turn }}{% endblocktranslate %}</th>
+                <th scope="col" class="py-1.5 pr-3">{% translate "Without" %}</th>
+                <th scope="col" class="py-1.5 pr-3">{% translate "With" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in scenario.rows %}
+                <tr class="border-b border-parchment-300">
+                  <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
+                  {% if row.mean %}
+                    <td class="tabular py-1.5 pr-3 text-ink-700">{{ row.without|floatformat:"1" }}</td>
+                    <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.with|floatformat:"1" }}</td>
+                  {% else %}
+                    <td class="tabular py-1.5 pr-3 text-ink-700">{% blocktranslate with number=row.without|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
+                    <td class="tabular py-1.5 pr-3 text-ink-900">{% blocktranslate with number=row.with|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
+                  {% endif %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-2 text-xs text-ink-700">
+          {% blocktranslate trimmed count games=scenario.games %}
+            Measured in {{ games }} game.
+          {% plural %}
+            Measured in {{ games }} games.
+          {% endblocktranslate %}
+        </p>
+      {% endif %}
+    {% endfor %}
+  </section>
+{% endif %}
 {% include "simulations/_brackets.html" with tempo=report.brackets %}
 <section class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">{% translate "Mulligans" %}</h2>

@@ -23,6 +23,7 @@ A ``Histogram`` still behaves like the list it replaced, because
 values, and ``len()`` is how many were observed.
 """
 
+import copy
 import hashlib
 import random
 from collections import Counter
@@ -71,6 +72,18 @@ HISTOGRAM_FIELDS = ("mana", "black", "lands", *MANA_COLOR_FIELDS)
 #: merge and serialise the same way, so they are listed rather than spelled out
 #: three times in ``as_json``, ``from_json`` and ``merge``.
 COUNTER_FIELDS = ("mulligans", "opening_lands", "first_seven")
+
+#: The stress test (v36): two named disruptions, each played on a copy of the
+#: game taken at its moment, so the copy and the game are the same game until
+#: then and every other number of a run stays what it was. Measured in the
+#: first `STRESS_BLOCKS` blocks of a run - 2,000 games - because the paired
+#: copies make a difference precise long before a share on its own is.
+STRESS_BLOCKS = 8
+#: The wipe comes in the opponents' turns after your turn 4: before turn 5.
+WIPE_AFTER = 4
+#: What each scenario compares on the last turn, with and without it.
+STRESS_FIELDS = ("commander", "mana", "draw_engine", "ramp_engine", "sac_outlet",
+                 "recursive", "engine_online", "drain", "necropotence", "sol_ring")
 
 
 class Histogram:
@@ -295,6 +308,22 @@ SEEN_MECHANICS = (
 )
 
 
+def board_milestones(board) -> dict:
+    """The milestones a board shows, as the per-turn counters count them."""
+    has_sac = _tagged(board, SAC_OUTLET_TAG)
+    has_rec = _tagged(board, RECURSIVE_TAG)
+    return {
+        "necropotence": _skips_draw_step(board),
+        "sol_ring": _has_fast_mana(board),
+        "draw_engine": _tagged(board, DRAW_ENGINE_TAG),
+        "sac_outlet": has_sac,
+        "recursive": has_rec,
+        "engine_online": has_sac and has_rec,
+        "drain": _tagged(board, DRAIN_TAG),
+        "ramp_engine": _scaling_mana_sources(board) >= 2,
+    }
+
+
 def seen_groups(deck) -> tuple[tuple[str, ...], dict[str, tuple[int, ...]]]:
     """The groups a deck's cards are counted in, and which groups each card is in.
 
@@ -355,7 +384,7 @@ def _count_seen(game, groups) -> list[int]:
 
 def simulate_game(rng: random.Random, on_the_play: bool = True,
                   turns: int = DEFAULT_TURNS, keep_log: bool = False,
-                  deck=None, watch=(), groups=None, trace=None):
+                  deck=None, watch=(), groups=None, trace=None, stress=False):
     """Play one goldfish game and return what was measured.
 
     Args:
@@ -369,6 +398,9 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
         trace: A list to append the game's :mod:`simulation.trace` records
             to: one after the opening hand and one after each turn. Left out,
             and nothing is recorded.
+        stress: Also play the stress test's scenarios on copies of the game
+            (`STRESS_FIELDS`), and return them under ``stress``. The game
+            itself plays exactly as without.
 
     Returns:
         dict: the game's metrics, including the state after each turn.
@@ -387,6 +419,7 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
     watcher = combos.Watcher(watch) if watch else None
 
     per_turn = []
+    forks = {}
     for number in range(1, turns + 1):
         agent.take_turn(game)
         if watcher is not None:
@@ -426,6 +459,13 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
         if groups is not None:
             snapshot["seen"] = _count_seen(game, groups)
         per_turn.append(snapshot)
+        if stress and number < turns:
+            # The commander is removed in the opponents' turns after it first
+            # came down; the wipe comes before turn 5, with two turns after it.
+            if "removal" not in forks and snapshot["commanders_out"]:
+                forks["removal"] = (number, _copy(game))
+            if number == WIPE_AFTER and turns > WIPE_AFTER + 1:
+                forks["wipe"] = (number, _copy(game))
 
     measured = {
         "mulligans": game.mulligans,
@@ -440,17 +480,63 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
     if watcher is not None:
         measured["combos"] = watcher.first
         measured["win"] = watcher.first_win
+    if stress:
+        measured["stress"] = {
+            name: _disrupted(name, after, copied, game.deck, turns, per_turn)
+            for name, (after, copied) in forks.items()
+        }
     return measured
 
 
+def _last_turn(snapshot) -> dict:
+    """What the stress test compares, from a turn's snapshot."""
+    board = snapshot["battlefield"]
+    return {"commander": snapshot["commanders_out"] > 0, "mana": snapshot["mana"],
+            **board_milestones(board)}
+
+
+def _copy(game):
+    """The game as it stands, random state included, to play on apart: what
+    the copy draws never moves the game's own generator."""
+    return copy.deepcopy(game, {id(game.deck): game.deck})
+
+
+def _disrupted(name, after, game, deck, turns, per_turn) -> dict:
+    """One scenario: the copy of the game at the end of turn ``after``, with
+    the disruption, played to the last turn, beside the game without it.
+
+    ``back`` is how many turns later a commander that was on the battlefield
+    at the disruption is out again, 0 for not by the last turn; None when
+    none was there to lose.
+    """
+    struck = per_turn[after - 1]["commanders_out"] > 0
+    if name == "removal":
+        game.remove_commander()
+    else:
+        game.board_wipe()
+    back = 0
+    snapshot = None
+    for number in range(after + 1, turns + 1):
+        agent.take_turn(game)
+        snapshot = {"commanders_out": sum(1 for card in deck.commanders if game.has(card.name)),
+                    "mana": game.mana_available, "battlefield": list(game.battlefield)}
+        if struck and not back and snapshot["commanders_out"]:
+            back = number - after
+    return {"base": _last_turn(per_turn[-1]), "hit": _last_turn(snapshot),
+            "back": back if struck else None}
+
+
 def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
-        turns: int = DEFAULT_TURNS, seed: int = 20260917, deck=None, watch=()):
+        turns: int = DEFAULT_TURNS, seed: int = 20260917, deck=None, watch=(),
+        stress=False):
     """Run the Monte Carlo simulation and aggregate the results.
 
     Args:
         watch: combos to measure while the games are played. They cost one
             look per turn per game and add a ``combos`` key to the result;
             without them the result is byte-for-byte what it has always been.
+        stress: play the stress test's scenarios too and add a ``stress`` key;
+            every other number is the same either way.
     """
     # Walked twice - once to lay out the counters, once per game - so a
     # generator would silently measure nothing after the first line.
@@ -487,10 +573,13 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
     # combos ends the game" is an answer, and a missing key would read like a
     # run from before the count existed.
     won = [0] * turns if watch else None
+    tallies = {name: _stress_tally() for name in ("removal", "wipe")} if stress else None
 
     for _ in range(iterations):
         result = simulate_game(rng, on_the_play=on_the_play, turns=turns,
-                               deck=deck, watch=watch, groups=groups)
+                               deck=deck, watch=watch, groups=groups, stress=stress)
+        for name, scenario in (result.get("stress") or {}).items():
+            _tally(tallies[name], scenario)
         for key, first in (result.get("combos") or {}).items():
             # Cumulative on the way in: the page asks "by turn six", not "on
             # turn six", and a cumulative count merges by addition exactly as
@@ -515,16 +604,8 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
             stats["commander"] += out > 0
             if pair:
                 stats["both_commanders"] += out > 1
-            stats["necropotence"] += _skips_draw_step(board)
-            stats["sol_ring"] += _has_fast_mana(board)
-            stats["draw_engine"] += _tagged(board, DRAW_ENGINE_TAG)
-            has_sac = _tagged(board, SAC_OUTLET_TAG)
-            has_rec = _tagged(board, RECURSIVE_TAG)
-            stats["sac_outlet"] += has_sac
-            stats["recursive"] += has_rec
-            stats["engine_online"] += has_sac and has_rec
-            stats["drain"] += _tagged(board, DRAIN_TAG)
-            stats["ramp_engine"] += _scaling_mana_sources(board) >= 2
+            for key, reached in board_milestones(board).items():
+                stats[key] += reached
             cards, games = seen_cards[index], seen_games[index]
             squares = seen_squares[index]
             for slot, count in enumerate(snapshot["seen"]):
@@ -563,7 +644,29 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
         }
     if won is not None:
         summary["wins"] = {"games": iterations, "by_turn": won}
+    if tallies is not None:
+        summary["stress"] = tallies
     return summary
+
+
+def _stress_tally() -> dict:
+    """A scenario's counts: the games it was played in, the last turn's
+    `STRESS_FIELDS` summed with and without it, the games with a commander to
+    lose, and how many turns it took to come back (``"0"``: not by the last
+    turn). Counts only, so chunks merge by addition."""
+    return {"games": 0, "base": dict.fromkeys(STRESS_FIELDS, 0),
+            "hit": dict.fromkeys(STRESS_FIELDS, 0), "struck": 0, "back": {}}
+
+
+def _tally(tally: dict, scenario: dict) -> None:
+    tally["games"] += 1
+    for side in ("base", "hit"):
+        for field in STRESS_FIELDS:
+            tally[side][field] += int(scenario[side][field])
+    if scenario["back"] is not None:
+        tally["struck"] += 1
+        key = str(scenario["back"])
+        tally["back"][key] = tally["back"].get(key, 0) + 1
 
 
 # --- Running a simulation in pieces ----------------------------------------
@@ -627,10 +730,11 @@ def sample_seed(run_seed: int, index: int, key: str) -> int:
 
 def run_chunk(iterations: int, run_seed: int, first_block: int, *,
               on_the_play: bool = True, turns: int = DEFAULT_TURNS,
-              deck=None, watch=()) -> dict:
+              deck=None, watch=(), stress=False) -> dict:
     """One chunk of a larger run, as something a broker can carry: the
     ``iterations`` games from block ``first_block`` on (`blocks_of`), each
-    block with its own seed.
+    block with its own seed. With ``stress``, the blocks before
+    `STRESS_BLOCKS` play the stress test too.
 
     The unit of work a Celery task performs. Returns the JSON form, because
     that is what has to travel back - a few kB of counters, whatever the
@@ -638,7 +742,8 @@ def run_chunk(iterations: int, run_seed: int, first_block: int, *,
     """
     return merge(
         as_json(run(games, on_the_play=on_the_play, turns=turns,
-                    seed=chunk_seed(run_seed, block), deck=deck, watch=watch))
+                    seed=chunk_seed(run_seed, block), deck=deck, watch=watch,
+                    stress=stress and block < STRESS_BLOCKS))
         for block, games in blocks_of(iterations, first_block))
 
 
@@ -674,6 +779,9 @@ def as_json(result: dict) -> dict:
         }
     if "wins" in result:
         payload["wins"] = _copy_wins(result["wins"])
+    # Absent from a run before v36, and from a chunk past `STRESS_BLOCKS`.
+    if "stress" in result:
+        payload["stress"] = _copy_stress(result["stress"])
     return payload
 
 
@@ -707,6 +815,8 @@ def from_json(data: dict) -> dict:
         }
     if "wins" in data:
         result["wins"] = _copy_wins(data["wins"])
+    if "stress" in data:
+        result["stress"] = _copy_stress(data["stress"])
     return result
 
 
@@ -743,6 +853,7 @@ def merge(chunks) -> dict:
         merged["iterations"] += other["iterations"]
         _merge_combos(merged, other)
         _merge_wins(merged, other)
+        _merge_stress(merged, other)
         _merge_seen(merged, other)
         for field in COUNTER_FIELDS:
             merged[field].update(other[field])
@@ -817,6 +928,31 @@ def _merge_combos(merged: dict, other: dict) -> None:
         held["by_turn"] = [
             a + b for a, b in zip(held["by_turn"], entry["by_turn"], strict=True)
         ]
+
+
+def _copy_stress(stress: dict) -> dict:
+    return {name: {"games": int(tally["games"]), "base": dict(tally["base"]),
+                   "hit": dict(tally["hit"]), "struck": int(tally["struck"]),
+                   "back": dict(tally["back"])}
+            for name, tally in stress.items()}
+
+
+def _merge_stress(merged: dict, other: dict) -> None:
+    """Add the stress test of a chunk; a chunk without one adds nothing."""
+    if "stress" not in other:
+        return
+    if "stress" not in merged:
+        merged["stress"] = _copy_stress(other["stress"])
+        return
+    for name, extra in other["stress"].items():
+        tally = merged["stress"].setdefault(name, _stress_tally())
+        tally["games"] += extra["games"]
+        tally["struck"] += extra["struck"]
+        for side in ("base", "hit"):
+            for field, value in extra[side].items():
+                tally[side][field] = tally[side].get(field, 0) + value
+        for key, count in extra["back"].items():
+            tally["back"][key] = tally["back"].get(key, 0) + count
 
 
 def _copy_wins(wins: dict) -> dict:

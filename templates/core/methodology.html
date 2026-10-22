@@ -44,9 +44,10 @@
       <ul class="mt-3 space-y-2 text-ink-900">
         <li>• {% blocktranslate trimmed %}<strong>Opponents and interaction.</strong> Nothing is countered, killed or discarded.{% endblocktranslate %}</li>
         <li>• {% blocktranslate trimmed %}
-          <strong>Combat.</strong> Nothing attacks or blocks, so nobody takes combat damage and no
-          creature dies. Your own life still moves: Necropotence, Dark Confidant and Phyrexian mana
-          are paid for.
+          <strong>Combat, beyond its triggers.</strong> Every creature that can attack does, each
+          turn, so that what it does as it attacks or deals combat damage to a player is played.
+          Nothing blocks, no damage is added up and no creature dies. Your own life still moves:
+          Necropotence, Dark Confidant and Phyrexian mana are paid for.
         {% endblocktranslate %}</li>
         <li>• {% blocktranslate trimmed %}
           <strong>Printed keywords.</strong> Flying, deathtouch and trample are shown on a card because a
@@ -54,6 +55,15 @@
         {% endblocktranslate %}</li>
         <li>• {% blocktranslate trimmed %}<strong>Politics and table dynamics</strong>, which are most of what a Commander game is.{% endblocktranslate %}</li>
       </ul>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          Where a card asks about the opponents, the engine assumes a table of
+          <strong>three</strong>: each plays a land in each of their turns, and from
+          turn 4 an opponent controls three creatures. That is enough for a card
+          that checks it - Claim Jumper, Keeper of the Accord, Defense of the Heart
+          - and it is all we assume about them.
+        {% endblocktranslate %}
+      </p>
       <p class="mt-4 text-sm text-ink-700">
         {% blocktranslate trimmed %}
           So a deck that goldfishes beautifully can still lose every game. What
@@ -266,6 +276,27 @@
           a rarer ninth stays in the numbers under it.
         {% endblocktranslate %}
       </p>
+      <h3 id="stress" class="mt-6 font-display text-lg text-ink-900">{% translate "Stress test" %}</h3>
+      <p class="mt-2 text-ink-900">
+        {% blocktranslate trimmed %}
+          A goldfish meets no opponent, so the report adds two moments when the table
+          strikes back: your commander destroyed once, in the opponents' turns right
+          after it first comes down, and every creature destroyed before your turn 5.
+          Each is played on a copy of the game taken at that moment, so the game with it
+          and the game without it are the same game until then, and the difference is
+          the disruption alone. The rest of the report is untouched by it.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-sm text-ink-700">
+        {% blocktranslate trimmed %}
+          Both are assumptions, named as such: nobody has published when real tables
+          remove a commander or cast a wipe, so we do not pretend to know. A destroyed
+          commander goes back to the command zone and costs two more; a wipe takes
+          tokens and mana creatures too, while artifacts, enchantments and lands stay.
+          Indestructible and regeneration are not played. The stress test runs in the
+          first 2,000 games of a run, and the wipe only in runs of six turns or more.
+        {% endblocktranslate %}
+      </p>
       <h3 id="report-brackets" class="mt-6 font-display text-lg text-ink-900">{% translate "Speed and the Commander Brackets" %}</h3>
       <p class="mt-2 text-ink-900">
         {% blocktranslate trimmed %}
@@ -336,7 +367,10 @@
           What it counts is only that. When several spells are affordable, the
           engine casts the <strong>cheapest first</strong> — its own rule, not a
           reading of your deck's plan, with a built-in order for a few dozen
-          well-known cards such as rituals and fast mana. We used to ask for a
+          well-known cards such as rituals and fast mana. Your <strong>commander
+          comes before all of them but fast mana and a few staples</strong>, as soon
+          as it can be paid, because that is how a Commander deck is played; what is
+          left that turn is still spent. We used to ask for a
           casting order card by card and scored decks on how much of it had been
           given; on the deck we measured, <strong>161 of 217 gaps were that
           question</strong>, so the

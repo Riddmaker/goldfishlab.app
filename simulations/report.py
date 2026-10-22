@@ -22,7 +22,7 @@ from math import comb, sqrt
 
 from django.utils.translation import gettext, gettext_noop, ngettext
 
-from core.l10n import number
+from core.l10n import number, percent
 from decks import analysis as deck_analysis
 from simulations import charts, numbers
 from simulations.engine import runner
@@ -388,6 +388,83 @@ def milestones(result: dict) -> list[dict]:
             continue
         rows.append({"key": key, "label": gettext(label), "shares": shares})
     return rows
+
+
+#: The stress test (engine v36): the two scenarios, in the order shown, with
+#: what each assumes - said on the page beside its numbers, because a number
+#: under an assumption nobody sees is a claim about real tables we cannot make.
+STRESS = (
+    ("removal", gettext_noop("Your commander is removed"),
+     gettext_noop("An opponent destroys your commander once, in their turns right after it "
+                  "first comes down. It goes back to the command zone and costs two more.")),
+    ("wipe", gettext_noop("A board wipe before turn 5"),
+     gettext_noop("Every creature dies in the opponents' turns after your turn 4: tokens, "
+                  "mana creatures and your commander too. Artifacts, enchantments and lands "
+                  "stay.")),
+)
+
+
+#: The milestones the stress test compares, in the order of `MILESTONES`.
+STRESS_MILESTONES = tuple(key for key, _label in MILESTONES if key in runner.STRESS_FIELDS)
+
+
+def stress(result: dict) -> dict | None:
+    """The stress test: each scenario's last turn with and without it.
+
+    None for a run from before the stress test; a scenario that could not be
+    played in the run's turns - a wipe in a run of five or fewer - comes back
+    with no rows and says why.
+    """
+    if "stress" not in result:
+        return None
+    turns = result["turns"]
+    labels = dict(MILESTONES)
+    scenarios = []
+    for key, title, assumption in STRESS:
+        tally = result["stress"].get(key) or {}
+        games = tally.get("games", 0)
+        scenario = {"key": key, "title": gettext(title), "assumption": gettext(assumption),
+                    "games": games, "rows": [], "sentence": ""}
+        scenarios.append(scenario)
+        if not games:
+            scenario["sentence"] = (
+                gettext("A wipe before turn 5 needs a run of six turns or more to show "
+                        "what follows it.") if key == "wipe"
+                else gettext("Your commander never came down early enough to be removed."))
+            continue
+        base, hit = tally["base"], tally["hit"]
+        scenario["rows"] = [{
+            "label": gettext("Average mana"), "mean": True,
+            "without": base["mana"] / games, "with": hit["mana"] / games}]
+        for field in STRESS_MILESTONES:
+            if not base.get(field):
+                continue
+            scenario["rows"].append({
+                "label": gettext(labels[field]), "mean": False,
+                "without": _pct(base[field], games), "with": _pct(hit[field], games)})
+        scenario["sentence"] = _stress_sentence(key, tally, turns)
+    return {"turns": turns, "scenarios": scenarios}
+
+
+def _stress_sentence(key: str, tally: dict, turns: int) -> str:
+    """One sentence a player reads first, from the counts."""
+    struck, back = tally["struck"], tally["back"]
+    returned = sum(count for after, count in back.items() if after != "0")
+    if key == "removal":
+        return gettext(
+            "It was back the next turn in %(next)s of games, and by turn %(turn)s in "
+            "%(by)s.") % {"next": percent(_pct(back.get("1", 0), struck)), "turn": turns,
+                          "by": percent(_pct(returned, struck))}
+    games = tally["games"]
+    text = gettext("After the wipe you had %(hit)s mana on turn %(turn)s instead of "
+                   "%(base)s.") % {"hit": number(tally["hit"]["mana"] / games, 1),
+                                   "base": number(tally["base"]["mana"] / games, 1),
+                                   "turn": turns}
+    if struck:
+        text += " " + gettext(
+            "Where your commander was out, it was back by turn %(turn)s in %(by)s of "
+            "games.") % {"turn": turns, "by": percent(_pct(returned, struck))}
+    return text
 
 
 #: The Commander Brackets and the fewest turns Wizards expects a game in each
@@ -859,6 +936,7 @@ def build(run) -> dict:
         "combos": measured,
         "brackets": brackets(
             run, result, timed_combos=any(not row.hypothetical for row in measured)),
+        "stress": stress(result),
         "glance": numbers.sentences(numbers.of(run)),
         "percentiles": PERCENTILES,
     }

@@ -27,6 +27,14 @@ RITUAL_THRESHOLD = 74
 #: Cards with no priority of their own: cheaper first.
 DEFAULT_PRIORITY_BASE = 40
 
+#: A commander with no priority of its own is cast as soon as it can be paid
+#: (v35, P20b): above every default, so a player's commander does not wait
+#: behind each cheaper spell in hand. Of the built-in priorities only fast
+#: mana and a few staples rank as high (Sol Ring 100 ... Charcoal Diamond 86)
+#: and still go first. A deck that ranks its commander (the reference deck:
+#: 81) keeps its own order.
+COMMANDER_PRIORITY = 86
+
 
 class _AgentPolicy:
     """The choices an action cannot make for itself.
@@ -100,6 +108,11 @@ def priority(card) -> int:
     if card.priority is not None:
         return card.priority
     return DEFAULT_PRIORITY_BASE - card.mv
+
+
+def commander_priority(card) -> int:
+    """A commander's priority: its own, or :data:`COMMANDER_PRIORITY`."""
+    return card.priority if card.priority is not None else COMMANDER_PRIORITY
 
 
 # --- Choosing a land -------------------------------------------------------
@@ -244,7 +257,7 @@ def _cast_best(game, pool: ManaPool) -> bool:
     commander = castable[0] if castable else None
     cast_it = actions.CastCommander(
         index=game.deck.commanders.index(commander)) if commander else None
-    if commander is not None and priority(commander) > best_score:
+    if commander is not None and commander_priority(commander) > best_score:
         _do(game, cast_it)
         return True
 

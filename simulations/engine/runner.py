@@ -33,6 +33,8 @@ SEEN_MV_CAP = analysis.MV_CAP
 
 #: Games are seeded per block of this many; a chunk plays whole blocks.
 SEED_BLOCK = analysis.SEED_BLOCK
+#: What the stress test compares (v36), for the report.
+STRESS_FIELDS = analysis.STRESS_FIELDS
 blocks_of = analysis.blocks_of
 
 #: The four roles the engine plays a card in, re-exported for the same reason:

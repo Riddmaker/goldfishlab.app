@@ -12184,3 +12184,127 @@ msgstr ""
 "これまでエンジンは手札で最も軽い呪文から唱えていたため、統率者はそのすべての後回しになっていました。多くのデッキで、4ターン目までに統率者が戦場に出ていたのは100ゲーム中わずか数ゲームでした。今後は、Sol"
 " "
 "Ringのようなファストマナといくつかの定番カードの後、支払えるようになり次第唱えられ、そのターンに残ったマナはそのまま使われます。方法論のページでは、エンジンが戦闘と対戦相手について何を想定しているかも説明しています。古いエンジンで作成されたレポートにはその旨が表示され、新しい実行が提案されます。"
+
+#: simulations/report.py
+msgid "Your commander is removed"
+msgstr "統率者が除去される"
+
+#: simulations/report.py
+msgid ""
+"An opponent destroys your commander once, in their turns right after it "
+"first comes down. It goes back to the command zone and costs two more."
+msgstr "統率者が初めて戦場に出た直後の対戦相手のターンに、対戦相手が統率者を1回破壊します。統率者は統率領域に戻り、コストが2増えます。"
+
+#: simulations/report.py
+msgid "A board wipe before turn 5"
+msgstr "5ターン目前の全体除去"
+
+#: simulations/report.py
+msgid ""
+"Every creature dies in the opponents' turns after your turn 4: tokens, mana "
+"creatures and your commander too. Artifacts, enchantments and lands stay."
+msgstr ""
+"あなたの4ターン目の後の対戦相手のターンに、すべてのクリーチャーが死亡します。トークン、マナ・クリーチャー、統率者も含みます。アーティファクト、エンチャント、土地は残ります。"
+
+#: simulations/report.py
+msgid ""
+"A wipe before turn 5 needs a run of six turns or more to show what follows "
+"it."
+msgstr "5ターン目前の全体除去の後に何が起きるかを示すには、6ターン以上のシミュレーションが必要です。"
+
+#: simulations/report.py
+msgid "Your commander never came down early enough to be removed."
+msgstr "統率者が除去されるほど早く戦場に出ることはありませんでした。"
+
+#: simulations/report.py
+msgid "Average mana"
+msgstr "平均マナ"
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"It was back the next turn in %(next)s of games, and by turn %(turn)s in "
+"%(by)s."
+msgstr "統率者は%(next)sのゲームで次のターンに戻り、%(turn)sターン目までには%(by)sで戻りました。"
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"After the wipe you had %(hit)s mana on turn %(turn)s instead of %(base)s."
+msgstr "全体除去の後、%(turn)sターン目のマナは%(base)sではなく%(hit)sでした。"
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"Where your commander was out, it was back by turn %(turn)s in %(by)s of "
+"games."
+msgstr "統率者が戦場にいたゲームでは、%(by)sで%(turn)sターン目までに戻りました。"
+
+#: templates/simulations/_report.html
+msgid "Stress test: when the table strikes back"
+msgstr "ストレステスト：卓が反撃したら"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"The same games, once as they went and once with the table striking back - "
+"compared on turn %(turn)s. An assumption, said beside each, not a "
+"measurement of real tables."
+msgstr ""
+"同じゲームを、実際の展開のままと、卓が反撃した場合の2通りで比べます（%(turn)sターン目で比較）。それぞれに記した想定であり、実際の卓を計測したものではありません。"
+
+#: templates/simulations/_report.html
+msgid "Without"
+msgstr "なし"
+
+#: templates/simulations/_report.html
+msgid "With"
+msgstr "あり"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "Measured in %(games)s game."
+msgid_plural "Measured in %(games)s games."
+msgstr[0] "%(games)sゲームで計測。"
+
+#: templates/core/methodology.html
+msgid "Stress test"
+msgstr "ストレステスト"
+
+#: templates/core/methodology.html
+msgid ""
+"A goldfish meets no opponent, so the report adds two moments when the table "
+"strikes back: your commander destroyed once, in the opponents' turns right "
+"after it first comes down, and every creature destroyed before your turn 5. "
+"Each is played on a copy of the game taken at that moment, so the game with "
+"it and the game without it are the same game until then, and the difference "
+"is the disruption alone. The rest of the report is untouched by it."
+msgstr ""
+"ゴールドフィッシュには対戦相手がいないため、レポートには卓が反撃する2つの場面を加えています。統率者が初めて戦場に出た直後の対戦相手のターンに1回破壊される場合と、あなたの5ターン目の前にすべてのクリーチャーが破壊される場合です。それぞれ、その時点のゲームのコピーで続きをプレイするため、妨害ありとなしのゲームはそこまで同じゲームであり、差は妨害だけによるものです。レポートのほかの部分には影響しません。"
+
+#: templates/core/methodology.html
+msgid ""
+"Both are assumptions, named as such: nobody has published when real tables "
+"remove a commander or cast a wipe, so we do not pretend to know. A destroyed"
+" commander goes back to the command zone and costs two more; a wipe takes "
+"tokens and mana creatures too, while artifacts, enchantments and lands stay."
+" Indestructible and regeneration are not played. The stress test runs in the"
+" first 2,000 games of a run, and the wipe only in runs of six turns or more."
+msgstr ""
+"どちらも想定であり、そう明記しています。実際の卓がいつ統率者を除去し、いつ全体除去を唱えるかを公表したデータはないため、知っているふりはしません。破壊された統率者は統率領域に戻り、コストが2増えます。全体除去はトークンとマナ・クリーチャーも巻き込みますが、アーティファクト、エンチャント、土地は残ります。破壊不能と再生は処理しません。ストレステストはシミュレーションの最初の2,000ゲームで行い、全体除去は6ターン以上のシミュレーションでのみ行います。"
+
+#: changelog/entries.py
+msgid "A stress test: your commander removed, a board wipe"
+msgstr "ストレステスト：統率者の除去と全体除去"
+
+#: changelog/entries.py
+msgid ""
+"Every new report now shows what happens when the table strikes back: your "
+"commander destroyed once, right after it first comes down, and a board wipe "
+"before turn 5. The same games are played with and without each, and the "
+"report compares the last turn - mana, your commander, the milestones - and "
+"says how soon your commander was back. Both are named assumptions, not "
+"measurements of real tables; the methodology page says what they assume. A "
+"report made with an older engine says so and offers a new run."
+msgstr ""
+"新しいレポートには、卓が反撃したときに何が起きるかが表示されるようになりました。統率者が初めて戦場に出た直後に1回破壊される場合と、5ターン目の前に全体除去が来る場合です。同じゲームをそれぞれありとなしでプレイし、最後のターンのマナ、統率者、マイルストーンを比べ、統率者がどれだけ早く戻ったかを示します。どちらも明記した想定であり、実際の卓を計測したものではありません。何を想定しているかは方法論のページに記載しています。古いエンジンで作成されたレポートにはその旨が表示され、新しい実行が提案されます。"

@@ -41,6 +41,19 @@ class Entry:
 
 
 ENTRIES = (
+    # Engine v36.
+    Entry(
+        date(2026, 10, 22), "stress-test",
+        _("A stress test: your commander removed, a board wipe"),
+        _("Every new report now shows what happens when the table strikes back: your "
+          "commander destroyed once, right after it first comes down, and a board wipe before "
+          "turn 5. The same games are played with and without each, and the report compares "
+          "the last turn - mana, your commander, the milestones - and says how soon your "
+          "commander was back. Both are named assumptions, not measurements of real tables; "
+          "the methodology page says what they assume. A report made with an older engine "
+          "says so and offers a new run."),
+        "methodology", "stress",
+    ),
     # Engine v35.
     Entry(
         date(2026, 10, 22), "commander-first",

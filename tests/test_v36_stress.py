@@ -8,10 +8,17 @@ every other number exactly as a run without it.
 import copy
 import random
 
+import pytest
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+
+from decks import services as deck_services
 from simulation import analysis, build
 from simulation.cards import CREATURE, DIES, LAND, ROCK, Card, DeckDefinition, Trigger
 from simulation.game import Game
 from simulation.manacost import parse
+from simulations import report
+from simulations.models import SimulationRun
 from tests.engine_builders import game_with
 
 FOREST = build.card("Forest", 0, 0, 0, LAND, subtypes=frozenset({"forest"}), basic=True)
@@ -101,3 +108,49 @@ def test_only_the_first_blocks_play_it_and_chunks_add_up():
     assert analysis.as_json(analysis.from_json(merged)) == merged
     twice = analysis.merge([first, first])
     assert twice["stress"]["wipe"]["games"] == 2 * first["stress"]["wipe"]["games"]
+
+
+# --- the report ------------------------------------------------------------
+
+
+def _result(turns=7, games=40):
+    return analysis.as_json(analysis.run(games, turns=turns, seed=5, deck=DECK, stress=True))
+
+
+def test_the_report_compares_each_scenario_on_the_last_turn():
+    shown = report.stress(analysis.from_json(_result()))
+
+    assert shown["turns"] == 7
+    removal, wipe = shown["scenarios"]
+    assert (removal["key"], wipe["key"]) == ("removal", "wipe")
+    assert removal["rows"][0]["label"] == "Average mana" and removal["rows"][0]["mean"]
+    assert "Commander on the battlefield" in [row["label"] for row in removal["rows"]]
+    assert removal["sentence"].startswith("It was back the next turn in ")
+    assert wipe["sentence"].startswith("After the wipe you had ")
+
+
+def test_a_short_run_says_why_it_has_no_wipe_and_an_old_one_has_no_section():
+    wipe = report.stress(analysis.from_json(_result(turns=5)))["scenarios"][1]
+    assert wipe["rows"] == [] and "six turns or more" in wipe["sentence"]
+
+    old = _result()
+    del old["stress"]
+    assert report.stress(analysis.from_json(old)) is None
+
+
+@pytest.mark.django_db
+def test_the_report_page_shows_the_stress_test(client):
+    owner = get_user_model().objects.create_user(email="stress@example.com",
+                                                 password="pw-test-only")
+    deck = deck_services.import_deck(owner=owner, raw=b"34 Forest\n", name="Stress").deck
+    run = SimulationRun.objects.create(
+        owner=owner, deck=deck, games_total=40, games_done=40, turns=7, seed=5,
+        status=SimulationRun.Status.DONE, finished_at=timezone.now(), result=_result())
+    client.force_login(owner)
+
+    body = client.get(run.get_absolute_url()).content.decode()
+
+    assert 'id="stress"' in body
+    assert "Stress test: when the table strikes back" in body
+    assert "A board wipe before turn 5" in body
+    assert "#stress" in body

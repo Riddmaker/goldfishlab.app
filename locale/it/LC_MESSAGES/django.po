@@ -13773,3 +13773,163 @@ msgstr ""
 "metodologia ora dice anche cosa il motore assume sul combattimento e sugli "
 "avversari. Un report fatto con un motore più vecchio lo indica e propone una"
 " nuova simulazione."
+
+#: simulations/report.py
+msgid "Your commander is removed"
+msgstr "Il tuo comandante viene rimosso"
+
+#: simulations/report.py
+msgid ""
+"An opponent destroys your commander once, in their turns right after it "
+"first comes down. It goes back to the command zone and costs two more."
+msgstr ""
+"Un avversario distrugge il tuo comandante una volta, nei suoi turni subito "
+"dopo che è sceso per la prima volta. Torna nella zona di comando e costa due"
+" in più."
+
+#: simulations/report.py
+msgid "A board wipe before turn 5"
+msgstr "Una spazzata del campo prima del turno 5"
+
+#: simulations/report.py
+msgid ""
+"Every creature dies in the opponents' turns after your turn 4: tokens, mana "
+"creatures and your commander too. Artifacts, enchantments and lands stay."
+msgstr ""
+"Ogni creatura muore nei turni degli avversari dopo il tuo turno 4: anche le "
+"pedine, le creature che producono mana e il tuo comandante. Artefatti, "
+"incantesimi e terre restano."
+
+#: simulations/report.py
+msgid ""
+"A wipe before turn 5 needs a run of six turns or more to show what follows "
+"it."
+msgstr ""
+"Una spazzata prima del turno 5 richiede una simulazione di sei turni o più "
+"per mostrare cosa segue."
+
+#: simulations/report.py
+msgid "Your commander never came down early enough to be removed."
+msgstr ""
+"Il tuo comandante non è mai sceso abbastanza presto da essere rimosso."
+
+#: simulations/report.py
+msgid "Average mana"
+msgstr "Mana medio"
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"It was back the next turn in %(next)s of games, and by turn %(turn)s in "
+"%(by)s."
+msgstr ""
+"Era di nuovo in campo il turno successivo nel %(next)s delle partite, ed "
+"entro il turno %(turn)s nel %(by)s."
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"After the wipe you had %(hit)s mana on turn %(turn)s instead of %(base)s."
+msgstr ""
+"Dopo la spazzata avevi %(hit)s mana al turno %(turn)s invece di %(base)s."
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"Where your commander was out, it was back by turn %(turn)s in %(by)s of "
+"games."
+msgstr ""
+"Dove il tuo comandante era in campo, era tornato entro il turno %(turn)s nel"
+" %(by)s delle partite."
+
+#: templates/simulations/_report.html
+msgid "Stress test: when the table strikes back"
+msgstr "Stress test: quando il tavolo reagisce"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"The same games, once as they went and once with the table striking back - "
+"compared on turn %(turn)s. An assumption, said beside each, not a "
+"measurement of real tables."
+msgstr ""
+"Le stesse partite, una volta come sono andate e una volta con il tavolo che "
+"reagisce - confrontate al turno %(turn)s. Un'ipotesi, indicata accanto a "
+"ciascuna, non una misura di tavoli reali."
+
+#: templates/simulations/_report.html
+msgid "Without"
+msgstr "Senza"
+
+#: templates/simulations/_report.html
+msgid "With"
+msgstr "Con"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "Measured in %(games)s game."
+msgid_plural "Measured in %(games)s games."
+msgstr[0] "Misurato su %(games)s partita."
+msgstr[1] "Misurato su %(games)s partite."
+
+#: templates/core/methodology.html
+msgid "Stress test"
+msgstr "Stress test"
+
+#: templates/core/methodology.html
+msgid ""
+"A goldfish meets no opponent, so the report adds two moments when the table "
+"strikes back: your commander destroyed once, in the opponents' turns right "
+"after it first comes down, and every creature destroyed before your turn 5. "
+"Each is played on a copy of the game taken at that moment, so the game with "
+"it and the game without it are the same game until then, and the difference "
+"is the disruption alone. The rest of the report is untouched by it."
+msgstr ""
+"Un goldfish non incontra avversari, quindi il report aggiunge due momenti in"
+" cui il tavolo reagisce: il tuo comandante distrutto una volta, nei turni "
+"degli avversari subito dopo che è sceso per la prima volta, e ogni creatura "
+"distrutta prima del tuo turno 5. Ciascuno è giocato su una copia della "
+"partita presa in quel momento, così la partita con e quella senza sono la "
+"stessa partita fino ad allora e la differenza viene solo dalla "
+"perturbazione. Il resto del report non ne è toccato."
+
+#: templates/core/methodology.html
+msgid ""
+"Both are assumptions, named as such: nobody has published when real tables "
+"remove a commander or cast a wipe, so we do not pretend to know. A destroyed"
+" commander goes back to the command zone and costs two more; a wipe takes "
+"tokens and mana creatures too, while artifacts, enchantments and lands stay."
+" Indestructible and regeneration are not played. The stress test runs in the"
+" first 2,000 games of a run, and the wipe only in runs of six turns or more."
+msgstr ""
+"Sono entrambe ipotesi, chiamate così: nessuno ha pubblicato quando i tavoli "
+"reali rimuovono un comandante o lanciano una spazzata, quindi non fingiamo "
+"di saperlo. Un comandante distrutto torna nella zona di comando e costa due "
+"in più; una spazzata prende anche pedine e creature che producono mana, "
+"mentre artefatti, incantesimi e terre restano. Indistruttibile e "
+"rigenerazione non vengono giocati. Lo stress test si svolge nelle prime "
+"2.000 partite di una simulazione, e la spazzata solo nelle simulazioni di "
+"sei turni o più."
+
+#: changelog/entries.py
+msgid "A stress test: your commander removed, a board wipe"
+msgstr "Uno stress test: il tuo comandante rimosso, una spazzata del campo"
+
+#: changelog/entries.py
+msgid ""
+"Every new report now shows what happens when the table strikes back: your "
+"commander destroyed once, right after it first comes down, and a board wipe "
+"before turn 5. The same games are played with and without each, and the "
+"report compares the last turn - mana, your commander, the milestones - and "
+"says how soon your commander was back. Both are named assumptions, not "
+"measurements of real tables; the methodology page says what they assume. A "
+"report made with an older engine says so and offers a new run."
+msgstr ""
+"Ogni nuovo report ora mostra cosa succede quando il tavolo reagisce: il tuo "
+"comandante distrutto una volta, subito dopo che è sceso per la prima volta, "
+"e una spazzata del campo prima del turno 5. Le stesse partite sono giocate "
+"con e senza ciascuno, e il report confronta l'ultimo turno - il mana, il tuo"
+" comandante, i traguardi - e dice quanto presto il tuo comandante è tornato."
+" Sono entrambe ipotesi dichiarate, non misure di tavoli reali; la pagina "
+"della metodologia dice cosa assumono. Un report fatto con un motore più "
+"vecchio lo indica e propone una nuova simulazione."

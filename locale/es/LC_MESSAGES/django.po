@@ -13897,3 +13897,163 @@ msgstr ""
 "página de metodología ahora también dice qué supone el motor sobre el "
 "combate y los oponentes. Un informe hecho con un motor anterior lo indica y "
 "ofrece una nueva simulación."
+
+#: simulations/report.py
+msgid "Your commander is removed"
+msgstr "Tu comandante es eliminado"
+
+#: simulations/report.py
+msgid ""
+"An opponent destroys your commander once, in their turns right after it "
+"first comes down. It goes back to the command zone and costs two more."
+msgstr ""
+"Un oponente destruye a tu comandante una vez, en sus turnos justo después de"
+" que baje por primera vez. Vuelve a la zona de mando y cuesta dos más."
+
+#: simulations/report.py
+msgid "A board wipe before turn 5"
+msgstr "Un barrido de mesa antes del turno 5"
+
+#: simulations/report.py
+msgid ""
+"Every creature dies in the opponents' turns after your turn 4: tokens, mana "
+"creatures and your commander too. Artifacts, enchantments and lands stay."
+msgstr ""
+"Todas las criaturas mueren en los turnos de los oponentes después de tu "
+"turno 4: también las fichas, las criaturas de maná y tu comandante. Los "
+"artefactos, los encantamientos y las tierras se quedan."
+
+#: simulations/report.py
+msgid ""
+"A wipe before turn 5 needs a run of six turns or more to show what follows "
+"it."
+msgstr ""
+"Un barrido antes del turno 5 necesita una simulación de seis turnos o más "
+"para mostrar lo que viene después."
+
+#: simulations/report.py
+msgid "Your commander never came down early enough to be removed."
+msgstr "Tu comandante nunca bajó lo bastante pronto como para ser eliminado."
+
+#: simulations/report.py
+msgid "Average mana"
+msgstr "Maná medio"
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"It was back the next turn in %(next)s of games, and by turn %(turn)s in "
+"%(by)s."
+msgstr ""
+"Volvió al turno siguiente en el %(next)s de las partidas, y para el turno "
+"%(turn)s en el %(by)s."
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"After the wipe you had %(hit)s mana on turn %(turn)s instead of %(base)s."
+msgstr ""
+"Después del barrido tenías %(hit)s de maná en el turno %(turn)s en lugar de "
+"%(base)s."
+
+#: simulations/report.py
+#, python-format
+msgid ""
+"Where your commander was out, it was back by turn %(turn)s in %(by)s of "
+"games."
+msgstr ""
+"Donde tu comandante estaba en juego, volvió para el turno %(turn)s en el "
+"%(by)s de las partidas."
+
+#: templates/simulations/_report.html
+msgid "Stress test: when the table strikes back"
+msgstr "Prueba de estrés: cuando la mesa responde"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"The same games, once as they went and once with the table striking back - "
+"compared on turn %(turn)s. An assumption, said beside each, not a "
+"measurement of real tables."
+msgstr ""
+"Las mismas partidas, una vez tal como fueron y otra con la mesa respondiendo"
+" - comparadas en el turno %(turn)s. Una suposición, indicada junto a cada "
+"una, no una medición de mesas reales."
+
+#: templates/simulations/_report.html
+msgid "Without"
+msgstr "Sin"
+
+#: templates/simulations/_report.html
+msgid "With"
+msgstr "Con"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "Measured in %(games)s game."
+msgid_plural "Measured in %(games)s games."
+msgstr[0] "Medido en %(games)s partida."
+msgstr[1] "Medido en %(games)s partidas."
+msgstr[2] "Medido en %(games)s partidas."
+
+#: templates/core/methodology.html
+msgid "Stress test"
+msgstr "Prueba de estrés"
+
+#: templates/core/methodology.html
+msgid ""
+"A goldfish meets no opponent, so the report adds two moments when the table "
+"strikes back: your commander destroyed once, in the opponents' turns right "
+"after it first comes down, and every creature destroyed before your turn 5. "
+"Each is played on a copy of the game taken at that moment, so the game with "
+"it and the game without it are the same game until then, and the difference "
+"is the disruption alone. The rest of the report is untouched by it."
+msgstr ""
+"Un goldfish no se enfrenta a ningún oponente, así que el informe añade dos "
+"momentos en los que la mesa responde: tu comandante destruido una vez, en "
+"los turnos de los oponentes justo después de que baje por primera vez, y "
+"todas las criaturas destruidas antes de tu turno 5. Cada uno se juega sobre "
+"una copia de la partida tomada en ese momento, de modo que la partida con y "
+"sin la perturbación es la misma hasta entonces, y la diferencia viene solo "
+"de la perturbación. El resto del informe no se ve afectado."
+
+#: templates/core/methodology.html
+msgid ""
+"Both are assumptions, named as such: nobody has published when real tables "
+"remove a commander or cast a wipe, so we do not pretend to know. A destroyed"
+" commander goes back to the command zone and costs two more; a wipe takes "
+"tokens and mana creatures too, while artifacts, enchantments and lands stay."
+" Indestructible and regeneration are not played. The stress test runs in the"
+" first 2,000 games of a run, and the wipe only in runs of six turns or more."
+msgstr ""
+"Ambas son suposiciones, nombradas como tales: nadie ha publicado cuándo las "
+"mesas reales eliminan a un comandante o lanzan un barrido, así que no "
+"fingimos saberlo. Un comandante destruido vuelve a la zona de mando y cuesta"
+" dos más; un barrido se lleva también las fichas y las criaturas de maná, "
+"mientras que los artefactos, los encantamientos y las tierras se quedan. "
+"Indestructible y regeneración no se juegan. La prueba de estrés se hace en "
+"las primeras 2000 partidas de una simulación, y el barrido solo en "
+"simulaciones de seis turnos o más."
+
+#: changelog/entries.py
+msgid "A stress test: your commander removed, a board wipe"
+msgstr "Una prueba de estrés: tu comandante eliminado, un barrido de mesa"
+
+#: changelog/entries.py
+msgid ""
+"Every new report now shows what happens when the table strikes back: your "
+"commander destroyed once, right after it first comes down, and a board wipe "
+"before turn 5. The same games are played with and without each, and the "
+"report compares the last turn - mana, your commander, the milestones - and "
+"says how soon your commander was back. Both are named assumptions, not "
+"measurements of real tables; the methodology page says what they assume. A "
+"report made with an older engine says so and offers a new run."
+msgstr ""
+"Cada informe nuevo muestra ahora qué pasa cuando la mesa responde: tu "
+"comandante destruido una vez, justo después de que baje por primera vez, y "
+"un barrido de mesa antes del turno 5. Las mismas partidas se juegan con y "
+"sin cada uno, y el informe compara el último turno - el maná, tu comandante,"
+" los hitos - y dice cuánto tardó tu comandante en volver. Ambas son "
+"suposiciones nombradas, no mediciones de mesas reales; la página de "
+"metodología dice qué suponen. Un informe hecho con un motor anterior lo "
+"indica y ofrece una nueva simulación."

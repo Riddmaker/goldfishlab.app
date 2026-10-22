@@ -128,7 +128,7 @@
 
     <h2 id="mulligan" class="mt-12 font-display text-2xl text-parchment-100">{% translate "The mulligan rule" %}</h2>
     <div class="mt-4 surface-parchment p-6">
-      {% comment %} simulation/game.py: cards_to_bottom() is max(0, mulligans - 1). {% endcomment %}
+      {% comment %} simulation/game.py: cards_to_bottom() is max(0, mulligans - 1); keeps_free_seven(), keepable(). {% endcomment %}
       <p class="text-ink-900">
         {% blocktranslate trimmed %}
           <strong>London mulligan</strong>: draw a fresh seven, then put cards on
@@ -136,7 +136,15 @@
           free</strong>, so the first one bottoms nothing.
         {% endblocktranslate %}
       </p>
-      <p class="mt-4 text-ink-900">{% translate "A hand is kept when:" %}</p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          Because it costs nothing, the <strong>first seven needs one land
+          more</strong>: it is kept with <strong>3 to 5 lands</strong>, or with 2
+          lands and at least two cheap accelerants. A two-land seven without them
+          goes back for free, as in Frank Karsten's mana tables.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">{% translate "Every hand after it is kept when:" %}</p>
       <ul class="mt-3 space-y-2 text-ink-900">
         <li>• {% blocktranslate trimmed %}it has <strong>2 to 5 lands</strong>; or{% endblocktranslate %}</li>
         <li>• {% blocktranslate trimmed %}it has <strong>exactly 1 land</strong> and at least two cheap accelerants.{% endblocktranslate %}</li>
@@ -152,10 +160,11 @@
           This heuristic decides every number that follows it, which is why it is
           written here in full rather than described as "a sensible keep rule".
           It is deliberately simpler than a good player: it cannot read your
-          hand's plan, only its shape. One consequence is worth knowing —
-          <strong>a land-heavy deck mulligans more, not less</strong>, because
-          forty-five lands flood into the 6+ rule far more often than twenty
-          lands miss into the 0 rule.
+          hand's plan, only its shape. One consequence is worth knowing — a
+          typical deck <strong>keeps its first seven only about half the
+          time</strong>, because a two-land seven goes back for free. The hand
+          that replaces it starts with more lands more often, which is what
+          the free mulligan is for.
         {% endblocktranslate %}
       </p>
     </div>
@@ -539,14 +548,15 @@
       </p>
       <p class="mt-4 text-ink-900">
         {% blocktranslate trimmed with same=karsten_same costs=karsten_costs %}
-          The engine needs the same number for {{ same }} of the {{ costs }} costs
-          and one or two more for the rest. The reason is the mulligan rule. Karsten
-          throws back a free seven with two lands; the engine keeps every hand with
-          two to five. A game that starts from two lands and still finds its lands in
-          time usually has just enough of them, where a three-land start has some to
-          spare, and every spare land is one more chance at the colour. Let the
-          engine throw back that hand too, and it needs Karsten's number for every
-          cost.
+          The engine needs the same number for {{ same }} of the {{ costs }} costs.
+          For the others it misses Karsten's target at his number by less than a
+          tenth of a point, about the sampling error of his own count, and so asks
+          for one source more. Until engine v38 it needed one or two more for seven
+          costs, because it kept a free seven with two lands, which Karsten throws
+          back. A game that starts from two lands and still finds its lands in time
+          usually has just enough of them, where a three-land start has some to
+          spare, and every spare land is one more chance at the colour. Since v38
+          the engine throws that hand back too.
         {% endblocktranslate %}
       </p>
       <p class="mt-4 text-sm text-ink-700">

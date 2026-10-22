@@ -349,6 +349,8 @@ def dump_game(game: Game) -> dict:
     # P19 R20: which of them are a permanent's kept counters, not Treasure
     # tokens; the counters, energy and emptied stores beside them.
     state["stored"] = _stored_at(game.treasures)
+    # Engine v37: the Treasures a Quark keeps aside.
+    state["locked_treasures"] = list(game.locked_treasures)
     state["counters"] = dict(game.counters)
     state["energy"] = game.energy
     state["emptied"] = list(game.emptied)
@@ -406,6 +408,7 @@ def load_game(data: dict, deck: DeckDefinition) -> Game:
                                 for row in data["pool_restricted"]]
         game.pool.treasure_bonus = int(data["pool_treasure_bonus"])
     game.treasures = _with_stored(data["treasures"], data["stored"])
+    game.locked_treasures = list(data.get("locked_treasures", ()))
     game.counters = {int(pid): int(count) for pid, count in data["counters"].items()}
     game.energy = int(data["energy"])
     game.emptied = [int(pid) for pid in data["emptied"]]

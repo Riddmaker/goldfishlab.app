@@ -57,10 +57,10 @@ _TRIGGER_KEYS = frozenset({
     "connive",
 })
 _COMBAT_KEYS = frozenset({
-    "triggers", "equip", "aura", "germ", "treasure_bonus", "vehicle",
+    "triggers", "equip", "aura", "germ", "treasure_bonus", "vehicle", "treasure_lock",
     # One trigger in combat.
     "event", "who", "types", "treasures", "mana", "search", "untapped", "flicker",
-    "most_life", "extra", "connive",
+    "most_life", "extra", "connive", "to_hand",
 })
 _TUTOR_KEYS = frozenset({
     "to", "count", "kind", "types", "max_mv", "color", "plus_sacrificed", "land_tapped",

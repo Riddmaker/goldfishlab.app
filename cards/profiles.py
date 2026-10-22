@@ -1096,6 +1096,9 @@ _TRIGGER_EVENTS = (
     ("cast", "", re.compile(r"Whenever you cast a spell")),
     ("cast", "second", re.compile(r"Whenever a player casts their second spell each turn")),
     ("upkeep", "", re.compile(r"At the beginning of your upkeep")),
+    # Engine v37: Quark, Humble Proprietor - the opponents' upkeeps too, played
+    # as one Treasure for each player in yours.
+    ("upkeep", "each", re.compile(r"At the beginning of each upkeep")),
     ("main", "", re.compile(r"At the beginning of your (?:first|precombat) main phase")),
     # Engine v33: Frontier Siege's Khans, played in the first main phase only.
     ("main", "", re.compile(r"At the beginning of each of your main phases")),
@@ -1223,6 +1226,8 @@ def _trigger_line(line: str, card: OracleCard) -> dict | None:
             read |= {"mana": len(pips), "color": pips[0]}
         else:
             read["treasures"] = _word_number(effect.group("treasures") or "a")
+            if wanted == "each":
+                read["treasures"] *= PLAYERS
         if effect.group("life"):
             read["life"] = int(effect.group("life"))
         if effect.group("counter"):
@@ -1362,7 +1367,8 @@ def _combat(card: OracleCard, kind: str) -> tuple[dict | None, frozenset[str]]:
     Living weapon - each only where a trigger or a granted mana ability
     (Paradise Mantle) rides on it. "treasure_bonus": Goldspan's Treasures
     make one more. "vehicle": a Vehicle whose search as it enters is read,
-    never crewed.
+    never crewed. "treasure_lock" (engine v37): Quark's "You can't sacrifice
+    Treasure tokens."
     """
     found: dict = {"triggers": []}
     read: set[str] = set()
@@ -1380,6 +1386,11 @@ def _combat(card: OracleCard, kind: str) -> tuple[dict | None, frozenset[str]]:
             read.add(line)
         elif _TREASURE_BONUS.match(line):
             found["treasure_bonus"] = 1
+            read.add(line)
+        elif line == "You can't sacrifice Treasure tokens.":
+            # Engine v37: Quark, Humble Proprietor - no Treasure is spent
+            # while it is out, nor sacrificed to an altar.
+            found["treasure_lock"] = True
             read.add(line)
         elif (loss := _POSTCOMBAT_LOSS.match(line)) is not None:
             found["triggers"].append({"event": "damage", "who": "total",
@@ -2781,6 +2792,13 @@ def _tutor(card: OracleCard, tags: set[str]) -> Tutor:
 
     zone = zones.pop()
     if zone == "battlefield":
+        found = _SEARCH_YOUR_LIBRARY.search(text)
+        lead = text[text.rfind("\n", 0, found.start()) + 1:found.start()]
+        if ":" in lead and _TUTOR_ACTIVATED.match(lead.lower()) is None:
+            # Engine v37: Captain Jean-Luc Picard's "Tap seven untapped
+            # Officers you control:" - an ability the engine does not pay for.
+            return Tutor(zone=zone, count=count, reason=gettext_noop(
+                "tutors as an ability whose cost the engine does not pay"))
         return Tutor(zone=zone, count=count,
                      reason=gettext_noop(
                          "tutors onto the battlefield, which the engine cannot do"))

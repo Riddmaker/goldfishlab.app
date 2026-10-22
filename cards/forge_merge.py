@@ -202,6 +202,7 @@ def enters_tapped(profile, abilities, card) -> None:
 _SEARCH_UNREAD = (
     "searches for lands under a condition the engine cannot read",
     "tutors onto the battlefield, which the engine cannot do",
+    "tutors as an ability whose cost the engine does not pay",
     "tutors, but no readable 'search your library' clause",
     "searches for lands the engine cannot describe",
     "searches for lands, but where they go could not be read",

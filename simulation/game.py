@@ -97,6 +97,12 @@ LANDER_FODDER = "Lander"
 STARTING_LIFE = 40
 
 
+def _is_treasure(each) -> bool:
+    """Whether one of ``Game.treasures`` is a Treasure token: not a Spawn's
+    {C}, not a store's counters (engine v37)."""
+    return isinstance(each, str) and each != COLORLESS
+
+
 def _token_name(mana: str) -> str:
     """What the log calls a token sacrificed for mana: an Eldrazi Spawn's is {C}."""
     return "Eldrazi Spawn" if mana == COLORLESS else "Treasure"
@@ -216,6 +222,10 @@ class Game(Marks):
         #: Kept from turn to turn; the pool borrows them and gives back the
         #: ones a payment did not sacrifice.
         self.treasures: list[str] = []
+        #: Engine v37: the Treasures put aside while a Quark, Humble Proprietor
+        #: is out - nobody may sacrifice them - and given back as the first
+        #: pool opens without one.
+        self.locked_treasures: list[str] = []
         #: Lander tokens on the battlefield (P19 R14): each a ``LANDER``
         #: search, activated when the mana is there.
         self.landers = 0
@@ -408,6 +418,9 @@ class Game(Marks):
     def _add_treasures(self, mana: str, count: int) -> None:
         """Treasure tokens onto the battlefield, and into an open pool."""
         made = [mana or "WUBRG"] * count
+        if mana != COLORLESS and self.treasures_locked():
+            self.locked_treasures.extend(made)
+            return
         self.treasures.extend(made)
         if self.pool is not None:
             self.pool.treasures.extend(made)
@@ -1089,6 +1102,7 @@ class Game(Marks):
         for mana in self.pending_mana:
             pool.add(mana)
         self.pending_mana = []
+        self._release_treasures()
         pool.treasures = list(self.treasures)
         pool.treasure_bonus = self.treasure_bonus()
         for card in sources:
@@ -1639,6 +1653,8 @@ class Game(Marks):
             self.fire(ENTERS, card)
             if card.turn.treasure_bonus and self.pool is not None:
                 self.pool.treasure_bonus = self.treasure_bonus()
+            if card.turn.treasure_lock:
+                self._lock_treasures()
             return
         if card.kind in (PLANESWALKER,):
             self.other_permanents.append(card)
@@ -1788,6 +1804,28 @@ class Game(Marks):
     def treasure_bonus(self) -> int:
         """How much more each Treasure makes: Goldspan Dragon's one."""
         return max((card.turn.treasure_bonus for card in self.battlefield), default=0)
+
+    def treasures_locked(self) -> bool:
+        """Engine v37: whether a Quark, Humble Proprietor is out, and no
+        Treasure may be sacrificed."""
+        return any(card.turn.treasure_lock for card in self.battlefield)
+
+    def _lock_treasures(self) -> None:
+        """Every Treasure put aside, the open pool's too (engine v37). Not an
+        Eldrazi Spawn, kept as a Treasure that makes {C} but a creature, nor a
+        permanent's stored counters (P19 R20)."""
+        self.locked_treasures.extend(each for each in self.treasures if _is_treasure(each))
+        self.treasures = [each for each in self.treasures if not _is_treasure(each)]
+        if self.pool is not None:
+            self.pool.treasures = [each for each in self.pool.treasures
+                                   if not _is_treasure(each)]
+
+    def _release_treasures(self) -> None:
+        """The Treasures put aside back, once no Quark is out (engine v37):
+        after the board wipe of the stress test, say."""
+        if self.locked_treasures and not self.treasures_locked():
+            self.treasures.extend(self.locked_treasures)
+            self.locked_treasures = []
 
     def can_attack(self, card) -> bool:
         """Whether a creature attacks this turn: not the turn it arrived

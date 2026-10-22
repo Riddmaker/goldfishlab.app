@@ -131,6 +131,8 @@ class MadeWith:
     germ: bool = False
     #: P19 R22: each Treasure makes this much more mana (Goldspan Dragon).
     treasure_bonus: int = 0
+    #: Engine v37: no Treasure can be sacrificed while it is out (Quark).
+    treasure_lock: bool = False
 
 #: The names of the fields, in the order a card declared them.
 FIELDS = tuple(item.name for item in fields(MadeWith))

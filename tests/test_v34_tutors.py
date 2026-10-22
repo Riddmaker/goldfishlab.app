@@ -125,7 +125,9 @@ def test_rocco_still_finds_a_creature_for_x():
 ])
 def test_a_search_the_engine_does_not_play_stays_a_gap(name, text, type_line):
     tutor = read(name, text, type_line=type_line, cost="{X}{G}{W}{U}")
-    assert tutor.filter is None and "cannot do" in tutor.reason
+    # v37: Kuldotha Forgemaster's sacrifice is a cost the engine does not pay.
+    assert tutor.filter is None and ("cannot do" in tutor.reason
+                                     or "does not pay" in tutor.reason)
 
 
 def test_a_basic_land_goes_on_top():

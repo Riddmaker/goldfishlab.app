@@ -59,6 +59,7 @@ FAMILY = {
     "equip": parse("{3}"),
     "germ": True,
     "treasure_bonus": 1,
+    "treasure_lock": True,
 }
 
 

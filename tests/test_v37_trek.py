@@ -10,6 +10,11 @@ What these tests hold:
    among your creatures, the Borg left out.
 4. **Captain Kirk, Boldly Going**: a basic land to hand as it enters and as
    it attacks; the named card and the graveyard are not searched.
+5. **Quark, Humble Proprietor**: a Treasure in each upkeep - four a round,
+   made in yours - and while it is out no Treasure is spent or sacrificed;
+   they are kept, and come back once it is gone.
+6. **Captain Jean-Luc Picard** stays unread, and says why: its search is an
+   ability whose cost - seven Officers tapped - the engine does not pay.
 """
 
 import random
@@ -17,20 +22,21 @@ import uuid
 
 from cards.models import OracleCard
 from cards.profiles import derive
-from simulation import actions, build
+from simulation import actions, build, serial
 from simulation.cards import (
     COUNTS,
     CREATURE,
     FLAT,
     LAND,
     ROCK,
+    AdditionalCost,
     Card,
     CombatTrigger,
     DeckDefinition,
     LandSearch,
     Trigger,
 )
-from simulation.game import Game
+from simulation.game import TREASURE, Game
 from simulation.manacost import parse
 from simulation.spec import ManaAbility
 from simulations.engine import adapter
@@ -104,6 +110,32 @@ def test_kirk_is_said_on_the_card_list_as_lands_to_hand():
     assert card.turn.combat == (CombatTrigger(event="attacks", who="self", to_hand=True),)
     assert [gap.field for gap in gaps if gap.field != "priority"] == ["assumed_trigger"]
     assert adapter._combat_text(card.turn.combat[0]) == "whenever it attacks: 1 basic land to hand"
+
+
+QUARK_TEXT = ("You can't sacrifice Treasure tokens.\nAt the beginning of each upkeep, create a "
+              "Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana "
+              "of any color.\")")
+
+
+def test_quark_makes_four_treasures_a_round_and_locks_them():
+    profile = derive(oracle(QUARK_TEXT, name="Quark, Humble Proprietor",
+                            type_line="Legendary Creature — Ferengi Rogue"), set(), forge=[])
+    assert profile.triggers == [{"event": "upkeep", "filter": "each", "treasures": 4}]
+    assert profile.combat == {"treasure_lock": True}
+    assert profile.review_reasons == []
+
+
+PICARD_TEXT = ("Other creatures you control get +1/+1.\nWhenever you cast a creature or Spacecraft "
+               "spell, create a 1/1 red Officer creature token.\nTap seven untapped Officers you "
+               "control: Search your library for a Spacecraft card, put it onto the battlefield "
+               "with seven charge counters on it, then shuffle.")
+
+
+def test_picard_s_search_says_what_it_costs():
+    profile = derive(oracle(PICARD_TEXT, name="Captain Jean-Luc Picard",
+                            type_line="Legendary Creature — Human Officer"),
+                     {"tutor", "tutor-to-battlefield", "tutor-artifact"}, forge=[])
+    assert profile.review_reasons == ["tutors as an ability whose cost the engine does not pay"]
 
 
 # --- the engine -------------------------------------------------------------------------
@@ -194,3 +226,35 @@ def test_kirk_finds_another_as_it_attacks():
     game.library = [PLAINS, FOREST, creature("Bear")]
     assert game.combat() is False
     assert len(game.hand) == 1 and game.hand[0].is_land and len(game.library) == 2
+
+
+QUARK = build.card("Quark, Humble Proprietor", 3, 1, 2, CREATURE, cost=parse("{2}{R}"),
+                   types=frozenset({"creature"}), treasure_lock=True,
+                   triggers=(Trigger("upkeep", filter="each", treasures=4,
+                                     treasure_mana="WUBRG"),))
+
+
+def test_quark_puts_every_treasure_aside_but_a_spawn():
+    game = game_with(lands=[MOUNTAIN] * 3, hand=[QUARK])
+    game.treasures = ["WUBRG", "C"]
+    game.pool.treasures = ["WUBRG", "C"]
+    game.cast(QUARK, game.pool)
+    assert game.treasures == ["C"] and game.pool.treasures == ["C"]
+    assert game.locked_treasures == ["WUBRG"]
+
+
+def test_quark_s_treasures_wait_until_it_is_gone():
+    game = game_with(creatures=[QUARK], open_main=False)
+    game.begin_turn()
+    assert game.treasures == [] and len(game.locked_treasures) == 4
+    actions.OpenMainPhase().run(game, None)
+    assert game.pool.treasures == []
+    artifact = AdditionalCost(sacrifice=frozenset({"artifact"}))
+    assert TREASURE not in game.fodder(artifact, game.pool)
+    saved = serial.load_game(serial.dump_game(game), game.deck)
+    assert saved.locked_treasures == game.locked_treasures
+    game.board_wipe()
+    game.pool = None
+    game.begin_turn()
+    actions.OpenMainPhase().run(game, None)
+    assert len(game.pool.treasures) == 4 and game.locked_treasures == []

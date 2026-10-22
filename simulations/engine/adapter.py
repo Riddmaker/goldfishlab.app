@@ -572,6 +572,7 @@ _TRIGGER_WHEN = {
     ("cast", "colorless"): gettext_noop("whenever you cast a colourless spell"),
     ("cast", "second"): gettext_noop("on your second spell each turn"),
     ("upkeep", ""): gettext_noop("each upkeep"),
+    ("upkeep", "each"): gettext_noop("in each upkeep of a round, yours and three opponents'"),
     ("main", ""): gettext_noop("at each first main phase"),
     ("dies", "another"): gettext_noop("whenever another creature of yours dies"),
     ("dies", ""): gettext_noop("whenever it or another creature of yours dies"),
@@ -1703,6 +1704,7 @@ def _combat(oracle_card, profile, deck_colors: frozenset[str]) -> dict:
         "equip": parse(found["equip"]) if found.get("equip") else None,
         "germ": bool(found.get("germ")),
         "treasure_bonus": int(found.get("treasure_bonus") or 0),
+        "treasure_lock": bool(found.get("treasure_lock")),
     }
 
 
@@ -1846,6 +1848,10 @@ def _record_combat(card: Card, found: dict, gaps: list[Gap]) -> None:
         said.append(gettext_noop(
             "makes each of your Treasures add two mana while it is on the battlefield; the "
             "two may be of different colours"))
+    if turn.treasure_lock:
+        said.append(gettext_noop(
+            "while it is on the battlefield no Treasure of yours is spent or sacrificed; they "
+            "are kept, and can be spent from the first turn after it leaves"))
     if any(read.get("extra") for read in found.get("triggers") or ()):
         said.append(gettext_noop(
             "the rest of its trigger - a card exiled from an opponent's library - is not "
@@ -2794,6 +2800,12 @@ def _record_gaps(card: Card, profile, overrides: dict, gaps: list[Gap],
             "plays a land a turn")))
 
     for read in getattr(profile, "triggers", None) or []:
+        if read["event"] == "upkeep" and read.get("filter") == "each":
+            # Engine v37: Quark's Treasure in every upkeep, made in yours.
+            gaps.append(Gap(card.name, "assumed_trigger", gettext_noop(
+                "makes the Treasures of the three opponents' upkeeps in yours, assuming three "
+                "opponents")))
+            continue
         if read["event"] != "opponents":
             continue
         # P19 R16: the opponents' round, assumed - stated on the card list.

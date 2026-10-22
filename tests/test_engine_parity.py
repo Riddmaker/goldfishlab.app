@@ -24,6 +24,7 @@ from pathlib import Path
 import pytest
 
 from simulation import analysis
+from simulation.game import Game
 
 GOLDEN = Path(__file__).resolve().parent / "fixtures" / "engine_golden.json"
 
@@ -100,6 +101,16 @@ def test_the_snapshot_reaches_past_turn_three(golden):
 # nothing casts a six-drop before then.
 CORRECTED_FIELD = "draw_engine"
 CORRECTED_CARD = "Liliana, Dreadhorde General"
+
+
+@pytest.fixture(autouse=True)
+def _the_original_keep_rule(monkeypatch):
+    """The original engine keeps a free seven by the same rule as any other
+    hand. v38 throws back a free seven with two lands (Karsten's rule), which
+    changes which games are played, not how one is played; with the old rule
+    put back, every other line of the engine is still held to the snapshot.
+    tests/test_karsten.py and tests/test_game_free_seven.py check the new rule."""
+    monkeypatch.setattr(Game, "keeps_free_seven", Game.keepable)
 
 
 def _divergences(golden):

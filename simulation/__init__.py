@@ -238,6 +238,11 @@ boundary, not the symptom.
 #:    your creatures, a basic land to hand as a creature enters and attacks,
 #:    and "You can't sacrifice Treasure tokens" (Quark). Every game of the
 #:    corpus and every number is as in 36.
-ENGINE_VERSION = 37
+#: 38: the first seven, whose mulligan is free, is kept only with 3 to 5
+#:    lands, or 2 lands and two accelerants (Game.keeps_free_seven), as in
+#:    Frank Karsten's mana tables; every later hand by the rule as before.
+#:    With it the engine needs his number of coloured sources for 17 of his
+#:    19 costs and is within sampling error of the other two (karsten.py).
+ENGINE_VERSION = 38
 
 __all__ = ["ENGINE_VERSION", "agent", "analysis", "cards", "fixtures", "game", "mana"]

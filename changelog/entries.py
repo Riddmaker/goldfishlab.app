@@ -41,6 +41,20 @@ class Entry:
 
 
 ENTRIES = (
+    # Engine v38.
+    Entry(
+        date(2026, 10, 22), "free-mulligan-like-karsten",
+        _("The free mulligan, taken like Karsten"),
+        _("The first mulligan is free in multiplayer Commander, and the engine now uses it: a "
+          "first seven with only two lands goes back, unless two cheap accelerants stand in "
+          "for the third land. Every hand after it is kept as before. This is the rule Frank "
+          "Karsten's mana tables assume, and with it the engine needs his number of sources "
+          "of a colour for 17 of his 19 mana costs and comes within a tenth of a point on the "
+          "other two. Reports keep their first seven less often and have a little more land "
+          "and mana in the early turns. A report made with an older engine says so and offers "
+          "a new run."),
+        "methodology", "mulligan",
+    ),
     # P16, no engine change.
     Entry(
         date(2026, 10, 22), "checked-against-karsten",

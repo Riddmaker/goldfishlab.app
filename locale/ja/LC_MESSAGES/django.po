@@ -3501,10 +3501,6 @@ msgstr ""
 "<strong>ロンドン・マリガン</strong>：新たに7枚引き、それからカードをライブラリーの一番下に置きます。多人数戦の統率者戦では<strong>最初のマリガンはフリー</strong>なので、1回目は1枚も下に置きません。"
 
 #: templates/core/methodology.html
-msgid "A hand is kept when:"
-msgstr "次の場合に手札をキープします："
-
-#: templates/core/methodology.html
 msgid "it has <strong>2 to 5 lands</strong>; or"
 msgstr "<strong>土地が2～5枚</strong>ある。または"
 
@@ -3518,17 +3514,6 @@ msgid ""
 "A hand with <strong>0 or 6 or more lands</strong> goes back. We stop after "
 "three mulligans, at five cards."
 msgstr "<strong>土地が0枚、または6枚以上</strong>の手札は戻します。マリガンは3回、5枚までで止めます。"
-
-#: templates/core/methodology.html
-msgid ""
-"This heuristic decides every number that follows it, which is why it is "
-"written here in full rather than described as \"a sensible keep rule\". It "
-"is deliberately simpler than a good player: it cannot read your hand's plan,"
-" only its shape. One consequence is worth knowing — <strong>a land-heavy "
-"deck mulligans more, not less</strong>, because forty-five lands flood into "
-"the 6+ rule far more often than twenty lands miss into the 0 rule."
-msgstr ""
-"このヒューリスティックはその後のすべての数値を左右します。だからこそ「妥当なキープ基準」と説明するのではなく、ここに全文を書いています。意図的に上手なプレイヤーより単純にしてあり、手札のプランは読めず、形しか見ません。知っておく価値のある結果が一つあります。<strong>土地の多いデッキほど、マリガンは減るのではなく増えます</strong>。45枚の土地が6枚以上のルールに引っかかる頻度は、20枚の土地が0枚のルールに引っかかる頻度よりはるかに高いからです。"
 
 #: templates/core/methodology.html
 msgid "The first draw, and how a turn makes mana"
@@ -12425,19 +12410,6 @@ msgstr ""
 "41枚の土地のうち、ある1色の発生源の数。並びはカーステンの順です。「C」は色マナ・シンボル1つ、数字は不特定マナの部分です。2CCはその色のシンボルを2つ含む4マナの呪文です。"
 
 #: templates/core/methodology.html
-#, python-format
-msgid ""
-"The engine needs the same number for %(same)s of the %(costs)s costs and one"
-" or two more for the rest. The reason is the mulligan rule. Karsten throws "
-"back a free seven with two lands; the engine keeps every hand with two to "
-"five. A game that starts from two lands and still finds its lands in time "
-"usually has just enough of them, where a three-land start has some to spare,"
-" and every spare land is one more chance at the colour. Let the engine throw"
-" back that hand too, and it needs Karsten's number for every cost."
-msgstr ""
-"エンジンは%(costs)s個のコストのうち%(same)s個でカーステンと同じ数を必要とし、残りでは1つか2つ多く必要とします。理由はマリガン・ルールです。カーステンは土地2枚の無料の7枚の手札を戻しますが、エンジンは土地2〜5枚の手札をすべてキープします。土地2枚で始まってそれでも間に合うように土地を引いたゲームは、たいてい土地がぎりぎりです。一方、土地3枚で始まったゲームには余りがあり、余った土地1枚ごとにその色を引くチャンスが1回増えます。エンジンにもその手札を戻させると、すべてのコストでカーステンと同じ数になります。"
-
-#: templates/core/methodology.html
 msgid ""
 "Not checked yet: gold cards, for which Karsten adds one source to each "
 "colour, and decks with mana rocks or card selection, which his table leaves "
@@ -12459,3 +12431,60 @@ msgid ""
 " Karsten sends back. The page shows the table and why."
 msgstr ""
 "方法論のページで、エンジンをフランク・カーステンの表と並べて示すようになりました。統率者デッキが呪文をカーブ通りに唱えるのに、ある色の発生源がいくつ必要かを示す表です。彼のやり方と彼のマリガン・ルールで数えると、彼の数字と一致します。エンジン自身のルールでは、ほとんどのマナ・コストで同じ数、残りでは1つか2つ多く必要になります。カーステンが戻す土地2枚の初手を、エンジンはキープするからです。ページでは表とその理由を示しています。"
+
+#: templates/core/methodology.html
+msgid ""
+"Because it costs nothing, the <strong>first seven needs one land "
+"more</strong>: it is kept with <strong>3 to 5 lands</strong>, or with 2 "
+"lands and at least two cheap accelerants. A two-land seven without them goes"
+" back for free, as in Frank Karsten's mana tables."
+msgstr ""
+"無料なので、<strong>最初の7枚の手札には土地が1枚多く必要です</strong>。<strong>土地3〜5枚</strong>、または土地2枚と軽いマナ加速2枚以上でキープします。それがない土地2枚の7枚の手札は、フランク・カーステンのマナ表と同じく無料で戻します。"
+
+#: templates/core/methodology.html
+msgid "Every hand after it is kept when:"
+msgstr "その後の手札は、次の場合にキープします："
+
+#: templates/core/methodology.html
+msgid ""
+"This heuristic decides every number that follows it, which is why it is "
+"written here in full rather than described as \"a sensible keep rule\". It "
+"is deliberately simpler than a good player: it cannot read your hand's plan,"
+" only its shape. One consequence is worth knowing — a typical deck "
+"<strong>keeps its first seven only about half the time</strong>, because a "
+"two-land seven goes back for free. The hand that replaces it starts with "
+"more lands more often, which is what the free mulligan is for."
+msgstr ""
+"このヒューリスティックはその後のすべての数値を左右します。だからこそ「妥当なキープ基準」と説明するのではなく、ここに全文を書いています。意図的に上手なプレイヤーより単純にしてあり、手札のプランは読めず、形しか見ません。知っておく価値のある結果が一つあります。一般的なデッキは<strong>最初の7枚の手札をおよそ半分のゲームでしかキープしません</strong>。土地2枚の7枚の手札は無料で戻すからです。代わりの手札は土地が多い状態で始まることが多く、それこそが無料マリガンの目的です。"
+
+#: templates/core/methodology.html
+#, python-format
+msgid ""
+"The engine needs the same number for %(same)s of the %(costs)s costs. For "
+"the others it misses Karsten's target at his number by less than a tenth of "
+"a point, about the sampling error of his own count, and so asks for one "
+"source more. Until engine v38 it needed one or two more for seven costs, "
+"because it kept a free seven with two lands, which Karsten throws back. A "
+"game that starts from two lands and still finds its lands in time usually "
+"has just enough of them, where a three-land start has some to spare, and "
+"every spare land is one more chance at the colour. Since v38 the engine "
+"throws that hand back too."
+msgstr ""
+"エンジンは%(costs)s個のコストのうち%(same)s個でカーステンと同じ数を必要とします。残りでは、カーステンの数でも目標に0.1ポイント未満届かず、これは彼自身の集計の標本誤差とほぼ同じ大きさですが、そのためにソースを1つ多く求めます。エンジンv38までは、カーステンが戻す土地2枚の無料の7枚の手札をキープしていたため、7つのコストで1つか2つ多く必要としていました。土地2枚で始まってそれでも間に合うように土地を引いたゲームは、たいてい土地がぎりぎりです。一方、土地3枚で始まったゲームには余りがあり、余った土地1枚ごとにその色を引くチャンスが1回増えます。v38からは、エンジンもその手札を戻します。"
+
+#: changelog/entries.py
+msgid "The free mulligan, taken like Karsten"
+msgstr "カーステン流の無料マリガン"
+
+#: changelog/entries.py
+msgid ""
+"The first mulligan is free in multiplayer Commander, and the engine now uses"
+" it: a first seven with only two lands goes back, unless two cheap "
+"accelerants stand in for the third land. Every hand after it is kept as "
+"before. This is the rule Frank Karsten's mana tables assume, and with it the"
+" engine needs his number of sources of a colour for 17 of his 19 mana costs "
+"and comes within a tenth of a point on the other two. Reports keep their "
+"first seven less often and have a little more land and mana in the early "
+"turns. A report made with an older engine says so and offers a new run."
+msgstr ""
+"多人数戦の統率者戦では最初のマリガンは無料で、エンジンはそれを使うようになりました。土地が2枚しかない最初の7枚の手札は、軽いマナ加速2枚が3枚目の土地の代わりにならない限り戻します。その後の手札はこれまでどおりキープします。これはフランク・カーステンのマナ表が前提とするルールで、これによりエンジンは彼の19のマナ・コストのうち17で彼と同じ数の色マナ源を必要とし、残りの2つでも0.1ポイント以内に収まります。レポートでは最初の7枚をキープする割合が下がり、序盤のターンの土地とマナが少し増えます。古いエンジンで作られたレポートにはその旨が表示され、再実行を勧めます。"

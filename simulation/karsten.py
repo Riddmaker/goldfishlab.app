@@ -52,12 +52,15 @@ PUBLISHED = {
 }
 
 #: What the engine needs for the same costs: `engine_karsten`, 1,000,000
-#: games, seed 2022 (22 October 2026, engine v37). The methodology page prints
-#: it; tests/test_karsten.py and the command fail when it goes stale.
+#: games, seed 2022 (22 October 2026, engine v38). The methodology page prints
+#: it; tests/test_karsten.py and the command fail when it goes stale. Since
+#: v38 it is Karsten's number for 17 costs; 3C and C miss his target at his
+#: number by less than 0.05 points, which is within sampling error of his own
+#: count but still one source more here.
 REQUIRED = {
-    "5C": 14, "4C": 15, "3C": 17, "2C": 18, "5CC": 20, "1C": 20, "4CC": 22,
-    "C": 21, "3CC": 24, "4CCC": 26, "2CC": 26, "3CCC": 28, "1CC": 29,
-    "2CCC": 30, "CC": 32, "1CCC": 33, "1CCCC": 36, "CCC": 37, "CCCC": 39,
+    "5C": 14, "4C": 15, "3C": 17, "2C": 18, "5CC": 20, "1C": 19, "4CC": 22,
+    "C": 20, "3CC": 23, "4CCC": 26, "2CC": 26, "3CCC": 28, "1CC": 28,
+    "2CCC": 30, "CC": 30, "1CCC": 33, "1CCCC": 36, "CCC": 36, "CCCC": 39,
 }
 
 _LANDS = tuple(Card(f"Land {number}", 0, 0, 0, LAND, frozenset(), types=frozenset({"land"}))

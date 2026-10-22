@@ -9,9 +9,10 @@ of times — then reports what actually happened.
 The simulation engine is validated against the exact hypergeometric distribution, so its numbers
 agree with closed-form mathematics wherever closed-form mathematics applies. It is also checked
 against Frank Karsten's coloured-source table for 99-card decks: counted his way with his mulligan
-rule it gives his numbers, and the engine's own rule needs the same or one to two sources more
-(`python manage.py engine_karsten`, `tests/test_karsten.py`, the methodology page's "Checked
-against Karsten").
+rule it gives his numbers, and since engine v38, which takes the free mulligan as he does, the
+engine's own rule needs his number for 17 of his 19 costs and is within sampling error of the
+other two (`python manage.py engine_karsten`, `tests/test_karsten.py`, the methodology page's
+"Checked against Karsten").
 
 > Unofficial Fan Content permitted under the Wizards of the Coast Fan Content Policy.
 > Not approved or endorsed by Wizards. Portions of the materials used are property of
@@ -432,6 +433,12 @@ and attacks (Captain Kirk, `COMBAT_SEARCH_TO_HAND`), and Quark's Treasure in eve
 its "You can't sacrifice Treasure tokens" (`Game.locked_treasures`). A search onto the
 battlefield at a cost the engine does not pay now says so. The v36 files were frozen again on
 the catalogue of 22 October, which holds the Star Trek cards, before v37 was compared with them.
+Engine v38 takes the free mulligan as Frank Karsten's mana tables do: the first seven is kept only
+with 3 to 5 lands, or 2 lands and two accelerants (`Game.keeps_free_seven`); every later hand by
+`Game.keepable` as before. It changes no card's reading. A typical precon now keeps its first
+seven in about half of its games, where it kept it in four of five, and has a little more land
+and mana in the early turns. `tests/test_engine_parity.py` puts the old rule back to hold the
+rest of the engine to the original snapshot.
 
 A round that changes `cards/profiles.py` needs the profiles derived again after its deploy
 (`python manage.py ingest_scryfall --profiles`), and every round changes the engine's numbers, so
@@ -470,8 +477,9 @@ The test decks in `decks/fixtures.py` are the missing shapes, and each one recor
 which class of bug it exists to catch. Within an hour of the first one existing they had found
 three: four of the engine's five basic land types unreachable from any stored deck, a coverage
 score that could go negative, and — not a bug, but a property worth knowing — that a
-forty-five land deck mulligans *more* than a twenty land deck, because the keep rule throws
-back a flooded hand just as readily as an empty one.
+forty-five land deck mulligans too, because the keep rule throws back a flooded hand just as
+readily as an empty one. (Until engine v38 it mulliganed *more* than a twenty land deck; since
+the free seven needs three lands, the twenty land deck takes that free mulligan more often.)
 
 The engine lives in `simulation/` and **never imports Django**; the only module that sees
 both worlds is `simulations/engine/adapter.py`. That separation is what lets the four

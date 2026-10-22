@@ -339,29 +339,28 @@ def test_more_lands_really_does_mean_more_lands_in_hand(build):
     assert _mean_opening_lands(heavy) > _mean_opening_lands(light) + 1.0
 
 
-def test_the_land_heavy_deck_mulligans_more_not_less(build):
+def test_the_land_heavy_deck_mulligans_too(build):
     """Flooding, which is the interesting half.
 
-    The intuition says more lands means fewer mulligans. The keep rule says
-    otherwise: `game.keepable` throws back a hand of **0 or 6+ lands**, so a
-    forty-five land deck mulligans into flood far more often than a twenty land
-    deck mulligans into nothing.
+    The intuition says more lands means no mulligans. The keep rule says
+    otherwise: `game.keepable` throws back a hand of **6+ lands**, so a deck
+    of forty-five lands in sixty cards mulligans into flood in a large share
+    of its games, nearly always for a first seven of six lands or more.
 
     Asserted because it was guessed wrong once. It is also the failure mode a
     goldfish is least likely to report on its own - nobody loses to flooding
     against no opponent - so it is worth having a deck that makes it visible.
+    Until v38 it mulliganed more than the twenty-land deck; since the free
+    seven needs three lands, the light deck takes that free mulligan more.
     """
-    light = analysis.run(
-        GAMES, turns=TURNS, seed=20260918, deck=adapter.deck_definition(build(LAND_LIGHT))
-    )
     heavy = analysis.run(
         GAMES, turns=TURNS, seed=20260918, deck=adapter.deck_definition(build(LAND_HEAVY))
     )
 
-    def mulliganed(result) -> int:
-        return sum(n for taken, n in result["mulligans"].items() if taken)
-
-    assert mulliganed(heavy) > mulliganed(light)
+    mulliganed = sum(n for taken, n in heavy["mulligans"].items() if taken)
+    flooded = sum(n for lands, n in heavy["first_seven"].items() if lands >= 6)
+    assert mulliganed > GAMES // 3
+    assert flooded > 0.8 * mulliganed
 
 
 # --- scaling mana, through the database -------------------------------------

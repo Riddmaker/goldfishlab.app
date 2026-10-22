@@ -1006,5 +1006,5 @@ def keep_rate_no_mulligan(iterations: int = 200_000,
     keeps = 0
     for _ in range(iterations):
         hand = rng.sample(library, 7)
-        keeps += dummy.keepable(hand)
+        keeps += dummy.keeps_free_seven(hand)
     return pct(keeps, iterations)

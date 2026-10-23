@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.cache import patch_vary_headers
 from django.utils.decorators import method_decorator
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.utils.translation import gettext, gettext_noop, ngettext
 from django.views.generic import DeleteView, DetailView, FormView, ListView, View
 from django_ratelimit.decorators import ratelimit
@@ -23,10 +23,18 @@ from billing.quotas import QuotaExceeded
 from billing.views import upgrade_prompt
 from combos import services as combo_services
 from decks import analysis as deck_analysis
-from decks import command_zone, services
+from decks import command_zone, printing_art, services
 from decks.forms import ColumnMappingForm, CommanderForm, DeckNameForm, ImportForm
 from decks.importers import columns, tabular
-from decks.models import Deck, DeckCard, DeckImport, PendingImport, printings_shown
+from decks.models import (
+    Deck,
+    DeckCard,
+    DeckImport,
+    PendingImport,
+    art_missing,
+    first_image,
+    printings_shown,
+)
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
 from simulations import blindspots, deck_cards, review, summary
 from simulations.engine import adapter
@@ -83,14 +91,18 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         headers = request.headers
         if headers.get("HX-Request") and not headers.get("HX-History-Restore-Request"):
             self.object = self.get_object()
-            readings = adapter.readings(self.object)
-            response = render(request, self.grid_template,
-                              self.grid_context(self.object, readings))
+            response = self.grid_response()
         else:
             response = super().get(request, *args, **kwargs)
         # One URL, two bodies: a cache must not hand the fragment to a page load.
         patch_vary_headers(response, ("HX-Request",))
         return response
+
+    def grid_response(self):
+        """The grid alone, for htmx."""
+        readings = adapter.readings(self.object)
+        return render(self.request, self.grid_template,
+                      self.grid_context(self.object, readings))
 
     def grid_context(self, deck, readings) -> dict:
         printings = {entry.oracle_card_id: entry.printings_shown for entry in deck.entries.all()}
@@ -98,8 +110,18 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         grid = deck_cards.cards(readings, questions, printings)
         filters = deck_cards.Filters.from_request(self.request.GET)
         type_bars, category_bars = deck_cards.bars(grid)
+        art_pending = printing_art.is_pending(deck)
         return {
             "deck": deck,
+            # The art of the printings the file named, still being looked up
+            # after an import: placeholders, and the grid fetches itself again.
+            "art_pending": art_pending,
+            "art_poll": self.request.GET.get("art") == "1",
+            "commander_art": commander_art(deck, art_pending),
+            # The grid's filters, so a refetch shows what was being shown.
+            "grid_query": urlencode({key: value for key, value in (
+                ("type", filters.kind), ("cat", filters.category), ("q", filters.query))
+                if value}),
             # The cards the engine could not read on its own: the same queue the
             # red marker counts the open ones of (P20 F4, E1.35).
             "unread_cards": sum(1 for question in questions if question.unread),
@@ -164,6 +186,21 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         # every report carries the other.
         context["blindspots"] = blindspots.find(readings)
         return context
+
+
+def commander_art(deck, pending: bool) -> list[tuple]:
+    """`(card, picture, waiting, missing)` per commander: the art of the
+    printing the file named when it is in, the catalogue's picture otherwise,
+    whether that art is still being looked up, and whether the lookup failed
+    and may be tried again."""
+    command = deck.commander_printings or {}
+    art = []
+    for card in deck.commanders:
+        printings = command.get(str(card.pk)) or []
+        image = first_image(printings)
+        art.append((card, image or card.image_uri, pending and bool(printings) and not image,
+                    not pending and art_missing(printings)))
+    return art
 
 
 def commander_choice(deck, last_import):
@@ -467,6 +504,27 @@ class SetCommanderView(LoginRequiredMixin, View):
         if save_commanders(request, deck):
             return redirect(deck.get_absolute_url())
         return redirect(f"{deck.get_absolute_url()}#commander")
+
+
+@method_decorator(ratelimit(key="user", rate="10/m", method="POST"), name="post")
+class PrintingArtRetryView(DeckDetailView):
+    """The small button on a card whose printing art Scryfall did not answer
+    with: ask again (`printing_art.retry`).
+
+    The deck page's own queryset, so only the owner can. htmx gets the grid
+    back in its waiting state, which fetches itself until the art is in;
+    without scripting the form reloads the page. Rate limited, and a lookup
+    already pending is never queued twice.
+    """
+
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        printing_art.retry(self.object)
+        if request.headers.get("HX-Request"):
+            return self.grid_response()
+        return redirect(f"{self.object.get_absolute_url()}#cards")
 
 
 class DeckRenameView(OwnedDecksMixin, View):

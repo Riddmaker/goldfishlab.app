@@ -32,7 +32,7 @@ from django.utils.translation import gettext, gettext_noop
 from billing import quotas
 from billing.models import UsageRecord
 from core.l10n import number
-from decks import command_zone, importers, resolve
+from decks import command_zone, importers, printing_art, resolve
 from decks.models import Deck, DeckCard, DeckImport, PendingImport, UnresolvedRow
 
 #: Uploads above this are refused before anything is decoded. The reference
@@ -354,6 +354,7 @@ def import_deck(
     _write_entries(deck, report, commanders=_commanders_for(deck, zone))
     _write_unresolved(record, report)
     _set_commanders(deck, report, zone)
+    printing_art.later(deck)
     if creating and not name and deck.commander_id:
         # A deck is called after its commander, not after the file: every
         # Archidekt export is named "archidekt-collection-export-<date>.csv"
@@ -389,10 +390,12 @@ def _printings(report: resolve.ResolutionReport, command=()) -> tuple[dict, dict
     command: dict[str, list] = defaultdict(list)
     for resolution in report.resolved:
         row = resolution.row
-        if not (row.set_code or row.finish):
+        if not (row.set_code or row.finish or row.scryfall_id):
             continue
         printing = {"set": row.set_code[:12], "number": row.collector_number[:16],
                     "finish": row.finish, "quantity": min(row.quantity, 32_767)}
+        if row.scryfall_id:
+            printing["id"] = row.scryfall_id[:36]
         oracle_id = str(resolution.card.pk)
         in_zone = row.is_commander and oracle_id in zone
         (command if in_zone else in_list)[oracle_id].append(printing)

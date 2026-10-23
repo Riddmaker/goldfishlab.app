@@ -21,8 +21,8 @@
       nobody can say what a card does without reading it.
     {% endcomment %}
     <section class="surface-parchment p-6 md:order-last">
-      {% if card.image_uri %}
-        <img src="{{ card.image_uri }}" alt="{{ card.front_name }}"
+      {% if card_image %}
+        <img src="{{ card_image }}" alt="{{ card.front_name }}"
              width="488" height="680" class="mx-auto h-auto w-full max-w-xs rounded-lg">
       {% endif %}
       {# The card as printed: English, like its name (phase 12, Q6). #}

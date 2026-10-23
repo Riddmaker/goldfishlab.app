@@ -29,8 +29,6 @@ docker-compose*.yml
 screenshots/
 staticfiles/
 docs/
-# The P22 phone test (temporary): a local tool, never part of the app.
-scripts/p22_phone_test/
 
 # Build output that stage 1 regenerates
 static/css/main.css

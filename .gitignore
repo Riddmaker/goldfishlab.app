@@ -57,8 +57,10 @@ htmlcov/
 # page with nothing to do with the project.
 /uv.lock
 /yt.html
-# Claude Code's per-machine settings (the push guard for dev and main).
+# Claude Code's per-machine files: the local settings and the owner's
+# CLAUDE.md (a personal working template, kept on this machine).
 /.claude/settings.local.json
+/CLAUDE.md
 
 # The P19 coverage gate keeps each round's snapshot here (scripts/coverage_gate.py).
 /.coverage-gate/

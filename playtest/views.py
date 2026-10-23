@@ -45,13 +45,19 @@ def card_images(session: PlaytestSession) -> dict:
 
     The engine's `Card` carries no art: it is a set of numbers, and giving it a
     URL would put a web address inside the simulation. So the picture is looked
-    up here, by name, from the deck the session belongs to. The URL is
-    hot-linked and never stored as bytes, which is what Scryfall asks for.
+    up here, by name, from the deck the session belongs to - the art of the
+    printing its file named where that was found (`decks.printing_art`).
+    The URL is hot-linked and never stored as bytes, which is what Scryfall
+    asks for.
     """
-    pairs = dict(session.deck.entries.values_list(
-        "oracle_card__front_name", "oracle_card__image_uri"))
-    for commander in session.deck.commanders:
-        pairs[commander.front_name] = commander.image_uri
+    deck = session.deck
+    printed = deck.printing_images()
+    pairs = {}
+    for oracle_id, name, image in deck.entries.values_list(
+            "oracle_card_id", "oracle_card__front_name", "oracle_card__image_uri"):
+        pairs[name] = printed.get(str(oracle_id)) or image
+    for commander in deck.commanders:
+        pairs[commander.front_name] = printed.get(str(commander.pk)) or commander.image_uri
     return pairs
 
 

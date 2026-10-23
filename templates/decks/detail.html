@@ -12,19 +12,7 @@
     not go away - each one sits behind a "Why?" or in a fold further down.
   {% endcomment %}
   <div id="play" class="flex flex-wrap items-start gap-6">
-    {% if deck.commander %}
-    <div class="flex shrink-0 gap-2">
-    {% for card in deck.commanders %}
-      {% if card.image_uri %}
-        {# The commanders are not in the grid below (not of the 99), so their pictures are the way to their card pages. #}
-        <a href="{% url 'simulations:annotate' deck.id card.pk %}" class="shrink-0">
-          <img src="{{ card.image_uri }}" alt="{{ card.front_name }}"
-               width="488" height="680" class="h-auto w-24 rounded-lg sm:w-40">
-        </a>
-      {% endif %}
-    {% endfor %}
-    </div>
-    {% endif %}
+    {% if deck.commander %}{% include "decks/_commander_art.html" %}{% endif %}
     <div class="min-w-[16rem] flex-1">
       <div class="flex flex-wrap items-baseline gap-4">
         {% url 'decks:detail' deck.pk as here %}

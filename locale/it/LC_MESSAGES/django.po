@@ -14171,3 +14171,91 @@ msgstr ""
 " decimo di punto per gli altri due. I report tengono la prima mano da sette "
 "meno spesso e hanno un po' più di terre e mana nei primi turni. Un report "
 "fatto con un motore più vecchio lo dice e propone una nuova simulazione."
+
+#: templates/decks/import.html templates/guests/try.html
+msgid ""
+"<strong class=\"text-parchment-100\">Any CSV or text file works.</strong> A "
+"CSV only needs a column with the card name, a text file one card per line - "
+"quantities, set codes and collector numbers are optional."
+msgstr ""
+"<strong class=\"text-parchment-100\">Va bene qualsiasi file CSV o di "
+"testo.</strong> Un CSV ha bisogno solo di una colonna con il nome della "
+"carta, un file di testo di una carta per riga; quantità, codici "
+"dell'espansione e numeri da collezione sono facoltativi."
+
+#: templates/decks/import.html templates/guests/try.html
+msgid ""
+"<strong class=\"text-parchment-100\">Archidekt:</strong> open the deck → "
+"More → Export → Text or CSV"
+msgstr ""
+"<strong class=\"text-parchment-100\">Archidekt:</strong> apri il deck → More"
+" → Export → Text o CSV"
+
+#: templates/decks/import.html
+msgid "Import a deck from a CSV or text file, or a pasted list."
+msgstr ""
+"Importa un deck da un file CSV o di testo, oppure da una lista incollata."
+
+#: templates/decks/import.html
+msgid "Or as a text list:"
+msgstr "Oppure come lista di testo:"
+
+#: templates/decks/_import_form.html
+msgid ""
+"Only the card names are needed. Quantities, set codes and collector numbers "
+"work too and show that very printing. A CSV or text file (.csv, .tsv, .txt),"
+" up to 1&nbsp;MB."
+msgstr ""
+"Servono solo i nomi delle carte. Funzionano anche quantità, codici "
+"dell'espansione e numeri da collezione, e mostrano proprio quella stampa. Un"
+" file CSV o di testo (.csv, .tsv, .txt), fino a 1&nbsp;MB."
+
+#: templates/decks/_import_form.html
+msgid ""
+"One card per line - the name is enough. A quantity, set code and collector "
+"number work too, like <code class=\"font-mono whitespace-nowrap\">1x Animate"
+" Dead (5ed) 140</code>. The commander goes under <code class=\"font-mono "
+"whitespace-nowrap\">// Commander</code> - or pick it later."
+msgstr ""
+"Una carta per riga: basta il nome. Funzionano anche quantità, codice "
+"dell'espansione e numero da collezione, per esempio <code class=\"font-mono "
+"whitespace-nowrap\">1x Animate Dead (5ed) 140</code>. Il comandante va sotto"
+" <code class=\"font-mono whitespace-nowrap\">// Commander</code>, oppure "
+"sceglilo dopo."
+
+#: templates/decks/list.html
+msgid "Any CSV or text file works, or paste your list."
+msgstr "Va bene qualsiasi file CSV o di testo, oppure incolla la tua lista."
+
+#: templates/decks/_card_grid.html
+msgid "Loading the card art…"
+msgstr "Caricamento delle illustrazioni…"
+
+#: changelog/entries.py
+msgid "Your deck shows the printings you named"
+msgstr "Il tuo deck mostra le stampe che indichi"
+
+#: changelog/entries.py
+msgid ""
+"A deck list that names a set and collector number - like “1x Animate Dead "
+"(5ed) 140” from Archidekt or Moxfield - now shows that printing's art in the"
+" deck, on the card's page and in the playtest, instead of a standard picture"
+" of the card. This works for a text file, a pasted list and a CSV alike. The"
+" import page also says more clearly that a text file works as well as a CSV."
+" If the art cannot be fetched, the card keeps its standard picture with a "
+"small button to try again."
+msgstr ""
+"Una lista che indica espansione e numero da collezione – come “1x Animate "
+"Dead (5ed) 140” da Archidekt o Moxfield – ora mostra l'illustrazione di "
+"quella stampa nel deck, nella pagina della carta e nel playtest, invece di "
+"un'immagine standard della carta. Vale per un file di testo, una lista "
+"incollata e un CSV. La pagina di importazione dice anche più chiaramente che"
+" un file di testo va bene quanto un CSV. Se l'illustrazione non si può "
+"caricare, la carta mantiene l'immagine standard con un piccolo pulsante per "
+"riprovare."
+
+#: templates/decks/_art_retry.html
+msgid "Standard picture: this printing's art could not be loaded. Try again"
+msgstr ""
+"Immagine standard: non è stato possibile caricare l'illustrazione di questa "
+"stampa. Riprova"

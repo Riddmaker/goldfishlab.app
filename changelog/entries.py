@@ -48,7 +48,8 @@ ENTRIES = (
           "140” from Archidekt or Moxfield - now shows that printing's art in the deck, on "
           "the card's page and in the playtest, instead of a standard picture of the card. "
           "This works for a text file, a pasted list and a CSV alike. The import page also "
-          "says more clearly that a text file works as well as a CSV."),
+          "says more clearly that a text file works as well as a CSV. If the art cannot be "
+          "fetched, the card keeps its standard picture with a small button to try again."),
         "decks:import",
     ),
     # Engine v38.

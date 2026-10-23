@@ -13,7 +13,7 @@ from django.urls import reverse
 from accounts.models import User
 from cards import scryfall
 from decks import printing_art, services
-from decks.models import Deck, first_image
+from decks.models import ART_MISSING, Deck, first_image
 from decks.tasks import fetch_printing_art
 
 ART = "https://cards.scryfall.io/normal/front/a/b/{}.jpg"
@@ -149,14 +149,64 @@ def test_art_from_anywhere_but_scryfalls_image_host_is_refused(catalogue, user, 
     assert deck.printing_images() == {}
 
 
-def test_scryfall_down_leaves_the_deck_as_it_was_and_stops_the_wait(catalogue, user,
-                                                                    monkeypatch):
+def test_scryfall_down_marks_the_printings_asked_for_and_stops_the_wait(catalogue, user,
+                                                                         monkeypatch):
     scryfall_answer(monkeypatch, fail=True)
     deck = services.import_deck(owner=user, raw=TEXT_LIST).deck
-    before = list(deck.entries.values_list("printings", flat=True))
 
     assert fetch_printing_art(str(deck.pk)) == 0
-    assert list(deck.entries.values_list("printings", flat=True)) == before
+    sol_ring = deck.entries.get(oracle_card__name="Sol Ring")
+    assert [p.get("art") for p in sol_ring.printings] == [ART_MISSING, ART_MISSING]
+    assert sol_ring.printings_shown.missing
+    assert not sol_ring.printings_shown.image
+    swamp = deck.entries.get(oracle_card__name="Swamp")
+    assert not swamp.printings_shown.missing
+    assert not printing_art.is_pending(deck)
+
+
+def test_a_printing_scryfall_does_not_know_is_not_marked(catalogue, user, monkeypatch):
+    """A typo cannot be fixed by asking again: the standard picture, quietly."""
+    from cards.models import OracleCard
+
+    other = str(OracleCard.objects.get(name="Swamp").pk)
+    scryfall_answer(monkeypatch, oracle_of={"brc": other})
+    deck = services.import_deck(owner=user, raw=TEXT_LIST).deck
+
+    fetch_printing_art(str(deck.pk))
+    sol_ring = deck.entries.get(oracle_card__name="Sol Ring")
+    assert "art" not in sol_ring.printings[0]
+    assert not sol_ring.printings_shown.missing
+
+
+def test_a_retry_that_finds_the_art_drops_the_mark(catalogue, user, monkeypatch):
+    scryfall_answer(monkeypatch, fail=True)
+    deck = services.import_deck(owner=user, raw=TEXT_LIST).deck
+    fetch_printing_art(str(deck.pk))
+
+    scryfall_answer(monkeypatch)
+    assert printing_art.retry(deck)
+    fetch_printing_art(str(deck.pk))
+    sol_ring = deck.entries.get(oracle_card__name="Sol Ring")
+    assert [p.get("art") for p in sol_ring.printings] == [None, None]
+    assert sol_ring.printings_shown.image == ART.format("brc160")
+
+
+def test_a_lookup_already_pending_is_not_queued_twice(catalogue, user, monkeypatch,
+                                                      django_capture_on_commit_callbacks):
+    scryfall_answer(monkeypatch, fail=True)
+    deck = services.import_deck(owner=user, raw=TEXT_LIST).deck
+    fetch_printing_art(str(deck.pk))
+
+    with django_capture_on_commit_callbacks() as queued:
+        assert printing_art.retry(deck)
+        assert not printing_art.retry(deck)
+    assert len(queued) == 1
+
+
+def test_retry_does_nothing_for_a_deck_with_no_missing_art(catalogue, user):
+    deck = services.import_deck(owner=user, raw=TEXT_LIST).deck
+    printing_art.done(deck.pk)
+    assert not printing_art.retry(deck)
     assert not printing_art.is_pending(deck)
 
 
@@ -221,3 +271,58 @@ def test_the_card_page_and_the_playtest_use_the_printings_art(catalogue, signed_
     page = signed_in.get(reverse("simulations:annotate", args=[deck.pk, sol_ring.pk]))
     assert ART.format("brc160") in page.content.decode()
     assert card_images(PlaytestSession(deck=deck))["Sol Ring"] == ART.format("brc160")
+
+
+def test_the_deck_page_offers_to_ask_again_for_missing_art(catalogue, signed_in, user,
+                                                           monkeypatch):
+    scryfall_answer(monkeypatch, fail=True)
+    deck = services.import_deck(owner=user, raw=TEXT_LIST).deck
+    services.set_commander(deck, deck.entries.get(oracle_card__name="Chainer, Dementia Master")
+                           .oracle_card)
+    fetch_printing_art(str(deck.pk))
+
+    body = signed_in.get(deck.get_absolute_url()).content.decode()
+    retry_url = reverse("decks:printing-art", args=[deck.pk])
+    # Sol Ring in the grid and Chainer in the command zone.
+    assert body.count(f'action="{retry_url}"') == 2
+    assert "card-art-waiting" not in body
+
+
+def test_an_older_deck_shows_no_retry_button(catalogue, signed_in, user):
+    """Imported before the art was looked up: no mark, so no button."""
+    deck = services.import_deck(owner=user, raw=TEXT_LIST).deck
+    printing_art.done(deck.pk)
+    body = signed_in.get(deck.get_absolute_url()).content.decode()
+    assert "card-art-retry" not in body
+
+
+def test_the_retry_button_returns_the_waiting_grid(catalogue, signed_in, user, monkeypatch):
+    scryfall_answer(monkeypatch, fail=True)
+    deck = services.import_deck(owner=user, raw=TEXT_LIST).deck
+    fetch_printing_art(str(deck.pk))
+
+    url = reverse("decks:printing-art", args=[deck.pk])
+    response = signed_in.post(url + "?art=1&type=artifact", HTTP_HX_REQUEST="true")
+    fragment = response.content.decode()
+    assert fragment.strip().startswith('<div id="card-grid"')
+    assert "card-art-waiting" in fragment
+    assert f'hx-get="{deck.get_absolute_url()}?art=1&amp;type=artifact"' in fragment
+    assert printing_art.is_pending(deck)
+
+    printing_art.done(deck.pk)
+    plain = signed_in.post(url)
+    assert plain.status_code == 302
+    assert plain["Location"] == f"{deck.get_absolute_url()}#cards"
+
+
+def test_only_the_owner_can_ask_again(catalogue, client, user, monkeypatch):
+    scryfall_answer(monkeypatch, fail=True)
+    deck = services.import_deck(owner=user, raw=TEXT_LIST).deck
+    fetch_printing_art(str(deck.pk))
+    stranger = User.objects.create_user(email="other@example.com", password="pw-for-test-only")
+    client.force_login(stranger)
+
+    url = reverse("decks:printing-art", args=[deck.pk])
+    assert client.post(url).status_code == 404
+    assert client.get(url).status_code == 405
+    assert not printing_art.is_pending(deck)

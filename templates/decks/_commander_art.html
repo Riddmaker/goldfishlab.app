@@ -3,19 +3,23 @@
   the 99), so their pictures are the way to their card pages. The art of the
   printing the file named once it is in (decks/printing_art.py), a
   placeholder while it is looked up. `oob` sends it along with the grid's
-  refetch, which is how the placeholder gives way to the art.
+  refetch, which is how the placeholder gives way to the art. When Scryfall
+  did not answer, a button to ask again (_art_retry.html).
 {% endcomment %}
 <div id="commander-art" class="flex shrink-0 gap-2"{% if oob %} hx-swap-oob="true"{% endif %}>
-  {% for card, image, waiting in commander_art %}
+  {% for card, image, waiting, missing in commander_art %}
     {% if waiting or image %}
-      <a href="{% url 'simulations:annotate' deck.id card.pk %}" class="shrink-0">
-        {% if waiting %}
-          <span class="card-art-waiting w-24 sm:w-40" role="img" aria-label="{{ card.front_name }}"></span>
-        {% else %}
-          <img src="{{ image }}" alt="{{ card.front_name }}"
-               width="488" height="680" class="h-auto w-24 rounded-lg sm:w-40">
-        {% endif %}
-      </a>
+      <div class="relative shrink-0">
+        <a href="{% url 'simulations:annotate' deck.id card.pk %}" class="block">
+          {% if waiting %}
+            <span class="card-art-waiting w-24 sm:w-40" role="img" aria-label="{{ card.front_name }}"></span>
+          {% else %}
+            <img src="{{ image }}" alt="{{ card.front_name }}"
+                 width="488" height="680" class="h-auto w-24 rounded-lg sm:w-40">
+          {% endif %}
+        </a>
+        {% if missing %}{% include "decks/_art_retry.html" %}{% endif %}
+      </div>
     {% endif %}
   {% endfor %}
 </div>

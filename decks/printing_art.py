@@ -20,6 +20,11 @@ Three rules keep this from costing the import anything:
   art is in (`is_pending`). The flag expires by itself, so a worker that
   never runs costs a few seconds of placeholders, not a page that waits for
   ever.
+
+When Scryfall does not answer, the printings asked for are marked
+`ART_MISSING`: the deck page shows the catalogue's picture with a small
+button to try again (`retry`). A printing Scryfall answered without is not
+marked - a typo or an unknown printing cannot be fixed by asking again.
 """
 
 import logging
@@ -30,7 +35,7 @@ from django.db import transaction
 
 from cards import scryfall
 from cards.models import image_uri
-from decks.models import ART_HOST, Deck, DeckCard
+from decks.models import ART_HOST, ART_MISSING, Deck, DeckCard, art_missing
 
 logger = logging.getLogger(__name__)
 
@@ -51,23 +56,36 @@ def is_pending(deck: Deck) -> bool:
     return bool(cache.get(_key(deck.pk)))
 
 
-def later(deck: Deck) -> None:
+def later(deck: Deck) -> bool:
     """Look the art up on the worker once the import is saved - if the file
-    named any printing at all."""
-    if not _wanted(deck):
-        return
+    named any printing at all. Returns whether a lookup was started.
+
+    `cache.add` is the lock: while one lookup is pending no second one is
+    queued, however often the retry button is pressed.
+    """
+    if not any(_shape(p) for group in _groups(deck) for p in group):
+        return False
+    deck_id = str(deck.pk)
+    if not cache.add(_key(deck_id), 1, PENDING_SECONDS):
+        return False
     from decks.tasks import fetch_printing_art
 
-    deck_id = str(deck.pk)
-    cache.set(_key(deck_id), 1, PENDING_SECONDS)
     transaction.on_commit(lambda: fetch_printing_art.delay(deck_id))
+    return True
 
 
-def _wanted(deck: Deck) -> bool:
+def retry(deck: Deck) -> bool:
+    """Ask again for the art Scryfall did not answer with - the deck page's
+    retry button. Nothing happens for a deck with no such printing."""
+    if not any(art_missing(group) for group in _groups(deck)):
+        return False
+    return later(deck)
+
+
+def _groups(deck: Deck) -> list[list]:
+    """Every card's printings: the deck's rows, then its commanders'."""
     rows = DeckCard.objects.filter(deck=deck).values_list("printings", flat=True)
-    printings = [p for group in rows for p in group]
-    printings += [p for group in (deck.commander_printings or {}).values() for p in group]
-    return any(_shape(p) for p in printings)
+    return [*rows, *(deck.commander_printings or {}).values()]
 
 
 def _shape(printing: dict) -> tuple | None:
@@ -168,32 +186,60 @@ def attach(deck: Deck) -> int:
         index = _index(scryfall.collection(identifiers))
     except (scryfall.ScryfallError, ValueError) as exc:
         logger.warning("printing art for deck %s not fetched: %s", deck.pk, exc)
+        _save(deck, entries, command, lambda printings, oracle_id: _mark(
+            printings, names.get(oracle_id, "")))
         return 0
 
+    return _save(deck, entries, command,
+                 lambda printings, oracle_id: _fill(printings, oracle_id, index))
+
+
+def _save(deck: Deck, entries: list, command: dict, change) -> int:
+    """Apply `change(printings, oracle id) -> (found, changed)` to every
+    card's printings and save what changed. Returns how many were found."""
     found = 0
-    changed = []
+    rows = []
     for entry in entries:
-        if count := _fill(entry.printings, str(entry.oracle_card_id), index):
-            found += count
-            changed.append(entry)
-    DeckCard.objects.bulk_update(changed, ["printings"])
-    command_found = sum(_fill(printings, oracle_id, index)
-                        for oracle_id, printings in command.items())
-    if command_found:
-        found += command_found
+        count, changed = change(entry.printings, str(entry.oracle_card_id))
+        found += count
+        if changed:
+            rows.append(entry)
+    DeckCard.objects.bulk_update(rows, ["printings"])
+    command_changed = False
+    for oracle_id, printings in command.items():
+        count, changed = change(printings, oracle_id)
+        found += count
+        command_changed |= changed
+    if command_changed:
         # `update`, not `save()`: art is not an edit, and `updated_at` orders
         # the deck list.
         Deck.objects.filter(pk=deck.pk).update(commander_printings=command)
     return found
 
 
-def _fill(printings: list, oracle_id: str, index: dict) -> int:
-    count = 0
+def _fill(printings: list, oracle_id: str, index: dict) -> tuple[int, bool]:
+    """Scryfall answered: keep each printing's art, and drop the mark of an
+    earlier failure either way."""
+    count, changed = 0, False
     for printing in printings:
+        if printing.pop("art", None) is not None:
+            changed = True
         if image := _image_for(printing, oracle_id, index):
             printing["image"] = image
             count += 1
-    return count
+            changed = True
+    return count, changed
+
+
+def _mark(printings: list, name: str) -> tuple[int, bool]:
+    """Scryfall did not answer: mark the printings that were asked for."""
+    changed = False
+    for printing in printings:
+        if (_identifier(printing, name) and not printing.get("image")
+                and printing.get("art") != ART_MISSING):
+            printing["art"] = ART_MISSING
+            changed = True
+    return 0, changed
 
 
 def done(deck_id) -> None:

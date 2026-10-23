@@ -135,8 +135,10 @@ class DeckCard(models.Model):
     quantity = models.PositiveSmallIntegerField(default=1)
     #: The printings the imported file named for this card, as
     #: `[{"set": "cmr", "number": "189", "finish": "foil", "quantity": 1}]`,
-    #: plus `"id"` when the file gave a Scryfall printing id and `"image"`
-    #: once that printing's art has been looked up (`decks.printing_art`).
+    #: plus `"id"` when the file gave a Scryfall printing id, `"image"`
+    #: once that printing's art has been looked up (`decks.printing_art`) and
+    #: `"art": "missing"` while that lookup failed because Scryfall did not
+    #: answer.
     #: The catalogue holds one printing per card, so this is what the file
     #: said, shown beside the card and never read by the engine: a printing
     #: does not change the rules (P20 F1, decision E1). Empty for a card
@@ -173,6 +175,20 @@ PRINTINGS_SHOWN = 3
 ART_HOST = "https://cards.scryfall.io/"
 
 
+#: A printing whose art lookup failed - Scryfall did not answer - and can be
+#: tried again. A printing Scryfall does not know is not marked: what the file
+#: meant cannot be guessed, so it keeps the catalogue's picture quietly.
+ART_MISSING = "missing"
+
+
+def art_missing(printings) -> bool:
+    """Whether the art of these printings could not be fetched and may be
+    asked for again."""
+    printings = printings or []
+    return not first_image(printings) and any(
+        printing.get("art") == ART_MISSING for printing in printings)
+
+
 def first_image(printings) -> str:
     """The art of the first printing that has some, or `""`."""
     for printing in printings or []:
@@ -189,12 +205,14 @@ class Printings:
     `codes` pairs a set and number (`CMR 189`, language-free, so a page marks
     it as such) with its finish in the page's language; `more` counts the
     printings past `PRINTINGS_SHOWN`; `image` is the first printing's art,
-    once it has been looked up.
+    once it has been looked up; `missing` says that lookup failed and may be
+    tried again.
     """
 
     codes: tuple[tuple[str, str], ...] = ()
     more: int = 0
     image: str = ""
+    missing: bool = False
 
     def __bool__(self) -> bool:
         return bool(self.codes)
@@ -221,7 +239,7 @@ def printings_shown(printings) -> Printings:
         if any(pair) and pair not in codes:
             codes.append(pair)
     return Printings(tuple(codes[:PRINTINGS_SHOWN]), max(0, len(codes) - PRINTINGS_SHOWN),
-                     first_image(printings))
+                     first_image(printings), art_missing(printings))
 
 
 def printing_label(printings) -> str:

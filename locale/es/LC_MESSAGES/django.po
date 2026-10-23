@@ -14295,3 +14295,82 @@ msgstr ""
 "con menos frecuencia y tienen algo más de tierras y maná en los primeros "
 "turnos. Un informe hecho con un motor anterior lo indica y ofrece una nueva "
 "simulación."
+
+#: templates/decks/import.html templates/guests/try.html
+msgid ""
+"<strong class=\"text-parchment-100\">Any CSV or text file works.</strong> A "
+"CSV only needs a column with the card name, a text file one card per line - "
+"quantities, set codes and collector numbers are optional."
+msgstr ""
+"<strong class=\"text-parchment-100\">Cualquier archivo CSV o de texto "
+"sirve.</strong> Un CSV solo necesita una columna con el nombre de la carta, "
+"un archivo de texto una carta por línea; las cantidades, los códigos de "
+"edición y los números de coleccionista son opcionales."
+
+#: templates/decks/import.html templates/guests/try.html
+msgid ""
+"<strong class=\"text-parchment-100\">Archidekt:</strong> open the deck → "
+"More → Export → Text or CSV"
+msgstr ""
+"<strong class=\"text-parchment-100\">Archidekt:</strong> abre el mazo → More"
+" → Export → Text o CSV"
+
+#: templates/decks/import.html
+msgid "Import a deck from a CSV or text file, or a pasted list."
+msgstr ""
+"Importa un mazo desde un archivo CSV o de texto, o desde una lista pegada."
+
+#: templates/decks/import.html
+msgid "Or as a text list:"
+msgstr "O como lista de texto:"
+
+#: templates/decks/_import_form.html
+msgid ""
+"Only the card names are needed. Quantities, set codes and collector numbers "
+"work too and show that very printing. A CSV or text file (.csv, .tsv, .txt),"
+" up to 1&nbsp;MB."
+msgstr ""
+"Solo hacen falta los nombres de las cartas. Las cantidades, los códigos de "
+"edición y los números de coleccionista también sirven y muestran esa "
+"impresión exacta. Un archivo CSV o de texto (.csv, .tsv, .txt), de hasta "
+"1&nbsp;MB."
+
+#: templates/decks/_import_form.html
+msgid ""
+"One card per line - the name is enough. A quantity, set code and collector "
+"number work too, like <code class=\"font-mono whitespace-nowrap\">1x Animate"
+" Dead (5ed) 140</code>. The commander goes under <code class=\"font-mono "
+"whitespace-nowrap\">// Commander</code> - or pick it later."
+msgstr ""
+"Una carta por línea: basta con el nombre. Una cantidad, un código de edición"
+" y un número de coleccionista también sirven, por ejemplo <code "
+"class=\"font-mono whitespace-nowrap\">1x Animate Dead (5ed) 140</code>. El "
+"comandante va bajo <code class=\"font-mono whitespace-nowrap\">// "
+"Commander</code>, o elígelo después."
+
+#: templates/decks/list.html
+msgid "Any CSV or text file works, or paste your list."
+msgstr "Sirve cualquier archivo CSV o de texto, o pega tu lista."
+
+#: templates/decks/_card_grid.html
+msgid "Loading the card art…"
+msgstr "Cargando las ilustraciones…"
+
+#: changelog/entries.py
+msgid "Your deck shows the printings you named"
+msgstr "Tu mazo muestra las impresiones que indicas"
+
+#: changelog/entries.py
+msgid ""
+"A deck list that names a set and collector number - like “1x Animate Dead "
+"(5ed) 140” from Archidekt or Moxfield - now shows that printing's art in the"
+" deck, on the card's page and in the playtest, instead of a standard picture"
+" of the card. This works for a text file, a pasted list and a CSV alike. The"
+" import page also says more clearly that a text file works as well as a CSV."
+msgstr ""
+"Una lista de mazo que indica edición y número de coleccionista –como «1x "
+"Animate Dead (5ed) 140» desde Archidekt o Moxfield– ahora muestra la "
+"ilustración de esa impresión en el mazo, en la página de la carta y en el "
+"playtest, en lugar de una imagen estándar de la carta. Funciona igual con un"
+" archivo de texto, una lista pegada y un CSV. La página de importación "
+"también dice más claramente que un archivo de texto sirve tanto como un CSV."

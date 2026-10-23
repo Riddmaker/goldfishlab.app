@@ -13,7 +13,9 @@ Three traps, all of them already paid for during the deck research:
    requests; `MIN_INTERVAL` is 100 ms and is enforced process-wide.
 3. **Bulk, never per-card, for the catalogue.** Walking 38,000 cards through
    the per-card endpoints would take an hour and is exactly what the bulk files
-   exist to prevent.
+   exist to prevent. The one per-request lookup is `collection`: the art of
+   the printings one imported file named, a request per 75 of them, on the
+   worker (`decks.printing_art`).
 
 Why `urllib` and not `requests`/`httpx`: the production container runs on a
 128 MiB cloudlet, and this module needs three verbs. A dependency that has to
@@ -36,6 +38,12 @@ from django.utils.dateparse import parse_datetime
 
 BULK_ENDPOINT = "https://api.scryfall.com/bulk-data"
 SETS_ENDPOINT = "https://api.scryfall.com/sets"
+COLLECTION_ENDPOINT = "https://api.scryfall.com/cards/collection"
+
+# `/cards/collection` takes at most this many identifiers per request, and is
+# one of the endpoints Scryfall asks to be called more slowly than the rest.
+COLLECTION_BATCH = 75
+COLLECTION_INTERVAL = 0.5
 
 # Scryfall's documented ceiling is 10 requests/second; they ask for 50-100 ms
 # of delay. We take the slow end of their own advice.
@@ -85,20 +93,26 @@ def _check_scheme(url: str) -> None:
         raise ScryfallError(f"refusing to open URL with scheme {scheme!r}: {url}")
 
 
-def _open(url: str, *, accept: str, timeout: int = 60):
+def _open(url: str, *, accept: str, timeout: int = 60, body: dict | None = None,
+          retries: int = MAX_RETRIES):
     """A rate-limited, retrying request. Returns an open response.
 
-    Retries only on 429 and 5xx. A 400 or 404 is a bug in the caller and
-    retrying it just makes the bug slower to find.
+    A GET, or a POST of `body` as JSON. Retries only on 429 and 5xx. A 400 or
+    404 is a bug in the caller and retrying it just makes the bug slower to
+    find.
     """
     _check_scheme(url)
     headers = {"User-Agent": _user_agent(), "Accept": accept}
+    data = None
+    if body is not None:
+        data = json.dumps(body).encode("utf-8")
+        headers["Content-Type"] = "application/json"
 
     last_error: Exception | None = None
-    for attempt in range(MAX_RETRIES):
+    for attempt in range(retries):
         _throttle()
         # _check_scheme above restricts this to https, which is what S310 asks for.
-        request = urllib.request.Request(url, headers=headers)  # noqa: S310
+        request = urllib.request.Request(url, data=data, headers=headers)  # noqa: S310
         try:
             return urllib.request.urlopen(request, timeout=timeout)  # noqa: S310
         except urllib.error.HTTPError as exc:
@@ -112,7 +126,7 @@ def _open(url: str, *, accept: str, timeout: int = 60):
             last_error = exc
             time.sleep(2**attempt)
 
-    raise ScryfallError(f"giving up on {url} after {MAX_RETRIES} attempts: {last_error}")
+    raise ScryfallError(f"giving up on {url} after {retries} attempts: {last_error}")
 
 
 def bulk_metadata(kind: str) -> BulkMeta:
@@ -163,6 +177,28 @@ def sets_fingerprint() -> str:
         )
     printings = sum(int(entry.get("card_count") or 0) for entry in sets)
     return f"{len(sets)}:{printings}"
+
+
+def collection(identifiers: list[dict], *, timeout: int = 10) -> list[dict]:
+    """The printings `identifiers` name, as Scryfall card objects.
+
+    For the art of the printings an imported file named (`decks.printing_art`):
+    a handful of requests per import, never the catalogue - that stays bulk.
+    Each identifier is `{"id": ...}`, `{"set": ..., "collector_number": ...}`
+    or `{"name": ..., "set": ...}`. What Scryfall does not know is left out
+    of the answer, not raised. Short timeouts and two attempts: the art is a
+    nicety, and the deck page waits for it.
+    """
+    cards: list[dict] = []
+    for start in range(0, len(identifiers), COLLECTION_BATCH):
+        if start:
+            time.sleep(COLLECTION_INTERVAL)
+        batch = identifiers[start:start + COLLECTION_BATCH]
+        with _open(COLLECTION_ENDPOINT, accept="application/json", timeout=timeout,
+                   body={"identifiers": batch}, retries=2) as response:
+            payload = json.load(response)
+        cards.extend(card for card in payload.get("data") or [] if isinstance(card, dict))
+    return cards
 
 
 def stream_jsonl(source: str | Path, *, timeout: int = 300) -> Iterator[dict]:

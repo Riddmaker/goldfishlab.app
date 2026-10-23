@@ -12488,3 +12488,72 @@ msgid ""
 "turns. A report made with an older engine says so and offers a new run."
 msgstr ""
 "多人数戦の統率者戦では最初のマリガンは無料で、エンジンはそれを使うようになりました。土地が2枚しかない最初の7枚の手札は、軽いマナ加速2枚が3枚目の土地の代わりにならない限り戻します。その後の手札はこれまでどおりキープします。これはフランク・カーステンのマナ表が前提とするルールで、これによりエンジンは彼の19のマナ・コストのうち17で彼と同じ数の色マナ源を必要とし、残りの2つでも0.1ポイント以内に収まります。レポートでは最初の7枚をキープする割合が下がり、序盤のターンの土地とマナが少し増えます。古いエンジンで作られたレポートにはその旨が表示され、再実行を勧めます。"
+
+#: templates/decks/import.html templates/guests/try.html
+msgid ""
+"<strong class=\"text-parchment-100\">Any CSV or text file works.</strong> A "
+"CSV only needs a column with the card name, a text file one card per line - "
+"quantities, set codes and collector numbers are optional."
+msgstr ""
+"<strong class=\"text-parchment-100\">どんな CSV やテキストファイルでも使えます。</strong>CSV "
+"はカード名の列だけ、テキストファイルは1行に1枚あれば十分です。枚数、セットコード、コレクター番号は任意です。"
+
+#: templates/decks/import.html templates/guests/try.html
+msgid ""
+"<strong class=\"text-parchment-100\">Archidekt:</strong> open the deck → "
+"More → Export → Text or CSV"
+msgstr ""
+"<strong class=\"text-parchment-100\">Archidekt：</strong>デッキを開く → More → "
+"Export → Text または CSV"
+
+#: templates/decks/import.html
+msgid "Import a deck from a CSV or text file, or a pasted list."
+msgstr "CSV ファイル、テキストファイル、または貼り付けたリストからデッキをインポートします。"
+
+#: templates/decks/import.html
+msgid "Or as a text list:"
+msgstr "テキストのリストならこう書きます："
+
+#: templates/decks/_import_form.html
+msgid ""
+"Only the card names are needed. Quantities, set codes and collector numbers "
+"work too and show that very printing. A CSV or text file (.csv, .tsv, .txt),"
+" up to 1&nbsp;MB."
+msgstr ""
+"必要なのはカード名だけです。枚数、セットコード、コレクター番号にも対応していて、その版がそのまま表示されます。CSV "
+"またはテキストファイル（.csv、.tsv、.txt）、1&nbsp;MB まで。"
+
+#: templates/decks/_import_form.html
+msgid ""
+"One card per line - the name is enough. A quantity, set code and collector "
+"number work too, like <code class=\"font-mono whitespace-nowrap\">1x Animate"
+" Dead (5ed) 140</code>. The commander goes under <code class=\"font-mono "
+"whitespace-nowrap\">// Commander</code> - or pick it later."
+msgstr ""
+"1行に1枚。名前だけで十分です。枚数、セットコード、コレクター番号にも対応しています（例：<code class=\"font-mono "
+"whitespace-nowrap\">1x Animate Dead (5ed) 140</code>）。統率者は <code "
+"class=\"font-mono whitespace-nowrap\">// Commander</code> の下に書くか、後で選んでください。"
+
+#: templates/decks/list.html
+msgid "Any CSV or text file works, or paste your list."
+msgstr "どんな CSV やテキストファイルでも使えます。リストを貼り付けることもできます。"
+
+#: templates/decks/_card_grid.html
+msgid "Loading the card art…"
+msgstr "カード画像を読み込み中…"
+
+#: changelog/entries.py
+msgid "Your deck shows the printings you named"
+msgstr "指定した版がデッキに表示されるように"
+
+#: changelog/entries.py
+msgid ""
+"A deck list that names a set and collector number - like “1x Animate Dead "
+"(5ed) 140” from Archidekt or Moxfield - now shows that printing's art in the"
+" deck, on the card's page and in the playtest, instead of a standard picture"
+" of the card. This works for a text file, a pasted list and a CSV alike. The"
+" import page also says more clearly that a text file works as well as a CSV."
+msgstr ""
+"セットとコレクター番号を書いたデッキリスト（Archidekt や Moxfield の「1x Animate Dead (5ed) "
+"140」など）は、カードの標準画像ではなく、その版のイラストをデッキ、カードのページ、プレイテストに表示するようになりました。テキストファイル、貼り付けたリスト、CSV"
+" のどれでも同じです。インポートページでも、CSV と同じようにテキストファイルが使えることをはっきり書きました。"

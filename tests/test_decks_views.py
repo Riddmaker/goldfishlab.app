@@ -484,7 +484,7 @@ def test_the_import_page_offers_both_ways_in(signed_in):
 
     assert "Drop your deck file here" in body
     assert "Paste a list" in body
-    assert "Any CSV works." in body
+    assert "Any CSV or text file works." in body
 
 
 def test_the_import_page_says_what_a_deck_file_needs(signed_in):
@@ -496,7 +496,8 @@ def test_the_import_page_says_what_a_deck_file_needs(signed_in):
     """
     body = signed_in.get(reverse("decks:import")).content.decode()
 
-    assert "Only the card names are needed. Quantities and set codes work too." in body
+    assert ("Only the card names are needed. Quantities, set codes and collector numbers work "
+            "too") in body
     assert 'id="dropzone-hint" class="sr-only"' not in body
 
 

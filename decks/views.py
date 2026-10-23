@@ -23,10 +23,17 @@ from billing.quotas import QuotaExceeded
 from billing.views import upgrade_prompt
 from combos import services as combo_services
 from decks import analysis as deck_analysis
-from decks import command_zone, services
+from decks import command_zone, printing_art, services
 from decks.forms import ColumnMappingForm, CommanderForm, DeckNameForm, ImportForm
 from decks.importers import columns, tabular
-from decks.models import Deck, DeckCard, DeckImport, PendingImport, printings_shown
+from decks.models import (
+    Deck,
+    DeckCard,
+    DeckImport,
+    PendingImport,
+    first_image,
+    printings_shown,
+)
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
 from simulations import blindspots, deck_cards, review, summary
 from simulations.engine import adapter
@@ -98,8 +105,14 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         grid = deck_cards.cards(readings, questions, printings)
         filters = deck_cards.Filters.from_request(self.request.GET)
         type_bars, category_bars = deck_cards.bars(grid)
+        art_pending = printing_art.is_pending(deck)
         return {
             "deck": deck,
+            # The art of the printings the file named, still being looked up
+            # after an import: placeholders, and the grid fetches itself again.
+            "art_pending": art_pending,
+            "art_poll": self.request.GET.get("art") == "1",
+            "commander_art": commander_art(deck, art_pending),
             # The cards the engine could not read on its own: the same queue the
             # red marker counts the open ones of (P20 F4, E1.35).
             "unread_cards": sum(1 for question in questions if question.unread),
@@ -164,6 +177,19 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         # every report carries the other.
         context["blindspots"] = blindspots.find(readings)
         return context
+
+
+def commander_art(deck, pending: bool) -> list[tuple]:
+    """`(card, picture, waiting)` per commander: the art of the printing the
+    file named when it is in, the catalogue's picture otherwise, and whether
+    that art is still being looked up."""
+    command = deck.commander_printings or {}
+    art = []
+    for card in deck.commanders:
+        printings = command.get(str(card.pk)) or []
+        image = first_image(printings)
+        art.append((card, image or card.image_uri, pending and bool(printings) and not image))
+    return art
 
 
 def commander_choice(deck, last_import):

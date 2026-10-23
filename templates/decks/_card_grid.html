@@ -3,9 +3,14 @@
   alone as the answer to the filter form's htmx request - the one template,
   so the two cannot drift. Each card opens its own page, where it can be
   corrected.
+
+  Right after an import the art of the printings the file named is still
+  being looked up (decks/printing_art.py, `art_pending`): those cards show a
+  placeholder, and the grid fetches itself again until the art is in -
+  bringing the commanders' pictures along out of band.
 {% endcomment %}
 {% load i18n %}
-<div id="card-grid">
+<div id="card-grid"{% if art_pending %} aria-busy="true" hx-get="{{ deck.get_absolute_url }}?art=1" hx-trigger="load delay:800ms" hx-swap="outerHTML"{% endif %}>
   <p class="tabular text-sm text-ink-700" aria-live="polite">
     {% if filters.active %}
       {% blocktranslate trimmed with shown=grid|length count count=grid_total %}
@@ -16,12 +21,18 @@
     {% else %}
       {% blocktranslate count count=grid_total %}{{ count }} card{% plural %}{{ count }} cards{% endblocktranslate %}
     {% endif %}
+    {% if art_pending %}· {% translate "Loading the card art…" %}{% endif %}
   </p>
   <ul class="card-grid mt-4">
     {% for card in grid %}
       <li>
         <a href="{% url 'simulations:annotate' deck.id card.oracle_card.pk %}" class="card-grid-item">
-          {% if card.oracle_card.image_uri %}
+          {% if art_pending and card.printing and not card.printing.image %}
+            <span class="card-art-waiting" role="img" aria-label="{{ card.name }}"></span>
+          {% elif card.printing.image %}
+            <img src="{{ card.printing.image }}" alt="{{ card.name }}"
+                 width="488" height="680" loading="lazy">
+          {% elif card.oracle_card.image_uri %}
             <img src="{{ card.oracle_card.image_uri }}" alt="{{ card.name }}"
                  width="488" height="680" loading="lazy">
           {% else %}
@@ -59,3 +70,4 @@
     {% endfor %}
   </ul>
 </div>
+{% if art_poll and deck.commander %}{% include "decks/_commander_art.html" with oob=True %}{% endif %}

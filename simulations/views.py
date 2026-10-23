@@ -575,6 +575,8 @@ class CardAnnotateView(DeckScopedView):
         context = {
             "deck": deck,
             "card": card,
+            # The art of the printing the file named, else the catalogue's.
+            "card_image": deck.printing_images().get(str(card.pk)) or card.image_uri,
             "entry": entry,
             "form": form,
             "first_fields": first,

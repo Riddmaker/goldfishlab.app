@@ -149,7 +149,7 @@ def test_htmx_gets_the_grid_alone(client_in, deck):
     response = client_in.get(deck.get_absolute_url(), {"type": "land"}, **HTMX)
     body = response.content.decode()
 
-    assert body.lstrip().startswith('<div id="card-grid">')
+    assert body.lstrip().startswith('<div id="card-grid"')
     assert "<html" not in body
     assert "HX-Request" in response["Vary"]
 

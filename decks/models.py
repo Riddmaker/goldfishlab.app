@@ -58,7 +58,7 @@ class Deck(models.Model):
     notes = models.TextField(blank=True)
     #: The printings the file named for the card(s) in the command zone, which
     #: are not `DeckCard`s: `{oracle id: [printing, ...]}` in the shape of
-    #: `DeckCard.printings`. Display only (P20 F1).
+    #: `DeckCard.printings`. Display only (P20 F1), the art included.
     commander_printings = models.JSONField(default=dict, blank=True)
     #: How many cards the engine could not read and the owner has not answered
     #: yet - the red marker (Phase 9 C2). `None` means "not counted since the
@@ -109,6 +109,19 @@ class Deck(models.Model):
         """
         return bool(self.commander_id) or self.total_with_commander == COMMANDER_DECK_SIZE
 
+    def printing_images(self) -> dict[str, str]:
+        """`{oracle id: the art of the first printing the file named}`, for
+        the cards whose printing art was found (`decks.printing_art`). A card
+        missing here shows the catalogue's own picture."""
+        images = {}
+        for oracle_id, printings in (self.commander_printings or {}).items():
+            if image := first_image(printings):
+                images[oracle_id] = image
+        for entry in self.entries.all():
+            if image := first_image(entry.printings):
+                images.setdefault(str(entry.oracle_card_id), image)
+        return images
+
 
 class DeckCard(models.Model):
     """A card in a deck, with a quantity.
@@ -121,7 +134,9 @@ class DeckCard(models.Model):
     oracle_card = models.ForeignKey(OracleCard, on_delete=models.PROTECT, related_name="in_decks")
     quantity = models.PositiveSmallIntegerField(default=1)
     #: The printings the imported file named for this card, as
-    #: `[{"set": "cmr", "number": "189", "finish": "foil", "quantity": 1}]`.
+    #: `[{"set": "cmr", "number": "189", "finish": "foil", "quantity": 1}]`,
+    #: plus `"id"` when the file gave a Scryfall printing id and `"image"`
+    #: once that printing's art has been looked up (`decks.printing_art`).
     #: The catalogue holds one printing per card, so this is what the file
     #: said, shown beside the card and never read by the engine: a printing
     #: does not change the rules (P20 F1, decision E1). Empty for a card
@@ -153,6 +168,19 @@ FINISH_LABELS = {"foil": gettext_noop("Foil"), "etched": gettext_noop("Etched fo
 #: More printings than this for one card are summarised, not listed.
 PRINTINGS_SHOWN = 3
 
+#: The only place a printing's art may come from: Scryfall's image host, the
+#: one the Content-Security-Policy lets the page load pictures from.
+ART_HOST = "https://cards.scryfall.io/"
+
+
+def first_image(printings) -> str:
+    """The art of the first printing that has some, or `""`."""
+    for printing in printings or []:
+        image = printing.get("image") or ""
+        if isinstance(image, str) and image.startswith(ART_HOST):
+            return image
+    return ""
+
 
 @dataclass(frozen=True)
 class Printings:
@@ -160,11 +188,13 @@ class Printings:
 
     `codes` pairs a set and number (`CMR 189`, language-free, so a page marks
     it as such) with its finish in the page's language; `more` counts the
-    printings past `PRINTINGS_SHOWN`.
+    printings past `PRINTINGS_SHOWN`; `image` is the first printing's art,
+    once it has been looked up.
     """
 
     codes: tuple[tuple[str, str], ...] = ()
     more: int = 0
+    image: str = ""
 
     def __bool__(self) -> bool:
         return bool(self.codes)
@@ -190,7 +220,8 @@ def printings_shown(printings) -> Printings:
         pair = (code, gettext(finish) if finish else "")
         if any(pair) and pair not in codes:
             codes.append(pair)
-    return Printings(tuple(codes[:PRINTINGS_SHOWN]), max(0, len(codes) - PRINTINGS_SHOWN))
+    return Printings(tuple(codes[:PRINTINGS_SHOWN]), max(0, len(codes) - PRINTINGS_SHOWN),
+                     first_image(printings))
 
 
 def printing_label(printings) -> str:

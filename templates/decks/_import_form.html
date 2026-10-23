@@ -73,8 +73,8 @@
     </div>
     <p id="dropzone-hint" class="mt-2 text-sm text-ink-700">
       {% blocktranslate trimmed %}
-        Only the card names are needed. Quantities and set codes work too.
-        A CSV, TSV or text file, up to 1&nbsp;MB.
+        Only the card names are needed. Quantities, set codes and collector numbers work too
+        and show that very printing. A CSV or text file (.csv, .tsv, .txt), up to 1&nbsp;MB.
       {% endblocktranslate %}
       {% translate "Card names in English - only basic lands also work in other languages." %}
     </p>
@@ -89,7 +89,7 @@
     {{ form.text }}
     <p class="mt-1 text-sm text-ink-700">
       {% blocktranslate trimmed %}
-        One card per line - the name is enough, a quantity and set code work too. The commander goes under <code class="font-mono whitespace-nowrap">// Commander</code> - or pick it later.
+        One card per line - the name is enough. A quantity, set code and collector number work too, like <code class="font-mono whitespace-nowrap">1x Animate Dead (5ed) 140</code>. The commander goes under <code class="font-mono whitespace-nowrap">// Commander</code> - or pick it later.
       {% endblocktranslate %}
       {% translate "Card names in English - only basic lands also work in other languages." %}
     </p>

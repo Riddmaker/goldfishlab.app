@@ -5,9 +5,9 @@ pytest-django==4.14.0
 # Spreads the suite over the cores (`pytest -n auto`); each worker gets its own
 # test database and Redis cache database (goldfishlab/settings/test.py).
 pytest-xdist==3.8.0
-ruff==0.17.0
-djlint==1.46.4
-playwright==1.63.0
+ruff==0.17.1
+djlint==1.46.6
+playwright==1.64.0
 # scipy is used ONLY by tests/test_statistics.py (hypergeometric validation).
 # It must never enter the production image: ~90 MB on a 128 MiB cloudlet.
 scipy==1.18.1

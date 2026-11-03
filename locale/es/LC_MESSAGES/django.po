@@ -15570,3 +15570,12 @@ msgstr "no en el turno %(turn)s"
 #: templates/decks/detail.html
 msgid "in half the games, last run"
 msgstr "en la mitad de las partidas, última simulación"
+
+#: templates/decks/list.html
+#, python-format
+msgid "simulated %(date)s"
+msgstr "simulado el %(date)s"
+
+#: templates/decks/list.html
+msgid "not simulated yet"
+msgstr "aún sin simular"

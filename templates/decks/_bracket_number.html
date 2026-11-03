@@ -1,0 +1,6 @@
+{% comment %}
+  The bracket as the deck page's tile says it (P20 F4): the last run's speed
+  and the Game Changers together, or the Game Changers' floor alone without a
+  run. `speed` is `report.run_brackets`, `floor` the Game Changers' floor.
+  Shared by the tile and "Your decks" (Paket 2, PR 9).
+{% endcomment %}{% if speed.together %}{{ speed.together }}+{% elif floor == 1 %}1–2{% else %}{{ floor }}+{% endif %}

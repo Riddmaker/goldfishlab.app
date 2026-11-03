@@ -580,6 +580,25 @@ card draw as &ldquo;What is in it&rdquo; counts them (with the template), and th
 commander is out in half the games of the last run, or &ldquo;simulate to see&rdquo;. The average
 mana value stays a tile and is not repeated.</p>
 
+<h2>Deck list values (Paket 2)</h2>
+<div class="surface">
+  <p style="display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;margin:0;
+            font-size:.875rem;color:var(--ink-700)">
+    <span style="display:flex;gap:.125rem">{"".join(
+        f'<span style="display:inline-flex;width:1.375rem;height:1.375rem;align-items:center;'
+        f'justify-content:center;border-radius:999px;border:1px solid var(--ink-800);'
+        f'font-size:.75rem;font-weight:600;background:{bg};color:{fg}">{letter}</span>'
+        for letter, bg, fg in (("U", "#2a6fb0", "#ffffff"), ("B", "#2b2622", "#f0ece4")))}
+    </span>
+    <span>Bracket 3+</span>
+    <span><a href="#">simulated 03.11.26</a></span>
+  </p>
+</div>
+<p class="rule">Each deck in &ldquo;Your decks&rdquo; says three things under its name: its colour
+identity as pips in WUBRG order (named for a screen reader), the bracket exactly as the deck
+page&rsquo;s tile says it (one shared include), and when it was last simulated, linking to that
+run, or &ldquo;not simulated yet&rdquo;. One quiet row; more decks never mean more queries.</p>
+
 <h2>Deck list fan &amp; setting switch (Themen-Doc)</h2>
 <div class="surface">
   <p class="sg-row">

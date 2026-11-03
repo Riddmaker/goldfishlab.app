@@ -159,7 +159,7 @@
     {% endcomment %}
     <div class="surface-parchment p-4" data-bracket-tile>
       <p class="text-sm text-ink-700">{% translate "Bracket" %}</p>
-      <p class="tabular font-display text-3xl text-ink-900" data-bracket-floor>{% if speed.together %}{{ speed.together }}+{% elif analysis.bracket_floor == 1 %}1–2{% else %}{{ analysis.bracket_floor }}+{% endif %}</p>
+      <p class="tabular font-display text-3xl text-ink-900" data-bracket-floor>{% include "decks/_bracket_number.html" with floor=analysis.bracket_floor %}</p>
       <p class="text-sm text-ink-700">{{ analysis.bracket_verdict.message }}</p>
       <p class="text-sm text-ink-700" data-by-speed>
         {% if not speed %}

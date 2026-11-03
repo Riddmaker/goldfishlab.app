@@ -9,7 +9,7 @@ import secrets
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import F, Prefetch, Q, Window
+from django.db.models import F, OuterRef, Prefetch, Q, Subquery, Window
 from django.db.models.functions import RowNumber
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -25,6 +25,7 @@ from billing import quotas
 from billing.quotas import QuotaExceeded
 from billing.views import upgrade_prompt
 from combos import services as combo_services
+from combos.models import DeckCombo
 from decks import analysis as deck_analysis
 from decks import command_zone, engine_watch, printing_art, services
 from decks.forms import (
@@ -69,9 +70,20 @@ class DeckListView(OwnedDecksMixin, ListView):
 
     def get_queryset(self):
         # The entries once for the whole list: the card count reads them, and
-        # it used to be one query a deck.
-        return (super().get_queryset().select_related("commander", "partner")
-                .prefetch_related("entries"))
+        # it used to be one query a deck. Their cards' colours and Game
+        # Changer flag, and the combos found in the deck, are for the three
+        # values per deck (Paket 2, PR 9).
+        last_run = (SimulationRun.objects.filter(deck=OuterRef("pk"),
+                                                 status=SimulationRun.Status.DONE)
+                    .order_by("-created_at").values("pk")[:1])
+        return (super().get_queryset()
+                .select_related("commander", "partner", "combo_lookup")
+                .annotate(last_run_id=Subquery(last_run))
+                .prefetch_related(
+                    Prefetch("entries", DeckCard.objects.select_related("oracle_card")),
+                    Prefetch("combo_lookup__entries", DeckCombo.objects.filter(
+                        kind=DeckCombo.Kind.INCLUDED).select_related("combo"),
+                        to_attr="included")))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -80,9 +92,11 @@ class DeckListView(OwnedDecksMixin, ListView):
         for deck in context["decks"]:
             review.open_questions(deck)
         fans = fan_cards(context["decks"])
+        runs = last_runs(context["decks"])
         for deck in context["decks"]:
             deck.fan = fans.get(deck.pk, [])
             deck.commander_small = commander_small(deck)
+            deck_values(deck, runs.get(deck.last_run_id))
         return context
 
 
@@ -284,6 +298,46 @@ def fan_cards(decks) -> dict:
         fans.setdefault(entry.deck_id, []).append(
             (entry.oracle_card.name, small_image(image)))
     return fans
+
+
+#: Colour identity as Magic prints it: white, blue, black, red, green.
+WUBRG = "WUBRG"
+
+
+def last_runs(decks) -> dict:
+    """`{run id: run}`: each deck's last finished run, with what it measured
+    of the deck's combos, in two queries for the whole list."""
+    ids = [deck.last_run_id for deck in decks if deck.last_run_id]
+    if not ids:
+        return {}
+    return {run.pk: run for run in SimulationRun.objects.filter(pk__in=ids)
+            .prefetch_related("combo_measurements")}
+
+
+def deck_values(deck, run) -> None:
+    """The three values "Your decks" shows per deck (Paket 2, PR 9).
+
+    `identity`: `(letter, name)` in WUBRG order, the commanders' and every
+    card's colours as the deck page counts them; colourless without any.
+    `floor` and `speed`: the bracket tile's two halves - the Game Changers,
+    and the last run's speed. `last_run`: the run the speed and the date come
+    from. All from what the list prefetched.
+    """
+    cards = [entry.oracle_card for entry in deck.entries.all()] + deck.commanders
+    colours = {colour for card in cards for colour in card.color_identity}
+    deck.identity = [(colour, gettext(report.COLOR_NAMES[colour]))
+                     for colour in WUBRG if colour in colours] or [
+                         ("C", gettext(report.COLOR_NAMES["C"]))]
+    changers = [card.name for card in cards if card.game_changer]
+    deck.floor = deck_analysis.bracket_floor(len(changers))
+    deck.last_run = run
+    deck.speed = None
+    if run is not None and run.result:
+        lookup = getattr(deck, "combo_lookup", None)
+        included = [entry.combo for entry in getattr(lookup, "included", [])]
+        deck.speed = report.run_brackets(
+            run, measured=list(run.combo_measurements.all()), changers=changers,
+            combo_state=report.combo_state(lookup, included))
 
 
 def commander_small(deck):

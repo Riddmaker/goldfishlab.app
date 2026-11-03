@@ -571,7 +571,8 @@ NONE_KNOWN = "none_known"
 RUN_AGAIN = "run_again"
 
 
-def brackets(run, result: dict, timed_combos: bool) -> dict:
+def brackets(run, result: dict, timed_combos: bool, *, changers=None,
+             combo_state=None) -> dict:
     """The bracket section: speed, the Game Changers, and the two together.
 
     P20 F4 (E1.29, E1.30): the deck page's tile said "Bracket 3" by the Game
@@ -579,13 +580,17 @@ def brackets(run, result: dict, timed_combos: bool) -> dict:
     other existed. Both are floors - a deck is in a bracket only if it fits
     every rule - so together the higher one counts. The Game Changers are read
     off the deck as it is now, like the deck page's tile.
+
+    `changers` and `combo_state` are for the deck list (Paket 2, PR 9), which
+    reads them for every deck at once; left out, they are queried here.
     """
     tempo = bracket_tempo(result, timed_combos)
-    changers = deck_analysis.game_changers(run.deck)
+    if changers is None:
+        changers = deck_analysis.game_changers(run.deck)
     floor = deck_analysis.bracket_floor(len(changers))
     by_speed = None
     if tempo.get("no_combos"):
-        tempo["combos"] = _combo_state(run)
+        tempo["combos"] = combo_state if combo_state is not None else _combo_state(run)
         # No combo that ends the game: speed holds the deck to no bracket.
         by_speed = 1 if tempo["combos"] == NONE_KNOWN else None
     elif tempo.get("verdict"):
@@ -598,11 +603,16 @@ def brackets(run, result: dict, timed_combos: bool) -> dict:
     return tempo
 
 
-def run_brackets(run) -> dict:
+def run_brackets(run, *, measured=None, **known) -> dict:
     """`brackets` for one stored run, read on its own: the deck page's bracket
-    tile shows the speed of the last run beside the Game Changers."""
-    return brackets(run, runner.read(run.result),
-                    timed_combos=_timed(combo_measurements(run)))
+    tile shows the speed of the last run beside the Game Changers.
+
+    The deck list passes `measured` (the run's combo measurements) and
+    `brackets`' `changers` and `combo_state`, prefetched for all its decks.
+    """
+    if measured is None:
+        measured = combo_measurements(run)
+    return brackets(run, runner.read(run.result), timed_combos=_timed(measured), **known)
 
 
 def commander_out(run) -> dict:
@@ -632,7 +642,15 @@ def _combo_state(run) -> str:
     if lookup is None or not lookup.ok or lookup.fetched_at is None:
         return NOT_LOOKED_UP
     included = lookup.entries.filter(kind=lookup.entries.model.Kind.INCLUDED)
-    if any(entry.combo.ends_the_game for entry in included.select_related("combo")):
+    return combo_state(lookup, [entry.combo for entry in included.select_related("combo")])
+
+
+def combo_state(lookup, included) -> str:
+    """`_combo_state` from a deck's lookup and the combos it found in the deck,
+    for a caller that has both already (the deck list)."""
+    if lookup is None or not lookup.ok or lookup.fetched_at is None:
+        return NOT_LOOKED_UP
+    if any(combo.ends_the_game for combo in included):
         return RUN_AGAIN
     return NONE_KNOWN
 

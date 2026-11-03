@@ -20,7 +20,7 @@ of its progress table.
 |----|------|-------|
 | 7 | Deck summary and "Your strategies" on the deck page, new order (rows 28, 15) | done |
 | 8 | Smaller mana curve with three values beside it (row 21) | done |
-| 9 | Three values per deck in the deck list (row 13) | open |
+| 9 | Three values per deck in the deck list (row 13) | done |
 
 ## How PR 7 works
 
@@ -64,3 +64,20 @@ of its progress table.
   "simulate to see" (`#simulate`). With two commanders one counts, as in the milestone.
 - **No new query:** the bars are already built for "What is in it"; the run is the one the
   bracket tile reads.
+
+## How PR 9 works
+
+- **Row** (`decks/list.html`, `<p data-deck-values>`): under the name, the colour identity as
+  `.pip`s (the playtest's), WUBRG order, the commanders' and every card's colours as
+  `analyse` counts them, "C" for none; each pip `aria-hidden` with its colour name in `sr-only`.
+  Then "Bracket N+" and "simulated <date>" (a link to the run) or "not simulated yet".
+- **Bracket as the tile:** `decks/_bracket_number.html` is the tile's number, now included by
+  both. `deck_values` (in `decks/views.py`) gives each deck the Game Changers' `floor` and, with
+  a finished run, `speed = report.run_brackets(run, measured=..., changers=...,
+  combo_state=...)`; `brackets` and `run_brackets` take those so they need not query, and
+  `report.combo_state(lookup, included)` is `_combo_state` without the query.
+- **Queries:** the list annotates each deck's last finished run (`Subquery`, newest
+  `created_at`, status done), fetches those runs with their combo measurements in two queries
+  (`last_runs`), and prefetches the entries with their cards and the lookup's included combos.
+  `tests/test_deck_list_values.py` holds one deck with a run against three decks (two with
+  runs) to the same number of queries. A running or failed run is not the last simulation.

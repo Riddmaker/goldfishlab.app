@@ -275,6 +275,11 @@ engine could not read, then the pictures, and the depth folded at the bottom.
   reader. Beside it three numbers: ramp and card draw as "What is in it" counts them (with the
   template), and "Commander out by turn N" in half the games of the last run (link to the
   report's milestones), or "simulate to see". The average mana value stays a tile.
+- **Deck list values** (`decks/list.html`, `data-deck-values`, Paket 2 PR 9): under each deck's
+  name one quiet row of three: the colour identity as `.pip`s in WUBRG order (colourless: C), each
+  named for a screen reader; "Bracket N+" exactly as the deck page's tile says it (one include,
+  `decks/_bracket_number.html`); "simulated <date>" linking to the last finished run, or "not
+  simulated yet". The row never costs a query per deck.
 - **"Advanced"** (`simulations/_advanced.html`, `.report-advanced*`): a closed `<details>` on the
   dark page; the summary is a display heading with the fold's contents named beside it and a
   turning ▸ (no turn under `prefers-reduced-motion`). Inside: the mana table, the blind spots,

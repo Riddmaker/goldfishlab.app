@@ -13610,3 +13610,12 @@ msgstr "%(turn)sターン目までにはなし"
 #: templates/decks/detail.html
 msgid "in half the games, last run"
 msgstr "前回の実行で半数のゲーム"
+
+#: templates/decks/list.html
+#, python-format
+msgid "simulated %(date)s"
+msgstr "%(date)s にシミュレーション"
+
+#: templates/decks/list.html
+msgid "not simulated yet"
+msgstr "未シミュレーション"

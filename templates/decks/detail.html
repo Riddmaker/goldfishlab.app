@@ -45,15 +45,19 @@
       {% endif %}
       {% url 'decks:set-commander' deck.id as commander_url %}
       {% if deck.commander %}
-        <p class="mt-2 text-parchment-200">
-          {% if deck.partner %}{% translate "Commanders:" %}{% else %}{% translate "Commander:" %}{% endif %}
-          {% for card, printing in commander_printings %}
-            <strong class="text-parchment-100">{{ card.front_name }}</strong>{% if printing %} <span class="text-sm text-parchment-300">({% include "decks/_printings.html" with printings=printing %})</span>{% endif %}{% if not forloop.last %} +{% endif %}
-          {% endfor %}
-        </p>
-        {# P20 F2 (E1.55): a commander once saved could not be changed - only a new import helped. #}
-        <details id="commander" class="mt-1 text-parchment-200">
-          <summary class="cursor-pointer text-sm underline">{% translate "Change the commander" %}</summary>
+        {% comment %}
+          P20 F2 (E1.55): a commander once saved could not be changed - only a
+          new import helped. The underlined name itself opens the choice; a
+          "Change the commander" fold under it was one fold too many.
+        {% endcomment %}
+        <details id="commander" class="mt-2 text-parchment-200">
+          <summary class="commander-toggle cursor-pointer" title="{% translate "Change the commander" %}">
+            {% if deck.partner %}{% translate "Commanders:" %}{% else %}{% translate "Commander:" %}{% endif %}
+            {% for card, printing in commander_printings %}
+              <strong class="text-parchment-100 underline decoration-parchment-300 underline-offset-4">{{ card.front_name }}</strong>{% if printing %} <span class="text-sm text-parchment-300">({% include "decks/_printings.html" with printings=printing %})</span>{% endif %}{% if not forloop.last %} +{% endif %}
+            {% endfor %}
+            <span class="sr-only">— {% translate "Change the commander" %}</span>
+          </summary>
           {% translate "Save commander" as save_label %}
           {% include "decks/_commander_form.html" with action=commander_url submit_label=save_label %}
         </details>
@@ -67,22 +71,35 @@
           {% include "decks/_commander_form.html" with action=commander_url submit_label=save_label %}
         </div>
       {% endif %}
+      {% comment %}
+        One form, two buttons: "Draw a hand" posts the same fields to the
+        playtest (formaction), so the one "First draw" choice counts for both.
+        It once had a checkbox of its own beside that dropdown, which read as
+        the same question asked twice. The last report, when there is one, is
+        the first button: somebody coming back pressed "Simulate" because the
+        link to it under the buttons was easy to miss.
+      {% endcomment %}
       <form id="simulate" method="post" action="{% url 'simulations:create' deck.id %}" class="mt-5">
         {% csrf_token %}
         <div class="flex flex-wrap gap-3">
+          {% if running_run %}
+            <a href="{{ running_run.get_absolute_url }}" data-last-run-link
+               class="border border-blood-800 bg-blood-700 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-blood-800">{% translate "Watch the run" %}</a>
+          {% elif last_run %}
+            <a href="{{ last_run.get_absolute_url }}" data-last-run-link
+               class="border border-blood-800 bg-blood-700 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-blood-800">{% translate "Open the last report" %}</a>
+          {% endif %}
           <button type="submit"
-                  class="border border-blood-800 bg-blood-700 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-blood-800">
+                  class="{% if running_run or last_run %}border border-parchment-100 hover:bg-ink-800{% else %}border border-blood-800 bg-blood-700 hover:bg-blood-800{% endif %} px-6 py-3 font-display text-xl text-parchment-100">
             {% if not deck.commander %}{% translate "Simulate without a commander" %}{% elif last_run %}{% translate "Simulate again" %}{% else %}{% translate "Simulate" %}{% endif %}
           </button>
-          <button type="submit" form="deal-hand"
+          <button type="submit" formaction="{% url 'playtest:start' deck.id %}" data-deal-hand
                   class="border border-parchment-100 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-ink-800">
             {% translate "Draw a hand" %}
           </button>
         </div>
-        {% if summary_due %}
-          <p class="mt-2 max-w-xl text-sm text-parchment-200">
-            {% translate "This run also writes a new deck summary, which counts as one more simulation." %}
-          </p>
+        {% if running_run or last_run %}
+          {% include "decks/_last_run.html" %}
         {% endif %}
         <details class="mt-3 max-w-xl text-parchment-200">
           <summary class="cursor-pointer text-sm underline">{% translate "Options" %}</summary>
@@ -91,27 +108,19 @@
               <div class="form-field">
                 <label for="{{ field.id_for_label }}" class="block text-sm text-ink-700">{{ field.label }}</label>
                 {{ field }}
+                {% if field.name == "on_the_play" %}
+                  <p class="mt-1 text-xs text-ink-700">{% translate "Counts for Simulate and for Draw a hand." %}</p>
+                {% endif %}
               </div>
             {% endfor %}
-            <label class="flex items-center gap-2 text-sm text-ink-700">
-              <input type="checkbox" name="on_the_play" form="deal-hand">
-              {% translate "Draw a hand: 1-v-1, skip the first draw" %}
-            </label>
-            <p class="text-xs text-ink-700">
-              {% blocktranslate trimmed %}
-                Simulate plays the deck out thousands of times against no opponent.
-                Draw a hand is one game by hand, with undo.
-              {% endblocktranslate %}
-            </p>
+            {% if summary_due %}
+              <p class="text-xs text-ink-700">
+                {% translate "This run also writes a new deck summary, which counts as one more simulation." %}
+              </p>
+            {% endif %}
           </div>
         </details>
       </form>
-      <form id="deal-hand" method="post" action="{% url 'playtest:start' deck.id %}">
-        {% csrf_token %}
-      </form>
-      {% if running_run or last_run %}
-        {% include "decks/_last_run.html" %}
-      {% endif %}
     </div>
   </div>
 
@@ -212,6 +221,15 @@
     </section>
   </div>
 
+  {% comment %}
+    Combos open, before the cards: the cards are the deck somebody already
+    knows, and a list below them is a list nobody scrolls to. The panel keeps
+    itself short - three "one card away" inline, the rest folded.
+  {% endcomment %}
+  <div id="combos">
+    {% include "combos/_panel.html" %}
+  </div>
+
   <section id="cards" class="surface-parchment mt-6 p-6">
     <div class="flex flex-wrap items-baseline gap-4">
       <h2 class="font-display text-2xl text-ink-900">{% translate "Cards" %}</h2>
@@ -284,10 +302,6 @@
         </li>
       {% endfor %}
     </ul>
-  </details>
-  <details id="combos" class="mt-6">
-    <summary class="cursor-pointer font-display text-xl text-parchment-100">{% translate "Combos" %}</summary>
-    {% include "combos/_panel.html" %}
   </details>
   <details class="mt-6 border-l-2 border-parchment-600 pl-5">
     <summary class="cursor-pointer font-display text-xl text-parchment-100">{% translate "What the engine cannot model" %}</summary>

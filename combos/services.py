@@ -260,8 +260,10 @@ def _upsert(record: spellbook.ComboRecord) -> Combo:
 #: tall - the detail pushes the thing somebody came for off the top of the
 #: screen. They are
 #: ordered by how many decks Spellbook has seen playing them, so the ones worth
-#: reading are the ones that survive the cut.
-ONE_AWAY_SHOWN = 8
+#: reading are the ones that survive the cut. Three, not eight, since the panel
+#: stopped being a fold of its own on the deck page: the three shown are the
+#: three a run times (`combos.measure.MAX_HYPOTHETICALS`).
+ONE_AWAY_SHOWN = 3
 
 
 @dataclass

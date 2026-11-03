@@ -81,5 +81,10 @@ class StartForm(forms.Form):
 
     #: Checked means the two-player rule: the starting player skips the first
     #: draw. Unchecked is multiplayer Commander, where nobody does (CR 103.8c).
+    #: The deck page posts its "First draw" dropdown here as "0" or "1" (one
+    #: choice for both buttons), which a checkbox widget reads as checked.
     on_the_play = forms.BooleanField(required=False, initial=False)
     seed = forms.IntegerField(required=False, min_value=0, max_value=2**62)
+
+    def clean_on_the_play(self) -> bool:
+        return str(self.data.get("on_the_play", "")).lower() in {"1", "on", "true"}

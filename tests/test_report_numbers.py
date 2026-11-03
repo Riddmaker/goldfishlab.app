@@ -271,3 +271,27 @@ def test_the_methodology_no_longer_calls_a_point_noise(client, settings, languag
 
     assert "±0.5" not in body and "±0,5" not in body
     assert 'id="on-curve"' in body
+
+
+@pytest.mark.django_db
+def test_a_finished_report_has_no_progress_panel(client, owner, fell_deck):
+    """"Finished, 40 of 40 games" said again what the page already says."""
+    run = _finished(owner, fell_deck)
+    client.force_login(owner)
+
+    body = client.get(run.get_absolute_url()).content.decode()
+
+    assert 'aria-label="Progress"' not in body
+    assert 'id="run-progress"' not in body
+
+
+@pytest.mark.django_db
+def test_a_run_still_playing_keeps_its_progress_panel(client, owner, fell_deck):
+    run = SimulationRun.objects.create(
+        owner=owner, deck=fell_deck, games_total=40, turns=9, seed=3,
+        status=SimulationRun.Status.RUNNING)
+    client.force_login(owner)
+
+    body = client.get(run.get_absolute_url()).content.decode()
+
+    assert 'id="run-progress"' in body

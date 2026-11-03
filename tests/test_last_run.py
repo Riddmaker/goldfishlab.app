@@ -16,6 +16,7 @@ from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 
 from decks import services as deck_services
 from simulations import services, summary
@@ -112,5 +113,61 @@ def test_a_run_still_going_shows_its_progress_first(client, deck):
 
     assert "A run is going" in body
     assert going.get_absolute_url() in body
-    assert body.index("A run is going</p>") < body.index("Your last run</p>")
+    assert body.index("A run is going</span>") < body.index("Your last run</a>")
     assert done.get_absolute_url() in body
+
+
+# --- The deck page's first row (Themen 2026-11) ---------------------------------
+
+
+def test_the_last_report_is_the_first_button(client, deck):
+    """Somebody coming back pressed "Simulate" because the link was easy to miss."""
+    _run(deck, games=1000)
+    newest = _run(deck, games=2000)
+
+    body = _page(client, deck)
+
+    link = body.index("data-last-run-link")
+    assert newest.get_absolute_url() in body[link - 200:link + 200]
+    assert "Open the last report" in body
+    assert link < body.index("Simulate again")
+
+
+def test_a_run_going_is_the_first_button(client, deck):
+    going = _run(deck, status=SimulationRun.Status.RUNNING)
+
+    body = _page(client, deck)
+
+    link = body.index("data-last-run-link")
+    assert going.get_absolute_url() in body[link - 200:link + 200]
+    assert "Watch the run" in body
+
+
+def test_without_a_run_simulate_is_the_first_button(client, deck):
+    assert "data-last-run-link" not in _page(client, deck)
+
+
+def test_one_first_draw_choice_for_both_buttons(client, deck):
+    """The playtest's own checkbox beside the dropdown read as the same question twice."""
+    body = _page(client, deck)
+
+    assert 'id="deal-hand"' not in body
+    assert 'type="checkbox" name="on_the_play"' not in body
+    assert body.count('name="on_the_play"') == 1
+    assert f'formaction="{reverse("playtest:start", args=[deck.id])}"' in body
+    assert "Simulate plays the deck out" not in body
+
+
+def test_combos_stand_open_above_the_cards(client, deck):
+    body = _page(client, deck)
+
+    assert '<details id="combos"' not in body
+    assert body.index('id="combos"') < body.index('id="cards"')
+
+
+def test_the_commanders_name_opens_the_choice(client, deck):
+    body = _page(client, deck)
+
+    summary = body[body.index('class="commander-toggle'):]
+    summary = summary[:summary.index("</summary>")]
+    assert deck.commander.front_name in summary

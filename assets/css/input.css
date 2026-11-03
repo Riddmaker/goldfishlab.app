@@ -1744,6 +1744,25 @@ span.hand-card {
   }
 }
 
+/* The deck page's commander line (decks/detail.html): the underlined name
+ * opens the choice, so the summary carries no marker of its own. */
+.commander-toggle {
+  list-style: none;
+}
+
+.commander-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.commander-toggle:hover strong {
+  text-decoration-color: var(--color-parchment-100);
+}
+
+.commander-toggle:focus-visible {
+  outline: 2px solid var(--color-parchment-100);
+  outline-offset: 4px;
+}
+
 /* ------------------------------------------------------------------------ */
 /* The logo, inline (core/_logo.html, phase 10 E): the favicon's shapes, its  */
 /* colours as tokens. `logo-animated` lets the fish swim a circle - turning  */

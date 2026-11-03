@@ -14343,3 +14343,15 @@ msgstr ""
 #, python-format
 msgid "target %(low)s–%(high)s (Karsten)"
 msgstr "Ziel %(low)s–%(high)s (Karsten)"
+
+#: templates/decks/detail.html
+msgid "Watch the run"
+msgstr "Lauf ansehen"
+
+#: templates/decks/detail.html
+msgid "Open the last report"
+msgstr "Letzten Bericht öffnen"
+
+#: templates/decks/detail.html
+msgid "Counts for Simulate and for Draw a hand."
+msgstr "Gilt für „Simulieren“ und für „Hand ziehen“."

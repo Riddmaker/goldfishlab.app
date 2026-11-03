@@ -14401,3 +14401,15 @@ msgstr ""
 #, python-format
 msgid "target %(low)s–%(high)s (Karsten)"
 msgstr "objetivo %(low)s–%(high)s (Karsten)"
+
+#: templates/decks/detail.html
+msgid "Watch the run"
+msgstr "Ver la simulación"
+
+#: templates/decks/detail.html
+msgid "Open the last report"
+msgstr "Abrir el último informe"
+
+#: templates/decks/detail.html
+msgid "Counts for Simulate and for Draw a hand."
+msgstr "Vale para «Simular» y para «Robar una mano»."

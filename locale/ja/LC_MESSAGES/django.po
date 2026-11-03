@@ -12580,3 +12580,15 @@ msgstr ""
 #, python-format
 msgid "target %(low)s–%(high)s (Karsten)"
 msgstr "目安 %(low)s–%(high)s（Karsten）"
+
+#: templates/decks/detail.html
+msgid "Watch the run"
+msgstr "実行を見る"
+
+#: templates/decks/detail.html
+msgid "Open the last report"
+msgstr "前回のレポートを開く"
+
+#: templates/decks/detail.html
+msgid "Counts for Simulate and for Draw a hand."
+msgstr "「シミュレーション」と「手札を引く」の両方に使われます。"

@@ -415,6 +415,10 @@ def stress(result: dict) -> dict | None:
     None for a run from before the stress test; a scenario that could not be
     played in the run's turns - a wipe in a run of five or fewer - comes back
     with no rows and says why.
+
+    Since Paket 3, PR 12 (Themen-Doc row 35) each scenario is a card with one
+    big number - how fast the deck comes back - and a sentence under it; the
+    with/without rows are folded under "The numbers".
     """
     if "stress" not in result:
         return None
@@ -425,7 +429,7 @@ def stress(result: dict) -> dict | None:
         tally = result["stress"].get(key) or {}
         games = tally.get("games", 0)
         scenario = {"key": key, "title": gettext(title), "assumption": gettext(assumption),
-                    "games": games, "rows": [], "sentence": ""}
+                    "games": games, "rows": [], "figure": "", "caption": "", "sentence": ""}
         scenarios.append(scenario)
         if not games:
             scenario["sentence"] = (
@@ -443,29 +447,37 @@ def stress(result: dict) -> dict | None:
             scenario["rows"].append({
                 "label": gettext(labels[field]), "mean": False,
                 "without": _pct(base[field], games), "with": _pct(hit[field], games)})
-        scenario["sentence"] = _stress_sentence(key, tally, turns)
-    return {"turns": turns, "scenarios": scenarios}
+        scenario.update(_stress_said(key, tally, turns))
+    return {"turns": turns, "scenarios": scenarios,
+            "measured": any(scenario["rows"] for scenario in scenarios)}
 
 
-def _stress_sentence(key: str, tally: dict, turns: int) -> str:
-    """One sentence a player reads first, from the counts."""
+def _stress_said(key: str, tally: dict, turns: int) -> dict:
+    """The card's big number, the words under it and one sentence more, from
+    the counts."""
     struck, back = tally["struck"], tally["back"]
     returned = sum(count for after, count in back.items() if after != "0")
+    by_end = percent(_pct(returned, struck))
     if key == "removal":
-        return gettext(
-            "It was back the next turn in %(next)s of games, and by turn %(turn)s in "
-            "%(by)s.") % {"next": percent(_pct(back.get("1", 0), struck)), "turn": turns,
-                          "by": percent(_pct(returned, struck))}
+        # By the last turn, like the wipe's card: the next turn alone is rare
+        # when the commander costs two more, and says less about a comeback.
+        return {
+            "figure": by_end,
+            "caption": gettext("of games had your commander back by turn %(turn)s")
+            % {"turn": turns},
+            "sentence": gettext("The very next turn: %(next)s.")
+            % {"next": percent(_pct(back.get("1", 0), struck))}}
     games = tally["games"]
-    text = gettext("After the wipe you had %(hit)s mana on turn %(turn)s instead of "
-                   "%(base)s.") % {"hit": number(tally["hit"]["mana"] / games, 1),
-                                   "base": number(tally["base"]["mana"] / games, 1),
-                                   "turn": turns}
+    sentence = gettext("Without the wipe: %(base)s.") % {
+        "base": number(tally["base"]["mana"] / games, 1)}
     if struck:
-        text += " " + gettext(
+        sentence += " " + gettext(
             "Where your commander was out, it was back by turn %(turn)s in %(by)s of "
-            "games.") % {"turn": turns, "by": percent(_pct(returned, struck))}
-    return text
+            "games.") % {"turn": turns, "by": by_end}
+    return {
+        "figure": number(tally["hit"]["mana"] / games, 1),
+        "caption": gettext("mana on turn %(turn)s after the wipe") % {"turn": turns},
+        "sentence": sentence}
 
 
 #: The Commander Brackets and the fewest turns Wizards expects a game in each

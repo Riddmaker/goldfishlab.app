@@ -13740,3 +13740,39 @@ msgid ""
 " compare with."
 msgstr ""
 "レポート上部の<strong>要点</strong>は、3つの数値を、同じ条件（1万ゲーム、後攻）でプレイしたすべての統率者構築済みデッキの数値と並べます。薄い線が構築済みデッキ、高い印があなたのデッキで、「中央値」は真ん中の構築済みデッキです。構築済みデッキのページではそのデッキ自身を除き、プレイ済みの構築済みデッキが5個未満なら比較は表示しません。"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How fast your deck comes back when an opponent hits it: the same games, once"
+" struck, compared on turn %(turn)s."
+msgstr "対戦相手に攻撃されたとき、あなたのデッキがどれだけ早く立て直すか。同じゲームを、攻撃された場合と比べて%(turn)sターン目で見ます。"
+
+#: simulations/report.py
+#, python-format
+msgid "Without the wipe: %(base)s."
+msgstr "全体除去なしなら%(base)s。"
+
+#: simulations/report.py
+#, python-format
+msgid "mana on turn %(turn)s after the wipe"
+msgstr "全体除去後、%(turn)sターン目のマナ"
+
+#: simulations/report.py
+#, python-format
+msgid "of games had your commander back by turn %(turn)s"
+msgstr "のゲームで、統率者が%(turn)sターン目までに戻ってきました"
+
+#: simulations/report.py
+#, python-format
+msgid "The very next turn: %(next)s."
+msgstr "次のターンにすぐ戻ったのは%(next)s。"
+
+#: templates/core/methodology.html
+msgid ""
+"On a report each blow is a card with one number, how fast the deck comes "
+"back: for the commander, the share of games it was back by the last turn; "
+"for the wipe, the mana on that turn. \"The numbers\" below them set the same"
+" games side by side, with the blow and without it."
+msgstr ""
+"レポートでは、それぞれの攻撃が1つの数値を持つカードになり、デッキがどれだけ早く立て直すかを示します。統率者なら最終ターンまでに戻ってきたゲームの割合、全体除去ならそのターンのマナです。その下の「数値」では、同じゲームを攻撃ありとなしで並べています。"

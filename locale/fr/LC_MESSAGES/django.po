@@ -15814,3 +15814,45 @@ msgstr ""
 "est votre deck, et « le milieu » est le précon du milieu. La page d'un "
 "précon laisse ce précon de côté, et avec moins de cinq précons joués, il n'y"
 " a rien à comparer."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How fast your deck comes back when an opponent hits it: the same games, once"
+" struck, compared on turn %(turn)s."
+msgstr ""
+"La vitesse à laquelle votre deck revient quand un adversaire le frappe : les"
+" mêmes parties, une fois frappées, comparées au tour %(turn)s."
+
+#: simulations/report.py
+#, python-format
+msgid "Without the wipe: %(base)s."
+msgstr "Sans le nettoyage : %(base)s."
+
+#: simulations/report.py
+#, python-format
+msgid "mana on turn %(turn)s after the wipe"
+msgstr "de mana au tour %(turn)s après le nettoyage"
+
+#: simulations/report.py
+#, python-format
+msgid "of games had your commander back by turn %(turn)s"
+msgstr "des parties : votre commandant était de retour au tour %(turn)s"
+
+#: simulations/report.py
+#, python-format
+msgid "The very next turn: %(next)s."
+msgstr "Dès le tour suivant : %(next)s."
+
+#: templates/core/methodology.html
+msgid ""
+"On a report each blow is a card with one number, how fast the deck comes "
+"back: for the commander, the share of games it was back by the last turn; "
+"for the wipe, the mana on that turn. \"The numbers\" below them set the same"
+" games side by side, with the blow and without it."
+msgstr ""
+"Dans un rapport, chaque coup est une carte avec un seul chiffre, la vitesse "
+"à laquelle le deck revient : pour le commandant, la part des parties où il "
+"était de retour au dernier tour ; pour le nettoyage, le mana à ce tour. « "
+"Les chiffres » en dessous mettent les mêmes parties côte à côte, avec le "
+"coup et sans."

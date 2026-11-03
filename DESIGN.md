@@ -226,6 +226,12 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   76%." The strip is hidden from screen readers, the sentence says it. Fewer than five
   precons and the block is gone; a precon's own page leaves the precon out. The "±"
   sentences moved to Advanced ("How exact the numbers are").
+- **The stress test as two cards** (`simulations/_report.html` `#stress`, Paket 3 PR 12): a
+  table of with/without rows made the reader do the comparing. Each blow is a card, side by
+  side from 640 px: its title, one big number - how fast the deck comes back (the share of
+  games the commander was back by the last turn; the mana on the last turn after the wipe) - the
+  words under it, one sentence more and the assumption small at the bottom. The rows are folded
+  under "The numbers". A blow the run could not play says why, without a number.
 - **Resources** (`core/resources.html`, data in `core/resources.py`): a short list, not a link
   farm. Each entry is its name as a display-font link with "↗", then one sentence of ours on why
   it is there; a video adds channel, year and length. Titles stay in English (`lang="en"`), the

@@ -15498,3 +15498,44 @@ msgstr ""
 " é o seu deck, e \"o meio\" é o precon do meio. A página de um precon deixa "
 "esse precon de fora, e com menos de cinco precons jogados não há nada para "
 "comparar."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How fast your deck comes back when an opponent hits it: the same games, once"
+" struck, compared on turn %(turn)s."
+msgstr ""
+"Quão rápido o seu deck volta quando um oponente o atinge: as mesmas "
+"partidas, uma vez atingidas, comparadas no turno %(turn)s."
+
+#: simulations/report.py
+#, python-format
+msgid "Without the wipe: %(base)s."
+msgstr "Sem o board wipe: %(base)s."
+
+#: simulations/report.py
+#, python-format
+msgid "mana on turn %(turn)s after the wipe"
+msgstr "de mana no turno %(turn)s depois do board wipe"
+
+#: simulations/report.py
+#, python-format
+msgid "of games had your commander back by turn %(turn)s"
+msgstr "das partidas: o seu comandante voltou até o turno %(turn)s"
+
+#: simulations/report.py
+#, python-format
+msgid "The very next turn: %(next)s."
+msgstr "Já no turno seguinte: %(next)s."
+
+#: templates/core/methodology.html
+msgid ""
+"On a report each blow is a card with one number, how fast the deck comes "
+"back: for the commander, the share of games it was back by the last turn; "
+"for the wipe, the mana on that turn. \"The numbers\" below them set the same"
+" games side by side, with the blow and without it."
+msgstr ""
+"Em um relatório cada golpe é um cartão com um só número, quão rápido o deck "
+"volta: para o comandante, a parcela de partidas em que ele voltou até o "
+"último turno; para o board wipe, a mana nesse turno. \"Os números\" abaixo "
+"colocam as mesmas partidas lado a lado, com o golpe e sem ele."

@@ -166,53 +166,73 @@
   </section>
 {% endif %}
 {% if report.stress %}
+  {% comment %}
+    Paket 3, PR 12 (Themen-Doc row 35): two cards, one big number each - how
+    fast the deck comes back - and the with/without rows folded below.
+  {% endcomment %}
   <section id="stress" class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">{% translate "Stress test: when the table strikes back" %}</h2>
     <p class="mt-1 text-sm text-ink-700">
       {% blocktranslate trimmed with turn=report.stress.turns %}
-        How well your deck gets back up when an opponent hits it: the same games, once as they went and once struck, side by side on turn {{ turn }}. Each blow is an assumption, said beside it.
+        How fast your deck comes back when an opponent hits it: the same games, once struck, compared on turn {{ turn }}.
       {% endblocktranslate %}
       {% include "core/_why.html" with anchor="stress" %}
     </p>
-    {% for scenario in report.stress.scenarios %}
-      <h3 class="font-display mt-5 text-lg text-ink-900">{{ scenario.title }}</h3>
-      <p class="mt-1 text-sm text-ink-700">{{ scenario.assumption }}</p>
-      <p class="mt-2 text-ink-900">{{ scenario.sentence }}</p>
-      {% if scenario.rows %}
-        <div class="mt-3 overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead>
-              <tr class="border-b border-parchment-600 text-ink-700">
-                <th scope="col" class="py-1.5 pr-3">{% blocktranslate with turn=report.stress.turns %}Turn {{ turn }}{% endblocktranslate %}</th>
-                <th scope="col" class="py-1.5 pr-3">{% translate "Without" %}</th>
-                <th scope="col" class="py-1.5 pr-3">{% translate "With" %}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for row in scenario.rows %}
-                <tr class="border-b border-parchment-300">
-                  <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
-                  {% if row.mean %}
-                    <td class="tabular py-1.5 pr-3 text-ink-700">{{ row.without|floatformat:"1" }}</td>
-                    <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.with|floatformat:"1" }}</td>
-                  {% else %}
-                    <td class="tabular py-1.5 pr-3 text-ink-700">{% blocktranslate with number=row.without|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
-                    <td class="tabular py-1.5 pr-3 text-ink-900">{% blocktranslate with number=row.with|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
-                  {% endif %}
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+      {% for scenario in report.stress.scenarios %}
+        <div class="border border-parchment-600 bg-parchment-50 p-4" data-stress-card="{{ scenario.key }}">
+          <h3 class="font-display text-lg text-ink-900">{{ scenario.title }}</h3>
+          {% if scenario.figure %}
+            <p class="mt-2 tabular font-display text-4xl text-ink-900" data-stress-figure>{{ scenario.figure }}</p>
+            <p class="text-sm text-ink-900">{{ scenario.caption }}</p>
+          {% endif %}
+          <p class="mt-2 text-sm text-ink-700">{{ scenario.sentence }}</p>
+          <p class="mt-3 text-xs text-ink-700">{{ scenario.assumption }}</p>
         </div>
-        <p class="mt-2 text-xs text-ink-700">
-          {% blocktranslate trimmed with shown=scenario.games|intcomma count games=scenario.games %}
-            Measured in {{ shown }} game.
-          {% plural %}
-            Measured in {{ shown }} games.
-          {% endblocktranslate %}
-        </p>
-      {% endif %}
-    {% endfor %}
+      {% endfor %}
+    </div>
+    {% if report.stress.measured %}
+      <details class="mt-5 text-sm" data-stress-numbers>
+        <summary class="cursor-pointer text-ink-900 underline">{% translate "The numbers" %}</summary>
+        {% for scenario in report.stress.scenarios %}
+          {% if scenario.rows %}
+            <h3 class="mt-4 font-display text-base text-ink-900">{{ scenario.title }}</h3>
+            <div class="mt-2 overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b border-parchment-600 text-ink-700">
+                    <th scope="col" class="py-1.5 pr-3">{% blocktranslate with turn=report.stress.turns %}Turn {{ turn }}{% endblocktranslate %}</th>
+                    <th scope="col" class="py-1.5 pr-3">{% translate "Without" %}</th>
+                    <th scope="col" class="py-1.5 pr-3">{% translate "With" %}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in scenario.rows %}
+                    <tr class="border-b border-parchment-300">
+                      <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
+                      {% if row.mean %}
+                        <td class="tabular py-1.5 pr-3 text-ink-700">{{ row.without|floatformat:"1" }}</td>
+                        <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.with|floatformat:"1" }}</td>
+                      {% else %}
+                        <td class="tabular py-1.5 pr-3 text-ink-700">{% blocktranslate with number=row.without|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
+                        <td class="tabular py-1.5 pr-3 text-ink-900">{% blocktranslate with number=row.with|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
+                      {% endif %}
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <p class="mt-2 text-xs text-ink-700">
+              {% blocktranslate trimmed with shown=scenario.games|intcomma count games=scenario.games %}
+                Measured in {{ shown }} game.
+              {% plural %}
+                Measured in {{ shown }} games.
+              {% endblocktranslate %}
+            </p>
+          {% endif %}
+        {% endfor %}
+      </details>
+    {% endif %}
   </section>
 {% endif %}
 <section class="surface-parchment mt-6 p-6">

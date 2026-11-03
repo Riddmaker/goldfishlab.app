@@ -185,3 +185,44 @@ def test_in_german_the_comparison_is_german_and_its_numbers_machine_readable(
 
     assert "neben 5 Commander-Precons" in glance and "Mitte der Precons" in glance
     assert not machine_number_faults(glance)
+
+
+# --- PR 12 (Themen-Doc row 35): the stress test as two cards -----------------
+#
+# 1. **One card per blow**, side by side, each with one big number: how fast
+#    the deck comes back.
+# 2. **The with/without table is folded** under "The numbers".
+# 3. **A blow the run could not play** says why, without a number.
+
+
+def _stress(body: str) -> str:
+    start = body.index('id="stress"')
+    return body[start:body.index("</section>", start)]
+
+
+def test_the_stress_test_is_two_cards_with_the_table_folded(client, owner, finished_run):  # noqa: F811
+    client.force_login(owner)
+
+    shown = _stress(client.get(reverse("simulations:detail", args=[finished_run.pk]))
+                    .content.decode())
+    cards, folded = shown.split("data-stress-numbers") if "data-stress-numbers" in shown \
+        else (shown, "")
+
+    assert cards.count("data-stress-card=") == 2
+    assert "<table" not in cards, "the table is folded, not beside the cards"
+    assert cards.count("data-stress-figure") == 1, "a run of 4 turns has no wipe to number"
+    assert "six turns or more" in cards
+    assert "<table" in folded and "The numbers" in folded
+    assert not machine_number_faults(shown)
+
+
+def test_in_german_the_cards_are_german(client, owner, finished_run, settings):  # noqa: F811
+    settings.LANGUAGES = GERMAN
+    client.force_login(owner)
+    client.cookies["django_language"] = "de"
+
+    shown = _stress(client.get(reverse("simulations:detail", args=[finished_run.pk]))
+                    .content.decode())
+
+    assert "bis Zug 4 wieder da" in shown and "Die Zahlen" in shown
+    assert not machine_number_faults(shown)

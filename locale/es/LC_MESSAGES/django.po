@@ -15732,3 +15732,44 @@ msgstr ""
 "partidas, robando. Una raya tenue es un precon, la marca alta es tu mazo, y "
 "«el centro» es el precon del medio. La página de un precon deja fuera ese "
 "precon, y con menos de cinco precons jugados no hay nada con qué comparar."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How fast your deck comes back when an opponent hits it: the same games, once"
+" struck, compared on turn %(turn)s."
+msgstr ""
+"Lo rápido que tu mazo se recupera cuando un oponente lo golpea: las mismas "
+"partidas, una vez golpeadas, comparadas en el turno %(turn)s."
+
+#: simulations/report.py
+#, python-format
+msgid "Without the wipe: %(base)s."
+msgstr "Sin el barrido: %(base)s."
+
+#: simulations/report.py
+#, python-format
+msgid "mana on turn %(turn)s after the wipe"
+msgstr "de maná en el turno %(turn)s tras el barrido"
+
+#: simulations/report.py
+#, python-format
+msgid "of games had your commander back by turn %(turn)s"
+msgstr "de las partidas: tu comandante volvió para el turno %(turn)s"
+
+#: simulations/report.py
+#, python-format
+msgid "The very next turn: %(next)s."
+msgstr "Ya en el turno siguiente: %(next)s."
+
+#: templates/core/methodology.html
+msgid ""
+"On a report each blow is a card with one number, how fast the deck comes "
+"back: for the commander, the share of games it was back by the last turn; "
+"for the wipe, the mana on that turn. \"The numbers\" below them set the same"
+" games side by side, with the blow and without it."
+msgstr ""
+"En un informe cada golpe es una tarjeta con una sola cifra, lo rápido que el"
+" mazo se recupera: para el comandante, la parte de partidas en que volvió "
+"para el último turno; para el barrido, el maná en ese turno. «Las cifras» "
+"debajo ponen las mismas partidas lado a lado, con el golpe y sin él."

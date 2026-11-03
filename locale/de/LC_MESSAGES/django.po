@@ -15669,3 +15669,44 @@ msgstr ""
 " dein Deck, und «die Mitte» ist das Precon in der Mitte. Die Seite eines "
 "Precons lässt dieses Precon weg, und mit weniger als fünf gespielten Precons"
 " gibt es nichts zum Vergleichen."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How fast your deck comes back when an opponent hits it: the same games, once"
+" struck, compared on turn %(turn)s."
+msgstr ""
+"Wie schnell dein Deck zurückkommt, wenn ein Gegner zuschlägt: dieselben "
+"Spiele, einmal getroffen, verglichen in Zug %(turn)s."
+
+#: simulations/report.py
+#, python-format
+msgid "Without the wipe: %(base)s."
+msgstr "Ohne den Wipe: %(base)s."
+
+#: simulations/report.py
+#, python-format
+msgid "mana on turn %(turn)s after the wipe"
+msgstr "Mana in Zug %(turn)s nach dem Wipe"
+
+#: simulations/report.py
+#, python-format
+msgid "of games had your commander back by turn %(turn)s"
+msgstr "der Spiele war dein Commander bis Zug %(turn)s wieder da"
+
+#: simulations/report.py
+#, python-format
+msgid "The very next turn: %(next)s."
+msgstr "Schon im nächsten Zug: %(next)s."
+
+#: templates/core/methodology.html
+msgid ""
+"On a report each blow is a card with one number, how fast the deck comes "
+"back: for the commander, the share of games it was back by the last turn; "
+"for the wipe, the mana on that turn. \"The numbers\" below them set the same"
+" games side by side, with the blow and without it."
+msgstr ""
+"In einem Bericht ist jeder Schlag eine Karte mit einer Zahl, wie schnell das"
+" Deck zurückkommt: beim Commander der Anteil der Spiele, in denen er bis zum"
+" letzten Zug wieder da war; beim Wipe das Mana in diesem Zug. «Die Zahlen» "
+"darunter stellen dieselben Spiele nebeneinander, mit dem Schlag und ohne."

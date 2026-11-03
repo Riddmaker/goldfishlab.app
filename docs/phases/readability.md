@@ -8,7 +8,7 @@ test) and 31 (Share and Compare). Plan approved by the owner on 2026-11-03, ever
 |---|---|---|---|
 | 10 | 39 | "Why?" becomes "More"; each section's sentence says first why it matters | **Done** |
 | 11 | 32 | "In short" compares the run with the precons; the "±" sentence moves to Advanced | **Done** |
-| 12 | 35 | The stress test as two cards side by side, one number each, the table folded | Planned |
+| 12 | 35 | The stress test as two cards side by side, one number each, the table folded | **Done** |
 | 13 | 31 | Share invites ("Show your friends"); Compare becomes "Better than yesterday", this run against the deck's last one | Planned |
 
 Decisions (all A): the link says "More" ("Mehr dazu"); "In short" is compared with the precons,
@@ -45,3 +45,17 @@ link, with no public ranking; order 10, 11, 12, 13.
   precon table; "More" to `#precons-compared` on the methodology page.
 - The "±" sentences are in Advanced under "How exact the numbers are" (`#exact`).
 - Tests: `tests/test_readability.py` (PR 11 part), `tests/test_report_numbers.py` updated.
+
+## How PR 12 works
+
+- `report.stress` gives each scenario a `figure`, the words under it (`caption`) and one
+  `sentence` more (`_stress_said`), plus `measured` when any scenario has rows. The commander's
+  card shows the share of games it was back by the last turn, the next turn in the sentence
+  (the next turn alone is rare when the commander costs two more); the wipe's card the mana on
+  the last turn, "Without the wipe" in the sentence.
+- `#stress` keeps its id: a short sentence why, then two cards (`data-stress-card`, side by
+  side from 640 px), the with/without tables folded under "The numbers"
+  (`data-stress-numbers`). A blow the run could not play keeps its card, with the reason and no
+  number.
+- The methodology's stress test says what the cards show.
+- Tests: `tests/test_v36_stress.py` (the figures), `tests/test_readability.py` (PR 12 part).

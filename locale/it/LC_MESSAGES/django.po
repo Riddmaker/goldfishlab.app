@@ -15595,3 +15595,44 @@ msgstr ""
 " alto è il tuo mazzo, e «il centro» è il precon nel mezzo. La pagina di un "
 "precon lascia fuori quel precon, e con meno di cinque precon giocati non c'è"
 " niente da confrontare."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How fast your deck comes back when an opponent hits it: the same games, once"
+" struck, compared on turn %(turn)s."
+msgstr ""
+"Quanto in fretta il tuo mazzo si riprende quando un avversario lo colpisce: "
+"le stesse partite, una volta colpite, confrontate al turno %(turn)s."
+
+#: simulations/report.py
+#, python-format
+msgid "Without the wipe: %(base)s."
+msgstr "Senza la spazzata: %(base)s."
+
+#: simulations/report.py
+#, python-format
+msgid "mana on turn %(turn)s after the wipe"
+msgstr "mana al turno %(turn)s dopo la spazzata"
+
+#: simulations/report.py
+#, python-format
+msgid "of games had your commander back by turn %(turn)s"
+msgstr "delle partite: il tuo comandante era tornato entro il turno %(turn)s"
+
+#: simulations/report.py
+#, python-format
+msgid "The very next turn: %(next)s."
+msgstr "Già il turno dopo: %(next)s."
+
+#: templates/core/methodology.html
+msgid ""
+"On a report each blow is a card with one number, how fast the deck comes "
+"back: for the commander, the share of games it was back by the last turn; "
+"for the wipe, the mana on that turn. \"The numbers\" below them set the same"
+" games side by side, with the blow and without it."
+msgstr ""
+"In un report ogni colpo è una carta con un solo numero, quanto in fretta il "
+"mazzo si riprende: per il comandante, la quota di partite in cui era tornato"
+" entro l'ultimo turno; per la spazzata, il mana in quel turno. «I numeri» "
+"sotto mettono le stesse partite fianco a fianco, con il colpo e senza."

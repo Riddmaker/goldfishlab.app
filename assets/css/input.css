@@ -744,7 +744,7 @@ body {
 
 /* A line that explains itself (phase 10 T5.2). Each line has an invisible,
  * wider twin to point at, focus or tap; pointing at it - or at its chip - fades
- * the others, shows its band (count charts), and puts its sentence in the
+ * the other lines and their chips, shows its band (count charts), and puts its sentence in the
  * info line. One block per line below, like the toggles above. */
 .seen-hit {
   fill: none;
@@ -757,7 +757,8 @@ body {
   outline: none;
 }
 
-.seen-line {
+.seen-line,
+.seen-chip {
   transition: opacity 150ms ease;
 }
 
@@ -785,6 +786,9 @@ body {
 .seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) .seen-line:not(.seen-line-0) {
   opacity: 0.2;
 }
+.seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) .seen-chip:not(.seen-chip-0) {
+  opacity: 0.4;
+}
 .seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) .seen-band-0 {
   opacity: 1;
 }
@@ -802,6 +806,9 @@ body {
 }
 .seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) .seen-line:not(.seen-line-1) {
   opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) .seen-chip:not(.seen-chip-1) {
+  opacity: 0.4;
 }
 .seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) .seen-band-1 {
   opacity: 1;
@@ -821,6 +828,9 @@ body {
 .seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) .seen-line:not(.seen-line-2) {
   opacity: 0.2;
 }
+.seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) .seen-chip:not(.seen-chip-2) {
+  opacity: 0.4;
+}
 .seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) .seen-band-2 {
   opacity: 1;
 }
@@ -838,6 +848,9 @@ body {
 }
 .seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) .seen-line:not(.seen-line-3) {
   opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) .seen-chip:not(.seen-chip-3) {
+  opacity: 0.4;
 }
 .seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) .seen-band-3 {
   opacity: 1;
@@ -857,6 +870,9 @@ body {
 .seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) .seen-line:not(.seen-line-4) {
   opacity: 0.2;
 }
+.seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) .seen-chip:not(.seen-chip-4) {
+  opacity: 0.4;
+}
 .seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) .seen-band-4 {
   opacity: 1;
 }
@@ -874,6 +890,9 @@ body {
 }
 .seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) .seen-line:not(.seen-line-5) {
   opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) .seen-chip:not(.seen-chip-5) {
+  opacity: 0.4;
 }
 .seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) .seen-band-5 {
   opacity: 1;
@@ -893,6 +912,9 @@ body {
 .seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) .seen-line:not(.seen-line-6) {
   opacity: 0.2;
 }
+.seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) .seen-chip:not(.seen-chip-6) {
+  opacity: 0.4;
+}
 .seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) .seen-band-6 {
   opacity: 1;
 }
@@ -910,6 +932,9 @@ body {
 }
 .seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) .seen-line:not(.seen-line-7) {
   opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) .seen-chip:not(.seen-chip-7) {
+  opacity: 0.4;
 }
 .seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) .seen-band-7 {
   opacity: 1;
@@ -929,6 +954,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .seen-line,
+  .seen-chip,
   .seen-band {
     transition: none;
   }
@@ -1399,6 +1425,13 @@ body {
   margin-left: calc(-1 * min(6.5rem, 3rem + max(0, var(--n) - 8) * 0.5rem));
 }
 
+/* How far this card's slot sits from the middle of the fan: one step is the
+ * slot's width less the overlap above. The raised card moves by it. */
+.hand-slot {
+  --step: calc(8.5rem - min(6.5rem, 3rem + max(0, var(--n) - 8) * 0.5rem));
+  --to-middle: calc(((var(--n) - 1) / 2 - var(--i)) * var(--step));
+}
+
 /* Resting on a card straightens it and lifts it to the top; the picture
  * grows to a size its rules text can be read at (the user asked for that). */
 .hand-slot:hover,
@@ -1432,10 +1465,14 @@ span.hand-card {
   transition: transform 150ms ease-out;
 }
 
+/* With a pointer the raised card also moves to the middle of the fan, so a
+ * card at either end is read whole and in the same place. Only the picture
+ * moves: the slot stays under the pointer, so the hover holds, and a click
+ * anywhere on the slot or the picture still plays the card. */
 @media (hover: hover) {
   .hand-slot:hover .hand-card-img,
   .hand-slot:focus-within .hand-card-img {
-    transform: scale(1.8);
+    transform: translateX(var(--to-middle)) scale(1.8);
   }
 }
 
@@ -1512,6 +1549,13 @@ span.hand-card {
   .hand-slot:focus-within .hand-card-action {
     bottom: auto;
     top: calc(100% + 0.25rem);
+    translate: calc(-50% + var(--to-middle)) 0;
+  }
+
+  /* The X field follows the raised card to the middle. */
+  .hand-slot:hover .hand-card-x,
+  .hand-slot:focus-within .hand-card-x {
+    translate: calc(-50% + var(--to-middle)) 0;
   }
 }
 

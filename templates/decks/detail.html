@@ -9,7 +9,8 @@
 {% block content %}
   {% comment %}
     Phase 9 D: what to do first, then what the deck is. The explanations did
-    not go away - each one sits behind a "Why?" or in a fold further down.
+    not go away - each one sits in a fold further down. The tiles carry no
+    "Why?" of their own: the word on each tile says it.
   {% endcomment %}
   <div id="play" class="flex flex-wrap items-start gap-6">
     {% if deck.commander %}{% include "decks/_commander_art.html" %}{% endif %}
@@ -124,6 +125,8 @@
       {% else %}
         <p class="text-sm text-blood-700">! {% translate "outside band" %}</p>
       {% endif %}
+      {# The band and its source in one line; the Why under the tiles went (the word says it). #}
+      <a href="{% url 'methodology' %}#karsten" class="tabular text-xs text-ink-700 underline">{% blocktranslate with low=analysis.lands_band.0 high=analysis.lands_band.1 %}target {{ low }}–{{ high }} (Karsten){% endblocktranslate %}</a>
       {% if analysis.land_backs %}
         {# P20 F4 (E1.5): counted by the front face, as the list below counts. #}
         <p class="text-sm text-ink-700" data-land-backs>
@@ -159,14 +162,6 @@
       {% endif %}
     </div>
   </section>
-  <details class="mt-2 text-sm text-parchment-200">
-    <summary class="cursor-pointer underline">{% translate "Why?" %}</summary>
-    <ul class="mt-2 max-w-3xl space-y-1">
-      <li>{% blocktranslate with detail=analysis.lands_verdict.detail %}Lands: {{ detail }}{% endblocktranslate %}</li>
-      <li>{% blocktranslate with detail=analysis.bracket_verdict.detail %}Bracket: {{ detail }}{% endblocktranslate %}</li>
-      <li>{% translate "Every count is exact arithmetic over the list - nothing here is simulated." %}</li>
-    </ul>
-  </details>
 
   <div class="mt-6 grid gap-6 lg:grid-cols-2">
     <section class="surface-parchment p-6">

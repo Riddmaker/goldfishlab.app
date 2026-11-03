@@ -84,9 +84,12 @@
     {% if user.is_guest %}
       {% include "simulations/_keep_deck.html" %}
     {% endif %}
-    {% include "simulations/_attention.html" %}
-    {% include "simulations/_share.html" %}
-    {% include "simulations/_compare.html" %}
+    {# Side by side from lg up, so the three small panels do not push the report down. #}
+    <div class="mt-6 grid gap-6 lg:grid-cols-3">
+      {% include "simulations/_attention.html" %}
+      {% include "simulations/_share.html" %}
+      {% include "simulations/_compare.html" %}
+    </div>
     {% include "simulations/_report.html" %}
     {% if user.deck_summaries %}
       {% include "simulations/_summary.html" %}

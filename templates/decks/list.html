@@ -24,7 +24,7 @@
             {% include "decks/_status.html" %}
             <span class="text-sm text-ink-700">
               {% if deck.commander %}
-                {% blocktranslate with name=deck.commander.name %}Commander: {{ name }}{% endblocktranslate %}
+                {{ deck.commander.name }}
               {% else %}
                 <span class="text-blood-700">{% translate "No commander set" %}</span>
               {% endif %}

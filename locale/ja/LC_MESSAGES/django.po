@@ -12575,3 +12575,8 @@ msgstr ""
 "一部のカードの能力は <a href=\"https://github.com/Card-Forge/forge\" class=\"underline"
 " hover:text-ink-300\" rel=\"noopener\">Forge</a> のカードスクリプトから読み取っています。Forge も"
 " Goldfish Lab とは提携していません。"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "target %(low)s–%(high)s (Karsten)"
+msgstr "目安 %(low)s–%(high)s（Karsten）"

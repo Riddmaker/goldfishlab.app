@@ -14396,3 +14396,8 @@ msgstr ""
 "href=\"https://github.com/Card-Forge/forge\" class=\"underline hover:text-"
 "ink-300\" rel=\"noopener\">Forge</a>, que tampoco está afiliado a Goldfish "
 "Lab."
+
+#: templates/decks/detail.html
+#, python-format
+msgid "target %(low)s–%(high)s (Karsten)"
+msgstr "objetivo %(low)s–%(high)s (Karsten)"

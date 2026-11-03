@@ -68,6 +68,9 @@ class DeckAnalysis:
     bracket_verdict: Verdict | None = None
     legality: list[Verdict] = field(default_factory=list)
 
+    #: Karsten's land band, named on the Lands tile with its source.
+    lands_band: tuple[int, int] = (KARSTEN_MIN, KARSTEN_MAX)
+
     @property
     def is_legal(self) -> bool:
         return all(verdict.ok for verdict in self.legality)

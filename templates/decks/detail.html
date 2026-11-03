@@ -194,6 +194,17 @@
     </div>
   </section>
 
+  {% comment %}
+    The deck summary and "Your strategies" right under the tiles (Paket 2,
+    PR 7): what the deck is, in words, before the numbers. They were on every
+    report, but they are about the deck, not about one run. The summary is
+    not there at all for somebody who switched summaries off.
+  {% endcomment %}
+  {% if written %}
+    {% include "simulations/_summary.html" %}
+  {% endif %}
+  {% include "simulations/_strategies.html" %}
+
   <div class="mt-6 grid gap-6 lg:grid-cols-2">
     <section class="surface-parchment p-6">
       <h2 class="font-display text-2xl text-ink-900">{% translate "Mana curve" %}</h2>

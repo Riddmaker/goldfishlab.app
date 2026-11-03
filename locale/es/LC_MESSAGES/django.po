@@ -15466,3 +15466,69 @@ msgstr ""
 "primero, qué proteger, qué lo detiene. Mistral AI lo escribe junto con el "
 "resto del resumen, a partir de las cartas del motor, así que no cuesta nada "
 "más y puede equivocarse. El motor en sí lo siguen encontrando las reglas."
+
+#: templates/simulations/_summary.html
+msgid "Run a simulation to fill this."
+msgstr "Haz una simulación para llenar esto."
+
+#: templates/simulations/_summary.html
+msgid "The summary is written with your first run."
+msgstr "El resumen se escribe con tu primera simulación."
+
+#: templates/simulations/_summary.html
+msgid ""
+"Written by Mistral AI. It can be wrong. Its numbers are calculated from your"
+" list, not measured in a run."
+msgstr ""
+"Escrito por Mistral AI. Puede equivocarse. Sus cifras se calculan a partir "
+"de tu lista, no se miden en una simulación."
+
+#: templates/simulations/_strategies.html
+msgid ""
+"The odds are calculated from your list: a hand of 7, one draw a turn, no "
+"mulligan."
+msgstr ""
+"Las probabilidades se calculan a partir de tu lista: una mano de 7, un robo "
+"por turno, sin mulligan."
+
+#: templates/simulations/_measured.html
+#, python-format
+msgid ""
+"The deck summary and your strategies are on the <a "
+"href=\"%(deck_url)s#summary\" class=\"underline\">deck page</a>."
+msgstr ""
+"El resumen del mazo y tus estrategias están en la <a "
+"href=\"%(deck_url)s#summary\" class=\"underline\">página del mazo</a>."
+
+#: templates/simulations/_measured.html
+msgid "This run measured no combo and no engine."
+msgstr "Esta simulación no midió ningún combo ni ningún motor."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, Paris, France) - writes the "
+"deck summary on the deck page and picks cards for its strategies. Our server"
+" sends Mistral <strong>the deck's card names, their categories and counts, "
+"the commander, the mana curve, its combos, the odds of drawing each "
+"category, worked out from the list, and lists of cards from the card "
+"database that would fit it</strong> - nothing about you: not your email, not"
+" your account, not your deck's name, not your IP address. Mistral processes "
+"it in the EU, keeps each request for up to 30 days to detect abuse, then "
+"deletes it, and does not use it to train its models. You can switch "
+"summaries off under \"Hide summaries\" on a report, and then nothing is "
+"sent. <a href=\"https://legal.mistral.ai/terms\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">Mistral's terms</a>."
+msgstr ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, París, Francia): escribe el "
+"resumen del mazo en la página del mazo y elige cartas para sus estrategias. "
+"Nuestro servidor envía a Mistral <strong>los nombres de las cartas del mazo,"
+" sus categorías y cantidades, el comandante, la curva de maná, sus combos, "
+"las probabilidades de robar cada categoría, calculadas a partir de la lista,"
+" y listas de cartas de la base de datos de cartas que encajarían en "
+"él</strong>; nada sobre ti: ni tu correo electrónico, ni tu cuenta, ni el "
+"nombre de tu mazo, ni tu dirección IP. Mistral lo trata en la UE, conserva "
+"cada solicitud hasta 30 días para detectar abusos, después la borra, y no la"
+" usa para entrenar sus modelos. Puedes desactivar los resúmenes con «Ocultar"
+" resúmenes» en un informe, y entonces no se envía nada. <a "
+"href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Condiciones de Mistral</a>."

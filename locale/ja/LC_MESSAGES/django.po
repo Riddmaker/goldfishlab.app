@@ -13520,3 +13520,59 @@ msgid ""
 msgstr ""
 "デッキ要約をオンにすると、要約は<strong>各エンジンの回し方</strong>も、その下に一、二文で説明します。どのカードを先に出すか、何を守るか、何がエンジンを止めるか、です。Mistral"
 " AI が要約の残りと一緒にエンジンのカードから書くので、追加の費用はかからず、誤りを含むことがあります。エンジン自体は引き続きルールで見つけます。"
+
+#: templates/simulations/_summary.html
+msgid "Run a simulation to fill this."
+msgstr "シミュレーションを実行すると、ここが埋まります。"
+
+#: templates/simulations/_summary.html
+msgid "The summary is written with your first run."
+msgstr "要約は最初の実行と一緒に作成されます。"
+
+#: templates/simulations/_summary.html
+msgid ""
+"Written by Mistral AI. It can be wrong. Its numbers are calculated from your"
+" list, not measured in a run."
+msgstr "Mistral AI が作成しました。間違っている可能性があります。数値は実行で計測したものではなく、リストから計算したものです。"
+
+#: templates/simulations/_strategies.html
+msgid ""
+"The odds are calculated from your list: a hand of 7, one draw a turn, no "
+"mulligan."
+msgstr "確率はリストから計算しています：手札7枚、毎ターン1枚ドロー、マリガンなし。"
+
+#: templates/simulations/_measured.html
+#, python-format
+msgid ""
+"The deck summary and your strategies are on the <a "
+"href=\"%(deck_url)s#summary\" class=\"underline\">deck page</a>."
+msgstr ""
+"デッキの要約と戦略は<a href=\"%(deck_url)s#summary\" "
+"class=\"underline\">デッキページ</a>にあります。"
+
+#: templates/simulations/_measured.html
+msgid "This run measured no combo and no engine."
+msgstr "この実行ではコンボもエンジンも計測しませんでした。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, Paris, France) - writes the "
+"deck summary on the deck page and picks cards for its strategies. Our server"
+" sends Mistral <strong>the deck's card names, their categories and counts, "
+"the commander, the mana curve, its combos, the odds of drawing each "
+"category, worked out from the list, and lists of cards from the card "
+"database that would fit it</strong> - nothing about you: not your email, not"
+" your account, not your deck's name, not your IP address. Mistral processes "
+"it in the EU, keeps each request for up to 30 days to detect abuse, then "
+"deletes it, and does not use it to train its models. You can switch "
+"summaries off under \"Hide summaries\" on a report, and then nothing is "
+"sent. <a href=\"https://legal.mistral.ai/terms\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">Mistral's terms</a>."
+msgstr ""
+"<strong>Mistral AI</strong>（Mistral AI "
+"SAS、フランス、パリ）：デッキページのデッキの要約を作成し、その戦略に合うカードを選びます。私たちのサーバーは Mistral "
+"に、<strong>デッキのカード名、そのカテゴリーと枚数、統率者、マナカーブ、コンボ、リストから算出した各カテゴリーを引く確率、そしてカードデータベースからデッキに合いそうなカードのリスト</strong>を送信します。あなたに関する情報は何も送りません。メールアドレスも、アカウントも、デッキ名も、IP"
+" アドレスも送りません。Mistral はこれを EU "
+"内で処理し、不正利用の検出のために各リクエストを最長30日間保持した後に削除し、モデルの学習には使用しません。レポートの「要約を非表示」で要約をオフにでき、その場合は何も送信されません。<a"
+" href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Mistral の利用規約</a>。"

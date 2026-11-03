@@ -76,11 +76,9 @@
       - then the pictures, and the depth folded at the bottom. "What was
       actually modelled" became the attention block; its coverage line lives
       there, its gap table is the card review, and the engine and seed moved
-      into "Advanced". The deck summary (phase 10 G, H) follows the pictures, and is not
-      there at all for somebody who switched summaries off; the combos come
-      after it (phase 11 Z5.4) as the last part of "Your strategies, and what
-      would feed them" (phase 11 E), which shows whether summaries are on or
-      not; last before "Advanced". Sharing (P4) follows the attention block:
+      into "Advanced". The combos and engines the run measured follow the
+      pictures, last before "Advanced"; the deck summary and "Your
+      strategies" are the deck's and live on the deck page (Paket 2, PR 7). Sharing (P4) follows the attention block:
       it is something a person can do, and says what becomes public. The
       "Compare two versions" fake door (P9) follows it, still above the numbers,
       so every report view has seen it.
@@ -95,10 +93,7 @@
       {% include "simulations/_compare.html" %}
     </div>
     {% include "simulations/_report.html" %}
-    {% if user.deck_summaries %}
-      {% include "simulations/_summary.html" %}
-    {% endif %}
-    {% include "simulations/_strategies.html" %}
+    {% include "simulations/_measured.html" %}
     {% include "simulations/_advanced.html" %}
   {% endif %}
 {% endblock %}

@@ -119,7 +119,7 @@ def test_the_text_keeps_its_own_language_on_the_page(key, client, owner, deck, f
                                content=summary.parse(json.dumps(GOOD)))
 
     body = _page(client, owner, finished)
-    block = body[body.index('id="summary"'):body.index('id="advanced"')]
+    block = body[body.index('id="summary"'):body.index(">Mana curve<")]
 
     assert '<p class="max-w-3xl text-ink-900" lang="de">A graveyard deck' in block
     assert block.count('lang="de"') == 6

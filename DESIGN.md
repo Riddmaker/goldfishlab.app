@@ -241,8 +241,14 @@ engine could not read, then the pictures, and the depth folded at the bottom.
   than the real share or 100 before the end. Beside the heading "Playing your deck" the line
   "2,000 games" ("2,000 games, waiting for a free table" while queued); the exact counts once it
   is over. Under `prefers-reduced-motion`: a still logo, one line, no glide.
-- **"Deck summary"** (`simulations/_summary.html`, `.summary-*`), the last block before
-  "Advanced". Each part's title has its colour: parchment-700 for what the deck is (feel,
+- **"Deck summary"** (`simulations/_summary.html`, `.summary-*`) and **"Your strategies"**
+  (`simulations/_strategies.html`) are the deck's, not one run's: they stand on the deck page
+  right under the four tiles (Paket 2, PR 7), before the numbers. A deck with no run yet shows
+  the block anyway, with one ink-700 line "Run a simulation to fill this." (a link to the
+  Simulate button) - the empty block advertises what fills it and sells nothing else. The
+  report keeps what its run measured, "Combos & engines" (`simulations/_measured.html`), whose
+  first line links to the summary on the deck page; and it does not wait for Mistral: the
+  report shows as soon as the games are done. Each part's title has its colour: parchment-700 for what the deck is (feel,
   mechanisms), verdigris-700 for strengths, blood-700 for weaknesses, ink-700 for the closing
   tactics - and each point under strengths and weaknesses starts with **+** or **−**, so the
   colour is never the only sign. The mechanisms are chips that are not switches: a parchment-50
@@ -252,12 +258,18 @@ engine could not read, then the pictures, and the depth folded at the bottom.
   H) are plain ink-900 text under their titles; a strength or weakness has its sign hanging in
   front in its colour (`.summary-point`, `.summary-sign-*`), so a wrapped line lines up with the
   words. While Mistral writes, one italic ink-700 line "Writing your deck summary…". Under the
-  text, small ink-700: "Written by Mistral AI. It can be wrong. The numbers above are measured.",
+  text, small ink-700: "Written by Mistral AI. It can be wrong. Its numbers are calculated from
+  your list, not measured in a run.",
   then the "Write a summary" offer when there is one. "Were the summary and the picks
   helpful?" stands once, at the end of "Your strategies" (one Mistral call writes both). There
   is no "Hide summaries" on a report: the switch is an account setting, under Settings on
   "Your plan" (`.switch`: a real button with `role="switch"`, dark track when on, the knob
   slides without motion under `prefers-reduced-motion`), with one sentence on why it exists.
+- **Deck page order** (`decks/detail.html`, Paket 2): the head (commander, buttons, bin), the
+  four tiles, the deck summary and "Your strategies", the mana curve beside "What is in it",
+  "Combos & engines", the cards, then folded at the bottom "What the engine cannot model" and
+  "Earlier runs and games". Words before numbers, the deck a person already knows (its cards)
+  last. A fold stays only where it hides something long that every deck says alike or a form.
 - **"Advanced"** (`simulations/_advanced.html`, `.report-advanced*`): a closed `<details>` on the
   dark page; the summary is a display heading with the fold's contents named beside it and a
   turning ▸ (no turn under `prefers-reduced-motion`). Inside: the mana table, the blind spots,

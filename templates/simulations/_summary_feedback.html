@@ -6,10 +6,10 @@
   swapped whole by htmx; without JavaScript the forms post and come back to
   the summary. Small on purpose: two buttons, then one field, never asked.
   The answer keeps a copy of the whole case for us to work through
-  (`SummaryFeedback`). Needs `run` and `written` (`rateable`, `feedback`).
+  (`SummaryFeedback`). Needs `deck` and `written` (`rateable`, `feedback`).
 {% endcomment %}
 {% if written.rateable %}
-  {% url 'simulations:summary_feedback' run.id as action %}
+  {% url 'simulations:summary_feedback' deck.id as action %}
   <div id="summary-feedback" class="mt-2">
     <form method="post"
           action="{{ action }}"

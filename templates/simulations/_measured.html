@@ -1,0 +1,24 @@
+{% load i18n %}
+{% comment %}
+  What this run measured of the deck's combos and engines (phase 11 Z5.4,
+  Paket 1 PR 5), the last block before "Advanced". It was the end of "Your
+  strategies, and what would feed them" until those and the deck summary
+  moved to the deck page (Paket 2, PR 7): they are the deck's, these are the
+  run's. Its first line says where the others went.
+
+  Needs `report` and `run`.
+{% endcomment %}
+<section id="measured" class="surface-parchment mt-6 p-6">
+  <h2 class="font-display text-2xl text-ink-900">{% translate "Combos & engines" %}</h2>
+  <p class="mt-2 max-w-3xl text-sm text-ink-700" data-summary-moved>
+    {% url 'decks:detail' run.deck_id as deck_url %}
+    {% blocktranslate trimmed %}
+      The deck summary and your strategies are on the <a href="{{ deck_url }}#summary" class="underline">deck page</a>.
+    {% endblocktranslate %}
+  </p>
+  {% include "simulations/_combos.html" %}
+  {% include "simulations/_engines.html" %}
+  {% if not report.combos and not report.engines %}
+    <p class="mt-4 text-sm text-ink-700">{% translate "This run measured no combo and no engine." %}</p>
+  {% endif %}
+</section>

@@ -47,7 +47,6 @@ from simulations import (
     report,
     review,
     services,
-    strategies,
     summary,
 )
 from simulations.engine import adapter
@@ -107,27 +106,23 @@ class RunCreateView(LoginRequiredMixin, View):
         return redirect(run.get_absolute_url())
 
 
-def _pace(run: SimulationRun, writing=None) -> dict | None:
+def _pace(run: SimulationRun) -> dict | None:
     """What the smoothed progress bar needs (phase 10 T3.1), while it runs.
 
     Elapsed time is counted here, on the server's clock, so a visitor whose
     own clock is wrong still sees the bar start where it should - from the
     moment the run was asked for while it waits in the queue, from the moment
     a worker started it once it plays. A queue can be long, and the script
-    holds the bar low while `queued` says so. `writing` is the deck summary
-    the page waits for (`summary.writing`): it was started with the run and is
-    written beside it, so the bar should take as long as the slower of the two.
+    holds the bar low while `queued` says so. The deck summary started with
+    the run is not waited for: it is shown on the deck page (Paket 2, PR 7).
     """
-    if run.is_finished and writing is None:
+    if run.is_finished:
         return None
     since = run.started_at or run.created_at
     queued = run.started_at is None
     # P1: while it waits, the runs before it and about how long they take.
     queue = services.queue_ahead(run) if queued else None
     expected = services.expected_seconds(run) + (queue.seconds if queue else 0)
-    if writing is not None:
-        expected = max(expected, (writing.updated_at - since).total_seconds()
-                       + summary.WRITING_SECONDS)
     return {
         "elapsed": (timezone.now() - since).total_seconds(),
         "expected": expected,
@@ -137,26 +132,9 @@ def _pace(run: SimulationRun, writing=None) -> dict | None:
     }
 
 
-#: Where the bar may go on its own while the summary is still being written
-#: after the games are done: short of full, which would say the page is ready.
-WRITING_CEILING = 95
-
-
-def _bar(run: SimulationRun, user) -> dict:
-    """The progress panel's state: the games, and the deck summary the page
-    waits for once they are done.
-
-    `working` is true while the panel polls: the run plays, or it is done and
-    its summary is still being written (`holding`). The page shows its report
-    only once both are over, so it appears whole.
-    """
-    writing = summary.writing(user, run.deck)
-    holding = writing is not None and run.status == SimulationRun.Status.DONE
-    pct = run.progress_pct
-    if writing is not None:
-        pct = min(pct, WRITING_CEILING)
-    return {"pace": _pace(run, writing), "holding": holding,
-            "working": not run.is_finished or holding, "pct": pct}
+def _bar(run: SimulationRun) -> dict:
+    """The progress panel's state: polling while the run plays."""
+    return {"pace": _pace(run), "working": not run.is_finished, "pct": run.progress_pct}
 
 
 class RunDetailView(OwnedRunsMixin, DetailView):
@@ -168,8 +146,8 @@ class RunDetailView(OwnedRunsMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         run = self.object
-        context.update(_bar(run, self.request.user))
-        if run.status == SimulationRun.Status.DONE and run.result and not context["holding"]:
+        context.update(_bar(run))
+        if run.status == SimulationRun.Status.DONE and run.result:
             context["report"] = report.build(run)
             # Read from the deck as it stands now, not from the run: these are
             # properties of the cards rather than of the simulation, and the
@@ -178,13 +156,8 @@ class RunDetailView(OwnedRunsMixin, DetailView):
             context["blindspots"] = blindspots.find(readings)
             # "None in the deck: ..." under "By category" (phase 11 D, P3).
             context["missing_roles"] = [gettext(label) for label in summary.missing(readings)]
-            # The written part (phase 10 H), unless the viewer switched it off.
-            if self.request.user.deck_summaries:
-                context["written"] = summary.state(self.request.user, run.deck)
-            # "Your strategies, and what would feed them" (phase 11 E): with
-            # Mistral's picks when it made some, its fallback otherwise.
-            written = context.get("written") or {}
-            context["strategies"] = strategies.block(readings, written.get("content"))
+            # The deck summary and the strategies are the deck's, not the run's:
+            # they moved to the deck page (Paket 2, PR 7).
             # The deck as it stands now, like the blind spots: "cards that need
             # your attention" is about what a person can still do.
             context["open_questions"] = review.open_questions(run.deck)
@@ -216,7 +189,7 @@ class RunProgressView(OwnedRunsMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(_bar(self.object, self.request.user))
+        context.update(_bar(self.object))
         return context
 
     def render_to_response(self, context, **kwargs):
@@ -226,81 +199,105 @@ class RunProgressView(OwnedRunsMixin, DetailView):
         return response
 
 
-class RunSummaryView(OwnedRunsMixin, DetailView):
+class DeckScopedView(LoginRequiredMixin, View):
+    """Anything that edits one deck's annotations.
+
+    `deck` comes out of a queryset filtered by owner, so a deck belonging to
+    somebody else is missing rather than forbidden - the same rule the deck
+    views follow, for the same reason.
+    """
+
+    def get_deck(self, request, pk) -> Deck:
+        return get_object_or_404(Deck, pk=pk, owner=request.user)
+
+    def get_card(self, deck: Deck, oracle_id):
+        """One card of this deck, commander included.
+
+        The commander is not a `DeckCard` - it sits in the command zone - so
+        filtering on deck membership alone would make it un-annotatable, which
+        is how it lost its priority once before.
+        """
+        return get_object_or_404(
+            OracleCard.objects.filter(
+                Q(in_decks__deck=deck) | Q(commands_decks=deck)
+            ).distinct(),
+            pk=oracle_id,
+        )
+
+
+class DeckSummaryView(DeckScopedView):
     """The deck summary while it is being written: the progress view's trick.
 
     Answers with the small "Writing your deck summary" line, carrying its own
     `hx-trigger`, while the row is pending; once it is not, `HX-Refresh`, and
-    the page reloads with the text in its place.
+    the deck page reloads with the text in its place.
     """
 
-    template_name = "simulations/_summary_pending.html"
-    context_object_name = "run"
-
-    def render_to_response(self, context, **kwargs):
+    def get(self, request, pk):
         from simulations.models import DeckSummary
 
-        response = super().render_to_response(context, **kwargs)
+        deck = self.get_deck(request, pk)
+        response = render(request, "simulations/_summary_pending.html", {"deck": deck})
         pending = DeckSummary.objects.filter(
-            deck=self.object.deck, status=DeckSummary.Status.PENDING).exists()
-        if not pending and self.request.headers.get("HX-Request"):
+            deck=deck, status=DeckSummary.Status.PENDING).exists()
+        if not pending and request.headers.get("HX-Request"):
             response.headers["HX-Refresh"] = "true"
         return response
 
 
 @method_decorator(ratelimit(key="user", rate="10/m", method="POST"), name="post")
-class SummaryWriteView(OwnedRunsMixin, View):
+class SummaryWriteView(DeckScopedView):
     """"Write a summary for this deck" (phase 10 H, P8): one click, one run.
 
-    The fifth call site of `quotas.check()`. Posted from a run page, and back
-    to it: the run is fetched through the owner's runs, so a guessed id is a
-    404, and the deck is that run's.
+    The fifth call site of `quotas.check()`. Posted from the deck page, and
+    back to it: the deck is fetched through the owner's decks, so a guessed
+    id is a 404.
     """
 
     def post(self, request, pk):
-        run = get_object_or_404(self.get_queryset(), pk=pk)
-        back = f"{run.get_absolute_url()}#summary"
+        deck = self.get_deck(request, pk)
+        back = f"{deck.get_absolute_url()}#summary"
         user = request.user
         # Nothing to write - current, already being written, switched off, a
         # guest, no Mistral: back to the page, which shows why.
-        if user.is_guest or not summary.due(user, run.deck):
+        if user.is_guest or not summary.due(user, deck):
             return redirect(back)
         try:
             quotas.check(user, UsageRecord.Metric.RUNS_STARTED)
         except QuotaExceeded as exc:
             return billing_views.upgrade_prompt(request, exc)
         with transaction.atomic():
-            budget_day = summary.claim(user, run.deck)
+            budget_day = summary.claim(user, deck)
             if budget_day:
                 quotas.consume(user, UsageRecord.Metric.RUNS_STARTED)
-                summary.begin(run.deck, charged=True, budget_day=budget_day)
+                summary.begin(deck, charged=True, budget_day=budget_day)
         return redirect(back)
 
 
 @method_decorator(ratelimit(key="user", rate="20/m", method="POST"), name="post")
-class SummaryFeedbackView(OwnedRunsMixin, View):
+class SummaryFeedbackView(DeckScopedView):
     """"Was this helpful?" under a deck summary, and the optional word after it.
 
-    Posted from a run page: the run is fetched through the owner's runs, so a
-    guessed id is a 404, and the summary is that run's deck's. `helpful` is
+    Posted from the deck page: the deck is fetched through the owner's decks,
+    so a guessed id is a 404, and the summary is that deck's. `helpful` is
     "1" or "0"; `comment` is cut to `SummaryFeedback.COMMENT_MAX`. htmx swaps
-    the answer in place; without it, back to the summary.
+    the answer in place; without it, back to the question.
     """
 
     def post(self, request, pk):
         from simulations.models import DeckSummary
 
-        run = get_object_or_404(self.get_queryset(), pk=pk)
-        row = DeckSummary.objects.filter(deck=run.deck).first()
+        deck = self.get_deck(request, pk)
+        row = DeckSummary.objects.filter(deck=deck).first()
         answer = request.POST.get("helpful")
         helpful = {"1": True, "0": False}.get(answer)
         comment = request.POST.get("comment") if "comment" in request.POST else None
         feedback = summary.give_feedback(request.user, row, helpful=helpful, comment=comment)
         if not request.headers.get("HX-Request"):
-            return redirect(f"{run.get_absolute_url()}#summary-feedback")
+            return redirect(f"{deck.get_absolute_url()}#summary-feedback")
         rateable = row is not None and row.status == DeckSummary.Status.DONE
         return render(request, "simulations/_summary_feedback.html",
-                      {"run": run, "written": {"rateable": rateable, "feedback": feedback}})
+                      {"deck": deck, "written": {"rateable": rateable, "feedback": feedback}})
 
 
 class SummarySwitchView(LoginRequiredMixin, View):
@@ -356,32 +353,6 @@ class RunCancelView(OwnedRunsMixin, View):
 # deck is fetched filtered by owner, and the card is fetched filtered by deck
 # membership. A card id that is not in the deck is a 404, not a saved row
 # against somebody else's deck.
-
-
-class DeckScopedView(LoginRequiredMixin, View):
-    """Anything that edits one deck's annotations.
-
-    `deck` comes out of a queryset filtered by owner, so a deck belonging to
-    somebody else is missing rather than forbidden - the same rule the deck
-    views follow, for the same reason.
-    """
-
-    def get_deck(self, request, pk) -> Deck:
-        return get_object_or_404(Deck, pk=pk, owner=request.user)
-
-    def get_card(self, deck: Deck, oracle_id):
-        """One card of this deck, commander included.
-
-        The commander is not a `DeckCard` - it sits in the command zone - so
-        filtering on deck membership alone would make it un-annotatable, which
-        is how it lost its priority once before.
-        """
-        return get_object_or_404(
-            OracleCard.objects.filter(
-                Q(in_decks__deck=deck) | Q(commands_decks=deck)
-            ).distinct(),
-            pk=oracle_id,
-        )
 
 
 def _cards_of(deck) -> str:

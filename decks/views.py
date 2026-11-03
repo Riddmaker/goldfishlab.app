@@ -50,7 +50,7 @@ from decks.models import (
 )
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
 from decks.themes import deck_reading, save_mark
-from simulations import blindspots, deck_cards, report, review, summary
+from simulations import blindspots, deck_cards, report, review, strategies, summary
 from simulations.engine import adapter
 from simulations.forms import RunForm
 from simulations.models import SimulationRun
@@ -198,6 +198,14 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         # and the button says so before it is pressed.
         user = self.request.user
         context["summary_due"] = not user.is_guest and summary.due(user, deck)
+        # The deck summary and "Your strategies" (Paket 2, PR 7): the deck's,
+        # not one run's, so they moved here from the report. The summary is
+        # left out for somebody who switched summaries off; the strategies
+        # stay, with the most played cards instead of Mistral's picks.
+        if user.deck_summaries:
+            context["written"] = summary.state(user, deck)
+        written = context.get("written") or {}
+        context["strategies"] = strategies.block(readings, written.get("content"))
         context["runs"] = runs = list(deck.runs.all()[:5])
         context.update(self.last_run_context(deck, runs))
         # PR 5: by which turn each engine runs, from the last finished run;

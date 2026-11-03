@@ -5,6 +5,8 @@ Every queryset in this module is filtered by `owner=self.request.user`. Not
 source, so a missing filter is a missing row rather than someone else's deck.
 """
 
+import secrets
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Prefetch
@@ -24,7 +26,14 @@ from billing.views import upgrade_prompt
 from combos import services as combo_services
 from decks import analysis as deck_analysis
 from decks import command_zone, printing_art, services
-from decks.forms import ColumnMappingForm, CommanderForm, DeckNameForm, ImportForm
+from decks.forms import (
+    DELETE_WORDS,
+    ColumnMappingForm,
+    CommanderForm,
+    DeckNameForm,
+    DeleteDeckForm,
+    ImportForm,
+)
 from decks.importers import columns, tabular
 from decks.models import (
     Deck,
@@ -593,6 +602,13 @@ def save_commanders(request, deck) -> bool:
 
 
 class DeckDeleteView(OwnedDecksMixin, DeleteView):
+    """Delete a deck once its owner has typed the word the page shows
+    (`DeleteDeckForm`): one of ten, at random, on every visit."""
+
     template_name = "decks/confirm_delete.html"
     success_url = reverse_lazy("decks:list")
     context_object_name = "deck"
+    form_class = DeleteDeckForm
+
+    def get_initial(self):
+        return {"word": secrets.randbelow(len(DELETE_WORDS))}

@@ -278,3 +278,56 @@ class DeckNameForm(forms.Form):
         max_length=120, label=_("Deck name"),
         error_messages={"required": _("A deck needs a name.")},
     )
+
+
+#: What a person types to delete a deck, one picked at random each time, so
+#: the hand has to read it rather than repeat it. Magic's own words, kept in
+#: English on every page the way card names are.
+DELETE_WORDS = (
+    "MILL IT",
+    "EXILE IT",
+    "SCOOP",
+    "BOARD WIPE",
+    "TO THE GRAVEYARD",
+    "SACRIFICE",
+    "COUNTERED",
+    "TAP OUT",
+    "SHUFFLE AWAY",
+    "NO TAKEBACKS",
+)
+
+
+def _spelled(text: str) -> str:
+    """The same word however it was typed: case and spacing do not count."""
+    return " ".join(text.split()).upper()
+
+
+class DeleteDeckForm(forms.Form):
+    """Deleting a deck asks for one of `DELETE_WORDS`, typed out.
+
+    The page names the word by its index in a hidden field; the check is here,
+    so a post without the word deletes nothing, with or without scripting.
+    """
+
+    word = forms.TypedChoiceField(
+        choices=[(index, index) for index in range(len(DELETE_WORDS))],
+        coerce=int, widget=forms.HiddenInput,
+    )
+    typed = forms.CharField(max_length=40, required=False, label=_("Type it here"))
+
+    def clean(self):
+        cleaned = super().clean()
+        word = cleaned.get("word")
+        if word is None or _spelled(cleaned.get("typed", "")) != DELETE_WORDS[word]:
+            raise forms.ValidationError(
+                gettext("That is not the word, so nothing was deleted."))
+        return cleaned
+
+    @property
+    def shown(self) -> str:
+        """The word the page asks for."""
+        value = self["word"].value()
+        try:
+            return DELETE_WORDS[int(value)]
+        except (TypeError, ValueError, IndexError):
+            return DELETE_WORDS[0]

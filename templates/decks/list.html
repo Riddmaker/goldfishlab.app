@@ -30,6 +30,7 @@
               {% endif %}
             </span>
             <span class="ml-auto text-sm text-ink-600">{% blocktranslate with date=deck.updated_at|date:"SHORT_DATE_FORMAT" %}updated {{ date }}{% endblocktranslate %}</span>
+            {% include "decks/_delete_icon.html" %}
           </div>
         </li>
       {% endfor %}

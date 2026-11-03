@@ -14355,3 +14355,15 @@ msgstr "Letzten Bericht öffnen"
 #: templates/decks/detail.html
 msgid "Counts for Simulate and for Draw a hand."
 msgstr "Gilt für „Simulieren“ und für „Hand ziehen“."
+
+#: templates/decks/confirm_delete.html
+msgid "To delete it, type:"
+msgstr "Zum Löschen tippe:"
+
+#: decks/forms.py
+msgid "Type it here"
+msgstr "Hier eintippen"
+
+#: decks/forms.py
+msgid "That is not the word, so nothing was deleted."
+msgstr "Das ist nicht das Wort, also wurde nichts gelöscht."

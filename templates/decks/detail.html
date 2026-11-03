@@ -30,6 +30,7 @@
         {% include "decks/_status.html" %}
         <a href="{% url 'decks:list' %}"
            class="ml-auto text-sm text-parchment-200 underline">{% translate "All decks" %}</a>
+        {% include "decks/_delete_icon.html" with dark=True %}
       </div>
       {% if last_import %}{% include "decks/_left_out.html" with record=last_import %}{% endif %}
       {% if not deck.is_commander_deck %}
@@ -410,8 +411,4 @@
       {% endif %}
     </details>
   {% endif %}
-  <p class="mt-10">
-    <a href="{% url 'decks:delete' deck.id %}"
-       class="text-sm text-blood-500 underline">{% translate "Delete this deck" %}</a>
-  </p>
 {% endblock %}

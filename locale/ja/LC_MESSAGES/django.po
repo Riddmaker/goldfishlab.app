@@ -12592,3 +12592,15 @@ msgstr "前回のレポートを開く"
 #: templates/decks/detail.html
 msgid "Counts for Simulate and for Draw a hand."
 msgstr "「シミュレーション」と「手札を引く」の両方に使われます。"
+
+#: templates/decks/confirm_delete.html
+msgid "To delete it, type:"
+msgstr "削除するには、次を入力してください:"
+
+#: decks/forms.py
+msgid "Type it here"
+msgstr "ここに入力"
+
+#: decks/forms.py
+msgid "That is not the word, so nothing was deleted."
+msgstr "言葉が違うため、何も削除されていません。"

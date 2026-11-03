@@ -14487,3 +14487,15 @@ msgstr "Ouvrir le dernier rapport"
 #: templates/decks/detail.html
 msgid "Counts for Simulate and for Draw a hand."
 msgstr "Vaut pour « Simuler » et pour « Piocher une main »."
+
+#: templates/decks/confirm_delete.html
+msgid "To delete it, type:"
+msgstr "Pour le supprimer, tapez :"
+
+#: decks/forms.py
+msgid "Type it here"
+msgstr "Tapez-le ici"
+
+#: decks/forms.py
+msgid "That is not the word, so nothing was deleted."
+msgstr "Ce n'est pas le mot, rien n'a donc été supprimé."

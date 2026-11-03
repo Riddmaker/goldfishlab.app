@@ -25,7 +25,7 @@ Concept and decisions: the Themen-Doc, section "Paket 1 «Deck verstehen»: Konz
 | 3 | Synergy pairs and engines; the "Combos & engines" section | done |
 | 4 | Lock-in: model, three states, buttons | done |
 | 5 | Measure engines in the simulation | done |
-| 6 | (optional) AI explanations | open |
+| 6 | AI explains each engine, in the deck summary's call | done |
 
 ## How PR 1 works
 
@@ -148,3 +148,27 @@ Concept and decisions: the Themen-Doc, section "Paket 1 «Deck verstehen»: Konz
   (`running`, `engine_rows`, also in the lock button's htmx answer); the report lists them
   after the combos (`simulations/_engines.html`, `measured`). Methodology `#engines`.
 
+
+## How PR 6 works
+
+- **No extra call** (decision A, 2026-11-03): the deck summary's one Mistral call
+  (`simulations.summary`, `PROMPT_VERSION` 6) also gets `engines` in its facts: the engines
+  that can run (`decks.engine_watch.runnable`, the ones PR 5 measures, at most 5), each with
+  its theme, its cards and, in English, what each card does. A reading that fails is logged and
+  leaves them out; the summary goes on.
+- **The answer** has `engines`: per engine `theme` and `how`, one or two sentences on which card
+  first, what to protect, what stops it. `parse` (`_explained`) keeps only themes it offered,
+  one each, `how` cleaned like every summary text and cut at `HOW_MAX` (300). Stored in
+  `DeckSummary.content["engines"]` as `{theme, cards (sorted), how}`. Optional: an answer
+  without it is still a summary. Free text is not checked for card names; the prompt says to
+  name only the engine's own, and the page says it can be wrong.
+- **Shown on the deck page only** (decision B): `summary.engine_notes(user, deck)` gives
+  `{(theme, cards): {how, language}}` when summaries are on, Mistral is configured and the
+  summary is written; `engine_watch.engine_rows` hands it to `decks/_engines.html` (also in
+  the lock button's htmx answer). It shows under the rules' sentence, in its own `lang`, with
+  "Written by Mistral AI. It can be wrong." An engine whose cards changed shows none.
+- **Old summaries** (version 5) are not rewritten: nobody pays for our change. They show no
+  explanation until the deck changes and the summary is written again.
+- **Checked once for real** (decision C): one German call on the seeded deck "Cards that need an
+  opponent", 3,175 prompt and 669 completion tokens. The text was usable but not exact (it
+  called Chainer's Nightmares "revived tokens"), so the attribution line is needed.

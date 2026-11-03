@@ -589,6 +589,9 @@ sits folded under &ldquo;Advanced&rdquo;. No theme is said in a sentence, never 
     <p style="font-size:.875rem;color:var(--ink-700);margin:0">Aristocrats &middot; strong</p>
     <p style="font-size:.875rem;margin:.25rem 0 0">Viscera Seer sacrifices, Blood Artist pays
       off each death, Bitterblossom brings more bodies.</p>
+    <p style="font-size:.875rem;margin:.25rem 0 0">Get Bitterblossom out first, then the
+      Seer; keep Blood Artist back until a board wipe is unlikely.
+      <span style="color:var(--ink-700)">Written by Mistral AI. It can be wrong.</span></p>
     <p style="font-size:.875rem;margin:.25rem 0 0">Running by turn 6 in <strong>41%</strong>
       of games, in your last run.</p>
   </div>
@@ -605,7 +608,9 @@ and level as words, one sentence of what each card does. A piece short, the rule
 the row names what is missing; the dash only repeats the words. Pairs show the five strongest
 open and the rest in one fold, each with its numbers under &ldquo;Advanced&rdquo;. Under a
 complete engine, by which turn it runs in the last run (PR 5), the share in bold; not measured
-yet, the line says the next run will.</p>
+yet, the line says the next run will. How an engine plays (PR 6) comes from the deck summary:
+Mistral's sentence under the rules' one, followed by &ldquo;Written by Mistral AI. It can be
+wrong.&rdquo; in ink-700, only while the engine still has the cards it was written about.</p>
 
 <h2>Lock-in: locked, dismissed, resting (Themen-Doc, Paket 1, PR 4)</h2>
 <div class="surface">

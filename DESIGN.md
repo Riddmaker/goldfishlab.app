@@ -188,6 +188,12 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   engine the run did not measure says the next simulation will, in ink-700; an engine a piece
   short or resting says nothing, since it cannot run. The report lists the same as one line per
   engine after the combos. "Running" is a plan, not the named cards: any card of each role out.
+- **Engine explanation** (`decks/_engines.html`, PR 6): one or two sentences from the deck
+  summary on how the engine plays, under the rules' sentence, in the summary's language
+  (`lang`), followed by "Written by Mistral AI. It can be wrong." in ink-700, the way every AI
+  text on the site owns up to it. Only for the engine with the same theme and cards it was
+  written about, and only with summaries switched on. The rules find the engine; AI only
+  explains it.
 - **The card grid** (`decks/_card_grid.html`, `.card-grid*`): card pictures, three across on a
   phone; the same marker words on a card ("! needs you", "✓ answered"), "×2" for a quantity.
   Filter chips reuse the chart chips. Every picture has its card name as `alt` and loads lazily.

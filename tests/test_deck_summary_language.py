@@ -47,7 +47,7 @@ def test_the_prompt_names_the_language_and_keeps_the_names_english(owner, deck):
 
     assert english.endswith("Write in English.")
     assert "German, addressing the reader informally (du)" in german
-    assert "strategy name and card name exactly as given, in English" in german
+    assert "strategy name, theme name and card name exactly as given, in English" in german
     assert summary.messages(facts, "xx")[0]["content"] == english
 
 

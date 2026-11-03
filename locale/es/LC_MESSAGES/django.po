@@ -15448,3 +15448,21 @@ msgstr ""
 "se lanza. Hasta cinco motores, uno por tema, primero los fijados; uno al que"
 " le falta una parte o que está en reposo no se mide. Se mide en las propias "
 "partidas de la simulación, así que no cuesta nada más."
+
+#: templates/decks/_engines.html
+msgid "Written by Mistral AI. It can be wrong."
+msgstr "Escrito por Mistral AI. Puede equivocarse."
+
+#: templates/core/methodology.html
+msgid ""
+"With deck summaries switched on, the summary also says <strong>how each "
+"engine plays</strong>, in a sentence or two under it: which card to get out "
+"first, what to protect, what stops it. Mistral AI writes that with the rest "
+"of the summary, from the engine's cards, so it costs nothing extra and can "
+"be wrong. The engine itself is still found by the rules."
+msgstr ""
+"Con los resúmenes de mazo activados, el resumen también dice <strong>cómo "
+"juega cada motor</strong>, en una o dos frases debajo: qué carta sacar "
+"primero, qué proteger, qué lo detiene. Mistral AI lo escribe junto con el "
+"resto del resumen, a partir de las cartas del motor, así que no cuesta nada "
+"más y puede equivocarse. El motor en sí lo siguen encontrando las reglas."

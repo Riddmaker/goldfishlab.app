@@ -49,19 +49,26 @@ SPELL_TYPES = frozenset({"Instant", "Sorcery"})
 def watches(deck) -> tuple:
     """The `runner.Watch` for each engine to measure, in page order."""
     cards = theme_cards(deck)
-    reading = deck_reading(deck, cards)
-    made, seen = [], set()
-    for engine in reading.engines:
-        if engine.missing or engine.gone or engine.theme in seen:
-            continue
+    made = []
+    for engine in runnable(deck_reading(deck, cards).engines):
         watch = _watch_for(engine, cards)
         if watch is None:
             continue
-        seen.add(engine.theme)
         made.append(watch)
         if len(made) == MAX_ENGINES:
             break
     return tuple(made)
+
+
+def runnable(engines):
+    """The engines that can run, in page order, the first one of each theme:
+    none a role short or resting. Measured here, explained by the summary."""
+    seen = set()
+    for engine in engines:
+        if engine.missing or engine.gone or engine.theme in seen:
+            continue
+        seen.add(engine.theme)
+        yield engine
 
 
 def _watch_for(engine, cards):
@@ -125,10 +132,14 @@ def running(run, theme: str) -> dict | None:
     return {"turn": turn, "share": percent(100 * entry["by_turn"][turn - 1] / entry["games"])}
 
 
-def engine_rows(reading, run) -> list[tuple]:
-    """``(engine, running)`` for each engine on the deck page, `running`
-    from the deck's last finished run (None: not measured there)."""
-    return [(engine, running(run, engine.theme)) for engine in reading.engines]
+def engine_rows(reading, run, notes=None) -> list[tuple]:
+    """``(engine, running, note)`` for each engine on the deck page, `running`
+    from the deck's last finished run (None: not measured there), `note`
+    the summary's explanation of it (PR 6, `simulations.summary.engine_notes`)."""
+    notes = notes or {}
+    return [(engine, running(run, engine.theme),
+             notes.get((engine.theme, tuple(sorted(engine.cards)))))
+            for engine in reading.engines]
 
 
 def measured(run) -> list[dict]:

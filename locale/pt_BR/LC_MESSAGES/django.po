@@ -15219,3 +15219,21 @@ msgstr ""
 "conjurado. Até cinco motores, um por tema, os fixados primeiro; um com uma "
 "parte faltando ou em repouso não é medido. A medição é feita nas próprias "
 "partidas da simulação, então não custa nada a mais."
+
+#: templates/decks/_engines.html
+msgid "Written by Mistral AI. It can be wrong."
+msgstr "Escrito pela Mistral AI. Pode estar errado."
+
+#: templates/core/methodology.html
+msgid ""
+"With deck summaries switched on, the summary also says <strong>how each "
+"engine plays</strong>, in a sentence or two under it: which card to get out "
+"first, what to protect, what stops it. Mistral AI writes that with the rest "
+"of the summary, from the engine's cards, so it costs nothing extra and can "
+"be wrong. The engine itself is still found by the rules."
+msgstr ""
+"Com os resumos de deck ativados, o resumo também diz <strong>como cada motor"
+" joga</strong>, em uma ou duas frases abaixo dele: qual carta colocar "
+"primeiro, o que proteger, o que o para. A Mistral AI escreve isso junto com "
+"o resto do resumo, a partir das cartas do motor, então não custa nada a mais"
+" e pode estar errado. O motor em si continua sendo encontrado pelas regras."

@@ -15315,3 +15315,21 @@ msgstr ""
 "quelli bloccati; uno a cui manca una parte o che è a riposo non viene "
 "misurato. Si misura nelle partite della simulazione stessa, quindi non costa"
 " nulla in più."
+
+#: templates/decks/_engines.html
+msgid "Written by Mistral AI. It can be wrong."
+msgstr "Scritto da Mistral AI. Può sbagliare."
+
+#: templates/core/methodology.html
+msgid ""
+"With deck summaries switched on, the summary also says <strong>how each "
+"engine plays</strong>, in a sentence or two under it: which card to get out "
+"first, what to protect, what stops it. Mistral AI writes that with the rest "
+"of the summary, from the engine's cards, so it costs nothing extra and can "
+"be wrong. The engine itself is still found by the rules."
+msgstr ""
+"Con i riassunti del mazzo attivi, il riassunto dice anche <strong>come gioca"
+" ogni motore</strong>, in una o due frasi sotto: quale carta mettere in "
+"campo per prima, cosa proteggere, cosa lo ferma. Mistral AI lo scrive "
+"insieme al resto del riassunto, dalle carte del motore, quindi non costa "
+"nulla in più e può sbagliare. Il motore stesso lo trovano sempre le regole."

@@ -376,7 +376,8 @@ def write_summary(summary_id: str) -> str:
         # No answer, so nothing billed: today's budget gets its slot back.
         return summary.fail(row, f"{type(exc).__name__}: {exc}", answered=False)
     try:
-        content = summary.parse(completion.content, deck_facts["strategies"])
+        content = summary.parse(completion.content, deck_facts["strategies"],
+                                deck_facts["engines"])
     except ValueError as exc:
         # An answer that does not check out was billed all the same.
         return summary.fail(row, str(exc), answered=True)

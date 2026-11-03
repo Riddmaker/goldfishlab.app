@@ -15387,3 +15387,22 @@ msgstr ""
 "sobald er gewirkt ist. Bis zu fünf Engines, eine pro Theme, gelockte zuerst;"
 " eine, der ein Teil fehlt oder die ruht, wird nicht gemessen. Gemessen wird "
 "in den eigenen Spielen des Laufs, es kostet also nichts extra."
+
+#: templates/decks/_engines.html
+msgid "Written by Mistral AI. It can be wrong."
+msgstr "Geschrieben von Mistral AI. Kann falsch sein."
+
+#: templates/core/methodology.html
+msgid ""
+"With deck summaries switched on, the summary also says <strong>how each "
+"engine plays</strong>, in a sentence or two under it: which card to get out "
+"first, what to protect, what stops it. Mistral AI writes that with the rest "
+"of the summary, from the engine's cards, so it costs nothing extra and can "
+"be wrong. The engine itself is still found by the rules."
+msgstr ""
+"Sind Deck-Zusammenfassungen eingeschaltet, sagt die Zusammenfassung auch, "
+"<strong>wie jede Engine spielt</strong>, in ein, zwei Sätzen darunter: "
+"welche Karte zuerst raus soll, was du schützen musst, was sie stoppt. "
+"Mistral AI schreibt das mit dem Rest der Zusammenfassung, aus den Karten der"
+" Engine. Es kostet also nichts extra und kann falsch sein. Die Engine selbst"
+" finden weiterhin die Regeln."

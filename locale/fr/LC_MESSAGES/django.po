@@ -15531,3 +15531,22 @@ msgstr ""
 "d’abord ; un moteur auquel il manque une partie ou qui est en repos n’est "
 "pas mesuré. La mesure se fait dans les parties de la simulation elle-même : "
 "elle ne vous coûte rien de plus."
+
+#: templates/decks/_engines.html
+msgid "Written by Mistral AI. It can be wrong."
+msgstr "Rédigé par Mistral AI. Cela peut être inexact."
+
+#: templates/core/methodology.html
+msgid ""
+"With deck summaries switched on, the summary also says <strong>how each "
+"engine plays</strong>, in a sentence or two under it: which card to get out "
+"first, what to protect, what stops it. Mistral AI writes that with the rest "
+"of the summary, from the engine's cards, so it costs nothing extra and can "
+"be wrong. The engine itself is still found by the rules."
+msgstr ""
+"Avec les résumés de deck activés, le résumé indique aussi <strong>comment "
+"chaque moteur se joue</strong>, en une ou deux phrases en dessous : quelle "
+"carte sortir en premier, quoi protéger, ce qui l'arrête. Mistral AI l'écrit "
+"avec le reste du résumé, à partir des cartes du moteur : cela ne coûte rien "
+"de plus et peut être inexact. Le moteur lui-même est toujours trouvé par les"
+" règles."

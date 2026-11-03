@@ -200,8 +200,10 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         context["summary_due"] = not user.is_guest and summary.due(user, deck)
         context["runs"] = runs = list(deck.runs.all()[:5])
         context.update(self.last_run_context(deck, runs))
-        # PR 5: by which turn each engine runs, from the last finished run.
-        context["engine_rows"] = engine_watch.engine_rows(reading, context["last_run"])
+        # PR 5: by which turn each engine runs, from the last finished run;
+        # PR 6: how it plays, from the deck's summary.
+        context["engine_rows"] = engine_watch.engine_rows(
+            reading, context["last_run"], summary.engine_notes(user, deck))
         # The bracket tile: the Game Changers' floor beside the last run's speed,
         # which the report's bracket section used to say alone.
         last_run = context["last_run"]
@@ -634,7 +636,8 @@ class DeckMarkView(OwnedDecksMixin, View):
             last_run = deck.runs.filter(status=SimulationRun.Status.DONE).first()
             return render(request, "decks/_engines.html",
                           {"deck": deck, "reading": reading,
-                           "engine_rows": engine_watch.engine_rows(reading, last_run)})
+                           "engine_rows": engine_watch.engine_rows(
+                               reading, last_run, summary.engine_notes(request.user, deck))})
         return redirect(f"{deck.get_absolute_url()}#engines")
 
 

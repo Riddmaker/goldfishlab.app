@@ -175,6 +175,13 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   ink-700 rule and says "2 of 3 pieces. Still missing:" with the piece in bold; the dash only
   repeats the words. Pairs show the five strongest open, the next ones in one fold, each with
   its three numbers under "Advanced". No engine is a sentence, never a guess.
+- **Lock-in** (`decks/_mark.html`, `decks/_gone.html`, PR 4): only the owner's word is stored,
+  by the cards. A suggestion has two small square buttons, a padlock and a cross, named in full
+  for screen readers ("Lock this engine: it stays, whatever the list becomes"). A locked entry
+  says "Locked" beside the padlock, comes first and stays even when the rules stop finding it.
+  A dismissed one moves to a fold at the end ("1 dismissed") with "Bring back". An entry whose
+  card left the deck turns ink-700 and says "Resting, a card is missing: …". The dashed rule
+  keeps one meaning, a piece short; locking never changes the rule.
 - **The card grid** (`decks/_card_grid.html`, `.card-grid*`): card pictures, three across on a
   phone; the same marker words on a card ("! needs you", "✓ answered"), "×2" for a quantity.
   Filter chips reuse the chart chips. Every picture has its card name as `alt` and loads lazily.

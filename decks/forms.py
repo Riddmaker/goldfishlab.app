@@ -331,3 +331,26 @@ class DeleteDeckForm(forms.Form):
             return DELETE_WORDS[int(value)]
         except (TypeError, ValueError, IndexError):
             return DELETE_WORDS[0]
+
+
+class MarkForm(forms.Form):
+    """Lock or dismiss an engine or a pair the page suggests, by its key, or
+    take back what was said, by the stored row's id (Themen-Doc, PR 4).
+
+    The key is only looked up among the deck's own suggestions
+    (`decks.themes.Reading.suggestion`), never stored as sent.
+    """
+
+    LOCK, DISMISS, UNDO = "lock", "dismiss", "undo"
+
+    action = forms.ChoiceField(choices=[(LOCK, LOCK), (DISMISS, DISMISS), (UNDO, UNDO)])
+    key = forms.CharField(max_length=400, required=False)
+    mark = forms.UUIDField(required=False)
+
+    def clean(self):
+        data = super().clean()
+        if data.get("action") == self.UNDO and not data.get("mark"):
+            raise forms.ValidationError("undo needs a mark")
+        if data.get("action") in (self.LOCK, self.DISMISS) and not data.get("key"):
+            raise forms.ValidationError("lock and dismiss need a key")
+        return data

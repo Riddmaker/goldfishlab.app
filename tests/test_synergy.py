@@ -336,14 +336,15 @@ def test_the_combo_refresh_still_swaps_the_panel_alone(client_in, deck):
 
 
 @pytest.mark.django_db
-def test_the_reading_costs_two_queries_once_the_sizes_are_cached(deck):
+def test_the_reading_costs_three_queries_once_the_sizes_are_cached(deck):
     cache.delete(deck_themes.TAG_SIZES_KEY)
     deck_reading(deck)
 
     with CaptureQueriesContext(connection) as queries:
         reading = deck_reading(deck)
 
-    assert len(queries) == 2
+    # The owner's locks, the quantities, the cards with their tags.
+    assert len(queries) == 3
     assert reading.themes == deck_themes.deck_themes(deck)
 
 

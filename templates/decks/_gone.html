@@ -1,0 +1,14 @@
+{% comment %}
+  An entry whose cards left the deck rests (Themen-Doc, PR 4): grey, with
+  the cards it misses, and it is back when they are. Takes: item.
+{% endcomment %}
+{% load i18n %}
+{% if item.gone %}
+  <p class="mt-1 text-sm text-ink-700">
+    {% blocktranslate trimmed count count=item.gone|length with cards=item.gone|join:", " %}
+      Resting, a card is missing: {{ cards }}. It is back when the card is.
+    {% plural %}
+      Resting, cards are missing: {{ cards }}. It is back when they are.
+    {% endblocktranslate %}
+  </p>
+{% endif %}

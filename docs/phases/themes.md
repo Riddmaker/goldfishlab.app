@@ -23,7 +23,7 @@ Concept and decisions: the Themen-Doc, section "Paket 1 «Deck verstehen»: Konz
 | 1 | `cards/themes.py` catalogue and `detect`; `decks/themes.py`; `manage.py themes_report`; `tests/test_themes.py` | done |
 | 2 | Theme chips in "What is in it"; one "Building blocks" chart instead of strategy and mechanic | done |
 | 3 | Synergy pairs and engines; the "Combos & engines" section | done |
-| 4 | Lock-in: model, three states, buttons | open |
+| 4 | Lock-in: model, three states, buttons | done |
 | 5 | Measure engines in the simulation | open |
 | 6 | (optional) AI explanations | open |
 
@@ -102,3 +102,27 @@ Concept and decisions: the Themen-Doc, section "Paket 1 «Deck verstehen»: Konz
   (Ashnod's Altar, Grave Pact) and reanimator (Chainer), Prismari's spellslinger (Rootha),
   Limit Break's voltron (Cloud).
 
+
+## How PR 4 works
+
+- **Only the owner's word is stored** (`decks.models.DeckMark`): kind (engine or pair), theme,
+  `cards` as `[[oracle id, piece key], ...]`, `key` (`cards.synergy.mark_key`: kind, theme,
+  sorted oracle ids; unique per deck) and the state, locked or dismissed. A suggestion is no
+  row: it is read live, so a new reading only adds suggestions and never deletes anything.
+- **Merge** (`decks.themes.merge`): a locked entry comes first and stays; a dismissed one leaves
+  the list for `Reading.dismissed`. An entry the deck still shows is the live one, numbers and
+  all; one it no longer shows is made again from the row (`cards.synergy.rebuild`), without a
+  level or numbers. Locked pairs are open above the five suggestions and take none of their
+  places. `ThemeCard.oracle_id` gives every engine and pair its `parts` and so its key.
+- **Resting:** a stored entry whose card is not in the deck (99 or command zone) names it in
+  `gone` and is shown grey with "Resting, a card is missing: …"; it is active again by itself
+  when the card is back. An entry whose theme or pieces the catalogue lost is not shown, but
+  its row stays.
+- **The button** (`decks.views.DeckMarkView`, `POST /decks/<id>/marks/`, `decks/_mark.html`):
+  lock and dismiss send the key, and the server looks it up in the reading it makes again
+  (`Reading.suggestion`), so nothing can be stored that the page did not show; undo sends the
+  row's id, scoped to the deck. Owner only (404 otherwise), CSRF, 30 per minute. htmx gets
+  `#engines` back; without scripting the form returns to `#engines`. A key the page no longer
+  shows (the list changed in another tab) stores nothing and is not an error.
+- **Queries:** one more for the rows, and one for the names of cards that left the deck, only
+  when a row has such a card.

@@ -15329,3 +15329,73 @@ msgid_plural "%(count)s weaker pairs of the same kinds are not listed."
 msgstr[0] "%(count)s pareja más débil del mismo tipo no aparece."
 msgstr[1] "%(count)s parejas más débiles del mismo tipo no aparecen."
 msgstr[2] "%(count)s parejas más débiles del mismo tipo no aparecen."
+
+#: templates/decks/_mark.html
+msgid "Locked"
+msgstr "Fijado"
+
+#: templates/decks/_mark.html
+msgid "Unlock"
+msgstr "Soltar"
+
+#: templates/decks/_mark.html
+msgid "Bring back"
+msgstr "Recuperar"
+
+#: templates/decks/_mark.html
+msgid "Lock this engine: it stays, whatever the list becomes"
+msgstr "Fija este motor: se queda, sea cual sea la lista"
+
+#: templates/decks/_mark.html
+msgid "Dismiss this engine: it will not be suggested again"
+msgstr "Descarta este motor: no se volverá a sugerir"
+
+#: templates/decks/_mark.html
+msgid "Lock this pair: it stays, whatever the list becomes"
+msgstr "Fija este par: se queda, sea cual sea la lista"
+
+#: templates/decks/_mark.html
+msgid "Dismiss this pair: it will not be suggested again"
+msgstr "Descarta este par: no se volverá a sugerir"
+
+#: templates/decks/_gone.html
+#, python-format
+msgid "Resting, a card is missing: %(cards)s. It is back when the card is."
+msgid_plural ""
+"Resting, cards are missing: %(cards)s. It is back when they are."
+msgstr[0] ""
+"En pausa, falta una carta: %(cards)s. Vuelve cuando vuelva la carta."
+msgstr[1] "En pausa, faltan cartas: %(cards)s. Vuelve cuando vuelvan ellas."
+msgstr[2] "En pausa, faltan cartas: %(cards)s. Vuelve cuando vuelvan ellas."
+
+#: templates/decks/_engines.html
+msgid "No engine left: you dismissed the ones we found."
+msgstr "No queda ningún motor: descartaste los que encontramos."
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(count)s dismissed"
+msgid_plural "%(count)s dismissed"
+msgstr[0] "%(count)s descartado"
+msgstr[1] "%(count)s descartados"
+msgstr[2] "%(count)s descartados"
+
+#: cards/synergy.py
+msgid "an unknown card"
+msgstr "una carta desconocida"
+
+#: templates/core/methodology.html
+msgid ""
+"You can <strong>lock</strong> an engine or a pair, or "
+"<strong>dismiss</strong> it. We store only that, by its cards: a locked one "
+"stays first, even if the rules stop finding it; a dismissed one is not "
+"suggested again, and you can bring it back. When one of its cards leaves the"
+" deck, it rests until the card is back. Everything else is read again from "
+"your list on every visit."
+msgstr ""
+"Puedes <strong>fijar</strong> un motor o un par, o "
+"<strong>descartarlo</strong>. Solo guardamos eso, por sus cartas: lo fijado "
+"queda arriba, aunque las reglas dejen de encontrarlo; lo descartado no se "
+"vuelve a sugerir, y puedes recuperarlo. Cuando una de sus cartas sale del "
+"mazo, queda en pausa hasta que la carta vuelva. Todo lo demás se lee de "
+"nuevo de tu lista en cada visita."

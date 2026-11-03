@@ -16,6 +16,11 @@ a deck with no sacrifice plan pairs with nothing.
   it carries the theme's level. A theme with an empty piece gives an
   engine that names what is missing instead.
 
+Both have a **key**, the kind, the theme and the cards' oracle ids: what
+a user locks or dismisses is stored under it (`decks.models.DeckMark`,
+PR 4), and `rebuild` makes the entry again from what was stored, when the
+deck no longer shows it by itself.
+
 Typal has neither: a lord and one of its creatures is a pair of every
 deck of that type, hundreds of times over, and says nothing new.
 
@@ -65,20 +70,60 @@ def _say(steps) -> str:
     return pgettext("joins clauses", ", ").join(clauses) + pgettext("ends a sentence", ".")
 
 
+ENGINE = "engine"
+PAIR = "pair"
+#: What the user said of an entry (PR 4); a suggestion has neither.
+LOCKED = "locked"
+DISMISSED = "dismissed"
+
+
+def mark_key(kind: str, theme: str, parts) -> str:
+    """The kind, the theme and the sorted oracle ids: one entry, whatever
+    order its cards were found in."""
+    return f"{kind}:{theme}:{','.join(sorted(oracle_id for oracle_id, _piece in parts))}"
+
+
+class _Marked:
+    """What `Pair` and `Engine` share for the lock-in."""
+
+    kind = ""
+
+    @property
+    def key(self) -> str:
+        return mark_key(self.kind, self.theme, self.parts)
+
+
 @dataclass(frozen=True)
-class Pair:
+class Pair(_Marked):
     theme: str
     first: str
     second: str
     #: The clauses of the two pieces (msgids), first then second.
     does: tuple[str, str]
-    weight: float
-    spec_first: float
-    spec_second: float
-    density: float
+    #: The three terms of the score; None for a pair made again from a
+    #: lock-in (`rebuild`) that the deck does not show by itself now.
+    weight: float | None
+    spec_first: float | None
+    spec_second: float | None
+    density: float | None
+    #: (oracle id, piece key) of the first card, then the second.
+    parts: tuple[tuple[str, str], ...] = ()
+    #: LOCKED or DISMISSED when the user said so, and the stored row's id.
+    state: str = ""
+    mark: str = ""
+    #: The names of the cards no longer in the deck: the entry rests.
+    gone: tuple[str, ...] = ()
+
+    kind = PAIR
 
     @property
-    def score(self) -> float:
+    def cards(self) -> tuple[str, str]:
+        return self.first, self.second
+
+    @property
+    def score(self) -> float | None:
+        if self.weight is None:
+            return None
         return round(self.weight * self.spec_first * self.spec_second * self.density, 3)
 
     @property
@@ -87,9 +132,11 @@ class Pair:
 
 
 @dataclass(frozen=True)
-class Engine:
+class Engine(_Marked):
     theme: str
     label: str
+    #: Its theme's level; empty for an engine made again from a lock-in
+    #: whose theme the deck no longer shows.
     level: str
     #: (card name, clause msgid) in the order the theme's rules say them.
     steps: tuple[tuple[str, str], ...]
@@ -97,6 +144,13 @@ class Engine:
     missing: tuple[str, ...] = ()
     #: The cards that work again and again.
     repeating: tuple[str, ...] = ()
+    #: (oracle id, piece key) of each step.
+    parts: tuple[tuple[str, str], ...] = ()
+    state: str = ""
+    mark: str = ""
+    gone: tuple[str, ...] = ()
+
+    kind = ENGINE
 
     @property
     def cards(self) -> tuple[str, ...]:
@@ -133,7 +187,8 @@ def pairs(found, cards, sizes: dict[str, int], total: int) -> list[Pair]:
                         continue
                     pair = Pair(theme.key, a.name, b.name, (first.does, second.does), weight,
                                 card_spec(a, first, sizes, total),
-                                card_spec(b, second, sizes, total), result.fill)
+                                card_spec(b, second, sizes, total), result.fill,
+                                ((a.oracle_id, first.key), (b.oracle_id, second.key)))
                     key = frozenset((a.name, b.name))
                     if key not in best or pair.score > best[key].score:
                         best[key] = pair
@@ -172,7 +227,7 @@ def engines(found, cards, sizes: dict[str, int], total: int) -> list[Engine]:
         theme = themes.BY_KEY.get(result.theme)
         if theme is None:
             continue
-        steps, missing, taken = [], [], set()
+        steps, parts, missing, taken = [], [], [], set()
         for piece in theme.flow:
             options = [card for card in _holders(piece, cards) if card.name not in taken]
             if not options:
@@ -183,9 +238,40 @@ def engines(found, cards, sizes: dict[str, int], total: int) -> list[Engine]:
                 -card_spec(card, piece, sizes, total), card.name))
             taken.add(card.name)
             steps.append((card.name, piece.does))
+            parts.append((card.oracle_id, piece.key))
         repeating = tuple(card.name for card in cards if card.name in taken and card.repeats)
         if not steps or (not missing and not repeating):
             continue
         made.append(Engine(theme.key, theme.label, result.level, tuple(steps), tuple(missing),
-                           repeating))
+                           repeating, tuple(parts)))
     return made
+
+
+def rebuild(kind: str, theme_key: str, parts, names: dict[str, str]) -> Pair | Engine | None:
+    """An entry made again from what a lock-in stored: its theme, and each
+    card's oracle id and piece. The deck no longer shows it by itself, so it
+    has no numbers and no level; the sentence still says what each card
+    does. None when the catalogue no longer knows the theme, or too few of
+    the pieces are left to say anything."""
+    theme = themes.BY_KEY.get(theme_key)
+    if theme is None:
+        return None
+    order = {piece.key: n for n, piece in enumerate(theme.flow)}
+    parts = tuple((str(oracle_id), piece) for oracle_id, piece in parts if piece in order)
+    unknown = gettext("an unknown card")
+    if kind == PAIR:
+        if len(parts) != 2:
+            return None
+        (first, first_piece), (second, second_piece) = parts
+        return Pair(theme.key, names.get(first, unknown), names.get(second, unknown),
+                    (theme.piece(first_piece).does, theme.piece(second_piece).does),
+                    None, None, None, None, parts)
+    if kind != ENGINE or not parts:
+        return None
+    parts = tuple(sorted(parts, key=lambda part: order[part[1]]))
+    held = {piece for _oracle_id, piece in parts}
+    return Engine(theme.key, theme.label, "",
+                  tuple((names.get(oracle_id, unknown), theme.piece(piece).does)
+                        for oracle_id, piece in parts),
+                  tuple(piece.label for piece in theme.flow if piece.key not in held),
+                  (), parts)

@@ -9,7 +9,12 @@
   The pairs show the strongest few open and the next ones folded, each with
   its three numbers under "Advanced".
 
-  Takes: reading (decks.themes.Reading).
+  The owner can lock or dismiss each one (PR 4, `decks/_mark.html`): a
+  locked one comes first and stays, a dismissed one waits in a fold at the
+  end, and one whose cards left the deck rests, grey (`decks/_gone.html`).
+  The whole of this is swapped by htmx after each click.
+
+  Takes: reading (decks.themes.Reading), deck.
 {% endcomment %}
 {% load i18n %}
 <div id="engines" class="mt-8">
@@ -21,10 +26,15 @@
   {% if reading.engines %}
     <ul class="mt-3 space-y-4">
       {% for engine in reading.engines %}
-        <li class="border-l-2 pl-4 {% if engine.missing %}border-dashed border-ink-700{% else %}border-parchment-600{% endif %}">
-          <p class="font-display text-lg text-ink-900">{{ engine.cards|join:" + " }}</p>
-          <p class="text-sm text-ink-700">{% translate engine.label %} · {% include "decks/_level.html" with level=engine.level %}</p>
-          <p class="mt-1 text-sm text-ink-900">{{ engine.sentence }}</p>
+        <li class="border-l-2 pl-4 {% if engine.missing %}border-dashed border-ink-700{% else %}border-parchment-600{% endif %}"
+            data-entry="{{ engine.key }}"{% if engine.state %} data-state="{{ engine.state }}"{% endif %}>
+          <div class="flex flex-wrap items-start justify-between gap-2">
+            <p class="font-display text-lg {% if engine.gone %}text-ink-700{% else %}text-ink-900{% endif %}">{{ engine.cards|join:" + " }}</p>
+            {% include "decks/_mark.html" with item=engine %}
+          </div>
+          <p class="text-sm text-ink-700">{% translate engine.label %}{% if engine.level %} · {% include "decks/_level.html" with level=engine.level %}{% endif %}</p>
+          {% include "decks/_gone.html" with item=engine %}
+          <p class="mt-1 text-sm {% if engine.gone %}text-ink-700{% else %}text-ink-900{% endif %}">{{ engine.sentence }}</p>
           {% if engine.missing %}
             <p class="mt-1 text-sm text-ink-900">
               {% blocktranslate trimmed with have=engine.cards|length pieces=engine.pieces %}
@@ -42,6 +52,8 @@
         </li>
       {% endfor %}
     </ul>
+  {% elif reading.engines_dismissed %}
+    <p class="mt-3 text-sm text-ink-700">{% translate "No engine left: you dismissed the ones we found." %}</p>
   {% elif reading.themes %}
     <p class="mt-3 text-sm text-ink-700">{% translate "No engine yet: none of this deck's themes has a card that works again and again." %}</p>
   {% else %}
@@ -73,5 +85,22 @@
         {% endif %}
       </details>
     {% endif %}
+  {% endif %}
+
+  {% if reading.dismissed %}
+    <details class="mt-6" id="dismissed">
+      <summary class="cursor-pointer text-sm text-ink-700">
+        {% blocktranslate count count=reading.dismissed|length %}{{ count }} dismissed{% plural %}{{ count }} dismissed{% endblocktranslate %}
+      </summary>
+      <ul class="mt-3 space-y-2">
+        {% for item in reading.dismissed %}
+          <li class="flex flex-wrap items-center justify-between gap-2 text-sm text-ink-700"
+              data-entry="{{ item.key }}" data-state="dismissed">
+            <span>{{ item.cards|join:" + " }}</span>
+            {% include "decks/_mark.html" %}
+          </li>
+        {% endfor %}
+      </ul>
+    </details>
   {% endif %}
 </div>

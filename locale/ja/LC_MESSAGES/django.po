@@ -13410,3 +13410,63 @@ msgstr[0] "さらに%(count)s組"
 msgid "%(count)s weaker pair of the same kinds is not listed."
 msgid_plural "%(count)s weaker pairs of the same kinds are not listed."
 msgstr[0] "同じ種類のより弱い%(count)s組は表示していません。"
+
+#: templates/decks/_mark.html
+msgid "Locked"
+msgstr "固定済み"
+
+#: templates/decks/_mark.html
+msgid "Unlock"
+msgstr "固定を解除"
+
+#: templates/decks/_mark.html
+msgid "Bring back"
+msgstr "元に戻す"
+
+#: templates/decks/_mark.html
+msgid "Lock this engine: it stays, whatever the list becomes"
+msgstr "このエンジンを固定：リストが変わっても残ります"
+
+#: templates/decks/_mark.html
+msgid "Dismiss this engine: it will not be suggested again"
+msgstr "このエンジンを却下：もう提案されません"
+
+#: templates/decks/_mark.html
+msgid "Lock this pair: it stays, whatever the list becomes"
+msgstr "このペアを固定：リストが変わっても残ります"
+
+#: templates/decks/_mark.html
+msgid "Dismiss this pair: it will not be suggested again"
+msgstr "このペアを却下：もう提案されません"
+
+#: templates/decks/_gone.html
+#, python-format
+msgid "Resting, a card is missing: %(cards)s. It is back when the card is."
+msgid_plural ""
+"Resting, cards are missing: %(cards)s. It is back when they are."
+msgstr[0] "休止中、カードがありません：%(cards)s。カードが戻ると復活します。"
+
+#: templates/decks/_engines.html
+msgid "No engine left: you dismissed the ones we found."
+msgstr "エンジンは残っていません：見つかったものはすべて却下されました。"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(count)s dismissed"
+msgid_plural "%(count)s dismissed"
+msgstr[0] "%(count)s件を却下"
+
+#: cards/synergy.py
+msgid "an unknown card"
+msgstr "不明なカード"
+
+#: templates/core/methodology.html
+msgid ""
+"You can <strong>lock</strong> an engine or a pair, or "
+"<strong>dismiss</strong> it. We store only that, by its cards: a locked one "
+"stays first, even if the rules stop finding it; a dismissed one is not "
+"suggested again, and you can bring it back. When one of its cards leaves the"
+" deck, it rests until the card is back. Everything else is read again from "
+"your list on every visit."
+msgstr ""
+"エンジンやペアは<strong>固定</strong>または<strong>却下</strong>できます。保存するのはそれだけで、カードごとに記録します。固定したものはルールで見つからなくなっても先頭に残り、却下したものは二度と提案されず、元に戻すこともできます。カードがデッキから抜けると、戻るまで休止します。それ以外はすべて、訪れるたびにリストから読み直します。"

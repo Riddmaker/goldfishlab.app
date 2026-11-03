@@ -15103,3 +15103,70 @@ msgid "%(count)s weaker pair of the same kinds is not listed."
 msgid_plural "%(count)s weaker pairs of the same kinds are not listed."
 msgstr[0] "%(count)s par mais fraco do mesmo tipo não está listado."
 msgstr[1] "%(count)s pares mais fracos do mesmo tipo não estão listados."
+
+#: templates/decks/_mark.html
+msgid "Locked"
+msgstr "Fixado"
+
+#: templates/decks/_mark.html
+msgid "Unlock"
+msgstr "Soltar"
+
+#: templates/decks/_mark.html
+msgid "Bring back"
+msgstr "Trazer de volta"
+
+#: templates/decks/_mark.html
+msgid "Lock this engine: it stays, whatever the list becomes"
+msgstr "Fixar este motor: ele fica, não importa como a lista mude"
+
+#: templates/decks/_mark.html
+msgid "Dismiss this engine: it will not be suggested again"
+msgstr "Descartar este motor: ele não será sugerido de novo"
+
+#: templates/decks/_mark.html
+msgid "Lock this pair: it stays, whatever the list becomes"
+msgstr "Fixar este par: ele fica, não importa como a lista mude"
+
+#: templates/decks/_mark.html
+msgid "Dismiss this pair: it will not be suggested again"
+msgstr "Descartar este par: ele não será sugerido de novo"
+
+#: templates/decks/_gone.html
+#, python-format
+msgid "Resting, a card is missing: %(cards)s. It is back when the card is."
+msgid_plural ""
+"Resting, cards are missing: %(cards)s. It is back when they are."
+msgstr[0] "Em pausa, falta uma carta: %(cards)s. Volta quando a carta voltar."
+msgstr[1] "Em pausa, faltam cartas: %(cards)s. Volta quando elas voltarem."
+
+#: templates/decks/_engines.html
+msgid "No engine left: you dismissed the ones we found."
+msgstr "Nenhum motor sobrou: você descartou os que encontramos."
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(count)s dismissed"
+msgid_plural "%(count)s dismissed"
+msgstr[0] "%(count)s descartado"
+msgstr[1] "%(count)s descartados"
+
+#: cards/synergy.py
+msgid "an unknown card"
+msgstr "uma carta desconhecida"
+
+#: templates/core/methodology.html
+msgid ""
+"You can <strong>lock</strong> an engine or a pair, or "
+"<strong>dismiss</strong> it. We store only that, by its cards: a locked one "
+"stays first, even if the rules stop finding it; a dismissed one is not "
+"suggested again, and you can bring it back. When one of its cards leaves the"
+" deck, it rests until the card is back. Everything else is read again from "
+"your list on every visit."
+msgstr ""
+"Você pode <strong>fixar</strong> um motor ou um par, ou <strong>descartá-"
+"lo</strong>. Guardamos só isso, pelas cartas: o que está fixado fica no "
+"topo, mesmo que as regras deixem de encontrá-lo; o que foi descartado não é "
+"sugerido de novo, e você pode trazê-lo de volta. Quando uma das cartas sai "
+"do deck, ele fica em pausa até a carta voltar. Todo o resto é lido de novo "
+"da sua lista a cada visita."

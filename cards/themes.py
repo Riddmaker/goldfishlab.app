@@ -307,6 +307,8 @@ class ThemeCard:
     #: Does something again and again: an ability that can be activated or
     #: waits for an event (`repeats`). An engine needs one such card (PR 3).
     repeats: bool = False
+    #: The `OracleCard` it is, the key a lock-in is stored by (PR 4).
+    oracle_id: str = ""
     types: frozenset[str] = field(init=False)
 
     def __post_init__(self):

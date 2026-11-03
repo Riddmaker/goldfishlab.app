@@ -603,6 +603,44 @@ and level as words, one sentence of what each card does. A piece short, the rule
 the row names what is missing; the dash only repeats the words. Pairs show the five strongest
 open and the rest in one fold, each with its numbers under &ldquo;Advanced&rdquo;.</p>
 
+<h2>Lock-in: locked, dismissed, resting (Themen-Doc, Paket 1, PR 4)</h2>
+<div class="surface">
+  <div style="border-left:2px solid var(--parch-600);padding-left:1rem">
+    <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
+      <p style="font-family:var(--serif);font-size:1.125rem;margin:0">Viscera Seer +
+        Blood Artist</p>
+      <span style="font-size:.875rem">&#128274; Locked
+        <span style="border:1px solid var(--parch-600);padding:0 .5rem;margin-left:.25rem;
+          color:var(--ink-700)">Unlock</span></span>
+    </div>
+    <p style="font-size:.875rem;color:var(--ink-700);margin:0">Aristocrats &middot; strong</p>
+  </div>
+  <div style="border-left:2px solid var(--parch-600);padding-left:1rem;margin-top:1rem">
+    <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
+      <p style="font-family:var(--serif);font-size:1.125rem;margin:0;color:var(--ink-700)">
+        Ashnod's Altar + Grave Pact</p>
+      <span style="font-size:.875rem">&#128274; Locked</span>
+    </div>
+    <p style="font-size:.875rem;color:var(--ink-700);margin:.25rem 0 0">Resting, a card is
+      missing: Grave Pact. It is back when the card is.</p>
+  </div>
+  <div style="border-left:2px solid var(--parch-600);padding-left:1rem;margin-top:1rem">
+    <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
+      <p style="font-family:var(--serif);font-size:1.125rem;margin:0">Chainer + Entomb</p>
+      <span style="font-size:.875rem">
+        <span style="border:1px solid var(--parch-600);padding:0 .4rem">&#128274;</span>
+        <span style="border:1px solid var(--parch-600);padding:0 .4rem">&times;</span></span>
+    </div>
+  </div>
+  <p style="font-size:.875rem;color:var(--ink-700);margin:1rem 0 0">&#9656; 1 dismissed</p>
+</div>
+<p class="rule">Only what the owner says is stored. A suggestion has two small square buttons,
+a padlock and a cross, each named in full for a screen reader. A locked entry says
+&ldquo;Locked&rdquo; with the padlock and comes first, and it stays even when the rules no longer
+find it. A dismissed one leaves the list for a fold at the end, &ldquo;1 dismissed&rdquo;, where it
+can be brought back. An entry whose card left the deck turns ink-700 and says which card. The
+dashed rule keeps its one meaning, a piece short; locking never changes the rule.</p>
+
 <h2>Do &amp; Don't</h2>
 <div class="grid2">
   <div class="panel-dark">

@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F, Prefetch, Q, Window
 from django.db.models.functions import RowNumber
-from django.http import JsonResponse
+from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.cache import patch_vary_headers
@@ -34,12 +34,14 @@ from decks.forms import (
     DeckNameForm,
     DeleteDeckForm,
     ImportForm,
+    MarkForm,
 )
 from decks.importers import columns, tabular
 from decks.models import (
     Deck,
     DeckCard,
     DeckImport,
+    DeckMark,
     PendingImport,
     art_missing,
     first_image,
@@ -47,7 +49,7 @@ from decks.models import (
     small_image,
 )
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
-from decks.themes import deck_reading
+from decks.themes import deck_reading, save_mark
 from simulations import blindspots, deck_cards, report, review, summary
 from simulations.engine import adapter
 from simulations.forms import RunForm
@@ -596,6 +598,39 @@ class PrintingArtRetryView(DeckDetailView):
         if request.headers.get("HX-Request"):
             return self.grid_response()
         return redirect(f"{self.object.get_absolute_url()}#cards")
+
+
+@method_decorator(ratelimit(key="user", rate="30/m", method="POST"), name="post")
+class DeckMarkView(OwnedDecksMixin, View):
+    """Lock or dismiss an engine or a pair, or take it back (Themen-Doc, PR 4).
+
+    Only a suggestion the deck shows now can be locked or dismissed: the
+    reading is made again here and the posted key looked up in it, so no
+    card can be named that the page did not name. One the page no longer
+    shows (the list changed in another tab) is not an error: nothing is
+    stored, and the section comes back as it is now. htmx gets the section
+    (`#engines`); without scripting the form goes back to it.
+    """
+
+    http_method_names = ["post"]
+
+    def post(self, request, pk):
+        deck = get_object_or_404(self.get_queryset(), pk=pk)
+        form = MarkForm(request.POST)
+        if not form.is_valid():
+            return HttpResponseBadRequest()
+        action = form.cleaned_data["action"]
+        if action == MarkForm.UNDO:
+            deck.marks.filter(pk=form.cleaned_data["mark"]).delete()
+        else:
+            item = deck_reading(deck).suggestion(form.cleaned_data["key"])
+            if item is not None:
+                save_mark(deck, item, DeckMark.State.LOCKED if action == MarkForm.LOCK
+                          else DeckMark.State.DISMISSED)
+        if request.headers.get("HX-Request"):
+            return render(request, "decks/_engines.html",
+                          {"deck": deck, "reading": deck_reading(deck)})
+        return redirect(f"{deck.get_absolute_url()}#engines")
 
 
 class DeckRenameView(OwnedDecksMixin, View):

@@ -15856,3 +15856,82 @@ msgid ""
 msgstr ""
 "La vitesse à laquelle votre deck revient quand un adversaire le frappe : les"
 " mêmes parties, une fois frappées, côte à côte au tour %(turn)s."
+
+#: templates/simulations/_compare.html
+msgid "Compared with your last run"
+msgstr "Comparé à votre dernière simulation"
+
+#: templates/simulations/_compare.html
+msgid "Whether a change made the deck better shows here."
+msgstr "Vous voyez ici si un changement a rendu le deck meilleur."
+
+#: templates/simulations/_compare.html
+#, python-format
+msgid ""
+"Your <a href=\"%(url)s\" class=\"underline\">run of %(date)s</a>, then this "
+"one."
+msgstr ""
+"Votre <a href=\"%(url)s\" class=\"underline\">simulation du %(date)s</a>, "
+"puis celle-ci."
+
+#: templates/simulations/_compare.html
+msgid "The deck has changed in between."
+msgstr "Le deck a changé entre-temps."
+
+#: templates/simulations/_compare.html
+msgid "The same deck both times: what differs is chance."
+msgstr "Le même deck les deux fois : ce qui diffère relève du hasard."
+
+#: templates/simulations/_compare.html
+msgid "The two runs drew differently, which moves the numbers too."
+msgstr ""
+"Les deux simulations n'ont pas pioché de la même façon, ce qui change aussi "
+"les chiffres."
+
+#: templates/simulations/_compare.html
+msgctxt "run compared"
+msgid "better"
+msgstr "mieux"
+
+#: templates/simulations/_compare.html
+msgctxt "run compared"
+msgid "worse"
+msgstr "moins bien"
+
+#: templates/simulations/_compare.html
+msgctxt "run compared"
+msgid "about the same"
+msgstr "à peu près pareil"
+
+#: templates/simulations/_compare.html
+msgid "Change a card and simulate the deck again: this shows what moved."
+msgstr ""
+"Changez une carte et simulez le deck à nouveau : vous verrez ici ce qui a "
+"bougé."
+
+#: templates/simulations/_share.html
+msgid "Show your friends"
+msgstr "Montrez-le à vos amis"
+
+#: templates/simulations/_share.html
+msgid "Share…"
+msgstr "Partager…"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Compared with your last run</strong> sets the same three numbers of "
+"the deck's run before next to this one's. Two runs of the very same deck "
+"differ a little by chance alone, so a number only counts as better or worse "
+"when the difference is larger than chance would make it 95 times in 100; "
+"otherwise it says \"about the same\". A run keeps a fingerprint of the card "
+"list, not the list, so the report can say that the deck changed in between, "
+"but not which cards."
+msgstr ""
+"<strong>Comparé à votre dernière simulation</strong> place les trois mêmes "
+"chiffres de la simulation précédente du deck à côté de ceux de celle-ci. "
+"Deux simulations du même deck diffèrent un peu par le seul hasard : un "
+"chiffre ne compte donc comme meilleur ou moins bon que si l'écart dépasse ce"
+" que le hasard produirait 95 fois sur 100 ; sinon, il est indiqué \"à peu "
+"près pareil\". Une simulation garde une empreinte de la liste de cartes, pas"
+" la liste elle-même : le rapport peut donc dire que le deck a changé entre-"
+"temps, mais pas quelles cartes."

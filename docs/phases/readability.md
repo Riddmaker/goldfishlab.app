@@ -9,7 +9,7 @@ test) and 31 (Share and Compare). Plan approved by the owner on 2026-11-03, ever
 | 10 | 39 | "Why?" becomes "More"; each section's sentence says first why it matters | **Done** |
 | 11 | 32 | "In short" compares the run with the precons; the "±" sentence moves to Advanced | **Done** |
 | 12 | 35 | The stress test as two cards side by side, one number each, the table folded | **Done** |
-| 13 | 31 | Share invites ("Show your friends"); Compare becomes "Better than yesterday", this run against the deck's last one | Planned |
+| 13 | 31 | Share invites ("Show your friends"); Compare becomes "Compared with your last run", this run against the deck's last one | **Done** |
 
 Decisions (all A): the link says "More" ("Mehr dazu"); "In short" is compared with the precons,
 and leaves when fewer than five precons have a finished run; the Compare fake door is replaced,
@@ -59,3 +59,24 @@ link, with no public ranking; order 10, 11, 12, 13.
   number.
 - The methodology's stress test says what the cards show.
 - Tests: `tests/test_v36_stress.py` (the figures), `tests/test_readability.py` (PR 12 part).
+
+## How PR 13 works
+
+- **Share**: the panel's heading is "Show your friends"; the button that makes the link has
+  three stars (`.share-star`, aria-hidden) that twinkle three times after load, none under
+  `prefers-reduced-motion`. Once shared, "Share…" (`data-web-share`) opens the device's share
+  sheet through `navigator.share`; `static/js/share.js` shows it only where the browser has one.
+- **Compare**: `simulations/compare.with_last(run, numbers)` finds the deck's newest finished run
+  that finished before this one (`last_before`) and sets the three numbers of the precon table
+  side by side (`numbers.changes`). A difference counts as better or worse only beyond
+  1.96 * sqrt(se1² + se2²): the share's margin for the two shares, the mean's standard error
+  (`Numbers.mana_spread`, the turn-4 mana histogram's spread) for the mana, and only when the
+  shown numbers differ (the browser check found "100% → 100% worse"). `list_print` says
+  whether the deck changed in between; a different draw rule is said too.
+- A deck's first run invites to change a card and run again (`data-compare-first`); a guest
+  sees the panel only with a run before.
+- **The fake door is closed**: `metrics.views.CompareView`, `metrics/urls.py` and
+  `doors.ask/asked/COMPARE_PRICE_CHF` are gone. Reports viewed keep counting, the clicks so far
+  stay in the stats page's gate G3.
+- The methodology explains it under `#last-run`, the panel's "More".
+- Tests: `tests/test_readability.py` (PR 13 part), `tests/test_metrics.py` (the door is gone).

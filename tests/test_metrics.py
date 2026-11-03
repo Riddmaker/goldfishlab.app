@@ -357,17 +357,17 @@ def test_the_privacy_policy_names_the_counts_in_every_language(client, settings,
     assert "there are no analytics or third-party trackers" not in body
 
 
-# --- P9: the "Compare two versions" fake door --------------------------------------------
+# --- P9: the "Compare two versions" fake door, closed in Paket 3, PR 13 -----------------
 
 
-def test_a_report_shows_the_door_with_its_price(client, run):  # noqa: F811
+def test_the_door_is_gone_from_the_report(client, run):  # noqa: F811
     client.force_login(run.owner)
 
     body = client.get(run.get_absolute_url()).content.decode()
 
-    assert 'id="compare"' in body
-    assert reverse("metrics:compare", args=[run.pk]) in body
-    assert "CHF 9 a month" in body
+    assert "Compare two versions" not in body
+    assert "CHF 9 a month" not in body
+    assert f"/runs/{run.pk}/compare/" not in body
 
 
 def test_a_report_view_counts_once_per_report_and_session(client, run):  # noqa: F811
@@ -389,40 +389,12 @@ def test_a_run_still_playing_is_no_report_view(client, owner, deck):  # noqa: F8
     assert today_counts() == {}
 
 
-def test_a_click_counts_once_and_says_it_is_not_built(client, run):  # noqa: F811
-    client.force_login(run.owner)
-    url = reverse("metrics:compare", args=[run.pk])
-
-    response = client.post(url)
-    client.post(url)
-
-    assert response.status_code == 302
-    assert response.url == f"{run.get_absolute_url()}#compare"
-    assert today_counts()[Name.COMPARE_CLICKED] == 1
-    body = client.get(run.get_absolute_url()).content.decode()
-    assert "Not built yet" in body
-    assert url not in body
-
-
-def test_only_the_owner_can_click(client, run):  # noqa: F811
-    url = reverse("metrics:compare", args=[run.pk])
-    assert client.post(url).status_code == 302  # to the sign-in
-
-    stranger = User.objects.create_user(email="x@example.com", password=PASSWORD)
-    client.force_login(stranger)
-    assert client.post(url).status_code == 404
-    client.force_login(run.owner)
-    assert client.get(url).status_code == 405
-    assert Name.COMPARE_CLICKED not in today_counts()
-
-
-def test_a_guest_sees_the_door_too(client, catalogue):
+def test_a_guest_report_view_counts_too(client, catalogue):
     upload(client)
     guest_run = _finish(SimulationRun.objects.get(owner=the_guest()))
 
-    body = client.get(guest_run.get_absolute_url()).content.decode()
+    client.get(guest_run.get_absolute_url())
 
-    assert 'id="compare"' in body
     assert today_counts()[Name.REPORT_VIEWED] == 1
 
 

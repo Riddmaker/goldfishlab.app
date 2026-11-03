@@ -57,6 +57,9 @@ class Numbers:
     kept_seven: float
     mana_turn_4: float | None
     spells_seen: float
+    #: The spread (standard deviation) of the mana on turn 4, for how exact its
+    #: mean is when two runs are compared (`changes`); None without a turn 4.
+    mana_spread: float | None = None
 
 
 def _share(part: int, whole: int) -> float:
@@ -82,12 +85,13 @@ def of(run) -> Numbers:
     result = runner.read(run.result)
     games = result["iterations"]
     mulligans = result["mulligans"]
-    on_curve = mana = None
+    on_curve = mana = spread = None
     if len(result["turn_stats"]) >= TURN:
         turn = result["turn_stats"][TURN - 1]
         lands = turn["lands"].counts
         on_curve = _share(sum(times for value, times in lands.items() if value >= TURN), games)
         mana = turn["mana"].mean
+        spread = _spread(turn["mana"].counts, mana)
     return Numbers(
         games=games,
         lands=run.lands_total,
@@ -95,7 +99,17 @@ def of(run) -> Numbers:
         kept_seven=_share(mulligans.get(0, 0), sum(mulligans.values())),
         mana_turn_4=mana,
         spells_seen=_spells_seen(result),
+        mana_spread=spread,
     )
+
+
+def _spread(counts: dict, mean: float) -> float:
+    """The standard deviation of a histogram's values."""
+    observations = sum(counts.values())
+    if not observations:
+        return 0.0
+    return math.sqrt(sum(times * (value - mean) ** 2 for value, times in counts.items())
+                     / observations)
 
 
 def _spells_seen(result: dict) -> float:
@@ -200,3 +214,57 @@ def standings(numbers: Numbers, deck_id: UUID | None = None) -> list[Standing]:
             low=say(low), high=say(high),
         ))
     return found
+
+
+@dataclass(frozen=True)
+class Change:
+    """One number of this run next to the same number of the deck's run before."""
+
+    label: str
+    before: str
+    now: str
+    #: "up" or "down" (higher is better in each), or "same" when the difference
+    #: is within what chance alone moves it, at 95%.
+    moved: str
+
+
+def _change(label: str, before: float, now: float, chance: float, say) -> Change:
+    """Better or worse only beyond chance and when the shown numbers differ:
+    "100% → 100% worse" would be true of 99.6% and still read as nonsense."""
+    shown_before, shown_now = say(before), say(now)
+    if abs(now - before) <= chance or shown_before == shown_now:
+        moved = "same"
+    else:
+        moved = "up" if now > before else "down"
+    return Change(label, shown_before, shown_now, moved)
+
+
+def changes(before: Numbers, now: Numbers) -> list[Change]:
+    """The precon table's three numbers, the run before against this one.
+
+    Two runs of the very same deck differ a little by chance alone, so a
+    difference only counts as better or worse beyond the 95% margin of the
+    difference of the two: 1.96 * sqrt(se1² + se2²). A number one of the runs
+    does not have (no turn 4) is left out, and a difference the shown numbers
+    do not show is "about the same" too.
+    """
+    found = []
+    for label, field in ((gettext("4 lands by turn %(turn)s") % {"turn": TURN}, "on_curve"),
+                         (gettext("Kept seven"), "kept_seven")):
+        old, new = getattr(before, field), getattr(now, field)
+        if old is None or new is None:
+            continue
+        chance = math.hypot(margin(old, before.games), margin(new, now.games))
+        found.append(_change(label, old, new, chance, percent))
+    if before.mana_turn_4 is not None and now.mana_turn_4 is not None:
+        chance = Z_95 * math.hypot(_error(before.mana_spread, before.games),
+                                   _error(now.mana_spread, now.games))
+        found.append(_change(gettext("Mana on turn %(turn)s") % {"turn": TURN},
+                             before.mana_turn_4, now.mana_turn_4, chance,
+                             lambda value: number(value, 1)))
+    return found
+
+
+def _error(spread: float | None, games: int) -> float:
+    """The standard error of a mean; a run cached before `mana_spread` counts as 0."""
+    return (spread or 0.0) / math.sqrt(games) if games else 0.0

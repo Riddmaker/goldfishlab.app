@@ -12,7 +12,7 @@ What matters:
 
 import re
 import uuid
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 import pytest
@@ -226,3 +226,143 @@ def test_in_german_the_cards_are_german(client, owner, finished_run, settings): 
 
     assert "bis Zug 4 wieder da" in shown and "Die Zahlen" in shown
     assert not machine_number_faults(shown)
+
+
+# --- PR 13 (row 31): Show your friends, and compared with your last run ----------------
+#
+# 1. **The share panel invites**: "Show your friends", stars on the button (decoration,
+#    aria-hidden), and a "Share…" button for the browser's share sheet, hidden until
+#    share.js finds one.
+# 2. **The fake door is replaced**: a report sets its numbers next to the deck's run
+#    before; a difference within chance says "about the same".
+# 3. **A deck's first run** invites to change a card and run again; a guest, whose deck
+#    is forgotten in a day, is not invited.
+
+
+def _numbers_with(on_curve=80.0, kept_seven=50.0, mana=4.0, spread=1.0, games=10_000):
+    return numbers.Numbers(games=games, lands=36, on_curve=on_curve, kept_seven=kept_seven,
+                           mana_turn_4=mana, spells_seen=10.0, mana_spread=spread)
+
+
+def test_a_difference_within_chance_is_about_the_same():
+    moved = [change.moved for change in numbers.changes(_numbers_with(), _numbers_with(
+        on_curve=80.5, kept_seven=50.5, mana=4.01))]
+
+    assert moved == ["same", "same", "same"]
+
+
+def test_a_difference_beyond_chance_is_better_or_worse():
+    changes = numbers.changes(_numbers_with(), _numbers_with(on_curve=85.0, kept_seven=45.0,
+                                                             mana=4.2))
+
+    assert [change.moved for change in changes] == ["up", "down", "up"]
+    assert (changes[0].before, changes[0].now) == ("80%", "85%")
+
+
+def test_a_difference_the_shown_numbers_hide_is_about_the_same():
+    """Found in the browser: 99.6% against 100% over 10,000 games is beyond chance,
+    yet "100% → 100% worse" reads as nonsense."""
+    moved = [change.moved for change in numbers.changes(
+        _numbers_with(on_curve=100.0, mana=4.0, spread=0.1),
+        _numbers_with(on_curve=99.6, mana=3.98, spread=0.1))]
+
+    assert moved == ["same", "same", "same"]
+
+
+def test_few_games_make_the_same_difference_chance():
+    assert numbers.changes(_numbers_with(games=40), _numbers_with(on_curve=85.0, games=40))[0] \
+        .moved == "same"
+
+
+def test_a_run_without_turn_4_compares_only_kept_seven():
+    short = numbers.Numbers(games=100, lands=36, on_curve=None, kept_seven=50.0,
+                            mana_turn_4=None, spells_seen=10.0)
+
+    assert [change.label for change in numbers.changes(short, _numbers_with())] == ["Kept seven"]
+
+
+def _again(run, list_print="a"):
+    """A second finished run of the same deck, the first one a day older."""
+    SimulationRun.objects.filter(pk=run.pk).update(
+        finished_at=timezone.now() - timedelta(days=1), list_print="a")
+    later = SimulationRun.objects.get(pk=run.pk)
+    later.pk = None
+    later.id = uuid.uuid4()
+    later.finished_at = timezone.now()
+    later.list_print = list_print
+    later.save()
+    return later
+
+
+def _compare(body: str) -> str:
+    start = body.index('id="compare"')
+    return body[start:body.index("</section>", start)]
+
+
+def test_a_first_run_invites_to_run_again(client, owner, finished_run):  # noqa: F811
+    client.force_login(owner)
+
+    body = client.get(reverse("simulations:detail", args=[finished_run.pk])).content.decode()
+
+    assert "data-compare-first" in _compare(body)
+    assert "Compare two versions" not in body
+
+
+def test_the_second_run_is_compared_with_the_first(client, owner, finished_run):  # noqa: F811
+    later = _again(finished_run, list_print="b")
+    client.force_login(owner)
+
+    shown = _compare(client.get(reverse("simulations:detail", args=[later.pk])).content.decode())
+
+    assert "Compared with your last run" in shown
+    assert reverse("simulations:detail", args=[finished_run.pk]) in shown
+    assert "The deck has changed in between." in shown
+    assert shown.count("data-change=") == 3
+    assert shown.count('data-change="same"') == 3, "the same games, so nothing moved"
+    assert "#last-run" in shown
+
+
+def test_the_same_list_says_what_differs_is_chance(client, owner, finished_run):  # noqa: F811
+    later = _again(finished_run, list_print="a")
+    client.force_login(owner)
+
+    shown = _compare(client.get(reverse("simulations:detail", args=[later.pk])).content.decode())
+
+    assert "what differs is chance" in shown
+    assert "has changed" not in shown
+
+
+def test_the_first_run_is_not_compared_with_a_later_one(owner, finished_run):  # noqa: F811
+    from simulations import compare
+
+    later = _again(finished_run)
+
+    assert compare.last_before(later) == SimulationRun.objects.get(pk=finished_run.pk)
+    assert compare.last_before(SimulationRun.objects.get(pk=finished_run.pk)) is None
+
+
+def test_a_guest_with_one_run_sees_no_comparison(client, owner, finished_run):  # noqa: F811
+    owner.is_guest = True
+    owner.save()
+    client.force_login(owner)
+
+    body = client.get(reverse("simulations:detail", args=[finished_run.pk])).content.decode()
+
+    assert 'id="compare"' not in body
+
+
+def test_the_share_panel_invites_and_offers_the_share_sheet(client, owner, finished_run):  # noqa: F811
+    from simulations import summary
+
+    SimulationRun.objects.filter(pk=finished_run.pk).update(
+        list_print=summary.list_fingerprint(finished_run.deck))
+    client.force_login(owner)
+    url = reverse("simulations:detail", args=[finished_run.pk])
+
+    offer = client.get(url).content.decode()
+    client.post(reverse("sharing:share", args=[finished_run.pk]))
+    shared = client.get(url).content.decode()
+
+    assert "Show your friends" in offer
+    assert "data-sparkle" in offer and 'class="share-star" aria-hidden="true"' in offer
+    assert re.search(r'<button type="button"\s+data-web-share="share-url"[^>]*\shidden', shared)

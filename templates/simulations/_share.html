@@ -6,11 +6,15 @@
   cannot be shared (why); and the offer, which says what becomes public before
   anything does. Needs `run` and `share` (sharing.services.panel).
 
-  The copy buttons are hidden until static/js/share.js shows them; without
+  The copy buttons, and "Share…" where the browser has a share sheet (the
+  Web Share API), are hidden until static/js/share.js shows them; without
   script the link and the text are plain fields to select.
+
+  "Show your friends" and the stars on the button (Paket 3, PR 13) invite;
+  what becomes public is still said before anything is.
 {% endcomment %}
 <section id="share" class="surface-parchment p-6">
-  <h2 class="font-display text-2xl text-ink-900">{% translate "Share this report" %}</h2>
+  <h2 class="font-display text-2xl text-ink-900">{% translate "Show your friends" %}</h2>
   {% if share.shared %}
     <p class="mt-2 max-w-3xl text-ink-900">
       {% translate "Anybody with this link can read the report - the deck's name, its commander, its card list and these numbers - without an account. Search engines may list it." %}
@@ -22,6 +26,13 @@
              readonly
              value="{{ share.url }}"
              class="w-full max-w-md border border-parchment-600 bg-parchment-50 px-3 py-2 text-ink-900">
+      <button type="button"
+              data-web-share="share-url"
+              data-share-title="{{ run.deck.name }} — Goldfish Lab"
+              hidden
+              class="border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
+        {% translate "Share…" %}
+      </button>
       <button type="button"
               data-copy="share-url"
               data-copied="{% translate "Copied" %}"
@@ -77,7 +88,9 @@
     <form method="post" action="{% url 'sharing:share' run.id %}" class="mt-4">
       {% csrf_token %}
       <button type="submit"
-              class="border border-blood-800 bg-blood-700 px-5 py-2 font-display text-lg text-parchment-100 hover:bg-blood-800">
+              data-sparkle
+              class="share-sparkle border border-blood-800 bg-blood-700 px-5 py-2 font-display text-lg text-parchment-100 hover:bg-blood-800">
+        <span class="share-star" aria-hidden="true">✦</span><span class="share-star" aria-hidden="true">✦</span><span class="share-star" aria-hidden="true">✦</span>
         {% translate "Share this report" %}
       </button>
     </form>

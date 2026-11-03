@@ -2079,6 +2079,52 @@ span.hand-card {
   }
 }
 
+/* "Show your friends" (Paket 3, PR 13): three small stars twinkle at the
+ * corners of the share button, three times after the page loads, then rest. Decoration only (aria-hidden); never under
+ * prefers-reduced-motion. */
+.share-sparkle {
+  position: relative;
+}
+.share-star {
+  position: absolute;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--color-parchment-600);
+  opacity: 0;
+  pointer-events: none;
+  animation: share-twinkle 1.2s ease-in-out 3;
+}
+.share-star:nth-child(1) {
+  top: -0.6rem;
+  left: -0.5rem;
+}
+.share-star:nth-child(2) {
+  top: -0.75rem;
+  right: 0.75rem;
+  animation-delay: 0.4s;
+}
+.share-star:nth-child(3) {
+  bottom: -0.6rem;
+  right: -0.5rem;
+  animation-delay: 0.8s;
+}
+@keyframes share-twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(45deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .share-star {
+    animation: none;
+  }
+}
+
 /* While a run plays: the logo beside the bar, the smoothed fill and the
  * loading lines (simulations/_progress.html, _waiting.html). */
 .run-logo {

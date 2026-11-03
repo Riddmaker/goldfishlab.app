@@ -13776,3 +13776,69 @@ msgid ""
 "How fast your deck comes back when an opponent hits it: the same games, once"
 " struck, side by side on turn %(turn)s."
 msgstr "対戦相手に攻撃されたとき、あなたのデッキがどれだけ早く立て直すか。同じゲームを、攻撃ありとなしで%(turn)sターン目に並べます。"
+
+#: templates/simulations/_compare.html
+msgid "Compared with your last run"
+msgstr "前回のシミュレーションとの比較"
+
+#: templates/simulations/_compare.html
+msgid "Whether a change made the deck better shows here."
+msgstr "変更でデッキが良くなったかどうかがここでわかります。"
+
+#: templates/simulations/_compare.html
+#, python-format
+msgid ""
+"Your <a href=\"%(url)s\" class=\"underline\">run of %(date)s</a>, then this "
+"one."
+msgstr "<a href=\"%(url)s\" class=\"underline\">%(date)sのシミュレーション</a>、そして今回。"
+
+#: templates/simulations/_compare.html
+msgid "The deck has changed in between."
+msgstr "その間にデッキが変わっています。"
+
+#: templates/simulations/_compare.html
+msgid "The same deck both times: what differs is chance."
+msgstr "どちらも同じデッキです。違いは偶然によるものです。"
+
+#: templates/simulations/_compare.html
+msgid "The two runs drew differently, which moves the numbers too."
+msgstr "2回のシミュレーションはドローの方法が違うため、それも数値に影響します。"
+
+#: templates/simulations/_compare.html
+msgctxt "run compared"
+msgid "better"
+msgstr "向上"
+
+#: templates/simulations/_compare.html
+msgctxt "run compared"
+msgid "worse"
+msgstr "低下"
+
+#: templates/simulations/_compare.html
+msgctxt "run compared"
+msgid "about the same"
+msgstr "ほぼ同じ"
+
+#: templates/simulations/_compare.html
+msgid "Change a card and simulate the deck again: this shows what moved."
+msgstr "カードを1枚入れ替えてもう一度シミュレーションすると、何が変わったかがここに表示されます。"
+
+#: templates/simulations/_share.html
+msgid "Show your friends"
+msgstr "友だちに見せてみましょう"
+
+#: templates/simulations/_share.html
+msgid "Share…"
+msgstr "共有…"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Compared with your last run</strong> sets the same three numbers of "
+"the deck's run before next to this one's. Two runs of the very same deck "
+"differ a little by chance alone, so a number only counts as better or worse "
+"when the difference is larger than chance would make it 95 times in 100; "
+"otherwise it says \"about the same\". A run keeps a fingerprint of the card "
+"list, not the list, so the report can say that the deck changed in between, "
+"but not which cards."
+msgstr ""
+"<strong>前回のシミュレーションとの比較</strong>は、デッキの前回のシミュレーションの同じ3つの数値を今回の数値の横に並べます。まったく同じデッキでも、2回のシミュレーションは偶然だけで少し違います。そのため、差が偶然で100回中95回生じる範囲より大きいときだけ、数値を向上または低下とみなします。それ以外は「ほぼ同じ」と表示します。シミュレーションはカードリストそのものではなく、その指紋だけを保存します。そのためレポートは、その間にデッキが変わったことは言えますが、どのカードかは言えません。"

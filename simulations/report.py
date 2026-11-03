@@ -1013,6 +1013,7 @@ def build(run) -> dict:
         "stress": stress(result),
         # "In short" (Paket 3, PR 11): next to the precons; the bare sentences,
         # each with its "±", in Advanced.
+        "numbers": said,
         "standings": numbers.standings(said, run.deck_id),
         "exact": numbers.sentences(said),
         "percentiles": PERCENTILES,

@@ -41,6 +41,7 @@ from sharing import services as sharing
 from simulations import (
     annotations,
     blindspots,
+    compare,
     editor,
     primitives,
     provenance,
@@ -164,10 +165,11 @@ class RunDetailView(OwnedRunsMixin, DetailView):
             context["guest_hours"] = int(GUEST_LIFETIME.total_seconds() // 3600)
             # "Share this report" (P4).
             context["share"] = sharing.panel(self.request, run, context["report"])
-            # "Compare two versions" (P9): a fake door, counted against views.
+            # Reports viewed are still counted (P9's gate reads them).
             doors.report_viewed(self.request, run)
-            context["compare"] = {"asked": doors.asked(self.request),
-                                  "price": doors.COMPARE_PRICE_CHF}
+            # "Compared with your last run" (Paket 3, PR 13), in place of the
+            # "Compare two versions" fake door.
+            context["compare"] = compare.with_last(run, context["report"]["numbers"])
         return context
 
 

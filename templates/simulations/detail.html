@@ -79,9 +79,8 @@
       into "Advanced". The combos and engines the run measured follow the
       pictures, last before "Advanced"; the deck summary and "Your
       strategies" are the deck's and live on the deck page (Paket 2, PR 7). Sharing (P4) follows the attention block:
-      it is something a person can do, and says what becomes public. The
-      "Compare two versions" fake door (P9) follows it, still above the numbers,
-      so every report view has seen it.
+      it is something a person can do, and says what becomes public. "Compared
+      with your last run" (PR 13, in place of P9's fake door) follows it.
     {% endcomment %}
     {% if user.is_guest %}
       {% include "simulations/_keep_deck.html" %}
@@ -90,7 +89,9 @@
     <div class="mt-6 grid gap-6 lg:grid-cols-3">
       {% include "simulations/_attention.html" %}
       {% include "simulations/_share.html" %}
-      {% include "simulations/_compare.html" %}
+      {% if compare or not user.is_guest %}
+        {% include "simulations/_compare.html" %}
+      {% endif %}
     </div>
     {% include "simulations/_report.html" %}
     {% include "simulations/_measured.html" %}

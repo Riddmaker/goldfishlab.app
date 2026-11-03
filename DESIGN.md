@@ -232,6 +232,17 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   games the commander was back by the last turn; the mana on the last turn after the wipe) - the
   words under it, one sentence more and the assumption small at the bottom. The rows are folded
   under "The numbers". A blow the run could not play says why, without a number.
+- **Compared with your last run** (`simulations/_compare.html` `#compare`, Paket 3 PR 13): in
+  place of the "Compare two versions" fake door. The precon table's three numbers of the deck's
+  run before, then this run's ("80% → 85%"), each with one word: **better** (verdigris),
+  **worse** (blood), or "about the same" (ink) when the difference is within what chance makes
+  it at 95% - the word carries the meaning, never the colour alone. One line says whether the
+  deck changed in between (runs keep a fingerprint, not the list). A deck's first run invites to
+  change a card and run again; a guest gets no invitation.
+- **Show your friends** (`simulations/_share.html`): the share panel invites, then says what
+  becomes public before anything does. Three small stars twinkle at the button's corners three
+  times after load and rest (aria-hidden, none under `prefers-reduced-motion`). "Share…" opens
+  the device's share sheet and only appears where the browser has one (Web Share API).
 - **Resources** (`core/resources.html`, data in `core/resources.py`): a short list, not a link
   farm. Each entry is its name as a display-font link with "↗", then one sentence of ours on why
   it is there; a video adds channel, year and length. Titles stay in English (`lang="en"`), the

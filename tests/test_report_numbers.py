@@ -347,3 +347,70 @@ def test_the_report_keeps_the_bracket_table_in_advanced(client, owner, fell_deck
 
     assert body.index('id="advanced"') < body.index('id="brackets"')
     assert body.index('id="advanced"') < body.index("What the engine cannot model")
+
+
+# Paket 2, PR 8: the curve as columns, and beside it ramp, card draw and the
+# turn the commander is out in half the games of the last run.
+
+
+def _commander_by(run, counts):
+    """`run` with the commander out in `counts[turn]` of its 40 games."""
+    for stats, count in zip(run.result["turn_stats"], counts, strict=False):
+        stats["commander"] = count
+    run.save(update_fields=["result"])
+    return run
+
+
+@pytest.mark.django_db
+def test_commander_out_is_the_first_turn_with_half_the_games(owner, fell_deck):
+    run = _commander_by(_finished(owner, fell_deck), [0, 5, 19, 20, 33])
+
+    assert report.commander_out(run) == {"turn": 4, "turns": 9}
+
+
+@pytest.mark.django_db
+def test_commander_out_says_so_when_half_never_got_there(owner, fell_deck):
+    run = _commander_by(_finished(owner, fell_deck), [0] * 8 + [19])
+
+    assert report.commander_out(run) == {"turn": None, "turns": 9}
+
+
+@pytest.mark.django_db
+def test_the_curve_is_eight_columns_with_ramp_and_draw_beside_it(client, owner, fell_deck):
+    client.force_login(owner)
+
+    body = client.get(fell_deck.get_absolute_url()).content.decode()
+    curve = body.split("data-curve>", 1)[1].split("</ol>", 1)[0]
+    facts = body.split("data-curve-facts>", 1)[1].split("</dl>", 1)[0]
+
+    assert curve.count('class="deck-curve-col"') == 8
+    assert "spells at mana value 7 or more" in curve, "each column in words"
+    assert "?cat=ramp#cards" in facts and "?cat=draw#cards" in facts
+    assert facts.index("Ramp") < facts.index("Card draw")
+    assert "simulate to see" in facts and 'href="#simulate"' in facts
+
+
+@pytest.mark.django_db
+def test_the_commander_turn_comes_from_the_last_run(client, owner, fell_deck):
+    run = _commander_by(_finished(owner, fell_deck), [0, 5, 25])
+    client.force_login(owner)
+
+    body = client.get(fell_deck.get_absolute_url()).content.decode()
+    facts = body.split("data-commander-out>", 1)[1].split("</div>", 1)[0]
+
+    assert "by turn 3" in facts
+    assert "in half the games, last run" in facts
+    assert f"{run.get_absolute_url()}#milestones" in facts
+
+
+@pytest.mark.django_db
+def test_a_commander_that_half_the_games_never_saw_reads_not_by_the_last_turn(
+        client, owner, fell_deck):
+    _commander_by(_finished(owner, fell_deck), [0] * 9)
+    client.force_login(owner)
+
+    body = client.get(fell_deck.get_absolute_url()).content.decode()
+    facts = body.split("data-commander-out>", 1)[1].split("</div>", 1)[0]
+
+    assert "not by turn 9" in facts
+    assert "in half the games, last run" in facts

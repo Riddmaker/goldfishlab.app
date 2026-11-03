@@ -216,6 +216,12 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         # which the report's bracket section used to say alone.
         last_run = context["last_run"]
         context["speed"] = report.run_brackets(last_run) if last_run and last_run.result else None
+        # Beside the curve (Paket 2, PR 8): ramp and card draw as "What is in
+        # it" counts them, and the turn the commander is out in half the games.
+        context["curve_counts"] = [bar for bar in context["category_bars"]
+                                   if bar.value in ("ramp", "draw")]
+        context["commander_out"] = (report.commander_out(last_run)
+                                    if last_run and last_run.result else None)
         # Sessions, not games: a playtest is one game played by hand and is
         # resumed rather than re-run, so the list is of things to go back to.
         context["playtests"] = deck.playtests.all()[:5]

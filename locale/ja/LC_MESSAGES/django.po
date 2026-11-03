@@ -13576,3 +13576,37 @@ msgstr ""
 "内で処理し、不正利用の検出のために各リクエストを最長30日間保持した後に削除し、モデルの学習には使用しません。レポートの「要約を非表示」で要約をオフにでき、その場合は何も送信されません。<a"
 " href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
 "ink-700\" rel=\"noopener\">Mistral の利用規約</a>。"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value 7 or more"
+msgid_plural "%(count)s spells at mana value 7 or more"
+msgstr[0] "マナ総量7以上の呪文：%(count)s枚"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value %(value)s"
+msgid_plural "%(count)s spells at mana value %(value)s"
+msgstr[0] "マナ総量%(value)sの呪文：%(count)s枚"
+
+#: templates/decks/detail.html
+msgid "Commander out"
+msgstr "統率者の登場"
+
+#: templates/decks/detail.html
+msgid "simulate to see"
+msgstr "シミュレーションで確認"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "by turn %(turn)s"
+msgstr "%(turn)sターン目まで"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "not by turn %(turn)s"
+msgstr "%(turn)sターン目までにはなし"
+
+#: templates/decks/detail.html
+msgid "in half the games, last run"
+msgstr "前回の実行で半数のゲーム"

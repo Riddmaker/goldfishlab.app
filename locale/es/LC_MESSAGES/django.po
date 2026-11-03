@@ -15532,3 +15532,41 @@ msgstr ""
 " resúmenes» en un informe, y entonces no se envía nada. <a "
 "href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
 "ink-700\" rel=\"noopener\">Condiciones de Mistral</a>."
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value 7 or more"
+msgid_plural "%(count)s spells at mana value 7 or more"
+msgstr[0] "%(count)s hechizo de valor de maná 7 o más"
+msgstr[1] "%(count)s hechizos de valor de maná 7 o más"
+msgstr[2] "%(count)s hechizos de valor de maná 7 o más"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value %(value)s"
+msgid_plural "%(count)s spells at mana value %(value)s"
+msgstr[0] "%(count)s hechizo de valor de maná %(value)s"
+msgstr[1] "%(count)s hechizos de valor de maná %(value)s"
+msgstr[2] "%(count)s hechizos de valor de maná %(value)s"
+
+#: templates/decks/detail.html
+msgid "Commander out"
+msgstr "Comandante en juego"
+
+#: templates/decks/detail.html
+msgid "simulate to see"
+msgstr "simula para verlo"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "by turn %(turn)s"
+msgstr "en el turno %(turn)s"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "not by turn %(turn)s"
+msgstr "no en el turno %(turn)s"
+
+#: templates/decks/detail.html
+msgid "in half the games, last run"
+msgstr "en la mitad de las partidas, última simulación"

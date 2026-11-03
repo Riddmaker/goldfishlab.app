@@ -205,26 +205,71 @@
   {% endif %}
   {% include "simulations/_strategies.html" %}
 
-  <div class="mt-6 grid gap-6 lg:grid-cols-2">
+  <div class="mt-6 grid items-start gap-6 lg:grid-cols-2">
     <section class="surface-parchment p-6">
       <h2 class="font-display text-2xl text-ink-900">{% translate "Mana curve" %}</h2>
       <p class="mt-1 text-sm text-ink-700">{% translate "Spells by mana value." %}</p>
-      <ul class="mt-5 space-y-2">
-        {% for bucket, count in analysis.curve.items %}
-          <li class="flex items-center gap-3">
-            <span class="tabular w-8 shrink-0 text-right text-ink-900">{% if bucket == 7 %}7+{% else %}{{ bucket }}{% endif %}</span>
-            {% comment %}
-              In a track of its own: a full-width bar straight in the flex row
-              squeezed the label column, and the longest bar started left of
-              the others.
-            {% endcomment %}
-            <span class="flex flex-1 items-center gap-3" role="presentation">
-              <span class="h-4 bg-ink-800" style="width: {% widthratio count curve_max 90 %}%"></span>
-              <span class="tabular text-sm text-ink-700">{{ count }}</span>
-            </span>
-          </li>
-        {% endfor %}
-      </ul>
+      {% comment %}
+        Paket 2, PR 8: the curve as small columns, half the height of the
+        eight rows it was, and beside it three numbers a player asks first.
+        Each column says its count and mana value in words for a screen
+        reader; the drawn parts are hidden from it.
+      {% endcomment %}
+      <div class="deck-curve-wrap mt-5">
+        <ol class="deck-curve" data-curve>
+          {% for bucket, count in analysis.curve.items %}
+            <li class="deck-curve-col">
+              <span class="sr-only">
+                {% if bucket == 7 %}
+                  {% blocktranslate trimmed count count=count %}{{ count }} spell at mana value 7 or more{% plural %}{{ count }} spells at mana value 7 or more{% endblocktranslate %}
+                {% else %}
+                  {% blocktranslate trimmed count count=count with value=bucket %}{{ count }} spell at mana value {{ value }}{% plural %}{{ count }} spells at mana value {{ value }}{% endblocktranslate %}
+                {% endif %}
+              </span>
+              <span class="tabular text-sm text-ink-700" aria-hidden="true">{{ count }}</span>
+              <span class="deck-curve-track" aria-hidden="true">
+                <span class="deck-curve-bar" style="height: {% widthratio count curve_max 100 %}%"></span>
+              </span>
+              <span class="tabular text-ink-900" aria-hidden="true">{% if bucket == 7 %}7+{% else %}{{ bucket }}{% endif %}</span>
+            </li>
+          {% endfor %}
+        </ol>
+        <dl class="deck-curve-facts" data-curve-facts>
+          {% for bar in curve_counts %}
+            <div>
+              <dt class="text-sm text-ink-700">
+                <a href="?{{ bar.param }}={{ bar.value }}#cards" class="underline decoration-parchment-600">{{ bar.label }}</a>
+              </dt>
+              <dd class="tabular font-display text-2xl text-ink-900">
+                {{ bar.count }}{% if bar.band_label %}<span class="font-body text-sm text-ink-700"> / ~{{ bar.band_label }}</span>{% endif %}
+              </dd>
+            </div>
+          {% endfor %}
+          <div data-commander-out>
+            <dt class="text-sm text-ink-700">{% translate "Commander out" %}</dt>
+            {% if not commander_out %}
+              <dd class="font-display text-2xl text-ink-900">–</dd>
+              <dd class="text-sm text-ink-700">
+                <a href="#simulate" class="underline">{% translate "simulate to see" %}</a>
+              </dd>
+            {% elif commander_out.turn %}
+              <dd class="tabular font-display text-2xl text-ink-900">
+                {% blocktranslate with turn=commander_out.turn %}by turn {{ turn }}{% endblocktranslate %}
+              </dd>
+              <dd class="text-sm text-ink-700">
+                <a href="{{ last_run.get_absolute_url }}#milestones" class="underline">{% translate "in half the games, last run" %}</a>
+              </dd>
+            {% else %}
+              <dd class="tabular font-display text-2xl text-ink-900">
+                {% blocktranslate with turn=commander_out.turns %}not by turn {{ turn }}{% endblocktranslate %}
+              </dd>
+              <dd class="text-sm text-ink-700">
+                <a href="{{ last_run.get_absolute_url }}#milestones" class="underline">{% translate "in half the games, last run" %}</a>
+              </dd>
+            {% endif %}
+          </div>
+        </dl>
+      </div>
     </section>
     <section class="surface-parchment p-6">
       <h2 class="font-display text-2xl text-ink-900">{% translate "What is in it" %}</h2>

@@ -15303,3 +15303,39 @@ msgstr ""
 " resumos\" num relatório, e então nada é enviado. <a "
 "href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
 "ink-700\" rel=\"noopener\">Termos da Mistral</a>."
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value 7 or more"
+msgid_plural "%(count)s spells at mana value 7 or more"
+msgstr[0] "%(count)s mágica de valor de mana 7 ou mais"
+msgstr[1] "%(count)s mágicas de valor de mana 7 ou mais"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value %(value)s"
+msgid_plural "%(count)s spells at mana value %(value)s"
+msgstr[0] "%(count)s mágica de valor de mana %(value)s"
+msgstr[1] "%(count)s mágicas de valor de mana %(value)s"
+
+#: templates/decks/detail.html
+msgid "Commander out"
+msgstr "Comandante em jogo"
+
+#: templates/decks/detail.html
+msgid "simulate to see"
+msgstr "simule para ver"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "by turn %(turn)s"
+msgstr "até o turno %(turn)s"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "not by turn %(turn)s"
+msgstr "não até o turno %(turn)s"
+
+#: templates/decks/detail.html
+msgid "in half the games, last run"
+msgstr "em metade das partidas, última execução"

@@ -1381,6 +1381,53 @@ body {
   vertical-align: middle;
 }
 
+/* The mana curve (Paket 2, PR 8): eight small columns, the count above and
+ * the mana value below, and three numbers beside them. On a phone the
+ * numbers wrap under the columns. */
+.deck-curve-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1.5rem 2rem;
+}
+
+.deck-curve {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(1.5rem, 2.25rem));
+  gap: 0.375rem;
+}
+
+.deck-curve-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.deck-curve-track {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 5rem;
+  border-bottom: 1px solid var(--color-parchment-600);
+}
+
+.deck-curve-bar {
+  position: absolute;
+  inset: auto 0 0 0;
+  background-color: var(--color-ink-800);
+}
+
+.deck-curve-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.75rem;
+}
+
+.deck-curve-facts dd {
+  margin: 0;
+}
+
 /* "Built around" (Themen-Doc, Paket 1, PR 2): a theme is a chip that opens.
  * The level is the word on the chip; the border repeats it - filled for
  * strong, solid for medium, dashed for hinted - and never says it alone.

@@ -270,6 +270,11 @@ engine could not read, then the pictures, and the depth folded at the bottom.
   "Combos & engines", the cards, then folded at the bottom "What the engine cannot model" and
   "Earlier runs and games". Words before numbers, the deck a person already knows (its cards)
   last. A fold stays only where it hides something long that every deck says alike or a form.
+- **Mana curve** (`decks/detail.html`, `.deck-curve*`, Paket 2 PR 8): eight small ink columns
+  on one scale, the count above and the mana value below, each column a sentence for a screen
+  reader. Beside it three numbers: ramp and card draw as "What is in it" counts them (with the
+  template), and "Commander out by turn N" in half the games of the last run (link to the
+  report's milestones), or "simulate to see". The average mana value stays a tile.
 - **"Advanced"** (`simulations/_advanced.html`, `.report-advanced*`): a closed `<details>` on the
   dark page; the summary is a display heading with the fold's contents named beside it and a
   turning ▸ (no turn under `prefers-reduced-motion`). Inside: the mana table, the blind spots,

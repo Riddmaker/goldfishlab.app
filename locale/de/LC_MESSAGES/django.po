@@ -15473,3 +15473,39 @@ msgstr ""
 "„Zusammenfassungen ausblenden“ ausschalten, dann wird nichts gesendet. <a "
 "href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
 "ink-700\" rel=\"noopener\">Nutzungsbedingungen von Mistral</a>."
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value 7 or more"
+msgid_plural "%(count)s spells at mana value 7 or more"
+msgstr[0] "%(count)s Zauber mit Manawert 7 oder mehr"
+msgstr[1] "%(count)s Zauber mit Manawert 7 oder mehr"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value %(value)s"
+msgid_plural "%(count)s spells at mana value %(value)s"
+msgstr[0] "%(count)s Zauber mit Manawert %(value)s"
+msgstr[1] "%(count)s Zauber mit Manawert %(value)s"
+
+#: templates/decks/detail.html
+msgid "Commander out"
+msgstr "Commander draussen"
+
+#: templates/decks/detail.html
+msgid "simulate to see"
+msgstr "simuliere, um es zu sehen"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "by turn %(turn)s"
+msgstr "bis Zug %(turn)s"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "not by turn %(turn)s"
+msgstr "nicht bis Zug %(turn)s"
+
+#: templates/decks/detail.html
+msgid "in half the games, last run"
+msgstr "in der Hälfte der Spiele, letzter Lauf"

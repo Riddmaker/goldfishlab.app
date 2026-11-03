@@ -605,6 +605,22 @@ def run_brackets(run) -> dict:
                     timed_combos=_timed(combo_measurements(run)))
 
 
+def commander_out(run) -> dict:
+    """By which turn the commander was on the battlefield in half the games
+    of one stored run, for the deck page beside the curve (Paket 2, PR 8).
+
+    `turn` is None when fewer than half the games had it out by the last
+    turn played, `turns`. With two commanders, one of them counts, as the
+    milestone of the same name does.
+    """
+    result = runner.read(run.result)
+    total = result["iterations"]
+    for turn, stats in enumerate(result["turn_stats"], start=1):
+        if _pct(stats.get("commander", 0), total) >= TYPICAL_SHARE:
+            return {"turn": turn, "turns": result["turns"]}
+    return {"turn": None, "turns": result["turns"]}
+
+
 def _timed(measured) -> bool:
     """Whether a run measured any real combo (not only the "one card away" ones)."""
     return any(not row.hypothetical for row in measured)

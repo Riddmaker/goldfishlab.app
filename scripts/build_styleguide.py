@@ -547,6 +547,39 @@ tiles (Paket 2): they are the deck&rsquo;s, not one run&rsquo;s. Without a run t
 with one line that links to Simulate. The report keeps &ldquo;Combos &amp; engines&rdquo; and links
 back to the summary.</p>
 
+<h2>Mana curve (Paket 2)</h2>
+<div class="surface" style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:1.5rem 2rem">
+  <ol style="display:grid;grid-template-columns:repeat(8,2rem);gap:.375rem;margin:0;
+             padding:0;list-style:none">
+    {"".join(
+        f'<li style="display:flex;flex-direction:column;align-items:center;gap:.25rem">'
+        f'<span style="font-size:.875rem;color:var(--ink-700)">{count}</span>'
+        f'<span style="position:relative;display:block;width:100%;height:5rem;'
+        f'border-bottom:1px solid var(--parchment-600)"><span style="position:absolute;'
+        f'inset:auto 0 0 0;height:{round(100 * count / 14)}%;background:var(--ink-800)">'
+        f'</span></span><span>{label}</span></li>'
+        for label, count in (("0", 1), ("1", 9), ("2", 14), ("3", 12), ("4", 8), ("5", 5),
+                             ("6", 3), ("7+", 2)))}
+  </ol>
+  <dl style="display:flex;flex-wrap:wrap;gap:1rem 1.75rem;margin:0">
+    <div><dt style="font-size:.875rem;color:var(--ink-700)"><a href="#">Ramp</a></dt>
+      <dd style="margin:0;font-size:1.5rem">11
+        <span style="font-size:.875rem;color:var(--ink-700)">/ ~10</span></dd></div>
+    <div><dt style="font-size:.875rem;color:var(--ink-700)"><a href="#">Card draw</a></dt>
+      <dd style="margin:0;font-size:1.5rem">8
+        <span style="font-size:.875rem;color:var(--ink-700)">/ ~10</span></dd></div>
+    <div><dt style="font-size:.875rem;color:var(--ink-700)">Commander out</dt>
+      <dd style="margin:0;font-size:1.5rem">by turn 3</dd>
+      <dd style="margin:0;font-size:.875rem;color:var(--ink-700)">
+        <a href="#">in half the games, last run</a></dd></div>
+  </dl>
+</div>
+<p class="rule">The curve is eight small ink columns on one scale, the count above and the mana
+value below; a screen reader hears each column as a sentence. Beside it three numbers: ramp and
+card draw as &ldquo;What is in it&rdquo; counts them (with the template), and the turn the
+commander is out in half the games of the last run, or &ldquo;simulate to see&rdquo;. The average
+mana value stays a tile and is not repeated.</p>
+
 <h2>Deck list fan &amp; setting switch (Themen-Doc)</h2>
 <div class="surface">
   <p class="sg-row">

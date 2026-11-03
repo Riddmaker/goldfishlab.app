@@ -15617,3 +15617,39 @@ msgstr ""
 " plus rien n'est alors envoyé. <a href=\"https://legal.mistral.ai/terms\" "
 "class=\"underline hover:text-ink-700\" rel=\"noopener\">Conditions de "
 "Mistral</a>."
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value 7 or more"
+msgid_plural "%(count)s spells at mana value 7 or more"
+msgstr[0] "%(count)s sort de valeur de mana 7 ou plus"
+msgstr[1] "%(count)s sorts de valeur de mana 7 ou plus"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value %(value)s"
+msgid_plural "%(count)s spells at mana value %(value)s"
+msgstr[0] "%(count)s sort de valeur de mana %(value)s"
+msgstr[1] "%(count)s sorts de valeur de mana %(value)s"
+
+#: templates/decks/detail.html
+msgid "Commander out"
+msgstr "Commandant en jeu"
+
+#: templates/decks/detail.html
+msgid "simulate to see"
+msgstr "simulez pour le voir"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "by turn %(turn)s"
+msgstr "au tour %(turn)s"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "not by turn %(turn)s"
+msgstr "pas au tour %(turn)s"
+
+#: templates/decks/detail.html
+msgid "in half the games, last run"
+msgstr "dans la moitié des parties, dernière simulation"

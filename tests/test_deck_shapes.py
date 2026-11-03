@@ -163,7 +163,7 @@ def test_a_deck_the_engine_cannot_read_shouts_about_it(client, owner, build):
     body = html.unescape(response.content.decode())
 
     assert response.status_code == 200
-    assert "What this simulation does not model" in body
+    assert "What the engine cannot model" in body
     # The two limitations this deck is built out of.
     assert "Mana sources nobody has pinned down" in body
     assert "Cards that need an opponent" in body

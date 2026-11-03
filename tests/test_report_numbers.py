@@ -295,3 +295,55 @@ def test_a_run_still_playing_keeps_its_progress_panel(client, owner, fell_deck):
     body = client.get(run.get_absolute_url()).content.decode()
 
     assert 'id="run-progress"' in body
+
+
+# Round 3 (Themen-Doc): the deck page's bracket tile carries the speed of the
+# last run, and the report keeps the table per bracket in "Advanced".
+
+
+@pytest.mark.django_db
+def test_the_bracket_tile_asks_for_a_run_before_one_exists(client, owner, fell_deck):
+    client.force_login(owner)
+
+    body = client.get(fell_deck.get_absolute_url()).content.decode()
+
+    assert "by speed: simulate to see" in body
+    assert 'data-bracket-floor>1–2<' in body
+
+
+@pytest.mark.django_db
+def test_the_bracket_tile_shows_the_last_runs_speed_and_the_two_together(
+        client, owner, fell_deck):
+    swamp = engine_combos.Watch(key="x", requirements=(engine_combos.Requirement(name="Swamp"),),
+                                wins=True)
+    run = _finished(owner, fell_deck, watch=[swamp])
+    assert report.run_brackets(run)["by_speed"] == report.CEDH[0]
+    client.force_login(owner)
+
+    body = client.get(fell_deck.get_absolute_url()).content.decode()
+
+    assert f"by speed: at least {report.CEDH[0]} (last run)" in body
+    assert f"{run.get_absolute_url()}#brackets" in body
+    assert f"data-bracket-floor>{report.CEDH[0]}+<" in body, "the higher of the two floors"
+
+
+@pytest.mark.django_db
+def test_a_run_that_measured_no_speed_says_so_on_the_tile(client, owner, fell_deck):
+    run = _finished(owner, fell_deck)
+    client.force_login(owner)
+
+    body = client.get(fell_deck.get_absolute_url()).content.decode()
+
+    assert "by speed: not measured in the last run" in body
+    assert f"{run.get_absolute_url()}#brackets" in body
+
+
+@pytest.mark.django_db
+def test_the_report_keeps_the_bracket_table_in_advanced(client, owner, fell_deck):
+    run = _finished(owner, fell_deck)
+    client.force_login(owner)
+
+    body = client.get(run.get_absolute_url()).content.decode()
+
+    assert body.index('id="advanced"') < body.index('id="brackets"')
+    assert body.index('id="advanced"') < body.index("What the engine cannot model")

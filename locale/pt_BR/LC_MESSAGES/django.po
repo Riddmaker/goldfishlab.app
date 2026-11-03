@@ -14205,3 +14205,55 @@ msgstr "Digite aqui"
 #: decks/forms.py
 msgid "That is not the word, so nothing was deleted."
 msgstr "Essa não é a palavra, então nada foi excluído."
+
+#: templates/decks/detail.html
+msgid "by speed: simulate to see"
+msgstr "pela velocidade: simule para ver"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "by speed: at least %(number)s (last run)"
+msgstr "pela velocidade: pelo menos %(number)s (última simulação)"
+
+#: templates/decks/detail.html
+msgid "by speed: not measured in the last run"
+msgstr "pela velocidade: não medida na última simulação"
+
+#: templates/simulations/_advanced.html
+msgid "Speed and the brackets, mana and lands turn by turn, engine and seed"
+msgstr "Velocidade e brackets, mana e terrenos turno a turno, motor e semente"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, mana and lands turn by turn, what the engine cannot "
+"model, engine and seed"
+msgstr ""
+"Velocidade e brackets, mana e terrenos turno a turno, o que o motor não "
+"consegue modelar, motor e semente"
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"<strong class=\"text-parchment-100\">This is normal.</strong> Every deck has"
+" cards a game without opponents cannot fully play, for every player alike. "
+"It says nothing against your deck."
+msgstr ""
+"<strong class=\"text-parchment-100\">Isso é normal.</strong> Todo deck tem "
+"cartas que uma partida sem oponentes não consegue jogar por completo, para "
+"todos os jogadores. Isso não diz nada contra o seu deck."
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"What the engine does well: it plays your lands, mana, ramp and draws turn by"
+" turn, thousands of times, by the Commander rules."
+msgstr ""
+"O que o motor faz bem: ele joga seus terrenos, mana, ramp e compras turno a "
+"turno, milhares de vezes, pelas regras do Commander."
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"What goldfishing is for: how reliably your deck gets going - how soon the "
+"mana, the cards and the commander are there - before anybody interferes."
+msgstr ""
+"Para que serve o goldfishing: com que confiabilidade seu deck engrena - quão"
+" cedo a mana, as cartas e o comandante estão lá - antes que alguém "
+"interfira."

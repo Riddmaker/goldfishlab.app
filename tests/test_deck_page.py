@@ -192,16 +192,47 @@ def test_the_tiles_say_it_in_words(client_in, deck):
     assert "Average mana value" in body
     assert str(analysis.average_mv) in body
     assert ("✓ in band" if analysis.lands_verdict.ok else "! outside band") in body
-    problems = response.context["legality_problems"]
-    assert (f"{problems} problem" if problems else "Legal") in body
+    for verdict in analysis.legality:
+        assert f"{'✓' if verdict.ok else '!'} {verdict.message}" in body
 
 
 def test_folded_is_not_gone(client_in, deck):
     body = client_in.get(deck.get_absolute_url()).content.decode()
 
-    for kept in ("Commander legality", "Combos", "What the engine cannot model",
+    for kept in ("Commander legality", "Combos", "What the engine cannot model", "This is normal.",
                  "rows matched", "Karsten"):
         assert kept in body
+
+
+def test_the_legality_tile_holds_the_checks_and_no_fold_repeats_them(client_in, deck):
+    response = client_in.get(deck.get_absolute_url())
+    body = response.content.decode()
+
+    tile = body[body.index('id="legality"'):]
+    tile = tile[:tile.index("</ul>")]
+    assert "data-legality" in tile
+    assert tile.count("<li") == len(response.context["analysis"].legality)
+    assert '<details id="legality"' not in body
+
+
+def test_a_problem_in_the_legality_tile_says_why_beside_it(client_in, deck):
+    type(deck).objects.filter(pk=deck.pk).update(commander=None)
+
+    body = client_in.get(deck.get_absolute_url()).content.decode()
+
+    assert "! No commander set" in body
+    assert "A Commander deck needs one." in body
+
+
+def test_what_the_engine_cannot_model_says_it_is_normal_and_has_no_fold_inside(
+        client_in, deck):
+    body = client_in.get(deck.get_absolute_url()).content.decode()
+
+    start = body.index("What the engine cannot model")
+    fold = body[start:body.index("</details>", start)]
+    assert "This is normal." in fold
+    assert "What the engine does well" in fold and "What goldfishing is for" in fold
+    assert "<details" not in fold, "no fold inside the fold"
 
 
 def test_a_deck_without_a_commander_asks_for_one_at_the_top(client_in, deck):

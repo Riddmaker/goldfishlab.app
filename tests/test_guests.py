@@ -195,7 +195,7 @@ def test_the_home_page_offers_the_trial(client):
     body = client.get(reverse("home")).content.decode()
 
     assert reverse("guests:try") in body
-    assert "no account" in body
+    assert "No account" in body
 
 
 # --- a guest is fenced --------------------------------------------------------------
@@ -454,3 +454,36 @@ def test_a_card_that_may_not_lead_asks_again(client, _no_workers):
 
 def test_a_marked_commander_still_runs_at_once(client, _no_workers):
     assert upload(client).url == SimulationRun.objects.get().get_absolute_url()
+
+
+# --- the import on the home page (Themen-Doc, Startseite) -------------------------
+
+
+def _home_form(client):
+    body = client.get(reverse("home")).content.decode()
+    start = body.find("data-home-import")
+    return body, (body[start:body.index("</form>", start)] if start != -1 else "")
+
+
+def test_a_stranger_can_import_right_on_the_home_page(client):
+    body, form = _home_form(client)
+
+    assert f'action="{reverse("guests:try")}"' in form
+    assert 'name="text"' in form and 'name="file"' in form
+    assert body.index("data-home-import") < body.index("data-ticker"), "high on the page"
+
+
+def test_a_signed_in_user_imports_from_the_home_page_to_the_importer(client):
+    user = User.objects.create_user(email="home-import@example.com", password=PASSWORD)
+    client.force_login(user)
+
+    _body, form = _home_form(client)
+
+    assert f'action="{reverse("decks:import")}"' in form
+
+
+def test_a_guest_gets_no_form_that_would_replace_its_deck(client, guest):
+    body, form = _home_form(client)
+
+    assert not form
+    assert "Back to your deck" in body

@@ -591,10 +591,22 @@ def brackets(run, result: dict, timed_combos: bool) -> dict:
         by_speed = tempo["verdict"].number
     elif tempo.get("cedh"):
         by_speed = CEDH[0]
-    tempo.update(game_changers=len(changers), floor=floor,
+    tempo.update(game_changers=len(changers), floor=floor, by_speed=by_speed,
                  together=max(floor, by_speed) if by_speed is not None else None,
                  source=BRACKETS_SOURCE)
     return tempo
+
+
+def run_brackets(run) -> dict:
+    """`brackets` for one stored run, read on its own: the deck page's bracket
+    tile shows the speed of the last run beside the Game Changers."""
+    return brackets(run, runner.read(run.result),
+                    timed_combos=_timed(combo_measurements(run)))
+
+
+def _timed(measured) -> bool:
+    """Whether a run measured any real combo (not only the "one card away" ones)."""
+    return any(not row.hypothetical for row in measured)
 
 
 def _combo_state(run) -> str:
@@ -934,8 +946,7 @@ def build(run) -> dict:
         "milestones_hidden": max(0, len(milestone_rows) - MAX_LINES),
         "seen": seen(result),
         "combos": measured,
-        "brackets": brackets(
-            run, result, timed_combos=any(not row.hypothetical for row in measured)),
+        "brackets": brackets(run, result, timed_combos=_timed(measured)),
         "stress": stress(result),
         "glance": numbers.sentences(numbers.of(run)),
         "percentiles": PERCENTILES,

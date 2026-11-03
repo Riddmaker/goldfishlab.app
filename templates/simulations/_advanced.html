@@ -9,8 +9,10 @@
 <details id="advanced" class="report-advanced mt-10">
   <summary class="report-advanced-summary">
     <span class="font-display text-2xl text-parchment-100">{% translate "Advanced" %}</span>
-    <span class="text-sm text-parchment-200">{% if shared %}{% translate "Mana and lands turn by turn, engine and seed" %}{% else %}{% translate "Mana and lands turn by turn, what the simulation does not model, engine and seed" %}{% endif %}</span>
+    <span class="text-sm text-parchment-200">{% if shared %}{% translate "Speed and the brackets, mana and lands turn by turn, engine and seed" %}{% else %}{% translate "Speed and the brackets, mana and lands turn by turn, what the engine cannot model, engine and seed" %}{% endif %}</span>
   </summary>
+  {# The deck page's bracket tile gives the result; the table per bracket is here. #}
+  {% include "simulations/_brackets.html" with tempo=report.brackets %}
   <section class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">{% translate "Mana and lands, turn by turn" %}</h2>
     <p class="mt-1 text-sm text-ink-700">
@@ -44,7 +46,10 @@
   </section>
   {% if not shared %}
     {# Read off the deck as it is today, which a shared report never shows (P4). #}
-    {% include "simulations/_blindspots.html" with deck=run.deck %}
+    <section class="mt-6 border-l-2 border-parchment-600 pl-5">
+      <h2 class="font-display text-2xl text-parchment-100">{% translate "What the engine cannot model" %}</h2>
+      {% include "simulations/_blindspots.html" with deck=run.deck %}
+    </section>
   {% endif %}
   <p class="mt-6 text-xs text-parchment-200">
     {% blocktranslate trimmed with version=run.engine_version seed=run.seed %}

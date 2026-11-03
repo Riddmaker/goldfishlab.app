@@ -152,23 +152,45 @@
       <p class="tabular font-display text-3xl text-ink-900">{{ analysis.average_mv }}</p>
       <p class="text-sm text-ink-700">{% translate "spells only" %}</p>
     </div>
-    <div class="surface-parchment p-4">
+    {% comment %}
+      Two floors, and a deck is in a bracket only if it fits every rule: the
+      Game Changers read off the deck, the speed off the last run (P20 F4).
+      The big number is the higher of the two; the report has the table.
+    {% endcomment %}
+    <div class="surface-parchment p-4" data-bracket-tile>
       <p class="text-sm text-ink-700">{% translate "Bracket" %}</p>
-      {# A floor by the Game Changers, never a rating (P20 F4, E1.30). #}
-      <p class="tabular font-display text-3xl text-ink-900" data-bracket-floor>{% if analysis.bracket_floor == 1 %}1–2{% else %}{{ analysis.bracket_floor }}+{% endif %}</p>
+      <p class="tabular font-display text-3xl text-ink-900" data-bracket-floor>{% if speed.together %}{{ speed.together }}+{% elif analysis.bracket_floor == 1 %}1–2{% else %}{{ analysis.bracket_floor }}+{% endif %}</p>
       <p class="text-sm text-ink-700">{{ analysis.bracket_verdict.message }}</p>
+      <p class="text-sm text-ink-700" data-by-speed>
+        {% if not speed %}
+          <a href="#simulate" class="underline">{% translate "by speed: simulate to see" %}</a>
+        {% elif speed.by_speed %}
+          <a href="{{ last_run.get_absolute_url }}#brackets" class="underline">{% blocktranslate with number=speed.by_speed %}by speed: at least {{ number }} (last run){% endblocktranslate %}</a>
+        {% else %}
+          <a href="{{ last_run.get_absolute_url }}#brackets" class="underline">{% translate "by speed: not measured in the last run" %}</a>
+        {% endif %}
+      </p>
     </div>
-    <div class="surface-parchment p-4">
+    {# The six checks themselves, so no fold further down repeats the tile. #}
+    <div id="legality" class="surface-parchment p-4">
       <p class="text-sm text-ink-700">{% translate "Commander legality" %}</p>
       {% if legality_problems %}
         <p class="font-display text-3xl text-blood-700">!</p>
-        <a href="#legality" class="text-sm text-blood-700 underline">
-          {% blocktranslate count count=legality_problems %}{{ count }} problem{% plural %}{{ count }} problems{% endblocktranslate %}
-        </a>
       {% else %}
         <p class="font-display text-3xl text-verdigris-800">✓</p>
-        <p class="text-sm text-verdigris-800">{% translate "Legal" %}</p>
       {% endif %}
+      <ul class="mt-1 space-y-0.5 text-sm" data-legality>
+        {% for verdict in analysis.legality %}
+          {% if verdict.ok %}
+            <li class="text-verdigris-800" title="{{ verdict.detail }}">✓ {{ verdict.message }}</li>
+          {% else %}
+            <li class="text-blood-700">
+              ! {{ verdict.message }}
+              <span class="block text-xs text-ink-700">{{ verdict.detail }}</span>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
     </div>
   </section>
 
@@ -281,30 +303,9 @@
     </div>
   </section>
 
-  {% comment %}
-    The folds. Each keeps what the old page said at length; a problem opens
-    its own fold, so the tile's link lands on something readable.
-  {% endcomment %}
-  <details id="legality" class="surface-parchment mt-6 p-6" {% if legality_problems %}open{% endif %}>
-    <summary class="cursor-pointer font-display text-xl text-ink-900">{% translate "Commander legality" %}</summary>
-    <ul class="mt-4 space-y-3">
-      {% for verdict in analysis.legality %}
-        <li class="border-b border-parchment-300 pb-3 last:border-0">
-          <p class="text-ink-900">
-            {% if verdict.ok %}
-              <span class="text-verdigris-800">✓</span>
-            {% else %}
-              <span class="text-blood-700">!</span>
-            {% endif %}
-            <strong>{{ verdict.message }}</strong>
-          </p>
-          <p class="mt-1 text-sm text-ink-700">{{ verdict.detail }}</p>
-        </li>
-      {% endfor %}
-    </ul>
-  </details>
   <details class="mt-6 border-l-2 border-parchment-600 pl-5">
     <summary class="cursor-pointer font-display text-xl text-parchment-100">{% translate "What the engine cannot model" %}</summary>
+    {% include "simulations/_blindspots.html" %}
     {% comment %}
       One source with the red marker (P20 F4, E1.35): the review queue. The
       sentence once counted the card reader's own flag, and said "0 of 99"
@@ -344,7 +345,6 @@
         {% endblocktranslate %}
       </p>
     {% endif %}
-    {% include "simulations/_blindspots.html" %}
     {% if last_import %}
       <p class="mt-3 text-sm text-parchment-200">
         {% url 'decks:review' last_import.id as review_url %}

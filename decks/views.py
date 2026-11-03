@@ -45,7 +45,7 @@ from decks.models import (
     printings_shown,
 )
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
-from simulations import blindspots, deck_cards, review, summary
+from simulations import blindspots, deck_cards, report, review, summary
 from simulations.engine import adapter
 from simulations.forms import RunForm
 from simulations.models import SimulationRun
@@ -183,6 +183,10 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         context["summary_due"] = not user.is_guest and summary.due(user, deck)
         context["runs"] = runs = list(deck.runs.all()[:5])
         context.update(self.last_run_context(deck, runs))
+        # The bracket tile: the Game Changers' floor beside the last run's speed,
+        # which the report's bracket section used to say alone.
+        last_run = context["last_run"]
+        context["speed"] = report.run_brackets(last_run) if last_run and last_run.result else None
         # Sessions, not games: a playtest is one game played by hand and is
         # resumed rather than re-run, so the list is of things to go back to.
         context["playtests"] = deck.playtests.all()[:5]

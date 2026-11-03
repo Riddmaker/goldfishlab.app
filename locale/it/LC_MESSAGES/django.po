@@ -14300,3 +14300,55 @@ msgstr "Scrivilo qui"
 #: decks/forms.py
 msgid "That is not the word, so nothing was deleted."
 msgstr "Non è la parola, quindi non è stato eliminato nulla."
+
+#: templates/decks/detail.html
+msgid "by speed: simulate to see"
+msgstr "per velocità: simula per scoprirlo"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "by speed: at least %(number)s (last run)"
+msgstr "per velocità: almeno %(number)s (ultima simulazione)"
+
+#: templates/decks/detail.html
+msgid "by speed: not measured in the last run"
+msgstr "per velocità: non misurata nell'ultima simulazione"
+
+#: templates/simulations/_advanced.html
+msgid "Speed and the brackets, mana and lands turn by turn, engine and seed"
+msgstr "Velocità e bracket, mana e terre turno per turno, motore e seed"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, mana and lands turn by turn, what the engine cannot "
+"model, engine and seed"
+msgstr ""
+"Velocità e bracket, mana e terre turno per turno, cosa il motore non può "
+"modellare, motore e seed"
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"<strong class=\"text-parchment-100\">This is normal.</strong> Every deck has"
+" cards a game without opponents cannot fully play, for every player alike. "
+"It says nothing against your deck."
+msgstr ""
+"<strong class=\"text-parchment-100\">È normale.</strong> Ogni mazzo ha carte"
+" che una partita senza avversari non può giocare del tutto, per tutti i "
+"giocatori allo stesso modo. Non dice nulla contro il tuo mazzo."
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"What the engine does well: it plays your lands, mana, ramp and draws turn by"
+" turn, thousands of times, by the Commander rules."
+msgstr ""
+"Cosa il motore fa bene: gioca le tue terre, il mana, il ramp e le pescate "
+"turno per turno, migliaia di volte, secondo le regole del Commander."
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"What goldfishing is for: how reliably your deck gets going - how soon the "
+"mana, the cards and the commander are there - before anybody interferes."
+msgstr ""
+"A cosa serve il goldfishing: quanto affidabilmente il tuo mazzo si avvia - "
+"quanto presto arrivano il mana, le carte e il comandante - prima che "
+"qualcuno intervenga."

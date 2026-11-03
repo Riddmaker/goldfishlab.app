@@ -12604,3 +12604,48 @@ msgstr "ここに入力"
 #: decks/forms.py
 msgid "That is not the word, so nothing was deleted."
 msgstr "言葉が違うため、何も削除されていません。"
+
+#: templates/decks/detail.html
+msgid "by speed: simulate to see"
+msgstr "速度：シミュレーションで確認"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "by speed: at least %(number)s (last run)"
+msgstr "速度：%(number)s 以上（前回のシミュレーション）"
+
+#: templates/decks/detail.html
+msgid "by speed: not measured in the last run"
+msgstr "速度：前回のシミュレーションでは未測定"
+
+#: templates/simulations/_advanced.html
+msgid "Speed and the brackets, mana and lands turn by turn, engine and seed"
+msgstr "速度とブラケット、ターンごとのマナと土地、エンジンとシード"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, mana and lands turn by turn, what the engine cannot "
+"model, engine and seed"
+msgstr "速度とブラケット、ターンごとのマナと土地、エンジンが再現できないこと、エンジンとシード"
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"<strong class=\"text-parchment-100\">This is normal.</strong> Every deck has"
+" cards a game without opponents cannot fully play, for every player alike. "
+"It says nothing against your deck."
+msgstr ""
+"<strong class=\"text-"
+"parchment-100\">これは普通のことです。</strong>どのデッキにも、対戦相手のいないゲームでは完全には使えないカードがあり、誰にとっても同じです。あなたのデッキの欠点ではありません。"
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"What the engine does well: it plays your lands, mana, ramp and draws turn by"
+" turn, thousands of times, by the Commander rules."
+msgstr "エンジンが得意なこと：土地、マナ、ランプ、ドローをターンごとに、統率者戦のルールで何千回もプレイします。"
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"What goldfishing is for: how reliably your deck gets going - how soon the "
+"mana, the cards and the commander are there - before anybody interferes."
+msgstr ""
+"ゴールドフィッシュの目的：誰にも邪魔されない状態で、デッキがどれだけ安定して動き出すか（マナ、カード、統率者がどれだけ早く揃うか）を知ることです。"

@@ -1,58 +1,67 @@
 {% comment %}
-  The named blind spots. Expects `blindspots` and `deck` in the context. The
-  intro that used to sit here is on the methodology page (#blind-spots,
-  phase 9 H).
+  "What the engine cannot model", the same on the deck page and in the run's
+  "Advanced" fold. Expects `blindspots` and `deck` in the context; the page
+  gives the heading and the fold around it.
+
+  It opens by saying this is normal (Themen-Doc, Deckseite): a first visit read
+  the list as a verdict on the deck. Then what the engine does well and what
+  goldfishing is for, in one sentence each.
 
   Each entry names the limitation, says what it costs, lists the cards it
   applies to, and links to the one field that answers it - because a warning
   with no way to act on it is just a disclaimer, and people learn to skip
-  disclaimers.
-
-  On the run page it sits inside the closed "Advanced" fold (phase 10, K6).
-  That reverses an earlier rule - "not a footnote, not behind a tab" - on the
-  user's own test: a first visit read the panel as noise above the numbers it
-  qualifies, and what a person can act on now opens the report instead, in
-  "Cards that need your attention". The deck page still shows it open.
+  disclaimers. The explanation stands in the text: it used to sit in a "Why?"
+  fold of its own, a fold inside the fold.
 {% endcomment %}
 {% load i18n %}
-{% if blindspots %}
-  <section class="mt-6 border-l-2 border-blood-600 pl-5">
-    <h2 class="font-display text-2xl text-parchment-100">{% translate "What this simulation does not model" %}</h2>
-    <p class="mt-2 text-sm text-parchment-200">
-      {% translate "The cards a goldfish game cannot fully play." %}
-      {% include "core/_why.html" with anchor="blind-spots" dark=True %}
-    </p>
-    {% for spot in blindspots %}
-      <div class="mt-6">
-        <h3 class="font-display text-lg text-parchment-100">
-          {% blocktranslate trimmed with heading=spot.heading count count=spot.count %}
-            {{ heading }} — <span class="tabular">{{ count }}</span> card
-          {% plural %}
-            {{ heading }} — <span class="tabular">{{ count }}</span> cards
+<div class="text-parchment-200" data-limits>
+  <p class="mt-3">
+    {% blocktranslate trimmed %}
+      <strong class="text-parchment-100">This is normal.</strong> Every deck has cards a
+      game without opponents cannot fully play, for every player alike. It says nothing
+      against your deck.
+    {% endblocktranslate %}
+  </p>
+  <p class="mt-2">
+    {% blocktranslate trimmed %}
+      What the engine does well: it plays your lands, mana, ramp and draws turn by turn,
+      thousands of times, by the Commander rules.
+    {% endblocktranslate %}
+  </p>
+  <p class="mt-2">
+    {% blocktranslate trimmed %}
+      What goldfishing is for: how reliably your deck gets going - how soon the mana, the
+      cards and the commander are there - before anybody interferes.
+    {% endblocktranslate %}
+    {% include "core/_why.html" with anchor="blind-spots" dark=True %}
+  </p>
+  {% for spot in blindspots %}
+    <div class="mt-6 border-l-2 border-blood-600 pl-4" data-blindspot>
+      <h3 class="font-display text-lg text-parchment-100">
+        {% blocktranslate trimmed with heading=spot.heading count count=spot.count %}
+          {{ heading }} — <span class="tabular">{{ count }}</span> card
+        {% plural %}
+          {{ heading }} — <span class="tabular">{{ count }}</span> cards
+        {% endblocktranslate %}
+      </h3>
+      <p class="mt-1 text-sm">
+        {{ spot.detail }}
+        {% if spot.fix %}
+          {% blocktranslate trimmed with field=spot.fix %}
+            Answered by the <strong class="text-parchment-100">“{{ field }}”</strong> field
+            on each card.
           {% endblocktranslate %}
-        </h3>
-        <details class="mt-1 text-sm text-parchment-200">
-          <summary class="cursor-pointer underline">{% translate "Why?" %}</summary>
-          <p class="mt-1">{{ spot.detail }}</p>
-          {% if spot.fix %}
-            <p class="mt-2">
-              {% blocktranslate trimmed with field=spot.fix %}
-                Answered by the <strong class="text-parchment-100">“{{ field }}”</strong> field
-                on each card.
-              {% endblocktranslate %}
-            </p>
-          {% endif %}
-        </details>
-        <ul class="mt-3 space-y-1 text-sm text-parchment-200">
-          {% for suspect in spot.suspects %}
-            <li>
-              <a href="{% url 'simulations:annotate' deck.id suspect.oracle_id %}"
-                 class="text-parchment-100 underline">{{ suspect.name }}</a>
-              — {{ suspect.reason }}
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endfor %}
-  </section>
-{% endif %}
+        {% endif %}
+      </p>
+      <ul class="mt-3 space-y-1 text-sm">
+        {% for suspect in spot.suspects %}
+          <li>
+            <a href="{% url 'simulations:annotate' deck.id suspect.oracle_id %}"
+               class="text-parchment-100 underline">{{ suspect.name }}</a>
+            — {{ suspect.reason }}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endfor %}
+</div>

@@ -14499,3 +14499,56 @@ msgstr "Tapez-le ici"
 #: decks/forms.py
 msgid "That is not the word, so nothing was deleted."
 msgstr "Ce n'est pas le mot, rien n'a donc été supprimé."
+
+#: templates/decks/detail.html
+msgid "by speed: simulate to see"
+msgstr "par la vitesse : lancez une simulation pour le voir"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "by speed: at least %(number)s (last run)"
+msgstr "par la vitesse : au moins %(number)s (dernière simulation)"
+
+#: templates/decks/detail.html
+msgid "by speed: not measured in the last run"
+msgstr "par la vitesse : non mesuré lors de la dernière simulation"
+
+#: templates/simulations/_advanced.html
+msgid "Speed and the brackets, mana and lands turn by turn, engine and seed"
+msgstr "Vitesse et brackets, mana et terrains tour par tour, moteur et graine"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, mana and lands turn by turn, what the engine cannot "
+"model, engine and seed"
+msgstr ""
+"Vitesse et brackets, mana et terrains tour par tour, ce que le moteur ne "
+"peut pas modéliser, moteur et graine"
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"<strong class=\"text-parchment-100\">This is normal.</strong> Every deck has"
+" cards a game without opponents cannot fully play, for every player alike. "
+"It says nothing against your deck."
+msgstr ""
+"<strong class=\"text-parchment-100\">C'est normal.</strong> Chaque deck a "
+"des cartes qu'une partie sans adversaire ne peut pas jouer entièrement, pour"
+" tous les joueurs. Cela ne dit rien contre votre deck."
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"What the engine does well: it plays your lands, mana, ramp and draws turn by"
+" turn, thousands of times, by the Commander rules."
+msgstr ""
+"Ce que le moteur fait bien : il joue vos terrains, votre mana, votre rampe "
+"et votre pioche tour par tour, des milliers de fois, selon les règles du "
+"Commander."
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"What goldfishing is for: how reliably your deck gets going - how soon the "
+"mana, the cards and the commander are there - before anybody interferes."
+msgstr ""
+"À quoi sert le goldfishing : voir avec quelle régularité votre deck démarre "
+"- à quel moment le mana, les cartes et le commandant sont là - avant que "
+"quiconque n'intervienne."

@@ -15670,15 +15670,6 @@ msgstr ""
 "Precons lässt dieses Precon weg, und mit weniger als fünf gespielten Precons"
 " gibt es nichts zum Vergleichen."
 
-#: templates/simulations/_report.html
-#, python-format
-msgid ""
-"How fast your deck comes back when an opponent hits it: the same games, once"
-" struck, compared on turn %(turn)s."
-msgstr ""
-"Wie schnell dein Deck zurückkommt, wenn ein Gegner zuschlägt: dieselben "
-"Spiele, einmal getroffen, verglichen in Zug %(turn)s."
-
 #: simulations/report.py
 #, python-format
 msgid "Without the wipe: %(base)s."
@@ -15710,3 +15701,12 @@ msgstr ""
 " Deck zurückkommt: beim Commander der Anteil der Spiele, in denen er bis zum"
 " letzten Zug wieder da war; beim Wipe das Mana in diesem Zug. «Die Zahlen» "
 "darunter stellen dieselben Spiele nebeneinander, mit dem Schlag und ohne."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How fast your deck comes back when an opponent hits it: the same games, once"
+" struck, side by side on turn %(turn)s."
+msgstr ""
+"Wie schnell dein Deck zurückkommt, wenn ein Gegner zuschlägt: dieselben "
+"Spiele, einmal getroffen, nebeneinander in Zug %(turn)s."

@@ -15596,15 +15596,6 @@ msgstr ""
 "precon lascia fuori quel precon, e con meno di cinque precon giocati non c'è"
 " niente da confrontare."
 
-#: templates/simulations/_report.html
-#, python-format
-msgid ""
-"How fast your deck comes back when an opponent hits it: the same games, once"
-" struck, compared on turn %(turn)s."
-msgstr ""
-"Quanto in fretta il tuo mazzo si riprende quando un avversario lo colpisce: "
-"le stesse partite, una volta colpite, confrontate al turno %(turn)s."
-
 #: simulations/report.py
 #, python-format
 msgid "Without the wipe: %(base)s."
@@ -15636,3 +15627,12 @@ msgstr ""
 "mazzo si riprende: per il comandante, la quota di partite in cui era tornato"
 " entro l'ultimo turno; per la spazzata, il mana in quel turno. «I numeri» "
 "sotto mettono le stesse partite fianco a fianco, con il colpo e senza."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How fast your deck comes back when an opponent hits it: the same games, once"
+" struck, side by side on turn %(turn)s."
+msgstr ""
+"Quanto in fretta il tuo mazzo si riprende quando un avversario lo colpisce: "
+"le stesse partite, una volta colpite, fianco a fianco al turno %(turn)s."

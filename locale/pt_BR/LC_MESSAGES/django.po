@@ -15499,15 +15499,6 @@ msgstr ""
 "esse precon de fora, e com menos de cinco precons jogados não há nada para "
 "comparar."
 
-#: templates/simulations/_report.html
-#, python-format
-msgid ""
-"How fast your deck comes back when an opponent hits it: the same games, once"
-" struck, compared on turn %(turn)s."
-msgstr ""
-"Quão rápido o seu deck volta quando um oponente o atinge: as mesmas "
-"partidas, uma vez atingidas, comparadas no turno %(turn)s."
-
 #: simulations/report.py
 #, python-format
 msgid "Without the wipe: %(base)s."
@@ -15539,3 +15530,12 @@ msgstr ""
 "volta: para o comandante, a parcela de partidas em que ele voltou até o "
 "último turno; para o board wipe, a mana nesse turno. \"Os números\" abaixo "
 "colocam as mesmas partidas lado a lado, com o golpe e sem ele."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How fast your deck comes back when an opponent hits it: the same games, once"
+" struck, side by side on turn %(turn)s."
+msgstr ""
+"Quão rápido o seu deck volta quando um oponente o atinge: as mesmas "
+"partidas, uma vez atingidas, lado a lado no turno %(turn)s."

@@ -15733,15 +15733,6 @@ msgstr ""
 "«el centro» es el precon del medio. La página de un precon deja fuera ese "
 "precon, y con menos de cinco precons jugados no hay nada con qué comparar."
 
-#: templates/simulations/_report.html
-#, python-format
-msgid ""
-"How fast your deck comes back when an opponent hits it: the same games, once"
-" struck, compared on turn %(turn)s."
-msgstr ""
-"Lo rápido que tu mazo se recupera cuando un oponente lo golpea: las mismas "
-"partidas, una vez golpeadas, comparadas en el turno %(turn)s."
-
 #: simulations/report.py
 #, python-format
 msgid "Without the wipe: %(base)s."
@@ -15773,3 +15764,12 @@ msgstr ""
 " mazo se recupera: para el comandante, la parte de partidas en que volvió "
 "para el último turno; para el barrido, el maná en ese turno. «Las cifras» "
 "debajo ponen las mismas partidas lado a lado, con el golpe y sin él."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How fast your deck comes back when an opponent hits it: the same games, once"
+" struck, side by side on turn %(turn)s."
+msgstr ""
+"Lo rápido que tu mazo se recupera cuando un oponente lo golpea: las mismas "
+"partidas, una vez golpeadas, lado a lado en el turno %(turn)s."

@@ -100,6 +100,20 @@ def test_a_guest_is_another_guest_and_is_not_a_new_user(catalogue):
     assert "A new user joined." not in lines
 
 
+def test_the_labs_own_account_is_not_news(catalogue):
+    # The precons' runs belong to the site's own account (`is_system`); a
+    # batch of them would fill every line.
+    lab = User.objects.create_user(email="lab@example.com", password="pw-test-1234",
+                                   is_system=True)
+    deck = _deck(lab)
+    _run(deck)
+    PlaytestSession.objects.create(deck=deck, owner=lab, seed=1)
+
+    owners = {event.owner_id for event in ticker.lines_for(AnonymousUser())}
+
+    assert lab.pk not in owners
+
+
 def test_a_new_account_is_news_and_a_deck_without_a_commander_is_a_deck(catalogue):
     owner = _user("bob@example.com")
     deck = _deck(owner)

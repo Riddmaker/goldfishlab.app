@@ -6,7 +6,8 @@ new accounts - never a model of its own. A line names nobody: the actor is
 is no time on it, so a line cannot be matched to a person by the minute.
 
 Robust under load: `recent()` merges the newest `KEEP` events across the
-sources at most once a `REFRESH` and keeps them in the cache. A request only
+sources at most once a `REFRESH` and keeps them in the cache. The site's own
+account (`is_system`, the precons' runs) is not news and never shows. A request only
 filters out the viewer's own events and slices (`lines_for`), so a crowd on
 the home page costs the database nothing more.
 
@@ -106,6 +107,7 @@ def _key(kind: str, pk, at: datetime) -> str:
 
 
 def _rows(queryset, *fields):
+    queryset = queryset.filter(owner__is_system=False)
     return queryset.values("pk", "owner_id", "at", "owner__is_guest", *fields)[:KEEP]
 
 
@@ -133,7 +135,7 @@ def build() -> list[Event]:
         "commander",
     )
     joins = (
-        get_user_model().objects.filter(is_guest=False)
+        get_user_model().objects.filter(is_guest=False, is_system=False)
         .annotate(at=F("date_joined")).order_by("-date_joined").values("pk", "at")[:KEEP]
     )
 

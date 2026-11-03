@@ -86,18 +86,49 @@ def _result(groups: dict) -> dict:
             "seen": {key: {"games": [1, 2], "cards": [1, 2]} for key in groups}}
 
 
-def test_the_mechanics_have_a_chart_of_their_own_and_an_old_run_none():
+def test_strategies_and_mechanics_share_one_chart_and_an_old_run_has_neither():
     seen = report.seen(_result(["role:sac_outlet", "role:lifegain", "role:tax"]))
-    assert [line.key for line in seen["strategies"].lines] == ["sac_outlet"]
-    assert [line.key for line in seen["mechanics"].lines] == ["lifegain", "tax"]
-    old = report.seen(_result(["role:sac_outlet"]))
-    assert not old["mechanics"].lines
+    assert [line.key for line in seen["blocks"].lines] == ["sac_outlet", "lifegain", "tax"]
+    old = report.seen(_result(["role:ramp"]))
+    assert not old["blocks"].lines
+
+
+def _shares(finals: dict) -> dict:
+    """A run of 100 games over one turn, each group seen in `finals[key]` games."""
+    return {"iterations": 100, "turns": 1,
+            "seen": {f"role:{key}": {"games": [games], "cards": [games]}
+                     for key, games in finals.items()}}
+
+
+def test_building_blocks_draw_the_eight_most_seen_and_name_the_rest():
+    keys = [key for key, _ in report.SEEN_STRATEGY_ROLES + report.SEEN_MECHANIC_ROLES]
+    seen = report.seen(_shares({key: 10 + 5 * index for index, key in enumerate(keys)}))
+
+    drawn = [line.key for line in seen["blocks"].lines]
+    assert drawn == keys[::-1][:report.BLOCK_LINES]
+    assert [line.index for line in seen["blocks"].lines] == list(range(report.BLOCK_LINES))
+    labels = dict(report.SEEN_STRATEGY_ROLES + report.SEEN_MECHANIC_ROLES)
+    assert seen["blocks_rest"] == [labels[key] for key in keys[::-1][report.BLOCK_LINES:]]
+    # "The numbers" keep every one, in the chart's order.
+    assert [row["label"] for row in seen["block_rows"]] == [labels[key] for key in keys[::-1]]
+
+
+def test_a_tie_keeps_the_catalogue_order():
+    seen = report.seen(_shares({"tax": 50, "sac_outlet": 50, "lifegain": 50}))
+
+    assert [line.key for line in seen["blocks"].lines] == ["sac_outlet", "lifegain", "tax"]
+    assert seen["blocks_rest"] == []
+
+
+def test_every_building_block_explains_itself():
+    keys = {key for key, _ in report.SEEN_STRATEGY_ROLES + report.SEEN_MECHANIC_ROLES}
+    assert set(report.BLOCK_INFO) == keys
 
 
 def test_a_chart_never_needs_more_lines_than_it_has_colours():
     # assets/css/input.css styles .seen-line-0 to .seen-line-7.
-    for roles in (report.SEEN_ROLES, report.SEEN_STRATEGY_ROLES, report.SEEN_MECHANIC_ROLES):
-        assert len(roles) <= 8
+    assert len(report.SEEN_ROLES) <= 8
+    assert report.BLOCK_LINES == 8
 
 
 # --- in a deck ---------------------------------------------------------------------------

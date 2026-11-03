@@ -162,6 +162,12 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   under `prefers-reduced-motion`). No commander: the slot stays, dashed and empty, the fan
   behind it all the same. Scryfall's small pictures, lazily; hidden from screen readers, since
   the name beside it is the link and says the same.
+- **Theme chips** (`decks/_themes.html`, `.deck-theme*`, Themen-Doc Paket 1): "Built around"
+  at the top of "What is in it". A theme is a chip that opens, a `<details>` with no script. The
+  level is always the word on the chip; the border only repeats it - thick and parchment-200
+  for strong, solid for medium, dashed for hinted. Open, it takes the whole row: the sentence,
+  each piece as "8, wants 6" with its cards, and the number folded under "Advanced". No theme
+  is a sentence, never a guess.
 - **The card grid** (`decks/_card_grid.html`, `.card-grid*`): card pictures, three across on a
   phone; the same marker words on a card ("! needs you", "✓ answered"), "×2" for a quantity.
   Filter chips reuse the chart chips. Every picture has its card name as `alt` and loads lazily.

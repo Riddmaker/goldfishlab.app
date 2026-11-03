@@ -217,7 +217,8 @@
     </section>
     <section class="surface-parchment p-6">
       <h2 class="font-display text-2xl text-ink-900">{% translate "What is in it" %}</h2>
-      <p class="mt-1 text-sm text-ink-700">
+      {% include "decks/_themes.html" %}
+      <p class="mt-4 text-sm text-ink-700">
         <span class="deck-bar-key" role="presentation"></span>
         {% translate "a common template, not a rule. Click a row to see its cards." %}
       </p>

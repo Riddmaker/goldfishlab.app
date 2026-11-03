@@ -21,7 +21,7 @@ Concept and decisions: the Themen-Doc, section "Paket 1 «Deck verstehen»: Konz
 | PR | What | State |
 |----|------|-------|
 | 1 | `cards/themes.py` catalogue and `detect`; `decks/themes.py`; `manage.py themes_report`; `tests/test_themes.py` | done |
-| 2 | Theme chips in "What is in it"; one "Building blocks" chart instead of strategy and mechanic | open |
+| 2 | Theme chips in "What is in it"; one "Building blocks" chart instead of strategy and mechanic | done |
 | 3 | Synergy pairs and engines; the "Combos & engines" section | open |
 | 4 | Lock-in: model, three states, buttons | open |
 | 5 | Measure engines in the simulation | open |
@@ -58,3 +58,18 @@ Concept and decisions: the Themen-Doc, section "Paket 1 «Deck verstehen»: Konz
 - **Slug drift:** a test checks every slug against the fixture. `manage.py themes_report`
   warns about slugs missing from a live catalogue.
   - The local development database holds only a 100-card extract, so it always warns.
+
+## How PR 2 works
+
+- **Deck page:** `DeckDetailView` puts `deck_themes(deck)` in the context (two queries, the
+  count does not grow with the deck). `templates/decks/_themes.html` draws "Built around" at the
+  top of "What is in it":
+  - each theme is a `<details>` chip, the level as a word (strong, medium, hinted);
+  - opened, it shows the sentence, each piece as "8, wants 6" with its cards, and the fill
+    under "Advanced";
+  - no theme is a sentence: "No theme we know of."
+- **Simulation page:** `report.seen()` returns `blocks` (strategies and mechanics in one chart,
+  sorted by the share on the last turn, at most `BLOCK_LINES` = 8 lines, as a chart has eight
+  colours), `blocks_rest` (the labels left out, named under the chart) and `block_rows` (every
+  one, for "The numbers"). Old runs work: the stored `role:<key>` groups did not change.
+- **Words:** the methodology page has a paragraph for each; every string is in the six languages.

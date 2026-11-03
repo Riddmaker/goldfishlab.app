@@ -22,7 +22,9 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
+from cards.themes import HINT, MEDIUM, STRONG, Found, Part
 from decks import services as deck_services
+from decks.themes import deck_themes
 from simulations import deck_cards, review, services
 from simulations.engine import adapter
 from simulations.engine.adapter import DECK_SCOPE
@@ -308,3 +310,59 @@ def test_the_deck_page_and_its_grid_do_not_query_per_card(client_in, deck):
 
     assert len(extra) == 10
     assert after == before, f"queries grew with the deck: {before} -> {after}"
+
+
+# --- "Built around" (Themen-Doc, Paket 1, PR 2) -------------------------------------------
+
+
+def _theme(level=STRONG, cards=("Blood Artist",), **extra):
+    return Found("aristocrats", "Aristocrats", "Sacrifices its own creatures on purpose.",
+                 level, 0.8, (Part("payoff", "Pays off when a creature dies", len(cards), 6,
+                                   tuple(cards)),
+                              Part("outlet", "Sacrifice outlet", 0, 3, ())), **extra)
+
+
+def test_a_theme_is_a_chip_with_its_level_in_words(client_in, deck, monkeypatch):
+    monkeypatch.setattr("decks.views.deck_themes", lambda _deck: [
+        _theme(), _theme(MEDIUM), _theme(HINT)])
+
+    body = client_in.get(deck.get_absolute_url()).content.decode()
+
+    assert "Built around" in body
+    for level, word in ((STRONG, "strong"), (MEDIUM, "medium"), (HINT, "hinted")):
+        assert f"deck-theme-{level}" in body
+        assert body.count(f"· {word}</span>") == 1
+    assert "1, wants 6" in body and "Blood Artist" in body and "No card yet." in body
+    assert "Fill 0.80" in body
+
+
+def test_a_typal_theme_names_its_type(client_in, deck, monkeypatch):
+    monkeypatch.setattr("decks.views.deck_themes", lambda _deck: [
+        _theme(subject="Angel")])
+
+    assert "Aristocrats Angel" in client_in.get(deck.get_absolute_url()).content.decode()
+
+
+def test_no_theme_is_said_not_guessed(client_in, deck, monkeypatch):
+    monkeypatch.setattr("decks.views.deck_themes", lambda _deck: [])
+
+    body = client_in.get(deck.get_absolute_url()).content.decode()
+
+    assert "No theme we know of" in body
+    assert "deck-theme-chip" not in body
+
+
+def test_a_card_name_in_a_theme_is_escaped(client_in, deck, monkeypatch):
+    monkeypatch.setattr("decks.views.deck_themes", lambda _deck: [
+        _theme(cards=("<script>alert(1)</script>",))])
+
+    body = client_in.get(deck.get_absolute_url()).content.decode()
+
+    assert "<script>alert(1)</script>" not in body
+    assert "&lt;script&gt;" in body
+
+
+def test_the_page_reads_the_deck_s_own_themes(client_in, deck):
+    response = client_in.get(deck.get_absolute_url())
+
+    assert response.context["themes"] == deck_themes(deck)

@@ -12871,3 +12871,294 @@ msgstr "マジック全般のニュースと話題。"
 #: core/resources.py
 msgid "News, budget decks and strategy articles."
 msgstr "ニュース、低予算デッキ、戦略記事。"
+
+#: cards/themes.py
+msgid "Typal"
+msgstr "タイパル"
+
+#: cards/themes.py
+msgid "Aristocrats"
+msgstr "アリストクラッツ"
+
+#: cards/themes.py
+msgid "Reanimator"
+msgstr "リアニメイト"
+
+#: cards/themes.py
+msgid "Spellslinger"
+msgstr "スペルスリンガー"
+
+#: cards/themes.py
+msgid "Landfall"
+msgstr "上陸"
+
+#: cards/themes.py
+msgid "Voltron"
+msgstr "ボルトロン"
+
+#: cards/themes.py
+msgid "Artifacts"
+msgstr "アーティファクト"
+
+#: cards/themes.py
+msgid "Enchantments"
+msgstr "エンチャント"
+
+#: cards/themes.py
+msgid "Runs many creatures of one type, and cards that reward that type."
+msgstr "同じタイプのクリーチャーを多く使い、そのタイプに報酬を与えるカードを入れています。"
+
+#: cards/themes.py
+msgid ""
+"Takes what opponents own - their creatures, their spells, the top of their "
+"library - and plays it for you."
+msgstr "対戦相手のもの（クリーチャー、呪文、ライブラリーの一番上）を奪い、あなたのために使います。"
+
+#: cards/themes.py
+msgid ""
+"Sacrifices its own creatures on purpose, and is paid each time one dies."
+msgstr "自分のクリーチャーをわざと生け贄に捧げ、死亡するたびに見返りを得ます。"
+
+#: cards/themes.py
+msgid "Fills the table with creature tokens and makes them count."
+msgstr "クリーチャー・トークンで場を埋め、その数を活かします。"
+
+#: cards/themes.py
+msgid ""
+"Puts big creatures into its graveyard on purpose, then brings them back "
+"cheaply."
+msgstr "大型クリーチャーをわざと墓地に置き、安く戦場に戻します。"
+
+#: cards/themes.py
+msgid ""
+"Uses its graveyard as a second hand: casts, activates and counts what is in "
+"it."
+msgstr "墓地を第二の手札として使います。そこから唱え、起動し、その枚数を数えます。"
+
+#: cards/themes.py
+msgid "Casts many instants and sorceries, and is rewarded for each one."
+msgstr "インスタントとソーサリーを多く唱え、そのたびに報酬を得ます。"
+
+#: cards/themes.py
+msgid "Puts +1/+1 counters on its creatures and grows them turn after turn."
+msgstr "自分のクリーチャーに+1/+1カウンターを置き、ターンごとに大きくしていきます。"
+
+#: cards/themes.py
+msgid "Plays extra lands and is paid every time one enters."
+msgstr "追加の土地をプレイし、土地が出るたびに見返りを得ます。"
+
+#: cards/themes.py
+msgid ""
+"Dresses up one creature - usually the commander - with Equipment and Auras, "
+"and wins through commander damage."
+msgstr "1体のクリーチャー（たいていは統率者）を装備品とオーラで強化し、統率者ダメージで勝ちます。"
+
+#: cards/themes.py
+msgid "Gains life again and again, and turns each gain into something."
+msgstr "何度もライフを得て、そのたびに何かに変えます。"
+
+#: cards/themes.py
+msgid "Runs many artifacts and counts them."
+msgstr "アーティファクトを多く使い、その数を活かします。"
+
+#: cards/themes.py
+msgid "Runs many enchantments and draws or grows from each one."
+msgstr "エンチャントを多く使い、そのたびにドローしたり強くなったりします。"
+
+#: cards/themes.py
+msgid ""
+"Makes Treasure tokens again and again, and spends or sacrifices them for "
+"more."
+msgstr "宝物トークンを何度も生成し、使ったり生け贄に捧げたりしてさらに得をします。"
+
+#: cards/themes.py
+msgid "Creatures of the type"
+msgstr "そのタイプのクリーチャー"
+
+#: cards/themes.py
+msgid "Rewards that type"
+msgstr "そのタイプに報酬"
+
+#: cards/themes.py
+msgid "Takes control or casts their cards"
+msgstr "コントロールを奪うか、相手のカードを唱える"
+
+#: cards/themes.py
+msgid "Sacrifices what it took"
+msgstr "奪ったものを生け贄に捧げる"
+
+#: cards/themes.py
+msgid "Pays off when a creature dies"
+msgstr "クリーチャーが死亡すると見返り"
+
+#: cards/themes.py
+msgid "Makes bodies to sacrifice"
+msgstr "生け贄用の体を作る"
+
+#: cards/themes.py
+msgid "Makes creature tokens"
+msgstr "クリーチャー・トークンを生成"
+
+#: cards/themes.py
+msgid "Gets better with many tokens"
+msgstr "トークンが多いほど強くなる"
+
+#: cards/themes.py
+msgid "Brings creatures back from a graveyard"
+msgstr "墓地からクリーチャーを戻す"
+
+#: cards/themes.py
+msgid "Fills the graveyard"
+msgstr "墓地を肥やす"
+
+#: cards/themes.py
+msgid "Plays from or counts the graveyard"
+msgstr "墓地から使う・墓地を数える"
+
+#: cards/themes.py
+msgid "Rewards casting spells"
+msgstr "呪文を唱えると報酬"
+
+#: cards/themes.py
+msgid "Instants and sorceries"
+msgstr "インスタントとソーサリー"
+
+#: cards/themes.py
+msgid "Cares about counters or doubles them"
+msgstr "カウンターを参照するか倍にする"
+
+#: cards/themes.py
+msgid "Puts +1/+1 counters"
+msgstr "+1/+1カウンターを置く"
+
+#: cards/themes.py
+msgid "Pays off when a land enters"
+msgstr "土地が出ると見返り"
+
+#: cards/themes.py
+msgid "Puts extra lands into play"
+msgstr "追加の土地を出す"
+
+#: cards/themes.py
+msgid "Equipment and Auras for your own creatures"
+msgstr "自分のクリーチャー用の装備品とオーラ"
+
+#: cards/themes.py
+msgid "Gets better when equipped or enchanted"
+msgstr "装備やエンチャントで強くなる"
+
+#: cards/themes.py
+msgid "Keeps that creature safe"
+msgstr "そのクリーチャーを守る"
+
+#: cards/themes.py
+msgid "Pays off when you gain life"
+msgstr "ライフを得ると見返り"
+
+#: cards/themes.py
+msgid "Gains life again and again"
+msgstr "何度もライフを得る"
+
+#: cards/themes.py
+msgid "Counts or rewards artifacts"
+msgstr "アーティファクトを数える・報酬"
+
+#: cards/themes.py
+msgid "Counts or rewards enchantments"
+msgstr "エンチャントを数える・報酬"
+
+#: cards/themes.py
+msgid "Makes Treasure again and again"
+msgstr "何度も宝物を生成"
+
+#: cards/themes.py
+msgid "Rewards Treasure or artifacts leaving"
+msgstr "宝物やアーティファクトが離れると報酬"
+
+#: templates/decks/_themes.html
+msgid "Built around"
+msgstr "デッキのテーマ"
+
+#: templates/decks/_themes.html
+msgid "No card yet."
+msgstr "まだカードがありません。"
+
+#: templates/decks/_themes.html
+#, python-format
+msgid ""
+"Fill %(fill)s: each piece's share of what it needs, the first piece counting"
+" double. Strong from 0.75, medium from 0.5, hinted from 0.4."
+msgstr ""
+"充足度 "
+"%(fill)s：各要素が必要数に対してどれだけ満たされているか（最初の要素は2倍で計算）。0.75以上で強い、0.5以上で中くらい、0.4以上でかすか。"
+
+#: templates/decks/_themes.html
+msgid "No theme we know of. Plenty of good decks have no single plan."
+msgstr "当サイトが知っているテーマはありません。良いデッキでも、ひとつの計画を持たないものはたくさんあります。"
+
+#: templates/simulations/_report.html
+msgid "Building blocks"
+msgstr "構成要素"
+
+#: templates/simulations/_report.html
+msgid ""
+"What the deck's plan is made of. Games with at least one, by the end of each"
+" turn."
+msgstr "デッキの計画を構成する要素です。各ターン終了時までに1枚以上あったゲームの割合。"
+
+#: templates/simulations/_report.html
+msgid "Share of games with at least one card of each building block, by turn"
+msgstr "各構成要素のカードを1枚以上見たゲームの割合（ターン別）"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"Also in the deck, seen less often: %(labels)s. Their numbers are below."
+msgstr "デッキには他にも、見る頻度が低いものがあります：%(labels)s。数値は下にあります。"
+
+#: templates/simulations/_strategies.html
+msgid ""
+"The odds are calculated from your list: a hand of 7, one draw a turn, no "
+"mulligan. What this run measured is in “By category” and “Building blocks” "
+"above."
+msgstr ""
+"確率はリストから計算しています：手札7枚、毎ターン1枚ドロー、マリガンなし。この実行で計測した結果は上の「カテゴリー別」と「構成要素」にあります。"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Building blocks</strong> are the strategies and mechanics in one "
+"chart, the most often seen first. It draws eight lines at most; the rest are"
+" named under it, and its numbers hold every one."
+msgstr ""
+"<strong>構成要素</strong>は、戦略とメカニズムをひとつのグラフにまとめたもので、よく見たものから順に並びます。線は最大8本で、残りはグラフの下に名前を挙げ、数値表にはすべて含まれます。"
+
+#: templates/core/methodology.html
+msgid ""
+"On the deck page, <strong>Built around</strong> names the themes the cards "
+"point to, such as Aristocrats, Landfall or a creature type, read from the "
+"community's card tags. A theme has pieces: the cards that pay off, and the "
+"cards that feed them. It is strong, medium or hinted by how full its pieces "
+"are, the first counting double, and a piece with no card keeps it at hinted."
+" A deck with no theme gets none: we do not guess."
+msgstr ""
+"デッキページの<strong>デッキのテーマ</strong>は、アリストクラッツ、上陸、クリーチャー・タイプなど、カードが示すテーマを挙げます。コミュニティのカードタグから読み取っています。テーマには要素があります：見返りを生むカードと、それを支えるカードです。要素がどれだけ満たされているかで「強い」「中くらい」「かすか」が決まり、最初の要素は2倍で計算します。カードが1枚もない要素があれば「かすか」にとどまります。テーマのないデッキにはテーマを付けません。推測はしません。"
+
+#: templates/decks/_themes.html
+msgctxt "theme level"
+msgid "strong"
+msgstr "強い"
+
+#: templates/decks/_themes.html
+msgctxt "theme level"
+msgid "medium"
+msgstr "中くらい"
+
+#: templates/decks/_themes.html
+msgctxt "theme level"
+msgid "hinted"
+msgstr "かすか"
+
+#: templates/decks/_themes.html
+#, python-format
+msgid "%(count)s, wants %(need)s"
+msgstr "%(count)s（目安 %(need)s）"

@@ -14675,3 +14675,325 @@ msgstr "News und Diskussionen zu ganz Magic."
 #: core/resources.py
 msgid "News, budget decks and strategy articles."
 msgstr "News, Budget-Decks und Strategie-Artikel."
+
+#: cards/themes.py
+msgid "Typal"
+msgstr "Typal"
+
+#: cards/themes.py
+msgid "Aristocrats"
+msgstr "Aristocrats"
+
+#: cards/themes.py
+msgid "Reanimator"
+msgstr "Reanimator"
+
+#: cards/themes.py
+msgid "Spellslinger"
+msgstr "Spellslinger"
+
+#: cards/themes.py
+msgid "Landfall"
+msgstr "Landung"
+
+#: cards/themes.py
+msgid "Voltron"
+msgstr "Voltron"
+
+#: cards/themes.py
+msgid "Artifacts"
+msgstr "Artefakte"
+
+#: cards/themes.py
+msgid "Enchantments"
+msgstr "Verzauberungen"
+
+#: cards/themes.py
+msgid "Runs many creatures of one type, and cards that reward that type."
+msgstr ""
+"Spielt viele Kreaturen eines Typs und Karten, die diesen Typ belohnen."
+
+#: cards/themes.py
+msgid ""
+"Takes what opponents own - their creatures, their spells, the top of their "
+"library - and plays it for you."
+msgstr ""
+"Nimmt, was den Gegnern gehört - ihre Kreaturen, ihre Zauber, die oberste "
+"Karte ihrer Bibliothek - und spielt es für dich."
+
+#: cards/themes.py
+msgid ""
+"Sacrifices its own creatures on purpose, and is paid each time one dies."
+msgstr ""
+"Opfert absichtlich eigene Kreaturen und wird jedes Mal belohnt, wenn eine "
+"stirbt."
+
+#: cards/themes.py
+msgid "Fills the table with creature tokens and makes them count."
+msgstr "Füllt den Tisch mit Kreaturenspielsteinen und lässt sie zählen."
+
+#: cards/themes.py
+msgid ""
+"Puts big creatures into its graveyard on purpose, then brings them back "
+"cheaply."
+msgstr ""
+"Legt absichtlich grosse Kreaturen in den Friedhof und holt sie dann billig "
+"zurück."
+
+#: cards/themes.py
+msgid ""
+"Uses its graveyard as a second hand: casts, activates and counts what is in "
+"it."
+msgstr ""
+"Nutzt den Friedhof als zweite Hand: wirkt, aktiviert und zählt, was darin "
+"liegt."
+
+#: cards/themes.py
+msgid "Casts many instants and sorceries, and is rewarded for each one."
+msgstr "Wirkt viele Spontanzauber und Hexereien und wird für jeden belohnt."
+
+#: cards/themes.py
+msgid "Puts +1/+1 counters on its creatures and grows them turn after turn."
+msgstr ""
+"Legt +1/+1-Marken auf die eigenen Kreaturen und lässt sie Zug um Zug "
+"wachsen."
+
+#: cards/themes.py
+msgid "Plays extra lands and is paid every time one enters."
+msgstr ""
+"Spielt zusätzliche Länder und wird jedes Mal belohnt, wenn eines ins Spiel "
+"kommt."
+
+#: cards/themes.py
+msgid ""
+"Dresses up one creature - usually the commander - with Equipment and Auras, "
+"and wins through commander damage."
+msgstr ""
+"Rüstet eine Kreatur - meist den Commander - mit Ausrüstungen und Auren aus "
+"und gewinnt über Commander-Schaden."
+
+#: cards/themes.py
+msgid "Gains life again and again, and turns each gain into something."
+msgstr "Gewinnt immer wieder Leben und macht aus jedem Gewinn etwas."
+
+#: cards/themes.py
+msgid "Runs many artifacts and counts them."
+msgstr "Spielt viele Artefakte und zählt sie."
+
+#: cards/themes.py
+msgid "Runs many enchantments and draws or grows from each one."
+msgstr "Spielt viele Verzauberungen und zieht Karten oder wächst mit jeder."
+
+#: cards/themes.py
+msgid ""
+"Makes Treasure tokens again and again, and spends or sacrifices them for "
+"more."
+msgstr ""
+"Erzeugt immer wieder Schatz-Spielsteine und gibt sie aus oder opfert sie für"
+" mehr."
+
+#: cards/themes.py
+msgid "Creatures of the type"
+msgstr "Kreaturen des Typs"
+
+#: cards/themes.py
+msgid "Rewards that type"
+msgstr "Belohnt diesen Typ"
+
+#: cards/themes.py
+msgid "Takes control or casts their cards"
+msgstr "Übernimmt die Kontrolle oder wirkt ihre Karten"
+
+#: cards/themes.py
+msgid "Sacrifices what it took"
+msgstr "Opfert, was es genommen hat"
+
+#: cards/themes.py
+msgid "Pays off when a creature dies"
+msgstr "Belohnt, wenn eine Kreatur stirbt"
+
+#: cards/themes.py
+msgid "Makes bodies to sacrifice"
+msgstr "Erzeugt Körper zum Opfern"
+
+#: cards/themes.py
+msgid "Makes creature tokens"
+msgstr "Erzeugt Kreaturenspielsteine"
+
+#: cards/themes.py
+msgid "Gets better with many tokens"
+msgstr "Wird mit vielen Spielsteinen besser"
+
+#: cards/themes.py
+msgid "Brings creatures back from a graveyard"
+msgstr "Holt Kreaturen aus einem Friedhof zurück"
+
+#: cards/themes.py
+msgid "Fills the graveyard"
+msgstr "Füllt den Friedhof"
+
+#: cards/themes.py
+msgid "Plays from or counts the graveyard"
+msgstr "Spielt aus dem Friedhof oder zählt ihn"
+
+#: cards/themes.py
+msgid "Rewards casting spells"
+msgstr "Belohnt das Wirken von Zaubern"
+
+#: cards/themes.py
+msgid "Instants and sorceries"
+msgstr "Spontanzauber und Hexereien"
+
+#: cards/themes.py
+msgid "Cares about counters or doubles them"
+msgstr "Achtet auf Marken oder verdoppelt sie"
+
+#: cards/themes.py
+msgid "Puts +1/+1 counters"
+msgstr "Legt +1/+1-Marken"
+
+#: cards/themes.py
+msgid "Pays off when a land enters"
+msgstr "Belohnt, wenn ein Land ins Spiel kommt"
+
+#: cards/themes.py
+msgid "Puts extra lands into play"
+msgstr "Bringt zusätzliche Länder ins Spiel"
+
+#: cards/themes.py
+msgid "Equipment and Auras for your own creatures"
+msgstr "Ausrüstungen und Auren für eigene Kreaturen"
+
+#: cards/themes.py
+msgid "Gets better when equipped or enchanted"
+msgstr "Wird besser, wenn ausgerüstet oder verzaubert"
+
+#: cards/themes.py
+msgid "Keeps that creature safe"
+msgstr "Schützt diese Kreatur"
+
+#: cards/themes.py
+msgid "Pays off when you gain life"
+msgstr "Belohnt, wenn du Leben gewinnst"
+
+#: cards/themes.py
+msgid "Gains life again and again"
+msgstr "Gewinnt immer wieder Leben"
+
+#: cards/themes.py
+msgid "Counts or rewards artifacts"
+msgstr "Zählt oder belohnt Artefakte"
+
+#: cards/themes.py
+msgid "Counts or rewards enchantments"
+msgstr "Zählt oder belohnt Verzauberungen"
+
+#: cards/themes.py
+msgid "Makes Treasure again and again"
+msgstr "Erzeugt immer wieder Schätze"
+
+#: cards/themes.py
+msgid "Rewards Treasure or artifacts leaving"
+msgstr "Belohnt, wenn Schätze oder Artefakte das Spiel verlassen"
+
+#: templates/decks/_themes.html
+msgid "Built around"
+msgstr "Gebaut um"
+
+#: templates/decks/_themes.html
+msgid "No card yet."
+msgstr "Noch keine Karte."
+
+#: templates/decks/_themes.html
+#, python-format
+msgid ""
+"Fill %(fill)s: each piece's share of what it needs, the first piece counting"
+" double. Strong from 0.75, medium from 0.5, hinted from 0.4."
+msgstr ""
+"Füllung %(fill)s: der Anteil jedes Bausteins an dem, was er braucht, der "
+"erste zählt doppelt. Stark ab 0,75, mittel ab 0,5, angedeutet ab 0,4."
+
+#: templates/decks/_themes.html
+msgid "No theme we know of. Plenty of good decks have no single plan."
+msgstr ""
+"Kein Theme, das wir kennen. Viele gute Decks haben keinen einzelnen Plan."
+
+#: templates/simulations/_report.html
+msgid "Building blocks"
+msgstr "Bausteine"
+
+#: templates/simulations/_report.html
+msgid ""
+"What the deck's plan is made of. Games with at least one, by the end of each"
+" turn."
+msgstr ""
+"Woraus der Plan des Decks besteht. Spiele mit mindestens einer, am Ende "
+"jedes Zugs."
+
+#: templates/simulations/_report.html
+msgid "Share of games with at least one card of each building block, by turn"
+msgstr "Anteil der Spiele mit mindestens einer Karte jedes Bausteins, pro Zug"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"Also in the deck, seen less often: %(labels)s. Their numbers are below."
+msgstr "Auch im Deck, seltener gesehen: %(labels)s. Ihre Zahlen stehen unten."
+
+#: templates/simulations/_strategies.html
+msgid ""
+"The odds are calculated from your list: a hand of 7, one draw a turn, no "
+"mulligan. What this run measured is in “By category” and “Building blocks” "
+"above."
+msgstr ""
+"Die Wahrscheinlichkeiten sind aus deiner Liste berechnet: eine Hand mit 7 "
+"Karten, eine Karte pro Zug, kein Mulligan. Was dieser Lauf gemessen hat, "
+"steht oben unter „Nach Kategorie“ und „Bausteine“."
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Building blocks</strong> are the strategies and mechanics in one "
+"chart, the most often seen first. It draws eight lines at most; the rest are"
+" named under it, and its numbers hold every one."
+msgstr ""
+"<strong>Bausteine</strong> sind die Strategien und Mechaniken in einem "
+"Diagramm, die am häufigsten gesehenen zuerst. Es zeichnet höchstens acht "
+"Linien; die übrigen werden darunter genannt, und seine Zahlen enthalten "
+"alle."
+
+#: templates/core/methodology.html
+msgid ""
+"On the deck page, <strong>Built around</strong> names the themes the cards "
+"point to, such as Aristocrats, Landfall or a creature type, read from the "
+"community's card tags. A theme has pieces: the cards that pay off, and the "
+"cards that feed them. It is strong, medium or hinted by how full its pieces "
+"are, the first counting double, and a piece with no card keeps it at hinted."
+" A deck with no theme gets none: we do not guess."
+msgstr ""
+"Auf der Deck-Seite nennt <strong>Gebaut um</strong> die Themes, auf die die "
+"Karten zeigen, etwa Aristocrats, Landung oder einen Kreaturentyp, gelesen "
+"aus den Karten-Tags der Community. Ein Theme hat Bausteine: die Karten, die "
+"belohnen, und die Karten, die sie füttern. Es ist stark, mittel oder "
+"angedeutet, je nachdem, wie voll seine Bausteine sind; der erste zählt "
+"doppelt, und ein Baustein ohne Karte hält es bei angedeutet. Ein Deck ohne "
+"Theme bekommt keines: Wir raten nicht."
+
+#: templates/decks/_themes.html
+msgctxt "theme level"
+msgid "strong"
+msgstr "stark"
+
+#: templates/decks/_themes.html
+msgctxt "theme level"
+msgid "medium"
+msgstr "mittel"
+
+#: templates/decks/_themes.html
+msgctxt "theme level"
+msgid "hinted"
+msgstr "angedeutet"
+
+#: templates/decks/_themes.html
+#, python-format
+msgid "%(count)s, wants %(need)s"
+msgstr "%(count)s, braucht %(need)s"

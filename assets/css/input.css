@@ -1381,6 +1381,61 @@ body {
   vertical-align: middle;
 }
 
+/* "Built around" (Themen-Doc, Paket 1, PR 2): a theme is a chip that opens.
+ * The level is the word on the chip; the border repeats it - filled for
+ * strong, solid for medium, dashed for hinted - and never says it alone.
+ * An open theme takes the whole row, so its cards read as a list. */
+.deck-themes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.deck-theme[open] {
+  flex-basis: 100%;
+}
+
+.deck-theme-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.75rem;
+  border: 1px solid var(--color-ink-800);
+  border-radius: 999px;
+  color: var(--color-ink-900);
+  cursor: pointer;
+  list-style: none;
+}
+
+.deck-theme-chip::-webkit-details-marker {
+  display: none;
+}
+
+.deck-theme-strong > .deck-theme-chip {
+  border-width: 2px;
+  background-color: var(--color-parchment-200);
+}
+
+.deck-theme-hint > .deck-theme-chip {
+  border-style: dashed;
+  border-color: var(--color-ink-700);
+}
+
+.deck-theme-chip:focus-visible {
+  outline: 2px solid var(--color-blood-700);
+  outline-offset: 1px;
+}
+
+.deck-theme[open] > .deck-theme-chip {
+  background-color: var(--color-parchment-300);
+}
+
+.deck-theme-body {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  border-left: 2px solid var(--color-parchment-600);
+}
+
 /* --- the playtest board (Phase 9 F) ------------------------------------------ */
 
 /* The phase stepper: the phase the turn is in is framed, the rest are quiet. */

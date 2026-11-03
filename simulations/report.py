@@ -697,8 +697,9 @@ SEEN_STRATEGY_INFO = {
 
 #: The mechanics card model phase 3 reads off a card's blocks, and what the
 #: page calls each. The keys are `simulation.analysis.SEEN_MECHANICS`; a test
-#: holds the two lists together. A chart of their own: one with the
-#: strategies would need more lines than the chart has colours.
+#: holds the two lists together. The page shows them with the strategies in
+#: one chart, "Building blocks" (Themen-Doc, Paket 1, PR 2): to a player the
+#: two differ only in where we read them from.
 SEEN_MECHANIC_ROLES = (
     ("lifegain", gettext_noop("Lifegain")),
     ("land_search", gettext_noop("Land search")),
@@ -717,6 +718,12 @@ SEEN_MECHANIC_INFO = {
     "death_trigger": gettext_noop("Does something when another creature dies."),
     "tax": gettext_noop("Makes opponents pay more, or pay you, for what they do."),
 }
+
+#: The lines "Building blocks" draws: as many as a chart has colours
+#: (`.seen-line-0` to `.seen-line-7` in assets/css/input.css).
+BLOCK_LINES = 8
+
+BLOCK_INFO = {**SEEN_STRATEGY_INFO, **SEEN_MECHANIC_INFO}
 
 #: What each card type line counts. A card with two types counts in both.
 SEEN_TYPE_INFO = {
@@ -780,10 +787,11 @@ def seen(result: dict) -> dict | None:
 
     * **roles** - the share of games that had seen at least one card of the
       category by that turn. "Ramp by turn two" is a yes/no question per game,
-      and the share is its answer. **strategies** asks the same of the
-      strategies (phase 11), **mechanics** of the mechanics card model phase 3
-      reads off the blocks - a chart of their own, as a chart has eight
-      colours.
+      and the share is its answer. **blocks** asks the same of the
+      strategies (phase 11) and the mechanics card model phase 3 reads off
+      the blocks, together, the most often seen first: eight lines at most,
+      as a chart has eight colours, the rest named in **blocks_rest** and
+      every one in **block_rows**.
     * **types** - how many cards of each type had been seen, on average.
       Almost every game sees a creature by turn one, so the share would be a
       flat line at the top; the count is the part that differs between decks.
@@ -809,10 +817,14 @@ def seen(result: dict) -> dict | None:
 
     role_series = [(key, gettext(label), shares(f"role:{key}"))
                    for key, label in SEEN_ROLES if f"role:{key}" in groups]
-    strategy_series = [(key, gettext(label), shares(f"role:{key}"))
-                       for key, label in SEEN_STRATEGY_ROLES if f"role:{key}" in groups]
-    mechanic_series = [(key, gettext(label), shares(f"role:{key}"))
-                       for key, label in SEEN_MECHANIC_ROLES if f"role:{key}" in groups]
+    # Strategies and mechanics in one list, the most often seen first: the
+    # chart draws the first `BLOCK_LINES`, as it has that many colours, and
+    # names the rest under it; "The numbers" keeps every one.
+    block_series = sorted(
+        ((key, gettext(label), shares(f"role:{key}"))
+         for key, label in SEEN_STRATEGY_ROLES + SEEN_MECHANIC_ROLES
+         if f"role:{key}" in groups),
+        key=lambda line: -line[2][-1] if line[2] else 0.0)
     type_series = [(kind, gettext(CARD_TYPE_NAMES[kind]), means(f"type:{kind}"))
                    for kind in runner.SEEN_CARD_TYPES if f"type:{kind}" in groups]
     type_spreads = {kind: _spreads(groups[f"type:{kind}"], games)
@@ -849,11 +861,13 @@ def seen(result: dict) -> dict | None:
     curve = _curve(groups, games, turns)
     return {
         "roles": share_chart(role_series, SEEN_ROLE_INFO),
-        # Phase 11 K17. A run from before has no strategy groups and so no
-        # lines here: the chart is absent, not empty.
-        "strategies": share_chart(strategy_series, SEEN_STRATEGY_INFO),
-        # Card model phase 3: a run from before has no mechanic groups.
-        "mechanics": share_chart(mechanic_series, SEEN_MECHANIC_INFO),
+        # Strategies (phase 11 K17) and mechanics (card model phase 3) as one
+        # chart. A run from before either has no such groups and so no lines
+        # here: the chart is absent, not empty.
+        "blocks": share_chart(block_series[:BLOCK_LINES], BLOCK_INFO),
+        "blocks_rest": [label for _, label, _ in block_series[BLOCK_LINES:]],
+        "block_rows": [{"label": label, "values": values}
+                       for _, label, values in block_series],
         "types": charts.line_chart(type_series, x_labels, top_value=count_top,
                                    y_ticks=count_ticks, spreads=bands, infos=type_infos),
         # "The numbers" under the charts (phase 10 T5.3): a count reads

@@ -37,17 +37,14 @@
       {% endif %}
       {% include "simulations/_seen_numbers.html" with rows=report.seen.roles.lines turns=report.seen.turns kind="share" corner=share_corner %}
     {% endif %}
-    {% if report.seen.strategies.lines %}
-      <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "By strategy" %}</h3>
-      <p class="text-sm text-ink-700">{% translate "Games with at least one, by the end of each turn." %}</p>
-      {% include "simulations/_line_chart.html" with chart=report.seen.strategies name="seen-strategy" title=_("Share of games with at least one card of each strategy, by turn") %}
-      {% include "simulations/_seen_numbers.html" with rows=report.seen.strategies.lines turns=report.seen.turns kind="share" corner=share_corner %}
-    {% endif %}
-    {% if report.seen.mechanics.lines %}
-      <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "By mechanic" %}</h3>
-      <p class="text-sm text-ink-700">{% translate "Games with at least one, by the end of each turn." %}</p>
-      {% include "simulations/_line_chart.html" with chart=report.seen.mechanics name="seen-mechanic" title=_("Share of games with at least one card of each mechanic, by turn") %}
-      {% include "simulations/_seen_numbers.html" with rows=report.seen.mechanics.lines turns=report.seen.turns kind="share" corner=share_corner %}
+    {% if report.seen.blocks.lines %}
+      <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "Building blocks" %}</h3>
+      <p class="text-sm text-ink-700">{% translate "What the deck's plan is made of. Games with at least one, by the end of each turn." %}</p>
+      {% include "simulations/_line_chart.html" with chart=report.seen.blocks name="seen-block" title=_("Share of games with at least one card of each building block, by turn") %}
+      {% if report.seen.blocks_rest %}
+        <p class="mt-2 text-sm text-ink-700">{% blocktranslate with labels=report.seen.blocks_rest|join:", " %}Also in the deck, seen less often: {{ labels }}. Their numbers are below.{% endblocktranslate %}</p>
+      {% endif %}
+      {% include "simulations/_seen_numbers.html" with rows=report.seen.block_rows turns=report.seen.turns kind="share" corner=share_corner %}
     {% endif %}
     {% if report.seen.types.lines %}
       <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "By card type" %}</h3>

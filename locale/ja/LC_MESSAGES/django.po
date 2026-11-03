@@ -12564,3 +12564,14 @@ msgstr ""
 #: templates/decks/_art_retry.html
 msgid "Standard picture: this printing's art could not be loaded. Try again"
 msgstr "標準画像：この版のイラストを読み込めませんでした。再試行"
+
+#: templates/base.html
+msgid ""
+"Some card abilities are read from the card scripts of <a "
+"href=\"https://github.com/Card-Forge/forge\" class=\"underline hover:text-"
+"ink-300\" rel=\"noopener\">Forge</a>, which is not affiliated with Goldfish "
+"Lab either."
+msgstr ""
+"一部のカードの能力は <a href=\"https://github.com/Card-Forge/forge\" class=\"underline"
+" hover:text-ink-300\" rel=\"noopener\">Forge</a> のカードスクリプトから読み取っています。Forge も"
+" Goldfish Lab とは提携していません。"

@@ -9,11 +9,15 @@
 // is always the glance, two jumps never follow each other, and a page view
 // gets at most six. A hidden tab waits, and starts afresh when it is back.
 //
+// Hello. Two seconds after the home page loads the fish jumps out of the
+// flask once, so the page greets with some life. Not an idle move: it does
+// not count towards the six, and the first idle move is still the glance.
+//
 // Click. The link points at the page it is on, so a click does not reload:
 // the flask tilts, the water sloshes and the fish looks about. Three clicks
 // within 1.5 seconds and the fish jumps out and back.
 //
-// Reduced motion. No idle moves; a click only widens the eye for a moment.
+// Reduced motion. No hello jump, no idle moves; a click only widens the eye for a moment.
 //
 // nextWait and nextMove are the rules, kept pure so tests/test_fish.py can
 // check them under Node without a browser.
@@ -23,6 +27,7 @@
   const MAX_IDLE_MOVES = 6;
   const MOVE_MS = 1800; // longer than every move in input.css (all under 2 s)
   const TRIPLE_MS = 1500;
+  const HELLO_MS = 2000;
   const INPUT = ["pointermove", "pointerdown", "scroll", "keydown", "touchstart", "wheel"];
 
   // Milliseconds until the next idle move.
@@ -110,6 +115,12 @@
     }
     document.addEventListener("visibilitychange", wait);
     wait();
+
+    if (!still.matches) {
+      window.setTimeout(() => {
+        if (playing === null && !document.hidden) play("jump");
+      }, HELLO_MS);
+    }
   }
 
   document.addEventListener("DOMContentLoaded", start);

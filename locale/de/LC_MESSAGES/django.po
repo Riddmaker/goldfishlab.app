@@ -14485,3 +14485,193 @@ msgstr ""
 "Karten für seine Strategien vor. Dafür geht deine Deckliste an Mistral, und "
 "jede neue Zusammenfassung braucht eine Simulation. Schalte es aus, wenn du "
 "keinen KI-Text willst oder Simulationen sparen möchtest."
+
+#: templates/base.html
+msgid "Resources"
+msgstr "Ressourcen"
+
+#: templates/core/resources.html
+msgid ""
+"The videos and sites worth knowing about Commander: what it is, the rules "
+"and brackets, building a deck, and where players meet."
+msgstr ""
+"Die Videos und Seiten, die man zu Commander kennen sollte: was es ist, "
+"Regeln und Brackets, Deckbau und wo sich Spieler treffen."
+
+#: templates/core/resources.html
+msgid ""
+"The videos and sites we would send a friend who is new to Commander. None of"
+" them is ours, and nobody paid to be here."
+msgstr ""
+"Die Videos und Seiten, die wir einem Freund schicken würden, der neu bei "
+"Commander ist. Keine davon gehört uns, und niemand hat dafür bezahlt, hier "
+"zu stehen."
+
+#: templates/core/resources.html
+msgid "Videos"
+msgstr "Videos"
+
+#: templates/core/resources.html
+msgid "All in English. They open on YouTube."
+msgstr "Alle auf Englisch. Sie öffnen sich auf YouTube."
+
+#: templates/core/resources.html
+msgid "Sites"
+msgstr "Seiten"
+
+#: templates/core/resources.html
+#, python-format
+msgid "%(minutes)s min"
+msgid_plural "%(minutes)s min"
+msgstr[0] "%(minutes)s Min."
+msgstr[1] "%(minutes)s Min."
+
+#: templates/core/resources.html
+#, python-format
+msgid ""
+"How Goldfish Lab itself works is on <a href=\"%(methodology_url)s\" "
+"class=\"underline hover:text-parchment-100\">How this works</a>."
+msgstr ""
+"Wie Goldfish Lab selbst funktioniert, steht unter <a "
+"href=\"%(methodology_url)s\" class=\"underline hover:text-parchment-100\">So"
+" funktioniert es</a>."
+
+#: core/resources.py
+msgid "What Commander is"
+msgstr "Was Commander ist"
+
+#: core/resources.py
+msgid "The rules and the brackets"
+msgstr "Die Regeln und die Brackets"
+
+#: core/resources.py
+msgid "Building a deck"
+msgstr "Ein Deck bauen"
+
+#: core/resources.py
+msgid "Learning to play"
+msgstr "Spielen lernen"
+
+#: core/resources.py
+msgid "Official"
+msgstr "Offiziell"
+
+#: core/resources.py
+msgid "Building and keeping decks"
+msgstr "Decks bauen und verwalten"
+
+#: core/resources.py
+msgid "Looking things up"
+msgstr "Nachschlagen"
+
+#: core/resources.py
+msgid "Players and news"
+msgstr "Spieler und News"
+
+#: core/resources.py
+msgid ""
+"The whole format from the start: the command zone, the 100 cards, how a "
+"table of four plays."
+msgstr ""
+"Das ganze Format von Anfang an: die Kommandozone, die 100 Karten, wie ein "
+"Tisch zu viert spielt."
+
+#: core/resources.py
+msgid "Short and current: the format as it is played today."
+msgstr "Kurz und aktuell: das Format, wie es heute gespielt wird."
+
+#: core/resources.py
+msgid ""
+"Wizards of the Coast introduce the brackets themselves. The Game Changers "
+"list has changed since: the current one is on the official Commander page "
+"below."
+msgstr ""
+"Wizards of the Coast stellen die Brackets selbst vor. Die Game-Changers-"
+"Liste hat sich seither geändert: Die aktuelle steht auf der offiziellen "
+"Commander-Seite weiter unten."
+
+#: core/resources.py
+msgid ""
+"A designer at Wizards on what the brackets are for and how to use them at a "
+"table."
+msgstr ""
+"Ein Designer von Wizards darüber, wozu die Brackets da sind und wie man sie "
+"am Tisch nutzt."
+
+#: core/resources.py
+msgid ""
+"How many lands, ramp, card draw and removal a deck wants - the template many"
+" players start from."
+msgstr ""
+"Wie viele Länder, Ramp, Kartenziehen und Removal ein Deck braucht - die "
+"Vorlage, mit der viele Spieler anfangen."
+
+#: core/resources.py
+msgid ""
+"Turns, phases and combat, for anybody new to Magic itself. Not about "
+"Commander, but everything in it applies."
+msgstr ""
+"Züge, Phasen und Kampf, für alle, die neu bei Magic selbst sind. Nicht über "
+"Commander, aber alles darin gilt auch dort."
+
+#: core/resources.py
+msgid ""
+"The rules of the format in writing - commander tax, commander damage, colour"
+" identity - with the brackets and the current Game Changers."
+msgstr ""
+"Die Regeln des Formats schriftlich - Commander-Steuer, Commander-Schaden, "
+"Farbidentität - mit den Brackets und den aktuellen Game Changers."
+
+#: core/resources.py
+msgid "The Comprehensive Rules, for when a question goes deep."
+msgstr "Die Comprehensive Rules, wenn eine Frage in die Tiefe geht."
+
+#: core/resources.py
+msgid "A visual deck builder; its CSV export imports here as it is."
+msgstr ""
+"Ein visueller Deckbuilder; sein CSV-Export lässt sich hier direkt "
+"importieren."
+
+#: core/resources.py
+msgid "A popular deck builder with a playtest mode."
+msgstr "Ein beliebter Deckbuilder mit Testspiel-Modus."
+
+#: core/resources.py
+msgid "An app that scans your cards and keeps your collection and decks."
+msgstr "Eine App, die deine Karten scannt und Sammlung und Decks verwaltet."
+
+#: core/resources.py
+msgid ""
+"Every card, with its full rules text and rulings. Our card data comes from "
+"here."
+msgstr ""
+"Jede Karte, mit vollem Regeltext und Rulings. Unsere Kartendaten stammen von"
+" hier."
+
+#: core/resources.py
+msgid "Which cards other players run with your commander."
+msgstr "Welche Karten andere Spieler mit deinem Commander spielen."
+
+#: core/resources.py
+msgid ""
+"Combos, searchable by the cards in your deck. The combos in a report come "
+"from here."
+msgstr ""
+"Combos, durchsuchbar nach den Karten in deinem Deck. Die Combos in einem "
+"Bericht stammen von hier."
+
+#: core/resources.py
+msgid "The official Discord server of Wizards of the Coast."
+msgstr "Der offizielle Discord-Server von Wizards of the Coast."
+
+#: core/resources.py
+msgid "The largest Commander community on Reddit."
+msgstr "Die grösste Commander-Community auf Reddit."
+
+#: core/resources.py
+msgid "News and talk about all of Magic."
+msgstr "News und Diskussionen zu ganz Magic."
+
+#: core/resources.py
+msgid "News, budget decks and strategy articles."
+msgstr "News, Budget-Decks und Strategie-Artikel."

@@ -182,6 +182,11 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   inside; `prefers-reduced-motion` drops the transitions.
 - **"Why?"** (`core/_why.html`): the one small link beside a section that keeps a sentence and
   sends its explanation to a methodology anchor. `dark=True` on dark grounds.
+- **Resources** (`core/resources.html`, data in `core/resources.py`): a short list, not a link
+  farm. Each entry is its name as a display-font link with "↗", then one sentence of ours on why
+  it is there; a video adds channel, year and length. Titles stay in English (`lang="en"`), the
+  sentences are translated. Every link opens in a new tab with `rel="noopener noreferrer"`;
+  nothing is embedded, so the page loads nothing from YouTube.
 
 ---
 

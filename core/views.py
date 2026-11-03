@@ -132,6 +132,22 @@ class PrivacyView(TemplateView):
     extra_context = {"updated": date(2026, 10, 21)}
 
 
+class ResourcesView(TemplateView):
+    """Videos and sites worth knowing about Commander (Themen-Doc, Ressourcen).
+
+    Static: the list is `core.resources`. Every link leaves the site, so each
+    opens without a referrer and without a handle on this page.
+    """
+
+    template_name = "core/resources.html"
+
+    def get_context_data(self, **kwargs):
+        from core import resources
+
+        return {**super().get_context_data(**kwargs),
+                "videos": resources.VIDEOS, "links": resources.LINKS}
+
+
 class ImprintView(TemplateView):
     """Legal notice: who runs this, as the Swiss UWG Art. 3 para. 1 lit. s asks."""
 

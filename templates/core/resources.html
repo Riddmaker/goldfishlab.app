@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Resources" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "The videos and sites worth knowing about Commander: what it is, the rules and brackets, building a deck, and where players meet." %}{% endblock %}
+{% block content %}
+  {% comment %}
+    Themen-Doc, Ressourcen: a short list, not a link farm. The entries are
+    core.resources; the videos are links, never embedded (no request to
+    YouTube, frame-src stays 'none'). Titles and channels stay as written,
+    in English (`lang`); each sentence beside them is ours and translated.
+    Every link leaves the site: a new tab, no referrer, no opener.
+  {% endcomment %}
+  <section class="max-w-3xl" data-resources>
+    <h1 class="font-display text-4xl leading-tight text-parchment-100">{% translate "Resources" %}</h1>
+    <p class="mt-6 text-lg leading-relaxed text-parchment-200">
+      {% blocktranslate trimmed %}
+        The videos and sites we would send a friend who is new to Commander. None of
+        them is ours, and nobody paid to be here.
+      {% endblocktranslate %}
+    </p>
+
+    <h2 class="mt-12 font-display text-2xl text-parchment-100">{% translate "Videos" %}</h2>
+    <p class="mt-2 text-sm text-parchment-300">{% translate "All in English. They open on YouTube." %}</p>
+    {% for group in videos %}
+      <div class="mt-4 surface-parchment p-6" data-resource-group>
+        <h3 class="font-display text-xl text-ink-900">{{ group.heading }}</h3>
+        <ul class="mt-3 space-y-4">
+          {% for video in group.items %}
+            <li data-resource>
+              <a href="{{ video.url }}" target="_blank" rel="noopener noreferrer" lang="en"
+                 class="font-display text-lg text-ink-900 underline decoration-parchment-600 underline-offset-4 hover:decoration-ink-900">{{ video.title }}<span aria-hidden="true"> ↗</span></a>
+              <p class="tabular text-sm text-ink-700">
+                <span lang="en">{{ video.channel }}</span> · {{ video.year }}{% if video.minutes %} · {% blocktranslate count minutes=video.minutes %}{{ minutes }} min{% plural %}{{ minutes }} min{% endblocktranslate %}{% endif %}
+              </p>
+              <p class="mt-1 text-ink-900">{{ video.why }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+
+    <h2 class="mt-12 font-display text-2xl text-parchment-100">{% translate "Sites" %}</h2>
+    {% for group in links %}
+      <div class="mt-4 surface-parchment p-6" data-resource-group>
+        <h3 class="font-display text-xl text-ink-900">{{ group.heading }}</h3>
+        <ul class="mt-3 space-y-3">
+          {% for link in group.items %}
+            <li data-resource>
+              <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" lang="en"
+                 class="font-display text-lg text-ink-900 underline decoration-parchment-600 underline-offset-4 hover:decoration-ink-900">{{ link.name }}<span aria-hidden="true"> ↗</span></a>
+              <p class="text-ink-900">{{ link.why }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+
+    <p class="mt-10 text-sm text-parchment-300">
+      {% url 'methodology' as methodology_url %}
+      {% blocktranslate trimmed %}
+        How Goldfish Lab itself works is on <a href="{{ methodology_url }}" class="underline hover:text-parchment-100">How this works</a>.
+      {% endblocktranslate %}
+    </p>
+  </section>
+{% endblock %}

@@ -12705,3 +12705,169 @@ msgid ""
 msgstr ""
 "Mistral AI が各デッキの短い要約を書き、その戦略に合うカードを提案します。そのためにデッキリストが Mistral "
 "に送られ、新しい要約ごとにシミュレーションを1回使います。AI の文章が不要な場合や、シミュレーションを節約したい場合はオフにしてください。"
+
+#: templates/base.html
+msgid "Resources"
+msgstr "リソース"
+
+#: templates/core/resources.html
+msgid ""
+"The videos and sites worth knowing about Commander: what it is, the rules "
+"and brackets, building a deck, and where players meet."
+msgstr "統率者戦について知っておきたい動画とサイト：統率者戦とは何か、ルールとブラケット、デッキ構築、プレイヤーが集まる場所。"
+
+#: templates/core/resources.html
+msgid ""
+"The videos and sites we would send a friend who is new to Commander. None of"
+" them is ours, and nobody paid to be here."
+msgstr "統率者戦を始めたばかりの友人に勧めたい動画とサイトです。どれも私たちのものではなく、掲載料も受け取っていません。"
+
+#: templates/core/resources.html
+msgid "Videos"
+msgstr "動画"
+
+#: templates/core/resources.html
+msgid "All in English. They open on YouTube."
+msgstr "すべて英語です。YouTube で開きます。"
+
+#: templates/core/resources.html
+msgid "Sites"
+msgstr "サイト"
+
+#: templates/core/resources.html
+#, python-format
+msgid "%(minutes)s min"
+msgid_plural "%(minutes)s min"
+msgstr[0] "%(minutes)s 分"
+
+#: templates/core/resources.html
+#, python-format
+msgid ""
+"How Goldfish Lab itself works is on <a href=\"%(methodology_url)s\" "
+"class=\"underline hover:text-parchment-100\">How this works</a>."
+msgstr ""
+"Goldfish Lab 自体の仕組みは<a href=\"%(methodology_url)s\" class=\"underline "
+"hover:text-parchment-100\">仕組み</a>のページにあります。"
+
+#: core/resources.py
+msgid "What Commander is"
+msgstr "統率者戦とは"
+
+#: core/resources.py
+msgid "The rules and the brackets"
+msgstr "ルールとブラケット"
+
+#: core/resources.py
+msgid "Building a deck"
+msgstr "デッキを組む"
+
+#: core/resources.py
+msgid "Learning to play"
+msgstr "遊び方を覚える"
+
+#: core/resources.py
+msgid "Official"
+msgstr "公式"
+
+#: core/resources.py
+msgid "Building and keeping decks"
+msgstr "デッキの構築と管理"
+
+#: core/resources.py
+msgid "Looking things up"
+msgstr "調べもの"
+
+#: core/resources.py
+msgid "Players and news"
+msgstr "プレイヤーとニュース"
+
+#: core/resources.py
+msgid ""
+"The whole format from the start: the command zone, the 100 cards, how a "
+"table of four plays."
+msgstr "統率者戦の全体を最初から：統率領域、100枚のデッキ、4人での遊び方。"
+
+#: core/resources.py
+msgid "Short and current: the format as it is played today."
+msgstr "短くて最新：今の統率者戦の遊ばれ方。"
+
+#: core/resources.py
+msgid ""
+"Wizards of the Coast introduce the brackets themselves. The Game Changers "
+"list has changed since: the current one is on the official Commander page "
+"below."
+msgstr ""
+"Wizards of the Coast "
+"自身がブラケットを紹介しています。ゲームチェンジャーのリストはその後変わっているので、最新版は下の公式統率者戦ページで確認してください。"
+
+#: core/resources.py
+msgid ""
+"A designer at Wizards on what the brackets are for and how to use them at a "
+"table."
+msgstr "Wizards のデザイナーが、ブラケットの目的と卓での使い方を語ります。"
+
+#: core/resources.py
+msgid ""
+"How many lands, ramp, card draw and removal a deck wants - the template many"
+" players start from."
+msgstr "土地、ランプ、ドロー、除去をそれぞれ何枚入れるか。多くのプレイヤーが出発点にしているテンプレートです。"
+
+#: core/resources.py
+msgid ""
+"Turns, phases and combat, for anybody new to Magic itself. Not about "
+"Commander, but everything in it applies."
+msgstr "マジックそのものが初めての人向けに、ターン、フェイズ、戦闘を解説します。統率者戦の動画ではありませんが、内容はすべて当てはまります。"
+
+#: core/resources.py
+msgid ""
+"The rules of the format in writing - commander tax, commander damage, colour"
+" identity - with the brackets and the current Game Changers."
+msgstr "統率者戦のルールを文章で：統率者税、統率者ダメージ、固有色。ブラケットと最新のゲームチェンジャーも載っています。"
+
+#: core/resources.py
+msgid "The Comprehensive Rules, for when a question goes deep."
+msgstr "総合ルール。込み入った疑問があるときに。"
+
+#: core/resources.py
+msgid "A visual deck builder; its CSV export imports here as it is."
+msgstr "ビジュアル型のデッキビルダー。CSV エクスポートはそのままここに読み込めます。"
+
+#: core/resources.py
+msgid "A popular deck builder with a playtest mode."
+msgstr "テストプレイ機能付きの人気デッキビルダー。"
+
+#: core/resources.py
+msgid "An app that scans your cards and keeps your collection and decks."
+msgstr "カードをスキャンして、コレクションとデッキを管理できるアプリ。"
+
+#: core/resources.py
+msgid ""
+"Every card, with its full rules text and rulings. Our card data comes from "
+"here."
+msgstr "すべてのカードを、完全なルール文と裁定つきで。当サイトのカードデータもここから来ています。"
+
+#: core/resources.py
+msgid "Which cards other players run with your commander."
+msgstr "あなたの統率者と一緒に、ほかのプレイヤーがどんなカードを使っているか。"
+
+#: core/resources.py
+msgid ""
+"Combos, searchable by the cards in your deck. The combos in a report come "
+"from here."
+msgstr "デッキのカードから検索できるコンボ集。レポートのコンボもここから来ています。"
+
+#: core/resources.py
+msgid "The official Discord server of Wizards of the Coast."
+msgstr "Wizards of the Coast 公式の Discord サーバー。"
+
+#: core/resources.py
+msgid "The largest Commander community on Reddit."
+msgstr "Reddit 最大の統率者戦コミュニティ。"
+
+#: core/resources.py
+msgid "News and talk about all of Magic."
+msgstr "マジック全般のニュースと話題。"
+
+#: core/resources.py
+msgid "News, budget decks and strategy articles."
+msgstr "ニュース、低予算デッキ、戦略記事。"

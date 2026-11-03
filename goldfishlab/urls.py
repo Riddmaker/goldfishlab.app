@@ -19,6 +19,7 @@ from core.views import (
     ImprintView,
     MethodologyView,
     PrivacyView,
+    ResourcesView,
     RobotsView,
     StyleguideView,
     TermsView,
@@ -97,6 +98,8 @@ urlpatterns += i18n_patterns(
     # saying plainly what is simulated and what is not is the thing no
     # "AI power level: 7.3" competitor can write. (Phase 8.)
     path("about/methodology/", MethodologyView.as_view(), name="methodology"),
+    # Videos and sites worth knowing (Themen-Doc): links only, nothing embedded.
+    path("about/resources/", ResourcesView.as_view(), name="resources"),
     # P11: every Commander precon, simulated - the pages a search finds.
     path("data/", include("datapages.urls")),
     # Outside /billing/, which is the account's own page and closed to guests.

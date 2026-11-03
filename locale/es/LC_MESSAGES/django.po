@@ -14543,3 +14543,193 @@ msgstr ""
 "estrategias. Para ello tu lista se envía a Mistral, y cada nuevo resumen usa"
 " una simulación. Desactívalo si prefieres no tener texto escrito por una IA "
 "o quieres ahorrar simulaciones."
+
+#: templates/base.html
+msgid "Resources"
+msgstr "Recursos"
+
+#: templates/core/resources.html
+msgid ""
+"The videos and sites worth knowing about Commander: what it is, the rules "
+"and brackets, building a deck, and where players meet."
+msgstr ""
+"Los vídeos y sitios que vale la pena conocer sobre Commander: qué es, las "
+"reglas y los brackets, cómo construir un mazo y dónde se reúnen los "
+"jugadores."
+
+#: templates/core/resources.html
+msgid ""
+"The videos and sites we would send a friend who is new to Commander. None of"
+" them is ours, and nobody paid to be here."
+msgstr ""
+"Los vídeos y sitios que le mandaríamos a un amigo que empieza con Commander."
+" Ninguno es nuestro, y nadie ha pagado por estar aquí."
+
+#: templates/core/resources.html
+msgid "Videos"
+msgstr "Vídeos"
+
+#: templates/core/resources.html
+msgid "All in English. They open on YouTube."
+msgstr "Todos en inglés. Se abren en YouTube."
+
+#: templates/core/resources.html
+msgid "Sites"
+msgstr "Sitios"
+
+#: templates/core/resources.html
+#, python-format
+msgid "%(minutes)s min"
+msgid_plural "%(minutes)s min"
+msgstr[0] "%(minutes)s min"
+msgstr[1] "%(minutes)s min"
+msgstr[2] "%(minutes)s min"
+
+#: templates/core/resources.html
+#, python-format
+msgid ""
+"How Goldfish Lab itself works is on <a href=\"%(methodology_url)s\" "
+"class=\"underline hover:text-parchment-100\">How this works</a>."
+msgstr ""
+"Cómo funciona Goldfish Lab en sí está en <a href=\"%(methodology_url)s\" "
+"class=\"underline hover:text-parchment-100\">Cómo funciona</a>."
+
+#: core/resources.py
+msgid "What Commander is"
+msgstr "Qué es Commander"
+
+#: core/resources.py
+msgid "The rules and the brackets"
+msgstr "Las reglas y los brackets"
+
+#: core/resources.py
+msgid "Building a deck"
+msgstr "Construir un mazo"
+
+#: core/resources.py
+msgid "Learning to play"
+msgstr "Aprender a jugar"
+
+#: core/resources.py
+msgid "Official"
+msgstr "Oficial"
+
+#: core/resources.py
+msgid "Building and keeping decks"
+msgstr "Construir y guardar mazos"
+
+#: core/resources.py
+msgid "Looking things up"
+msgstr "Consultar"
+
+#: core/resources.py
+msgid "Players and news"
+msgstr "Jugadores y noticias"
+
+#: core/resources.py
+msgid ""
+"The whole format from the start: the command zone, the 100 cards, how a "
+"table of four plays."
+msgstr ""
+"Todo el formato desde el principio: la zona de mando, las 100 cartas, cómo "
+"se juega una mesa de cuatro."
+
+#: core/resources.py
+msgid "Short and current: the format as it is played today."
+msgstr "Breve y actual: el formato tal como se juega hoy."
+
+#: core/resources.py
+msgid ""
+"Wizards of the Coast introduce the brackets themselves. The Game Changers "
+"list has changed since: the current one is on the official Commander page "
+"below."
+msgstr ""
+"Wizards of the Coast presenta los brackets en persona. La lista de Game "
+"Changers ha cambiado desde entonces: la actual está en la página oficial de "
+"Commander más abajo."
+
+#: core/resources.py
+msgid ""
+"A designer at Wizards on what the brackets are for and how to use them at a "
+"table."
+msgstr ""
+"Un diseñador de Wizards explica para qué sirven los brackets y cómo usarlos "
+"en la mesa."
+
+#: core/resources.py
+msgid ""
+"How many lands, ramp, card draw and removal a deck wants - the template many"
+" players start from."
+msgstr ""
+"Cuántas tierras, ramp, robo y removal necesita un mazo - la plantilla de la "
+"que parten muchos jugadores."
+
+#: core/resources.py
+msgid ""
+"Turns, phases and combat, for anybody new to Magic itself. Not about "
+"Commander, but everything in it applies."
+msgstr ""
+"Turnos, fases y combate, para quien empieza con Magic. No trata de "
+"Commander, pero todo se aplica."
+
+#: core/resources.py
+msgid ""
+"The rules of the format in writing - commander tax, commander damage, colour"
+" identity - with the brackets and the current Game Changers."
+msgstr ""
+"Las reglas del formato por escrito - impuesto del comandante, daño de "
+"comandante, identidad de color - con los brackets y los Game Changers "
+"actuales."
+
+#: core/resources.py
+msgid "The Comprehensive Rules, for when a question goes deep."
+msgstr "Las Comprehensive Rules, para cuando una pregunta va a fondo."
+
+#: core/resources.py
+msgid "A visual deck builder; its CSV export imports here as it is."
+msgstr ""
+"Un constructor de mazos visual; su exportación CSV se importa aquí tal cual."
+
+#: core/resources.py
+msgid "A popular deck builder with a playtest mode."
+msgstr "Un constructor de mazos popular con modo de prueba."
+
+#: core/resources.py
+msgid "An app that scans your cards and keeps your collection and decks."
+msgstr "Una app que escanea tus cartas y guarda tu colección y tus mazos."
+
+#: core/resources.py
+msgid ""
+"Every card, with its full rules text and rulings. Our card data comes from "
+"here."
+msgstr ""
+"Todas las cartas, con su texto de reglas completo y sus aclaraciones. "
+"Nuestros datos de cartas vienen de aquí."
+
+#: core/resources.py
+msgid "Which cards other players run with your commander."
+msgstr "Qué cartas juegan otros jugadores con tu comandante."
+
+#: core/resources.py
+msgid ""
+"Combos, searchable by the cards in your deck. The combos in a report come "
+"from here."
+msgstr ""
+"Combos, que puedes buscar por las cartas de tu mazo. Los combos de un "
+"informe vienen de aquí."
+
+#: core/resources.py
+msgid "The official Discord server of Wizards of the Coast."
+msgstr "El servidor de Discord oficial de Wizards of the Coast."
+
+#: core/resources.py
+msgid "The largest Commander community on Reddit."
+msgstr "La comunidad de Commander más grande de Reddit."
+
+#: core/resources.py
+msgid "News and talk about all of Magic."
+msgstr "Noticias y conversación sobre todo Magic."
+
+#: core/resources.py
+msgid "News, budget decks and strategy articles."
+msgstr "Noticias, mazos económicos y artículos de estrategia."

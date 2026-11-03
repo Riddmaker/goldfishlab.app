@@ -559,6 +559,11 @@ def test_the_bin_sits_on_the_list_and_the_deck_page(signed_in, deck):
         assert f'href="{url}"' in body and "data-delete-deck" in body, page
 
 
+def test_the_deck_page_has_no_all_decks_link(signed_in, deck):
+    """The header's "Decks" says it; the bin took its place."""
+    assert "All decks" not in signed_in.get(deck.get_absolute_url()).content.decode()
+
+
 def _upload(name: str, content: bytes):
     from django.core.files.uploadedfile import SimpleUploadedFile
 

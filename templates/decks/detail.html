@@ -28,9 +28,8 @@
           {% endif %}
         </span>
         {% include "decks/_status.html" %}
-        <a href="{% url 'decks:list' %}"
-           class="ml-auto text-sm text-parchment-200 underline">{% translate "All decks" %}</a>
-        {% include "decks/_delete_icon.html" with dark=True %}
+        {# No "All decks" link: the header's "Decks" says it. The bin takes its place. #}
+        <span class="ml-auto self-center">{% include "decks/_delete_icon.html" with dark=True %}</span>
       </div>
       {% if last_import %}{% include "decks/_left_out.html" with record=last_import %}{% endif %}
       {% if not deck.is_commander_deck %}

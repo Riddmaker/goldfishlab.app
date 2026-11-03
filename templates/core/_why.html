@@ -1,7 +1,9 @@
 {% comment %}
-  The small "Why?" beside a section (phase 9 H, principle 1): the page keeps
-  one sentence, the explanation lives on the methodology page under `anchor`.
+  The small "More" beside a section (phase 9 H, principle 1; Paket 3 PR 10):
+  the sentence before it says why the section matters, the explanation lives
+  on the methodology page under `anchor` - an offer to read on, never a must.
+  Named `_why` still, because it answers the reader's "why should I care?".
 {% endcomment %}
 {% load i18n %}
 <a href="{% url 'methodology' %}#{{ anchor }}"
-   class="text-sm {% if dark %}text-parchment-200 hover:text-parchment-100{% else %}text-ink-700 hover:text-ink-900{% endif %} underline">{% translate "Why?" %}</a>
+   class="text-sm {% if dark %}text-parchment-200 hover:text-parchment-100{% else %}text-ink-700 hover:text-ink-900{% endif %} underline">{% translate "More" context "explanation link" %}</a>

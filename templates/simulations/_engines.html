@@ -10,7 +10,7 @@
   <div id="engine-timings" class="mt-6 border-t border-parchment-400 pt-5">
     <h3 class="summary-title text-ink-900">{% translate "Engines" %}</h3>
     <p class="mt-1 text-sm text-ink-700">
-      {% blocktranslate with games=run.games_total|intcomma %}Running means one card of each role is out, measured over {{ games }} games.{% endblocktranslate %}
+      {% blocktranslate with games=run.games_total|intcomma %}How soon each engine starts paying off: running means one card of each role is out, measured over {{ games }} games.{% endblocktranslate %}
       {% include "core/_why.html" with anchor="engines" %}
     </p>
     <ul class="mt-3 space-y-1 text-sm text-ink-900">

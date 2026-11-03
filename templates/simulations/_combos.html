@@ -20,7 +20,7 @@
   <div id="combo-timings" class="mt-6 border-t border-parchment-400 pt-5">
     <h3 class="summary-title text-ink-900">{% translate "Combos" %}</h3>
     <p class="mt-1 text-sm text-ink-700">
-      {% blocktranslate with games=run.games_total|intcomma %}From Commander Spellbook, measured over {{ games }} games.{% endblocktranslate %}
+      {% blocktranslate with games=run.games_total|intcomma %}How soon a combo can end the game: Commander Spellbook's combos, measured over {{ games }} games.{% endblocktranslate %}
       {% include "core/_why.html" with anchor="combos" %}
     </p>
     <div class="mt-3 overflow-x-auto">

@@ -13619,3 +13619,58 @@ msgstr "%(date)s にシミュレーション"
 #: templates/decks/list.html
 msgid "not simulated yet"
 msgstr "未シミュレーション"
+
+#: templates/core/_why.html
+msgctxt "explanation link"
+msgid "More"
+msgstr "詳しく"
+
+#: templates/simulations/_report.html
+msgid "What your games start with: your opening hand and every card you drew."
+msgstr "ゲームの始まり方：初手と、引いたすべてのカード。"
+
+#: templates/simulations/_report.html
+msgid ""
+"How soon your deck gets going: the share of games where each was true by the"
+" end of each turn."
+msgstr "デッキがどれだけ早く動き出すか：各ターンの終わりまでに条件を満たしたゲームの割合。"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How well your deck gets back up when an opponent hits it: the same games, "
+"once as they went and once struck, side by side on turn %(turn)s. Each blow "
+"is an assumption, said beside it."
+msgstr ""
+"相手に叩かれたとき、デッキがどれだけ立て直せるか：同じゲームを、そのままの展開と打撃を受けた場合で、%(turn)sターン目に並べて示します。打撃はそれぞれ横に記した想定です。"
+
+#: templates/simulations/_report.html
+msgid ""
+"Whether your mana pays for your spells' colours: how much of each colour it "
+"could pay, on average."
+msgstr "マナで呪文の色をまかなえるか：各色をどれだけ支払えたか（平均）。"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Your mana in a bad game, not only an average one: p10 is the game that goes "
+"wrong."
+msgstr "平均だけでなく、うまくいかないゲームでのマナ：p10 はうまくいかないゲームです。"
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"How soon each engine starts paying off: running means one card of each role "
+"is out, measured over %(games)s games."
+msgstr ""
+"各エンジンがどれだけ早く働き始めるか：「動いている」とは、各役割のカードが1枚ずつ場に出ていることです。%(games)sゲームで測定しました。"
+
+#: templates/simulations/_combos.html
+#, python-format
+msgid ""
+"How soon a combo can end the game: Commander Spellbook's combos, measured "
+"over %(games)s games."
+msgstr "コンボがどれだけ早くゲームを終わらせられるか：Commander Spellbook のコンボを %(games)s ゲームで計測。"
+
+#: templates/simulations/_attention.html templates/sharing/_body.html
+msgid "The more it reads, the more the numbers tell."
+msgstr "読み取れる割合が高いほど、数字の信頼度が上がります。"

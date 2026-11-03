@@ -15348,3 +15348,70 @@ msgstr "simulado em %(date)s"
 #: templates/decks/list.html
 msgid "not simulated yet"
 msgstr "ainda não simulado"
+
+#: templates/core/_why.html
+msgctxt "explanation link"
+msgid "More"
+msgstr "Saiba mais"
+
+#: templates/simulations/_report.html
+msgid "What your games start with: your opening hand and every card you drew."
+msgstr ""
+"Com o que suas partidas começam: sua mão inicial e todo card que você "
+"comprou."
+
+#: templates/simulations/_report.html
+msgid ""
+"How soon your deck gets going: the share of games where each was true by the"
+" end of each turn."
+msgstr ""
+"Quão cedo seu deck engrena: a proporção de partidas em que isso era verdade "
+"ao fim de cada turno."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How well your deck gets back up when an opponent hits it: the same games, "
+"once as they went and once struck, side by side on turn %(turn)s. Each blow "
+"is an assumption, said beside it."
+msgstr ""
+"Quão bem seu deck se levanta quando um oponente o atinge: as mesmas "
+"partidas, uma vez como foram e outra atingidas, lado a lado no turno "
+"%(turn)s. Cada golpe é uma suposição, indicada ao lado."
+
+#: templates/simulations/_report.html
+msgid ""
+"Whether your mana pays for your spells' colours: how much of each colour it "
+"could pay, on average."
+msgstr ""
+"Se a sua mana paga as cores das suas mágicas: quanto de cada cor ela podia "
+"pagar, em média."
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Your mana in a bad game, not only an average one: p10 is the game that goes "
+"wrong."
+msgstr ""
+"Sua mana numa partida ruim, não só na média: p10 é a partida que dá errado."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"How soon each engine starts paying off: running means one card of each role "
+"is out, measured over %(games)s games."
+msgstr ""
+"Quão cedo cada motor começa a render: funcionando significa que há uma carta"
+" de cada função em jogo, medido em %(games)s partidas."
+
+#: templates/simulations/_combos.html
+#, python-format
+msgid ""
+"How soon a combo can end the game: Commander Spellbook's combos, measured "
+"over %(games)s games."
+msgstr ""
+"Quão cedo um combo pode encerrar a partida: os combos do Commander "
+"Spellbook, medidos em %(games)s partidas."
+
+#: templates/simulations/_attention.html templates/sharing/_body.html
+msgid "The more it reads, the more the numbers tell."
+msgstr "Quanto mais ele lê, mais os números dizem."

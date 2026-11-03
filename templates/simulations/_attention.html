@@ -51,6 +51,7 @@
       of {{ total }} cards in full —
       <strong class="tabular text-ink-900">{{ pct }}%</strong>.
     {% endblocktranslate %}
+    {% translate "The more it reads, the more the numbers tell." %}
     {% if run.reading_gaps %}
       <a href="{% url 'simulations:review' run.deck.id %}" class="text-ink-900 underline">{% translate "See what it could not read" %}</a>
     {% endif %}

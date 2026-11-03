@@ -25,7 +25,7 @@
 <section id="seen" class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">{% translate "What you drew" %}</h2>
   {% if report.seen %}
-    <p class="mt-1 text-sm text-ink-700">{% translate "Your opening hand and every card you drew." %}</p>
+    <p class="mt-1 text-sm text-ink-700">{% translate "What your games start with: your opening hand and every card you drew." %}</p>
     {# Not _("…") in the include: that would keep the catalogue's doubled "%%". #}
     {% translate "% of games, by end of turn" as share_corner %}
     {% if report.seen.roles.lines %}
@@ -96,7 +96,7 @@
   <section id="milestones" class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">{% translate "Milestones" %}</h2>
     <p class="mt-1 text-sm text-ink-700">
-      {% translate "Share of games where it was true by the end of each turn." %}
+      {% translate "How soon your deck gets going: the share of games where each was true by the end of each turn." %}
       {% include "core/_why.html" with anchor="report-milestones" %}
     </p>
     {% include "simulations/_line_chart.html" with chart=report.milestone_chart name="milestone" title=_("Share of games where each milestone was reached, by turn") %}
@@ -141,7 +141,7 @@
     <h2 class="font-display text-2xl text-ink-900">{% translate "Stress test: when the table strikes back" %}</h2>
     <p class="mt-1 text-sm text-ink-700">
       {% blocktranslate trimmed with turn=report.stress.turns %}
-        The same games, once as they went and once with the table striking back, side by side on turn {{ turn }}. An assumption, said beside each, not a measurement of real tables.
+        How well your deck gets back up when an opponent hits it: the same games, once as they went and once struck, side by side on turn {{ turn }}. Each blow is an assumption, said beside it.
       {% endblocktranslate %}
       {% include "core/_why.html" with anchor="stress" %}
     </p>
@@ -217,7 +217,7 @@
   <section class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">{% translate "What the mana was made of" %}</h2>
     <p class="mt-1 text-sm text-ink-700">
-      {% translate "How much of each colour the mana could pay — means only." %}
+      {% translate "Whether your mana pays for your spells' colours: how much of each colour it could pay, on average." %}
       {% include "core/_why.html" with anchor="report-colour" %}
     </p>
     <div class="mt-5 overflow-x-auto">

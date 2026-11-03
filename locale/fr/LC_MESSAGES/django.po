@@ -15662,3 +15662,72 @@ msgstr "simulé le %(date)s"
 #: templates/decks/list.html
 msgid "not simulated yet"
 msgstr "pas encore simulé"
+
+#: templates/core/_why.html
+msgctxt "explanation link"
+msgid "More"
+msgstr "En savoir plus"
+
+#: templates/simulations/_report.html
+msgid "What your games start with: your opening hand and every card you drew."
+msgstr ""
+"Ce avec quoi vos parties commencent : votre main de départ et chaque carte "
+"piochée."
+
+#: templates/simulations/_report.html
+msgid ""
+"How soon your deck gets going: the share of games where each was true by the"
+" end of each turn."
+msgstr ""
+"À quelle vitesse votre deck se met en route : la part des parties où c'était"
+" le cas à la fin de chaque tour."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How well your deck gets back up when an opponent hits it: the same games, "
+"once as they went and once struck, side by side on turn %(turn)s. Each blow "
+"is an assumption, said beside it."
+msgstr ""
+"Comment votre deck se relève quand un adversaire le frappe : les mêmes "
+"parties, une fois telles qu'elles se sont déroulées et une fois frappées, "
+"côte à côte au tour %(turn)s. Chaque coup est une hypothèse, indiquée à "
+"côté."
+
+#: templates/simulations/_report.html
+msgid ""
+"Whether your mana pays for your spells' colours: how much of each colour it "
+"could pay, on average."
+msgstr ""
+"Si votre mana paie les couleurs de vos sorts : combien de chaque couleur il "
+"pouvait payer, en moyenne."
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Your mana in a bad game, not only an average one: p10 is the game that goes "
+"wrong."
+msgstr ""
+"Votre mana dans une mauvaise partie, pas seulement en moyenne : p10 est la "
+"partie qui tourne mal."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"How soon each engine starts paying off: running means one card of each role "
+"is out, measured over %(games)s games."
+msgstr ""
+"À quel moment chaque moteur commence à rapporter : en marche signifie qu’une"
+" carte de chaque rôle est en jeu, mesuré sur %(games)s parties."
+
+#: templates/simulations/_combos.html
+#, python-format
+msgid ""
+"How soon a combo can end the game: Commander Spellbook's combos, measured "
+"over %(games)s games."
+msgstr ""
+"À quel moment un combo peut finir la partie : les combos de Commander "
+"Spellbook, mesurés sur %(games)s parties."
+
+#: templates/simulations/_attention.html templates/sharing/_body.html
+msgid "The more it reads, the more the numbers tell."
+msgstr "Plus il en lit, plus les chiffres en disent."

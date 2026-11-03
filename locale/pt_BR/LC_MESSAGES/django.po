@@ -15415,3 +15415,86 @@ msgstr ""
 #: templates/simulations/_attention.html templates/sharing/_body.html
 msgid "The more it reads, the more the numbers tell."
 msgstr "Quanto mais ele lê, mais os números dizem."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"Where your deck stands next to %(precons)s Commander precon, each played the"
+" same way."
+msgid_plural ""
+"Where your deck stands next to %(precons)s Commander precons, each played "
+"the same way."
+msgstr[0] ""
+"Onde o seu deck fica ao lado de %(precons)s precon de Commander, cada um "
+"jogado do mesmo jeito."
+msgstr[1] ""
+"Onde o seu deck fica ao lado de %(precons)s precons de Commander, cada um "
+"jogado do mesmo jeito."
+
+#: templates/simulations/_report.html
+msgid "Ahead of every precon."
+msgstr "À frente de todos os precons."
+
+#: templates/simulations/_report.html
+msgid "Behind or level with every precon."
+msgstr "Atrás ou empatado com todos os precons."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "Ahead of %(ahead)s of %(total)s precon."
+msgid_plural "Ahead of %(ahead)s of %(total)s precons."
+msgstr[0] "À frente de %(ahead)s de %(total)s precon."
+msgstr[1] "À frente de %(ahead)s de %(total)s precons."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "The precons' middle: %(middle)s."
+msgstr "O meio dos precons: %(middle)s."
+
+#: templates/simulations/_report.html
+msgid ""
+"Your games were on the play, the precons' on the draw: by turn 4 they have "
+"drawn one card more."
+msgstr ""
+"Suas partidas eram jogando primeiro, as dos precons comprando: até o turno 4"
+" eles compraram um card a mais."
+
+#: templates/simulations/_report.html
+msgid "Every precon, side by side"
+msgstr "Todos os precons, lado a lado"
+
+#: templates/simulations/_advanced.html
+msgid "How exact the numbers are"
+msgstr "Quão exatos são os números"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, how exact the numbers are, mana and lands turn by "
+"turn, engine and seed"
+msgstr ""
+"Velocidade e brackets, quão exatos são os números, mana e terrenos turno a "
+"turno, motor e semente"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, how exact the numbers are, mana and lands turn by "
+"turn, what the engine cannot model, engine and seed"
+msgstr ""
+"Velocidade e brackets, quão exatos são os números, mana e terrenos turno a "
+"turno, o que o motor não consegue modelar, motor e semente"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>In short</strong>, at the top of a report, sets three of its numbers"
+" next to every Commander precon's, each played the same way: ten thousand "
+"games, on the draw. A faint tick is a precon, the tall mark is your deck, "
+"and \"the middle\" is the precon in the middle. A precon's own page leaves "
+"that precon out, and with fewer than five precons played there is nothing to"
+" compare with."
+msgstr ""
+"<strong>Em resumo</strong>, no topo de um relatório, coloca três dos seus "
+"números ao lado dos de cada precon de Commander, cada um jogado do mesmo "
+"jeito: dez mil partidas, comprando. Um traço claro é um precon, a marca alta"
+" é o seu deck, e \"o meio\" é o precon do meio. A página de um precon deixa "
+"esse precon de fora, e com menos de cinco precons jogados não há nada para "
+"comparar."

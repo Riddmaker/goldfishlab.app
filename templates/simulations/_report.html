@@ -5,21 +5,50 @@
   and works in a browser with both switched off. `shared` (P4): on a shared
   report, which offers its reader nothing of the owner's.
 {% endcomment %}
-{% if report.glance %}
-  {# P20 F4 (E1.19): the precon pages' numbers, for every deck - the same sentences. #}
+{% if report.standings %}
+  {# Paket 3, PR 11 (Themen-Doc row 32): the numbers next to the precons', each played the same way. #}
   <section id="glance" class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">{% translate "In short" %}</h2>
-    <ul class="mt-3 list-disc space-y-1 pl-5 text-ink-900">
-      {% for sentence in report.glance %}<li>{{ sentence }}</li>{% endfor %}
-    </ul>
-    <p class="mt-2 text-sm text-ink-700">
-      {% blocktranslate trimmed with shown=report.iterations|intcomma count games=report.iterations %}
-        “±” is how far the share of {{ shown }} game can be from the true one, at 95% confidence.
+    <p class="mt-1 text-sm text-ink-700">
+      {% blocktranslate trimmed count precons=report.standings.0.total %}
+        Where your deck stands next to {{ precons }} Commander precon, each played the same way.
       {% plural %}
-        “±” is how far the share of {{ shown }} games can be from the true one, at 95% confidence.
+        Where your deck stands next to {{ precons }} Commander precons, each played the same way.
       {% endblocktranslate %}
-      {% include "core/_why.html" with anchor="games" %}
+      {% include "core/_why.html" with anchor="precons-compared" %}
     </p>
+    <dl class="peer-list mt-4">
+      {% for standing in report.standings %}
+        <div class="peer-row" data-standing>
+          <dt class="text-ink-900">{{ standing.label }}</dt>
+          <dd class="tabular peer-value text-ink-900">{{ standing.value }}</dd>
+          <dd class="peer-strip" aria-hidden="true">
+            {% for tick in standing.ticks %}<span class="peer-tick" style="left: {{ tick|unlocalize }}%"></span>{% endfor %}
+            <span class="peer-mark" style="left: {{ standing.mark|unlocalize }}%"></span>
+            <span class="tabular peer-end peer-end-low">{{ standing.low }}</span>
+            <span class="tabular peer-end peer-end-high">{{ standing.high }}</span>
+          </dd>
+          <dd class="peer-said text-sm text-ink-700">
+            {% if standing.ahead_of == standing.total %}
+              {% translate "Ahead of every precon." %}
+            {% elif standing.ahead_of == 0 %}
+              {% translate "Behind or level with every precon." %}
+            {% else %}
+              {% blocktranslate trimmed with ahead=standing.ahead_of count total=standing.total %}
+                Ahead of {{ ahead }} of {{ total }} precon.
+              {% plural %}
+                Ahead of {{ ahead }} of {{ total }} precons.
+              {% endblocktranslate %}
+            {% endif %}
+            {% blocktranslate with middle=standing.middle %}The precons' middle: {{ middle }}.{% endblocktranslate %}
+          </dd>
+        </div>
+      {% endfor %}
+    </dl>
+    {% if report.on_the_play %}
+      <p class="mt-3 text-sm text-ink-700">{% translate "Your games were on the play, the precons' on the draw: by turn 4 they have drawn one card more." %}</p>
+    {% endif %}
+    <p class="mt-3 text-sm"><a class="text-ink-700 underline" href="{% url "datapages:precons" %}">{% translate "Every precon, side by side" %}</a></p>
   </section>
 {% endif %}
 <section id="seen" class="surface-parchment mt-6 p-6">

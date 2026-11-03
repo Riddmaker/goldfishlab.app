@@ -18,11 +18,18 @@ other way round, so the module moved to where both can reach it.
 
 A run shorter than four turns has no turn 4: its turn-4 numbers are None and
 their sentences are left out.
+
+Since Paket 3, PR 11 (Themen-Doc row 32) a report tells these numbers against
+the precons' (`standings`): "81% of games" says little on its own, "ahead of
+34 of 40 precons" says where the deck stands.
 """
 
 import math
+import statistics
 from dataclasses import dataclass
+from uuid import UUID
 
+from django.core.cache import cache
 from django.utils.translation import gettext
 
 from core.l10n import number, percent
@@ -34,6 +41,12 @@ TURN = 4
 
 #: The z of a 95% interval: a share is told with its margin at that confidence.
 Z_95 = 1.96
+
+#: The fewest precons a deck is compared with: "ahead of 2 of 3" says nothing.
+PRECONS_AT_LEAST = 5
+PRECONS_KEY = "simulations:precon-numbers"
+#: As long as a report is kept (`sharing.views.CACHE_SECONDS`).
+PRECONS_SECONDS = 600
 
 
 @dataclass(frozen=True)
@@ -114,3 +127,76 @@ def sentences(numbers: Numbers) -> list[str]:
         said.append(gettext("On turn 4 it has %(mana)s mana on average.")
                     % {"mana": number(numbers.mana_turn_4, 1)})
     return said
+
+
+@dataclass(frozen=True)
+class Standing:
+    """Where one of a deck's numbers stands among the precons'."""
+
+    label: str
+    value: str
+    #: Precons with a lower number, out of `total`.
+    ahead_of: int
+    total: int
+    #: The precons' median.
+    middle: str
+    #: Each precon's place on the strip and the deck's, in % of its width.
+    ticks: list[float]
+    mark: float
+    #: The strip's two ends, so a close race does not look like a wide one.
+    low: str
+    high: str
+
+
+def precons() -> list[tuple[UUID, Numbers]]:
+    """(deck id, numbers) of every published precon: its newest finished run,
+    the one its page shows (`datapages.services.report_of`). Reached through
+    the related names, so `simulations` still does not import `datapages`."""
+    found = cache.get(PRECONS_KEY)
+    if found is None:
+        from simulations.models import SimulationRun
+
+        runs = (SimulationRun.objects
+                .filter(deck__precon__published=True, share__isnull=False,
+                        status=SimulationRun.Status.DONE)
+                .order_by("deck_id", "-finished_at").distinct("deck_id"))
+        found = [(run.deck_id, of(run)) for run in runs]
+        cache.set(PRECONS_KEY, found, PRECONS_SECONDS)
+    return found
+
+
+def _place(value: float, low: float, high: float) -> float:
+    return 50.0 if high == low else round(100 * (value - low) / (high - low), 1)
+
+
+def standings(numbers: Numbers, deck_id: UUID | None = None) -> list[Standing]:
+    """The deck's numbers next to the precons', higher is better in each. Empty
+    when fewer than `PRECONS_AT_LEAST` precons have a run; a precon's own page
+    leaves the precon out (`deck_id`)."""
+    others = [theirs for deck, theirs in precons() if deck != deck_id]
+    if len(others) < PRECONS_AT_LEAST:
+        return []
+    # The precon table's own column names (`datapages/precons.html`).
+    shown = (
+        (gettext("4 lands by turn %(turn)s") % {"turn": TURN}, "on_curve", percent),
+        (gettext("Kept seven"), "kept_seven", percent),
+        (gettext("Mana on turn %(turn)s") % {"turn": TURN}, "mana_turn_4",
+         lambda value: number(value, 1)),
+    )
+    found = []
+    for label, field, say in shown:
+        mine = getattr(numbers, field)
+        theirs = [getattr(other, field) for other in others]
+        theirs = [value for value in theirs if value is not None]
+        if mine is None or len(theirs) < PRECONS_AT_LEAST:
+            continue
+        low, high = min(*theirs, mine), max(*theirs, mine)
+        found.append(Standing(
+            label=label, value=say(mine),
+            ahead_of=sum(value < mine for value in theirs), total=len(theirs),
+            middle=say(statistics.median(theirs)),
+            ticks=[_place(value, low, high) for value in theirs],
+            mark=_place(mine, low, high),
+            low=say(low), high=say(high),
+        ))
+    return found

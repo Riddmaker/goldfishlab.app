@@ -2316,3 +2316,91 @@ span.hand-card {
     opacity: 0;
   }
 }
+
+/* "In short" (Themen-Doc, Paket 3, PR 11): each number next to the precons'.
+ * Every precon is a faint tick, so where many stand the strip darkens; the
+ * deck is the one tall mark. The sentence beside it says the same in words,
+ * so the strip is hidden from screen readers. */
+.peer-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.peer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.25rem 1rem;
+  align-items: baseline;
+}
+
+.peer-row dd {
+  margin: 0;
+}
+
+.peer-value {
+  font-size: 1.25rem;
+}
+
+/* `.peer-row` too: its `dd { margin: 0 }` would take the room for the ends. */
+.peer-row .peer-strip {
+  position: relative;
+  grid-column: 1 / -1;
+  height: 1.25rem;
+  margin: 0 0.375rem 1.125rem;
+  border-bottom: 1px solid var(--color-parchment-600);
+}
+
+.peer-tick,
+.peer-mark {
+  position: absolute;
+  bottom: 0;
+  transform: translateX(-50%);
+}
+
+.peer-tick {
+  width: 2px;
+  height: 0.75rem;
+  background-color: var(--color-ink-500);
+  opacity: 0.45;
+}
+
+.peer-end {
+  position: absolute;
+  top: 100%;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-ink-700);
+}
+
+.peer-end-low {
+  left: -0.375rem;
+}
+
+.peer-end-high {
+  right: -0.375rem;
+}
+
+.peer-mark {
+  width: 0.75rem;
+  height: 1.25rem;
+  border: 2px solid var(--color-parchment-100);
+  background-color: var(--color-verdigris-700);
+}
+
+.peer-said {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 640px) {
+  .peer-row {
+    grid-template-columns: 12rem 4.5rem minmax(0, 1fr);
+  }
+
+  .peer-row .peer-strip {
+    grid-column: auto;
+  }
+
+  .peer-said {
+    grid-column: 2 / -1;
+  }
+}

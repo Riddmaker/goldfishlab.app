@@ -232,7 +232,9 @@ def test_the_report_says_four_lands_on_turn_4_as_the_precon_pages_do(client, own
     body = client.get(run.get_absolute_url()).content.decode()
 
     assert said.on_curve == 100 * sum(n for lands, n in turn.items() if lands >= 4) / 40
-    assert 'id="glance"' in body
+    # Since Paket 3, PR 11 the sentences are in Advanced, under "How exact the
+    # numbers are"; "In short" compares with the precons, and here are none.
+    assert 'id="exact"' in body and 'id="glance"' not in body
     first = numbers.sentences(said)[0]
     assert "four lands in play on turn 4" in first and first in body
 

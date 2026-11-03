@@ -13674,3 +13674,69 @@ msgstr "コンボがどれだけ早くゲームを終わらせられるか：Com
 #: templates/simulations/_attention.html templates/sharing/_body.html
 msgid "The more it reads, the more the numbers tell."
 msgstr "読み取れる割合が高いほど、数字の信頼度が上がります。"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"Where your deck stands next to %(precons)s Commander precon, each played the"
+" same way."
+msgid_plural ""
+"Where your deck stands next to %(precons)s Commander precons, each played "
+"the same way."
+msgstr[0] "同じ条件でプレイした%(precons)s個の統率者構築済みデッキと比べて、あなたのデッキがどこにいるか。"
+
+#: templates/simulations/_report.html
+msgid "Ahead of every precon."
+msgstr "すべての構築済みデッキを上回っています。"
+
+#: templates/simulations/_report.html
+msgid "Behind or level with every precon."
+msgstr "すべての構築済みデッキと同じか、それ以下です。"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "Ahead of %(ahead)s of %(total)s precon."
+msgid_plural "Ahead of %(ahead)s of %(total)s precons."
+msgstr[0] "%(total)s個中%(ahead)s個の構築済みデッキを上回っています。"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "The precons' middle: %(middle)s."
+msgstr "構築済みデッキの中央値：%(middle)s。"
+
+#: templates/simulations/_report.html
+msgid ""
+"Your games were on the play, the precons' on the draw: by turn 4 they have "
+"drawn one card more."
+msgstr "あなたのゲームは先攻、構築済みデッキは後攻です。4ターン目までに、彼らは1枚多く引いています。"
+
+#: templates/simulations/_report.html
+msgid "Every precon, side by side"
+msgstr "すべての構築済みデッキを並べて見る"
+
+#: templates/simulations/_advanced.html
+msgid "How exact the numbers are"
+msgstr "数値の精度"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, how exact the numbers are, mana and lands turn by "
+"turn, engine and seed"
+msgstr "速度とブラケット、数値の精度、ターンごとのマナと土地、エンジンとシード"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, how exact the numbers are, mana and lands turn by "
+"turn, what the engine cannot model, engine and seed"
+msgstr "速度とブラケット、数値の精度、ターンごとのマナと土地、エンジンが再現できないこと、エンジンとシード"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>In short</strong>, at the top of a report, sets three of its numbers"
+" next to every Commander precon's, each played the same way: ten thousand "
+"games, on the draw. A faint tick is a precon, the tall mark is your deck, "
+"and \"the middle\" is the precon in the middle. A precon's own page leaves "
+"that precon out, and with fewer than five precons played there is nothing to"
+" compare with."
+msgstr ""
+"レポート上部の<strong>要点</strong>は、3つの数値を、同じ条件（1万ゲーム、後攻）でプレイしたすべての統率者構築済みデッキの数値と並べます。薄い線が構築済みデッキ、高い印があなたのデッキで、「中央値」は真ん中の構築済みデッキです。構築済みデッキのページではそのデッキ自身を除き、プレイ済みの構築済みデッキが5個未満なら比較は表示しません。"

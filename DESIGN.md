@@ -218,6 +218,14 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   your deck gets going: the share of games ...". The page has to be understood without the
   link - reading on is an offer, never a must. A question ("Why?") made readers feel they had
   to answer it before going on; "More" (DE "Mehr dazu") does not.
+- **"In short" next to the precons** (`simulations/_report.html` `#glance`, `.peer-*`, Paket 3
+  PR 11): a bare "81% of games" says little; where the deck stands among the precons, each
+  played the same way, says a lot. Each of the three numbers is a row: its name, the value,
+  a strip with every precon as a faint ink tick (where many stand it darkens) and the deck as
+  one tall verdigris mark, then the words - "Ahead of 34 of 40 precons. The precons' middle:
+  76%." The strip is hidden from screen readers, the sentence says it. Fewer than five
+  precons and the block is gone; a precon's own page leaves the precon out. The "±"
+  sentences moved to Advanced ("How exact the numbers are").
 - **Resources** (`core/resources.html`, data in `core/resources.py`): a short list, not a link
   farm. Each entry is its name as a display-font link with "↗", then one sentence of ours on why
   it is there; a video adds channel, year and length. Titles stay in English (`lang="en"`), the

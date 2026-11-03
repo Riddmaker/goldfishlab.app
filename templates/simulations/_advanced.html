@@ -5,14 +5,31 @@
   the second. Closed by default, and a real <details>, so it opens without
   JavaScript. Needs `run`, `report`, `blindspots`.
 {% endcomment %}
-{% load i18n %}
+{% load humanize i18n %}
 <details id="advanced" class="report-advanced mt-10">
   <summary class="report-advanced-summary">
     <span class="font-display text-2xl text-parchment-100">{% translate "Advanced" %}</span>
-    <span class="text-sm text-parchment-200">{% if shared %}{% translate "Speed and the brackets, mana and lands turn by turn, engine and seed" %}{% else %}{% translate "Speed and the brackets, mana and lands turn by turn, what the engine cannot model, engine and seed" %}{% endif %}</span>
+    <span class="text-sm text-parchment-200">{% if shared %}{% translate "Speed and the brackets, how exact the numbers are, mana and lands turn by turn, engine and seed" %}{% else %}{% translate "Speed and the brackets, how exact the numbers are, mana and lands turn by turn, what the engine cannot model, engine and seed" %}{% endif %}</span>
   </summary>
   {# The deck page's bracket tile gives the result; the table per bracket is here. #}
   {% include "simulations/_brackets.html" with tempo=report.brackets %}
+  {# "In short" before Paket 3, PR 11: the numbers with how exact each is. #}
+  {% if report.exact %}
+    <section id="exact" class="surface-parchment mt-6 p-6">
+      <h2 class="font-display text-2xl text-ink-900">{% translate "How exact the numbers are" %}</h2>
+      <ul class="mt-3 list-disc space-y-1 pl-5 text-ink-900">
+        {% for sentence in report.exact %}<li>{{ sentence }}</li>{% endfor %}
+      </ul>
+      <p class="mt-2 text-sm text-ink-700">
+        {% blocktranslate trimmed with shown=report.iterations|intcomma count games=report.iterations %}
+          “±” is how far the share of {{ shown }} game can be from the true one, at 95% confidence.
+        {% plural %}
+          “±” is how far the share of {{ shown }} games can be from the true one, at 95% confidence.
+        {% endblocktranslate %}
+        {% include "core/_why.html" with anchor="games" %}
+      </p>
+    </section>
+  {% endif %}
   <section class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">{% translate "Mana and lands, turn by turn" %}</h2>
     <p class="mt-1 text-sm text-ink-700">

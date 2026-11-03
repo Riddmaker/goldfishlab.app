@@ -981,6 +981,7 @@ def build(run) -> dict:
     columns = color_columns(result)
     milestone_rows = milestones(result)
     measured = combo_measurements(run)
+    said = numbers.of(run)
     return {
         "annotations_changed": annotations_changed_since(run),
         "iterations": result["iterations"],
@@ -998,7 +999,10 @@ def build(run) -> dict:
         "engines": engine_watch.measured(run),
         "brackets": brackets(run, result, timed_combos=_timed(measured)),
         "stress": stress(result),
-        "glance": numbers.sentences(numbers.of(run)),
+        # "In short" (Paket 3, PR 11): next to the precons; the bare sentences,
+        # each with its "±", in Advanced.
+        "standings": numbers.standings(said, run.deck_id),
+        "exact": numbers.sentences(said),
         "percentiles": PERCENTILES,
     }
 

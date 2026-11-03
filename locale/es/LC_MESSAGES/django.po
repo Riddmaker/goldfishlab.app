@@ -15399,3 +15399,52 @@ msgstr ""
 "vuelve a sugerir, y puedes recuperarlo. Cuando una de sus cartas sale del "
 "mazo, queda en pausa hasta que la carta vuelva. Todo lo demás se lee de "
 "nuevo de tu lista en cada visita."
+
+#: templates/decks/_engines.html
+#, python-format
+msgid ""
+"Running by turn %(turn)s in <strong>%(share)s</strong> of games, in your "
+"last run."
+msgstr ""
+"En marcha para el turno %(turn)s en el <strong>%(share)s</strong> de las "
+"partidas, en tu última simulación."
+
+#: templates/decks/_engines.html
+msgid "Not measured yet: your next simulation shows by which turn it runs."
+msgstr ""
+"Aún sin medir: tu próxima simulación muestra para qué turno está en marcha."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"Running means one card of each role is out, measured over %(games)s games."
+msgstr ""
+"En marcha significa que hay una carta de cada rol en juego, medido en "
+"%(games)s partidas."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"%(label)s: running by turn %(turn)s in <strong>%(share)s</strong> of games."
+msgstr ""
+"%(label)s: en marcha para el turno %(turn)s en el <strong>%(share)s</strong>"
+" de las partidas."
+
+#: templates/core/methodology.html
+msgid ""
+"A simulation also measures <strong>by which turn each engine runs</strong>: "
+"at the end of a turn, every part of it has a card out, any card of the deck "
+"that fills that part, not only the ones the engine names. A permanent counts"
+" on the battlefield, an instant or a sorcery in hand, ready to cast; the "
+"commander counts once it is cast. Up to five engines, one per theme, locked "
+"ones first; one a part short or resting is not measured. It is read in the "
+"run's own games, so it costs nothing extra."
+msgstr ""
+"Una simulación también mide <strong>para qué turno está en marcha cada "
+"motor</strong>: al final de un turno, cada una de sus partes tiene una carta"
+" en juego, cualquier carta del mazo que cubra esa parte, no solo las que "
+"nombra el motor. Un permanente cuenta en el campo de batalla, un instantáneo"
+" o un conjuro en la mano, listo para lanzar; el comandante cuenta en cuanto "
+"se lanza. Hasta cinco motores, uno por tema, primero los fijados; uno al que"
+" le falta una parte o que está en reposo no se mide. Se mide en las propias "
+"partidas de la simulación, así que no cuesta nada más."

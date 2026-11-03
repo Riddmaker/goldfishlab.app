@@ -15264,3 +15264,54 @@ msgstr ""
 " è scartato non viene più proposto, e puoi ripristinarlo. Quando una delle "
 "sue carte lascia il mazzo, resta in pausa finché la carta non torna. Tutto "
 "il resto viene riletto dalla tua lista a ogni visita."
+
+#: templates/decks/_engines.html
+#, python-format
+msgid ""
+"Running by turn %(turn)s in <strong>%(share)s</strong> of games, in your "
+"last run."
+msgstr ""
+"In funzione entro il turno %(turn)s nel <strong>%(share)s</strong> delle "
+"partite, nella tua ultima simulazione."
+
+#: templates/decks/_engines.html
+msgid "Not measured yet: your next simulation shows by which turn it runs."
+msgstr ""
+"Non ancora misurato: la tua prossima simulazione mostra entro quale turno è "
+"in funzione."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"Running means one card of each role is out, measured over %(games)s games."
+msgstr ""
+"In funzione significa che una carta per ogni ruolo è in gioco, misurato su "
+"%(games)s partite."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"%(label)s: running by turn %(turn)s in <strong>%(share)s</strong> of games."
+msgstr ""
+"%(label)s: in funzione entro il turno %(turn)s nel "
+"<strong>%(share)s</strong> delle partite."
+
+#: templates/core/methodology.html
+msgid ""
+"A simulation also measures <strong>by which turn each engine runs</strong>: "
+"at the end of a turn, every part of it has a card out, any card of the deck "
+"that fills that part, not only the ones the engine names. A permanent counts"
+" on the battlefield, an instant or a sorcery in hand, ready to cast; the "
+"commander counts once it is cast. Up to five engines, one per theme, locked "
+"ones first; one a part short or resting is not measured. It is read in the "
+"run's own games, so it costs nothing extra."
+msgstr ""
+"Una simulazione misura anche <strong>entro quale turno ogni motore è in "
+"funzione</strong>: alla fine di un turno, ogni sua parte ha una carta in "
+"gioco, qualsiasi carta del mazzo che ricopre quella parte, non solo quelle "
+"che il motore nomina. Un permanente conta sul campo di battaglia, un "
+"istantaneo o una stregoneria in mano, pronti da lanciare; il comandante "
+"conta appena è stato lanciato. Fino a cinque motori, uno per tema, prima "
+"quelli bloccati; uno a cui manca una parte o che è a riposo non viene "
+"misurato. Si misura nelle partite della simulazione stessa, quindi non costa"
+" nulla in più."

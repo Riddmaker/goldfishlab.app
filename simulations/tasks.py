@@ -35,6 +35,7 @@ from django.utils import timezone
 from billing import quotas
 from billing.models import UsageRecord
 from combos import measure
+from decks import engine_watch
 from simulations import services
 from simulations.engine import adapter, runner
 from simulations.models import SimulationRun
@@ -132,7 +133,7 @@ def simulate_chunk(run_id: str, index: int, games: int, first_block: int | None 
             turns=run.turns,
             on_the_play=run.on_the_play,
             deck=measure.with_key_cards(conversion.definition, plan),
-            watch=plan.watches,
+            watch=plan.watches + _engine_watches(run),
             samples=samples,
         )
     except Exception as exc:
@@ -201,7 +202,7 @@ def finalize_run(chunks, run_id: str) -> str:
         return SimulationRun.Status.FAILED
 
     conversion = adapter.convert(run.deck)
-    run.result = merged
+    run.result = merged = engine_watch.split(merged)
     run.gaps = [
         {"card": gap.card, "field": gap.field, "reason": gap.reason}
         for gap in conversion.gaps
@@ -228,6 +229,19 @@ def finalize_run(chunks, run_id: str) -> str:
     quotas.consume(run.owner, UsageRecord.Metric.GAMES_SIMULATED,
                    merged["iterations"] + extra)
     return SimulationRun.Status.DONE
+
+
+def _engine_watches(run: SimulationRun) -> tuple:
+    """The deck's engines to measure (PR 5), and never fail a chunk over them.
+
+    They cost nothing and are a sentence on the deck page; a run that plays
+    its games without them is still the run somebody asked for.
+    """
+    try:
+        return engine_watch.watches(run.deck)
+    except Exception:
+        logger.exception("engines of run %s could not be read", run.pk)
+        return ()
 
 
 def _store_measurements(run: SimulationRun, merged: dict) -> int:

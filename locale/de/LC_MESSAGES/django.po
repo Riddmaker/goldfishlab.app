@@ -15338,3 +15338,52 @@ msgstr ""
 "finden; was verworfen ist, wird nicht wieder vorgeschlagen, und du kannst es"
 " zurückholen. Verlässt eine seiner Karten das Deck, ruht es, bis die Karte "
 "zurück ist. Alles andere wird bei jedem Besuch neu aus deiner Liste gelesen."
+
+#: templates/decks/_engines.html
+#, python-format
+msgid ""
+"Running by turn %(turn)s in <strong>%(share)s</strong> of games, in your "
+"last run."
+msgstr ""
+"Läuft bis Zug %(turn)s in <strong>%(share)s</strong> der Spiele, in deinem "
+"letzten Lauf."
+
+#: templates/decks/_engines.html
+msgid "Not measured yet: your next simulation shows by which turn it runs."
+msgstr ""
+"Noch nicht gemessen: Deine nächste Simulation zeigt, bis zu welchem Zug sie "
+"läuft."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"Running means one card of each role is out, measured over %(games)s games."
+msgstr ""
+"Läuft heisst: Von jeder Rolle liegt eine Karte draussen, gemessen über "
+"%(games)s Spiele."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"%(label)s: running by turn %(turn)s in <strong>%(share)s</strong> of games."
+msgstr ""
+"%(label)s: läuft bis Zug %(turn)s in <strong>%(share)s</strong> der Spiele."
+
+#: templates/core/methodology.html
+msgid ""
+"A simulation also measures <strong>by which turn each engine runs</strong>: "
+"at the end of a turn, every part of it has a card out, any card of the deck "
+"that fills that part, not only the ones the engine names. A permanent counts"
+" on the battlefield, an instant or a sorcery in hand, ready to cast; the "
+"commander counts once it is cast. Up to five engines, one per theme, locked "
+"ones first; one a part short or resting is not measured. It is read in the "
+"run's own games, so it costs nothing extra."
+msgstr ""
+"Eine Simulation misst auch, <strong>bis zu welchem Zug jede Engine "
+"läuft</strong>: Am Ende eines Zuges liegt für jeden Teil eine Karte "
+"draussen, irgendeine Karte des Decks, die diesen Teil füllt, nicht nur die, "
+"die die Engine nennt. Ein Permanent zählt auf dem Battlefield, ein Instant "
+"oder eine Sorcery auf der Hand, bereit zum Wirken; der Commander zählt, "
+"sobald er gewirkt ist. Bis zu fünf Engines, eine pro Theme, gelockte zuerst;"
+" eine, der ein Teil fehlt oder die ruht, wird nicht gemessen. Gemessen wird "
+"in den eigenen Spielen des Laufs, es kostet also nichts extra."

@@ -24,6 +24,7 @@ from django.utils.translation import gettext, gettext_noop, ngettext
 
 from core.l10n import number, percent
 from decks import analysis as deck_analysis
+from decks import engine_watch
 from simulations import charts, numbers
 from simulations.engine import runner
 
@@ -960,6 +961,7 @@ def build(run) -> dict:
         "milestones_hidden": max(0, len(milestone_rows) - MAX_LINES),
         "seen": seen(result),
         "combos": measured,
+        "engines": engine_watch.measured(run),
         "brackets": brackets(run, result, timed_combos=_timed(measured)),
         "stress": stress(result),
         "glance": numbers.sentences(numbers.of(run)),

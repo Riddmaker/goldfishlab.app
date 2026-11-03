@@ -15170,3 +15170,52 @@ msgstr ""
 "sugerido de novo, e você pode trazê-lo de volta. Quando uma das cartas sai "
 "do deck, ele fica em pausa até a carta voltar. Todo o resto é lido de novo "
 "da sua lista a cada visita."
+
+#: templates/decks/_engines.html
+#, python-format
+msgid ""
+"Running by turn %(turn)s in <strong>%(share)s</strong> of games, in your "
+"last run."
+msgstr ""
+"Funcionando até o turno %(turn)s em <strong>%(share)s</strong> das partidas,"
+" na sua última simulação."
+
+#: templates/decks/_engines.html
+msgid "Not measured yet: your next simulation shows by which turn it runs."
+msgstr ""
+"Ainda não medido: sua próxima simulação mostra até qual turno ele funciona."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"Running means one card of each role is out, measured over %(games)s games."
+msgstr ""
+"Funcionando significa que há uma carta de cada função em jogo, medido em "
+"%(games)s partidas."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"%(label)s: running by turn %(turn)s in <strong>%(share)s</strong> of games."
+msgstr ""
+"%(label)s: funcionando até o turno %(turn)s em <strong>%(share)s</strong> "
+"das partidas."
+
+#: templates/core/methodology.html
+msgid ""
+"A simulation also measures <strong>by which turn each engine runs</strong>: "
+"at the end of a turn, every part of it has a card out, any card of the deck "
+"that fills that part, not only the ones the engine names. A permanent counts"
+" on the battlefield, an instant or a sorcery in hand, ready to cast; the "
+"commander counts once it is cast. Up to five engines, one per theme, locked "
+"ones first; one a part short or resting is not measured. It is read in the "
+"run's own games, so it costs nothing extra."
+msgstr ""
+"Uma simulação também mede <strong>até qual turno cada motor está "
+"funcionando</strong>: no fim de um turno, cada parte dele tem uma carta em "
+"jogo, qualquer carta do deck que preencha essa parte, não só as que o motor "
+"nomeia. Uma permanente conta no campo de batalha, uma mágica instantânea ou "
+"um feitiço na mão, pronto para conjurar; o comandante conta assim que é "
+"conjurado. Até cinco motores, um por tema, os fixados primeiro; um com uma "
+"parte faltando ou em repouso não é medido. A medição é feita nas próprias "
+"partidas da simulação, então não custa nada a mais."

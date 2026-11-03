@@ -98,11 +98,12 @@ def deck_themes(deck) -> list[themes.Found]:
     return themes.detect(theme_cards(deck))
 
 
-def deck_reading(deck) -> Reading:
+def deck_reading(deck, cards=None) -> Reading:
     """The deck's themes, its engines and its pairs, from one read of its
-    cards, with what the owner locked or dismissed (`merge`)."""
+    cards (`cards`, when the caller read them already), with what the owner
+    locked or dismissed (`merge`)."""
     marks = list(deck.marks.all())
-    cards = theme_cards(deck)
+    cards = theme_cards(deck) if cards is None else cards
     found = themes.detect(cards)
     engines, every = [], []
     if found:

@@ -86,19 +86,49 @@ class Requirement:
 
 
 @dataclass(frozen=True)
+class AnyOf:
+    """One role an engine needs filled, by any one of several cards (PR 5).
+
+    An engine is a plan rather than a list: an aristocrats deck has its
+    engine running with any sacrifice outlet and any payoff out, not only
+    with the two the page names. Each option keeps its own zones, so a
+    permanent counts on the battlefield and a sorcery in hand.
+    """
+
+    options: tuple[Requirement, ...]
+
+    def __post_init__(self):
+        if not self.options:
+            raise Unmeasurable("a role needs at least one card")
+
+    @property
+    def names(self) -> tuple[str, ...]:
+        return tuple(option.name for option in self.options)
+
+
+@dataclass(frozen=True)
 class Watch:
     """One combo, as something a game can be asked about."""
 
     key: str
-    requirements: tuple[Requirement, ...]
+    requirements: tuple[Requirement | AnyOf, ...]
     #: Whether the combo ends the game once it is together (P8): the bracket
     #: check times these and only these. A loop that makes mana or tokens and
     #: wins nothing on its own would make a deck look faster than it is.
     wins: bool = False
+    #: False for an engine (PR 5). An engine rides along with the combos but
+    #: is no combo: a run that watched only engines has no answer to "when
+    #: does a combo win", not a zero.
+    combo: bool = True
 
     def __post_init__(self):
         if not self.requirements:
             raise Unmeasurable(f"{self.key}: nothing to watch for")
+
+
+def _options(requirement) -> tuple[Requirement, ...]:
+    """Every plain requirement inside one, an `AnyOf` opened up."""
+    return requirement.options if isinstance(requirement, AnyOf) else (requirement,)
 
 
 class Watcher:
@@ -114,17 +144,10 @@ class Watcher:
 
     def __init__(self, watches):
         self.watches = tuple(watches)
-        self.names = frozenset(
-            requirement.name
-            for watch in self.watches
-            for requirement in watch.requirements
-        )
-        self.zones = frozenset(
-            zone
-            for watch in self.watches
-            for requirement in watch.requirements
-            for zone in requirement.zones
-        )
+        plain = [option for watch in self.watches
+                 for requirement in watch.requirements for option in _options(requirement)]
+        self.names = frozenset(option.name for option in plain)
+        self.zones = frozenset(zone for option in plain for zone in option.zones)
         #: Turn numbers, one-based. Zero means "not in the turns played", which
         #: is the answer for most combos in most games and has to survive as
         #: itself rather than as a missing key.
@@ -191,15 +214,13 @@ class Watcher:
         return counts
 
     def _met(self, watch: Watch, where: dict, game) -> bool:
-        for requirement in watch.requirements:
-            if requirement.must_be_commander:
-                if requirement.name not in {commander.name
-                                            for commander in game.deck.commanders}:
-                    return False
-            held = sum(
-                where.get(zone, {}).get(requirement.name, 0)
-                for zone in requirement.zones
-            )
-            if held < requirement.quantity:
-                return False
-        return True
+        return all(any(self._held(option, where, game) for option in _options(requirement))
+                   for requirement in watch.requirements)
+
+    @staticmethod
+    def _held(requirement: Requirement, where: dict, game) -> bool:
+        if requirement.must_be_commander and requirement.name not in {
+                commander.name for commander in game.deck.commanders}:
+            return False
+        held = sum(where.get(zone, {}).get(requirement.name, 0) for zone in requirement.zones)
+        return held >= requirement.quantity

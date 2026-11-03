@@ -26,7 +26,7 @@ from billing.quotas import QuotaExceeded
 from billing.views import upgrade_prompt
 from combos import services as combo_services
 from decks import analysis as deck_analysis
-from decks import command_zone, printing_art, services
+from decks import command_zone, engine_watch, printing_art, services
 from decks.forms import (
     DELETE_WORDS,
     ColumnMappingForm,
@@ -200,6 +200,8 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         context["summary_due"] = not user.is_guest and summary.due(user, deck)
         context["runs"] = runs = list(deck.runs.all()[:5])
         context.update(self.last_run_context(deck, runs))
+        # PR 5: by which turn each engine runs, from the last finished run.
+        context["engine_rows"] = engine_watch.engine_rows(reading, context["last_run"])
         # The bracket tile: the Game Changers' floor beside the last run's speed,
         # which the report's bracket section used to say alone.
         last_run = context["last_run"]
@@ -628,8 +630,11 @@ class DeckMarkView(OwnedDecksMixin, View):
                 save_mark(deck, item, DeckMark.State.LOCKED if action == MarkForm.LOCK
                           else DeckMark.State.DISMISSED)
         if request.headers.get("HX-Request"):
+            reading = deck_reading(deck)
+            last_run = deck.runs.filter(status=SimulationRun.Status.DONE).first()
             return render(request, "decks/_engines.html",
-                          {"deck": deck, "reading": deck_reading(deck)})
+                          {"deck": deck, "reading": reading,
+                           "engine_rows": engine_watch.engine_rows(reading, last_run)})
         return redirect(f"{deck.get_absolute_url()}#engines")
 
 

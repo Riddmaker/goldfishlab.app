@@ -182,6 +182,12 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   A dismissed one moves to a fold at the end ("1 dismissed") with "Bring back". An entry whose
   card left the deck turns ink-700 and says "Resting, a card is missing: …". The dashed rule
   keeps one meaning, a piece short; locking never changes the rule.
+- **Engine timing** (`decks/_engines.html`, `simulations/_engines.html`, PR 5): under each
+  complete engine, one sentence from the last finished run, "Running by turn 6 in **41%** of
+  games, in your last run.", the share in bold as everywhere a run gives a number. A complete
+  engine the run did not measure says the next simulation will, in ink-700; an engine a piece
+  short or resting says nothing, since it cannot run. The report lists the same as one line per
+  engine after the combos. "Running" is a plan, not the named cards: any card of each role out.
 - **The card grid** (`decks/_card_grid.html`, `.card-grid*`): card pictures, three across on a
   phone; the same marker words on a card ("! needs you", "✓ answered"), "×2" for a quantity.
   Filter chips reuse the chart chips. Every picture has its card name as `alt` and loads lazily.

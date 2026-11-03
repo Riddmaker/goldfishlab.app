@@ -572,7 +572,8 @@ def run(iterations: int = DEFAULT_ITERATIONS, on_the_play: bool = True,
     # Counted whenever combos are watched, zeroes included: "none of these
     # combos ends the game" is an answer, and a missing key would read like a
     # run from before the count existed.
-    won = [0] * turns if watch else None
+    # Engines (PR 5) ride along but are no combos, and leave it out.
+    won = [0] * turns if any(watched.combo for watched in watch) else None
     tallies = {name: _stress_tally() for name in ("removal", "wipe")} if stress else None
 
     for _ in range(iterations):

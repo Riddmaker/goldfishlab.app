@@ -13470,3 +13470,38 @@ msgid ""
 "your list on every visit."
 msgstr ""
 "エンジンやペアは<strong>固定</strong>または<strong>却下</strong>できます。保存するのはそれだけで、カードごとに記録します。固定したものはルールで見つからなくなっても先頭に残り、却下したものは二度と提案されず、元に戻すこともできます。カードがデッキから抜けると、戻るまで休止します。それ以外はすべて、訪れるたびにリストから読み直します。"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid ""
+"Running by turn %(turn)s in <strong>%(share)s</strong> of games, in your "
+"last run."
+msgstr "前回のシミュレーションでは、<strong>%(share)s</strong>のゲームで%(turn)sターン目までに動いています。"
+
+#: templates/decks/_engines.html
+msgid "Not measured yet: your next simulation shows by which turn it runs."
+msgstr "まだ測定されていません。次のシミュレーションで、何ターン目までに動くかがわかります。"
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"Running means one card of each role is out, measured over %(games)s games."
+msgstr "「動いている」とは、各役割のカードが1枚ずつ場に出ていることです。%(games)sゲームで測定しました。"
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"%(label)s: running by turn %(turn)s in <strong>%(share)s</strong> of games."
+msgstr "%(label)s：<strong>%(share)s</strong>のゲームで%(turn)sターン目までに動いています。"
+
+#: templates/core/methodology.html
+msgid ""
+"A simulation also measures <strong>by which turn each engine runs</strong>: "
+"at the end of a turn, every part of it has a card out, any card of the deck "
+"that fills that part, not only the ones the engine names. A permanent counts"
+" on the battlefield, an instant or a sorcery in hand, ready to cast; the "
+"commander counts once it is cast. Up to five engines, one per theme, locked "
+"ones first; one a part short or resting is not measured. It is read in the "
+"run's own games, so it costs nothing extra."
+msgstr ""
+"シミュレーションでは、<strong>各エンジンが何ターン目までに動くか</strong>も測定します。ターンの終わりに、エンジンの各パーツにカードが1枚ずつ場に出ていること。エンジンが名指しするカードだけでなく、そのパーツを満たすデッキ内のどのカードでも構いません。パーマネントは戦場で、インスタントとソーサリーは唱えられる状態で手札にあれば数えます。統率者は唱えた時点で数えます。測定するのは最大5つのエンジンで、テーマごとに1つ、固定したものが優先です。パーツが足りないエンジンや休止中のエンジンは測定しません。シミュレーション自身のゲームで測定するので、追加の費用はかかりません。"

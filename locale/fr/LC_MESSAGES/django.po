@@ -15480,3 +15480,54 @@ msgstr ""
 "ce qui est écarté n'est plus proposé, et vous pouvez le rétablir. Quand "
 "l'une de ses cartes quitte le deck, il est en pause jusqu'à son retour. Tout"
 " le reste est relu à partir de votre liste à chaque visite."
+
+#: templates/decks/_engines.html
+#, python-format
+msgid ""
+"Running by turn %(turn)s in <strong>%(share)s</strong> of games, in your "
+"last run."
+msgstr ""
+"En marche au tour %(turn)s dans <strong>%(share)s</strong> des parties, lors"
+" de votre dernière simulation."
+
+#: templates/decks/_engines.html
+msgid "Not measured yet: your next simulation shows by which turn it runs."
+msgstr ""
+"Pas encore mesuré : votre prochaine simulation montrera à quel tour il se "
+"met en marche."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"Running means one card of each role is out, measured over %(games)s games."
+msgstr ""
+"En marche signifie qu’une carte de chaque rôle est en jeu, mesuré sur "
+"%(games)s parties."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"%(label)s: running by turn %(turn)s in <strong>%(share)s</strong> of games."
+msgstr ""
+"%(label)s : en marche au tour %(turn)s dans <strong>%(share)s</strong> des "
+"parties."
+
+#: templates/core/methodology.html
+msgid ""
+"A simulation also measures <strong>by which turn each engine runs</strong>: "
+"at the end of a turn, every part of it has a card out, any card of the deck "
+"that fills that part, not only the ones the engine names. A permanent counts"
+" on the battlefield, an instant or a sorcery in hand, ready to cast; the "
+"commander counts once it is cast. Up to five engines, one per theme, locked "
+"ones first; one a part short or resting is not measured. It is read in the "
+"run's own games, so it costs nothing extra."
+msgstr ""
+"Une simulation mesure aussi <strong>à quel tour chaque moteur se met en "
+"marche</strong> : à la fin d’un tour, chacune de ses parties a une carte en "
+"jeu, n’importe quelle carte du deck qui remplit cette partie, pas seulement "
+"celles que le moteur nomme. Un permanent compte sur le champ de bataille, un"
+" éphémère ou un rituel en main, prêt à être lancé ; le commandant compte dès"
+" qu’il est lancé. Jusqu’à cinq moteurs, un par thème, les verrouillés "
+"d’abord ; un moteur auquel il manque une partie ou qui est en repos n’est "
+"pas mesuré. La mesure se fait dans les parties de la simulation elle-même : "
+"elle ne vous coûte rien de plus."

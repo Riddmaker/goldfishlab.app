@@ -24,7 +24,7 @@ Concept and decisions: the Themen-Doc, section "Paket 1 «Deck verstehen»: Konz
 | 2 | Theme chips in "What is in it"; one "Building blocks" chart instead of strategy and mechanic | done |
 | 3 | Synergy pairs and engines; the "Combos & engines" section | done |
 | 4 | Lock-in: model, three states, buttons | done |
-| 5 | Measure engines in the simulation | open |
+| 5 | Measure engines in the simulation | done |
 | 6 | (optional) AI explanations | open |
 
 ## How PR 1 works
@@ -126,3 +126,25 @@ Concept and decisions: the Themen-Doc, section "Paket 1 «Deck verstehen»: Konz
   shows (the list changed in another tab) stores nothing and is not an error.
 - **Queries:** one more for the rows, and one for the names of cards that left the deck, only
   when a row has such a card.
+
+
+## How PR 5 works
+
+- **Running, not the named cards:** an engine runs when every role (piece) of it has a card
+  out at the end of a turn, *any* card of the deck that fills the role (decision A,
+  2026-11-03). A permanent counts on the battlefield, an instant or sorcery in hand; the
+  commander on the battlefield only. `simulation.combos.AnyOf` is a requirement any one of
+  several cards meets, each with its own zone.
+- **Which engines** (`decks.engine_watch.watches`): the ones the page shows, locked first, one
+  per theme, at most 5; none a piece short or resting. Each chunk works this out again from
+  the deck (`deck_reading(deck, cards)`, one read of the cards), like the combo plan.
+- **Free:** the watches ride with the combos in the run's own games (`simulate_chunk`),
+  key `engine:<theme>`, `Watch.combo=False`, so a run that watched only engines has no `wins`.
+  A reading that fails is logged and the run goes on without engines. Engine pieces are not
+  `key_cards`: a tutor going for them would change what is measured.
+- **Stored:** `finalize_run` moves them out of `combos` into `run.result["engines"]`
+  (`split`), `{theme: {games, by_turn}}`. No model.
+- **Shown:** the deck page quotes the last finished run, by turn 6 or the last turn played
+  (`running`, `engine_rows`, also in the lock button's htmx answer); the report lists them
+  after the combos (`simulations/_engines.html`, `measured`). Methodology `#engines`.
+

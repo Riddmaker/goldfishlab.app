@@ -2,7 +2,7 @@
 {% comment %}
   "Your strategies, and what would feed them" (phase 11 E, Z5.3, K16, F14):
   the deck's strategies, the calculated chance of one of each by turn four,
-  cards that would feed them, and the combos last.
+  cards that would feed them, the combos and the engines last.
 
   The picks are Mistral's when it made some (`strategies.picked`), each with
   its reason, checked against the lists we offered before they were stored.
@@ -14,7 +14,7 @@
   `written` gives Mistral's reasons their `lang` (phase 12 G). The "Was this
   helpful?" question for the summary and the picks closes the block.
 {% endcomment %}
-{% if strategies.shown or report.combos %}
+{% if strategies.shown or report.combos or report.engines %}
 <section id="strategies" class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">{% translate "Your strategies, and what would feed them" %}</h2>
   {% if strategies.shown %}
@@ -58,6 +58,7 @@
     </div>
   {% endif %}
   {% include "simulations/_combos.html" %}
+  {% include "simulations/_engines.html" %}
   {% if written.configured %}
     <div class="mt-5 border-t border-parchment-400 pt-3 text-sm text-ink-700">
       {% include "simulations/_summary_feedback.html" %}

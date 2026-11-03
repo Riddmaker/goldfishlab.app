@@ -2,7 +2,7 @@
   "Built around" (Themen-Doc, Paket 1, PR 2): the themes `decks.themes`
   reads off the deck's tags, the strongest first. Each is a <details>: the
   chip is its summary, and opening it shows the sentence, every piece with
-  "x of y" and its cards, and the number under "Advanced". No script.
+  "8, wants 6" and its cards, and the number under "Advanced". No script.
 
   The level is a word on the chip; the border (solid, dashed, filled) only
   repeats it. No theme is an answer too, and says so rather than guess.
@@ -18,7 +18,7 @@
         <details class="deck-theme deck-theme-{{ found.level }}">
           <summary class="deck-theme-chip">
             <span class="font-semibold">{% translate found.label %}{% if found.subject %} {{ found.subject }}{% endif %}</span>
-            <span class="text-ink-700">· {% if found.level == "strong" %}{% translate "strong" context "theme level" %}{% elif found.level == "medium" %}{% translate "medium" context "theme level" %}{% else %}{% translate "hinted" context "theme level" %}{% endif %}</span>
+            <span class="text-ink-700">· {% include "decks/_level.html" with level=found.level %}</span>
           </summary>
           <div class="deck-theme-body">
             <p class="text-sm text-ink-900">{% translate found.info %}</p>

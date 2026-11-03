@@ -47,7 +47,7 @@ from decks.models import (
     small_image,
 )
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
-from decks.themes import deck_themes
+from decks.themes import deck_reading
 from simulations import blindspots, deck_cards, report, review, summary
 from simulations.engine import adapter
 from simulations.forms import RunForm
@@ -179,9 +179,11 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         context.update(self.grid_context(deck, readings))
         analysis = deck_analysis.analyse(deck)
         context["analysis"] = analysis
-        # What the deck is built around (Themen-Doc, Paket 1, PR 2): read from
-        # the tags on every page load, two queries, nothing stored.
-        context["themes"] = deck_themes(deck)
+        # What the deck is built around, and which of its cards work together
+        # (Themen-Doc, Paket 1, PR 2 and 3): read from the tags on every page
+        # load, two queries and a cached one, nothing stored.
+        context["reading"] = reading = deck_reading(deck)
+        context["themes"] = reading.themes
         context["legality_problems"] = sum(1 for verdict in analysis.legality if not verdict.ok)
         context["last_import"] = deck.imports.first()
         context["commander_printings"] = [

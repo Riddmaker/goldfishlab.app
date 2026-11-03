@@ -22,7 +22,7 @@ Concept and decisions: the Themen-Doc, section "Paket 1 «Deck verstehen»: Konz
 |----|------|-------|
 | 1 | `cards/themes.py` catalogue and `detect`; `decks/themes.py`; `manage.py themes_report`; `tests/test_themes.py` | done |
 | 2 | Theme chips in "What is in it"; one "Building blocks" chart instead of strategy and mechanic | done |
-| 3 | Synergy pairs and engines; the "Combos & engines" section | open |
+| 3 | Synergy pairs and engines; the "Combos & engines" section | done |
 | 4 | Lock-in: model, three states, buttons | open |
 | 5 | Measure engines in the simulation | open |
 | 6 | (optional) AI explanations | open |
@@ -73,3 +73,32 @@ Concept and decisions: the Themen-Doc, section "Paket 1 «Deck verstehen»: Konz
   colours), `blocks_rest` (the labels left out, named under the chart) and `block_rows` (every
   one, for "The numbers"). Old runs work: the stored `role:<key>` groups did not change.
 - **Words:** the methodology page has a paragraph for each; every string is in the six languages.
+
+## How PR 3 works
+
+- **Rules in the catalogue:** each `Piece` has a clause, `does` ("%(card)s sacrifices"), and
+  each `Theme` has `rules`, (first, second, weight) in the order a sentence says them:
+  Aristocrats has outlet → payoff (1.0) and fodder → payoff (0.7); Voltron gear → payoff (1.0)
+  and protect → payoff (0.5); the others one rule at 1.0. `Theme.flow` is the pieces in that
+  order. A test holds every piece to a rule and a clause.
+- **Pairs** (`cards.synergy.pairs`): every card of the first piece with every card of the second,
+  in each theme found (not typal). Strength = rule weight × rarity of the first card's tag ×
+  rarity of the second's × the theme's fill. Rarity is an IDF, `log(N/n) / log(N/20)`, held to
+  0.1–1; a card in a piece by type or our mechanics gets 0.5. Each pair of cards once, at its
+  strongest; the list goes in rounds, so one card cannot fill the top rows.
+- **Engines** (`cards.synergy.engines`): one per theme found, one card per piece, the commander
+  first, then a card that repeats, then the rarest tag. A card repeats when one of its
+  abilities is `repeatable` or `event` (`DerivedProfile.tempo`) or Tagger tags it
+  `repeatable-…`. A complete engine without such a card is left out; one a piece short is kept
+  and names what is missing. Its level is its theme's.
+- **Page:** "Combos & engines" (`#combos`) holds the combo panel (an h3 now, still swapped alone
+  by htmx), then `decks/_engines.html`: engines, then pairs (5 open, up to 30 folded, the rest
+  counted). Sentences are joined in the page's language (`pgettext` "joins clauses", "ends a
+  sentence"; Japanese ends in ます。).
+- **Queries:** `decks.themes.deck_reading` reads the cards once (`profile__tempo` in the same
+  query) and the tag sizes once a day from the cache: two queries per page, three on the first.
+- **Calibration:** `scratchpad/synergy/calib.py` on the 41 fixture decks (tags only, so repeats
+  come from `repeatable-…` there). The golden test holds four engines: Chainer's aristocrats
+  (Ashnod's Altar, Grave Pact) and reanimator (Chainer), Prismari's spellslinger (Rootha),
+  Limit Break's voltron (Cloud).
+

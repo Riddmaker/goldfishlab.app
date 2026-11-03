@@ -13162,3 +13162,251 @@ msgstr "かすか"
 #, python-format
 msgid "%(count)s, wants %(need)s"
 msgstr "%(count)s（目安 %(need)s）"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s sacrifices"
+msgstr "%(card)sが生け贄に捧げ"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s takes what an opponent owns"
+msgstr "%(card)sが対戦相手のものを奪い"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s sacrifices what was taken"
+msgstr "%(card)sが奪ったものを生け贄に捧げ"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s pays off each death"
+msgstr "%(card)sが死亡のたびに見返りを生み"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s brings more bodies"
+msgstr "%(card)sが新たな生け贄を用意し"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s makes tokens"
+msgstr "%(card)sがトークンを生成し"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s makes them count"
+msgstr "%(card)sがその数を活かし"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s brings them back"
+msgstr "%(card)sがそれらを戻し"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s fills the graveyard"
+msgstr "%(card)sが墓地を肥やし"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s plays from the graveyard"
+msgstr "%(card)sが墓地から使い"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards each spell"
+msgstr "%(card)sが呪文のたびに見返りを生み"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s is a spell to cast"
+msgstr "%(card)sが唱える呪文となり"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the counters"
+msgstr "%(card)sがカウンターに見返りを与え"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s puts +1/+1 counters"
+msgstr "%(card)sが+1/+1カウンターを置き"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s pays off each land"
+msgstr "%(card)sが土地のたびに見返りを生み"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s puts extra lands into play"
+msgstr "%(card)sが追加の土地を戦場に出し"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s dresses a creature up"
+msgstr "%(card)sがクリーチャーを強化し"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s grows when dressed up"
+msgstr "%(card)sが強化されると大きくなり"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s keeps it safe"
+msgstr "%(card)sがそれを守り"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s pays off each gain"
+msgstr "%(card)sがライフ獲得のたびに見返りを生み"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s gains life"
+msgstr "%(card)sがライフを得させ"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the artifacts"
+msgstr "%(card)sがアーティファクトに見返りを与え"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s is one more artifact"
+msgstr "%(card)sがアーティファクトを1つ増やし"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the enchantments"
+msgstr "%(card)sがエンチャントに見返りを与え"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s is one more enchantment"
+msgstr "%(card)sがエンチャントを1つ増やし"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s makes Treasure"
+msgstr "%(card)sが宝物を生成し"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the Treasure"
+msgstr "%(card)sが宝物に見返りを与え"
+
+#: templates/decks/detail.html
+msgid "Combos & engines"
+msgstr "コンボとエンジン"
+
+#: templates/decks/_engines.html
+msgid "Engines"
+msgstr "エンジン"
+
+#: templates/decks/_engines.html
+msgid ""
+"Cards that together make value again and again, read from what the deck is "
+"built around."
+msgstr "デッキのテーマから読み取った、組み合わせて何度も価値を生むカードです。"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(have)s of %(pieces)s pieces. Still missing:"
+msgstr "%(pieces)s個中%(have)s個の要素。まだ足りないもの："
+
+#: templates/decks/_engines.html
+#, python-format
+msgid ""
+"Works again and again: %(cards)s. An engine needs at least one such card; "
+"its level is its theme's."
+msgstr "何度も働くカード：%(cards)s。エンジンにはこのようなカードが少なくとも1枚必要です。レベルはそのテーマのレベルと同じです。"
+
+#: templates/decks/_engines.html
+msgid ""
+"No engine yet: none of this deck's themes has a card that works again and "
+"again."
+msgstr "まだエンジンはありません。このデッキのどのテーマにも、何度も働くカードがありません。"
+
+#: templates/decks/_engines.html
+msgid ""
+"No engine: engines come from what a deck is built around, and we found no "
+"theme."
+msgstr "エンジンはありません。エンジンはデッキのテーマから生まれますが、テーマが見つかりませんでした。"
+
+#: templates/decks/_engines.html
+msgid "Synergies"
+msgstr "シナジー"
+
+#: templates/decks/_engines.html
+msgid "Two cards one of the deck's themes joins, the strongest first."
+msgstr "デッキのテーマがつなぐ2枚のカードです。強いものから順に表示します。"
+
+#: templates/decks/_pair.html
+#, python-format
+msgid ""
+"Rule %(weight)s × rarity %(first)s × %(second)s × fill %(density)s = "
+"%(score)s. A rare tag is a stronger sign than a broad one; the fill is the "
+"theme's in this deck."
+msgstr ""
+"ルール %(weight)s × 希少度 %(first)s × %(second)s × 充足度 %(density)s = "
+"%(score)s。珍しいタグほど強い手がかりです。充足度はこのデッキでのテーマの値です。"
+
+#: templates/core/methodology.html
+msgid "Engines and synergies"
+msgstr "エンジンとシナジー"
+
+#: templates/core/methodology.html
+msgid ""
+"Engines and synergies are read from what the deck is <strong>built "
+"around</strong>, by fixed rules over Scryfall's Tagger tags and our own "
+"reading of the cards, never by an AI. A deck with no theme has none, and a "
+"stray card outside a theme pairs with nothing."
+msgstr ""
+"エンジンとシナジーは、デッキの<strong>テーマ</strong>から読み取ります。ScryfallのTaggerタグと私たち自身のカードの読み取りに対する固定ルールで判断し、AIは使いません。テーマのないデッキにはなく、テーマから外れた単独のカードは何とも組みになりません。"
+
+#: templates/core/methodology.html
+msgid ""
+"A <strong>synergy</strong> is two cards one of the theme's rules joins: one "
+"serves the other, as a sacrifice outlet serves a card that pays off each "
+"death. Its strength is the rule's weight, times how rare the tags are that "
+"put each card in its part of the plan (a tag on few cards is a stronger sign"
+" than one on thousands), times how full the theme is in this deck."
+msgstr ""
+"<strong>シナジー</strong>とは、テーマのルールがつなぐ2枚のカードです。生け贄の手段が死亡のたびに見返りを生むカードを支えるように、一方がもう一方を支えます。強さは、ルールの重み"
+" × 各カードを計画の役割に置くタグの希少度（少数のカードにしかないタグは、何千枚にもあるタグより強い手がかりです）× "
+"このデッキでのテーマの充足度です。"
+
+#: templates/core/methodology.html
+msgid ""
+"An <strong>engine</strong> is one card for each part of a theme, two to four"
+" cards that make value together again and again: at least one of them has to"
+" work more than once, an ability you can activate or one that waits for "
+"something to happen. It carries its theme's level. An engine a part short "
+"names what is missing."
+msgstr ""
+"<strong>エンジン</strong>とは、テーマの各要素に1枚ずつ、組み合わせて何度も価値を生む2〜4枚のカードです。そのうち少なくとも1枚は、起動できる能力や何かが起こるのを待つ能力で、2回以上働く必要があります。エンジンのレベルはそのテーマのレベルです。要素が足りないエンジンは、何が足りないかを示します。"
+
+#: cards/synergy.py
+msgctxt "joins clauses"
+msgid ", "
+msgstr "、"
+
+#: cards/synergy.py
+msgctxt "ends a sentence"
+msgid "."
+msgstr "ます。"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(count)s more pair"
+msgid_plural "%(count)s more pairs"
+msgstr[0] "さらに%(count)s組"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(count)s weaker pair of the same kinds is not listed."
+msgid_plural "%(count)s weaker pairs of the same kinds are not listed."
+msgstr[0] "同じ種類のより弱い%(count)s組は表示していません。"

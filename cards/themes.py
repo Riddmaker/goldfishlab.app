@@ -44,6 +44,8 @@ from dataclasses import dataclass, field
 
 from django.utils.translation import gettext_noop
 
+from cards.categories import REPEATS
+
 STRONG = "strong"
 MEDIUM = "medium"
 HINT = "hint"
@@ -78,6 +80,9 @@ class Piece:
     mechanics: frozenset[str] = frozenset()
     #: Words of the type line, matched whole: "Equipment", "Aura".
     types: frozenset[str] = frozenset()
+    #: What a card of this piece does, as a clause with ``%(card)s``: the
+    #: sentences of a pair and of an engine are made of these (PR 3).
+    does: str = ""
 
     def holds(self, card: "ThemeCard") -> bool:
         return bool(self.tags & card.tags or self.direct & card.direct
@@ -92,119 +97,174 @@ class Theme:
     info: str
     #: The core piece first.
     pieces: tuple[Piece, ...]
+    #: Which piece serves which, as (first, second, weight), in the order a
+    #: sentence says them: "Viscera Seer sacrifices, Blood Artist pays off".
+    #: The pairs of a deck are read from these, and an engine says its
+    #: pieces in the order they first appear here (PR 3).
+    rules: tuple[tuple[str, str, float], ...] = ()
 
     @property
     def core(self) -> Piece:
         return self.pieces[0]
 
+    def piece(self, key: str) -> Piece:
+        return next(piece for piece in self.pieces if piece.key == key)
 
-def _p(key, label, need, *, tags=(), direct=(), mechanics=(), types=()) -> Piece:
+    @property
+    def flow(self) -> tuple[Piece, ...]:
+        """The pieces in the order the rules say them."""
+        keys = dict.fromkeys(key for first, second, _weight in self.rules
+                             for key in (first, second))
+        return tuple(self.piece(key) for key in keys)
+
+
+def _p(key, label, need, *, tags=(), direct=(), mechanics=(), types=(), does="") -> Piece:
     return Piece(key, label, need, frozenset(tags), frozenset(direct), frozenset(mechanics),
-                 frozenset(types))
+                 frozenset(types), does)
 
 
 # --- the pieces many themes share -------------------------------------------------
 
 _SAC_OUTLET = _p("outlet", gettext_noop("Sacrifice outlet"), 3,
                  tags=("repeatable-sacrifice-outlet", "free-sacrifice-outlet"),
-                 mechanics=("sac_outlet",))
+                 mechanics=("sac_outlet",), does=gettext_noop("%(card)s sacrifices"))
 
 THEMES: tuple[Theme, ...] = (
     Theme("theft", gettext_noop("Theft"),
           gettext_noop("Takes what opponents own - their creatures, their spells, the top of "
                        "their library - and plays it for you."),
           (_p("thief", gettext_noop("Takes control or casts their cards"), 8,
-              tags=("theft", "threaten"), mechanics=("steal",)),
+              tags=("theft", "threaten"), mechanics=("steal",),
+              does=gettext_noop("%(card)s takes what an opponent owns")),
            _p("outlet", gettext_noop("Sacrifices what it took"), 2,
-              tags=("sacrifice-outlet",), mechanics=("sac_outlet",)))),
+              tags=("sacrifice-outlet",), mechanics=("sac_outlet",),
+              does=gettext_noop("%(card)s sacrifices what was taken"))),
+          rules=(("thief", "outlet", 1.0),)),
     Theme("aristocrats", gettext_noop("Aristocrats"),
           gettext_noop("Sacrifices its own creatures on purpose, and is paid each time one "
                        "dies."),
           (_p("payoff", gettext_noop("Pays off when a creature dies"), 6,
               direct=("death-trigger", "your-sacrifice-matters", "sacrifice-matters"),
-              mechanics=("death_trigger",)),
+              mechanics=("death_trigger",),
+              does=gettext_noop("%(card)s pays off each death")),
            _SAC_OUTLET,
            _p("fodder", gettext_noop("Makes bodies to sacrifice"), 6,
               tags=("repeatable-token-generator", "death-trigger-self", "recursion-self"),
-              mechanics=("tokens",)))),
+              mechanics=("tokens",),
+              does=gettext_noop("%(card)s brings more bodies"))),
+          rules=(("outlet", "payoff", 1.0), ("fodder", "payoff", 0.7))),
     Theme("tokens", gettext_noop("Tokens"),
           gettext_noop("Fills the table with creature tokens and makes them count."),
           (_p("maker", gettext_noop("Makes creature tokens"), 10,
-              tags=("repeatable-token-generator",), mechanics=("tokens",)),
+              tags=("repeatable-token-generator",), mechanics=("tokens",),
+              does=gettext_noop("%(card)s makes tokens")),
            _p("payoff", gettext_noop("Gets better with many tokens"), 5,
               tags=("synergy-token", "token-doubler", "token-increaser", "anthem",
-                    "keyword-anthem")))),
+                    "keyword-anthem"),
+              does=gettext_noop("%(card)s makes them count"))),
+          rules=(("maker", "payoff", 1.0),)),
     Theme("reanimator", gettext_noop("Reanimator"),
           gettext_noop("Puts big creatures into its graveyard on purpose, then brings them "
                        "back cheaply."),
           (_p("reanimate", gettext_noop("Brings creatures back from a graveyard"), 6,
-              tags=("reanimate", "mass-reanimation"), mechanics=("reanimate",)),
+              tags=("reanimate", "mass-reanimation"), mechanics=("reanimate",),
+              does=gettext_noop("%(card)s brings them back")),
            _p("fill", gettext_noop("Fills the graveyard"), 5,
               tags=("mill-self", "discard-outlet", "tutor-to-graveyard", "graveyard-fuel"),
-              mechanics=("discard",)))),
+              mechanics=("discard",),
+              does=gettext_noop("%(card)s fills the graveyard"))),
+          rules=(("fill", "reanimate", 1.0),)),
     Theme("graveyard", gettext_noop("Graveyard"),
           gettext_noop("Uses its graveyard as a second hand: casts, activates and counts "
                        "what is in it."),
           (_p("payoff", gettext_noop("Plays from or counts the graveyard"), 6,
               tags=("castable-from-graveyard", "activate-from-graveyard",
                     "cards-in-graveyard-matter", "gives-castable-from-graveyard",
-                    "leaves-graveyard-trigger", "synergy-graveyard-cast")),
+                    "leaves-graveyard-trigger", "synergy-graveyard-cast"),
+              does=gettext_noop("%(card)s plays from the graveyard")),
            _p("fill", gettext_noop("Fills the graveyard"), 5,
-              tags=("mill-self", "discard-outlet", "graveyard-fuel")))),
+              tags=("mill-self", "discard-outlet", "graveyard-fuel"),
+              does=gettext_noop("%(card)s fills the graveyard"))),
+          rules=(("fill", "payoff", 1.0),)),
     Theme("spellslinger", gettext_noop("Spellslinger"),
           gettext_noop("Casts many instants and sorceries, and is rewarded for each one."),
           (_p("payoff", gettext_noop("Rewards casting spells"), 6,
               tags=("synergy-instant", "synergy-sorcery", "synergy-noncreature", "magecraft",
-                    "copy-spell", "storm-count-matters", "second-spell-matters")),
+                    "copy-spell", "storm-count-matters", "second-spell-matters"),
+              does=gettext_noop("%(card)s rewards each spell")),
            _p("spells", gettext_noop("Instants and sorceries"), 25,
-              types=("Instant", "Sorcery")))),
+              types=("Instant", "Sorcery"),
+              does=gettext_noop("%(card)s is a spell to cast"))),
+          rules=(("spells", "payoff", 1.0),)),
     Theme("counters", gettext_noop("+1/+1 counters"),
           gettext_noop("Puts +1/+1 counters on its creatures and grows them turn after turn."),
           (_p("payoff", gettext_noop("Cares about counters or doubles them"), 5,
               tags=("pp-counters-matter", "counter-doubler", "counter-increaser",
-                    "repeatable-proliferate")),
+                    "repeatable-proliferate"),
+              does=gettext_noop("%(card)s rewards the counters")),
            _p("source", gettext_noop("Puts +1/+1 counters"), 10,
-              tags=("repeatable-pp-counters", "gives-pp-counters", "gives-pp-counters-to-all")))),
+              tags=("repeatable-pp-counters", "gives-pp-counters", "gives-pp-counters-to-all"),
+              does=gettext_noop("%(card)s puts +1/+1 counters"))),
+          rules=(("source", "payoff", 1.0),)),
     Theme("landfall", gettext_noop("Landfall"),
           gettext_noop("Plays extra lands and is paid every time one enters."),
           (_p("payoff", gettext_noop("Pays off when a land enters"), 5,
-              tags=("landfall",)),
+              tags=("landfall",),
+              does=gettext_noop("%(card)s pays off each land")),
            _p("extra", gettext_noop("Puts extra lands into play"), 5,
-              tags=("extra-land", "multi-land-ramp")))),
+              tags=("extra-land", "multi-land-ramp"),
+              does=gettext_noop("%(card)s puts extra lands into play"))),
+          rules=(("extra", "payoff", 1.0),)),
     Theme("voltron", gettext_noop("Voltron"),
           gettext_noop("Dresses up one creature - usually the commander - with Equipment and "
                        "Auras, and wins through commander damage."),
           (_p("gear", gettext_noop("Equipment and Auras for your own creatures"), 10,
-              types=("Equipment", "Aura")),
+              types=("Equipment", "Aura"),
+              does=gettext_noop("%(card)s dresses a creature up")),
            _p("payoff", gettext_noop("Gets better when equipped or enchanted"), 3,
               tags=("synergy-equipment", "synergy-aura", "auto-equip",
-                    "alternate-equip-cost")),
+                    "alternate-equip-cost"),
+              does=gettext_noop("%(card)s grows when dressed up")),
            _p("protect", gettext_noop("Keeps that creature safe"), 5,
-              tags=("protection", "gives-hexproof", "gives-indestructible")))),
+              tags=("protection", "gives-hexproof", "gives-indestructible"),
+              does=gettext_noop("%(card)s keeps it safe"))),
+          rules=(("gear", "payoff", 1.0), ("protect", "payoff", 0.5))),
     Theme("lifegain", gettext_noop("Lifegain"),
           gettext_noop("Gains life again and again, and turns each gain into something."),
           (_p("payoff", gettext_noop("Pays off when you gain life"), 5,
-              tags=("lifegain-matters", "lifegain-increaser", "lifegain-to-damage")),
+              tags=("lifegain-matters", "lifegain-increaser", "lifegain-to-damage"),
+              does=gettext_noop("%(card)s pays off each gain")),
            _p("source", gettext_noop("Gains life again and again"), 10,
-              tags=("repeatable-lifegain", "gives-lifelink"), mechanics=("lifegain",)))),
+              tags=("repeatable-lifegain", "gives-lifelink"), mechanics=("lifegain",),
+              does=gettext_noop("%(card)s gains life"))),
+          rules=(("source", "payoff", 1.0),)),
     Theme("artifacts", gettext_noop("Artifacts"),
           gettext_noop("Runs many artifacts and counts them."),
           (_p("payoff", gettext_noop("Counts or rewards artifacts"), 6,
               tags=("synergy-artifact", "artifact-count-matters", "affinity-for-artifacts",
-                    "artifactfall")),
-           _p("artifacts", gettext_noop("Artifacts"), 25, types=("Artifact",)))),
+                    "artifactfall"),
+              does=gettext_noop("%(card)s rewards the artifacts")),
+           _p("artifacts", gettext_noop("Artifacts"), 25, types=("Artifact",),
+              does=gettext_noop("%(card)s is one more artifact"))),
+          rules=(("artifacts", "payoff", 1.0),)),
     Theme("enchantments", gettext_noop("Enchantments"),
           gettext_noop("Runs many enchantments and draws or grows from each one."),
           (_p("payoff", gettext_noop("Counts or rewards enchantments"), 5,
-              tags=("synergy-enchantment", "synergy-aura", "synergy-saga")),
-           _p("enchantments", gettext_noop("Enchantments"), 20, types=("Enchantment",)))),
+              tags=("synergy-enchantment", "synergy-aura", "synergy-saga"),
+              does=gettext_noop("%(card)s rewards the enchantments")),
+           _p("enchantments", gettext_noop("Enchantments"), 20, types=("Enchantment",),
+              does=gettext_noop("%(card)s is one more enchantment"))),
+          rules=(("enchantments", "payoff", 1.0),)),
     Theme("treasure", gettext_noop("Treasure"),
           gettext_noop("Makes Treasure tokens again and again, and spends or sacrifices them "
                        "for more."),
           (_p("maker", gettext_noop("Makes Treasure again and again"), 6,
-              tags=("repeatable-treasures",), mechanics=("treasure",)),
+              tags=("repeatable-treasures",), mechanics=("treasure",),
+              does=gettext_noop("%(card)s makes Treasure")),
            _p("payoff", gettext_noop("Rewards Treasure or artifacts leaving"), 3,
-              tags=("synergy-treasure", "sacrifice-outlet-artifact")))),
+              tags=("synergy-treasure", "sacrifice-outlet-artifact"),
+              does=gettext_noop("%(card)s rewards the Treasure"))),
+          rules=(("maker", "payoff", 1.0),)),
 )
 
 BY_KEY = {theme.key: theme for theme in THEMES}
@@ -244,6 +304,9 @@ class ThemeCard:
     commander: bool = False
     #: Changeling: every creature type at once.
     every_type: bool = False
+    #: Does something again and again: an ability that can be activated or
+    #: waits for an event (`repeats`). An engine needs one such card (PR 3).
+    repeats: bool = False
     types: frozenset[str] = field(init=False)
 
     def __post_init__(self):
@@ -265,6 +328,15 @@ class ThemeCard:
             return frozenset()
         match = _SUBTYPES.search(front)
         return frozenset(match.group(1).split()) if match else frozenset()
+
+
+def repeats(tempo, tags) -> bool:
+    """Whether a card works again and again: one of its abilities is
+    repeatable or fires on an event (`DerivedProfile.tempo`, the rates of
+    `cards.categories.REPEATS`), or Tagger says so (`repeatable-...`) for a
+    card our blocks do not read."""
+    return (any((entry or {}).get("rate") in REPEATS for entry in (tempo or {}).values())
+            or any(tag.startswith("repeatable-") for tag in tags))
 
 
 # --- the output -------------------------------------------------------------------

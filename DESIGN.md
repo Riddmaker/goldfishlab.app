@@ -168,6 +168,13 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   for strong, solid for medium, dashed for hinted. Open, it takes the whole row: the sentence,
   each piece as "8, wants 6" with its cards, and the number folded under "Advanced". No theme
   is a sentence, never a guess.
+- **Engines and synergies** (`decks/_engines.html`, `decks/_pair.html`, Themen-Doc Paket 1,
+  PR 3): under the combos in one section, "Combos & engines". An engine is a row with a
+  parchment-600 rule at its left, as a combo is: its cards joined by "+", its theme and level
+  as words, and one sentence of what each card does. An engine a piece short gets a dashed
+  ink-700 rule and says "2 of 3 pieces. Still missing:" with the piece in bold; the dash only
+  repeats the words. Pairs show the five strongest open, the next ones in one fold, each with
+  its three numbers under "Advanced". No engine is a sentence, never a guess.
 - **The card grid** (`decks/_card_grid.html`, `.card-grid*`): card pictures, three across on a
   phone; the same marker words on a card ("! needs you", "✓ answered"), "×2" for a quantity.
   Filter chips reuse the chart chips. Every picture has its card name as `alt` and loads lazily.

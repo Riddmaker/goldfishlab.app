@@ -24,7 +24,7 @@ from django.urls import reverse
 
 from cards.themes import HINT, MEDIUM, STRONG, Found, Part
 from decks import services as deck_services
-from decks.themes import deck_themes
+from decks.themes import Reading, deck_reading
 from simulations import deck_cards, review, services
 from simulations.engine import adapter
 from simulations.engine.adapter import DECK_SCOPE
@@ -315,6 +315,10 @@ def test_the_deck_page_and_its_grid_do_not_query_per_card(client_in, deck):
 # --- "Built around" (Themen-Doc, Paket 1, PR 2) -------------------------------------------
 
 
+def _read(monkeypatch, **reading):
+    monkeypatch.setattr("decks.views.deck_reading", lambda _deck: Reading(**reading))
+
+
 def _theme(level=STRONG, cards=("Blood Artist",), **extra):
     return Found("aristocrats", "Aristocrats", "Sacrifices its own creatures on purpose.",
                  level, 0.8, (Part("payoff", "Pays off when a creature dies", len(cards), 6,
@@ -323,7 +327,7 @@ def _theme(level=STRONG, cards=("Blood Artist",), **extra):
 
 
 def test_a_theme_is_a_chip_with_its_level_in_words(client_in, deck, monkeypatch):
-    monkeypatch.setattr("decks.views.deck_themes", lambda _deck: [
+    _read(monkeypatch, themes=[
         _theme(), _theme(MEDIUM), _theme(HINT)])
 
     body = client_in.get(deck.get_absolute_url()).content.decode()
@@ -337,14 +341,14 @@ def test_a_theme_is_a_chip_with_its_level_in_words(client_in, deck, monkeypatch)
 
 
 def test_a_typal_theme_names_its_type(client_in, deck, monkeypatch):
-    monkeypatch.setattr("decks.views.deck_themes", lambda _deck: [
+    _read(monkeypatch, themes=[
         _theme(subject="Angel")])
 
     assert "Aristocrats Angel" in client_in.get(deck.get_absolute_url()).content.decode()
 
 
 def test_no_theme_is_said_not_guessed(client_in, deck, monkeypatch):
-    monkeypatch.setattr("decks.views.deck_themes", lambda _deck: [])
+    _read(monkeypatch, themes=[])
 
     body = client_in.get(deck.get_absolute_url()).content.decode()
 
@@ -353,7 +357,7 @@ def test_no_theme_is_said_not_guessed(client_in, deck, monkeypatch):
 
 
 def test_a_card_name_in_a_theme_is_escaped(client_in, deck, monkeypatch):
-    monkeypatch.setattr("decks.views.deck_themes", lambda _deck: [
+    _read(monkeypatch, themes=[
         _theme(cards=("<script>alert(1)</script>",))])
 
     body = client_in.get(deck.get_absolute_url()).content.decode()
@@ -365,4 +369,5 @@ def test_a_card_name_in_a_theme_is_escaped(client_in, deck, monkeypatch):
 def test_the_page_reads_the_deck_s_own_themes(client_in, deck):
     response = client_in.get(deck.get_absolute_url())
 
-    assert response.context["themes"] == deck_themes(deck)
+    assert response.context["reading"] == deck_reading(deck)
+    assert response.context["themes"] == deck_reading(deck).themes

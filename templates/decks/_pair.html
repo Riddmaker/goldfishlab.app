@@ -1,0 +1,19 @@
+{% comment %}
+  One synergy pair (Themen-Doc, Paket 1, PR 3). Extracted because the list
+  is rendered twice - the strongest few open, the next ones folded - and two
+  copies would be two places for the numbers to be explained differently.
+
+  Takes: pair (cards.synergy.Pair).
+{% endcomment %}
+{% load i18n %}
+<li class="text-sm">
+  <p class="text-ink-900"><strong>{{ pair.first }} + {{ pair.second }}</strong></p>
+  <p class="text-ink-900">{{ pair.sentence }}</p>
+  <details class="text-ink-700">
+    <summary class="cursor-pointer">{% translate "Advanced" %}</summary>
+    <p class="mt-1 tabular">{% blocktranslate trimmed with weight=pair.weight|floatformat:1 first=pair.spec_first|floatformat:2 second=pair.spec_second|floatformat:2 density=pair.density|floatformat:2 score=pair.score|floatformat:2 %}
+      Rule {{ weight }} × rarity {{ first }} × {{ second }} × fill {{ density }} = {{ score }}.
+      A rare tag is a stronger sign than a broad one; the fill is the theme's in this deck.
+    {% endblocktranslate %}</p>
+  </details>
+</li>

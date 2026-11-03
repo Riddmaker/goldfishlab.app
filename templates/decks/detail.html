@@ -245,13 +245,17 @@
   </div>
 
   {% comment %}
-    Combos open, before the cards: the cards are the deck somebody already
-    knows, and a list below them is a list nobody scrolls to. The panel keeps
-    itself short - three "one card away" inline, the rest folded.
+    Combos and engines open, before the cards: the cards are the deck
+    somebody already knows, and a list below them is a list nobody scrolls
+    to. The combo panel keeps itself short - three "one card away" inline,
+    the rest folded - and is swapped alone by htmx; the engines and pairs
+    below it come from the themes and need no button (Paket 1, PR 3).
   {% endcomment %}
-  <div id="combos">
+  <section id="combos" class="surface-parchment mt-8 p-6">
+    <h2 class="font-display text-2xl text-ink-900">{% translate "Combos & engines" %}</h2>
     {% include "combos/_panel.html" %}
-  </div>
+    {% include "decks/_engines.html" %}
+  </section>
 
   <section id="cards" class="surface-parchment mt-6 p-6">
     <div class="flex flex-wrap items-baseline gap-4">

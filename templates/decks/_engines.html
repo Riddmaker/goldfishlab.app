@@ -1,0 +1,77 @@
+{% comment %}
+  Engines and synergies (Themen-Doc, Paket 1, PR 3), under the combos in
+  "Combos & engines". Read from the deck's themes by `cards.synergy`, on
+  every page load, free for everyone: no button, no run.
+
+  An engine names its cards, its theme and level (the word, as on the
+  chips), and one sentence made of what each card does. An engine a piece
+  short says what is missing, with a dashed rule instead of a solid one.
+  The pairs show the strongest few open and the next ones folded, each with
+  its three numbers under "Advanced".
+
+  Takes: reading (decks.themes.Reading).
+{% endcomment %}
+{% load i18n %}
+<div id="engines" class="mt-8">
+  <h3 class="font-display text-xl text-ink-900">{% translate "Engines" %}</h3>
+  <p class="mt-1 text-sm text-ink-700">
+    {% translate "Cards that together make value again and again, read from what the deck is built around." %}
+    {% include "core/_why.html" with anchor="engines" %}
+  </p>
+  {% if reading.engines %}
+    <ul class="mt-3 space-y-4">
+      {% for engine in reading.engines %}
+        <li class="border-l-2 pl-4 {% if engine.missing %}border-dashed border-ink-700{% else %}border-parchment-600{% endif %}">
+          <p class="font-display text-lg text-ink-900">{{ engine.cards|join:" + " }}</p>
+          <p class="text-sm text-ink-700">{% translate engine.label %} · {% include "decks/_level.html" with level=engine.level %}</p>
+          <p class="mt-1 text-sm text-ink-900">{{ engine.sentence }}</p>
+          {% if engine.missing %}
+            <p class="mt-1 text-sm text-ink-900">
+              {% blocktranslate trimmed with have=engine.cards|length pieces=engine.pieces %}
+                {{ have }} of {{ pieces }} pieces. Still missing:
+              {% endblocktranslate %}
+              <strong>{% for label in engine.missing %}{% translate label %}{% if not forloop.last %}, {% endif %}{% endfor %}</strong>
+            </p>
+          {% endif %}
+          {% if engine.repeating %}
+            <details class="mt-1 text-sm text-ink-700">
+              <summary class="cursor-pointer">{% translate "Advanced" %}</summary>
+              <p class="mt-1">{% blocktranslate with cards=engine.repeating|join:", " %}Works again and again: {{ cards }}. An engine needs at least one such card; its level is its theme's.{% endblocktranslate %}</p>
+            </details>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% elif reading.themes %}
+    <p class="mt-3 text-sm text-ink-700">{% translate "No engine yet: none of this deck's themes has a card that works again and again." %}</p>
+  {% else %}
+    <p class="mt-3 text-sm text-ink-700">{% translate "No engine: engines come from what a deck is built around, and we found no theme." %}</p>
+  {% endif %}
+
+  {% if reading.pairs %}
+    <h3 id="synergies" class="mt-8 font-display text-xl text-ink-900">{% translate "Synergies" %}</h3>
+    <p class="mt-1 text-sm text-ink-700">{% translate "Two cards one of the deck's themes joins, the strongest first." %}</p>
+    <ul class="mt-3 space-y-3">
+      {% for pair in reading.pairs %}{% include "decks/_pair.html" %}{% endfor %}
+    </ul>
+    {% if reading.more_pairs %}
+      <details class="mt-3">
+        <summary class="cursor-pointer text-sm text-ink-700">
+          {% blocktranslate count count=reading.more_pairs|length %}{{ count }} more pair{% plural %}{{ count }} more pairs{% endblocktranslate %}
+        </summary>
+        <ul class="mt-3 space-y-3">
+          {% for pair in reading.more_pairs %}{% include "decks/_pair.html" %}{% endfor %}
+        </ul>
+        {% if reading.pairs_left_out %}
+          <p class="mt-3 text-sm text-ink-700">
+            {% blocktranslate trimmed count count=reading.pairs_left_out %}
+              {{ count }} weaker pair of the same kinds is not listed.
+            {% plural %}
+              {{ count }} weaker pairs of the same kinds are not listed.
+            {% endblocktranslate %}
+          </p>
+        {% endif %}
+      </details>
+    {% endif %}
+  {% endif %}
+</div>

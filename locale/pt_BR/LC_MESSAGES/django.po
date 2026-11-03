@@ -14833,3 +14833,273 @@ msgstr "sugerido"
 #, python-format
 msgid "%(count)s, wants %(need)s"
 msgstr "%(count)s, precisa de %(need)s"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s sacrifices"
+msgstr "%(card)s sacrifica"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s takes what an opponent owns"
+msgstr "%(card)s pega o que é de um oponente"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s sacrifices what was taken"
+msgstr "%(card)s sacrifica o que foi tomado"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s pays off each death"
+msgstr "%(card)s recompensa cada morte"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s brings more bodies"
+msgstr "%(card)s traz mais corpos"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s makes tokens"
+msgstr "%(card)s cria fichas"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s makes them count"
+msgstr "%(card)s tira proveito delas"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s brings them back"
+msgstr "%(card)s as traz de volta"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s fills the graveyard"
+msgstr "%(card)s enche o cemitério"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s plays from the graveyard"
+msgstr "%(card)s joga a partir do cemitério"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards each spell"
+msgstr "%(card)s recompensa cada mágica"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s is a spell to cast"
+msgstr "%(card)s é uma mágica para conjurar"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the counters"
+msgstr "%(card)s recompensa os marcadores"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s puts +1/+1 counters"
+msgstr "%(card)s coloca marcadores +1/+1"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s pays off each land"
+msgstr "%(card)s recompensa cada terreno"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s puts extra lands into play"
+msgstr "%(card)s coloca terrenos extras em jogo"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s dresses a creature up"
+msgstr "%(card)s equipa uma criatura"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s grows when dressed up"
+msgstr "%(card)s cresce quando equipado"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s keeps it safe"
+msgstr "%(card)s a protege"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s pays off each gain"
+msgstr "%(card)s recompensa cada ganho de vida"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s gains life"
+msgstr "%(card)s faz ganhar vida"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the artifacts"
+msgstr "%(card)s recompensa os artefatos"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s is one more artifact"
+msgstr "%(card)s é mais um artefato"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the enchantments"
+msgstr "%(card)s recompensa os encantamentos"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s is one more enchantment"
+msgstr "%(card)s é mais um encantamento"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s makes Treasure"
+msgstr "%(card)s cria Tesouros"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the Treasure"
+msgstr "%(card)s recompensa os Tesouros"
+
+#: templates/decks/detail.html
+msgid "Combos & engines"
+msgstr "Combos e motores"
+
+#: templates/decks/_engines.html
+msgid "Engines"
+msgstr "Motores"
+
+#: templates/decks/_engines.html
+msgid ""
+"Cards that together make value again and again, read from what the deck is "
+"built around."
+msgstr ""
+"Cartas que juntas geram valor de novo e de novo, lidas a partir daquilo em "
+"torno do que o deck foi construído."
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(have)s of %(pieces)s pieces. Still missing:"
+msgstr "%(have)s de %(pieces)s peças. Ainda falta:"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid ""
+"Works again and again: %(cards)s. An engine needs at least one such card; "
+"its level is its theme's."
+msgstr ""
+"Age de novo e de novo: %(cards)s. Um motor precisa de pelo menos uma carta "
+"assim; o nível dele é o do seu tema."
+
+#: templates/decks/_engines.html
+msgid ""
+"No engine yet: none of this deck's themes has a card that works again and "
+"again."
+msgstr ""
+"Ainda não há motor: nenhum dos temas deste deck tem uma carta que age de "
+"novo e de novo."
+
+#: templates/decks/_engines.html
+msgid ""
+"No engine: engines come from what a deck is built around, and we found no "
+"theme."
+msgstr ""
+"Nenhum motor: os motores vêm daquilo em torno do que um deck é construído, e"
+" não encontramos nenhum tema."
+
+#: templates/decks/_engines.html
+msgid "Synergies"
+msgstr "Sinergias"
+
+#: templates/decks/_engines.html
+msgid "Two cards one of the deck's themes joins, the strongest first."
+msgstr "Duas cartas que um dos temas do deck une, as mais fortes primeiro."
+
+#: templates/decks/_pair.html
+#, python-format
+msgid ""
+"Rule %(weight)s × rarity %(first)s × %(second)s × fill %(density)s = "
+"%(score)s. A rare tag is a stronger sign than a broad one; the fill is the "
+"theme's in this deck."
+msgstr ""
+"Regra %(weight)s × raridade %(first)s × %(second)s × preenchimento "
+"%(density)s = %(score)s. Uma tag rara é um sinal mais forte que uma comum; o"
+" preenchimento é o do tema neste deck."
+
+#: templates/core/methodology.html
+msgid "Engines and synergies"
+msgstr "Motores e sinergias"
+
+#: templates/core/methodology.html
+msgid ""
+"Engines and synergies are read from what the deck is <strong>built "
+"around</strong>, by fixed rules over Scryfall's Tagger tags and our own "
+"reading of the cards, never by an AI. A deck with no theme has none, and a "
+"stray card outside a theme pairs with nothing."
+msgstr ""
+"Motores e sinergias são lidos a partir daquilo em torno do que o deck foi "
+"<strong>construído</strong>, com regras fixas sobre as tags Tagger do "
+"Scryfall e a nossa própria leitura das cartas, nunca por uma IA. Um deck sem"
+" tema não tem nenhum, e uma carta solta fora de um tema não forma par com "
+"nada."
+
+#: templates/core/methodology.html
+msgid ""
+"A <strong>synergy</strong> is two cards one of the theme's rules joins: one "
+"serves the other, as a sacrifice outlet serves a card that pays off each "
+"death. Its strength is the rule's weight, times how rare the tags are that "
+"put each card in its part of the plan (a tag on few cards is a stronger sign"
+" than one on thousands), times how full the theme is in this deck."
+msgstr ""
+"Uma <strong>sinergia</strong> são duas cartas que uma regra do tema une: uma"
+" serve à outra, como um sacrifício serve a uma carta que recompensa cada "
+"morte. A força dela é o peso da regra, vezes o quão raras são as tags que "
+"colocam cada carta na sua parte do plano (uma tag em poucas cartas é um "
+"sinal mais forte que uma em milhares), vezes o quão cheio o tema está neste "
+"deck."
+
+#: templates/core/methodology.html
+msgid ""
+"An <strong>engine</strong> is one card for each part of a theme, two to four"
+" cards that make value together again and again: at least one of them has to"
+" work more than once, an ability you can activate or one that waits for "
+"something to happen. It carries its theme's level. An engine a part short "
+"names what is missing."
+msgstr ""
+"Um <strong>motor</strong> é uma carta para cada parte de um tema, de duas a "
+"quatro cartas que juntas geram valor de novo e de novo: pelo menos uma delas"
+" precisa agir mais de uma vez, com uma habilidade que você pode ativar ou "
+"que espera algo acontecer. Ele carrega o nível do seu tema. Um motor ao qual"
+" falta uma parte diz o que falta."
+
+#: cards/synergy.py
+msgctxt "joins clauses"
+msgid ", "
+msgstr ", "
+
+#: cards/synergy.py
+msgctxt "ends a sentence"
+msgid "."
+msgstr "."
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(count)s more pair"
+msgid_plural "%(count)s more pairs"
+msgstr[0] "mais %(count)s par"
+msgstr[1] "mais %(count)s pares"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(count)s weaker pair of the same kinds is not listed."
+msgid_plural "%(count)s weaker pairs of the same kinds are not listed."
+msgstr[0] "%(count)s par mais fraco do mesmo tipo não está listado."
+msgstr[1] "%(count)s pares mais fracos do mesmo tipo não estão listados."

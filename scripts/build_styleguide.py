@@ -562,22 +562,24 @@ always the word On or Off beside it.</p>
 <h2>Theme chips: &ldquo;Built around&rdquo; (Themen-Doc, Paket 1)</h2>
 <div class="surface">
   <p class="sg-row" style="gap:.5rem;flex-wrap:wrap">
-    <span style="display:inline-flex;gap:.375rem;padding:.125rem .75rem;border:2px solid var(--ink-800);
-      border-radius:999px;background:var(--parch-200);color:var(--ink-900)"><strong>Aristocrats</strong>
+    <span style="display:inline-flex;gap:.375rem;padding:.125rem .75rem;
+      border:2px solid var(--ink-800);border-radius:999px;background:var(--parch-200);
+      color:var(--ink-900)"><strong>Aristocrats</strong>
       <span style="color:var(--ink-700)">&middot; strong</span></span>
-    <span style="display:inline-flex;gap:.375rem;padding:.125rem .75rem;border:1px solid var(--ink-800);
-      border-radius:999px;color:var(--ink-900)"><strong>Typal Zombie</strong>
-      <span style="color:var(--ink-700)">&middot; medium</span></span>
-    <span style="display:inline-flex;gap:.375rem;padding:.125rem .75rem;border:1px dashed var(--ink-700);
-      border-radius:999px;color:var(--ink-900)"><strong>Graveyard</strong>
+    <span style="display:inline-flex;gap:.375rem;padding:.125rem .75rem;
+      border:1px solid var(--ink-800);border-radius:999px;color:var(--ink-900)"><strong>Typal
+      Zombie</strong> <span style="color:var(--ink-700)">&middot; medium</span></span>
+    <span style="display:inline-flex;gap:.375rem;padding:.125rem .75rem;
+      border:1px dashed var(--ink-700);border-radius:999px;color:var(--ink-900)">
+      <strong>Graveyard</strong>
       <span style="color:var(--ink-700)">&middot; hinted</span></span>
   </p>
 </div>
-<p class="rule">A theme is a chip that opens (<code>.deck-theme</code>, a <code>&lt;details&gt;</code>, no
-script). The level is always the word on the chip; the border only repeats it: thick and filled for
-strong, solid for medium, dashed for hinted. An open theme takes the whole row and lists each piece
-as &ldquo;8, wants 6&rdquo; with its cards; the number sits folded under &ldquo;Advanced&rdquo;. No theme
-is said in a sentence, never guessed.</p>
+<p class="rule">A theme is a chip that opens (<code>.deck-theme</code>, a
+<code>&lt;details&gt;</code>, no script). The level is always the word on the chip; the border
+only repeats it: thick and filled for strong, solid for medium, dashed for hinted. An open theme
+takes the whole row and lists each piece as &ldquo;8, wants 6&rdquo; with its cards; the number
+sits folded under &ldquo;Advanced&rdquo;. No theme is said in a sentence, never guessed.</p>
 
 <h2>Do &amp; Don't</h2>
 <div class="grid2">

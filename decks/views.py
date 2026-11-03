@@ -9,7 +9,8 @@ import secrets
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Prefetch
+from django.db.models import F, Prefetch, Q, Window
+from django.db.models.functions import RowNumber
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -43,6 +44,7 @@ from decks.models import (
     art_missing,
     first_image,
     printings_shown,
+    small_image,
 )
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
 from simulations import blindspots, deck_cards, report, review, summary
@@ -63,7 +65,10 @@ class DeckListView(OwnedDecksMixin, ListView):
     context_object_name = "decks"
 
     def get_queryset(self):
-        return super().get_queryset().select_related("commander", "partner")
+        # The entries once for the whole list: the card count reads them, and
+        # it used to be one query a deck.
+        return (super().get_queryset().select_related("commander", "partner")
+                .prefetch_related("entries"))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -71,6 +76,10 @@ class DeckListView(OwnedDecksMixin, ListView):
         # read, not a reading of every card on every visit.
         for deck in context["decks"]:
             review.open_questions(deck)
+        fans = fan_cards(context["decks"])
+        for deck in context["decks"]:
+            deck.fan = fans.get(deck.pk, [])
+            deck.commander_small = commander_small(deck)
         return context
 
 
@@ -214,6 +223,49 @@ def commander_art(deck, pending: bool) -> list[tuple]:
         art.append((card, image or card.image_uri, pending and bool(printings) and not image,
                     not pending and art_missing(printings)))
     return art
+
+
+#: How many of the deck's cards stand fanned out behind its commander in the list.
+FAN_SIZE = 3
+
+
+def fan_cards(decks) -> dict:
+    """`{deck id: [small picture, ...]}`: the deck's most expensive spells.
+
+    The cards fanned out behind the commander in "Your decks" (Themen-Doc,
+    Deckübersicht): the three highest mana values that are not lands, the
+    name breaking ties, so a deck shows the same three on every visit. The
+    printing's art when the file named one, the catalogue's otherwise, small.
+    One query for the whole list: a row number per deck, cut at three.
+    """
+    ids = [deck.pk for deck in decks]
+    if not ids:
+        return {}
+    ranked = (
+        DeckCard.objects.filter(deck_id__in=ids)
+        # A land on its front face only, like `OracleCard.is_land`.
+        .exclude(Q(oracle_card__type_line__regex=r"^[^/]*Land"))
+        .annotate(place=Window(RowNumber(), partition_by=F("deck_id"),
+                               order_by=[F("oracle_card__cmc").desc(),
+                                         F("oracle_card__name").asc()]))
+        .filter(place__lte=FAN_SIZE)
+        .select_related("oracle_card")
+        .order_by("deck_id", "place")
+    )
+    fans: dict = {}
+    for entry in ranked:
+        image = first_image(entry.printings) or entry.oracle_card.image_uri
+        fans.setdefault(entry.deck_id, []).append(
+            (entry.oracle_card.name, small_image(image)))
+    return fans
+
+
+def commander_small(deck):
+    """`(name, small picture)` of the first commander, or None without one."""
+    if not deck.commander_id:
+        return None
+    card, image, _waiting, _missing = commander_art(deck, pending=False)[0]
+    return card.name, small_image(image)
 
 
 def commander_choice(deck, last_import):

@@ -1,6 +1,7 @@
 {% load i18n %}
 {% comment %}
-  "Was this helpful?" under a written deck summary, and after an answer an
+  "Was this helpful?" for a written deck summary and its strategy picks, under
+  the strategies (or under the summary when they are not shown), and after an answer an
   optional word (`simulations.views.SummaryFeedbackView`). One root element,
   swapped whole by htmx; without JavaScript the forms post and come back to
   the summary. Small on purpose: two buttons, then one field, never asked.
@@ -17,7 +18,7 @@
           hx-swap="outerHTML"
           class="flex flex-wrap items-center gap-2">
       {% csrf_token %}
-      <span>{% translate "Was this summary helpful?" %}</span>
+      <span>{% translate "Were the summary and the picks helpful?" %}</span>
       <button type="submit"
               name="helpful"
               value="1"

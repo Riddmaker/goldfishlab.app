@@ -156,6 +156,12 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
 - **The status marker** (`decks/_status.html`, `.deck-status-open` / `-ready`): blood-700 "! 3
   cards need you" (a link into the card review) or green "✓ Ready". On the deck list, the deck
   page and the card page.
+- **The deck fan** (`decks/_fan.html`, `.deck-fan*`): on "Your decks", left of the name, the
+  commander small with the deck's three most expensive spells fanned out to the right behind it,
+  each turned a little further about its bottom edge; a hover spreads them a little more (not
+  under `prefers-reduced-motion`). No commander: the slot stays, dashed and empty, the fan
+  behind it all the same. Scryfall's small pictures, lazily; hidden from screen readers, since
+  the name beside it is the link and says the same.
 - **The card grid** (`decks/_card_grid.html`, `.card-grid*`): card pictures, three across on a
   phone; the same marker words on a card ("! needs you", "✓ answered"), "×2" for a quantity.
   Filter chips reuse the chart chips. Every picture has its card name as `alt` and loads lazily.
@@ -210,7 +216,11 @@ engine could not read, then the pictures, and the depth folded at the bottom.
   front in its colour (`.summary-point`, `.summary-sign-*`), so a wrapped line lines up with the
   words. While Mistral writes, one italic ink-700 line "Writing your deck summary…". Under the
   text, small ink-700: "Written by Mistral AI. It can be wrong. The numbers above are measured.",
-  then the "Write a summary" offer when there is one, then "Hide summaries".
+  then the "Write a summary" offer when there is one. "Were the summary and the picks
+  helpful?" stands once, at the end of "Your strategies" (one Mistral call writes both). There
+  is no "Hide summaries" on a report: the switch is an account setting, under Settings on
+  "Your plan" (`.switch`: a real button with `role="switch"`, dark track when on, the knob
+  slides without motion under `prefers-reduced-motion`), with one sentence on why it exists.
 - **"Advanced"** (`simulations/_advanced.html`, `.report-advanced*`): a closed `<details>` on the
   dark page; the summary is a display heading with the fold's contents named beside it and a
   turning ▸ (no turn under `prefers-reduced-motion`). Inside: the mana table, the blind spots,

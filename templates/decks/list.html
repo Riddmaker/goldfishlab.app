@@ -17,8 +17,9 @@
     {% url 'decks:list' as here %}
     <ul class="mt-8 space-y-4">
       {% for deck in decks %}
-        <li class="surface-parchment p-5">
-          <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <li class="surface-parchment flex items-center gap-4 p-5">
+          {% include "decks/_fan.html" %}
+          <div class="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-4 gap-y-1">
             {% include "decks/_name.html" with heading=False next=here %}
             <span class="tabular text-sm text-ink-700">{% blocktranslate count count=deck.total_with_commander %}{{ count }} card{% plural %}{{ count }} cards{% endblocktranslate %}</span>
             {% include "decks/_status.html" %}

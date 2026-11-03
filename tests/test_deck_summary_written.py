@@ -570,11 +570,25 @@ def test_hiding_summaries_takes_the_block_away(key, client, owner, deck, finishe
     plans = client.get(reverse("billing:plans")).content.decode()
 
     assert 'id="summary"' not in hidden
-    assert "Show deck summaries again" in plans
+    assert 'id="deck-summaries"' in plans[plans.index('id="settings"'):]
+    assert 'aria-checked="false"' in plans
 
     client.post(reverse("simulations:summary_switch"), {"on": "1"})
     owner.refresh_from_db()
     assert owner.deck_summaries
+
+
+def test_the_switch_is_a_setting_with_its_reason(key, client, owner):
+    """Themen-Doc: under Settings, a switch that says why it is there."""
+    client.force_login(owner)
+
+    plans = client.get(reverse("billing:plans")).content.decode()
+    setting = plans[plans.index('id="deck-summaries"'):]
+
+    assert plans.index('id="settings"') < plans.index('id="deck-summaries"')
+    assert 'role="switch"' in setting and 'aria-checked="true"' in setting
+    assert "your deck list goes to Mistral" in setting
+    assert '<input type="hidden" name="on" value="0">' in setting
 
 
 def test_the_switch_does_not_redirect_off_the_site(client, owner):
@@ -638,9 +652,21 @@ def test_a_written_summary_asks_whether_it_helped(key, client, owner, deck, fini
     block = _page(client, owner, finished)
     block = block[block.index('id="summary"'):block.index('id="advanced"')]
 
-    assert "Was this summary helpful?" in block
+    assert "Were the summary and the picks helpful?" in block
     assert reverse("simulations:summary_feedback", args=[finished.pk]) in block
     assert "Anything we should know?" not in block, "the comment field comes after an answer"
+
+
+def test_the_question_stands_once_under_the_strategies(key, client, owner, deck, finished):
+    """Themen-Doc: one question for the summary and the picks, at their end."""
+    _written(deck)
+
+    body = _page(client, owner, finished)
+    strategies = body[body.index('id="strategies"'):body.index('id="advanced"')]
+
+    assert body.count('id="summary-feedback"') == 1
+    assert 'id="summary-feedback"' in strategies
+    assert "Hide summaries" not in body, "the switch lives under Settings now"
 
 
 def test_feedback_keeps_the_whole_case_and_a_second_click_changes_it(key, client, owner,
@@ -697,7 +723,7 @@ def test_no_feedback_without_an_answer_or_on_another_users_run(key, client, owne
     assert not SummaryFeedback.objects.exists()
 
 
-def test_feedback_without_javascript_goes_back_to_the_summary(key, client, owner, deck,
+def test_feedback_without_javascript_goes_back_to_the_question(key, client, owner, deck,
                                                               finished):
     _written(deck)
     client.force_login(owner)
@@ -706,7 +732,7 @@ def test_feedback_without_javascript_goes_back_to_the_summary(key, client, owner
                            {"helpful": "1"})
 
     assert response.status_code == 302
-    assert response["Location"].endswith(f"{finished.get_absolute_url()}#summary")
+    assert response["Location"].endswith(f"{finished.get_absolute_url()}#summary-feedback")
 
 
 def test_the_feedback_export_holds_the_cases_unhelpful_first_and_nobody(

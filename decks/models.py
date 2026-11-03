@@ -181,6 +181,18 @@ ART_HOST = "https://cards.scryfall.io/"
 ART_MISSING = "missing"
 
 
+def small_image(url: str) -> str:
+    """Scryfall's small picture (146 x 204) for one of its normal ones.
+
+    Scryfall serves every size under the same path with the size as its first
+    part, so `/normal/front/...` becomes `/small/front/...`. Anything that is
+    not one of Scryfall's normal pictures is returned as it is.
+    """
+    if url.startswith(ART_HOST + "normal/"):
+        return ART_HOST + "small/" + url[len(ART_HOST + "normal/"):]
+    return url
+
+
 def art_missing(printings) -> bool:
     """Whether the art of these printings could not be fetched and may be
     asked for again."""

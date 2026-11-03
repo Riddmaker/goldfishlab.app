@@ -1,0 +1,28 @@
+{% load i18n %}
+{% comment %}
+  The commander small, with three of the deck's cards fanned out to the right
+  behind it (Themen-Doc, Deckübersicht): the list tells decks apart at a
+  glance. `deck.commander_small` and `deck.fan` come from DeckListView
+  (decks.views.fan_cards: the three most expensive spells). Without a
+  commander the slot stays, empty, and the fan behind it as well.
+
+  Pictures only, so it is hidden from screen readers and out of the tab
+  order: the name beside it is the link and says the same. The small Scryfall
+  pictures, loaded when they come into view.
+{% endcomment %}
+<a href="{{ deck.get_absolute_url }}" class="deck-fan" aria-hidden="true" tabindex="-1" data-deck-fan>
+  {% for name, image in deck.fan %}
+    {% if image %}
+      <img src="{{ image }}" alt="" loading="lazy" width="146" height="204"
+           class="deck-fan-card deck-fan-card-{{ forloop.counter }}" data-fan-card>
+    {% else %}
+      <span class="deck-fan-card deck-fan-card-{{ forloop.counter }} deck-fan-blank" data-fan-card></span>
+    {% endif %}
+  {% endfor %}
+  {% if deck.commander_small and deck.commander_small.1 %}
+    <img src="{{ deck.commander_small.1 }}" alt="" loading="lazy" width="146" height="204"
+         class="deck-fan-commander" data-fan-commander>
+  {% else %}
+    <span class="deck-fan-commander deck-fan-empty" data-fan-commander></span>
+  {% endif %}
+</a>

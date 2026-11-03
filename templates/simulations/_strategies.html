@@ -11,7 +11,8 @@
   the block never disappears because the written part is missing (P6).
 
   Needs `strategies` (simulations.strategies.block), `report` and `run`;
-  `written` gives Mistral's reasons their `lang` (phase 12 G).
+  `written` gives Mistral's reasons their `lang` (phase 12 G). The "Was this
+  helpful?" question for the summary and the picks closes the block.
 {% endcomment %}
 {% if strategies.shown or report.combos %}
 <section id="strategies" class="surface-parchment mt-6 p-6">
@@ -57,5 +58,10 @@
     </div>
   {% endif %}
   {% include "simulations/_combos.html" %}
+  {% if written.configured %}
+    <div class="mt-5 border-t border-parchment-400 pt-3 text-sm text-ink-700">
+      {% include "simulations/_summary_feedback.html" %}
+    </div>
+  {% endif %}
 </section>
 {% endif %}

@@ -12649,3 +12649,59 @@ msgid ""
 "mana, the cards and the commander are there - before anybody interferes."
 msgstr ""
 "ゴールドフィッシュの目的：誰にも邪魔されない状態で、デッキがどれだけ安定して動き出すか（マナ、カード、統率者がどれだけ早く揃うか）を知ることです。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, Paris, France) - writes the "
+"deck summary on a simulation report and picks cards for its strategies. Our "
+"server sends Mistral <strong>the deck's card names, their categories and "
+"counts, the commander, the mana curve, its combos, the odds of drawing each "
+"category, worked out from the list, and lists of cards from the card "
+"database that would fit it</strong> - nothing about you: not your email, not"
+" your account, not your deck's name, not your IP address. Mistral processes "
+"it in the EU, keeps each request for up to 30 days to detect abuse, then "
+"deletes it, and does not use it to train its models. You can switch "
+"summaries off under Settings on \"Your plan\", and then nothing is sent. <a "
+"href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Mistral's terms</a>."
+msgstr ""
+"<strong>Mistral AI</strong>（Mistral AI "
+"SAS、フランス、パリ）：シミュレーションレポートのデッキの要約を作成し、その戦略に合うカードを選びます。私たちのサーバーは Mistral "
+"に、<strong>デッキのカード名、そのカテゴリーと枚数、統率者、マナカーブ、コンボ、リストから算出した各カテゴリーを引く確率、そしてカードデータベースからデッキに合いそうなカードのリスト</strong>を送信します。あなたに関する情報は何も送りません。メールアドレスも、アカウントも、デッキ名も、IP"
+" アドレスも送りません。Mistral はこれを EU "
+"内で処理し、不正利用の検出のために各リクエストを最長30日間保持した後に削除し、モデルの学習には使用しません。「あなたのプラン」の「設定」で要約をオフにでき、その場合は何も送信されません。<a"
+" href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Mistral の利用規約</a>。"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Were the summary and the picks helpful?"
+msgstr "要約と提案は役に立ちましたか？"
+
+#: simulations/views.py
+msgid ""
+"Deck summaries are off. Switch them on again under Settings on Your plan."
+msgstr "デッキの要約をオフにしました。「あなたのプラン」の「設定」でもう一度オンにできます。"
+
+#: templates/billing/plans.html
+msgid "Deck summaries"
+msgstr "デッキの要約"
+
+#: templates/billing/plans.html
+msgctxt "a setting"
+msgid "On"
+msgstr "オン"
+
+#: templates/billing/plans.html
+msgctxt "a setting"
+msgid "Off"
+msgstr "オフ"
+
+#: templates/billing/plans.html
+msgid ""
+"Mistral AI writes a short summary of each deck and picks cards for its "
+"strategies. For that your deck list goes to Mistral, and each new summary "
+"uses one simulation. Switch it off if you would rather not have AI text or "
+"want to save simulations."
+msgstr ""
+"Mistral AI が各デッキの短い要約を書き、その戦略に合うカードを提案します。そのためにデッキリストが Mistral "
+"に送られ、新しい要約ごとにシミュレーションを1回使います。AI の文章が不要な場合や、シミュレーションを節約したい場合はオフにしてください。"

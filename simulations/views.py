@@ -297,7 +297,7 @@ class SummaryFeedbackView(OwnedRunsMixin, View):
         comment = request.POST.get("comment") if "comment" in request.POST else None
         feedback = summary.give_feedback(request.user, row, helpful=helpful, comment=comment)
         if not request.headers.get("HX-Request"):
-            return redirect(f"{run.get_absolute_url()}#summary")
+            return redirect(f"{run.get_absolute_url()}#summary-feedback")
         rateable = row is not None and row.status == DeckSummary.Status.DONE
         return render(request, "simulations/_summary_feedback.html",
                       {"run": run, "written": {"rateable": rateable, "feedback": feedback}})
@@ -306,7 +306,8 @@ class SummaryFeedbackView(OwnedRunsMixin, View):
 class SummarySwitchView(LoginRequiredMixin, View):
     """Deck summaries on or off, for the whole account (phase 10 H, T6.5).
 
-    "Hide summaries" on the run page, "Show deck summaries" on "Your plan".
+    The switch under Settings on "Your plan" (Themen-Doc; it used to be a
+    "Hide summaries" button on every report).
     Back to where it was pressed, if that is a page of ours.
     """
 
@@ -317,7 +318,7 @@ class SummarySwitchView(LoginRequiredMixin, View):
             messages.success(request, gettext("Deck summaries are on again."))
         else:
             messages.success(request, gettext(
-                "Deck summaries are off. Switch them on again on Your plan."))
+                "Deck summaries are off. Switch them on again under Settings on Your plan."))
         target = request.POST.get("next", "")
         if not url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()},
                                                require_https=request.is_secure()):

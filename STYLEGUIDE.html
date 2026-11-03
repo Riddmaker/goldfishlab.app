@@ -73,6 +73,26 @@ td.num, th.num { text-align: right; font-family: var(--mono); }
 .fail { color: #e8938e; font-weight: 600; }
 .demo { padding: 2px 8px; font-size: .85rem; }
 
+.sg-row { margin: 0; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; }
+.sg-fan { position: relative; display: inline-block; width: 8.4rem; height: 4.9rem; }
+.sg-card { position: absolute; bottom: 0; left: 0; width: 3.5rem; height: 4.9rem;
+           border-radius: .2rem; transform-origin: 50% 100%;
+           border: 1px solid var(--parch-600); background: var(--parch-300);
+           box-shadow: 0 1px 4px rgb(0 0 0 / 35%); }
+.sg-c1 { z-index: 3; transform: translateX(1.05rem) rotate(7deg); }
+.sg-c2 { z-index: 2; transform: translateX(2.1rem) rotate(14deg); }
+.sg-c3 { z-index: 1; transform: translateX(3.15rem) rotate(21deg); }
+.sg-cmd { z-index: 4; background: var(--ink-800); box-shadow: 0 2px 6px rgb(0 0 0 / 45%); }
+.sg-none { z-index: 4; border: 2px dashed var(--parch-600); background: var(--parch-100);
+           box-shadow: none; }
+.sg-switch { position: relative; display: inline-block; width: 2.75rem; height: 1.5rem;
+             border: 1px solid var(--ink-800); border-radius: 9999px;
+             background: var(--parch-300); }
+.sg-switch.sg-on { background: var(--ink-800); }
+.sg-knob { position: absolute; top: 2px; left: 2px; width: 1.125rem; height: 1.125rem;
+           border-radius: 9999px; background: var(--parch-50);
+           box-shadow: 0 1px 2px rgb(0 0 0 / 40%); }
+.sg-on .sg-knob { transform: translateX(1.25rem); }
 .surface {
   background-color: var(--parch-100);
   background-image:
@@ -553,6 +573,27 @@ eye widens, on a click.</p>
 <p class="rule">Every title in the deck summary has its colour and its word, and every strength
 or weakness its <strong>+</strong> or <strong>&minus;</strong>. A mechanism chip wears the swatch of
 its line in &ldquo;What you drew&rdquo;; the words say what it is.</p>
+
+<h2>Deck list fan &amp; setting switch (Themen-Doc)</h2>
+<div class="surface">
+  <p class="sg-row">
+    <span class="sg-row"><span class="sg-fan"><span class="sg-card sg-c3"></span>
+      <span class="sg-card sg-c2"></span><span class="sg-card sg-c1"></span>
+      <span class="sg-card sg-cmd"></span></span> commander set</span>
+    <span class="sg-row"><span class="sg-fan"><span class="sg-card sg-c3"></span>
+      <span class="sg-card sg-c2"></span><span class="sg-card sg-c1"></span>
+      <span class="sg-card sg-none"></span></span> no commander: the slot stays, dashed</span>
+  </p>
+  <p class="sg-row" style="margin-top:1.25rem">
+    <span class="sg-switch sg-on"><span class="sg-knob"></span></span> <strong>On</strong>
+    <span class="sg-switch"><span class="sg-knob"></span></span> <strong>Off</strong>
+  </p>
+</div>
+<p class="rule">&ldquo;Your decks&rdquo;: the commander small, the deck&rsquo;s three most expensive
+spells fanned out to the right behind it, turned about their bottom edge (<code>.deck-fan</code>).
+Pictures only: hidden from screen readers, the name beside it says the same. A setting is a
+<code>.switch</code>: a real button with <code>role="switch"</code>, a dark track when on, and
+always the word On or Off beside it.</p>
 
 <h2>Do &amp; Don't</h2>
 <div class="grid2">

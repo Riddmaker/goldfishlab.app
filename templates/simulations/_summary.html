@@ -11,7 +11,13 @@
   version 1 summary has no title and tagline and starts with "Feel" (F13).
 
   Without Mistral there is nothing to show, so the block is left out; and
-  detail.html leaves it out for somebody who switched summaries off.
+  detail.html leaves it out for somebody who switched summaries off. The
+  switch is under Settings on "Your plan" (Themen-Doc): a "Hide summaries"
+  button on every report was the wrong place for an account setting.
+
+  "Was this helpful?" asks about the summary and the strategy picks, which
+  one Mistral call writes, so it stands once, under the strategies; here only
+  when that block is not shown.
 
   Needs `run`, and `written` unless summaries are off.
 {% endcomment %}
@@ -26,7 +32,10 @@
     {% if written.content.feel %}
       <p>{% translate "Written by Mistral AI. It can be wrong. Its numbers are calculated from your list, not measured by this run." %}</p>
     {% endif %}
-    {% include "simulations/_summary_feedback.html" %}
+    {% if not strategies.shown and not report.combos %}
+      {# "Was this helpful?" sits under the strategies when they are shown. #}
+      {% include "simulations/_summary_feedback.html" %}
+    {% endif %}
     {% if not written.pending and not written.current %}
       {% if written.failed %}
         <p class="mt-1">{% translate "The summary could not be written this time. Nothing was taken from your runs." %}</p>
@@ -56,12 +65,6 @@
         </p>
       {% endif %}
     {% endif %}
-    <form method="post" action="{% url 'simulations:summary_switch' %}" class="mt-2">
-      {% csrf_token %}
-      <input type="hidden" name="on" value="0">
-      <input type="hidden" name="next" value="{{ run.get_absolute_url }}">
-      <button type="submit" class="text-ink-700 underline hover:text-ink-900">{% translate "Hide summaries" %}</button>
-    </form>
   </div>
 </section>
 {% endif %}

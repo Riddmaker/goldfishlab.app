@@ -208,6 +208,132 @@ body {
   box-shadow: 0 1px 0 var(--color-parchment-50) inset, 0 8px 24px rgb(0 0 0 / 45%);
 }
 
+/* A switch for an account setting (billing/plans.html, Settings): a real
+ * button with role="switch" that posts the other state. The track is dark
+ * when on, parchment when off; the knob slides to the side that is on. */
+.switch {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 1.5rem;
+  border: 1px solid var(--color-ink-800);
+  border-radius: 9999px;
+  background-color: var(--color-parchment-300);
+  transition: background-color 150ms ease;
+}
+.switch[aria-checked="true"] {
+  background-color: var(--color-ink-800);
+}
+.switch:focus-visible {
+  outline: 2px solid var(--color-blood-700);
+  outline-offset: 2px;
+}
+.switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 9999px;
+  background-color: var(--color-parchment-50);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 40%);
+  transition: transform 150ms ease;
+}
+.switch[aria-checked="true"] .switch-knob {
+  transform: translateX(1.25rem);
+}
+@media (prefers-reduced-motion: reduce) {
+  .switch,
+  .switch-knob {
+    transition: none;
+  }
+}
+
+/* "Your decks": the commander small, three of the deck's cards fanned out to
+ * the right behind it (templates/decks/_fan.html). The cards turn about
+ * their bottom edge, each a little further; a hover spreads them a little
+ * more, never under prefers-reduced-motion. Smaller on a phone. */
+.deck-fan {
+  --fan-w: 2.75rem;
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  width: calc(var(--fan-w) * 2.4);
+  height: calc(var(--fan-w) * 1.4);
+}
+@media (min-width: 640px) {
+  .deck-fan {
+    --fan-w: 3.5rem;
+  }
+}
+.deck-fan-commander,
+.deck-fan-card {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: var(--fan-w);
+  height: calc(var(--fan-w) * 1.4);
+  border-radius: 0.2rem;
+  transform-origin: 50% 100%;
+}
+.deck-fan-commander {
+  z-index: 4;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 45%);
+}
+.deck-fan-card {
+  box-shadow: 0 1px 4px rgb(0 0 0 / 35%);
+  transition: transform 200ms ease;
+}
+.deck-fan-card-1 {
+  z-index: 3;
+  transform: translateX(calc(var(--fan-w) * 0.3)) rotate(7deg);
+}
+.deck-fan-card-2 {
+  z-index: 2;
+  transform: translateX(calc(var(--fan-w) * 0.6)) rotate(14deg);
+}
+.deck-fan-card-3 {
+  z-index: 1;
+  transform: translateX(calc(var(--fan-w) * 0.9)) rotate(21deg);
+}
+@media (hover: hover) {
+  .deck-fan:hover .deck-fan-card-1 {
+    transform: translateX(calc(var(--fan-w) * 0.4)) rotate(9deg);
+  }
+  .deck-fan:hover .deck-fan-card-2 {
+    transform: translateX(calc(var(--fan-w) * 0.8)) rotate(18deg);
+  }
+  .deck-fan:hover .deck-fan-card-3 {
+    transform: translateX(calc(var(--fan-w) * 1.2)) rotate(27deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .deck-fan-card {
+    transition: none;
+  }
+  .deck-fan:hover .deck-fan-card-1 {
+    transform: translateX(calc(var(--fan-w) * 0.3)) rotate(7deg);
+  }
+  .deck-fan:hover .deck-fan-card-2 {
+    transform: translateX(calc(var(--fan-w) * 0.6)) rotate(14deg);
+  }
+  .deck-fan:hover .deck-fan-card-3 {
+    transform: translateX(calc(var(--fan-w) * 0.9)) rotate(21deg);
+  }
+}
+/* A card without a picture: a plain parchment back. No commander: the slot
+ * stays, dashed and empty. */
+.deck-fan-blank {
+  border: 1px solid var(--color-parchment-600);
+  background-color: var(--color-parchment-300);
+}
+.deck-fan-empty {
+  border: 2px dashed var(--color-parchment-600);
+  background-color: var(--color-parchment-100);
+  box-shadow: none;
+}
+
 /* Account forms.
  *
  * allauth renders plain Django form HTML (label + input + errorlist), with no

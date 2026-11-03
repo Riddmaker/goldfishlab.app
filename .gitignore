@@ -73,3 +73,5 @@ htmlcov/
 # what is probed and how is a checklist for an attacker, and the personas
 # carry business strategy.
 /docs/e2e/
+# Research results (HABIT 5/8): local AI context, not in the repo.
+/docs/research/

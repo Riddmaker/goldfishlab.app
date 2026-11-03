@@ -14257,3 +14257,69 @@ msgstr ""
 "Para que serve o goldfishing: com que confiabilidade seu deck engrena - quão"
 " cedo a mana, as cartas e o comandante estão lá - antes que alguém "
 "interfira."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, Paris, France) - writes the "
+"deck summary on a simulation report and picks cards for its strategies. Our "
+"server sends Mistral <strong>the deck's card names, their categories and "
+"counts, the commander, the mana curve, its combos, the odds of drawing each "
+"category, worked out from the list, and lists of cards from the card "
+"database that would fit it</strong> - nothing about you: not your email, not"
+" your account, not your deck's name, not your IP address. Mistral processes "
+"it in the EU, keeps each request for up to 30 days to detect abuse, then "
+"deletes it, and does not use it to train its models. You can switch "
+"summaries off under Settings on \"Your plan\", and then nothing is sent. <a "
+"href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Mistral's terms</a>."
+msgstr ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, Paris, França) — escreve o "
+"resumo do deck num relatório de simulação e escolhe cards para as "
+"estratégias dele. O nosso servidor envia à Mistral <strong>os nomes dos "
+"cards do deck, as categorias e quantidades deles, o comandante, a curva de "
+"mana, os combos do deck, as chances de comprar cada categoria, calculadas a "
+"partir da lista, e listas de cards do banco de dados de cards que "
+"combinariam com ele</strong> — nada sobre você: nem o seu e-mail, nem a sua "
+"conta, nem o nome do seu deck, nem o seu endereço IP. A Mistral trata esses "
+"dados na UE, guarda cada requisição por até 30 dias para detectar abusos, "
+"depois a exclui, e não os usa para treinar os seus modelos. Você pode "
+"desligar os resumos em \"Configurações\" na página \"Seu plano\", e então "
+"nada é enviado. <a href=\"https://legal.mistral.ai/terms\" class=\"underline"
+" hover:text-ink-700\" rel=\"noopener\">Termos da Mistral</a>."
+
+#: templates/simulations/_summary_feedback.html
+msgid "Were the summary and the picks helpful?"
+msgstr "O resumo e as sugestões foram úteis?"
+
+#: simulations/views.py
+msgid ""
+"Deck summaries are off. Switch them on again under Settings on Your plan."
+msgstr ""
+"Os resumos de deck estão desligados. Ligue-os de novo em Configurações, em "
+"Seu plano."
+
+#: templates/billing/plans.html
+msgid "Deck summaries"
+msgstr "Resumos de deck"
+
+#: templates/billing/plans.html
+msgctxt "a setting"
+msgid "On"
+msgstr "Ligado"
+
+#: templates/billing/plans.html
+msgctxt "a setting"
+msgid "Off"
+msgstr "Desligado"
+
+#: templates/billing/plans.html
+msgid ""
+"Mistral AI writes a short summary of each deck and picks cards for its "
+"strategies. For that your deck list goes to Mistral, and each new summary "
+"uses one simulation. Switch it off if you would rather not have AI text or "
+"want to save simulations."
+msgstr ""
+"A Mistral AI escreve um breve resumo de cada deck e sugere cartas para as "
+"suas estratégias. Para isso, a sua lista vai para a Mistral, e cada novo "
+"resumo usa uma simulação. Desligue se você preferir não ter texto escrito "
+"por IA ou quiser economizar simulações."

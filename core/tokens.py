@@ -21,9 +21,10 @@ FAMILY_NOTES = {
     "parchment": "Aged paper. Surfaces, and light text on the dark ground.",
     "blood": "Desaturated crimson. Accent and danger. Never body text.",
     "verdigris": "Aged copper. Success, and 'modelled' states.",
+    "water": "The fill of a symbol only: water, a wave, a card.",
 }
 
-FAMILY_ORDER = ["ink", "parchment", "blood", "verdigris"]
+FAMILY_ORDER = ["ink", "parchment", "blood", "verdigris", "water"]
 
 
 @lru_cache(maxsize=1)

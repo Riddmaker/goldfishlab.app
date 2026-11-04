@@ -1,4 +1,4 @@
-{% load humanize i18n %}
+{% load humanize i18n icons %}
 {% comment %}
   The engines this run measured (Themen-Doc, Paket 1, PR 5), after the
   combos: one line each, by which turn it runs. An engine runs when every
@@ -8,7 +8,7 @@
 {% endcomment %}
 {% if report.engines %}
   <div id="engine-timings" class="mt-6 border-t border-parchment-400 pt-5">
-    <h3 class="summary-title text-ink-900">{% translate "Engines" %}</h3>
+    <h3 class="summary-title icon-host flex items-center gap-2 text-ink-900">{% icon "engine" %}{% translate "Engines" %}</h3>
     <p class="mt-1 text-sm text-ink-700">
       {% blocktranslate with games=run.games_total|intcomma %}How soon each engine starts paying off: running means one card of each role is out, measured over {{ games }} games.{% endblocktranslate %}
       {% include "core/_why.html" with anchor="engines" %}

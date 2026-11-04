@@ -5,9 +5,9 @@
   P20 F4: always there - a run that timed no combo says why and where to get
   them - and with the Game Changers' floor and the two together.
 {% endcomment %}
-{% load i18n %}
+{% load i18n icons %}
 <section id="brackets" class="surface-parchment mt-6 p-6">
-  <h2 class="font-display text-2xl text-ink-900">{% translate "Speed and the Commander Brackets" %}</h2>
+  <h2 class="icon-host flex items-center gap-2 font-display text-2xl text-ink-900">{% icon "speed" %}{% translate "Speed and the Commander Brackets" %}</h2>
   {% if tempo.rerun %}
     <p class="mt-2 text-sm text-ink-700">
       {% blocktranslate trimmed %}

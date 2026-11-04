@@ -41,9 +41,34 @@ FAMILY_MEANING = {
               "&ldquo;needs review&rdquo;.",
               "Body text, or large filled areas."),
     "verdigris": ("Success, and &ldquo;successfully modelled&rdquo; states.",
-                  "Decoration."),
+                  "Decoration (a symbol's fill excepted)."),
+    "water": ("The fill of a symbol: the water in the flask, the wave, a card.",
+              "Text, surfaces or state."),
 }
-FAMILY_ORDER = ["ink", "parchment", "blood", "verdigris"]
+FAMILY_ORDER = ["ink", "parchment", "blood", "verdigris", "water"]
+
+ICONS_DIR = ROOT / "core" / "icons"
+#: Every symbol in core/icons/, in the order shown, with what it stands for
+#: and how it moves (DESIGN.md, SYMBOLS). tests/test_icons.py holds this list
+#: and the folder together.
+SYMBOLS = [
+    ("simulation", "Simulation", "A run. The flask with water; bubbles rise."),
+    ("hand", "Draw a hand", "A playtest. The fan opens."),
+    ("import", "Import", "A list drops into the tank."),
+    ("new-user", "New user", "A new goldfish, with a glint."),
+    ("speed", "Speed", "How fast the deck gets going. The hourglass turns."),
+    ("stress", "Stress test", "Up again after the wave."),
+    ("bracket", "Bracket", "Five steps, filled up to the deck&rsquo;s."),
+    ("combo", "Combo", "Two rings; where they meet, gold."),
+    ("engine", "Engine", "Cards that keep turning. A quarter turn."),
+    ("ramp", "Ramp", "Mana that grows. The sprout springs up."),
+    ("draw", "Card draw", "One card more."),
+    ("removal", "Removal", "An answer. The dagger strikes."),
+    ("new-hand", "New hand", "Shuffle and draw seven. Turns round."),
+    ("legal", "Legal", "A seal for the six checks. It stamps."),
+    ("unusual", "Unusual move", "Free mode marks what the rules would not allow."),
+    ("fish-says", "The fish says", "A fun line in the ticker, never an event."),
+]
 
 DO = [
     "Set data plainly. Atmosphere belongs in the chrome, not behind a table of percentages.",
@@ -125,6 +150,38 @@ def pairing_rows(scales: dict) -> str:
 </tr>"""
         )
     return "\n".join(rows)
+
+
+def icon_svg(name: str, large: bool = False) -> str:
+    """One symbol as core/templatetags/icons.py renders it."""
+    shapes = (ICONS_DIR / f"{name}.svg").read_text(encoding="utf-8").strip()
+    size = " icon-lg" if large else ""
+    return (f'<svg class="icon icon-{name}{size}" viewBox="0 0 32 32" fill="none" '
+            'stroke="currentColor" stroke-width="2.2" stroke-linecap="round" '
+            f'stroke-linejoin="round" aria-hidden="true" focusable="false">{shapes}</svg>')
+
+
+def icon_css(scales: dict) -> str:
+    """input.css's symbol block, its tokens resolved to hex."""
+    css = INPUT_CSS.read_text(encoding="utf-8")
+    block = css[css.index("/* icons:start"):css.index("/* icons:end */")]
+    return re.sub(r"var\(--color-([a-z]+)-(\d+)\)",
+                  lambda match: scales[match.group(1)][int(match.group(2))], block)
+
+
+def symbol_cells() -> str:
+    return "\n".join(
+        f'<div class="panel-dark icon-host sym-cell" tabindex="0">{icon_svg(name, large=True)}'
+        f'<div><strong>{title}</strong><br><span class="sym-note">{note}</span></div></div>'
+        for name, title, note in SYMBOLS
+    )
+
+
+def symbol_inline() -> str:
+    examples = [("speed", "Speed: turn 7"), ("bracket", "Bracket 3+"), ("ramp", "Ramp 11"),
+                ("combo", "Combos &amp; engines"), ("legal", "Commander legality")]
+    return " ".join(f'<span class="icon-host sym-inline">{icon_svg(name)} {text}</span>'
+                    for name, text in examples)
 
 
 def build() -> str:
@@ -320,6 +377,12 @@ ul.dodont li {{ margin-bottom: .4rem; font-size: .93rem; }}
 @media (prefers-reduced-motion: reduce) {{
   .logo-animated .logo-fish, .logo-animated .logo-bubble {{ animation: none; opacity: 1; }}
 }}
+.sym-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: .75rem; }}
+.sym-cell {{ display: flex; gap: .9rem; align-items: flex-start; color: var(--parch-100); }}
+.sym-note {{ color: var(--ink-300); font-size: .9rem; }}
+.sym-inline {{ display: inline-flex; gap: .4rem; align-items: center; margin-right: 1.4rem; }}
+{icon_css(scales)}
 </style>
 </head>
 <body>
@@ -580,6 +643,18 @@ steps. The shapes are the favicon's; only the colours moved into tokens.</p>
 short move now and then while nobody touches the page - a glance, a turn, rarely a jump out of the
 flask - and a click tilts the flask. Every move ends inside 2&nbsp;s; under reduced motion only the
 eye widens, on a click.</p>
+
+<h2>Symbols (Paket 4)</h2>
+<div class="sym-grid">
+{symbol_cells()}
+</div>
+<div class="surface icon-on-light" style="margin-top:.75rem">
+  <p style="margin:0">{symbol_inline()}</p>
+</div>
+<p class="rule">Info symbols: the line in the text&rsquo;s colour, one fill from gold, water, blood
+or verdigris, darker on parchment. Always beside their word, never a target of their own. Point at
+one (or tab to it): it moves once, under a second; never under reduced motion. Functional icons -
+the pencil, the bin, the padlock - stay one colour and sit in a button or link.</p>
 
 <h2>Deck summary (Phase 10)</h2>
 <div class="surface">

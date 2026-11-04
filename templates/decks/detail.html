@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load humanize i18n static %}
+{% load humanize i18n icons static %}
 {% block title %}{{ deck.name }} — Goldfish Lab{% endblock %}
 {% block description %}{% blocktranslate with name=deck.name %}Mana curve, card types, categories and Commander legality for {{ name }}.{% endblocktranslate %}{% endblock %}
 {% block head %}
@@ -90,12 +90,12 @@
                class="border border-blood-800 bg-blood-700 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-blood-800">{% translate "Open the last report" %}</a>
           {% endif %}
           <button type="submit"
-                  class="{% if running_run or last_run %}border border-parchment-100 hover:bg-ink-800{% else %}border border-blood-800 bg-blood-700 hover:bg-blood-800{% endif %} px-6 py-3 font-display text-xl text-parchment-100">
-            {% if not deck.commander %}{% translate "Simulate without a commander" %}{% elif last_run %}{% translate "Simulate again" %}{% else %}{% translate "Simulate" %}{% endif %}
+                  class="{% if running_run or last_run %}border border-parchment-100 hover:bg-ink-800{% else %}border border-blood-800 bg-blood-700 hover:bg-blood-800{% endif %} icon-host inline-flex items-center gap-2 px-6 py-3 font-display text-xl text-parchment-100">
+            {% icon "simulation" %}{% if not deck.commander %}{% translate "Simulate without a commander" %}{% elif last_run %}{% translate "Simulate again" %}{% else %}{% translate "Simulate" %}{% endif %}
           </button>
           <button type="submit" formaction="{% url 'playtest:start' deck.id %}" data-deal-hand
-                  class="border border-parchment-100 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-ink-800">
-            {% translate "Draw a hand" %}
+                  class="icon-host inline-flex items-center gap-2 border border-parchment-100 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-ink-800">
+            {% icon "hand" %}{% translate "Draw a hand" %}
           </button>
         </div>
         {% if running_run or last_run %}
@@ -157,8 +157,8 @@
       Game Changers read off the deck, the speed off the last run (P20 F4).
       The big number is the higher of the two; the report has the table.
     {% endcomment %}
-    <div class="surface-parchment p-4" data-bracket-tile>
-      <p class="text-sm text-ink-700">{% translate "Bracket" %}</p>
+    <div class="surface-parchment icon-host p-4" data-bracket-tile>
+      <p class="flex items-center gap-1.5 text-sm text-ink-700">{% icon "bracket" %}{% translate "Bracket" %}</p>
       <p class="tabular font-display text-3xl text-ink-900" data-bracket-floor>{% include "decks/_bracket_number.html" with floor=analysis.bracket_floor %}</p>
       <p class="text-sm text-ink-700">{{ analysis.bracket_verdict.message }}</p>
       <p class="text-sm text-ink-700" data-by-speed>
@@ -172,8 +172,8 @@
       </p>
     </div>
     {# The six checks themselves, so no fold further down repeats the tile. #}
-    <div id="legality" class="surface-parchment p-4">
-      <p class="text-sm text-ink-700">{% translate "Commander legality" %}</p>
+    <div id="legality" class="surface-parchment icon-host p-4">
+      <p class="flex items-center gap-1.5 text-sm text-ink-700">{% icon "legal" %}{% translate "Commander legality" %}</p>
       {% if legality_problems %}
         <p class="font-display text-3xl text-blood-700">!</p>
       {% else %}
@@ -236,9 +236,9 @@
         </ol>
         <dl class="deck-curve-facts" data-curve-facts>
           {% for bar in curve_counts %}
-            <div>
+            <div class="icon-host">
               <dt class="text-sm text-ink-700">
-                <a href="?{{ bar.param }}={{ bar.value }}#cards" class="underline decoration-parchment-600">{{ bar.label }}</a>
+                <a href="?{{ bar.param }}={{ bar.value }}#cards" class="inline-flex items-center gap-1.5 underline decoration-parchment-600">{% icon bar.icon %}{{ bar.label }}</a>
               </dt>
               <dd class="tabular font-display text-2xl text-ink-900">
                 {{ bar.count }}{% if bar.band_label %}<span class="font-body text-sm text-ink-700"> / ~{{ bar.band_label }}</span>{% endif %}
@@ -308,7 +308,7 @@
     below it come from the themes and need no button (Paket 1, PR 3).
   {% endcomment %}
   <section id="combos" class="surface-parchment mt-8 p-6">
-    <h2 class="font-display text-2xl text-ink-900">{% translate "Combos & engines" %}</h2>
+    <h2 class="icon-host flex items-center gap-2 font-display text-2xl text-ink-900">{% icon "combo" %}{% translate "Combos & engines" %}</h2>
     {% include "combos/_panel.html" %}
     {% include "decks/_engines.html" %}
   </section>

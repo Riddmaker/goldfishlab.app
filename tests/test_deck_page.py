@@ -168,7 +168,8 @@ def test_a_history_restore_is_the_whole_page(client_in, deck):
 def test_the_actions_come_first(client_in, deck):
     body = client_in.get(deck.get_absolute_url()).content.decode()
 
-    simulate = body.index(">\n            Simulate")
+    simulate = body.index("icon-simulation")  # the Simulate button, with its symbol (PR 15)
+    assert "Simulate" in body[simulate:body.index("</button>", simulate)]
     assert simulate < body.index(">Mana curve</h2>")
     assert reverse("simulations:create", args=[deck.pk]) in body
     assert reverse("playtest:start", args=[deck.pk]) in body

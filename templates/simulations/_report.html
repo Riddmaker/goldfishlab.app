@@ -1,4 +1,4 @@
-{% load humanize i18n l10n %}
+{% load humanize i18n l10n icons %}
 {% comment %}
   The report. Every chart here is server-rendered from the run's own numbers:
   a bar is a div with a width, which needs no charting library, no JavaScript,
@@ -171,7 +171,7 @@
     fast the deck comes back - and the with/without rows folded below.
   {% endcomment %}
   <section id="stress" class="surface-parchment mt-6 p-6">
-    <h2 class="font-display text-2xl text-ink-900">{% translate "Stress test: when the table strikes back" %}</h2>
+    <h2 class="icon-host flex items-center gap-2 font-display text-2xl text-ink-900">{% icon "stress" %}{% translate "Stress test: when the table strikes back" %}</h2>
     <p class="mt-1 text-sm text-ink-700">
       {% blocktranslate trimmed with turn=report.stress.turns %}
         How fast your deck comes back when an opponent hits it: the same games, once struck, side by side on turn {{ turn }}.

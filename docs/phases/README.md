@@ -37,6 +37,7 @@ these files describe execution.
 | — | [themes.md](themes.md) | **Started** (2026-11-03): themes, engines and synergies of a deck (Themen-Doc, Paket 1). PR 1 done: theme detection from tags, rules only. PR 2 done: theme chips on the deck page, one "Building blocks" chart. PR 3 done: engines and synergy pairs in "Combos & engines". PR 4 done: lock or dismiss engines and pairs, resting when a card leaves. PR 5 done: engines measured in the simulation. PR 6 done: Mistral explains each engine. **Done.** |
 | — | [deckpage.md](deckpage.md) | **Complete** (2026-11-03): the deck page anew (Themen-Doc, Paket 2). PR 7 done: deck summary and strategies on the deck page, new order. PR 8 done: compact mana curve with ramp, draw and the commander turn. PR 9 done: colour identity, bracket and last simulation per deck in the deck list |
 | — | [readability.md](readability.md) | **Complete** (2026-11-03): easier to read (Themen-Doc, Paket 3), PR 10-13: "More" instead of "Why?", In short against the precons, the stress test as two cards, Show your friends and Compared with your last run |
+| — | [erlebnis.md](erlebnis.md) | **Started** (2026-11-03): the site feels alive (Themen-Doc, Paket 4), PR 14-19. PR 14 done: drafts on the canvas. PR 15 done: sixteen symbols of our own, in colour, moving on hover |
 
 **Update the status column when a phase starts and when it finishes.** Phases 0–4 are detailed
 and each ends with a "What actually happened" account of where the plan met reality; phases

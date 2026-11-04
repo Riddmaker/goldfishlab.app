@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n icons %}
 {% comment %}
   What this run measured of the deck's combos and engines (phase 11 Z5.4,
   Paket 1 PR 5), the last block before "Advanced". It was the end of "Your
@@ -9,7 +9,7 @@
   Needs `report` and `run`.
 {% endcomment %}
 <section id="measured" class="surface-parchment mt-6 p-6">
-  <h2 class="font-display text-2xl text-ink-900">{% translate "Combos & engines" %}</h2>
+  <h2 class="icon-host flex items-center gap-2 font-display text-2xl text-ink-900">{% icon "combo" %}{% translate "Combos & engines" %}</h2>
   <p class="mt-2 max-w-3xl text-sm text-ink-700" data-summary-moved>
     {% url 'decks:detail' run.deck_id as deck_url %}
     {% blocktranslate trimmed %}

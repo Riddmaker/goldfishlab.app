@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% load static i18n %}
+{% load static i18n icons %}
 {% block title %}{% if form.errors %}{% translate "Error:" %} {% endif %}{% translate "Import a deck" %} — Goldfish Lab{% endblock %}
 {% block description %}{% translate "Import a deck from a CSV or text file, or a pasted list." %}{% endblock %}
 {% block head %}
   <script src="{% static 'js/import.js' %}" defer></script>
 {% endblock %}
 {% block content %}
-  <h1 class="font-display text-3xl text-parchment-100">{% translate "Import a deck" %}</h1>
+  <h1 class="icon-host flex items-center gap-3 font-display text-3xl text-parchment-100">{% icon "import" %}{% translate "Import a deck" %}</h1>
   <p class="mt-2 text-parchment-200">
     {% blocktranslate trimmed %}
       <strong class="text-parchment-100">Any CSV or text file works.</strong>

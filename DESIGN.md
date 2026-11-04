@@ -67,7 +67,7 @@ right-aligned; labels are left-aligned.
 
 # COLOUR SEMANTICS
 
-Four families, each strictly bound to a meaning. The stock Tailwind palette is disabled
+Five families, each strictly bound to a meaning. The stock Tailwind palette is disabled
 (`--color-*: initial`) so no colour can enter by accident.
 
 | Family | Anchor | Means | Never used for |
@@ -76,12 +76,16 @@ Four families, each strictly bound to a meaning. The stock Tailwind palette is d
 | **parchment** | `#f5ecd7` @100 | Surfaces — cards, report panels, the playtest table. Also light text on the dark ground. | Success or danger |
 | **blood** | `#c43d33` @500 | Primary action, danger, destructive confirmation, "needs review". | Body text, large fills |
 | **verdigris** | — | Success, and "successfully modelled" states. Aged copper, not a bright UI green. | Decoration |
+| **water** | `#9cc4dc` @300 | The fill of a symbol: water in the flask, the wave, a card. Two steps only (Paket 4, PR 15). | Text, surfaces, state |
 
 Rules that follow from this:
 
 - **`blood` is an accent, never a surface.** A full-width red banner reads as an error page.
 - **Success and danger must never be distinguishable by hue alone** — see accessibility above.
-- **No colour outside these four.** A new meaning gets a new *step* in an existing family, or a
+- **Symbols may use gold, water, blood and verdigris as fills** (see SYMBOLS). There a colour is
+  decoration that brings the page to life, not a state; the word beside the symbol carries the
+  meaning.
+- **No colour outside these five.** A new meaning gets a new *step* in an existing family, or a
   new family added to `DESIGN.md` first — never an inline hex.
 - Texture is CSS gradients only. No image assets for paper or leather: nothing extra to download,
   and it scales to any viewport.
@@ -316,6 +320,38 @@ engine could not read, then the pictures, and the depth folded at the bottom.
 - **"The numbers"** under a chart: one sentence says what the rows are, each group has its unit
   as a row heading, a count reads "3.2 ± 1.1", and the table scrolls sideways inside its fold on
   a phone - the page never does.
+
+---
+
+# SYMBOLS (PAKET 4, PR 15)
+
+The page stays quiet; the symbols bring the life. Sixteen of our own drawings (`core/icons/*.svg`,
+set with `{% icon "speed" %}` from `core/templatetags/icons.py`), designed on the
+Erlebnis canvas and approved there.
+
+- **Two kinds, never confused.** *Info symbols* say what a thing is: in colour, always beside
+  their word, never a target of their own, no pointer cursor. *Functional icons* say what a
+  click does: one colour (the text's), drawn as today, sitting in something that clearly is a
+  button or link. The pencil (rename), the bin (delete) and the padlock (lock-in) are
+  functional and keep their own look. An info symbol inside a button (Simulate, Draw a hand)
+  is part of that button's label; the button is what is clickable.
+- **One line, one or two fills.** The line in the colour of the text (`currentColor`), round
+  ends; the fill from gold (`parchment-300`), water (`water-300`), blood (`blood-400`) or
+  verdigris (`verdigris-300`). On parchment the fills step darker (`parchment-500`,
+  `water-500`, `blood-500`, `verdigris-400`) so they hold on the light ground.
+- **One size of ink.** Every drawing sits in about 22 of the 32 units of its box, so none
+  shouts (the old hourglass, the flask) and none whispers (the hand, the rings, the seal).
+- **Two sizes.** Beside text the symbol is 1.25em with a 2.2 line; large (`size="lg"`, 2.5rem,
+  1.8 line) only where a card or a tile leads with it.
+- **Each moves once.** On hover or keyboard focus of its host (`.icon-host`: the button, tile or
+  heading row it belongs to) each symbol plays one short move, under a second: the sand turns,
+  the fan opens, the seal stamps, the sprout grows. Nothing moves under reduced motion; on a
+  phone there is no hover, so nothing moves there either - by design.
+- **Sparingly.** A symbol only where its word already stands: the Simulate and Draw a hand
+  buttons, the Bracket and legality tiles, ramp, draw and removal in "What is in it", the
+  headings Combos & engines, Engines, Stress test and Speed, the import heading. Never in body
+  text, never in a table.
+- **Hidden from screen readers** (`aria-hidden`); the word says it.
 
 ---
 

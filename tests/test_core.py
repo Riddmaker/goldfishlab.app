@@ -158,7 +158,7 @@ def test_healthz_needs_no_login(client):
 def test_token_reader_finds_all_families():
     families = color_families(use_cache=False)
     names = [f["name"] for f in families]
-    assert names == ["ink", "parchment", "blood", "verdigris"]
+    assert names == ["ink", "parchment", "blood", "verdigris", "water"]
 
 
 def test_token_reader_returns_sorted_steps():

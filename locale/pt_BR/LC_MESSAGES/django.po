@@ -15615,3 +15615,36 @@ msgstr ""
 " em 100; senão, diz \"praticamente igual\". Uma simulação guarda uma "
 "impressão digital da lista de cartas, não a lista, então o relatório pode "
 "dizer que o deck mudou nesse meio-tempo, mas não quais cartas."
+
+#: templates/core/home.html
+msgid "What others did recently"
+msgstr "O que outros fizeram recentemente"
+
+#: templates/core/_ticker_lines.html
+msgid "The fish says:"
+msgstr "O peixe diz:"
+
+#: core/ticker.py
+msgid "The goldfish never blocks."
+msgstr "O peixinho dourado nunca bloqueia."
+
+#: core/ticker.py
+msgid "Keep a two-lander? Bold."
+msgstr "Manter uma mão com dois terrenos? Ousado."
+
+#: core/ticker.py
+msgid "No fish were harmed in this simulation."
+msgstr "Nenhum peixe se feriu nesta simulação."
+
+#: core/ticker.py
+msgid "Shuffling very carefully. Again."
+msgstr "Embaralhando com muito cuidado. De novo."
+
+#: core/ticker.py
+msgid "Tapped out. Emotionally and literally."
+msgstr "Tudo virado. Emocional e literalmente."
+
+#: core/ticker.py
+msgid "Thousands of turns, zero opponents, still lost to variance."
+msgstr ""
+"Milhares de turnos, zero oponentes, e mesmo assim perdeu para a variância."

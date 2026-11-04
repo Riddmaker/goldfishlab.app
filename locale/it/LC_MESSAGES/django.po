@@ -15714,3 +15714,35 @@ msgstr ""
 "altrimenti dice \"più o meno uguale\". Una simulazione conserva un'impronta "
 "della lista di carte, non la lista, quindi il report può dire che il mazzo è"
 " cambiato nel frattempo, ma non quali carte."
+
+#: templates/core/home.html
+msgid "What others did recently"
+msgstr "Cosa hanno fatto gli altri di recente"
+
+#: templates/core/_ticker_lines.html
+msgid "The fish says:"
+msgstr "Il pesce dice:"
+
+#: core/ticker.py
+msgid "The goldfish never blocks."
+msgstr "Il pesce rosso non blocca mai."
+
+#: core/ticker.py
+msgid "Keep a two-lander? Bold."
+msgstr "Tenere una mano con due terre? Coraggioso."
+
+#: core/ticker.py
+msgid "No fish were harmed in this simulation."
+msgstr "Nessun pesce è stato maltrattato durante questa simulazione."
+
+#: core/ticker.py
+msgid "Shuffling very carefully. Again."
+msgstr "Mescolo con molta cura. Di nuovo."
+
+#: core/ticker.py
+msgid "Tapped out. Emotionally and literally."
+msgstr "Tutto tappato. Emotivamente e letteralmente."
+
+#: core/ticker.py
+msgid "Thousands of turns, zero opponents, still lost to variance."
+msgstr "Migliaia di turni, zero avversari, eppure sconfitto dalla varianza."

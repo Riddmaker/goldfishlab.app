@@ -13842,3 +13842,35 @@ msgid ""
 "but not which cards."
 msgstr ""
 "<strong>前回のシミュレーションとの比較</strong>は、デッキの前回のシミュレーションの同じ3つの数値を今回の数値の横に並べます。まったく同じデッキでも、2回のシミュレーションは偶然だけで少し違います。そのため、差が偶然で100回中95回生じる範囲より大きいときだけ、数値を向上または低下とみなします。それ以外は「ほぼ同じ」と表示します。シミュレーションはカードリストそのものではなく、その指紋だけを保存します。そのためレポートは、その間にデッキが変わったことは言えますが、どのカードかは言えません。"
+
+#: templates/core/home.html
+msgid "What others did recently"
+msgstr "最近のみんなの動き"
+
+#: templates/core/_ticker_lines.html
+msgid "The fish says:"
+msgstr "金魚のひとこと:"
+
+#: core/ticker.py
+msgid "The goldfish never blocks."
+msgstr "金魚は決してブロックしない。"
+
+#: core/ticker.py
+msgid "Keep a two-lander? Bold."
+msgstr "土地2枚でキープ? 大胆だね。"
+
+#: core/ticker.py
+msgid "No fish were harmed in this simulation."
+msgstr "このシミュレーションで傷ついた魚はいません。"
+
+#: core/ticker.py
+msgid "Shuffling very carefully. Again."
+msgstr "とても丁寧にシャッフル中。またしても。"
+
+#: core/ticker.py
+msgid "Tapped out. Emotionally and literally."
+msgstr "全部タップ済み。気持ちも、文字どおりにも。"
+
+#: core/ticker.py
+msgid "Thousands of turns, zero opponents, still lost to variance."
+msgstr "何千ターン、対戦相手ゼロ、それでも運に負けた。"

@@ -15935,3 +15935,36 @@ msgstr ""
 "près pareil\". Une simulation garde une empreinte de la liste de cartes, pas"
 " la liste elle-même : le rapport peut donc dire que le deck a changé entre-"
 "temps, mais pas quelles cartes."
+
+#: templates/core/home.html
+msgid "What others did recently"
+msgstr "Ce que les autres ont fait récemment"
+
+#: templates/core/_ticker_lines.html
+msgid "The fish says:"
+msgstr "Le poisson dit :"
+
+#: core/ticker.py
+msgid "The goldfish never blocks."
+msgstr "Le poisson rouge ne bloque jamais."
+
+#: core/ticker.py
+msgid "Keep a two-lander? Bold."
+msgstr "Garder une main à deux terrains ? Audacieux."
+
+#: core/ticker.py
+msgid "No fish were harmed in this simulation."
+msgstr "Aucun poisson n’a été blessé pendant cette simulation."
+
+#: core/ticker.py
+msgid "Shuffling very carefully. Again."
+msgstr "Je mélange très soigneusement. Encore."
+
+#: core/ticker.py
+msgid "Tapped out. Emotionally and literally."
+msgstr "Tout engagé. Émotionnellement et littéralement."
+
+#: core/ticker.py
+msgid "Thousands of turns, zero opponents, still lost to variance."
+msgstr ""
+"Des milliers de tours, zéro adversaire, et pourtant battu par la variance."

@@ -325,7 +325,8 @@ engine could not read, then the pictures, and the depth folded at the bottom.
 
 # SYMBOLS (PAKET 4, PR 15)
 
-The page stays quiet; the symbols bring the life. Sixteen of our own drawings (`core/icons/*.svg`,
+The page stays quiet; the symbols bring the life. Sixteen of our own drawings, and ten for the
+ticker's fun lines (`core/icons/*.svg`,
 set with `{% icon "speed" %}` from `core/templatetags/icons.py`), designed on the
 Erlebnis canvas and approved there.
 
@@ -352,6 +353,22 @@ Erlebnis canvas and approved there.
   headings Combos & engines, Engines, Stress test and Speed, the import heading. Never in body
   text, never in a table.
 - **Hidden from screen readers** (`aria-hidden`); the word says it.
+
+## The ticker (PR 16)
+
+- **A band of its own** on the home page, "What others did recently": ink-900 ground, a
+  parchment-800 rule above and below. Eight lines at a time from a loop of the last forty
+  events; every five seconds a line comes in at the top and one goes at the bottom. The lower
+  lines step back in colour (parchment-100, -200, ink-300, ink-400; never under 5:1).
+- **Each line its symbol**: simulation, hand, import, new user. A line that arrives fades in and
+  its symbol moves once (`.icon-now`, the same move as on hover).
+- **Fun lines, never an event.** At most every eighth line - after seven events, so a quiet site
+  has none. Own ground (ink-800), parchment-600 rules, italic parchment-300, its own drawing
+  (`fun-*`), and "The fish says:" for screen readers. Pop culture stays English (`lang="en"`
+  in another language); our own lines are translated. The overlord talks as long as he is there.
+- **It holds still when asked.** Pause stops the loop, the poll and the overlord (WCAG 2.2.2); a
+  pointer on the band or the focus in it holds the loop. Under reduced motion nothing loops or
+  moves: the newest eight, replaced every 30 s. Without script, the same.
 
 ---
 

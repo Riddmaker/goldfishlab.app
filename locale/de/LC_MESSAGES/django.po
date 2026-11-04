@@ -15789,3 +15789,35 @@ msgstr ""
 "gleich\". Ein Lauf speichert einen Fingerabdruck der Kartenliste, nicht die "
 "Liste selbst. Der Bericht kann darum sagen, dass sich das Deck dazwischen "
 "geändert hat, aber nicht, welche Karten."
+
+#: templates/core/home.html
+msgid "What others did recently"
+msgstr "Was andere zuletzt getan haben"
+
+#: templates/core/_ticker_lines.html
+msgid "The fish says:"
+msgstr "Der Fisch sagt:"
+
+#: core/ticker.py
+msgid "The goldfish never blocks."
+msgstr "Der Goldfisch blockt nie."
+
+#: core/ticker.py
+msgid "Keep a two-lander? Bold."
+msgstr "Mit zwei Ländern behalten? Mutig."
+
+#: core/ticker.py
+msgid "No fish were harmed in this simulation."
+msgstr "Bei dieser Simulation kam kein Fisch zu Schaden."
+
+#: core/ticker.py
+msgid "Shuffling very carefully. Again."
+msgstr "Mische sehr sorgfältig. Schon wieder."
+
+#: core/ticker.py
+msgid "Tapped out. Emotionally and literally."
+msgstr "Alles getappt. Emotional und wörtlich."
+
+#: core/ticker.py
+msgid "Thousands of turns, zero opponents, still lost to variance."
+msgstr "Tausende Züge, null Gegner, und trotzdem gegen den Zufall verloren."

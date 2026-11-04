@@ -15850,3 +15850,35 @@ msgstr ""
 " Una simulación guarda una huella de la lista de cartas, no la lista, así "
 "que el informe puede decir que el mazo cambió entretanto, pero no qué "
 "cartas."
+
+#: templates/core/home.html
+msgid "What others did recently"
+msgstr "Lo que otros hicieron hace poco"
+
+#: templates/core/_ticker_lines.html
+msgid "The fish says:"
+msgstr "El pez dice:"
+
+#: core/ticker.py
+msgid "The goldfish never blocks."
+msgstr "El pez dorado nunca bloquea."
+
+#: core/ticker.py
+msgid "Keep a two-lander? Bold."
+msgstr "¿Quedarte una mano con dos tierras? Valiente."
+
+#: core/ticker.py
+msgid "No fish were harmed in this simulation."
+msgstr "Ningún pez resultó herido en esta simulación."
+
+#: core/ticker.py
+msgid "Shuffling very carefully. Again."
+msgstr "Barajando con mucho cuidado. Otra vez."
+
+#: core/ticker.py
+msgid "Tapped out. Emotionally and literally."
+msgstr "Todo girado. Emocional y literalmente."
+
+#: core/ticker.py
+msgid "Thousands of turns, zero opponents, still lost to variance."
+msgstr "Miles de turnos, cero rivales, y aun así perdí contra la varianza."

@@ -53,13 +53,31 @@
     {% include "guests/_steps.html" %}
   {% endif %}
   {% comment %}
+    What others did recently (phase 11 C; Paket 4, PR 16): a band of its own,
+    eight lines at a time from a loop of the last forty. "Pause" shows only
+    with its script, since without it nothing moves.
+  {% endcomment %}
+  <section data-ticker class="ticker-band mt-10" aria-labelledby="ticker-title">
+    <div class="flex items-baseline justify-between gap-4">
+      <h2 id="ticker-title" class="font-display text-xl text-ink-300">{% translate "What others did recently" %}</h2>
+      <button type="button"
+              data-ticker-pause
+              aria-pressed="false"
+              aria-controls="ticker-lines"
+              data-pause="{% translate "Pause" %}"
+              data-resume="{% translate "Resume" %}"
+              hidden
+              class="min-h-11 underline text-ink-300 hover:text-parchment-100">{% translate "Pause" %}</button>
+    </div>
+    {% include "core/_ticker_lines.html" %}
+  </section>
+  {% comment %}
     Real pages of a guest trial (phase 9 G), captured from the local stack and
     encoded as WebP: the hand as dealt on the playtest table, and the first
     chart of a finished report. Both 720 x 540 (4:3), re-captured by
-    `scripts/home_pictures.py` (phase 10 T1.5). The third column (phase 11 C)
-    is what others are doing, in a box as tall as the pictures.
+    `scripts/home_pictures.py` (phase 10 T1.5).
   {% endcomment %}
-  <div class="mt-10 grid items-start gap-6 md:grid-cols-3">
+  <div class="mt-10 grid items-start gap-6 md:grid-cols-2">
     <figure>
       <img src="{% static 'img/home-hand.webp' %}"
            alt="{% translate "An opening hand of seven cards on the playtest table, with Mulligan and Keep above it" %}"
@@ -76,22 +94,6 @@
            loading="lazy"
            class="w-full border border-ink-800">
       <figcaption class="mt-2 text-sm text-ink-400">{% translate "Or get the odds from thousands of games." %}</figcaption>
-    </figure>
-    <figure data-ticker>
-      <div class="ticker-box surface-parchment p-4">
-        {% include "core/_ticker_lines.html" %}
-      </div>
-      <figcaption class="mt-2 flex items-baseline justify-between gap-3 text-sm text-ink-400">
-        {% translate "What others are doing" %}
-        <button type="button"
-                data-ticker-pause
-                aria-pressed="false"
-                aria-controls="ticker-lines"
-                data-pause="{% translate "Pause" %}"
-                data-resume="{% translate "Resume" %}"
-                hidden
-                class="underline hover:text-ink-300">{% translate "Pause" %}</button>
-      </figcaption>
     </figure>
   </div>
   <p class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-400">

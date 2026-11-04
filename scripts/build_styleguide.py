@@ -68,6 +68,19 @@ SYMBOLS = [
     ("legal", "Legal", "A seal for the six checks. It stamps."),
     ("unusual", "Unusual move", "Free mode marks what the rules would not allow."),
     ("fish-says", "The fish says", "A fun line in the ticker, never an event."),
+    # The ticker's fun lines (PR 16): one drawing each, on its own dark ground.
+    ("fun-base", "All your base are belong to us.",
+     "The overlord: a steel skull. The jaw talks, the eye sweeps, the antenna blinks - always."),
+    ("fun-hello", "Hello, World!", "A terminal. The cursor blinks."),
+    ("fun-press-f", "Press F to pay respects.", "The key goes down."),
+    ("fun-machine", "It works on my machine.", "The tick draws itself."),
+    ("fun-never-blocks", "The goldfish never blocks.", "The fish swims past the shield."),
+    ("fun-two-lander", "Keep a two-lander? Bold.", "Two lands, one bead of sweat."),
+    ("fun-no-harm", "No fish were harmed in this simulation.", "A plaster, and the heart beats."),
+    ("fun-shuffle", "Shuffling very carefully. Again.", "The halves riffle."),
+    ("fun-tapped", "Tapped out. Emotionally and literally.", "A tapped card, asleep."),
+    ("fun-variance", "Thousands of turns, zero opponents, still lost to variance.",
+     "The die rolls."),
 ]
 
 DO = [
@@ -184,6 +197,21 @@ def symbol_inline() -> str:
                     for name, text in examples)
 
 
+def ticker_example() -> str:
+    """Three event lines and a fun line, as the home page's band sets them."""
+    lines = [
+        ("simulation", "Another user simulated a deck led by Atraxa, Praetors&rsquo; Voice: "
+                       "10,000 games.", False),
+        ("new-user", "A new user joined.", False),
+        ("fun-base", "All your base are belong to us.", True),
+        ("hand", "Another guest playtested a deck led by Krenko, Mob Boss.", False),
+    ]
+    return "\n".join(
+        f'<li class="icon-host{" tk-fun" if fun else ""}">{icon_svg(name)}<span>{text}</span></li>'
+        for name, text, fun in lines
+    )
+
+
 def build() -> str:
     scales = parse_scales()
     ratios = [
@@ -219,6 +247,7 @@ def build() -> str:
   --parch-50: {scales["parchment"][50]}; --parch-100: {scales["parchment"][100]};
   --parch-200: {scales["parchment"][200]}; --parch-300: {scales["parchment"][300]};
   --parch-600: {scales["parchment"][600]}; --parch-700: {scales["parchment"][700]};
+  --parch-800: {scales["parchment"][800]};
   --blood-600: {scales["blood"][600]};
   --blood-700: {scales["blood"][700]}; --blood-800: {scales["blood"][800]};
   --blood-100: {scales["blood"][100]};
@@ -382,6 +411,12 @@ ul.dodont li {{ margin-bottom: .4rem; font-size: .93rem; }}
 .sym-cell {{ display: flex; gap: .9rem; align-items: flex-start; color: var(--parch-100); }}
 .sym-note {{ color: var(--ink-300); font-size: .9rem; }}
 .sym-inline {{ display: inline-flex; gap: .4rem; align-items: center; margin-right: 1.4rem; }}
+.tk-band {{ background: var(--ink-900); border-block: 1px solid var(--parch-800); padding: 1rem; }}
+.tk-band ul {{ list-style: none; margin: .5rem 0 0; padding: 0; color: var(--parch-100); }}
+.tk-band li {{ display: flex; gap: .75rem; align-items: center; padding: .2rem 0; }}
+.tk-band li .icon {{ width: 1.6em; height: 1.6em; }}
+.tk-band li.tk-fun {{ margin: .125rem -.75rem; padding: .45rem .75rem; background: var(--ink-800);
+  border-block: 1px solid var(--parch-600); color: var(--parch-300); font-style: italic; }}
 {icon_css(scales)}
 </style>
 </head>
@@ -655,6 +690,18 @@ eye widens, on a click.</p>
 or verdigris, darker on parchment. Always beside their word, never a target of their own. Point at
 one (or tab to it): it moves once, under a second; never under reduced motion. Functional icons -
 the pencil, the bin, the padlock - stay one colour and sit in a button or link.</p>
+<div class="tk-band">
+  <strong style="color:var(--ink-300)">What others did recently</strong>
+  <ul>
+{ticker_example()}
+  </ul>
+</div>
+<p class="rule">The ticker (PR 16): eight lines at a time from a loop of the last forty, each with
+its event&rsquo;s symbol, the lower lines stepping back in colour. A fun line comes after seven
+events at the soonest: its own ground, gold rules, italic gold and its own drawing, and
+&ldquo;The fish says:&rdquo; for screen readers - never an event. Pop culture stays English, our
+own lines are translated. A line that arrives fades in and its symbol moves once; Pause stops the
+loop and the overlord; under reduced motion nothing loops or moves.</p>
 
 <h2>Deck summary (Phase 10)</h2>
 <div class="surface">

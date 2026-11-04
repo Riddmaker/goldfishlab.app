@@ -9,7 +9,7 @@ canvas, round 2 approved on 2026-11-04.
 |---|---|---|
 | 14 | Drafts on a design canvas: symbols, fun lines, home A/B, board A/B; two research notes | **Done** |
 | 15 | Sixteen symbols of our own, in colour, each moving once on hover | **Done** |
-| 16 | The ticker: the last 40 events in a loop, "What others did recently", fun lines with their ten icons and the talking overlord | Planned |
+| 16 | The ticker: the last 40 events in a loop, "What others did recently", fun lines with their ten icons and the talking overlord | **Done** |
 | 17 | The home page (B): classic header kept still, the big flask with the fish's hello jump and click moves, the ticker as a band | Planned |
 | 18 | Free draw: a Free/Strict switch at the start (`PlaytestSession.mode`), the engine unchanged | Planned |
 | 19 | The board (A) with the journal of B | Planned |
@@ -43,3 +43,24 @@ canvas. The fish's click moves leave the header for the big flask on the home pa
 - `tests/test_icons.py`: every drawing renders, every name a template uses is drawn, the
   styleguide lists them all, every class has a rule, no drawing carries a hex, every move waits
   for no motion preference. The headless check measures each drawing's extent (one size of ink).
+
+## How PR 16 works
+
+- `core.ticker.lines_for` now returns every cached event that is not the viewer's own (up to
+  `KEEP` = 40), with `with_fun` putting a fun line after every seven: at most every eighth line,
+  none on a quiet site, each one different, picked anew per answer. `FUN_LINES` holds the ten;
+  pop culture (`pop=True`) stays English and carries `lang="en"` in another language, ours go
+  through gettext. Each kind of event has its symbol (`ICONS`); each fun line its drawing
+  `core/icons/fun-<name>.svg`, in the styleguide with the others.
+- The page: a band of its own ("What others did recently") above the two pictures. The
+  stylesheet shows the first eight lines, the lower ones a step dimmer; a fun line has its own
+  ground, gold rules and italic gold, and "The fish says:" for screen readers.
+- `static/js/ticker.js`: every 5 s the last line moves to the top (`ticker-fresh` fade,
+  `icon-now` plays the symbol's move). The 30 s poll is merged (`merge`, pure, tested under
+  Node in tests/test_ticker.py): new events to the top, gone ones out, fun lines kept unless one
+  would follow fewer than seven events. Pause stops loop, poll and overlord; pointer or focus on
+  the band holds loop and poll. Reduced motion or no script: the newest eight, no loop.
+- The overlord's jaw, eye and antenna run always (inside the no-preference block); the other
+  fun drawings play twice on arrival or hover.
+- The symbol CSS hosts now include `.icon-now` beside hover and focus; new fills `i-night`,
+  `i-steel`, `i-ash`, `i-bone`, `i-pip` (ink and parchment tokens) and `i-fine` (1.8 line).

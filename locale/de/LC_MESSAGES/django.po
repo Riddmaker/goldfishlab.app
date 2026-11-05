@@ -15988,3 +15988,11 @@ msgstr "Gezogen: %(cards)s."
 #: playtest/free.py
 msgid "The library is empty."
 msgstr "Die Bibliothek ist leer."
+
+#: templates/playtest/_board.html
+msgid "Table"
+msgstr "Spieltisch"
+
+#: templates/playtest/_board.html
+msgid "tapped"
+msgstr "getappt"

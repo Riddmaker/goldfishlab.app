@@ -11,6 +11,7 @@ re-renders. One code path, one source of truth, and the Django test client
 exercises every action without a browser.
 """
 
+import re
 import secrets
 
 from django.contrib import messages
@@ -148,8 +149,10 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
     (P19 R15): labels, the first the agent's own choice. `adaptable` are the
     creatures that can adapt now (P19 R21). `equips` gives an Equipment
     that can be equipped now the creatures it can go on, the engine's choice
-    first (P19 R22).
+    first (P19 R22). A permanent's ``tapped`` is read off its zone, which
+    knows it; a plain list (the hand, the graveyard) has nothing tapped.
     """
+    permanents = getattr(cards, "permanents", None)
     return [
         {
             "index": index,
@@ -167,6 +170,7 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
             and card.mana.altar.sacrifices else [],
             "adaptable": index in adaptable,
             "equip": equips(card) if equips else [],
+            "tapped": bool(permanents) and permanents[index].tapped,
         }
         for index, card in enumerate(cards)
     ]
@@ -251,6 +255,27 @@ def restricted_mana(pool) -> list[str]:
     return found
 
 
+#: How the engine opens a turn in its log (`Game.begin_turn`).
+TURN_LINE = re.compile(r"^--- Turn (\d+) ---$")
+
+
+def log_turns(log) -> list:
+    """A strict game's log, as the journal's turns (PR 19).
+
+    The same page as a free game's journal, so the two tables look alike: the
+    engine's own lines, cut where it opened a turn. What came before turn one
+    (the mulligans) is turn 0, which the board calls the opening hand.
+    """
+    turns = [free.Turn(0)]
+    for line in log:
+        opened = TURN_LINE.match(line)
+        if opened:
+            turns.append(free.Turn(int(opened.group(1))))
+        else:
+            turns[-1].lines.append({"text": line.strip(), "unusual": False})
+    return turns if turns[0].lines else turns[1:]
+
+
 def deciding(game, live) -> bool:
     """Is the opening hand still being decided?
 
@@ -320,6 +345,8 @@ def board_context(session: PlaytestSession, game) -> dict:
         "can_undo": bool(live),
         "can_redo": session.actions.filter(undone=True).exists(),
         "journal": services.journal(session) if session.is_free else None,
+        # Strict writes the engine's log into the same journal page.
+        "log_turns": None if session.is_free else log_turns(game.log),
         # The mode switch deals the hand on the table again, not the first one.
         "deal_seed": services.deal_seed(session),
     }

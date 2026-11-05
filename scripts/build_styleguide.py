@@ -418,6 +418,35 @@ ul.dodont li {{ margin-bottom: .4rem; font-size: .93rem; }}
 .pt-journal .pt-turn {{ font-style: italic; }}
 .pt-journal .pt-unusual {{ display: flex; gap: .5rem; align-items: flex-start; padding: .25rem 0;
   border-top: 1px dashed var(--parch-600); border-bottom: 1px dashed var(--parch-600); }}
+.pt-board {{ display: flex; flex-wrap: wrap; gap: 1rem; }}
+.pt-felt {{ flex: 999 1 22rem; padding: 1rem; border: 1px solid var(--parch-800);
+  border-radius: 4px;
+  background: radial-gradient(ellipse at 50% 40%, var(--ink-800) 0%, var(--ink-900) 70%);
+  box-shadow: inset 0 0 60px rgb(0 0 0 / 60%); color: var(--parch-100); }}
+.pt-felt .pt-zone {{ display: flex; gap: .5rem; min-height: 4.5rem; padding: .4rem;
+  border: 1px dashed var(--ink-700); border-radius: 4px; }}
+.pt-felt .pt-card {{ width: 2.6rem; height: 3.6rem; border-radius: 3px;
+  background: var(--parch-300);
+  color: var(--ink-900); font-size: .6rem; display: flex; align-items: center; justify-content:
+  center; }}
+.pt-felt .pt-tapped {{ rotate: 90deg; margin-inline: .5rem; opacity: .85; }}
+.pt-label {{ font-size: .75rem; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--ink-300); }}
+.pt-page {{ flex: 1 1 14rem; padding: 1rem 1.25rem; border: 1px solid var(--parch-800);
+  border-radius: 4px;
+  background: var(--parch-200); background-image: radial-gradient(ellipse at 80% 85%,
+  var(--parch-300) 0%,
+  transparent 60%), linear-gradient(to left, transparent 92%, rgb(61 46 24 / 25%)); color:
+  var(--ink-900);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 60%); }}
+.pt-page .pt-turn {{ color: var(--parch-800); }}
+.pt-btn {{ display: inline-flex; gap: .5rem; align-items: center; min-height: 3rem;
+  padding: .5rem 1rem;
+  border: 1px solid var(--ink-700); color: var(--parch-200); font: inherit; background: none; }}
+.pt-btn-main {{ background: var(--blood-700); border-color: var(--blood-800);
+  color: var(--parch-100); }}
+.pt-btn-second {{ background: var(--parch-100); border-color: var(--parch-600);
+  color: var(--ink-900); }}
 .tk-band {{ background: var(--ink-900); border-block: 1px solid var(--parch-800); padding: 1rem; }}
 .tk-band ul {{ list-style: none; margin: .5rem 0 0; padding: 0; color: var(--parch-100); }}
 .tk-band li {{ display: flex; gap: .75rem; align-items: center; padding: .2rem 0; }}
@@ -710,26 +739,47 @@ events at the soonest: its own ground, gold rules, italic gold and its own drawi
 own lines are translated. A line that arrives fades in and its symbol moves once; Pause stops the
 loop and the overlord; under reduced motion nothing loops or moves.</p>
 
-<h2>Free and Strict: the playtest journal (Paket 4, PR 18)</h2>
-<div class="surface icon-on-light">
-  <p style="margin:0 0 .75rem"><span class="icon-host sym-inline">{icon_svg("draw")} Draw a card
-  <kbd class="pt-kbd">D</kbd></span><span class="icon-host sym-inline">{icon_svg("new-hand")} New
-  hand <kbd class="pt-kbd">N</kbd></span><span class="sym-inline">Next turn
-  <kbd class="pt-kbd">T</kbd></span></p>
-  <ol class="pt-journal">
-    <li class="pt-turn">Turn 1</li>
-    <li>Seven cards dealt.</li>
-    <li>Land: Swamp.</li>
-    <li class="pt-turn">Turn 2 (guessed)</li>
-    <li>Land: Swamp.</li>
-    <li class="icon-host pt-unusual">{icon_svg("unusual")}<span><em>Unusual move:</em> Vampire
-    Nighthawk costs 3, with 2 mana sources out.</span></li>
-  </ol>
+<h2>The table: felt and the journal page (Paket 4, PR 18 and 19)</h2>
+<p style="display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 1rem">
+  <span class="icon-host pt-btn pt-btn-main">{icon_svg("draw")} Draw a card <kbd
+  class="pt-kbd">D</kbd></span>
+  <span class="icon-host pt-btn pt-btn-second">{icon_svg("new-hand")} New hand <kbd
+  class="pt-kbd">N</kbd></span>
+  <span class="pt-btn">Next turn <kbd class="pt-kbd">T</kbd></span>
+  <span class="pt-btn">Undo <kbd class="pt-kbd">Ctrl Z</kbd></span>
+</p>
+<div class="pt-board">
+  <div class="pt-felt">
+    <p class="pt-label" style="margin:0 0 .25rem">Lands 3</p>
+    <div class="pt-zone"><span class="pt-card pt-tapped">Forest</span><span
+  class="pt-card">Island</span>
+    <span class="pt-card">Swamp</span></div>
+    <p style="margin:.75rem 0 0;font-size:.9rem;color:var(--parch-200)">The hand lies as a fan
+    along this edge.</p>
+  </div>
+  <div class="pt-page icon-on-light">
+    <h3 style="margin:0 0 .5rem;font-weight:400;text-transform:none;
+  letter-spacing:0;font-size:1.4rem;
+  border-bottom:1px solid var(--parch-600);
+    padding-bottom:.4rem">The journal</h3>
+    <ol class="pt-journal">
+      <li class="pt-turn">Turn 1</li>
+      <li>Seven cards dealt.</li>
+      <li>Land: Swamp.</li>
+      <li class="pt-turn">Turn 2 (guessed)</li>
+      <li>Land: Swamp.</li>
+      <li class="icon-host pt-unusual">{icon_svg("unusual")}<span><em>Unusual move:</em> Vampire
+      Nighthawk costs 3, with 2 mana sources out.</span></li>
+    </ol>
+  </div>
 </div>
-<p class="rule">A hand dealt from the deck page is free: nothing is paid, nothing is blocked, and
-the switch deals the same hand strict. Free never refuses a move, it says it: an unusual move is a
-line of the journal with its symbol, dashed rules and the words first - never colour alone. A turn
-only guessed says &ldquo;(guessed)&rdquo;. Every free move shows its key.</p>
+<p class="rule">The game is played on felt, what happened is written on parchment. Free and strict
+look the same; strict adds only the phases with Next phase, the floating mana, Mulligan and Keep,
+and writes the engine&rsquo;s log into the same page. The main move is blood, the second
+parchment, the rest a frame; each at least 48 px high. A tapped card lies on its side. A hand dealt
+from the deck page is free: nothing is paid or blocked, and an unusual move is said in the journal
+with its symbol, dashed rules and the words first - never colour alone. A turn only guessed says
+&ldquo;(guessed)&rdquo;. The newest line is inked in; under reduced motion it simply stands.</p>
 
 <h2>Deck summary (Phase 10)</h2>
 <div class="surface">

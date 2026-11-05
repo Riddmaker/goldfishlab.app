@@ -15910,3 +15910,11 @@ msgstr "Pescato: %(cards)s."
 #: playtest/free.py
 msgid "The library is empty."
 msgstr "Il grimorio è vuoto."
+
+#: templates/playtest/_board.html
+msgid "Table"
+msgstr "Tavolo"
+
+#: templates/playtest/_board.html
+msgid "tapped"
+msgstr "tappato"

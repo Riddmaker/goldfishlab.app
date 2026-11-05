@@ -226,6 +226,16 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   (the `unusual` symbol, a dashed rule above and below, the words first: never colour alone),
   and a turn it only guessed carries "(guessed)". Each free move button shows its key (`kbd`,
   `.playtest-kbd`): D, N, T, Ctrl Z.
+- **The table** (Paket 4, PR 19, design "Board A"): the game is played on **felt**, what
+  happened is written on **parchment**. The table (`.playtest-felt`) is dark ink, lit from
+  above, with a gold edge; the hand lies as a fan along its bottom edge. The journal
+  (`.journal-page`) is a page of the book beside it, below it on a phone, and the newest line
+  is inked in (opacity only, off under reduced motion). **Free and strict look the same**:
+  strict adds only what its rules need - the phases with Next phase, the floating mana,
+  Mulligan and Keep - and writes the engine's log into the same page. The main move of the
+  moment is blood (Draw, Next phase, Keep), the second one parchment (New hand, Mulligan),
+  the rest a frame on the dark page (`.board-btn`), each at least 48 px high. A tapped
+  permanent lies on its side and says "(tapped)" to a screen reader.
 - **"More"** (`core/_why.html`, Paket 3 PR 10; "Why?" until then): the one small link beside a
   section, sending its explanation to a methodology anchor. `dark=True` on dark grounds. The
   sentence before it says **why the section matters** first, then what it measures: "How soon

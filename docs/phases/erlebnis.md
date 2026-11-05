@@ -12,7 +12,7 @@ canvas, round 2 approved on 2026-11-04.
 | 16 | The ticker: the last 40 events in a loop, "What others did recently", fun lines with their ten icons and the talking overlord | **Done** |
 | 17 | The home page (B): classic header kept still, the big flask with the fish's hello jump and click moves, the ticker as a band | **Done** |
 | 18 | Free draw: a Free/Strict switch at the start (`PlaytestSession.mode`), the engine unchanged | **Done** |
-| 19 | The board (A) with the journal of B | Planned |
+| 19 | The board (A) with the journal of B | **Done** |
 
 Decisions: our own single-line SVG symbols, no emoji and no Wizards glyphs (1A); a fun line at
 most every eighth line, pop culture in English, our own lines translated, set apart by colour,
@@ -112,3 +112,25 @@ canvas. The fish's click moves leave the header for the big flask on the home pa
 - Own calls: the switch deals the hand on the table, not the first one; turns are trusted
   once the player says "next turn"; no mulligan in free (New hand does it); Ctrl+Z works on
   the strict board too. 27 strings in six languages.
+
+## How PR 19 works
+
+- One table for both modes (owner, 2026-11-05: "identical, except the phases"). `_board.html`
+  is a head (turn, life; strict: phases, floating mana; the Strict | Free switch on the
+  right), a row of moves (`.board-btn`, `-main` blood, `-second` parchment), and
+  `.board-layout`: the table `.playtest-felt` (commander left; lands, mana sources and
+  permanents in dashed zones; library, graveyard and exile right; the hand fan inside the
+  felt, slots 7 rem) and the journal `.journal-page` beside it.
+- Strict writes `game.log` into the same journal: `views.log_turns` cuts it where the engine
+  wrote `--- Turn N ---`; what came before turn one is turn 0, "Opening hand". The lines stay
+  English (`lang="en"`), like the card names in them. "What happened" is gone.
+- The newest line carries `.journal-new` (an opacity fade, 300 ms, none under reduced
+  motion). Beside the table the page scrolls at 34 rem; a reversed flex column starts it at
+  the bottom without a script.
+- `_tiles` reads `tapped` off the zone (`Zone.permanents`); a tapped tile is `.board-tapped`
+  (`rotate: 90deg`, margin for the room it takes). The engine pays from the pool and does
+  not tap lands for it, so on the board a card lies tapped when it entered tapped or was
+  tapped by `tap_permanent`.
+- Own calls: Redo stays; the engine's three rows stay (the unusual move counts lands and
+  rocks); the switch's long sentence became one short note under the moves; the Draw key D
+  works in strict as well. 2 strings in six languages. Tests: `tests/test_playtest_look.py`.

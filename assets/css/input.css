@@ -1490,11 +1490,12 @@ body {
 
 /* --- the playtest board (Phase 9 F) ------------------------------------------ */
 
-/* The phase stepper: the phase the turn is in is framed, the rest are quiet. */
+/* The phase stepper, on the dark page above the table (PR 19): the phase the
+ * turn is in is underlined in gold, the rest are quiet. */
 .playtest-phase {
-  padding: 0 0.5rem;
-  border: 1px solid transparent;
-  color: var(--color-ink-500);
+  padding: 0.125rem 0.625rem;
+  border-bottom: 2px solid var(--color-ink-700);
+  color: var(--color-ink-300);
 }
 
 /* A key the button answers to (PR 18): small, beside the word. */
@@ -1509,9 +1510,68 @@ body {
 }
 
 .playtest-phase-now {
-  border-color: var(--color-ink-800);
-  background-color: var(--color-parchment-200);
+  border-bottom-color: var(--color-parchment-300);
+  color: var(--color-parchment-100);
+}
+
+/* The moves above the table (PR 19): tall enough to hit, quiet by default.
+ * The main move of the moment (Draw, Next phase, Keep) is blood, the second
+ * one parchment; everything else is a frame on the dark page. */
+.board-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-ink-600);
+  color: var(--color-parchment-200);
+  font-size: 1.125rem;
+}
+
+.board-btn:hover {
+  background-color: var(--color-ink-800);
+}
+
+.board-btn:disabled {
+  border-color: var(--color-ink-700);
+  color: var(--color-ink-400);
+  background-color: transparent;
+  cursor: default;
+}
+
+.board-btn-main {
+  border-color: var(--color-blood-800);
+  background-color: var(--color-blood-700);
+  color: var(--color-parchment-100);
+}
+
+.board-btn-main:hover {
+  background-color: var(--color-blood-600);
+}
+
+.board-btn-second {
+  border-color: var(--color-parchment-600);
+  background-color: var(--color-parchment-100);
   color: var(--color-ink-900);
+}
+
+.board-btn-second:hover {
+  background-color: var(--color-parchment-200);
+}
+
+/* A move on a card on the table: Cast, Play, Activate. */
+.board-btn-small {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-parchment-600);
+  background-color: var(--color-parchment-100);
+  color: var(--color-ink-900);
+  font-size: 0.75rem;
+}
+
+.board-btn-small:hover {
+  background-color: var(--color-parchment-300);
 }
 
 /* Mana as coloured pips. Drawn here rather than hot-linked from Scryfall's
@@ -1538,8 +1598,149 @@ body {
 .pip-G { background-color: #2e7d4f; color: #ffffff; }
 .pip-C { background-color: #c9c3b6; color: var(--color-ink-900); }
 
-/* The table: the commander and the library on the left, the graveyard and
- * the exile on the right, the battlefield rows side by side between them. On
+/* The table and the journal side by side (PR 19); on a phone, or wherever
+ * the two do not fit, the journal goes below. */
+.board-layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 1rem;
+}
+
+/* The table is felt: dark, lit from above, a gold edge. The game is played
+ * here; what happened is written on parchment beside it. */
+.playtest-felt {
+  flex: 999 1 38rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 1.125rem 0;
+  border: 1px solid var(--color-parchment-800);
+  border-radius: 4px;
+  background-color: var(--color-ink-900);
+  background-image: radial-gradient(ellipse at 50% 40%, var(--color-ink-800) 0%, var(--color-ink-900) 70%);
+  box-shadow: inset 0 0 60px rgb(0 0 0 / 60%);
+  color: var(--color-parchment-100);
+}
+
+/* A zone's name on the felt. */
+.board-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-ink-300);
+}
+
+/* A zone of the battlefield: cards inside a dashed field. */
+.playtest-zone {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  min-height: calc(4.5rem * 680 / 488 + 0.75rem);
+  margin-top: 0.25rem;
+  padding: 0.375rem;
+  border: 1px dashed var(--color-ink-700);
+  border-radius: 4px;
+}
+
+.playtest-zone .board-card-empty {
+  display: none;
+}
+
+/* A tapped permanent lies on its side; the margin is the room it takes. */
+.board-tapped {
+  margin-inline: calc((4.5rem * 680 / 488 - 4.5rem) / 2);
+}
+
+.board-tapped > .board-card {
+  rotate: 90deg;
+  opacity: 0.85;
+}
+
+/* The commander waits in its zone with a glow. */
+.board-card-commander {
+  box-shadow: 0 0 0 3px var(--color-ink-950), 0 0 18px rgb(220 199 155 / 30%);
+}
+
+/* The journal: a page of the book beside the table. */
+.journal-page {
+  flex: 1 1 18rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--color-parchment-800);
+  border-radius: 4px;
+  background-color: var(--color-parchment-200);
+  background-image:
+    radial-gradient(ellipse at 80% 85%, var(--color-parchment-300) 0%, transparent 60%),
+    linear-gradient(to left, transparent 92%, rgb(61 46 24 / 25%));
+  box-shadow: 0 18px 40px rgb(0 0 0 / 60%);
+  color: var(--color-ink-900);
+}
+
+.journal-title {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-parchment-400);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+/* Beside the table the page keeps the table's height and scrolls; the
+ * reversed column starts it at the bottom, where the newest line is,
+ * without a script. */
+@media (min-width: 48rem) {
+  .journal-scroll {
+    display: flex;
+    flex-direction: column-reverse;
+    max-height: 34rem;
+    overflow-y: auto;
+  }
+}
+
+.journal-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.journal-turn {
+  padding-top: 0.25rem;
+  font-style: italic;
+  color: var(--color-parchment-800);
+}
+
+.journal-unusual {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  border-block: 1px dashed var(--color-parchment-600);
+}
+
+.journal-foot {
+  margin-top: auto;
+  font-size: 0.875rem;
+  color: var(--color-ink-700);
+}
+
+/* The newest line is written in, as if by hand: its opacity only. */
+@media (prefers-reduced-motion: no-preference) {
+  .journal-new {
+    animation: journal-ink 300ms ease-out;
+  }
+}
+
+@keyframes journal-ink {
+  from { opacity: 0; }
+}
+
+/* The table: the commander on the left, the library, the graveyard and the
+ * exile on the right, the battlefield rows side by side between them. On
  * a phone the three stack, each side a row of its own. */
 .playtest-table {
   display: grid;
@@ -1620,7 +1821,7 @@ body {
   display: block;
   width: 4.5rem;
   aspect-ratio: 488 / 680;
-  border: 1px dashed var(--color-parchment-500);
+  border: 1px dashed var(--color-ink-600);
   border-radius: 0.25rem;
 }
 
@@ -1634,7 +1835,8 @@ body {
   aspect-ratio: 488 / 680;
   border: 2px solid var(--color-parchment-600);
   border-radius: 0.25rem;
-  background: repeating-linear-gradient(45deg, var(--color-ink-800) 0 6px, var(--color-ink-900) 6px 12px);
+  background: repeating-linear-gradient(45deg, var(--color-parchment-800) 0 6px, var(--color-parchment-900) 6px 12px);
+  box-shadow: 2px 2px 0 var(--color-parchment-900), 4px 4px 0 var(--color-ink-950);
   color: var(--color-parchment-100);
   font-size: 1.25rem;
 }
@@ -1646,7 +1848,8 @@ body {
  * `clip` rather than `hidden` on the one axis: a raised card may still grow
  * upwards over the table. */
 .playtest-hand {
-  padding: 0.5rem 0 2rem;
+  --slot: 7rem;
+  padding: 0.25rem 0 1.5rem;
   overflow-x: clip;
 }
 
@@ -1659,20 +1862,20 @@ body {
 .hand-slot {
   position: relative;
   flex: none;
-  width: 8.5rem;
+  width: var(--slot);
   transform: rotate(calc((var(--i) - (var(--n) - 1) / 2) * min(3deg, 24deg / var(--n))));
   transform-origin: 50% 250%;
   transition: transform 150ms ease-out;
 }
 
 .hand-slot + .hand-slot {
-  margin-left: calc(-1 * min(6.5rem, 3rem + max(0, var(--n) - 8) * 0.5rem));
+  margin-left: calc(-1 * min(5.25rem, 2.5rem + max(0, var(--n) - 8) * 0.4rem));
 }
 
 /* How far this card's slot sits from the middle of the fan: one step is the
  * slot's width less the overlap above. The raised card moves by it. */
 .hand-slot {
-  --step: calc(8.5rem - min(6.5rem, 3rem + max(0, var(--n) - 8) * 0.5rem));
+  --step: calc(var(--slot) - min(5.25rem, 2.5rem + max(0, var(--n) - 8) * 0.4rem));
   --to-middle: calc(((var(--n) - 1) / 2 - var(--i)) * var(--step));
 }
 

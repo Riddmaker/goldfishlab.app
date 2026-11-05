@@ -16051,3 +16051,11 @@ msgstr "Robado: %(cards)s."
 #: playtest/free.py
 msgid "The library is empty."
 msgstr "La biblioteca está vacía."
+
+#: templates/playtest/_board.html
+msgid "Table"
+msgstr "Mesa"
+
+#: templates/playtest/_board.html
+msgid "tapped"
+msgstr "girado"

@@ -15811,3 +15811,11 @@ msgstr "Comprou: %(cards)s."
 #: playtest/free.py
 msgid "The library is empty."
 msgstr "O grimório está vazio."
+
+#: templates/playtest/_board.html
+msgid "Table"
+msgstr "Mesa"
+
+#: templates/playtest/_board.html
+msgid "tapped"
+msgstr "virado"

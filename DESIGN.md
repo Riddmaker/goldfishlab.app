@@ -113,13 +113,17 @@ This is a data product for someone reading probabilities, not a marketing page.
   on each part and the colours as tokens, so it can move; a test keeps it equal to the favicon.
   With `logo-animated` the fish swims a circle in the flask (5 s, turning round through a scaleX)
   and two bubbles rise (2.6 s). It swims only while a run plays.
-- **The fish at home** (`static/js/fish.js`, phase 10 F): on the home page, and only there, the
-  header mark is the inline logo and a link marked `aria-current="page"`. Idle, the fish makes
-  one move under 2 s now and then - first after 20-30 s without input, then every 25-60 s, at
-  most six a visit: a glance (head turn, eye wide) about 60 %, a turn round about 30 %, a jump
-  out of the flask about 10 %, never two jumps running, always the glance first. A click tilts
-  the flask, sloshes the water and the fish glances; three clicks within 1.5 s and it jumps.
-  Reduced motion: no idle moves, and a click only widens the eye.
+- **The fish at home** (`static/js/fish.js`, phase 10 F; Paket 4, PR 17): the header mark is the
+  still image on every page, the home page too. The fish lives in the big flask above the home
+  page's heading (136 px, 96 px on a phone), which the script makes a button, "Poke the
+  goldfish"; without it the flask is a picture. Two seconds after the page loads it jumps out
+  once to say hello. Idle, it makes one move under 2 s now and then - first after 20-30 s
+  without input, then every 25-60 s, at most six a visit: a glance (head turn, eye wide) about
+  60 %, a turn round about 30 %, a jump out of the flask about 10 %, never two jumps running,
+  always the glance first. A mouse coming over it makes it jump. A poke (click, Enter, Space)
+  tilts the flask, sloshes the water and the fish glances; three pokes within 1.5 s and it
+  jumps. The bubbles rise only while a move plays, so nothing moves on its own for long.
+  Reduced motion: no hello, no idle moves, no hover jump, and a poke only widens the eye.
 - **Where a file goes, the whole area is the target.** A dashed parchment-600 box, blood-700 on
   hover and while a file is dragged over it, solid once a file is chosen, with the file's name in
   it. The real `<input type="file">` covers the box invisibly, so clicking and dropping are the
@@ -369,6 +373,18 @@ Erlebnis canvas and approved there.
 - **It holds still when asked.** Pause stops the loop, the poll and the overlord (WCAG 2.2.2); a
   pointer on the band or the focus in it holds the loop. Under reduced motion nothing loops or
   moves: the newest eight, replaced every 30 s. Without script, the same.
+
+## The home page (PR 17, Home B: the tank)
+
+- **Centred, one way in.** The big flask with the fish, the heading, "Drop your Commander list
+  in the tank", and the importer on parchment right below - the form is the way in. A soft
+  ink-800 glow from the header's rule, fading out before any edge. A stranger reads "No account
+  needed" and the formats in one line (the three steps stand on the trial page); a member gets
+  "Your decks", a guest "Back to your deck" and no form.
+- **Then what others do**, the ticker band (above), **then what you get**: two parchment tiles,
+  Simulate and Draw a hand, each a large symbol, one sentence and a real page of a guest trial.
+  They are information, not links - no pointer, no underline; the symbol moves on hover.
+- **The numbers are true.** "Thousands of games", not ten thousand: a trial plays 2,000.
 
 ---
 

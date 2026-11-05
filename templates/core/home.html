@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static i18n %}
+{% load static i18n icons %}
 {% block title %}Goldfish Lab — {% translate "it actually plays your deck" %}{% endblock %}
 {% block head %}
   <script src="{% static 'js/fish.js' %}" defer></script>
@@ -7,14 +7,26 @@
   {% if not user.is_guest %}<script src="{% static 'js/import.js' %}" defer></script>{% endif %}
 {% endblock %}
 {% block content %}
-  <section class="max-w-3xl">
+  {% comment %}
+    Home B (Paket 4, PR 17): the tank. The big flask is the logo's drawing,
+    and the fish in it is alive (static/js/fish.js): it jumps hello two
+    seconds after the page loads, makes a short move now and then, jumps when
+    the pointer comes over it, and tilts and sloshes when it is poked; three
+    pokes quickly and it jumps. The script makes the flask a button named
+    "Poke the goldfish"; without it the flask is a still picture. Under
+    reduced motion a poke only widens the eye.
+  {% endcomment %}
+  <section class="home-hero">
+    <span class="home-flask" data-fish data-label="{% translate "Poke the goldfish" %}">
+      {% include "core/_logo.html" with id="home-logo" class="logo-home" %}
+    </span>
     <h1 class="font-display text-4xl leading-tight text-parchment-100 sm:text-5xl">{% translate "Know your deck before game night." %}</h1>
-    <p class="mt-5 text-lg leading-relaxed text-parchment-200">
-      {% translate "Upload your Commander deck. Goldfish Lab plays it thousands of times and shows you what happens." %}
+    <p class="text-lg leading-relaxed text-parchment-200 sm:text-xl">
+      {% translate "Drop your Commander list in the tank. It plays thousands of games while you watch." %}
     </p>
     {% if user.is_guest %}
       {% comment %}A guest (phase 9 G): back to what it was trying, or keep it. A form here would replace its deck unasked.{% endcomment %}
-      <p class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+      <p class="mt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
         <a href="{% url 'decks:list' %}"
            class="inline-block border border-blood-800 bg-blood-700 px-5 py-3 font-display text-lg text-parchment-100 hover:bg-blood-800">
           {% translate "Back to your deck" %}
@@ -28,30 +40,27 @@
         same form as the import page, posting there or to the guest trial, so
         a refused upload comes back on that page with its error.
       {% endcomment %}
-      <div id="import" class="surface-parchment mt-8 p-6" data-home-import>
+      <div id="import" class="surface-parchment mt-2 w-full p-6 text-left shadow-xl shadow-ink-950/50" data-home-import>
         {% if user.is_authenticated %}
           {% url 'decks:import' as import_url %}
           {% include "decks/_import_form.html" with action=import_url submit_label=_("Import") %}
         {% else %}
-          <p class="mb-4 text-sm text-ink-700">{% translate "No account. Drop the file and the simulation starts." %}</p>
           {% url 'guests:try' as try_url %}
           {% include "decks/_import_form.html" with action=try_url submit_label=_("Simulate it") %}
         {% endif %}
       </div>
-      <p class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
-        {% if user.is_authenticated %}
-          <a href="{% url 'decks:list' %}"
-             class="text-parchment-200 underline hover:text-parchment-50">{% translate "Your decks" %}</a>
-        {% else %}
+      {% if user.is_authenticated %}
+        <a href="{% url 'decks:list' %}"
+           class="text-parchment-200 underline hover:text-parchment-50">{% translate "Your decks" %}</a>
+      {% else %}
+        <p class="text-ink-300">
+          {% translate "No account needed. Archidekt, Moxfield, ManaBox and plain text all work." %}
           <a href="{% url 'account_signup' %}"
-             class="text-parchment-200 underline hover:text-parchment-50">{% translate "Create a free account" %}</a>
-        {% endif %}
-      </p>
+             class="whitespace-nowrap text-parchment-200 underline hover:text-parchment-50">{% translate "Create a free account" %}</a>
+        </p>
+      {% endif %}
     {% endif %}
   </section>
-  {% if not user.is_authenticated or user.is_guest %}
-    {% include "guests/_steps.html" %}
-  {% endif %}
   {% comment %}
     What others did recently (phase 11 C; Paket 4, PR 16): a band of its own,
     eight lines at a time from a loop of the last forty. "Pause" shows only
@@ -72,32 +81,36 @@
     {% include "core/_ticker_lines.html" %}
   </section>
   {% comment %}
-    Real pages of a guest trial (phase 9 G), captured from the local stack and
-    encoded as WebP: the hand as dealt on the playtest table, and the first
-    chart of a finished report. Both 720 x 540 (4:3), re-captured by
-    `scripts/home_pictures.py` (phase 10 T1.5).
+    What you get (Paket 4, PR 17): two tiles on parchment, a symbol, one
+    sentence and a real page of a guest trial (phase 9 G), captured from the
+    local stack as WebP, 720 x 540, by `scripts/home_pictures.py`. Not links:
+    the way in is the form above; the symbol moves on hover like every other.
   {% endcomment %}
   <div class="mt-10 grid items-start gap-6 md:grid-cols-2">
-    <figure>
-      <img src="{% static 'img/home-hand.webp' %}"
-           alt="{% translate "An opening hand of seven cards on the playtest table, with Mulligan and Keep above it" %}"
-           width="720"
-           height="540"
-           class="w-full border border-ink-800">
-      <figcaption class="mt-2 text-sm text-ink-400">{% translate "Draw a hand and play it out." %}</figcaption>
-    </figure>
-    <figure>
+    <section class="home-tile surface-parchment icon-host" aria-labelledby="tile-simulate">
+      <h2 id="tile-simulate" class="flex items-center gap-3 font-display text-2xl text-ink-950">{% icon "simulation" size="lg" %}{% translate "Simulate" %}</h2>
+      <p class="text-ink-700">{% translate "The odds from thousands of games: lands, curve, ramp, draw and combos." %}</p>
       <img src="{% static 'img/home-report.webp' %}"
            alt="{% translate "A report chart: how often the deck has drawn ramp, card draw and removal by each turn" %}"
            width="720"
            height="540"
            loading="lazy"
-           class="w-full border border-ink-800">
-      <figcaption class="mt-2 text-sm text-ink-400">{% translate "Or get the odds from thousands of games." %}</figcaption>
-    </figure>
+           class="w-full border border-parchment-600">
+    </section>
+    <section class="home-tile surface-parchment icon-host" aria-labelledby="tile-hand">
+      <h2 id="tile-hand" class="flex items-center gap-3 font-display text-2xl text-ink-950">{% icon "hand" size="lg" %}{% translate "Draw a hand" %}</h2>
+      <p class="text-ink-700">{% translate "Seven cards, then draw, draw, draw. Play it out turn by turn, with undo." %}</p>
+      <img src="{% static 'img/home-hand.webp' %}"
+           alt="{% translate "An opening hand of seven cards on the playtest table, with Mulligan and Keep above it" %}"
+           width="720"
+           height="540"
+           loading="lazy"
+           class="w-full border border-parchment-600">
+    </section>
   </div>
   <p class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-400">
     <a href="{% url 'methodology' %}" class="underline hover:text-ink-300">{% translate "How it works" %}</a>
     <a href="{% url 'datapages:precons' %}" class="underline hover:text-ink-300">{% translate "Every Commander precon, simulated" %}</a>
+    <a href="{% url 'resources' %}" class="underline hover:text-ink-300">{% translate "Resources" %}</a>
   </p>
 {% endblock %}

@@ -1,6 +1,10 @@
-// The goldfish in the header logo, on the home page (phase 10 T1.4, T1.6).
-// An enhancement only: without this file the logo is a still picture and
-// a plain link home.
+// The goldfish in the big flask on the home page (phase 10 T1.4, T1.6; in the
+// header until Paket 4, PR 17). An enhancement only: without this file the
+// flask is a still picture.
+//
+// The button. The script makes the flask a button named "Poke the goldfish"
+// (the name comes from the page, in its language), so a keyboard can poke it
+// too: Enter and Space are clicks.
 //
 // Idle. After 20 to 30 seconds without input the fish makes one short move,
 // then another every 25 to 60 seconds; mouse, scroll, keys and touch start the
@@ -9,18 +13,21 @@
 // is always the glance, two jumps never follow each other, and a page view
 // gets at most six. A hidden tab waits, and starts afresh when it is back.
 //
-// Hello. Two seconds after the home page loads the fish jumps out of the
-// flask once, so the page greets with some life. Not an idle move: it does
-// not count towards the six, and the first idle move is still the glance.
+// Hello. Two seconds after the page loads the fish jumps out of the flask
+// once, so the page greets with some life. Not an idle move: it does not
+// count towards the six, and the first idle move is still the glance.
 //
-// Click. The link points at the page it is on, so a click does not reload:
-// the flask tilts, the water sloshes and the fish looks about. Three clicks
-// within 1.5 seconds and the fish jumps out and back.
+// Hover. A mouse coming over the flask makes the fish jump, unless a move is
+// already playing. Touch has no hover; it has the poke.
 //
-// Reduced motion. No hello jump, no idle moves; a click only widens the eye for a moment.
+// Poke. The flask tilts, the water sloshes and the fish looks about. Three
+// pokes within 1.5 seconds and the fish jumps out and back.
 //
-// nextWait and nextMove are the rules, kept pure so tests/test_fish.py can
-// check them under Node without a browser.
+// Reduced motion. No hello jump, no idle moves, no hover jump; a poke only
+// widens the eye for a moment.
+//
+// nextWait, nextMove and poke are the rules, kept pure so tests/test_fish.py
+// can check them under Node without a browser.
 (() => {
   "use strict";
 
@@ -45,23 +52,39 @@
     return "jump";
   }
 
+  // A poke at `now` after the earlier ones in `pokes` (times in ms): the
+  // pokes still counting, and whether this one made three within TRIPLE_MS.
+  // After a triple the count starts again.
+  function poke(pokes, now) {
+    const counting = pokes.filter((time) => now - time < TRIPLE_MS).concat(now);
+    return counting.length >= 3 ? { pokes: [], triple: true } : { pokes: counting, triple: false };
+  }
+
   if (typeof module === "object" && module.exports) {
-    module.exports = { nextWait, nextMove, MAX_IDLE_MOVES };
+    module.exports = { nextWait, nextMove, poke, MAX_IDLE_MOVES, TRIPLE_MS };
   }
   if (typeof document === "undefined") return;
 
   const still = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   function start() {
-    const link = document.querySelector("[data-fish-link]");
-    const logo = link && link.querySelector(".logo");
+    const tank = document.querySelector("[data-fish]");
+    const logo = tank && tank.querySelector(".logo");
     if (!logo) return;
+
+    const flask = document.createElement("button");
+    flask.type = "button";
+    flask.className = tank.className;
+    flask.setAttribute("data-fish", "");
+    flask.setAttribute("aria-label", tank.dataset.label);
+    flask.append(...tank.childNodes);
+    tank.replaceWith(flask);
 
     let playing = null; // the timer that ends the move on screen
     let idleTimer = null;
     let idleMoves = 0;
     let previous;
-    let clicks = [];
+    let pokes = [];
 
     function play(...moves) {
       window.clearTimeout(playing);
@@ -90,24 +113,19 @@
       wait();
     }
 
-    link.addEventListener("click", (event) => {
-      // A new tab or window is still the link's to open.
-      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-        return;
-      }
-      event.preventDefault();
+    flask.addEventListener("click", () => {
       if (still.matches) {
         play("gaze");
         return;
       }
-      const now = performance.now();
-      clicks = clicks.filter((time) => now - time < TRIPLE_MS).concat(now);
-      if (clicks.length >= 3) {
-        clicks = [];
-        play("jump");
-      } else {
-        play("tilt", "gaze");
-      }
+      const result = poke(pokes, performance.now());
+      pokes = result.pokes;
+      if (result.triple) play("jump");
+      else play("tilt", "gaze");
+    });
+
+    flask.addEventListener("pointerenter", (event) => {
+      if (event.pointerType === "mouse" && !still.matches && playing === null) play("jump");
     });
 
     for (const type of INPUT) {

@@ -1,11 +1,14 @@
-"""The goldfish on the home page (phase 10 F, T1.4 and T1.6).
+"""The goldfish in the big flask on the home page (phase 10 F, T1.4 and T1.6;
+moved out of the header in Paket 4, PR 17).
 
-Two halves. Where the living logo is: only on the home page, as a link that
-says it is the current page, with its script; every other page keeps the
-still image and loads nothing. And the rules it moves by - how long it waits,
-which move comes next - which static/js/fish.js keeps as pure functions so
-they can be run here under Node, without a browser. The moves themselves are
-CSS, checked by eye and in tests/test_logo.py for reduced motion.
+Two halves. Where it lives: only on the home page, in the flask above the
+heading, with its script, and named for a screen reader only once the script
+makes it a button; the header mark is the still image on every page, the
+home page too. And the rules it moves by - how long it waits, which move
+comes next, when pokes make a triple - which static/js/fish.js keeps as pure
+functions so they can be run here under Node, without a browser. The moves
+themselves are CSS, checked by eye and in tests/test_logo.py for reduced
+motion.
 """
 
 import json
@@ -24,52 +27,70 @@ NODE = shutil.which("node")
 # --- where it lives --------------------------------------------------------
 
 
-def test_the_home_page_has_the_living_logo(client, db):
-    body = client.get(reverse("home")).content.decode()
+def _header(body):
+    return body[body.index("<nav"):body.index("</nav>")]
 
-    assert "data-fish-link" in body
-    assert 'aria-current="page"' in body
-    assert 'class="logo logo-home' in body
+
+def test_the_home_page_has_the_fish_in_the_big_flask(client, db):
+    body = client.get(reverse("home")).content.decode()
+    hero = body[body.index('class="home-hero"'):body.index("<h1")]
+
+    assert "data-fish" in hero
+    assert 'class="logo logo-home' in hero
+    assert 'data-label="Poke the goldfish"' in hero
     assert "js/fish.js" in body
 
 
-def test_the_living_logo_is_a_link_home_without_javascript(client, db):
+def test_the_flask_is_no_button_without_its_script(client, db):
     body = client.get(reverse("home")).content.decode()
-    link = body[body.index("<a", body.index("<nav")):body.index("data-fish-link")]
+    hero = body[body.index('class="home-hero"'):body.index("<h1")]
 
-    assert f'href="{reverse("home")}"' in link
+    # fish.js makes it a button; before that it is a picture, nothing to press.
+    assert "<button" not in hero
+    assert 'aria-hidden="true"' in hero
 
 
-def test_the_living_logo_is_there_for_a_member_too(client, django_user_model):
+def test_the_header_mark_is_still_on_the_home_page_too(client, db):
+    header = _header(client.get(reverse("home")).content.decode())
+
+    assert "img/favicon.svg" in header
+    assert "data-fish" not in header
+    assert 'class="logo' not in header
+    assert 'aria-current="page"' in header
+
+
+def test_the_fish_is_there_for_a_member_too(client, django_user_model):
     user = django_user_model.objects.create_user(email="f@example.com", password="pw-x-1234")
     client.force_login(user)
 
-    assert "data-fish-link" in client.get(reverse("home")).content.decode()
+    assert "data-fish" in client.get(reverse("home")).content.decode()
 
 
 @pytest.mark.parametrize("name", ["methodology", "privacy", "account_login"])
 def test_every_other_page_keeps_the_still_mark(client, name):
     body = client.get(reverse(name)).content.decode()
 
-    assert "data-fish-link" not in body
+    assert "data-fish" not in body
     assert "js/fish.js" not in body
-    assert 'aria-current="page"' not in body
+    assert 'aria-current="page"' not in _header(body)
     assert "img/favicon.svg" in body
 
 
 # --- the rules -------------------------------------------------------------
 
-#: Runs the two rules with a fixed sequence of "random" numbers and prints
-#: the answers as JSON. `rolls` cycles, so any sequence length works.
+#: Runs the rules with a fixed sequence of "random" numbers and prints
+#: the answers as JSON. `rolls` cycles, so any sequence length works; for a
+#: poke it is the earlier pokes' times.
 SCRIPT = """
 const fish = require(process.argv[1]);
 const cases = JSON.parse(process.argv[2]);
 const out = cases.map(([kind, rolls, arg]) => {
   let i = 0;
   const random = () => rolls[i++ % rolls.length];
+  if (kind === "poke") return fish.poke(rolls, arg);
   return kind === "wait" ? fish.nextWait(random, arg) : fish.nextMove(random, arg);
 });
-console.log(JSON.stringify({out, max: fish.MAX_IDLE_MOVES}));
+console.log(JSON.stringify({out, max: fish.MAX_IDLE_MOVES, triple: fish.TRIPLE_MS}));
 """
 
 
@@ -123,3 +144,18 @@ def test_two_jumps_never_follow_each_other():
 
 def test_a_page_view_gets_at_most_six_idle_moves():
     assert _run([])["max"] == 6
+
+
+def test_three_pokes_within_one_and_a_half_seconds_make_a_jump():
+    answers = _run([["poke", [], 0], ["poke", [0], 700], ["poke", [0, 700], 1400]])["out"]
+
+    assert [a["triple"] for a in answers] == [False, False, True]
+    assert answers[2]["pokes"] == [], "after a triple the count starts again"
+
+
+def test_a_slow_poke_starts_the_count_again():
+    answers = _run([["poke", [0, 700], 1500], ["poke", [0, 700], 2300]])["out"]
+
+    assert answers[0] == {"pokes": [700, 1500], "triple": False}
+    assert answers[1] == {"pokes": [2300], "triple": False}
+    assert _run([])["triple"] == 1500

@@ -15882,3 +15882,34 @@ msgstr "Todo girado. Emocional y literalmente."
 #: core/ticker.py
 msgid "Thousands of turns, zero opponents, still lost to variance."
 msgstr "Miles de turnos, cero rivales, y aun así perdí contra la varianza."
+
+#: templates/core/home.html
+msgid "Poke the goldfish"
+msgstr "Dale un toque al pez"
+
+#: templates/core/home.html
+msgid ""
+"Drop your Commander list in the tank. It plays thousands of games while you "
+"watch."
+msgstr ""
+"Echa tu lista de Commander a la pecera. Juega miles de partidas mientras "
+"miras."
+
+#: templates/core/home.html
+msgid ""
+"No account needed. Archidekt, Moxfield, ManaBox and plain text all work."
+msgstr ""
+"No hace falta cuenta. Archidekt, Moxfield, ManaBox y texto plano funcionan."
+
+#: templates/core/home.html
+msgid "The odds from thousands of games: lands, curve, ramp, draw and combos."
+msgstr ""
+"Las probabilidades de miles de partidas: tierras, curva, rampa, robo y "
+"combos."
+
+#: templates/core/home.html
+msgid ""
+"Seven cards, then draw, draw, draw. Play it out turn by turn, with undo."
+msgstr ""
+"Siete cartas, luego robar, robar, robar. Juégala turno a turno, con "
+"deshacer."

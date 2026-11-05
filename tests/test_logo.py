@@ -64,5 +64,7 @@ def test_every_moving_part_stands_still_for_reduced_motion():
                  # the home page's fish (phase 10 F)
                  ".logo.is-gaze .logo-fish", ".logo.is-turn .logo-fish",
                  ".logo.is-jump .logo-fish", ".logo.is-jump .logo-water",
-                 ".logo.is-tilt", ".logo.is-tilt .logo-water"):
+                 ".logo.is-tilt", ".logo.is-tilt .logo-water",
+                 # its bubbles, in the big flask (Paket 4, PR 17)
+                 ".logo.is-jump .logo-bubble", ".logo.is-tilt .logo-bubble"):
         assert part in still, part

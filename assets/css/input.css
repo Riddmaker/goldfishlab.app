@@ -2167,15 +2167,60 @@ span.hand-card {
   opacity: 1;
 }
 
-/* The fish on the home page (phase 10 F, static/js/fish.js): the logo in the
- * header plays one short move at a time, as a class on the svg. Every move
- * ends inside 2 s. The jump lifts the fish out of the flask and over the top
- * of the logo, so for it the pond stops clipping and the svg stops cutting
- * off what leaves its box. */
+/* Home B (Paket 4, PR 17): the tank. Centred under a soft glow from the top,
+ * the big flask above the heading, the form on parchment below it. */
+.home-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 48rem;
+  margin-inline: auto;
+  /* The glow starts at the header's rule (main's top padding pulled in) and
+   * fades out inside the box, so it shows no edge. */
+  margin-top: -2.5rem;
+  padding-top: 2.5rem;
+  background-image: radial-gradient(ellipse min(23rem, 48%) 20rem at 50% 0%, var(--color-ink-800), transparent);
+  text-align: center;
+}
+
+/* The flask is a button once fish.js has run, a picture before. Room above
+ * it for the jump. */
+.home-flask {
+  display: inline-flex;
+  padding: 1.75rem 0.5rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+}
+
+button.home-flask {
+  cursor: pointer;
+}
+
+.home-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+}
+
+/* The fish in the big flask (phase 10 F, static/js/fish.js; on the home page
+ * since Paket 4, PR 17): one short move at a time, as a class on the svg.
+ * Every move ends inside 2 s. The jump lifts the fish out of the flask and
+ * over its top, so for it the pond stops clipping and the svg stops cutting
+ * off what leaves its box. The bubbles rise only while a move plays. */
 .logo-home {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 6rem;
+  height: 6rem;
   overflow: visible;
+}
+
+@media (min-width: 640px) {
+  .logo-home {
+    width: 8.5rem;
+    height: 8.5rem;
+  }
 }
 
 .logo-fish-eye,
@@ -2215,6 +2260,16 @@ span.hand-card {
 
 .logo.is-tilt .logo-water {
   animation: logo-slosh 1.2s ease-in-out;
+}
+
+.logo.is-jump .logo-bubble,
+.logo.is-tilt .logo-bubble {
+  animation: logo-rise 1.5s ease-in;
+}
+
+.logo.is-jump .logo-bubble-2,
+.logo.is-tilt .logo-bubble-2 {
+  animation-delay: 0.2s;
 }
 
 /* A small turn of the head: at 28 px the eye alone is under a pixel. */
@@ -2319,7 +2374,9 @@ span.hand-card {
   .logo.is-jump .logo-fish,
   .logo.is-jump .logo-water,
   .logo.is-tilt,
-  .logo.is-tilt .logo-water {
+  .logo.is-tilt .logo-water,
+  .logo.is-jump .logo-bubble,
+  .logo.is-tilt .logo-bubble {
     animation: none;
   }
 

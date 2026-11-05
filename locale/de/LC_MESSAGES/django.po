@@ -15821,3 +15821,35 @@ msgstr "Alles getappt. Emotional und wörtlich."
 #: core/ticker.py
 msgid "Thousands of turns, zero opponents, still lost to variance."
 msgstr "Tausende Züge, null Gegner, und trotzdem gegen den Zufall verloren."
+
+#: templates/core/home.html
+msgid "Poke the goldfish"
+msgstr "Den Goldfisch anstupsen"
+
+#: templates/core/home.html
+msgid ""
+"Drop your Commander list in the tank. It plays thousands of games while you "
+"watch."
+msgstr ""
+"Wirf deine Commander-Liste ins Becken. Es spielt Tausende Partien, während "
+"du zuschaust."
+
+#: templates/core/home.html
+msgid ""
+"No account needed. Archidekt, Moxfield, ManaBox and plain text all work."
+msgstr ""
+"Kein Konto nötig. Archidekt, Moxfield, ManaBox und reiner Text funktionieren"
+" alle."
+
+#: templates/core/home.html
+msgid "The odds from thousands of games: lands, curve, ramp, draw and combos."
+msgstr ""
+"Die Chancen aus Tausenden Partien: Länder, Kurve, Ramp, Kartenziehen und "
+"Combos."
+
+#: templates/core/home.html
+msgid ""
+"Seven cards, then draw, draw, draw. Play it out turn by turn, with undo."
+msgstr ""
+"Sieben Karten, dann ziehen, ziehen, ziehen. Spiel es Zug um Zug aus, mit "
+"Rückgängig."

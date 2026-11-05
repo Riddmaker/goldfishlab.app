@@ -15648,3 +15648,34 @@ msgstr "Tudo virado. Emocional e literalmente."
 msgid "Thousands of turns, zero opponents, still lost to variance."
 msgstr ""
 "Milhares de turnos, zero oponentes, e mesmo assim perdeu para a variância."
+
+#: templates/core/home.html
+msgid "Poke the goldfish"
+msgstr "Cutuque o peixinho"
+
+#: templates/core/home.html
+msgid ""
+"Drop your Commander list in the tank. It plays thousands of games while you "
+"watch."
+msgstr ""
+"Jogue sua lista de Commander no aquário. Ele joga milhares de partidas "
+"enquanto você assiste."
+
+#: templates/core/home.html
+msgid ""
+"No account needed. Archidekt, Moxfield, ManaBox and plain text all work."
+msgstr ""
+"Não precisa de conta. Archidekt, Moxfield, ManaBox e texto simples "
+"funcionam."
+
+#: templates/core/home.html
+msgid "The odds from thousands of games: lands, curve, ramp, draw and combos."
+msgstr ""
+"As chances de milhares de partidas: terrenos, curva, rampa, compra e combos."
+
+#: templates/core/home.html
+msgid ""
+"Seven cards, then draw, draw, draw. Play it out turn by turn, with undo."
+msgstr ""
+"Sete cartas, depois comprar, comprar, comprar. Jogue turno a turno, com "
+"desfazer."

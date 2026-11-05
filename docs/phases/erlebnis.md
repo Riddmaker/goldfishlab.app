@@ -1,6 +1,6 @@
 # Erlebnis (Themen-Doc, Paket 4)
 
-Started 2026-11-03. The points of the Themen-Doc that make the site feel alive: rows 1, 3, 41,
+Started 2026-11-03, complete 2026-11-05. The points of the Themen-Doc that make the site feel alive: rows 1, 3, 41,
 42 and 43 - our own symbols, the ticker with a fun line now and then, the home page and the
 playtest board. Plan approved by the owner on 2026-11-03; the drafts (PR 14) on the Erlebnis
 canvas, round 2 approved on 2026-11-04.

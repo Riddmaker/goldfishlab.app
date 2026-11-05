@@ -10,7 +10,7 @@ canvas, round 2 approved on 2026-11-04.
 | 14 | Drafts on a design canvas: symbols, fun lines, home A/B, board A/B; two research notes | **Done** |
 | 15 | Sixteen symbols of our own, in colour, each moving once on hover | **Done** |
 | 16 | The ticker: the last 40 events in a loop, "What others did recently", fun lines with their ten icons and the talking overlord | **Done** |
-| 17 | The home page (B): classic header kept still, the big flask with the fish's hello jump and click moves, the ticker as a band | Planned |
+| 17 | The home page (B): classic header kept still, the big flask with the fish's hello jump and click moves, the ticker as a band | **Done** |
 | 18 | Free draw: a Free/Strict switch at the start (`PlaytestSession.mode`), the engine unchanged | Planned |
 | 19 | The board (A) with the journal of B | Planned |
 
@@ -64,3 +64,22 @@ canvas. The fish's click moves leave the header for the big flask on the home pa
   fun drawings play twice on arrival or hover.
 - The symbol CSS hosts now include `.icon-now` beside hover and focus; new fills `i-night`,
   `i-steel`, `i-ash`, `i-bone`, `i-pip` (ink and parchment tokens) and `i-fine` (1.8 line).
+
+## How PR 17 works
+
+- The header mark is the still `favicon.svg` on every page; `base.html` no longer has a home
+  page branch (only `aria-current="page"` on the home link there).
+- `core/home.html` is Home B: `.home-hero` (centred, the glow) holds `<span class="home-flask"
+  data-fish data-label="...">` with `core/_logo.html` (`logo-home`, 8.5rem / 6rem), the
+  heading, the tank line, the importer and one line for a stranger. `guests/_steps.html` is
+  left to the trial page. Below the ticker band two `.home-tile` sections on parchment
+  (`{% icon "simulation"|"hand" size="lg" %}`, a sentence, the WebP), not links; the link row
+  gained Resources.
+- `static/js/fish.js` turns the span into a `<button type="button">` with the translated name,
+  moving the svg into it, then runs the same moves as before on it: hello after 2 s, idle
+  moves, `pointerenter` of a mouse jumps, a click (also Enter and Space) tilts, `poke` - pure,
+  tested under Node like `nextWait` and `nextMove` - tells when three pokes within 1.5 s make a
+  jump. The bubbles rise during `is-jump` and `is-tilt` only.
+- Tests: `tests/test_home.py` (order, tiles, stranger, member, guest, German),
+  `tests/test_fish.py` (where it lives, the poke rule), `tests/test_logo.py` (the bubbles under
+  reduced motion). Five new strings in six languages.

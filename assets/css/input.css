@@ -1497,6 +1497,17 @@ body {
   color: var(--color-ink-500);
 }
 
+/* A key the button answers to (PR 18): small, beside the word. */
+.playtest-kbd {
+  padding: 0 0.3rem;
+  border: 1px solid currentColor;
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
 .playtest-phase-now {
   border-color: var(--color-ink-800);
   background-color: var(--color-parchment-200);

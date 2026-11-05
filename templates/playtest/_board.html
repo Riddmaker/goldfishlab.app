@@ -11,11 +11,16 @@
   and the stacks; the hand as a fan at the bottom. The log and the branching
   are folded, because they are what you look for, not what you look at.
 
+  Free mode (PR 18, `journal` set): the same table, but the bar offers Draw,
+  New hand, Next turn and Undo (keys D, N, T, Ctrl+Z, static/js/playtest-keys.js),
+  every card is put down for free, and the journal guesses the turns and notes
+  the unusual moves. Nothing is blocked; the phases and the pool are not shown.
+
   `hx-sync="this:drop"`: every form in here syncs on the board, so a click
   while a request is in flight is dropped (a double click, phase 12 J30). The
   server locks the session as well, for the forms sent without JavaScript.
 {% endcomment %}
-{% load i18n l10n %}
+{% load i18n l10n icons %}
 <div id="board" class="space-y-4" hx-sync="this:drop">
 
   {% if board_messages %}
@@ -23,6 +28,33 @@
       <p class="border border-parchment-600 bg-ink-900 px-4 py-3 text-parchment-100" role="status"{% if "engine" in message.tags %} lang="en"{% endif %}>{{ message }}</p>
     {% endfor %}
   {% endif %}
+
+  {% comment %}
+    Strict or free (PR 18). A switch deals the same shuffle again in the
+    other mode: a session keeps its mode, so a replay never meets a move of
+    the other one. A plain form, the page reloads on the new game.
+    Inside the board, so that the seed is the one of the hand on the table
+    after every swap.
+  {% endcomment %}
+  <form method="post" action="{% url 'playtest:start' deck.id %}" class="flex flex-wrap items-center gap-3" data-mode-switch>
+    {% csrf_token %}
+    <input type="hidden" name="seed" value="{{ deal_seed|stringformat:'d' }}">
+    <input type="hidden" name="on_the_play" value="{{ session.on_the_play|yesno:'1,0' }}">
+    <fieldset class="flex border border-parchment-600 p-0.5">
+      <legend class="sr-only">{% translate "Mode" %}</legend>
+      {% for value, label in session.MODES %}
+        <button type="submit" name="mode" value="{{ value }}"
+                {% if value == session.mode %}aria-pressed="true" disabled{% else %}aria-pressed="false"{% endif %}
+                class="px-4 py-1.5 {% if value == session.mode %}bg-parchment-100 text-ink-900{% else %}text-parchment-200 hover:bg-ink-800{% endif %}">
+          {% if value == "free" %}{% translate "Free" context "playtest mode" %}{% else %}{% translate "Strict" context "playtest mode" %}{% endif %}
+        </button>
+      {% endfor %}
+    </fieldset>
+    <span class="text-sm text-parchment-200">
+      {% if session.is_free %}{% translate "Free: nothing is paid or blocked. Strict plays the rules, phase by phase." %}{% else %}{% translate "Strict plays the rules, phase by phase. Free blocks nothing." %}{% endif %}
+      {% translate "Switching deals this shuffle again." %}
+    </span>
+  </form>
 
   {% comment %}
     Only the reading half belongs on a board. "Nobody has said how early to
@@ -45,11 +77,11 @@
 
   {# --- the bar: turn, life, phases, mana, and the moves that are not cards --- #}
   <section class="surface-parchment flex flex-wrap items-center gap-x-5 gap-y-3 px-4 py-3">
-    <span class="font-display text-2xl text-ink-900">{% if game.turn %}{% blocktranslate with turn=game.turn %}Turn {{ turn }}{% endblocktranslate %}{% else %}{% translate "Opening hand" %}{% endif %}</span>
+    <span class="font-display text-2xl text-ink-900" data-turn>{% if journal %}{% blocktranslate with turn=journal.now.number %}Turn {{ turn }}{% endblocktranslate %}{% if journal.now.guessed %} <span class="text-base text-ink-700">{% translate "(guessed)" %}</span>{% endif %}{% elif game.turn %}{% blocktranslate with turn=game.turn %}Turn {{ turn }}{% endblocktranslate %}{% else %}{% translate "Opening hand" %}{% endif %}</span>
     <span class="tabular text-ink-700">{% blocktranslate with life=game.life %}Life {{ life }}{% endblocktranslate %}</span>
     {% if game.mulligans %}<span class="tabular text-ink-700">{% blocktranslate with count=game.mulligans %}Mulligans {{ count }}{% endblocktranslate %}</span>{% endif %}
 
-    {% if game.turn %}
+    {% if game.turn and not journal %}
       <ol class="flex flex-wrap gap-1 text-sm" aria-label="{% translate "Phase" %}">
         {% for phase, name in phases %}
           <li class="playtest-phase{% if phase == game.phase %} playtest-phase-now{% endif %}"
@@ -74,7 +106,41 @@
       </ul>
     {% endif %}
 
-    {% if not deciding %}
+    {% if journal %}
+      <div class="ml-auto flex flex-wrap gap-2" data-free-moves>
+        <form method="post" action="{% url 'playtest:act' session.id %}"
+              hx-post="{% url 'playtest:act' session.id %}"
+              hx-target="#board" hx-swap="outerHTML">
+          {% csrf_token %}
+          <input type="hidden" name="kind" value="draw">
+          <input type="hidden" name="count" value="1">
+          <button type="submit" data-key="d"
+                  class="icon-host inline-flex items-center gap-2 border border-ink-800 bg-ink-900 px-3 py-1.5 text-parchment-100 hover:bg-ink-800">
+            {% icon "draw" %}{% translate "Draw a card" %} <kbd class="playtest-kbd">D</kbd>
+          </button>
+        </form>
+        <form method="post" action="{% url 'playtest:act' session.id %}"
+              hx-post="{% url 'playtest:act' session.id %}"
+              hx-target="#board" hx-swap="outerHTML">
+          {% csrf_token %}
+          <input type="hidden" name="kind" value="new_hand">
+          <button type="submit" data-key="n"
+                  class="icon-host inline-flex items-center gap-2 border border-ink-800 px-3 py-1.5 text-ink-900 hover:bg-parchment-300">
+            {% icon "new-hand" %}{% translate "New hand" %} <kbd class="playtest-kbd">N</kbd>
+          </button>
+        </form>
+        <form method="post" action="{% url 'playtest:act' session.id %}"
+              hx-post="{% url 'playtest:act' session.id %}"
+              hx-target="#board" hx-swap="outerHTML">
+          {% csrf_token %}
+          <input type="hidden" name="kind" value="next_turn">
+          <button type="submit" data-key="t"
+                  class="border border-ink-800 px-3 py-1.5 text-ink-900 hover:bg-parchment-300">
+            {% translate "Next turn" %} <kbd class="playtest-kbd">T</kbd>
+          </button>
+        </form>
+      </div>
+    {% elif not deciding %}
       <div class="ml-auto flex flex-wrap gap-2">
         <form method="post" action="{% url 'playtest:act' session.id %}"
               hx-post="{% url 'playtest:act' session.id %}"
@@ -106,9 +172,9 @@
             hx-post="{% url 'playtest:undo' session.id %}"
             hx-target="#board" hx-swap="outerHTML">
         {% csrf_token %}
-        <button type="submit" {% if not can_undo %}disabled{% endif %}
+        <button type="submit" {% if not can_undo %}disabled{% endif %} data-key="ctrl+z"
                 class="border border-ink-800 px-3 py-1.5 text-ink-900 hover:bg-parchment-300 disabled:border-parchment-600 disabled:text-ink-500">
-          {% translate "Undo" %}
+          {% translate "Undo" %}{% if journal %} <kbd class="playtest-kbd">{% translate "Ctrl Z" %}</kbd>{% endif %}
         </button>
       </form>
 
@@ -123,6 +189,12 @@
       </form>
     </div>
   </section>
+
+  {% if journal %}
+    <p class="text-sm text-parchment-200" data-free-note>
+      {% translate "Nothing is blocked. The journal notes what the rules would not allow." %}
+    </p>
+  {% endif %}
 
   {% comment %}
     The engine counts a turn's mana once, when the main phase opens - a land
@@ -184,6 +256,18 @@
           {% endif %}
           {% if zone.out %}
             <p class="mt-1 text-xs text-ink-700">{% translate "On the battlefield" %}</p>
+          {% elif journal %}
+            <form method="post" action="{% url 'playtest:act' session.id %}"
+                  hx-post="{% url 'playtest:act' session.id %}"
+                  hx-target="#board" hx-swap="outerHTML" class="mt-1">
+              {% csrf_token %}
+              <input type="hidden" name="kind" value="free_commander">
+              <input type="hidden" name="index" value="{{ zone.index }}">
+              <button type="submit"
+                      class="w-full border border-ink-800 bg-ink-900 px-2 py-1 text-xs text-parchment-100 hover:bg-ink-800">
+                {% translate "Play" %}
+              </button>
+            </form>
           {% elif zone.castable %}
             <form method="post" action="{% url 'playtest:act' session.id %}"
                   hx-post="{% url 'playtest:act' session.id %}"
@@ -328,7 +412,7 @@
   <section class="playtest-hand" aria-label="{% translate "Hand" %}">
     <p class="mb-2 text-sm text-parchment-200">
       {% blocktranslate trimmed with count=hand|length %}Hand <span class="tabular">{{ count }}</span>{% endblocktranslate %}
-      {% if not deciding %}· {% translate "click a card to play it. A glowing card is one the mana can pay for; nothing is blocked." %}{% endif %}
+      {% if journal %}· {% translate "click a card to put it on the table. Nothing is paid, and nothing happens on its own." %}{% elif not deciding %}· {% translate "click a card to play it. A glowing card is one the mana can pay for; nothing is blocked." %}{% endif %}
     </p>
     <ul class="hand-fan">
       {% for tile in hand %}
@@ -343,14 +427,16 @@
                   hx-target="#board" hx-swap="outerHTML">
               {% csrf_token %}
               <input type="hidden" name="index" value="{{ tile.index }}">
-              {% if tile.card.is_land %}
+              {% if journal %}
+                <input type="hidden" name="kind" value="free_play">
+              {% elif tile.card.is_land %}
                 <input type="hidden" name="kind" value="play_land">
               {% else %}
                 <input type="hidden" name="kind" value="cast_spell">
               {% endif %}
               <button type="submit" class="hand-card{% if tile.castable or tile.playable %} hand-card-ready{% endif %}">
                 {% include "playtest/_hand_face.html" %}
-                <span class="hand-card-action">{% if tile.card.is_land %}{% translate "Play land" %}{% else %}{% translate "Cast" %}{% endif %}</span>
+                <span class="hand-card-action">{% if tile.card.is_land %}{% translate "Play land" %}{% elif journal %}{% translate "Play" %}{% else %}{% translate "Cast" %}{% endif %}</span>
               </button>
               {% if tile.payments|length > 1 %}
                 <label class="hand-card-x">
@@ -378,6 +464,34 @@
     </ul>
   </section>
 
+  {% if journal %}
+    <section class="surface-parchment px-4 py-3" aria-labelledby="journal-title" data-journal>
+      <h2 id="journal-title" class="font-display text-lg text-ink-900">{% translate "The journal" %}</h2>
+      <ol role="log" class="mt-3 space-y-1 text-sm text-ink-700">
+        {% for turn in journal.turns %}
+          <li class="pt-1 italic text-ink-900" data-journal-turn>{% blocktranslate with turn=turn.number %}Turn {{ turn }}{% endblocktranslate %}{% if turn.guessed %} {% translate "(guessed)" %}{% endif %}</li>
+          {% for line in turn.lines %}
+            {% if line.unusual %}
+              <li class="icon-host flex items-start gap-2 border-y border-dashed border-parchment-600 py-1 text-ink-900" data-unusual>
+                {% icon "unusual" %}<span><em>{% translate "Unusual move:" %}</em> {{ line.text }}</span>
+              </li>
+            {% else %}
+              <li>{{ line.text }}</li>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </ol>
+      {% if journal.unusual %}
+        <p class="mt-3 text-sm text-ink-700" data-unusual-count>
+          {% blocktranslate trimmed count count=journal.unusual %}
+            {{ count }} unusual move. Found a great line? Check it before you trust it.
+          {% plural %}
+            {{ count }} unusual moves. Found a great line? Check them before you trust it.
+          {% endblocktranslate %}
+        </p>
+      {% endif %}
+    </section>
+  {% else %}
   <details class="surface-parchment px-4 py-3">
     <summary class="cursor-pointer font-display text-lg text-ink-900">{% translate "What happened" %}</summary>
     <ol class="mt-3 space-y-1 text-sm text-ink-700">
@@ -389,6 +503,7 @@
       {% endfor %}
     </ol>
   </details>
+  {% endif %}
 
   {% if history %}
     <details class="surface-parchment px-4 py-3">

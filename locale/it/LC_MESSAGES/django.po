@@ -15776,3 +15776,137 @@ msgid ""
 "Seven cards, then draw, draw, draw. Play it out turn by turn, with undo."
 msgstr ""
 "Sette carte, poi pesca, pesca, pesca. Giocala turno per turno, con annulla."
+
+#: templates/playtest/_board.html
+msgid "(guessed)"
+msgstr "(stimato)"
+
+#: templates/playtest/_board.html playtest/views.py
+msgid "New hand"
+msgstr "Nuova mano"
+
+#: templates/playtest/_board.html playtest/views.py
+msgid "Next turn"
+msgstr "Turno successivo"
+
+#: templates/playtest/_board.html
+msgid "Ctrl Z"
+msgstr "Ctrl Z"
+
+#: templates/playtest/_board.html
+msgid "Nothing is blocked. The journal notes what the rules would not allow."
+msgstr ""
+"Niente è bloccato. Il diario annota ciò che le regole non permetterebbero."
+
+#: templates/playtest/_board.html
+msgid "Play"
+msgstr "Gioca"
+
+#: templates/playtest/_board.html
+msgid ""
+"click a card to put it on the table. Nothing is paid, and nothing happens on"
+" its own."
+msgstr ""
+"clicca una carta per metterla sul tavolo. Non si paga nulla e niente succede"
+" da solo."
+
+#: templates/playtest/_board.html
+msgid "The journal"
+msgstr "Il diario"
+
+#: templates/playtest/_board.html
+msgid "Unusual move:"
+msgstr "Mossa insolita:"
+
+#: templates/playtest/_board.html
+#, python-format
+msgid ""
+"%(count)s unusual move. Found a great line? Check it before you trust it."
+msgid_plural ""
+"%(count)s unusual moves. Found a great line? Check them before you trust it."
+msgstr[0] ""
+"%(count)s mossa insolita. Hai trovato una gran linea? Controllala prima di "
+"fidarti."
+msgstr[1] ""
+"%(count)s mosse insolite. Hai trovato una gran linea? Controllale prima di "
+"fidarti."
+
+#: templates/playtest/detail.html
+msgid "Mode"
+msgstr "Modalità"
+
+#: templates/playtest/detail.html
+msgctxt "playtest mode"
+msgid "Free"
+msgstr "Libera"
+
+#: templates/playtest/detail.html
+msgctxt "playtest mode"
+msgid "Strict"
+msgstr "Rigorosa"
+
+#: templates/playtest/detail.html
+msgid ""
+"Free: nothing is paid or blocked. Strict plays the rules, phase by phase."
+msgstr ""
+"Libera: non si paga e non si blocca nulla. Rigorosa segue le regole, fase "
+"per fase."
+
+#: templates/playtest/detail.html
+msgid "Strict plays the rules, phase by phase. Free blocks nothing."
+msgstr "Rigorosa segue le regole, fase per fase. Libera non blocca nulla."
+
+#: templates/playtest/detail.html
+msgid "Switching deals this shuffle again."
+msgstr "Cambiando si ridistribuisce lo stesso mazzo mescolato."
+
+#: playtest/views.py
+msgid "Card played"
+msgstr "Carta giocata"
+
+#: playtest/views.py
+msgid "Commander played"
+msgstr "Comandante giocato"
+
+#: playtest/free.py
+msgid "Seven cards dealt."
+msgstr "Sette carte distribuite."
+
+#: playtest/free.py
+msgid "New hand: seven fresh cards."
+msgstr "Nuova mano: sette carte nuove."
+
+#: playtest/free.py
+msgid "A second land this turn."
+msgstr "Una seconda terra in questo turno."
+
+#: playtest/free.py
+#, python-format
+msgid "Land: %(card)s."
+msgstr "Terra: %(card)s."
+
+#: playtest/free.py
+#, python-format
+msgid "Commander: %(card)s."
+msgstr "Comandante: %(card)s."
+
+#: playtest/free.py
+#, python-format
+msgid "Played %(card)s."
+msgstr "Giocato %(card)s."
+
+#: playtest/free.py
+#, python-format
+msgid "%(card)s costs %(cost)s, with %(count)s mana source out."
+msgid_plural "%(card)s costs %(cost)s, with %(count)s mana sources out."
+msgstr[0] "%(card)s costa %(cost)s, con %(count)s fonte di mana in gioco."
+msgstr[1] "%(card)s costa %(cost)s, con %(count)s fonti di mana in gioco."
+
+#: playtest/free.py
+#, python-format
+msgid "Drew %(cards)s."
+msgstr "Pescato: %(cards)s."
+
+#: playtest/free.py
+msgid "The library is empty."
+msgstr "Il grimorio è vuoto."

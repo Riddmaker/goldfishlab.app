@@ -22,6 +22,7 @@ from django.db import transaction
 from django.db.models import Max
 from django.utils.translation import gettext
 
+from playtest import free
 from playtest.models import PlaytestAction, PlaytestSession
 from simulation import actions, serial
 from simulation.game import STARTING_HAND_SIZE, Game
@@ -40,8 +41,8 @@ class PlaytestFull(RuntimeError):
 # --- Starting --------------------------------------------------------------
 
 @transaction.atomic
-def start(deck, owner, *, seed: int | None = None,
-          on_the_play: bool = True) -> PlaytestSession:
+def start(deck, owner, *, seed: int | None = None, on_the_play: bool = True,
+          mode: str = PlaytestSession.STRICT) -> PlaytestSession:
     """Open a session on a deck, with its opening seven already drawn.
 
     The deck is converted **once**, here, and the reading is frozen into the
@@ -56,6 +57,7 @@ def start(deck, owner, *, seed: int | None = None,
         deck_snapshot=serial.dump_deck(conversion.definition),
         seed=secrets.randbelow(2**62) if seed is None else seed,
         on_the_play=on_the_play,
+        mode=mode,
         gaps=[asdict(gap) for gap in conversion.gaps],
         cards_total=conversion.cards_total,
         cards_with_gaps=conversion.cards_with_gaps,
@@ -65,16 +67,17 @@ def start(deck, owner, *, seed: int | None = None,
     )
 
 
-def _base_game(session: PlaytestSession) -> Game:
+def _base_game(session: PlaytestSession, seed: int | None = None) -> Game:
     """The game before any action: the seeded shuffle, seven cards drawn.
 
     The opening seven are not an action. They are implied by the seed, the same
     way the shuffle is - a session that stored them would let two replays of
-    the same seed disagree.
+    the same seed disagree. A free session's new hand (`free.NewHand`) is the
+    same deal with the seed it stored.
     """
     deck = serial.load_deck(session.deck_snapshot)
-    game = Game(random.Random(session.seed), on_the_play=session.on_the_play,
-                deck=deck)
+    game = Game(random.Random(session.seed if seed is None else seed),
+                on_the_play=session.on_the_play, deck=deck)
     game.draw(STARTING_HAND_SIZE)
     game.first_hand_lands = sum(1 for card in game.hand if card.is_land)
     return game
@@ -107,10 +110,56 @@ def state(session: PlaytestSession) -> Game:
 
     game = _base_game(session)
     for row in rows:
-        actions.apply(game, row.as_action(), None)
+        game = apply(session, game, free.from_row(row.kind, row.payload))
 
     _remember(session, game, last_seq)
     return game
+
+
+def kinds(session: PlaytestSession):
+    """The action kinds this session's mode plays."""
+    return free.ALLOWED if session.is_free else actions.BY_KIND
+
+
+def apply(session: PlaytestSession, game: Game, action: actions.Action) -> Game:
+    """Carry one action out and return the game it leaves.
+
+    The same game, changed - except a new hand, which is a new deal: the
+    replay goes on from that one. An action of the other mode is refused, so a
+    free play can never reach a strict game, nor a phase a free one.
+    """
+    if action.kind not in kinds(session):
+        raise actions.IllegalAction(f"{action.kind} is not a move of this mode")
+    if isinstance(action, free.NewHand):
+        return _base_game(session, action.seed)
+    actions.apply(game, action, None)
+    return game
+
+
+def deal_seed(session: PlaytestSession) -> int:
+    """The seed of the hand on the table: the last new hand's, or the session's."""
+    last = live_actions(session).filter(kind=free.NewHand.kind).last()
+    return last.payload["seed"] if last else session.seed
+
+
+def journal(session: PlaytestSession) -> free.Journal:
+    """A free session's journal: its actions replayed, each one read first.
+
+    A second replay beside `state`, on purpose: the journal needs the card each
+    action named, which the cached state no longer knows. Replaying a few
+    dozen actions costs well under a millisecond.
+    """
+    game = _base_game(session)
+    steps = []
+    for row in live_actions(session):
+        action = free.from_row(row.kind, row.payload)
+        before = free.step(game, action)
+        held = len(game.hand)
+        game = apply(session, game, action)
+        if before is not None:
+            steps.append(free.drew(before, game, held)
+                         if before.what in (free.DRAW, free.TURN) else before)
+    return free.journal(steps, on_the_play=session.on_the_play)
 
 
 def _remember(session: PlaytestSession, game: Game, seq: int) -> None:
@@ -150,8 +199,7 @@ def record(session: PlaytestSession, action: actions.Action) -> Game:
     in.
     """
     _lock(session)
-    game = state(session)
-    actions.apply(game, action, None)
+    game = apply(session, state(session), action)
 
     session.actions.filter(undone=True).delete()
     seq = (session.actions.aggregate(highest=Max("seq"))["highest"] or 0) + 1
@@ -205,6 +253,7 @@ def fork(session: PlaytestSession, seq: int) -> PlaytestSession:
         deck_snapshot=session.deck_snapshot,
         seed=session.seed,
         on_the_play=session.on_the_play,
+        mode=session.mode,
         gaps=session.gaps,
         cards_total=session.cards_total,
         cards_with_gaps=session.cards_with_gaps,

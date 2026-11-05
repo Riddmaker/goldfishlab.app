@@ -11,6 +11,8 @@ re-renders. One code path, one source of truth, and the Django test client
 exercises every action without a browser.
 """
 
+import secrets
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseBadRequest
@@ -19,7 +21,7 @@ from django.utils.translation import gettext, gettext_noop, ngettext
 from django.views.generic import DetailView, View
 
 from decks.models import Deck
-from playtest import services
+from playtest import free, services
 from playtest.forms import ActionForm, ForkForm, StartForm
 from playtest.models import PlaytestSession
 from simulation import actions
@@ -117,6 +119,10 @@ ACTION_NAMES = {
     "adapt": gettext_noop("Adapted"),
     "equip": gettext_noop("Equipped"),
     "combat": gettext_noop("Combat"),
+    "free_play": gettext_noop("Card played"),
+    "free_commander": gettext_noop("Commander played"),
+    "next_turn": gettext_noop("Next turn"),
+    "new_hand": gettext_noop("New hand"),
 }
 
 #: The message tag that marks an engine refusal, so the page can say it is
@@ -297,7 +303,8 @@ def board_context(session: PlaytestSession, game) -> dict:
         "exiled": _tiles(game.exiled, images),
         "pips": pips(getattr(game, "pool", None)),
         "restricted": restricted_mana(getattr(game, "pool", None)),
-        "deciding": deciding(game, live),
+        # A free table has no mulligan to decide: New hand deals again.
+        "deciding": not session.is_free and deciding(game, live),
         "to_bottom": game.cards_to_bottom(game.mulligans),
         # The command zone, one or two cards (P20 F2b), each with its own
         # Cast: `index` is the one the engine casts.
@@ -312,6 +319,9 @@ def board_context(session: PlaytestSession, game) -> dict:
                      else row.kind) for row in live],
         "can_undo": bool(live),
         "can_redo": session.actions.filter(undone=True).exists(),
+        "journal": services.journal(session) if session.is_free else None,
+        # The mode switch deals the hand on the table again, not the first one.
+        "deal_seed": services.deal_seed(session),
     }
 
 
@@ -345,6 +355,7 @@ class StartView(LoginRequiredMixin, View):
             deck, request.user,
             seed=form.cleaned_data.get("seed") or None,
             on_the_play=form.cleaned_data.get("on_the_play", True),
+            mode=form.cleaned_data["mode"],
         )
         return redirect(session.get_absolute_url())
 
@@ -367,11 +378,15 @@ class ActView(OwnedSessionsMixin, View):
     def post(self, request, pk):
         session = get_object_or_404(self.get_queryset(), pk=pk)
         form = ActionForm(request.POST)
-        if not form.is_valid():
+        if not form.is_valid() or form.cleaned_data["kind"] not in services.kinds(session):
             return HttpResponseBadRequest("That is not an action.")
 
+        action = form.action()
+        if isinstance(action, free.NewHand):
+            # Chosen here, never posted: the seed is the game.
+            action = free.NewHand(seed=secrets.randbelow(2**62))
         try:
-            game = services.record(session, form.action())
+            game = services.record(session, action)
         except actions.IllegalAction as exc:
             messages.error(request, str(exc), extra_tags=ENGINE_TAG)
             game = services.state(session)

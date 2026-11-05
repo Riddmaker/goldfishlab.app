@@ -40,6 +40,13 @@ from simulations import gaps as gaps_module
 class PlaytestSession(models.Model):
     """One game being played by hand."""
 
+    #: Strict: the engine's turn, phases and mana, as a simulated game plays.
+    #: Free (Paket 4, PR 18): a kitchen table - nothing is paid, nothing is
+    #: blocked, and the journal says what the rules would not have allowed.
+    STRICT = "strict"
+    FREE = "free"
+    MODES = ((STRICT, "Strict"), (FREE, "Free"))
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     deck = models.ForeignKey(Deck, on_delete=models.CASCADE,
                              related_name="playtests")
@@ -58,6 +65,10 @@ class PlaytestSession(models.Model):
     #: the same snapshot are the same game.
     seed = models.BigIntegerField()
     on_the_play = models.BooleanField(default=True)
+    #: Fixed for the life of a session: switching mode deals a new one, so a
+    #: replay never meets an action of the other mode. A session from before
+    #: PR 18 is strict, which is what it was played as.
+    mode = models.CharField(max_length=8, choices=MODES, default=STRICT)
 
     #: The coverage the snapshot was taken with, so the board can stay as
     #: honest as the report is. A playtest of a deck the engine only half
@@ -137,6 +148,10 @@ class PlaytestSession(models.Model):
     @property
     def coverage_read(self) -> int:
         return max(0, self.coverage_total - self.coverage_unreadable)
+
+    @property
+    def is_free(self) -> bool:
+        return self.mode == self.FREE
 
     def invalidate(self) -> None:
         """Forget the cached state. Called by anything that edits the actions."""

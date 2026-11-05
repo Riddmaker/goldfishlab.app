@@ -11,7 +11,7 @@ canvas, round 2 approved on 2026-11-04.
 | 15 | Sixteen symbols of our own, in colour, each moving once on hover | **Done** |
 | 16 | The ticker: the last 40 events in a loop, "What others did recently", fun lines with their ten icons and the talking overlord | **Done** |
 | 17 | The home page (B): classic header kept still, the big flask with the fish's hello jump and click moves, the ticker as a band | **Done** |
-| 18 | Free draw: a Free/Strict switch at the start (`PlaytestSession.mode`), the engine unchanged | Planned |
+| 18 | Free draw: a Free/Strict switch at the start (`PlaytestSession.mode`), the engine unchanged | **Done** |
 | 19 | The board (A) with the journal of B | Planned |
 
 Decisions: our own single-line SVG symbols, no emoji and no Wizards glyphs (1A); a fun line at
@@ -83,3 +83,32 @@ canvas. The fish's click moves leave the header for the big flask on the home pa
 - Tests: `tests/test_home.py` (order, tiles, stranger, member, guest, German),
   `tests/test_fish.py` (where it lives, the poke rule), `tests/test_logo.py` (the bubbles under
   reduced motion). Five new strings in six languages.
+
+## How PR 18 works
+
+- `PlaytestSession.mode` (`strict` / `free`, migration 0004): every session from before is
+  strict. A session keeps its mode for life; `services.kinds` names the moves it accepts and
+  `services.apply` refuses the rest, so a replay never meets a move of the other mode. The
+  deck page's "Draw a hand" deals free (`StartForm.mode` defaults to free); `services.start`
+  stays strict by default.
+- `playtest/free.py`: the free moves subclass the engine's `Action` and are stored and
+  replayed like its own - `free_play` (a card from hand to `zone_for(card)`, no cost, no
+  trigger), `free_commander` (counts the cast, one copy), `next_turn` (untap and draw, no
+  triggers), `new_hand` (a new deal in the same session; the view picks the seed, never the
+  post, and `services.apply` replaces the game with `_base_game(session, seed)`, so undo
+  brings the hand before back). Plain `draw` is shared. The engine is unchanged.
+- The journal: `services.journal` replays the live actions once more, reading each move
+  before it runs (`free.step`), and `free.journal` - pure - turns those steps into turns.
+  Until the player presses Next turn, a second land or a draw past the turn's one (none in
+  turn 1 on the play) starts a guessed turn; after it, turns are trusted and a second land is
+  an unusual move. A card (a commander with its tax) costing more than the lands and rocks out
+  is unusual either way. A new hand starts the journal again.
+- The board: a free bar (Draw a card, New hand, Next turn, Undo with their keys), no
+  mulligan decision, every hand card posts `free_play`, the commander has Play, the journal
+  replaces "What happened". The Strict | Free switch is a plain form inside `#board` posting
+  to `playtest:start` with `services.deal_seed` (the hand on the table) and `on_the_play`.
+  `static/js/playtest-keys.js` clicks the button with the matching `data-key`; `keyFor` is
+  pure and runs under Node in `tests/test_playtest_free.py`; no key while typing.
+- Own calls: the switch deals the hand on the table, not the first one; turns are trusted
+  once the player says "next turn"; no mulligan in free (New hand does it); Ctrl+Z works on
+  the strict board too. 27 strings in six languages.

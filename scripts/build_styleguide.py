@@ -411,6 +411,13 @@ ul.dodont li {{ margin-bottom: .4rem; font-size: .93rem; }}
 .sym-cell {{ display: flex; gap: .9rem; align-items: flex-start; color: var(--parch-100); }}
 .sym-note {{ color: var(--ink-300); font-size: .9rem; }}
 .sym-inline {{ display: inline-flex; gap: .4rem; align-items: center; margin-right: 1.4rem; }}
+.pt-kbd {{ padding: 0 .3rem; border: 1px solid currentColor; border-bottom-width: 2px;
+  border-radius: 3px; font-family: ui-monospace, monospace; font-size: .75rem; opacity: .8; }}
+.pt-journal {{ list-style: none; margin: 0; padding: 0; }}
+.pt-journal li {{ padding: .15rem 0; }}
+.pt-journal .pt-turn {{ font-style: italic; }}
+.pt-journal .pt-unusual {{ display: flex; gap: .5rem; align-items: flex-start; padding: .25rem 0;
+  border-top: 1px dashed var(--parch-600); border-bottom: 1px dashed var(--parch-600); }}
 .tk-band {{ background: var(--ink-900); border-block: 1px solid var(--parch-800); padding: 1rem; }}
 .tk-band ul {{ list-style: none; margin: .5rem 0 0; padding: 0; color: var(--parch-100); }}
 .tk-band li {{ display: flex; gap: .75rem; align-items: center; padding: .2rem 0; }}
@@ -702,6 +709,27 @@ events at the soonest: its own ground, gold rules, italic gold and its own drawi
 &ldquo;The fish says:&rdquo; for screen readers - never an event. Pop culture stays English, our
 own lines are translated. A line that arrives fades in and its symbol moves once; Pause stops the
 loop and the overlord; under reduced motion nothing loops or moves.</p>
+
+<h2>Free and Strict: the playtest journal (Paket 4, PR 18)</h2>
+<div class="surface icon-on-light">
+  <p style="margin:0 0 .75rem"><span class="icon-host sym-inline">{icon_svg("draw")} Draw a card
+  <kbd class="pt-kbd">D</kbd></span><span class="icon-host sym-inline">{icon_svg("new-hand")} New
+  hand <kbd class="pt-kbd">N</kbd></span><span class="sym-inline">Next turn
+  <kbd class="pt-kbd">T</kbd></span></p>
+  <ol class="pt-journal">
+    <li class="pt-turn">Turn 1</li>
+    <li>Seven cards dealt.</li>
+    <li>Land: Swamp.</li>
+    <li class="pt-turn">Turn 2 (guessed)</li>
+    <li>Land: Swamp.</li>
+    <li class="icon-host pt-unusual">{icon_svg("unusual")}<span><em>Unusual move:</em> Vampire
+    Nighthawk costs 3, with 2 mana sources out.</span></li>
+  </ol>
+</div>
+<p class="rule">A hand dealt from the deck page is free: nothing is paid, nothing is blocked, and
+the switch deals the same hand strict. Free never refuses a move, it says it: an unusual move is a
+line of the journal with its symbol, dashed rules and the words first - never colour alone. A turn
+only guessed says &ldquo;(guessed)&rdquo;. Every free move shows its key.</p>
 
 <h2>Deck summary (Phase 10)</h2>
 <div class="surface">

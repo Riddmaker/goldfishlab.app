@@ -13898,3 +13898,126 @@ msgstr "何千ゲームから見える確率：土地、マナカーブ、マナ
 msgid ""
 "Seven cards, then draw, draw, draw. Play it out turn by turn, with undo."
 msgstr "7枚引いて、ドロー、ドロー、ドロー。取り消し付きで1ターンずつ回せます。"
+
+#: templates/playtest/_board.html
+msgid "(guessed)"
+msgstr "(推定)"
+
+#: templates/playtest/_board.html playtest/views.py
+msgid "New hand"
+msgstr "新しい手札"
+
+#: templates/playtest/_board.html playtest/views.py
+msgid "Next turn"
+msgstr "次のターン"
+
+#: templates/playtest/_board.html
+msgid "Ctrl Z"
+msgstr "Ctrl Z"
+
+#: templates/playtest/_board.html
+msgid "Nothing is blocked. The journal notes what the rules would not allow."
+msgstr "何もブロックされません。ルール上できないことはジャーナルに記録されます。"
+
+#: templates/playtest/_board.html
+msgid "Play"
+msgstr "プレイ"
+
+#: templates/playtest/_board.html
+msgid ""
+"click a card to put it on the table. Nothing is paid, and nothing happens on"
+" its own."
+msgstr "カードをクリックするとテーブルに置けます。コストは支払われず、何も自動では起こりません。"
+
+#: templates/playtest/_board.html
+msgid "The journal"
+msgstr "ジャーナル"
+
+#: templates/playtest/_board.html
+msgid "Unusual move:"
+msgstr "珍しい手:"
+
+#: templates/playtest/_board.html
+#, python-format
+msgid ""
+"%(count)s unusual move. Found a great line? Check it before you trust it."
+msgid_plural ""
+"%(count)s unusual moves. Found a great line? Check them before you trust it."
+msgstr[0] "珍しい手が%(count)s件あります。良いラインを見つけたら、信じる前に確認しましょう。"
+
+#: templates/playtest/detail.html
+msgid "Mode"
+msgstr "モード"
+
+#: templates/playtest/detail.html
+msgctxt "playtest mode"
+msgid "Free"
+msgstr "フリー"
+
+#: templates/playtest/detail.html
+msgctxt "playtest mode"
+msgid "Strict"
+msgstr "厳密"
+
+#: templates/playtest/detail.html
+msgid ""
+"Free: nothing is paid or blocked. Strict plays the rules, phase by phase."
+msgstr "フリー：支払いもブロックもありません。厳密モードはルールどおり、フェイズごとに進みます。"
+
+#: templates/playtest/detail.html
+msgid "Strict plays the rules, phase by phase. Free blocks nothing."
+msgstr "厳密モードはルールどおり、フェイズごとに進みます。フリーは何もブロックしません。"
+
+#: templates/playtest/detail.html
+msgid "Switching deals this shuffle again."
+msgstr "切り替えると、同じシャッフルで配り直します。"
+
+#: playtest/views.py
+msgid "Card played"
+msgstr "カードをプレイ"
+
+#: playtest/views.py
+msgid "Commander played"
+msgstr "統率者をプレイ"
+
+#: playtest/free.py
+msgid "Seven cards dealt."
+msgstr "7枚配られました。"
+
+#: playtest/free.py
+msgid "New hand: seven fresh cards."
+msgstr "新しい手札：新しい7枚です。"
+
+#: playtest/free.py
+msgid "A second land this turn."
+msgstr "このターン2枚目の土地です。"
+
+#: playtest/free.py
+#, python-format
+msgid "Land: %(card)s."
+msgstr "土地：%(card)s。"
+
+#: playtest/free.py
+#, python-format
+msgid "Commander: %(card)s."
+msgstr "統率者：%(card)s。"
+
+#: playtest/free.py
+#, python-format
+msgid "Played %(card)s."
+msgstr "%(card)sをプレイしました。"
+
+#: playtest/free.py
+#, python-format
+msgid "%(card)s costs %(cost)s, with %(count)s mana source out."
+msgid_plural "%(card)s costs %(cost)s, with %(count)s mana sources out."
+msgstr[0] "%(card)sのコストは%(cost)sですが、場のマナ源は%(count)s個です。"
+
+#: playtest/free.py
+#, python-format
+msgid "Drew %(cards)s."
+msgstr "引いたカード：%(cards)s。"
+
+#: playtest/free.py
+msgid "The library is empty."
+msgstr "ライブラリーは空です。"

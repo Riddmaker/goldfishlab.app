@@ -220,6 +220,12 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   as a fan of card buttons that straighten and grow under the pointer or keyboard focus (a
   straight sideways row up to 48rem); mana as round pips in the colour pie with the letter
   inside; `prefers-reduced-motion` drops the transitions.
+- **Free and Strict** (Paket 4, PR 18): a deal from the deck page is **free** - nothing paid,
+  nothing blocked - and the switch on the board deals the same hand strict. Free never refuses
+  a move; it **says** what the rules would not allow, as an "Unusual move" line in the journal
+  (the `unusual` symbol, a dashed rule above and below, the words first: never colour alone),
+  and a turn it only guessed carries "(guessed)". Each free move button shows its key (`kbd`,
+  `.playtest-kbd`): D, N, T, Ctrl Z.
 - **"More"** (`core/_why.html`, Paket 3 PR 10; "Why?" until then): the one small link beside a
   section, sending its explanation to a methodology anchor. `dark=True` on dark grounds. The
   sentence before it says **why the section matters** first, then what it measures: "How soon

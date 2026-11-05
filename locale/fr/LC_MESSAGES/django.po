@@ -16000,3 +16000,136 @@ msgid ""
 msgstr ""
 "Sept cartes, puis piocher, piocher, piocher. Jouez tour par tour, avec "
 "annulation."
+
+#: templates/playtest/_board.html
+msgid "(guessed)"
+msgstr "(estimé)"
+
+#: templates/playtest/_board.html playtest/views.py
+msgid "New hand"
+msgstr "Nouvelle main"
+
+#: templates/playtest/_board.html playtest/views.py
+msgid "Next turn"
+msgstr "Tour suivant"
+
+#: templates/playtest/_board.html
+msgid "Ctrl Z"
+msgstr "Ctrl Z"
+
+#: templates/playtest/_board.html
+msgid "Nothing is blocked. The journal notes what the rules would not allow."
+msgstr ""
+"Rien n’est bloqué. Le journal note ce que les règles n’autoriseraient pas."
+
+#: templates/playtest/_board.html
+msgid "Play"
+msgstr "Jouer"
+
+#: templates/playtest/_board.html
+msgid ""
+"click a card to put it on the table. Nothing is paid, and nothing happens on"
+" its own."
+msgstr ""
+"cliquez sur une carte pour la poser sur la table. Rien n’est payé, et rien "
+"ne se passe tout seul."
+
+#: templates/playtest/_board.html
+msgid "The journal"
+msgstr "Le journal"
+
+#: templates/playtest/_board.html
+msgid "Unusual move:"
+msgstr "Coup inhabituel :"
+
+#: templates/playtest/_board.html
+#, python-format
+msgid ""
+"%(count)s unusual move. Found a great line? Check it before you trust it."
+msgid_plural ""
+"%(count)s unusual moves. Found a great line? Check them before you trust it."
+msgstr[0] ""
+"%(count)s coup inhabituel. Une belle ligne ? Vérifiez-le avant de vous y "
+"fier."
+msgstr[1] ""
+"%(count)s coups inhabituels. Une belle ligne ? Vérifiez-les avant de vous y "
+"fier."
+
+#: templates/playtest/detail.html
+msgid "Mode"
+msgstr "Mode"
+
+#: templates/playtest/detail.html
+msgctxt "playtest mode"
+msgid "Free"
+msgstr "Libre"
+
+#: templates/playtest/detail.html
+msgctxt "playtest mode"
+msgid "Strict"
+msgstr "Strict"
+
+#: templates/playtest/detail.html
+msgid ""
+"Free: nothing is paid or blocked. Strict plays the rules, phase by phase."
+msgstr ""
+"Libre : rien n’est payé ni bloqué. Strict suit les règles, phase par phase."
+
+#: templates/playtest/detail.html
+msgid "Strict plays the rules, phase by phase. Free blocks nothing."
+msgstr "Strict suit les règles, phase par phase. Libre ne bloque rien."
+
+#: templates/playtest/detail.html
+msgid "Switching deals this shuffle again."
+msgstr "Changer de mode redistribue ce même mélange."
+
+#: playtest/views.py
+msgid "Card played"
+msgstr "Carte jouée"
+
+#: playtest/views.py
+msgid "Commander played"
+msgstr "Commandant joué"
+
+#: playtest/free.py
+msgid "Seven cards dealt."
+msgstr "Sept cartes distribuées."
+
+#: playtest/free.py
+msgid "New hand: seven fresh cards."
+msgstr "Nouvelle main : sept cartes neuves."
+
+#: playtest/free.py
+msgid "A second land this turn."
+msgstr "Un deuxième terrain ce tour-ci."
+
+#: playtest/free.py
+#, python-format
+msgid "Land: %(card)s."
+msgstr "Terrain : %(card)s."
+
+#: playtest/free.py
+#, python-format
+msgid "Commander: %(card)s."
+msgstr "Commandant : %(card)s."
+
+#: playtest/free.py
+#, python-format
+msgid "Played %(card)s."
+msgstr "%(card)s joué."
+
+#: playtest/free.py
+#, python-format
+msgid "%(card)s costs %(cost)s, with %(count)s mana source out."
+msgid_plural "%(card)s costs %(cost)s, with %(count)s mana sources out."
+msgstr[0] "%(card)s coûte %(cost)s, avec %(count)s source de mana en jeu."
+msgstr[1] "%(card)s coûte %(cost)s, avec %(count)s sources de mana en jeu."
+
+#: playtest/free.py
+#, python-format
+msgid "Drew %(cards)s."
+msgstr "Pioché : %(cards)s."
+
+#: playtest/free.py
+msgid "The library is empty."
+msgstr "La bibliothèque est vide."

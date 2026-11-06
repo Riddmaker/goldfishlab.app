@@ -36,7 +36,9 @@ TEXT_DIRS = ("account/",)
 
 #: Names, not words: the same in every language.
 NAMES = {"Goldfish Lab", "Goldfish\xa0Lab", "Scryfall", "Commander Spellbook", "Moxfield",
-         "Archidekt", "ManaBox", "Stripe", "Mistral", "AGPL"}
+         "Archidekt", "ManaBox", "Stripe", "Mistral", "AGPL",
+         # The other deck sites, in the import's export guide (Paket 5, PR 23).
+         "TappedOut", "MTGGoldfish", "Deckstats"}
 
 #: A tag or a variable: something that is not text written in the template.
 HOLE = ""

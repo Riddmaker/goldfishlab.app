@@ -11,8 +11,8 @@ in the Themen-Doc; every recommendation accepted by the owner on 2026-11-06.
 | 20 | Search Console review: a weekly GitHub Action writes the report as an issue, in the private ops repository | **Done** (main); owner steps open |
 | 21 | Hand tutor: "Which plan does this hand have?", rules only, three steps | **Built** (dev) |
 | 22 | Weekly news: the page, the AI label, a Claude routine that opens the PR | Planned |
-| 23 | Archidekt link import (after Archidekt agrees) and text-export guides; importer check in Celery Beat | Planned |
-| 24 | Pricing page: yearly plans first; a founder price only if the owner asks for it | Planned |
+| 23 | Archidekt link import (after Archidekt agrees) and text-export guides; importer check in Celery Beat | Guides and check **built** (dev); link import waits for Archidekt |
+| 24 | Pricing page: yearly plans first; a founder price only if the owner asks for it | **Built** (dev) |
 | 25 | "Keep or mulligan?" for advanced players; every decision stored from day one | Planned |
 
 Decisions (2026-11-06, Themen-Doc E1-E7):
@@ -235,3 +235,47 @@ Calls made on the way (PR 21):
   without a deck has nothing to read. 30 requests a minute per user.
 - The help in step 2 shows the cards per theme but no numbers, so the guess is still a guess.
 - A theme without an engine that can run is listed without a number and is never a plan.
+
+## How PR 24 works
+
+- `billing.views._tiers` adds `annual_month_label` (a year's price over twelve, in the
+  visitor's currency) and `annual_saving` (how much less than twelve months, a whole percent).
+- `billing/_tiers.html`, shared by /pricing/ and /billing/: a plan with a yearly price shows it
+  first ("CHF 36 a year"), then "That is CHF 3 a month, 25% less than paying monthly.", then
+  "or CHF 4.00 / month". On /billing/ "Pay yearly" is the filled button, "Pay monthly" the
+  outlined one below it. A plan without a yearly price reads as before.
+- No founder price (E4): only if the owner asks for one.
+- Tests: `tests/test_plans.py` (the order, the month's equivalent and the saving).
+
+## How PR 23 works
+
+- `templates/decks/_import_form.html`: "Where do I get my list?", a fold with one line per site
+  (Moxfield, Archidekt, ManaBox, TappedOut, MTGGoldfish and Deckstats): which export to choose
+  and where it goes. We never fetch another site's pages (E2).
+- `core.alerts.importers`, in the hourly alert check (at most one mail a day): over the last
+  seven days, a file format with at least 5 imports whose rows went unfound at least 20 % of the
+  time, and at least twice as often as in the four weeks before (or with no imports then). The
+  mail names the format and the counts, never a file or a deck name. A site changing its export
+  shows up as its imports failing.
+- The Archidekt link import waits for Archidekt's answer. The mail for the owner to send:
+
+> **To:** Archidekt (contact form or the Discord staff channel)
+> **Subject:** Reading a public deck by its link, from goldfishlab.app
+>
+> Hi Archidekt team,
+>
+> I run goldfishlab.app, a free Commander goldfish simulator (source: github.com/Riddmaker/goldfishlab.app).
+> Today players export their list from Archidekt and paste it into our import. We would like to
+> let them paste the deck's link instead.
+>
+> What we would do: when a player pastes an archidekt.com/decks/<id> link, our server fetches
+> that one deck once from archidekt.com/api/decks/<id>/, with a User-Agent naming us and a contact
+> address, and keeps the list. No crawling, no search, no bulk requests: one request per paste,
+> cached. The imported deck links back to the deck on Archidekt.
+>
+> Your terms ask not to send automated requests, and your staff said on the forum that the API is
+> open for reading. Is this use fine with you? If you would rather we did not, we keep the text
+> export.
+>
+> Thank you,
+> [name], goldfishlab.app

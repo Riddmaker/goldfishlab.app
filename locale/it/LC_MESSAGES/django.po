@@ -16165,3 +16165,75 @@ msgstr "Mano successiva"
 #: templates/decks/detail.html
 msgid "which plan does a hand from this deck have?"
 msgstr "che piano ha una mano di questo mazzo?"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "%(price)s a year"
+msgstr "%(price)s all'anno"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "That is %(month)s a month, %(saving)s less than paying monthly."
+msgstr "Sono %(month)s al mese, il %(saving)s in meno che pagando ogni mese."
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "or %(price)s / %(interval)s"
+msgstr "oppure %(price)s / %(interval)s"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "or CHF %(price)s / %(interval)s"
+msgstr "oppure CHF %(price)s / %(interval)s"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "Pay monthly: %(price)s"
+msgstr "Paga ogni mese: %(price)s"
+
+#: templates/decks/_import_form.html
+msgid "Where do I get my list?"
+msgstr "Dove trovo la mia lista?"
+
+#: templates/decks/_import_form.html
+msgid ""
+"Every deck site can export a list as text or a file. Open your deck there "
+"and:"
+msgstr ""
+"Ogni sito di mazzi può esportare una lista come testo o file. Apri lì il tuo"
+" mazzo e:"
+
+#: templates/decks/_import_form.html
+msgid "Export, then copy the list as text (MTGO or Arena), and paste it here."
+msgstr "Export, poi copia la lista come testo (MTGO o Arena) e incollala qui."
+
+#: templates/decks/_import_form.html
+msgid "Export, as text or CSV; paste the text or upload the file."
+msgstr "Export, come testo o CSV; incolla il testo o carica il file."
+
+#: templates/decks/_import_form.html
+msgid "in the app, the deck's Export, as a text file; upload it here."
+msgstr "nell'app, l'esportazione del mazzo, come file di testo; caricalo qui."
+
+#: templates/decks/_import_form.html
+msgid "Export, as text (.txt)."
+msgstr "Export, come testo (.txt)."
+
+#: templates/decks/_import_form.html
+msgid "the deck's download or export, as plain text."
+msgstr "il download o l'esportazione del mazzo, come testo semplice."
+
+#: templates/decks/_import_form.html
+msgid "A list in any of these shapes works: the names are enough."
+msgstr "Una lista in qualsiasi di queste forme funziona: bastano i nomi."
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "CHF %(price)s a year"
+msgstr "CHF %(price)s all'anno"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "That is CHF %(month)s a month, %(saving)s less than paying monthly."
+msgstr ""
+"Sono CHF %(month)s al mese, il %(saving)s in meno che pagando ogni mese."

@@ -14240,3 +14240,72 @@ msgstr "次の手札"
 #: templates/decks/detail.html
 msgid "which plan does a hand from this deck have?"
 msgstr "このデッキの手札にはどんなプランがある？"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "%(price)s a year"
+msgstr "年額%(price)s"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "That is %(month)s a month, %(saving)s less than paying monthly."
+msgstr "月あたり%(month)s、月払いより%(saving)sお得です。"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "or %(price)s / %(interval)s"
+msgstr "または %(price)s / %(interval)s"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "or CHF %(price)s / %(interval)s"
+msgstr "または CHF %(price)s / %(interval)s"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "Pay monthly: %(price)s"
+msgstr "月払い：%(price)s"
+
+#: templates/decks/_import_form.html
+msgid "Where do I get my list?"
+msgstr "リストはどこで手に入る？"
+
+#: templates/decks/_import_form.html
+msgid ""
+"Every deck site can export a list as text or a file. Open your deck there "
+"and:"
+msgstr "どのデッキサイトでもリストをテキストまたはファイルで書き出せます。そのサイトでデッキを開き、次の操作をします："
+
+#: templates/decks/_import_form.html
+msgid "Export, then copy the list as text (MTGO or Arena), and paste it here."
+msgstr "Export からリストをテキスト（MTGO または Arena）でコピーし、ここに貼り付けます。"
+
+#: templates/decks/_import_form.html
+msgid "Export, as text or CSV; paste the text or upload the file."
+msgstr "Export でテキストまたは CSV を選び、テキストを貼り付けるかファイルをアップロードします。"
+
+#: templates/decks/_import_form.html
+msgid "in the app, the deck's Export, as a text file; upload it here."
+msgstr "アプリでデッキの Export からテキストファイルを書き出し、ここにアップロードします。"
+
+#: templates/decks/_import_form.html
+msgid "Export, as text (.txt)."
+msgstr "Export でテキスト（.txt）を選びます。"
+
+#: templates/decks/_import_form.html
+msgid "the deck's download or export, as plain text."
+msgstr "デッキのダウンロードまたはエクスポートで、プレーンテキストを選びます。"
+
+#: templates/decks/_import_form.html
+msgid "A list in any of these shapes works: the names are enough."
+msgstr "どの形式のリストでも使えます。カード名だけで十分です。"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "CHF %(price)s a year"
+msgstr "年額 CHF %(price)s"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "That is CHF %(month)s a month, %(saving)s less than paying monthly."
+msgstr "月あたり CHF %(month)s、月払いより%(saving)sお得です。"

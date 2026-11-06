@@ -16240,3 +16240,80 @@ msgstr "Nächste Hand"
 #: templates/decks/detail.html
 msgid "which plan does a hand from this deck have?"
 msgstr "Welchen Plan hat eine Hand aus diesem Deck?"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "%(price)s a year"
+msgstr "%(price)s pro Jahr"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "That is %(month)s a month, %(saving)s less than paying monthly."
+msgstr ""
+"Das sind %(month)s im Monat, %(saving)s weniger als bei monatlicher Zahlung."
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "or %(price)s / %(interval)s"
+msgstr "oder %(price)s / %(interval)s"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "or CHF %(price)s / %(interval)s"
+msgstr "oder CHF %(price)s / %(interval)s"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "Pay monthly: %(price)s"
+msgstr "Monatlich zahlen: %(price)s"
+
+#: templates/decks/_import_form.html
+msgid "Where do I get my list?"
+msgstr "Woher bekomme ich meine Liste?"
+
+#: templates/decks/_import_form.html
+msgid ""
+"Every deck site can export a list as text or a file. Open your deck there "
+"and:"
+msgstr ""
+"Jede Deck-Seite kann eine Liste als Text oder Datei exportieren. Öffne dein "
+"Deck dort und:"
+
+#: templates/decks/_import_form.html
+msgid "Export, then copy the list as text (MTGO or Arena), and paste it here."
+msgstr ""
+"Export, dann die Liste als Text kopieren (MTGO oder Arena) und hier "
+"einfügen."
+
+#: templates/decks/_import_form.html
+msgid "Export, as text or CSV; paste the text or upload the file."
+msgstr ""
+"Export, als Text oder CSV; den Text einfügen oder die Datei hochladen."
+
+#: templates/decks/_import_form.html
+msgid "in the app, the deck's Export, as a text file; upload it here."
+msgstr "in der App das Export des Decks, als Textdatei; hier hochladen."
+
+#: templates/decks/_import_form.html
+msgid "Export, as text (.txt)."
+msgstr "Export, als Text (.txt)."
+
+#: templates/decks/_import_form.html
+msgid "the deck's download or export, as plain text."
+msgstr "der Download oder Export des Decks, als reiner Text."
+
+#: templates/decks/_import_form.html
+msgid "A list in any of these shapes works: the names are enough."
+msgstr "Jede dieser Formen funktioniert: Die Namen reichen."
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "CHF %(price)s a year"
+msgstr "CHF %(price)s pro Jahr"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "That is CHF %(month)s a month, %(saving)s less than paying monthly."
+msgstr ""
+"Das sind CHF %(month)s im Monat, %(saving)s weniger als bei monatlicher "
+"Zahlung."

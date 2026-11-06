@@ -1,30 +1,50 @@
 {% load i18n %}
 {% comment %}
-  "Compare two versions" (P9): a fake door. The feature is not built; the
-  button counts who would want it, with its price in view, and the answer
-  says so plainly. Needs `run` and `compare` (simulations.views, metrics.doors).
+  "Compared with your last run" (Paket 3, PR 13; Themen-Doc row 31), in place
+  of the "Compare two versions" fake door (P9). The precon table's three
+  numbers of the deck's finished run before this one, next to this run's;
+  each says better, worse or about the same, where "about the same" is within
+  what chance alone moves it (simulations.numbers.changes). Runs keep no card
+  list, so it says whether the deck changed, not which cards.
+
+  Needs `compare` (simulations.compare.with_last, None on a deck's first run).
+  A guest sees it only with a run before: a guest's deck is forgotten in a day.
 {% endcomment %}
-<section id="compare" class="surface-parchment mt-6 p-6">
-  <h2 class="font-display text-2xl text-ink-900">{% translate "Compare two versions" %}</h2>
-  {% if compare.asked %}
+<section id="compare" class="surface-parchment p-6">
+  <h2 class="font-display text-2xl text-ink-900">{% translate "Compared with your last run" %}</h2>
+  {% if compare %}
     <p class="mt-2 max-w-3xl text-ink-900">
-      {% translate "Not built yet - thank you for asking. We count who wants it, and build it once enough people do. Nothing was charged, and you have not signed up for anything." %}
+      {% translate "Whether a change made the deck better shows here." %}
+      {% include "core/_why.html" with anchor="last-run" %}
     </p>
-  {% else %}
-    <p class="mt-2 max-w-3xl text-ink-900">
-      {% translate "Play this deck against a second version of itself - one card swapped, or two more lands - and see which does better, turn by turn." %}
-    </p>
-    <p class="mt-2 max-w-3xl text-sm text-ink-700">
-      {% blocktranslate trimmed with price=compare.price %}
-        Small comparisons free; large series with a plan at CHF {{ price }} a month.
+    <p class="mt-2 text-sm text-ink-700" data-compare-note>
+      {% url 'simulations:detail' compare.before.pk as before_url %}
+      {% blocktranslate trimmed with url=before_url date=compare.before.finished_at|date:"SHORT_DATE_FORMAT" %}
+        Your <a href="{{ url }}" class="underline">run of {{ date }}</a>, then this one.
       {% endblocktranslate %}
+      {% if compare.deck_changed %}
+        {% translate "The deck has changed in between." %}
+      {% elif compare.deck_changed is False %}
+        {% translate "The same deck both times: what differs is chance." %}
+      {% endif %}
+      {% if compare.other_draw %}
+        {% translate "The two runs drew differently, which moves the numbers too." %}
+      {% endif %}
     </p>
-    <form method="post" action="{% url 'metrics:compare' run.id %}" class="mt-4">
-      {% csrf_token %}
-      <button type="submit"
-              class="border border-ink-800 px-5 py-2 font-display text-lg text-ink-900 hover:bg-parchment-200">
-        {% translate "Compare two versions" %}
-      </button>
-    </form>
+    <dl class="mt-4 space-y-2">
+      {% for change in compare.changes %}
+        <div class="flex flex-wrap items-baseline gap-x-3" data-change="{{ change.moved }}">
+          <dt class="text-ink-900">{{ change.label }}</dt>
+          <dd class="tabular text-ink-900">{{ change.before }} → {{ change.now }}</dd>
+          <dd class="text-sm {% if change.moved == 'up' %}font-semibold text-verdigris-700{% elif change.moved == 'down' %}font-semibold text-blood-700{% else %}text-ink-700{% endif %}">
+            {% if change.moved == "up" %}{% translate "better" context "run compared" %}{% elif change.moved == "down" %}{% translate "worse" context "run compared" %}{% else %}{% translate "about the same" context "run compared" %}{% endif %}
+          </dd>
+        </div>
+      {% endfor %}
+    </dl>
+  {% else %}
+    <p class="mt-2 max-w-3xl text-ink-900" data-compare-first>
+      {% translate "Change a card and simulate the deck again: this shows what moved." %}
+    </p>
   {% endif %}
 </section>

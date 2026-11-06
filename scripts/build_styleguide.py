@@ -41,9 +41,47 @@ FAMILY_MEANING = {
               "&ldquo;needs review&rdquo;.",
               "Body text, or large filled areas."),
     "verdigris": ("Success, and &ldquo;successfully modelled&rdquo; states.",
-                  "Decoration."),
+                  "Decoration (a symbol's fill excepted)."),
+    "water": ("The fill of a symbol: the water in the flask, the wave, a card.",
+              "Text, surfaces or state."),
 }
-FAMILY_ORDER = ["ink", "parchment", "blood", "verdigris"]
+FAMILY_ORDER = ["ink", "parchment", "blood", "verdigris", "water"]
+
+ICONS_DIR = ROOT / "core" / "icons"
+#: Every symbol in core/icons/, in the order shown, with what it stands for
+#: and how it moves (DESIGN.md, SYMBOLS). tests/test_icons.py holds this list
+#: and the folder together.
+SYMBOLS = [
+    ("simulation", "Simulation", "A run. The flask with water; bubbles rise."),
+    ("hand", "Draw a hand", "A playtest. The fan opens."),
+    ("import", "Import", "A list drops into the tank."),
+    ("new-user", "New user", "A new goldfish, with a glint."),
+    ("speed", "Speed", "How fast the deck gets going. The hourglass turns."),
+    ("stress", "Stress test", "Up again after the wave."),
+    ("bracket", "Bracket", "Five steps, filled up to the deck&rsquo;s."),
+    ("combo", "Combo", "Two rings; where they meet, gold."),
+    ("engine", "Engine", "Cards that keep turning. A quarter turn."),
+    ("ramp", "Ramp", "Mana that grows. The sprout springs up."),
+    ("draw", "Card draw", "One card more."),
+    ("removal", "Removal", "An answer. The dagger strikes."),
+    ("new-hand", "New hand", "Shuffle and draw seven. Turns round."),
+    ("legal", "Legal", "A seal for the six checks. It stamps."),
+    ("unusual", "Unusual move", "Free mode marks what the rules would not allow."),
+    ("fish-says", "The fish says", "A fun line in the ticker, never an event."),
+    # The ticker's fun lines (PR 16): one drawing each, on its own dark ground.
+    ("fun-base", "All your base are belong to us.",
+     "The overlord: a steel skull. The jaw talks, the eye sweeps, the antenna blinks - always."),
+    ("fun-hello", "Hello, World!", "A terminal. The cursor blinks."),
+    ("fun-press-f", "Press F to pay respects.", "The key goes down."),
+    ("fun-machine", "It works on my machine.", "The tick draws itself."),
+    ("fun-never-blocks", "The goldfish never blocks.", "The fish swims past the shield."),
+    ("fun-two-lander", "Keep a two-lander? Bold.", "Two lands, one bead of sweat."),
+    ("fun-no-harm", "No fish were harmed in this simulation.", "A plaster, and the heart beats."),
+    ("fun-shuffle", "Shuffling very carefully. Again.", "The halves riffle."),
+    ("fun-tapped", "Tapped out. Emotionally and literally.", "A tapped card, asleep."),
+    ("fun-variance", "Thousands of turns, zero opponents, still lost to variance.",
+     "The die rolls."),
+]
 
 DO = [
     "Set data plainly. Atmosphere belongs in the chrome, not behind a table of percentages.",
@@ -127,6 +165,53 @@ def pairing_rows(scales: dict) -> str:
     return "\n".join(rows)
 
 
+def icon_svg(name: str, large: bool = False) -> str:
+    """One symbol as core/templatetags/icons.py renders it."""
+    shapes = (ICONS_DIR / f"{name}.svg").read_text(encoding="utf-8").strip()
+    size = " icon-lg" if large else ""
+    return (f'<svg class="icon icon-{name}{size}" viewBox="0 0 32 32" fill="none" '
+            'stroke="currentColor" stroke-width="2.2" stroke-linecap="round" '
+            f'stroke-linejoin="round" aria-hidden="true" focusable="false">{shapes}</svg>')
+
+
+def icon_css(scales: dict) -> str:
+    """input.css's symbol block, its tokens resolved to hex."""
+    css = INPUT_CSS.read_text(encoding="utf-8")
+    block = css[css.index("/* icons:start"):css.index("/* icons:end */")]
+    return re.sub(r"var\(--color-([a-z]+)-(\d+)\)",
+                  lambda match: scales[match.group(1)][int(match.group(2))], block)
+
+
+def symbol_cells() -> str:
+    return "\n".join(
+        f'<div class="panel-dark icon-host sym-cell" tabindex="0">{icon_svg(name, large=True)}'
+        f'<div><strong>{title}</strong><br><span class="sym-note">{note}</span></div></div>'
+        for name, title, note in SYMBOLS
+    )
+
+
+def symbol_inline() -> str:
+    examples = [("speed", "Speed: turn 7"), ("bracket", "Bracket 3+"), ("ramp", "Ramp 11"),
+                ("combo", "Combos &amp; engines"), ("legal", "Commander legality")]
+    return " ".join(f'<span class="icon-host sym-inline">{icon_svg(name)} {text}</span>'
+                    for name, text in examples)
+
+
+def ticker_example() -> str:
+    """Three event lines and a fun line, as the home page's band sets them."""
+    lines = [
+        ("simulation", "Another user simulated a deck led by Atraxa, Praetors&rsquo; Voice: "
+                       "10,000 games.", False),
+        ("new-user", "A new user joined.", False),
+        ("fun-base", "All your base are belong to us.", True),
+        ("hand", "Another guest playtested a deck led by Krenko, Mob Boss.", False),
+    ]
+    return "\n".join(
+        f'<li class="icon-host{" tk-fun" if fun else ""}">{icon_svg(name)}<span>{text}</span></li>'
+        for name, text, fun in lines
+    )
+
+
 def build() -> str:
     scales = parse_scales()
     ratios = [
@@ -162,6 +247,7 @@ def build() -> str:
   --parch-50: {scales["parchment"][50]}; --parch-100: {scales["parchment"][100]};
   --parch-200: {scales["parchment"][200]}; --parch-300: {scales["parchment"][300]};
   --parch-600: {scales["parchment"][600]}; --parch-700: {scales["parchment"][700]};
+  --parch-800: {scales["parchment"][800]};
   --blood-600: {scales["blood"][600]};
   --blood-700: {scales["blood"][700]}; --blood-800: {scales["blood"][800]};
   --blood-100: {scales["blood"][100]};
@@ -211,6 +297,26 @@ td.num, th.num {{ text-align: right; font-family: var(--mono); }}
 .fail {{ color: {scales["blood"][300]}; font-weight: 600; }}
 .demo {{ padding: 2px 8px; font-size: .85rem; }}
 
+.sg-row {{ margin: 0; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; }}
+.sg-fan {{ position: relative; display: inline-block; width: 8.4rem; height: 4.9rem; }}
+.sg-card {{ position: absolute; bottom: 0; left: 0; width: 3.5rem; height: 4.9rem;
+           border-radius: .2rem; transform-origin: 50% 100%;
+           border: 1px solid var(--parch-600); background: var(--parch-300);
+           box-shadow: 0 1px 4px rgb(0 0 0 / 35%); }}
+.sg-c1 {{ z-index: 3; transform: translateX(1.05rem) rotate(7deg); }}
+.sg-c2 {{ z-index: 2; transform: translateX(2.1rem) rotate(14deg); }}
+.sg-c3 {{ z-index: 1; transform: translateX(3.15rem) rotate(21deg); }}
+.sg-cmd {{ z-index: 4; background: var(--ink-800); box-shadow: 0 2px 6px rgb(0 0 0 / 45%); }}
+.sg-none {{ z-index: 4; border: 2px dashed var(--parch-600); background: var(--parch-100);
+           box-shadow: none; }}
+.sg-switch {{ position: relative; display: inline-block; width: 2.75rem; height: 1.5rem;
+             border: 1px solid var(--ink-800); border-radius: 9999px;
+             background: var(--parch-300); }}
+.sg-switch.sg-on {{ background: var(--ink-800); }}
+.sg-knob {{ position: absolute; top: 2px; left: 2px; width: 1.125rem; height: 1.125rem;
+           border-radius: 9999px; background: var(--parch-50);
+           box-shadow: 0 1px 2px rgb(0 0 0 / 40%); }}
+.sg-on .sg-knob {{ transform: translateX(1.25rem); }}
 .surface {{
   background-color: var(--parch-100);
   background-image:
@@ -300,6 +406,54 @@ ul.dodont li {{ margin-bottom: .4rem; font-size: .93rem; }}
 @media (prefers-reduced-motion: reduce) {{
   .logo-animated .logo-fish, .logo-animated .logo-bubble {{ animation: none; opacity: 1; }}
 }}
+.sym-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: .75rem; }}
+.sym-cell {{ display: flex; gap: .9rem; align-items: flex-start; color: var(--parch-100); }}
+.sym-note {{ color: var(--ink-300); font-size: .9rem; }}
+.sym-inline {{ display: inline-flex; gap: .4rem; align-items: center; margin-right: 1.4rem; }}
+.pt-kbd {{ padding: 0 .3rem; border: 1px solid currentColor; border-bottom-width: 2px;
+  border-radius: 3px; font-family: ui-monospace, monospace; font-size: .75rem; opacity: .8; }}
+.pt-journal {{ list-style: none; margin: 0; padding: 0; }}
+.pt-journal li {{ padding: .15rem 0; }}
+.pt-journal .pt-turn {{ font-style: italic; }}
+.pt-journal .pt-unusual {{ display: flex; gap: .5rem; align-items: flex-start; padding: .25rem 0;
+  border-top: 1px dashed var(--parch-600); border-bottom: 1px dashed var(--parch-600); }}
+.pt-board {{ display: flex; flex-wrap: wrap; gap: 1rem; }}
+.pt-felt {{ flex: 999 1 22rem; padding: 1rem; border: 1px solid var(--parch-800);
+  border-radius: 4px;
+  background: radial-gradient(ellipse at 50% 40%, var(--ink-800) 0%, var(--ink-900) 70%);
+  box-shadow: inset 0 0 60px rgb(0 0 0 / 60%); color: var(--parch-100); }}
+.pt-felt .pt-zone {{ display: flex; gap: .5rem; min-height: 4.5rem; padding: .4rem;
+  border: 1px dashed var(--ink-700); border-radius: 4px; }}
+.pt-felt .pt-card {{ width: 2.6rem; height: 3.6rem; border-radius: 3px;
+  background: var(--parch-300);
+  color: var(--ink-900); font-size: .6rem; display: flex; align-items: center; justify-content:
+  center; }}
+.pt-felt .pt-tapped {{ rotate: 90deg; margin-inline: .5rem; opacity: .85; }}
+.pt-label {{ font-size: .75rem; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--ink-300); }}
+.pt-page {{ flex: 1 1 14rem; padding: 1rem 1.25rem; border: 1px solid var(--parch-800);
+  border-radius: 4px;
+  background: var(--parch-200); background-image: radial-gradient(ellipse at 80% 85%,
+  var(--parch-300) 0%,
+  transparent 60%), linear-gradient(to left, transparent 92%, rgb(61 46 24 / 25%)); color:
+  var(--ink-900);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 60%); }}
+.pt-page .pt-turn {{ color: var(--parch-800); }}
+.pt-btn {{ display: inline-flex; gap: .5rem; align-items: center; min-height: 3rem;
+  padding: .5rem 1rem;
+  border: 1px solid var(--ink-700); color: var(--parch-200); font: inherit; background: none; }}
+.pt-btn-main {{ background: var(--blood-700); border-color: var(--blood-800);
+  color: var(--parch-100); }}
+.pt-btn-second {{ background: var(--parch-100); border-color: var(--parch-600);
+  color: var(--ink-900); }}
+.tk-band {{ background: var(--ink-900); border-block: 1px solid var(--parch-800); padding: 1rem; }}
+.tk-band ul {{ list-style: none; margin: .5rem 0 0; padding: 0; color: var(--parch-100); }}
+.tk-band li {{ display: flex; gap: .75rem; align-items: center; padding: .2rem 0; }}
+.tk-band li .icon {{ width: 1.6em; height: 1.6em; }}
+.tk-band li.tk-fun {{ margin: .125rem -.75rem; padding: .45rem .75rem; background: var(--ink-800);
+  border-block: 1px solid var(--parch-600); color: var(--parch-300); font-style: italic; }}
+{icon_css(scales)}
 </style>
 </head>
 <body>
@@ -440,7 +594,7 @@ meaning &mdash; the honesty layer has to reach a colour-blind reader too.</p>
 <p class="rule">This pattern appears beside <em>every</em> result. It is the product's core
 differentiator, not a disclaimer to be tucked away.</p>
 
-<h2>Markers, bars and &ldquo;Why?&rdquo; (Phase 9)</h2>
+<h2>Markers, bars and &ldquo;More&rdquo; (Phase 9, Paket 3)</h2>
 <div class="surface">
   <p style="margin:0">
     <span style="display:inline-block;border:1px solid var(--blood-700);color:var(--blood-700);
@@ -454,14 +608,80 @@ differentiator, not a disclaimer to be tucked away.</p>
       background:var(--parch-200)">
       <span style="display:block;height:100%;width:60%;background:var(--ink-800)"></span></span>
     <span class="meta" style="color:var(--ink-900)">3 of 5 decks</span>
-    <a href="#" style="color:var(--ink-700);font-size:.85rem">Why?</a>
+    <a href="#" style="color:var(--ink-700);font-size:.85rem">More</a>
   </p>
 </div>
-<p class="rule">The deck marker, a usage bar and the small &ldquo;Why?&rdquo; link. Each says it
+<p class="rule">The deck marker, a usage bar and the small &ldquo;More&rdquo; link, after a
+sentence that says why the section matters (never a &ldquo;Why?&rdquo; to answer). Each says it
 in words as well: the marker is a sentence, the bar has its count beside it, and blood-700 fills
 a bar only when the limit is reached. The card grid, the line charts and the playtest hand are
 described in <code>DESIGN.md</code> (&ldquo;Pictures, markers and charts&rdquo;) and live at
 their templates; this file shows the tokens they are built from.</p>
+
+<h2>&ldquo;In short&rdquo;: next to the precons (Paket 3)</h2>
+<div class="surface">
+  <div style="display:grid;grid-template-columns:12rem 4.5rem 1fr;gap:.25rem 1rem;
+    align-items:baseline">
+    <span style="color:var(--ink-900)">4 lands by turn 4</span>
+    <span class="meta" style="color:var(--ink-900);font-size:1.25rem">81%</span>
+    <span style="position:relative;height:1.25rem;border-bottom:1px solid var(--parch-600)">
+      <span style="position:absolute;bottom:0;left:10%;width:2px;height:.75rem;
+        background:var(--ink-500);opacity:.3"></span>
+      <span style="position:absolute;bottom:0;left:35%;width:2px;height:.75rem;
+        background:var(--ink-500);opacity:.3"></span>
+      <span style="position:absolute;bottom:0;left:52%;width:2px;height:.75rem;
+        background:var(--ink-500);opacity:.3"></span>
+      <span style="position:absolute;bottom:0;left:55%;width:2px;height:.75rem;
+        background:var(--ink-500);opacity:.3"></span>
+      <span style="position:absolute;bottom:0;left:90%;width:2px;height:.75rem;
+        background:var(--ink-500);opacity:.3"></span>
+      <span style="position:absolute;bottom:0;left:72%;width:.75rem;height:1.25rem;
+        transform:translateX(-50%);border:2px solid var(--parch-100);
+        background:var(--verd-700)"></span>
+    </span>
+    <span class="meta" style="grid-column:2/-1;color:var(--ink-700)"
+      >Ahead of 3 of 5 precons. The precons&rsquo; middle: 76%.</span>
+  </div>
+</div>
+<p class="rule">Each number of &ldquo;In short&rdquo; beside the precons&rsquo;: a faint tick per
+precon, one tall verdigris mark for the deck, and the same in words under it. Under five precons
+the block is left out.</p>
+
+<h2>The stress test: two cards (Paket 3)</h2>
+<div class="surface" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));
+  gap:.75rem">
+  <div style="border:1px solid var(--parch-600);background:var(--parch-50);padding:1rem">
+    <h3 style="margin:0">Your commander is removed</h3>
+    <p class="tabular" style="color:var(--ink-900);font-size:2.25rem;margin:.5rem 0 0">82%</p>
+    <p class="meta" style="color:var(--ink-900);margin:0"
+      >of games had your commander back by turn 8</p>
+    <p class="meta" style="color:var(--ink-700)">The very next turn: 41%.</p>
+  </div>
+  <div style="border:1px solid var(--parch-600);background:var(--parch-50);padding:1rem">
+    <h3 style="margin:0">A board wipe before turn 5</h3>
+    <p class="tabular" style="color:var(--ink-900);font-size:2.25rem;margin:.5rem 0 0">4.2</p>
+    <p class="meta" style="color:var(--ink-900);margin:0">mana on turn 8 after the wipe</p>
+    <p class="meta" style="color:var(--ink-700)">Without the wipe: 7.1.</p>
+  </div>
+</div>
+<p class="rule">One card per blow, side by side, each with one big number: how fast the deck
+comes back. One sentence under it, the assumption small at the bottom; the with/without table
+is folded under &ldquo;The numbers&rdquo;.</p>
+
+<h2>Compared with your last run (Paket 3)</h2>
+<div class="surface">
+  <h3 style="margin:0">Compared with your last run</h3>
+  <p class="meta" style="color:var(--ink-700)">Your run of 02/11/2026, then this one. The deck
+  has changed in between.</p>
+  <p class="tabular" style="margin:.25rem 0">4 lands by turn 4 &nbsp;80% &rarr; 85%
+    &nbsp;<strong style="color:var(--verd-700)">better</strong></p>
+  <p class="tabular" style="margin:.25rem 0">Kept seven &nbsp;50% &rarr; 45%
+    &nbsp;<strong style="color:var(--blood-700)">worse</strong></p>
+  <p class="tabular" style="margin:.25rem 0">Mana on turn 4 &nbsp;4.0 &rarr; 4.0
+    &nbsp;<span style="color:var(--ink-700)">about the same</span></p>
+</div>
+<p class="rule">The run before, then this one, each number with one word: better, worse or
+about the same within chance (95%). The word carries it, the colour only repeats it.</p>
 
 <h2>Motion (Phase 10)</h2>
 <div class="surface" style="display:flex;align-items:center;gap:1.2rem">
@@ -495,6 +715,72 @@ short move now and then while nobody touches the page - a glance, a turn, rarely
 flask - and a click tilts the flask. Every move ends inside 2&nbsp;s; under reduced motion only the
 eye widens, on a click.</p>
 
+<h2>Symbols (Paket 4)</h2>
+<div class="sym-grid">
+{symbol_cells()}
+</div>
+<div class="surface icon-on-light" style="margin-top:.75rem">
+  <p style="margin:0">{symbol_inline()}</p>
+</div>
+<p class="rule">Info symbols: the line in the text&rsquo;s colour, one fill from gold, water, blood
+or verdigris, darker on parchment. Always beside their word, never a target of their own. Point at
+one (or tab to it): it moves once, under a second; never under reduced motion. Functional icons -
+the pencil, the bin, the padlock - stay one colour and sit in a button or link.</p>
+<div class="tk-band">
+  <strong style="color:var(--ink-300)">What others did recently</strong>
+  <ul>
+{ticker_example()}
+  </ul>
+</div>
+<p class="rule">The ticker (PR 16): eight lines at a time from a loop of the last forty, each with
+its event&rsquo;s symbol, the lower lines stepping back in colour. A fun line comes after seven
+events at the soonest: its own ground, gold rules, italic gold and its own drawing, and
+&ldquo;The fish says:&rdquo; for screen readers - never an event. Pop culture stays English, our
+own lines are translated. A line that arrives fades in and its symbol moves once; Pause stops the
+loop and the overlord; under reduced motion nothing loops or moves.</p>
+
+<h2>The table: felt and the journal page (Paket 4, PR 18 and 19)</h2>
+<p style="display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 1rem">
+  <span class="icon-host pt-btn pt-btn-main">{icon_svg("draw")} Draw a card <kbd
+  class="pt-kbd">D</kbd></span>
+  <span class="icon-host pt-btn pt-btn-second">{icon_svg("new-hand")} New hand <kbd
+  class="pt-kbd">N</kbd></span>
+  <span class="pt-btn">Next turn <kbd class="pt-kbd">T</kbd></span>
+  <span class="pt-btn">Undo <kbd class="pt-kbd">Ctrl Z</kbd></span>
+</p>
+<div class="pt-board">
+  <div class="pt-felt">
+    <p class="pt-label" style="margin:0 0 .25rem">Lands 3</p>
+    <div class="pt-zone"><span class="pt-card pt-tapped">Forest</span><span
+  class="pt-card">Island</span>
+    <span class="pt-card">Swamp</span></div>
+    <p style="margin:.75rem 0 0;font-size:.9rem;color:var(--parch-200)">The hand lies as a fan
+    along this edge.</p>
+  </div>
+  <div class="pt-page icon-on-light">
+    <h3 style="margin:0 0 .5rem;font-weight:400;text-transform:none;
+  letter-spacing:0;font-size:1.4rem;
+  border-bottom:1px solid var(--parch-600);
+    padding-bottom:.4rem">The journal</h3>
+    <ol class="pt-journal">
+      <li class="pt-turn">Turn 1</li>
+      <li>Seven cards dealt.</li>
+      <li>Land: Swamp.</li>
+      <li class="pt-turn">Turn 2 (guessed)</li>
+      <li>Land: Swamp.</li>
+      <li class="icon-host pt-unusual">{icon_svg("unusual")}<span><em>Unusual move:</em> Vampire
+      Nighthawk costs 3, with 2 mana sources out.</span></li>
+    </ol>
+  </div>
+</div>
+<p class="rule">The game is played on felt, what happened is written on parchment. Free and strict
+look the same; strict adds only the phases with Next phase, the floating mana, Mulligan and Keep,
+and writes the engine&rsquo;s log into the same page. The main move is blood, the second
+parchment, the rest a frame; each at least 48 px high. A tapped card lies on its side. A hand dealt
+from the deck page is free: nothing is paid or blocked, and an unusual move is said in the journal
+with its symbol, dashed rules and the words first - never colour alone. A turn only guessed says
+&ldquo;(guessed)&rdquo;. The newest line is inked in; under reduced motion it simply stands.</p>
+
 <h2>Deck summary (Phase 10)</h2>
 <div class="surface">
   <h3 style="margin:0;color:var(--parch-700)">Mechanisms</h3>
@@ -517,6 +803,179 @@ eye widens, on a click.</p>
 <p class="rule">Every title in the deck summary has its colour and its word, and every strength
 or weakness its <strong>+</strong> or <strong>&minus;</strong>. A mechanism chip wears the swatch of
 its line in &ldquo;What you drew&rdquo;; the words say what it is.</p>
+<div class="surface">
+  <h3 style="margin:0">Deck summary</h3>
+  <p style="margin:.5rem 0 0;color:var(--ink-700)"><a href="#">Run a simulation to fill
+    this.</a> The summary is written with your first run.</p>
+</div>
+<p class="rule">The summary and &ldquo;Your strategies&rdquo; stand on the deck page under the
+tiles (Paket 2): they are the deck&rsquo;s, not one run&rsquo;s. Without a run the block is there
+with one line that links to Simulate. The report keeps &ldquo;Combos &amp; engines&rdquo; and links
+back to the summary.</p>
+
+<h2>Mana curve (Paket 2)</h2>
+<div class="surface" style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:1.5rem 2rem">
+  <ol style="display:grid;grid-template-columns:repeat(8,2rem);gap:.375rem;margin:0;
+             padding:0;list-style:none">
+    {"".join(
+        f'<li style="display:flex;flex-direction:column;align-items:center;gap:.25rem">'
+        f'<span style="font-size:.875rem;color:var(--ink-700)">{count}</span>'
+        f'<span style="position:relative;display:block;width:100%;height:5rem;'
+        f'border-bottom:1px solid var(--parchment-600)"><span style="position:absolute;'
+        f'inset:auto 0 0 0;height:{round(100 * count / 14)}%;background:var(--ink-800)">'
+        f'</span></span><span>{label}</span></li>'
+        for label, count in (("0", 1), ("1", 9), ("2", 14), ("3", 12), ("4", 8), ("5", 5),
+                             ("6", 3), ("7+", 2)))}
+  </ol>
+  <dl style="display:flex;flex-wrap:wrap;gap:1rem 1.75rem;margin:0">
+    <div><dt style="font-size:.875rem;color:var(--ink-700)"><a href="#">Ramp</a></dt>
+      <dd style="margin:0;font-size:1.5rem">11
+        <span style="font-size:.875rem;color:var(--ink-700)">/ ~10</span></dd></div>
+    <div><dt style="font-size:.875rem;color:var(--ink-700)"><a href="#">Card draw</a></dt>
+      <dd style="margin:0;font-size:1.5rem">8
+        <span style="font-size:.875rem;color:var(--ink-700)">/ ~10</span></dd></div>
+    <div><dt style="font-size:.875rem;color:var(--ink-700)">Commander out</dt>
+      <dd style="margin:0;font-size:1.5rem">by turn 3</dd>
+      <dd style="margin:0;font-size:.875rem;color:var(--ink-700)">
+        <a href="#">in half the games, last run</a></dd></div>
+  </dl>
+</div>
+<p class="rule">The curve is eight small ink columns on one scale, the count above and the mana
+value below; a screen reader hears each column as a sentence. Beside it three numbers: ramp and
+card draw as &ldquo;What is in it&rdquo; counts them (with the template), and the turn the
+commander is out in half the games of the last run, or &ldquo;simulate to see&rdquo;. The average
+mana value stays a tile and is not repeated.</p>
+
+<h2>Deck list values (Paket 2)</h2>
+<div class="surface">
+  <p style="display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;margin:0;
+            font-size:.875rem;color:var(--ink-700)">
+    <span style="display:flex;gap:.125rem">{"".join(
+        f'<span style="display:inline-flex;width:1.375rem;height:1.375rem;align-items:center;'
+        f'justify-content:center;border-radius:999px;border:1px solid var(--ink-800);'
+        f'font-size:.75rem;font-weight:600;background:{bg};color:{fg}">{letter}</span>'
+        for letter, bg, fg in (("U", "#2a6fb0", "#ffffff"), ("B", "#2b2622", "#f0ece4")))}
+    </span>
+    <span>Bracket 3+</span>
+    <span><a href="#">simulated 03.11.26</a></span>
+  </p>
+</div>
+<p class="rule">Each deck in &ldquo;Your decks&rdquo; says three things under its name: its colour
+identity as pips in WUBRG order (named for a screen reader), the bracket exactly as the deck
+page&rsquo;s tile says it (one shared include), and when it was last simulated, linking to that
+run, or &ldquo;not simulated yet&rdquo;. One quiet row; more decks never mean more queries.</p>
+
+<h2>Deck list fan &amp; setting switch (Themen-Doc)</h2>
+<div class="surface">
+  <p class="sg-row">
+    <span class="sg-row"><span class="sg-fan"><span class="sg-card sg-c3"></span>
+      <span class="sg-card sg-c2"></span><span class="sg-card sg-c1"></span>
+      <span class="sg-card sg-cmd"></span></span> commander set</span>
+    <span class="sg-row"><span class="sg-fan"><span class="sg-card sg-c3"></span>
+      <span class="sg-card sg-c2"></span><span class="sg-card sg-c1"></span>
+      <span class="sg-card sg-none"></span></span> no commander: the slot stays, dashed</span>
+  </p>
+  <p class="sg-row" style="margin-top:1.25rem">
+    <span class="sg-switch sg-on"><span class="sg-knob"></span></span> <strong>On</strong>
+    <span class="sg-switch"><span class="sg-knob"></span></span> <strong>Off</strong>
+  </p>
+</div>
+<p class="rule">&ldquo;Your decks&rdquo;: the commander small, the deck&rsquo;s three most expensive
+spells fanned out to the right behind it, turned about their bottom edge (<code>.deck-fan</code>).
+Pictures only: hidden from screen readers, the name beside it says the same. A setting is a
+<code>.switch</code>: a real button with <code>role="switch"</code>, a dark track when on, and
+always the word On or Off beside it.</p>
+
+<h2>Theme chips: &ldquo;Built around&rdquo; (Themen-Doc, Paket 1)</h2>
+<div class="surface">
+  <p class="sg-row" style="gap:.5rem;flex-wrap:wrap">
+    <span style="display:inline-flex;gap:.375rem;padding:.125rem .75rem;
+      border:2px solid var(--ink-800);border-radius:999px;background:var(--parch-200);
+      color:var(--ink-900)"><strong>Aristocrats</strong>
+      <span style="color:var(--ink-700)">&middot; strong</span></span>
+    <span style="display:inline-flex;gap:.375rem;padding:.125rem .75rem;
+      border:1px solid var(--ink-800);border-radius:999px;color:var(--ink-900)"><strong>Typal
+      Zombie</strong> <span style="color:var(--ink-700)">&middot; medium</span></span>
+    <span style="display:inline-flex;gap:.375rem;padding:.125rem .75rem;
+      border:1px dashed var(--ink-700);border-radius:999px;color:var(--ink-900)">
+      <strong>Graveyard</strong>
+      <span style="color:var(--ink-700)">&middot; hinted</span></span>
+  </p>
+</div>
+<p class="rule">A theme is a chip that opens (<code>.deck-theme</code>, a
+<code>&lt;details&gt;</code>, no script). The level is always the word on the chip; the border
+only repeats it: thick and filled for strong, solid for medium, dashed for hinted. An open theme
+takes the whole row and lists each piece as &ldquo;8, wants 6&rdquo; with its cards; the number
+sits folded under &ldquo;Advanced&rdquo;. No theme is said in a sentence, never guessed.</p>
+
+<h2>Engines and synergies: &ldquo;Combos &amp; engines&rdquo; (Themen-Doc, Paket 1)</h2>
+<div class="surface">
+  <div style="border-left:2px solid var(--parch-600);padding-left:1rem">
+    <p style="font-family:var(--serif);font-size:1.125rem;margin:0">Viscera Seer +
+      Blood Artist + Bitterblossom</p>
+    <p style="font-size:.875rem;color:var(--ink-700);margin:0">Aristocrats &middot; strong</p>
+    <p style="font-size:.875rem;margin:.25rem 0 0">Viscera Seer sacrifices, Blood Artist pays
+      off each death, Bitterblossom brings more bodies.</p>
+    <p style="font-size:.875rem;margin:.25rem 0 0">Get Bitterblossom out first, then the
+      Seer; keep Blood Artist back until a board wipe is unlikely.
+      <span style="color:var(--ink-700)">Written by Mistral AI. It can be wrong.</span></p>
+    <p style="font-size:.875rem;margin:.25rem 0 0">Running by turn 6 in <strong>41%</strong>
+      of games, in your last run.</p>
+  </div>
+  <div style="border-left:2px dashed var(--ink-700);padding-left:1rem;margin-top:1rem">
+    <p style="font-family:var(--serif);font-size:1.125rem;margin:0">Zealous
+      Conscripts</p>
+    <p style="font-size:.875rem;color:var(--ink-700);margin:0">Theft &middot; hinted</p>
+    <p style="font-size:.875rem;margin:.25rem 0 0">1 of 2 pieces. Still missing:
+      <strong>Sacrifices what it took</strong></p>
+  </div>
+</div>
+<p class="rule">An engine is a row with a rule at its left, as a combo is: its cards, its theme
+and level as words, one sentence of what each card does. A piece short, the rule is dashed and
+the row names what is missing; the dash only repeats the words. Pairs show the five strongest
+open and the rest in one fold, each with its numbers under &ldquo;Advanced&rdquo;. Under a
+complete engine, by which turn it runs in the last run (PR 5), the share in bold; not measured
+yet, the line says the next run will. How an engine plays (PR 6) comes from the deck summary:
+Mistral's sentence under the rules' one, followed by &ldquo;Written by Mistral AI. It can be
+wrong.&rdquo; in ink-700, only while the engine still has the cards it was written about.</p>
+
+<h2>Lock-in: locked, dismissed, resting (Themen-Doc, Paket 1, PR 4)</h2>
+<div class="surface">
+  <div style="border-left:2px solid var(--parch-600);padding-left:1rem">
+    <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
+      <p style="font-family:var(--serif);font-size:1.125rem;margin:0">Viscera Seer +
+        Blood Artist</p>
+      <span style="font-size:.875rem">&#128274; Locked
+        <span style="border:1px solid var(--parch-600);padding:0 .5rem;margin-left:.25rem;
+          color:var(--ink-700)">Unlock</span></span>
+    </div>
+    <p style="font-size:.875rem;color:var(--ink-700);margin:0">Aristocrats &middot; strong</p>
+  </div>
+  <div style="border-left:2px solid var(--parch-600);padding-left:1rem;margin-top:1rem">
+    <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
+      <p style="font-family:var(--serif);font-size:1.125rem;margin:0;color:var(--ink-700)">
+        Ashnod's Altar + Grave Pact</p>
+      <span style="font-size:.875rem">&#128274; Locked</span>
+    </div>
+    <p style="font-size:.875rem;color:var(--ink-700);margin:.25rem 0 0">Resting, a card is
+      missing: Grave Pact. It is back when the card is.</p>
+  </div>
+  <div style="border-left:2px solid var(--parch-600);padding-left:1rem;margin-top:1rem">
+    <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
+      <p style="font-family:var(--serif);font-size:1.125rem;margin:0">Chainer + Entomb</p>
+      <span style="font-size:.875rem">
+        <span style="border:1px solid var(--parch-600);padding:0 .4rem">&#128274;</span>
+        <span style="border:1px solid var(--parch-600);padding:0 .4rem">&times;</span></span>
+    </div>
+  </div>
+  <p style="font-size:.875rem;color:var(--ink-700);margin:1rem 0 0">&#9656; 1 dismissed</p>
+</div>
+<p class="rule">Only what the owner says is stored. A suggestion has two small square buttons,
+a padlock and a cross, each named in full for a screen reader. A locked entry says
+&ldquo;Locked&rdquo; with the padlock and comes first, and it stays even when the rules no longer
+find it. A dismissed one leaves the list for a fold at the end, &ldquo;1 dismissed&rdquo;, where it
+can be brought back. An entry whose card left the deck turns ink-700 and says which card. The
+dashed rule keeps its one meaning, a piece short; locking never changes the rule.</p>
 
 <h2>Do &amp; Don't</h2>
 <div class="grid2">

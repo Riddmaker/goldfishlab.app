@@ -1,0 +1,5 @@
+# The weekly Search Console review only (scripts/search_console.py, run by
+# .github/workflows/seo-review.yml) - pinned, verified on PyPI 2026-11-06.
+# Installed in that job alone, never in the image; checks.yml audits it.
+google-auth==2.62.1
+requests==2.34.2

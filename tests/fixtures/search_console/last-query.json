@@ -1,0 +1,31 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "goldfish lab"
+      ],
+      "clicks": 15,
+      "impressions": 50,
+      "ctr": 0.3,
+      "position": 1.5
+    },
+    {
+      "keys": [
+        "mtg goldfish simulator"
+      ],
+      "clicks": 1,
+      "impressions": 100,
+      "ctr": 0.01,
+      "position": 4.0
+    },
+    {
+      "keys": [
+        "old query"
+      ],
+      "clicks": 1,
+      "impressions": 30,
+      "ctr": 0.0333,
+      "position": 12.0
+    }
+  ]
+}

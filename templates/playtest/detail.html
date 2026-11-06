@@ -1,8 +1,12 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{% translate "Playtest" %} · {{ deck.name }} · Goldfish Lab{% endblock %}
 {% block description %}{% blocktranslate with name=deck.name %}Play one game of {{ name }} by hand, take it back, and branch it.{% endblocktranslate %}{% endblock %}
+
+{% block head %}
+  <script src="{% static 'js/playtest-keys.js' %}" defer></script>
+{% endblock %}
 
 {% block content %}
   <div class="flex flex-wrap items-baseline gap-4">

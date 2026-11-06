@@ -125,13 +125,18 @@ def test_the_report_compares_each_scenario_on_the_last_turn():
     assert (removal["key"], wipe["key"]) == ("removal", "wipe")
     assert removal["rows"][0]["label"] == "Average mana" and removal["rows"][0]["mean"]
     assert "Commander on the battlefield" in [row["label"] for row in removal["rows"]]
-    assert removal["sentence"].startswith("It was back the next turn in ")
-    assert wipe["sentence"].startswith("After the wipe you had ")
+    assert removal["figure"].endswith("%")
+    assert removal["caption"] == "of games had your commander back by turn 7"
+    assert removal["sentence"].startswith("The very next turn: ")
+    assert wipe["caption"] == "mana on turn 7 after the wipe"
+    assert wipe["sentence"].startswith("Without the wipe: ")
+    assert shown["measured"]
 
 
 def test_a_short_run_says_why_it_has_no_wipe_and_an_old_one_has_no_section():
     wipe = report.stress(analysis.from_json(_result(turns=5)))["scenarios"][1]
     assert wipe["rows"] == [] and "six turns or more" in wipe["sentence"]
+    assert wipe["figure"] == "", "no number without games"
 
     old = _result()
     del old["stress"]

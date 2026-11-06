@@ -20,7 +20,7 @@ INPUT_CSS = ROOT / "assets" / "css" / "input.css"
 BUILDER = ROOT / "scripts" / "build_styleguide.py"
 FONT_DIR = ROOT / "static" / "fonts"
 
-FAMILIES = ["ink", "parchment", "blood", "verdigris"]
+FAMILIES = ["ink", "parchment", "blood", "verdigris", "water"]
 
 
 def test_design_md_exists():

@@ -5,10 +5,13 @@ Every queryset in this module is filtered by `owner=self.request.user`. Not
 source, so a missing filter is a missing row rather than someone else's deck.
 """
 
+import secrets
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Prefetch
-from django.http import JsonResponse
+from django.db.models import F, OuterRef, Prefetch, Q, Subquery, Window
+from django.db.models.functions import RowNumber
+from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.utils.cache import patch_vary_headers
@@ -22,21 +25,33 @@ from billing import quotas
 from billing.quotas import QuotaExceeded
 from billing.views import upgrade_prompt
 from combos import services as combo_services
+from combos.models import DeckCombo
 from decks import analysis as deck_analysis
-from decks import command_zone, printing_art, services
-from decks.forms import ColumnMappingForm, CommanderForm, DeckNameForm, ImportForm
+from decks import command_zone, engine_watch, printing_art, services
+from decks.forms import (
+    DELETE_WORDS,
+    ColumnMappingForm,
+    CommanderForm,
+    DeckNameForm,
+    DeleteDeckForm,
+    ImportForm,
+    MarkForm,
+)
 from decks.importers import columns, tabular
 from decks.models import (
     Deck,
     DeckCard,
     DeckImport,
+    DeckMark,
     PendingImport,
     art_missing,
     first_image,
     printings_shown,
+    small_image,
 )
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
-from simulations import blindspots, deck_cards, review, summary
+from decks.themes import deck_reading, save_mark
+from simulations import blindspots, deck_cards, report, review, strategies, summary
 from simulations.engine import adapter
 from simulations.forms import RunForm
 from simulations.models import SimulationRun
@@ -54,7 +69,21 @@ class DeckListView(OwnedDecksMixin, ListView):
     context_object_name = "decks"
 
     def get_queryset(self):
-        return super().get_queryset().select_related("commander", "partner")
+        # The entries once for the whole list: the card count reads them, and
+        # it used to be one query a deck. Their cards' colours and Game
+        # Changer flag, and the combos found in the deck, are for the three
+        # values per deck (Paket 2, PR 9).
+        last_run = (SimulationRun.objects.filter(deck=OuterRef("pk"),
+                                                 status=SimulationRun.Status.DONE)
+                    .order_by("-created_at").values("pk")[:1])
+        return (super().get_queryset()
+                .select_related("commander", "partner", "combo_lookup")
+                .annotate(last_run_id=Subquery(last_run))
+                .prefetch_related(
+                    Prefetch("entries", DeckCard.objects.select_related("oracle_card")),
+                    Prefetch("combo_lookup__entries", DeckCombo.objects.filter(
+                        kind=DeckCombo.Kind.INCLUDED).select_related("combo"),
+                        to_attr="included")))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -62,6 +91,12 @@ class DeckListView(OwnedDecksMixin, ListView):
         # read, not a reading of every card on every visit.
         for deck in context["decks"]:
             review.open_questions(deck)
+        fans = fan_cards(context["decks"])
+        runs = last_runs(context["decks"])
+        for deck in context["decks"]:
+            deck.fan = fans.get(deck.pk, [])
+            deck.commander_small = commander_small(deck)
+            deck_values(deck, runs.get(deck.last_run_id))
         return context
 
 
@@ -160,6 +195,11 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         context.update(self.grid_context(deck, readings))
         analysis = deck_analysis.analyse(deck)
         context["analysis"] = analysis
+        # What the deck is built around, and which of its cards work together
+        # (Themen-Doc, Paket 1, PR 2 and 3): read from the tags on every page
+        # load, two queries and a cached one, nothing stored.
+        context["reading"] = reading = deck_reading(deck)
+        context["themes"] = reading.themes
         context["legality_problems"] = sum(1 for verdict in analysis.legality if not verdict.ok)
         context["last_import"] = deck.imports.first()
         context["commander_printings"] = [
@@ -172,8 +212,30 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         # and the button says so before it is pressed.
         user = self.request.user
         context["summary_due"] = not user.is_guest and summary.due(user, deck)
+        # The deck summary and "Your strategies" (Paket 2, PR 7): the deck's,
+        # not one run's, so they moved here from the report. The summary is
+        # left out for somebody who switched summaries off; the strategies
+        # stay, with the most played cards instead of Mistral's picks.
+        if user.deck_summaries:
+            context["written"] = summary.state(user, deck)
+        written = context.get("written") or {}
+        context["strategies"] = strategies.block(readings, written.get("content"))
         context["runs"] = runs = list(deck.runs.all()[:5])
         context.update(self.last_run_context(deck, runs))
+        # PR 5: by which turn each engine runs, from the last finished run;
+        # PR 6: how it plays, from the deck's summary.
+        context["engine_rows"] = engine_watch.engine_rows(
+            reading, context["last_run"], summary.engine_notes(user, deck))
+        # The bracket tile: the Game Changers' floor beside the last run's speed,
+        # which the report's bracket section used to say alone.
+        last_run = context["last_run"]
+        context["speed"] = report.run_brackets(last_run) if last_run and last_run.result else None
+        # Beside the curve (Paket 2, PR 8): ramp and card draw as "What is in
+        # it" counts them, and the turn the commander is out in half the games.
+        context["curve_counts"] = [bar for bar in context["category_bars"]
+                                   if bar.value in ("ramp", "draw")]
+        context["commander_out"] = (report.commander_out(last_run)
+                                    if last_run and last_run.result else None)
         # Sessions, not games: a playtest is one game played by hand and is
         # resumed rather than re-run, so the list is of things to go back to.
         context["playtests"] = deck.playtests.all()[:5]
@@ -201,6 +263,89 @@ def commander_art(deck, pending: bool) -> list[tuple]:
         art.append((card, image or card.image_uri, pending and bool(printings) and not image,
                     not pending and art_missing(printings)))
     return art
+
+
+#: How many of the deck's cards stand fanned out behind its commander in the list.
+FAN_SIZE = 3
+
+
+def fan_cards(decks) -> dict:
+    """`{deck id: [small picture, ...]}`: the deck's most expensive spells.
+
+    The cards fanned out behind the commander in "Your decks" (Themen-Doc,
+    Deckübersicht): the three highest mana values that are not lands, the
+    name breaking ties, so a deck shows the same three on every visit. The
+    printing's art when the file named one, the catalogue's otherwise, small.
+    One query for the whole list: a row number per deck, cut at three.
+    """
+    ids = [deck.pk for deck in decks]
+    if not ids:
+        return {}
+    ranked = (
+        DeckCard.objects.filter(deck_id__in=ids)
+        # A land on its front face only, like `OracleCard.is_land`.
+        .exclude(Q(oracle_card__type_line__regex=r"^[^/]*Land"))
+        .annotate(place=Window(RowNumber(), partition_by=F("deck_id"),
+                               order_by=[F("oracle_card__cmc").desc(),
+                                         F("oracle_card__name").asc()]))
+        .filter(place__lte=FAN_SIZE)
+        .select_related("oracle_card")
+        .order_by("deck_id", "place")
+    )
+    fans: dict = {}
+    for entry in ranked:
+        image = first_image(entry.printings) or entry.oracle_card.image_uri
+        fans.setdefault(entry.deck_id, []).append(
+            (entry.oracle_card.name, small_image(image)))
+    return fans
+
+
+#: Colour identity as Magic prints it: white, blue, black, red, green.
+WUBRG = "WUBRG"
+
+
+def last_runs(decks) -> dict:
+    """`{run id: run}`: each deck's last finished run, with what it measured
+    of the deck's combos, in two queries for the whole list."""
+    ids = [deck.last_run_id for deck in decks if deck.last_run_id]
+    if not ids:
+        return {}
+    return {run.pk: run for run in SimulationRun.objects.filter(pk__in=ids)
+            .prefetch_related("combo_measurements")}
+
+
+def deck_values(deck, run) -> None:
+    """The three values "Your decks" shows per deck (Paket 2, PR 9).
+
+    `identity`: `(letter, name)` in WUBRG order, the commanders' and every
+    card's colours as the deck page counts them; colourless without any.
+    `floor` and `speed`: the bracket tile's two halves - the Game Changers,
+    and the last run's speed. `last_run`: the run the speed and the date come
+    from. All from what the list prefetched.
+    """
+    cards = [entry.oracle_card for entry in deck.entries.all()] + deck.commanders
+    colours = {colour for card in cards for colour in card.color_identity}
+    deck.identity = [(colour, gettext(report.COLOR_NAMES[colour]))
+                     for colour in WUBRG if colour in colours] or [
+                         ("C", gettext(report.COLOR_NAMES["C"]))]
+    changers = [card.name for card in cards if card.game_changer]
+    deck.floor = deck_analysis.bracket_floor(len(changers))
+    deck.last_run = run
+    deck.speed = None
+    if run is not None and run.result:
+        lookup = getattr(deck, "combo_lookup", None)
+        included = [entry.combo for entry in getattr(lookup, "included", [])]
+        deck.speed = report.run_brackets(
+            run, measured=list(run.combo_measurements.all()), changers=changers,
+            combo_state=report.combo_state(lookup, included))
+
+
+def commander_small(deck):
+    """`(name, small picture)` of the first commander, or None without one."""
+    if not deck.commander_id:
+        return None
+    card, image, _waiting, _missing = commander_art(deck, pending=False)[0]
+    return card.name, small_image(image)
 
 
 def commander_choice(deck, last_import):
@@ -527,6 +672,43 @@ class PrintingArtRetryView(DeckDetailView):
         return redirect(f"{self.object.get_absolute_url()}#cards")
 
 
+@method_decorator(ratelimit(key="user", rate="30/m", method="POST"), name="post")
+class DeckMarkView(OwnedDecksMixin, View):
+    """Lock or dismiss an engine or a pair, or take it back (Themen-Doc, PR 4).
+
+    Only a suggestion the deck shows now can be locked or dismissed: the
+    reading is made again here and the posted key looked up in it, so no
+    card can be named that the page did not name. One the page no longer
+    shows (the list changed in another tab) is not an error: nothing is
+    stored, and the section comes back as it is now. htmx gets the section
+    (`#engines`); without scripting the form goes back to it.
+    """
+
+    http_method_names = ["post"]
+
+    def post(self, request, pk):
+        deck = get_object_or_404(self.get_queryset(), pk=pk)
+        form = MarkForm(request.POST)
+        if not form.is_valid():
+            return HttpResponseBadRequest()
+        action = form.cleaned_data["action"]
+        if action == MarkForm.UNDO:
+            deck.marks.filter(pk=form.cleaned_data["mark"]).delete()
+        else:
+            item = deck_reading(deck).suggestion(form.cleaned_data["key"])
+            if item is not None:
+                save_mark(deck, item, DeckMark.State.LOCKED if action == MarkForm.LOCK
+                          else DeckMark.State.DISMISSED)
+        if request.headers.get("HX-Request"):
+            reading = deck_reading(deck)
+            last_run = deck.runs.filter(status=SimulationRun.Status.DONE).first()
+            return render(request, "decks/_engines.html",
+                          {"deck": deck, "reading": reading,
+                           "engine_rows": engine_watch.engine_rows(
+                               reading, last_run, summary.engine_notes(request.user, deck))})
+        return redirect(f"{deck.get_absolute_url()}#engines")
+
+
 class DeckRenameView(OwnedDecksMixin, View):
     """Give a deck another name (E1.73, E2.5).
 
@@ -593,6 +775,13 @@ def save_commanders(request, deck) -> bool:
 
 
 class DeckDeleteView(OwnedDecksMixin, DeleteView):
+    """Delete a deck once its owner has typed the word the page shows
+    (`DeleteDeckForm`): one of ten, at random, on every visit."""
+
     template_name = "decks/confirm_delete.html"
     success_url = reverse_lazy("decks:list")
     context_object_name = "deck"
+    form_class = DeleteDeckForm
+
+    def get_initial(self):
+        return {"word": secrets.randbelow(len(DELETE_WORDS))}

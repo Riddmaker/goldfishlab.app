@@ -1,0 +1,136 @@
+# Erlebnis (Themen-Doc, Paket 4)
+
+Started 2026-11-03, complete 2026-11-05. The points of the Themen-Doc that make the site feel alive: rows 1, 3, 41,
+42 and 43 - our own symbols, the ticker with a fun line now and then, the home page and the
+playtest board. Plan approved by the owner on 2026-11-03; the drafts (PR 14) on the Erlebnis
+canvas, round 2 approved on 2026-11-04.
+
+| PR | What | Status |
+|---|---|---|
+| 14 | Drafts on a design canvas: symbols, fun lines, home A/B, board A/B; two research notes | **Done** |
+| 15 | Sixteen symbols of our own, in colour, each moving once on hover | **Done** |
+| 16 | The ticker: the last 40 events in a loop, "What others did recently", fun lines with their ten icons and the talking overlord | **Done** |
+| 17 | The home page (B): classic header kept still, the big flask with the fish's hello jump and click moves, the ticker as a band | **Done** |
+| 18 | Free draw: a Free/Strict switch at the start (`PlaytestSession.mode`), the engine unchanged | **Done** |
+| 19 | The board (A) with the journal of B | **Done** |
+
+Decisions: our own single-line SVG symbols, no emoji and no Wizards glyphs (1A); a fun line at
+most every eighth line, pop culture in English, our own lines translated, set apart by colour,
+symbol and ground and never read as an event (2A); the ticker loops the 40 newest events (3A);
+Free draw is a switch at the start (4A). Home B and board A with B's journal were chosen on the
+canvas. The fish's click moves leave the header for the big flask on the home page (PR 17).
+
+## How PR 15 works
+
+- The drawings are `core/icons/<name>.svg`, shapes only. `{% icon "speed" %}` (or
+  `size="lg"`) from `core/templatetags/icons.py` wraps one in an inline `<svg class="icon">`,
+  hidden from screen readers. Inline, not `<img>` or `<use>`: CSS has to reach the parts to
+  colour and move them. An unknown name renders nothing and logs a warning.
+- Colour by class, never a hex in a drawing: `i-gold`, `i-water`, `i-blood`, `i-green`, `i-ink`
+  fill, `i-line-*` stroke, through `--i-*` variables that step darker inside
+  `.surface-parchment` (or `.icon-on-light`). `water` is a new, documented colour family of two
+  steps, for symbol fills only.
+- Motion: the block between `icons:start` and `icons:end` in `assets/css/input.css`. A symbol
+  moves while its `.icon-host` (button, tile, heading, bar row) is hovered or has keyboard focus,
+  inside `prefers-reduced-motion: no-preference` only. The styleguide builder copies that block
+  and reads the same drawings, so STYLEGUIDE.html shows exactly what the site does.
+- Where: Simulate and Draw a hand (deck page), the Bracket and legality tiles, ramp and draw
+  beside the curve, ramp, draw and removal in "What is in it" (`Bar.icon`), Combos & engines
+  (deck page and report), Engines, Stress test, Speed, the import heading. New user, The fish
+  says, New hand and Unusual move are drawn now and used in PR 16 and PR 18.
+- Info symbols and functional icons stay apart (DESIGN.md, SYMBOLS): the pencil, the bin and the
+  padlock keep their own one-colour look.
+- `tests/test_icons.py`: every drawing renders, every name a template uses is drawn, the
+  styleguide lists them all, every class has a rule, no drawing carries a hex, every move waits
+  for no motion preference. The headless check measures each drawing's extent (one size of ink).
+
+## How PR 16 works
+
+- `core.ticker.lines_for` now returns every cached event that is not the viewer's own (up to
+  `KEEP` = 40), with `with_fun` putting a fun line after every seven: at most every eighth line,
+  none on a quiet site, each one different, picked anew per answer. `FUN_LINES` holds the ten;
+  pop culture (`pop=True`) stays English and carries `lang="en"` in another language, ours go
+  through gettext. Each kind of event has its symbol (`ICONS`); each fun line its drawing
+  `core/icons/fun-<name>.svg`, in the styleguide with the others.
+- The page: a band of its own ("What others did recently") above the two pictures. The
+  stylesheet shows the first eight lines, the lower ones a step dimmer; a fun line has its own
+  ground, gold rules and italic gold, and "The fish says:" for screen readers.
+- `static/js/ticker.js`: every 5 s the last line moves to the top (`ticker-fresh` fade,
+  `icon-now` plays the symbol's move). The 30 s poll is merged (`merge`, pure, tested under
+  Node in tests/test_ticker.py): new events to the top, gone ones out, fun lines kept unless one
+  would follow fewer than seven events. Pause stops loop, poll and overlord; pointer or focus on
+  the band holds loop and poll. Reduced motion or no script: the newest eight, no loop.
+- The overlord's jaw, eye and antenna run always (inside the no-preference block); the other
+  fun drawings play twice on arrival or hover.
+- The symbol CSS hosts now include `.icon-now` beside hover and focus; new fills `i-night`,
+  `i-steel`, `i-ash`, `i-bone`, `i-pip` (ink and parchment tokens) and `i-fine` (1.8 line).
+
+## How PR 17 works
+
+- The header mark is the still `favicon.svg` on every page; `base.html` no longer has a home
+  page branch (only `aria-current="page"` on the home link there).
+- `core/home.html` is Home B: `.home-hero` (centred, the glow) holds `<span class="home-flask"
+  data-fish data-label="...">` with `core/_logo.html` (`logo-home`, 8.5rem / 6rem), the
+  heading, the tank line, the importer and one line for a stranger. `guests/_steps.html` is
+  left to the trial page. Below the ticker band two `.home-tile` sections on parchment
+  (`{% icon "simulation"|"hand" size="lg" %}`, a sentence, the WebP), not links; the link row
+  gained Resources.
+- `static/js/fish.js` turns the span into a `<button type="button">` with the translated name,
+  moving the svg into it, then runs the same moves as before on it: hello after 2 s, idle
+  moves, `pointerenter` of a mouse jumps, a click (also Enter and Space) tilts, `poke` - pure,
+  tested under Node like `nextWait` and `nextMove` - tells when three pokes within 1.5 s make a
+  jump. The bubbles rise during `is-jump` and `is-tilt` only.
+- Tests: `tests/test_home.py` (order, tiles, stranger, member, guest, German),
+  `tests/test_fish.py` (where it lives, the poke rule), `tests/test_logo.py` (the bubbles under
+  reduced motion). Five new strings in six languages.
+
+## How PR 18 works
+
+- `PlaytestSession.mode` (`strict` / `free`, migration 0004): every session from before is
+  strict. A session keeps its mode for life; `services.kinds` names the moves it accepts and
+  `services.apply` refuses the rest, so a replay never meets a move of the other mode. The
+  deck page's "Draw a hand" deals free (`StartForm.mode` defaults to free); `services.start`
+  stays strict by default.
+- `playtest/free.py`: the free moves subclass the engine's `Action` and are stored and
+  replayed like its own - `free_play` (a card from hand to `zone_for(card)`, no cost, no
+  trigger), `free_commander` (counts the cast, one copy), `next_turn` (untap and draw, no
+  triggers), `new_hand` (a new deal in the same session; the view picks the seed, never the
+  post, and `services.apply` replaces the game with `_base_game(session, seed)`, so undo
+  brings the hand before back). Plain `draw` is shared. The engine is unchanged.
+- The journal: `services.journal` replays the live actions once more, reading each move
+  before it runs (`free.step`), and `free.journal` - pure - turns those steps into turns.
+  Until the player presses Next turn, a second land or a draw past the turn's one (none in
+  turn 1 on the play) starts a guessed turn; after it, turns are trusted and a second land is
+  an unusual move. A card (a commander with its tax) costing more than the lands and rocks out
+  is unusual either way. A new hand starts the journal again.
+- The board: a free bar (Draw a card, New hand, Next turn, Undo with their keys), no
+  mulligan decision, every hand card posts `free_play`, the commander has Play, the journal
+  replaces "What happened". The Strict | Free switch is a plain form inside `#board` posting
+  to `playtest:start` with `services.deal_seed` (the hand on the table) and `on_the_play`.
+  `static/js/playtest-keys.js` clicks the button with the matching `data-key`; `keyFor` is
+  pure and runs under Node in `tests/test_playtest_free.py`; no key while typing.
+- Own calls: the switch deals the hand on the table, not the first one; turns are trusted
+  once the player says "next turn"; no mulligan in free (New hand does it); Ctrl+Z works on
+  the strict board too. 27 strings in six languages.
+
+## How PR 19 works
+
+- One table for both modes (owner, 2026-11-05: "identical, except the phases"). `_board.html`
+  is a head (turn, life; strict: phases, floating mana; the Strict | Free switch on the
+  right), a row of moves (`.board-btn`, `-main` blood, `-second` parchment), and
+  `.board-layout`: the table `.playtest-felt` (commander left; lands, mana sources and
+  permanents in dashed zones; library, graveyard and exile right; the hand fan inside the
+  felt, slots 7 rem) and the journal `.journal-page` beside it.
+- Strict writes `game.log` into the same journal: `views.log_turns` cuts it where the engine
+  wrote `--- Turn N ---`; what came before turn one is turn 0, "Opening hand". The lines stay
+  English (`lang="en"`), like the card names in them. "What happened" is gone.
+- The newest line carries `.journal-new` (an opacity fade, 300 ms, none under reduced
+  motion). Beside the table the page scrolls at 34 rem; a reversed flex column starts it at
+  the bottom without a script.
+- `_tiles` reads `tapped` off the zone (`Zone.permanents`); a tapped tile is `.board-tapped`
+  (`rotate: 90deg`, margin for the room it takes). The engine pays from the pool and does
+  not tap lands for it, so on the board a card lies tapped when it entered tapped or was
+  tapped by `tap_permanent`.
+- Own calls: Redo stays; the engine's three rows stay (the unusual move counts lands and
+  rocks); the switch's long sentence became one short note under the moves; the Draw key D
+  works in strict as well. 2 strings in six languages. Tests: `tests/test_playtest_look.py`.

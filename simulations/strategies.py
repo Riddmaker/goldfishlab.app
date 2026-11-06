@@ -5,12 +5,12 @@ each by turn four, and cards that would feed them. Three parts, with
 different sources, and the page says which is which (Principle 2):
 
 * **The strategies** are the deck's categories - the eight core ones, the
-  seven of "By strategy" and the six of "By mechanic" (card model phase 3) -
+  seven strategies and the six mechanics of "Building blocks" -
   with at least `MIN_CARDS` cards (P5). One card of a kind is an accident,
   two are a plan.
 * **The odds** are *calculated* over the list, now and with `MORE` more cards
-  of the kind (the deck's size unchanged). What the run *measured* is in "By
-  strategy", just above.
+  of the kind (the deck's size unchanged). What the run *measured* is in
+  "Building blocks", just above.
 * **The candidates** are catalogue cards: the strategy's role or mechanic as
   the card's derived categories hold it (`category_filter`), inside the
   deck's colour identity, legal in Commander, not in the deck, not a land

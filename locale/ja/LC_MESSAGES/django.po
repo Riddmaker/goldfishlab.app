@@ -12564,3 +12564,1468 @@ msgstr ""
 #: templates/decks/_art_retry.html
 msgid "Standard picture: this printing's art could not be loaded. Try again"
 msgstr "標準画像：この版のイラストを読み込めませんでした。再試行"
+
+#: templates/base.html
+msgid ""
+"Some card abilities are read from the card scripts of <a "
+"href=\"https://github.com/Card-Forge/forge\" class=\"underline hover:text-"
+"ink-300\" rel=\"noopener\">Forge</a>, which is not affiliated with Goldfish "
+"Lab either."
+msgstr ""
+"一部のカードの能力は <a href=\"https://github.com/Card-Forge/forge\" class=\"underline"
+" hover:text-ink-300\" rel=\"noopener\">Forge</a> のカードスクリプトから読み取っています。Forge も"
+" Goldfish Lab とは提携していません。"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "target %(low)s–%(high)s (Karsten)"
+msgstr "目安 %(low)s–%(high)s（Karsten）"
+
+#: templates/decks/detail.html
+msgid "Watch the run"
+msgstr "実行を見る"
+
+#: templates/decks/detail.html
+msgid "Open the last report"
+msgstr "前回のレポートを開く"
+
+#: templates/decks/detail.html
+msgid "Counts for Simulate and for Draw a hand."
+msgstr "「シミュレーション」と「手札を引く」の両方に使われます。"
+
+#: templates/decks/confirm_delete.html
+msgid "To delete it, type:"
+msgstr "削除するには、次を入力してください:"
+
+#: decks/forms.py
+msgid "Type it here"
+msgstr "ここに入力"
+
+#: decks/forms.py
+msgid "That is not the word, so nothing was deleted."
+msgstr "言葉が違うため、何も削除されていません。"
+
+#: templates/decks/detail.html
+msgid "by speed: simulate to see"
+msgstr "速度：シミュレーションで確認"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "by speed: at least %(number)s (last run)"
+msgstr "速度：%(number)s 以上（前回のシミュレーション）"
+
+#: templates/decks/detail.html
+msgid "by speed: not measured in the last run"
+msgstr "速度：前回のシミュレーションでは未測定"
+
+#: templates/simulations/_advanced.html
+msgid "Speed and the brackets, mana and lands turn by turn, engine and seed"
+msgstr "速度とブラケット、ターンごとのマナと土地、エンジンとシード"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, mana and lands turn by turn, what the engine cannot "
+"model, engine and seed"
+msgstr "速度とブラケット、ターンごとのマナと土地、エンジンが再現できないこと、エンジンとシード"
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"<strong class=\"text-parchment-100\">This is normal.</strong> Every deck has"
+" cards a game without opponents cannot fully play, for every player alike. "
+"It says nothing against your deck."
+msgstr ""
+"<strong class=\"text-"
+"parchment-100\">これは普通のことです。</strong>どのデッキにも、対戦相手のいないゲームでは完全には使えないカードがあり、誰にとっても同じです。あなたのデッキの欠点ではありません。"
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"What the engine does well: it plays your lands, mana, ramp and draws turn by"
+" turn, thousands of times, by the Commander rules."
+msgstr "エンジンが得意なこと：土地、マナ、ランプ、ドローをターンごとに、統率者戦のルールで何千回もプレイします。"
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"What goldfishing is for: how reliably your deck gets going - how soon the "
+"mana, the cards and the commander are there - before anybody interferes."
+msgstr ""
+"ゴールドフィッシュの目的：誰にも邪魔されない状態で、デッキがどれだけ安定して動き出すか（マナ、カード、統率者がどれだけ早く揃うか）を知ることです。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, Paris, France) - writes the "
+"deck summary on a simulation report and picks cards for its strategies. Our "
+"server sends Mistral <strong>the deck's card names, their categories and "
+"counts, the commander, the mana curve, its combos, the odds of drawing each "
+"category, worked out from the list, and lists of cards from the card "
+"database that would fit it</strong> - nothing about you: not your email, not"
+" your account, not your deck's name, not your IP address. Mistral processes "
+"it in the EU, keeps each request for up to 30 days to detect abuse, then "
+"deletes it, and does not use it to train its models. You can switch "
+"summaries off under Settings on \"Your plan\", and then nothing is sent. <a "
+"href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Mistral's terms</a>."
+msgstr ""
+"<strong>Mistral AI</strong>（Mistral AI "
+"SAS、フランス、パリ）：シミュレーションレポートのデッキの要約を作成し、その戦略に合うカードを選びます。私たちのサーバーは Mistral "
+"に、<strong>デッキのカード名、そのカテゴリーと枚数、統率者、マナカーブ、コンボ、リストから算出した各カテゴリーを引く確率、そしてカードデータベースからデッキに合いそうなカードのリスト</strong>を送信します。あなたに関する情報は何も送りません。メールアドレスも、アカウントも、デッキ名も、IP"
+" アドレスも送りません。Mistral はこれを EU "
+"内で処理し、不正利用の検出のために各リクエストを最長30日間保持した後に削除し、モデルの学習には使用しません。「あなたのプラン」の「設定」で要約をオフにでき、その場合は何も送信されません。<a"
+" href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Mistral の利用規約</a>。"
+
+#: templates/simulations/_summary_feedback.html
+msgid "Were the summary and the picks helpful?"
+msgstr "要約と提案は役に立ちましたか？"
+
+#: simulations/views.py
+msgid ""
+"Deck summaries are off. Switch them on again under Settings on Your plan."
+msgstr "デッキの要約をオフにしました。「あなたのプラン」の「設定」でもう一度オンにできます。"
+
+#: templates/billing/plans.html
+msgid "Deck summaries"
+msgstr "デッキの要約"
+
+#: templates/billing/plans.html
+msgctxt "a setting"
+msgid "On"
+msgstr "オン"
+
+#: templates/billing/plans.html
+msgctxt "a setting"
+msgid "Off"
+msgstr "オフ"
+
+#: templates/billing/plans.html
+msgid ""
+"Mistral AI writes a short summary of each deck and picks cards for its "
+"strategies. For that your deck list goes to Mistral, and each new summary "
+"uses one simulation. Switch it off if you would rather not have AI text or "
+"want to save simulations."
+msgstr ""
+"Mistral AI が各デッキの短い要約を書き、その戦略に合うカードを提案します。そのためにデッキリストが Mistral "
+"に送られ、新しい要約ごとにシミュレーションを1回使います。AI の文章が不要な場合や、シミュレーションを節約したい場合はオフにしてください。"
+
+#: templates/base.html
+msgid "Resources"
+msgstr "リソース"
+
+#: templates/core/resources.html
+msgid ""
+"The videos and sites worth knowing about Commander: what it is, the rules "
+"and brackets, building a deck, and where players meet."
+msgstr "統率者戦について知っておきたい動画とサイト：統率者戦とは何か、ルールとブラケット、デッキ構築、プレイヤーが集まる場所。"
+
+#: templates/core/resources.html
+msgid ""
+"The videos and sites we would send a friend who is new to Commander. None of"
+" them is ours, and nobody paid to be here."
+msgstr "統率者戦を始めたばかりの友人に勧めたい動画とサイトです。どれも私たちのものではなく、掲載料も受け取っていません。"
+
+#: templates/core/resources.html
+msgid "Videos"
+msgstr "動画"
+
+#: templates/core/resources.html
+msgid "All in English. They open on YouTube."
+msgstr "すべて英語です。YouTube で開きます。"
+
+#: templates/core/resources.html
+msgid "Sites"
+msgstr "サイト"
+
+#: templates/core/resources.html
+#, python-format
+msgid "%(minutes)s min"
+msgid_plural "%(minutes)s min"
+msgstr[0] "%(minutes)s 分"
+
+#: templates/core/resources.html
+#, python-format
+msgid ""
+"How Goldfish Lab itself works is on <a href=\"%(methodology_url)s\" "
+"class=\"underline hover:text-parchment-100\">How this works</a>."
+msgstr ""
+"Goldfish Lab 自体の仕組みは<a href=\"%(methodology_url)s\" class=\"underline "
+"hover:text-parchment-100\">仕組み</a>のページにあります。"
+
+#: core/resources.py
+msgid "What Commander is"
+msgstr "統率者戦とは"
+
+#: core/resources.py
+msgid "The rules and the brackets"
+msgstr "ルールとブラケット"
+
+#: core/resources.py
+msgid "Building a deck"
+msgstr "デッキを組む"
+
+#: core/resources.py
+msgid "Learning to play"
+msgstr "遊び方を覚える"
+
+#: core/resources.py
+msgid "Official"
+msgstr "公式"
+
+#: core/resources.py
+msgid "Building and keeping decks"
+msgstr "デッキの構築と管理"
+
+#: core/resources.py
+msgid "Looking things up"
+msgstr "調べもの"
+
+#: core/resources.py
+msgid "Players and news"
+msgstr "プレイヤーとニュース"
+
+#: core/resources.py
+msgid ""
+"The whole format from the start: the command zone, the 100 cards, how a "
+"table of four plays."
+msgstr "統率者戦の全体を最初から：統率領域、100枚のデッキ、4人での遊び方。"
+
+#: core/resources.py
+msgid "Short and current: the format as it is played today."
+msgstr "短くて最新：今の統率者戦の遊ばれ方。"
+
+#: core/resources.py
+msgid ""
+"Wizards of the Coast introduce the brackets themselves. The Game Changers "
+"list has changed since: the current one is on the official Commander page "
+"below."
+msgstr ""
+"Wizards of the Coast "
+"自身がブラケットを紹介しています。ゲームチェンジャーのリストはその後変わっているので、最新版は下の公式統率者戦ページで確認してください。"
+
+#: core/resources.py
+msgid ""
+"A designer at Wizards on what the brackets are for and how to use them at a "
+"table."
+msgstr "Wizards のデザイナーが、ブラケットの目的と卓での使い方を語ります。"
+
+#: core/resources.py
+msgid ""
+"How many lands, ramp, card draw and removal a deck wants - the template many"
+" players start from."
+msgstr "土地、ランプ、ドロー、除去をそれぞれ何枚入れるか。多くのプレイヤーが出発点にしているテンプレートです。"
+
+#: core/resources.py
+msgid ""
+"Turns, phases and combat, for anybody new to Magic itself. Not about "
+"Commander, but everything in it applies."
+msgstr "マジックそのものが初めての人向けに、ターン、フェイズ、戦闘を解説します。統率者戦の動画ではありませんが、内容はすべて当てはまります。"
+
+#: core/resources.py
+msgid ""
+"The rules of the format in writing - commander tax, commander damage, colour"
+" identity - with the brackets and the current Game Changers."
+msgstr "統率者戦のルールを文章で：統率者税、統率者ダメージ、固有色。ブラケットと最新のゲームチェンジャーも載っています。"
+
+#: core/resources.py
+msgid "The Comprehensive Rules, for when a question goes deep."
+msgstr "総合ルール。込み入った疑問があるときに。"
+
+#: core/resources.py
+msgid "A visual deck builder; its CSV export imports here as it is."
+msgstr "ビジュアル型のデッキビルダー。CSV エクスポートはそのままここに読み込めます。"
+
+#: core/resources.py
+msgid "A popular deck builder with a playtest mode."
+msgstr "テストプレイ機能付きの人気デッキビルダー。"
+
+#: core/resources.py
+msgid "An app that scans your cards and keeps your collection and decks."
+msgstr "カードをスキャンして、コレクションとデッキを管理できるアプリ。"
+
+#: core/resources.py
+msgid ""
+"Every card, with its full rules text and rulings. Our card data comes from "
+"here."
+msgstr "すべてのカードを、完全なルール文と裁定つきで。当サイトのカードデータもここから来ています。"
+
+#: core/resources.py
+msgid "Which cards other players run with your commander."
+msgstr "あなたの統率者と一緒に、ほかのプレイヤーがどんなカードを使っているか。"
+
+#: core/resources.py
+msgid ""
+"Combos, searchable by the cards in your deck. The combos in a report come "
+"from here."
+msgstr "デッキのカードから検索できるコンボ集。レポートのコンボもここから来ています。"
+
+#: core/resources.py
+msgid "The official Discord server of Wizards of the Coast."
+msgstr "Wizards of the Coast 公式の Discord サーバー。"
+
+#: core/resources.py
+msgid "The largest Commander community on Reddit."
+msgstr "Reddit 最大の統率者戦コミュニティ。"
+
+#: core/resources.py
+msgid "News and talk about all of Magic."
+msgstr "マジック全般のニュースと話題。"
+
+#: core/resources.py
+msgid "News, budget decks and strategy articles."
+msgstr "ニュース、低予算デッキ、戦略記事。"
+
+#: cards/themes.py
+msgid "Typal"
+msgstr "タイパル"
+
+#: cards/themes.py
+msgid "Aristocrats"
+msgstr "アリストクラッツ"
+
+#: cards/themes.py
+msgid "Reanimator"
+msgstr "リアニメイト"
+
+#: cards/themes.py
+msgid "Spellslinger"
+msgstr "スペルスリンガー"
+
+#: cards/themes.py
+msgid "Landfall"
+msgstr "上陸"
+
+#: cards/themes.py
+msgid "Voltron"
+msgstr "ボルトロン"
+
+#: cards/themes.py
+msgid "Artifacts"
+msgstr "アーティファクト"
+
+#: cards/themes.py
+msgid "Enchantments"
+msgstr "エンチャント"
+
+#: cards/themes.py
+msgid "Runs many creatures of one type, and cards that reward that type."
+msgstr "同じタイプのクリーチャーを多く使い、そのタイプに報酬を与えるカードを入れています。"
+
+#: cards/themes.py
+msgid ""
+"Takes what opponents own - their creatures, their spells, the top of their "
+"library - and plays it for you."
+msgstr "対戦相手のもの（クリーチャー、呪文、ライブラリーの一番上）を奪い、あなたのために使います。"
+
+#: cards/themes.py
+msgid ""
+"Sacrifices its own creatures on purpose, and is paid each time one dies."
+msgstr "自分のクリーチャーをわざと生け贄に捧げ、死亡するたびに見返りを得ます。"
+
+#: cards/themes.py
+msgid "Fills the table with creature tokens and makes them count."
+msgstr "クリーチャー・トークンで場を埋め、その数を活かします。"
+
+#: cards/themes.py
+msgid ""
+"Puts big creatures into its graveyard on purpose, then brings them back "
+"cheaply."
+msgstr "大型クリーチャーをわざと墓地に置き、安く戦場に戻します。"
+
+#: cards/themes.py
+msgid ""
+"Uses its graveyard as a second hand: casts, activates and counts what is in "
+"it."
+msgstr "墓地を第二の手札として使います。そこから唱え、起動し、その枚数を数えます。"
+
+#: cards/themes.py
+msgid "Casts many instants and sorceries, and is rewarded for each one."
+msgstr "インスタントとソーサリーを多く唱え、そのたびに報酬を得ます。"
+
+#: cards/themes.py
+msgid "Puts +1/+1 counters on its creatures and grows them turn after turn."
+msgstr "自分のクリーチャーに+1/+1カウンターを置き、ターンごとに大きくしていきます。"
+
+#: cards/themes.py
+msgid "Plays extra lands and is paid every time one enters."
+msgstr "追加の土地をプレイし、土地が出るたびに見返りを得ます。"
+
+#: cards/themes.py
+msgid ""
+"Dresses up one creature - usually the commander - with Equipment and Auras, "
+"and wins through commander damage."
+msgstr "1体のクリーチャー（たいていは統率者）を装備品とオーラで強化し、統率者ダメージで勝ちます。"
+
+#: cards/themes.py
+msgid "Gains life again and again, and turns each gain into something."
+msgstr "何度もライフを得て、そのたびに何かに変えます。"
+
+#: cards/themes.py
+msgid "Runs many artifacts and counts them."
+msgstr "アーティファクトを多く使い、その数を活かします。"
+
+#: cards/themes.py
+msgid "Runs many enchantments and draws or grows from each one."
+msgstr "エンチャントを多く使い、そのたびにドローしたり強くなったりします。"
+
+#: cards/themes.py
+msgid ""
+"Makes Treasure tokens again and again, and spends or sacrifices them for "
+"more."
+msgstr "宝物トークンを何度も生成し、使ったり生け贄に捧げたりしてさらに得をします。"
+
+#: cards/themes.py
+msgid "Creatures of the type"
+msgstr "そのタイプのクリーチャー"
+
+#: cards/themes.py
+msgid "Rewards that type"
+msgstr "そのタイプに報酬"
+
+#: cards/themes.py
+msgid "Takes control or casts their cards"
+msgstr "コントロールを奪うか、相手のカードを唱える"
+
+#: cards/themes.py
+msgid "Sacrifices what it took"
+msgstr "奪ったものを生け贄に捧げる"
+
+#: cards/themes.py
+msgid "Pays off when a creature dies"
+msgstr "クリーチャーが死亡すると見返り"
+
+#: cards/themes.py
+msgid "Makes bodies to sacrifice"
+msgstr "生け贄用の体を作る"
+
+#: cards/themes.py
+msgid "Makes creature tokens"
+msgstr "クリーチャー・トークンを生成"
+
+#: cards/themes.py
+msgid "Gets better with many tokens"
+msgstr "トークンが多いほど強くなる"
+
+#: cards/themes.py
+msgid "Brings creatures back from a graveyard"
+msgstr "墓地からクリーチャーを戻す"
+
+#: cards/themes.py
+msgid "Fills the graveyard"
+msgstr "墓地を肥やす"
+
+#: cards/themes.py
+msgid "Plays from or counts the graveyard"
+msgstr "墓地から使う・墓地を数える"
+
+#: cards/themes.py
+msgid "Rewards casting spells"
+msgstr "呪文を唱えると報酬"
+
+#: cards/themes.py
+msgid "Instants and sorceries"
+msgstr "インスタントとソーサリー"
+
+#: cards/themes.py
+msgid "Cares about counters or doubles them"
+msgstr "カウンターを参照するか倍にする"
+
+#: cards/themes.py
+msgid "Puts +1/+1 counters"
+msgstr "+1/+1カウンターを置く"
+
+#: cards/themes.py
+msgid "Pays off when a land enters"
+msgstr "土地が出ると見返り"
+
+#: cards/themes.py
+msgid "Puts extra lands into play"
+msgstr "追加の土地を出す"
+
+#: cards/themes.py
+msgid "Equipment and Auras for your own creatures"
+msgstr "自分のクリーチャー用の装備品とオーラ"
+
+#: cards/themes.py
+msgid "Gets better when equipped or enchanted"
+msgstr "装備やエンチャントで強くなる"
+
+#: cards/themes.py
+msgid "Keeps that creature safe"
+msgstr "そのクリーチャーを守る"
+
+#: cards/themes.py
+msgid "Pays off when you gain life"
+msgstr "ライフを得ると見返り"
+
+#: cards/themes.py
+msgid "Gains life again and again"
+msgstr "何度もライフを得る"
+
+#: cards/themes.py
+msgid "Counts or rewards artifacts"
+msgstr "アーティファクトを数える・報酬"
+
+#: cards/themes.py
+msgid "Counts or rewards enchantments"
+msgstr "エンチャントを数える・報酬"
+
+#: cards/themes.py
+msgid "Makes Treasure again and again"
+msgstr "何度も宝物を生成"
+
+#: cards/themes.py
+msgid "Rewards Treasure or artifacts leaving"
+msgstr "宝物やアーティファクトが離れると報酬"
+
+#: templates/decks/_themes.html
+msgid "Built around"
+msgstr "デッキのテーマ"
+
+#: templates/decks/_themes.html
+msgid "No card yet."
+msgstr "まだカードがありません。"
+
+#: templates/decks/_themes.html
+#, python-format
+msgid ""
+"Fill %(fill)s: each piece's share of what it needs, the first piece counting"
+" double. Strong from 0.75, medium from 0.5, hinted from 0.4."
+msgstr ""
+"充足度 "
+"%(fill)s：各要素が必要数に対してどれだけ満たされているか（最初の要素は2倍で計算）。0.75以上で強い、0.5以上で中くらい、0.4以上でかすか。"
+
+#: templates/decks/_themes.html
+msgid "No theme we know of. Plenty of good decks have no single plan."
+msgstr "当サイトが知っているテーマはありません。良いデッキでも、ひとつの計画を持たないものはたくさんあります。"
+
+#: templates/simulations/_report.html
+msgid "Building blocks"
+msgstr "構成要素"
+
+#: templates/simulations/_report.html
+msgid ""
+"What the deck's plan is made of. Games with at least one, by the end of each"
+" turn."
+msgstr "デッキの計画を構成する要素です。各ターン終了時までに1枚以上あったゲームの割合。"
+
+#: templates/simulations/_report.html
+msgid "Share of games with at least one card of each building block, by turn"
+msgstr "各構成要素のカードを1枚以上見たゲームの割合（ターン別）"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"Also in the deck, seen less often: %(labels)s. Their numbers are below."
+msgstr "デッキには他にも、見る頻度が低いものがあります：%(labels)s。数値は下にあります。"
+
+#: templates/simulations/_strategies.html
+msgid ""
+"The odds are calculated from your list: a hand of 7, one draw a turn, no "
+"mulligan. What this run measured is in “By category” and “Building blocks” "
+"above."
+msgstr ""
+"確率はリストから計算しています：手札7枚、毎ターン1枚ドロー、マリガンなし。この実行で計測した結果は上の「カテゴリー別」と「構成要素」にあります。"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Building blocks</strong> are the strategies and mechanics in one "
+"chart, the most often seen first. It draws eight lines at most; the rest are"
+" named under it, and its numbers hold every one."
+msgstr ""
+"<strong>構成要素</strong>は、戦略とメカニズムをひとつのグラフにまとめたもので、よく見たものから順に並びます。線は最大8本で、残りはグラフの下に名前を挙げ、数値表にはすべて含まれます。"
+
+#: templates/core/methodology.html
+msgid ""
+"On the deck page, <strong>Built around</strong> names the themes the cards "
+"point to, such as Aristocrats, Landfall or a creature type, read from the "
+"community's card tags. A theme has pieces: the cards that pay off, and the "
+"cards that feed them. It is strong, medium or hinted by how full its pieces "
+"are, the first counting double, and a piece with no card keeps it at hinted."
+" A deck with no theme gets none: we do not guess."
+msgstr ""
+"デッキページの<strong>デッキのテーマ</strong>は、アリストクラッツ、上陸、クリーチャー・タイプなど、カードが示すテーマを挙げます。コミュニティのカードタグから読み取っています。テーマには要素があります：見返りを生むカードと、それを支えるカードです。要素がどれだけ満たされているかで「強い」「中くらい」「かすか」が決まり、最初の要素は2倍で計算します。カードが1枚もない要素があれば「かすか」にとどまります。テーマのないデッキにはテーマを付けません。推測はしません。"
+
+#: templates/decks/_themes.html
+msgctxt "theme level"
+msgid "strong"
+msgstr "強い"
+
+#: templates/decks/_themes.html
+msgctxt "theme level"
+msgid "medium"
+msgstr "中くらい"
+
+#: templates/decks/_themes.html
+msgctxt "theme level"
+msgid "hinted"
+msgstr "かすか"
+
+#: templates/decks/_themes.html
+#, python-format
+msgid "%(count)s, wants %(need)s"
+msgstr "%(count)s（目安 %(need)s）"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s sacrifices"
+msgstr "%(card)sが生け贄に捧げ"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s takes what an opponent owns"
+msgstr "%(card)sが対戦相手のものを奪い"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s sacrifices what was taken"
+msgstr "%(card)sが奪ったものを生け贄に捧げ"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s pays off each death"
+msgstr "%(card)sが死亡のたびに見返りを生み"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s brings more bodies"
+msgstr "%(card)sが新たな生け贄を用意し"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s makes tokens"
+msgstr "%(card)sがトークンを生成し"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s makes them count"
+msgstr "%(card)sがその数を活かし"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s brings them back"
+msgstr "%(card)sがそれらを戻し"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s fills the graveyard"
+msgstr "%(card)sが墓地を肥やし"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s plays from the graveyard"
+msgstr "%(card)sが墓地から使い"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards each spell"
+msgstr "%(card)sが呪文のたびに見返りを生み"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s is a spell to cast"
+msgstr "%(card)sが唱える呪文となり"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the counters"
+msgstr "%(card)sがカウンターに見返りを与え"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s puts +1/+1 counters"
+msgstr "%(card)sが+1/+1カウンターを置き"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s pays off each land"
+msgstr "%(card)sが土地のたびに見返りを生み"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s puts extra lands into play"
+msgstr "%(card)sが追加の土地を戦場に出し"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s dresses a creature up"
+msgstr "%(card)sがクリーチャーを強化し"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s grows when dressed up"
+msgstr "%(card)sが強化されると大きくなり"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s keeps it safe"
+msgstr "%(card)sがそれを守り"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s pays off each gain"
+msgstr "%(card)sがライフ獲得のたびに見返りを生み"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s gains life"
+msgstr "%(card)sがライフを得させ"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the artifacts"
+msgstr "%(card)sがアーティファクトに見返りを与え"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s is one more artifact"
+msgstr "%(card)sがアーティファクトを1つ増やし"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the enchantments"
+msgstr "%(card)sがエンチャントに見返りを与え"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s is one more enchantment"
+msgstr "%(card)sがエンチャントを1つ増やし"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s makes Treasure"
+msgstr "%(card)sが宝物を生成し"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the Treasure"
+msgstr "%(card)sが宝物に見返りを与え"
+
+#: templates/decks/detail.html
+msgid "Combos & engines"
+msgstr "コンボとエンジン"
+
+#: templates/decks/_engines.html
+msgid "Engines"
+msgstr "エンジン"
+
+#: templates/decks/_engines.html
+msgid ""
+"Cards that together make value again and again, read from what the deck is "
+"built around."
+msgstr "デッキのテーマから読み取った、組み合わせて何度も価値を生むカードです。"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(have)s of %(pieces)s pieces. Still missing:"
+msgstr "%(pieces)s個中%(have)s個の要素。まだ足りないもの："
+
+#: templates/decks/_engines.html
+#, python-format
+msgid ""
+"Works again and again: %(cards)s. An engine needs at least one such card; "
+"its level is its theme's."
+msgstr "何度も働くカード：%(cards)s。エンジンにはこのようなカードが少なくとも1枚必要です。レベルはそのテーマのレベルと同じです。"
+
+#: templates/decks/_engines.html
+msgid ""
+"No engine yet: none of this deck's themes has a card that works again and "
+"again."
+msgstr "まだエンジンはありません。このデッキのどのテーマにも、何度も働くカードがありません。"
+
+#: templates/decks/_engines.html
+msgid ""
+"No engine: engines come from what a deck is built around, and we found no "
+"theme."
+msgstr "エンジンはありません。エンジンはデッキのテーマから生まれますが、テーマが見つかりませんでした。"
+
+#: templates/decks/_engines.html
+msgid "Synergies"
+msgstr "シナジー"
+
+#: templates/decks/_engines.html
+msgid "Two cards one of the deck's themes joins, the strongest first."
+msgstr "デッキのテーマがつなぐ2枚のカードです。強いものから順に表示します。"
+
+#: templates/decks/_pair.html
+#, python-format
+msgid ""
+"Rule %(weight)s × rarity %(first)s × %(second)s × fill %(density)s = "
+"%(score)s. A rare tag is a stronger sign than a broad one; the fill is the "
+"theme's in this deck."
+msgstr ""
+"ルール %(weight)s × 希少度 %(first)s × %(second)s × 充足度 %(density)s = "
+"%(score)s。珍しいタグほど強い手がかりです。充足度はこのデッキでのテーマの値です。"
+
+#: templates/core/methodology.html
+msgid "Engines and synergies"
+msgstr "エンジンとシナジー"
+
+#: templates/core/methodology.html
+msgid ""
+"Engines and synergies are read from what the deck is <strong>built "
+"around</strong>, by fixed rules over Scryfall's Tagger tags and our own "
+"reading of the cards, never by an AI. A deck with no theme has none, and a "
+"stray card outside a theme pairs with nothing."
+msgstr ""
+"エンジンとシナジーは、デッキの<strong>テーマ</strong>から読み取ります。ScryfallのTaggerタグと私たち自身のカードの読み取りに対する固定ルールで判断し、AIは使いません。テーマのないデッキにはなく、テーマから外れた単独のカードは何とも組みになりません。"
+
+#: templates/core/methodology.html
+msgid ""
+"A <strong>synergy</strong> is two cards one of the theme's rules joins: one "
+"serves the other, as a sacrifice outlet serves a card that pays off each "
+"death. Its strength is the rule's weight, times how rare the tags are that "
+"put each card in its part of the plan (a tag on few cards is a stronger sign"
+" than one on thousands), times how full the theme is in this deck."
+msgstr ""
+"<strong>シナジー</strong>とは、テーマのルールがつなぐ2枚のカードです。生け贄の手段が死亡のたびに見返りを生むカードを支えるように、一方がもう一方を支えます。強さは、ルールの重み"
+" × 各カードを計画の役割に置くタグの希少度（少数のカードにしかないタグは、何千枚にもあるタグより強い手がかりです）× "
+"このデッキでのテーマの充足度です。"
+
+#: templates/core/methodology.html
+msgid ""
+"An <strong>engine</strong> is one card for each part of a theme, two to four"
+" cards that make value together again and again: at least one of them has to"
+" work more than once, an ability you can activate or one that waits for "
+"something to happen. It carries its theme's level. An engine a part short "
+"names what is missing."
+msgstr ""
+"<strong>エンジン</strong>とは、テーマの各要素に1枚ずつ、組み合わせて何度も価値を生む2〜4枚のカードです。そのうち少なくとも1枚は、起動できる能力や何かが起こるのを待つ能力で、2回以上働く必要があります。エンジンのレベルはそのテーマのレベルです。要素が足りないエンジンは、何が足りないかを示します。"
+
+#: cards/synergy.py
+msgctxt "joins clauses"
+msgid ", "
+msgstr "、"
+
+#: cards/synergy.py
+msgctxt "ends a sentence"
+msgid "."
+msgstr "ます。"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(count)s more pair"
+msgid_plural "%(count)s more pairs"
+msgstr[0] "さらに%(count)s組"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(count)s weaker pair of the same kinds is not listed."
+msgid_plural "%(count)s weaker pairs of the same kinds are not listed."
+msgstr[0] "同じ種類のより弱い%(count)s組は表示していません。"
+
+#: templates/decks/_mark.html
+msgid "Locked"
+msgstr "固定済み"
+
+#: templates/decks/_mark.html
+msgid "Unlock"
+msgstr "固定を解除"
+
+#: templates/decks/_mark.html
+msgid "Bring back"
+msgstr "元に戻す"
+
+#: templates/decks/_mark.html
+msgid "Lock this engine: it stays, whatever the list becomes"
+msgstr "このエンジンを固定：リストが変わっても残ります"
+
+#: templates/decks/_mark.html
+msgid "Dismiss this engine: it will not be suggested again"
+msgstr "このエンジンを却下：もう提案されません"
+
+#: templates/decks/_mark.html
+msgid "Lock this pair: it stays, whatever the list becomes"
+msgstr "このペアを固定：リストが変わっても残ります"
+
+#: templates/decks/_mark.html
+msgid "Dismiss this pair: it will not be suggested again"
+msgstr "このペアを却下：もう提案されません"
+
+#: templates/decks/_gone.html
+#, python-format
+msgid "Resting, a card is missing: %(cards)s. It is back when the card is."
+msgid_plural ""
+"Resting, cards are missing: %(cards)s. It is back when they are."
+msgstr[0] "休止中、カードがありません：%(cards)s。カードが戻ると復活します。"
+
+#: templates/decks/_engines.html
+msgid "No engine left: you dismissed the ones we found."
+msgstr "エンジンは残っていません：見つかったものはすべて却下されました。"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(count)s dismissed"
+msgid_plural "%(count)s dismissed"
+msgstr[0] "%(count)s件を却下"
+
+#: cards/synergy.py
+msgid "an unknown card"
+msgstr "不明なカード"
+
+#: templates/core/methodology.html
+msgid ""
+"You can <strong>lock</strong> an engine or a pair, or "
+"<strong>dismiss</strong> it. We store only that, by its cards: a locked one "
+"stays first, even if the rules stop finding it; a dismissed one is not "
+"suggested again, and you can bring it back. When one of its cards leaves the"
+" deck, it rests until the card is back. Everything else is read again from "
+"your list on every visit."
+msgstr ""
+"エンジンやペアは<strong>固定</strong>または<strong>却下</strong>できます。保存するのはそれだけで、カードごとに記録します。固定したものはルールで見つからなくなっても先頭に残り、却下したものは二度と提案されず、元に戻すこともできます。カードがデッキから抜けると、戻るまで休止します。それ以外はすべて、訪れるたびにリストから読み直します。"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid ""
+"Running by turn %(turn)s in <strong>%(share)s</strong> of games, in your "
+"last run."
+msgstr "前回のシミュレーションでは、<strong>%(share)s</strong>のゲームで%(turn)sターン目までに動いています。"
+
+#: templates/decks/_engines.html
+msgid "Not measured yet: your next simulation shows by which turn it runs."
+msgstr "まだ測定されていません。次のシミュレーションで、何ターン目までに動くかがわかります。"
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"Running means one card of each role is out, measured over %(games)s games."
+msgstr "「動いている」とは、各役割のカードが1枚ずつ場に出ていることです。%(games)sゲームで測定しました。"
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"%(label)s: running by turn %(turn)s in <strong>%(share)s</strong> of games."
+msgstr "%(label)s：<strong>%(share)s</strong>のゲームで%(turn)sターン目までに動いています。"
+
+#: templates/core/methodology.html
+msgid ""
+"A simulation also measures <strong>by which turn each engine runs</strong>: "
+"at the end of a turn, every part of it has a card out, any card of the deck "
+"that fills that part, not only the ones the engine names. A permanent counts"
+" on the battlefield, an instant or a sorcery in hand, ready to cast; the "
+"commander counts once it is cast. Up to five engines, one per theme, locked "
+"ones first; one a part short or resting is not measured. It is read in the "
+"run's own games, so it costs nothing extra."
+msgstr ""
+"シミュレーションでは、<strong>各エンジンが何ターン目までに動くか</strong>も測定します。ターンの終わりに、エンジンの各パーツにカードが1枚ずつ場に出ていること。エンジンが名指しするカードだけでなく、そのパーツを満たすデッキ内のどのカードでも構いません。パーマネントは戦場で、インスタントとソーサリーは唱えられる状態で手札にあれば数えます。統率者は唱えた時点で数えます。測定するのは最大5つのエンジンで、テーマごとに1つ、固定したものが優先です。パーツが足りないエンジンや休止中のエンジンは測定しません。シミュレーション自身のゲームで測定するので、追加の費用はかかりません。"
+
+#: templates/decks/_engines.html
+msgid "Written by Mistral AI. It can be wrong."
+msgstr "Mistral AI が書いた文章です。誤りを含むことがあります。"
+
+#: templates/core/methodology.html
+msgid ""
+"With deck summaries switched on, the summary also says <strong>how each "
+"engine plays</strong>, in a sentence or two under it: which card to get out "
+"first, what to protect, what stops it. Mistral AI writes that with the rest "
+"of the summary, from the engine's cards, so it costs nothing extra and can "
+"be wrong. The engine itself is still found by the rules."
+msgstr ""
+"デッキ要約をオンにすると、要約は<strong>各エンジンの回し方</strong>も、その下に一、二文で説明します。どのカードを先に出すか、何を守るか、何がエンジンを止めるか、です。Mistral"
+" AI が要約の残りと一緒にエンジンのカードから書くので、追加の費用はかからず、誤りを含むことがあります。エンジン自体は引き続きルールで見つけます。"
+
+#: templates/simulations/_summary.html
+msgid "Run a simulation to fill this."
+msgstr "シミュレーションを実行すると、ここが埋まります。"
+
+#: templates/simulations/_summary.html
+msgid "The summary is written with your first run."
+msgstr "要約は最初の実行と一緒に作成されます。"
+
+#: templates/simulations/_summary.html
+msgid ""
+"Written by Mistral AI. It can be wrong. Its numbers are calculated from your"
+" list, not measured in a run."
+msgstr "Mistral AI が作成しました。間違っている可能性があります。数値は実行で計測したものではなく、リストから計算したものです。"
+
+#: templates/simulations/_strategies.html
+msgid ""
+"The odds are calculated from your list: a hand of 7, one draw a turn, no "
+"mulligan."
+msgstr "確率はリストから計算しています：手札7枚、毎ターン1枚ドロー、マリガンなし。"
+
+#: templates/simulations/_measured.html
+#, python-format
+msgid ""
+"The deck summary and your strategies are on the <a "
+"href=\"%(deck_url)s#summary\" class=\"underline\">deck page</a>."
+msgstr ""
+"デッキの要約と戦略は<a href=\"%(deck_url)s#summary\" "
+"class=\"underline\">デッキページ</a>にあります。"
+
+#: templates/simulations/_measured.html
+msgid "This run measured no combo and no engine."
+msgstr "この実行ではコンボもエンジンも計測しませんでした。"
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, Paris, France) - writes the "
+"deck summary on the deck page and picks cards for its strategies. Our server"
+" sends Mistral <strong>the deck's card names, their categories and counts, "
+"the commander, the mana curve, its combos, the odds of drawing each "
+"category, worked out from the list, and lists of cards from the card "
+"database that would fit it</strong> - nothing about you: not your email, not"
+" your account, not your deck's name, not your IP address. Mistral processes "
+"it in the EU, keeps each request for up to 30 days to detect abuse, then "
+"deletes it, and does not use it to train its models. You can switch "
+"summaries off under \"Hide summaries\" on a report, and then nothing is "
+"sent. <a href=\"https://legal.mistral.ai/terms\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">Mistral's terms</a>."
+msgstr ""
+"<strong>Mistral AI</strong>（Mistral AI "
+"SAS、フランス、パリ）：デッキページのデッキの要約を作成し、その戦略に合うカードを選びます。私たちのサーバーは Mistral "
+"に、<strong>デッキのカード名、そのカテゴリーと枚数、統率者、マナカーブ、コンボ、リストから算出した各カテゴリーを引く確率、そしてカードデータベースからデッキに合いそうなカードのリスト</strong>を送信します。あなたに関する情報は何も送りません。メールアドレスも、アカウントも、デッキ名も、IP"
+" アドレスも送りません。Mistral はこれを EU "
+"内で処理し、不正利用の検出のために各リクエストを最長30日間保持した後に削除し、モデルの学習には使用しません。レポートの「要約を非表示」で要約をオフにでき、その場合は何も送信されません。<a"
+" href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Mistral の利用規約</a>。"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value 7 or more"
+msgid_plural "%(count)s spells at mana value 7 or more"
+msgstr[0] "マナ総量7以上の呪文：%(count)s枚"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value %(value)s"
+msgid_plural "%(count)s spells at mana value %(value)s"
+msgstr[0] "マナ総量%(value)sの呪文：%(count)s枚"
+
+#: templates/decks/detail.html
+msgid "Commander out"
+msgstr "統率者の登場"
+
+#: templates/decks/detail.html
+msgid "simulate to see"
+msgstr "シミュレーションで確認"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "by turn %(turn)s"
+msgstr "%(turn)sターン目まで"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "not by turn %(turn)s"
+msgstr "%(turn)sターン目までにはなし"
+
+#: templates/decks/detail.html
+msgid "in half the games, last run"
+msgstr "前回の実行で半数のゲーム"
+
+#: templates/decks/list.html
+#, python-format
+msgid "simulated %(date)s"
+msgstr "%(date)s にシミュレーション"
+
+#: templates/decks/list.html
+msgid "not simulated yet"
+msgstr "未シミュレーション"
+
+#: templates/core/_why.html
+msgctxt "explanation link"
+msgid "More"
+msgstr "詳しく"
+
+#: templates/simulations/_report.html
+msgid "What your games start with: your opening hand and every card you drew."
+msgstr "ゲームの始まり方：初手と、引いたすべてのカード。"
+
+#: templates/simulations/_report.html
+msgid ""
+"How soon your deck gets going: the share of games where each was true by the"
+" end of each turn."
+msgstr "デッキがどれだけ早く動き出すか：各ターンの終わりまでに条件を満たしたゲームの割合。"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How well your deck gets back up when an opponent hits it: the same games, "
+"once as they went and once struck, side by side on turn %(turn)s. Each blow "
+"is an assumption, said beside it."
+msgstr ""
+"相手に叩かれたとき、デッキがどれだけ立て直せるか：同じゲームを、そのままの展開と打撃を受けた場合で、%(turn)sターン目に並べて示します。打撃はそれぞれ横に記した想定です。"
+
+#: templates/simulations/_report.html
+msgid ""
+"Whether your mana pays for your spells' colours: how much of each colour it "
+"could pay, on average."
+msgstr "マナで呪文の色をまかなえるか：各色をどれだけ支払えたか（平均）。"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Your mana in a bad game, not only an average one: p10 is the game that goes "
+"wrong."
+msgstr "平均だけでなく、うまくいかないゲームでのマナ：p10 はうまくいかないゲームです。"
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"How soon each engine starts paying off: running means one card of each role "
+"is out, measured over %(games)s games."
+msgstr ""
+"各エンジンがどれだけ早く働き始めるか：「動いている」とは、各役割のカードが1枚ずつ場に出ていることです。%(games)sゲームで測定しました。"
+
+#: templates/simulations/_combos.html
+#, python-format
+msgid ""
+"How soon a combo can end the game: Commander Spellbook's combos, measured "
+"over %(games)s games."
+msgstr "コンボがどれだけ早くゲームを終わらせられるか：Commander Spellbook のコンボを %(games)s ゲームで計測。"
+
+#: templates/simulations/_attention.html templates/sharing/_body.html
+msgid "The more it reads, the more the numbers tell."
+msgstr "読み取れる割合が高いほど、数字の信頼度が上がります。"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"Where your deck stands next to %(precons)s Commander precon, each played the"
+" same way."
+msgid_plural ""
+"Where your deck stands next to %(precons)s Commander precons, each played "
+"the same way."
+msgstr[0] "同じ条件でプレイした%(precons)s個の統率者構築済みデッキと比べて、あなたのデッキがどこにいるか。"
+
+#: templates/simulations/_report.html
+msgid "Ahead of every precon."
+msgstr "すべての構築済みデッキを上回っています。"
+
+#: templates/simulations/_report.html
+msgid "Behind or level with every precon."
+msgstr "すべての構築済みデッキと同じか、それ以下です。"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "Ahead of %(ahead)s of %(total)s precon."
+msgid_plural "Ahead of %(ahead)s of %(total)s precons."
+msgstr[0] "%(total)s個中%(ahead)s個の構築済みデッキを上回っています。"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "The precons' middle: %(middle)s."
+msgstr "構築済みデッキの中央値：%(middle)s。"
+
+#: templates/simulations/_report.html
+msgid ""
+"Your games were on the play, the precons' on the draw: by turn 4 they have "
+"drawn one card more."
+msgstr "あなたのゲームは先攻、構築済みデッキは後攻です。4ターン目までに、彼らは1枚多く引いています。"
+
+#: templates/simulations/_report.html
+msgid "Every precon, side by side"
+msgstr "すべての構築済みデッキを並べて見る"
+
+#: templates/simulations/_advanced.html
+msgid "How exact the numbers are"
+msgstr "数値の精度"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, how exact the numbers are, mana and lands turn by "
+"turn, engine and seed"
+msgstr "速度とブラケット、数値の精度、ターンごとのマナと土地、エンジンとシード"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, how exact the numbers are, mana and lands turn by "
+"turn, what the engine cannot model, engine and seed"
+msgstr "速度とブラケット、数値の精度、ターンごとのマナと土地、エンジンが再現できないこと、エンジンとシード"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>In short</strong>, at the top of a report, sets three of its numbers"
+" next to every Commander precon's, each played the same way: ten thousand "
+"games, on the draw. A faint tick is a precon, the tall mark is your deck, "
+"and \"the middle\" is the precon in the middle. A precon's own page leaves "
+"that precon out, and with fewer than five precons played there is nothing to"
+" compare with."
+msgstr ""
+"レポート上部の<strong>要点</strong>は、3つの数値を、同じ条件（1万ゲーム、後攻）でプレイしたすべての統率者構築済みデッキの数値と並べます。薄い線が構築済みデッキ、高い印があなたのデッキで、「中央値」は真ん中の構築済みデッキです。構築済みデッキのページではそのデッキ自身を除き、プレイ済みの構築済みデッキが5個未満なら比較は表示しません。"
+
+#: simulations/report.py
+#, python-format
+msgid "Without the wipe: %(base)s."
+msgstr "全体除去なしなら%(base)s。"
+
+#: simulations/report.py
+#, python-format
+msgid "mana on turn %(turn)s after the wipe"
+msgstr "全体除去後、%(turn)sターン目のマナ"
+
+#: simulations/report.py
+#, python-format
+msgid "of games had your commander back by turn %(turn)s"
+msgstr "のゲームで、統率者が%(turn)sターン目までに戻ってきました"
+
+#: simulations/report.py
+#, python-format
+msgid "The very next turn: %(next)s."
+msgstr "次のターンにすぐ戻ったのは%(next)s。"
+
+#: templates/core/methodology.html
+msgid ""
+"On a report each blow is a card with one number, how fast the deck comes "
+"back: for the commander, the share of games it was back by the last turn; "
+"for the wipe, the mana on that turn. \"The numbers\" below them set the same"
+" games side by side, with the blow and without it."
+msgstr ""
+"レポートでは、それぞれの攻撃が1つの数値を持つカードになり、デッキがどれだけ早く立て直すかを示します。統率者なら最終ターンまでに戻ってきたゲームの割合、全体除去ならそのターンのマナです。その下の「数値」では、同じゲームを攻撃ありとなしで並べています。"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How fast your deck comes back when an opponent hits it: the same games, once"
+" struck, side by side on turn %(turn)s."
+msgstr "対戦相手に攻撃されたとき、あなたのデッキがどれだけ早く立て直すか。同じゲームを、攻撃ありとなしで%(turn)sターン目に並べます。"
+
+#: templates/simulations/_compare.html
+msgid "Compared with your last run"
+msgstr "前回のシミュレーションとの比較"
+
+#: templates/simulations/_compare.html
+msgid "Whether a change made the deck better shows here."
+msgstr "変更でデッキが良くなったかどうかがここでわかります。"
+
+#: templates/simulations/_compare.html
+#, python-format
+msgid ""
+"Your <a href=\"%(url)s\" class=\"underline\">run of %(date)s</a>, then this "
+"one."
+msgstr "<a href=\"%(url)s\" class=\"underline\">%(date)sのシミュレーション</a>、そして今回。"
+
+#: templates/simulations/_compare.html
+msgid "The deck has changed in between."
+msgstr "その間にデッキが変わっています。"
+
+#: templates/simulations/_compare.html
+msgid "The same deck both times: what differs is chance."
+msgstr "どちらも同じデッキです。違いは偶然によるものです。"
+
+#: templates/simulations/_compare.html
+msgid "The two runs drew differently, which moves the numbers too."
+msgstr "2回のシミュレーションはドローの方法が違うため、それも数値に影響します。"
+
+#: templates/simulations/_compare.html
+msgctxt "run compared"
+msgid "better"
+msgstr "向上"
+
+#: templates/simulations/_compare.html
+msgctxt "run compared"
+msgid "worse"
+msgstr "低下"
+
+#: templates/simulations/_compare.html
+msgctxt "run compared"
+msgid "about the same"
+msgstr "ほぼ同じ"
+
+#: templates/simulations/_compare.html
+msgid "Change a card and simulate the deck again: this shows what moved."
+msgstr "カードを1枚入れ替えてもう一度シミュレーションすると、何が変わったかがここに表示されます。"
+
+#: templates/simulations/_share.html
+msgid "Show your friends"
+msgstr "友だちに見せてみましょう"
+
+#: templates/simulations/_share.html
+msgid "Share…"
+msgstr "共有…"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Compared with your last run</strong> sets the same three numbers of "
+"the deck's run before next to this one's. Two runs of the very same deck "
+"differ a little by chance alone, so a number only counts as better or worse "
+"when the difference is larger than chance would make it 95 times in 100; "
+"otherwise it says \"about the same\". A run keeps a fingerprint of the card "
+"list, not the list, so the report can say that the deck changed in between, "
+"but not which cards."
+msgstr ""
+"<strong>前回のシミュレーションとの比較</strong>は、デッキの前回のシミュレーションの同じ3つの数値を今回の数値の横に並べます。まったく同じデッキでも、2回のシミュレーションは偶然だけで少し違います。そのため、差が偶然で100回中95回生じる範囲より大きいときだけ、数値を向上または低下とみなします。それ以外は「ほぼ同じ」と表示します。シミュレーションはカードリストそのものではなく、その指紋だけを保存します。そのためレポートは、その間にデッキが変わったことは言えますが、どのカードかは言えません。"
+
+#: templates/core/home.html
+msgid "What others did recently"
+msgstr "最近のみんなの動き"
+
+#: templates/core/_ticker_lines.html
+msgid "The fish says:"
+msgstr "金魚のひとこと:"
+
+#: core/ticker.py
+msgid "The goldfish never blocks."
+msgstr "金魚は決してブロックしない。"
+
+#: core/ticker.py
+msgid "Keep a two-lander? Bold."
+msgstr "土地2枚でキープ? 大胆だね。"
+
+#: core/ticker.py
+msgid "No fish were harmed in this simulation."
+msgstr "このシミュレーションで傷ついた魚はいません。"
+
+#: core/ticker.py
+msgid "Shuffling very carefully. Again."
+msgstr "とても丁寧にシャッフル中。またしても。"
+
+#: core/ticker.py
+msgid "Tapped out. Emotionally and literally."
+msgstr "全部タップ済み。気持ちも、文字どおりにも。"
+
+#: core/ticker.py
+msgid "Thousands of turns, zero opponents, still lost to variance."
+msgstr "何千ターン、対戦相手ゼロ、それでも運に負けた。"
+
+#: templates/core/home.html
+msgid "Poke the goldfish"
+msgstr "金魚をつつく"
+
+#: templates/core/home.html
+msgid ""
+"Drop your Commander list in the tank. It plays thousands of games while you "
+"watch."
+msgstr "統率者デッキのリストを水槽へ。見ている間に何千ゲームも回します。"
+
+#: templates/core/home.html
+msgid ""
+"No account needed. Archidekt, Moxfield, ManaBox and plain text all work."
+msgstr "アカウント不要。Archidekt、Moxfield、ManaBox、プレーンテキストに対応。"
+
+#: templates/core/home.html
+msgid "The odds from thousands of games: lands, curve, ramp, draw and combos."
+msgstr "何千ゲームから見える確率：土地、マナカーブ、マナ加速、ドロー、コンボ。"
+
+#: templates/core/home.html
+msgid ""
+"Seven cards, then draw, draw, draw. Play it out turn by turn, with undo."
+msgstr "7枚引いて、ドロー、ドロー、ドロー。取り消し付きで1ターンずつ回せます。"
+
+#: templates/playtest/_board.html
+msgid "(guessed)"
+msgstr "(推定)"
+
+#: templates/playtest/_board.html playtest/views.py
+msgid "New hand"
+msgstr "新しい手札"
+
+#: templates/playtest/_board.html playtest/views.py
+msgid "Next turn"
+msgstr "次のターン"
+
+#: templates/playtest/_board.html
+msgid "Ctrl Z"
+msgstr "Ctrl Z"
+
+#: templates/playtest/_board.html
+msgid "Nothing is blocked. The journal notes what the rules would not allow."
+msgstr "何もブロックされません。ルール上できないことはジャーナルに記録されます。"
+
+#: templates/playtest/_board.html
+msgid "Play"
+msgstr "プレイ"
+
+#: templates/playtest/_board.html
+msgid ""
+"click a card to put it on the table. Nothing is paid, and nothing happens on"
+" its own."
+msgstr "カードをクリックするとテーブルに置けます。コストは支払われず、何も自動では起こりません。"
+
+#: templates/playtest/_board.html
+msgid "The journal"
+msgstr "ジャーナル"
+
+#: templates/playtest/_board.html
+msgid "Unusual move:"
+msgstr "珍しい手:"
+
+#: templates/playtest/_board.html
+#, python-format
+msgid ""
+"%(count)s unusual move. Found a great line? Check it before you trust it."
+msgid_plural ""
+"%(count)s unusual moves. Found a great line? Check them before you trust it."
+msgstr[0] "珍しい手が%(count)s件あります。良いラインを見つけたら、信じる前に確認しましょう。"
+
+#: templates/playtest/detail.html
+msgid "Mode"
+msgstr "モード"
+
+#: templates/playtest/detail.html
+msgctxt "playtest mode"
+msgid "Free"
+msgstr "フリー"
+
+#: templates/playtest/detail.html
+msgctxt "playtest mode"
+msgid "Strict"
+msgstr "厳密"
+
+#: templates/playtest/detail.html
+msgid ""
+"Free: nothing is paid or blocked. Strict plays the rules, phase by phase."
+msgstr "フリー：支払いもブロックもありません。厳密モードはルールどおり、フェイズごとに進みます。"
+
+#: templates/playtest/detail.html
+msgid "Strict plays the rules, phase by phase. Free blocks nothing."
+msgstr "厳密モードはルールどおり、フェイズごとに進みます。フリーは何もブロックしません。"
+
+#: templates/playtest/detail.html
+msgid "Switching deals this shuffle again."
+msgstr "切り替えると、同じシャッフルで配り直します。"
+
+#: playtest/views.py
+msgid "Card played"
+msgstr "カードをプレイ"
+
+#: playtest/views.py
+msgid "Commander played"
+msgstr "統率者をプレイ"
+
+#: playtest/free.py
+msgid "Seven cards dealt."
+msgstr "7枚配られました。"
+
+#: playtest/free.py
+msgid "New hand: seven fresh cards."
+msgstr "新しい手札：新しい7枚です。"
+
+#: playtest/free.py
+msgid "A second land this turn."
+msgstr "このターン2枚目の土地です。"
+
+#: playtest/free.py
+#, python-format
+msgid "Land: %(card)s."
+msgstr "土地：%(card)s。"
+
+#: playtest/free.py
+#, python-format
+msgid "Commander: %(card)s."
+msgstr "統率者：%(card)s。"
+
+#: playtest/free.py
+#, python-format
+msgid "Played %(card)s."
+msgstr "%(card)sをプレイしました。"
+
+#: playtest/free.py
+#, python-format
+msgid "%(card)s costs %(cost)s, with %(count)s mana source out."
+msgid_plural "%(card)s costs %(cost)s, with %(count)s mana sources out."
+msgstr[0] "%(card)sのコストは%(cost)sですが、場のマナ源は%(count)s個です。"
+
+#: playtest/free.py
+#, python-format
+msgid "Drew %(cards)s."
+msgstr "引いたカード：%(cards)s。"
+
+#: playtest/free.py
+msgid "The library is empty."
+msgstr "ライブラリーは空です。"
+
+#: templates/playtest/_board.html
+msgid "Table"
+msgstr "テーブル"
+
+#: templates/playtest/_board.html
+msgid "tapped"
+msgstr "タップ状態"

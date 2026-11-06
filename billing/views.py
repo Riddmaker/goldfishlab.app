@@ -45,7 +45,7 @@ class PlansView(LoginRequiredMixin, TemplateView):
         subscription = services.subscription_for(self.request.user)
         context["subscription"] = subscription
         context["usage"] = _usage_rows(self.request.user)
-        # The deck summary's switch (phase 10 H, T6.5) is turned on again here.
+        # The deck summaries' switch (phase 10 H, T6.5), under Settings.
         from simulations import mistral
 
         context["summaries_available"] = mistral.is_configured()

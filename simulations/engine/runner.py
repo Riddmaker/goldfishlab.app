@@ -54,12 +54,15 @@ LAND_SUBTYPE_COLORS = dict(SUBTYPE_COLORS)
 #: up with no number rather than a zero.
 Watch = combos.Watch
 Requirement = combos.Requirement
+AnyOf = combos.AnyOf
 Unmeasurable = combos.Unmeasurable
 
 #: Spellbook's zone letters that this engine can answer for. A requirement
 #: naming anything else is unmeasurable; see `simulation/combos.py`.
 COMBO_ZONES = combos.KNOWN_ZONES
 DEFAULT_COMBO_ZONES = combos.DEFAULT_ZONES
+BATTLEFIELD = combos.BATTLEFIELD
+HAND = combos.HAND
 
 
 @dataclass(frozen=True)

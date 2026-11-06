@@ -40,6 +40,7 @@ PUBLIC_PAGES = (
     "guests:try",
     "pricing",
     "methodology",
+    "resources",
     "datapages:precons",
     "datapages:lands",
     "changelog",

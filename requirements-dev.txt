@@ -1,5 +1,8 @@
 # Development/test dependencies - pinned (verified on PyPI 2026-09-17)
 -r requirements.txt
+# The Search Console review (scripts/search_console.py), so its tests read a
+# key the way the job does.
+-r requirements-seo.txt
 pytest==9.1.1
 pytest-django==4.14.0
 # Spreads the suite over the cores (`pytest -n auto`); each worker gets its own

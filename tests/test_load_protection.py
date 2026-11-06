@@ -162,12 +162,12 @@ def test_guests_cannot_spend_the_members_share(key, settings, owner, deck, no_ru
     assert DeckSummary.objects.filter(deck=deck).exists()
 
 
-def test_the_paused_report_says_so(key, settings, owner, finished, client):
+def test_the_paused_summary_says_so_on_the_deck_page(key, settings, owner, finished, client):
     settings.SUMMARIES_PER_DAY = 0
     client.force_login(owner)
 
     written = summary.state(owner, finished.deck)
-    page = client.get(finished.get_absolute_url()).content.decode()
+    page = client.get(finished.deck.get_absolute_url()).content.decode()
 
     assert written["paused"] and not written["offer"] and not written["short"]
     assert "paused until midnight" in page

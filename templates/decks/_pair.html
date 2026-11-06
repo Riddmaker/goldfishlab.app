@@ -1,0 +1,28 @@
+{% comment %}
+  One synergy pair (Themen-Doc, Paket 1, PR 3). Extracted because the list
+  is rendered twice - the strongest few open, the next ones folded - and two
+  copies would be two places for the numbers to be explained differently.
+
+  A pair the owner locked has no numbers when the deck no longer shows it
+  by itself (`cards.synergy.rebuild`), so it has no "Advanced" either.
+
+  Takes: pair (cards.synergy.Pair), deck.
+{% endcomment %}
+{% load i18n %}
+<li class="text-sm" data-entry="{{ pair.key }}"{% if pair.state %} data-state="{{ pair.state }}"{% endif %}>
+  <div class="flex flex-wrap items-start justify-between gap-2">
+    <p class="{% if pair.gone %}text-ink-700{% else %}text-ink-900{% endif %}"><strong>{{ pair.first }} + {{ pair.second }}</strong></p>
+    {% include "decks/_mark.html" with item=pair %}
+  </div>
+  {% include "decks/_gone.html" with item=pair %}
+  <p class="{% if pair.gone %}text-ink-700{% else %}text-ink-900{% endif %}">{{ pair.sentence }}</p>
+  {% if pair.score is not None %}
+  <details class="text-ink-700">
+    <summary class="cursor-pointer">{% translate "Advanced" %}</summary>
+    <p class="mt-1 tabular">{% blocktranslate trimmed with weight=pair.weight|floatformat:1 first=pair.spec_first|floatformat:2 second=pair.spec_second|floatformat:2 density=pair.density|floatformat:2 score=pair.score|floatformat:2 %}
+      Rule {{ weight }} × rarity {{ first }} × {{ second }} × fill {{ density }} = {{ score }}.
+      A rare tag is a stronger sign than a broad one; the fill is the theme's in this deck.
+    {% endblocktranslate %}</p>
+  </details>
+  {% endif %}
+</li>

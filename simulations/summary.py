@@ -34,6 +34,11 @@ The text is Mistral's, through `simulations.mistral`:
   kept on the row and never in the fingerprint - a language change alone
   rewrites nothing and charges nobody. Strategy and card names stay English,
   so `parse` checks them as strictly as before.
+* **The engines** (Themen-Doc, PR 6): the engines the deck page shows that
+  can run (`decks.engine_watch.runnable`), each with its cards and what each
+  card does in it, and in the answer a sentence or two on how each one plays.
+  The deck page shows it under the engine with the same theme and cards
+  (`engine_notes`); an engine that changed shows none. No extra call.
 """
 
 import hashlib
@@ -41,10 +46,11 @@ import json
 import logging
 import re
 from datetime import timedelta
+from itertools import islice
 
 from django.conf import settings
 from django.db import transaction
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.utils.translation import get_language
 
 from simulations import budget, mistral
@@ -81,7 +87,8 @@ def missing(readings) -> list[str]:
 #: 4 = phase 11 F: the land verdict worked out, no card from the deck picked,
 #: changes from the deck's own numbers; six shorter candidates a strategy.
 #: 5 = phase 12 G: written in the starter's language, names kept in English.
-PROMPT_VERSION = 5
+#: 6 = Themen-Doc PR 6: "engines", how each engine of the deck page plays.
+PROMPT_VERSION = 6
 
 #: Room for the JSON answer. Each part is "not longer than a paragraph"
 #: (T6.1); this is generous and still bounds the cost of a runaway answer.
@@ -99,6 +106,8 @@ STRATEGIES_MAX = 3
 CARDS_MAX = 3
 WHY_MAX = 200
 REASON_MAX = 120
+#: "engines" (PR 6): how one engine plays, a sentence or two.
+HOW_MAX = 300
 
 #: The opening hand the odds are worked out for.
 HAND = 7
@@ -144,6 +153,11 @@ SYSTEM_PROMPT = (
     "candidates, and never one from \"cards\": the deck already plays those. "
     "Prefer cards that fit the deck's theme and its commander over the "
     "merely popular.\n"
+    '- "engines": one entry for each of the facts\' "engines", in the same order, an '
+    'empty list when there are none. Each is an object with "theme" (exactly as '
+    'given) and "how": one or two sentences, at most 300 characters, on how these '
+    "cards run together in this deck: which to get out first, what to protect, and "
+    "what stops the engine. Name no card other than that engine's own.\n"
     "Write about this deck: a sentence that would fit any deck says nothing. "
     "Plain sentences only: no Markdown, no lists inside strings, no links, no "
     "leading + or -. "
@@ -301,6 +315,8 @@ def facts(deck, readings) -> dict:
         # Phase 11 E: the strategies and the catalogue cards that would feed
         # them, for "strategies" to pick from - nothing else may be named.
         "strategies": offered(readings),
+        # PR 6: the engines that can run, for "engines" to explain.
+        "engines": _engines(deck),
     }
     if len(leading) > 1:
         # A second commander (P20 F2b), and only then: a deck with one keeps
@@ -310,6 +326,26 @@ def facts(deck, readings) -> dict:
                                      "mana_cost": second.mana_cost,
                                      "text": second.oracle_text}
     return facts
+
+
+def _engines(deck) -> list[dict]:
+    """The deck page's engines that can run, at most as many as a run
+    measures, each with its cards and, in English, what each card does.
+
+    A reading that fails is logged and leaves the engines out: the rest of
+    the summary is worth more than they are.
+    """
+    from decks.engine_watch import MAX_ENGINES, runnable
+    from decks.themes import deck_reading
+
+    try:
+        engines = list(islice(runnable(deck_reading(deck).engines), MAX_ENGINES))
+    except Exception:  # never lose the summary over the engines
+        logger.exception("summary of deck %s: engines not read", deck.pk)
+        return []
+    with translation.override("en"):
+        return [{"theme": engine.label, "cards": list(engine.cards),
+                 "what_each_does": engine.sentence} for engine in engines]
 
 
 #: At most this many combos go into the prompt, the most popular first.
@@ -343,8 +379,8 @@ def write_in(code: str) -> str:
         return "Write in English."
     return (f"Write every text value, the title too, in {WRITE_IN[code]}. Use the Magic "
             "terms players of that language use, the official ones where they exist. Keep "
-            "the JSON keys, and every strategy name and card name exactly as given, in "
-            "English.")
+            "the JSON keys, and every strategy name, theme name and card name exactly as "
+            "given, in English.")
 
 
 def messages(deck_facts: dict, code: str = "en") -> list[dict]:
@@ -445,10 +481,39 @@ _KEY_BY_LABEL = {label.casefold(): key
                  for key, label in SEEN_ROLES + SEEN_STRATEGY_ROLES + SEEN_MECHANIC_ROLES}
 
 
-def parse(content: str, offered: list[dict] | None = None) -> dict:
+def _explained(value, engines) -> list[dict]:
+    """Mistral's word on each engine (PR 6), checked against the facts.
+
+    An unknown theme, a second word on one, an empty "how" - each is dropped
+    without a word. Kept by the theme's key and the engine's cards, which is
+    how the deck page finds the engine it is about.
+    """
+    if not isinstance(value, list):
+        return []
+    from cards.themes import THEMES
+
+    keys = {theme.label.casefold(): theme.key for theme in THEMES}
+    offered = {row["theme"].casefold(): row for row in engines or []}
+    said, seen = [], set()
+    for item in value:
+        if not isinstance(item, dict) or not isinstance(item.get("theme"), str):
+            continue
+        label = item["theme"].strip().casefold()
+        row = offered.get(label)
+        how = _optional(item.get("how"), HOW_MAX)
+        if row is None or label in seen or label not in keys or not how:
+            continue
+        seen.add(label)
+        said.append({"theme": keys[label], "cards": sorted(row["cards"]), "how": how})
+    return said
+
+
+def parse(content: str, offered: list[dict] | None = None,
+          engines: list[dict] | None = None) -> dict:
     """Mistral's answer, checked. Raises ValueError for anything else.
 
     `offered` is the facts' "strategies": the only cards it may name.
+    `engines` is the facts' "engines": the only ones it may explain.
     """
     data = json.loads(content)
     if not isinstance(data, dict):
@@ -463,6 +528,8 @@ def parse(content: str, offered: list[dict] | None = None) -> dict:
         "tactics": _prose(data.get("tactics"), TACTICS_MAX),
         # Optional too (P6): without picks the block shows its fallback.
         "strategies": _strategies(data.get("strategies"), offered),
+        # Optional (PR 6): an engine without a word shows none.
+        "engines": _explained(data.get("engines"), engines),
     }
     if not checked["feel"] or not (checked["strengths"] or checked["weaknesses"]):
         raise ValueError("empty summary")
@@ -620,37 +687,6 @@ def close_stale(now=None) -> int:
     return closed
 
 
-#: About how long a summary takes to write: Large 4 without reasoning took 20 s
-#: on average and 39 s at its slowest on 21 decks (2026-10-21). Paces the run
-#: page's bar while it waits for one, nothing else.
-WRITING_SECONDS = 30
-
-#: How long the run page holds its report back for a summary being written:
-#: the summary task's two attempts and the pause between them
-#: (`tasks.SUMMARY_SOFT_TIME_LIMIT`). Past that the report shows, with the
-#: summary's own "being written" line, which reloads the page once it is in.
-HOLD_AT_MOST = timedelta(seconds=170)
-
-
-def writing(user, deck):
-    """The summary being written for this viewer's deck, while it is worth
-    waiting for; None otherwise.
-
-    The run page waits for it: its progress bar carries on until the summary
-    is in, and the page shows once, whole, instead of the report first and the
-    summary popping in half a minute later.
-    """
-    from simulations.models import DeckSummary
-
-    if not user.deck_summaries or not mistral.is_configured():
-        return None
-    row = DeckSummary.objects.filter(deck=deck, status=DeckSummary.Status.PENDING).only(
-        "updated_at").first()
-    if row is None or timezone.now() - row.updated_at > HOLD_AT_MOST:
-        return None
-    return row
-
-
 def feedback_for(user, row):
     """This viewer's feedback on the summary as it is written now, or None."""
     from simulations.models import DeckSummary, SummaryFeedback
@@ -736,6 +772,22 @@ def state(user, deck) -> dict:
     }
 
 
+def engine_notes(user, deck) -> dict:
+    """The summary's word on each engine (PR 6), for the deck page:
+    ``{(theme, sorted cards): {"how", "language"}}``. Empty when summaries
+    are off for this viewer or there is no written one."""
+    from simulations.models import DeckSummary
+
+    if not user.deck_summaries or not mistral.is_configured():
+        return {}
+    stored = _stored(deck)
+    if stored is None or stored.status != DeckSummary.Status.DONE:
+        return {}
+    return {(row["theme"], tuple(row["cards"])): {"how": row["how"],
+                                                  "language": stored.language}
+            for row in (stored.content or {}).get("engines") or []}
+
+
 __all__ = ["BY_TURN", "PROMPT_VERSION", "SEEN_BY_TURN", "WRITE_IN", "at_least_one", "begin",
-           "claim", "due", "facts", "feedback_for", "fingerprint", "give_feedback", "language",
-           "messages", "missing", "parse", "state", "write_in", "writing"]
+           "claim", "due", "engine_notes", "facts", "feedback_for", "fingerprint",
+           "give_feedback", "language", "messages", "missing", "parse", "state", "write_in"]

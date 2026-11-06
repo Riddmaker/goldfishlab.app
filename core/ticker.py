@@ -6,15 +6,23 @@ new accounts - never a model of its own. A line names nobody: the actor is
 is no time on it, so a line cannot be matched to a person by the minute.
 
 Robust under load: `recent()` merges the newest `KEEP` events across the
-sources at most once a `REFRESH` and keeps them in the cache. A request only
+sources at most once a `REFRESH` and keeps them in the cache. The site's own
+account (`is_system`, the precons' runs) is not news and never shows. A request only
 filters out the viewer's own events and slices (`lines_for`), so a crowd on
 the home page costs the database nothing more.
 
 The cache holds events, not sentences (phase 12): the sentence is written per
 request, in the viewer's language, from the event's kind and parts.
+
+The loop (Paket 4, PR 16): the page gets every one of the `KEEP` events, shows
+`SHOWN` and plays the rest in a loop (static/js/ticker.js). After every seven
+events comes a fun line - so at most every eighth line, and none on a quiet
+site. A fun line is set apart in look and, for screen readers, in words; it is
+never an event. Lines quoted from pop culture stay English; ours are translated.
 """
 
 import hashlib
+import secrets
 from dataclasses import dataclass
 from datetime import datetime
 from heapq import nlargest
@@ -23,7 +31,7 @@ from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db.models import Case, F, Value, When
 from django.db.models.functions import Concat
-from django.utils.translation import gettext, ngettext
+from django.utils.translation import get_language, gettext, gettext_noop, ngettext
 
 from core.l10n import number
 from decks.models import DeckImport
@@ -33,8 +41,10 @@ from simulations.models import SimulationRun
 #: Events kept across the sources: room for a viewer's own to be dropped and
 #: still fill `SHOWN` lines.
 KEEP = 40
-#: Lines on the page (P8).
+#: Lines on the page at a time (P8); the rest wait their turn in the loop.
 SHOWN = 8
+#: A fun line takes at most every this many places: one after every seven events.
+FUN_EVERY = 8
 #: Seconds the merged list lives in the cache; the page asks every 30 s.
 REFRESH = 60
 #: v2 (phase 12): events without their sentence; a v1 entry held sentences.
@@ -44,6 +54,10 @@ RUN = "run"
 PLAYTEST = "playtest"
 IMPORT = "import"
 JOIN = "join"
+FUN = "fun"
+
+#: The symbol beside each kind of event (core/icons/).
+ICONS = {RUN: "simulation", PLAYTEST: "hand", IMPORT: "import", JOIN: "new-user"}
 
 
 @dataclass(frozen=True)
@@ -58,6 +72,10 @@ class Event:
     #: The deck's commander, `None` for a deck without one.
     commander: str | None = None
     games: int = 0
+
+    @property
+    def icon(self) -> str:
+        return ICONS[self.kind]
 
     @property
     def text(self) -> str:
@@ -106,6 +124,7 @@ def _key(kind: str, pk, at: datetime) -> str:
 
 
 def _rows(queryset, *fields):
+    queryset = queryset.filter(owner__is_system=False)
     return queryset.values("pk", "owner_id", "at", "owner__is_guest", *fields)[:KEEP]
 
 
@@ -133,7 +152,7 @@ def build() -> list[Event]:
         "commander",
     )
     joins = (
-        get_user_model().objects.filter(is_guest=False)
+        get_user_model().objects.filter(is_guest=False, is_system=False)
         .annotate(at=F("date_joined")).order_by("-date_joined").values("pk", "at")[:KEEP]
     )
 
@@ -161,11 +180,67 @@ def recent() -> list[Event]:
     return cache.get_or_set(CACHE_KEY, build, REFRESH)
 
 
-def lines_for(user) -> list[Event]:
-    """The newest `SHOWN` events that are not the viewer's own.
+def lines_for(user) -> list["Event | Fun"]:
+    """Every event that is not the viewer's own, newest first, fun lines between.
 
     A guest is a user row of its own (`is_guest`), so the same filter hides a
     guest's trial from the guest. An anonymous visitor has nothing to hide.
     """
     own = user.pk if user.is_authenticated else None
-    return [event for event in recent() if event.owner_id != own][:SHOWN]
+    return with_fun([event for event in recent() if event.owner_id != own])
+
+
+@dataclass(frozen=True)
+class Fun:
+    """A line from the fish, not from anybody: no owner, never cached."""
+
+    name: str
+    line: str
+    #: Quoted from pop culture: stays in English, the way everybody knows it.
+    pop: bool = False
+    kind = FUN
+    owner_id = None
+
+    @property
+    def key(self) -> str:
+        return f"fun-{self.name}"
+
+    @property
+    def icon(self) -> str:
+        return f"fun-{self.name}"
+
+    @property
+    def text(self) -> str:
+        return self.line if self.pop else gettext(self.line)
+
+    @property
+    def lang(self) -> str:
+        """`en` where an English quote stands in a page of another language."""
+        return "en" if self.pop and not (get_language() or "en").startswith("en") else ""
+
+
+#: The ten fun lines, each with its drawing core/icons/fun-<name>.svg.
+FUN_LINES = (
+    Fun("base", "All your base are belong to us.", pop=True),
+    Fun("hello", "Hello, World!", pop=True),
+    Fun("press-f", "Press F to pay respects.", pop=True),
+    Fun("machine", "It works on my machine.", pop=True),
+    Fun("never-blocks", gettext_noop("The goldfish never blocks.")),
+    Fun("two-lander", gettext_noop("Keep a two-lander? Bold.")),
+    Fun("no-harm", gettext_noop("No fish were harmed in this simulation.")),
+    Fun("shuffle", gettext_noop("Shuffling very carefully. Again.")),
+    Fun("tapped", gettext_noop("Tapped out. Emotionally and literally.")),
+    Fun("variance", gettext_noop("Thousands of turns, zero opponents, still lost to variance.")),
+)
+
+
+def with_fun(events: list[Event]) -> list["Event | Fun"]:
+    """A fun line after every seven events, each a different one, picked anew."""
+    run = FUN_EVERY - 1
+    picked = secrets.SystemRandom().sample(FUN_LINES, min(len(events) // run, len(FUN_LINES)))
+    lines: list[Event | Fun] = []
+    for place, event in enumerate(events, start=1):
+        lines.append(event)
+        if place % run == 0 and picked:
+            lines.append(picked.pop())
+    return lines

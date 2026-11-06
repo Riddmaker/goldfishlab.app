@@ -123,6 +123,49 @@ class Deck(models.Model):
         return images
 
 
+class DeckMark(models.Model):
+    """An engine or a synergy pair its owner locked or dismissed (Themen-Doc,
+    Paket 1, PR 4).
+
+    Only what the owner says is stored: a suggestion is read from the list
+    on every visit (`decks.themes.deck_reading`), so a new reading adds new
+    suggestions and never deletes a row. Decks have no versions, so a row
+    hangs on its cards, by oracle id: a card that leaves the deck makes the
+    entry rest ("Card missing"), and the entry is back when the card is.
+    Each card's piece is kept too, so the entry can say what each card does
+    when the deck no longer shows it by itself (`cards.synergy.rebuild`).
+    """
+
+    class Kind(models.TextChoices):
+        ENGINE = "engine", "Engine"
+        PAIR = "pair", "Pair"
+
+    class State(models.TextChoices):
+        LOCKED = "locked", "Locked"
+        DISMISSED = "dismissed", "Dismissed"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    deck = models.ForeignKey("Deck", on_delete=models.CASCADE, related_name="marks")
+    kind = models.CharField(max_length=8, choices=Kind.choices)
+    #: The theme's key in `cards.themes`.
+    theme = models.CharField(max_length=32)
+    #: `[[oracle id, piece key], ...]`, in the order the entry says them.
+    cards = models.JSONField(default=list)
+    #: `cards.synergy.mark_key`: the kind, the theme, the sorted oracle ids.
+    key = models.CharField(max_length=400)
+    state = models.CharField(max_length=10, choices=State.choices)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["deck", "key"], name="one_mark_per_entry_per_deck")
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.key} ({self.state})"
+
+
 class DeckCard(models.Model):
     """A card in a deck, with a quantity.
 
@@ -179,6 +222,18 @@ ART_HOST = "https://cards.scryfall.io/"
 #: tried again. A printing Scryfall does not know is not marked: what the file
 #: meant cannot be guessed, so it keeps the catalogue's picture quietly.
 ART_MISSING = "missing"
+
+
+def small_image(url: str) -> str:
+    """Scryfall's small picture (146 x 204) for one of its normal ones.
+
+    Scryfall serves every size under the same path with the size as its first
+    part, so `/normal/front/...` becomes `/small/front/...`. Anything that is
+    not one of Scryfall's normal pictures is returned as it is.
+    """
+    if url.startswith(ART_HOST + "normal/"):
+        return ART_HOST + "small/" + url[len(ART_HOST + "normal/"):]
+    return url
 
 
 def art_missing(printings) -> bool:

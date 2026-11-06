@@ -24,6 +24,7 @@
   --parch-50: #fdfaf3; --parch-100: #f5ecd7;
   --parch-200: #ebdcbd; --parch-300: #dcc79b;
   --parch-600: #9a7739; --parch-700: #7c5e2c;
+  --parch-800: #5c4522;
   --blood-600: #a52c24;
   --blood-700: #86231d; --blood-800: #6a1c17;
   --blood-100: #fae0de;
@@ -73,6 +74,26 @@ td.num, th.num { text-align: right; font-family: var(--mono); }
 .fail { color: #e8938e; font-weight: 600; }
 .demo { padding: 2px 8px; font-size: .85rem; }
 
+.sg-row { margin: 0; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; }
+.sg-fan { position: relative; display: inline-block; width: 8.4rem; height: 4.9rem; }
+.sg-card { position: absolute; bottom: 0; left: 0; width: 3.5rem; height: 4.9rem;
+           border-radius: .2rem; transform-origin: 50% 100%;
+           border: 1px solid var(--parch-600); background: var(--parch-300);
+           box-shadow: 0 1px 4px rgb(0 0 0 / 35%); }
+.sg-c1 { z-index: 3; transform: translateX(1.05rem) rotate(7deg); }
+.sg-c2 { z-index: 2; transform: translateX(2.1rem) rotate(14deg); }
+.sg-c3 { z-index: 1; transform: translateX(3.15rem) rotate(21deg); }
+.sg-cmd { z-index: 4; background: var(--ink-800); box-shadow: 0 2px 6px rgb(0 0 0 / 45%); }
+.sg-none { z-index: 4; border: 2px dashed var(--parch-600); background: var(--parch-100);
+           box-shadow: none; }
+.sg-switch { position: relative; display: inline-block; width: 2.75rem; height: 1.5rem;
+             border: 1px solid var(--ink-800); border-radius: 9999px;
+             background: var(--parch-300); }
+.sg-switch.sg-on { background: var(--ink-800); }
+.sg-knob { position: absolute; top: 2px; left: 2px; width: 1.125rem; height: 1.125rem;
+           border-radius: 9999px; background: var(--parch-50);
+           box-shadow: 0 1px 2px rgb(0 0 0 / 40%); }
+.sg-on .sg-knob { transform: translateX(1.25rem); }
 .surface {
   background-color: var(--parch-100);
   background-image:
@@ -162,6 +183,323 @@ ul.dodont li { margin-bottom: .4rem; font-size: .93rem; }
 @media (prefers-reduced-motion: reduce) {
   .logo-animated .logo-fish, .logo-animated .logo-bubble { animation: none; opacity: 1; }
 }
+.sym-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: .75rem; }
+.sym-cell { display: flex; gap: .9rem; align-items: flex-start; color: var(--parch-100); }
+.sym-note { color: var(--ink-300); font-size: .9rem; }
+.sym-inline { display: inline-flex; gap: .4rem; align-items: center; margin-right: 1.4rem; }
+.pt-kbd { padding: 0 .3rem; border: 1px solid currentColor; border-bottom-width: 2px;
+  border-radius: 3px; font-family: ui-monospace, monospace; font-size: .75rem; opacity: .8; }
+.pt-journal { list-style: none; margin: 0; padding: 0; }
+.pt-journal li { padding: .15rem 0; }
+.pt-journal .pt-turn { font-style: italic; }
+.pt-journal .pt-unusual { display: flex; gap: .5rem; align-items: flex-start; padding: .25rem 0;
+  border-top: 1px dashed var(--parch-600); border-bottom: 1px dashed var(--parch-600); }
+.pt-board { display: flex; flex-wrap: wrap; gap: 1rem; }
+.pt-felt { flex: 999 1 22rem; padding: 1rem; border: 1px solid var(--parch-800);
+  border-radius: 4px;
+  background: radial-gradient(ellipse at 50% 40%, var(--ink-800) 0%, var(--ink-900) 70%);
+  box-shadow: inset 0 0 60px rgb(0 0 0 / 60%); color: var(--parch-100); }
+.pt-felt .pt-zone { display: flex; gap: .5rem; min-height: 4.5rem; padding: .4rem;
+  border: 1px dashed var(--ink-700); border-radius: 4px; }
+.pt-felt .pt-card { width: 2.6rem; height: 3.6rem; border-radius: 3px;
+  background: var(--parch-300);
+  color: var(--ink-900); font-size: .6rem; display: flex; align-items: center; justify-content:
+  center; }
+.pt-felt .pt-tapped { rotate: 90deg; margin-inline: .5rem; opacity: .85; }
+.pt-label { font-size: .75rem; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--ink-300); }
+.pt-page { flex: 1 1 14rem; padding: 1rem 1.25rem; border: 1px solid var(--parch-800);
+  border-radius: 4px;
+  background: var(--parch-200); background-image: radial-gradient(ellipse at 80% 85%,
+  var(--parch-300) 0%,
+  transparent 60%), linear-gradient(to left, transparent 92%, rgb(61 46 24 / 25%)); color:
+  var(--ink-900);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 60%); }
+.pt-page .pt-turn { color: var(--parch-800); }
+.pt-btn { display: inline-flex; gap: .5rem; align-items: center; min-height: 3rem;
+  padding: .5rem 1rem;
+  border: 1px solid var(--ink-700); color: var(--parch-200); font: inherit; background: none; }
+.pt-btn-main { background: var(--blood-700); border-color: var(--blood-800);
+  color: var(--parch-100); }
+.pt-btn-second { background: var(--parch-100); border-color: var(--parch-600);
+  color: var(--ink-900); }
+.tk-band { background: var(--ink-900); border-block: 1px solid var(--parch-800); padding: 1rem; }
+.tk-band ul { list-style: none; margin: .5rem 0 0; padding: 0; color: var(--parch-100); }
+.tk-band li { display: flex; gap: .75rem; align-items: center; padding: .2rem 0; }
+.tk-band li .icon { width: 1.6em; height: 1.6em; }
+.tk-band li.tk-fun { margin: .125rem -.75rem; padding: .45rem .75rem; background: var(--ink-800);
+  border-block: 1px solid var(--parch-600); color: var(--parch-300); font-style: italic; }
+/* icons:start - the symbols (DESIGN.md, SYMBOLS; Paket 4, PR 15), set with
+ * the icon template tag from core/icons/*.svg. scripts/build_styleguide.py copies this
+ * block into STYLEGUIDE.html, so it holds nothing but the symbols.
+ * The line is the text's colour, the fills come from four families; on
+ * parchment they step darker. Each symbol moves once while its host - the
+ * button, tile or heading row it belongs to - is hovered or has keyboard
+ * focus, or for a moment once it arrives (`.icon-now`: a new ticker line).
+ * The fun lines' drawings (fun-*) add dark grounds of ink and bone; the
+ * overlord's jaw, eye and antenna never stop. Without a reduced-motion
+ * preference only: nothing here moves else. */
+.icon {
+  --i-gold: #dcc79b;
+  --i-water: #9cc4dc;
+  --i-blood: #d96259;
+  --i-green: #7bb89e;
+  --i-ink: #12100d;
+  display: inline-block;
+  flex: none;
+  width: 1.25em;
+  height: 1.25em;
+  overflow: visible;
+  vertical-align: -0.25em;
+}
+
+.surface-parchment .icon,
+.icon-on-light .icon {
+  --i-gold: #b5904f;
+  --i-water: #5f93b5;
+  --i-blood: #c43d33;
+  --i-green: #4f9779;
+}
+
+.icon-lg {
+  width: 2.5rem;
+  height: 2.5rem;
+  stroke-width: 1.8;
+}
+
+.icon .i-gold { fill: var(--i-gold); }
+.icon .i-water { fill: var(--i-water); }
+.icon .i-blood { fill: var(--i-blood); }
+.icon .i-green { fill: var(--i-green); }
+.icon .i-ink { fill: var(--i-ink); }
+.icon .i-night { fill: #1c1a15; }
+.icon .i-steel { fill: #5d564a; }
+.icon .i-ash { fill: #9c9382; }
+.icon .i-bone { fill: #ebdcbd; }
+.icon .i-pip { fill: #86231d; }
+.icon .i-line-gold { stroke: var(--i-gold); }
+.icon .i-line-blood { stroke: var(--i-blood); }
+.icon .i-line-green { stroke: var(--i-green); }
+.icon .i-line-ink { stroke: var(--i-ink); }
+.icon .i-teeth,
+.icon .i-guard,
+.icon .i-mark { stroke-width: 2.6; }
+.icon .i-fine { stroke-width: 1.8; }
+
+/* A part turns about its own middle; the fan, the hourglass, the gear and
+ * the arrows about a point of the drawing. */
+.icon * {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* A shape drawn turned (the fanned cards) keeps its turn where it was drawn:
+ * an origin in its middle would move it. */
+.icon [transform] {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+.icon .i-hl,
+.icon .i-hr,
+.icon .i-hg,
+.icon .i-gear,
+.icon .i-nh,
+.icon .i-sprout,
+.icon .i-dag {
+  transform-box: view-box;
+}
+
+.icon .i-hl,
+.icon .i-hr { transform-origin: 16px 25px; }
+.icon .i-hg,
+.icon .i-gear,
+.icon .i-nh { transform-origin: 16px 16px; }
+.icon .i-sprout,
+.icon .i-dag { transform-origin: 16px 26.5px; }
+.icon .i-b { transform-origin: 50% 100%; }
+.icon .i-key { transform-origin: 50% 100%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .icon .i-hl,
+  .icon .i-hr,
+  .icon .i-hf,
+  .icon .i-cl,
+  .icon .i-cr,
+  .icon .i-card,
+  .icon .i-plus {
+    transition: transform 450ms cubic-bezier(0.3, 1.5, 0.5, 1);
+  }
+
+  .icon .i-hg,
+  .icon .i-gear,
+  .icon .i-nh {
+    transition: transform 700ms ease-in-out;
+  }
+
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-hl { transform: rotate(-10deg); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-hr { transform: rotate(10deg); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-hf { transform: translateY(-2px); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-hg { transform: rotate(180deg); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-gear { transform: rotate(90deg); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-nh { transform: rotate(180deg); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-cl { transform: translateX(1.6px); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-cr { transform: translateX(-1.6px); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-card { transform: translateY(-2px); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-plus { transform: rotate(90deg); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-bub { animation: icon-rise 1.1s ease-out infinite; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-bub-2 { animation-delay: 450ms; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-wat { animation: icon-slosh 800ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-arr { animation: icon-drop 700ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-fish { animation: icon-wiggle 600ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-spark { animation: icon-twinkle 700ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-up { animation: icon-lift 700ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-wv { animation: icon-wave 700ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-b { animation: icon-grow 450ms ease-out both; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-b:nth-of-type(2) { animation-delay: 70ms; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-b:nth-of-type(3) { animation-delay: 140ms; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-b:nth-of-type(4) { animation-delay: 210ms; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-b:nth-of-type(5) { animation-delay: 280ms; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-lens { animation: icon-pulse 600ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-sprout { animation: icon-sprout 600ms ease-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-dag { animation: icon-stab 500ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-seal { animation: icon-stamp 500ms ease-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-note { animation: icon-wiggle 500ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-sf { animation: icon-swim 900ms ease-in-out; }
+
+  /* The fun lines: the overlord talks as long as he is there; the others
+   * play their move twice. */
+  .icon .i-jaw { animation: icon-talk 1.8s ease-in-out infinite; }
+  .icon .i-eye { animation: icon-scan 2.6s ease-in-out infinite; }
+  .icon .i-blink { animation: icon-blink 1.1s steps(2) infinite; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-cur { animation: icon-blink 600ms steps(2) 3; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-key { animation: icon-press 700ms ease-in-out 2; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-chk { animation: icon-tick 900ms ease-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-pass { animation: icon-pass 800ms ease-in-out 2; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-drip { animation: icon-drip 800ms ease-in 2; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-heart { animation: icon-beat 700ms ease-in-out 2; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-sl { animation: icon-shuffle-l 600ms ease-in-out 2; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-sr { animation: icon-shuffle-r 600ms ease-in-out 2; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-z1 { animation: icon-zz 1.2s ease-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-z2 { animation: icon-zz 1.2s ease-out 300ms backwards; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-die { animation: icon-roll 1.1s cubic-bezier(0.3, 1.3, 0.5, 1); }
+}
+
+@keyframes icon-rise {
+  0% { transform: translateY(2px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(-6px); opacity: 0; }
+}
+
+@keyframes icon-slosh {
+  25% { transform: skewY(6deg); }
+  60% { transform: skewY(-4deg); }
+}
+
+@keyframes icon-drop {
+  50% { transform: translateY(3px); }
+}
+
+@keyframes icon-wiggle {
+  25% { transform: rotate(-9deg); }
+  75% { transform: rotate(7deg); }
+}
+
+@keyframes icon-twinkle {
+  50% { transform: scale(1.5) rotate(45deg); }
+}
+
+@keyframes icon-lift {
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes icon-wave {
+  50% { transform: translateX(-2px); }
+}
+
+@keyframes icon-grow {
+  from { transform: scaleY(0); }
+}
+
+@keyframes icon-pulse {
+  50% { transform: scale(1.3); }
+}
+
+@keyframes icon-sprout {
+  0% { transform: scale(0.6); }
+  70% { transform: scale(1.08); }
+}
+
+@keyframes icon-stab {
+  40% { transform: translateY(2.5px) rotate(-8deg); }
+}
+
+@keyframes icon-stamp {
+  40% { transform: scale(1.15) rotate(-6deg); }
+}
+
+@keyframes icon-swim {
+  30% { transform: translateX(2px); }
+  70% { transform: translateX(-2px); }
+}
+
+@keyframes icon-talk {
+  0%, 20%, 40%, 62%, 100% { transform: translateY(0); }
+  10%, 30% { transform: translateY(1.6px); }
+  50% { transform: translateY(1.2px); }
+  72% { transform: translateY(1.8px); }
+}
+
+@keyframes icon-scan {
+  50% { transform: translateX(-7px); }
+}
+
+@keyframes icon-blink {
+  50% { opacity: 0.15; }
+}
+
+@keyframes icon-press {
+  40% { transform: translateY(2.5px) scaleY(0.94); }
+}
+
+@keyframes icon-tick {
+  from { stroke-dashoffset: 1; }
+}
+
+@keyframes icon-pass {
+  30% { transform: translateX(-3px); }
+  70% { transform: translateX(3px); }
+}
+
+@keyframes icon-drip {
+  to { transform: translateY(6px); opacity: 0; }
+}
+
+@keyframes icon-beat {
+  30% { transform: scale(1.3); }
+  60% { transform: scale(1.05); }
+}
+
+@keyframes icon-shuffle-l {
+  50% { transform: translateX(5px) rotate(6deg); }
+}
+
+@keyframes icon-shuffle-r {
+  50% { transform: translateX(-5px) rotate(-6deg); }
+}
+
+@keyframes icon-zz {
+  0% { transform: translate(0, 0); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translate(2px, -4px); opacity: 0; }
+}
+
+@keyframes icon-roll {
+  70% { transform: rotate(380deg); }
+  100% { transform: rotate(360deg); }
+}
+
 </style>
 </head>
 <body>
@@ -172,7 +510,7 @@ ul.dodont li { margin-bottom: .4rem; font-size: .93rem; }
 <code>DESIGN.md</code>; this document renders them.</p>
 <p class="meta">Generated from <code>assets/css/input.css</code> by
 <code>scripts/build_styleguide.py</code> &mdash; do not edit by hand.
-41 colour tokens, 19 enforced role pairings,
+43 colour tokens, 19 enforced role pairings,
 worst measured contrast 5.11:1 (AA needs 4.5:1).</p>
 
 <h2>Grounding</h2>
@@ -214,8 +552,14 @@ colour can enter the system by accident.</p>
 <section class="family">
   <h3>verdigris</h3>
   <p class="rule"><strong>Means:</strong> Success, and &ldquo;successfully modelled&rdquo; states.<br>
-     <strong>Never:</strong> Decoration.</p>
+     <strong>Never:</strong> Decoration (a symbol's fill excepted).</p>
   <div class="swatches"><div class="sw"><div class="chip" style="background:#f1f8f5"></div><div class="step">50</div><div class="hex">#f1f8f5</div></div><div class="sw"><div class="chip" style="background:#d9ece2"></div><div class="step">100</div><div class="hex">#d9ece2</div></div><div class="sw"><div class="chip" style="background:#b0d6c4"></div><div class="step">200</div><div class="hex">#b0d6c4</div></div><div class="sw"><div class="chip" style="background:#7bb89e"></div><div class="step">300</div><div class="hex">#7bb89e</div></div><div class="sw"><div class="chip" style="background:#4f9779"></div><div class="step">400</div><div class="hex">#4f9779</div></div><div class="sw"><div class="chip" style="background:#357a5f"></div><div class="step">500</div><div class="hex">#357a5f</div></div><div class="sw"><div class="chip" style="background:#29624c"></div><div class="step">600</div><div class="hex">#29624c</div></div><div class="sw"><div class="chip" style="background:#224f3e"></div><div class="step">700</div><div class="hex">#224f3e</div></div><div class="sw"><div class="chip" style="background:#1a3d30"></div><div class="step">800</div><div class="hex">#1a3d30</div></div><div class="sw"><div class="chip" style="background:#132c23"></div><div class="step">900</div><div class="hex">#132c23</div></div></div>
+</section>
+<section class="family">
+  <h3>water</h3>
+  <p class="rule"><strong>Means:</strong> The fill of a symbol: the water in the flask, the wave, a card.<br>
+     <strong>Never:</strong> Text, surfaces or state.</p>
+  <div class="swatches"><div class="sw"><div class="chip" style="background:#9cc4dc"></div><div class="step">300</div><div class="hex">#9cc4dc</div></div><div class="sw"><div class="chip" style="background:#5f93b5"></div><div class="step">500</div><div class="hex">#5f93b5</div></div></div>
 </section>
 
 <h2>Contrast &mdash; every enforced pairing</h2>
@@ -476,7 +820,7 @@ meaning &mdash; the honesty layer has to reach a colour-blind reader too.</p>
 <p class="rule">This pattern appears beside <em>every</em> result. It is the product's core
 differentiator, not a disclaimer to be tucked away.</p>
 
-<h2>Markers, bars and &ldquo;Why?&rdquo; (Phase 9)</h2>
+<h2>Markers, bars and &ldquo;More&rdquo; (Phase 9, Paket 3)</h2>
 <div class="surface">
   <p style="margin:0">
     <span style="display:inline-block;border:1px solid var(--blood-700);color:var(--blood-700);
@@ -490,14 +834,80 @@ differentiator, not a disclaimer to be tucked away.</p>
       background:var(--parch-200)">
       <span style="display:block;height:100%;width:60%;background:var(--ink-800)"></span></span>
     <span class="meta" style="color:var(--ink-900)">3 of 5 decks</span>
-    <a href="#" style="color:var(--ink-700);font-size:.85rem">Why?</a>
+    <a href="#" style="color:var(--ink-700);font-size:.85rem">More</a>
   </p>
 </div>
-<p class="rule">The deck marker, a usage bar and the small &ldquo;Why?&rdquo; link. Each says it
+<p class="rule">The deck marker, a usage bar and the small &ldquo;More&rdquo; link, after a
+sentence that says why the section matters (never a &ldquo;Why?&rdquo; to answer). Each says it
 in words as well: the marker is a sentence, the bar has its count beside it, and blood-700 fills
 a bar only when the limit is reached. The card grid, the line charts and the playtest hand are
 described in <code>DESIGN.md</code> (&ldquo;Pictures, markers and charts&rdquo;) and live at
 their templates; this file shows the tokens they are built from.</p>
+
+<h2>&ldquo;In short&rdquo;: next to the precons (Paket 3)</h2>
+<div class="surface">
+  <div style="display:grid;grid-template-columns:12rem 4.5rem 1fr;gap:.25rem 1rem;
+    align-items:baseline">
+    <span style="color:var(--ink-900)">4 lands by turn 4</span>
+    <span class="meta" style="color:var(--ink-900);font-size:1.25rem">81%</span>
+    <span style="position:relative;height:1.25rem;border-bottom:1px solid var(--parch-600)">
+      <span style="position:absolute;bottom:0;left:10%;width:2px;height:.75rem;
+        background:var(--ink-500);opacity:.3"></span>
+      <span style="position:absolute;bottom:0;left:35%;width:2px;height:.75rem;
+        background:var(--ink-500);opacity:.3"></span>
+      <span style="position:absolute;bottom:0;left:52%;width:2px;height:.75rem;
+        background:var(--ink-500);opacity:.3"></span>
+      <span style="position:absolute;bottom:0;left:55%;width:2px;height:.75rem;
+        background:var(--ink-500);opacity:.3"></span>
+      <span style="position:absolute;bottom:0;left:90%;width:2px;height:.75rem;
+        background:var(--ink-500);opacity:.3"></span>
+      <span style="position:absolute;bottom:0;left:72%;width:.75rem;height:1.25rem;
+        transform:translateX(-50%);border:2px solid var(--parch-100);
+        background:var(--verd-700)"></span>
+    </span>
+    <span class="meta" style="grid-column:2/-1;color:var(--ink-700)"
+      >Ahead of 3 of 5 precons. The precons&rsquo; middle: 76%.</span>
+  </div>
+</div>
+<p class="rule">Each number of &ldquo;In short&rdquo; beside the precons&rsquo;: a faint tick per
+precon, one tall verdigris mark for the deck, and the same in words under it. Under five precons
+the block is left out.</p>
+
+<h2>The stress test: two cards (Paket 3)</h2>
+<div class="surface" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));
+  gap:.75rem">
+  <div style="border:1px solid var(--parch-600);background:var(--parch-50);padding:1rem">
+    <h3 style="margin:0">Your commander is removed</h3>
+    <p class="tabular" style="color:var(--ink-900);font-size:2.25rem;margin:.5rem 0 0">82%</p>
+    <p class="meta" style="color:var(--ink-900);margin:0"
+      >of games had your commander back by turn 8</p>
+    <p class="meta" style="color:var(--ink-700)">The very next turn: 41%.</p>
+  </div>
+  <div style="border:1px solid var(--parch-600);background:var(--parch-50);padding:1rem">
+    <h3 style="margin:0">A board wipe before turn 5</h3>
+    <p class="tabular" style="color:var(--ink-900);font-size:2.25rem;margin:.5rem 0 0">4.2</p>
+    <p class="meta" style="color:var(--ink-900);margin:0">mana on turn 8 after the wipe</p>
+    <p class="meta" style="color:var(--ink-700)">Without the wipe: 7.1.</p>
+  </div>
+</div>
+<p class="rule">One card per blow, side by side, each with one big number: how fast the deck
+comes back. One sentence under it, the assumption small at the bottom; the with/without table
+is folded under &ldquo;The numbers&rdquo;.</p>
+
+<h2>Compared with your last run (Paket 3)</h2>
+<div class="surface">
+  <h3 style="margin:0">Compared with your last run</h3>
+  <p class="meta" style="color:var(--ink-700)">Your run of 02/11/2026, then this one. The deck
+  has changed in between.</p>
+  <p class="tabular" style="margin:.25rem 0">4 lands by turn 4 &nbsp;80% &rarr; 85%
+    &nbsp;<strong style="color:var(--verd-700)">better</strong></p>
+  <p class="tabular" style="margin:.25rem 0">Kept seven &nbsp;50% &rarr; 45%
+    &nbsp;<strong style="color:var(--blood-700)">worse</strong></p>
+  <p class="tabular" style="margin:.25rem 0">Mana on turn 4 &nbsp;4.0 &rarr; 4.0
+    &nbsp;<span style="color:var(--ink-700)">about the same</span></p>
+</div>
+<p class="rule">The run before, then this one, each number with one word: better, worse or
+about the same within chance (95%). The word carries it, the colour only repeats it.</p>
 
 <h2>Motion (Phase 10)</h2>
 <div class="surface" style="display:flex;align-items:center;gap:1.2rem">
@@ -531,6 +941,100 @@ short move now and then while nobody touches the page - a glance, a turn, rarely
 flask - and a click tilts the flask. Every move ends inside 2&nbsp;s; under reduced motion only the
 eye widens, on a click.</p>
 
+<h2>Symbols (Paket 4)</h2>
+<div class="sym-grid">
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-simulation icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path class="i-water i-wat" stroke="none" d="M9.92 18H22.08L24.7 22.4A2.4 2.4 0 0 1 22.6 26H9.4a2.4 2.4 0 0 1-2.1-3.6z"/><path d="M13.5 6h5v6l6.2 10.4A2.4 2.4 0 0 1 22.6 26H9.4a2.4 2.4 0 0 1-2.1-3.6L13.5 12z"/><path d="M12.5 5.5h7"/><circle class="i-line-gold i-bub" cx="17" cy="14.5" r="1"/><circle class="i-line-gold i-bub i-bub-2" cx="15.2" cy="10.5" r="0.7"/></svg><div><strong>Simulation</strong><br><span class="sym-note">A run. The flask with water; bubbles rise.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-hand icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-hl"><rect class="i-water" x="11" y="8" width="10" height="15" rx="1.6" transform="rotate(-22 16 25)"/></g><g class="i-hr"><rect class="i-water" x="11" y="8" width="10" height="15" rx="1.6" transform="rotate(22 16 25)"/></g><g class="i-hf"><rect class="i-gold" x="11" y="6.5" width="10" height="15" rx="1.6"/></g></svg><div><strong>Draw a hand</strong><br><span class="sym-note">A playtest. The fan opens.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-import icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path class="i-water" stroke="none" d="M7 21.5h18v3a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 7 24.5z"/><path d="M6 18v6.5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V18"/><g class="i-line-gold i-arr"><path d="M16 5v13"/><path d="M11 13l5 5 5-5"/></g></svg><div><strong>Import</strong><br><span class="sym-note">A list drops into the tank.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-new-user icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-fish"><path class="i-gold" d="M8.5 18.5l-4.5-3.5v7z"/><ellipse class="i-gold" cx="15.5" cy="18.5" rx="7.5" ry="5"/><circle class="i-ink" stroke="none" cx="19.5" cy="17.3" r="1"/></g><path class="i-gold i-spark" stroke="none" d="M25 3.5l1.1 2.9 2.9 1.1-2.9 1.1L25 11.5l-1.1-2.9L21 7.5l2.9-1.1z"/></svg><div><strong>New user</strong><br><span class="sym-note">A new goldfish, with a glint.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-speed icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-hg"><path class="i-gold" stroke="none" d="M13 9h6c-.6 2-1.8 3.2-3 4-1.2-.8-2.4-2-3-4z"/><path class="i-gold" stroke="none" d="M12.4 25c.6-2.6 2-3.8 3.6-4.4 1.6.6 3 1.8 3.6 4.4z"/><path d="M10 6h12M10 26h12"/><path d="M11.5 6c0 5 4.5 6.5 4.5 10s-4.5 5-4.5 10M20.5 6c0 5-4.5 6.5-4.5 10s4.5 5 4.5 10"/></g></svg><div><strong>Speed</strong><br><span class="sym-note">How fast the deck gets going. The hourglass turns.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-stress icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path class="i-water i-wv" stroke="none" fill-opacity="0.55" d="M5 22c2.7-2.5 4.5-2.5 7.3 0s4.6 2.5 7.4 0 4.6-2.5 7.3 0V27H5z"/><path class="i-wv" d="M5 22c2.7-2.5 4.5-2.5 7.3 0s4.6 2.5 7.4 0 4.6-2.5 7.3 0"/><g class="i-line-green i-up"><path d="M16 17V5.5"/><path d="M11.5 10L16 5.5 20.5 10"/></g></svg><div><strong>Stress test</strong><br><span class="sym-note">Up again after the wave.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-bracket icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect class="i-gold i-b" x="5" y="22" width="3.4" height="4.5" rx="0.6"/><rect class="i-gold i-b" x="9.6" y="18" width="3.4" height="8.5" rx="0.6"/><rect class="i-gold i-b" x="14.2" y="14" width="3.4" height="12.5" rx="0.6"/><rect class="i-b" x="18.8" y="10" width="3.4" height="16.5" rx="0.6"/><rect class="i-b" x="23.4" y="6" width="3.4" height="20.5" rx="0.6"/><path d="M4.5 26.5h23"/></svg><div><strong>Bracket</strong><br><span class="sym-note">Five steps, filled up to the deck&rsquo;s.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-combo icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path class="i-gold i-lens" stroke="none" d="M16 9.66A7.5 7.5 0 0 1 16 22.34A7.5 7.5 0 0 1 16 9.66z"/><g class="i-cl"><circle cx="12" cy="16" r="7.5"/></g><g class="i-cr"><circle cx="20" cy="16" r="7.5"/></g></svg><div><strong>Combo</strong><br><span class="sym-note">Two rings; where they meet, gold.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-engine icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-gear"><path class="i-teeth" d="M16 9.2V6M16 22.8V26M9.2 16H6M22.8 16H26M11.2 11.2l-2.3-2.3M20.8 20.8l2.3 2.3M11.2 20.8l-2.3 2.3M20.8 11.2l2.3-2.3"/><circle cx="16" cy="16" r="6.8"/><circle class="i-green" cx="16" cy="16" r="3"/></g></svg><div><strong>Engine</strong><br><span class="sym-note">Cards that keep turning. A quarter turn.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-ramp icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5.5 26.5h21"/><g class="i-sprout"><path d="M16 26.5V14"/><path class="i-green" d="M16 18.5c-5 0-8-3-8-8 5 0 8 3 8 8z"/><path class="i-green" d="M16 15c0-5 3-8 8-8 0 5-3 8-8 8z"/></g></svg><div><strong>Ramp</strong><br><span class="sym-note">Mana that grows. The sprout springs up.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-draw icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-card"><rect class="i-water" fill-opacity="0.35" x="6.5" y="4.5" width="13.5" height="19" rx="1.8"/></g><g class="i-plus"><circle class="i-gold" stroke="none" cx="23" cy="23" r="5"/><path class="i-line-ink" d="M23 20.3v5.4M20.3 23h5.4"/></g></svg><div><strong>Card draw</strong><br><span class="sym-note">One card more.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-removal icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-dag"><path d="M16 3.5l-2.4 4V19h4.8V7.5z"/><path class="i-line-blood i-guard" d="M10.5 19h11"/><path d="M16 19v4.5"/><circle class="i-blood" stroke="none" cx="16" cy="26" r="1.8"/></g></svg><div><strong>Removal</strong><br><span class="sym-note">An answer. The dagger strikes.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-new-hand icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-nh"><path d="M25 12.5A10 10 0 0 0 7.6 10"/><path class="i-line-gold" d="M7 5.5V10h4.5"/><path d="M7 19.5A10 10 0 0 0 24.4 22"/><path class="i-line-gold" d="M25 26.5V22h-4.5"/></g></svg><div><strong>New hand</strong><br><span class="sym-note">Shuffle and draw seven. Turns round.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-legal icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-seal"><path class="i-blood" d="M11.2 19L9 28l7-3 7 3-2.2-9z"/><circle class="i-green" cx="16" cy="13" r="8.5"/><path class="i-line-ink" d="M12 13l3 3 5-5.5"/></g></svg><div><strong>Legal</strong><br><span class="sym-note">A seal for the six checks. It stamps.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-unusual icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-note"><path d="M8 4.5h16v23l-3-2-2.5 2-2.5-2-2.5 2-2.5-2-3 2z"/><path class="i-line-blood i-mark" d="M16 10v6.5"/><circle class="i-blood" stroke="none" cx="16" cy="20.5" r="1.3"/></g></svg><div><strong>Unusual move</strong><br><span class="sym-note">Free mode marks what the rules would not allow.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-fish-says icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 6.5h20a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H14l-5 5v-5H6a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2z"/><g class="i-sf"><path class="i-gold" d="M13.3 14l-3-2.3v4.6z"/><ellipse class="i-gold" cx="17.5" cy="14" rx="4.2" ry="2.7"/></g></svg><div><strong>The fish says</strong><br><span class="sym-note">A fun line in the ticker, never an event.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-fun-base icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-fine" transform="translate(2.9 2.6) scale(0.82)"><path d="M23 7.5l3.2-3.2"/><circle class="i-blood i-blink" stroke="none" cx="27" cy="3.6" r="1.3"/><path class="i-steel" d="M7.5 15v-2.5a8.5 8.5 0 0 1 17 0V15z"/><path class="i-bone" d="M8.5 15h15v4.5a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3z"/><rect class="i-ink" x="8" y="14" width="16" height="3.2" rx="1.6"/><ellipse class="i-blood i-eye" stroke="none" cx="19.5" cy="15.6" rx="2.2" ry="0.9"/><g class="i-jaw"><path class="i-ash" d="M11 22.5h10v2.3a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2z"/></g><path d="M12.5 27.5v3M16 27.5v3M19.5 27.5v3"/></g></svg><div><strong>All your base are belong to us.</strong><br><span class="sym-note">The overlord: a steel skull. The jaw talks, the eye sweeps, the antenna blinks - always.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-fun-hello icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-fine"><rect class="i-ink" x="4.5" y="6" width="23" height="20" rx="2"/><path d="M4.5 10.5h23"/><circle class="i-blood" stroke="none" cx="7.6" cy="8.3" r="0.8"/><circle class="i-gold" stroke="none" cx="10.2" cy="8.3" r="0.8"/><circle class="i-green" stroke="none" cx="12.8" cy="8.3" r="0.8"/><path class="i-line-green" stroke-width="2" d="M8.5 14.5l3 2.5-3 2.5"/><rect class="i-gold i-cur" stroke="none" x="13.5" y="19" width="5" height="1.8"/></g></svg><div><strong>Hello, World!</strong><br><span class="sym-note">A terminal. The cursor blinks.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-fun-press-f icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-fine"><rect class="i-night" x="4.5" y="6.5" width="23" height="21" rx="3"/><g class="i-key"><rect class="i-gold" x="7.5" y="7.5" width="17" height="15" rx="2"/><path class="i-line-ink" stroke-width="2" d="M14 11v7.5M14 11h4.5M14 14.6h3.5"/></g></g></svg><div><strong>Press F to pay respects.</strong><br><span class="sym-note">The key goes down.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-fun-machine icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-fine"><rect class="i-water" x="5" y="6" width="22" height="15" rx="1.5"/><path d="M16 21v4M12 25.5h8"/><path class="i-line-ink i-chk" stroke-width="2.2" pathLength="1" stroke-dasharray="1" d="M11.5 13.5l3 3 6-6"/></g></svg><div><strong>It works on my machine.</strong><br><span class="sym-note">The tick draws itself.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-fun-never-blocks icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-fine" transform="translate(1.3 1.3) scale(0.92)"><path d="M4 27h24"/><g transform="rotate(-25 9 22)"><path class="i-water" fill-opacity="0.5" d="M5 15l4-1.5 4 1.5v4c0 3.5-4 5.5-4 5.5S5 22.5 5 19z"/></g><g class="i-pass"><path class="i-gold" d="M17 11l-4-3v6z"/><ellipse class="i-gold" cx="22" cy="11" rx="5.5" ry="3.6"/><circle class="i-ink" stroke="none" cx="24.6" cy="10.2" r="0.9"/></g></g></svg><div><strong>The goldfish never blocks.</strong><br><span class="sym-note">The fish swims past the shield.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-fun-two-lander icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-fine" transform="translate(1.3 1.3) scale(0.92)"><rect class="i-green" fill-opacity="0.45" x="4.5" y="10" width="10" height="15" rx="1.5"/><rect class="i-water" fill-opacity="0.45" x="16" y="10" width="10" height="15" rx="1.5"/><path stroke-width="1.4" d="M6.5 21l2.5-4 2 2.5 1.5-2"/><path stroke-width="1.4" d="M18 21l3-4.5 3 4.5"/><path class="i-water i-drip" stroke-width="1.2" d="M27 1.5c1.6 2.4 2.4 3.6 2.4 4.7a2.4 2.4 0 0 1-4.8 0c0-1.1.8-2.3 2.4-4.7z"/></g></svg><div><strong>Keep a two-lander? Bold.</strong><br><span class="sym-note">Two lands, one bead of sweat.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-fun-no-harm icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-fine"><path class="i-gold" d="M8 20l-4-3v6z"/><ellipse class="i-gold" cx="15" cy="20" rx="7" ry="4.6"/><circle class="i-ink" stroke="none" cx="18.6" cy="19" r="0.9"/><rect class="i-bone" stroke-width="1" x="10.5" y="17.5" width="5" height="2.4" rx="1" transform="rotate(-30 13 18.7)"/><path class="i-blood i-heart" stroke="none" d="M24 13.5c-3.5-2.4-5-4.1-5-6a2.5 2.5 0 0 1 5-.6 2.5 2.5 0 0 1 5 .6c0 1.9-1.5 3.6-5 6z"/></g></svg><div><strong>No fish were harmed in this simulation.</strong><br><span class="sym-note">A plaster, and the heart beats.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-fun-shuffle icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-fine" transform="translate(1.3 1.3) scale(0.92)"><g class="i-sl"><rect class="i-water" fill-opacity="0.5" x="4.5" y="9" width="11" height="15" rx="1.5" transform="rotate(-10 10 16.5)"/></g><g class="i-sr"><rect class="i-gold" fill-opacity="0.6" x="16.5" y="9" width="11" height="15" rx="1.5" transform="rotate(10 22 16.5)"/></g></g></svg><div><strong>Shuffling very carefully. Again.</strong><br><span class="sym-note">The halves riffle.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-fun-tapped icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-fine"><rect class="i-gold" fill-opacity="0.55" x="4" y="15" width="18" height="12" rx="1.5"/><path stroke-width="1.3" d="M8.5 21q1.5 1.2 3 0M14.5 21q1.5 1.2 3 0"/><path class="i-z1" stroke-width="1.6" d="M21.5 9h4l-4 4h4"/><path class="i-z2" stroke-width="1.3" d="M25.5 3h3l-3 3h3"/></g></svg><div><strong>Tapped out. Emotionally and literally.</strong><br><span class="sym-note">A tapped card, asleep.</span></div></div>
+<div class="panel-dark icon-host sym-cell" tabindex="0"><svg class="icon icon-fun-variance icon-lg" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-fine"><g class="i-die"><rect class="i-bone" x="5.5" y="5.5" width="21" height="21" rx="4"/><circle class="i-pip" stroke="none" cx="11" cy="11" r="1.8"/><circle class="i-pip" stroke="none" cx="16" cy="16" r="1.8"/><circle class="i-pip" stroke="none" cx="21" cy="21" r="1.8"/></g></g></svg><div><strong>Thousands of turns, zero opponents, still lost to variance.</strong><br><span class="sym-note">The die rolls.</span></div></div>
+</div>
+<div class="surface icon-on-light" style="margin-top:.75rem">
+  <p style="margin:0"><span class="icon-host sym-inline"><svg class="icon icon-speed" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-hg"><path class="i-gold" stroke="none" d="M13 9h6c-.6 2-1.8 3.2-3 4-1.2-.8-2.4-2-3-4z"/><path class="i-gold" stroke="none" d="M12.4 25c.6-2.6 2-3.8 3.6-4.4 1.6.6 3 1.8 3.6 4.4z"/><path d="M10 6h12M10 26h12"/><path d="M11.5 6c0 5 4.5 6.5 4.5 10s-4.5 5-4.5 10M20.5 6c0 5-4.5 6.5-4.5 10s4.5 5 4.5 10"/></g></svg> Speed: turn 7</span> <span class="icon-host sym-inline"><svg class="icon icon-bracket" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect class="i-gold i-b" x="5" y="22" width="3.4" height="4.5" rx="0.6"/><rect class="i-gold i-b" x="9.6" y="18" width="3.4" height="8.5" rx="0.6"/><rect class="i-gold i-b" x="14.2" y="14" width="3.4" height="12.5" rx="0.6"/><rect class="i-b" x="18.8" y="10" width="3.4" height="16.5" rx="0.6"/><rect class="i-b" x="23.4" y="6" width="3.4" height="20.5" rx="0.6"/><path d="M4.5 26.5h23"/></svg> Bracket 3+</span> <span class="icon-host sym-inline"><svg class="icon icon-ramp" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5.5 26.5h21"/><g class="i-sprout"><path d="M16 26.5V14"/><path class="i-green" d="M16 18.5c-5 0-8-3-8-8 5 0 8 3 8 8z"/><path class="i-green" d="M16 15c0-5 3-8 8-8 0 5-3 8-8 8z"/></g></svg> Ramp 11</span> <span class="icon-host sym-inline"><svg class="icon icon-combo" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path class="i-gold i-lens" stroke="none" d="M16 9.66A7.5 7.5 0 0 1 16 22.34A7.5 7.5 0 0 1 16 9.66z"/><g class="i-cl"><circle cx="12" cy="16" r="7.5"/></g><g class="i-cr"><circle cx="20" cy="16" r="7.5"/></g></svg> Combos &amp; engines</span> <span class="icon-host sym-inline"><svg class="icon icon-legal" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-seal"><path class="i-blood" d="M11.2 19L9 28l7-3 7 3-2.2-9z"/><circle class="i-green" cx="16" cy="13" r="8.5"/><path class="i-line-ink" d="M12 13l3 3 5-5.5"/></g></svg> Commander legality</span></p>
+</div>
+<p class="rule">Info symbols: the line in the text&rsquo;s colour, one fill from gold, water, blood
+or verdigris, darker on parchment. Always beside their word, never a target of their own. Point at
+one (or tab to it): it moves once, under a second; never under reduced motion. Functional icons -
+the pencil, the bin, the padlock - stay one colour and sit in a button or link.</p>
+<div class="tk-band">
+  <strong style="color:var(--ink-300)">What others did recently</strong>
+  <ul>
+<li class="icon-host"><svg class="icon icon-simulation" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path class="i-water i-wat" stroke="none" d="M9.92 18H22.08L24.7 22.4A2.4 2.4 0 0 1 22.6 26H9.4a2.4 2.4 0 0 1-2.1-3.6z"/><path d="M13.5 6h5v6l6.2 10.4A2.4 2.4 0 0 1 22.6 26H9.4a2.4 2.4 0 0 1-2.1-3.6L13.5 12z"/><path d="M12.5 5.5h7"/><circle class="i-line-gold i-bub" cx="17" cy="14.5" r="1"/><circle class="i-line-gold i-bub i-bub-2" cx="15.2" cy="10.5" r="0.7"/></svg><span>Another user simulated a deck led by Atraxa, Praetors&rsquo; Voice: 10,000 games.</span></li>
+<li class="icon-host"><svg class="icon icon-new-user" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-fish"><path class="i-gold" d="M8.5 18.5l-4.5-3.5v7z"/><ellipse class="i-gold" cx="15.5" cy="18.5" rx="7.5" ry="5"/><circle class="i-ink" stroke="none" cx="19.5" cy="17.3" r="1"/></g><path class="i-gold i-spark" stroke="none" d="M25 3.5l1.1 2.9 2.9 1.1-2.9 1.1L25 11.5l-1.1-2.9L21 7.5l2.9-1.1z"/></svg><span>A new user joined.</span></li>
+<li class="icon-host tk-fun"><svg class="icon icon-fun-base" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-fine" transform="translate(2.9 2.6) scale(0.82)"><path d="M23 7.5l3.2-3.2"/><circle class="i-blood i-blink" stroke="none" cx="27" cy="3.6" r="1.3"/><path class="i-steel" d="M7.5 15v-2.5a8.5 8.5 0 0 1 17 0V15z"/><path class="i-bone" d="M8.5 15h15v4.5a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3z"/><rect class="i-ink" x="8" y="14" width="16" height="3.2" rx="1.6"/><ellipse class="i-blood i-eye" stroke="none" cx="19.5" cy="15.6" rx="2.2" ry="0.9"/><g class="i-jaw"><path class="i-ash" d="M11 22.5h10v2.3a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2z"/></g><path d="M12.5 27.5v3M16 27.5v3M19.5 27.5v3"/></g></svg><span>All your base are belong to us.</span></li>
+<li class="icon-host"><svg class="icon icon-hand" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-hl"><rect class="i-water" x="11" y="8" width="10" height="15" rx="1.6" transform="rotate(-22 16 25)"/></g><g class="i-hr"><rect class="i-water" x="11" y="8" width="10" height="15" rx="1.6" transform="rotate(22 16 25)"/></g><g class="i-hf"><rect class="i-gold" x="11" y="6.5" width="10" height="15" rx="1.6"/></g></svg><span>Another guest playtested a deck led by Krenko, Mob Boss.</span></li>
+  </ul>
+</div>
+<p class="rule">The ticker (PR 16): eight lines at a time from a loop of the last forty, each with
+its event&rsquo;s symbol, the lower lines stepping back in colour. A fun line comes after seven
+events at the soonest: its own ground, gold rules, italic gold and its own drawing, and
+&ldquo;The fish says:&rdquo; for screen readers - never an event. Pop culture stays English, our
+own lines are translated. A line that arrives fades in and its symbol moves once; Pause stops the
+loop and the overlord; under reduced motion nothing loops or moves.</p>
+
+<h2>The table: felt and the journal page (Paket 4, PR 18 and 19)</h2>
+<p style="display:flex;flex-wrap:wrap;gap:.5rem;margin:0 0 1rem">
+  <span class="icon-host pt-btn pt-btn-main"><svg class="icon icon-draw" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-card"><rect class="i-water" fill-opacity="0.35" x="6.5" y="4.5" width="13.5" height="19" rx="1.8"/></g><g class="i-plus"><circle class="i-gold" stroke="none" cx="23" cy="23" r="5"/><path class="i-line-ink" d="M23 20.3v5.4M20.3 23h5.4"/></g></svg> Draw a card <kbd
+  class="pt-kbd">D</kbd></span>
+  <span class="icon-host pt-btn pt-btn-second"><svg class="icon icon-new-hand" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-nh"><path d="M25 12.5A10 10 0 0 0 7.6 10"/><path class="i-line-gold" d="M7 5.5V10h4.5"/><path d="M7 19.5A10 10 0 0 0 24.4 22"/><path class="i-line-gold" d="M25 26.5V22h-4.5"/></g></svg> New hand <kbd
+  class="pt-kbd">N</kbd></span>
+  <span class="pt-btn">Next turn <kbd class="pt-kbd">T</kbd></span>
+  <span class="pt-btn">Undo <kbd class="pt-kbd">Ctrl Z</kbd></span>
+</p>
+<div class="pt-board">
+  <div class="pt-felt">
+    <p class="pt-label" style="margin:0 0 .25rem">Lands 3</p>
+    <div class="pt-zone"><span class="pt-card pt-tapped">Forest</span><span
+  class="pt-card">Island</span>
+    <span class="pt-card">Swamp</span></div>
+    <p style="margin:.75rem 0 0;font-size:.9rem;color:var(--parch-200)">The hand lies as a fan
+    along this edge.</p>
+  </div>
+  <div class="pt-page icon-on-light">
+    <h3 style="margin:0 0 .5rem;font-weight:400;text-transform:none;
+  letter-spacing:0;font-size:1.4rem;
+  border-bottom:1px solid var(--parch-600);
+    padding-bottom:.4rem">The journal</h3>
+    <ol class="pt-journal">
+      <li class="pt-turn">Turn 1</li>
+      <li>Seven cards dealt.</li>
+      <li>Land: Swamp.</li>
+      <li class="pt-turn">Turn 2 (guessed)</li>
+      <li>Land: Swamp.</li>
+      <li class="icon-host pt-unusual"><svg class="icon icon-unusual" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="i-note"><path d="M8 4.5h16v23l-3-2-2.5 2-2.5-2-2.5 2-2.5-2-3 2z"/><path class="i-line-blood i-mark" d="M16 10v6.5"/><circle class="i-blood" stroke="none" cx="16" cy="20.5" r="1.3"/></g></svg><span><em>Unusual move:</em> Vampire
+      Nighthawk costs 3, with 2 mana sources out.</span></li>
+    </ol>
+  </div>
+</div>
+<p class="rule">The game is played on felt, what happened is written on parchment. Free and strict
+look the same; strict adds only the phases with Next phase, the floating mana, Mulligan and Keep,
+and writes the engine&rsquo;s log into the same page. The main move is blood, the second
+parchment, the rest a frame; each at least 48 px high. A tapped card lies on its side. A hand dealt
+from the deck page is free: nothing is paid or blocked, and an unusual move is said in the journal
+with its symbol, dashed rules and the words first - never colour alone. A turn only guessed says
+&ldquo;(guessed)&rdquo;. The newest line is inked in; under reduced motion it simply stands.</p>
+
 <h2>Deck summary (Phase 10)</h2>
 <div class="surface">
   <h3 style="margin:0;color:var(--parch-700)">Mechanisms</h3>
@@ -553,6 +1057,167 @@ eye widens, on a click.</p>
 <p class="rule">Every title in the deck summary has its colour and its word, and every strength
 or weakness its <strong>+</strong> or <strong>&minus;</strong>. A mechanism chip wears the swatch of
 its line in &ldquo;What you drew&rdquo;; the words say what it is.</p>
+<div class="surface">
+  <h3 style="margin:0">Deck summary</h3>
+  <p style="margin:.5rem 0 0;color:var(--ink-700)"><a href="#">Run a simulation to fill
+    this.</a> The summary is written with your first run.</p>
+</div>
+<p class="rule">The summary and &ldquo;Your strategies&rdquo; stand on the deck page under the
+tiles (Paket 2): they are the deck&rsquo;s, not one run&rsquo;s. Without a run the block is there
+with one line that links to Simulate. The report keeps &ldquo;Combos &amp; engines&rdquo; and links
+back to the summary.</p>
+
+<h2>Mana curve (Paket 2)</h2>
+<div class="surface" style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:1.5rem 2rem">
+  <ol style="display:grid;grid-template-columns:repeat(8,2rem);gap:.375rem;margin:0;
+             padding:0;list-style:none">
+    <li style="display:flex;flex-direction:column;align-items:center;gap:.25rem"><span style="font-size:.875rem;color:var(--ink-700)">1</span><span style="position:relative;display:block;width:100%;height:5rem;border-bottom:1px solid var(--parchment-600)"><span style="position:absolute;inset:auto 0 0 0;height:7%;background:var(--ink-800)"></span></span><span>0</span></li><li style="display:flex;flex-direction:column;align-items:center;gap:.25rem"><span style="font-size:.875rem;color:var(--ink-700)">9</span><span style="position:relative;display:block;width:100%;height:5rem;border-bottom:1px solid var(--parchment-600)"><span style="position:absolute;inset:auto 0 0 0;height:64%;background:var(--ink-800)"></span></span><span>1</span></li><li style="display:flex;flex-direction:column;align-items:center;gap:.25rem"><span style="font-size:.875rem;color:var(--ink-700)">14</span><span style="position:relative;display:block;width:100%;height:5rem;border-bottom:1px solid var(--parchment-600)"><span style="position:absolute;inset:auto 0 0 0;height:100%;background:var(--ink-800)"></span></span><span>2</span></li><li style="display:flex;flex-direction:column;align-items:center;gap:.25rem"><span style="font-size:.875rem;color:var(--ink-700)">12</span><span style="position:relative;display:block;width:100%;height:5rem;border-bottom:1px solid var(--parchment-600)"><span style="position:absolute;inset:auto 0 0 0;height:86%;background:var(--ink-800)"></span></span><span>3</span></li><li style="display:flex;flex-direction:column;align-items:center;gap:.25rem"><span style="font-size:.875rem;color:var(--ink-700)">8</span><span style="position:relative;display:block;width:100%;height:5rem;border-bottom:1px solid var(--parchment-600)"><span style="position:absolute;inset:auto 0 0 0;height:57%;background:var(--ink-800)"></span></span><span>4</span></li><li style="display:flex;flex-direction:column;align-items:center;gap:.25rem"><span style="font-size:.875rem;color:var(--ink-700)">5</span><span style="position:relative;display:block;width:100%;height:5rem;border-bottom:1px solid var(--parchment-600)"><span style="position:absolute;inset:auto 0 0 0;height:36%;background:var(--ink-800)"></span></span><span>5</span></li><li style="display:flex;flex-direction:column;align-items:center;gap:.25rem"><span style="font-size:.875rem;color:var(--ink-700)">3</span><span style="position:relative;display:block;width:100%;height:5rem;border-bottom:1px solid var(--parchment-600)"><span style="position:absolute;inset:auto 0 0 0;height:21%;background:var(--ink-800)"></span></span><span>6</span></li><li style="display:flex;flex-direction:column;align-items:center;gap:.25rem"><span style="font-size:.875rem;color:var(--ink-700)">2</span><span style="position:relative;display:block;width:100%;height:5rem;border-bottom:1px solid var(--parchment-600)"><span style="position:absolute;inset:auto 0 0 0;height:14%;background:var(--ink-800)"></span></span><span>7+</span></li>
+  </ol>
+  <dl style="display:flex;flex-wrap:wrap;gap:1rem 1.75rem;margin:0">
+    <div><dt style="font-size:.875rem;color:var(--ink-700)"><a href="#">Ramp</a></dt>
+      <dd style="margin:0;font-size:1.5rem">11
+        <span style="font-size:.875rem;color:var(--ink-700)">/ ~10</span></dd></div>
+    <div><dt style="font-size:.875rem;color:var(--ink-700)"><a href="#">Card draw</a></dt>
+      <dd style="margin:0;font-size:1.5rem">8
+        <span style="font-size:.875rem;color:var(--ink-700)">/ ~10</span></dd></div>
+    <div><dt style="font-size:.875rem;color:var(--ink-700)">Commander out</dt>
+      <dd style="margin:0;font-size:1.5rem">by turn 3</dd>
+      <dd style="margin:0;font-size:.875rem;color:var(--ink-700)">
+        <a href="#">in half the games, last run</a></dd></div>
+  </dl>
+</div>
+<p class="rule">The curve is eight small ink columns on one scale, the count above and the mana
+value below; a screen reader hears each column as a sentence. Beside it three numbers: ramp and
+card draw as &ldquo;What is in it&rdquo; counts them (with the template), and the turn the
+commander is out in half the games of the last run, or &ldquo;simulate to see&rdquo;. The average
+mana value stays a tile and is not repeated.</p>
+
+<h2>Deck list values (Paket 2)</h2>
+<div class="surface">
+  <p style="display:flex;flex-wrap:wrap;align-items:center;gap:.25rem 1rem;margin:0;
+            font-size:.875rem;color:var(--ink-700)">
+    <span style="display:flex;gap:.125rem"><span style="display:inline-flex;width:1.375rem;height:1.375rem;align-items:center;justify-content:center;border-radius:999px;border:1px solid var(--ink-800);font-size:.75rem;font-weight:600;background:#2a6fb0;color:#ffffff">U</span><span style="display:inline-flex;width:1.375rem;height:1.375rem;align-items:center;justify-content:center;border-radius:999px;border:1px solid var(--ink-800);font-size:.75rem;font-weight:600;background:#2b2622;color:#f0ece4">B</span>
+    </span>
+    <span>Bracket 3+</span>
+    <span><a href="#">simulated 03.11.26</a></span>
+  </p>
+</div>
+<p class="rule">Each deck in &ldquo;Your decks&rdquo; says three things under its name: its colour
+identity as pips in WUBRG order (named for a screen reader), the bracket exactly as the deck
+page&rsquo;s tile says it (one shared include), and when it was last simulated, linking to that
+run, or &ldquo;not simulated yet&rdquo;. One quiet row; more decks never mean more queries.</p>
+
+<h2>Deck list fan &amp; setting switch (Themen-Doc)</h2>
+<div class="surface">
+  <p class="sg-row">
+    <span class="sg-row"><span class="sg-fan"><span class="sg-card sg-c3"></span>
+      <span class="sg-card sg-c2"></span><span class="sg-card sg-c1"></span>
+      <span class="sg-card sg-cmd"></span></span> commander set</span>
+    <span class="sg-row"><span class="sg-fan"><span class="sg-card sg-c3"></span>
+      <span class="sg-card sg-c2"></span><span class="sg-card sg-c1"></span>
+      <span class="sg-card sg-none"></span></span> no commander: the slot stays, dashed</span>
+  </p>
+  <p class="sg-row" style="margin-top:1.25rem">
+    <span class="sg-switch sg-on"><span class="sg-knob"></span></span> <strong>On</strong>
+    <span class="sg-switch"><span class="sg-knob"></span></span> <strong>Off</strong>
+  </p>
+</div>
+<p class="rule">&ldquo;Your decks&rdquo;: the commander small, the deck&rsquo;s three most expensive
+spells fanned out to the right behind it, turned about their bottom edge (<code>.deck-fan</code>).
+Pictures only: hidden from screen readers, the name beside it says the same. A setting is a
+<code>.switch</code>: a real button with <code>role="switch"</code>, a dark track when on, and
+always the word On or Off beside it.</p>
+
+<h2>Theme chips: &ldquo;Built around&rdquo; (Themen-Doc, Paket 1)</h2>
+<div class="surface">
+  <p class="sg-row" style="gap:.5rem;flex-wrap:wrap">
+    <span style="display:inline-flex;gap:.375rem;padding:.125rem .75rem;
+      border:2px solid var(--ink-800);border-radius:999px;background:var(--parch-200);
+      color:var(--ink-900)"><strong>Aristocrats</strong>
+      <span style="color:var(--ink-700)">&middot; strong</span></span>
+    <span style="display:inline-flex;gap:.375rem;padding:.125rem .75rem;
+      border:1px solid var(--ink-800);border-radius:999px;color:var(--ink-900)"><strong>Typal
+      Zombie</strong> <span style="color:var(--ink-700)">&middot; medium</span></span>
+    <span style="display:inline-flex;gap:.375rem;padding:.125rem .75rem;
+      border:1px dashed var(--ink-700);border-radius:999px;color:var(--ink-900)">
+      <strong>Graveyard</strong>
+      <span style="color:var(--ink-700)">&middot; hinted</span></span>
+  </p>
+</div>
+<p class="rule">A theme is a chip that opens (<code>.deck-theme</code>, a
+<code>&lt;details&gt;</code>, no script). The level is always the word on the chip; the border
+only repeats it: thick and filled for strong, solid for medium, dashed for hinted. An open theme
+takes the whole row and lists each piece as &ldquo;8, wants 6&rdquo; with its cards; the number
+sits folded under &ldquo;Advanced&rdquo;. No theme is said in a sentence, never guessed.</p>
+
+<h2>Engines and synergies: &ldquo;Combos &amp; engines&rdquo; (Themen-Doc, Paket 1)</h2>
+<div class="surface">
+  <div style="border-left:2px solid var(--parch-600);padding-left:1rem">
+    <p style="font-family:var(--serif);font-size:1.125rem;margin:0">Viscera Seer +
+      Blood Artist + Bitterblossom</p>
+    <p style="font-size:.875rem;color:var(--ink-700);margin:0">Aristocrats &middot; strong</p>
+    <p style="font-size:.875rem;margin:.25rem 0 0">Viscera Seer sacrifices, Blood Artist pays
+      off each death, Bitterblossom brings more bodies.</p>
+    <p style="font-size:.875rem;margin:.25rem 0 0">Get Bitterblossom out first, then the
+      Seer; keep Blood Artist back until a board wipe is unlikely.
+      <span style="color:var(--ink-700)">Written by Mistral AI. It can be wrong.</span></p>
+    <p style="font-size:.875rem;margin:.25rem 0 0">Running by turn 6 in <strong>41%</strong>
+      of games, in your last run.</p>
+  </div>
+  <div style="border-left:2px dashed var(--ink-700);padding-left:1rem;margin-top:1rem">
+    <p style="font-family:var(--serif);font-size:1.125rem;margin:0">Zealous
+      Conscripts</p>
+    <p style="font-size:.875rem;color:var(--ink-700);margin:0">Theft &middot; hinted</p>
+    <p style="font-size:.875rem;margin:.25rem 0 0">1 of 2 pieces. Still missing:
+      <strong>Sacrifices what it took</strong></p>
+  </div>
+</div>
+<p class="rule">An engine is a row with a rule at its left, as a combo is: its cards, its theme
+and level as words, one sentence of what each card does. A piece short, the rule is dashed and
+the row names what is missing; the dash only repeats the words. Pairs show the five strongest
+open and the rest in one fold, each with its numbers under &ldquo;Advanced&rdquo;. Under a
+complete engine, by which turn it runs in the last run (PR 5), the share in bold; not measured
+yet, the line says the next run will. How an engine plays (PR 6) comes from the deck summary:
+Mistral's sentence under the rules' one, followed by &ldquo;Written by Mistral AI. It can be
+wrong.&rdquo; in ink-700, only while the engine still has the cards it was written about.</p>
+
+<h2>Lock-in: locked, dismissed, resting (Themen-Doc, Paket 1, PR 4)</h2>
+<div class="surface">
+  <div style="border-left:2px solid var(--parch-600);padding-left:1rem">
+    <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
+      <p style="font-family:var(--serif);font-size:1.125rem;margin:0">Viscera Seer +
+        Blood Artist</p>
+      <span style="font-size:.875rem">&#128274; Locked
+        <span style="border:1px solid var(--parch-600);padding:0 .5rem;margin-left:.25rem;
+          color:var(--ink-700)">Unlock</span></span>
+    </div>
+    <p style="font-size:.875rem;color:var(--ink-700);margin:0">Aristocrats &middot; strong</p>
+  </div>
+  <div style="border-left:2px solid var(--parch-600);padding-left:1rem;margin-top:1rem">
+    <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
+      <p style="font-family:var(--serif);font-size:1.125rem;margin:0;color:var(--ink-700)">
+        Ashnod's Altar + Grave Pact</p>
+      <span style="font-size:.875rem">&#128274; Locked</span>
+    </div>
+    <p style="font-size:.875rem;color:var(--ink-700);margin:.25rem 0 0">Resting, a card is
+      missing: Grave Pact. It is back when the card is.</p>
+  </div>
+  <div style="border-left:2px solid var(--parch-600);padding-left:1rem;margin-top:1rem">
+    <div style="display:flex;justify-content:space-between;gap:.5rem;flex-wrap:wrap">
+      <p style="font-family:var(--serif);font-size:1.125rem;margin:0">Chainer + Entomb</p>
+      <span style="font-size:.875rem">
+        <span style="border:1px solid var(--parch-600);padding:0 .4rem">&#128274;</span>
+        <span style="border:1px solid var(--parch-600);padding:0 .4rem">&times;</span></span>
+    </div>
+  </div>
+  <p style="font-size:.875rem;color:var(--ink-700);margin:1rem 0 0">&#9656; 1 dismissed</p>
+</div>
+<p class="rule">Only what the owner says is stored. A suggestion has two small square buttons,
+a padlock and a cross, each named in full for a screen reader. A locked entry says
+&ldquo;Locked&rdquo; with the padlock and comes first, and it stays even when the rules no longer
+find it. A dismissed one leaves the list for a fold at the end, &ldquo;1 dismissed&rdquo;, where it
+can be brought back. An entry whose card left the deck turns ink-700 and says which card. The
+dashed rule keeps its one meaning, a piece short; locking never changes the rule.</p>
 
 <h2>Do &amp; Don't</h2>
 <div class="grid2">

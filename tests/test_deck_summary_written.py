@@ -21,7 +21,7 @@ from django.utils import timezone
 from billing.models import UsageRecord
 from billing.quotas import used
 from decks import services as deck_services
-from simulations import mistral, services, summary, tasks, views
+from simulations import mistral, services, summary, tasks
 from simulations.engine import adapter
 from simulations.models import CardAnnotation, DeckSummary, SimulationRun
 
@@ -444,8 +444,18 @@ class _NoRedis:
 
 
 def _page(client, owner, run):
+    """The deck page of the run's deck: the summary lives there (Paket 2, PR 7)."""
+    client.force_login(owner)
+    return client.get(run.deck.get_absolute_url()).content.decode()
+
+
+def _report(client, owner, run):
     client.force_login(owner)
     return client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+
+
+def _summary_block(body):
+    return body[body.index('id="summary"'):body.index(">Mana curve<")]
 
 
 def test_the_text_is_shown_escaped_in_k9_order(key, client, owner, deck, finished):
@@ -454,7 +464,7 @@ def test_the_text_is_shown_escaped_in_k9_order(key, client, owner, deck, finishe
                                status=DeckSummary.Status.DONE, content=content)
 
     body = _page(client, owner, finished)
-    block = body[body.index('id="summary"'):body.index('id="advanced"')]
+    block = _summary_block(body)
 
     order = ["Patient Graveyard Engine", "A slow engine", ">Feel<", ">Strengths<",
              ">Weaknesses<", ">Tactics<"]
@@ -474,73 +484,77 @@ def test_a_version_one_summary_shows_without_a_title(key, client, owner, deck, f
                                content=summary.parse(json.dumps(old)))
 
     body = _page(client, owner, finished)
-    block = body[body.index('id="summary"'):body.index('id="advanced"')]
+    block = _summary_block(body)
 
     assert "summary-name" not in block
     assert ">Feel<" in block
     assert "Write a summary" not in block, "our prompt change rewrites nothing"
 
 
-def test_the_page_waits_for_the_summary_started_with_the_run(key, client, owner, deck,
-                                                             finished):
-    """The bar carries on after the games while the summary is written, and
-    the page shows once, whole: the poll reloads it only when the summary is in."""
+def test_the_report_does_not_wait_for_the_summary(key, client, owner, deck, finished):
+    """Paket 2, PR 7: the summary is on the deck page, so the run page shows its
+    report as soon as the games are done, and says where the summary went."""
     _pending(deck)
     progress = reverse("simulations:progress", args=[finished.pk])
 
-    body = _page(client, owner, finished)
+    body = _report(client, owner, finished)
     poll = client.get(progress, HTTP_HX_REQUEST="true")
 
-    assert 'id="summary"' not in body and 'id="advanced"' not in body, "no report yet"
-    assert "Writing your deck summary" in body and progress in body
-    assert "js/run-progress.js" in body
-    assert "HX-Refresh" not in poll.headers
-    fragment = poll.content.decode()
-    assert 'hx-trigger="every 2s"' in fragment
-    assert f'data-pct="{views.WRITING_CEILING}"' in fragment, "short of full"
-    assert "data-expected" in fragment
-
-    DeckSummary.objects.filter(deck=deck).update(status=DeckSummary.Status.DONE)
-    assert client.get(progress, HTTP_HX_REQUEST="true").headers["HX-Refresh"] == "true"
+    assert 'id="advanced"' in body and 'id="summary"' not in body
+    assert 'id="strategies"' not in body
+    assert "Writing your deck summary" not in body
+    assert "js/run-progress.js" not in body
+    assert poll.headers["HX-Refresh"] == "true"
+    moved = body[body.index("data-summary-moved"):]
+    assert f'{deck.get_absolute_url()}#summary' in moved[:600]
 
 
-def test_the_page_stops_waiting_for_a_summary_that_takes_too_long(key, client, owner, deck,
-                                                                  finished):
+def test_a_summary_being_written_polls_on_the_deck_page(key, client, owner, deck, finished):
     _pending(deck)
-    DeckSummary.objects.update(
-        updated_at=timezone.now() - summary.HOLD_AT_MOST - timedelta(seconds=1))
+    url = reverse("simulations:summary", args=[deck.pk])
 
     body = _page(client, owner, finished)
+    fragment = client.get(url, HTTP_HX_REQUEST="true")
 
-    assert 'id="summary"' in body, "the report, with the summary's own line"
-
-
-def test_the_page_does_not_wait_with_summaries_hidden(key, client, owner, deck, finished):
-    _pending(deck)
-    owner.deck_summaries = False
-    owner.save()
-
-    assert 'id="advanced"' in _page(client, owner, finished)
-
-
-def test_a_summary_being_written_polls(key, client, owner, deck, finished):
-    """Past the page's wait, the summary block polls on its own."""
-    _pending(deck)
-    DeckSummary.objects.update(
-        updated_at=timezone.now() - summary.HOLD_AT_MOST - timedelta(seconds=1))
-
-    body = _page(client, owner, finished)
-    fragment = client.get(reverse("simulations:summary", args=[finished.pk]),
-                          HTTP_HX_REQUEST="true")
-
-    assert "Writing your deck summary" in body
-    assert reverse("simulations:summary", args=[finished.pk]) in body
+    assert "Writing your deck summary" in body and url in body
     assert "HX-Refresh" not in fragment.headers
 
     DeckSummary.objects.filter(deck=deck).update(status=DeckSummary.Status.DONE)
-    done = client.get(reverse("simulations:summary", args=[finished.pk]),
-                      HTTP_HX_REQUEST="true")
+    done = client.get(url, HTTP_HX_REQUEST="true")
     assert done.headers["HX-Refresh"] == "true"
+
+
+def test_the_deck_page_reads_from_the_tiles_down(key, client, owner, deck, finished):
+    """Themen-Doc, Paket 2: tiles, summary and strategies, curve and contents,
+    combos and engines, the cards, what the engine cannot model."""
+    _written(deck)
+
+    body = _page(client, owner, finished)
+    order = ['data-bracket-tile', 'id="summary"', 'id="strategies"', ">Mana curve<",
+             ">What is in it<", 'id="combos"', 'id="cards"', ">What the engine cannot model<"]
+    positions = [body.index(marker) for marker in order]
+
+    assert positions == sorted(positions)
+
+
+def test_another_users_deck_cannot_be_polled(key, client, deck):
+    stranger = User.objects.create_user(email="poll@example.com", password="pw-test-1234")
+    client.force_login(stranger)
+
+    response = client.get(reverse("simulations:summary", args=[deck.pk]))
+
+    assert response.status_code == 404
+
+
+def test_a_deck_without_a_run_asks_for_one(key, client, owner, deck):
+    """Doc: the empty block advertises what fills it, and sells nothing else."""
+    client.force_login(owner)
+
+    block = _summary_block(client.get(deck.get_absolute_url()).content.decode())
+
+    assert "data-summary-empty" in block and 'href="#simulate"' in block
+    assert "Run a simulation to fill this." in block
+    assert "Write a summary" not in block
 
 
 def test_an_outdated_summary_offers_a_new_one_for_one_run(key, client, owner, deck,
@@ -553,10 +567,11 @@ def test_an_outdated_summary_offers_a_new_one_for_one_run(key, client, owner, de
     assert "Written for an earlier version of this deck." in body
     assert "Write a summary for this deck - uses 1 of your" in body
 
-    response = client.post(reverse("simulations:write_summary", args=[finished.pk]))
-    client.post(reverse("simulations:write_summary", args=[finished.pk]))
+    response = client.post(reverse("simulations:write_summary", args=[deck.pk]))
+    client.post(reverse("simulations:write_summary", args=[deck.pk]))
 
     assert response.status_code == 302
+    assert response["Location"] == f"{deck.get_absolute_url()}#summary"
     assert used(owner, RUNS) == before + 1, "a second click does not charge again"
     assert DeckSummary.objects.get(deck=deck).status == DeckSummary.Status.PENDING
 
@@ -565,16 +580,30 @@ def test_hiding_summaries_takes_the_block_away(key, client, owner, deck, finishe
     _page(client, owner, finished)
 
     client.post(reverse("simulations:summary_switch"),
-                {"on": "0", "next": finished.get_absolute_url()})
-    hidden = client.get(reverse("simulations:detail", args=[finished.pk])).content.decode()
+                {"on": "0", "next": deck.get_absolute_url()})
+    hidden = client.get(deck.get_absolute_url()).content.decode()
     plans = client.get(reverse("billing:plans")).content.decode()
 
     assert 'id="summary"' not in hidden
-    assert "Show deck summaries again" in plans
+    assert 'id="deck-summaries"' in plans[plans.index('id="settings"'):]
+    assert 'aria-checked="false"' in plans
 
     client.post(reverse("simulations:summary_switch"), {"on": "1"})
     owner.refresh_from_db()
     assert owner.deck_summaries
+
+
+def test_the_switch_is_a_setting_with_its_reason(key, client, owner):
+    """Themen-Doc: under Settings, a switch that says why it is there."""
+    client.force_login(owner)
+
+    plans = client.get(reverse("billing:plans")).content.decode()
+    setting = plans[plans.index('id="deck-summaries"'):]
+
+    assert plans.index('id="settings"') < plans.index('id="deck-summaries"')
+    assert 'role="switch"' in setting and 'aria-checked="true"' in setting
+    assert "your deck list goes to Mistral" in setting
+    assert '<input type="hidden" name="on" value="0">' in setting
 
 
 def test_the_switch_does_not_redirect_off_the_site(client, owner):
@@ -586,11 +615,11 @@ def test_the_switch_does_not_redirect_off_the_site(client, owner):
     assert response.url == reverse("billing:plans")
 
 
-def test_another_users_run_cannot_buy_a_summary(key, client, finished):
+def test_another_users_deck_cannot_buy_a_summary(key, client, deck, finished):
     stranger = User.objects.create_user(email="x@example.com", password="pw-test-1234")
     client.force_login(stranger)
 
-    response = client.post(reverse("simulations:write_summary", args=[finished.pk]))
+    response = client.post(reverse("simulations:write_summary", args=[deck.pk]))
 
     assert response.status_code == 404
 
@@ -628,7 +657,7 @@ def _written(deck, **fields):
 
 
 def _feedback(client, run, **data):
-    return client.post(reverse("simulations:summary_feedback", args=[run.pk]), data,
+    return client.post(reverse("simulations:summary_feedback", args=[run.deck_id]), data,
                        HTTP_HX_REQUEST="true")
 
 
@@ -636,11 +665,23 @@ def test_a_written_summary_asks_whether_it_helped(key, client, owner, deck, fini
     _written(deck)
 
     block = _page(client, owner, finished)
-    block = block[block.index('id="summary"'):block.index('id="advanced"')]
+    block = block[block.index('id="summary"'):block.index(">Mana curve<")]
 
-    assert "Was this summary helpful?" in block
-    assert reverse("simulations:summary_feedback", args=[finished.pk]) in block
+    assert "Were the summary and the picks helpful?" in block
+    assert reverse("simulations:summary_feedback", args=[deck.pk]) in block
     assert "Anything we should know?" not in block, "the comment field comes after an answer"
+
+
+def test_the_question_stands_once_under_the_strategies(key, client, owner, deck, finished):
+    """Themen-Doc: one question for the summary and the picks, at their end."""
+    _written(deck)
+
+    body = _page(client, owner, finished)
+    strategies = body[body.index('id="strategies"'):body.index(">Mana curve<")]
+
+    assert body.count('id="summary-feedback"') == 1
+    assert 'id="summary-feedback"' in strategies
+    assert "Hide summaries" not in body, "the switch lives under Settings now"
 
 
 def test_feedback_keeps_the_whole_case_and_a_second_click_changes_it(key, client, owner,
@@ -683,7 +724,7 @@ def test_a_summary_written_again_gets_fresh_feedback_and_the_old_case_stays(
     assert old.content["feel"] != "Another text." and new.content["feel"] == "Another text."
 
 
-def test_no_feedback_without_an_answer_or_on_another_users_run(key, client, owner, deck,
+def test_no_feedback_without_an_answer_or_on_another_users_deck(key, client, owner, deck,
                                                                finished):
     from simulations.models import SummaryFeedback
 
@@ -697,16 +738,16 @@ def test_no_feedback_without_an_answer_or_on_another_users_run(key, client, owne
     assert not SummaryFeedback.objects.exists()
 
 
-def test_feedback_without_javascript_goes_back_to_the_summary(key, client, owner, deck,
+def test_feedback_without_javascript_goes_back_to_the_question(key, client, owner, deck,
                                                               finished):
     _written(deck)
     client.force_login(owner)
 
-    response = client.post(reverse("simulations:summary_feedback", args=[finished.pk]),
+    response = client.post(reverse("simulations:summary_feedback", args=[deck.pk]),
                            {"helpful": "1"})
 
     assert response.status_code == 302
-    assert response["Location"].endswith(f"{finished.get_absolute_url()}#summary")
+    assert response["Location"].endswith(f"{deck.get_absolute_url()}#summary-feedback")
 
 
 def test_the_feedback_export_holds_the_cases_unhelpful_first_and_nobody(

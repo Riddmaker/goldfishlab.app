@@ -232,7 +232,9 @@ def test_the_report_says_four_lands_on_turn_4_as_the_precon_pages_do(client, own
     body = client.get(run.get_absolute_url()).content.decode()
 
     assert said.on_curve == 100 * sum(n for lands, n in turn.items() if lands >= 4) / 40
-    assert 'id="glance"' in body
+    # Since Paket 3, PR 11 the sentences are in Advanced, under "How exact the
+    # numbers are"; "In short" compares with the precons, and here are none.
+    assert 'id="exact"' in body and 'id="glance"' not in body
     first = numbers.sentences(said)[0]
     assert "four lands in play on turn 4" in first and first in body
 
@@ -271,3 +273,146 @@ def test_the_methodology_no_longer_calls_a_point_noise(client, settings, languag
 
     assert "±0.5" not in body and "±0,5" not in body
     assert 'id="on-curve"' in body
+
+
+@pytest.mark.django_db
+def test_a_finished_report_has_no_progress_panel(client, owner, fell_deck):
+    """"Finished, 40 of 40 games" said again what the page already says."""
+    run = _finished(owner, fell_deck)
+    client.force_login(owner)
+
+    body = client.get(run.get_absolute_url()).content.decode()
+
+    assert 'aria-label="Progress"' not in body
+    assert 'id="run-progress"' not in body
+
+
+@pytest.mark.django_db
+def test_a_run_still_playing_keeps_its_progress_panel(client, owner, fell_deck):
+    run = SimulationRun.objects.create(
+        owner=owner, deck=fell_deck, games_total=40, turns=9, seed=3,
+        status=SimulationRun.Status.RUNNING)
+    client.force_login(owner)
+
+    body = client.get(run.get_absolute_url()).content.decode()
+
+    assert 'id="run-progress"' in body
+
+
+# Round 3 (Themen-Doc): the deck page's bracket tile carries the speed of the
+# last run, and the report keeps the table per bracket in "Advanced".
+
+
+@pytest.mark.django_db
+def test_the_bracket_tile_asks_for_a_run_before_one_exists(client, owner, fell_deck):
+    client.force_login(owner)
+
+    body = client.get(fell_deck.get_absolute_url()).content.decode()
+
+    assert "by speed: simulate to see" in body
+    assert 'data-bracket-floor>1–2<' in body
+
+
+@pytest.mark.django_db
+def test_the_bracket_tile_shows_the_last_runs_speed_and_the_two_together(
+        client, owner, fell_deck):
+    swamp = engine_combos.Watch(key="x", requirements=(engine_combos.Requirement(name="Swamp"),),
+                                wins=True)
+    run = _finished(owner, fell_deck, watch=[swamp])
+    assert report.run_brackets(run)["by_speed"] == report.CEDH[0]
+    client.force_login(owner)
+
+    body = client.get(fell_deck.get_absolute_url()).content.decode()
+
+    assert f"by speed: at least {report.CEDH[0]} (last run)" in body
+    assert f"{run.get_absolute_url()}#brackets" in body
+    assert f"data-bracket-floor>{report.CEDH[0]}+<" in body, "the higher of the two floors"
+
+
+@pytest.mark.django_db
+def test_a_run_that_measured_no_speed_says_so_on_the_tile(client, owner, fell_deck):
+    run = _finished(owner, fell_deck)
+    client.force_login(owner)
+
+    body = client.get(fell_deck.get_absolute_url()).content.decode()
+
+    assert "by speed: not measured in the last run" in body
+    assert f"{run.get_absolute_url()}#brackets" in body
+
+
+@pytest.mark.django_db
+def test_the_report_keeps_the_bracket_table_in_advanced(client, owner, fell_deck):
+    run = _finished(owner, fell_deck)
+    client.force_login(owner)
+
+    body = client.get(run.get_absolute_url()).content.decode()
+
+    assert body.index('id="advanced"') < body.index('id="brackets"')
+    assert body.index('id="advanced"') < body.index("What the engine cannot model")
+
+
+# Paket 2, PR 8: the curve as columns, and beside it ramp, card draw and the
+# turn the commander is out in half the games of the last run.
+
+
+def _commander_by(run, counts):
+    """`run` with the commander out in `counts[turn]` of its 40 games."""
+    for stats, count in zip(run.result["turn_stats"], counts, strict=False):
+        stats["commander"] = count
+    run.save(update_fields=["result"])
+    return run
+
+
+@pytest.mark.django_db
+def test_commander_out_is_the_first_turn_with_half_the_games(owner, fell_deck):
+    run = _commander_by(_finished(owner, fell_deck), [0, 5, 19, 20, 33])
+
+    assert report.commander_out(run) == {"turn": 4, "turns": 9}
+
+
+@pytest.mark.django_db
+def test_commander_out_says_so_when_half_never_got_there(owner, fell_deck):
+    run = _commander_by(_finished(owner, fell_deck), [0] * 8 + [19])
+
+    assert report.commander_out(run) == {"turn": None, "turns": 9}
+
+
+@pytest.mark.django_db
+def test_the_curve_is_eight_columns_with_ramp_and_draw_beside_it(client, owner, fell_deck):
+    client.force_login(owner)
+
+    body = client.get(fell_deck.get_absolute_url()).content.decode()
+    curve = body.split("data-curve>", 1)[1].split("</ol>", 1)[0]
+    facts = body.split("data-curve-facts>", 1)[1].split("</dl>", 1)[0]
+
+    assert curve.count('class="deck-curve-col"') == 8
+    assert "spells at mana value 7 or more" in curve, "each column in words"
+    assert "?cat=ramp#cards" in facts and "?cat=draw#cards" in facts
+    assert facts.index("Ramp") < facts.index("Card draw")
+    assert "simulate to see" in facts and 'href="#simulate"' in facts
+
+
+@pytest.mark.django_db
+def test_the_commander_turn_comes_from_the_last_run(client, owner, fell_deck):
+    run = _commander_by(_finished(owner, fell_deck), [0, 5, 25])
+    client.force_login(owner)
+
+    body = client.get(fell_deck.get_absolute_url()).content.decode()
+    facts = body.split("data-commander-out>", 1)[1].split("</div>", 1)[0]
+
+    assert "by turn 3" in facts
+    assert "in half the games, last run" in facts
+    assert f"{run.get_absolute_url()}#milestones" in facts
+
+
+@pytest.mark.django_db
+def test_a_commander_that_half_the_games_never_saw_reads_not_by_the_last_turn(
+        client, owner, fell_deck):
+    _commander_by(_finished(owner, fell_deck), [0] * 9)
+    client.force_login(owner)
+
+    body = client.get(fell_deck.get_absolute_url()).content.decode()
+    facts = body.split("data-commander-out>", 1)[1].split("</div>", 1)[0]
+
+    assert "not by turn 9" in facts
+    assert "in half the games, last run" in facts

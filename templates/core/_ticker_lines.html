@@ -1,18 +1,34 @@
 {% comment %}
-  The ticker's lines (phase 11 C), on the home page and alone as the answer
-  to its own poll: the list replaces itself, attributes and all, so it keeps
-  asking. ticker.js holds the asking while "Pause" is pressed and marks the
-  lines it has not seen before. Takes: ticker (core.ticker.lines_for).
+  The ticker's lines (phase 11 C; Paket 4, PR 16), on the home page and alone
+  as the answer to its own poll. Every line that is not the viewer's own, up
+  to forty, with a fun line after every seven (core.ticker.lines_for); the
+  stylesheet shows the first eight. ticker.js plays the rest in a loop, holds
+  it while "Pause" is pressed or the pointer rests on it, and merges each
+  answer into the loop instead of starting it over. Without the script the
+  newest eight stand and are replaced every 30 s.
+
+  A fun line is not an event: its own ground, colour and symbol, and for a
+  screen reader the words "The fish says:" in front. Takes: ticker.
 {% endcomment %}
-{% load i18n %}
+{% load i18n icons %}
 <ul id="ticker-lines"
-    class="space-y-2 text-sm leading-snug text-ink-900"
+    class="ticker-lines"
     hx-get="{% url 'ticker' %}"
     hx-trigger="every 30s"
     hx-swap="outerHTML">
-  {% for event in ticker %}
-    <li data-key="{{ event.key }}">{{ event.text }}</li>
+  {% for line in ticker %}
+    {% if line.kind == "fun" %}
+      <li class="ticker-fun icon-host" data-key="{{ line.key }}" data-fun>
+        {% icon line.icon %}
+        <span><span class="sr-only">{% translate "The fish says:" %} </span><span{% if line.lang %} lang="{{ line.lang }}"{% endif %}>{{ line.text }}</span></span>
+      </li>
+    {% else %}
+      <li class="icon-host" data-key="{{ line.key }}">
+        {% icon line.icon %}
+        <span>{{ line.text }}</span>
+      </li>
+    {% endif %}
   {% empty %}
-    <li class="text-ink-700">{% translate "Quiet right now. The lab is waiting for your deck." %}</li>
+    <li class="ticker-quiet">{% translate "Quiet right now. The lab is waiting for your deck." %}</li>
   {% endfor %}
 </ul>

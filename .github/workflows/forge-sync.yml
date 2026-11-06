@@ -3,50 +3,43 @@ name: Forge sync
 # Card model rebuild, phase 2: the weekly Forge pin. When Forge's card scripts
 # moved, this packs the newest commit (manage.py forge_pack), checks every
 # script against the pinned copy without a database (manage.py forge_check),
-# pushes the two pin files to the branch `forge-pin` and opens - or updates -
-# ONE issue "Forge pin ready" with the report and a link to open the pull
-# request into dev. A person opens it: the pin moves only by review, and
-# nothing here reaches production before that pull request is merged and dev
-# goes to main. The night after the deploy, the catalogue job
-# (cards/refresh.py) translates the new pin and derives the profiles again.
+# keeps the two pin files as the run's artifact `forge-pin` for seven days and
+# opens - or updates - ONE issue "Forge pin ready" with the report. A session
+# downloads the files, runs the suite and commits them to dev: the pin moves
+# only by review, and nothing reaches production before dev goes to main. The
+# night after the deploy, the catalogue job (cards/refresh.py) translates the
+# new pin and derives the profiles again.
 #
-# Why no pull request from here: that needs "Allow GitHub Actions to create
-# and approve pull requests", a repository-wide right that would let any
-# workflow approve the pull request into main as well - the one review
-# between the code and production. It stays off.
+# Called, never run here (Paket 5, PR 20): the private repository
+# Riddmaker/goldfishlab-ops calls it on Mondays, so its issues stay with the
+# other operator issues (seo-review.yml). A called workflow runs with its
+# caller's token, which cannot write this repository: nothing here pushes a
+# branch or opens a pull request. Opening one would need "Allow GitHub
+# Actions to create and approve pull requests", a repository-wide right that
+# would let any workflow approve the pull request into main as well - the one
+# review between the code and production. It stays off.
 #
 # Privileges are split: `check` runs the pip install and our code with a
-# read-only token and no stored credentials; `publish` alone may write and
-# runs no Python, no pip and no third-party code beyond GitHub's own actions,
-# pinned to their commits. What `check` hands over is data, validated before
-# it is pushed: the two pin files, nothing else.
+# read-only token and no stored credentials; `publish` alone may write issues
+# and runs no Python, no pip and no third-party code beyond GitHub's own
+# actions. What `check` hands over is data, validated before it is used: the
+# two pin files and the report, nothing else. Every action is pinned to a
+# commit.
 #
 # More than 1 % of scripts failing to translate (a format break) fails the
 # run: the pin stays, and an issue "Forge sync failed" is opened or commented
 # on - the failure mail of a scheduled run goes only to whoever created the
 # workflow, which need not be anyone who reads it.
 #
-# Switched off until the repository variable FORGE_SYNC is "on" (Settings >
-# Secrets and variables > Actions > Variables). "Run workflow" works either
-# way, to try it by hand. Needs, once: `forge-pin` left out of the "dev only"
-# ruleset.
+# The caller switches it on and off with its repository variable FORGE_SYNC.
 on:
-  schedule:
-    # Mondays, 03:17 UTC: off the full hour, when GitHub delays scheduled runs,
-    # and before Tuesday's catalogue run and precon rerun.
-    - cron: "17 3 * * 1"
-  workflow_dispatch:
-
-concurrency:
-  group: forge-sync
-  cancel-in-progress: false
+  workflow_call:
 
 permissions:
   contents: read
 
 jobs:
   check:
-    if: vars.FORGE_SYNC == 'on' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -62,8 +55,9 @@ jobs:
       DATABASE_URL: postgres://unused:unused@localhost:5432/unused
       REDIS_URL: redis://localhost:6379/0
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          repository: Riddmaker/goldfishlab.app
           ref: dev
           persist-credentials: false
 
@@ -84,7 +78,7 @@ jobs:
       # Only the card scripts, one commit deep: git archive reads them from
       # here (cards/forge.py). Scripts are data, parsed and never executed.
       - if: steps.forge.outputs.commit
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: Card-Forge/forge
           ref: ${{ steps.forge.outputs.commit }}
@@ -96,7 +90,7 @@ jobs:
       # No pip cache: a cache saved by a scheduled run on main would be
       # restored by every branch.
       - if: steps.forge.outputs.commit
-        uses: actions/setup-python@v7.0.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.13"
 
@@ -116,12 +110,12 @@ jobs:
           cat "$RUNNER_TEMP/pin/body.md" >> "$GITHUB_STEP_SUMMARY"
 
       - if: steps.check.outputs.changes && steps.check.outputs.changes != '0'
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: forge-pin
           path: ${{ runner.temp }}/pin
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7
 
   publish:
     needs: check
@@ -129,17 +123,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: write # push the branch forge-pin
       issues: write # the issue "Forge pin ready"
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
       COMMIT: ${{ needs.check.outputs.commit }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: dev
-
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: forge-pin
@@ -158,25 +147,18 @@ jobs:
           [[ $(zcat forge_scripts.jsonl.gz | head -1 | jq -r .commit) == "$COMMIT" ]]
           [[ $(stat -c %s body.md) -lt 60000 ]]
 
-      - name: Push the branch forge-pin
-        run: |
-          cp "$RUNNER_TEMP/pin/forge_scripts.jsonl.gz" "$RUNNER_TEMP/pin/forge_commit.txt" cards/data/
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch -c forge-pin
-          git add cards/data/forge_scripts.jsonl.gz cards/data/forge_commit.txt
-          # The message is the report: a pull request opened from this one
-          # commit takes its title and description from it.
-          { echo "Forge pin: ${COMMIT:0:10}"; echo; cat "$RUNNER_TEMP/pin/body.md"; } > "$RUNNER_TEMP/message.txt"
-          git commit -q --cleanup=verbatim -F "$RUNNER_TEMP/message.txt"
-          # One branch: a newer commit replaces the last one.
-          git push --force origin forge-pin
-
       - name: Open or update the issue "Forge pin ready"
         run: |
           title="Forge pin ready"
-          link="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/dev...forge-pin?expand=1"
-          { echo "Forge's card scripts moved to \`${COMMIT:0:10}\`. [Open the pull request into dev]($link) - its description is the report below."
+          run="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          { echo "Forge's card scripts moved to \`${COMMIT:0:10}\`. The two pin files are the artifact \`forge-pin\` of [this run]($run), kept for seven days. A session takes them over:"
+            echo
+            echo '```bash'
+            echo "gh run download $GITHUB_RUN_ID -R $GITHUB_REPOSITORY -n forge-pin -D .data/forge-pin"
+            echo "cp .data/forge-pin/forge_scripts.jsonl.gz .data/forge-pin/forge_commit.txt cards/data/"
+            echo '```'
+            echo
+            echo "Then the full suite, and one commit to dev titled \"Forge pin: ${COMMIT:0:10}\" with the report below as its message."
             echo
             cat "$RUNNER_TEMP/pin/body.md"; } > "$RUNNER_TEMP/issue.md"
           open=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number')

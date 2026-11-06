@@ -16,10 +16,8 @@
   (`data-queued`) it stays under 10%. Without the script: the real bar.
   The panel around this fragment is in detail.html.
 
-  `working` and `holding` come from the view's `_bar`: the panel keeps polling
-  after the games while the deck summary started with them is written
-  (`holding`), so the page appears once, whole. `pct` is the run's share, kept
-  short of full while that summary is not in.
+  `working` and `pct` come from the view's `_bar`. The deck summary started
+  with the run is not waited for: it shows on the deck page (Paket 2, PR 7).
 {% endcomment %}
 {% load humanize i18n l10n %}
 <div id="run-progress"
@@ -29,9 +27,7 @@
      {% if working %}hx-get="{% url 'simulations:progress' run.id %}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
   <div class="flex flex-wrap items-baseline gap-3">
     <h2 class="font-display text-2xl text-ink-900">
-      {% if holding %}
-        {% translate "Writing your deck summary…" %}
-      {% elif run.status == "pending" %}
+      {% if run.status == "pending" %}
         {% translate "Queued" %}
       {% elif run.status == "running" %}
         {% translate "Playing your deck" %}

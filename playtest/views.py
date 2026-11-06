@@ -11,6 +11,9 @@ re-renders. One code path, one source of truth, and the Django test client
 exercises every action without a browser.
 """
 
+import re
+import secrets
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseBadRequest
@@ -19,7 +22,7 @@ from django.utils.translation import gettext, gettext_noop, ngettext
 from django.views.generic import DetailView, View
 
 from decks.models import Deck
-from playtest import services
+from playtest import free, services
 from playtest.forms import ActionForm, ForkForm, StartForm
 from playtest.models import PlaytestSession
 from simulation import actions
@@ -117,6 +120,10 @@ ACTION_NAMES = {
     "adapt": gettext_noop("Adapted"),
     "equip": gettext_noop("Equipped"),
     "combat": gettext_noop("Combat"),
+    "free_play": gettext_noop("Card played"),
+    "free_commander": gettext_noop("Commander played"),
+    "next_turn": gettext_noop("Next turn"),
+    "new_hand": gettext_noop("New hand"),
 }
 
 #: The message tag that marks an engine refusal, so the page can say it is
@@ -142,8 +149,10 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
     (P19 R15): labels, the first the agent's own choice. `adaptable` are the
     creatures that can adapt now (P19 R21). `equips` gives an Equipment
     that can be equipped now the creatures it can go on, the engine's choice
-    first (P19 R22).
+    first (P19 R22). A permanent's ``tapped`` is read off its zone, which
+    knows it; a plain list (the hand, the graveyard) has nothing tapped.
     """
+    permanents = getattr(cards, "permanents", None)
     return [
         {
             "index": index,
@@ -161,6 +170,7 @@ def _tiles(cards, images, keywords=None, *, castable=(), playable=(),
             and card.mana.altar.sacrifices else [],
             "adaptable": index in adaptable,
             "equip": equips(card) if equips else [],
+            "tapped": bool(permanents) and permanents[index].tapped,
         }
         for index, card in enumerate(cards)
     ]
@@ -245,6 +255,27 @@ def restricted_mana(pool) -> list[str]:
     return found
 
 
+#: How the engine opens a turn in its log (`Game.begin_turn`).
+TURN_LINE = re.compile(r"^--- Turn (\d+) ---$")
+
+
+def log_turns(log) -> list:
+    """A strict game's log, as the journal's turns (PR 19).
+
+    The same page as a free game's journal, so the two tables look alike: the
+    engine's own lines, cut where it opened a turn. What came before turn one
+    (the mulligans) is turn 0, which the board calls the opening hand.
+    """
+    turns = [free.Turn(0)]
+    for line in log:
+        opened = TURN_LINE.match(line)
+        if opened:
+            turns.append(free.Turn(int(opened.group(1))))
+        else:
+            turns[-1].lines.append({"text": line.strip(), "unusual": False})
+    return turns if turns[0].lines else turns[1:]
+
+
 def deciding(game, live) -> bool:
     """Is the opening hand still being decided?
 
@@ -297,7 +328,8 @@ def board_context(session: PlaytestSession, game) -> dict:
         "exiled": _tiles(game.exiled, images),
         "pips": pips(getattr(game, "pool", None)),
         "restricted": restricted_mana(getattr(game, "pool", None)),
-        "deciding": deciding(game, live),
+        # A free table has no mulligan to decide: New hand deals again.
+        "deciding": not session.is_free and deciding(game, live),
         "to_bottom": game.cards_to_bottom(game.mulligans),
         # The command zone, one or two cards (P20 F2b), each with its own
         # Cast: `index` is the one the engine casts.
@@ -312,6 +344,11 @@ def board_context(session: PlaytestSession, game) -> dict:
                      else row.kind) for row in live],
         "can_undo": bool(live),
         "can_redo": session.actions.filter(undone=True).exists(),
+        "journal": services.journal(session) if session.is_free else None,
+        # Strict writes the engine's log into the same journal page.
+        "log_turns": None if session.is_free else log_turns(game.log),
+        # The mode switch deals the hand on the table again, not the first one.
+        "deal_seed": services.deal_seed(session),
     }
 
 
@@ -345,6 +382,7 @@ class StartView(LoginRequiredMixin, View):
             deck, request.user,
             seed=form.cleaned_data.get("seed") or None,
             on_the_play=form.cleaned_data.get("on_the_play", True),
+            mode=form.cleaned_data["mode"],
         )
         return redirect(session.get_absolute_url())
 
@@ -367,11 +405,15 @@ class ActView(OwnedSessionsMixin, View):
     def post(self, request, pk):
         session = get_object_or_404(self.get_queryset(), pk=pk)
         form = ActionForm(request.POST)
-        if not form.is_valid():
+        if not form.is_valid() or form.cleaned_data["kind"] not in services.kinds(session):
             return HttpResponseBadRequest("That is not an action.")
 
+        action = form.action()
+        if isinstance(action, free.NewHand):
+            # Chosen here, never posted: the seed is the game.
+            action = free.NewHand(seed=secrets.randbelow(2**62))
         try:
-            game = services.record(session, form.action())
+            game = services.record(session, action)
         except actions.IllegalAction as exc:
             messages.error(request, str(exc), extra_tags=ENGINE_TAG)
             game = services.state(session)

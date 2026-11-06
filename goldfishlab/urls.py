@@ -19,6 +19,7 @@ from core.views import (
     ImprintView,
     MethodologyView,
     PrivacyView,
+    ResourcesView,
     RobotsView,
     StyleguideView,
     TermsView,
@@ -46,7 +47,6 @@ urlpatterns = [
     # P4: /runs/<id>/share/ for the owner; /r/<token>/ is below.
     path("", include("sharing.urls")),
     # P9: the "Compare two versions" fake door, also under /runs/<id>/.
-    path("", include("metrics.urls")),
     path("combos/", include("combos.urls")),
     path("billing/", include("billing.urls")),
     path("styleguide/", StyleguideView.as_view(), name="styleguide"),
@@ -97,6 +97,8 @@ urlpatterns += i18n_patterns(
     # saying plainly what is simulated and what is not is the thing no
     # "AI power level: 7.3" competitor can write. (Phase 8.)
     path("about/methodology/", MethodologyView.as_view(), name="methodology"),
+    # Videos and sites worth knowing (Themen-Doc): links only, nothing embedded.
+    path("about/resources/", ResourcesView.as_view(), name="resources"),
     # P11: every Commander precon, simulated - the pages a search finds.
     path("data/", include("datapages.urls")),
     # Outside /billing/, which is the account's own page and closed to guests.

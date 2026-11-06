@@ -64,34 +64,9 @@
         </div>
       {% endfor %}
     </dl>
-    {% if summaries_available and not user.is_guest %}
-      {% comment %}
-        Phase 10 H (T6.5, P8): the deck summary's switch. Off from "Hide
-        summaries" on a run page, on again only here; a deck then offers
-        "Write a summary" on its run page.
-      {% endcomment %}
-      <div id="deck-summaries" class="mt-5 border-t border-parchment-400 pt-4 text-sm">
-        {% if user.deck_summaries %}
-          <p class="text-ink-900">
-            {% blocktranslate trimmed %}
-              <strong>Deck summaries are on.</strong>
-              A new one is written when you run a changed deck, and uses one simulation.
-            {% endblocktranslate %}
-          </p>
-        {% else %}
-          <form method="post" action="{% url 'simulations:summary_switch' %}" class="flex flex-wrap items-center gap-x-4 gap-y-2">
-            {% csrf_token %}
-            <input type="hidden" name="on" value="1">
-            <input type="hidden" name="next" value="{% url 'billing:plans' %}#deck-summaries">
-            <span class="text-ink-900"><strong>{% translate "Deck summaries are off." %}</strong></span>
-            <button type="submit" class="text-ink-900 underline">{% translate "Show deck summaries again" %}</button>
-          </form>
-        {% endif %}
-      </div>
-    {% endif %}
   </section>
 
-  {% if site_languages|length > 1 or changelog_mail_on %}
+  {% if site_languages|length > 1 or changelog_mail_on or summaries_available %}
     {% comment %}
       C7: the account's own settings, side by side (a guest never gets here:
       guests.middleware). The language is the
@@ -149,6 +124,47 @@
                   <button type="submit" class="text-ink-900 underline">{% translate "Subscribe by email" %}</button>
                 </form>
               {% endif %}
+            </dd>
+          </div>
+        {% endif %}
+        {% if summaries_available %}
+          {% comment %}
+            The deck summaries' switch (phase 10 H, T6.5, Themen-Doc): here
+            with the other settings, not as "Hide summaries" on every report,
+            and with the reason it exists beside it. A real button that
+            posts, so it works without JavaScript; role="switch" makes a
+            screen reader say "on" or "off".
+          {% endcomment %}
+          <div id="deck-summaries">
+            <dt class="font-display text-base text-ink-900">{% translate "Deck summaries" %}</dt>
+            <dd class="mt-1">
+              <form method="post" action="{% url 'simulations:summary_switch' %}" class="flex flex-wrap items-center gap-x-3 gap-y-2">
+                {% csrf_token %}
+                <input type="hidden" name="on" value="{% if user.deck_summaries %}0{% else %}1{% endif %}">
+                <input type="hidden" name="next" value="{% url 'billing:plans' %}#deck-summaries">
+                <button type="submit"
+                        role="switch"
+                        aria-checked="{% if user.deck_summaries %}true{% else %}false{% endif %}"
+                        aria-labelledby="deck-summaries-state"
+                        class="switch">
+                  <span class="switch-knob" aria-hidden="true"></span>
+                </button>
+                <span id="deck-summaries-state" class="text-ink-900">
+                  {% if user.deck_summaries %}
+                    <strong>{% translate "On" context "a setting" %}</strong>
+                  {% else %}
+                    <strong>{% translate "Off" context "a setting" %}</strong>
+                  {% endif %}
+                </span>
+              </form>
+              <p class="mt-2 max-w-2xl text-ink-700">
+                {% blocktranslate trimmed %}
+                  Mistral AI writes a short summary of each deck and picks cards for its
+                  strategies. For that your deck list goes to Mistral, and each new summary
+                  uses one simulation. Switch it off if you would rather not have AI text
+                  or want to save simulations.
+                {% endblocktranslate %}
+              </p>
             </dd>
           </div>
         {% endif %}

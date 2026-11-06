@@ -19,7 +19,6 @@ from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 
 from cards.models import OracleCard
 from decks import services as deck_services
@@ -312,8 +311,9 @@ def finished(owner, deck, monkeypatch):
 
 
 def _page(client, owner, run):
+    """The deck page: the strategies moved there from the report (Paket 2, PR 7)."""
     client.force_login(owner)
-    return client.get(reverse("simulations:detail", args=[run.pk])).content.decode()
+    return client.get(run.deck.get_absolute_url()).content.decode()
 
 
 def test_the_block_shows_without_mistral_and_with_summaries_off(client, owner, finished,
@@ -323,7 +323,7 @@ def test_the_block_shows_without_mistral_and_with_summaries_off(client, owner, f
     owner.save()
 
     body = _page(client, owner, finished)
-    block = body[body.index('id="strategies"'):body.index('id="advanced"')]
+    block = body[body.index('id="strategies"'):body.index(">Mana curve<")]
 
     assert "Your strategies, and what would feed them" in block
     assert "The most played first." in block
@@ -346,7 +346,7 @@ def test_mistral_picks_show_with_their_reasons_escaped(client, owner, deck, fini
     )
 
     body = _page(client, owner, finished)
-    block = body[body.index('id="strategies"'):body.index('id="advanced"')]
+    block = body[body.index('id="strategies"'):body.index(">Mana curve<")]
 
     assert "Picked by Mistral AI from cards that fit your colours. It can be wrong." in block
     assert "It &lt;b&gt;matters&lt;/b&gt;." in block
@@ -354,7 +354,7 @@ def test_mistral_picks_show_with_their_reasons_escaped(client, owner, deck, fini
     assert "The most played first." not in block
 
 
-def test_the_combos_are_the_last_part_with_columns_that_read(db):
+def test_the_report_names_its_combos_with_columns_that_read(db):
     from types import SimpleNamespace
 
     from django.template.loader import render_to_string
@@ -367,9 +367,8 @@ def test_the_combos_are_the_last_part_with_columns_that_read(db):
             share_label="12%", median_turn=5,
         )
 
-    body = render_to_string("simulations/_strategies.html", {
-        "strategies": {"shown": []},
-        "run": SimpleNamespace(games_total=2000),
+    body = render_to_string("simulations/_measured.html", {
+        "run": SimpleNamespace(games_total=2000, deck_id="00000000-0000-0000-0000-000000000000"),
         "report": {"turns": 8, "combos": [
             measurement(["Gravecrawler", "Phyrexian Altar"]),
             measurement(["Ashnod's Altar", "Nim Deathmantle"], added="Nim Deathmantle",
@@ -377,7 +376,8 @@ def test_the_combos_are_the_last_part_with_columns_that_read(db):
         ]},
     })
 
-    assert 'id="strategies"' in body and 'id="combo-timings"' in body
+    assert 'id="measured"' in body and 'id="combo-timings"' in body
+    assert "The deck summary and your strategies are on the" in body
     for column in ("Combo", "Missing card", "Together by turn 8", "When it happens, usually by"):
         assert f">{column}</th>" in body
     assert ">Games</th>" not in body and ">Half by</th>" not in body

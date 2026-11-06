@@ -5,9 +5,9 @@
   A category also says how many of its cards have it as their main role
   (`Bar.slots`, card model phase 3).
 {% endcomment %}
-{% load i18n l10n %}
-<li class="deck-bar-row">
-  <a href="?{{ bar.param }}={{ bar.value }}#cards" class="text-ink-900 underline decoration-parchment-600">{{ bar.label }}</a>
+{% load i18n l10n icons %}
+<li class="deck-bar-row{% if bar.icon %} icon-host{% endif %}">
+  <a href="?{{ bar.param }}={{ bar.value }}#cards" class="{% if bar.icon %}inline-flex items-center gap-1.5 {% elif bar.param == "cat" %}pl-[calc(1.25em_+_0.375rem)] {% endif %}text-ink-900 underline decoration-parchment-600">{% if bar.icon %}{% icon bar.icon %}{% endif %}{{ bar.label }}</a>
   <span class="deck-bar-track" role="presentation">
     {% if bar.band %}
       <span class="deck-bar-band" style="left: {{ bar.band.0|unlocalize }}%; width: {{ bar.band.1|unlocalize }}%"></span>

@@ -1,0 +1,130 @@
+{% comment %}
+  Engines and synergies (Themen-Doc, Paket 1, PR 3), under the combos in
+  "Combos & engines". Read from the deck's themes by `cards.synergy`, on
+  every page load, free for everyone: no button, no run.
+
+  An engine names its cards, its theme and level (the word, as on the
+  chips), and one sentence made of what each card does. An engine a piece
+  short says what is missing, with a dashed rule instead of a solid one.
+  The pairs show the strongest few open and the next ones folded, each with
+  its three numbers under "Advanced".
+
+  The owner can lock or dismiss each one (PR 4, `decks/_mark.html`): a
+  locked one comes first and stays, a dismissed one waits in a fold at the
+  end, and one whose cards left the deck rests, grey (`decks/_gone.html`).
+  The whole of this is swapped by htmx after each click.
+
+  Under each engine, by which turn it runs in the last finished run (PR 5,
+  `decks.engine_watch`); a complete engine the run did not measure says the
+  next one will. Nothing for an engine a piece short or resting: it cannot
+  run.
+
+  Under its sentence, how it plays, in a sentence or two of the deck's
+  summary (PR 6, `simulations.summary.engine_notes`), in the language it was
+  written in; only for the engine it was written about.
+
+  Takes: reading (decks.themes.Reading), engine_rows (engine, running, note), deck.
+{% endcomment %}
+{% load i18n icons %}
+<div id="engines" class="mt-8">
+  <h3 class="icon-host flex items-center gap-2 font-display text-xl text-ink-900">{% icon "engine" %}{% translate "Engines" %}</h3>
+  <p class="mt-1 text-sm text-ink-700">
+    {% translate "Cards that together make value again and again, read from what the deck is built around." %}
+    {% include "core/_why.html" with anchor="engines" %}
+  </p>
+  {% if engine_rows %}
+    <ul class="mt-3 space-y-4">
+      {% for engine, running, note in engine_rows %}
+        <li class="border-l-2 pl-4 {% if engine.missing %}border-dashed border-ink-700{% else %}border-parchment-600{% endif %}"
+            data-entry="{{ engine.key }}"{% if engine.state %} data-state="{{ engine.state }}"{% endif %}>
+          <div class="flex flex-wrap items-start justify-between gap-2">
+            <p class="font-display text-lg {% if engine.gone %}text-ink-700{% else %}text-ink-900{% endif %}">{{ engine.cards|join:" + " }}</p>
+            {% include "decks/_mark.html" with item=engine %}
+          </div>
+          <p class="text-sm text-ink-700">{% translate engine.label %}{% if engine.level %} · {% include "decks/_level.html" with level=engine.level %}{% endif %}</p>
+          {% include "decks/_gone.html" with item=engine %}
+          <p class="mt-1 text-sm {% if engine.gone %}text-ink-700{% else %}text-ink-900{% endif %}">{{ engine.sentence }}</p>
+          {% if note %}
+            <p class="mt-1 max-w-3xl text-sm text-ink-900" data-explained="{{ engine.theme }}">
+              <span lang="{{ note.language }}">{{ note.how }}</span>
+              <span class="text-ink-700">{% translate "Written by Mistral AI. It can be wrong." %}</span>
+            </p>
+          {% endif %}
+          {% if running %}
+            <p class="mt-1 text-sm text-ink-900" data-running="{{ engine.theme }}">
+              {% blocktranslate trimmed with turn=running.turn share=running.share %}
+                Running by turn {{ turn }} in <strong>{{ share }}</strong> of games, in your last run.
+              {% endblocktranslate %}
+            </p>
+          {% elif not engine.missing and not engine.gone %}
+            <p class="mt-1 text-sm text-ink-700" data-running="">{% translate "Not measured yet: your next simulation shows by which turn it runs." %}</p>
+          {% endif %}
+          {% if engine.missing %}
+            <p class="mt-1 text-sm text-ink-900">
+              {% blocktranslate trimmed with have=engine.cards|length pieces=engine.pieces %}
+                {{ have }} of {{ pieces }} pieces. Still missing:
+              {% endblocktranslate %}
+              <strong>{% for label in engine.missing %}{% translate label %}{% if not forloop.last %}, {% endif %}{% endfor %}</strong>
+            </p>
+          {% endif %}
+          {% if engine.repeating %}
+            <details class="mt-1 text-sm text-ink-700">
+              <summary class="cursor-pointer">{% translate "Advanced" %}</summary>
+              <p class="mt-1">{% blocktranslate with cards=engine.repeating|join:", " %}Works again and again: {{ cards }}. An engine needs at least one such card; its level is its theme's.{% endblocktranslate %}</p>
+            </details>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% elif reading.engines_dismissed %}
+    <p class="mt-3 text-sm text-ink-700">{% translate "No engine left: you dismissed the ones we found." %}</p>
+  {% elif reading.themes %}
+    <p class="mt-3 text-sm text-ink-700">{% translate "No engine yet: none of this deck's themes has a card that works again and again." %}</p>
+  {% else %}
+    <p class="mt-3 text-sm text-ink-700">{% translate "No engine: engines come from what a deck is built around, and we found no theme." %}</p>
+  {% endif %}
+
+  {% if reading.pairs %}
+    <h3 id="synergies" class="mt-8 font-display text-xl text-ink-900">{% translate "Synergies" %}</h3>
+    <p class="mt-1 text-sm text-ink-700">{% translate "Two cards one of the deck's themes joins, the strongest first." %}</p>
+    <ul class="mt-3 space-y-3">
+      {% for pair in reading.pairs %}{% include "decks/_pair.html" %}{% endfor %}
+    </ul>
+    {% if reading.more_pairs %}
+      <details class="mt-3">
+        <summary class="cursor-pointer text-sm text-ink-700">
+          {% blocktranslate count count=reading.more_pairs|length %}{{ count }} more pair{% plural %}{{ count }} more pairs{% endblocktranslate %}
+        </summary>
+        <ul class="mt-3 space-y-3">
+          {% for pair in reading.more_pairs %}{% include "decks/_pair.html" %}{% endfor %}
+        </ul>
+        {% if reading.pairs_left_out %}
+          <p class="mt-3 text-sm text-ink-700">
+            {% blocktranslate trimmed count count=reading.pairs_left_out %}
+              {{ count }} weaker pair of the same kinds is not listed.
+            {% plural %}
+              {{ count }} weaker pairs of the same kinds are not listed.
+            {% endblocktranslate %}
+          </p>
+        {% endif %}
+      </details>
+    {% endif %}
+  {% endif %}
+
+  {% if reading.dismissed %}
+    <details class="mt-6" id="dismissed">
+      <summary class="cursor-pointer text-sm text-ink-700">
+        {% blocktranslate count count=reading.dismissed|length %}{{ count }} dismissed{% plural %}{{ count }} dismissed{% endblocktranslate %}
+      </summary>
+      <ul class="mt-3 space-y-2">
+        {% for item in reading.dismissed %}
+          <li class="flex flex-wrap items-center justify-between gap-2 text-sm text-ink-700"
+              data-entry="{{ item.key }}" data-state="dismissed">
+            <span>{{ item.cards|join:" + " }}</span>
+            {% include "decks/_mark.html" %}
+          </li>
+        {% endfor %}
+      </ul>
+    </details>
+  {% endif %}
+</div>

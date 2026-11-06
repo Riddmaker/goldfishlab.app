@@ -2,36 +2,31 @@
 {% comment %}
   "Your last run" (phase 11 F11). Runs were always kept, but a deck page only
   showed them folded under "Earlier runs and games"; somebody coming back to
-  a deck wants the last report, not a fresh simulation. A run still going
-  comes first, with its progress, and links to the page that is watching it.
+  a deck wants the last report, not a fresh simulation. The link to it is the
+  first button in the row above (decks/detail.html); this says what it opens.
+  A run still going comes first, with its progress.
 
   Takes: running_run, last_run, deck_changed (DeckDetailView.last_run_context).
 {% endcomment %}
-<section class="surface-parchment mt-5 max-w-xl p-4" aria-label="{% translate "Your last run" %}">
+<div class="mt-2 max-w-xl space-y-1 text-sm text-parchment-200" aria-label="{% translate "Your last run" %}">
   {% if running_run %}
-    <p class="font-display text-lg text-ink-900">{% translate "A run is going" %}</p>
-    <p class="tabular mt-1 text-sm text-ink-700">
+    <p class="tabular">
+      <span class="text-parchment-100">{% translate "A run is going" %}</span> ·
       {% blocktranslate trimmed with games=running_run.games_total|intcomma pct=running_run.progress_pct %}
         {{ games }} games · {{ pct }}% done
       {% endblocktranslate %}
     </p>
-    <a href="{{ running_run.get_absolute_url }}"
-       class="mt-2 inline-block text-sm text-ink-900 underline">{% translate "Watch it" %}</a>
   {% endif %}
   {% if last_run %}
-    <div class="{% if running_run %}mt-4 border-t border-parchment-600 pt-3{% endif %}">
-      <p class="font-display text-lg text-ink-900">{% translate "Your last run" %}</p>
-      <p class="tabular mt-1 text-sm text-ink-700">
-        {{ last_run.finished_at|default:last_run.created_at|date:"SHORT_DATETIME_FORMAT" }} ·
-        {% blocktranslate trimmed with games=last_run.games_total|intcomma turns=last_run.turns %}
-          {{ games }} games · {{ turns }} turns
-        {% endblocktranslate %}
-      </p>
-      {% if deck_changed %}
-        <p class="mt-1 text-sm text-ink-900">{% translate "The deck has changed since this run." %}</p>
-      {% endif %}
-      <a href="{{ last_run.get_absolute_url }}"
-         class="mt-2 inline-block text-sm text-ink-900 underline">{% translate "Open the report" %}</a>
-    </div>
+    <p class="tabular">
+      {% if running_run %}<a href="{{ last_run.get_absolute_url }}" class="text-parchment-100 underline">{% translate "Your last run" %}</a>{% else %}<span class="text-parchment-100">{% translate "Your last run" %}</span>{% endif %} ·
+      {{ last_run.finished_at|default:last_run.created_at|date:"SHORT_DATETIME_FORMAT" }} ·
+      {% blocktranslate trimmed with games=last_run.games_total|intcomma turns=last_run.turns %}
+        {{ games }} games · {{ turns }} turns
+      {% endblocktranslate %}
+    </p>
+    {% if deck_changed %}
+      <p>{% translate "The deck has changed since this run." %}</p>
+    {% endif %}
   {% endif %}
-</section>
+</div>

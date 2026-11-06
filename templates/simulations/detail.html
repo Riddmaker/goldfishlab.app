@@ -50,8 +50,11 @@
   {% comment %}
     The panel holds the polled fragment, and while the run plays the fish and
     the lines beside it (phase 10 T3.2) - outside the fragment, so the swaps
-    every two seconds do not restart them.
+    every two seconds do not restart them. A finished run with its report has
+    no panel: "Finished, 10,000 of 10,000 games" said again what the line at
+    the top and the report under it already say.
   {% endcomment %}
+  {% if working or not report or run.status != "done" %}
   <section class="surface-parchment mt-6 p-6" aria-label="{% translate "Progress" %}">
     <div class="flex items-start gap-4 sm:gap-6">
       {% if working %}
@@ -65,6 +68,7 @@
       </div>
     </div>
   </section>
+  {% endif %}
   {% if report %}
     {% comment %}
       The order of the report (phase 10, from the user test): first what a
@@ -72,26 +76,25 @@
       - then the pictures, and the depth folded at the bottom. "What was
       actually modelled" became the attention block; its coverage line lives
       there, its gap table is the card review, and the engine and seed moved
-      into "Advanced". The deck summary (phase 10 G, H) follows the pictures, and is not
-      there at all for somebody who switched summaries off; the combos come
-      after it (phase 11 Z5.4) as the last part of "Your strategies, and what
-      would feed them" (phase 11 E), which shows whether summaries are on or
-      not; last before "Advanced". Sharing (P4) follows the attention block:
-      it is something a person can do, and says what becomes public. The
-      "Compare two versions" fake door (P9) follows it, still above the numbers,
-      so every report view has seen it.
+      into "Advanced". The combos and engines the run measured follow the
+      pictures, last before "Advanced"; the deck summary and "Your
+      strategies" are the deck's and live on the deck page (Paket 2, PR 7). Sharing (P4) follows the attention block:
+      it is something a person can do, and says what becomes public. "Compared
+      with your last run" (PR 13, in place of P9's fake door) follows it.
     {% endcomment %}
     {% if user.is_guest %}
       {% include "simulations/_keep_deck.html" %}
     {% endif %}
-    {% include "simulations/_attention.html" %}
-    {% include "simulations/_share.html" %}
-    {% include "simulations/_compare.html" %}
+    {# Side by side from lg up, so the three small panels do not push the report down. #}
+    <div class="mt-6 grid gap-6 lg:grid-cols-3">
+      {% include "simulations/_attention.html" %}
+      {% include "simulations/_share.html" %}
+      {% if compare or not user.is_guest %}
+        {% include "simulations/_compare.html" %}
+      {% endif %}
+    </div>
     {% include "simulations/_report.html" %}
-    {% if user.deck_summaries %}
-      {% include "simulations/_summary.html" %}
-    {% endif %}
-    {% include "simulations/_strategies.html" %}
+    {% include "simulations/_measured.html" %}
     {% include "simulations/_advanced.html" %}
   {% endif %}
 {% endblock %}

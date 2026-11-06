@@ -1,0 +1,7 @@
+{% comment %}
+  A theme's or an engine's level as a word (Themen-Doc, Paket 1): the word
+  is the level, borders and fills only repeat it. One place, so a chip and
+  an engine never name the same level differently.
+
+  Takes: level ("strong", "medium" or "hint").
+{% endcomment %}{% load i18n %}{% if level == "strong" %}{% translate "strong" context "theme level" %}{% elif level == "medium" %}{% translate "medium" context "theme level" %}{% else %}{% translate "hinted" context "theme level" %}{% endif %}

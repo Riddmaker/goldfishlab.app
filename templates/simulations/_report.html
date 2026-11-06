@@ -1,31 +1,60 @@
-{% load humanize i18n l10n %}
+{% load humanize i18n l10n icons %}
 {% comment %}
   The report. Every chart here is server-rendered from the run's own numbers:
   a bar is a div with a width, which needs no charting library, no JavaScript,
   and works in a browser with both switched off. `shared` (P4): on a shared
   report, which offers its reader nothing of the owner's.
 {% endcomment %}
-{% if report.glance %}
-  {# P20 F4 (E1.19): the precon pages' numbers, for every deck - the same sentences. #}
+{% if report.standings %}
+  {# Paket 3, PR 11 (Themen-Doc row 32): the numbers next to the precons', each played the same way. #}
   <section id="glance" class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">{% translate "In short" %}</h2>
-    <ul class="mt-3 list-disc space-y-1 pl-5 text-ink-900">
-      {% for sentence in report.glance %}<li>{{ sentence }}</li>{% endfor %}
-    </ul>
-    <p class="mt-2 text-sm text-ink-700">
-      {% blocktranslate trimmed with shown=report.iterations|intcomma count games=report.iterations %}
-        “±” is how far the share of {{ shown }} game can be from the true one, at 95% confidence.
+    <p class="mt-1 text-sm text-ink-700">
+      {% blocktranslate trimmed count precons=report.standings.0.total %}
+        Where your deck stands next to {{ precons }} Commander precon, each played the same way.
       {% plural %}
-        “±” is how far the share of {{ shown }} games can be from the true one, at 95% confidence.
+        Where your deck stands next to {{ precons }} Commander precons, each played the same way.
       {% endblocktranslate %}
-      {% include "core/_why.html" with anchor="games" %}
+      {% include "core/_why.html" with anchor="precons-compared" %}
     </p>
+    <dl class="peer-list mt-4">
+      {% for standing in report.standings %}
+        <div class="peer-row" data-standing>
+          <dt class="text-ink-900">{{ standing.label }}</dt>
+          <dd class="tabular peer-value text-ink-900">{{ standing.value }}</dd>
+          <dd class="peer-strip" aria-hidden="true">
+            {% for tick in standing.ticks %}<span class="peer-tick" style="left: {{ tick|unlocalize }}%"></span>{% endfor %}
+            <span class="peer-mark" style="left: {{ standing.mark|unlocalize }}%"></span>
+            <span class="tabular peer-end peer-end-low">{{ standing.low }}</span>
+            <span class="tabular peer-end peer-end-high">{{ standing.high }}</span>
+          </dd>
+          <dd class="peer-said text-sm text-ink-700">
+            {% if standing.ahead_of == standing.total %}
+              {% translate "Ahead of every precon." %}
+            {% elif standing.ahead_of == 0 %}
+              {% translate "Behind or level with every precon." %}
+            {% else %}
+              {% blocktranslate trimmed with ahead=standing.ahead_of count total=standing.total %}
+                Ahead of {{ ahead }} of {{ total }} precon.
+              {% plural %}
+                Ahead of {{ ahead }} of {{ total }} precons.
+              {% endblocktranslate %}
+            {% endif %}
+            {% blocktranslate with middle=standing.middle %}The precons' middle: {{ middle }}.{% endblocktranslate %}
+          </dd>
+        </div>
+      {% endfor %}
+    </dl>
+    {% if report.on_the_play %}
+      <p class="mt-3 text-sm text-ink-700">{% translate "Your games were on the play, the precons' on the draw: by turn 4 they have drawn one card more." %}</p>
+    {% endif %}
+    <p class="mt-3 text-sm"><a class="text-ink-700 underline" href="{% url "datapages:precons" %}">{% translate "Every precon, side by side" %}</a></p>
   </section>
 {% endif %}
 <section id="seen" class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">{% translate "What you drew" %}</h2>
   {% if report.seen %}
-    <p class="mt-1 text-sm text-ink-700">{% translate "Your opening hand and every card you drew." %}</p>
+    <p class="mt-1 text-sm text-ink-700">{% translate "What your games start with: your opening hand and every card you drew." %}</p>
     {# Not _("…") in the include: that would keep the catalogue's doubled "%%". #}
     {% translate "% of games, by end of turn" as share_corner %}
     {% if report.seen.roles.lines %}
@@ -37,17 +66,14 @@
       {% endif %}
       {% include "simulations/_seen_numbers.html" with rows=report.seen.roles.lines turns=report.seen.turns kind="share" corner=share_corner %}
     {% endif %}
-    {% if report.seen.strategies.lines %}
-      <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "By strategy" %}</h3>
-      <p class="text-sm text-ink-700">{% translate "Games with at least one, by the end of each turn." %}</p>
-      {% include "simulations/_line_chart.html" with chart=report.seen.strategies name="seen-strategy" title=_("Share of games with at least one card of each strategy, by turn") %}
-      {% include "simulations/_seen_numbers.html" with rows=report.seen.strategies.lines turns=report.seen.turns kind="share" corner=share_corner %}
-    {% endif %}
-    {% if report.seen.mechanics.lines %}
-      <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "By mechanic" %}</h3>
-      <p class="text-sm text-ink-700">{% translate "Games with at least one, by the end of each turn." %}</p>
-      {% include "simulations/_line_chart.html" with chart=report.seen.mechanics name="seen-mechanic" title=_("Share of games with at least one card of each mechanic, by turn") %}
-      {% include "simulations/_seen_numbers.html" with rows=report.seen.mechanics.lines turns=report.seen.turns kind="share" corner=share_corner %}
+    {% if report.seen.blocks.lines %}
+      <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "Building blocks" %}</h3>
+      <p class="text-sm text-ink-700">{% translate "What the deck's plan is made of. Games with at least one, by the end of each turn." %}</p>
+      {% include "simulations/_line_chart.html" with chart=report.seen.blocks name="seen-block" title=_("Share of games with at least one card of each building block, by turn") %}
+      {% if report.seen.blocks_rest %}
+        <p class="mt-2 text-sm text-ink-700">{% blocktranslate with labels=report.seen.blocks_rest|join:", " %}Also in the deck, seen less often: {{ labels }}. Their numbers are below.{% endblocktranslate %}</p>
+      {% endif %}
+      {% include "simulations/_seen_numbers.html" with rows=report.seen.block_rows turns=report.seen.turns kind="share" corner=share_corner %}
     {% endif %}
     {% if report.seen.types.lines %}
       <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "By card type" %}</h3>
@@ -99,7 +125,7 @@
   <section id="milestones" class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">{% translate "Milestones" %}</h2>
     <p class="mt-1 text-sm text-ink-700">
-      {% translate "Share of games where it was true by the end of each turn." %}
+      {% translate "How soon your deck gets going: the share of games where each was true by the end of each turn." %}
       {% include "core/_why.html" with anchor="report-milestones" %}
     </p>
     {% include "simulations/_line_chart.html" with chart=report.milestone_chart name="milestone" title=_("Share of games where each milestone was reached, by turn") %}
@@ -140,56 +166,75 @@
   </section>
 {% endif %}
 {% if report.stress %}
+  {% comment %}
+    Paket 3, PR 12 (Themen-Doc row 35): two cards, one big number each - how
+    fast the deck comes back - and the with/without rows folded below.
+  {% endcomment %}
   <section id="stress" class="surface-parchment mt-6 p-6">
-    <h2 class="font-display text-2xl text-ink-900">{% translate "Stress test: when the table strikes back" %}</h2>
+    <h2 class="icon-host flex items-center gap-2 font-display text-2xl text-ink-900">{% icon "stress" %}{% translate "Stress test: when the table strikes back" %}</h2>
     <p class="mt-1 text-sm text-ink-700">
       {% blocktranslate trimmed with turn=report.stress.turns %}
-        The same games, once as they went and once with the table striking back, side by side on turn {{ turn }}. An assumption, said beside each, not a measurement of real tables.
+        How fast your deck comes back when an opponent hits it: the same games, once struck, side by side on turn {{ turn }}.
       {% endblocktranslate %}
       {% include "core/_why.html" with anchor="stress" %}
     </p>
-    {% for scenario in report.stress.scenarios %}
-      <h3 class="font-display mt-5 text-lg text-ink-900">{{ scenario.title }}</h3>
-      <p class="mt-1 text-sm text-ink-700">{{ scenario.assumption }}</p>
-      <p class="mt-2 text-ink-900">{{ scenario.sentence }}</p>
-      {% if scenario.rows %}
-        <div class="mt-3 overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead>
-              <tr class="border-b border-parchment-600 text-ink-700">
-                <th scope="col" class="py-1.5 pr-3">{% blocktranslate with turn=report.stress.turns %}Turn {{ turn }}{% endblocktranslate %}</th>
-                <th scope="col" class="py-1.5 pr-3">{% translate "Without" %}</th>
-                <th scope="col" class="py-1.5 pr-3">{% translate "With" %}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for row in scenario.rows %}
-                <tr class="border-b border-parchment-300">
-                  <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
-                  {% if row.mean %}
-                    <td class="tabular py-1.5 pr-3 text-ink-700">{{ row.without|floatformat:"1" }}</td>
-                    <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.with|floatformat:"1" }}</td>
-                  {% else %}
-                    <td class="tabular py-1.5 pr-3 text-ink-700">{% blocktranslate with number=row.without|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
-                    <td class="tabular py-1.5 pr-3 text-ink-900">{% blocktranslate with number=row.with|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
-                  {% endif %}
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+      {% for scenario in report.stress.scenarios %}
+        <div class="border border-parchment-600 bg-parchment-50 p-4" data-stress-card="{{ scenario.key }}">
+          <h3 class="font-display text-lg text-ink-900">{{ scenario.title }}</h3>
+          {% if scenario.figure %}
+            <p class="mt-2 tabular font-display text-4xl text-ink-900" data-stress-figure>{{ scenario.figure }}</p>
+            <p class="text-sm text-ink-900">{{ scenario.caption }}</p>
+          {% endif %}
+          <p class="mt-2 text-sm text-ink-700">{{ scenario.sentence }}</p>
+          <p class="mt-3 text-xs text-ink-700">{{ scenario.assumption }}</p>
         </div>
-        <p class="mt-2 text-xs text-ink-700">
-          {% blocktranslate trimmed with shown=scenario.games|intcomma count games=scenario.games %}
-            Measured in {{ shown }} game.
-          {% plural %}
-            Measured in {{ shown }} games.
-          {% endblocktranslate %}
-        </p>
-      {% endif %}
-    {% endfor %}
+      {% endfor %}
+    </div>
+    {% if report.stress.measured %}
+      <details class="mt-5 text-sm" data-stress-numbers>
+        <summary class="cursor-pointer text-ink-900 underline">{% translate "The numbers" %}</summary>
+        {% for scenario in report.stress.scenarios %}
+          {% if scenario.rows %}
+            <h3 class="mt-4 font-display text-base text-ink-900">{{ scenario.title }}</h3>
+            <div class="mt-2 overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b border-parchment-600 text-ink-700">
+                    <th scope="col" class="py-1.5 pr-3">{% blocktranslate with turn=report.stress.turns %}Turn {{ turn }}{% endblocktranslate %}</th>
+                    <th scope="col" class="py-1.5 pr-3">{% translate "Without" %}</th>
+                    <th scope="col" class="py-1.5 pr-3">{% translate "With" %}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in scenario.rows %}
+                    <tr class="border-b border-parchment-300">
+                      <th scope="row" class="py-1.5 pr-3 font-normal text-ink-900">{{ row.label }}</th>
+                      {% if row.mean %}
+                        <td class="tabular py-1.5 pr-3 text-ink-700">{{ row.without|floatformat:"1" }}</td>
+                        <td class="tabular py-1.5 pr-3 text-ink-900">{{ row.with|floatformat:"1" }}</td>
+                      {% else %}
+                        <td class="tabular py-1.5 pr-3 text-ink-700">{% blocktranslate with number=row.without|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
+                        <td class="tabular py-1.5 pr-3 text-ink-900">{% blocktranslate with number=row.with|floatformat:"0" %}{{ number }}%{% endblocktranslate %}</td>
+                      {% endif %}
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <p class="mt-2 text-xs text-ink-700">
+              {% blocktranslate trimmed with shown=scenario.games|intcomma count games=scenario.games %}
+                Measured in {{ shown }} game.
+              {% plural %}
+                Measured in {{ shown }} games.
+              {% endblocktranslate %}
+            </p>
+          {% endif %}
+        {% endfor %}
+      </details>
+    {% endif %}
   </section>
 {% endif %}
-{% include "simulations/_brackets.html" with tempo=report.brackets %}
 <section class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">{% translate "Mulligans" %}</h2>
   <table class="mt-4 w-full text-left text-sm">
@@ -221,7 +266,7 @@
   <section class="surface-parchment mt-6 p-6">
     <h2 class="font-display text-2xl text-ink-900">{% translate "What the mana was made of" %}</h2>
     <p class="mt-1 text-sm text-ink-700">
-      {% translate "How much of each colour the mana could pay — means only." %}
+      {% translate "Whether your mana pays for your spells' colours: how much of each colour it could pay, on average." %}
       {% include "core/_why.html" with anchor="report-colour" %}
     </p>
     <div class="mt-5 overflow-x-auto">

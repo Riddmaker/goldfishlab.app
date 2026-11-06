@@ -80,27 +80,16 @@
       {% endcomment %}
       <nav class="mx-auto flex max-w-5xl flex-wrap items-baseline gap-x-6 gap-y-2 px-4 py-4">
         {% comment %}
-          On the home page (phase 10 F) the mark is the inline logo, and the
-          fish in it is alive: static/js/fish.js plays a short move now and
-          then, and clicking the logo makes it react instead of reloading the
-          page it is already on. Without that script it is a plain link.
-          Everywhere else the mark stays the static image.
+          The mark is the still image on every page, the home page too
+          (Paket 4, PR 17): there the fish lives in the big flask above the
+          heading (core/home.html, static/js/fish.js), not in the header.
         {% endcomment %}
-        {% if request.resolver_match.url_name == "home" %}
-          <a href="{% url 'home' %}"
-             aria-current="page"
-             data-fish-link
-             class="flex items-baseline gap-2 font-display text-xl tracking-wide text-parchment-100 hover:text-parchment-50">
-            {% include "core/_logo.html" with id="home-logo" class="logo-home self-center" %}
-            Goldfish&nbsp;Lab
-          </a>
-        {% else %}
-          <a href="{% url 'home' %}"
-             class="flex items-baseline gap-2 font-display text-xl tracking-wide text-parchment-100 hover:text-parchment-50">
-            <img src="{% static 'img/favicon.svg' %}" alt="" width="28" height="28" class="self-center">
-            Goldfish&nbsp;Lab
-          </a>
-        {% endif %}
+        <a href="{% url 'home' %}"
+           {% if request.resolver_match.url_name == "home" %}aria-current="page"{% endif %}
+           class="flex items-baseline gap-2 font-display text-xl tracking-wide text-parchment-100 hover:text-parchment-50">
+          <img src="{% static 'img/favicon.svg' %}" alt="" width="28" height="28" class="self-center">
+          Goldfish&nbsp;Lab
+        </a>
         <span class="hidden text-sm text-ink-400 sm:inline">{% translate "it actually plays your deck" %}</span>
         <div class="ml-auto flex flex-wrap items-baseline justify-end gap-x-4 gap-y-1 text-sm">
           {% if user.is_guest %}
@@ -150,6 +139,7 @@
       <div class="mx-auto max-w-5xl px-4 py-6 text-xs leading-relaxed text-ink-400">
         <p class="flex flex-wrap gap-x-4 gap-y-1">
           <a href="{% url 'methodology' %}" class="underline hover:text-ink-300">{% translate "How this works" %}</a>
+          <a href="{% url 'resources' %}" class="underline hover:text-ink-300">{% translate "Resources" %}</a>
           <a href="{% url 'changelog' %}" class="underline hover:text-ink-300">{% translate "What's new" %}</a>
           <a href="{% url 'datapages:precons' %}" class="underline hover:text-ink-300">{% translate "Every Commander precon" %}</a>
           <a href="{% url 'pricing' %}" class="underline hover:text-ink-300">{% translate "Pricing" %}</a>
@@ -185,14 +175,16 @@
         </p>
         {% if site_languages|length > 1 %}
           {% comment %}
-            Phase 12: a plain form, no script, so the CSP stays as it is. Every
+            Phase 12: a plain form that works without script; static/js/language.js
+            (same origin, so the CSP stays as it is) submits it on pick. Every
             language in its own name and marked with its `lang`, so a person
             finds theirs without reading English and a screen reader says it right.
             Shown only once a second language is switched on (LANGUAGES_ON).
           {% endcomment %}
           <form method="post"
                 action="{% url 'set_language' %}"
-                class="mt-2 flex items-center gap-2">
+                class="mt-2 flex items-center gap-2"
+                data-language-form>
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ request.get_full_path }}">
             <label for="footer-language">{% translate "Language" %}</label>
@@ -205,8 +197,10 @@
                 </option>
               {% endfor %}
             </select>
-            <button type="submit" class="underline hover:text-ink-300">{% translate "Change" context "language switch" %}</button>
+            <button type="submit" class="underline hover:text-ink-300" data-language-submit>{% translate "Change" context "language switch" %}</button>
           </form>
+          {# Switches on pick and hides "Change"; without it the button stays. #}
+          <script src="{% static 'js/language.js' %}" defer></script>
         {% endif %}
         {% comment %}
           The Fan Content Policy asks for this notice in these words, and the
@@ -223,6 +217,10 @@
             Card data and images from <a href="https://scryfall.com" class="underline hover:text-ink-300" rel="noopener">Scryfall</a>;
             combos from <a href="https://commanderspellbook.com" class="underline hover:text-ink-300" rel="noopener">Commander Spellbook</a>.
             Neither is affiliated with Goldfish Lab.
+          {% endblocktranslate %}
+          {% blocktranslate trimmed %}
+            Some card abilities are read from the card scripts of <a href="https://github.com/Card-Forge/forge" class="underline hover:text-ink-300" rel="noopener">Forge</a>,
+            which is not affiliated with Goldfish Lab either.
           {% endblocktranslate %}
         </p>
       </div>

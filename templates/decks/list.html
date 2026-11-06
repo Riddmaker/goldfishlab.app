@@ -17,19 +17,38 @@
     {% url 'decks:list' as here %}
     <ul class="mt-8 space-y-4">
       {% for deck in decks %}
-        <li class="surface-parchment p-5">
-          <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <li class="surface-parchment flex items-center gap-4 p-5">
+          {% include "decks/_fan.html" %}
+          <div class="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-4 gap-y-1">
             {% include "decks/_name.html" with heading=False next=here %}
             <span class="tabular text-sm text-ink-700">{% blocktranslate count count=deck.total_with_commander %}{{ count }} card{% plural %}{{ count }} cards{% endblocktranslate %}</span>
             {% include "decks/_status.html" %}
             <span class="text-sm text-ink-700">
               {% if deck.commander %}
-                {% blocktranslate with name=deck.commander.name %}Commander: {{ name }}{% endblocktranslate %}
+                {{ deck.commander.name }}
               {% else %}
                 <span class="text-blood-700">{% translate "No commander set" %}</span>
               {% endif %}
             </span>
             <span class="ml-auto text-sm text-ink-600">{% blocktranslate with date=deck.updated_at|date:"SHORT_DATE_FORMAT" %}updated {{ date }}{% endblocktranslate %}</span>
+            {% include "decks/_delete_icon.html" %}
+            {# Paket 2, PR 9: colour identity, bracket as the tile says it, last simulation. #}
+            <p class="flex w-full flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-700" data-deck-values>
+              <span class="flex items-center gap-0.5" data-identity>
+                <span class="sr-only">{% translate "Colour identity" %}:</span>
+                {% for letter, name in deck.identity %}
+                  <span class="pip pip-{{ letter }}" title="{{ name }}" aria-hidden="true">{{ letter }}</span><span class="sr-only">{{ name }}{% if not forloop.last %}, {% endif %}</span>
+                {% endfor %}
+              </span>
+              <span class="tabular" data-deck-bracket>{% translate "Bracket" %} {% include "decks/_bracket_number.html" with speed=deck.speed floor=deck.floor %}</span>
+              <span data-last-run>
+                {% if deck.last_run %}
+                  <a href="{{ deck.last_run.get_absolute_url }}" class="underline">{% blocktranslate with date=deck.last_run.finished_at|default:deck.last_run.created_at|date:"SHORT_DATE_FORMAT" %}simulated {{ date }}{% endblocktranslate %}</a>
+                {% else %}
+                  {% translate "not simulated yet" %}
+                {% endif %}
+              </span>
+            </p>
           </div>
         </li>
       {% endfor %}

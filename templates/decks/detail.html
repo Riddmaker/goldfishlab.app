@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load humanize i18n static %}
+{% load humanize i18n icons static %}
 {% block title %}{{ deck.name }} — Goldfish Lab{% endblock %}
 {% block description %}{% blocktranslate with name=deck.name %}Mana curve, card types, categories and Commander legality for {{ name }}.{% endblocktranslate %}{% endblock %}
 {% block head %}
@@ -9,7 +9,8 @@
 {% block content %}
   {% comment %}
     Phase 9 D: what to do first, then what the deck is. The explanations did
-    not go away - each one sits behind a "Why?" or in a fold further down.
+    not go away - each one sits in a fold further down. The tiles carry no
+    "Why?" of their own: the word on each tile says it.
   {% endcomment %}
   <div id="play" class="flex flex-wrap items-start gap-6">
     {% if deck.commander %}{% include "decks/_commander_art.html" %}{% endif %}
@@ -27,8 +28,8 @@
           {% endif %}
         </span>
         {% include "decks/_status.html" %}
-        <a href="{% url 'decks:list' %}"
-           class="ml-auto text-sm text-parchment-200 underline">{% translate "All decks" %}</a>
+        {# No "All decks" link: the header's "Decks" says it. The bin takes its place. #}
+        <span class="ml-auto self-center">{% include "decks/_delete_icon.html" with dark=True %}</span>
       </div>
       {% if last_import %}{% include "decks/_left_out.html" with record=last_import %}{% endif %}
       {% if not deck.is_commander_deck %}
@@ -44,15 +45,19 @@
       {% endif %}
       {% url 'decks:set-commander' deck.id as commander_url %}
       {% if deck.commander %}
-        <p class="mt-2 text-parchment-200">
-          {% if deck.partner %}{% translate "Commanders:" %}{% else %}{% translate "Commander:" %}{% endif %}
-          {% for card, printing in commander_printings %}
-            <strong class="text-parchment-100">{{ card.front_name }}</strong>{% if printing %} <span class="text-sm text-parchment-300">({% include "decks/_printings.html" with printings=printing %})</span>{% endif %}{% if not forloop.last %} +{% endif %}
-          {% endfor %}
-        </p>
-        {# P20 F2 (E1.55): a commander once saved could not be changed - only a new import helped. #}
-        <details id="commander" class="mt-1 text-parchment-200">
-          <summary class="cursor-pointer text-sm underline">{% translate "Change the commander" %}</summary>
+        {% comment %}
+          P20 F2 (E1.55): a commander once saved could not be changed - only a
+          new import helped. The underlined name itself opens the choice; a
+          "Change the commander" fold under it was one fold too many.
+        {% endcomment %}
+        <details id="commander" class="mt-2 text-parchment-200">
+          <summary class="commander-toggle cursor-pointer" title="{% translate "Change the commander" %}">
+            {% if deck.partner %}{% translate "Commanders:" %}{% else %}{% translate "Commander:" %}{% endif %}
+            {% for card, printing in commander_printings %}
+              <strong class="text-parchment-100 underline decoration-parchment-300 underline-offset-4">{{ card.front_name }}</strong>{% if printing %} <span class="text-sm text-parchment-300">({% include "decks/_printings.html" with printings=printing %})</span>{% endif %}{% if not forloop.last %} +{% endif %}
+            {% endfor %}
+            <span class="sr-only">— {% translate "Change the commander" %}</span>
+          </summary>
           {% translate "Save commander" as save_label %}
           {% include "decks/_commander_form.html" with action=commander_url submit_label=save_label %}
         </details>
@@ -66,22 +71,35 @@
           {% include "decks/_commander_form.html" with action=commander_url submit_label=save_label %}
         </div>
       {% endif %}
+      {% comment %}
+        One form, two buttons: "Draw a hand" posts the same fields to the
+        playtest (formaction), so the one "First draw" choice counts for both.
+        It once had a checkbox of its own beside that dropdown, which read as
+        the same question asked twice. The last report, when there is one, is
+        the first button: somebody coming back pressed "Simulate" because the
+        link to it under the buttons was easy to miss.
+      {% endcomment %}
       <form id="simulate" method="post" action="{% url 'simulations:create' deck.id %}" class="mt-5">
         {% csrf_token %}
         <div class="flex flex-wrap gap-3">
+          {% if running_run %}
+            <a href="{{ running_run.get_absolute_url }}" data-last-run-link
+               class="border border-blood-800 bg-blood-700 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-blood-800">{% translate "Watch the run" %}</a>
+          {% elif last_run %}
+            <a href="{{ last_run.get_absolute_url }}" data-last-run-link
+               class="border border-blood-800 bg-blood-700 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-blood-800">{% translate "Open the last report" %}</a>
+          {% endif %}
           <button type="submit"
-                  class="border border-blood-800 bg-blood-700 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-blood-800">
-            {% if not deck.commander %}{% translate "Simulate without a commander" %}{% elif last_run %}{% translate "Simulate again" %}{% else %}{% translate "Simulate" %}{% endif %}
+                  class="{% if running_run or last_run %}border border-parchment-100 hover:bg-ink-800{% else %}border border-blood-800 bg-blood-700 hover:bg-blood-800{% endif %} icon-host inline-flex items-center gap-2 px-6 py-3 font-display text-xl text-parchment-100">
+            {% icon "simulation" %}{% if not deck.commander %}{% translate "Simulate without a commander" %}{% elif last_run %}{% translate "Simulate again" %}{% else %}{% translate "Simulate" %}{% endif %}
           </button>
-          <button type="submit" form="deal-hand"
-                  class="border border-parchment-100 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-ink-800">
-            {% translate "Draw a hand" %}
+          <button type="submit" formaction="{% url 'playtest:start' deck.id %}" data-deal-hand
+                  class="icon-host inline-flex items-center gap-2 border border-parchment-100 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-ink-800">
+            {% icon "hand" %}{% translate "Draw a hand" %}
           </button>
         </div>
-        {% if summary_due %}
-          <p class="mt-2 max-w-xl text-sm text-parchment-200">
-            {% translate "This run also writes a new deck summary, which counts as one more simulation." %}
-          </p>
+        {% if running_run or last_run %}
+          {% include "decks/_last_run.html" %}
         {% endif %}
         <details class="mt-3 max-w-xl text-parchment-200">
           <summary class="cursor-pointer text-sm underline">{% translate "Options" %}</summary>
@@ -90,27 +108,19 @@
               <div class="form-field">
                 <label for="{{ field.id_for_label }}" class="block text-sm text-ink-700">{{ field.label }}</label>
                 {{ field }}
+                {% if field.name == "on_the_play" %}
+                  <p class="mt-1 text-xs text-ink-700">{% translate "Counts for Simulate and for Draw a hand." %}</p>
+                {% endif %}
               </div>
             {% endfor %}
-            <label class="flex items-center gap-2 text-sm text-ink-700">
-              <input type="checkbox" name="on_the_play" form="deal-hand">
-              {% translate "Draw a hand: 1-v-1, skip the first draw" %}
-            </label>
-            <p class="text-xs text-ink-700">
-              {% blocktranslate trimmed %}
-                Simulate plays the deck out thousands of times against no opponent.
-                Draw a hand is one game by hand, with undo.
-              {% endblocktranslate %}
-            </p>
+            {% if summary_due %}
+              <p class="text-xs text-ink-700">
+                {% translate "This run also writes a new deck summary, which counts as one more simulation." %}
+              </p>
+            {% endif %}
           </div>
         </details>
       </form>
-      <form id="deal-hand" method="post" action="{% url 'playtest:start' deck.id %}">
-        {% csrf_token %}
-      </form>
-      {% if running_run or last_run %}
-        {% include "decks/_last_run.html" %}
-      {% endif %}
     </div>
   </div>
 
@@ -124,6 +134,8 @@
       {% else %}
         <p class="text-sm text-blood-700">! {% translate "outside band" %}</p>
       {% endif %}
+      {# The band and its source in one line; the Why under the tiles went (the word says it). #}
+      <a href="{% url 'methodology' %}#karsten" class="tabular text-xs text-ink-700 underline">{% blocktranslate with low=analysis.lands_band.0 high=analysis.lands_band.1 %}target {{ low }}–{{ high }} (Karsten){% endblocktranslate %}</a>
       {% if analysis.land_backs %}
         {# P20 F4 (E1.5): counted by the front face, as the list below counts. #}
         <p class="text-sm text-ink-700" data-land-backs>
@@ -140,58 +152,129 @@
       <p class="tabular font-display text-3xl text-ink-900">{{ analysis.average_mv }}</p>
       <p class="text-sm text-ink-700">{% translate "spells only" %}</p>
     </div>
-    <div class="surface-parchment p-4">
-      <p class="text-sm text-ink-700">{% translate "Bracket" %}</p>
-      {# A floor by the Game Changers, never a rating (P20 F4, E1.30). #}
-      <p class="tabular font-display text-3xl text-ink-900" data-bracket-floor>{% if analysis.bracket_floor == 1 %}1–2{% else %}{{ analysis.bracket_floor }}+{% endif %}</p>
+    {% comment %}
+      Two floors, and a deck is in a bracket only if it fits every rule: the
+      Game Changers read off the deck, the speed off the last run (P20 F4).
+      The big number is the higher of the two; the report has the table.
+    {% endcomment %}
+    <div class="surface-parchment icon-host p-4" data-bracket-tile>
+      <p class="flex items-center gap-1.5 text-sm text-ink-700">{% icon "bracket" %}{% translate "Bracket" %}</p>
+      <p class="tabular font-display text-3xl text-ink-900" data-bracket-floor>{% include "decks/_bracket_number.html" with floor=analysis.bracket_floor %}</p>
       <p class="text-sm text-ink-700">{{ analysis.bracket_verdict.message }}</p>
+      <p class="text-sm text-ink-700" data-by-speed>
+        {% if not speed %}
+          <a href="#simulate" class="underline">{% translate "by speed: simulate to see" %}</a>
+        {% elif speed.by_speed %}
+          <a href="{{ last_run.get_absolute_url }}#brackets" class="underline">{% blocktranslate with number=speed.by_speed %}by speed: at least {{ number }} (last run){% endblocktranslate %}</a>
+        {% else %}
+          <a href="{{ last_run.get_absolute_url }}#brackets" class="underline">{% translate "by speed: not measured in the last run" %}</a>
+        {% endif %}
+      </p>
     </div>
-    <div class="surface-parchment p-4">
-      <p class="text-sm text-ink-700">{% translate "Commander legality" %}</p>
+    {# The six checks themselves, so no fold further down repeats the tile. #}
+    <div id="legality" class="surface-parchment icon-host p-4">
+      <p class="flex items-center gap-1.5 text-sm text-ink-700">{% icon "legal" %}{% translate "Commander legality" %}</p>
       {% if legality_problems %}
         <p class="font-display text-3xl text-blood-700">!</p>
-        <a href="#legality" class="text-sm text-blood-700 underline">
-          {% blocktranslate count count=legality_problems %}{{ count }} problem{% plural %}{{ count }} problems{% endblocktranslate %}
-        </a>
       {% else %}
         <p class="font-display text-3xl text-verdigris-800">✓</p>
-        <p class="text-sm text-verdigris-800">{% translate "Legal" %}</p>
       {% endif %}
+      <ul class="mt-1 space-y-0.5 text-sm" data-legality>
+        {% for verdict in analysis.legality %}
+          {% if verdict.ok %}
+            <li class="text-verdigris-800" title="{{ verdict.detail }}">✓ {{ verdict.message }}</li>
+          {% else %}
+            <li class="text-blood-700">
+              ! {{ verdict.message }}
+              <span class="block text-xs text-ink-700">{{ verdict.detail }}</span>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
     </div>
   </section>
-  <details class="mt-2 text-sm text-parchment-200">
-    <summary class="cursor-pointer underline">{% translate "Why?" %}</summary>
-    <ul class="mt-2 max-w-3xl space-y-1">
-      <li>{% blocktranslate with detail=analysis.lands_verdict.detail %}Lands: {{ detail }}{% endblocktranslate %}</li>
-      <li>{% blocktranslate with detail=analysis.bracket_verdict.detail %}Bracket: {{ detail }}{% endblocktranslate %}</li>
-      <li>{% translate "Every count is exact arithmetic over the list - nothing here is simulated." %}</li>
-    </ul>
-  </details>
 
-  <div class="mt-6 grid gap-6 lg:grid-cols-2">
+  {% comment %}
+    The deck summary and "Your strategies" right under the tiles (Paket 2,
+    PR 7): what the deck is, in words, before the numbers. They were on every
+    report, but they are about the deck, not about one run. The summary is
+    not there at all for somebody who switched summaries off.
+  {% endcomment %}
+  {% if written %}
+    {% include "simulations/_summary.html" %}
+  {% endif %}
+  {% include "simulations/_strategies.html" %}
+
+  <div class="mt-6 grid items-start gap-6 lg:grid-cols-2">
     <section class="surface-parchment p-6">
       <h2 class="font-display text-2xl text-ink-900">{% translate "Mana curve" %}</h2>
       <p class="mt-1 text-sm text-ink-700">{% translate "Spells by mana value." %}</p>
-      <ul class="mt-5 space-y-2">
-        {% for bucket, count in analysis.curve.items %}
-          <li class="flex items-center gap-3">
-            <span class="tabular w-8 shrink-0 text-right text-ink-900">{% if bucket == 7 %}7+{% else %}{{ bucket }}{% endif %}</span>
-            {% comment %}
-              In a track of its own: a full-width bar straight in the flex row
-              squeezed the label column, and the longest bar started left of
-              the others.
-            {% endcomment %}
-            <span class="flex flex-1 items-center gap-3" role="presentation">
-              <span class="h-4 bg-ink-800" style="width: {% widthratio count curve_max 90 %}%"></span>
-              <span class="tabular text-sm text-ink-700">{{ count }}</span>
-            </span>
-          </li>
-        {% endfor %}
-      </ul>
+      {% comment %}
+        Paket 2, PR 8: the curve as small columns, half the height of the
+        eight rows it was, and beside it three numbers a player asks first.
+        Each column says its count and mana value in words for a screen
+        reader; the drawn parts are hidden from it.
+      {% endcomment %}
+      <div class="deck-curve-wrap mt-5">
+        <ol class="deck-curve" data-curve>
+          {% for bucket, count in analysis.curve.items %}
+            <li class="deck-curve-col">
+              <span class="sr-only">
+                {% if bucket == 7 %}
+                  {% blocktranslate trimmed count count=count %}{{ count }} spell at mana value 7 or more{% plural %}{{ count }} spells at mana value 7 or more{% endblocktranslate %}
+                {% else %}
+                  {% blocktranslate trimmed count count=count with value=bucket %}{{ count }} spell at mana value {{ value }}{% plural %}{{ count }} spells at mana value {{ value }}{% endblocktranslate %}
+                {% endif %}
+              </span>
+              <span class="tabular text-sm text-ink-700" aria-hidden="true">{{ count }}</span>
+              <span class="deck-curve-track" aria-hidden="true">
+                <span class="deck-curve-bar" style="height: {% widthratio count curve_max 100 %}%"></span>
+              </span>
+              <span class="tabular text-ink-900" aria-hidden="true">{% if bucket == 7 %}7+{% else %}{{ bucket }}{% endif %}</span>
+            </li>
+          {% endfor %}
+        </ol>
+        <dl class="deck-curve-facts" data-curve-facts>
+          {% for bar in curve_counts %}
+            <div class="icon-host">
+              <dt class="text-sm text-ink-700">
+                <a href="?{{ bar.param }}={{ bar.value }}#cards" class="inline-flex items-center gap-1.5 underline decoration-parchment-600">{% icon bar.icon %}{{ bar.label }}</a>
+              </dt>
+              <dd class="tabular font-display text-2xl text-ink-900">
+                {{ bar.count }}{% if bar.band_label %}<span class="font-body text-sm text-ink-700"> / ~{{ bar.band_label }}</span>{% endif %}
+              </dd>
+            </div>
+          {% endfor %}
+          <div data-commander-out>
+            <dt class="text-sm text-ink-700">{% translate "Commander out" %}</dt>
+            {% if not commander_out %}
+              <dd class="font-display text-2xl text-ink-900">–</dd>
+              <dd class="text-sm text-ink-700">
+                <a href="#simulate" class="underline">{% translate "simulate to see" %}</a>
+              </dd>
+            {% elif commander_out.turn %}
+              <dd class="tabular font-display text-2xl text-ink-900">
+                {% blocktranslate with turn=commander_out.turn %}by turn {{ turn }}{% endblocktranslate %}
+              </dd>
+              <dd class="text-sm text-ink-700">
+                <a href="{{ last_run.get_absolute_url }}#milestones" class="underline">{% translate "in half the games, last run" %}</a>
+              </dd>
+            {% else %}
+              <dd class="tabular font-display text-2xl text-ink-900">
+                {% blocktranslate with turn=commander_out.turns %}not by turn {{ turn }}{% endblocktranslate %}
+              </dd>
+              <dd class="text-sm text-ink-700">
+                <a href="{{ last_run.get_absolute_url }}#milestones" class="underline">{% translate "in half the games, last run" %}</a>
+              </dd>
+            {% endif %}
+          </div>
+        </dl>
+      </div>
     </section>
     <section class="surface-parchment p-6">
       <h2 class="font-display text-2xl text-ink-900">{% translate "What is in it" %}</h2>
-      <p class="mt-1 text-sm text-ink-700">
+      {% include "decks/_themes.html" %}
+      <p class="mt-4 text-sm text-ink-700">
         <span class="deck-bar-key" role="presentation"></span>
         {% translate "a common template, not a rule. Click a row to see its cards." %}
       </p>
@@ -216,6 +299,19 @@
       {% endif %}
     </section>
   </div>
+
+  {% comment %}
+    Combos and engines open, before the cards: the cards are the deck
+    somebody already knows, and a list below them is a list nobody scrolls
+    to. The combo panel keeps itself short - three "one card away" inline,
+    the rest folded - and is swapped alone by htmx; the engines and pairs
+    below it come from the themes and need no button (Paket 1, PR 3).
+  {% endcomment %}
+  <section id="combos" class="surface-parchment mt-8 p-6">
+    <h2 class="icon-host flex items-center gap-2 font-display text-2xl text-ink-900">{% icon "combo" %}{% translate "Combos & engines" %}</h2>
+    {% include "combos/_panel.html" %}
+    {% include "decks/_engines.html" %}
+  </section>
 
   <section id="cards" class="surface-parchment mt-6 p-6">
     <div class="flex flex-wrap items-baseline gap-4">
@@ -268,34 +364,9 @@
     </div>
   </section>
 
-  {% comment %}
-    The folds. Each keeps what the old page said at length; a problem opens
-    its own fold, so the tile's link lands on something readable.
-  {% endcomment %}
-  <details id="legality" class="surface-parchment mt-6 p-6" {% if legality_problems %}open{% endif %}>
-    <summary class="cursor-pointer font-display text-xl text-ink-900">{% translate "Commander legality" %}</summary>
-    <ul class="mt-4 space-y-3">
-      {% for verdict in analysis.legality %}
-        <li class="border-b border-parchment-300 pb-3 last:border-0">
-          <p class="text-ink-900">
-            {% if verdict.ok %}
-              <span class="text-verdigris-800">✓</span>
-            {% else %}
-              <span class="text-blood-700">!</span>
-            {% endif %}
-            <strong>{{ verdict.message }}</strong>
-          </p>
-          <p class="mt-1 text-sm text-ink-700">{{ verdict.detail }}</p>
-        </li>
-      {% endfor %}
-    </ul>
-  </details>
-  <details id="combos" class="mt-6">
-    <summary class="cursor-pointer font-display text-xl text-parchment-100">{% translate "Combos" %}</summary>
-    {% include "combos/_panel.html" %}
-  </details>
   <details class="mt-6 border-l-2 border-parchment-600 pl-5">
     <summary class="cursor-pointer font-display text-xl text-parchment-100">{% translate "What the engine cannot model" %}</summary>
+    {% include "simulations/_blindspots.html" %}
     {% comment %}
       One source with the red marker (P20 F4, E1.35): the review queue. The
       sentence once counted the card reader's own flag, and said "0 of 99"
@@ -335,7 +406,6 @@
         {% endblocktranslate %}
       </p>
     {% endif %}
-    {% include "simulations/_blindspots.html" %}
     {% if last_import %}
       <p class="mt-3 text-sm text-parchment-200">
         {% url 'decks:review' last_import.id as review_url %}
@@ -401,8 +471,4 @@
       {% endif %}
     </details>
   {% endif %}
-  <p class="mt-10">
-    <a href="{% url 'decks:delete' deck.id %}"
-       class="text-sm text-blood-500 underline">{% translate "Delete this deck" %}</a>
-  </p>
 {% endblock %}

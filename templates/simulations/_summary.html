@@ -1,19 +1,25 @@
 {% load i18n %}
 {% comment %}
-  "Deck summary" (phase 10 H, phase 11 D, T6.1-T6.5, K15): the last block
-  before the combos - title and tagline, feel, strengths (+), weaknesses (−),
-  tactics. All of it is Mistral's (`written`, from summary.state), checked
-  before it was stored and escaped here like any text. It carries its own
-  `lang` (phase 12 G): it stays in the language it was written in.
+  "Deck summary" (phase 10 H, phase 11 D, T6.1-T6.5, K15) on the deck page,
+  right under the tiles (Paket 2, PR 7; it was on every report until then):
+  title and tagline, feel, strengths (+), weaknesses (−), tactics. All of it
+  is Mistral's (`written`, from summary.state), checked before it was stored
+  and escaped here like any text. It carries its own `lang` (phase 12 G): it
+  stays in the language it was written in.
 
-  The "Mechanisms" chips of phase 10 G are gone (K15): their numbers live in
-  "By strategy", and "None in the deck" moved under "By category" (P3). A
+  It is written with a run, so a deck that has none yet says so and points
+  at the Simulate button: an empty block that advertises what fills it. A
   version 1 summary has no title and tagline and starts with "Feel" (F13).
 
   Without Mistral there is nothing to show, so the block is left out; and
-  detail.html leaves it out for somebody who switched summaries off.
+  detail.html leaves it out for somebody who switched summaries off (the
+  switch is under Settings on "Your plan").
 
-  Needs `run`, and `written` unless summaries are off.
+  "Was this helpful?" asks about the summary and the strategy picks, which
+  one Mistral call writes, so it stands once, under the strategies; here only
+  when that block is not shown.
+
+  Needs `deck`, `last_run`, `strategies`, and `written`.
 {% endcomment %}
 {% if written.configured %}
 <section id="summary" class="surface-parchment mt-6 p-6">
@@ -22,46 +28,50 @@
     {% include "simulations/_summary_pending.html" %}
   {% endif %}
   {% include "simulations/_summary_text.html" with content=written.content language=written.language %}
-  <div class="mt-5 border-t border-parchment-400 pt-3 text-sm text-ink-700">
-    {% if written.content.feel %}
-      <p>{% translate "Written by Mistral AI. It can be wrong. Its numbers are calculated from your list, not measured by this run." %}</p>
-    {% endif %}
-    {% include "simulations/_summary_feedback.html" %}
-    {% if not written.pending and not written.current %}
-      {% if written.failed %}
-        <p class="mt-1">{% translate "The summary could not be written this time. Nothing was taken from your runs." %}</p>
-      {% elif written.content.feel %}
-        <p class="mt-1">{% translate "Written for an earlier version of this deck." %}</p>
+  {% if not written.content.feel and not written.pending and not last_run %}
+    <p class="mt-3 text-ink-700" data-summary-empty>
+      <a href="#simulate" class="underline">{% translate "Run a simulation to fill this." %}</a>
+      {% translate "The summary is written with your first run." %}
+    </p>
+  {% else %}
+    <div class="mt-5 border-t border-parchment-400 pt-3 text-sm text-ink-700">
+      {% if written.content.feel %}
+        <p>{% translate "Written by Mistral AI. It can be wrong. Its numbers are calculated from your list, not measured in a run." %}</p>
       {% endif %}
-      {% if written.paused %}
-        <p class="mt-1">{% translate "So many summaries were written today that they are paused until midnight. Your run is not affected." %}</p>
-      {% elif written.offer %}
-        <form method="post" action="{% url 'simulations:write_summary' run.id %}" class="mt-2">
-          {% csrf_token %}
-          <button type="submit" class="text-ink-900 underline">
-            {% if written.remaining is not None %}
-              {% blocktranslate trimmed count count=written.remaining %}
-                Write a summary for this deck - uses 1 of your {{ count }} run
-              {% plural %}
-                Write a summary for this deck - uses 1 of your {{ count }} runs
-              {% endblocktranslate %}
-            {% else %}
-              {% translate "Write a summary for this deck" %}
-            {% endif %}
-          </button>
-        </form>
-      {% elif written.short %}
-        <p class="mt-1">
-          {% translate "Not enough runs left this month for a new summary." %}{% if written.content.feel %} {% translate "The last one is shown." %}{% endif %}
-        </p>
+      {% if not strategies.shown %}
+        {# "Was this helpful?" sits under the strategies when they are shown. #}
+        {% include "simulations/_summary_feedback.html" %}
       {% endif %}
-    {% endif %}
-    <form method="post" action="{% url 'simulations:summary_switch' %}" class="mt-2">
-      {% csrf_token %}
-      <input type="hidden" name="on" value="0">
-      <input type="hidden" name="next" value="{{ run.get_absolute_url }}">
-      <button type="submit" class="text-ink-700 underline hover:text-ink-900">{% translate "Hide summaries" %}</button>
-    </form>
-  </div>
+      {% if not written.pending and not written.current and last_run %}
+        {% if written.failed %}
+          <p class="mt-1">{% translate "The summary could not be written this time. Nothing was taken from your runs." %}</p>
+        {% elif written.content.feel %}
+          <p class="mt-1">{% translate "Written for an earlier version of this deck." %}</p>
+        {% endif %}
+        {% if written.paused %}
+          <p class="mt-1">{% translate "So many summaries were written today that they are paused until midnight. Your run is not affected." %}</p>
+        {% elif written.offer %}
+          <form method="post" action="{% url 'simulations:write_summary' deck.id %}" class="mt-2">
+            {% csrf_token %}
+            <button type="submit" class="text-ink-900 underline">
+              {% if written.remaining is not None %}
+                {% blocktranslate trimmed count count=written.remaining %}
+                  Write a summary for this deck - uses 1 of your {{ count }} run
+                {% plural %}
+                  Write a summary for this deck - uses 1 of your {{ count }} runs
+                {% endblocktranslate %}
+              {% else %}
+                {% translate "Write a summary for this deck" %}
+              {% endif %}
+            </button>
+          </form>
+        {% elif written.short %}
+          <p class="mt-1">
+            {% translate "Not enough runs left this month for a new summary." %}{% if written.content.feel %} {% translate "The last one is shown." %}{% endif %}
+          </p>
+        {% endif %}
+      {% endif %}
+    </div>
+  {% endif %}
 </section>
 {% endif %}

@@ -364,22 +364,23 @@ def _with_strategy(result, key="drain_payoff"):
     return result
 
 
-def test_by_strategy_draws_only_the_strategies_the_deck_has():
+def test_building_blocks_draw_only_the_strategies_the_deck_has():
     seen = report.seen(_with_strategy(_result()))
 
-    [line] = seen["strategies"].lines
+    [line] = seen["blocks"].lines
     assert line.label == "Drain"
     assert line.values == seen["roles"].lines[0].values
     assert line.info.startswith(report.SEEN_STRATEGY_INFO["drain_payoff"])
     assert "Half your games have one" in line.info and "drawn by turn 3" in line.info
 
 
-def test_a_run_from_before_the_strategies_has_no_strategy_chart():
+def test_a_run_from_before_the_strategies_has_no_building_blocks():
     """Phase 10 runs counted the categories only: no line, not a zero line."""
     seen = report.seen(_result())
 
     assert seen["roles"].lines
-    assert not seen["strategies"].lines
+    assert not seen["blocks"].lines
+    assert seen["blocks_rest"] == [] and seen["block_rows"] == []
 
 
 def test_a_run_from_before_the_count_has_no_section():

@@ -248,3 +248,11 @@ def test_a_commander_the_pool_cannot_pay_for_is_refused_politely():
     actions.apply(game, actions.OpenMainPhase())
     with pytest.raises(actions.IllegalAction, match="with tax"):
         actions.apply(game, actions.CastCommander())
+
+
+@pytest.mark.parametrize(("posted", "skips"), [("1", True), ("0", False)])
+def test_the_deck_pages_first_draw_choice_reaches_the_game(signed_in, deck, posted, skips):
+    """The deck page posts its one "First draw" dropdown to the playtest as 0 or 1."""
+    signed_in.post(reverse("playtest:start", args=[deck.id]),
+                   {"on_the_play": posted, "games": "10000", "turns": "6"})
+    assert PlaytestSession.objects.get(deck=deck).on_the_play is skips

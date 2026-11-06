@@ -84,6 +84,11 @@
   --color-verdigris-800: #1a3d30;
   --color-verdigris-900: #132c23;
 
+  /* Water - the fill of a symbol only (DESIGN.md, SYMBOLS; Paket 4, PR 15):
+     the water in the flask, the wave, a card. 500 is the step for parchment. */
+  --color-water-300: #9cc4dc;
+  --color-water-500: #5f93b5;
+
   /* Typography. EB Garamond (SIL Open Font License), a Garamond revival -
      the closest widely-available match to the type on a pre-2003 Magic card.
      SELF-HOSTED from static/fonts (see the @font-face block below): the
@@ -206,6 +211,132 @@ body {
   border: 1px solid var(--color-parchment-600);
   border-radius: 2px;
   box-shadow: 0 1px 0 var(--color-parchment-50) inset, 0 8px 24px rgb(0 0 0 / 45%);
+}
+
+/* A switch for an account setting (billing/plans.html, Settings): a real
+ * button with role="switch" that posts the other state. The track is dark
+ * when on, parchment when off; the knob slides to the side that is on. */
+.switch {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 1.5rem;
+  border: 1px solid var(--color-ink-800);
+  border-radius: 9999px;
+  background-color: var(--color-parchment-300);
+  transition: background-color 150ms ease;
+}
+.switch[aria-checked="true"] {
+  background-color: var(--color-ink-800);
+}
+.switch:focus-visible {
+  outline: 2px solid var(--color-blood-700);
+  outline-offset: 2px;
+}
+.switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 9999px;
+  background-color: var(--color-parchment-50);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 40%);
+  transition: transform 150ms ease;
+}
+.switch[aria-checked="true"] .switch-knob {
+  transform: translateX(1.25rem);
+}
+@media (prefers-reduced-motion: reduce) {
+  .switch,
+  .switch-knob {
+    transition: none;
+  }
+}
+
+/* "Your decks": the commander small, three of the deck's cards fanned out to
+ * the right behind it (templates/decks/_fan.html). The cards turn about
+ * their bottom edge, each a little further; a hover spreads them a little
+ * more, never under prefers-reduced-motion. Smaller on a phone. */
+.deck-fan {
+  --fan-w: 2.75rem;
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  width: calc(var(--fan-w) * 2.4);
+  height: calc(var(--fan-w) * 1.4);
+}
+@media (min-width: 640px) {
+  .deck-fan {
+    --fan-w: 3.5rem;
+  }
+}
+.deck-fan-commander,
+.deck-fan-card {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: var(--fan-w);
+  height: calc(var(--fan-w) * 1.4);
+  border-radius: 0.2rem;
+  transform-origin: 50% 100%;
+}
+.deck-fan-commander {
+  z-index: 4;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 45%);
+}
+.deck-fan-card {
+  box-shadow: 0 1px 4px rgb(0 0 0 / 35%);
+  transition: transform 200ms ease;
+}
+.deck-fan-card-1 {
+  z-index: 3;
+  transform: translateX(calc(var(--fan-w) * 0.3)) rotate(7deg);
+}
+.deck-fan-card-2 {
+  z-index: 2;
+  transform: translateX(calc(var(--fan-w) * 0.6)) rotate(14deg);
+}
+.deck-fan-card-3 {
+  z-index: 1;
+  transform: translateX(calc(var(--fan-w) * 0.9)) rotate(21deg);
+}
+@media (hover: hover) {
+  .deck-fan:hover .deck-fan-card-1 {
+    transform: translateX(calc(var(--fan-w) * 0.4)) rotate(9deg);
+  }
+  .deck-fan:hover .deck-fan-card-2 {
+    transform: translateX(calc(var(--fan-w) * 0.8)) rotate(18deg);
+  }
+  .deck-fan:hover .deck-fan-card-3 {
+    transform: translateX(calc(var(--fan-w) * 1.2)) rotate(27deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .deck-fan-card {
+    transition: none;
+  }
+  .deck-fan:hover .deck-fan-card-1 {
+    transform: translateX(calc(var(--fan-w) * 0.3)) rotate(7deg);
+  }
+  .deck-fan:hover .deck-fan-card-2 {
+    transform: translateX(calc(var(--fan-w) * 0.6)) rotate(14deg);
+  }
+  .deck-fan:hover .deck-fan-card-3 {
+    transform: translateX(calc(var(--fan-w) * 0.9)) rotate(21deg);
+  }
+}
+/* A card without a picture: a plain parchment back. No commander: the slot
+ * stays, dashed and empty. */
+.deck-fan-blank {
+  border: 1px solid var(--color-parchment-600);
+  background-color: var(--color-parchment-300);
+}
+.deck-fan-empty {
+  border: 2px dashed var(--color-parchment-600);
+  background-color: var(--color-parchment-100);
+  box-shadow: none;
 }
 
 /* Account forms.
@@ -744,7 +875,7 @@ body {
 
 /* A line that explains itself (phase 10 T5.2). Each line has an invisible,
  * wider twin to point at, focus or tap; pointing at it - or at its chip - fades
- * the others, shows its band (count charts), and puts its sentence in the
+ * the other lines and their chips, shows its band (count charts), and puts its sentence in the
  * info line. One block per line below, like the toggles above. */
 .seen-hit {
   fill: none;
@@ -757,7 +888,8 @@ body {
   outline: none;
 }
 
-.seen-line {
+.seen-line,
+.seen-chip {
   transition: opacity 150ms ease;
 }
 
@@ -785,6 +917,9 @@ body {
 .seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) .seen-line:not(.seen-line-0) {
   opacity: 0.2;
 }
+.seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) .seen-chip:not(.seen-chip-0) {
+  opacity: 0.4;
+}
 .seen-chart:has(.seen-hit-0:hover, .seen-hit-0:focus, .seen-chip-0:hover, .seen-toggle-0:focus-visible) .seen-band-0 {
   opacity: 1;
 }
@@ -802,6 +937,9 @@ body {
 }
 .seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) .seen-line:not(.seen-line-1) {
   opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) .seen-chip:not(.seen-chip-1) {
+  opacity: 0.4;
 }
 .seen-chart:has(.seen-hit-1:hover, .seen-hit-1:focus, .seen-chip-1:hover, .seen-toggle-1:focus-visible) .seen-band-1 {
   opacity: 1;
@@ -821,6 +959,9 @@ body {
 .seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) .seen-line:not(.seen-line-2) {
   opacity: 0.2;
 }
+.seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) .seen-chip:not(.seen-chip-2) {
+  opacity: 0.4;
+}
 .seen-chart:has(.seen-hit-2:hover, .seen-hit-2:focus, .seen-chip-2:hover, .seen-toggle-2:focus-visible) .seen-band-2 {
   opacity: 1;
 }
@@ -838,6 +979,9 @@ body {
 }
 .seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) .seen-line:not(.seen-line-3) {
   opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) .seen-chip:not(.seen-chip-3) {
+  opacity: 0.4;
 }
 .seen-chart:has(.seen-hit-3:hover, .seen-hit-3:focus, .seen-chip-3:hover, .seen-toggle-3:focus-visible) .seen-band-3 {
   opacity: 1;
@@ -857,6 +1001,9 @@ body {
 .seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) .seen-line:not(.seen-line-4) {
   opacity: 0.2;
 }
+.seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) .seen-chip:not(.seen-chip-4) {
+  opacity: 0.4;
+}
 .seen-chart:has(.seen-hit-4:hover, .seen-hit-4:focus, .seen-chip-4:hover, .seen-toggle-4:focus-visible) .seen-band-4 {
   opacity: 1;
 }
@@ -874,6 +1021,9 @@ body {
 }
 .seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) .seen-line:not(.seen-line-5) {
   opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) .seen-chip:not(.seen-chip-5) {
+  opacity: 0.4;
 }
 .seen-chart:has(.seen-hit-5:hover, .seen-hit-5:focus, .seen-chip-5:hover, .seen-toggle-5:focus-visible) .seen-band-5 {
   opacity: 1;
@@ -893,6 +1043,9 @@ body {
 .seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) .seen-line:not(.seen-line-6) {
   opacity: 0.2;
 }
+.seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) .seen-chip:not(.seen-chip-6) {
+  opacity: 0.4;
+}
 .seen-chart:has(.seen-hit-6:hover, .seen-hit-6:focus, .seen-chip-6:hover, .seen-toggle-6:focus-visible) .seen-band-6 {
   opacity: 1;
 }
@@ -910,6 +1063,9 @@ body {
 }
 .seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) .seen-line:not(.seen-line-7) {
   opacity: 0.2;
+}
+.seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) .seen-chip:not(.seen-chip-7) {
+  opacity: 0.4;
 }
 .seen-chart:has(.seen-hit-7:hover, .seen-hit-7:focus, .seen-chip-7:hover, .seen-toggle-7:focus-visible) .seen-band-7 {
   opacity: 1;
@@ -929,6 +1085,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .seen-line,
+  .seen-chip,
   .seen-band {
     transition: none;
   }
@@ -1229,19 +1386,192 @@ body {
   vertical-align: middle;
 }
 
+/* The mana curve (Paket 2, PR 8): eight small columns, the count above and
+ * the mana value below, and three numbers beside them. On a phone the
+ * numbers wrap under the columns. */
+.deck-curve-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1.5rem 2rem;
+}
+
+.deck-curve {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(1.5rem, 2.25rem));
+  gap: 0.375rem;
+}
+
+.deck-curve-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.deck-curve-track {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 5rem;
+  border-bottom: 1px solid var(--color-parchment-600);
+}
+
+.deck-curve-bar {
+  position: absolute;
+  inset: auto 0 0 0;
+  background-color: var(--color-ink-800);
+}
+
+.deck-curve-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.75rem;
+}
+
+.deck-curve-facts dd {
+  margin: 0;
+}
+
+/* "Built around" (Themen-Doc, Paket 1, PR 2): a theme is a chip that opens.
+ * The level is the word on the chip; the border repeats it - filled for
+ * strong, solid for medium, dashed for hinted - and never says it alone.
+ * An open theme takes the whole row, so its cards read as a list. */
+.deck-themes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.deck-theme[open] {
+  flex-basis: 100%;
+}
+
+.deck-theme-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.75rem;
+  border: 1px solid var(--color-ink-800);
+  border-radius: 999px;
+  color: var(--color-ink-900);
+  cursor: pointer;
+  list-style: none;
+}
+
+.deck-theme-chip::-webkit-details-marker {
+  display: none;
+}
+
+.deck-theme-strong > .deck-theme-chip {
+  border-width: 2px;
+  background-color: var(--color-parchment-200);
+}
+
+.deck-theme-hint > .deck-theme-chip {
+  border-style: dashed;
+  border-color: var(--color-ink-700);
+}
+
+.deck-theme-chip:focus-visible {
+  outline: 2px solid var(--color-blood-700);
+  outline-offset: 1px;
+}
+
+.deck-theme[open] > .deck-theme-chip {
+  background-color: var(--color-parchment-300);
+}
+
+.deck-theme-body {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  border-left: 2px solid var(--color-parchment-600);
+}
+
 /* --- the playtest board (Phase 9 F) ------------------------------------------ */
 
-/* The phase stepper: the phase the turn is in is framed, the rest are quiet. */
+/* The phase stepper, on the dark page above the table (PR 19): the phase the
+ * turn is in is underlined in gold, the rest are quiet. */
 .playtest-phase {
-  padding: 0 0.5rem;
-  border: 1px solid transparent;
-  color: var(--color-ink-500);
+  padding: 0.125rem 0.625rem;
+  border-bottom: 2px solid var(--color-ink-700);
+  color: var(--color-ink-300);
+}
+
+/* A key the button answers to (PR 18): small, beside the word. */
+.playtest-kbd {
+  padding: 0 0.3rem;
+  border: 1px solid currentColor;
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  opacity: 0.8;
 }
 
 .playtest-phase-now {
-  border-color: var(--color-ink-800);
-  background-color: var(--color-parchment-200);
+  border-bottom-color: var(--color-parchment-300);
+  color: var(--color-parchment-100);
+}
+
+/* The moves above the table (PR 19): tall enough to hit, quiet by default.
+ * The main move of the moment (Draw, Next phase, Keep) is blood, the second
+ * one parchment; everything else is a frame on the dark page. */
+.board-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-ink-600);
+  color: var(--color-parchment-200);
+  font-size: 1.125rem;
+}
+
+.board-btn:hover {
+  background-color: var(--color-ink-800);
+}
+
+.board-btn:disabled {
+  border-color: var(--color-ink-700);
+  color: var(--color-ink-400);
+  background-color: transparent;
+  cursor: default;
+}
+
+.board-btn-main {
+  border-color: var(--color-blood-800);
+  background-color: var(--color-blood-700);
+  color: var(--color-parchment-100);
+}
+
+.board-btn-main:hover {
+  background-color: var(--color-blood-600);
+}
+
+.board-btn-second {
+  border-color: var(--color-parchment-600);
+  background-color: var(--color-parchment-100);
   color: var(--color-ink-900);
+}
+
+.board-btn-second:hover {
+  background-color: var(--color-parchment-200);
+}
+
+/* A move on a card on the table: Cast, Play, Activate. */
+.board-btn-small {
+  display: block;
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-parchment-600);
+  background-color: var(--color-parchment-100);
+  color: var(--color-ink-900);
+  font-size: 0.75rem;
+}
+
+.board-btn-small:hover {
+  background-color: var(--color-parchment-300);
 }
 
 /* Mana as coloured pips. Drawn here rather than hot-linked from Scryfall's
@@ -1268,8 +1598,149 @@ body {
 .pip-G { background-color: #2e7d4f; color: #ffffff; }
 .pip-C { background-color: #c9c3b6; color: var(--color-ink-900); }
 
-/* The table: the commander and the library on the left, the graveyard and
- * the exile on the right, the battlefield rows side by side between them. On
+/* The table and the journal side by side (PR 19); on a phone, or wherever
+ * the two do not fit, the journal goes below. */
+.board-layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 1rem;
+}
+
+/* The table is felt: dark, lit from above, a gold edge. The game is played
+ * here; what happened is written on parchment beside it. */
+.playtest-felt {
+  flex: 999 1 38rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 1.125rem 0;
+  border: 1px solid var(--color-parchment-800);
+  border-radius: 4px;
+  background-color: var(--color-ink-900);
+  background-image: radial-gradient(ellipse at 50% 40%, var(--color-ink-800) 0%, var(--color-ink-900) 70%);
+  box-shadow: inset 0 0 60px rgb(0 0 0 / 60%);
+  color: var(--color-parchment-100);
+}
+
+/* A zone's name on the felt. */
+.board-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-ink-300);
+}
+
+/* A zone of the battlefield: cards inside a dashed field. */
+.playtest-zone {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  min-height: calc(4.5rem * 680 / 488 + 0.75rem);
+  margin-top: 0.25rem;
+  padding: 0.375rem;
+  border: 1px dashed var(--color-ink-700);
+  border-radius: 4px;
+}
+
+.playtest-zone .board-card-empty {
+  display: none;
+}
+
+/* A tapped permanent lies on its side; the margin is the room it takes. */
+.board-tapped {
+  margin-inline: calc((4.5rem * 680 / 488 - 4.5rem) / 2);
+}
+
+.board-tapped > .board-card {
+  rotate: 90deg;
+  opacity: 0.85;
+}
+
+/* The commander waits in its zone with a glow. */
+.board-card-commander {
+  box-shadow: 0 0 0 3px var(--color-ink-950), 0 0 18px rgb(220 199 155 / 30%);
+}
+
+/* The journal: a page of the book beside the table. */
+.journal-page {
+  flex: 1 1 18rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--color-parchment-800);
+  border-radius: 4px;
+  background-color: var(--color-parchment-200);
+  background-image:
+    radial-gradient(ellipse at 80% 85%, var(--color-parchment-300) 0%, transparent 60%),
+    linear-gradient(to left, transparent 92%, rgb(61 46 24 / 25%));
+  box-shadow: 0 18px 40px rgb(0 0 0 / 60%);
+  color: var(--color-ink-900);
+}
+
+.journal-title {
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-parchment-400);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+/* Beside the table the page keeps the table's height and scrolls; the
+ * reversed column starts it at the bottom, where the newest line is,
+ * without a script. */
+@media (min-width: 48rem) {
+  .journal-scroll {
+    display: flex;
+    flex-direction: column-reverse;
+    max-height: 34rem;
+    overflow-y: auto;
+  }
+}
+
+.journal-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.journal-turn {
+  padding-top: 0.25rem;
+  font-style: italic;
+  color: var(--color-parchment-800);
+}
+
+.journal-unusual {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  border-block: 1px dashed var(--color-parchment-600);
+}
+
+.journal-foot {
+  margin-top: auto;
+  font-size: 0.875rem;
+  color: var(--color-ink-700);
+}
+
+/* The newest line is written in, as if by hand: its opacity only. */
+@media (prefers-reduced-motion: no-preference) {
+  .journal-new {
+    animation: journal-ink 300ms ease-out;
+  }
+}
+
+@keyframes journal-ink {
+  from { opacity: 0; }
+}
+
+/* The table: the commander on the left, the library, the graveyard and the
+ * exile on the right, the battlefield rows side by side between them. On
  * a phone the three stack, each side a row of its own. */
 .playtest-table {
   display: grid;
@@ -1350,7 +1821,7 @@ body {
   display: block;
   width: 4.5rem;
   aspect-ratio: 488 / 680;
-  border: 1px dashed var(--color-parchment-500);
+  border: 1px dashed var(--color-ink-600);
   border-radius: 0.25rem;
 }
 
@@ -1364,7 +1835,8 @@ body {
   aspect-ratio: 488 / 680;
   border: 2px solid var(--color-parchment-600);
   border-radius: 0.25rem;
-  background: repeating-linear-gradient(45deg, var(--color-ink-800) 0 6px, var(--color-ink-900) 6px 12px);
+  background: repeating-linear-gradient(45deg, var(--color-parchment-800) 0 6px, var(--color-parchment-900) 6px 12px);
+  box-shadow: 2px 2px 0 var(--color-parchment-900), 4px 4px 0 var(--color-ink-950);
   color: var(--color-parchment-100);
   font-size: 1.25rem;
 }
@@ -1376,7 +1848,8 @@ body {
  * `clip` rather than `hidden` on the one axis: a raised card may still grow
  * upwards over the table. */
 .playtest-hand {
-  padding: 0.5rem 0 2rem;
+  --slot: 7rem;
+  padding: 0.25rem 0 1.5rem;
   overflow-x: clip;
 }
 
@@ -1389,14 +1862,21 @@ body {
 .hand-slot {
   position: relative;
   flex: none;
-  width: 8.5rem;
+  width: var(--slot);
   transform: rotate(calc((var(--i) - (var(--n) - 1) / 2) * min(3deg, 24deg / var(--n))));
   transform-origin: 50% 250%;
   transition: transform 150ms ease-out;
 }
 
 .hand-slot + .hand-slot {
-  margin-left: calc(-1 * min(6.5rem, 3rem + max(0, var(--n) - 8) * 0.5rem));
+  margin-left: calc(-1 * min(5.25rem, 2.5rem + max(0, var(--n) - 8) * 0.4rem));
+}
+
+/* How far this card's slot sits from the middle of the fan: one step is the
+ * slot's width less the overlap above. The raised card moves by it. */
+.hand-slot {
+  --step: calc(var(--slot) - min(5.25rem, 2.5rem + max(0, var(--n) - 8) * 0.4rem));
+  --to-middle: calc(((var(--n) - 1) / 2 - var(--i)) * var(--step));
 }
 
 /* Resting on a card straightens it and lifts it to the top; the picture
@@ -1432,10 +1912,14 @@ span.hand-card {
   transition: transform 150ms ease-out;
 }
 
+/* With a pointer the raised card also moves to the middle of the fan, so a
+ * card at either end is read whole and in the same place. Only the picture
+ * moves: the slot stays under the pointer, so the hover holds, and a click
+ * anywhere on the slot or the picture still plays the card. */
 @media (hover: hover) {
   .hand-slot:hover .hand-card-img,
   .hand-slot:focus-within .hand-card-img {
-    transform: scale(1.8);
+    transform: translateX(var(--to-middle)) scale(1.8);
   }
 }
 
@@ -1512,6 +1996,13 @@ span.hand-card {
   .hand-slot:focus-within .hand-card-action {
     bottom: auto;
     top: calc(100% + 0.25rem);
+    translate: calc(-50% + var(--to-middle)) 0;
+  }
+
+  /* The X field follows the raised card to the middle. */
+  .hand-slot:hover .hand-card-x,
+  .hand-slot:focus-within .hand-card-x {
+    translate: calc(-50% + var(--to-middle)) 0;
   }
 }
 
@@ -1700,6 +2191,25 @@ span.hand-card {
   }
 }
 
+/* The deck page's commander line (decks/detail.html): the underlined name
+ * opens the choice, so the summary carries no marker of its own. */
+.commander-toggle {
+  list-style: none;
+}
+
+.commander-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.commander-toggle:hover strong {
+  text-decoration-color: var(--color-parchment-100);
+}
+
+.commander-toggle:focus-visible {
+  outline: 2px solid var(--color-parchment-100);
+  outline-offset: 4px;
+}
+
 /* ------------------------------------------------------------------------ */
 /* The logo, inline (core/_logo.html, phase 10 E): the favicon's shapes, its  */
 /* colours as tokens. `logo-animated` lets the fish swim a circle - turning  */
@@ -1788,6 +2298,52 @@ span.hand-card {
   }
 }
 
+/* "Show your friends" (Paket 3, PR 13): three small stars twinkle at the
+ * corners of the share button, three times after the page loads, then rest. Decoration only (aria-hidden); never under
+ * prefers-reduced-motion. */
+.share-sparkle {
+  position: relative;
+}
+.share-star {
+  position: absolute;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--color-parchment-600);
+  opacity: 0;
+  pointer-events: none;
+  animation: share-twinkle 1.2s ease-in-out 3;
+}
+.share-star:nth-child(1) {
+  top: -0.6rem;
+  left: -0.5rem;
+}
+.share-star:nth-child(2) {
+  top: -0.75rem;
+  right: 0.75rem;
+  animation-delay: 0.4s;
+}
+.share-star:nth-child(3) {
+  bottom: -0.6rem;
+  right: -0.5rem;
+  animation-delay: 0.8s;
+}
+@keyframes share-twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.4) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(45deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .share-star {
+    animation: none;
+  }
+}
+
 /* While a run plays: the logo beside the bar, the smoothed fill and the
  * loading lines (simulations/_progress.html, _waiting.html). */
 .run-logo {
@@ -1825,15 +2381,60 @@ span.hand-card {
   opacity: 1;
 }
 
-/* The fish on the home page (phase 10 F, static/js/fish.js): the logo in the
- * header plays one short move at a time, as a class on the svg. Every move
- * ends inside 2 s. The jump lifts the fish out of the flask and over the top
- * of the logo, so for it the pond stops clipping and the svg stops cutting
- * off what leaves its box. */
+/* Home B (Paket 4, PR 17): the tank. Centred under a soft glow from the top,
+ * the big flask above the heading, the form on parchment below it. */
+.home-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 48rem;
+  margin-inline: auto;
+  /* The glow starts at the header's rule (main's top padding pulled in) and
+   * fades out inside the box, so it shows no edge. */
+  margin-top: -2.5rem;
+  padding-top: 2.5rem;
+  background-image: radial-gradient(ellipse min(23rem, 48%) 20rem at 50% 0%, var(--color-ink-800), transparent);
+  text-align: center;
+}
+
+/* The flask is a button once fish.js has run, a picture before. Room above
+ * it for the jump. */
+.home-flask {
+  display: inline-flex;
+  padding: 1.75rem 0.5rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+}
+
+button.home-flask {
+  cursor: pointer;
+}
+
+.home-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+}
+
+/* The fish in the big flask (phase 10 F, static/js/fish.js; on the home page
+ * since Paket 4, PR 17): one short move at a time, as a class on the svg.
+ * Every move ends inside 2 s. The jump lifts the fish out of the flask and
+ * over its top, so for it the pond stops clipping and the svg stops cutting
+ * off what leaves its box. The bubbles rise only while a move plays. */
 .logo-home {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 6rem;
+  height: 6rem;
   overflow: visible;
+}
+
+@media (min-width: 640px) {
+  .logo-home {
+    width: 8.5rem;
+    height: 8.5rem;
+  }
 }
 
 .logo-fish-eye,
@@ -1873,6 +2474,16 @@ span.hand-card {
 
 .logo.is-tilt .logo-water {
   animation: logo-slosh 1.2s ease-in-out;
+}
+
+.logo.is-jump .logo-bubble,
+.logo.is-tilt .logo-bubble {
+  animation: logo-rise 1.5s ease-in;
+}
+
+.logo.is-jump .logo-bubble-2,
+.logo.is-tilt .logo-bubble-2 {
+  animation-delay: 0.2s;
 }
 
 /* A small turn of the head: at 28 px the eye alone is under a pixel. */
@@ -1977,7 +2588,9 @@ span.hand-card {
   .logo.is-jump .logo-fish,
   .logo.is-jump .logo-water,
   .logo.is-tilt,
-  .logo.is-tilt .logo-water {
+  .logo.is-tilt .logo-water,
+  .logo.is-jump .logo-bubble,
+  .logo.is-tilt .logo-bubble {
     animation: none;
   }
 
@@ -1992,27 +2605,66 @@ span.hand-card {
   }
 }
 
-/* The home ticker (phase 11 C). A line the page has not shown before fades
- * in; ticker.js marks it. Without motion it simply appears. The box keeps the
- * pictures' 4:3 next to them; the shade at its foot says there is more below
- * rather than cutting a line in half without a word. On the phone, stacked,
- * the box is as tall as its lines. */
-@media (width >= 48rem) {
-  .ticker-box {
-    position: relative;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-  }
+/* The home ticker (phase 11 C; Paket 4, PR 16): a dark band with a gold rule
+ * above and below. Eight lines at a time (the rest wait in ticker.js's loop,
+ * and stand hidden without it); the lower ones step back in colour, never
+ * below ink-400 on ink-900 (over 5:1). A fun line has its own ground, rules
+ * and italic gold, so it never reads as an event. A line that arrives fades
+ * in, and its symbol moves once (`.icon-now`); without motion it simply
+ * appears. Pause also stops the overlord. */
+.ticker-band {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-block: 1px solid var(--color-parchment-800);
+  background: var(--color-ink-900);
+}
 
-  .ticker-box::after {
-    content: "";
-    position: absolute;
-    inset: auto 0 0;
-    height: 2.5rem;
-    background: linear-gradient(to top, var(--color-parchment-100), transparent);
-    pointer-events: none;
+@media (width >= 40rem) {
+  .ticker-band {
+    padding-inline: 1.5rem;
   }
 }
+
+.ticker-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  color: var(--color-parchment-100);
+}
+
+.ticker-lines > li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  min-width: 0;
+  padding-block: 0.2rem;
+  overflow-wrap: anywhere;
+}
+
+.ticker-lines > li:nth-child(n + 3) { color: var(--color-parchment-200); }
+.ticker-lines > li:nth-child(n + 6) { color: var(--color-ink-300); }
+.ticker-lines > li:nth-child(n + 8) { color: var(--color-ink-400); }
+.ticker-lines > li:nth-child(n + 9) { display: none; }
+
+.ticker-lines > li.ticker-fun {
+  margin-block: 0.125rem;
+  margin-inline: -0.75rem;
+  padding: 0.45rem 0.75rem;
+  border-block: 1px solid var(--color-parchment-600);
+  background: var(--color-ink-800);
+  color: var(--color-parchment-300);
+  font-style: italic;
+}
+
+.ticker-lines > li.ticker-quiet { color: var(--color-ink-300); }
+
+.ticker-lines .icon { width: 1.6em; height: 1.6em; }
+
+[data-ticker].is-paused .icon * { animation-play-state: paused; }
 
 @media (prefers-reduced-motion: no-preference) {
   .ticker-fresh {
@@ -2025,3 +2677,362 @@ span.hand-card {
     opacity: 0;
   }
 }
+
+/* "In short" (Themen-Doc, Paket 3, PR 11): each number next to the precons'.
+ * Every precon is a faint tick, so where many stand the strip darkens; the
+ * deck is the one tall mark. The sentence beside it says the same in words,
+ * so the strip is hidden from screen readers. */
+.peer-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.peer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.25rem 1rem;
+  align-items: baseline;
+}
+
+.peer-row dd {
+  margin: 0;
+}
+
+.peer-value {
+  font-size: 1.25rem;
+}
+
+/* `.peer-row` too: its `dd { margin: 0 }` would take the room for the ends. */
+.peer-row .peer-strip {
+  position: relative;
+  grid-column: 1 / -1;
+  height: 1.25rem;
+  margin: 0 0.375rem 1.125rem;
+  border-bottom: 1px solid var(--color-parchment-600);
+}
+
+.peer-tick,
+.peer-mark {
+  position: absolute;
+  bottom: 0;
+  transform: translateX(-50%);
+}
+
+.peer-tick {
+  width: 2px;
+  height: 0.75rem;
+  background-color: var(--color-ink-500);
+  opacity: 0.45;
+}
+
+.peer-end {
+  position: absolute;
+  top: 100%;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-ink-700);
+}
+
+.peer-end-low {
+  left: -0.375rem;
+}
+
+.peer-end-high {
+  right: -0.375rem;
+}
+
+.peer-mark {
+  width: 0.75rem;
+  height: 1.25rem;
+  border: 2px solid var(--color-parchment-100);
+  background-color: var(--color-verdigris-700);
+}
+
+.peer-said {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 640px) {
+  .peer-row {
+    grid-template-columns: 12rem 4.5rem minmax(0, 1fr);
+  }
+
+  .peer-row .peer-strip {
+    grid-column: auto;
+  }
+
+  .peer-said {
+    grid-column: 2 / -1;
+  }
+}
+
+/* icons:start - the symbols (DESIGN.md, SYMBOLS; Paket 4, PR 15), set with
+ * the icon template tag from core/icons/*.svg. scripts/build_styleguide.py copies this
+ * block into STYLEGUIDE.html, so it holds nothing but the symbols.
+ * The line is the text's colour, the fills come from four families; on
+ * parchment they step darker. Each symbol moves once while its host - the
+ * button, tile or heading row it belongs to - is hovered or has keyboard
+ * focus, or for a moment once it arrives (`.icon-now`: a new ticker line).
+ * The fun lines' drawings (fun-*) add dark grounds of ink and bone; the
+ * overlord's jaw, eye and antenna never stop. Without a reduced-motion
+ * preference only: nothing here moves else. */
+.icon {
+  --i-gold: var(--color-parchment-300);
+  --i-water: var(--color-water-300);
+  --i-blood: var(--color-blood-400);
+  --i-green: var(--color-verdigris-300);
+  --i-ink: var(--color-ink-950);
+  display: inline-block;
+  flex: none;
+  width: 1.25em;
+  height: 1.25em;
+  overflow: visible;
+  vertical-align: -0.25em;
+}
+
+.surface-parchment .icon,
+.icon-on-light .icon {
+  --i-gold: var(--color-parchment-500);
+  --i-water: var(--color-water-500);
+  --i-blood: var(--color-blood-500);
+  --i-green: var(--color-verdigris-400);
+}
+
+.icon-lg {
+  width: 2.5rem;
+  height: 2.5rem;
+  stroke-width: 1.8;
+}
+
+.icon .i-gold { fill: var(--i-gold); }
+.icon .i-water { fill: var(--i-water); }
+.icon .i-blood { fill: var(--i-blood); }
+.icon .i-green { fill: var(--i-green); }
+.icon .i-ink { fill: var(--i-ink); }
+.icon .i-night { fill: var(--color-ink-900); }
+.icon .i-steel { fill: var(--color-ink-600); }
+.icon .i-ash { fill: var(--color-ink-400); }
+.icon .i-bone { fill: var(--color-parchment-200); }
+.icon .i-pip { fill: var(--color-blood-700); }
+.icon .i-line-gold { stroke: var(--i-gold); }
+.icon .i-line-blood { stroke: var(--i-blood); }
+.icon .i-line-green { stroke: var(--i-green); }
+.icon .i-line-ink { stroke: var(--i-ink); }
+.icon .i-teeth,
+.icon .i-guard,
+.icon .i-mark { stroke-width: 2.6; }
+.icon .i-fine { stroke-width: 1.8; }
+
+/* A part turns about its own middle; the fan, the hourglass, the gear and
+ * the arrows about a point of the drawing. */
+.icon * {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* A shape drawn turned (the fanned cards) keeps its turn where it was drawn:
+ * an origin in its middle would move it. */
+.icon [transform] {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+.icon .i-hl,
+.icon .i-hr,
+.icon .i-hg,
+.icon .i-gear,
+.icon .i-nh,
+.icon .i-sprout,
+.icon .i-dag {
+  transform-box: view-box;
+}
+
+.icon .i-hl,
+.icon .i-hr { transform-origin: 16px 25px; }
+.icon .i-hg,
+.icon .i-gear,
+.icon .i-nh { transform-origin: 16px 16px; }
+.icon .i-sprout,
+.icon .i-dag { transform-origin: 16px 26.5px; }
+.icon .i-b { transform-origin: 50% 100%; }
+.icon .i-key { transform-origin: 50% 100%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .icon .i-hl,
+  .icon .i-hr,
+  .icon .i-hf,
+  .icon .i-cl,
+  .icon .i-cr,
+  .icon .i-card,
+  .icon .i-plus {
+    transition: transform 450ms cubic-bezier(0.3, 1.5, 0.5, 1);
+  }
+
+  .icon .i-hg,
+  .icon .i-gear,
+  .icon .i-nh {
+    transition: transform 700ms ease-in-out;
+  }
+
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-hl { transform: rotate(-10deg); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-hr { transform: rotate(10deg); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-hf { transform: translateY(-2px); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-hg { transform: rotate(180deg); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-gear { transform: rotate(90deg); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-nh { transform: rotate(180deg); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-cl { transform: translateX(1.6px); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-cr { transform: translateX(-1.6px); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-card { transform: translateY(-2px); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-plus { transform: rotate(90deg); }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-bub { animation: icon-rise 1.1s ease-out infinite; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-bub-2 { animation-delay: 450ms; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-wat { animation: icon-slosh 800ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-arr { animation: icon-drop 700ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-fish { animation: icon-wiggle 600ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-spark { animation: icon-twinkle 700ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-up { animation: icon-lift 700ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-wv { animation: icon-wave 700ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-b { animation: icon-grow 450ms ease-out both; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-b:nth-of-type(2) { animation-delay: 70ms; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-b:nth-of-type(3) { animation-delay: 140ms; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-b:nth-of-type(4) { animation-delay: 210ms; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-b:nth-of-type(5) { animation-delay: 280ms; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-lens { animation: icon-pulse 600ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-sprout { animation: icon-sprout 600ms ease-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-dag { animation: icon-stab 500ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-seal { animation: icon-stamp 500ms ease-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-note { animation: icon-wiggle 500ms ease-in-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-sf { animation: icon-swim 900ms ease-in-out; }
+
+  /* The fun lines: the overlord talks as long as he is there; the others
+   * play their move twice. */
+  .icon .i-jaw { animation: icon-talk 1.8s ease-in-out infinite; }
+  .icon .i-eye { animation: icon-scan 2.6s ease-in-out infinite; }
+  .icon .i-blink { animation: icon-blink 1.1s steps(2) infinite; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-cur { animation: icon-blink 600ms steps(2) 3; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-key { animation: icon-press 700ms ease-in-out 2; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-chk { animation: icon-tick 900ms ease-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-pass { animation: icon-pass 800ms ease-in-out 2; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-drip { animation: icon-drip 800ms ease-in 2; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-heart { animation: icon-beat 700ms ease-in-out 2; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-sl { animation: icon-shuffle-l 600ms ease-in-out 2; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-sr { animation: icon-shuffle-r 600ms ease-in-out 2; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-z1 { animation: icon-zz 1.2s ease-out; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-z2 { animation: icon-zz 1.2s ease-out 300ms backwards; }
+  :is(.icon-host:hover, .icon-host:focus-visible, .icon-now) .i-die { animation: icon-roll 1.1s cubic-bezier(0.3, 1.3, 0.5, 1); }
+}
+
+@keyframes icon-rise {
+  0% { transform: translateY(2px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(-6px); opacity: 0; }
+}
+
+@keyframes icon-slosh {
+  25% { transform: skewY(6deg); }
+  60% { transform: skewY(-4deg); }
+}
+
+@keyframes icon-drop {
+  50% { transform: translateY(3px); }
+}
+
+@keyframes icon-wiggle {
+  25% { transform: rotate(-9deg); }
+  75% { transform: rotate(7deg); }
+}
+
+@keyframes icon-twinkle {
+  50% { transform: scale(1.5) rotate(45deg); }
+}
+
+@keyframes icon-lift {
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes icon-wave {
+  50% { transform: translateX(-2px); }
+}
+
+@keyframes icon-grow {
+  from { transform: scaleY(0); }
+}
+
+@keyframes icon-pulse {
+  50% { transform: scale(1.3); }
+}
+
+@keyframes icon-sprout {
+  0% { transform: scale(0.6); }
+  70% { transform: scale(1.08); }
+}
+
+@keyframes icon-stab {
+  40% { transform: translateY(2.5px) rotate(-8deg); }
+}
+
+@keyframes icon-stamp {
+  40% { transform: scale(1.15) rotate(-6deg); }
+}
+
+@keyframes icon-swim {
+  30% { transform: translateX(2px); }
+  70% { transform: translateX(-2px); }
+}
+
+@keyframes icon-talk {
+  0%, 20%, 40%, 62%, 100% { transform: translateY(0); }
+  10%, 30% { transform: translateY(1.6px); }
+  50% { transform: translateY(1.2px); }
+  72% { transform: translateY(1.8px); }
+}
+
+@keyframes icon-scan {
+  50% { transform: translateX(-7px); }
+}
+
+@keyframes icon-blink {
+  50% { opacity: 0.15; }
+}
+
+@keyframes icon-press {
+  40% { transform: translateY(2.5px) scaleY(0.94); }
+}
+
+@keyframes icon-tick {
+  from { stroke-dashoffset: 1; }
+}
+
+@keyframes icon-pass {
+  30% { transform: translateX(-3px); }
+  70% { transform: translateX(3px); }
+}
+
+@keyframes icon-drip {
+  to { transform: translateY(6px); opacity: 0; }
+}
+
+@keyframes icon-beat {
+  30% { transform: scale(1.3); }
+  60% { transform: scale(1.05); }
+}
+
+@keyframes icon-shuffle-l {
+  50% { transform: translateX(5px) rotate(6deg); }
+}
+
+@keyframes icon-shuffle-r {
+  50% { transform: translateX(-5px) rotate(-6deg); }
+}
+
+@keyframes icon-zz {
+  0% { transform: translate(0, 0); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translate(2px, -4px); opacity: 0; }
+}
+
+@keyframes icon-roll {
+  70% { transform: rotate(380deg); }
+  100% { transform: rotate(360deg); }
+}
+/* icons:end */

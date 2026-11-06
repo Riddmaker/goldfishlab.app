@@ -1,0 +1,54 @@
+{% comment %}
+  The owner's word on one engine or pair (Themen-Doc, Paket 1, PR 4): a
+  suggestion has two small buttons, lock and dismiss; a locked entry says
+  so and can be unlocked, a dismissed one brought back. One form, swapped
+  with the whole section by htmx; without scripting it posts and the page
+  comes back at the engines (`decks.views.DeckMarkView`).
+
+  Takes: item (cards.synergy.Engine or Pair), deck.
+{% endcomment %}
+{% load i18n %}
+{% url 'decks:mark' deck.pk as action %}
+<form method="post" action="{{ action }}" hx-post="{{ action }}" hx-target="#engines"
+      hx-swap="outerHTML" class="flex shrink-0 items-center gap-1 text-sm">
+  {% csrf_token %}
+  {% if item.mark %}
+    <input type="hidden" name="mark" value="{{ item.mark }}">
+    {% if item.state == "locked" %}
+      <span class="inline-flex items-center gap-1 text-ink-900">
+        {% include "decks/_lock_icon.html" %}{% translate "Locked" %}
+      </span>
+      <button type="submit" name="action" value="undo"
+              class="ml-1 border border-parchment-600 px-2 text-ink-700 hover:text-ink-900">
+        {% translate "Unlock" %}
+      </button>
+    {% else %}
+      <button type="submit" name="action" value="undo"
+              class="border border-parchment-600 px-2 text-ink-700 hover:text-ink-900">
+        {% translate "Bring back" %}
+      </button>
+    {% endif %}
+  {% else %}
+    <input type="hidden" name="key" value="{{ item.key }}">
+    {% if item.kind == "engine" %}
+      {% translate "Lock this engine: it stays, whatever the list becomes" as lock_words %}
+      {% translate "Dismiss this engine: it will not be suggested again" as dismiss_words %}
+    {% else %}
+      {% translate "Lock this pair: it stays, whatever the list becomes" as lock_words %}
+      {% translate "Dismiss this pair: it will not be suggested again" as dismiss_words %}
+    {% endif %}
+    <button type="submit" name="action" value="lock" title="{{ lock_words }}"
+            aria-label="{{ lock_words }}"
+            class="inline-flex h-8 w-8 items-center justify-center border border-parchment-600 text-ink-700 hover:text-ink-900">
+      {% include "decks/_lock_icon.html" %}
+    </button>
+    <button type="submit" name="action" value="dismiss" title="{{ dismiss_words }}"
+            aria-label="{{ dismiss_words }}"
+            class="inline-flex h-8 w-8 items-center justify-center border border-parchment-600 text-ink-700 hover:text-ink-900">
+      <svg aria-hidden="true" viewBox="0 0 20 20" width="14" height="14" fill="none"
+           stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="M5 5l10 10M15 5L5 15"/>
+      </svg>
+    </button>
+  {% endif %}
+</form>

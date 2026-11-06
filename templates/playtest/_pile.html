@@ -4,7 +4,7 @@
 {% endcomment %}
 {% load i18n %}
 <div>
-  <p class="text-xs uppercase tracking-wide text-ink-700">
+  <p class="board-label">
     {{ label }} <span class="tabular">{{ tiles|length }}</span>
   </p>
   {% if tiles %}
@@ -17,7 +17,7 @@
       {% endif %}
     {% endwith %}
     {% if tiles|length > 1 %}
-      <details class="mt-1 text-xs text-ink-700">
+      <details class="mt-1 text-xs text-parchment-200">
         <summary class="cursor-pointer">{% blocktranslate with count=tiles|length %}All {{ count }}{% endblocktranslate %}</summary>
         <ol class="mt-1 space-y-0.5">
           {% for tile in tiles reversed %}<li>{{ tile.card.name }}</li>{% endfor %}

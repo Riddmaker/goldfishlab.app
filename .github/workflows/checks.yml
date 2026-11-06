@@ -72,8 +72,11 @@ jobs:
         # published advisory against a pinned production dependency is a thing
         # to look at before shipping, not after. When one lands during an
         # unrelated hotfix, the escape hatch is `--ignore-vuln GHSA-xxxx` with
-        # the reason in the diff - never deleting the step.
-        run: pip-audit -r requirements.txt --progress-spinner off
+        # the reason in the diff - never deleting the step. requirements-seo.txt
+        # is what the weekly Search Console job installs beside its key.
+        run: |
+          pip-audit -r requirements.txt --progress-spinner off
+          pip-audit -r requirements-seo.txt --progress-spinner off
       - name: Build CSS (templates must compile against real tokens)
         run: |
           python scripts/get_tailwind.py

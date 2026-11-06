@@ -231,6 +231,23 @@
       </p>
       <p class="mt-4 text-ink-900">
         {% blocktranslate trimmed %}
+          <strong>Building blocks</strong> are the strategies and mechanics in one
+          chart, the most often seen first. It draws eight lines at most; the rest
+          are named under it, and its numbers hold every one.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          On the deck page, <strong>Built around</strong> names the themes the
+          cards point to, such as Aristocrats, Landfall or a creature type, read
+          from the community's card tags. A theme has pieces: the cards that pay
+          off, and the cards that feed them. It is strong, medium or hinted by how
+          full its pieces are, the first counting double, and a piece with no card
+          keeps it at hinted. A deck with no theme gets none: we do not guess.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
           The deck page's bars and filters sort the cards the same way, so a card
           you moved to another category moves there too. The faint band beside a
           bar is a common template for a hundred-card deck — about ten ramp, ten
@@ -304,6 +321,14 @@
           tokens and mana creatures too, while artifacts, enchantments and lands stay.
           Indestructible and regeneration are not played. The stress test runs in the
           first 2,000 games of a run, and the wipe only in runs of six turns or more.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-sm text-ink-700">
+        {% blocktranslate trimmed %}
+          On a report each blow is a card with one number, how fast the deck comes back:
+          for the commander, the share of games it was back by the last turn; for the
+          wipe, the mana on that turn. "The numbers" below them set the same games
+          side by side, with the blow and without it.
         {% endblocktranslate %}
       </p>
       <h3 id="report-brackets" class="mt-6 font-display text-lg text-ink-900">{% translate "Speed and the Commander Brackets" %}</h3>
@@ -459,6 +484,67 @@
       </p>
     </div>
 
+    <h2 id="engines" class="mt-12 font-display text-2xl text-parchment-100">{% translate "Engines and synergies" %}</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">
+        {% blocktranslate trimmed %}
+          Engines and synergies are read from what the deck is <strong>built
+          around</strong>, by fixed rules over Scryfall's Tagger tags and our own
+          reading of the cards, never by an AI. A deck with no theme has none, and
+          a stray card outside a theme pairs with nothing.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          A <strong>synergy</strong> is two cards one of the theme's rules joins:
+          one serves the other, as a sacrifice outlet serves a card that pays off
+          each death. Its strength is the rule's weight, times how rare the tags
+          are that put each card in its part of the plan (a tag on few cards is a
+          stronger sign than one on thousands), times how full the theme is in this
+          deck.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          An <strong>engine</strong> is one card for each part of a theme, two to
+          four cards that make value together again and again: at least one of them
+          has to work more than once, an ability you can activate or one that waits
+          for something to happen. It carries its theme's level. An engine a part
+          short names what is missing.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          You can <strong>lock</strong> an engine or a pair, or
+          <strong>dismiss</strong> it. We store only that, by its cards: a locked
+          one stays first, even if the rules stop finding it; a dismissed one is not
+          suggested again, and you can bring it back. When one of its cards leaves
+          the deck, it rests until the card is back. Everything else is read again
+          from your list on every visit.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          A simulation also measures <strong>by which turn each engine runs</strong>:
+          at the end of a turn, every part of it has a card out, any card of the
+          deck that fills that part, not only the ones the engine names. A permanent
+          counts on the battlefield, an instant or a sorcery in hand, ready to cast;
+          the commander counts once it is cast. Up to five engines, one per theme,
+          locked ones first; one a part short or resting is not measured. It is read
+          in the run's own games, so it costs nothing extra.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          With deck summaries switched on, the summary also says <strong>how each
+          engine plays</strong>, in a sentence or two under it: which card to get out
+          first, what to protect, what stops it. Mistral AI writes that with the rest
+          of the summary, from the engine's cards, so it costs nothing extra and can
+          be wrong. The engine itself is still found by the rules.
+        {% endblocktranslate %}
+      </p>
+    </div>
+
     <h2 id="games" class="mt-12 font-display text-2xl text-parchment-100">{% translate "How many games is enough" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
@@ -484,6 +570,25 @@
           battlefield at the end of turn 4: every land drop made, the commonest way a
           Commander deck stumbles early. A run of fewer than four turns does not have
           it.
+        {% endblocktranslate %}
+      </p>
+      <p id="precons-compared" class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          <strong>In short</strong>, at the top of a report, sets three of its numbers
+          next to every Commander precon's, each played the same way: ten thousand games,
+          on the draw. A faint tick is a precon, the tall mark is your deck, and "the
+          middle" is the precon in the middle. A precon's own page leaves that precon
+          out, and with fewer than five precons played there is nothing to compare with.
+        {% endblocktranslate %}
+      </p>
+      <p id="last-run" class="mt-4 text-ink-900">
+        {% blocktranslate trimmed %}
+          <strong>Compared with your last run</strong> sets the same three numbers of the
+          deck's run before next to this one's. Two runs of the very same deck differ a little
+          by chance alone, so a number only counts as better or worse when the difference is
+          larger than chance would make it 95 times in 100; otherwise it says "about the same".
+          A run keeps a fingerprint of the card list, not the list, so the report can say that
+          the deck changed in between, but not which cards.
         {% endblocktranslate %}
       </p>
       <p class="mt-4 text-sm text-ink-700">

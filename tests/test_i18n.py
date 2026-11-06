@@ -175,7 +175,9 @@ def test_on_a_german_page_english_is_still_called_english(client, german):
     body = client.get(reverse("home"), follow=True).content.decode()
 
     assert '<option value="en" lang="en"' in body
-    assert "Englisch" not in body
+    # The language picker only: the home page's import form says "Englisch" of card names.
+    picker = body[body.index('<option value="en" lang="en"'):]
+    assert "Englisch" not in picker[:picker.index("</option>")]
 
 
 def test_the_browser_decides_when_nothing_was_picked(client, german):

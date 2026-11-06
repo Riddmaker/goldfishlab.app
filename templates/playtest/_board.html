@@ -6,16 +6,23 @@
   on top: with JavaScript off the same POST goes through, the view redirects to
   the board, and the page re-renders. Nothing here is reachable only by script.
 
-  Laid out like a card game on a screen (Phase 9 F): a slim bar with the turn,
-  the phases and the mana; the table with the commander, the battlefield rows
-  and the stacks; the hand as a fan at the bottom. The log and the branching
-  are folded, because they are what you look for, not what you look at.
+  Laid out like a card game on a table (PR 19, design "Board A"): a head with
+  the turn, the life and the mode; a row of moves; the table as dark felt with
+  the commander, the battlefield rows, the stacks and the hand as a fan along
+  its edge; the journal as a parchment page beside it (below it on a phone).
+  The game is played on felt, what happened is written on parchment.
+
+  Free and strict look the same. Strict alone has what its rules need: the
+  phases and Next phase, the floating mana, Mulligan and Keep. Free has Draw,
+  New hand and Next turn (keys D, N, T, Ctrl+Z, static/js/playtest-keys.js),
+  puts every card down for free, and its journal guesses the turns and notes
+  the unusual moves. Strict writes the engine's log into the same page.
 
   `hx-sync="this:drop"`: every form in here syncs on the board, so a click
   while a request is in flight is dropped (a double click, phase 12 J30). The
   server locks the session as well, for the forms sent without JavaScript.
 {% endcomment %}
-{% load i18n l10n %}
+{% load i18n l10n icons %}
 <div id="board" class="space-y-4" hx-sync="this:drop">
 
   {% if board_messages %}
@@ -43,86 +50,155 @@
     </p>
   {% endif %}
 
-  {# --- the bar: turn, life, phases, mana, and the moves that are not cards --- #}
-  <section class="surface-parchment flex flex-wrap items-center gap-x-5 gap-y-3 px-4 py-3">
-    <span class="font-display text-2xl text-ink-900">{% if game.turn %}{% blocktranslate with turn=game.turn %}Turn {{ turn }}{% endblocktranslate %}{% else %}{% translate "Opening hand" %}{% endif %}</span>
-    <span class="tabular text-ink-700">{% blocktranslate with life=game.life %}Life {{ life }}{% endblocktranslate %}</span>
-    {% if game.mulligans %}<span class="tabular text-ink-700">{% blocktranslate with count=game.mulligans %}Mulligans {{ count }}{% endblocktranslate %}</span>{% endif %}
+  {# --- the head: turn, life, (strict) phases and mana; the mode on the right --- #}
+  <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+      <span class="font-display text-2xl text-parchment-100" data-turn>{% if journal %}{% blocktranslate with turn=journal.now.number %}Turn {{ turn }}{% endblocktranslate %}{% if journal.now.guessed %} <span class="text-base text-ink-300">{% translate "(guessed)" %}</span>{% endif %}{% elif game.turn %}{% blocktranslate with turn=game.turn %}Turn {{ turn }}{% endblocktranslate %}{% else %}{% translate "Opening hand" %}{% endif %}</span>
+      <span class="tabular text-lg text-parchment-200">{% blocktranslate with life=game.life %}Life {{ life }}{% endblocktranslate %}</span>
+      {% if game.mulligans %}<span class="tabular text-parchment-200">{% blocktranslate with count=game.mulligans %}Mulligans {{ count }}{% endblocktranslate %}</span>{% endif %}
 
-    {% if game.turn %}
-      <ol class="flex flex-wrap gap-1 text-sm" aria-label="{% translate "Phase" %}">
-        {% for phase, name in phases %}
-          <li class="playtest-phase{% if phase == game.phase %} playtest-phase-now{% endif %}"
-              {% if phase == game.phase %}aria-current="step"{% endif %}>{{ name }}</li>
-        {% endfor %}
-      </ol>
-    {% endif %}
+      {% if game.turn and not journal %}
+        <ol class="flex flex-wrap gap-1 text-sm" aria-label="{% translate "Phase" %}">
+          {% for phase, name in phases %}
+            <li class="playtest-phase{% if phase == game.phase %} playtest-phase-now{% endif %}"
+                {% if phase == game.phase %}aria-current="step"{% endif %}>{{ name }}</li>
+          {% endfor %}
+        </ol>
+      {% endif %}
 
-    {% if pips %}
-      <span class="flex items-center gap-2" aria-label="{% translate "Floating mana" %}">
-        {% for color, amount in pips %}
-          <span class="flex items-center gap-0.5">
-            <span class="pip pip-{{ color }}" aria-hidden="true">{{ color }}</span>
-            <span class="tabular text-sm text-ink-900"><span class="sr-only">{{ color }} </span>{{ amount }}</span>
-          </span>
-        {% endfor %}
-      </span>
-    {% endif %}
-    {% if restricted %}
-      <ul class="text-sm text-ink-700" aria-label="{% translate "Mana only some spells may spend" %}">
-        {% for line in restricted %}<li>{{ line }}</li>{% endfor %}
-      </ul>
-    {% endif %}
+      {% if pips %}
+        <span class="flex items-center gap-2" aria-label="{% translate "Floating mana" %}">
+          {% for color, amount in pips %}
+            <span class="flex items-center gap-0.5">
+              <span class="pip pip-{{ color }}" aria-hidden="true">{{ color }}</span>
+              <span class="tabular text-sm text-parchment-100"><span class="sr-only">{{ color }} </span>{{ amount }}</span>
+            </span>
+          {% endfor %}
+        </span>
+      {% endif %}
+      {% if restricted %}
+        <ul class="text-sm text-parchment-200" aria-label="{% translate "Mana only some spells may spend" %}">
+          {% for line in restricted %}<li>{{ line }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    </div>
 
-    {% if not deciding %}
-      <div class="ml-auto flex flex-wrap gap-2">
-        <form method="post" action="{% url 'playtest:act' session.id %}"
-              hx-post="{% url 'playtest:act' session.id %}"
-              hx-target="#board" hx-swap="outerHTML">
-          {% csrf_token %}
-          <input type="hidden" name="kind" value="advance_phase">
-          <button type="submit"
-                  class="border border-ink-800 bg-ink-900 px-3 py-1.5 text-parchment-100 hover:bg-ink-800">
-            {% if game.phase is None or game.phase == "end" %}{% blocktranslate with turn=game.turn|add:1 %}Start turn {{ turn }}{% endblocktranslate %}{% else %}{% translate "Next phase" %}{% endif %}
+    {% comment %}
+      Strict or free (PR 18). A switch deals the same shuffle again in the
+      other mode: a session keeps its mode, so a replay never meets a move of
+      the other one. A plain form, the page reloads on the new game.
+      Inside the board, so that the seed is the one of the hand on the table
+      after every swap.
+    {% endcomment %}
+    <form method="post" action="{% url 'playtest:start' deck.id %}" data-mode-switch>
+      {% csrf_token %}
+      <input type="hidden" name="seed" value="{{ deal_seed|stringformat:'d' }}">
+      <input type="hidden" name="on_the_play" value="{{ session.on_the_play|yesno:'1,0' }}">
+      <fieldset class="flex rounded-sm border border-parchment-800 p-0.5">
+        <legend class="sr-only">{% translate "Mode" %}</legend>
+        {% for value, label in session.MODES %}
+          <button type="submit" name="mode" value="{{ value }}"
+                  {% if value == session.mode %}aria-pressed="true" disabled{% else %}aria-pressed="false"{% endif %}
+                  class="min-h-11 px-4 {% if value == session.mode %}bg-parchment-100 text-ink-900{% else %}text-parchment-200 hover:bg-ink-800{% endif %}">
+            {% if value == "free" %}{% translate "Free" context "playtest mode" %}{% else %}{% translate "Strict" context "playtest mode" %}{% endif %}
           </button>
-        </form>
+        {% endfor %}
+      </fieldset>
+    </form>
+  </div>
 
+  {# --- the moves that are not cards --- #}
+  <div class="flex flex-wrap items-center gap-2">
+    {% if deciding %}
+      <form method="post" action="{% url 'playtest:act' session.id %}"
+            hx-post="{% url 'playtest:act' session.id %}"
+            hx-target="#board" hx-swap="outerHTML">
+        {% csrf_token %}
+        <input type="hidden" name="kind" value="mulligan">
+        <button type="submit" class="board-btn board-btn-second">{% translate "Mulligan" %}</button>
+      </form>
+      <form method="post" action="{% url 'playtest:act' session.id %}"
+            hx-post="{% url 'playtest:act' session.id %}"
+            hx-target="#board" hx-swap="outerHTML">
+        {% csrf_token %}
+        <input type="hidden" name="kind" value="keep_hand">
+        <button type="submit" class="board-btn board-btn-main">{% translate "Keep" %}</button>
+      </form>
+    {% elif journal %}
+      <div class="flex flex-wrap gap-2" data-free-moves>
         <form method="post" action="{% url 'playtest:act' session.id %}"
               hx-post="{% url 'playtest:act' session.id %}"
               hx-target="#board" hx-swap="outerHTML">
           {% csrf_token %}
           <input type="hidden" name="kind" value="draw">
           <input type="hidden" name="count" value="1">
-          <button type="submit"
-                  class="border border-ink-800 px-3 py-1.5 text-ink-900 hover:bg-parchment-300">
-            {% translate "Draw a card" %}
+          <button type="submit" data-key="d" class="icon-host board-btn board-btn-main">
+            {% icon "draw" %}{% translate "Draw a card" %} <kbd class="playtest-kbd">D</kbd>
+          </button>
+        </form>
+        <form method="post" action="{% url 'playtest:act' session.id %}"
+              hx-post="{% url 'playtest:act' session.id %}"
+              hx-target="#board" hx-swap="outerHTML">
+          {% csrf_token %}
+          <input type="hidden" name="kind" value="new_hand">
+          <button type="submit" data-key="n" class="icon-host board-btn board-btn-second">
+            {% icon "new-hand" %}{% translate "New hand" %} <kbd class="playtest-kbd">N</kbd>
+          </button>
+        </form>
+        <form method="post" action="{% url 'playtest:act' session.id %}"
+              hx-post="{% url 'playtest:act' session.id %}"
+              hx-target="#board" hx-swap="outerHTML">
+          {% csrf_token %}
+          <input type="hidden" name="kind" value="next_turn">
+          <button type="submit" data-key="t" class="board-btn">
+            {% translate "Next turn" %} <kbd class="playtest-kbd">T</kbd>
           </button>
         </form>
       </div>
+    {% else %}
+      <form method="post" action="{% url 'playtest:act' session.id %}"
+            hx-post="{% url 'playtest:act' session.id %}"
+            hx-target="#board" hx-swap="outerHTML">
+        {% csrf_token %}
+        <input type="hidden" name="kind" value="advance_phase">
+        <button type="submit" class="board-btn board-btn-main">
+          {% if game.phase is None or game.phase == "end" %}{% blocktranslate with turn=game.turn|add:1 %}Start turn {{ turn }}{% endblocktranslate %}{% else %}{% translate "Next phase" %}{% endif %}
+        </button>
+      </form>
+      <form method="post" action="{% url 'playtest:act' session.id %}"
+            hx-post="{% url 'playtest:act' session.id %}"
+            hx-target="#board" hx-swap="outerHTML">
+        {% csrf_token %}
+        <input type="hidden" name="kind" value="draw">
+        <input type="hidden" name="count" value="1">
+        <button type="submit" data-key="d" class="icon-host board-btn">
+          {% icon "draw" %}{% translate "Draw a card" %} <kbd class="playtest-kbd">D</kbd>
+        </button>
+      </form>
     {% endif %}
 
-    <div class="{% if deciding %}ml-auto {% endif %}flex gap-2">
-      <form method="post" action="{% url 'playtest:undo' session.id %}"
-            hx-post="{% url 'playtest:undo' session.id %}"
-            hx-target="#board" hx-swap="outerHTML">
-        {% csrf_token %}
-        <button type="submit" {% if not can_undo %}disabled{% endif %}
-                class="border border-ink-800 px-3 py-1.5 text-ink-900 hover:bg-parchment-300 disabled:border-parchment-600 disabled:text-ink-500">
-          {% translate "Undo" %}
-        </button>
-      </form>
+    <form method="post" action="{% url 'playtest:undo' session.id %}"
+          hx-post="{% url 'playtest:undo' session.id %}"
+          hx-target="#board" hx-swap="outerHTML">
+      {% csrf_token %}
+      <button type="submit" {% if not can_undo %}disabled{% endif %} data-key="ctrl+z" class="board-btn">
+        {% translate "Undo" %} <kbd class="playtest-kbd">{% translate "Ctrl Z" %}</kbd>
+      </button>
+    </form>
+    <form method="post" action="{% url 'playtest:redo' session.id %}"
+          hx-post="{% url 'playtest:redo' session.id %}"
+          hx-target="#board" hx-swap="outerHTML">
+      {% csrf_token %}
+      <button type="submit" {% if not can_redo %}disabled{% endif %} class="board-btn">
+        {% translate "Redo" %}
+      </button>
+    </form>
 
-      <form method="post" action="{% url 'playtest:redo' session.id %}"
-            hx-post="{% url 'playtest:redo' session.id %}"
-            hx-target="#board" hx-swap="outerHTML">
-        {% csrf_token %}
-        <button type="submit" {% if not can_redo %}disabled{% endif %}
-                class="border border-ink-800 px-3 py-1.5 text-ink-900 hover:bg-parchment-300 disabled:border-parchment-600 disabled:text-ink-500">
-          {% translate "Redo" %}
-        </button>
-      </form>
-    </div>
-  </section>
+    <p class="text-sm text-ink-300"{% if journal %} data-free-note{% endif %}>
+      {% if journal %}{% translate "Nothing is blocked. The journal notes what the rules would not allow." %}{% else %}{% translate "Strict plays the rules, phase by phase. Free blocks nothing." %}{% endif %}
+      {% translate "Switching deals this shuffle again." %}
+    </p>
+  </div>
 
   {% comment %}
     The engine counts a turn's mana once, when the main phase opens - a land
@@ -134,261 +210,258 @@
       {% translate "Play your land now: the mana for this turn is counted when the main phase opens." %}
     </p>
   {% endif %}
+  {% if deciding and to_bottom %}
+    <p class="text-sm text-parchment-200">
+      {% blocktranslate trimmed count count=to_bottom %}
+        Keeping puts {{ count }} card on the bottom - the engine picks the weakest.
+      {% plural %}
+        Keeping puts {{ count }} cards on the bottom - the engine picks the weakest.
+      {% endblocktranslate %}
+    </p>
+  {% endif %}
 
-  {# --- the opening: two big buttons, nothing else to do yet --- #}
-  {% if deciding %}
-    <section class="surface-parchment flex flex-wrap items-center justify-center gap-4 px-4 py-5">
-      <form method="post" action="{% url 'playtest:act' session.id %}"
-            hx-post="{% url 'playtest:act' session.id %}"
-            hx-target="#board" hx-swap="outerHTML">
-        {% csrf_token %}
-        <input type="hidden" name="kind" value="mulligan">
-        <button type="submit"
-                class="min-w-40 border-2 border-ink-800 px-6 py-3 font-display text-xl text-ink-900 hover:bg-parchment-300">
-          {% translate "Mulligan" %}
-        </button>
-      </form>
-      <form method="post" action="{% url 'playtest:act' session.id %}"
-            hx-post="{% url 'playtest:act' session.id %}"
-            hx-target="#board" hx-swap="outerHTML">
-        {% csrf_token %}
-        <input type="hidden" name="kind" value="keep_hand">
-        <button type="submit"
-                class="min-w-40 border-2 border-ink-900 bg-ink-900 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-ink-800">
-          {% translate "Keep" %}
-        </button>
-      </form>
-      {% if to_bottom %}
-        <p class="w-full text-center text-sm text-ink-700">
-          {% blocktranslate trimmed count count=to_bottom %}
-            Keeping puts {{ count }} card on the bottom - the engine picks the weakest.
+  <div class="board-layout">
+    {# --- the table: commander, battlefield, stacks, and the hand at its edge --- #}
+    <section class="playtest-felt" aria-label="{% translate "Table" %}">
+      <div class="playtest-table">
+        <div class="playtest-side">
+          {% for zone in commanders %}
+            <div>
+              {% if forloop.first %}<p class="board-label">{% translate "Command zone" %}</p>{% endif %}
+              {% if zone.card.image_uri %}
+                <img src="{{ zone.card.image_uri }}" alt="{{ zone.card.front_name }}" title="{{ zone.card.front_name }}"
+                     loading="lazy" class="board-card board-card-commander mt-1{% if zone.out %} board-card-gone{% endif %}">
+              {% else %}
+                <p class="board-card board-card-text board-card-commander mt-1">{{ zone.card.front_name }}</p>
+              {% endif %}
+              {% if zone.out %}
+                <p class="mt-1 text-xs text-ink-300">{% translate "On the battlefield" %}</p>
+              {% elif journal %}
+                <form method="post" action="{% url 'playtest:act' session.id %}"
+                      hx-post="{% url 'playtest:act' session.id %}"
+                      hx-target="#board" hx-swap="outerHTML" class="mt-1">
+                  {% csrf_token %}
+                  <input type="hidden" name="kind" value="free_commander">
+                  <input type="hidden" name="index" value="{{ zone.index }}">
+                  <button type="submit" class="board-btn-small">{% translate "Play" %}</button>
+                </form>
+              {% elif zone.castable %}
+                <form method="post" action="{% url 'playtest:act' session.id %}"
+                      hx-post="{% url 'playtest:act' session.id %}"
+                      hx-target="#board" hx-swap="outerHTML" class="mt-1">
+                  {% csrf_token %}
+                  <input type="hidden" name="kind" value="cast_commander">
+                  <input type="hidden" name="index" value="{{ zone.index }}">
+                  <button type="submit" class="board-btn-small">{% translate "Cast" %}</button>
+                </form>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="playtest-field">
+          {% for row in battlefield %}
+            <div class="playtest-row">
+              <p class="board-label">
+                {{ row.label }} <span class="tabular">{{ row.tiles|length }}</span>
+              </p>
+              <ul class="playtest-zone">
+                {% for tile in row.tiles %}
+                  <li{% if tile.tapped %} class="board-tapped" data-tapped{% endif %}>
+                    {% if tile.image %}
+                      <img src="{{ tile.image }}" alt="{{ tile.card.name }}{% if tile.tapped %} ({% translate "tapped" %}){% endif %}" title="{{ tile.card.name }}"
+                           loading="lazy" class="board-card">
+                    {% else %}
+                      <span class="board-card board-card-text">{{ tile.card.name }}{% if tile.tapped %}<span class="sr-only"> ({% translate "tapped" %})</span>{% endif %}</span>
+                    {% endif %}
+                    {% if tile.activatable %}
+                      <form method="post" action="{% url 'playtest:act' session.id %}"
+                            hx-post="{% url 'playtest:act' session.id %}"
+                            hx-target="#board" hx-swap="outerHTML" class="mt-1">
+                        {% csrf_token %}
+                        <input type="hidden" name="kind" value="activate_search">
+                        <input type="hidden" name="zone" value="{{ tile.zone }}">
+                        <input type="hidden" name="index" value="{{ tile.index }}">
+                        <button type="submit" class="board-btn-small">{% translate "Activate" %}</button>
+                      </form>
+                    {% endif %}
+                    {% if tile.adaptable %}
+                      <form method="post" action="{% url 'playtest:act' session.id %}"
+                            hx-post="{% url 'playtest:act' session.id %}"
+                            hx-target="#board" hx-swap="outerHTML" class="mt-1">
+                        {% csrf_token %}
+                        <input type="hidden" name="kind" value="adapt">
+                        <input type="hidden" name="index" value="{{ tile.index }}">
+                        <button type="submit" class="board-btn-small">{% translate "Adapt" %}</button>
+                      </form>
+                    {% endif %}
+                    {% if tile.equip %}
+                      <form method="post" action="{% url 'playtest:act' session.id %}"
+                            hx-post="{% url 'playtest:act' session.id %}"
+                            hx-target="#board" hx-swap="outerHTML" class="mt-1 space-y-1">
+                        {% csrf_token %}
+                        <input type="hidden" name="kind" value="equip">
+                        <input type="hidden" name="zone" value="{{ tile.zone }}">
+                        <input type="hidden" name="index" value="{{ tile.index }}">
+                        <select name="target" class="w-full text-xs text-ink-900"
+                                aria-label="{% translate 'Creature to equip' %}">
+                          {% for label in tile.equip %}
+                            <option value="{{ forloop.counter0 }}">{{ label }}</option>
+                          {% endfor %}
+                        </select>
+                        <button type="submit" class="board-btn-small">{% translate "Equip" %}</button>
+                      </form>
+                    {% endif %}
+                    {% if tile.altar %}
+                      <form method="post" action="{% url 'playtest:act' session.id %}"
+                            hx-post="{% url 'playtest:act' session.id %}"
+                            hx-target="#board" hx-swap="outerHTML" class="mt-1 space-y-1">
+                        {% csrf_token %}
+                        <input type="hidden" name="kind" value="sacrifice_mana">
+                        <input type="hidden" name="zone" value="{{ tile.zone }}">
+                        <input type="hidden" name="index" value="{{ tile.index }}">
+                        <select name="payment" class="w-full text-xs text-ink-900"
+                                aria-label="{% translate 'What to sacrifice' %}">
+                          {% for label in tile.altar %}
+                            <option value="{{ forloop.counter0 }}">{{ label }}</option>
+                          {% endfor %}
+                        </select>
+                        <button type="submit" class="board-btn-small">{% translate "Sacrifice for mana" %}</button>
+                      </form>
+                    {% endif %}
+                  </li>
+                {% empty %}
+                  <li class="board-card-empty" aria-hidden="true"></li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endfor %}
+          {% if landers %}
+            <div class="playtest-row flex flex-wrap items-center gap-2">
+              <p class="board-label">
+                {% blocktranslate trimmed count count=landers %}{{ count }} Lander token{% plural %}{{ count }} Lander tokens{% endblocktranslate %}
+              </p>
+              {% if lander_ready %}
+                <form method="post" action="{% url 'playtest:act' session.id %}"
+                      hx-post="{% url 'playtest:act' session.id %}"
+                      hx-target="#board" hx-swap="outerHTML">
+                  {% csrf_token %}
+                  <input type="hidden" name="kind" value="activate_lander">
+                  <button type="submit" class="board-btn-small">
+                    {% translate "Activate a Lander: {2}, a basic land" %}
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="playtest-side">
+          <div>
+            <p class="board-label">{% translate "Library" %}</p>
+            <div class="card-back mt-1" aria-label="{% blocktranslate count count=game.library|length %}{{ count }} card in the library{% plural %}{{ count }} cards in the library{% endblocktranslate %}">
+              <span class="tabular">{{ game.library|length }}</span>
+            </div>
+          </div>
+          {% include "playtest/_pile.html" with label=_("Graveyard") tiles=graveyard %}
+          {% include "playtest/_pile.html" with label=_("Exile") tiles=exiled %}
+        </div>
+      </div>
+
+      {# --- the hand: a fan of real cards along the table's edge; the card is the button --- #}
+      <div class="playtest-hand" role="group" aria-label="{% translate "Hand" %}">
+        <p class="mb-2 text-sm text-parchment-200">
+          {% blocktranslate trimmed with count=hand|length %}Hand <span class="tabular">{{ count }}</span>{% endblocktranslate %}
+          {% if journal %}· {% translate "click a card to put it on the table. Nothing is paid, and nothing happens on its own." %}{% elif not deciding %}· {% translate "click a card to play it. A glowing card is one the mana can pay for; nothing is blocked." %}{% endif %}
+        </p>
+        <ul class="hand-fan">
+          {% for tile in hand %}
+            <li class="hand-slot" style="--i: {{ forloop.counter0|unlocalize }}; --n: {{ hand|length|unlocalize }};">
+              {% if deciding %}
+                <span class="hand-card">
+                  {% include "playtest/_hand_face.html" %}
+                </span>
+              {% else %}
+                <form method="post" action="{% url 'playtest:act' session.id %}"
+                      hx-post="{% url 'playtest:act' session.id %}"
+                      hx-target="#board" hx-swap="outerHTML">
+                  {% csrf_token %}
+                  <input type="hidden" name="index" value="{{ tile.index }}">
+                  {% if journal %}
+                    <input type="hidden" name="kind" value="free_play">
+                  {% elif tile.card.is_land %}
+                    <input type="hidden" name="kind" value="play_land">
+                  {% else %}
+                    <input type="hidden" name="kind" value="cast_spell">
+                  {% endif %}
+                  <button type="submit" class="hand-card{% if tile.castable or tile.playable %} hand-card-ready{% endif %}">
+                    {% include "playtest/_hand_face.html" %}
+                    <span class="hand-card-action">{% if tile.card.is_land %}{% translate "Play land" %}{% elif journal %}{% translate "Play" %}{% else %}{% translate "Cast" %}{% endif %}</span>
+                  </button>
+                  {% if tile.payments|length > 1 %}
+                    <label class="hand-card-x">
+                      <span class="sr-only">{% translate "How to pay its additional cost" %}</span>
+                      <select name="payment" aria-label="{% translate 'How to pay its additional cost' %}">
+                        {% for label in tile.payments %}
+                          <option value="{{ forloop.counter0 }}">{{ label }}</option>
+                        {% endfor %}
+                      </select>
+                    </label>
+                  {% endif %}
+                  {% if tile.x_max is not None %}
+                    <label class="hand-card-x">
+                      X
+                      <input type="number" name="x" min="0" max="{{ tile.x_max|unlocalize }}" value="{{ tile.x_max|unlocalize }}"
+                             aria-label="{% translate 'X to pay' %}">
+                    </label>
+                  {% endif %}
+                </form>
+              {% endif %}
+            </li>
+          {% empty %}
+            <li class="text-parchment-200">{% translate "Nothing in hand." %}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+
+    {% comment %}
+      The journal: a page of the book beside the table. Free writes its own
+      lines (guessed turns, unusual moves); strict writes the engine's log,
+      in English like the card names in it (phase 12). The newest line is
+      inked in; the page scrolls, newest at the bottom.
+    {% endcomment %}
+    <section class="journal-page" aria-labelledby="journal-title" data-journal>
+      <h2 id="journal-title" class="journal-title">{% translate "The journal" %}</h2>
+      <div class="journal-scroll">
+        <ol role="log" class="journal-lines">
+          {% for turn in journal.turns|default:log_turns %}
+            <li class="journal-turn{% if forloop.last and not turn.lines %} journal-new{% endif %}" data-journal-turn>{% if turn.number %}{% blocktranslate with turn=turn.number %}Turn {{ turn }}{% endblocktranslate %}{% else %}{% translate "Opening hand" %}{% endif %}{% if turn.guessed %} {% translate "(guessed)" %}{% endif %}</li>
+            {% for line in turn.lines %}
+              {% if line.unusual %}
+                <li class="icon-host journal-unusual{% if forloop.parentloop.last and forloop.last %} journal-new{% endif %}" data-unusual>
+                  {% icon "unusual" %}<span><em>{% translate "Unusual move:" %}</em> {{ line.text }}</span>
+                </li>
+              {% else %}
+                <li{% if not journal %} lang="en" class="tabular{% if forloop.parentloop.last and forloop.last %} journal-new{% endif %}"{% elif forloop.parentloop.last and forloop.last %} class="journal-new"{% endif %}>{{ line.text }}</li>
+              {% endif %}
+            {% endfor %}
+          {% empty %}
+            <li>{% translate "Nothing yet." %}</li>
+          {% endfor %}
+        </ol>
+      </div>
+      {% if journal.unusual %}
+        <p class="journal-foot" data-unusual-count>
+          {% blocktranslate trimmed count count=journal.unusual %}
+            {{ count }} unusual move. Found a great line? Check it before you trust it.
           {% plural %}
-            Keeping puts {{ count }} cards on the bottom - the engine picks the weakest.
+            {{ count }} unusual moves. Found a great line? Check them before you trust it.
           {% endblocktranslate %}
         </p>
       {% endif %}
     </section>
-  {% endif %}
-
-  {# --- the table: commander, battlefield, stacks --- #}
-  <section class="surface-parchment playtest-table px-4 py-4">
-    <div class="playtest-side">
-      {% for zone in commanders %}
-        <div>
-          {% if forloop.first %}<p class="text-xs uppercase tracking-wide text-ink-700">{% translate "Command zone" %}</p>{% endif %}
-          {% if zone.card.image_uri %}
-            <img src="{{ zone.card.image_uri }}" alt="{{ zone.card.front_name }}" title="{{ zone.card.front_name }}"
-                 loading="lazy" class="board-card mt-1{% if zone.out %} board-card-gone{% endif %}">
-          {% else %}
-            <p class="board-card board-card-text mt-1">{{ zone.card.front_name }}</p>
-          {% endif %}
-          {% if zone.out %}
-            <p class="mt-1 text-xs text-ink-700">{% translate "On the battlefield" %}</p>
-          {% elif zone.castable %}
-            <form method="post" action="{% url 'playtest:act' session.id %}"
-                  hx-post="{% url 'playtest:act' session.id %}"
-                  hx-target="#board" hx-swap="outerHTML" class="mt-1">
-              {% csrf_token %}
-              <input type="hidden" name="kind" value="cast_commander">
-              <input type="hidden" name="index" value="{{ zone.index }}">
-              <button type="submit"
-                      class="w-full border border-ink-800 bg-ink-900 px-2 py-1 text-xs text-parchment-100 hover:bg-ink-800">
-                {% translate "Cast" %}
-              </button>
-            </form>
-          {% endif %}
-        </div>
-      {% endfor %}
-
-      <div>
-        <p class="text-xs uppercase tracking-wide text-ink-700">{% translate "Library" %}</p>
-        <div class="card-back mt-1" aria-label="{% blocktranslate count count=game.library|length %}{{ count }} card in the library{% plural %}{{ count }} cards in the library{% endblocktranslate %}">
-          <span class="tabular">{{ game.library|length }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="playtest-field">
-      {% for row in battlefield %}
-        <div class="playtest-row">
-          <p class="text-xs uppercase tracking-wide text-ink-700">
-            {{ row.label }} <span class="tabular">{{ row.tiles|length }}</span>
-          </p>
-          <ul class="mt-1 flex flex-wrap gap-1.5">
-            {% for tile in row.tiles %}
-              <li>
-                {% if tile.image %}
-                  <img src="{{ tile.image }}" alt="{{ tile.card.name }}" title="{{ tile.card.name }}"
-                       loading="lazy" class="board-card">
-                {% else %}
-                  <span class="board-card board-card-text">{{ tile.card.name }}</span>
-                {% endif %}
-                {% if tile.activatable %}
-                  <form method="post" action="{% url 'playtest:act' session.id %}"
-                        hx-post="{% url 'playtest:act' session.id %}"
-                        hx-target="#board" hx-swap="outerHTML" class="mt-1">
-                    {% csrf_token %}
-                    <input type="hidden" name="kind" value="activate_search">
-                    <input type="hidden" name="zone" value="{{ tile.zone }}">
-                    <input type="hidden" name="index" value="{{ tile.index }}">
-                    <button type="submit"
-                            class="w-full border border-ink-800 bg-ink-900 px-2 py-1 text-xs text-parchment-100 hover:bg-ink-800">
-                      {% translate "Activate" %}
-                    </button>
-                  </form>
-                {% endif %}
-                {% if tile.adaptable %}
-                  <form method="post" action="{% url 'playtest:act' session.id %}"
-                        hx-post="{% url 'playtest:act' session.id %}"
-                        hx-target="#board" hx-swap="outerHTML" class="mt-1">
-                    {% csrf_token %}
-                    <input type="hidden" name="kind" value="adapt">
-                    <input type="hidden" name="index" value="{{ tile.index }}">
-                    <button type="submit"
-                            class="w-full border border-ink-800 bg-ink-900 px-2 py-1 text-xs text-parchment-100 hover:bg-ink-800">
-                      {% translate "Adapt" %}
-                    </button>
-                  </form>
-                {% endif %}
-                {% if tile.equip %}
-                  <form method="post" action="{% url 'playtest:act' session.id %}"
-                        hx-post="{% url 'playtest:act' session.id %}"
-                        hx-target="#board" hx-swap="outerHTML" class="mt-1 space-y-1">
-                    {% csrf_token %}
-                    <input type="hidden" name="kind" value="equip">
-                    <input type="hidden" name="zone" value="{{ tile.zone }}">
-                    <input type="hidden" name="index" value="{{ tile.index }}">
-                    <select name="target" class="w-full text-xs"
-                            aria-label="{% translate 'Creature to equip' %}">
-                      {% for label in tile.equip %}
-                        <option value="{{ forloop.counter0 }}">{{ label }}</option>
-                      {% endfor %}
-                    </select>
-                    <button type="submit"
-                            class="w-full border border-ink-800 bg-ink-900 px-2 py-1 text-xs text-parchment-100 hover:bg-ink-800">
-                      {% translate "Equip" %}
-                    </button>
-                  </form>
-                {% endif %}
-                {% if tile.altar %}
-                  <form method="post" action="{% url 'playtest:act' session.id %}"
-                        hx-post="{% url 'playtest:act' session.id %}"
-                        hx-target="#board" hx-swap="outerHTML" class="mt-1 space-y-1">
-                    {% csrf_token %}
-                    <input type="hidden" name="kind" value="sacrifice_mana">
-                    <input type="hidden" name="zone" value="{{ tile.zone }}">
-                    <input type="hidden" name="index" value="{{ tile.index }}">
-                    <select name="payment" class="w-full text-xs"
-                            aria-label="{% translate 'What to sacrifice' %}">
-                      {% for label in tile.altar %}
-                        <option value="{{ forloop.counter0 }}">{{ label }}</option>
-                      {% endfor %}
-                    </select>
-                    <button type="submit"
-                            class="w-full border border-ink-800 bg-ink-900 px-2 py-1 text-xs text-parchment-100 hover:bg-ink-800">
-                      {% translate "Sacrifice for mana" %}
-                    </button>
-                  </form>
-                {% endif %}
-              </li>
-            {% empty %}
-              <li class="board-card-empty" aria-hidden="true"></li>
-            {% endfor %}
-          </ul>
-        </div>
-      {% endfor %}
-      {% if landers %}
-        <div class="playtest-row flex flex-wrap items-center gap-2">
-          <p class="text-xs uppercase tracking-wide text-ink-700">
-            {% blocktranslate trimmed count count=landers %}{{ count }} Lander token{% plural %}{{ count }} Lander tokens{% endblocktranslate %}
-          </p>
-          {% if lander_ready %}
-            <form method="post" action="{% url 'playtest:act' session.id %}"
-                  hx-post="{% url 'playtest:act' session.id %}"
-                  hx-target="#board" hx-swap="outerHTML">
-              {% csrf_token %}
-              <input type="hidden" name="kind" value="activate_lander">
-              <button type="submit"
-                      class="border border-ink-800 bg-ink-900 px-2 py-1 text-xs text-parchment-100 hover:bg-ink-800">
-                {% translate "Activate a Lander: {2}, a basic land" %}
-              </button>
-            </form>
-          {% endif %}
-        </div>
-      {% endif %}
-    </div>
-
-    <div class="playtest-side">
-      {% include "playtest/_pile.html" with label=_("Graveyard") tiles=graveyard %}
-      {% include "playtest/_pile.html" with label=_("Exile") tiles=exiled %}
-    </div>
-  </section>
-
-  {# --- the hand: a fan of real cards; the card is the button --- #}
-  <section class="playtest-hand" aria-label="{% translate "Hand" %}">
-    <p class="mb-2 text-sm text-parchment-200">
-      {% blocktranslate trimmed with count=hand|length %}Hand <span class="tabular">{{ count }}</span>{% endblocktranslate %}
-      {% if not deciding %}· {% translate "click a card to play it. A glowing card is one the mana can pay for; nothing is blocked." %}{% endif %}
-    </p>
-    <ul class="hand-fan">
-      {% for tile in hand %}
-        <li class="hand-slot" style="--i: {{ forloop.counter0|unlocalize }}; --n: {{ hand|length|unlocalize }};">
-          {% if deciding %}
-            <span class="hand-card">
-              {% include "playtest/_hand_face.html" %}
-            </span>
-          {% else %}
-            <form method="post" action="{% url 'playtest:act' session.id %}"
-                  hx-post="{% url 'playtest:act' session.id %}"
-                  hx-target="#board" hx-swap="outerHTML">
-              {% csrf_token %}
-              <input type="hidden" name="index" value="{{ tile.index }}">
-              {% if tile.card.is_land %}
-                <input type="hidden" name="kind" value="play_land">
-              {% else %}
-                <input type="hidden" name="kind" value="cast_spell">
-              {% endif %}
-              <button type="submit" class="hand-card{% if tile.castable or tile.playable %} hand-card-ready{% endif %}">
-                {% include "playtest/_hand_face.html" %}
-                <span class="hand-card-action">{% if tile.card.is_land %}{% translate "Play land" %}{% else %}{% translate "Cast" %}{% endif %}</span>
-              </button>
-              {% if tile.payments|length > 1 %}
-                <label class="hand-card-x">
-                  <span class="sr-only">{% translate "How to pay its additional cost" %}</span>
-                  <select name="payment" aria-label="{% translate 'How to pay its additional cost' %}">
-                    {% for label in tile.payments %}
-                      <option value="{{ forloop.counter0 }}">{{ label }}</option>
-                    {% endfor %}
-                  </select>
-                </label>
-              {% endif %}
-              {% if tile.x_max is not None %}
-                <label class="hand-card-x">
-                  X
-                  <input type="number" name="x" min="0" max="{{ tile.x_max|unlocalize }}" value="{{ tile.x_max|unlocalize }}"
-                         aria-label="{% translate 'X to pay' %}">
-                </label>
-              {% endif %}
-            </form>
-          {% endif %}
-        </li>
-      {% empty %}
-        <li class="text-parchment-200">{% translate "Nothing in hand." %}</li>
-      {% endfor %}
-    </ul>
-  </section>
-
-  <details class="surface-parchment px-4 py-3">
-    <summary class="cursor-pointer font-display text-lg text-ink-900">{% translate "What happened" %}</summary>
-    <ol class="mt-3 space-y-1 text-sm text-ink-700">
-      {% for line in game.log %}
-        {# The engine's log, in English like the card names in it (phase 12). #}
-        <li class="tabular" lang="en">{{ line }}</li>
-      {% empty %}
-        <li>{% translate "Nothing yet." %}</li>
-      {% endfor %}
-    </ol>
-  </details>
+  </div>
 
   {% if history %}
     <details class="surface-parchment px-4 py-3">

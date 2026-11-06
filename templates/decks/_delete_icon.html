@@ -1,0 +1,15 @@
+{% load i18n %}
+{% comment %}
+  The red bin that leads to deleting a deck (decks/confirm_delete.html, where a
+  word has to be typed). `dark` for the deck page's dark ground, else the
+  parchment of the deck list.
+{% endcomment %}
+<a href="{% url 'decks:delete' deck.pk %}"
+   class="inline-flex h-8 w-8 items-center justify-center self-center rounded {% if dark %}text-blood-500 hover:text-blood-400{% else %}text-blood-700 hover:text-blood-800{% endif %}"
+   title="{% translate 'Delete this deck' %}" aria-label="{% translate 'Delete this deck' %}"
+   aria-describedby="deck-name-{{ deck.pk }}" data-delete-deck>
+  <svg aria-hidden="true" viewBox="0 0 20 20" width="18" height="18" fill="none"
+       stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3.5 5.5h13"/><path d="M8 5.5V3.5h4v2"/><path d="M5 5.5l1 11h8l1-11"/><path d="M8.5 8.5v5M11.5 8.5v5"/>
+  </svg>
+</a>

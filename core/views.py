@@ -12,6 +12,7 @@ from django.views.generic import TemplateView
 from core import seo, ticker
 from core.tokens import color_families
 from decks.analysis import KARSTEN_MAX, KARSTEN_MIN
+from decks.forms import ImportForm
 from goldfishlab import celery_app
 from simulation import karsten
 from simulations.provenance import SOURCES
@@ -25,8 +26,10 @@ class HomeView(TemplateView):
     template_name = "core/home.html"
 
     def get_context_data(self, **kwargs):
+        # The import form near the top, for everyone but a guest (see home.html).
         return {**super().get_context_data(**kwargs),
-                "ticker": ticker.lines_for(self.request.user)}
+                "ticker": ticker.lines_for(self.request.user),
+                "form": ImportForm()}
 
 
 class TickerView(HomeView):
@@ -127,6 +130,22 @@ class PrivacyView(TemplateView):
     # 2026-10-21: feedback on a deck summary, kept with its case - opt-in too,
     # so no new consent either.
     extra_context = {"updated": date(2026, 10, 21)}
+
+
+class ResourcesView(TemplateView):
+    """Videos and sites worth knowing about Commander (Themen-Doc, Ressourcen).
+
+    Static: the list is `core.resources`. Every link leaves the site, so each
+    opens without a referrer and without a handle on this page.
+    """
+
+    template_name = "core/resources.html"
+
+    def get_context_data(self, **kwargs):
+        from core import resources
+
+        return {**super().get_context_data(**kwargs),
+                "videos": resources.VIDEOS, "links": resources.LINKS}
 
 
 class ImprintView(TemplateView):

@@ -912,11 +912,11 @@ def _finished_page(client, owner, run, **user_fields):
 
 def test_the_report_opens_with_what_a_person_can_do(client, owner, run, fake_redis,
                                                    settings):
-    # The summary block is there only with Mistral configured (phase 11 D).
+    # The summary and the strategies are on the deck page (Paket 2, PR 7).
     settings.MISTRAL_API_KEY = "test-key-not-real"
     body = _finished_page(client, owner, run)
     order = ['id="attention"', 'id="seen"', 'id="milestones"', ">Mulligans<",
-             'id="summary"', 'id="strategies"', 'id="advanced"']
+             'id="measured"', 'id="advanced"']
     positions = [body.index(marker) for marker in order]
 
     assert positions == sorted(positions)

@@ -20,6 +20,7 @@ from django.urls import reverse
 
 from cards.models import OracleCard
 from decks import services
+from decks.forms import DELETE_WORDS
 from decks.importers import columns
 from decks.models import Deck, DeckCard, PendingImport
 
@@ -503,10 +504,64 @@ def test_the_import_page_says_what_a_deck_file_needs(signed_in):
 
 def test_deleting_a_deck_leaves_the_catalogue_alone(signed_in, deck):
     cards_before = OracleCard.objects.count()
-    signed_in.post(reverse("decks:delete", args=[deck.id]))
+    signed_in.post(reverse("decks:delete", args=[deck.id]), {"word": "0", "typed": "mill it"})
 
     assert not Deck.objects.filter(pk=deck.pk).exists()
     assert OracleCard.objects.count() == cards_before
+
+
+# --- Deleting asks for a word (Themen 2026-11) ---------------------------------
+
+
+def test_there_are_ten_words_and_mill_it_is_one():
+    assert len(set(DELETE_WORDS)) == 10
+    assert "MILL IT" in DELETE_WORDS
+
+
+@pytest.mark.parametrize("index", range(10))
+def test_each_word_deletes_typed_in_any_case(signed_in, deck, index):
+    typed = "  " + DELETE_WORDS[index].lower().replace(" ", "   ") + " "
+    response = signed_in.post(reverse("decks:delete", args=[deck.id]),
+                              {"word": str(index), "typed": typed})
+
+    assert response.status_code == 302
+    assert not Deck.objects.filter(pk=deck.pk).exists()
+
+
+@pytest.mark.parametrize("posted", [
+    {},
+    {"word": "0"},
+    {"word": "0", "typed": "EXILE IT"},
+    {"word": "99", "typed": "MILL IT"},
+    {"typed": "MILL IT"},
+])
+def test_without_the_right_word_nothing_is_deleted(signed_in, deck, posted):
+    response = signed_in.post(reverse("decks:delete", args=[deck.id]), posted)
+
+    assert response.status_code == 200
+    assert "That is not the word, so nothing was deleted." in response.content.decode()
+    assert Deck.objects.filter(pk=deck.pk).exists()
+
+
+def test_the_page_shows_one_of_the_words(signed_in, deck):
+    body = signed_in.get(reverse("decks:delete", args=[deck.id])).content.decode()
+
+    shown = [word for word in DELETE_WORDS if f">{word}</p>" in body]
+    assert len(shown) == 1
+    index = DELETE_WORDS.index(shown[0])
+    assert f'name="word" value="{index}"' in body
+
+
+def test_the_bin_sits_on_the_list_and_the_deck_page(signed_in, deck):
+    url = reverse("decks:delete", args=[deck.id])
+    for page in (reverse("decks:list"), deck.get_absolute_url()):
+        body = signed_in.get(page).content.decode()
+        assert f'href="{url}"' in body and "data-delete-deck" in body, page
+
+
+def test_the_deck_page_has_no_all_decks_link(signed_in, deck):
+    """The header's "Decks" says it; the bin took its place."""
+    assert "All decks" not in signed_in.get(deck.get_absolute_url()).content.decode()
 
 
 def _upload(name: str, content: bytes):

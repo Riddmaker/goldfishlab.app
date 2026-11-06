@@ -44,7 +44,7 @@ from simulations.engine import adapter, runner
 #: At most this many hypothetical decks per run. Three rather than eight: the
 #: page needs one sentence somebody will act on, not a table of eight, and the
 #: eighth-most-played combo in a list of 125 is not the one anybody buys a card
-#: for. `combos.services.ONE_AWAY_SHOWN` still lists eight - listing is free.
+#: for. `combos.services.ONE_AWAY_SHOWN` lists as many, the rest are folded.
 MAX_HYPOTHETICALS = 3
 
 #: How many combos the deck already holds may be watched at once. Watching is

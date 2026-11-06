@@ -1,0 +1,49 @@
+{% comment %}
+  "Built around" (Themen-Doc, Paket 1, PR 2): the themes `decks.themes`
+  reads off the deck's tags, the strongest first. Each is a <details>: the
+  chip is its summary, and opening it shows the sentence, every piece with
+  "8, wants 6" and its cards, and the number under "Advanced". No script.
+
+  The level is a word on the chip; the border (solid, dashed, filled) only
+  repeats it. No theme is an answer too, and says so rather than guess.
+
+  Takes: themes (a list of cards.themes.Found).
+{% endcomment %}
+{% load i18n l10n %}
+<div class="mt-3">
+  <h3 class="font-display text-lg text-ink-900">{% translate "Built around" %}</h3>
+  {% if themes %}
+    <div class="deck-themes mt-2">
+      {% for found in themes %}
+        <details class="deck-theme deck-theme-{{ found.level }}">
+          <summary class="deck-theme-chip">
+            <span class="font-semibold">{% translate found.label %}{% if found.subject %} {{ found.subject }}{% endif %}</span>
+            <span class="text-ink-700">· {% include "decks/_level.html" with level=found.level %}</span>
+          </summary>
+          <div class="deck-theme-body">
+            <p class="text-sm text-ink-900">{% translate found.info %}</p>
+            <ul class="mt-2 space-y-2">
+              {% for part in found.parts %}
+                <li class="text-sm">
+                  <span class="text-ink-900">{% translate part.label %}</span>
+                  <span class="tabular text-ink-700">{% blocktranslate with count=part.count need=part.need %}{{ count }}, wants {{ need }}{% endblocktranslate %}</span>
+                  {% if part.cards %}
+                    <span class="block text-ink-700">{{ part.cards|join:", " }}</span>
+                  {% else %}
+                    <span class="block text-ink-700">{% translate "No card yet." %}</span>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+            <details class="mt-2 text-sm text-ink-700">
+              <summary class="cursor-pointer">{% translate "Advanced" %}</summary>
+              <p class="mt-1">{% blocktranslate with fill=found.fill|floatformat:2 %}Fill {{ fill }}: each piece's share of what it needs, the first piece counting double. Strong from 0.75, medium from 0.5, hinted from 0.4.{% endblocktranslate %}</p>
+            </details>
+          </div>
+        </details>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="mt-1 text-sm text-ink-700">{% translate "No theme we know of. Plenty of good decks have no single plan." %}</p>
+  {% endif %}
+</div>

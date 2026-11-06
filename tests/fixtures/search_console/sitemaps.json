@@ -1,0 +1,20 @@
+{
+  "sitemap": [
+    {
+      "path": "https://goldfishlab.app/sitemap.xml",
+      "lastSubmitted": "2026-10-01T08:00:00.000Z",
+      "isPending": false,
+      "isSitemapsIndex": false,
+      "type": "sitemap",
+      "lastDownloaded": "2026-11-05T10:12:00.000Z",
+      "warnings": "2",
+      "errors": "0",
+      "contents": [
+        {
+          "type": "web",
+          "submitted": "412"
+        }
+      ]
+    }
+  ]
+}

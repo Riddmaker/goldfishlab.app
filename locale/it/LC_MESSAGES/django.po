@@ -14259,3 +14259,1662 @@ msgid "Standard picture: this printing's art could not be loaded. Try again"
 msgstr ""
 "Immagine standard: non è stato possibile caricare l'illustrazione di questa "
 "stampa. Riprova"
+
+#: templates/base.html
+msgid ""
+"Some card abilities are read from the card scripts of <a "
+"href=\"https://github.com/Card-Forge/forge\" class=\"underline hover:text-"
+"ink-300\" rel=\"noopener\">Forge</a>, which is not affiliated with Goldfish "
+"Lab either."
+msgstr ""
+"Alcune abilità delle carte sono lette dagli script delle carte di <a "
+"href=\"https://github.com/Card-Forge/forge\" class=\"underline hover:text-"
+"ink-300\" rel=\"noopener\">Forge</a>, anch'esso non affiliato a Goldfish "
+"Lab."
+
+#: templates/decks/detail.html
+#, python-format
+msgid "target %(low)s–%(high)s (Karsten)"
+msgstr "obiettivo %(low)s–%(high)s (Karsten)"
+
+#: templates/decks/detail.html
+msgid "Watch the run"
+msgstr "Guarda la simulazione"
+
+#: templates/decks/detail.html
+msgid "Open the last report"
+msgstr "Apri l'ultimo report"
+
+#: templates/decks/detail.html
+msgid "Counts for Simulate and for Draw a hand."
+msgstr "Vale per «Simula» e per «Pesca una mano»."
+
+#: templates/decks/confirm_delete.html
+msgid "To delete it, type:"
+msgstr "Per eliminarlo, scrivi:"
+
+#: decks/forms.py
+msgid "Type it here"
+msgstr "Scrivilo qui"
+
+#: decks/forms.py
+msgid "That is not the word, so nothing was deleted."
+msgstr "Non è la parola, quindi non è stato eliminato nulla."
+
+#: templates/decks/detail.html
+msgid "by speed: simulate to see"
+msgstr "per velocità: simula per scoprirlo"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "by speed: at least %(number)s (last run)"
+msgstr "per velocità: almeno %(number)s (ultima simulazione)"
+
+#: templates/decks/detail.html
+msgid "by speed: not measured in the last run"
+msgstr "per velocità: non misurata nell'ultima simulazione"
+
+#: templates/simulations/_advanced.html
+msgid "Speed and the brackets, mana and lands turn by turn, engine and seed"
+msgstr "Velocità e bracket, mana e terre turno per turno, motore e seed"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, mana and lands turn by turn, what the engine cannot "
+"model, engine and seed"
+msgstr ""
+"Velocità e bracket, mana e terre turno per turno, cosa il motore non può "
+"modellare, motore e seed"
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"<strong class=\"text-parchment-100\">This is normal.</strong> Every deck has"
+" cards a game without opponents cannot fully play, for every player alike. "
+"It says nothing against your deck."
+msgstr ""
+"<strong class=\"text-parchment-100\">È normale.</strong> Ogni mazzo ha carte"
+" che una partita senza avversari non può giocare del tutto, per tutti i "
+"giocatori allo stesso modo. Non dice nulla contro il tuo mazzo."
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"What the engine does well: it plays your lands, mana, ramp and draws turn by"
+" turn, thousands of times, by the Commander rules."
+msgstr ""
+"Cosa il motore fa bene: gioca le tue terre, il mana, il ramp e le pescate "
+"turno per turno, migliaia di volte, secondo le regole del Commander."
+
+#: templates/simulations/_blindspots.html
+msgid ""
+"What goldfishing is for: how reliably your deck gets going - how soon the "
+"mana, the cards and the commander are there - before anybody interferes."
+msgstr ""
+"A cosa serve il goldfishing: quanto affidabilmente il tuo mazzo si avvia - "
+"quanto presto arrivano il mana, le carte e il comandante - prima che "
+"qualcuno intervenga."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, Paris, France) - writes the "
+"deck summary on a simulation report and picks cards for its strategies. Our "
+"server sends Mistral <strong>the deck's card names, their categories and "
+"counts, the commander, the mana curve, its combos, the odds of drawing each "
+"category, worked out from the list, and lists of cards from the card "
+"database that would fit it</strong> - nothing about you: not your email, not"
+" your account, not your deck's name, not your IP address. Mistral processes "
+"it in the EU, keeps each request for up to 30 days to detect abuse, then "
+"deletes it, and does not use it to train its models. You can switch "
+"summaries off under Settings on \"Your plan\", and then nothing is sent. <a "
+"href=\"https://legal.mistral.ai/terms\" class=\"underline hover:text-"
+"ink-700\" rel=\"noopener\">Mistral's terms</a>."
+msgstr ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, Parigi, Francia) - scrive il "
+"riassunto del deck in un report di simulazione e sceglie le carte per le sue"
+" strategie. Il nostro server invia a Mistral <strong>i nomi delle carte del "
+"deck, le loro categorie e quantità, il comandante, la curva di mana, le sue "
+"combo, le probabilità di pescare ogni categoria, calcolate dalla lista, e "
+"liste di carte del database delle carte che vi si adatterebbero</strong> - "
+"niente su di te: non la tua email, non il tuo account, non il nome del tuo "
+"deck, non il tuo indirizzo IP. Mistral li tratta nell'UE, conserva ogni "
+"richiesta per un massimo di 30 giorni per individuare abusi, poi la elimina,"
+" e non la usa per addestrare i suoi modelli. Puoi disattivare i riassunti in"
+" \"Impostazioni\" su \"Il tuo piano\", e a quel punto non viene inviato "
+"nulla. <a href=\"https://legal.mistral.ai/terms\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">Termini di Mistral</a>."
+
+#: templates/simulations/_summary_feedback.html
+msgid "Were the summary and the picks helpful?"
+msgstr "Il riassunto e i suggerimenti ti sono stati utili?"
+
+#: simulations/views.py
+msgid ""
+"Deck summaries are off. Switch them on again under Settings on Your plan."
+msgstr ""
+"I riassunti del deck sono disattivati. Riattivali in Impostazioni su Il tuo "
+"piano."
+
+#: templates/billing/plans.html
+msgid "Deck summaries"
+msgstr "Riassunti del deck"
+
+#: templates/billing/plans.html
+msgctxt "a setting"
+msgid "On"
+msgstr "Attivo"
+
+#: templates/billing/plans.html
+msgctxt "a setting"
+msgid "Off"
+msgstr "Disattivato"
+
+#: templates/billing/plans.html
+msgid ""
+"Mistral AI writes a short summary of each deck and picks cards for its "
+"strategies. For that your deck list goes to Mistral, and each new summary "
+"uses one simulation. Switch it off if you would rather not have AI text or "
+"want to save simulations."
+msgstr ""
+"Mistral AI scrive un breve riassunto di ogni mazzo e suggerisce carte per le"
+" sue strategie. Per questo la tua lista viene inviata a Mistral, e ogni "
+"nuovo riassunto usa una simulazione. Disattivalo se preferisci non avere "
+"testi scritti da un'IA o vuoi risparmiare simulazioni."
+
+#: templates/base.html
+msgid "Resources"
+msgstr "Risorse"
+
+#: templates/core/resources.html
+msgid ""
+"The videos and sites worth knowing about Commander: what it is, the rules "
+"and brackets, building a deck, and where players meet."
+msgstr ""
+"I video e i siti da conoscere sul Commander: cos'è, le regole e i bracket, "
+"come costruire un mazzo e dove si incontrano i giocatori."
+
+#: templates/core/resources.html
+msgid ""
+"The videos and sites we would send a friend who is new to Commander. None of"
+" them is ours, and nobody paid to be here."
+msgstr ""
+"I video e i siti che manderemmo a un amico che si avvicina al Commander. "
+"Nessuno è nostro, e nessuno ha pagato per essere qui."
+
+#: templates/core/resources.html
+msgid "Videos"
+msgstr "Video"
+
+#: templates/core/resources.html
+msgid "All in English. They open on YouTube."
+msgstr "Tutti in inglese. Si aprono su YouTube."
+
+#: templates/core/resources.html
+msgid "Sites"
+msgstr "Siti"
+
+#: templates/core/resources.html
+#, python-format
+msgid "%(minutes)s min"
+msgid_plural "%(minutes)s min"
+msgstr[0] "%(minutes)s min"
+msgstr[1] "%(minutes)s min"
+
+#: templates/core/resources.html
+#, python-format
+msgid ""
+"How Goldfish Lab itself works is on <a href=\"%(methodology_url)s\" "
+"class=\"underline hover:text-parchment-100\">How this works</a>."
+msgstr ""
+"Come funziona Goldfish Lab stesso è spiegato in <a "
+"href=\"%(methodology_url)s\" class=\"underline hover:text-"
+"parchment-100\">Come funziona</a>."
+
+#: core/resources.py
+msgid "What Commander is"
+msgstr "Cos'è il Commander"
+
+#: core/resources.py
+msgid "The rules and the brackets"
+msgstr "Le regole e i bracket"
+
+#: core/resources.py
+msgid "Building a deck"
+msgstr "Costruire un mazzo"
+
+#: core/resources.py
+msgid "Learning to play"
+msgstr "Imparare a giocare"
+
+#: core/resources.py
+msgid "Official"
+msgstr "Ufficiale"
+
+#: core/resources.py
+msgid "Building and keeping decks"
+msgstr "Costruire e gestire i mazzi"
+
+#: core/resources.py
+msgid "Looking things up"
+msgstr "Cercare informazioni"
+
+#: core/resources.py
+msgid "Players and news"
+msgstr "Giocatori e notizie"
+
+#: core/resources.py
+msgid ""
+"The whole format from the start: the command zone, the 100 cards, how a "
+"table of four plays."
+msgstr ""
+"Tutto il formato dall'inizio: la zona di comando, le 100 carte, come si "
+"gioca in quattro."
+
+#: core/resources.py
+msgid "Short and current: the format as it is played today."
+msgstr "Breve e aggiornato: il formato come si gioca oggi."
+
+#: core/resources.py
+msgid ""
+"Wizards of the Coast introduce the brackets themselves. The Game Changers "
+"list has changed since: the current one is on the official Commander page "
+"below."
+msgstr ""
+"Wizards of the Coast presenta i bracket in prima persona. La lista dei Game "
+"Changer è cambiata da allora: quella attuale è sulla pagina ufficiale del "
+"Commander più in basso."
+
+#: core/resources.py
+msgid ""
+"A designer at Wizards on what the brackets are for and how to use them at a "
+"table."
+msgstr ""
+"Un designer di Wizards spiega a cosa servono i bracket e come usarli al "
+"tavolo."
+
+#: core/resources.py
+msgid ""
+"How many lands, ramp, card draw and removal a deck wants - the template many"
+" players start from."
+msgstr ""
+"Quante terre, ramp, pescate e rimozioni servono a un mazzo - lo schema da "
+"cui partono molti giocatori."
+
+#: core/resources.py
+msgid ""
+"Turns, phases and combat, for anybody new to Magic itself. Not about "
+"Commander, but everything in it applies."
+msgstr ""
+"Turni, fasi e combattimento, per chi è nuovo a Magic. Non parla di "
+"Commander, ma tutto vale anche lì."
+
+#: core/resources.py
+msgid ""
+"The rules of the format in writing - commander tax, commander damage, colour"
+" identity - with the brackets and the current Game Changers."
+msgstr ""
+"Le regole del formato per iscritto - tassa del comandante, danno da "
+"comandante, identità di colore - con i bracket e i Game Changer attuali."
+
+#: core/resources.py
+msgid "The Comprehensive Rules, for when a question goes deep."
+msgstr "Le Comprehensive Rules, quando una domanda va a fondo."
+
+#: core/resources.py
+msgid "A visual deck builder; its CSV export imports here as it is."
+msgstr ""
+"Un costruttore di mazzi visivo; il suo export CSV si importa qui così com'è."
+
+#: core/resources.py
+msgid "A popular deck builder with a playtest mode."
+msgstr "Un costruttore di mazzi molto usato, con una modalità di prova."
+
+#: core/resources.py
+msgid "An app that scans your cards and keeps your collection and decks."
+msgstr "Un'app che scansiona le tue carte e gestisce collezione e mazzi."
+
+#: core/resources.py
+msgid ""
+"Every card, with its full rules text and rulings. Our card data comes from "
+"here."
+msgstr ""
+"Ogni carta, con il testo completo delle regole e i chiarimenti. I nostri "
+"dati sulle carte vengono da qui."
+
+#: core/resources.py
+msgid "Which cards other players run with your commander."
+msgstr "Quali carte giocano gli altri con il tuo comandante."
+
+#: core/resources.py
+msgid ""
+"Combos, searchable by the cards in your deck. The combos in a report come "
+"from here."
+msgstr ""
+"Combo, cercabili per le carte del tuo mazzo. Le combo di un report vengono "
+"da qui."
+
+#: core/resources.py
+msgid "The official Discord server of Wizards of the Coast."
+msgstr "Il server Discord ufficiale di Wizards of the Coast."
+
+#: core/resources.py
+msgid "The largest Commander community on Reddit."
+msgstr "La più grande community di Commander su Reddit."
+
+#: core/resources.py
+msgid "News and talk about all of Magic."
+msgstr "Notizie e discussioni su tutto Magic."
+
+#: core/resources.py
+msgid "News, budget decks and strategy articles."
+msgstr "Notizie, mazzi economici e articoli di strategia."
+
+#: cards/themes.py
+msgid "Typal"
+msgstr "Typal"
+
+#: cards/themes.py
+msgid "Aristocrats"
+msgstr "Aristocratici"
+
+#: cards/themes.py
+msgid "Reanimator"
+msgstr "Reanimator"
+
+#: cards/themes.py
+msgid "Spellslinger"
+msgstr "Spellslinger"
+
+#: cards/themes.py
+msgid "Landfall"
+msgstr "Approdo"
+
+#: cards/themes.py
+msgid "Voltron"
+msgstr "Voltron"
+
+#: cards/themes.py
+msgid "Artifacts"
+msgstr "Artefatti"
+
+#: cards/themes.py
+msgid "Enchantments"
+msgstr "Incantesimi"
+
+#: cards/themes.py
+msgid "Runs many creatures of one type, and cards that reward that type."
+msgstr "Gioca molte creature di un solo tipo e carte che premiano quel tipo."
+
+#: cards/themes.py
+msgid ""
+"Takes what opponents own - their creatures, their spells, the top of their "
+"library - and plays it for you."
+msgstr ""
+"Prende ciò che appartiene agli avversari - le loro creature, le loro magie, "
+"la cima del loro grimorio - e lo gioca per te."
+
+#: cards/themes.py
+msgid ""
+"Sacrifices its own creatures on purpose, and is paid each time one dies."
+msgstr ""
+"Sacrifica di proposito le proprie creature e ottiene qualcosa ogni volta che"
+" una muore."
+
+#: cards/themes.py
+msgid "Fills the table with creature tokens and makes them count."
+msgstr "Riempie il tavolo di pedine creatura e le fa contare."
+
+#: cards/themes.py
+msgid ""
+"Puts big creatures into its graveyard on purpose, then brings them back "
+"cheaply."
+msgstr ""
+"Mette di proposito grandi creature nel cimitero, poi le riporta indietro a "
+"poco prezzo."
+
+#: cards/themes.py
+msgid ""
+"Uses its graveyard as a second hand: casts, activates and counts what is in "
+"it."
+msgstr ""
+"Usa il cimitero come una seconda mano: lancia, attiva e conta ciò che "
+"contiene."
+
+#: cards/themes.py
+msgid "Casts many instants and sorceries, and is rewarded for each one."
+msgstr "Lancia molti istantanei e stregonerie, e viene premiato per ognuno."
+
+#: cards/themes.py
+msgid "Puts +1/+1 counters on its creatures and grows them turn after turn."
+msgstr ""
+"Mette segnalini +1/+1 sulle proprie creature e le fa crescere turno dopo "
+"turno."
+
+#: cards/themes.py
+msgid "Plays extra lands and is paid every time one enters."
+msgstr "Gioca terre extra e ottiene qualcosa ogni volta che ne entra una."
+
+#: cards/themes.py
+msgid ""
+"Dresses up one creature - usually the commander - with Equipment and Auras, "
+"and wins through commander damage."
+msgstr ""
+"Equipaggia una creatura - di solito il comandante - con Equipaggiamenti e "
+"Aure, e vince con il danno da comandante."
+
+#: cards/themes.py
+msgid "Gains life again and again, and turns each gain into something."
+msgstr ""
+"Guadagna punti vita ancora e ancora, e trasforma ogni guadagno in qualcosa."
+
+#: cards/themes.py
+msgid "Runs many artifacts and counts them."
+msgstr "Gioca molti artefatti e li conta."
+
+#: cards/themes.py
+msgid "Runs many enchantments and draws or grows from each one."
+msgstr "Gioca molti incantesimi e pesca o cresce con ognuno."
+
+#: cards/themes.py
+msgid ""
+"Makes Treasure tokens again and again, and spends or sacrifices them for "
+"more."
+msgstr ""
+"Crea pedine Tesoro ancora e ancora, e le spende o le sacrifica per ottenere "
+"di più."
+
+#: cards/themes.py
+msgid "Creatures of the type"
+msgstr "Creature del tipo"
+
+#: cards/themes.py
+msgid "Rewards that type"
+msgstr "Premia quel tipo"
+
+#: cards/themes.py
+msgid "Takes control or casts their cards"
+msgstr "Prende il controllo o lancia le loro carte"
+
+#: cards/themes.py
+msgid "Sacrifices what it took"
+msgstr "Sacrifica ciò che ha preso"
+
+#: cards/themes.py
+msgid "Pays off when a creature dies"
+msgstr "Ripaga quando muore una creatura"
+
+#: cards/themes.py
+msgid "Makes bodies to sacrifice"
+msgstr "Crea corpi da sacrificare"
+
+#: cards/themes.py
+msgid "Makes creature tokens"
+msgstr "Crea pedine creatura"
+
+#: cards/themes.py
+msgid "Gets better with many tokens"
+msgstr "Migliora con molte pedine"
+
+#: cards/themes.py
+msgid "Brings creatures back from a graveyard"
+msgstr "Riporta creature da un cimitero"
+
+#: cards/themes.py
+msgid "Fills the graveyard"
+msgstr "Riempie il cimitero"
+
+#: cards/themes.py
+msgid "Plays from or counts the graveyard"
+msgstr "Gioca dal cimitero o lo conta"
+
+#: cards/themes.py
+msgid "Rewards casting spells"
+msgstr "Premia il lancio di magie"
+
+#: cards/themes.py
+msgid "Instants and sorceries"
+msgstr "Istantanei e stregonerie"
+
+#: cards/themes.py
+msgid "Cares about counters or doubles them"
+msgstr "Si interessa ai segnalini o li raddoppia"
+
+#: cards/themes.py
+msgid "Puts +1/+1 counters"
+msgstr "Mette segnalini +1/+1"
+
+#: cards/themes.py
+msgid "Pays off when a land enters"
+msgstr "Ripaga quando entra una terra"
+
+#: cards/themes.py
+msgid "Puts extra lands into play"
+msgstr "Mette in gioco terre extra"
+
+#: cards/themes.py
+msgid "Equipment and Auras for your own creatures"
+msgstr "Equipaggiamenti e Aure per le tue creature"
+
+#: cards/themes.py
+msgid "Gets better when equipped or enchanted"
+msgstr "Migliora quando è equipaggiata o incantata"
+
+#: cards/themes.py
+msgid "Keeps that creature safe"
+msgstr "Protegge quella creatura"
+
+#: cards/themes.py
+msgid "Pays off when you gain life"
+msgstr "Ripaga quando guadagni punti vita"
+
+#: cards/themes.py
+msgid "Gains life again and again"
+msgstr "Guadagna punti vita ancora e ancora"
+
+#: cards/themes.py
+msgid "Counts or rewards artifacts"
+msgstr "Conta o premia gli artefatti"
+
+#: cards/themes.py
+msgid "Counts or rewards enchantments"
+msgstr "Conta o premia gli incantesimi"
+
+#: cards/themes.py
+msgid "Makes Treasure again and again"
+msgstr "Crea Tesori ancora e ancora"
+
+#: cards/themes.py
+msgid "Rewards Treasure or artifacts leaving"
+msgstr "Premia l'uscita di Tesori o artefatti"
+
+#: templates/decks/_themes.html
+msgid "Built around"
+msgstr "Costruito attorno a"
+
+#: templates/decks/_themes.html
+msgid "No card yet."
+msgstr "Ancora nessuna carta."
+
+#: templates/decks/_themes.html
+#, python-format
+msgid ""
+"Fill %(fill)s: each piece's share of what it needs, the first piece counting"
+" double. Strong from 0.75, medium from 0.5, hinted from 0.4."
+msgstr ""
+"Riempimento %(fill)s: la quota di ogni pezzo rispetto a ciò che gli serve, "
+"il primo conta doppio. Forte da 0,75, medio da 0,5, accennato da 0,4."
+
+#: templates/decks/_themes.html
+msgid "No theme we know of. Plenty of good decks have no single plan."
+msgstr ""
+"Nessun tema che conosciamo. Molti buoni mazzi non hanno un unico piano."
+
+#: templates/simulations/_report.html
+msgid "Building blocks"
+msgstr "Componenti"
+
+#: templates/simulations/_report.html
+msgid ""
+"What the deck's plan is made of. Games with at least one, by the end of each"
+" turn."
+msgstr ""
+"Di cosa è fatto il piano del mazzo. Partite con almeno una, alla fine di "
+"ogni turno."
+
+#: templates/simulations/_report.html
+msgid "Share of games with at least one card of each building block, by turn"
+msgstr "Quota di partite con almeno una carta di ogni componente, per turno"
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"Also in the deck, seen less often: %(labels)s. Their numbers are below."
+msgstr ""
+"Anche nel mazzo, viste meno spesso: %(labels)s. I loro numeri sono qui "
+"sotto."
+
+#: templates/simulations/_strategies.html
+msgid ""
+"The odds are calculated from your list: a hand of 7, one draw a turn, no "
+"mulligan. What this run measured is in “By category” and “Building blocks” "
+"above."
+msgstr ""
+"Le probabilità sono calcolate dalla tua lista: una mano da 7, una pescata "
+"per turno, nessun mulligan. Ciò che ha misurato questa simulazione è in “Per"
+" categoria” e “Componenti” qui sopra."
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Building blocks</strong> are the strategies and mechanics in one "
+"chart, the most often seen first. It draws eight lines at most; the rest are"
+" named under it, and its numbers hold every one."
+msgstr ""
+"I <strong>componenti</strong> sono le strategie e le meccaniche in un solo "
+"grafico, le più viste per prime. Disegna al massimo otto linee; le altre "
+"sono nominate sotto, e i suoi numeri le contengono tutte."
+
+#: templates/core/methodology.html
+msgid ""
+"On the deck page, <strong>Built around</strong> names the themes the cards "
+"point to, such as Aristocrats, Landfall or a creature type, read from the "
+"community's card tags. A theme has pieces: the cards that pay off, and the "
+"cards that feed them. It is strong, medium or hinted by how full its pieces "
+"are, the first counting double, and a piece with no card keeps it at hinted."
+" A deck with no theme gets none: we do not guess."
+msgstr ""
+"Nella pagina del mazzo, <strong>Costruito attorno a</strong> nomina i temi a"
+" cui puntano le carte, come Aristocratici, Approdo o un tipo di creatura, "
+"letti dai tag delle carte della community. Un tema ha dei pezzi: le carte "
+"che ripagano e quelle che le alimentano. È forte, medio o accennato a "
+"seconda di quanto sono pieni i suoi pezzi, il primo conta doppio, e un pezzo"
+" senza carte lo tiene ad accennato. Un mazzo senza tema non ne riceve: non "
+"tiriamo a indovinare."
+
+#: templates/decks/_themes.html
+msgctxt "theme level"
+msgid "strong"
+msgstr "forte"
+
+#: templates/decks/_themes.html
+msgctxt "theme level"
+msgid "medium"
+msgstr "medio"
+
+#: templates/decks/_themes.html
+msgctxt "theme level"
+msgid "hinted"
+msgstr "accennato"
+
+#: templates/decks/_themes.html
+#, python-format
+msgid "%(count)s, wants %(need)s"
+msgstr "%(count)s, ne servono %(need)s"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s sacrifices"
+msgstr "%(card)s sacrifica"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s takes what an opponent owns"
+msgstr "%(card)s prende ciò che appartiene a un avversario"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s sacrifices what was taken"
+msgstr "%(card)s sacrifica ciò che è stato preso"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s pays off each death"
+msgstr "%(card)s premia ogni morte"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s brings more bodies"
+msgstr "%(card)s porta nuovi corpi"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s makes tokens"
+msgstr "%(card)s crea pedine"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s makes them count"
+msgstr "%(card)s le fa contare"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s brings them back"
+msgstr "%(card)s le riporta indietro"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s fills the graveyard"
+msgstr "%(card)s riempie il cimitero"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s plays from the graveyard"
+msgstr "%(card)s gioca dal cimitero"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards each spell"
+msgstr "%(card)s premia ogni magia"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s is a spell to cast"
+msgstr "%(card)s è una magia da lanciare"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the counters"
+msgstr "%(card)s premia i segnalini"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s puts +1/+1 counters"
+msgstr "%(card)s mette segnalini +1/+1"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s pays off each land"
+msgstr "%(card)s premia ogni terra"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s puts extra lands into play"
+msgstr "%(card)s mette in gioco terre extra"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s dresses a creature up"
+msgstr "%(card)s equipaggia una creatura"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s grows when dressed up"
+msgstr "%(card)s cresce quando è equipaggiato"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s keeps it safe"
+msgstr "%(card)s la protegge"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s pays off each gain"
+msgstr "%(card)s premia ogni guadagno di vita"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s gains life"
+msgstr "%(card)s fa guadagnare punti vita"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the artifacts"
+msgstr "%(card)s premia gli artefatti"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s is one more artifact"
+msgstr "%(card)s è un artefatto in più"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the enchantments"
+msgstr "%(card)s premia gli incantesimi"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s is one more enchantment"
+msgstr "%(card)s è un incantesimo in più"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s makes Treasure"
+msgstr "%(card)s crea Tesori"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s rewards the Treasure"
+msgstr "%(card)s premia i Tesori"
+
+#: templates/decks/detail.html
+msgid "Combos & engines"
+msgstr "Combo e motori"
+
+#: templates/decks/_engines.html
+msgid "Engines"
+msgstr "Motori"
+
+#: templates/decks/_engines.html
+msgid ""
+"Cards that together make value again and again, read from what the deck is "
+"built around."
+msgstr ""
+"Carte che insieme producono valore ancora e ancora, lette da ciò attorno a "
+"cui è costruito il mazzo."
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(have)s of %(pieces)s pieces. Still missing:"
+msgstr "%(have)s pezzi su %(pieces)s. Manca ancora:"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid ""
+"Works again and again: %(cards)s. An engine needs at least one such card; "
+"its level is its theme's."
+msgstr ""
+"Agisce ancora e ancora: %(cards)s. Un motore ha bisogno di almeno una carta "
+"così; il suo livello è quello del suo tema."
+
+#: templates/decks/_engines.html
+msgid ""
+"No engine yet: none of this deck's themes has a card that works again and "
+"again."
+msgstr ""
+"Ancora nessun motore: nessuno dei temi di questo mazzo ha una carta che "
+"agisce ancora e ancora."
+
+#: templates/decks/_engines.html
+msgid ""
+"No engine: engines come from what a deck is built around, and we found no "
+"theme."
+msgstr ""
+"Nessun motore: i motori nascono da ciò attorno a cui è costruito un mazzo, e"
+" non abbiamo trovato alcun tema."
+
+#: templates/decks/_engines.html
+msgid "Synergies"
+msgstr "Sinergie"
+
+#: templates/decks/_engines.html
+msgid "Two cards one of the deck's themes joins, the strongest first."
+msgstr "Due carte che uno dei temi del mazzo unisce, le più forti per prime."
+
+#: templates/decks/_pair.html
+#, python-format
+msgid ""
+"Rule %(weight)s × rarity %(first)s × %(second)s × fill %(density)s = "
+"%(score)s. A rare tag is a stronger sign than a broad one; the fill is the "
+"theme's in this deck."
+msgstr ""
+"Regola %(weight)s × rarità %(first)s × %(second)s × riempimento %(density)s "
+"= %(score)s. Un tag raro è un segnale più forte di uno comune; il "
+"riempimento è quello del tema in questo mazzo."
+
+#: templates/core/methodology.html
+msgid "Engines and synergies"
+msgstr "Motori e sinergie"
+
+#: templates/core/methodology.html
+msgid ""
+"Engines and synergies are read from what the deck is <strong>built "
+"around</strong>, by fixed rules over Scryfall's Tagger tags and our own "
+"reading of the cards, never by an AI. A deck with no theme has none, and a "
+"stray card outside a theme pairs with nothing."
+msgstr ""
+"Motori e sinergie si leggono da ciò attorno a cui il mazzo è "
+"<strong>costruito</strong>, con regole fisse sui tag Tagger di Scryfall e "
+"sulla nostra lettura delle carte, mai da un'IA. Un mazzo senza tema non ne "
+"ha, e una carta isolata fuori da un tema non fa coppia con nulla."
+
+#: templates/core/methodology.html
+msgid ""
+"A <strong>synergy</strong> is two cards one of the theme's rules joins: one "
+"serves the other, as a sacrifice outlet serves a card that pays off each "
+"death. Its strength is the rule's weight, times how rare the tags are that "
+"put each card in its part of the plan (a tag on few cards is a stronger sign"
+" than one on thousands), times how full the theme is in this deck."
+msgstr ""
+"Una <strong>sinergia</strong> sono due carte che una regola del tema unisce:"
+" una serve l'altra, come un modo di sacrificare serve una carta che premia "
+"ogni morte. La sua forza è il peso della regola, per la rarità dei tag che "
+"mettono ogni carta nella sua parte del piano (un tag su poche carte è un "
+"segnale più forte di uno su migliaia), per quanto è pieno il tema in questo "
+"mazzo."
+
+#: templates/core/methodology.html
+msgid ""
+"An <strong>engine</strong> is one card for each part of a theme, two to four"
+" cards that make value together again and again: at least one of them has to"
+" work more than once, an ability you can activate or one that waits for "
+"something to happen. It carries its theme's level. An engine a part short "
+"names what is missing."
+msgstr ""
+"Un <strong>motore</strong> è una carta per ogni parte di un tema, da due a "
+"quattro carte che insieme producono valore ancora e ancora: almeno una deve "
+"agire più di una volta, con un'abilità che puoi attivare o che attende un "
+"evento. Porta il livello del suo tema. Un motore a cui manca una parte dice "
+"cosa manca."
+
+#: cards/synergy.py
+msgctxt "joins clauses"
+msgid ", "
+msgstr ", "
+
+#: cards/synergy.py
+msgctxt "ends a sentence"
+msgid "."
+msgstr "."
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(count)s more pair"
+msgid_plural "%(count)s more pairs"
+msgstr[0] "%(count)s altra coppia"
+msgstr[1] "%(count)s altre coppie"
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(count)s weaker pair of the same kinds is not listed."
+msgid_plural "%(count)s weaker pairs of the same kinds are not listed."
+msgstr[0] "%(count)s coppia più debole dello stesso tipo non è elencata."
+msgstr[1] "%(count)s coppie più deboli dello stesso tipo non sono elencate."
+
+#: templates/decks/_mark.html
+msgid "Locked"
+msgstr "Bloccato"
+
+#: templates/decks/_mark.html
+msgid "Unlock"
+msgstr "Sblocca"
+
+#: templates/decks/_mark.html
+msgid "Bring back"
+msgstr "Ripristina"
+
+#: templates/decks/_mark.html
+msgid "Lock this engine: it stays, whatever the list becomes"
+msgstr "Blocca questo motore: resta, qualunque cosa diventi la lista"
+
+#: templates/decks/_mark.html
+msgid "Dismiss this engine: it will not be suggested again"
+msgstr "Scarta questo motore: non verrà più proposto"
+
+#: templates/decks/_mark.html
+msgid "Lock this pair: it stays, whatever the list becomes"
+msgstr "Blocca questa coppia: resta, qualunque cosa diventi la lista"
+
+#: templates/decks/_mark.html
+msgid "Dismiss this pair: it will not be suggested again"
+msgstr "Scarta questa coppia: non verrà più proposta"
+
+#: templates/decks/_gone.html
+#, python-format
+msgid "Resting, a card is missing: %(cards)s. It is back when the card is."
+msgid_plural ""
+"Resting, cards are missing: %(cards)s. It is back when they are."
+msgstr[0] "In pausa, manca una carta: %(cards)s. Torna quando torna la carta."
+msgstr[1] ""
+"In pausa, mancano delle carte: %(cards)s. Torna quando tornano loro."
+
+#: templates/decks/_engines.html
+msgid "No engine left: you dismissed the ones we found."
+msgstr "Nessun motore rimasto: hai scartato quelli che abbiamo trovato."
+
+#: templates/decks/_engines.html
+#, python-format
+msgid "%(count)s dismissed"
+msgid_plural "%(count)s dismissed"
+msgstr[0] "%(count)s scartato"
+msgstr[1] "%(count)s scartati"
+
+#: cards/synergy.py
+msgid "an unknown card"
+msgstr "una carta sconosciuta"
+
+#: templates/core/methodology.html
+msgid ""
+"You can <strong>lock</strong> an engine or a pair, or "
+"<strong>dismiss</strong> it. We store only that, by its cards: a locked one "
+"stays first, even if the rules stop finding it; a dismissed one is not "
+"suggested again, and you can bring it back. When one of its cards leaves the"
+" deck, it rests until the card is back. Everything else is read again from "
+"your list on every visit."
+msgstr ""
+"Puoi <strong>bloccare</strong> un motore o una coppia, oppure "
+"<strong>scartarlo</strong>. Salviamo solo questo, in base alle carte: ciò "
+"che è bloccato resta in cima, anche se le regole non lo trovano più; ciò che"
+" è scartato non viene più proposto, e puoi ripristinarlo. Quando una delle "
+"sue carte lascia il mazzo, resta in pausa finché la carta non torna. Tutto "
+"il resto viene riletto dalla tua lista a ogni visita."
+
+#: templates/decks/_engines.html
+#, python-format
+msgid ""
+"Running by turn %(turn)s in <strong>%(share)s</strong> of games, in your "
+"last run."
+msgstr ""
+"In funzione entro il turno %(turn)s nel <strong>%(share)s</strong> delle "
+"partite, nella tua ultima simulazione."
+
+#: templates/decks/_engines.html
+msgid "Not measured yet: your next simulation shows by which turn it runs."
+msgstr ""
+"Non ancora misurato: la tua prossima simulazione mostra entro quale turno è "
+"in funzione."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"Running means one card of each role is out, measured over %(games)s games."
+msgstr ""
+"In funzione significa che una carta per ogni ruolo è in gioco, misurato su "
+"%(games)s partite."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"%(label)s: running by turn %(turn)s in <strong>%(share)s</strong> of games."
+msgstr ""
+"%(label)s: in funzione entro il turno %(turn)s nel "
+"<strong>%(share)s</strong> delle partite."
+
+#: templates/core/methodology.html
+msgid ""
+"A simulation also measures <strong>by which turn each engine runs</strong>: "
+"at the end of a turn, every part of it has a card out, any card of the deck "
+"that fills that part, not only the ones the engine names. A permanent counts"
+" on the battlefield, an instant or a sorcery in hand, ready to cast; the "
+"commander counts once it is cast. Up to five engines, one per theme, locked "
+"ones first; one a part short or resting is not measured. It is read in the "
+"run's own games, so it costs nothing extra."
+msgstr ""
+"Una simulazione misura anche <strong>entro quale turno ogni motore è in "
+"funzione</strong>: alla fine di un turno, ogni sua parte ha una carta in "
+"gioco, qualsiasi carta del mazzo che ricopre quella parte, non solo quelle "
+"che il motore nomina. Un permanente conta sul campo di battaglia, un "
+"istantaneo o una stregoneria in mano, pronti da lanciare; il comandante "
+"conta appena è stato lanciato. Fino a cinque motori, uno per tema, prima "
+"quelli bloccati; uno a cui manca una parte o che è a riposo non viene "
+"misurato. Si misura nelle partite della simulazione stessa, quindi non costa"
+" nulla in più."
+
+#: templates/decks/_engines.html
+msgid "Written by Mistral AI. It can be wrong."
+msgstr "Scritto da Mistral AI. Può sbagliare."
+
+#: templates/core/methodology.html
+msgid ""
+"With deck summaries switched on, the summary also says <strong>how each "
+"engine plays</strong>, in a sentence or two under it: which card to get out "
+"first, what to protect, what stops it. Mistral AI writes that with the rest "
+"of the summary, from the engine's cards, so it costs nothing extra and can "
+"be wrong. The engine itself is still found by the rules."
+msgstr ""
+"Con i riassunti del mazzo attivi, il riassunto dice anche <strong>come gioca"
+" ogni motore</strong>, in una o due frasi sotto: quale carta mettere in "
+"campo per prima, cosa proteggere, cosa lo ferma. Mistral AI lo scrive "
+"insieme al resto del riassunto, dalle carte del motore, quindi non costa "
+"nulla in più e può sbagliare. Il motore stesso lo trovano sempre le regole."
+
+#: templates/simulations/_summary.html
+msgid "Run a simulation to fill this."
+msgstr "Avvia una simulazione per riempire questa parte."
+
+#: templates/simulations/_summary.html
+msgid "The summary is written with your first run."
+msgstr "Il riassunto viene scritto con la tua prima simulazione."
+
+#: templates/simulations/_summary.html
+msgid ""
+"Written by Mistral AI. It can be wrong. Its numbers are calculated from your"
+" list, not measured in a run."
+msgstr ""
+"Scritto da Mistral AI. Può sbagliare. I suoi numeri sono calcolati dalla tua"
+" lista, non misurati in una simulazione."
+
+#: templates/simulations/_strategies.html
+msgid ""
+"The odds are calculated from your list: a hand of 7, one draw a turn, no "
+"mulligan."
+msgstr ""
+"Le probabilità sono calcolate dalla tua lista: una mano da 7, una pescata "
+"per turno, nessun mulligan."
+
+#: templates/simulations/_measured.html
+#, python-format
+msgid ""
+"The deck summary and your strategies are on the <a "
+"href=\"%(deck_url)s#summary\" class=\"underline\">deck page</a>."
+msgstr ""
+"Il riassunto del deck e le tue strategie sono nella <a "
+"href=\"%(deck_url)s#summary\" class=\"underline\">pagina del deck</a>."
+
+#: templates/simulations/_measured.html
+msgid "This run measured no combo and no engine."
+msgstr "Questa simulazione non ha misurato né combo né motori."
+
+#: templates/core/privacy.html
+msgid ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, Paris, France) - writes the "
+"deck summary on the deck page and picks cards for its strategies. Our server"
+" sends Mistral <strong>the deck's card names, their categories and counts, "
+"the commander, the mana curve, its combos, the odds of drawing each "
+"category, worked out from the list, and lists of cards from the card "
+"database that would fit it</strong> - nothing about you: not your email, not"
+" your account, not your deck's name, not your IP address. Mistral processes "
+"it in the EU, keeps each request for up to 30 days to detect abuse, then "
+"deletes it, and does not use it to train its models. You can switch "
+"summaries off under \"Hide summaries\" on a report, and then nothing is "
+"sent. <a href=\"https://legal.mistral.ai/terms\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">Mistral's terms</a>."
+msgstr ""
+"<strong>Mistral AI</strong> (Mistral AI SAS, Parigi, Francia) - scrive il "
+"riassunto del deck nella pagina del deck e sceglie le carte per le sue "
+"strategie. Il nostro server invia a Mistral <strong>i nomi delle carte del "
+"deck, le loro categorie e quantità, il comandante, la curva di mana, le sue "
+"combo, le probabilità di pescare ogni categoria, calcolate dalla lista, e "
+"liste di carte del database delle carte che vi si adatterebbero</strong> - "
+"niente su di te: non la tua email, non il tuo account, non il nome del tuo "
+"deck, non il tuo indirizzo IP. Mistral li tratta nell'UE, conserva ogni "
+"richiesta per un massimo di 30 giorni per individuare abusi, poi la elimina,"
+" e non la usa per addestrare i suoi modelli. Puoi disattivare i riassunti "
+"con \"Nascondi i riassunti\" in un report, e a quel punto non viene inviato "
+"nulla. <a href=\"https://legal.mistral.ai/terms\" class=\"underline "
+"hover:text-ink-700\" rel=\"noopener\">Termini di Mistral</a>."
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value 7 or more"
+msgid_plural "%(count)s spells at mana value 7 or more"
+msgstr[0] "%(count)s magia con valore di mana 7 o più"
+msgstr[1] "%(count)s magie con valore di mana 7 o più"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "%(count)s spell at mana value %(value)s"
+msgid_plural "%(count)s spells at mana value %(value)s"
+msgstr[0] "%(count)s magia con valore di mana %(value)s"
+msgstr[1] "%(count)s magie con valore di mana %(value)s"
+
+#: templates/decks/detail.html
+msgid "Commander out"
+msgstr "Comandante in campo"
+
+#: templates/decks/detail.html
+msgid "simulate to see"
+msgstr "simula per vederlo"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "by turn %(turn)s"
+msgstr "entro il turno %(turn)s"
+
+#: templates/decks/detail.html
+#, python-format
+msgid "not by turn %(turn)s"
+msgstr "non entro il turno %(turn)s"
+
+#: templates/decks/detail.html
+msgid "in half the games, last run"
+msgstr "in metà delle partite, ultima simulazione"
+
+#: templates/decks/list.html
+#, python-format
+msgid "simulated %(date)s"
+msgstr "simulato il %(date)s"
+
+#: templates/decks/list.html
+msgid "not simulated yet"
+msgstr "non ancora simulato"
+
+#: templates/core/_why.html
+msgctxt "explanation link"
+msgid "More"
+msgstr "Per saperne di più"
+
+#: templates/simulations/_report.html
+msgid "What your games start with: your opening hand and every card you drew."
+msgstr ""
+"Con cosa iniziano le tue partite: la tua mano iniziale e ogni carta che hai "
+"pescato."
+
+#: templates/simulations/_report.html
+msgid ""
+"How soon your deck gets going: the share of games where each was true by the"
+" end of each turn."
+msgstr ""
+"Quanto presto il tuo mazzo si mette in moto: la quota di partite in cui era "
+"vero alla fine di ogni turno."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How well your deck gets back up when an opponent hits it: the same games, "
+"once as they went and once struck, side by side on turn %(turn)s. Each blow "
+"is an assumption, said beside it."
+msgstr ""
+"Quanto bene il tuo mazzo si rialza quando un avversario lo colpisce: le "
+"stesse partite, una volta come sono andate e una volta colpite, fianco a "
+"fianco al turno %(turn)s. Ogni colpo è un'ipotesi, indicata accanto."
+
+#: templates/simulations/_report.html
+msgid ""
+"Whether your mana pays for your spells' colours: how much of each colour it "
+"could pay, on average."
+msgstr ""
+"Se il tuo mana paga i colori delle tue magie: quanto di ogni colore poteva "
+"pagare, in media."
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Your mana in a bad game, not only an average one: p10 is the game that goes "
+"wrong."
+msgstr ""
+"Il tuo mana in una partita storta, non solo in media: p10 è la partita che "
+"va male."
+
+#: templates/simulations/_engines.html
+#, python-format
+msgid ""
+"How soon each engine starts paying off: running means one card of each role "
+"is out, measured over %(games)s games."
+msgstr ""
+"Quanto presto ogni motore inizia a rendere: in funzione significa che una "
+"carta per ogni ruolo è in gioco, misurato su %(games)s partite."
+
+#: templates/simulations/_combos.html
+#, python-format
+msgid ""
+"How soon a combo can end the game: Commander Spellbook's combos, measured "
+"over %(games)s games."
+msgstr ""
+"Quanto presto una combo può chiudere la partita: le combo di Commander "
+"Spellbook, misurate su %(games)s partite."
+
+#: templates/simulations/_attention.html templates/sharing/_body.html
+msgid "The more it reads, the more the numbers tell."
+msgstr "Più ne legge, più i numeri dicono."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"Where your deck stands next to %(precons)s Commander precon, each played the"
+" same way."
+msgid_plural ""
+"Where your deck stands next to %(precons)s Commander precons, each played "
+"the same way."
+msgstr[0] ""
+"Dove si colloca il tuo mazzo accanto a %(precons)s precon Commander, ognuno "
+"giocato allo stesso modo."
+msgstr[1] ""
+"Dove si colloca il tuo mazzo accanto a %(precons)s precon Commander, ognuno "
+"giocato allo stesso modo."
+
+#: templates/simulations/_report.html
+msgid "Ahead of every precon."
+msgstr "Davanti a ogni precon."
+
+#: templates/simulations/_report.html
+msgid "Behind or level with every precon."
+msgstr "Dietro o alla pari con ogni precon."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "Ahead of %(ahead)s of %(total)s precon."
+msgid_plural "Ahead of %(ahead)s of %(total)s precons."
+msgstr[0] "Davanti a %(ahead)s precon su %(total)s."
+msgstr[1] "Davanti a %(ahead)s precon su %(total)s."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid "The precons' middle: %(middle)s."
+msgstr "Il centro dei precon: %(middle)s."
+
+#: templates/simulations/_report.html
+msgid ""
+"Your games were on the play, the precons' on the draw: by turn 4 they have "
+"drawn one card more."
+msgstr ""
+"Le tue partite erano in prima mano, quelle dei precon in seconda: al turno 4"
+" hanno pescato una carta in più."
+
+#: templates/simulations/_report.html
+msgid "Every precon, side by side"
+msgstr "Tutti i precon fianco a fianco"
+
+#: templates/simulations/_advanced.html
+msgid "How exact the numbers are"
+msgstr "Quanto sono precisi i numeri"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, how exact the numbers are, mana and lands turn by "
+"turn, engine and seed"
+msgstr ""
+"Velocità e bracket, quanto sono precisi i numeri, mana e terre turno per "
+"turno, motore e seed"
+
+#: templates/simulations/_advanced.html
+msgid ""
+"Speed and the brackets, how exact the numbers are, mana and lands turn by "
+"turn, what the engine cannot model, engine and seed"
+msgstr ""
+"Velocità e bracket, quanto sono precisi i numeri, mana e terre turno per "
+"turno, cosa il motore non può modellare, motore e seed"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>In short</strong>, at the top of a report, sets three of its numbers"
+" next to every Commander precon's, each played the same way: ten thousand "
+"games, on the draw. A faint tick is a precon, the tall mark is your deck, "
+"and \"the middle\" is the precon in the middle. A precon's own page leaves "
+"that precon out, and with fewer than five precons played there is nothing to"
+" compare with."
+msgstr ""
+"<strong>In breve</strong>, in cima a un report, mette tre dei suoi numeri "
+"accanto a quelli di ogni precon Commander, ognuno giocato allo stesso modo: "
+"diecimila partite, in seconda mano. Un trattino chiaro è un precon, il segno"
+" alto è il tuo mazzo, e «il centro» è il precon nel mezzo. La pagina di un "
+"precon lascia fuori quel precon, e con meno di cinque precon giocati non c'è"
+" niente da confrontare."
+
+#: simulations/report.py
+#, python-format
+msgid "Without the wipe: %(base)s."
+msgstr "Senza la spazzata: %(base)s."
+
+#: simulations/report.py
+#, python-format
+msgid "mana on turn %(turn)s after the wipe"
+msgstr "mana al turno %(turn)s dopo la spazzata"
+
+#: simulations/report.py
+#, python-format
+msgid "of games had your commander back by turn %(turn)s"
+msgstr "delle partite: il tuo comandante era tornato entro il turno %(turn)s"
+
+#: simulations/report.py
+#, python-format
+msgid "The very next turn: %(next)s."
+msgstr "Già il turno dopo: %(next)s."
+
+#: templates/core/methodology.html
+msgid ""
+"On a report each blow is a card with one number, how fast the deck comes "
+"back: for the commander, the share of games it was back by the last turn; "
+"for the wipe, the mana on that turn. \"The numbers\" below them set the same"
+" games side by side, with the blow and without it."
+msgstr ""
+"In un report ogni colpo è una carta con un solo numero, quanto in fretta il "
+"mazzo si riprende: per il comandante, la quota di partite in cui era tornato"
+" entro l'ultimo turno; per la spazzata, il mana in quel turno. «I numeri» "
+"sotto mettono le stesse partite fianco a fianco, con il colpo e senza."
+
+#: templates/simulations/_report.html
+#, python-format
+msgid ""
+"How fast your deck comes back when an opponent hits it: the same games, once"
+" struck, side by side on turn %(turn)s."
+msgstr ""
+"Quanto in fretta il tuo mazzo si riprende quando un avversario lo colpisce: "
+"le stesse partite, una volta colpite, fianco a fianco al turno %(turn)s."
+
+#: templates/simulations/_compare.html
+msgid "Compared with your last run"
+msgstr "Confrontato con la tua ultima simulazione"
+
+#: templates/simulations/_compare.html
+msgid "Whether a change made the deck better shows here."
+msgstr "Qui vedi se una modifica ha reso il mazzo migliore."
+
+#: templates/simulations/_compare.html
+#, python-format
+msgid ""
+"Your <a href=\"%(url)s\" class=\"underline\">run of %(date)s</a>, then this "
+"one."
+msgstr ""
+"La tua <a href=\"%(url)s\" class=\"underline\">simulazione del %(date)s</a>,"
+" poi questa."
+
+#: templates/simulations/_compare.html
+msgid "The deck has changed in between."
+msgstr "Nel frattempo il mazzo è cambiato."
+
+#: templates/simulations/_compare.html
+msgid "The same deck both times: what differs is chance."
+msgstr "Lo stesso mazzo entrambe le volte: ciò che cambia è il caso."
+
+#: templates/simulations/_compare.html
+msgid "The two runs drew differently, which moves the numbers too."
+msgstr ""
+"Le due simulazioni hanno pescato in modo diverso, e anche questo sposta i "
+"numeri."
+
+#: templates/simulations/_compare.html
+msgctxt "run compared"
+msgid "better"
+msgstr "meglio"
+
+#: templates/simulations/_compare.html
+msgctxt "run compared"
+msgid "worse"
+msgstr "peggio"
+
+#: templates/simulations/_compare.html
+msgctxt "run compared"
+msgid "about the same"
+msgstr "più o meno uguale"
+
+#: templates/simulations/_compare.html
+msgid "Change a card and simulate the deck again: this shows what moved."
+msgstr ""
+"Cambia una carta e simula di nuovo il mazzo: qui vedrai cosa è cambiato."
+
+#: templates/simulations/_share.html
+msgid "Show your friends"
+msgstr "Fallo vedere ai tuoi amici"
+
+#: templates/simulations/_share.html
+msgid "Share…"
+msgstr "Condividi…"
+
+#: templates/core/methodology.html
+msgid ""
+"<strong>Compared with your last run</strong> sets the same three numbers of "
+"the deck's run before next to this one's. Two runs of the very same deck "
+"differ a little by chance alone, so a number only counts as better or worse "
+"when the difference is larger than chance would make it 95 times in 100; "
+"otherwise it says \"about the same\". A run keeps a fingerprint of the card "
+"list, not the list, so the report can say that the deck changed in between, "
+"but not which cards."
+msgstr ""
+"<strong>Confrontato con la tua ultima simulazione</strong> mette gli stessi "
+"tre numeri della simulazione precedente del mazzo accanto a quelli di "
+"questa. Due simulazioni dello stesso identico mazzo differiscono un po' solo"
+" per caso, quindi un numero conta come migliore o peggiore solo quando la "
+"differenza è più grande di quella che il caso produrrebbe 95 volte su 100; "
+"altrimenti dice \"più o meno uguale\". Una simulazione conserva un'impronta "
+"della lista di carte, non la lista, quindi il report può dire che il mazzo è"
+" cambiato nel frattempo, ma non quali carte."
+
+#: templates/core/home.html
+msgid "What others did recently"
+msgstr "Cosa hanno fatto gli altri di recente"
+
+#: templates/core/_ticker_lines.html
+msgid "The fish says:"
+msgstr "Il pesce dice:"
+
+#: core/ticker.py
+msgid "The goldfish never blocks."
+msgstr "Il pesce rosso non blocca mai."
+
+#: core/ticker.py
+msgid "Keep a two-lander? Bold."
+msgstr "Tenere una mano con due terre? Coraggioso."
+
+#: core/ticker.py
+msgid "No fish were harmed in this simulation."
+msgstr "Nessun pesce è stato maltrattato durante questa simulazione."
+
+#: core/ticker.py
+msgid "Shuffling very carefully. Again."
+msgstr "Mescolo con molta cura. Di nuovo."
+
+#: core/ticker.py
+msgid "Tapped out. Emotionally and literally."
+msgstr "Tutto tappato. Emotivamente e letteralmente."
+
+#: core/ticker.py
+msgid "Thousands of turns, zero opponents, still lost to variance."
+msgstr "Migliaia di turni, zero avversari, eppure sconfitto dalla varianza."
+
+#: templates/core/home.html
+msgid "Poke the goldfish"
+msgstr "Stuzzica il pesce rosso"
+
+#: templates/core/home.html
+msgid ""
+"Drop your Commander list in the tank. It plays thousands of games while you "
+"watch."
+msgstr ""
+"Getta la tua lista Commander nella vasca. Gioca migliaia di partite mentre "
+"guardi."
+
+#: templates/core/home.html
+msgid ""
+"No account needed. Archidekt, Moxfield, ManaBox and plain text all work."
+msgstr ""
+"Nessun account necessario. Archidekt, Moxfield, ManaBox e testo semplice "
+"funzionano tutti."
+
+#: templates/core/home.html
+msgid "The odds from thousands of games: lands, curve, ramp, draw and combos."
+msgstr ""
+"Le probabilità da migliaia di partite: terre, curva, ramp, pescate e combo."
+
+#: templates/core/home.html
+msgid ""
+"Seven cards, then draw, draw, draw. Play it out turn by turn, with undo."
+msgstr ""
+"Sette carte, poi pesca, pesca, pesca. Giocala turno per turno, con annulla."
+
+#: templates/playtest/_board.html
+msgid "(guessed)"
+msgstr "(stimato)"
+
+#: templates/playtest/_board.html playtest/views.py
+msgid "New hand"
+msgstr "Nuova mano"
+
+#: templates/playtest/_board.html playtest/views.py
+msgid "Next turn"
+msgstr "Turno successivo"
+
+#: templates/playtest/_board.html
+msgid "Ctrl Z"
+msgstr "Ctrl Z"
+
+#: templates/playtest/_board.html
+msgid "Nothing is blocked. The journal notes what the rules would not allow."
+msgstr ""
+"Niente è bloccato. Il diario annota ciò che le regole non permetterebbero."
+
+#: templates/playtest/_board.html
+msgid "Play"
+msgstr "Gioca"
+
+#: templates/playtest/_board.html
+msgid ""
+"click a card to put it on the table. Nothing is paid, and nothing happens on"
+" its own."
+msgstr ""
+"clicca una carta per metterla sul tavolo. Non si paga nulla e niente succede"
+" da solo."
+
+#: templates/playtest/_board.html
+msgid "The journal"
+msgstr "Il diario"
+
+#: templates/playtest/_board.html
+msgid "Unusual move:"
+msgstr "Mossa insolita:"
+
+#: templates/playtest/_board.html
+#, python-format
+msgid ""
+"%(count)s unusual move. Found a great line? Check it before you trust it."
+msgid_plural ""
+"%(count)s unusual moves. Found a great line? Check them before you trust it."
+msgstr[0] ""
+"%(count)s mossa insolita. Hai trovato una gran linea? Controllala prima di "
+"fidarti."
+msgstr[1] ""
+"%(count)s mosse insolite. Hai trovato una gran linea? Controllale prima di "
+"fidarti."
+
+#: templates/playtest/detail.html
+msgid "Mode"
+msgstr "Modalità"
+
+#: templates/playtest/detail.html
+msgctxt "playtest mode"
+msgid "Free"
+msgstr "Libera"
+
+#: templates/playtest/detail.html
+msgctxt "playtest mode"
+msgid "Strict"
+msgstr "Rigorosa"
+
+#: templates/playtest/detail.html
+msgid ""
+"Free: nothing is paid or blocked. Strict plays the rules, phase by phase."
+msgstr ""
+"Libera: non si paga e non si blocca nulla. Rigorosa segue le regole, fase "
+"per fase."
+
+#: templates/playtest/detail.html
+msgid "Strict plays the rules, phase by phase. Free blocks nothing."
+msgstr "Rigorosa segue le regole, fase per fase. Libera non blocca nulla."
+
+#: templates/playtest/detail.html
+msgid "Switching deals this shuffle again."
+msgstr "Cambiando si ridistribuisce lo stesso mazzo mescolato."
+
+#: playtest/views.py
+msgid "Card played"
+msgstr "Carta giocata"
+
+#: playtest/views.py
+msgid "Commander played"
+msgstr "Comandante giocato"
+
+#: playtest/free.py
+msgid "Seven cards dealt."
+msgstr "Sette carte distribuite."
+
+#: playtest/free.py
+msgid "New hand: seven fresh cards."
+msgstr "Nuova mano: sette carte nuove."
+
+#: playtest/free.py
+msgid "A second land this turn."
+msgstr "Una seconda terra in questo turno."
+
+#: playtest/free.py
+#, python-format
+msgid "Land: %(card)s."
+msgstr "Terra: %(card)s."
+
+#: playtest/free.py
+#, python-format
+msgid "Commander: %(card)s."
+msgstr "Comandante: %(card)s."
+
+#: playtest/free.py
+#, python-format
+msgid "Played %(card)s."
+msgstr "Giocato %(card)s."
+
+#: playtest/free.py
+#, python-format
+msgid "%(card)s costs %(cost)s, with %(count)s mana source out."
+msgid_plural "%(card)s costs %(cost)s, with %(count)s mana sources out."
+msgstr[0] "%(card)s costa %(cost)s, con %(count)s fonte di mana in gioco."
+msgstr[1] "%(card)s costa %(cost)s, con %(count)s fonti di mana in gioco."
+
+#: playtest/free.py
+#, python-format
+msgid "Drew %(cards)s."
+msgstr "Pescato: %(cards)s."
+
+#: playtest/free.py
+msgid "The library is empty."
+msgstr "Il grimorio è vuoto."
+
+#: templates/playtest/_board.html
+msgid "Table"
+msgstr "Tavolo"
+
+#: templates/playtest/_board.html
+msgid "tapped"
+msgstr "tappato"

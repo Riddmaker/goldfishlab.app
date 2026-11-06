@@ -21,9 +21,9 @@ class PlaytestActionInline(admin.TabularInline):
 
 @admin.register(PlaytestSession)
 class PlaytestSessionAdmin(admin.ModelAdmin):
-    list_display = ("id", "deck", "owner", "seed", "readable_pct",
+    list_display = ("id", "deck", "owner", "seed", "mode", "readable_pct",
                     "forked_from", "updated_at")
-    list_filter = ("created_at",)
+    list_filter = ("mode", "created_at")
     search_fields = ("deck__name", "owner__email")
     autocomplete_fields = ("deck", "owner")
     readonly_fields = ("created_at", "updated_at", "readable_pct")

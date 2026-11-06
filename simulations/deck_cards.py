@@ -136,6 +136,10 @@ class Filters:
         return bool(self.kind or self.category or self.query)
 
 
+#: The categories with a symbol of their own (core/icons/), Paket 4, PR 15.
+ICON_ROLES = frozenset({"ramp", "draw", "removal"})
+
+
 @dataclass(frozen=True)
 class Bar:
     """One row of the category bars, in percent of the page's shared scale."""
@@ -152,6 +156,11 @@ class Bar:
     #: for every category while no card has a main role yet (a profile not
     #: derived again since card model phase 3).
     slots: int | None = None
+
+    @property
+    def icon(self) -> str:
+        """The symbol beside the label, or "" (DESIGN.md, SYMBOLS; Paket 4)."""
+        return self.value if self.param == "cat" and self.value in ICON_ROLES else ""
 
 
 def cards(readings, questions, printings: dict | None = None) -> list[GridCard]:

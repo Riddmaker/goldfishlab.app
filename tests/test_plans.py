@@ -126,10 +126,19 @@ def test_the_webhook_knows_the_annual_price():
 
 def test_the_plans_page_offers_both(signed_in, sold):
     body = signed_in.get(reverse("billing:plans")).content.decode()
-    assert "or CHF 36 a year" in body
-    assert "Pay yearly: CHF 36" in body
+    assert "CHF 36 a year" in body
+    assert "Pay yearly: CHF 36" in body and "Pay monthly: CHF 4" in body
     assert 'name="interval" value="year"' in body
-    assert "or CHF 84 a year" in body  # Kraken: shown, not yet buyable
+    assert "CHF 84 a year" in body  # Kraken: shown, not yet buyable
+
+
+def test_the_year_comes_first(signed_in, sold):
+    """Paket 5, E5: the yearly price leads, with what it is a month."""
+    body = signed_in.get(reverse("billing:plans")).content.decode()
+    assert "That is CHF 3 a month, 25% less than paying monthly." in body
+    assert "That is CHF 7 a month, 22% less than paying monthly." in body  # Kraken
+    assert body.index("data-price-year") < body.index("data-price-month")
+    assert body.index("Pay yearly: CHF 36") < body.index("Pay monthly: CHF 4")
 
 
 def test_the_free_plan_reads_goldfish_in_german(signed_in, settings):

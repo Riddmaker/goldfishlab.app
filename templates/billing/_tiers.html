@@ -8,23 +8,40 @@
   {% for plan in plans %}
     <div class="flex flex-col border {% if plan == subscription.plan %}border-2 border-ink-900{% else %}border-parchment-600{% endif %} p-4">
       <h3 class="font-display text-xl text-ink-900">{{ plan.display_name }}</h3>
-      <p class="tabular mt-1 text-ink-700">
-        {% if local_prices and plan.price_label %}
-          {# Phase 11 G: the same round number in each currency (billing.currency). #}
-          {% blocktranslate with price=plan.price_label interval=plan.interval_label %}{{ price }} / {{ interval }}{% endblocktranslate %}
-        {% elif plan.price_chf_cents %}
-          {% blocktranslate with price=plan.price_chf|floatformat:"2" interval=plan.interval_label %}CHF {{ price }} / {{ interval }}{% endblocktranslate %}
-        {% else %}
-          {% translate "Free" %}
-        {% endif %}
-      </p>
       {% if plan.annual_label %}
-        {# P5: the same plan, paid once a year. #}
-        <p class="tabular text-sm text-ink-700">
+        {# Paket 5, E5: the year first, what it is a month, then the month itself. #}
+        <p class="tabular mt-1 font-display text-lg text-ink-900" data-price-year>
           {% if local_prices %}
-            {% blocktranslate with price=plan.annual_label %}or {{ price }} a year{% endblocktranslate %}
+            {% blocktranslate with price=plan.annual_label %}{{ price }} a year{% endblocktranslate %}
           {% else %}
-            {% blocktranslate with price=plan.annual_chf %}or CHF {{ price }} a year{% endblocktranslate %}
+            {% blocktranslate with price=plan.annual_chf %}CHF {{ price }} a year{% endblocktranslate %}
+          {% endif %}
+        </p>
+        {% if plan.annual_saving %}
+          <p class="tabular text-sm text-ink-700">
+            {% if local_prices %}
+              {% blocktranslate with month=plan.annual_month_label saving=plan.annual_saving %}That is {{ month }} a month, {{ saving }} less than paying monthly.{% endblocktranslate %}
+            {% else %}
+              {% blocktranslate with month=plan.annual_month_chf saving=plan.annual_saving %}That is CHF {{ month }} a month, {{ saving }} less than paying monthly.{% endblocktranslate %}
+            {% endif %}
+          </p>
+        {% endif %}
+        <p class="tabular text-sm text-ink-700" data-price-month>
+          {% if local_prices and plan.price_label %}
+            {% blocktranslate with price=plan.price_label interval=plan.interval_label %}or {{ price }} / {{ interval }}{% endblocktranslate %}
+          {% else %}
+            {% blocktranslate with price=plan.price_chf|floatformat:"2" interval=plan.interval_label %}or CHF {{ price }} / {{ interval }}{% endblocktranslate %}
+          {% endif %}
+        </p>
+      {% else %}
+        <p class="tabular mt-1 text-ink-700">
+          {% if local_prices and plan.price_label %}
+            {# Phase 11 G: the same round number in each currency (billing.currency). #}
+            {% blocktranslate with price=plan.price_label interval=plan.interval_label %}{{ price }} / {{ interval }}{% endblocktranslate %}
+          {% elif plan.price_chf_cents %}
+            {% blocktranslate with price=plan.price_chf|floatformat:"2" interval=plan.interval_label %}CHF {{ price }} / {{ interval }}{% endblocktranslate %}
+          {% else %}
+            {% translate "Free" %}
           {% endif %}
         </p>
       {% endif %}
@@ -67,20 +84,30 @@
           {% endcomment %}
           <p class="text-sm text-ink-700">{% translate "Switch to it in the billing portal below." %}</p>
         {% elif plan.pk in purchasable %}
-          <form method="post" action="{% url 'billing:checkout' plan.slug %}">
-            {% csrf_token %}
-            <button type="submit"
-                    class="w-full border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
-              {% blocktranslate with plan=plan.display_name %}Choose {{ plan }}{% endblocktranslate %}
-            </button>
-          </form>
           {% if plan.stripe_annual_price_id and plan.annual_label %}
-            <form method="post" action="{% url 'billing:checkout' plan.slug %}" class="mt-2">
+            {# Paket 5, E5: paying yearly is the first button. #}
+            <form method="post" action="{% url 'billing:checkout' plan.slug %}">
               {% csrf_token %}
               <input type="hidden" name="interval" value="year">
               <button type="submit"
-                      class="w-full border border-blood-800 px-4 py-2 font-display text-blood-800 hover:bg-parchment-200">
+                      class="w-full border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
                 {% blocktranslate with price=plan.annual_label %}Pay yearly: {{ price }}{% endblocktranslate %}
+              </button>
+            </form>
+            <form method="post" action="{% url 'billing:checkout' plan.slug %}" class="mt-2">
+              {% csrf_token %}
+              <button type="submit"
+                      class="w-full border border-blood-800 px-4 py-2 font-display text-blood-800 hover:bg-parchment-200">
+                {# Like "Pay yearly" above: the label in the visitor's currency. #}
+                {% blocktranslate with price=plan.price_label %}Pay monthly: {{ price }}{% endblocktranslate %}
+              </button>
+            </form>
+          {% else %}
+            <form method="post" action="{% url 'billing:checkout' plan.slug %}">
+              {% csrf_token %}
+              <button type="submit"
+                      class="w-full border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
+                {% blocktranslate with plan=plan.display_name %}Choose {{ plan }}{% endblocktranslate %}
               </button>
             </form>
           {% endif %}

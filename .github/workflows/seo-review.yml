@@ -1,0 +1,126 @@
+name: Search Console review
+
+# Paket 5, PR 20: the weekly Search Console review. scripts/search_console.py
+# compares last week with the week before and writes the report; one issue
+# per ISO week, "Search Console review 2026-Wnn", labelled `seo`, holds it. A
+# session turns its findings into actions (docs/SEQUENCE-SUPPORT-KPI.html).
+#
+# Called, never run here: this repository is public, and so would be its
+# issues, logs and artifacts - every query, click and position. The private
+# repository Riddmaker/goldfishlab-ops calls this workflow on a schedule and
+# holds the key, the on/off variable SEO_REVIEW and the issues: a called
+# workflow runs in its caller's context, with the caller's token and secrets.
+# Tested and changed here, through the same review as all code; the code it
+# runs is this repository's main.
+#
+# Privileges are split as in forge-sync.yml: `review` alone sees the key - a
+# read-only service account, passed by name and not with `secrets: inherit` -
+# and installs nothing in the step that holds it. `publish` may write issues
+# and runs no Python, no pip and no third-party code beyond GitHub's own
+# actions; what `review` hands over is validated first. Every action is
+# pinned to a commit. A failed run opens or comments on an issue "Search
+# Console review failed": the failure mail of a scheduled run goes only to
+# whoever created the workflow.
+on:
+  workflow_call:
+    secrets:
+      GSC_SERVICE_ACCOUNT_JSON:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: Riddmaker/goldfishlab.app
+          ref: main
+          persist-credentials: false
+
+      # No pip cache: the cache would be shared with every other run.
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+
+      - name: Install google-auth (without the key)
+        run: pip install -r requirements-seo.txt
+
+      - name: Read Search Console
+        env:
+          GSC_SERVICE_ACCOUNT_JSON: ${{ secrets.GSC_SERVICE_ACCOUNT_JSON }}
+        run: python scripts/search_console.py --out "$RUNNER_TEMP/review"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: seo-review
+          path: ${{ runner.temp }}/review
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    needs: review
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write # the weekly issue and its label
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: seo-review
+          path: ${{ runner.temp }}/review
+
+      # The files come from a job that ran third-party code: exactly the
+      # three, a title of the one known shape, a body the issue can hold.
+      - name: Validate the report
+        run: |
+          cd "$RUNNER_TEMP/review"
+          [[ $(ls | sort | tr '\n' ' ') == "report.json report.md title.txt " ]]
+          title=$(cat title.txt)
+          [[ $title =~ ^Search\ Console\ review\ [0-9]{4}-W[0-9]{2}$ ]]
+          [[ $(stat -c %s report.md) -lt 60000 ]]
+          echo "TITLE=$title" >> "$GITHUB_ENV"
+
+      - name: Open or update this week's issue
+        run: |
+          gh label create seo --color 0e8a16 --description "Search Console review" --force
+          # One issue per week: a second run edits it, open or closed.
+          number=$(gh issue list --state all --label seo --search "\"$TITLE\" in:title" \
+            --json number,title --jq "map(select(.title == \"$TITLE\"))[0].number // empty")
+          if [[ -n $number ]]; then
+            gh issue edit "$number" --body-file "$RUNNER_TEMP/review/report.md"
+          else
+            gh issue create --title "$TITLE" --label seo --body-file "$RUNNER_TEMP/review/report.md"
+          fi
+
+  failed:
+    needs: [review, publish]
+    if: failure()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Open or comment on the issue "Search Console review failed"
+        run: |
+          title="Search Console review failed"
+          run="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          open=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [[ -n $open ]]; then
+            gh issue comment "$open" --body "Failed again: $run"
+          else
+            gh issue create --title "$title" --body "The weekly Search Console review failed: $run
+
+          The log names the cause without the key: a missing or invalid GSC_SERVICE_ACCOUNT_JSON, or the HTTP status Search Console answered (403: the service account is not a user of the property)."
+          fi

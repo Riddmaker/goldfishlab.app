@@ -1,0 +1,49 @@
+{
+  "rows": [
+    {
+      "keys": [
+        "goldfish lab"
+      ],
+      "clicks": 20,
+      "impressions": 60,
+      "ctr": 0.3333,
+      "position": 1.2
+    },
+    {
+      "keys": [
+        "mtg goldfish simulator"
+      ],
+      "clicks": 0,
+      "impressions": 120,
+      "ctr": 0.0,
+      "position": 3.1
+    },
+    {
+      "keys": [
+        "commander mulligan calculator"
+      ],
+      "clicks": 2,
+      "impressions": 80,
+      "ctr": 0.025,
+      "position": 11.4
+    },
+    {
+      "keys": [
+        "`@octocat` [hi](https://example.invalid) | <b>"
+      ],
+      "clicks": 0,
+      "impressions": 25,
+      "ctr": 0.0,
+      "position": 30.0
+    },
+    {
+      "keys": [
+        "edh deck tester"
+      ],
+      "clicks": 1,
+      "impressions": 10,
+      "ctr": 0.1,
+      "position": 9.0
+    }
+  ]
+}

@@ -8,7 +8,7 @@ in the Themen-Doc; every recommendation accepted by the owner on 2026-11-06.
 
 | PR | What | Status |
 |---|---|---|
-| 20 | Search Console review: a weekly GitHub Action writes the report as an issue | Planned |
+| 20 | Search Console review: a weekly GitHub Action writes the report as an issue, in the private ops repository | **Built** (dev); owner steps open |
 | 21 | Hand tutor: "Which plan does this hand have?", rules only, three steps | Planned |
 | 22 | Weekly news: the page, the AI label, a Claude routine that opens the PR | Planned |
 | 23 | Archidekt link import (after Archidekt agrees) and text-export guides; importer check in Celery Beat | Planned |
@@ -34,6 +34,13 @@ Changed from the concept: no workflow opens a pull request. "Allow GitHub Action
 approve pull requests" stays off, as `forge-sync.yml` explains: the same right would let a
 workflow approve the pull request into main. A job writes an **issue**. A change it leads to
 comes as a normal PR from a session, which the owner merges.
+
+Changed during the build (owner, 2026-11-06): this repository is public, and so would be the
+issues, logs and artifacts of its workflows - every query and click. The weekly jobs are
+**called workflows** now. The private repository `Riddmaker/goldfishlab-ops` calls them on a
+schedule and holds the key, the switches and the issues. The Forge sync moved there too; it no
+longer pushes the branch `forge-pin` (the caller's token cannot write here), it keeps the pin
+files as an artifact and a session commits them to dev.
 
 ## PR 20 plan: the Search Console review
 
@@ -121,21 +128,70 @@ turn them into actions. No LLM in the job, no key on the server, nothing written
   which could echo the request.
 - A second run in the same week edits that week's issue instead of opening another.
 
-**The owner's steps** (needs your login; after PR 20 is on main, because scheduled workflows run
-from the default branch):
+**The owner's steps** (need your login; after PR 20 is on main, because the ops repository calls
+the workflows from main):
 
-1. Search Console: Add property → Domain → `goldfishlab.app`. Copy the TXT value. At Cloudflare:
+1. GitHub → New repository: owner Riddmaker, name `goldfishlab-ops`, **Private**, "Add a README"
+   on. Settings → Collaborators → Add people → `Riddmaker-claude-bot`, role **Write**. The bot
+   then pushes the two caller workflows and the README.
+2. In `goldfishlab-ops`: Settings → Secrets and variables → Actions → Variables → New repository
+   variable `FORGE_SYNC` = `off` (`on` when the Forge sync should run weekly). In
+   `goldfishlab.app` the variable `FORGE_SYNC` can then be deleted.
+3. Search Console: Add property → Domain → `goldfishlab.app`. Copy the TXT value. At Cloudflare:
    goldfishlab.app → DNS → Records → Add record, type TXT, name `@`, content the value → Save.
    Back in Search Console → Verify. Leave the record in place.
-2. Google Cloud console:
+4. Google Cloud console:
    - New project "goldfishlab-seo".
    - APIs & Services → Library → "Google Search Console API" → Enable.
    - IAM & Admin → Service accounts → Create, no roles.
    - Keys → Add key → JSON.
-3. Search Console → Settings → Users and permissions → Add user: the service account's email,
+5. Search Console → Settings → Users and permissions → Add user: the service account's email,
    permission "Restricted".
-4. GitHub: Settings → Secrets and variables → Actions:
+6. In `goldfishlab-ops`: Settings → Secrets and variables → Actions:
    - New repository secret `GSC_SERVICE_ACCOUNT_JSON` with the whole JSON file.
    - Variable `SEO_REVIEW` = `on`.
    - Then delete the downloaded file.
-5. Actions → "Search Console review" → Run workflow, once, to try it.
+7. `goldfishlab-ops` → Actions → "Search Console review" → Run workflow, once, to try it.
+
+## How PR 20 works
+
+- `scripts/search_console.py` (no Django; google-auth and requests from `requirements-seo.txt`,
+  installed only in the job and in development): `windows` picks the seven days ending three
+  days before the run and the seven before them; `fetch` asks `searchAnalytics.query` for the
+  totals, the queries and the pages of each week (pages of 25,000 rows until a short one) and
+  `sitemaps.list`, at `https://www.googleapis.com/webmasters/v3/sites/sc-domain%3Agoldfishlab.app`.
+  `build` applies the rules, `markdown` writes the issue body. Out: `report.md`, `report.json`,
+  `title.txt` ("Search Console review 2026-W46", the ISO week of the run).
+- The rules: totals with the change (no percentage after a zero); new and gone queries; almost
+  page one (position 8 to 20, 20+ impressions) and low CTR (position 5 or better, under 2 %,
+  20+ impressions), each for queries and pages; clicks and impressions per language, by URL
+  prefix (`LANGUAGE_NAMES` read from the settings file as text, so no Django in the job);
+  sitemaps with errors and warnings (Google sends the counts as strings). The 20 impressions
+  on low CTR were not in the plan: without them one impression at position 3 is a finding.
+- Strangers type the queries: each one is a code span, backticks and pipes replaced, one line,
+  200 characters at most, so no mention, link or table cell renders.
+- The key (`GSC_SERVICE_ACCOUNT_JSON`) is read in one place. Every failure is one fixed
+  sentence: not set, not a valid key, HTTP status, or the kind of a connection error; the
+  libraries' messages (which may quote the key or Google's answer) are dropped with `from None`.
+- `.github/workflows/seo-review.yml` and `forge-sync.yml` are `on: workflow_call` only.
+  `review` checks out this repository's main, installs google-auth in one step and runs the
+  script in the next, the only step that sees the key. `publish` (`issues: write`, no Python)
+  validates the three files and the title, creates the label `seo` and edits that week's issue
+  or opens it. `failed` opens or comments on "Search Console review failed". Every action is
+  pinned to a commit; no job may write contents.
+- The Forge sync: `check` as before; `publish` no longer checks out or pushes, the issue "Forge
+  pin ready" names the run and the two commands (`gh run download <run> -R
+  Riddmaker/goldfishlab-ops -n forge-pin`, then copy to `cards/data/`). The artifact is kept
+  seven days instead of one.
+- The callers in `goldfishlab-ops` (`.github/workflows/`): `forge-sync.yml` Mondays 03:17 UTC
+  and `seo-review.yml` Mondays 05:23 UTC, each `workflow_dispatch` too, `if: vars.<SWITCH> ==
+  'on' || github.event_name == 'workflow_dispatch'`, `permissions: contents: read, issues:
+  write`, `uses: Riddmaker/goldfishlab.app/.github/workflows/<name>@main`; the review passes
+  `GSC_SERVICE_ACCOUNT_JSON` by name, not `secrets: inherit`.
+- `docs/SEQUENCE-SUPPORT-KPI.html` (gitignored) has the Search Console section: what a session
+  does with each finding, and one row per week.
+- Tests: `tests/test_search_console.py` (46): the windows and ISO weeks, the languages against
+  the settings, every rule on `tests/fixtures/search_console`, the escaping, no data, the
+  command, the endpoints and paging with a fake session, a planted key in four bad shapes and
+  in an HTTP error, and the workflows (only called, pinned, no contents write, the writer
+  without Python or secret, the key in one step, the validation before the issue).

@@ -75,3 +75,6 @@ htmlcov/
 /docs/e2e/
 # Research results (HABIT 5/8): local AI context, not in the repo.
 /docs/research/
+# AI context files (HABIT 5): local, not in the repo. The KPI file holds the
+# Search Console numbers, which the public repository must not show.
+/docs/SEQUENCE-SUPPORT-KPI.html

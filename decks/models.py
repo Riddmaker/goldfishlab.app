@@ -122,6 +122,20 @@ class Deck(models.Model):
                 images.setdefault(str(entry.oracle_card_id), image)
         return images
 
+    def card_images(self) -> dict[str, str]:
+        """Card name -> Scryfall image URL: the art of the printing its file
+        named where that was found, else the catalogue's. What the playtest
+        board and the hand tutor show; hot-linked, never stored as bytes,
+        which is what Scryfall asks for."""
+        printed = self.printing_images()
+        pairs = {}
+        for oracle_id, name, image in self.entries.values_list(
+                "oracle_card_id", "oracle_card__front_name", "oracle_card__image_uri"):
+            pairs[name] = printed.get(str(oracle_id)) or image
+        for commander in self.commanders:
+            pairs[commander.front_name] = printed.get(str(commander.pk)) or commander.image_uri
+        return pairs
+
 
 class DeckMark(models.Model):
     """An engine or a synergy pair its owner locked or dismissed (Themen-Doc,

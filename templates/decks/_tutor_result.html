@@ -1,0 +1,102 @@
+{% load i18n l10n %}
+{% comment %}
+  The hand and what the tutor says of it. Until the worker has played the
+  hand, a note that polls for this block (htmx, every second); without
+  scripting the note asks for a reload.
+{% endcomment %}
+{% if answer is None %}
+  <div id="tutor-result" class="surface-parchment mt-6 p-6" aria-busy="true"
+       hx-get="?hand={{ seed|stringformat:'d' }}&amp;step={{ step }}" hx-trigger="every 1s" hx-swap="outerHTML">
+    <p class="text-ink-900">{% translate "The fish is playing this hand a few hundred times. This takes a few seconds." %}</p>
+    <noscript><p class="mt-2 text-sm text-ink-700">{% translate "Reload the page in a moment to see the answer." %}</p></noscript>
+  </div>
+{% else %}
+  <div id="tutor-result" class="mt-6 space-y-6">
+    <div class="playtest-hand" role="group" aria-label="{% translate "Hand" %}">
+      <ul class="hand-fan">
+        {% for tile in hand %}
+          <li class="hand-slot" style="--i: {{ forloop.counter0|unlocalize }}; --n: {{ hand|length|unlocalize }};">
+            <span class="hand-card">{% include "playtest/_hand_face.html" %}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <p class="text-parchment-200" data-tutor-keep>
+      {% if reading.keeps %}
+        {% blocktranslate trimmed count lands=reading.lands %}{{ lands }} land. The engine's mulligan rule keeps this seven.{% plural %}{{ lands }} lands. The engine's mulligan rule keeps this seven.{% endblocktranslate %}
+      {% else %}
+        {% blocktranslate trimmed count lands=reading.lands %}{{ lands }} land. The engine's mulligan rule sends this seven back; the tutor reads it anyway.{% plural %}{{ lands }} lands. The engine's mulligan rule sends this seven back; the tutor reads it anyway.{% endblocktranslate %}
+      {% endif %}
+    </p>
+
+    {% if not revealed %}
+      <form method="get" class="surface-parchment p-6" data-tutor-question>
+        <input type="hidden" name="hand" value="{{ seed|stringformat:'d' }}">
+        <input type="hidden" name="step" value="{{ step }}">
+        <h2 class="font-display text-2xl text-ink-900">{% translate "Which plan does this hand play?" %}</h2>
+        {% if step == 2 %}
+          <p class="mt-2 text-sm text-ink-700">{% translate "Help: the cards of this hand for each of your deck's themes. Playable early: costs 3 or less, and no more than the hand's lands and accelerants make." %}</p>
+          <ul class="mt-3 space-y-1 text-ink-900" data-tutor-help>
+            {% for row in reading.rows %}
+              <li><span class="font-semibold">{{ row.label }}:</span>
+                {% if row.cards %}{{ row.cards|join:", " }}{% if row.early %} <span class="text-ink-700">({% blocktranslate count count=row.early|length trimmed %}{{ count }} playable early{% plural %}{{ count }} playable early{% endblocktranslate %})</span>{% endif %}{% else %}<span class="text-ink-700">{% translate "no card in this hand" %}</span>{% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        <div class="mt-4 flex flex-wrap gap-2">
+          {% for value, label in choices %}
+            <button type="submit" name="guess" value="{{ value }}" class="board-btn board-btn-main">{{ label }}</button>
+          {% endfor %}
+          <button type="submit" name="guess" value="none" class="board-btn board-btn-main">{% translate "No plan yet" %}</button>
+          <button type="submit" name="guess" value="show" class="board-btn board-btn-second">{% translate "I don't know, show me" %}</button>
+        </div>
+        {% if not choices %}
+          <p class="mt-3 text-sm text-ink-700">{% translate "None of this deck's engines can run yet, so there is little to guess." %}</p>
+        {% endif %}
+      </form>
+    {% else %}
+      <section class="surface-parchment p-6" data-tutor-answer>
+        {% if guess and guess != "show" %}
+          <p class="font-display text-xl {% if right %}text-verdigris-700{% else %}text-ink-900{% endif %}" data-tutor-verdict>
+            {% if right %}{% translate "Right." %}{% else %}{% translate "Not this time. No matter: a guess counts for nothing." %}{% endif %}
+          </p>
+        {% endif %}
+        <div class="mt-2 space-y-2 text-ink-900" data-tutor-sentences>
+          {% for sentence in reading.sentences %}<p>{{ sentence }}</p>{% endfor %}
+        </div>
+        {% if reading.rows %}
+          <div class="mt-5 overflow-x-auto">
+            <table class="w-full text-left text-sm text-ink-900">
+              <thead>
+                <tr class="border-b border-ink-300">
+                  <th scope="col" class="py-2 pr-4">{% translate "Theme" %}</th>
+                  <th scope="col" class="py-2 pr-4">{% translate "In this hand" %}</th>
+                  <th scope="col" class="py-2 pr-4 text-right">{% translate "Running by turn 6" %}</th>
+                  <th scope="col" class="py-2 text-right">{% translate "Your deck usually" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in reading.rows %}
+                  <tr class="border-b border-ink-200 align-top">
+                    <th scope="row" class="py-2 pr-4 font-semibold">{{ row.label }}{% if row.theme in reading.plan %} <span class="text-verdigris-700">· {% translate "plan" %}</span>{% endif %}</th>
+                    <td class="py-2 pr-4">{% if row.cards %}{{ row.cards|join:", " }}{% else %}<span class="text-ink-700">–</span>{% endif %}</td>
+                    <td class="py-2 pr-4 text-right tabular">{{ row.share|default:"–" }}</td>
+                    <td class="py-2 text-right tabular">{{ row.usual|default:"–" }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <p class="mt-3 text-xs text-ink-700">
+            {% blocktranslate trimmed %}
+              With this hand: the hand kept and played on, the rest of the deck shuffled anew each game. Your deck usually: its last simulation, every opening hand. An engine runs when every piece of it is out; a theme without an engine that can run has no number.
+            {% endblocktranslate %}
+          </p>
+        {% endif %}
+      </section>
+    {% endif %}
+    <p><a href="?step={{ step }}" class="text-parchment-200 underline">{% translate "Next hand" %}</a></p>
+  </div>
+{% endif %}

@@ -27,6 +27,8 @@ select = ["E", "F", "W", "I", "B", "UP", "DJ", "S"]
 # with `secrets`, and nothing here guards anything - a goldfish has no
 # opponent to hide a shuffle from.
 "playtest/services.py" = ["S311"]
+# The hand tutor deals and replays a hand from its seed the same way (PR 21).
+"decks/tutor.py" = ["S311"]
 
 # The four engine test modules are vendored from the magic-project repository
 # and must stay BYTE-IDENTICAL to their originals - that equality is the whole

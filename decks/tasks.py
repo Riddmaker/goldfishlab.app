@@ -15,3 +15,18 @@ def fetch_printing_art(deck_id: str) -> int:
         return printing_art.attach(deck) if deck else 0
     finally:
         printing_art.done(deck_id)
+
+
+@shared_task(name="decks.read_hand")
+def read_hand(deck_id: str, seed: int, on_the_play: bool) -> bool:
+    """Play one hand of the hand tutor (`decks.tutor.measure`); its answer
+    goes to the cache, where the page polls for it."""
+    from decks import tutor
+    from decks.models import Deck
+
+    deck = Deck.objects.filter(pk=deck_id).first()
+    # Deleted before the worker got to it (a guest's deck can be).
+    if deck is None:
+        return False
+    tutor.measure(deck, seed, on_the_play)
+    return True

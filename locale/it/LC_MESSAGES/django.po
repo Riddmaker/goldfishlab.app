@@ -15918,3 +15918,250 @@ msgstr "Tavolo"
 #: templates/playtest/_board.html
 msgid "tapped"
 msgstr "tappato"
+
+#: decks/tutor.py
+msgid ""
+"The deck page finds no theme in this deck yet, so the tutor has no plan to "
+"read. The lands and the mulligan rule below still count."
+msgstr ""
+"La pagina del mazzo non trova ancora nessun tema in questo mazzo, quindi il "
+"tutor non ha un piano da leggere. Le terre e la regola del mulligan qui "
+"sotto valgono comunque."
+
+#: decks/tutor.py
+#, python-format
+msgid "Your deck is built mainly around %(theme)s."
+msgstr "Il tuo mazzo è costruito soprattutto attorno a %(theme)s."
+
+#: decks/tutor.py
+#, python-format
+msgid "This hand holds %(count)s card for it."
+msgid_plural "This hand holds %(count)s cards for it."
+msgstr[0] "Questa mano ha %(count)s carta per questo."
+msgstr[1] "Questa mano ha %(count)s carte per questo."
+
+#: decks/tutor.py
+msgid "This hand holds no card for it."
+msgstr "Questa mano non ha nessuna carta per questo."
+
+#: decks/tutor.py
+msgid ""
+"None of its engines can run yet (the deck page says which piece is missing),"
+" so the tutor cannot measure a plan."
+msgstr ""
+"Nessuno dei suoi motori può ancora girare (la pagina del mazzo dice quale "
+"pezzo manca), quindi il tutor non può misurare un piano."
+
+#: decks/tutor.py
+#, python-format
+msgid ""
+"No engine runs by turn %(turn)s in as many as %(share)s of the games with "
+"this hand: it has no plan of its own yet. Play your lands and draw into one."
+msgstr ""
+"Con questa mano nessun motore gira entro il turno %(turn)s in almeno il "
+"%(share)s delle partite: non ha ancora un piano suo. Gioca le tue terre e "
+"pesca finché ne trovi uno."
+
+#: decks/tutor.py
+#, python-format
+msgid ""
+"With this hand %(theme)s runs by turn %(turn)s in %(share)s of the games."
+msgstr ""
+"Con questa mano %(theme)s gira entro il turno %(turn)s nel %(share)s delle "
+"partite."
+
+#: decks/tutor.py
+#, python-format
+msgid "Plan: %(theme)s."
+msgstr "Piano: %(theme)s."
+
+#: decks/tutor.py
+#, python-format
+msgid ""
+"With this hand %(theme)s runs by turn %(turn)s in %(share)s of the games, "
+"%(main)s in %(main_share)s."
+msgstr ""
+"Con questa mano %(theme)s gira entro il turno %(turn)s nel %(share)s delle "
+"partite, %(main)s nel %(main_share)s."
+
+#: decks/tutor.py
+#, python-format
+msgid "Plan: build %(theme)s first; %(main)s comes later."
+msgstr "Piano: prima costruisci %(theme)s; %(main)s arriva dopo."
+
+#: decks/tutor.py
+#, python-format
+msgid "%(others)s is about as likely: %(games)s games cannot tell them apart."
+msgstr ""
+"%(others)s è quasi altrettanto probabile: %(games)s partite non bastano a "
+"distinguerli."
+
+#: decks/views.py
+msgid "Show me"
+msgstr "Mostrami"
+
+#: decks/views.py
+msgid "Guess with help"
+msgstr "Indovina con aiuto"
+
+#: decks/views.py
+msgid "Guess alone"
+msgstr "Indovina da solo"
+
+#: templates/decks/tutor.html
+#, python-format
+msgid "Hand tutor: %(name)s"
+msgstr "Tutor della mano: %(name)s"
+
+#: templates/decks/tutor.html
+msgid ""
+"Which plan does this hand have? Seven cards from your deck, played a few "
+"hundred times."
+msgstr ""
+"Che piano ha questa mano? Sette carte dal tuo mazzo, giocate qualche "
+"centinaio di volte."
+
+#: templates/decks/tutor.html templates/decks/detail.html
+msgid "Hand tutor"
+msgstr "Tutor della mano"
+
+#: templates/decks/tutor.html
+msgid "Which plan does this hand have?"
+msgstr "Che piano ha questa mano?"
+
+#: templates/decks/tutor.html
+msgid ""
+"Seven cards from your deck. The tutor plays this hand a few hundred times "
+"and tells you what it plays, from your deck's themes and engines. Show me "
+"explains it; the two guessing steps let you read the hand first. A guess "
+"counts for nothing and is not stored."
+msgstr ""
+"Sette carte dal tuo mazzo. Il tutor gioca questa mano qualche centinaio di "
+"volte e ti dice cosa gioca, in base ai temi e ai motori del tuo mazzo. "
+"«Mostrami» lo spiega; nei due passi per indovinare leggi prima tu la mano. "
+"Un tentativo non conta e non viene salvato."
+
+#: templates/decks/tutor.html
+msgid "Step"
+msgstr "Passo"
+
+#: templates/decks/_tutor_result.html
+msgid ""
+"The fish is playing this hand a few hundred times. This takes a few seconds."
+msgstr ""
+"Il pesce sta giocando questa mano qualche centinaio di volte. Ci vuole "
+"qualche secondo."
+
+#: templates/decks/_tutor_result.html
+msgid "Reload the page in a moment to see the answer."
+msgstr "Ricarica la pagina tra un attimo per vedere la risposta."
+
+#: templates/decks/_tutor_result.html
+#, python-format
+msgid "%(lands)s land. The engine's mulligan rule keeps this seven."
+msgid_plural "%(lands)s lands. The engine's mulligan rule keeps this seven."
+msgstr[0] ""
+"%(lands)s terra. La regola del mulligan del motore tiene queste sette."
+msgstr[1] ""
+"%(lands)s terre. La regola del mulligan del motore tiene queste sette."
+
+#: templates/decks/_tutor_result.html
+#, python-format
+msgid ""
+"%(lands)s land. The engine's mulligan rule sends this seven back; the tutor "
+"reads it anyway."
+msgid_plural ""
+"%(lands)s lands. The engine's mulligan rule sends this seven back; the tutor"
+" reads it anyway."
+msgstr[0] ""
+"%(lands)s terra. La regola del mulligan del motore rimanda indietro queste "
+"sette; il tutor la legge lo stesso."
+msgstr[1] ""
+"%(lands)s terre. La regola del mulligan del motore rimanda indietro queste "
+"sette; il tutor la legge lo stesso."
+
+#: templates/decks/_tutor_result.html
+msgid "Which plan does this hand play?"
+msgstr "Che piano gioca questa mano?"
+
+#: templates/decks/_tutor_result.html
+msgid ""
+"Help: the cards of this hand for each of your deck's themes. Playable early:"
+" costs 3 or less, and no more than the hand's lands and accelerants make."
+msgstr ""
+"Aiuto: le carte di questa mano per ogni tema del tuo mazzo. Giocabile "
+"presto: costa 3 o meno, e non più di quanto producono le terre e gli "
+"acceleratori della mano."
+
+#: templates/decks/_tutor_result.html
+#, python-format
+msgid "%(count)s playable early"
+msgid_plural "%(count)s playable early"
+msgstr[0] "%(count)s giocabile presto"
+msgstr[1] "%(count)s giocabili presto"
+
+#: templates/decks/_tutor_result.html
+msgid "no card in this hand"
+msgstr "nessuna carta in questa mano"
+
+#: templates/decks/_tutor_result.html
+msgid "No plan yet"
+msgstr "Ancora nessun piano"
+
+#: templates/decks/_tutor_result.html
+msgid "I don't know, show me"
+msgstr "Non lo so, mostrami"
+
+#: templates/decks/_tutor_result.html
+msgid "None of this deck's engines can run yet, so there is little to guess."
+msgstr ""
+"Nessun motore di questo mazzo può ancora girare, quindi c'è poco da "
+"indovinare."
+
+#: templates/decks/_tutor_result.html
+msgid "Right."
+msgstr "Giusto."
+
+#: templates/decks/_tutor_result.html
+msgid "Not this time. No matter: a guess counts for nothing."
+msgstr "Non questa volta. Non importa: un tentativo non conta."
+
+#: templates/decks/_tutor_result.html
+msgid "Theme"
+msgstr "Tema"
+
+#: templates/decks/_tutor_result.html
+msgid "In this hand"
+msgstr "In questa mano"
+
+#: templates/decks/_tutor_result.html
+msgid "Running by turn 6"
+msgstr "Gira entro il turno 6"
+
+#: templates/decks/_tutor_result.html
+msgid "Your deck usually"
+msgstr "Il tuo mazzo di solito"
+
+#: templates/decks/_tutor_result.html
+msgid "plan"
+msgstr "piano"
+
+#: templates/decks/_tutor_result.html
+msgid ""
+"With this hand: the hand kept and played on, the rest of the deck shuffled "
+"anew each game. Your deck usually: its last simulation, every opening hand. "
+"An engine runs when every piece of it is out; a theme without an engine that"
+" can run has no number."
+msgstr ""
+"Con questa mano: la mano tenuta e giocata, il resto del mazzo rimescolato a "
+"ogni partita. Il tuo mazzo di solito: la sua ultima simulazione, ogni mano "
+"iniziale. Un motore gira quando ogni suo pezzo è in campo; un tema senza un "
+"motore che possa girare non ha un numero."
+
+#: templates/decks/_tutor_result.html
+msgid "Next hand"
+msgstr "Mano successiva"
+
+#: templates/decks/detail.html
+msgid "which plan does a hand from this deck have?"
+msgstr "che piano ha una mano di questo mazzo?"

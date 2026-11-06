@@ -98,6 +98,10 @@
             {% icon "hand" %}{% translate "Draw a hand" %}
           </button>
         </div>
+        <p class="mt-3 text-sm text-parchment-200" data-tutor-link>
+          <a href="{% url 'decks:tutor' deck.id %}" class="underline">{% translate "Hand tutor" %}</a>:
+          {% translate "which plan does a hand from this deck have?" %}
+        </p>
         {% if running_run or last_run %}
           {% include "decks/_last_run.html" %}
         {% endif %}

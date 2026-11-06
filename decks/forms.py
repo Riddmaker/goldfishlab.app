@@ -354,3 +354,15 @@ class MarkForm(forms.Form):
         if data.get("action") in (self.LOCK, self.DISMISS) and not data.get("key"):
             raise forms.ValidationError("lock and dismiss need a key")
         return data
+
+
+class TutorForm(forms.Form):
+    """The hand tutor's address (Paket 5, PR 21): which hand, which step,
+    and the guess. A guess is only ever compared with the page's own answers
+    (`decks.tutor.Reading.answers`), never stored or shown as sent."""
+
+    SHOW, HELP, ALONE = 1, 2, 3
+    hand = forms.IntegerField(min_value=0, max_value=2**62, required=False)
+    step = forms.TypedChoiceField(choices=[(SHOW, SHOW), (HELP, HELP), (ALONE, ALONE)],
+                                  coerce=int, required=False, empty_value=SHOW)
+    guess = forms.CharField(max_length=40, required=False)

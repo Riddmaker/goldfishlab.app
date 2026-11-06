@@ -384,7 +384,8 @@ def _count_seen(game, groups) -> list[int]:
 
 def simulate_game(rng: random.Random, on_the_play: bool = True,
                   turns: int = DEFAULT_TURNS, keep_log: bool = False,
-                  deck=None, watch=(), groups=None, trace=None, stress=False):
+                  deck=None, watch=(), groups=None, trace=None, stress=False,
+                  hand=None):
     """Play one goldfish game and return what was measured.
 
     Args:
@@ -401,12 +402,18 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
         stress: Also play the stress test's scenarios on copies of the game
             (`STRESS_FIELDS`), and return them under ``stress``. The game
             itself plays exactly as without.
+        hand: The names of an opening seven to keep instead of dealing one
+            (`Game.take_given_hand`): the hand tutor's question, what this
+            hand plays. Left out, and the game deals and mulligans as always.
 
     Returns:
         dict: the game's metrics, including the state after each turn.
     """
     game = Game(rng, on_the_play=on_the_play, deck=deck)
-    game.take_opening_hand()
+    if hand is None:
+        game.take_opening_hand()
+    else:
+        game.take_given_hand(hand)
     if trace is not None:
         trace.append(game_trace.record(game))
         logged = len(game.log)

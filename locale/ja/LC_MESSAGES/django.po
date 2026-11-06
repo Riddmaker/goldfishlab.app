@@ -14029,3 +14029,214 @@ msgstr "テーブル"
 #: templates/playtest/_board.html
 msgid "tapped"
 msgstr "タップ状態"
+
+#: decks/tutor.py
+msgid ""
+"The deck page finds no theme in this deck yet, so the tutor has no plan to "
+"read. The lands and the mulligan rule below still count."
+msgstr ""
+"デッキページはこのデッキにまだテーマを見つけていないため、チューターが読み取れるプランはありません。下の土地とマリガンのルールはそのまま有効です。"
+
+#: decks/tutor.py
+#, python-format
+msgid "Your deck is built mainly around %(theme)s."
+msgstr "あなたのデッキは主に%(theme)sを軸に組まれています。"
+
+#: decks/tutor.py
+#, python-format
+msgid "This hand holds %(count)s card for it."
+msgid_plural "This hand holds %(count)s cards for it."
+msgstr[0] "この手札にはそのためのカードが%(count)s枚あります。"
+
+#: decks/tutor.py
+msgid "This hand holds no card for it."
+msgstr "この手札にはそのためのカードがありません。"
+
+#: decks/tutor.py
+msgid ""
+"None of its engines can run yet (the deck page says which piece is missing),"
+" so the tutor cannot measure a plan."
+msgstr "そのエンジンはまだどれも回せません（足りないパーツはデッキページに書いてあります）。そのためチューターはプランを測れません。"
+
+#: decks/tutor.py
+#, python-format
+msgid ""
+"No engine runs by turn %(turn)s in as many as %(share)s of the games with "
+"this hand: it has no plan of its own yet. Play your lands and draw into one."
+msgstr ""
+"この手札では、%(turn)sターン目までに%(share)s以上の対戦で回るエンジンがありません。まだ自分のプランがない手札です。土地を置き、プランを引き込みましょう。"
+
+#: decks/tutor.py
+#, python-format
+msgid ""
+"With this hand %(theme)s runs by turn %(turn)s in %(share)s of the games."
+msgstr "この手札では、%(theme)sは%(share)sの対戦で%(turn)sターン目までに回ります。"
+
+#: decks/tutor.py
+#, python-format
+msgid "Plan: %(theme)s."
+msgstr "プラン：%(theme)s。"
+
+#: decks/tutor.py
+#, python-format
+msgid ""
+"With this hand %(theme)s runs by turn %(turn)s in %(share)s of the games, "
+"%(main)s in %(main_share)s."
+msgstr ""
+"この手札では、%(turn)sターン目までに%(theme)sは%(share)s、%(main)sは%(main_share)sの対戦で回ります。"
+
+#: decks/tutor.py
+#, python-format
+msgid "Plan: build %(theme)s first; %(main)s comes later."
+msgstr "プラン：まず%(theme)sを組み立て、%(main)sは後から。"
+
+#: decks/tutor.py
+#, python-format
+msgid "%(others)s is about as likely: %(games)s games cannot tell them apart."
+msgstr "%(others)sもほぼ同じ確率です。%(games)s回の対戦では区別できません。"
+
+#: decks/views.py
+msgid "Show me"
+msgstr "見せて"
+
+#: decks/views.py
+msgid "Guess with help"
+msgstr "ヒントありで当てる"
+
+#: decks/views.py
+msgid "Guess alone"
+msgstr "ヒントなしで当てる"
+
+#: templates/decks/tutor.html
+#, python-format
+msgid "Hand tutor: %(name)s"
+msgstr "手札チューター：%(name)s"
+
+#: templates/decks/tutor.html
+msgid ""
+"Which plan does this hand have? Seven cards from your deck, played a few "
+"hundred times."
+msgstr "この手札のプランは？ あなたのデッキから7枚、数百回プレイします。"
+
+#: templates/decks/tutor.html templates/decks/detail.html
+msgid "Hand tutor"
+msgstr "手札チューター"
+
+#: templates/decks/tutor.html
+msgid "Which plan does this hand have?"
+msgstr "この手札のプランは？"
+
+#: templates/decks/tutor.html
+msgid ""
+"Seven cards from your deck. The tutor plays this hand a few hundred times "
+"and tells you what it plays, from your deck's themes and engines. Show me "
+"explains it; the two guessing steps let you read the hand first. A guess "
+"counts for nothing and is not stored."
+msgstr ""
+"あなたのデッキから7枚。チューターがこの手札を数百回プレイし、デッキのテーマとエンジンから、この手札が何をするかを教えます。「見せて」で説明を表示し、2つの当てるステップでは先に自分で手札を読みます。答えは評価に影響せず、保存もされません。"
+
+#: templates/decks/tutor.html
+msgid "Step"
+msgstr "ステップ"
+
+#: templates/decks/_tutor_result.html
+msgid ""
+"The fish is playing this hand a few hundred times. This takes a few seconds."
+msgstr "金魚がこの手札を数百回プレイしています。数秒かかります。"
+
+#: templates/decks/_tutor_result.html
+msgid "Reload the page in a moment to see the answer."
+msgstr "少し待ってからページを再読み込みすると答えが表示されます。"
+
+#: templates/decks/_tutor_result.html
+#, python-format
+msgid "%(lands)s land. The engine's mulligan rule keeps this seven."
+msgid_plural "%(lands)s lands. The engine's mulligan rule keeps this seven."
+msgstr[0] "土地%(lands)s枚。エンジンのマリガンルールではこの7枚をキープします。"
+
+#: templates/decks/_tutor_result.html
+#, python-format
+msgid ""
+"%(lands)s land. The engine's mulligan rule sends this seven back; the tutor "
+"reads it anyway."
+msgid_plural ""
+"%(lands)s lands. The engine's mulligan rule sends this seven back; the tutor"
+" reads it anyway."
+msgstr[0] "土地%(lands)s枚。エンジンのマリガンルールではこの7枚を戻しますが、チューターはそのまま読み取ります。"
+
+#: templates/decks/_tutor_result.html
+msgid "Which plan does this hand play?"
+msgstr "この手札はどのプランを狙う？"
+
+#: templates/decks/_tutor_result.html
+msgid ""
+"Help: the cards of this hand for each of your deck's themes. Playable early:"
+" costs 3 or less, and no more than the hand's lands and accelerants make."
+msgstr "ヒント：デッキのテーマごとに、この手札にあるカード。早く出せる：コスト3以下で、手札の土地と加速カードが出すマナ以下のもの。"
+
+#: templates/decks/_tutor_result.html
+#, python-format
+msgid "%(count)s playable early"
+msgid_plural "%(count)s playable early"
+msgstr[0] "早く出せる：%(count)s枚"
+
+#: templates/decks/_tutor_result.html
+msgid "no card in this hand"
+msgstr "この手札にはなし"
+
+#: templates/decks/_tutor_result.html
+msgid "No plan yet"
+msgstr "まだプランなし"
+
+#: templates/decks/_tutor_result.html
+msgid "I don't know, show me"
+msgstr "わからない、見せて"
+
+#: templates/decks/_tutor_result.html
+msgid "None of this deck's engines can run yet, so there is little to guess."
+msgstr "このデッキのエンジンはまだどれも回せないため、当てるものはあまりありません。"
+
+#: templates/decks/_tutor_result.html
+msgid "Right."
+msgstr "正解。"
+
+#: templates/decks/_tutor_result.html
+msgid "Not this time. No matter: a guess counts for nothing."
+msgstr "今回は違いました。気にしないで。答えは評価に影響しません。"
+
+#: templates/decks/_tutor_result.html
+msgid "Theme"
+msgstr "テーマ"
+
+#: templates/decks/_tutor_result.html
+msgid "In this hand"
+msgstr "この手札に"
+
+#: templates/decks/_tutor_result.html
+msgid "Running by turn 6"
+msgstr "6ターン目までに稼働"
+
+#: templates/decks/_tutor_result.html
+msgid "Your deck usually"
+msgstr "デッキの通常値"
+
+#: templates/decks/_tutor_result.html
+msgid "plan"
+msgstr "プラン"
+
+#: templates/decks/_tutor_result.html
+msgid ""
+"With this hand: the hand kept and played on, the rest of the deck shuffled "
+"anew each game. Your deck usually: its last simulation, every opening hand. "
+"An engine runs when every piece of it is out; a theme without an engine that"
+" can run has no number."
+msgstr ""
+"この手札で：この手札をキープしてプレイし、残りのデッキは対戦ごとにシャッフルし直します。デッキの通常値：前回のシミュレーションの、すべての初手での値です。エンジンはすべてのパーツが場に出たときに稼働します。稼働できるエンジンのないテーマには数値がありません。"
+
+#: templates/decks/_tutor_result.html
+msgid "Next hand"
+msgstr "次の手札"
+
+#: templates/decks/detail.html
+msgid "which plan does a hand from this deck have?"
+msgstr "このデッキの手札にはどんなプランがある？"

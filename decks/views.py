@@ -27,7 +27,7 @@ from billing.views import upgrade_prompt
 from combos import services as combo_services
 from combos.models import DeckCombo
 from decks import analysis as deck_analysis
-from decks import command_zone, engine_watch, printing_art, services
+from decks import command_zone, engine_watch, printing_art, services, tutor
 from decks.forms import (
     DELETE_WORDS,
     ColumnMappingForm,
@@ -36,6 +36,7 @@ from decks.forms import (
     DeleteDeckForm,
     ImportForm,
     MarkForm,
+    TutorForm,
 )
 from decks.importers import columns, tabular
 from decks.models import (
@@ -707,6 +708,60 @@ class DeckMarkView(OwnedDecksMixin, View):
                            "engine_rows": engine_watch.engine_rows(
                                reading, last_run, summary.engine_notes(request.user, deck))})
         return redirect(f"{deck.get_absolute_url()}#engines")
+
+
+@method_decorator(ratelimit(key="user", rate="30/m", method="GET"), name="get")
+class HandTutorView(OwnedDecksMixin, View):
+    """The hand tutor: "Which plan does this hand have?" (Paket 5, PR 21).
+
+    One address per hand: `?hand=<seed>&step=<1|2|3>`, without a hand a new
+    one is dealt. Step 1 shows the plan; step 2 asks for it with the hand's
+    cards per theme as help; step 3 asks with the hand alone. A guess
+    (`&guess=`) shows the answer with a word on it; nothing is stored, so a
+    wrong guess counts for nothing. The worker plays the hand
+    (`decks.tutor`); until it has, the page polls (htmx) for `#tutor-result`.
+    """
+
+    def get(self, request, pk):
+        deck = get_object_or_404(self.get_queryset().select_related("commander", "partner"), pk=pk)
+        form = TutorForm(request.GET)
+        if not form.is_valid():
+            return HttpResponseBadRequest()
+        seed, step = form.cleaned_data["hand"], form.cleaned_data["step"]
+        if seed is None:
+            query = urlencode({"hand": secrets.randbelow(2**62), "step": step})
+            return redirect(f"{reverse('decks:tutor', args=[deck.pk])}?{query}")
+        answer = tutor.cached(deck, seed, True)
+        if answer is None:
+            tutor.ask(deck, seed, True)
+        context = {"deck": deck, "seed": seed, "step": step, "steps": TUTOR_STEPS,
+                   "answer": answer}
+        if answer is not None:
+            last_run = deck.runs.filter(status=SimulationRun.Status.DONE).first()
+            reading = tutor.explain(deck, answer, last_run)
+            guess = form.cleaned_data["guess"]
+            choices = [(row.theme, row.label) for row in reading.rows if row.value is not None]
+            known = {key for key, _label in choices} | {tutor.NONE, TUTOR_SHOW}
+            guess = guess if guess in known else ""
+            images = deck.card_images()
+            context.update({
+                "reading": reading, "choices": choices, "guess": guess,
+                "right": guess in reading.answers,
+                "revealed": step == TutorForm.SHOW or bool(guess),
+                "hand": [{"card": {"name": name}, "image": images.get(name, "")}
+                         for name in reading.hand],
+            })
+        template = ("decks/_tutor_result.html" if request.headers.get("HX-Request")
+                    else "decks/tutor.html")
+        return render(request, template, context)
+
+
+#: The tutor's steps: the plan shown, guessed with help, guessed alone.
+TUTOR_STEPS = ((TutorForm.SHOW, gettext_noop("Show me")),
+               (TutorForm.HELP, gettext_noop("Guess with help")),
+               (TutorForm.ALONE, gettext_noop("Guess alone")))
+#: The guess "I don't know, show me".
+TUTOR_SHOW = "show"
 
 
 class DeckRenameView(OwnedDecksMixin, View):

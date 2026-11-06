@@ -8,8 +8,8 @@ in the Themen-Doc; every recommendation accepted by the owner on 2026-11-06.
 
 | PR | What | Status |
 |---|---|---|
-| 20 | Search Console review: a weekly GitHub Action writes the report as an issue, in the private ops repository | **Built** (dev); owner steps open |
-| 21 | Hand tutor: "Which plan does this hand have?", rules only, three steps | Planned |
+| 20 | Search Console review: a weekly GitHub Action writes the report as an issue, in the private ops repository | **Done** (main); owner steps open |
+| 21 | Hand tutor: "Which plan does this hand have?", rules only, three steps | **Built** (dev) |
 | 22 | Weekly news: the page, the AI label, a Claude routine that opens the PR | Planned |
 | 23 | Archidekt link import (after Archidekt agrees) and text-export guides; importer check in Celery Beat | Planned |
 | 24 | Pricing page: yearly plans first; a founder price only if the owner asks for it | Planned |
@@ -195,3 +195,43 @@ the workflows from main):
   command, the endpoints and paging with a fake session, a planted key in four bad shapes and
   in an HTTP error, and the workflows (only called, pinned, no contents write, the writer
   without Python or secret, the key in one step, the validation before the issue).
+
+## How PR 21 works
+
+Built while the owner was away (2026-11-06, "decide in the project's interest"); the calls made
+on the way are listed at the end.
+
+- `decks/tutor.py`. A hand is a deal seed, dealt as the playtest deals (`deal`: the deck in the
+  seed's shuffle, seven drawn). `play` keeps that seven in each of `GAMES` = 300 games
+  (`Game.take_given_hand`, `analysis.simulate_game(hand=...)`: no mulligan, the rest of the deck
+  shuffled anew, the games' seed from the deal's) and counts the games in which each engine of
+  the deck page runs by turn 6 (`engine_watch.watches`, `BY_TURN`). `measure` adds the lands,
+  the engine's keep rule for a free seven (`keeps_free_seven`) and the cards' costs, and puts
+  the answer in the cache for a day, keyed by the engine version and the deck's fingerprint
+  (`simulations.summary.fingerprint`: cards, commander, corrections).
+- `explain` builds the page: per theme of the deck (strongest first) the cards in hand, those
+  playable early (cost 3 or less and no more than the hand's lands and accelerants make), the
+  share with this hand and the deck's usual share (its last run). The plan is the engine running
+  most often; under 15 % nothing is a plan, and engines within 5 points of the best count as the
+  plan too (300 games cannot tell them apart). The deck's own theme leads when it is one of them.
+  Every sentence is a template in six languages.
+- `decks.tasks.read_hand` plays the hand on the short worker (about a second); `tutor.ask` sends
+  it once (`cache.add` as the lock). The page (`HandTutorView`, `/decks/<id>/tutor/?hand=&step=`)
+  polls `#tutor-result` every second until the answer is there.
+- Steps: 1 "Show me" (the answer), 2 "Guess with help" (the cards per theme, then a guess),
+  3 "Guess alone". A guess is a button (`?guess=`), compared with the page's own answers only;
+  "I don't know, show me" reveals without a word on it. Nothing is stored.
+- The engine change is a new path only: a game without `hand` deals and mulligans exactly as
+  before, so `ENGINE_VERSION` stays 38 and no number on the site moves.
+- `Deck.card_images` (moved from the playtest view) gives the hand its pictures.
+- Tests: `tests/test_hand_tutor.py` (30). Browser: the link, the waiting note, the three steps,
+  a guess, "I don't know", a new hand, a deck without an engine that can run, phone, German.
+
+Calls made on the way (PR 21):
+
+- Always on the play: whether the hand is on the play or the draw changes little about which
+  plan it has, and one switch less on a page for beginners.
+- Signed-in only, guests included (`OwnedDecksMixin`): the guest trial's deck works, a stranger
+  without a deck has nothing to read. 30 requests a minute per user.
+- The help in step 2 shows the cards per theme but no numbers, so the guess is still a guess.
+- A theme without an engine that can run is listed without a number and is never a plan.

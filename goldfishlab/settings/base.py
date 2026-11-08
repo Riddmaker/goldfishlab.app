@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "metrics",
     "datapages",
     "changelog",
+    "news",
 ]
 
 MIDDLEWARE = [
@@ -113,6 +114,7 @@ TEMPLATES = [
                 "core.context_processors.languages",
                 "core.context_processors.seo",
                 "changelog.context_processors.mail_wanted",
+                "news.context_processors.mail_wanted",
             ],
         },
     },
@@ -219,7 +221,8 @@ LEGAL_EU_REP_EMAIL = env("LEGAL_EU_REP_EMAIL", default="")
 # defaults to hello@ (settings/prod.py).
 EMAIL_REPLY_TO = env("DJANGO_EMAIL_REPLY_TO", default="")
 
-# The changelog's monthly mail (C7) and who sends it. Blank: no mail, and
+# The changelog's monthly mail (C7) and who sends it - and the weekly news
+# mail (PR 22), which goes out from the same sender and login. Blank: no mail, and
 # /changelog/ offers its feed alone. A sender of its own, so the one mail
 # that goes to many can have its own mailbox. Its
 # own SMTP login when that mailbox needs one; blank uses DJANGO_EMAIL_HOST_*.
@@ -392,6 +395,12 @@ CELERY_BEAT_SCHEDULE = {
     "changelog-digest": {
         "task": "changelog.digest",
         "schedule": crontab(minute="0", hour="9", day_of_month="1"),
+    },
+    # PR 22: the newest week of news, once, to whoever asked for it. Every
+    # morning, because a week goes live with its deploy (news.tasks).
+    "news-digest": {
+        "task": "news.digest",
+        "schedule": crontab(minute="30", hour="9"),
     },
 }
 #: Who `core.alerts` mails (phase 12 J12). Empty: a log line instead. It needs

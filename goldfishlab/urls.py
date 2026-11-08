@@ -28,6 +28,8 @@ from core.views import (
 )
 from datapages.sitemaps import PreconSitemap
 from metrics.views import stats
+from news.urls import page_patterns as news_pages
+from news.urls import switch_patterns as news_switches
 from sharing.urls import report_patterns
 
 # The admin's login is Django's own view, so neither allauth's limits nor ours
@@ -78,6 +80,8 @@ urlpatterns = [
     # C7: subscribing to the changelog by mail and stopping it. The mail's
     # link to stop must keep its address, like every link in a mail.
     *changelog_switches,
+    # PR 22: the same for the weekly news.
+    *news_switches,
 ]
 
 # P10: the pages a search engine should find carry their language in the
@@ -108,6 +112,8 @@ urlpatterns += i18n_patterns(
     path("imprint/", ImprintView.as_view(), name="imprint"),
     # C7: what changed, and its feed, in every language.
     *changelog_pages,
+    # PR 22: the week's Commander news, and its feed.
+    *news_pages,
     prefix_default_language=False,
 )
 

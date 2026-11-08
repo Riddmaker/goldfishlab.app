@@ -94,20 +94,28 @@ def _back(request, fallback: str) -> str:
 
 class SubscribeView(View):
     """"Subscribe by email". An account subscribes and goes back; anybody
-    else is sent to make one, with the wish kept (`changelog.services`)."""
+    else is sent to make one, with the wish kept (`core.mailing`).
+
+    The news (PR 22) uses the same three views with its own list, page and
+    words."""
+
+    mail_list = services.LIST
+    page = "changelog"
+
+    def subscribed(self):
+        return gettext("You're subscribed: the changelog comes by mail once a month, "
+                       "when there is something new.")
 
     def post(self, request):
         if not services.mail_on():
             raise Http404
-        back = _back(request, reverse("changelog"))
+        back = _back(request, reverse(self.page))
         user = request.user
         if services.can_subscribe(user):
-            services.subscribe(user)
-            messages.success(request, gettext(
-                "You're subscribed: the changelog comes by mail once a month, "
-                "when there is something new."))
+            self.mail_list.subscribe(user)
+            messages.success(request, self.subscribed())
             return redirect(back)
-        services.want(request)
+        self.mail_list.want(request)
         if guest_services.is_guest(user):
             return redirect("guests:save")
         return redirect(f"{reverse('account_signup')}?{urlencode({'next': back})}")
@@ -116,12 +124,17 @@ class SubscribeView(View):
 class UnsubscribeView(View):
     """The switch on /changelog/ and on "Your plan", for a signed-in account."""
 
+    mail_list = services.LIST
+    page = "changelog"
+
+    def unsubscribed(self):
+        return gettext("Unsubscribed. No more changelog mails.")
+
     def post(self, request):
         if services.can_subscribe(request.user):
-            services.unsubscribe(request.user)
-            messages.success(request, gettext(
-                "Unsubscribed. No more changelog mails."))
-        return redirect(_back(request, reverse("changelog")))
+            self.mail_list.unsubscribe(request.user)
+            messages.success(request, self.unsubscribed())
+        return redirect(_back(request, reverse(self.page)))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -135,9 +148,10 @@ class TokenUnsubscribeView(View):
     the proof, and all it can ever do is switch a mail off."""
 
     template_name = "changelog/unsubscribe.html"
+    mail_list = services.LIST
 
     def dispatch(self, request, token):
-        self.account = services.user_for(token)
+        self.account = self.mail_list.user_for(token)
         if self.account is None:
             raise Http404
         # The account's own language; without one, the visitor's.
@@ -146,11 +160,14 @@ class TokenUnsubscribeView(View):
             return super().dispatch(request, token)
 
     def get(self, request, token):
-        return render(request, self.template_name,
-                      {"account": self.account, "done": False})
+        return self.show(request, done=False)
 
     def post(self, request, token):
-        services.unsubscribe(self.account)
-        return render(request, self.template_name,
-                      {"account": self.account, "done": True})
+        self.mail_list.unsubscribe(self.account)
+        return self.show(request, done=True)
 
+    def show(self, request, done):
+        return render(request, self.template_name, {
+            "account": self.account,
+            "done": done or not getattr(self.account, self.mail_list.field),
+        })

@@ -1,0 +1,23 @@
+{% extends "account/email/base_message.html" %}
+{% load i18n %}
+{% comment %}
+  The weekly news mail (PR 22, news.tasks): the newest week's items, each
+  with its links, the label, and the one-click way out.
+{% endcomment %}
+{% block preheader %}{% blocktranslate trimmed count items=issue.items|length %}{{ items }} piece of Commander news this week.{% plural %}{{ items }} pieces of Commander news this week.{% endblocktranslate %}{% endblock preheader %}
+{% block heading %}{% blocktranslate trimmed with number=issue.number %}Commander news, week {{ number }}{% endblocktranslate %}{% endblock heading %}
+{% block content %}
+{% for item in issue.items %}
+<p style="margin:0 0 4px;font-weight:bold;"><a href="{{ site_url }}{% url 'news' %}#{{ item.anchor }}" style="color:#12100d;">{{ item.headline }}</a></p>
+<p style="margin:0 0 4px;">{{ item.summary }}</p>
+<p style="margin:0 0 20px;font-size:13px;line-height:20px;color:#5d564a;">{% for link in item.links %}{% translate "Source" %}: <a href="{{ link.url }}" style="color:#5d564a;">{{ link.title }}</a> ({{ link.source }}){% if not forloop.last %}<br>{% endif %}{% endfor %}</p>
+{% endfor %}
+<p style="margin:24px 0 0;font-size:13px;line-height:20px;color:#5d564a;">
+  {% translate "Summarised with AI from the linked articles, checked by our editor before it was sent." %}
+</p>
+<p style="margin:12px 0 0;font-size:13px;line-height:20px;color:#5d564a;">
+  {% translate "You get this mail because you asked for it." %}
+  <a href="{{ unsubscribe_url }}" style="color:#5d564a;">{% translate "Unsubscribe with one click" %}</a>
+  · <a href="{{ site_url }}{% url 'billing:plans' %}#settings" style="color:#5d564a;">{% translate "All your mail settings" %}</a>
+</p>
+{% endblock content %}

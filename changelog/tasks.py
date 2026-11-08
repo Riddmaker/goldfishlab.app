@@ -14,18 +14,19 @@ already has the month's mail.
 import logging
 import smtplib
 from datetime import date, timedelta
+from types import SimpleNamespace
+from urllib.parse import urlsplit
 
 from allauth.account.models import EmailAddress
 from celery import shared_task
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, get_connection
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import timezone, translation
 
 from changelog import entries, services
-from core import mailing
 
 logger = logging.getLogger(__name__)
 
@@ -48,8 +49,19 @@ def recipients(month: date):
             .order_by("pk"))
 
 
-connection = mailing.connection
-_site = mailing.site
+def connection():
+    """The changelog's own SMTP login when it has one, else the site's."""
+    if settings.CHANGELOG_EMAIL_HOST_USER:
+        return get_connection(username=settings.CHANGELOG_EMAIL_HOST_USER,
+                              password=settings.CHANGELOG_EMAIL_HOST_PASSWORD)
+    return get_connection()
+
+
+def _site():
+    """What the mail templates read from a request (`account/email/base_message.*`),
+    from `SITE_URL`: a task has no request."""
+    parts = urlsplit(settings.SITE_URL or "https://goldfishlab.app")
+    return SimpleNamespace(scheme=parts.scheme), SimpleNamespace(domain=parts.netloc)
 
 
 def message(user, month: date) -> EmailMultiAlternatives:
@@ -71,7 +83,11 @@ def message(user, month: date) -> EmailMultiAlternatives:
         html = render_to_string("changelog/email/digest_message.html", context)
     mail = EmailMultiAlternatives(
         subject, text, settings.CHANGELOG_FROM_EMAIL, [user.email],
-        headers=mailing.unsubscribe_headers(unsubscribe_url),
+        headers={
+            # One click in the mail program's own "Unsubscribe" (RFC 8058).
+            "List-Unsubscribe": f"<{unsubscribe_url}>",
+            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
     )
     mail.attach_alternative(html, "text/html")
     return mail

@@ -1,1 +1,0 @@
-{% load i18n %}{% autoescape off %}{% blocktranslate trimmed with number=issue.number %}Commander news, week {{ number }}{% endblocktranslate %}{% endautoescape %}

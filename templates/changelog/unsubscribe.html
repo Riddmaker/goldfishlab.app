@@ -11,7 +11,7 @@
   <section class="max-w-3xl">
     <h1 class="font-display text-4xl leading-tight text-parchment-100">{% translate "The changelog by mail" %}</h1>
     <div class="mt-6 surface-parchment p-6" data-unsubscribe>
-      {% if done %}
+      {% if done or not account.changelog_mail %}
         <p class="text-ink-900">
           {% blocktranslate trimmed with email=account.email %}
             <strong>Unsubscribed.</strong> {{ email }} gets no more changelog mails.

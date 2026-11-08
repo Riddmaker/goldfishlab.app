@@ -96,8 +96,6 @@ def export(user) -> dict:
             "language": user.language,
             "changelog_mail": user.changelog_mail,
             "changelog_mail_since": user.changelog_mail_since,
-            "news_mail": user.news_mail,
-            "news_mail_since": user.news_mail_since,
         },
         "exported_at": _now(),
         # Named in the file itself, because a person who opens an export and

@@ -44,7 +44,6 @@ PUBLIC_PAGES = (
     "datapages:precons",
     "datapages:lands",
     "changelog",
-    "news",
     "terms",
     "privacy",
     "imprint",

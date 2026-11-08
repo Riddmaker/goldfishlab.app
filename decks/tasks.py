@@ -30,3 +30,17 @@ def read_hand(deck_id: str, seed: int, on_the_play: bool) -> bool:
         return False
     tutor.measure(deck, seed, on_the_play)
     return True
+
+
+@shared_task(name="decks.read_mulligan")
+def read_mulligan(deck_id: str, seed: int) -> bool:
+    """Play one hand of "Keep or mulligan?" both ways (`decks.mulligan.measure`);
+    its answer goes to the cache, where the page polls for it."""
+    from decks import mulligan
+    from decks.models import Deck
+
+    deck = Deck.objects.filter(pk=deck_id).first()
+    if deck is None:
+        return False
+    mulligan.measure(deck, seed)
+    return True

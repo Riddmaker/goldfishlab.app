@@ -385,7 +385,7 @@ def _count_seen(game, groups) -> list[int]:
 def simulate_game(rng: random.Random, on_the_play: bool = True,
                   turns: int = DEFAULT_TURNS, keep_log: bool = False,
                   deck=None, watch=(), groups=None, trace=None, stress=False,
-                  hand=None):
+                  hand=None, mulligans=0):
     """Play one goldfish game and return what was measured.
 
     Args:
@@ -405,13 +405,17 @@ def simulate_game(rng: random.Random, on_the_play: bool = True,
         hand: The names of an opening seven to keep instead of dealing one
             (`Game.take_given_hand`): the hand tutor's question, what this
             hand plays. Left out, and the game deals and mulligans as always.
+        mulligans: How many mulligans the player has taken before the game
+            deals (`Game.take_opening_hand`): 1 is a seven sent back, what
+            "Keep or mulligan?" compares the kept seven with. Ignored with
+            ``hand``.
 
     Returns:
         dict: the game's metrics, including the state after each turn.
     """
     game = Game(rng, on_the_play=on_the_play, deck=deck)
     if hand is None:
-        game.take_opening_hand()
+        game.take_opening_hand(mulligans)
     else:
         game.take_given_hand(hand)
     if trace is not None:

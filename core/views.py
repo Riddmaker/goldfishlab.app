@@ -129,7 +129,9 @@ class PrivacyView(TemplateView):
     # must agree to again: nothing changes for whoever does not switch it on.
     # 2026-10-21: feedback on a deck summary, kept with its case - opt-in too,
     # so no new consent either.
-    extra_context = {"updated": date(2026, 10, 21)}
+    # 2026-11-08: the answers in Keep or mulligan? (Paket 5, PR 25) - stored
+    # only for whoever plays it, so no new consent either (owner, E4).
+    extra_context = {"updated": date(2026, 11, 8)}
 
 
 class ResourcesView(TemplateView):

@@ -128,6 +128,11 @@
               <td class="py-2 align-top">{% translate "Until you delete the account" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
+              <td class="py-2 pr-4 align-top">{% translate "Your answers in Keep or mulligan?, if you play it: the hand, a few facts about it and about the deck (how many lands and accelerants, the commander, the colours - not the list), keep or mulligan, how sure you said you were, how long you took, and what the simulation said" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "To show you your own record (contract), and to make the simulator's mulligan rule better from all answers together (legitimate interest)" %}</td>
+              <td class="py-2 align-top">{% translate "Until you delete the account - also after you delete the deck, without its name" %}</td>
+            </tr>
+            <tr class="border-b border-ink-200">
               <td class="py-2 pr-4 align-top">{% translate "Shared reports: the link, a copy of the deck's name, commander, card list and summary as they were when you shared it, and how often others opened the link (a number, nothing about who)" %}</td>
               <td class="py-2 pr-4 align-top">{% translate "To show the report to anybody with the link, because you asked us to (contract)" %}</td>
               <td class="py-2 align-top">{% translate "Until you stop sharing, or delete the run, the deck or the account" %}</td>
@@ -508,9 +513,11 @@
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">
         {% blocktranslate trimmed %}
-          None are automated. The simulator judges decks, not people: there is no
-          profiling, no scoring of users and no decision with legal effect made
-          by a machine.
+          None are automated. The simulator judges decks, not people: there is
+          no decision with legal effect made by a machine. One thing counts you:
+          Keep or mulligan? keeps your record - how often your call matched the
+          simulation, and how sure you were. Only you see it, and nothing follows
+          from it.
         {% endblocktranslate %}
       </p>
     </div>

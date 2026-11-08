@@ -29,6 +29,9 @@ select = ["E", "F", "W", "I", "B", "UP", "DJ", "S"]
 "playtest/services.py" = ["S311"]
 # The hand tutor deals and replays a hand from its seed the same way (PR 21).
 "decks/tutor.py" = ["S311"]
+# And "Keep or mulligan?" its rounds and both sides of a hand (PR 25); the
+# round itself starts from `secrets`.
+"decks/mulligan.py" = ["S311"]
 
 # The four engine test modules are vendored from the magic-project repository
 # and must stay BYTE-IDENTICAL to their originals - that equality is the whole

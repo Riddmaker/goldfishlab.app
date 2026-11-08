@@ -524,3 +524,67 @@ class PendingImport(models.Model):
 
     def get_absolute_url(self) -> str:
         return reverse("decks:map", args=[self.id])
+
+
+class MulliganDecision(models.Model):
+    """One answer in "Keep or mulligan?" (Paket 5, PR 25; `decks.mulligan`).
+
+    Stored from the first day so that the decisions can later teach the
+    engine: "our style" from all accounts together, "your style" per
+    account, and a better mulligan rule only through a reviewed change with a
+    new engine version. Until then they show the player their own record.
+
+    The hand and the facts about the hand and the deck are kept, not the
+    deck list: a decision can be read after the deck changed or went, which
+    is why `deck` is set to null rather than deleting the row. The account
+    takes its decisions with it. No IP address, device or language.
+    """
+
+    class Choice(models.TextChoices):
+        KEEP = "keep", "Keep"
+        MULLIGAN = "mulligan", "Mulligan"
+
+    class Sure(models.IntegerChoices):
+        UNSURE = 1, "Unsure"
+        FAIRLY = 2, "Fairly sure"
+        SURE = 3, "Sure"
+
+    #: The longest decision time kept; longer is someone who walked away.
+    SLOWEST_MS = 10 * 60 * 1000
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             related_name="mulligan_decisions")
+    deck = models.ForeignKey(Deck, on_delete=models.SET_NULL, null=True, blank=True,
+                             related_name="mulligan_decisions")
+    #: The round and the hand's place in it, and the deal: the hand can be
+    #: dealt and played again exactly (with `engine_version` and `deck_print`).
+    round_seed = models.BigIntegerField()
+    position = models.PositiveSmallIntegerField()
+    seed = models.BigIntegerField()
+    on_the_play = models.BooleanField()
+    engine_version = models.PositiveSmallIntegerField()
+    deck_print = models.CharField(max_length=64)
+    hand = models.JSONField(default=list)
+    hand_facts = models.JSONField(default=dict)
+    deck_facts = models.JSONField(default=dict)
+    #: What the engine's own rule for the free seven says (`keeps_free_seven`).
+    rule_keeps = models.BooleanField()
+    choice = models.CharField(max_length=8, choices=Choice.choices)
+    sure = models.PositiveSmallIntegerField(choices=Sure.choices, null=True, blank=True)
+    decision_ms = models.PositiveIntegerField()
+    #: What the simulation said: per side the games with a good start and
+    #: with an engine running, the games per side and the verdict. Empty
+    #: until the page has shown it.
+    result = models.JSONField(default=dict, blank=True)
+    verdict = models.CharField(max_length=8, blank=True)
+    right = models.BooleanField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [models.UniqueConstraint(fields=["user", "round_seed", "position"],
+                                               name="one_decision_per_hand")]
+
+    def __str__(self) -> str:
+        return f"{self.choice} ({self.round_seed}/{self.position})"

@@ -16384,3 +16384,328 @@ msgstr "CHF %(price)s al año"
 #, python-format
 msgid "That is CHF %(month)s a month, %(saving)s less than paying monthly."
 msgstr "Son CHF %(month)s al mes, un %(saving)s menos que pagando cada mes."
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid "Keep or mulligan: %(name)s"
+msgstr "¿Quedártela o mulligan?: %(name)s"
+
+#: templates/decks/mulligan.html
+msgid ""
+"Seven cards from your deck: keep or mulligan? The simulation plays both a "
+"thousand times and says which was better."
+msgstr ""
+"Siete cartas de tu mazo: ¿te la quedas o haces mulligan? La simulación juega"
+" ambas opciones mil veces y te dice cuál fue mejor."
+
+#: templates/decks/mulligan.html templates/decks/detail.html
+#: templates/decks/tutor.html
+msgid "Keep or mulligan?"
+msgstr "¿Quedártela o mulligan?"
+
+#: templates/decks/mulligan.html
+msgid "The round"
+msgstr "La ronda"
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid "%(right)s of %(decided)s hand right."
+msgid_plural "%(right)s of %(decided)s hands right."
+msgstr[0] "%(right)s de %(decided)s mano acertada."
+msgstr[1] "%(right)s de %(decided)s manos acertadas."
+msgstr[2] "%(right)s de %(decided)s manos acertadas."
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid "%(close)s of them was close: either answer counts."
+msgid_plural "%(close)s of them were close: either answer counts."
+msgstr[0] ""
+"%(close)s estaba muy reñida: cuenta cualquiera de las dos respuestas."
+msgstr[1] ""
+"%(close)s estaban muy reñidas: cuenta cualquiera de las dos respuestas."
+msgstr[2] ""
+"%(close)s estaban muy reñidas: cuenta cualquiera de las dos respuestas."
+
+#: templates/decks/mulligan.html
+msgid "No hand of this round is judged yet."
+msgstr "Todavía no se ha evaluado ninguna mano de esta ronda."
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid "%(waiting)s hand is still being played; reload in a moment."
+msgid_plural "%(waiting)s hands are still being played; reload in a moment."
+msgstr[0] "%(waiting)s mano se está jugando todavía; recarga en un momento."
+msgstr[1] "%(waiting)s manos se están jugando todavía; recarga en un momento."
+msgstr[2] "%(waiting)s manos se están jugando todavía; recarga en un momento."
+
+#: templates/decks/mulligan.html
+msgid "Your record"
+msgstr "Tu historial"
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid "Over all your rounds: %(right)s of %(decided)s hand right."
+msgid_plural "Over all your rounds: %(right)s of %(decided)s hands right."
+msgstr[0] "En todas tus rondas: %(right)s de %(decided)s mano acertada."
+msgstr[1] "En todas tus rondas: %(right)s de %(decided)s manos acertadas."
+msgstr[2] "En todas tus rondas: %(right)s de %(decided)s manos acertadas."
+
+#: templates/decks/mulligan.html
+msgid ""
+"How sure you said you were, and how often you were right then. Being right "
+"more often when sure is the point."
+msgstr ""
+"Lo seguro que dijiste estar y cuántas veces acertaste entonces. La idea: "
+"acertar más a menudo cuando estás seguro."
+
+#: templates/decks/mulligan.html
+msgid "You said"
+msgstr "Dijiste"
+
+#: templates/decks/mulligan.html
+msgid "Hands"
+msgstr "Manos"
+
+#: templates/decks/mulligan.html
+msgid "Right"
+msgstr "Acertadas"
+
+#: templates/decks/mulligan.html
+msgid "Nothing judged yet."
+msgstr "Todavía no hay nada evaluado."
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid ""
+"Only you see your record, and nothing follows from it. <a "
+"href=\"%(privacy_url)s\" class=\"underline\">What is stored</a>."
+msgstr ""
+"Solo tú ves tu historial, y no se deriva nada de él. <a "
+"href=\"%(privacy_url)s\" class=\"underline\">Qué se guarda</a>."
+
+#: templates/decks/mulligan.html
+msgid "New round"
+msgstr "Nueva ronda"
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid "Hand %(n)s of %(total)s"
+msgstr "Mano %(n)s de %(total)s"
+
+#: templates/decks/mulligan.html
+msgid "You are on the play."
+msgstr "Empiezas tú."
+
+#: templates/decks/mulligan.html
+msgid "You are on the draw."
+msgstr "Robas en tu primer turno."
+
+#: templates/decks/mulligan.html
+msgid ""
+"Your first seven: keep it, or send it back? The first mulligan is free in "
+"Commander. The simulation then plays both a thousand times - this hand kept,"
+" and a fresh seven - and tells you which started better."
+msgstr ""
+"Tus primeras siete: ¿te las quedas o las devuelves? El primer mulligan es "
+"gratis en Commander. Después la simulación juega ambas opciones mil veces - "
+"esta mano, y siete cartas nuevas - y te dice cuál empezó mejor."
+
+#: templates/decks/_mulligan_result.html
+#, python-format
+msgid "%(lands)s land in this hand."
+msgid_plural "%(lands)s lands in this hand."
+msgstr[0] "%(lands)s tierra en esta mano."
+msgstr[1] "%(lands)s tierras en esta mano."
+msgstr[2] "%(lands)s tierras en esta mano."
+
+#: templates/decks/_mulligan_result.html
+msgid "How sure are you? (optional)"
+msgstr "¿Qué tan seguro estás? (opcional)"
+
+#: decks/views.py
+msgid "Unsure"
+msgstr "Dudoso"
+
+#: decks/views.py
+msgid "Fairly sure"
+msgstr "Bastante seguro"
+
+#: decks/views.py
+msgid "Sure"
+msgstr "Seguro"
+
+#: templates/decks/_mulligan_result.html
+#, python-format
+msgid ""
+"Your answer is stored with this hand: how sure you were, how long you took "
+"and what the simulation said. It shows you your record and helps us make the"
+" simulator's mulligan rule better. <a href=\"%(privacy_url)s\" "
+"class=\"underline\">Privacy policy</a>."
+msgstr ""
+"Tu respuesta se guarda con esta mano: lo seguro que estabas, cuánto tardaste"
+" y lo que dijo la simulación. Te muestra tu historial y nos ayuda a mejorar "
+"la regla de mulligan del simulador. <a href=\"%(privacy_url)s\" "
+"class=\"underline\">Política de privacidad</a>."
+
+#: templates/decks/_mulligan_result.html
+msgid ""
+"The deck changed after you answered, so this hand can no longer be judged. "
+"It does not count."
+msgstr ""
+"El mazo cambió después de tu respuesta, así que esta mano ya no se puede "
+"evaluar. No cuenta."
+
+#: templates/decks/_mulligan_result.html
+msgid "The fish is playing this hand both ways. This takes a few seconds."
+msgstr "El pez está jugando esta mano de las dos formas. Tarda unos segundos."
+
+#: templates/decks/_mulligan_result.html
+msgid "Close: both are fine."
+msgstr "Muy reñido: las dos valen."
+
+#: templates/decks/_mulligan_result.html
+#, python-format
+msgid "Keeping was better (+%(points)s points)."
+msgstr "Quedártela era mejor (+%(points)s puntos)."
+
+#: templates/decks/_mulligan_result.html
+#, python-format
+msgid "The mulligan was better (+%(points)s points)."
+msgstr "El mulligan era mejor (+%(points)s puntos)."
+
+#: templates/decks/_mulligan_result.html
+msgid "You kept."
+msgstr "Te la quedaste."
+
+#: templates/decks/_mulligan_result.html
+msgid "You took the mulligan."
+msgstr "Hiciste mulligan."
+
+#: templates/decks/_mulligan_result.html
+msgid "Not this time."
+msgstr "Esta vez no."
+
+#: templates/decks/_mulligan_result.html
+msgid "Measure"
+msgstr "Medida"
+
+#: templates/decks/_mulligan_result.html
+msgid "A good start"
+msgstr "Un buen comienzo"
+
+#: templates/decks/_mulligan_result.html
+msgid "An engine running by turn 6"
+msgstr "Un motor en marcha antes del turno 6"
+
+#: templates/decks/_mulligan_result.html
+msgid "The simulator's own mulligan rule keeps this seven."
+msgstr "La propia regla de mulligan del simulador se queda estas siete."
+
+#: templates/decks/_mulligan_result.html
+msgid "The simulator's own mulligan rule sends this seven back."
+msgstr "La propia regla de mulligan del simulador devuelve estas siete."
+
+#: templates/decks/_mulligan_result.html
+#, python-format
+msgid ""
+"A good start: by turn 4, at least 4 mana and 2 permanents that are not lands"
+" (the commander counts). %(games)s game each way: this hand kept, or a fresh"
+" seven after it went back, which the simulator then keeps or sends back by "
+"its own rule. ± is the 95%% margin; when the two are within it of each "
+"other, or under 3 points apart, it is close and either answer counts. The "
+"numbers hold for this deck and the simulator's assumptions, not for every "
+"table."
+msgid_plural ""
+"A good start: by turn 4, at least 4 mana and 2 permanents that are not lands"
+" (the commander counts). %(games)s games each way: this hand kept, or a "
+"fresh seven after it went back, which the simulator then keeps or sends back"
+" by its own rule. ± is the 95%% margin; when the two are within it of each "
+"other, or under 3 points apart, it is close and either answer counts. The "
+"numbers hold for this deck and the simulator's assumptions, not for every "
+"table."
+msgstr[0] ""
+"Un buen comienzo: para el turno 4, al menos 4 de maná y 2 permanentes que no"
+" sean tierras (el comandante cuenta). %(games)s partida por lado: esta mano,"
+" o siete cartas nuevas después de devolverla, que el simulador luego se "
+"queda o devuelve según su propia regla. ± es el margen del 95 %%; cuando los"
+" dos están dentro de él, o a menos de 3 puntos, está muy reñido y cuenta "
+"cualquiera de las dos respuestas. Los números valen para este mazo y las "
+"suposiciones del simulador, no para todas las mesas."
+msgstr[1] ""
+"Un buen comienzo: para el turno 4, al menos 4 de maná y 2 permanentes que no"
+" sean tierras (el comandante cuenta). %(games)s partidas por lado: esta "
+"mano, o siete cartas nuevas después de devolverla, que el simulador luego se"
+" queda o devuelve según su propia regla. ± es el margen del 95 %%; cuando "
+"los dos están dentro de él, o a menos de 3 puntos, está muy reñido y cuenta "
+"cualquiera de las dos respuestas. Los números valen para este mazo y las "
+"suposiciones del simulador, no para todas las mesas."
+msgstr[2] ""
+"Un buen comienzo: para el turno 4, al menos 4 de maná y 2 permanentes que no"
+" sean tierras (el comandante cuenta). %(games)s partidas por lado: esta "
+"mano, o siete cartas nuevas después de devolverla, que el simulador luego se"
+" queda o devuelve según su propia regla. ± es el margen del 95 %%; cuando "
+"los dos están dentro de él, o a menos de 3 puntos, está muy reñido y cuenta "
+"cualquiera de las dos respuestas. Los números valen para este mazo y las "
+"suposiciones del simulador, no para todas las mesas."
+
+#: templates/decks/_mulligan_result.html
+msgid "See the round"
+msgstr "Ver la ronda"
+
+#: templates/decks/detail.html
+msgid "ten hands from this deck, your call against a thousand games."
+msgstr "diez manos de este mazo, tu decisión contra mil partidas."
+
+#: templates/decks/tutor.html
+msgid "Ready for more?"
+msgstr "¿Listo para más?"
+
+#: templates/decks/tutor.html
+msgid ""
+"Ten hands from this deck: you decide, the simulation plays both a thousand "
+"times."
+msgstr ""
+"Diez manos de este mazo: tú decides, la simulación juega ambas opciones mil "
+"veces."
+
+#: templates/core/privacy.html
+msgid ""
+"Your answers in Keep or mulligan?, if you play it: the hand, a few facts "
+"about it and about the deck (how many lands and accelerants, the commander, "
+"the colours - not the list), keep or mulligan, how sure you said you were, "
+"how long you took, and what the simulation said"
+msgstr ""
+"Tus respuestas en «¿Quedártela o mulligan?», si juegas: la mano, algunos "
+"datos sobre ella y sobre el mazo (cuántas tierras y aceleradores, el "
+"comandante, los colores - no la lista), quedártela o mulligan, lo seguro que"
+" dijiste estar, cuánto tardaste y lo que dijo la simulación"
+
+#: templates/core/privacy.html
+msgid ""
+"To show you your own record (contract), and to make the simulator's mulligan"
+" rule better from all answers together (legitimate interest)"
+msgstr ""
+"Para mostrarte tu propio historial (contrato) y para mejorar la regla de "
+"mulligan del simulador a partir de todas las respuestas juntas (interés "
+"legítimo)"
+
+#: templates/core/privacy.html
+msgid ""
+"Until you delete the account - also after you delete the deck, without its "
+"name"
+msgstr ""
+"Hasta que borres la cuenta - también después de borrar el mazo, sin su "
+"nombre"
+
+#: templates/core/privacy.html
+msgid ""
+"None are automated. The simulator judges decks, not people: there is no "
+"decision with legal effect made by a machine. One thing counts you: Keep or "
+"mulligan? keeps your record - how often your call matched the simulation, "
+"and how sure you were. Only you see it, and nothing follows from it."
+msgstr ""
+"Ninguna es automatizada. El simulador juzga mazos, no personas: ninguna "
+"máquina toma una decisión con efectos jurídicos. Solo una cosa te cuenta: "
+"«¿Quedártela o mulligan?» lleva tu historial - cuántas veces tu decisión "
+"coincidió con la simulación y lo seguro que estabas. Solo tú lo ves, y no se"
+" deriva nada de él."

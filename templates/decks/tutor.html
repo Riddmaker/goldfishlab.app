@@ -30,4 +30,9 @@
   </div>
 
   {% include "decks/_tutor_result.html" %}
+  <p class="mt-8 text-parchment-200" data-mulligan-link>
+    {% translate "Ready for more?" %}
+    <a href="{% url 'decks:mulligan' deck.id %}" class="underline">{% translate "Keep or mulligan?" %}</a>
+    {% translate "Ten hands from this deck: you decide, the simulation plays both a thousand times." %}
+  </p>
 {% endblock %}

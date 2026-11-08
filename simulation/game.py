@@ -947,8 +947,14 @@ class Game(Marks):
         their turns before this one of yours (P19 R14, as in R12)."""
         return max(self.turn - 1, 0) > len(self.lands)
 
-    def take_opening_hand(self) -> None:
-        """Draw the opening hand, mulligans included."""
+    def take_opening_hand(self, mulligans: int = 0) -> None:
+        """Draw the opening hand, mulligans included.
+
+        `mulligans` is how many the player has taken already: "Keep or
+        mulligan?" (Paket 5, PR 25) plays a seven sent back as a game that
+        starts at one, a fresh seven under the rule for a mulligan taken.
+        """
+        self.mulligans = mulligans
         first = True
         while True:
             self.library = self.deck.shuffled(self.rng)

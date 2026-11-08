@@ -24,10 +24,12 @@ from django_ratelimit.decorators import ratelimit
 from billing import quotas
 from billing.quotas import QuotaExceeded
 from billing.views import upgrade_prompt
+from cards.names import front_face
 from combos import services as combo_services
 from combos.models import DeckCombo
+from core.l10n import percent
 from decks import analysis as deck_analysis
-from decks import command_zone, engine_watch, printing_art, services, tutor
+from decks import command_zone, engine_watch, mulligan, printing_art, services, tutor
 from decks.forms import (
     DELETE_WORDS,
     ColumnMappingForm,
@@ -36,6 +38,8 @@ from decks.forms import (
     DeleteDeckForm,
     ImportForm,
     MarkForm,
+    MulliganDecisionForm,
+    MulliganForm,
     TutorForm,
 )
 from decks.importers import columns, tabular
@@ -762,6 +766,129 @@ TUTOR_STEPS = ((TutorForm.SHOW, gettext_noop("Show me")),
                (TutorForm.ALONE, gettext_noop("Guess alone")))
 #: The guess "I don't know, show me".
 TUTOR_SHOW = "show"
+
+
+@method_decorator(ratelimit(key="user", rate="60/m", method="GET"), name="get")
+@method_decorator(ratelimit(key="user", rate="30/m", method="POST"), name="post")
+class MulliganQuizView(OwnedDecksMixin, View):
+    """Keep or mulligan? (Paket 5, PR 25; `decks.mulligan`).
+
+    One address per hand: `?round=<seed>&n=<1..10>`, `n=11` is the round's
+    end; without a round a new one starts. The hand is dealt here, and the
+    worker starts playing it at once, so the answer is usually ready when
+    the player has decided. The answer is a POST (it is stored) and comes
+    back to the same address, which then shows the verdict - polling until
+    the worker has it.
+    """
+
+    def get(self, request, pk):
+        deck = self.deck(pk)
+        form = MulliganForm(request.GET)
+        if not form.is_valid():
+            return HttpResponseBadRequest()
+        round_seed, position = form.cleaned_data["round"], form.cleaned_data["n"]
+        if round_seed is None:
+            return redirect(self.address(deck, secrets.randbelow(2**62), 1))
+        if position > mulligan.ROUND:
+            return self.end(request, deck, round_seed)
+        return self.hand(request, deck, round_seed, position)
+
+    def post(self, request, pk):
+        deck = self.deck(pk)
+        where = MulliganForm(request.GET)
+        form = MulliganDecisionForm(request.POST)
+        if not where.is_valid() or not form.is_valid() or where.cleaned_data["round"] is None:
+            return HttpResponseBadRequest()
+        round_seed, position = where.cleaned_data["round"], where.cleaned_data["n"]
+        if position > mulligan.ROUND:
+            return HttpResponseBadRequest()
+        definition = adapter.convert(deck).definition
+        seed = mulligan.hand_seed(definition, round_seed, position)
+        waited = mulligan.read_note(form.cleaned_data["shown"], round_seed, position, seed)
+        if waited is None:
+            return HttpResponseBadRequest()
+        mulligan.decide(request.user, deck, definition, round_seed=round_seed,
+                        position=position, seed=seed, choice=form.cleaned_data["choice"],
+                        sure=form.cleaned_data["sure"], waited_ms=waited)
+        return redirect(self.address(deck, round_seed, position))
+
+    def deck(self, pk):
+        return get_object_or_404(self.get_queryset().select_related("commander", "partner"),
+                                 pk=pk)
+
+    @staticmethod
+    def address(deck, round_seed, position) -> str:
+        query = urlencode({"round": round_seed, "n": position})
+        return f"{reverse('decks:mulligan', args=[deck.pk])}?{query}"
+
+    def hand(self, request, deck, round_seed, position):
+        definition = adapter.convert(deck).definition
+        seed = mulligan.hand_seed(definition, round_seed, position)
+        cards = mulligan.deal(definition, seed)
+        decision = request.user.mulligan_decisions.filter(
+            round_seed=round_seed, position=position).first()
+        if decision is not None and decision.verdict:
+            # Judged before: the stored answer, whatever the cache holds now.
+            answer = {"hand": decision.hand, **decision.result}
+            judged = mulligan.answer_verdict(answer)
+        else:
+            answer = mulligan.cached(deck, seed)
+            if answer is None:
+                mulligan.ask(deck, seed)
+            judged = mulligan.settle(decision, answer) if decision and answer else None
+        # The deck changed after the answer: the stored hand is not this deal.
+        changed = bool(decision and answer and judged is None)
+        images = deck.card_images()
+        costs = {card.name: mulligan.mana_value(card) for card in definition.library}
+        context = {
+            "deck": deck, "round_seed": round_seed, "position": position,
+            "round_size": mulligan.ROUND, "on_the_play": mulligan.on_the_play(seed),
+            # A decided hand is shown as it was decided, should the deck have
+            # changed since.
+            "hand": [{"card": {"name": front_face(name), "mv": costs.get(name, "")},
+                      "image": images.get(front_face(name), "")}
+                     for name in (decision.hand if decision else [card.name for card in cards])],
+            "lands": (decision.hand_facts["lands"] if decision
+                      else sum(1 for card in cards if card.is_land)),
+            "decision": decision, "answer": answer, "verdict": judged, "changed": changed,
+            "shown": None if decision else mulligan.shown_note(round_seed, position, seed),
+            "next": self.address(deck, round_seed, position + 1),
+            "sure_levels": MULLIGAN_SURE,
+        }
+        if judged is not None:
+            context["shares"] = {
+                "keep": percent(judged.keep), "keep_margin": round(judged.keep_margin),
+                "mulligan": percent(judged.mulligan),
+                "mulligan_margin": round(judged.mulligan_margin),
+                "difference": round(judged.difference),
+            }
+        if judged is not None and answer["engines"]:
+            games = answer["games"]
+            context["engines"] = {side: percent(100 * counts["engines"] / games)
+                                  for side, counts in answer["sides"].items()}
+        template = ("decks/_mulligan_result.html" if request.headers.get("HX-Request")
+                    else "decks/mulligan.html")
+        return render(request, template, context)
+
+    def end(self, request, deck, round_seed):
+        decisions = request.user.mulligan_decisions.filter(round_seed=round_seed)
+        for decision in decisions.filter(verdict="").exclude(deck=None):
+            answer = mulligan.cached(decision.deck, decision.seed)
+            if answer is not None:
+                mulligan.settle(decision, answer)
+        record = mulligan.record(request.user)
+        return render(request, "decks/mulligan.html", {
+            "deck": deck, "round_seed": round_seed, "round_size": mulligan.ROUND,
+            "position": mulligan.ROUND + 1, "round": mulligan.tally(decisions),
+            "waiting": decisions.filter(verdict="").count(),
+            "record": record,
+            "sure_rows": [(label, record["by_sure"][value]) for value, label in MULLIGAN_SURE],
+        })
+
+
+#: How sure the player was, as the page asks it.
+MULLIGAN_SURE = ((1, gettext_noop("Unsure")), (2, gettext_noop("Fairly sure")),
+                 (3, gettext_noop("Sure")))
 
 
 class DeckRenameView(OwnedDecksMixin, View):

@@ -9,11 +9,11 @@ in the Themen-Doc; every recommendation accepted by the owner on 2026-11-06.
 | PR | What | Status |
 |---|---|---|
 | 20 | Search Console review: a weekly GitHub Action writes the report as an issue, in the private ops repository | **Done** (main); owner steps open |
-| 21 | Hand tutor: "Which plan does this hand have?", rules only, three steps | **Built** (dev) |
+| 21 | Hand tutor: "Which plan does this hand have?", rules only, three steps | **Done** (main, PR #88) |
 | 22 | Weekly news: the page, the AI label, a Claude routine that opens the PR | Planned |
-| 23 | Archidekt link import (after Archidekt agrees) and text-export guides; importer check in Celery Beat | Guides and check **built** (dev); link import waits for Archidekt |
-| 24 | Pricing page: yearly plans first; a founder price only if the owner asks for it | **Built** (dev) |
-| 25 | "Keep or mulligan?" for advanced players; every decision stored from day one | Planned |
+| 23 | Archidekt link import (after Archidekt agrees) and text-export guides; importer check in Celery Beat | Guides and check **done** (main, PR #88); link import waits for Archidekt |
+| 24 | Pricing page: yearly plans first; a founder price only if the owner asks for it | **Done** (main, PR #88) |
+| 25 | "Keep or mulligan?" for advanced players; every decision stored from day one | **Built** (dev) |
 
 Decisions (2026-11-06, Themen-Doc E1-E7):
 
@@ -279,3 +279,55 @@ Calls made on the way (PR 21):
 >
 > Thank you,
 > [name], goldfishlab.app
+
+## How PR 25 works
+
+The owner accepted every recommendation on 2026-11-08 (E1-E5 below).
+
+- `/decks/<id>/mulligan/?round=<seed>&n=<1..10>` (`MulliganQuizView`); `n=11` is the round's
+  end, without a round a new one starts (`secrets`). Linked from the deck page and from the end
+  of the hand tutor. Signed in only, guests included (E2); 60 GETs and 30 POSTs a minute.
+- `decks/mulligan.py`. A round is 10 hands from one seed (`hand_seed`); every third is
+  borderline (2 or 5 lands, up to 60 deals tried). On the play or the draw by lot with the
+  hand (`on_the_play`: the seed's lowest bit).
+- The comparison (E1): this hand kept, against a fresh seven under the rule for a mulligan
+  taken (`Game.take_opening_hand(mulligans=1)`, `simulate_game(mulligans=1)`; the first
+  mulligan is free in Commander, so nothing goes to the bottom). 1,000 games each way, 6 turns
+  (about 4 s on the short worker). The measure is "a good start": by turn 4, at least 4 mana
+  and 2 non-land permanents (the commander counts). An engine of the deck page running by
+  turn 6 is shown beside it, but does not decide.
+- The verdict: the shares with their 95 % margins; the difference within its 95 % margin, or
+  under 3 points (`CLOSE_FLOOR`), is close, and either answer is right. No single game is
+  shown as proof.
+- The worker (`decks.tasks.read_mulligan`) starts when the hand is shown, so the answer is
+  usually ready when the player has decided; it waits in the cache like the tutor's (deck
+  fingerprint, engine version). The answer is a POST with a signed note (`shown_note`): which
+  hand, shown when; the server measures the time to decide (capped at 10 minutes).
+- `decks.models.MulliganDecision` (migration 0010): the user (cascade), the deck (set null,
+  E3), round, position, seed, on the play, engine version, deck fingerprint, the hand, hand
+  facts (lands, accelerants, mana values), deck facts (cards, lands, accelerants, commanders
+  and their mana values, colours - not the list, not the name), the engine's own rule
+  (`keeps_free_seven`), the choice, how sure (optional, 3 levels), the time, and once shown
+  the result, the verdict and right/wrong. One answer per hand: the first stands. No IP,
+  device or language. Read-only in the admin; in the data export.
+- The round's end: right, close, still playing; the record over all rounds, by how sure
+  (calibration). Only the player sees it.
+- Privacy (E4, E5): a new row (purposes: the own record - contract; the mulligan rule from all
+  answers together - legitimate interest; kept until the account goes, also after the deck);
+  "Decisions about you" now says the quiz keeps a record that only the player sees and
+  nothing follows from. The date moved to 2026-11-08; no new consent and no mail, as with the
+  summary feedback: nothing changes for whoever does not play. The quiz page says what is
+  stored before the first answer.
+- Nothing is learnt yet. "Our style", "your style" and a better `Game.keepable` come later,
+  a new rule only through a reviewed PR with a new engine version.
+- The engine change is a new path only: `ENGINE_VERSION` stays 38.
+- Tests: `tests/test_mulligan_quiz.py` (48). Browser: the links, a round of ten (borderline
+  hands, polling, reload), the end, a new round, a second deck, phone, German, the privacy page.
+
+Calls made on the way (PR 25):
+
+- On the phone the hand is the sideways row the tutor and the playtest use.
+- A decided hand is shown as it was decided; when the deck changed since, it says the hand
+  cannot be judged and does not count.
+- A judged hand reads its stored result, so a cleared cache never asks the worker again.
+

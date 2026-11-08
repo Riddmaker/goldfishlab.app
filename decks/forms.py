@@ -11,7 +11,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from cards import commanders
-from decks import command_zone, importers
+from decks import command_zone, importers, mulligan
 from decks.importers import columns
 from decks.services import MAX_UPLOAD_BYTES
 
@@ -366,3 +366,26 @@ class TutorForm(forms.Form):
     step = forms.TypedChoiceField(choices=[(SHOW, SHOW), (HELP, HELP), (ALONE, ALONE)],
                                   coerce=int, required=False, empty_value=SHOW)
     guess = forms.CharField(max_length=40, required=False)
+
+
+class MulliganForm(forms.Form):
+    """The address of a hand in "Keep or mulligan?" (Paket 5, PR 25): the
+    round and the hand's place in it; one past the last is the round's end."""
+
+    round = forms.IntegerField(min_value=0, max_value=2**62, required=False)
+    n = forms.IntegerField(min_value=1, max_value=mulligan.ROUND + 1, required=False)
+
+    def clean_n(self):
+        return self.cleaned_data["n"] or 1
+
+
+class MulliganDecisionForm(forms.Form):
+    """The answer to one hand. `shown` is the signed note the page carried:
+    which hand, and when it was shown - the time to decide is measured by the
+    server, not sent by the browser."""
+
+    choice = forms.ChoiceField(choices=[(mulligan.KEEP, mulligan.KEEP),
+                                        (mulligan.MULLIGAN, mulligan.MULLIGAN)])
+    sure = forms.TypedChoiceField(choices=[("", ""), (1, 1), (2, 2), (3, 3)], coerce=int,
+                                  required=False, empty_value=None)
+    shown = forms.CharField(max_length=300)

@@ -39,6 +39,7 @@ EXPORTED = [
     ("card_annotations", "simulations.CardAnnotation", "owner"),
     ("deck_summaries", "simulations.DeckSummary", "deck__owner"),
     ("summary_feedback", "simulations.SummaryFeedback", "user"),
+    ("mulligan_decisions", "decks.MulliganDecision", "user"),
     ("shared_reports", "sharing.SharedReport", "run__owner"),
     ("playtest_sessions", "playtest.PlaytestSession", "owner"),
     ("playtest_actions", "playtest.PlaytestAction", "session__owner"),

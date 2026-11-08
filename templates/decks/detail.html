@@ -102,6 +102,10 @@
           <a href="{% url 'decks:tutor' deck.id %}" class="underline">{% translate "Hand tutor" %}</a>:
           {% translate "which plan does a hand from this deck have?" %}
         </p>
+        <p class="mt-1 text-sm text-parchment-200" data-mulligan-link>
+          <a href="{% url 'decks:mulligan' deck.id %}" class="underline">{% translate "Keep or mulligan?" %}</a>:
+          {% translate "ten hands from this deck, your call against a thousand games." %}
+        </p>
         {% if running_run or last_run %}
           {% include "decks/_last_run.html" %}
         {% endif %}

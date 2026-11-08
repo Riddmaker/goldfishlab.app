@@ -14309,3 +14309,270 @@ msgstr "年額 CHF %(price)s"
 #, python-format
 msgid "That is CHF %(month)s a month, %(saving)s less than paying monthly."
 msgstr "月あたり CHF %(month)s、月払いより%(saving)sお得です。"
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid "Keep or mulligan: %(name)s"
+msgstr "キープかマリガンか：%(name)s"
+
+#: templates/decks/mulligan.html
+msgid ""
+"Seven cards from your deck: keep or mulligan? The simulation plays both a "
+"thousand times and says which was better."
+msgstr ""
+"あなたのデッキから7枚。キープしますか、マリガンしますか？シミュレーションが両方を1,000回ずつプレイし、どちらが良かったかをお伝えします。"
+
+#: templates/decks/mulligan.html templates/decks/detail.html
+#: templates/decks/tutor.html
+msgid "Keep or mulligan?"
+msgstr "キープかマリガンか？"
+
+#: templates/decks/mulligan.html
+msgid "The round"
+msgstr "このラウンド"
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid "%(right)s of %(decided)s hand right."
+msgid_plural "%(right)s of %(decided)s hands right."
+msgstr[0] "%(decided)s手中%(right)s手が正解。"
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid "%(close)s of them was close: either answer counts."
+msgid_plural "%(close)s of them were close: either answer counts."
+msgstr[0] "そのうち%(close)s手は僅差で、どちらの答えも正解です。"
+
+#: templates/decks/mulligan.html
+msgid "No hand of this round is judged yet."
+msgstr "このラウンドで判定済みの手はまだありません。"
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid "%(waiting)s hand is still being played; reload in a moment."
+msgid_plural "%(waiting)s hands are still being played; reload in a moment."
+msgstr[0] "%(waiting)s手はまだプレイ中です。少ししてから再読み込みしてください。"
+
+#: templates/decks/mulligan.html
+msgid "Your record"
+msgstr "あなたの成績"
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid "Over all your rounds: %(right)s of %(decided)s hand right."
+msgid_plural "Over all your rounds: %(right)s of %(decided)s hands right."
+msgstr[0] "これまでの全ラウンド：%(decided)s手中%(right)s手が正解。"
+
+#: templates/decks/mulligan.html
+msgid ""
+"How sure you said you were, and how often you were right then. Being right "
+"more often when sure is the point."
+msgstr "あなたが答えた自信の度合いと、そのときの正解の回数です。自信があるときほど正解が多い、というのが目標です。"
+
+#: templates/decks/mulligan.html
+msgid "You said"
+msgstr "回答"
+
+#: templates/decks/mulligan.html
+msgid "Hands"
+msgstr "手数"
+
+#: templates/decks/mulligan.html
+msgid "Right"
+msgstr "正解"
+
+#: templates/decks/mulligan.html
+msgid "Nothing judged yet."
+msgstr "まだ判定はありません。"
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid ""
+"Only you see your record, and nothing follows from it. <a "
+"href=\"%(privacy_url)s\" class=\"underline\">What is stored</a>."
+msgstr ""
+"成績を見られるのはあなただけで、それによって何かが決まることはありません。<a href=\"%(privacy_url)s\" "
+"class=\"underline\">保存される内容</a>。"
+
+#: templates/decks/mulligan.html
+msgid "New round"
+msgstr "新しいラウンド"
+
+#: templates/decks/mulligan.html
+#, python-format
+msgid "Hand %(n)s of %(total)s"
+msgstr "%(total)s手中%(n)s手目"
+
+#: templates/decks/mulligan.html
+msgid "You are on the play."
+msgstr "あなたが先攻です。"
+
+#: templates/decks/mulligan.html
+msgid "You are on the draw."
+msgstr "あなたは後攻で、最初のターンにドローします。"
+
+#: templates/decks/mulligan.html
+msgid ""
+"Your first seven: keep it, or send it back? The first mulligan is free in "
+"Commander. The simulation then plays both a thousand times - this hand kept,"
+" and a fresh seven - and tells you which started better."
+msgstr ""
+"最初の7枚：キープしますか、戻しますか？統率者戦では最初のマリガンは無料です。その後シミュレーションが両方を1,000回ずつプレイし（この手札をキープした場合と、新しい7枚の場合）、どちらの立ち上がりが良かったかをお伝えします。"
+
+#: templates/decks/_mulligan_result.html
+#, python-format
+msgid "%(lands)s land in this hand."
+msgid_plural "%(lands)s lands in this hand."
+msgstr[0] "この手札の土地：%(lands)s枚。"
+
+#: templates/decks/_mulligan_result.html
+msgid "How sure are you? (optional)"
+msgstr "自信はどのくらいですか？（任意）"
+
+#: decks/views.py
+msgid "Unsure"
+msgstr "自信なし"
+
+#: decks/views.py
+msgid "Fairly sure"
+msgstr "まあまあ"
+
+#: decks/views.py
+msgid "Sure"
+msgstr "自信あり"
+
+#: templates/decks/_mulligan_result.html
+#, python-format
+msgid ""
+"Your answer is stored with this hand: how sure you were, how long you took "
+"and what the simulation said. It shows you your record and helps us make the"
+" simulator's mulligan rule better. <a href=\"%(privacy_url)s\" "
+"class=\"underline\">Privacy policy</a>."
+msgstr ""
+"回答はこの手札と一緒に保存されます（自信の度合い、かかった時間、シミュレーションの結果）。あなたの成績の表示と、シミュレーターのマリガン規則の改善に使います。<a"
+" href=\"%(privacy_url)s\" class=\"underline\">プライバシーポリシー</a>。"
+
+#: templates/decks/_mulligan_result.html
+msgid ""
+"The deck changed after you answered, so this hand can no longer be judged. "
+"It does not count."
+msgstr "回答後にデッキが変更されたため、この手札は判定できません。成績には数えません。"
+
+#: templates/decks/_mulligan_result.html
+msgid "The fish is playing this hand both ways. This takes a few seconds."
+msgstr "金魚がこの手札を両方のやり方でプレイしています。数秒かかります。"
+
+#: templates/decks/_mulligan_result.html
+msgid "Close: both are fine."
+msgstr "僅差：どちらも妥当です。"
+
+#: templates/decks/_mulligan_result.html
+#, python-format
+msgid "Keeping was better (+%(points)s points)."
+msgstr "キープの方が良い結果でした（+%(points)sポイント）。"
+
+#: templates/decks/_mulligan_result.html
+#, python-format
+msgid "The mulligan was better (+%(points)s points)."
+msgstr "マリガンの方が良い結果でした（+%(points)sポイント）。"
+
+#: templates/decks/_mulligan_result.html
+msgid "You kept."
+msgstr "あなたはキープしました。"
+
+#: templates/decks/_mulligan_result.html
+msgid "You took the mulligan."
+msgstr "あなたはマリガンしました。"
+
+#: templates/decks/_mulligan_result.html
+msgid "Not this time."
+msgstr "今回は不正解です。"
+
+#: templates/decks/_mulligan_result.html
+msgid "Measure"
+msgstr "指標"
+
+#: templates/decks/_mulligan_result.html
+msgid "A good start"
+msgstr "良い立ち上がり"
+
+#: templates/decks/_mulligan_result.html
+msgid "An engine running by turn 6"
+msgstr "6ターン目までにエンジンが稼働"
+
+#: templates/decks/_mulligan_result.html
+msgid "The simulator's own mulligan rule keeps this seven."
+msgstr "シミュレーター自身のマリガン規則では、この7枚はキープです。"
+
+#: templates/decks/_mulligan_result.html
+msgid "The simulator's own mulligan rule sends this seven back."
+msgstr "シミュレーター自身のマリガン規則では、この7枚は戻します。"
+
+#: templates/decks/_mulligan_result.html
+#, python-format
+msgid ""
+"A good start: by turn 4, at least 4 mana and 2 permanents that are not lands"
+" (the commander counts). %(games)s game each way: this hand kept, or a fresh"
+" seven after it went back, which the simulator then keeps or sends back by "
+"its own rule. ± is the 95%% margin; when the two are within it of each "
+"other, or under 3 points apart, it is close and either answer counts. The "
+"numbers hold for this deck and the simulator's assumptions, not for every "
+"table."
+msgid_plural ""
+"A good start: by turn 4, at least 4 mana and 2 permanents that are not lands"
+" (the commander counts). %(games)s games each way: this hand kept, or a "
+"fresh seven after it went back, which the simulator then keeps or sends back"
+" by its own rule. ± is the 95%% margin; when the two are within it of each "
+"other, or under 3 points apart, it is close and either answer counts. The "
+"numbers hold for this deck and the simulator's assumptions, not for every "
+"table."
+msgstr[0] ""
+"良い立ち上がりとは：4ターン目までに4マナ以上と、土地以外のパーマネント2つ以上（統率者を含む）。それぞれ%(games)s回プレイしています：この手札をキープした場合と、戻した後の新しい7枚（シミュレーターが自身の規則でキープまたはマリガン）の場合です。±は95%%の誤差幅で、両者がその範囲内か3ポイント未満の差なら僅差とし、どちらの答えも正解です。この数値はこのデッキとシミュレーターの前提に基づくもので、すべての卓に当てはまるわけではありません。"
+
+#: templates/decks/_mulligan_result.html
+msgid "See the round"
+msgstr "ラウンドの結果を見る"
+
+#: templates/decks/detail.html
+msgid "ten hands from this deck, your call against a thousand games."
+msgstr "このデッキから10手。あなたの判断を1,000回のゲームと比べます。"
+
+#: templates/decks/tutor.html
+msgid "Ready for more?"
+msgstr "もっと挑戦しますか？"
+
+#: templates/decks/tutor.html
+msgid ""
+"Ten hands from this deck: you decide, the simulation plays both a thousand "
+"times."
+msgstr "このデッキから10手：あなたが決め、シミュレーションが両方を1,000回ずつプレイします。"
+
+#: templates/core/privacy.html
+msgid ""
+"Your answers in Keep or mulligan?, if you play it: the hand, a few facts "
+"about it and about the deck (how many lands and accelerants, the commander, "
+"the colours - not the list), keep or mulligan, how sure you said you were, "
+"how long you took, and what the simulation said"
+msgstr ""
+"「キープかマリガンか？」をプレイした場合の回答：手札、手札とデッキに関するいくつかの情報（土地とマナ加速の枚数、統率者、色。リストそのものは含みません）、キープかマリガンか、自信の度合い、かかった時間、シミュレーションの結果"
+
+#: templates/core/privacy.html
+msgid ""
+"To show you your own record (contract), and to make the simulator's mulligan"
+" rule better from all answers together (legitimate interest)"
+msgstr "あなた自身の成績を表示するため（契約）、およびすべての回答をまとめてシミュレーターのマリガン規則を改善するため（正当な利益）"
+
+#: templates/core/privacy.html
+msgid ""
+"Until you delete the account - also after you delete the deck, without its "
+"name"
+msgstr "アカウントを削除するまで（デッキを削除した後も、デッキ名なしで保持）"
+
+#: templates/core/privacy.html
+msgid ""
+"None are automated. The simulator judges decks, not people: there is no "
+"decision with legal effect made by a machine. One thing counts you: Keep or "
+"mulligan? keeps your record - how often your call matched the simulation, "
+"and how sure you were. Only you see it, and nothing follows from it."
+msgstr ""
+"自動化された決定はありません。シミュレーターが評価するのはデッキであり、人ではありません。機械が法的効果のある決定を下すことはありません。ひとつだけ、あなたを数えるものがあります：「キープかマリガンか？」はあなたの成績（判断がシミュレーションと一致した回数と自信の度合い）を記録します。それを見られるのはあなただけで、それによって何かが決まることはありません。"

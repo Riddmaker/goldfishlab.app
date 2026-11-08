@@ -6,7 +6,7 @@ are the record of how exact a given import actually was.
 
 from django.contrib import admin
 
-from decks.models import Deck, DeckCard, DeckImport, UnresolvedRow
+from decks.models import Deck, DeckCard, DeckImport, MulliganDecision, UnresolvedRow
 
 
 class DeckCardInline(admin.TabularInline):
@@ -48,3 +48,21 @@ class DeckImportAdmin(admin.ModelAdmin):
     list_filter = ("parser", "status")
     readonly_fields = ("rung_counts", "created_at")
     inlines = [UnresolvedRowInline]
+
+
+@admin.register(MulliganDecision)
+class MulliganDecisionAdmin(admin.ModelAdmin):
+    """The answers of "Keep or mulligan?" (PR 25), to read: where players and
+    the simulation disagree, and the engine's own rule beside them. Nobody
+    edits an answer."""
+
+    list_display = ("created_at", "choice", "sure", "verdict", "right", "rule_keeps",
+                    "decision_ms", "engine_version")
+    list_filter = ("verdict", "choice", "right", "rule_keeps", "sure", "engine_version")
+    date_hierarchy = "created_at"
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False

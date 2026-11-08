@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load i18n icons %}
+{% block title %}{% blocktranslate with name=deck.name %}Hand tutor: {{ name }}{% endblocktranslate %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "Which plan does this hand have? Seven cards from your deck, played a few hundred times." %}{% endblock %}
+{% block content %}
+  {% comment %}
+    The hand tutor (Paket 5, PR 21; decks.tutor, decks.views.HandTutorView).
+    The steps are links: one address per hand and step, so the back button
+    and a shared link land on the same hand. "New hand" leaves the hand out
+    and the view deals one.
+  {% endcomment %}
+  <p class="text-sm"><a href="{{ deck.get_absolute_url }}" class="text-parchment-200 underline">{% blocktranslate with name=deck.name %}Back to {{ name }}{% endblocktranslate %}</a></p>
+  <h1 class="mt-3 font-display text-3xl text-parchment-100">{% translate "Hand tutor" %}</h1>
+  <p class="mt-1 font-display text-xl text-parchment-200">{% translate "Which plan does this hand have?" %}</p>
+  <p class="mt-3 max-w-3xl text-parchment-200">
+    {% blocktranslate trimmed %}
+      Seven cards from your deck. The tutor plays this hand a few hundred times and tells you what it plays, from your deck's themes and engines. Show me explains it; the two guessing steps let you read the hand first. A guess counts for nothing and is not stored.
+    {% endblocktranslate %}
+  </p>
+
+  <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+    <nav aria-label="{% translate "Step" %}" class="flex rounded-sm border border-parchment-800 p-0.5">
+      {% for value, label in steps %}
+        <a href="?hand={{ seed|stringformat:'d' }}&amp;step={{ value }}"
+           {% if value == step %}aria-current="page"{% endif %}
+           class="inline-flex min-h-11 items-center px-4 {% if value == step %}bg-parchment-100 text-ink-900{% else %}text-parchment-200 hover:bg-ink-800{% endif %}">{% translate label %}</a>
+      {% endfor %}
+    </nav>
+    <a href="?step={{ step }}" class="board-btn board-btn-second icon-host">{% icon "new-hand" %}{% translate "New hand" %}</a>
+  </div>
+
+  {% include "decks/_tutor_result.html" %}
+{% endblock %}

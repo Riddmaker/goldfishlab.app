@@ -966,6 +966,20 @@ class Game(Marks):
         if bottom:
             self._bottom_worst(bottom)
 
+    def take_given_hand(self, names) -> None:
+        """Keep the opening hand `names` (a seven the player was dealt), no
+        mulligan: what the hand tutor plays (Paket 5, PR 21). The library is
+        the rest of the deck, in this game's shuffle. A name the deck has
+        fewer copies of than `names` asks for is a ValueError."""
+        self.hand = []
+        for name in names:
+            index = next((i for i, card in enumerate(self.library) if card.name == name), None)
+            if index is None:
+                raise ValueError(f"{name!r} is not in the library")
+            self.hand.append(self.library.pop(index))
+        self.drawn = list(self.hand)
+        self.first_hand_lands = sum(1 for card in self.hand if card.is_land)
+
     # --- Mana --------------------------------------------------------------
 
     def mana(self) -> ManaPool:

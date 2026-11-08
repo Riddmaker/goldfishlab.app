@@ -136,3 +136,47 @@ def test_the_check_runs_every_hour():
     assert entry["task"] == tasks.alerts.name
     assert entry["schedule"].hour == set(range(24))
     assert len(entry["schedule"].minute) == 1
+
+
+# --- the importer check (Paket 5, PR 23) -------------------------------------------
+
+
+def _imports(deck, parser, count, rows, unfound, days_ago):
+    from decks.models import DeckImport
+
+    for _ in range(count):
+        row = DeckImport.objects.create(owner=deck.owner, deck=deck, parser=parser,
+                                        rows_total=rows, rows_unresolved=unfound,
+                                        filename="private-name.txt")
+        DeckImport.objects.filter(pk=row.pk).update(
+            created_at=timezone.now() - timedelta(days=days_ago))
+
+
+def test_a_format_that_suddenly_finds_fewer_cards_is_mailed(deck, mailoutbox):
+    _imports(deck, "moxfield_text", 10, 100, 2, days_ago=14)
+    _imports(deck, "moxfield_text", 6, 100, 40, days_ago=2)
+
+    assert alerts.check() == ["importers"]
+    body = mailoutbox[0].body
+    assert "moxfield_text: 6 imports, 40% of 600 rows not found (the four weeks before: 2%)" in body
+    assert "private" not in body and "Secret" not in body
+
+
+@pytest.mark.parametrize("recent, before, why", [
+    ((4, 100, 50), None, "too few imports to say"),
+    ((6, 100, 10), None, "under a fifth not found"),
+    ((6, 100, 40), (10, 100, 30), "it was nearly as bad before"),
+])
+def test_an_importer_is_quiet_without_a_clear_change(deck, mailoutbox, recent, before, why):
+    if before:
+        _imports(deck, "plain_text", *before, days_ago=14)
+    _imports(deck, "plain_text", *recent, days_ago=1)
+
+    assert alerts.importers(timezone.now()) is None, why
+
+
+def test_a_new_format_with_bad_imports_is_mailed(deck, mailoutbox):
+    _imports(deck, "manabox_csv", 5, 50, 20, days_ago=1)
+
+    found = alerts.importers(timezone.now())
+    assert found and "(the four weeks before: no imports)" in found.lines[0]

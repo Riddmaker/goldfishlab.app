@@ -16141,3 +16141,327 @@ msgstr "Table de jeu"
 #: templates/playtest/_board.html
 msgid "tapped"
 msgstr "engagé"
+
+#: decks/tutor.py
+msgid ""
+"The deck page finds no theme in this deck yet, so the tutor has no plan to "
+"read. The lands and the mulligan rule below still count."
+msgstr ""
+"La page du deck n'y trouve encore aucun thème : le tuteur n'a donc pas de "
+"plan à lire. Les terrains et la règle de mulligan ci-dessous comptent quand "
+"même."
+
+#: decks/tutor.py
+#, python-format
+msgid "Your deck is built mainly around %(theme)s."
+msgstr "Votre deck est surtout construit autour de %(theme)s."
+
+#: decks/tutor.py
+#, python-format
+msgid "This hand holds %(count)s card for it."
+msgid_plural "This hand holds %(count)s cards for it."
+msgstr[0] "Cette main a %(count)s carte pour ce thème."
+msgstr[1] "Cette main a %(count)s cartes pour ce thème."
+
+#: decks/tutor.py
+msgid "This hand holds no card for it."
+msgstr "Cette main n'a aucune carte pour ce thème."
+
+#: decks/tutor.py
+msgid ""
+"None of its engines can run yet (the deck page says which piece is missing),"
+" so the tutor cannot measure a plan."
+msgstr ""
+"Aucun de ses moteurs ne peut encore tourner (la page du deck indique la "
+"pièce qui manque) : le tuteur ne peut donc pas mesurer de plan."
+
+#: decks/tutor.py
+#, python-format
+msgid ""
+"No engine runs by turn %(turn)s in as many as %(share)s of the games with "
+"this hand: it has no plan of its own yet. Play your lands and draw into one."
+msgstr ""
+"Avec cette main, aucun moteur ne tourne au tour %(turn)s dans %(share)s des "
+"parties ou plus : elle n'a pas encore de plan à elle. Jouez vos terrains et "
+"piochez jusqu'à en trouver un."
+
+#: decks/tutor.py
+#, python-format
+msgid ""
+"With this hand %(theme)s runs by turn %(turn)s in %(share)s of the games."
+msgstr ""
+"Avec cette main, %(theme)s tourne au tour %(turn)s dans %(share)s des "
+"parties."
+
+#: decks/tutor.py
+#, python-format
+msgid "Plan: %(theme)s."
+msgstr "Plan : %(theme)s."
+
+#: decks/tutor.py
+#, python-format
+msgid ""
+"With this hand %(theme)s runs by turn %(turn)s in %(share)s of the games, "
+"%(main)s in %(main_share)s."
+msgstr ""
+"Avec cette main, %(theme)s tourne au tour %(turn)s dans %(share)s des "
+"parties, %(main)s dans %(main_share)s."
+
+#: decks/tutor.py
+#, python-format
+msgid "Plan: build %(theme)s first; %(main)s comes later."
+msgstr "Plan : construire d'abord %(theme)s ; %(main)s viendra plus tard."
+
+#: decks/tutor.py
+#, python-format
+msgid "%(others)s is about as likely: %(games)s games cannot tell them apart."
+msgstr ""
+"%(others)s est à peu près aussi probable : %(games)s parties ne suffisent "
+"pas à les départager."
+
+#: decks/views.py
+msgid "Show me"
+msgstr "Montrez-moi"
+
+#: decks/views.py
+msgid "Guess with help"
+msgstr "Deviner avec aide"
+
+#: decks/views.py
+msgid "Guess alone"
+msgstr "Deviner seul"
+
+#: templates/decks/tutor.html
+#, python-format
+msgid "Hand tutor: %(name)s"
+msgstr "Tuteur de main : %(name)s"
+
+#: templates/decks/tutor.html
+msgid ""
+"Which plan does this hand have? Seven cards from your deck, played a few "
+"hundred times."
+msgstr ""
+"Quel plan a cette main ? Sept cartes de votre deck, jouées quelques "
+"centaines de fois."
+
+#: templates/decks/tutor.html templates/decks/detail.html
+msgid "Hand tutor"
+msgstr "Tuteur de main"
+
+#: templates/decks/tutor.html
+msgid "Which plan does this hand have?"
+msgstr "Quel plan a cette main ?"
+
+#: templates/decks/tutor.html
+msgid ""
+"Seven cards from your deck. The tutor plays this hand a few hundred times "
+"and tells you what it plays, from your deck's themes and engines. Show me "
+"explains it; the two guessing steps let you read the hand first. A guess "
+"counts for nothing and is not stored."
+msgstr ""
+"Sept cartes de votre deck. Le tuteur joue cette main quelques centaines de "
+"fois et vous dit ce qu'elle joue, d'après les thèmes et les moteurs de votre"
+" deck. « Montrez-moi » l'explique ; les deux étapes de devinette vous "
+"laissent d'abord lire la main. Une réponse ne compte pas et n'est pas "
+"enregistrée."
+
+#: templates/decks/tutor.html
+msgid "Step"
+msgstr "Étape"
+
+#: templates/decks/_tutor_result.html
+msgid ""
+"The fish is playing this hand a few hundred times. This takes a few seconds."
+msgstr ""
+"Le poisson joue cette main quelques centaines de fois. Cela prend quelques "
+"secondes."
+
+#: templates/decks/_tutor_result.html
+msgid "Reload the page in a moment to see the answer."
+msgstr "Rechargez la page dans un instant pour voir la réponse."
+
+#: templates/decks/_tutor_result.html
+#, python-format
+msgid "%(lands)s land. The engine's mulligan rule keeps this seven."
+msgid_plural "%(lands)s lands. The engine's mulligan rule keeps this seven."
+msgstr[0] ""
+"%(lands)s terrain. La règle de mulligan du moteur garde ces sept cartes."
+msgstr[1] ""
+"%(lands)s terrains. La règle de mulligan du moteur garde ces sept cartes."
+
+#: templates/decks/_tutor_result.html
+#, python-format
+msgid ""
+"%(lands)s land. The engine's mulligan rule sends this seven back; the tutor "
+"reads it anyway."
+msgid_plural ""
+"%(lands)s lands. The engine's mulligan rule sends this seven back; the tutor"
+" reads it anyway."
+msgstr[0] ""
+"%(lands)s terrain. La règle de mulligan du moteur renvoie ces sept cartes ; "
+"le tuteur la lit quand même."
+msgstr[1] ""
+"%(lands)s terrains. La règle de mulligan du moteur renvoie ces sept cartes ;"
+" le tuteur la lit quand même."
+
+#: templates/decks/_tutor_result.html
+msgid "Which plan does this hand play?"
+msgstr "Quel plan joue cette main ?"
+
+#: templates/decks/_tutor_result.html
+msgid ""
+"Help: the cards of this hand for each of your deck's themes. Playable early:"
+" costs 3 or less, and no more than the hand's lands and accelerants make."
+msgstr ""
+"Aide : les cartes de cette main pour chaque thème de votre deck. Jouable tôt"
+" : coûte 3 ou moins, et pas plus que ce que produisent les terrains et les "
+"accélérateurs de la main."
+
+#: templates/decks/_tutor_result.html
+#, python-format
+msgid "%(count)s playable early"
+msgid_plural "%(count)s playable early"
+msgstr[0] "%(count)s jouable tôt"
+msgstr[1] "%(count)s jouables tôt"
+
+#: templates/decks/_tutor_result.html
+msgid "no card in this hand"
+msgstr "aucune carte dans cette main"
+
+#: templates/decks/_tutor_result.html
+msgid "No plan yet"
+msgstr "Pas encore de plan"
+
+#: templates/decks/_tutor_result.html
+msgid "I don't know, show me"
+msgstr "Je ne sais pas, montrez-moi"
+
+#: templates/decks/_tutor_result.html
+msgid "None of this deck's engines can run yet, so there is little to guess."
+msgstr ""
+"Aucun moteur de ce deck ne peut encore tourner : il y a donc peu à deviner."
+
+#: templates/decks/_tutor_result.html
+msgid "Right."
+msgstr "Exact."
+
+#: templates/decks/_tutor_result.html
+msgid "Not this time. No matter: a guess counts for nothing."
+msgstr "Pas cette fois. Peu importe : une réponse ne compte pas."
+
+#: templates/decks/_tutor_result.html
+msgid "Theme"
+msgstr "Thème"
+
+#: templates/decks/_tutor_result.html
+msgid "In this hand"
+msgstr "Dans cette main"
+
+#: templates/decks/_tutor_result.html
+msgid "Running by turn 6"
+msgstr "Tourne au tour 6"
+
+#: templates/decks/_tutor_result.html
+msgid "Your deck usually"
+msgstr "Votre deck d'habitude"
+
+#: templates/decks/_tutor_result.html
+msgid "plan"
+msgstr "plan"
+
+#: templates/decks/_tutor_result.html
+msgid ""
+"With this hand: the hand kept and played on, the rest of the deck shuffled "
+"anew each game. Your deck usually: its last simulation, every opening hand. "
+"An engine runs when every piece of it is out; a theme without an engine that"
+" can run has no number."
+msgstr ""
+"Avec cette main : la main gardée et jouée, le reste du deck remélangé à "
+"chaque partie. Votre deck d'habitude : sa dernière simulation, toutes les "
+"mains de départ. Un moteur tourne quand chacune de ses pièces est en jeu ; "
+"un thème sans moteur qui peut tourner n'a pas de chiffre."
+
+#: templates/decks/_tutor_result.html
+msgid "Next hand"
+msgstr "Main suivante"
+
+#: templates/decks/detail.html
+msgid "which plan does a hand from this deck have?"
+msgstr "quel plan a une main de ce deck ?"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "%(price)s a year"
+msgstr "%(price)s par an"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "That is %(month)s a month, %(saving)s less than paying monthly."
+msgstr ""
+"Soit %(month)s par mois, %(saving)s de moins qu'en payant chaque mois."
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "or %(price)s / %(interval)s"
+msgstr "ou %(price)s / %(interval)s"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "or CHF %(price)s / %(interval)s"
+msgstr "ou CHF %(price)s / %(interval)s"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "Pay monthly: %(price)s"
+msgstr "Payer chaque mois : %(price)s"
+
+#: templates/decks/_import_form.html
+msgid "Where do I get my list?"
+msgstr "Où trouver ma liste ?"
+
+#: templates/decks/_import_form.html
+msgid ""
+"Every deck site can export a list as text or a file. Open your deck there "
+"and:"
+msgstr ""
+"Chaque site de decks peut exporter une liste en texte ou en fichier. Ouvrez "
+"votre deck sur le site et :"
+
+#: templates/decks/_import_form.html
+msgid "Export, then copy the list as text (MTGO or Arena), and paste it here."
+msgstr ""
+"Export, puis copiez la liste en texte (MTGO ou Arena) et collez-la ici."
+
+#: templates/decks/_import_form.html
+msgid "Export, as text or CSV; paste the text or upload the file."
+msgstr "Export, en texte ou en CSV ; collez le texte ou envoyez le fichier."
+
+#: templates/decks/_import_form.html
+msgid "in the app, the deck's Export, as a text file; upload it here."
+msgstr ""
+"dans l'application, l'export du deck, en fichier texte ; envoyez-le ici."
+
+#: templates/decks/_import_form.html
+msgid "Export, as text (.txt)."
+msgstr "Export, en texte (.txt)."
+
+#: templates/decks/_import_form.html
+msgid "the deck's download or export, as plain text."
+msgstr "le téléchargement ou l'export du deck, en texte brut."
+
+#: templates/decks/_import_form.html
+msgid "A list in any of these shapes works: the names are enough."
+msgstr ""
+"Une liste sous n'importe laquelle de ces formes fonctionne : les noms "
+"suffisent."
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "CHF %(price)s a year"
+msgstr "CHF %(price)s par an"
+
+#: templates/billing/_tiers.html
+#, python-format
+msgid "That is CHF %(month)s a month, %(saving)s less than paying monthly."
+msgstr ""
+"Soit CHF %(month)s par mois, %(saving)s de moins qu'en payant chaque mois."

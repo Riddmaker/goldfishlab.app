@@ -94,7 +94,24 @@
       {% translate "Card names in English - only basic lands also work in other languages." %}
     </p>
   </div>
-  <details class="mt-5 text-ink-900"
+  {% comment %}
+    Paket 5, PR 23: how to get the list out of the other sites. We read
+    files and text only, never another site's pages (decision E2): its
+    export goes into the fields above.
+  {% endcomment %}
+  <details class="mt-5 text-ink-900" data-export-guides>
+    <summary class="cursor-pointer text-sm text-ink-700">{% translate "Where do I get my list?" %}</summary>
+    <p class="mt-2 text-sm text-ink-700">{% translate "Every deck site can export a list as text or a file. Open your deck there and:" %}</p>
+    <ul class="mt-2 space-y-1 text-sm text-ink-800">
+      <li><strong>Moxfield</strong>: {% translate "Export, then copy the list as text (MTGO or Arena), and paste it here." %}</li>
+      <li><strong>Archidekt</strong>: {% translate "Export, as text or CSV; paste the text or upload the file." %}</li>
+      <li><strong>ManaBox</strong>: {% translate "in the app, the deck's Export, as a text file; upload it here." %}</li>
+      <li><strong>TappedOut</strong>: {% translate "Export, as text (.txt)." %}</li>
+      <li><strong>MTGGoldfish</strong>, <strong>Deckstats</strong>: {% translate "the deck's download or export, as plain text." %}</li>
+    </ul>
+    <p class="mt-2 text-sm text-ink-700">{% translate "A list in any of these shapes works: the names are enough." %}</p>
+  </details>
+  <details class="mt-3 text-ink-900"
            {% if form.name.errors or form.format.errors %}open{% endif %}>
     <summary class="cursor-pointer text-sm text-ink-700">{% translate "More options" %}</summary>
     {% for field in form %}

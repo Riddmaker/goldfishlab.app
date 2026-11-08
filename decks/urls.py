@@ -23,6 +23,7 @@ urlpatterns = [
     path("<uuid:pk>/printing-art/", views.PrintingArtRetryView.as_view(),
          name="printing-art"),
     path("<uuid:pk>/marks/", views.DeckMarkView.as_view(), name="mark"),
+    path("<uuid:pk>/tutor/", views.HandTutorView.as_view(), name="tutor"),
     path("<uuid:pk>/rename/", views.DeckRenameView.as_view(), name="rename"),
     path("<uuid:pk>/delete/", views.DeckDeleteView.as_view(), name="delete"),
 ]

@@ -8,11 +8,11 @@ in the Themen-Doc; every recommendation accepted by the owner on 2026-11-06.
 
 | PR | What | Status |
 |---|---|---|
-| 20 | Search Console review: a weekly GitHub Action writes the report as an issue, in the private ops repository | **Built** (dev); owner steps open |
-| 21 | Hand tutor: "Which plan does this hand have?", rules only, three steps | Planned |
+| 20 | Search Console review: a weekly GitHub Action writes the report as an issue, in the private ops repository | **Done** (main); owner steps open |
+| 21 | Hand tutor: "Which plan does this hand have?", rules only, three steps | **Built** (dev) |
 | 22 | Weekly news: the page, the AI label, a Claude routine that opens the PR | Planned |
-| 23 | Archidekt link import (after Archidekt agrees) and text-export guides; importer check in Celery Beat | Planned |
-| 24 | Pricing page: yearly plans first; a founder price only if the owner asks for it | Planned |
+| 23 | Archidekt link import (after Archidekt agrees) and text-export guides; importer check in Celery Beat | Guides and check **built** (dev); link import waits for Archidekt |
+| 24 | Pricing page: yearly plans first; a founder price only if the owner asks for it | **Built** (dev) |
 | 25 | "Keep or mulligan?" for advanced players; every decision stored from day one | Planned |
 
 Decisions (2026-11-06, Themen-Doc E1-E7):
@@ -195,3 +195,87 @@ the workflows from main):
   command, the endpoints and paging with a fake session, a planted key in four bad shapes and
   in an HTTP error, and the workflows (only called, pinned, no contents write, the writer
   without Python or secret, the key in one step, the validation before the issue).
+
+## How PR 21 works
+
+Built while the owner was away (2026-11-06, "decide in the project's interest"); the calls made
+on the way are listed at the end.
+
+- `decks/tutor.py`. A hand is a deal seed, dealt as the playtest deals (`deal`: the deck in the
+  seed's shuffle, seven drawn). `play` keeps that seven in each of `GAMES` = 300 games
+  (`Game.take_given_hand`, `analysis.simulate_game(hand=...)`: no mulligan, the rest of the deck
+  shuffled anew, the games' seed from the deal's) and counts the games in which each engine of
+  the deck page runs by turn 6 (`engine_watch.watches`, `BY_TURN`). `measure` adds the lands,
+  the engine's keep rule for a free seven (`keeps_free_seven`) and the cards' costs, and puts
+  the answer in the cache for a day, keyed by the engine version and the deck's fingerprint
+  (`simulations.summary.fingerprint`: cards, commander, corrections).
+- `explain` builds the page: per theme of the deck (strongest first) the cards in hand, those
+  playable early (cost 3 or less and no more than the hand's lands and accelerants make), the
+  share with this hand and the deck's usual share (its last run). The plan is the engine running
+  most often; under 15 % nothing is a plan, and engines within 5 points of the best count as the
+  plan too (300 games cannot tell them apart). The deck's own theme leads when it is one of them.
+  Every sentence is a template in six languages.
+- `decks.tasks.read_hand` plays the hand on the short worker (about a second); `tutor.ask` sends
+  it once (`cache.add` as the lock). The page (`HandTutorView`, `/decks/<id>/tutor/?hand=&step=`)
+  polls `#tutor-result` every second until the answer is there.
+- Steps: 1 "Show me" (the answer), 2 "Guess with help" (the cards per theme, then a guess),
+  3 "Guess alone". A guess is a button (`?guess=`), compared with the page's own answers only;
+  "I don't know, show me" reveals without a word on it. Nothing is stored.
+- The engine change is a new path only: a game without `hand` deals and mulligans exactly as
+  before, so `ENGINE_VERSION` stays 38 and no number on the site moves.
+- `Deck.card_images` (moved from the playtest view) gives the hand its pictures.
+- Tests: `tests/test_hand_tutor.py` (30). Browser: the link, the waiting note, the three steps,
+  a guess, "I don't know", a new hand, a deck without an engine that can run, phone, German.
+
+Calls made on the way (PR 21):
+
+- Always on the play: whether the hand is on the play or the draw changes little about which
+  plan it has, and one switch less on a page for beginners.
+- Signed-in only, guests included (`OwnedDecksMixin`): the guest trial's deck works, a stranger
+  without a deck has nothing to read. 30 requests a minute per user.
+- The help in step 2 shows the cards per theme but no numbers, so the guess is still a guess.
+- A theme without an engine that can run is listed without a number and is never a plan.
+
+## How PR 24 works
+
+- `billing.views._tiers` adds `annual_month_label` (a year's price over twelve, in the
+  visitor's currency) and `annual_saving` (how much less than twelve months, a whole percent).
+- `billing/_tiers.html`, shared by /pricing/ and /billing/: a plan with a yearly price shows it
+  first ("CHF 36 a year"), then "That is CHF 3 a month, 25% less than paying monthly.", then
+  "or CHF 4.00 / month". On /billing/ "Pay yearly" is the filled button, "Pay monthly" the
+  outlined one below it. A plan without a yearly price reads as before.
+- No founder price (E4): only if the owner asks for one.
+- Tests: `tests/test_plans.py` (the order, the month's equivalent and the saving).
+
+## How PR 23 works
+
+- `templates/decks/_import_form.html`: "Where do I get my list?", a fold with one line per site
+  (Moxfield, Archidekt, ManaBox, TappedOut, MTGGoldfish and Deckstats): which export to choose
+  and where it goes. We never fetch another site's pages (E2).
+- `core.alerts.importers`, in the hourly alert check (at most one mail a day): over the last
+  seven days, a file format with at least 5 imports whose rows went unfound at least 20 % of the
+  time, and at least twice as often as in the four weeks before (or with no imports then). The
+  mail names the format and the counts, never a file or a deck name. A site changing its export
+  shows up as its imports failing.
+- The Archidekt link import waits for Archidekt's answer. The mail for the owner to send:
+
+> **To:** Archidekt (contact form or the Discord staff channel)
+> **Subject:** Reading a public deck by its link, from goldfishlab.app
+>
+> Hi Archidekt team,
+>
+> I run goldfishlab.app, a free Commander goldfish simulator (source: github.com/Riddmaker/goldfishlab.app).
+> Today players export their list from Archidekt and paste it into our import. We would like to
+> let them paste the deck's link instead.
+>
+> What we would do: when a player pastes an archidekt.com/decks/<id> link, our server fetches
+> that one deck once from archidekt.com/api/decks/<id>/, with a User-Agent naming us and a contact
+> address, and keeps the list. No crawling, no search, no bulk requests: one request per paste,
+> cached. The imported deck links back to the deck on Archidekt.
+>
+> Your terms ask not to send automated requests, and your staff said on the forum that the API is
+> open for reading. Is this use fine with you? If you would rather we did not, we keep the text
+> export.
+>
+> Thank you,
+> [name], goldfishlab.app

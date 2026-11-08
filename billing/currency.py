@@ -58,8 +58,12 @@ def for_request(request) -> str:
     return for_country(request.META.get("HTTP_CF_IPCOUNTRY", ""))
 
 
+def amount(cents: int) -> str:
+    """'4', or '4.50': two decimals only when there are cents."""
+    whole, rest = divmod(cents, 100)
+    return f"{whole}" if not rest else f"{whole}.{rest:02d}"
+
+
 def label(cents: int, currency: str) -> str:
     """'CHF 4', '€4', '$4' - and two decimals only when there are cents."""
-    whole, rest = divmod(cents, 100)
-    amount = f"{whole}" if not rest else f"{whole}.{rest:02d}"
-    return f"{SYMBOLS[currency]}{amount}"
+    return f"{SYMBOLS[currency]}{amount(cents)}"

@@ -142,7 +142,54 @@ def summary_budget(now) -> Problem | None:
     return Problem("summary_budget", "the daily summary budget is nearly spent", lines)
 
 
-CHECKS = (failed_runs, stuck_runs, failed_catalogue, summary_budget)
+#: The importer check (Paket 5, PR 23): over the last `IMPORT_WINDOW`, a
+#: format with at least `IMPORTS_MIN` imports whose rows went unfound in at
+#: least `UNFOUND_SHARE` of the cases, and at least twice as often as in the
+#: `IMPORT_BASELINE` before. Another site's export changing its shape is
+#: found by the imports failing, never by fetching that site.
+IMPORT_WINDOW = timedelta(days=7)
+IMPORT_BASELINE = timedelta(days=28)
+IMPORTS_MIN = 5
+UNFOUND_SHARE = 0.2
+
+
+def _unfound_by_parser(start, end) -> dict[str, tuple[int, int, int]]:
+    """`{parser: (imports, rows, rows not found)}` between two times."""
+    from django.db.models import Count, Sum
+
+    from decks.models import DeckImport
+
+    rows = (DeckImport.objects.filter(created_at__gte=start, created_at__lt=end)
+            .exclude(parser="").values("parser")
+            .annotate(imports=Count("pk"), rows=Sum("rows_total"),
+                      unfound=Sum("rows_unresolved")))
+    return {row["parser"]: (row["imports"], row["rows"] or 0, row["unfound"] or 0)
+            for row in rows}
+
+
+def importers(now) -> Problem | None:
+    """A file format whose imports suddenly find far fewer cards."""
+    recent = _unfound_by_parser(now - IMPORT_WINDOW, now)
+    before = _unfound_by_parser(now - IMPORT_WINDOW - IMPORT_BASELINE, now - IMPORT_WINDOW)
+    lines = []
+    for parser, (imports, rows, unfound) in sorted(recent.items()):
+        if imports < IMPORTS_MIN or not rows or unfound / rows < UNFOUND_SHARE:
+            continue
+        _old_imports, old_rows, old_unfound = before.get(parser, (0, 0, 0))
+        old_share = old_unfound / old_rows if old_rows else None
+        if old_share is not None and unfound / rows < 2 * old_share:
+            continue
+        was = f"{old_share:.0%}" if old_share is not None else "no imports"
+        lines.append(f"- {parser}: {imports} imports, {unfound / rows:.0%} of {rows} rows "
+                     f"not found (the four weeks before: {was})")
+    if not lines:
+        return None
+    lines.append("Has that site changed its export? The review page of a recent import "
+                 "shows which rows were not found (admin: Deck imports).")
+    return Problem("importers", "a deck list format finds far fewer cards", lines)
+
+
+CHECKS = (failed_runs, stuck_runs, failed_catalogue, summary_budget, importers)
 
 
 def check(now=None) -> list[str]:

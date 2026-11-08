@@ -25,6 +25,7 @@ from django.views.generic import TemplateView, View
 
 from billing import currency, quotas, services, stripe_api
 from billing.models import Plan
+from core.l10n import percent
 
 logger = logging.getLogger(__name__)
 
@@ -101,6 +102,14 @@ def _tiers(request) -> dict:
         plan.price_label = currency.label(cents, shown) if cents else ""
         annual = plan.annual_cents(shown)
         plan.annual_label = currency.label(annual, shown) if annual else ""
+        # Paket 5, E5: the year comes first, so the page says what it is a
+        # month and how much less that is than paying monthly.
+        plan.annual_month_label = currency.label(round(annual / 12), shown) if annual else ""
+        # The same in francs, for the page without local prices, which writes
+        # "CHF" inside the translated sentence like its other prices.
+        plan.annual_month_chf = currency.amount(round(plan.annual_cents("chf") / 12))
+        plan.annual_saving = (percent(round(100 * (1 - annual / (12 * cents))))
+                              if annual and cents and annual < 12 * cents else "")
     return {"plans": plans,
             "purchasable": {plan.pk for plan in services.purchasable_plans()},
             "can_pay": stripe_api.is_configured()}

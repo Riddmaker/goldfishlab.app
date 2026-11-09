@@ -19,6 +19,7 @@ What has to stay true:
 
 import copy
 import json
+import re
 from datetime import date, timedelta
 from xml.etree import ElementTree
 
@@ -110,6 +111,21 @@ def test_every_source_is_read_over_https_on_its_own_host():
     for source in rules.SOURCES.values():
         assert source.feed.startswith(f"https://{source.host}/")
         assert not any(host in source.host for host in rules.FORBIDDEN)
+
+
+def test_the_routines_steps_run_in_order_and_its_references_exist():
+    routine = (django_settings.BASE_DIR / "news" / "ROUTINE.md").read_text(encoding="utf-8")
+    steps = [int(n) for n in re.findall(r"^(\d+)\. \*\*", routine, re.MULTILINE)]
+    assert steps == list(range(1, len(steps) + 1))
+    assert {int(n) for n in re.findall(r"\(step (\d+)\)", routine)} <= set(steps)
+
+
+def test_the_routine_never_writes_from_a_search_result():
+    routine = (django_settings.BASE_DIR / "news" / "ROUTINE.md").read_text(encoding="utf-8")
+    never = routine.split("## Steps")[0]
+    assert "never open a search result" in never
+    assert "Never write from a search result" in never
+    assert "*Found, no allowed source*" in routine
 
 
 def test_the_weeks_in_the_repository_keep_the_rules():

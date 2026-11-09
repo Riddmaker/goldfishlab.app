@@ -15,6 +15,9 @@ deploy. Nothing is published without that review.
 - Never push to `dev` or `main`, never merge, never approve.
 - Never fetch anything from wizards.com, scryfall.com, reddit.com or any host
   that is not a source in `news/rules.py` (`SOURCES`), apart from GitHub.
+  Searching the web (step 3) is not fetching: never open a search result.
+- Never write from a search result. Its title and snippet only point at a
+  topic; the facts come from a source.
 - Never copy sentences. Never take pictures. Never add anything the text you
   read does not say.
 
@@ -27,7 +30,20 @@ deploy. Nothing is published without that review.
    **once**, with the user agent `Claude-User (goldfishlab.app weekly news)`.
    If a feed fails, skip it and say so in the pull request.
 
-3. **Choose.** Entries from the last seven days that matter to Commander
+3. **Find topics.** With your web search tool, search once for each of these,
+   limited to the last seven days:
+   - `Commander banned list`
+   - `Commander Brackets update`
+   - `Commander Game Changers list`
+   - `Commander precon`
+   - `Commander release date Magic`
+   - `Commander Format Panel`
+
+   Note each story the results point to, with the title and address of the
+   result. Do not open the results. If web search is not available, say so in
+   the pull request and go on with the feeds alone.
+
+4. **Choose.** Entries from the last seven days that matter to Commander
    players:
    - the format itself: the banned list, brackets, rules
    - new products and cards for Commander, release dates
@@ -39,14 +55,17 @@ deploy. Nothing is published without that review.
    - anything already in `news/issues/` (`news.check` refuses a link twice)
    Take at most 8. If nothing is worth it, stop: no file, no pull request.
    Two sources on the same story make one item with both links.
+   A story from step 3 becomes an item only when a source's entry covers it;
+   otherwise it goes into the pull request under *Found, no allowed source*
+   (step 8), never onto the page.
 
-4. **Keep the text you write from.** For a source with `articles=True`, open
+5. **Keep the text you write from.** For a source with `articles=True`, open
    the article once. For every other source, use only what its feed supplies
    for the entry: the title, the description, and the content if the feed
    carries it. Save that text, per link, as
    `$TMPDIR/news-texts/<slug>-<n>.txt` (n from 1), **outside the repository**.
 
-5. **Write `news/issues/<week>.json`.**
+6. **Write `news/issues/<week>.json`.**
 
    ```json
    {
@@ -83,19 +102,21 @@ deploy. Nothing is published without that review.
    - **No markup and no addresses in the text.** The original title goes only
      into `links[].title`.
 
-6. **Check.** Both commands must print `OK`. Fix the file until they do.
+7. **Check.** Both commands must print `OK`. Fix the file until they do.
 
    ```sh
    python -m news.check
    python -m news.check --week <week> --sources "$TMPDIR/news-texts"
    ```
 
-7. **Pull request.** Commit only the new file (`News <week>`), push the
+8. **Pull request.** Commit only the new file (`News <week>`), push the
    branch, and open a pull request **into dev** titled `News <week>`. The body
    lists, for every item:
    - each fact, with a short quote of at most 20 words from the text it stands
      in;
    - the link.
 
-   This is what the owner checks against. Then list the feeds that failed, if
-   any.
+   This is what the owner checks against. Then a section *Found, no allowed
+   source*: each story from step 3 that no source covered, with the result's
+   title and address, so the owner sees what the sources miss. Then list the
+   feeds that failed, if any, and say if web search was not available.

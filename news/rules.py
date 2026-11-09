@@ -42,7 +42,8 @@ class Source:
 
 #: The sources the routine reads, and the only hosts a news item may link.
 #: Each site's robots.txt and terms were read on 2026-11-08
-#: (docs/research/paket5/news-sources.html and news-sources-more.html); most
+#: (docs/research/paket5/news-sources.html, news-sources-more.html, and on
+#: 2026-11-09 news-sources-new.html and news-cardkingdom-tos.html); most
 #: forbid automated reading, so this list is short on purpose. A source is
 #: added only after its terms allow it.
 SOURCES = {
@@ -57,7 +58,8 @@ SOURCES = {
 LANGUAGES = ("en", "de", "fr", "it", "es", "pt-br", "ja")
 
 #: Never linked, never named as a host in the text: the owner's standing rule
-#: for Wizards and Scryfall, and Reddit's terms are unread.
+#: for Wizards and Scryfall, and Reddit's terms (commercial use only under a
+#: contract; its RSS ends on 2026-11-13, docs/research/paket5/news-reddit.html).
 FORBIDDEN = ("wizards.com", "scryfall.com", "reddit.com", "redd.it")
 
 ITEMS = (1, 8)

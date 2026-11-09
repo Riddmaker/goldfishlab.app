@@ -385,7 +385,7 @@ it, so every change to how the news is written is reviewed in a PR.
 | Commander's Herald | same terms as EDHREC | out (ask by mail) |
 | Star City Games | terms forbid any scraper or robot | out |
 | MTGGoldfish | robots.txt blocks AI agents, `ai-train=no`; terms: personal use | out |
-| Card Kingdom blog | robots.txt allows it (crawl delay 10); terms not readable by fetch | owner reads terms |
+| Card Kingdom blog | terms (read in a browser, 2026-11-09): personal, noncommercial use; robots only for search engines | out |
 | Wargamer | terms exempt "use of the RSS feed(s) with the content supplied via those feeds", with a link | **in, feed only** |
 | Hipsters of the Coast | robots.txt allows it; no terms found | owner reads terms |
 | Draftsim, Dicebreaker, Cardmarket, MTG Arena Zone | terms or robots.txt forbid it | out |
@@ -393,6 +393,22 @@ it, so every change to how the news is written is reviewed in a PR.
 So `SOURCES` starts with Wargamer alone, `articles=False`: the routine writes from what the feed
 supplies, and the facts are checked against that text. A source is added, and `articles` switched
 on, only once its terms allow it.
+
+### Finding topics (2026-11-09)
+
+More allowed sources were not found (`news-sources-new.html`: podcast feeds carry strategy, not
+news; MTGRocks, Valnet, Kotaku and Dexerto forbid it), so the routine now finds topics with its own
+web search, a fixed list of queries over the last seven days (step 3 of `news/ROUTINE.md`). A
+result only points at a story: the routine never opens it and never writes from it. A story becomes
+an item only when a source covers it; otherwise the pull request lists it under *Found, no allowed
+source*, so the owner sees what the sources miss and whom to ask. `news.check` still wants every
+fact in the saved text of a source, so a result's words cannot reach the page.
+
+Ruled out (`news-discovery.html`, `news-reddit.html`): querying Google itself (its terms forbid
+automated queries), Google News RSS (personal use), the Custom Search and Bing APIs (closed),
+Reddit's RSS and API (RSS ends 2026-11-13, the API in March 2027, commercial use only under a
+contract) and the Reddit archives (no terms). The YouTube Data API allows commercial use and is the
+next step if search is not enough; it needs a key.
 
 ### Calls made
 

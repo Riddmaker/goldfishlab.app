@@ -58,7 +58,8 @@ feed per language (`/news/feed/`). A Claude routine on the owner's account write
 `news/issues/<YYYY>-W<ww>.json`, and nothing goes live until the owner has read and merged it. The
 page says so in a label, and the legal notice names who is editorially responsible.
 `python -m news.check` (plain Python, no Django) checks every week against `news/rules.py`:
-- only the listed sources over https, never Wizards, Scryfall or Reddit
+- only the listed sources over https, never Wizards, Scryfall or Reddit (the routine finds topics
+  with its web search too, but writes only from the sources)
 - every language present, no markup
 - the facts in the English text
 - no link twice

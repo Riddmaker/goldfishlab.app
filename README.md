@@ -51,6 +51,22 @@ waits for its day. Below the feed the page offers one mail a month - off for eve
 it is asked for there or on "Your plan", and stopped with one click in the mail, on the page or on
 "Your plan" (see "The changelog mail" below).
 
+**The weekly news (PR 22)**: `/news/` has the week's Commander news, a headline and two or three
+sentences per story in every language, each with a link to the article it comes from, and an RSS
+feed per language (`/news/feed/`). A Claude routine on the owner's account writes it, following
+[`news/ROUTINE.md`](news/ROUTINE.md): it opens a pull request into `dev` with one file,
+`news/issues/<YYYY>-W<ww>.json`, and nothing goes live until the owner has read and merged it. The
+page says so in a label, and the legal notice names who is editorially responsible.
+`python -m news.check` (plain Python, no Django) checks every week against `news/rules.py`:
+- only the listed sources over https, never Wizards, Scryfall or Reddit
+- every language present, no markup
+- the facts in the English text
+- no link twice
+
+With `--week` and `--sources` it also checks the week against the texts it was written from: each
+fact has to stand in them, and no eight words may be copied. The mail is the changelog's (see
+below), once a week.
+
 Every result says **how much of the deck the engine could read** - this application's limit to fix, with every gap listed. It used to be two numbers, the second being how much of the deck somebody had given a casting order; three quarters of every gap turned out to be that question, and since Phase 9 C nobody is asked it any more: the engine casts the cheapest affordable spell first (plus a built-in order for a few dozen well-known cards), because the product is statistics about a deck, not steering a game.
 See [docs/phases/](docs/phases/README.md) for how it was built, phase by phase.
 
@@ -325,6 +341,20 @@ the session for a day and applied when the account is made or signs in (`changel
 It is off without `CHANGELOG_FROM_EMAIL` (the page then offers the feed alone). The sender may
 have its own SMTP login, `CHANGELOG_EMAIL_HOST_USER`/`_PASSWORD`; blank uses the site's
 (`.env.example`). `preview_mails` writes a sample as `changelog_digest.html`.
+
+### The news mail
+
+`news.digest` runs from beat every morning at 09:30. A week goes live with its deploy, which is no
+fixed day. It mails the newest published week, once, to every account that switched the news on
+and has a confirmed address, in its own language (`news.send`, batches of 50). It stops sending a
+week once it is more than seven days old. `User.news_mailed` holds the day of the week last sent,
+and `news_mail_since` is the record of consent.
+
+The rules are the changelog's and live in `core/mailing.py`: off until asked for, the wish kept
+for a day before there is an account, a one-click signed link in every mail. Each list has its
+own salt, so a news link cannot stop the changelog. Both mails link "All your mail settings" on
+"Your plan", where both switches are. The news goes out from the changelog's sender and login, so
+it is off without `CHANGELOG_FROM_EMAIL` too.
 
 ### Cards the engine could not read (P19a)
 

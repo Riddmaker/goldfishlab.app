@@ -26,6 +26,7 @@ from django.urls import reverse
 from django.utils import timezone, translation
 
 from changelog import entries, services, tasks
+from core import mailing
 from simulations import services as simulations
 from tests.test_guests import PASSWORD, FakeRedis, upload
 
@@ -458,7 +459,8 @@ def test_without_a_sender_nothing_is_sent(subscribed, eager, mailoutbox, setting
 
 def test_its_own_login_when_it_has_one(settings, monkeypatch):
     seen = {}
-    monkeypatch.setattr(tasks, "get_connection", lambda **kwargs: seen.update(kwargs))
+    # The login is shared with the news mail (core.mailing, PR 22).
+    monkeypatch.setattr(mailing, "get_connection", lambda **kwargs: seen.update(kwargs))
     settings.CHANGELOG_EMAIL_HOST_USER = "changelog@goldfishlab.test"
     settings.CHANGELOG_EMAIL_HOST_PASSWORD = "test-only"
 

@@ -41,6 +41,17 @@ class Entry:
 
 
 ENTRIES = (
+    # PR 22.
+    Entry(
+        date(2026, 11, 8), "commander-news",
+        _("The week's Commander news"),
+        _("A new page, Commander news, has the week's news for Commander players: a "
+          "few sentences on each story in your language, with a link to the article it "
+          "comes from. It is summarised with AI and checked by a person before it is "
+          "published. Follow it by feed, or get it by mail once a week - switched on "
+          "on the page or on Your plan, and off again with one click in every mail."),
+        "news",
+    ),
     Entry(
         date(2026, 10, 23), "printing-art",
         _("Your deck shows the printings you named"),

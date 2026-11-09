@@ -14576,3 +14576,188 @@ msgid ""
 "and how sure you were. Only you see it, and nothing follows from it."
 msgstr ""
 "自動化された決定はありません。シミュレーターが評価するのはデッキであり、人ではありません。機械が法的効果のある決定を下すことはありません。ひとつだけ、あなたを数えるものがあります：「キープかマリガンか？」はあなたの成績（判断がシミュレーションと一致した回数と自信の度合い）を記録します。それを見られるのはあなただけで、それによって何かが決まることはありません。"
+
+#: templates/news/page.html
+msgid "Commander news"
+msgstr "統率者戦ニュース"
+
+#: templates/news/page.html
+msgid ""
+"The week's Commander news in a few sentences each, with links to the "
+"articles. Follow it by feed, or get one mail a week."
+msgstr "今週の統率者戦ニュースを、1件ずつ数文で、元記事へのリンク付きでお届けします。フィードで購読するか、週に1通のメールで受け取れます。"
+
+#: templates/news/page.html
+msgid "Goldfish Lab: Commander news"
+msgstr "Goldfish Lab：統率者戦ニュース"
+
+#: templates/news/page.html
+msgid ""
+"What happened in Commander this week, in a few sentences each, with a link "
+"to every article."
+msgstr "今週の統率者戦の出来事を、1件ずつ数文で、各記事へのリンク付きでまとめています。"
+
+#: templates/news/page.html
+#, python-format
+msgid ""
+"<strong>Summarised with AI</strong> from the linked articles, then checked "
+"and approved by our editor before it is published. Editorially responsible: "
+"the operator named in the <a href=\"%(imprint_url)s\" class=\"underline "
+"hover:text-parchment-50\">legal notice</a>."
+msgstr ""
+"リンク先の記事から<strong>AIで要約</strong>し、公開前に編集担当が確認・承認しています。編集責任者：<a "
+"href=\"%(imprint_url)s\" class=\"underline hover:text-"
+"parchment-50\">運営者情報</a>に記載の運営者です。"
+
+#: templates/news/page.html
+msgid ""
+"The articles and every right to them belong to their sources. Something "
+"wrong, or an article of yours you want taken out? Write to the address in "
+"the legal notice, and it goes."
+msgstr ""
+"記事とその権利はすべて各出典に帰属します。誤りがある場合や、ご自身の記事の掲載をやめてほしい場合は、運営者情報のアドレスまでご連絡ください。削除いたします。"
+
+#: templates/news/page.html
+msgid "<strong>You get it by mail</strong>, once a week when there is news."
+msgstr "<strong>メールで受け取っています</strong>。ニュースがある週に1回届きます。"
+
+#: templates/news/page.html
+msgid "Or by mail, once a week when there is news."
+msgstr "またはメールで。ニュースがある週に1回届きます。"
+
+#: templates/news/page.html
+#, python-format
+msgid "Week %(number)s"
+msgstr "第%(number)s週"
+
+#: templates/news/page.html
+msgid ""
+"The first week of news is on its way. Follow the feed or subscribe, and it "
+"comes to you."
+msgstr "最初の週のニュースを準備中です。フィードを購読するかメールに登録すると、お手元に届きます。"
+
+#: templates/news/unsubscribe.html
+msgid "The news by mail"
+msgstr "ニュースのメール"
+
+#: templates/news/unsubscribe.html
+#, python-format
+msgid "<strong>Unsubscribed.</strong> %(email)s gets no more news mails."
+msgstr "<strong>停止しました。</strong>%(email)s にはニュースのメールが届かなくなります。"
+
+#: templates/news/unsubscribe.html
+#, python-format
+msgid ""
+"Changed your mind? Subscribe again on <a href=\"%(news_url)s\" "
+"class=\"underline hover:text-ink-900\">Commander news</a>."
+msgstr ""
+"気が変わりましたか？<a href=\"%(news_url)s\" class=\"underline hover:text-"
+"ink-900\">統率者戦ニュース</a>でもう一度登録できます。"
+
+#: templates/news/unsubscribe.html
+#, python-format
+msgid "Stop the weekly news mail to <strong>%(email)s</strong>?"
+msgstr "<strong>%(email)s</strong> への週刊ニュースメールを停止しますか？"
+
+#: templates/news/email/digest_message.txt
+#, python-format
+msgid "The Commander news of week %(number)s:"
+msgstr "第%(number)s週の統率者戦ニュース："
+
+#: templates/news/email/digest_message.txt
+msgid ""
+"Summarised with AI from the linked articles, checked by our editor before it"
+" was sent."
+msgstr "リンク先の記事からAIで要約し、送信前に編集担当が確認しています。"
+
+#: templates/news/email/digest_message.txt
+msgid "All your mail settings:"
+msgstr "メール設定の一覧："
+
+#: templates/news/email/digest_subject.txt
+#, python-format
+msgid "Commander news, week %(number)s"
+msgstr "統率者戦ニュース 第%(number)s週"
+
+#: templates/news/email/digest_message.html
+#, python-format
+msgid "%(items)s piece of Commander news this week."
+msgid_plural "%(items)s pieces of Commander news this week."
+msgstr[0] "今週の統率者戦ニュースは%(items)s件です。"
+
+#: templates/news/email/digest_message.html
+msgid "All your mail settings"
+msgstr "メール設定の一覧"
+
+#: templates/billing/plans.html
+msgid "<strong>On:</strong> one mail a week, when there is news."
+msgstr "<strong>オン：</strong>ニュースがある週に1通。"
+
+#: templates/billing/plans.html
+#, python-format
+msgid ""
+"<strong>Off.</strong> The week's Commander news, once a week: <a "
+"href=\"%(news_url)s\" class=\"underline\">Commander news</a>."
+msgstr ""
+"<strong>オフ。</strong>今週の統率者戦ニュースを週に1回：<a href=\"%(news_url)s\" "
+"class=\"underline\">統率者戦ニュース</a>。"
+
+#: templates/account/signup.html
+msgid ""
+"Once your address is confirmed, the Commander news comes by mail once a "
+"week."
+msgstr "アドレスの確認が済むと、統率者戦ニュースが週に1回メールで届きます。"
+
+#: templates/core/privacy.html
+msgid ""
+"Only what the account needs: the message that confirms your address, "
+"password resets, and - rarely - a notice about a change to these documents "
+"or to a plan you pay for. Two mails are optional: the changelog, once a "
+"month when something changed, and the Commander news, once a week. Each is "
+"off until you switch it on yourself, on its page or on Your plan; we keep "
+"the date you did, as the record of your consent, and every one of those "
+"mails stops with one click. No marketing, ever. The mail is sent through a "
+"mailbox at Infomaniak, in Switzerland."
+msgstr ""
+"アカウントに必要なものだけです。アドレスを確認するメール、パスワードの再設定、そしてまれに、これらの文書やお支払い中のプランの変更のお知らせです。任意のメールは2種類で、変更があった月に1回届く変更履歴と、週に1回届く統率者戦ニュースです。どちらも、ご自身でそのページまたは「あなたのプラン」でオンにするまではオフのままです。オンにした日付は同意の記録として保存し、これらのメールはどれもワンクリックで停止できます。宣伝メールは一切送りません。メールはスイスの"
+" Infomaniak のメールボックスから送信しています。"
+
+#: templates/core/imprint.html
+#, python-format
+msgid ""
+"The same person is editorially responsible for the <a href=\"%(news_url)s\" "
+"class=\"underline hover:text-ink-900\">Commander news</a>: its summaries are"
+" drafted with AI from the linked articles and checked by them before "
+"anything is published. To have an item corrected or taken out, write to the "
+"address above."
+msgstr ""
+"<a href=\"%(news_url)s\" class=\"underline hover:text-"
+"ink-900\">統率者戦ニュース</a>の編集責任者も同じ運営者です。要約はリンク先の記事からAIで下書きし、公開前に運営者が確認しています。記事の訂正や削除をご希望の場合は、上記のアドレスまでご連絡ください。"
+
+#: news/signals.py
+msgid "You're subscribed: the Commander news comes by mail once a week."
+msgstr "登録しました。統率者戦ニュースが週に1回メールで届きます。"
+
+#: news/views.py
+msgid ""
+"The week's Commander news in a few sentences, with links to the articles. "
+"Summarised with AI, checked before it is published."
+msgstr "今週の統率者戦ニュースを数文で、元記事へのリンク付きでお届けします。AIで要約し、公開前に確認しています。"
+
+#: news/views.py
+msgid "Unsubscribed. No more news mails."
+msgstr "停止しました。ニュースのメールはもう届きません。"
+
+#: changelog/entries.py
+msgid "The week's Commander news"
+msgstr "今週の統率者戦ニュース"
+
+#: changelog/entries.py
+msgid ""
+"A new page, Commander news, has the week's news for Commander players: a few"
+" sentences on each story in your language, with a link to the article it "
+"comes from. It is summarised with AI and checked by a person before it is "
+"published. Follow it by feed, or get it by mail once a week - switched on on"
+" the page or on Your plan, and off again with one click in every mail."
+msgstr ""
+"新しいページ「統率者戦ニュース」では、統率者戦プレイヤー向けに今週のニュースをお届けします。1件ずつ数文で、お使いの言語で、元記事へのリンク付きです。AIで要約し、公開前に人が確認しています。フィードで購読するか、週に1回メールで受け取れます。ページまたは「あなたのプラン」でオンにでき、各メールのワンクリックでオフにできます。"

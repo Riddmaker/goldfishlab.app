@@ -15,5 +15,6 @@
 <p style="margin:24px 0 0;font-size:13px;line-height:20px;color:#5d564a;">
   {% translate "You get this mail because you asked for it." %}
   <a href="{{ unsubscribe_url }}" style="color:#5d564a;">{% translate "Unsubscribe with one click" %}</a>
+  · <a href="{{ site_url }}{% url 'billing:plans' %}#settings" style="color:#5d564a;">{% translate "All your mail settings" %}</a>
 </p>
 {% endblock content %}

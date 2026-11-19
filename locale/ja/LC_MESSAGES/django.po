@@ -14899,3 +14899,33 @@ msgid ""
 "First seen on average on turn {mean} ± {sd}, in the {share} of games that "
 "see one by turn 8."
 msgstr "初めて見るのは平均{mean} ± {sd}ターン目（8ターン目までに見る{share}のゲームで）。"
+
+#: templates/decks/_opening_hand.html
+msgid "Your opening hand"
+msgstr "あなたの初手"
+
+#: templates/decks/_opening_hand.html
+#, python-format
+msgid ""
+"of your hands of seven hold 2 to 4 lands, with %(lands)s land in the deck."
+msgid_plural ""
+"of your hands of seven hold 2 to 4 lands, with %(lands)s lands in the deck."
+msgstr[0] "の確率で、7枚の初手に土地が2～4枚入ります(デッキの土地は%(lands)s枚)。"
+
+#: templates/decks/_opening_hand.html
+msgid "Chance of each number of lands in a hand of seven"
+msgstr "7枚の手札に入る土地の枚数ごとの確率"
+
+#: templates/decks/_opening_hand.html
+#, python-format
+msgid "%(lands)s land: %(share)s"
+msgid_plural "%(lands)s lands: %(share)s"
+msgstr[0] "土地%(lands)s枚：%(share)s"
+
+#: templates/decks/_opening_hand.html
+msgid "Lands in a hand of seven, before any mulligan."
+msgstr "マリガン前の7枚の手札に入る土地。"
+
+#: templates/decks/_opening_hand.html
+msgid "Keep or mulligan? Judge ten hands from this deck"
+msgstr "キープかマリガンか？このデッキの10個の手札を判定"

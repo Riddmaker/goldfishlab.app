@@ -257,6 +257,9 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         # it" counts them, and the turn the commander is out in half the games.
         context["curve_counts"] = [bar for bar in context["category_bars"]
                                    if bar.value in ("ramp", "draw")]
+        # Deck page v2, PR G (D4): under the curve, lands in the opening hand,
+        # exact and before any run, with the way to the mulligan quiz.
+        context["opening_hand"] = report.opening_hand(analysis.total_cards, analysis.land_count)
         context["commander_out"] = (report.commander_out(last_run)
                                     if last_run and last_run.result else None)
         # Sessions, not games: a playtest is one game played by hand and is

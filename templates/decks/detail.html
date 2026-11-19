@@ -285,6 +285,7 @@
           </div>
         </dl>
       </div>
+      {% if opening_hand %}{% include "decks/_opening_hand.html" %}{% endif %}
     </section>
     <section class="surface-parchment p-6">
       <h2 class="font-display text-2xl text-ink-900">{% translate "What is in it" %}</h2>

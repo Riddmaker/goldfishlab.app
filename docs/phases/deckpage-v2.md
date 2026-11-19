@@ -104,7 +104,9 @@ Status: **FREIGEGEBEN 2026-11-19** (alles, D1–D4 nach Empfehlung). Fortschritt
    `simulations/charts.py`.
 
 ### PR G: Platz unter der Mana-Kurve (braucht Entscheid D4)
-Siehe D4.
+Siehe D4. Gebaut: `report.opening_hand` (exakt, hypergeometrisch, ohne Lauf), Box
+`decks/_opening_hand.html` mit den Kurven-Säulen für 0–7 Länder (2–4 rot und unterstrichen), ein Satz
+mit der Summe 2–4 und ein Link zum Quiz. Tests in `tests/test_opening_hand.py`.
 
 ## Entscheide, die du triffst (jeweils mit meiner Empfehlung)
 
@@ -150,4 +152,4 @@ Siehe D4.
 
 ## Fortschritt
 
-- [x] PR A  - [x] PR B  - [x] PR C  - [x] PR D  - [x] PR E  - [x] PR F  - [ ] PR G
+- [x] PR A  - [x] PR B  - [x] PR C  - [x] PR D  - [x] PR E  - [x] PR F  - [x] PR G

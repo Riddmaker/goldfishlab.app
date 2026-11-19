@@ -16928,3 +16928,39 @@ msgid ""
 msgstr ""
 "Vista per la prima volta in media al turno {mean} ± {sd}, nel {share} delle "
 "partite che ne vedono una entro il turno 8."
+
+#: templates/decks/_opening_hand.html
+msgid "Your opening hand"
+msgstr "La tua mano iniziale"
+
+#: templates/decks/_opening_hand.html
+#, python-format
+msgid ""
+"of your hands of seven hold 2 to 4 lands, with %(lands)s land in the deck."
+msgid_plural ""
+"of your hands of seven hold 2 to 4 lands, with %(lands)s lands in the deck."
+msgstr[0] ""
+"delle tue mani da sette carte hanno da 2 a 4 terre, con %(lands)s terra nel "
+"mazzo."
+msgstr[1] ""
+"delle tue mani da sette carte hanno da 2 a 4 terre, con %(lands)s terre nel "
+"mazzo."
+
+#: templates/decks/_opening_hand.html
+msgid "Chance of each number of lands in a hand of seven"
+msgstr "Probabilità di ogni numero di terre in una mano da sette carte"
+
+#: templates/decks/_opening_hand.html
+#, python-format
+msgid "%(lands)s land: %(share)s"
+msgid_plural "%(lands)s lands: %(share)s"
+msgstr[0] "%(lands)s terra: %(share)s"
+msgstr[1] "%(lands)s terre: %(share)s"
+
+#: templates/decks/_opening_hand.html
+msgid "Lands in a hand of seven, before any mulligan."
+msgstr "Terre in una mano da sette carte, prima di ogni mulligan."
+
+#: templates/decks/_opening_hand.html
+msgid "Keep or mulligan? Judge ten hands from this deck"
+msgstr "Tenere o mulligan? Giudica dieci mani di questo mazzo"

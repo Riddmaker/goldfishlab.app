@@ -210,6 +210,11 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   the chart show on which turn the first card came, with mean ± SD. The browser shuffles the list
   the server sent 10,000 times with a fixed seed: the same chips always draw the same curve.
   Without scripting the curve is not there; the chips still filter.
+- **Your opening hand** (`decks/_opening_hand.html`, PR G, D4): under the mana curve, the curve's
+  own columns, lower, for 0 to 7 lands in a hand of seven: the exact hypergeometric chance from
+  the deck as it is, no run needed (`report.opening_hand`). The 2 to 4 a hand keeps on are marked
+  twice, a blood-red bar and a rule under the number, and their sum leads in one sentence. One
+  link goes to "Keep or mulligan?", where the deck's own hands are judged.
 - **Lock-in** (`decks/_mark.html`, `decks/_gone.html`, PR 4): only the owner's word is stored,
   by the cards. A suggestion has two small square buttons, a padlock and a cross, named in full
   for screen readers ("Lock this engine: it stays, whatever the list becomes"). A locked entry

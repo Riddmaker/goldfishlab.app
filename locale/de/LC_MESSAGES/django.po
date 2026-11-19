@@ -17001,3 +17001,39 @@ msgid ""
 msgstr ""
 "Zuerst gesehen im Schnitt in Zug {mean} ± {sd}, in den {share} der Partien, "
 "die bis Zug 8 eine sehen."
+
+#: templates/decks/_opening_hand.html
+msgid "Your opening hand"
+msgstr "Deine Starthand"
+
+#: templates/decks/_opening_hand.html
+#, python-format
+msgid ""
+"of your hands of seven hold 2 to 4 lands, with %(lands)s land in the deck."
+msgid_plural ""
+"of your hands of seven hold 2 to 4 lands, with %(lands)s lands in the deck."
+msgstr[0] ""
+"deiner Starthände mit sieben Karten haben 2 bis 4 Länder, bei %(lands)s Land"
+" im Deck."
+msgstr[1] ""
+"deiner Starthände mit sieben Karten haben 2 bis 4 Länder, bei %(lands)s "
+"Ländern im Deck."
+
+#: templates/decks/_opening_hand.html
+msgid "Chance of each number of lands in a hand of seven"
+msgstr "Chance für jede Anzahl Länder in einer Hand mit sieben Karten"
+
+#: templates/decks/_opening_hand.html
+#, python-format
+msgid "%(lands)s land: %(share)s"
+msgid_plural "%(lands)s lands: %(share)s"
+msgstr[0] "%(lands)s Land: %(share)s"
+msgstr[1] "%(lands)s Länder: %(share)s"
+
+#: templates/decks/_opening_hand.html
+msgid "Lands in a hand of seven, before any mulligan."
+msgstr "Länder in einer Hand mit sieben Karten, vor jedem Mulligan."
+
+#: templates/decks/_opening_hand.html
+msgid "Keep or mulligan? Judge ten hands from this deck"
+msgstr "Behalten oder Mulligan? Beurteile zehn Hände aus diesem Deck"

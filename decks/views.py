@@ -56,7 +56,15 @@ from decks.models import (
 )
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
 from decks.themes import deck_reading, save_mark
-from simulations import blindspots, deck_cards, report, review, strategies, summary
+from simulations import (
+    blindspots,
+    deck_cards,
+    report,
+    review,
+    strategies,
+    summary,
+    theme_odds,
+)
 from simulations.engine import adapter
 from simulations.forms import RunForm
 from simulations.models import SimulationRun
@@ -234,6 +242,9 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         # PR 6: how it plays, from the deck's summary.
         context["engine_rows"] = engine_watch.engine_rows(
             reading, context["last_run"], summary.engine_notes(user, deck))
+        # Deck page v2, PR E: each theme piece by piece, and its chance by turn 4.
+        context["theme_groups"] = theme_odds.groups(reading.themes, readings)
+        context["by_turn"] = theme_odds.BY_TURN
         # The bracket tile: the Game Changers' floor beside the last run's speed,
         # which the report's bracket section used to say alone.
         last_run = context["last_run"]

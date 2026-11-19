@@ -10,7 +10,7 @@
   project was built around contains **zero** Spellbook combos, and an empty
   list would read as a broken page rather than as an answer.
 {% endcomment %}
-{% load humanize i18n %}
+{% load humanize i18n cards_shown %}
 <div id="combo-panel" class="mt-4">
   <h3 class="font-display text-xl text-ink-900">{% translate "Combos" %}</h3>
 
@@ -49,14 +49,22 @@
     <ul class="mt-3 space-y-4">
       {% for entry in combos.included %}
         <li class="border-l-2 border-parchment-600 pl-4">
-          <p class="font-display text-lg text-ink-900">
-            {% for card in entry.combo.cards.all %}{{ card.name }}{% if not forloop.last %} + {% endif %}{% endfor %}
-          </p>
-          <p class="mt-1 text-sm text-ink-700">
-            {% for feature in entry.combo.produces %}{{ feature }}{% if not forloop.last %} · {% endif %}{% endfor %}
-          </p>
+          <div class="card-line">
+            {% for card in entry.combo.cards.all %}
+              {% card_tile card.name fallback=card.oracle_card.image_uri %}
+              {% if not forloop.last %}<span class="card-op" aria-hidden="true">+</span>{% endif %}
+            {% endfor %}
+            <span class="card-op" aria-hidden="true">=</span>
+            <span class="card-result"><span lang="en">{% for feature in entry.combo.produces %}{{ feature }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</span></span>
+          </div>
           {% if entry.combo.notable_prerequisites %}
             <p class="mt-1 text-sm text-ink-700">{% blocktranslate with needs=entry.combo.notable_prerequisites %}Needs: {{ needs }}{% endblocktranslate %}</p>
+          {% endif %}
+          {% if entry.combo.description %}
+            <details class="mt-1 text-sm text-ink-700">
+              <summary class="cursor-pointer">{% translate "How it works" %}</summary>
+              <p class="mt-1 whitespace-pre-line" lang="en">{{ entry.combo.description }}</p>
+            </details>
           {% endif %}
           {% include "combos/_measurement.html" %}
         </li>

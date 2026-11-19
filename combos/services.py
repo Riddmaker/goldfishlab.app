@@ -364,7 +364,7 @@ def panel_for(deck) -> Panel:
 
     entries = list(
         lookup.entries.select_related("combo")
-        .prefetch_related("combo__cards", "combo__templates")
+        .prefetch_related("combo__cards__oracle_card", "combo__templates")
     )
     run, measurements, refusals = _measurements_for(deck)
     for entry in entries:

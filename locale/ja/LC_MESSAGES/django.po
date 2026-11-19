@@ -14798,3 +14798,28 @@ msgstr "役割がなく、どのテーマにも入っていません。"
 #, python-format
 msgid "%(role)s: %(count)s, the template has %(high)s"
 msgstr "%(role)s：%(count)s枚（目安は%(high)s枚）"
+
+#: templates/decks/_card_tile.html
+msgid "Works again and again"
+msgstr "何度も働く"
+
+#: templates/decks/_engines.html
+msgid "↻ works again and again; an engine needs at least one such card."
+msgstr "↻ は何度も働くカード。エンジンには少なくとも1枚必要です。"
+
+#: templates/decks/_theme_groups.html
+msgid "Your themes, piece by piece"
+msgstr "テーマをパーツごとに"
+
+#: templates/decks/_theme_groups.html
+#, python-format
+msgid ""
+"How likely you have seen a card of every piece by turn %(by_turn)s: a hand "
+"of 7, one draw a turn, no mulligan, calculated from your list."
+msgstr ""
+"%(by_turn)sターン目までに各パーツのカードを1枚以上見ている確率です（初手7枚、毎ターン1ドロー、マリガンなし、リストから計算）。"
+
+#: templates/decks/_theme_groups.html
+#, python-format
+msgid "by turn %(by_turn)s"
+msgstr "%(by_turn)sターン目まで"

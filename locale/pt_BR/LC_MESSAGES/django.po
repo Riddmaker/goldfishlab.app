@@ -16710,3 +16710,31 @@ msgstr "Sem papel e sem parte em um tema."
 #, python-format
 msgid "%(role)s: %(count)s, the template has %(high)s"
 msgstr "%(role)s: %(count)s, o modelo tem %(high)s"
+
+#: templates/decks/_card_tile.html
+msgid "Works again and again"
+msgstr "Funciona de novo e de novo"
+
+#: templates/decks/_engines.html
+msgid "↻ works again and again; an engine needs at least one such card."
+msgstr ""
+"↻ funciona de novo e de novo; um motor precisa de pelo menos uma carta "
+"assim."
+
+#: templates/decks/_theme_groups.html
+msgid "Your themes, piece by piece"
+msgstr "Seus temas, peça por peça"
+
+#: templates/decks/_theme_groups.html
+#, python-format
+msgid ""
+"How likely you have seen a card of every piece by turn %(by_turn)s: a hand "
+"of 7, one draw a turn, no mulligan, calculated from your list."
+msgstr ""
+"A chance de ter visto uma carta de cada peça até o turno %(by_turn)s: mão de"
+" 7, uma compra por turno, sem mulligan, calculada da sua lista."
+
+#: templates/decks/_theme_groups.html
+#, python-format
+msgid "by turn %(by_turn)s"
+msgstr "até o turno %(by_turn)s"

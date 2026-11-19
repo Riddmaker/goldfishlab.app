@@ -64,9 +64,14 @@ def card_spec(card: themes.ThemeCard, piece: themes.Piece, sizes: dict[str, int]
     return max(spec(sizes.get(slug, 0), total) for slug in matched)
 
 
+def _clause(name: str, does: str) -> str:
+    """What one card does, in the active language."""
+    return gettext(does) % {"card": name}
+
+
 def _say(steps) -> str:
     """Clauses joined into one sentence, in the active language."""
-    clauses = [gettext(does) % {"card": name} for name, does in steps]
+    clauses = [_clause(name, does) for name, does in steps]
     return pgettext("joins clauses", ", ").join(clauses) + pgettext("ends a sentence", ".")
 
 
@@ -130,6 +135,13 @@ class Pair(_Marked):
     def sentence(self) -> str:
         return _say(((self.first, self.does[0]), (self.second, self.does[1])))
 
+    @property
+    def said(self) -> tuple[tuple[str, str, bool], ...]:
+        """(card, what it does, works again and again) for each card, as the
+        deck page shows them under the pictures (deck page v2, PR E)."""
+        return ((self.first, _clause(self.first, self.does[0]), False),
+                (self.second, _clause(self.second, self.does[1]), False))
+
 
 @dataclass(frozen=True)
 class Engine(_Marked):
@@ -164,6 +176,12 @@ class Engine(_Marked):
     @property
     def sentence(self) -> str:
         return _say(self.steps)
+
+    @property
+    def said(self) -> tuple[tuple[str, str, bool], ...]:
+        """(card, what it does, works again and again) for each step."""
+        return tuple((name, _clause(name, does), name in self.repeating)
+                     for name, does in self.steps)
 
 
 def _holders(piece: themes.Piece, cards) -> list[themes.ThemeCard]:

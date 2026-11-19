@@ -16816,3 +16816,31 @@ msgstr "Nessun ruolo e nessuna parte in un tema."
 #, python-format
 msgid "%(role)s: %(count)s, the template has %(high)s"
 msgstr "%(role)s: %(count)s, il modello ne prevede %(high)s"
+
+#: templates/decks/_card_tile.html
+msgid "Works again and again"
+msgstr "Funziona ancora e ancora"
+
+#: templates/decks/_engines.html
+msgid "↻ works again and again; an engine needs at least one such card."
+msgstr ""
+"↻ funziona ancora e ancora; un motore ha bisogno di almeno una carta così."
+
+#: templates/decks/_theme_groups.html
+msgid "Your themes, piece by piece"
+msgstr "I tuoi temi, pezzo per pezzo"
+
+#: templates/decks/_theme_groups.html
+#, python-format
+msgid ""
+"How likely you have seen a card of every piece by turn %(by_turn)s: a hand "
+"of 7, one draw a turn, no mulligan, calculated from your list."
+msgstr ""
+"Quanto è probabile aver visto una carta di ogni pezzo entro il turno "
+"%(by_turn)s: mano di 7, una pescata a turno, nessun mulligan, calcolato "
+"dalla tua lista."
+
+#: templates/decks/_theme_groups.html
+#, python-format
+msgid "by turn %(by_turn)s"
+msgstr "entro il turno %(by_turn)s"

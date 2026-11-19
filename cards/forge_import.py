@@ -74,6 +74,10 @@ VERBS = {
     "Shuffle": "shuffle", "StoreSVar": None, "Surveil": "surveil", "Tap": "tap",
     "TapAll": "tap_all", "Token": "create_token", "Untap": "untap", "UntapAll": "untap_all",
     "WinsGame": "win_game",
+    # Forge 18800697dc split the boost-less Pump three ways: only choosing a
+    # target, remembering or forgetting, and carrying an "unless" cost. Read as
+    # the Pump they were, so the blocks stay what they were.
+    "TargetOnly": "pump", "Bookkeeping": "pump", "Nothing": "pump",
 }
 
 #: APIs that make mana: an ``AB$`` of them is a mana ability.

@@ -136,6 +136,21 @@ A:AB$ Draw | Cost$ Blot<1/Thing> | NumCards$ 1
                                              "cost:Blot"]
 
 
+@pytest.mark.parametrize("api", ["TargetOnly", "Bookkeeping", "Nothing"])
+def test_forges_split_of_the_empty_pump_reads_as_before(api):
+    """Forge 18800697dc renamed the boost-less Pump; 328 cards read less until
+    the new names were known."""
+    script = """Name:Test Aim
+Types:Instant
+A:SP$ {api} | ValidTgts$ Creature | SubAbility$ DBDraw
+SVar:DBDraw:DB$ Draw | NumCards$ 1 | SubAbility$ DBNote
+SVar:DBNote:DB$ {api} | Defined$ You | RememberObjects$ You
+"""
+    assert b.to_json(blocks_of(script.format(api=api))) == b.to_json(
+        blocks_of(script.format(api="Pump")))
+    assert forge_import.unmodeled(blocks_of(script.format(api=api))) == []
+
+
 def test_a_condition_is_listed_as_unread():
     ability = only(blocks_of("""Name:Test Hoard
 Types:Artifact

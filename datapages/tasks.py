@@ -15,7 +15,7 @@ SOFT_TIME_LIMIT = 15 * 60
 TIME_LIMIT = 20 * 60
 
 
-@shared_task(name="datapages.refresh", queue="sim_long", acks_late=False,
+@shared_task(name="datapages.refresh", acks_late=False,
              soft_time_limit=SOFT_TIME_LIMIT, time_limit=TIME_LIMIT)
 def refresh() -> str:
     try:

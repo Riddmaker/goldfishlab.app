@@ -69,3 +69,10 @@ def forget_module_rows() -> None:
     OracleCard.objects.all().delete()
     Tag.objects.all().delete()
     BulkImport.objects.all().delete()
+
+
+def routed_queue(task_name: str) -> str:
+    """The queue Celery's router sends a task to, from `CELERY_TASK_ROUTES`."""
+    from goldfishlab.celery import app
+
+    return app.amqp.router.route({}, task_name)["queue"].name

@@ -16,6 +16,7 @@ from django.conf import settings
 
 from cards import ingest, refresh, scryfall, tasks
 from cards.models import BulkImport, DerivedProfile, OracleCard
+from tests.support import routed_queue
 
 pytestmark = pytest.mark.django_db
 
@@ -203,7 +204,7 @@ def test_the_job_runs_at_half_past_midnight_on_the_long_queue():
 
     assert entry["task"] == task.name
     assert entry["schedule"].hour == {0} and entry["schedule"].minute == {30}
-    assert entry["options"]["queue"] == task.queue == "sim_long"
+    assert entry["options"]["queue"] == routed_queue(task.name) == "sim_long"
 
 
 def test_the_job_is_never_handed_out_twice():

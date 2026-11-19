@@ -333,6 +333,14 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {"visibility_timeout": 600}
 # Declared now, used from Phase 3: a dedicated short queue is what stops one
 # large run from blocking every small one. No quota system fixes that.
 CELERY_TASK_DEFAULT_QUEUE = "sim_short"
+# Tasks that never belong on the default queue. Here and not as `queue=` on
+# the task: Celery 5.7 deprecates the task attribute and 6.0 ignores it, so a
+# card refresh would silently land on the short queue and block guest runs.
+CELERY_TASK_ROUTES = {
+    "cards.refresh": {"queue": "sim_long"},
+    "datapages.refresh": {"queue": "sim_long"},
+    "simulations.write_summary": {"queue": "summaries"},
+}
 # The retention periods the privacy policy states, enforced rather than hoped
 # for: expired sessions, abandoned uploads and old Stripe event payloads. Daily,
 # on the short queue, from the beat embedded in worker-short. A crontab and not

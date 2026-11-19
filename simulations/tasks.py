@@ -345,10 +345,11 @@ SUMMARY_TIME_LIMIT = 200
 #: and on the short queue's single process every small run waited with it. Its
 #: worker is a thread pool beside worker-short's (start.sh,
 #: CELERY_SUMMARY_WORKER=1): the call waits on the network, not the CPU.
+#: Routed there by `CELERY_TASK_ROUTES` (base.py).
 SUMMARY_QUEUE = "summaries"
 
 
-@shared_task(name="simulations.write_summary", queue=SUMMARY_QUEUE,
+@shared_task(name="simulations.write_summary",
              soft_time_limit=SUMMARY_SOFT_TIME_LIMIT, time_limit=SUMMARY_TIME_LIMIT)
 def write_summary(summary_id: str) -> str:
     """Have Mistral write a deck's summary, check it, and keep it.

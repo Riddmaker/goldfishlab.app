@@ -5,6 +5,7 @@
 {% block head %}
   <script src="{% static 'js/commander.js' %}" defer></script>
   <script src="{% static 'js/deck-name.js' %}" defer></script>
+  <script src="{% static 'js/card-explorer.js' %}" defer></script>
 {% endblock %}
 {% block content %}
   {% comment %}
@@ -351,29 +352,47 @@
           {% translate "Show" %}
         </button>
       </div>
+      {% comment %}
+        Deck page v2, PR F: chips are checkboxes, so without scripting (and
+        on a phone) each is a switch and several can be on. With a mouse,
+        static/js/card-explorer.js makes a plain click choose that chip alone
+        and Ctrl/Cmd-click add it to the others.
+      {% endcomment %}
+      <p class="explorer-pointer-hint text-xs text-ink-700">{% translate "Click a chip to show its cards; Ctrl- or ⌘-click to add more." %}</p>
       <fieldset class="seen-chips">
-        <legend class="sr-only">{% translate "Card type" %}</legend>
-        <input type="radio" name="type" value="" id="type-all" class="seen-toggle"
-               {% if not filters.kind %}checked{% endif %}>
-        <label for="type-all" class="seen-chip">{% translate "All types" %}</label>
+        <legend class="mb-1 text-xs uppercase tracking-wide text-ink-700">{% translate "Card type" %}</legend>
         {% for bar in type_bars %}
-          <input type="radio" name="type" value="{{ bar.value }}" id="type-{{ bar.value }}"
-                 class="seen-toggle" {% if filters.kind == bar.value %}checked{% endif %}>
+          <input type="checkbox" name="type" value="{{ bar.value }}" id="type-{{ bar.value }}"
+                 class="seen-toggle explorer-chip" data-chip="type:{{ bar.value }}"
+                 {% if bar.value in filters.kinds %}checked{% endif %}>
           <label for="type-{{ bar.value }}" class="seen-chip icon-host inline-flex items-center gap-1.5">{% icon bar.icon %}{{ bar.label }}</label>
         {% endfor %}
       </fieldset>
       <fieldset class="seen-chips">
-        <legend class="sr-only">{% translate "Category" %}</legend>
-        <input type="radio" name="cat" value="" id="cat-all" class="seen-toggle"
-               {% if not filters.category %}checked{% endif %}>
-        <label for="cat-all" class="seen-chip">{% translate "All categories" %}</label>
+        <legend class="mb-1 text-xs uppercase tracking-wide text-ink-700">{% translate "Role" %}</legend>
         {% for bar in category_bars %}
-          <input type="radio" name="cat" value="{{ bar.value }}" id="cat-{{ bar.value }}"
-                 class="seen-toggle" {% if filters.category == bar.value %}checked{% endif %}>
+          <input type="checkbox" name="cat" value="{{ bar.value }}" id="cat-{{ bar.value }}"
+                 class="seen-toggle explorer-chip" data-chip="role:{{ bar.value }}"
+                 {% if bar.value in filters.categories %}checked{% endif %}>
           <label for="cat-{{ bar.value }}" class="seen-chip icon-host inline-flex items-center gap-1.5">{% icon bar.icon %}{{ bar.label }}</label>
         {% endfor %}
       </fieldset>
+      {% if theme_chips %}
+        <fieldset class="seen-chips">
+          <legend class="mb-1 text-xs uppercase tracking-wide text-ink-700">{% translate "Theme role" %}</legend>
+          {% for value, label, symbol in theme_chips %}
+            <input type="checkbox" name="cat" value="{{ value }}" id="cat-{{ value }}"
+                   class="seen-toggle explorer-chip" data-chip="role:{{ value }}"
+                   {% if value in filters.categories %}checked{% endif %}>
+            <label for="cat-{{ value }}" class="seen-chip icon-host inline-flex items-center gap-1.5">{% icon symbol %}{{ label }}</label>
+          {% endfor %}
+        </fieldset>
+      {% endif %}
+      {% if filters.active %}
+        <p><a href="{{ deck.get_absolute_url }}#cards" class="text-sm text-ink-900 underline">{% translate "Show all cards" %}</a></p>
+      {% endif %}
     </form>
+    {% include "decks/_card_explorer.html" %}
     <div class="mt-5">
       {% include "decks/_card_grid.html" %}
     </div>

@@ -984,6 +984,85 @@ body {
   }
 }
 
+/* The card explorer (deck page v2, PR F). A chip of the grid's filters is
+ * chosen or not - never struck through like a chart's line switch. The hint
+ * about Ctrl/Cmd-click shows only where there is a mouse to hold it with. */
+.seen-toggle.explorer-chip + .seen-chip {
+  text-decoration: none;
+}
+.explorer-pointer-hint {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .explorer-pointer-hint {
+    display: block;
+  }
+}
+.explorer-hit {
+  fill: transparent;
+}
+.explorer-column {
+  outline: none;
+  cursor: crosshair;
+}
+.explorer-column.is-shown .explorer-hit,
+.explorer-column:focus-visible .explorer-hit {
+  fill: var(--color-parchment-300);
+  fill-opacity: 0.5;
+}
+.explorer-column:focus-visible .explorer-hit {
+  stroke: var(--color-blood-700);
+  stroke-width: 1;
+}
+.explorer-dot {
+  fill: var(--color-blood-600);
+}
+.explorer-svg .seen-line,
+.explorer-dot {
+  pointer-events: none;
+}
+.explorer-line-tutors {
+  stroke-dasharray: 6 4;
+}
+.explorer-swatch-tutors {
+  border-top: 3px dashed var(--color-verdigris-500);
+}
+.explorer-spread {
+  display: block;
+  width: 100%;
+  max-width: 40rem;
+  height: auto;
+  margin-top: 0.5rem;
+  overflow: visible;
+}
+.explorer-bar {
+  fill: var(--color-parchment-500);
+}
+.explorer-bar.is-shown {
+  fill: var(--color-blood-600);
+}
+
+/* With a mouse, a card of the grid grows where it sits until it can be read
+ * (DESIGN.md, "Cards are shown, not described"). */
+@media (hover: hover) {
+  .card-grid-item:hover img {
+    transform: scale(1.6);
+    position: relative;
+    z-index: 30;
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.4);
+  }
+}
+.card-grid-item:focus-visible img {
+  transform: scale(1.6);
+  position: relative;
+  z-index: 30;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card-grid-item img {
+    transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
 /* A card shown, not described (deck page v2, PR D): its art beside the
  * name; with a pointer the whole card rises above the row, big enough to
  * read. Without a pointer the big picture is not shown, so a phone never

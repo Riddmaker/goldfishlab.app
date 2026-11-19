@@ -1,0 +1,43 @@
+{% comment %}
+  One card of the deck page's grid (_card_grid.html), alone or under a chosen
+  chip's heading. Takes: card (a deck_cards.GridCard), deck, art_pending.
+{% endcomment %}
+{% load i18n %}
+<li class="relative">
+  <a href="{% url 'simulations:annotate' deck.id card.oracle_card.pk %}" class="card-grid-item">
+    {% if art_pending and card.printing and not card.printing.image %}
+      <span class="card-art-waiting" role="img" aria-label="{{ card.name }}"></span>
+    {% elif card.printing.image %}
+      <img src="{{ card.printing.image }}" alt="{{ card.name }}"
+           width="488" height="680" loading="lazy">
+    {% elif card.oracle_card.image_uri %}
+      <img src="{{ card.oracle_card.image_uri }}" alt="{{ card.name }}"
+           width="488" height="680" loading="lazy">
+    {% else %}
+      <span class="block border border-parchment-600 p-3 text-ink-900">{{ card.name }}</span>
+    {% endif %}
+    {% if card.open and card.to_check %}
+      <span class="card-grid-mark deck-status deck-status-open">! {% translate "please check" %}</span>
+    {% elif card.open %}
+      <span class="card-grid-mark deck-status deck-status-open">! {% translate "needs you" %}</span>
+    {% elif card.answered %}
+      <span class="card-grid-mark deck-status deck-status-ready">✓ {% translate "answered" %}</span>
+    {% endif %}
+    {% if card.quantity > 1 %}
+      <span class="card-grid-count tabular">×{{ card.quantity }}</span>
+    {% endif %}
+  </a>
+  {% if card.printing.missing and not art_pending %}{% include "decks/_art_retry.html" %}{% endif %}
+  <p class="mt-1 text-sm text-ink-900">
+    {{ card.name }}
+    {% if card.oracle_card.game_changer %}
+      <span class="ml-1 border border-blood-600 px-1 text-xs text-blood-700">{% translate "Game Changer" %}</span>
+    {% endif %}
+  </p>
+  {% if card.printing %}<p class="text-xs text-ink-700">{% include "decks/_printings.html" with printings=card.printing %}</p>{% endif %}
+  {% for assumption in card.assumptions %}
+    <p class="mt-1 text-xs text-ink-700">
+      <span class="font-semibold text-ink-900">{% translate "Assumed:" %}</span> {{ assumption }}
+    </p>
+  {% endfor %}
+</li>

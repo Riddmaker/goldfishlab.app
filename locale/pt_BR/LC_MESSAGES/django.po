@@ -16738,3 +16738,88 @@ msgstr ""
 #, python-format
 msgid "by turn %(by_turn)s"
 msgstr "até o turno %(by_turn)s"
+
+#: templates/decks/detail.html
+msgid "Click a chip to show its cards; Ctrl- or ⌘-click to add more."
+msgstr ""
+"Clique em um chip para ver as cartas dele; Ctrl- ou ⌘-clique para adicionar "
+"mais."
+
+#: templates/decks/detail.html
+msgid "Role"
+msgstr "Função"
+
+#: templates/decks/detail.html
+msgid "Theme role"
+msgstr "Função de tema"
+
+#: templates/decks/_card_grid.html
+msgid "No card of the deck has it."
+msgstr "Nenhuma carta do deck tem isso."
+
+#: templates/decks/_card_explorer.html
+msgid "later"
+msgstr "depois"
+
+#: templates/decks/_card_explorer.html
+msgid "Not seen by turn 8 in any shuffle."
+msgstr "Não vista até o turno 8 em nenhum embaralhamento."
+
+#: templates/decks/_card_explorer.html
+msgid "Chance to have seen a card of the chosen chips, turns 1 to 8"
+msgstr "Chance de ter visto uma carta dos chips escolhidos, turnos 1 a 8"
+
+#: templates/decks/_card_explorer.html
+msgid "Turn of the first card seen"
+msgstr "Turno da primeira carta vista"
+
+#: templates/decks/_card_explorer.html
+msgid ""
+"Choose a chip: a curve shows by which turn you have seen one of its cards."
+msgstr ""
+"Escolha um chip: uma curva mostra até qual turno você viu uma das cartas "
+"dele."
+
+#: templates/decks/_card_explorer.html
+msgid "Count a hit when you have seen"
+msgstr "Conta como acerto quando você viu"
+
+#: templates/decks/_card_explorer.html
+msgid "one of each chip"
+msgstr "uma de cada chip"
+
+#: templates/decks/_card_explorer.html
+msgid "one of any chip"
+msgstr "uma de qualquer chip"
+
+#: templates/decks/_card_explorer.html
+msgid "with tutors"
+msgstr "com tutores"
+
+#: templates/decks/_card_explorer.html
+msgid ""
+"10,000 shuffles in your browser: seven cards, one draw a turn from turn 2, "
+"no mulligan. With tutors, a tutor you see finds a missing card the same "
+"turn, mana aside; a card that wears a chosen chip counts as itself, not as a"
+" tutor."
+msgstr ""
+"10.000 embaralhamentos no seu navegador: sete cartas, uma compra por turno a"
+" partir do turno 2, sem mulligan. Com tutores, um tutor visto encontra uma "
+"carta que falta no mesmo turno, sem contar a mana; uma carta com um chip "
+"escolhido conta como ela mesma, não como tutor."
+
+#: templates/decks/_card_explorer.html
+msgid "By turn {turn}: {share}"
+msgstr "Até o turno {turn}: {share}"
+
+#: templates/decks/_card_explorer.html
+msgid "with tutors {share}"
+msgstr "com tutores {share}"
+
+#: templates/decks/_card_explorer.html
+msgid ""
+"First seen on average on turn {mean} ± {sd}, in the {share} of games that "
+"see one by turn 8."
+msgstr ""
+"Vista pela primeira vez em média no turno {mean} ± {sd}, nos {share} de "
+"partidas que veem uma até o turno 8."

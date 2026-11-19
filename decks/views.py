@@ -158,6 +158,7 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         grid = deck_cards.cards(readings, questions, printings)
         filters = deck_cards.Filters.from_request(self.request.GET)
         type_bars, category_bars = deck_cards.bars(grid)
+        shown = deck_cards.shown(grid, filters)
         art_pending = printing_art.is_pending(deck)
         return {
             "deck": deck,
@@ -167,9 +168,7 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
             "art_poll": self.request.GET.get("art") == "1",
             "commander_art": commander_art(deck, art_pending),
             # The grid's filters, so a refetch shows what was being shown.
-            "grid_query": urlencode({key: value for key, value in (
-                ("type", filters.kind), ("cat", filters.category), ("q", filters.query))
-                if value}),
+            "grid_query": urlencode(filters.query_items()),
             # The cards the engine could not read on its own: the same queue the
             # red marker counts the open ones of (P20 F4, E1.35).
             "unread_cards": sum(1 for question in questions if question.unread),
@@ -177,7 +176,12 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
                                and not question.answered and not question.to_check),
             # Corrections the reading moved under (card model phase 2).
             "check_cards": sum(1 for question in questions if question.to_check),
-            "grid": deck_cards.shown(grid, filters),
+            "grid": shown,
+            # Two or more chips: the shown cards under each (deck page v2, PR F).
+            "grid_groups": deck_cards.groups(shown, filters) if len(filters.chosen) > 1 else [],
+            "theme_chips": deck_cards.theme_chips(grid),
+            # The library the card explorer's curve shuffles in the browser.
+            "explorer_cards": deck_cards.explorer_cards(grid),
             "grid_total": len(grid),
             "filters": filters,
             "type_bars": type_bars,

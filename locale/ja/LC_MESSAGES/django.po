@@ -14823,3 +14823,79 @@ msgstr ""
 #, python-format
 msgid "by turn %(by_turn)s"
 msgstr "%(by_turn)sターン目まで"
+
+#: templates/decks/detail.html
+msgid "Click a chip to show its cards; Ctrl- or ⌘-click to add more."
+msgstr "チップをクリックするとそのカードを表示します。Ctrl／⌘を押しながらクリックすると追加できます。"
+
+#: templates/decks/detail.html
+msgid "Role"
+msgstr "役割"
+
+#: templates/decks/detail.html
+msgid "Theme role"
+msgstr "テーマの役割"
+
+#: templates/decks/_card_grid.html
+msgid "No card of the deck has it."
+msgstr "デッキにこれを持つカードはありません。"
+
+#: templates/decks/_card_explorer.html
+msgid "later"
+msgstr "それ以降"
+
+#: templates/decks/_card_explorer.html
+msgid "Not seen by turn 8 in any shuffle."
+msgstr "どのシャッフルでも8ターン目までに見ません。"
+
+#: templates/decks/_card_explorer.html
+msgid "Chance to have seen a card of the chosen chips, turns 1 to 8"
+msgstr "選んだチップのカードを見ている確率（1〜8ターン目）"
+
+#: templates/decks/_card_explorer.html
+msgid "Turn of the first card seen"
+msgstr "最初のカードを見たターン"
+
+#: templates/decks/_card_explorer.html
+msgid ""
+"Choose a chip: a curve shows by which turn you have seen one of its cards."
+msgstr "チップを選ぶと、そのカードを何ターン目までに見るかを曲線で示します。"
+
+#: templates/decks/_card_explorer.html
+msgid "Count a hit when you have seen"
+msgstr "ヒットとして数える条件"
+
+#: templates/decks/_card_explorer.html
+msgid "one of each chip"
+msgstr "各チップから1枚"
+
+#: templates/decks/_card_explorer.html
+msgid "one of any chip"
+msgstr "いずれかのチップから1枚"
+
+#: templates/decks/_card_explorer.html
+msgid "with tutors"
+msgstr "サーチ込み"
+
+#: templates/decks/_card_explorer.html
+msgid ""
+"10,000 shuffles in your browser: seven cards, one draw a turn from turn 2, "
+"no mulligan. With tutors, a tutor you see finds a missing card the same "
+"turn, mana aside; a card that wears a chosen chip counts as itself, not as a"
+" tutor."
+msgstr ""
+"ブラウザで1万回シャッフル：初手7枚、2ターン目から毎ターン1枚ドロー、マリガンなし。サーチ込みでは、見たサーチカードが同じターンに足りないカードを見つけます（マナは考えません）。選んだチップを持つカードはサーチではなくそれ自体として数えます。"
+
+#: templates/decks/_card_explorer.html
+msgid "By turn {turn}: {share}"
+msgstr "{turn}ターン目までに：{share}"
+
+#: templates/decks/_card_explorer.html
+msgid "with tutors {share}"
+msgstr "サーチ込みで{share}"
+
+#: templates/decks/_card_explorer.html
+msgid ""
+"First seen on average on turn {mean} ± {sd}, in the {share} of games that "
+"see one by turn 8."
+msgstr "初めて見るのは平均{mean} ± {sd}ターン目（8ターン目までに見る{share}のゲームで）。"

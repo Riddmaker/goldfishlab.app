@@ -31,6 +31,23 @@ def pytest_collection_modifyitems(items):
             item.add_marker(pytest.mark.slow)
 
 
+@pytest.fixture(autouse=True, scope="session")
+def _views_loaded_before_any_patch():
+    """Import every view module once, before the first test patches anything.
+
+    `monkeypatch.setattr("decks.views.deck_reading", fake)` imports
+    decks.views when nothing has yet. A test that patched
+    `decks.themes.deck_reading` first then had the view module bind the fake
+    by its `from decks.themes import deck_reading`, monkeypatch kept the fake
+    as the value to restore, and every later test in that xdist worker read a
+    stub: the lock-in tests failed whenever tests/test_engine_explain.py came
+    first in a worker (deck page v2, PR F). Loading the URLconf imports them all.
+    """
+    from django.urls import get_resolver
+
+    assert get_resolver().url_patterns
+
+
 @pytest.fixture(autouse=True)
 def _isolate_cache():
     """Keep allauth's cache-based rate limits from leaking between tests."""

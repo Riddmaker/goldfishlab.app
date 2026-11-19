@@ -14766,3 +14766,9 @@ msgstr ""
 #, python-format
 msgid "%(card)s gives you bodies to sacrifice"
 msgstr "%(card)sは生け贄に捧げる体を用意します"
+
+#: templates/decks/_themes.html
+msgid ""
+"A theme is a plan made of roles - what each card does. Open one to see its "
+"roles and cards."
+msgstr "テーマは役割の組み合わせでできた計画です（役割＝各カードの働き）。開くと役割とカードが見られます。"

@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n icons %}
 {% comment %}
   "Your strategies, and what would feed them" (phase 11 E, Z5.3, K16, F14),
   on the deck page under the deck summary (Paket 2, PR 7): the deck's
@@ -26,8 +26,8 @@
   <div class="mt-4 grid gap-6 md:grid-cols-2">
     {% for item in strategies.shown %}
       <div>
-        <h3 class="summary-title summary-title-feel">
-          {{ item.strategy.name }}
+        <h3 class="summary-title summary-title-feel icon-host inline-flex flex-wrap items-center gap-x-1.5">
+          {% icon item.strategy.key|role_symbol %}{{ item.strategy.name }}
           <span class="text-sm text-ink-700">{% blocktranslate count cards=item.strategy.count %}{{ cards }} card in your deck{% plural %}{{ cards }} cards in your deck{% endblocktranslate %}</span>
         </h3>
         <p class="tabular text-sm text-ink-700">

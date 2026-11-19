@@ -22,6 +22,8 @@ from django import template
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
+from core import symbols
+
 register = template.Library()
 logger = logging.getLogger(__name__)
 
@@ -38,7 +40,10 @@ def shapes(name: str) -> str:
 
 @register.simple_tag
 def icon(name: str, size: str = "") -> str:
-    """The symbol `name`, 1.25em beside text or `size="lg"` (2.5rem)."""
+    """The symbol `name`, 1.25em beside text or `size="lg"` (2.5rem). No name
+    is no symbol: a role without a drawing (`core.symbols`) shows its word."""
+    if not name:
+        return ""
     if name not in NAMES or size not in SIZES:
         logger.warning("Unknown icon %r (size %r)", name, size)
         return ""
@@ -50,3 +55,15 @@ def icon(name: str, size: str = "") -> str:
         SIZES[size],
         mark_safe(shapes(name)),  # noqa: S308 - our own files, see the docstring
     )
+
+
+@register.filter
+def role_symbol(key: str) -> str:
+    """`{% icon key|role_symbol %}`: a role's drawing name (core.symbols)."""
+    return symbols.for_role(key)
+
+
+@register.filter
+def theme_symbol(key: str) -> str:
+    """`{% icon found.theme|theme_symbol %}`: a theme's drawing name."""
+    return symbols.for_theme(key)

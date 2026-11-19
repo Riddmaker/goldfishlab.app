@@ -27,6 +27,7 @@ from dataclasses import dataclass
 
 from django.utils.translation import gettext
 
+from core import symbols
 from decks.analysis import KARSTEN_MAX, KARSTEN_MIN
 from simulation.cards import CARD_TYPES
 from simulations import gaps as gaps_module
@@ -137,9 +138,6 @@ class Filters:
 
 
 #: The categories with a symbol of their own (core/icons/), Paket 4, PR 15.
-ICON_ROLES = frozenset({"ramp", "draw", "removal"})
-
-
 @dataclass(frozen=True)
 class Bar:
     """One row of the category bars, in percent of the page's shared scale."""
@@ -159,8 +157,9 @@ class Bar:
 
     @property
     def icon(self) -> str:
-        """The symbol beside the label, or "" (DESIGN.md, SYMBOLS; Paket 4)."""
-        return self.value if self.param == "cat" and self.value in ICON_ROLES else ""
+        """The symbol beside the label, or "" (DESIGN.md, SYMBOLS): every role
+        and every type has one since deck page v2, PR C (`core.symbols`)."""
+        return symbols.for_role(self.value) if self.param == "cat" else symbols.for_type(self.value)
 
 
 def cards(readings, questions, printings: dict | None = None) -> list[GridCard]:

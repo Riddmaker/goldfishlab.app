@@ -16778,3 +16778,11 @@ msgstr ""
 #, python-format
 msgid "%(card)s gives you bodies to sacrifice"
 msgstr "%(card)s ti dà corpi da sacrificare"
+
+#: templates/decks/_themes.html
+msgid ""
+"A theme is a plan made of roles - what each card does. Open one to see its "
+"roles and cards."
+msgstr ""
+"Un tema è un piano fatto di ruoli – quello che fa ogni carta. Aprine uno per"
+" vedere i suoi ruoli e le sue carte."

@@ -358,7 +358,7 @@
         {% for bar in type_bars %}
           <input type="radio" name="type" value="{{ bar.value }}" id="type-{{ bar.value }}"
                  class="seen-toggle" {% if filters.kind == bar.value %}checked{% endif %}>
-          <label for="type-{{ bar.value }}" class="seen-chip">{{ bar.label }}</label>
+          <label for="type-{{ bar.value }}" class="seen-chip icon-host inline-flex items-center gap-1.5">{% icon bar.icon %}{{ bar.label }}</label>
         {% endfor %}
       </fieldset>
       <fieldset class="seen-chips">
@@ -369,7 +369,7 @@
         {% for bar in category_bars %}
           <input type="radio" name="cat" value="{{ bar.value }}" id="cat-{{ bar.value }}"
                  class="seen-toggle" {% if filters.category == bar.value %}checked{% endif %}>
-          <label for="cat-{{ bar.value }}" class="seen-chip">{{ bar.label }}</label>
+          <label for="cat-{{ bar.value }}" class="seen-chip icon-host inline-flex items-center gap-1.5">{% icon bar.icon %}{{ bar.label }}</label>
         {% endfor %}
       </fieldset>
     </form>

@@ -90,7 +90,9 @@ def missing(readings) -> list[str]:
 #: 6 = Themen-Doc PR 6: "engines", how each engine of the deck page plays.
 #: 7 = deck page v2, PR B: the commander lives in the command zone. Every
 #: text the owner read had it drawn, tutored or in a hand (2026-11-19).
-PROMPT_VERSION = 7
+#: 8 = deck page v2, PR D: "cuts", a reason for each card the rule says
+#: could go (`simulations.cuts`).
+PROMPT_VERSION = 8
 
 #: Where a commander is, said in the facts beside each one (deck page v2, PR B).
 COMMAND_ZONE = ("starts every game in the command zone and is cast from there; "
@@ -114,6 +116,8 @@ WHY_MAX = 200
 REASON_MAX = 120
 #: "engines" (PR 6): how one engine plays, a sentence or two.
 HOW_MAX = 300
+#: "cuts" (deck page v2, PR D): why one card could go, as short as a reason.
+CUT_REASON_MAX = 120
 
 #: The opening hand the odds are worked out for.
 HAND = 7
@@ -169,6 +173,11 @@ SYSTEM_PROMPT = (
     'given) and "how": one or two sentences, at most 300 characters, on how these '
     "cards run together in this deck: which to get out first, what to protect, and "
     "what stops the engine. Name no card other than that engine's own.\n"
+    '- "cuts": one entry for each of the facts\' "cuts", in the same order, an empty '
+    'list when there are none. Each is an object with "name" (exactly as given) and '
+    '"reason": why this card could make room in this deck, at most 120 characters, '
+    "from its why_it_could_go and what the card does. The cards were chosen by a rule; "
+    "do not add, drop or argue for keeping one.\n"
     "Write about this deck: a sentence that would fit any deck says nothing. "
     "Plain sentences only: no Markdown, no lists inside strings, no links, no "
     "leading + or -. "
@@ -257,6 +266,7 @@ def facts(deck, readings) -> dict:
     from simulations.strategies import offered
 
     analysis = analyse(deck)
+    theme_reading = _theme_reading(deck)
     library = [reading for reading in readings if not reading.is_commander]
     population = sum(reading.quantity for reading in library)
     lands = sum(reading.quantity for reading in library if reading.card.is_land)
@@ -302,7 +312,7 @@ def facts(deck, readings) -> dict:
         "curve_of_spells": {("7+" if value == 7 else str(value)): count
                             for value, count in analysis.curve.items()},
         "cards_per_category": {labels[key]: count for key, count in counts.items() if count},
-        "combos_in_deck": _combos(deck),
+        "combos_in_deck": (combos := combos_of(deck)),
         "opening_hand_of_7": {
             "chance_of_exactly_n_lands_percent": {
                 str(count): round(hypergeometric(count, population, lands, HAND), 1)
@@ -328,7 +338,10 @@ def facts(deck, readings) -> dict:
         # them, for "strategies" to pick from - nothing else may be named.
         "strategies": offered(readings),
         # PR 6: the engines that can run, for "engines" to explain.
-        "engines": _engines(deck),
+        "engines": _engines(theme_reading, deck),
+        # Deck page v2, PR D: the cards the rule says could go, for "cuts"
+        # to give a reason each - the rule picked them, not the model.
+        "cuts": [cut.for_prompt() for cut in cut_candidates(readings, theme_reading, combos)],
     }
     if len(leading) > 1:
         # A second commander (P20 F2b), and only then: a deck with one keeps
@@ -340,31 +353,54 @@ def facts(deck, readings) -> dict:
     return facts
 
 
-def _engines(deck) -> list[dict]:
-    """The deck page's engines that can run, at most as many as a run
-    measures, each with its cards and, in English, what each card does.
+def _theme_reading(deck):
+    """The deck page's themes and engines, or `None` when they cannot be read.
 
-    A reading that fails is logged and leaves the engines out: the rest of
-    the summary is worth more than they are.
+    A reading that fails is logged and leaves the engines and the cuts out:
+    the rest of the summary is worth more than they are.
     """
-    from decks.engine_watch import MAX_ENGINES, runnable
     from decks.themes import deck_reading
 
     try:
-        engines = list(islice(runnable(deck_reading(deck).engines), MAX_ENGINES))
+        return deck_reading(deck)
+    except Exception:  # never lose the summary over the themes
+        logger.exception("summary of deck %s: themes not read", deck.pk)
+        return None
+
+
+def _engines(reading, deck=None) -> list[dict]:
+    """The deck page's engines that can run, at most as many as a run
+    measures, each with its cards and, in English, what each card does."""
+    from decks.engine_watch import MAX_ENGINES, runnable
+
+    if reading is None:
+        return []
+    try:
+        engines = list(islice(runnable(reading.engines), MAX_ENGINES))
     except Exception:  # never lose the summary over the engines
-        logger.exception("summary of deck %s: engines not read", deck.pk)
+        logger.exception("summary of deck %s: engines not read", getattr(deck, "pk", None))
         return []
     with translation.override("en"):
         return [{"theme": engine.label, "cards": list(engine.cards),
                  "what_each_does": engine.sentence} for engine in engines]
 
 
+def cut_candidates(readings, reading, combos) -> list:
+    """The rule's cut candidates (`simulations.cuts`); none without themes,
+    because a card of a theme must never be one. The deck page asks the same,
+    so the reasons written for the facts' list find their cards."""
+    from simulations import cuts
+
+    if reading is None:
+        return []
+    return cuts.candidates(readings, cuts.protected(reading.themes, reading.engines, combos))
+
+
 #: At most this many combos go into the prompt, the most popular first.
 COMBOS_MAX = 10
 
 
-def _combos(deck) -> list[dict] | None:
+def combos_of(deck) -> list[dict] | None:
     """The combos Commander Spellbook found complete in this deck.
 
     `None` when nobody has looked the deck up - "not looked for" is not "none",
@@ -520,12 +556,35 @@ def _explained(value, engines) -> list[dict]:
     return said
 
 
+def _cut_reasons(value, cuts) -> list[dict]:
+    """Mistral's reason for each card the rule named (deck page v2, PR D).
+
+    A card the rule did not name, a second reason for one, an empty reason -
+    each is dropped without a word. Names are stored as we spelled them.
+    """
+    if not isinstance(value, list):
+        return []
+    names = {row["name"].casefold(): row["name"] for row in cuts or []}
+    said, seen = [], set()
+    for item in value:
+        if not isinstance(item, dict) or not isinstance(item.get("name"), str):
+            continue
+        name = names.get(item["name"].strip().casefold())
+        reason = _optional(item.get("reason"), CUT_REASON_MAX)
+        if name is None or name in seen or not reason:
+            continue
+        seen.add(name)
+        said.append({"name": name, "reason": reason})
+    return said
+
+
 def parse(content: str, offered: list[dict] | None = None,
-          engines: list[dict] | None = None) -> dict:
+          engines: list[dict] | None = None, cuts: list[dict] | None = None) -> dict:
     """Mistral's answer, checked. Raises ValueError for anything else.
 
     `offered` is the facts' "strategies": the only cards it may name.
     `engines` is the facts' "engines": the only ones it may explain.
+    `cuts` is the facts' "cuts": the only cards it may give a reason for.
     """
     data = json.loads(content)
     if not isinstance(data, dict):
@@ -542,6 +601,8 @@ def parse(content: str, offered: list[dict] | None = None,
         "strategies": _strategies(data.get("strategies"), offered),
         # Optional (PR 6): an engine without a word shows none.
         "engines": _explained(data.get("engines"), engines),
+        # Optional (deck page v2, PR D): without a reason the rule's shows.
+        "cuts": _cut_reasons(data.get("cuts"), cuts),
     }
     if not checked["feel"] or not (checked["strengths"] or checked["weaknesses"]):
         raise ValueError("empty summary")
@@ -815,6 +876,7 @@ def engine_notes(user, deck) -> dict:
 
 
 __all__ = ["BY_TURN", "COMMAND_ZONE", "PROMPT_VERSION", "SEEN_BY_TURN", "WRITE_IN",
-           "at_least_one", "begin", "claim", "due", "engine_notes", "facts", "feedback_for",
+           "at_least_one", "begin", "claim", "combos_of", "cut_candidates", "due",
+           "engine_notes", "facts", "feedback_for",
            "fingerprint", "give_feedback", "language", "messages", "missing", "ours_to_pay",
            "parse", "state", "write_in"]

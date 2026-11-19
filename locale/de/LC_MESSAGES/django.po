@@ -16858,3 +16858,33 @@ msgid ""
 msgstr ""
 "Ein Thema ist ein Plan aus Rollen – was jede Karte tut. Öffne eines, um "
 "seine Rollen und Karten zu sehen."
+
+#: templates/simulations/_strategies.html
+msgid "What could go"
+msgstr "Was raus könnte"
+
+#: templates/simulations/_strategies.html
+msgid ""
+"To make room: the cards a rule finds the easiest to cut - no role, no part "
+"in a theme or a combo, or one too many of a role. The most expensive first."
+msgstr ""
+"Damit Platz entsteht: die Karten, die sich nach einer Regel am leichtesten "
+"streichen lassen – ohne Rolle, ohne Teil an einem Thema oder einer Combo, "
+"oder eine zu viel in einer Rolle. Die teuersten zuerst."
+
+#: templates/simulations/_strategies.html
+msgid ""
+"A rule picks the cards that could go; Mistral AI only says why. You know "
+"your deck better."
+msgstr ""
+"Eine Regel wählt die Karten, die raus könnten; Mistral AI sagt nur, warum. "
+"Du kennst dein Deck besser."
+
+#: simulations/cuts.py
+msgid "No role and no part in a theme."
+msgstr "Keine Rolle und kein Teil eines Themas."
+
+#: simulations/cuts.py
+#, python-format
+msgid "%(role)s: %(count)s, the template has %(high)s"
+msgstr "%(role)s: %(count)s, die Vorlage hat %(high)s"

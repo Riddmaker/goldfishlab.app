@@ -879,6 +879,60 @@ body {
   color: var(--color-blood-700);
 }
 
+/* A card shown, not described (deck page v2, PR D): its art beside the
+ * name; with a pointer the whole card rises above the row, big enough to
+ * read. Without a pointer the big picture is not shown, so a phone never
+ * loads it. */
+.card-peek {
+  position: relative;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.card-peek-art {
+  flex: none;
+  width: 4.5rem;
+  height: 3.3rem;
+  object-fit: cover;
+  border-radius: 0.375rem;
+  box-shadow: 0 0.125rem 0.375rem rgb(0 0 0 / 0.25);
+}
+.card-peek-none {
+  display: block;
+  background: var(--color-parchment-400);
+  opacity: 0.4;
+}
+.card-peek-full {
+  display: none;
+}
+@media (hover: hover) {
+  .card-peek-full {
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 0.5rem);
+    z-index: 30;
+    width: 15rem;
+    aspect-ratio: 488 / 680;
+    border-radius: 0.6rem;
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(0.5rem) scale(0.96);
+    transform-origin: 1rem 100%;
+  }
+  .card-peek:hover .card-peek-full,
+  .card-peek:focus-within .card-peek-full {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .card-peek-full {
+    transition: opacity 180ms ease-out, transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
 /* A line that explains itself (phase 10 T5.2). Each line has an invisible,
  * wider twin to point at, focus or tap; pointing at it - or at its chip - fades
  * the other lines and their chips, shows its band (count charts), and puts its sentence in the

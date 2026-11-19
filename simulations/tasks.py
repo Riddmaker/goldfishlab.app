@@ -378,7 +378,7 @@ def write_summary(summary_id: str) -> str:
         return summary.fail(row, f"{type(exc).__name__}: {exc}", answered=False)
     try:
         content = summary.parse(completion.content, deck_facts["strategies"],
-                                deck_facts["engines"])
+                                deck_facts["engines"], deck_facts["cuts"])
     except ValueError as exc:
         # An answer that does not check out was billed all the same.
         return summary.fail(row, str(exc), answered=True)

@@ -26,7 +26,7 @@ their first `FALLBACK_CARDS` candidates, without reasons. It never disappears
 because the written part is missing.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from django.db.models import F, Q
 from django.utils.translation import gettext
@@ -86,11 +86,15 @@ def _percent(value: float) -> str:
 
 @dataclass(frozen=True)
 class Pick:
-    """A card shown under a strategy; `reason` only when Mistral picked it."""
+    """A card shown under a strategy; `reason` only when Mistral picked it.
+    `art` is its art crop beside the name, `image` the card it grows into
+    (deck page v2, PR D)."""
 
     name: str
     reason: str = ""
     url: str = ""
+    art: str = ""
+    image: str = ""
 
 
 @dataclass
@@ -198,13 +202,16 @@ def _card(card) -> dict:
             "text": text}
 
 
-def block(readings, content: dict | None = None) -> dict:
+def block(readings, content: dict | None = None, cuts: list | None = None) -> dict:
     """What the block shows: Mistral's picks if it made any, else the fallback.
 
     `content` is the stored summary's (`DeckSummary.content`). Its picks are
     read against the deck as it is now: a strategy the deck no longer has, or
     a card it has since added, is left out. The odds are always worked out
     here, from the list as it stands.
+
+    `cuts` are the rule's candidates (`summary.cut_candidates`, deck page
+    v2, PR D); each gets Mistral's reason when the summary wrote one for it.
     """
     from cards.models import OracleCard
 
@@ -227,12 +234,24 @@ def block(readings, content: dict | None = None) -> dict:
             for strategy in strategies[:FALLBACK_STRATEGIES]
         ]
     names = {card.name for item in shown for card in item.cards}
-    urls = dict(OracleCard.objects.filter(front_name__in=names)
-                .values_list("front_name", "scryfall_uri")) if names else {}
+    found_cards = {row[0]: row[1:] for row in OracleCard.objects.filter(front_name__in=names)
+                   .values_list("front_name", "scryfall_uri", "art_uri", "image_uri")} \
+        if names else {}
     for item in shown:
-        item.cards = [Pick(name=card.name, reason=card.reason, url=urls.get(card.name, ""))
+        item.cards = [Pick(card.name, card.reason, *found_cards.get(card.name, ("", "", "")))
                       for card in item.cards]
-    return {"shown": shown, "picked": picked, "by_turn": BY_TURN, "more": MORE}
+    return {"shown": shown, "picked": picked, "by_turn": BY_TURN, "more": MORE,
+            "cuts": _with_reasons(readings, cuts or [], content)}
+
+
+def _with_reasons(readings, cuts: list, content: dict | None) -> list:
+    """The rule's candidates with their pictures and Mistral's reasons."""
+    reasons = {row["name"]: row["reason"] for row in (content or {}).get("cuts") or []}
+    oracles = {reading.oracle_card.front_name: reading.oracle_card for reading in readings}
+    return [replace(cut, reason=reasons.get(cut.name, ""),
+                    url=oracles[cut.name].scryfall_uri, art=oracles[cut.name].art_uri,
+                    image=oracles[cut.name].image_uri)
+            for cut in cuts if cut.name in oracles]
 
 
 __all__ = ["MIN_CARDS", "MORE", "Pick", "Shown", "Strategy", "block", "candidates",

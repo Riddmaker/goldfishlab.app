@@ -224,7 +224,10 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         if user.deck_summaries:
             context["written"] = summary.state(user, deck)
         written = context.get("written") or {}
-        context["strategies"] = strategies.block(readings, written.get("content"))
+        # Deck page v2, PR D: what could go, by the summary's own rule.
+        context["strategies"] = strategies.block(
+            readings, written.get("content"),
+            summary.cut_candidates(readings, reading, summary.combos_of(deck)))
         context["runs"] = runs = list(deck.runs.all()[:5])
         context.update(self.last_run_context(deck, runs))
         # PR 5: by which turn each engine runs, from the last finished run;

@@ -14772,3 +14772,29 @@ msgid ""
 "A theme is a plan made of roles - what each card does. Open one to see its "
 "roles and cards."
 msgstr "テーマは役割の組み合わせでできた計画です（役割＝各カードの働き）。開くと役割とカードが見られます。"
+
+#: templates/simulations/_strategies.html
+msgid "What could go"
+msgstr "抜けそうなカード"
+
+#: templates/simulations/_strategies.html
+msgid ""
+"To make room: the cards a rule finds the easiest to cut - no role, no part "
+"in a theme or a combo, or one too many of a role. The most expensive first."
+msgstr ""
+"枠を空けるために：ルールが最も外しやすいと判断したカードです。役割がない、テーマやコンボに入っていない、または役割が多すぎるもの。重いものから順に。"
+
+#: templates/simulations/_strategies.html
+msgid ""
+"A rule picks the cards that could go; Mistral AI only says why. You know "
+"your deck better."
+msgstr "外せるカードはルールが選び、Mistral AI は理由を書くだけです。デッキのことはあなたの方がよく知っています。"
+
+#: simulations/cuts.py
+msgid "No role and no part in a theme."
+msgstr "役割がなく、どのテーマにも入っていません。"
+
+#: simulations/cuts.py
+#, python-format
+msgid "%(role)s: %(count)s, the template has %(high)s"
+msgstr "%(role)s：%(count)s枚（目安は%(high)s枚）"

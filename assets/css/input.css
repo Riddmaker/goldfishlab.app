@@ -601,6 +601,12 @@ body {
   color: var(--color-parchment-100);
 }
 
+.limits-light strong {
+  /* The words inside a translated sentence keep their class; on parchment
+   * they take the ink instead (deck page v2, PR A). */
+  color: var(--color-ink-950);
+}
+
 .dropzone {
   position: relative;
   border: 2px dashed var(--color-parchment-600);
@@ -639,7 +645,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
-  padding: 2.5rem 1rem;
+  padding: 1.25rem 1rem;
   pointer-events: none;
 }
 
@@ -1872,13 +1878,6 @@ body {
   margin-left: calc(-1 * min(5.25rem, 2.5rem + max(0, var(--n) - 8) * 0.4rem));
 }
 
-/* How far this card's slot sits from the middle of the fan: one step is the
- * slot's width less the overlap above. The raised card moves by it. */
-.hand-slot {
-  --step: calc(var(--slot) - min(5.25rem, 2.5rem + max(0, var(--n) - 8) * 0.4rem));
-  --to-middle: calc(((var(--n) - 1) / 2 - var(--i)) * var(--step));
-}
-
 /* Resting on a card straightens it and lifts it to the top; the picture
  * grows to a size its rules text can be read at (the user asked for that). */
 .hand-slot:hover,
@@ -1912,14 +1911,40 @@ span.hand-card {
   transition: transform 150ms ease-out;
 }
 
-/* With a pointer the raised card also moves to the middle of the fan, so a
- * card at either end is read whole and in the same place. Only the picture
- * moves: the slot stays under the pointer, so the hover holds, and a click
- * anywhere on the slot or the picture still plays the card. */
+/* With a pointer the raised card grows where it sits and rises out of the
+ * fan (deck page v2, PR A: moving it to the middle made the hand jump).
+ * The cards at either end grow inwards, so they stay on screen. Only the
+ * picture moves: the slot stays under the pointer, so the hover holds, and
+ * a click anywhere on the slot or the picture still plays the card. Sliding
+ * along the hand grows one card after the other and lets the last one sink
+ * back, both eased; without motion the size simply changes. */
 @media (hover: hover) {
+  .hand-slot:first-child .hand-card-img {
+    transform-origin: 0% 100%;
+  }
+
+  .hand-slot:last-child .hand-card-img {
+    transform-origin: 100% 100%;
+  }
+
   .hand-slot:hover .hand-card-img,
   .hand-slot:focus-within .hand-card-img {
-    transform: translateX(var(--to-middle)) scale(1.8);
+    transform: translateY(-1.5rem) scale(1.8);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .hand-slot,
+  .hand-card-img {
+    transition-duration: 220ms;
+    transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hand-slot,
+  .hand-card-img {
+    transition: none;
   }
 }
 
@@ -1996,13 +2021,6 @@ span.hand-card {
   .hand-slot:focus-within .hand-card-action {
     bottom: auto;
     top: calc(100% + 0.25rem);
-    translate: calc(-50% + var(--to-middle)) 0;
-  }
-
-  /* The X field follows the raised card to the middle. */
-  .hand-slot:hover .hand-card-x,
-  .hand-slot:focus-within .hand-card-x {
-    translate: calc(-50% + var(--to-middle)) 0;
   }
 }
 

@@ -372,3 +372,28 @@ def test_the_page_reads_the_deck_s_own_themes(client_in, deck):
 
     assert response.context["reading"] == deck_reading(deck)
     assert response.context["themes"] == deck_reading(deck).themes
+
+
+def test_hand_tutor_and_mulligan_are_buttons_in_the_action_row(client_in, deck):
+    """Deck page v2, PR A: links under the row were missed; now each is a button."""
+    body = client_in.get(deck.get_absolute_url()).content.decode()
+
+    row = body[body.index('id="simulate"'):]
+    row = row[:row.index("</div>")]
+    tutor = reverse("decks:tutor", args=[deck.id])
+    mulligan = reverse("decks:mulligan", args=[deck.id])
+    for mark, url, icon in (("data-tutor-link", tutor, "icon-tutor"),
+                            ("data-mulligan-link", mulligan, "icon-new-hand")):
+        button = row[row.rindex("<a", 0, row.index(mark)):]
+        button = button[:button.index("</a>")]
+        assert f'href="{url}"' in button and icon in button
+
+
+def test_what_the_engine_cannot_model_folds_on_parchment_like_the_earlier_runs(client_in, deck):
+    body = client_in.get(deck.get_absolute_url()).content.decode()
+
+    start = body.index("What the engine cannot model")
+    fold = body[body.rindex("<details", 0, start):start]
+    assert 'class="surface-parchment' in fold and " open" not in fold
+    limits = body[body.index("data-limits", start) - 80:body.index("data-limits", start)]
+    assert "limits-light" in limits

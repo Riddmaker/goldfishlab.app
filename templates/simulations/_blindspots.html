@@ -1,7 +1,8 @@
 {% comment %}
   "What the engine cannot model", the same on the deck page and in the run's
   "Advanced" fold. Expects `blindspots` and `deck` in the context; the page
-  gives the heading and the fold around it.
+  gives the heading and the fold around it. `light` sets it in ink for a
+  parchment fold (the deck page, deck page v2 PR A), else parchment on night.
 
   It opens by saying this is normal (Themen-Doc, Deckseite): a first visit read
   the list as a verdict on the deck. Then what the engine does well and what
@@ -14,7 +15,7 @@
   fold of its own, a fold inside the fold.
 {% endcomment %}
 {% load i18n %}
-<div class="text-parchment-200" data-limits>
+<div class="{% if light %}limits-light text-ink-800{% else %}text-parchment-200{% endif %}" data-limits>
   <p class="mt-3">
     {% blocktranslate trimmed %}
       <strong class="text-parchment-100">This is normal.</strong> Every deck has cards a
@@ -33,11 +34,11 @@
       What goldfishing is for: how reliably your deck gets going - how soon the mana, the
       cards and the commander are there - before anybody interferes.
     {% endblocktranslate %}
-    {% include "core/_why.html" with anchor="blind-spots" dark=True %}
+    {% include "core/_why.html" with anchor="blind-spots" dark=light|yesno:",True" %}
   </p>
   {% for spot in blindspots %}
     <div class="mt-6 border-l-2 border-blood-600 pl-4" data-blindspot>
-      <h3 class="font-display text-lg text-parchment-100">
+      <h3 class="font-display text-lg {% if light %}text-ink-950{% else %}text-parchment-100{% endif %}">
         {% blocktranslate trimmed with heading=spot.heading count count=spot.count %}
           {{ heading }} — <span class="tabular">{{ count }}</span> card
         {% plural %}
@@ -57,7 +58,7 @@
         {% for suspect in spot.suspects %}
           <li>
             <a href="{% url 'simulations:annotate' deck.id suspect.oracle_id %}"
-               class="text-parchment-100 underline">{{ suspect.name }}</a>
+               class="{% if light %}text-ink-950{% else %}text-parchment-100{% endif %} underline">{{ suspect.name }}</a>
             — {{ suspect.reason }}
           </li>
         {% endfor %}

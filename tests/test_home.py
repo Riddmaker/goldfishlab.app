@@ -25,13 +25,31 @@ def _tiles(body):
     return re.findall(r'<section class="home-tile.*?</section>', body, re.S)
 
 
-def test_the_page_runs_from_the_flask_down_to_the_links(client):
+def test_the_page_runs_from_the_flask_down_to_the_tiles(client):
     body = _home(client)
-    order = ["data-fish", "<h1", "data-home-import", "data-ticker", 'class="home-tile',
-             reverse("resources")]
+    order = ["data-fish", "<h1", "data-home-import", "data-ticker", 'class="home-tile']
 
     places = [body.index(mark, body.index("<main")) for mark in order]
     assert places == sorted(places)
+
+
+def test_the_footer_alone_links_method_precons_and_resources(client):
+    """Deck page v2, PR A: the owner found them twice, above and in the footer."""
+    body = _home(client)
+    main = body[body.index("<main"):body.index("</main>")]
+
+    for name in ("methodology", "resources", "datapages:precons"):
+        assert f'href="{reverse(name)}"' not in main
+        assert f'href="{reverse(name)}"' in body
+
+
+def test_one_more_holds_the_export_guides_and_the_options(client):
+    body = _home(client)
+
+    assert body.count("<details") == body.count("data-export-guides") == 1
+    more = body[body.index("data-export-guides"):body.index("</details>")]
+    assert "Where do I get my list?" in more
+    assert 'name="name"' in more and 'name="format"' in more
 
 
 def test_the_tank_line_says_thousands_not_ten_thousand(client):

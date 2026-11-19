@@ -40,7 +40,7 @@
         same form as the import page, posting there or to the guest trial, so
         a refused upload comes back on that page with its error.
       {% endcomment %}
-      <div id="import" class="surface-parchment mt-2 w-full p-6 text-left shadow-xl shadow-ink-950/50" data-home-import>
+      <div id="import" class="surface-parchment mt-2 w-full p-4 sm:p-5 text-left shadow-xl shadow-ink-950/50" data-home-import>
         {% if user.is_authenticated %}
           {% url 'decks:import' as import_url %}
           {% include "decks/_import_form.html" with action=import_url submit_label=_("Import") %}
@@ -85,8 +85,10 @@
     sentence and a real page of a guest trial (phase 9 G), captured from the
     local stack as WebP, 720 x 540, by `scripts/home_pictures.py`. Not links:
     the way in is the form above; the symbol moves on hover like every other.
+    Both tiles are as tall as the taller one, the picture at the foot (deck
+    page v2, PR A); the method, precon and resources links live in the footer.
   {% endcomment %}
-  <div class="mt-10 grid items-start gap-6 md:grid-cols-2">
+  <div class="mt-10 grid items-stretch gap-6 md:grid-cols-2">
     <section class="home-tile surface-parchment icon-host" aria-labelledby="tile-simulate">
       <h2 id="tile-simulate" class="flex items-center gap-3 font-display text-2xl text-ink-950">{% icon "simulation" size="lg" %}{% translate "Simulate" %}</h2>
       <p class="text-ink-700">{% translate "The odds from thousands of games: lands, curve, ramp, draw and combos." %}</p>
@@ -95,7 +97,7 @@
            width="720"
            height="540"
            loading="lazy"
-           class="w-full border border-parchment-600">
+           class="mt-auto w-full border border-parchment-600">
     </section>
     <section class="home-tile surface-parchment icon-host" aria-labelledby="tile-hand">
       <h2 id="tile-hand" class="flex items-center gap-3 font-display text-2xl text-ink-950">{% icon "hand" size="lg" %}{% translate "Draw a hand" %}</h2>
@@ -105,12 +107,7 @@
            width="720"
            height="540"
            loading="lazy"
-           class="w-full border border-parchment-600">
+           class="mt-auto w-full border border-parchment-600">
     </section>
   </div>
-  <p class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-400">
-    <a href="{% url 'methodology' %}" class="underline hover:text-ink-300">{% translate "How it works" %}</a>
-    <a href="{% url 'datapages:precons' %}" class="underline hover:text-ink-300">{% translate "Every Commander precon, simulated" %}</a>
-    <a href="{% url 'resources' %}" class="underline hover:text-ink-300">{% translate "Resources" %}</a>
-  </p>
 {% endblock %}

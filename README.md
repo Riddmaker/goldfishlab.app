@@ -219,13 +219,14 @@ neither gives the engine gets a review reason. A change to the translation bumps
 .venv/Scripts/python manage.py forge_pack            # writes cards/data/, commit both files
 .venv/Scripts/python manage.py forge_disagreements   # where Forge and our reader differ
 .venv/Scripts/python manage.py forge_check --old OLD.jsonl.gz   # what a new pin changes, no database
+.venv/Scripts/python manage.py forge_gaps --top 20   # what the reader leaves open, by decks touched
 ```
 
 Normally the pin moves by itself: `.github/workflows/forge-sync.yml` runs on Mondays, packs
 Forge's newest commit, checks it with `forge_check` (more than 1 % of scripts failing to
 translate fails the run and opens an issue "Forge sync failed"), keeps the two pin files as the
 run's artifact `forge-pin` for seven days and opens or updates one issue "Forge pin ready" with
-the report - the cards that read less than before - and the two commands that take the files
+the report - the cards that read less than before, grouped by cause - and the two commands that take the files
 over. A session runs them, then the suite, and commits the pin to `dev`: no workflow writes this
 repository. After the deploy the nightly catalogue job takes the new pin over without a Scryfall
 fetch.

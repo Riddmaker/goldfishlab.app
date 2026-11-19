@@ -4,7 +4,10 @@ The scripts below are made up for these tests, in the format's shape; none is
 copied from Forge's card data.
 """
 
+import io
+
 import pytest
+from django.core.management import call_command
 
 from cards import forge, forge_import, refresh
 from cards.models import BulkImport, ForgeScript, OracleCard
@@ -285,6 +288,45 @@ def test_a_pack_reads_back_its_scripts(_forge_pack):
 def test_a_pack_wants_a_full_commit_hash(tmp_path):
     with pytest.raises(ValueError):
         forge.pack([], "abc", "2026-10-13T08:00:00+00:00", tmp_path / "x.jsonl.gz")
+
+
+# --- what is left open -------------------------------------------------------------
+
+
+def test_gaps_rank_by_decks_then_cards():
+    found = forge_import.rank_gaps([
+        ("Rare Oddity", ["cond:Rare"], 0),
+        ("Check Land", ["cond:Present", "amount:X"], 9),
+        ("Other Land", ["cond:Present"], 3),
+        ("Big Spell", ["amount:X", "amount:X"], 1),
+    ])
+
+    assert [(gap.construct, gap.cards, gap.decks) for gap in found] == [
+        ("cond:Present", 2, 12), ("amount:X", 2, 10), ("cond:Rare", 1, 0)]
+    assert found[0].examples == ["Check Land", "Other Land"]
+
+
+def test_gaps_count_the_unmodeled_once_and_each_unread_clause():
+    abilities = blocks_of("""Name:Test Hoard
+Types:Artifact
+A:AB$ SomethingNew | Cost$ T
+A:AB$ Draw | Cost$ T | NumCards$ 1 | ConditionCheckSVar$ X | ConditionSVarCompare$ GE3
+A:AB$ Draw | Cost$ 1 | NumCards$ 1 | ConditionCheckSVar$ X | ConditionSVarCompare$ GE3
+""")
+    assert forge_import.gaps(abilities) == {
+        "AB:SomethingNew": 1, "cond:ConditionCheckSVar": 2, "cond:ConditionSVarCompare": 2}
+
+
+def test_the_gap_command_ranks_the_stored_blocks(catalogue):
+    forge_import.run()
+    ForgeScript.objects.filter(oracle_card__name="Sol Ring").update(unread=["cond:Test"])
+    out = io.StringIO()
+
+    call_command("forge_gaps", "--top", "5", stdout=out)
+
+    text = out.getvalue()
+    assert "read in full: " in text
+    assert "| `cond:Test` | 1 | 0 | Sol Ring |" in text
 
 
 # --- the run ----------------------------------------------------------------------

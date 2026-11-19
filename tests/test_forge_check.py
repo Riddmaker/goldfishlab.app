@@ -136,3 +136,24 @@ def test_the_command_fails_above_the_limit(tmp_path, old, monkeypatch):
         call_command("forge_check", old=str(old), new=str(new), out=str(body))
     # The description is written all the same, for the failed run's log.
     assert "| Failed to translate | 3" in body.read_text(encoding="utf-8")
+
+
+def test_the_causes_of_reading_less_are_grouped(tmp_path, old):
+    """One Forge rename made 328 cards read less (pin 18800697dc): the report
+    names the construct once, with its count, instead of 328 cards to open."""
+    renamed = {path: text.replace("AB$ Mana", "AB$ ZzzRenamedMana")
+               for path, text in FORGE_SCRIPTS.items()}
+    new = _pack(tmp_path, "new.jsonl.gz", renamed, NEW_COMMIT)
+
+    found = forge_import.compare(old, new)
+
+    assert found.reads_less == ["Llanowar Elves", "Sol Ring"]
+    assert found.causes == {"AB:ZzzRenamedMana": 2}
+    assert ("**Why they read less** (newly left open, cards): `AB:ZzzRenamedMana` on 2"
+            in forge_import.report(found))
+
+
+def test_no_causes_no_line(old):
+    found = forge_import.Comparison(FORGE_COMMIT, NEW_COMMIT, scripts=3)
+
+    assert "Why they read less" not in forge_import.report(found)

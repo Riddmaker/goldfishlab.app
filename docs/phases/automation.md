@@ -421,3 +421,26 @@ next step if search is not enough; it needs a key.
 - **No sample week in the repository:** the first real week comes from the routine. The browser test
   used a temporary file, deleted afterwards.
 
+
+## Forge gaps: the reader grows by construct, not by card (2026-11-19)
+
+Pin `18800697dc` reported 328 cards that read less. All of them had one cause: Forge split the
+boost-less `Pump` into `TargetOnly`, `Bookkeeping` and `Nothing`. Three entries in `VERBS` fixed
+all 328. Looking at cards one by one would have hidden that, so the process now works by
+construct.
+
+- **The pin report groups the causes.** `Comparison.causes` counts, for the cards that read
+  less, each construct newly left open; `report` lists the ten largest under "Why they read
+  less". A rename shows as one line with a large count. Taking a pin over: if a cause is a
+  rename, map it in `VERBS` (or the table it belongs to) with a test, run `forge_check` again,
+  and commit pin and reader together.
+- **`manage.py forge_gaps [--top N]` ranks what is left open** over the Commander-legal cards
+  with a stored script: every unmodeled construct and unread clause, ranked by the decks its
+  cards are in (`forge_import.rank_gaps`), then by the number of cards. It reads the local
+  database; the precons there make the deck counts meaningful without production data.
+- **One construct per pull request**, from the top of that list: teach it to the reader in
+  `cards/forge_import.py`, add a test, run `forge_gaps` again and note the share read in full
+  in `docs/SEQUENCE-SUPPORT-KPI.html`. Constructs that cannot matter to a goldfish (Planechase,
+  Un-sets, draft-only cards) stay open on purpose.
+- Tests: `tests/test_forge_check.py` (the grouped causes, no line without them),
+  `tests/test_forge_import.py` (the ranking, the counting, the command, the three new names).

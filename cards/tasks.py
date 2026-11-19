@@ -2,9 +2,10 @@
 
 Three settings differ from every other task here, each for a reason:
 
-- **`sim_long`, not the default queue.** worker-short runs one task at a time,
-  and a few minutes of ingest would hold up every guest run on /try/. The long
-  worker has two slots and more room to grow.
+- **`sim_long`, not the default queue** (`CELERY_TASK_ROUTES`, base.py).
+  worker-short runs one task at a time, and a few minutes of ingest would hold
+  up every guest run on /try/. The long worker has two slots and more room to
+  grow.
 - **Acknowledged on receipt (`acks_late=False`).** With late acks an unfinished
   task goes back to the broker after `visibility_timeout` (600 s, base.py) - a
   full load can take longer, and a second worker would then load it again,
@@ -34,7 +35,6 @@ LOCK = "cards:refresh:running"
 
 @shared_task(
     name="cards.refresh",
-    queue="sim_long",
     acks_late=False,
     soft_time_limit=SOFT_TIME_LIMIT,
     time_limit=TIME_LIMIT,

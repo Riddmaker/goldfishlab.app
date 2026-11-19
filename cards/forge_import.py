@@ -25,6 +25,7 @@ Scripts are data: parsed as text, never executed.
 """
 
 import re
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -74,6 +75,10 @@ VERBS = {
     "Shuffle": "shuffle", "StoreSVar": None, "Surveil": "surveil", "Tap": "tap",
     "TapAll": "tap_all", "Token": "create_token", "Untap": "untap", "UntapAll": "untap_all",
     "WinsGame": "win_game",
+    # Forge 18800697dc split the boost-less Pump three ways: only choosing a
+    # target, remembering or forgetting, and carrying an "unless" cost. Read as
+    # the Pump they were, so the blocks stay what they were.
+    "TargetOnly": "pump", "Bookkeeping": "pump", "Nothing": "pump",
 }
 
 #: APIs that make mana: an ``AB$`` of them is a mana ability.
@@ -817,6 +822,9 @@ class Comparison:
     reads_less: list[str] = field(default_factory=list)
     reads_more: list[str] = field(default_factory=list)
     failed: list[str] = field(default_factory=list)
+    #: Why the cards in `reads_less` read less: each construct newly left
+    #: open, and on how many of them. One Forge rename shows as one line.
+    causes: Counter = field(default_factory=Counter)
 
     @property
     def changes(self) -> int:
@@ -827,10 +835,13 @@ class Comparison:
         return bool(self.scripts) and len(self.failed) / self.scripts > MAX_FAILURES
 
 
-def _gaps(abilities) -> int:
-    """How much of a card the blocks leave open: unmodeled constructs and
-    unread clauses."""
-    return len(unmodeled(abilities)) + sum(len(ability.unread) for ability in abilities)
+def gaps(abilities) -> Counter:
+    """What the blocks leave open, and how often: the unmodeled constructs
+    once each, the unread clauses once per ability."""
+    found = Counter(unmodeled(abilities))
+    for ability in abilities:
+        found.update(ability.unread)
+    return found
 
 
 def _translated(script: forge.Script):
@@ -866,9 +877,11 @@ def compare(old: Path, new: Path) -> Comparison:
         result.blocks_changed.append(script.name)
         if was is None:
             continue
-        if _gaps(abilities) > _gaps(was):
+        now, then = gaps(abilities), gaps(was)
+        if now.total() > then.total():
             result.reads_less.append(script.name)
-        elif _gaps(abilities) < _gaps(was):
+            result.causes.update(set(now - then))
+        elif now.total() < then.total():
             result.reads_more.append(script.name)
     result.removed = sorted(script.name for path, script in before.items() if path not in seen)
     for names in (result.added, result.changed, result.blocks_changed,
@@ -877,8 +890,43 @@ def compare(old: Path, new: Path) -> Comparison:
     return result
 
 
+@dataclass
+class Gap:
+    """One construct the reader leaves open, ranked by what it costs us."""
+
+    construct: str
+    #: Cards it is open on.
+    cards: int = 0
+    #: Decks those cards are in, summed: the cards people play count most.
+    decks: int = 0
+    #: The cards in the most decks, a few, for a look at the scripts.
+    examples: list[str] = field(default_factory=list)
+
+
+#: Example cards named per gap.
+GAP_EXAMPLES = 3
+
+
+def rank_gaps(cards) -> list[Gap]:
+    """The open constructs over ``cards`` - ``(name, constructs, decks)`` -
+    most decks first, then most cards: the order to teach the reader in."""
+    found: dict[str, Gap] = {}
+    seen: dict[str, list[tuple[int, str]]] = {}
+    for name, constructs, decks in cards:
+        for construct in set(constructs):
+            gap = found.setdefault(construct, Gap(construct))
+            gap.cards += 1
+            gap.decks += decks
+            seen.setdefault(construct, []).append((-decks, name))
+    for construct, gap in found.items():
+        gap.examples = [name for _, name in sorted(seen[construct])[:GAP_EXAMPLES]]
+    return sorted(found.values(), key=lambda gap: (-gap.decks, -gap.cards, gap.construct))
+
+
 #: Names listed per group in the report; the rest is counted.
 REPORT_NAMES = 30
+#: Causes listed for the cards that read less.
+REPORT_CAUSES = 10
 
 
 def _literal(text: str) -> str:
@@ -899,6 +947,13 @@ def report(comparison: Comparison) -> str:
         more = f" and {len(found) - REPORT_NAMES} more" if len(found) > REPORT_NAMES else ""
         return [f"**{title} ({len(found)}):** {shown}{more}", ""]
 
+    def causes() -> list[str]:
+        if not comparison.causes:
+            return []
+        shown = ", ".join(f"{_literal(cause)} on {count}"
+                          for cause, count in comparison.causes.most_common(REPORT_CAUSES))
+        return [f"**Why they read less** (newly left open, cards): {shown}", ""]
+
     lines = [
         f"Moves the pinned Forge commit from `{old[:10]}` to `{new[:10]}` "
         f"([compare](https://github.com/Card-Forge/forge/compare/{old}...{new})).",
@@ -914,6 +969,7 @@ def report(comparison: Comparison) -> str:
         f"(stops at {MAX_FAILURES:.0%}) |",
         "",
         *names("Read less than before, check these", comparison.reads_less),
+        *causes(),
         *names("Read more than before", comparison.reads_more),
         *names("Changed scripts", comparison.changed),
         *names("New scripts", comparison.added),

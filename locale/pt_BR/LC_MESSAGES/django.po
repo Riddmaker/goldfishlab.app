@@ -16443,3 +16443,419 @@ msgstr ""
 "você: \"Manter ou mulligan?\" guarda seu histórico - quantas vezes sua "
 "decisão bateu com a simulação e o quanto você tinha certeza. Só você vê, e "
 "nada decorre dele."
+
+#: templates/news/page.html
+msgid "Commander news"
+msgstr "Notícias de Commander"
+
+#: templates/news/page.html
+msgid ""
+"The week's Commander news in a few sentences each, with links to the "
+"articles. Follow it by feed, or get one mail a week."
+msgstr ""
+"As notícias de Commander da semana em poucas frases cada, com links para os "
+"artigos. Acompanhe pelo feed ou receba um e-mail por semana."
+
+#: templates/news/page.html
+msgid "Goldfish Lab: Commander news"
+msgstr "Goldfish Lab: notícias de Commander"
+
+#: templates/news/page.html
+msgid ""
+"What happened in Commander this week, in a few sentences each, with a link "
+"to every article."
+msgstr ""
+"O que aconteceu em Commander nesta semana, em poucas frases cada, com um "
+"link para cada artigo."
+
+#: templates/news/page.html
+#, python-format
+msgid ""
+"<strong>Summarised with AI</strong> from the linked articles, then checked "
+"and approved by our editor before it is published. Editorially responsible: "
+"the operator named in the <a href=\"%(imprint_url)s\" class=\"underline "
+"hover:text-parchment-50\">legal notice</a>."
+msgstr ""
+"<strong>Resumido com IA</strong> a partir dos artigos vinculados e depois "
+"revisado e aprovado pela nossa redação antes de ser publicado. Responsável "
+"editorial: a pessoa indicada no <a href=\"%(imprint_url)s\" "
+"class=\"underline hover:text-parchment-50\">aviso legal</a>."
+
+#: templates/news/page.html
+msgid ""
+"The articles and every right to them belong to their sources. Something "
+"wrong, or an article of yours you want taken out? Write to the address in "
+"the legal notice, and it goes."
+msgstr ""
+"Os artigos e todos os direitos sobre eles pertencem às suas fontes. Algo "
+"errado, ou quer que um artigo seu seja retirado? Escreva para o endereço no "
+"aviso legal e ele sai."
+
+#: templates/news/page.html
+msgid "<strong>You get it by mail</strong>, once a week when there is news."
+msgstr ""
+"<strong>Você recebe por e-mail</strong>, uma vez por semana quando há "
+"notícias."
+
+#: templates/news/page.html
+msgid "Or by mail, once a week when there is news."
+msgstr "Ou por e-mail, uma vez por semana quando há notícias."
+
+#: templates/news/page.html
+#, python-format
+msgid "Week %(number)s"
+msgstr "Semana %(number)s"
+
+#: templates/news/page.html
+msgid ""
+"The first week of news is on its way. Follow the feed or subscribe, and it "
+"comes to you."
+msgstr ""
+"A primeira semana de notícias está a caminho. Siga o feed ou inscreva-se, e "
+"ela chega até você."
+
+#: templates/news/unsubscribe.html
+msgid "The news by mail"
+msgstr "As notícias por e-mail"
+
+#: templates/news/unsubscribe.html
+#, python-format
+msgid "<strong>Unsubscribed.</strong> %(email)s gets no more news mails."
+msgstr ""
+"<strong>Inscrição cancelada.</strong> %(email)s não recebe mais e-mails de "
+"notícias."
+
+#: templates/news/unsubscribe.html
+#, python-format
+msgid ""
+"Changed your mind? Subscribe again on <a href=\"%(news_url)s\" "
+"class=\"underline hover:text-ink-900\">Commander news</a>."
+msgstr ""
+"Mudou de ideia? Inscreva-se de novo em <a href=\"%(news_url)s\" "
+"class=\"underline hover:text-ink-900\">Notícias de Commander</a>."
+
+#: templates/news/unsubscribe.html
+#, python-format
+msgid "Stop the weekly news mail to <strong>%(email)s</strong>?"
+msgstr ""
+"Cancelar o e-mail semanal de notícias para <strong>%(email)s</strong>?"
+
+#: templates/news/email/digest_message.txt
+#, python-format
+msgid "The Commander news of week %(number)s:"
+msgstr "As notícias de Commander da semana %(number)s:"
+
+#: templates/news/email/digest_message.txt
+msgid ""
+"Summarised with AI from the linked articles, checked by our editor before it"
+" was sent."
+msgstr ""
+"Resumido com IA a partir dos artigos vinculados e revisado pela nossa "
+"redação antes do envio."
+
+#: templates/news/email/digest_message.txt
+msgid "All your mail settings:"
+msgstr "Todas as suas configurações de e-mail:"
+
+#: templates/news/email/digest_subject.txt
+#, python-format
+msgid "Commander news, week %(number)s"
+msgstr "Notícias de Commander, semana %(number)s"
+
+#: templates/news/email/digest_message.html
+#, python-format
+msgid "%(items)s piece of Commander news this week."
+msgid_plural "%(items)s pieces of Commander news this week."
+msgstr[0] "%(items)s notícia de Commander nesta semana."
+msgstr[1] "%(items)s notícias de Commander nesta semana."
+
+#: templates/news/email/digest_message.html
+msgid "All your mail settings"
+msgstr "Todas as suas configurações de e-mail"
+
+#: templates/billing/plans.html
+msgid "<strong>On:</strong> one mail a week, when there is news."
+msgstr "<strong>Ligado:</strong> um e-mail por semana, quando há notícias."
+
+#: templates/billing/plans.html
+#, python-format
+msgid ""
+"<strong>Off.</strong> The week's Commander news, once a week: <a "
+"href=\"%(news_url)s\" class=\"underline\">Commander news</a>."
+msgstr ""
+"<strong>Desligado.</strong> As notícias de Commander da semana, uma vez por "
+"semana: <a href=\"%(news_url)s\" class=\"underline\">Notícias de "
+"Commander</a>."
+
+#: templates/account/signup.html
+msgid ""
+"Once your address is confirmed, the Commander news comes by mail once a "
+"week."
+msgstr ""
+"Assim que seu endereço for confirmado, as notícias de Commander chegam por "
+"e-mail uma vez por semana."
+
+#: templates/core/privacy.html
+msgid ""
+"Only what the account needs: the message that confirms your address, "
+"password resets, and - rarely - a notice about a change to these documents "
+"or to a plan you pay for. Two mails are optional: the changelog, once a "
+"month when something changed, and the Commander news, once a week. Each is "
+"off until you switch it on yourself, on its page or on Your plan; we keep "
+"the date you did, as the record of your consent, and every one of those "
+"mails stops with one click. No marketing, ever. The mail is sent through a "
+"mailbox at Infomaniak, in Switzerland."
+msgstr ""
+"Só o que a conta precisa: a mensagem que confirma seu endereço, redefinições"
+" de senha e, raramente, um aviso sobre uma mudança nestes documentos ou em "
+"um plano que você paga. Dois e-mails são opcionais: as novidades, uma vez "
+"por mês quando algo mudou, e as notícias de Commander, uma vez por semana. "
+"Cada um fica desligado até você mesmo ligá-lo, na página dele ou em \"Seu "
+"plano\"; guardamos a data em que você fez isso, como registro do seu "
+"consentimento, e cada um desses e-mails pode ser cancelado com um clique. "
+"Nunca marketing. Os e-mails são enviados por uma caixa postal da Infomaniak,"
+" na Suíça."
+
+#: templates/core/imprint.html
+#, python-format
+msgid ""
+"The same person is editorially responsible for the <a href=\"%(news_url)s\" "
+"class=\"underline hover:text-ink-900\">Commander news</a>: its summaries are"
+" drafted with AI from the linked articles and checked by them before "
+"anything is published. To have an item corrected or taken out, write to the "
+"address above."
+msgstr ""
+"A mesma pessoa é responsável editorial pelas <a href=\"%(news_url)s\" "
+"class=\"underline hover:text-ink-900\">Notícias de Commander</a>: os resumos"
+" são redigidos com IA a partir dos artigos vinculados e revisados por ela "
+"antes de qualquer publicação. Para corrigir ou retirar uma notícia, escreva "
+"para o endereço acima."
+
+#: news/signals.py
+msgid "You're subscribed: the Commander news comes by mail once a week."
+msgstr ""
+"Inscrição feita: as notícias de Commander chegam por e-mail uma vez por "
+"semana."
+
+#: news/views.py
+msgid ""
+"The week's Commander news in a few sentences, with links to the articles. "
+"Summarised with AI, checked before it is published."
+msgstr ""
+"As notícias de Commander da semana em poucas frases, com links para os "
+"artigos. Resumidas com IA e revisadas antes de publicar."
+
+#: news/views.py
+msgid "Unsubscribed. No more news mails."
+msgstr "Inscrição cancelada. Sem mais e-mails de notícias."
+
+#: changelog/entries.py
+msgid "The week's Commander news"
+msgstr "As notícias de Commander da semana"
+
+#: changelog/entries.py
+msgid ""
+"A new page, Commander news, has the week's news for Commander players: a few"
+" sentences on each story in your language, with a link to the article it "
+"comes from. It is summarised with AI and checked by a person before it is "
+"published. Follow it by feed, or get it by mail once a week - switched on on"
+" the page or on Your plan, and off again with one click in every mail."
+msgstr ""
+"Uma página nova, Notícias de Commander, traz as notícias da semana para quem"
+" joga Commander: algumas frases sobre cada notícia no seu idioma, com um "
+"link para o artigo de onde ela vem. Ela é resumida com IA e revisada por uma"
+" pessoa antes de ser publicada. Acompanhe pelo feed ou receba por e-mail uma"
+" vez por semana: liga na página ou em \"Seu plano\" e desliga com um clique "
+"em cada e-mail."
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s gives you bodies to sacrifice"
+msgstr "%(card)s dá a você corpos para sacrificar"
+
+#: templates/decks/_themes.html
+msgid ""
+"A theme is a plan made of roles - what each card does. Open one to see its "
+"roles and cards."
+msgstr ""
+"Um tema é um plano feito de papéis – o que cada carta faz. Abra um para ver "
+"seus papéis e cartas."
+
+#: templates/simulations/_strategies.html
+msgid "What could go"
+msgstr "O que poderia sair"
+
+#: templates/simulations/_strategies.html
+msgid ""
+"To make room: the cards a rule finds the easiest to cut - no role, no part "
+"in a theme or a combo, or one too many of a role. The most expensive first."
+msgstr ""
+"Para abrir espaço: as cartas que uma regra acha mais fáceis de cortar – sem "
+"papel, fora de temas e combos, ou uma a mais em um papel. As mais caras "
+"primeiro."
+
+#: templates/simulations/_strategies.html
+msgid ""
+"A rule picks the cards that could go; Mistral AI only says why. You know "
+"your deck better."
+msgstr ""
+"Uma regra escolhe as cartas que poderiam sair; a Mistral AI só diz por quê. "
+"Você conhece seu deck melhor."
+
+#: simulations/cuts.py
+msgid "No role and no part in a theme."
+msgstr "Sem papel e sem parte em um tema."
+
+#: simulations/cuts.py
+#, python-format
+msgid "%(role)s: %(count)s, the template has %(high)s"
+msgstr "%(role)s: %(count)s, o modelo tem %(high)s"
+
+#: templates/decks/_card_tile.html
+msgid "Works again and again"
+msgstr "Funciona de novo e de novo"
+
+#: templates/decks/_engines.html
+msgid "↻ works again and again; an engine needs at least one such card."
+msgstr ""
+"↻ funciona de novo e de novo; um motor precisa de pelo menos uma carta "
+"assim."
+
+#: templates/decks/_theme_groups.html
+msgid "Your themes, piece by piece"
+msgstr "Seus temas, peça por peça"
+
+#: templates/decks/_theme_groups.html
+#, python-format
+msgid ""
+"How likely you have seen a card of every piece by turn %(by_turn)s: a hand "
+"of 7, one draw a turn, no mulligan, calculated from your list."
+msgstr ""
+"A chance de ter visto uma carta de cada peça até o turno %(by_turn)s: mão de"
+" 7, uma compra por turno, sem mulligan, calculada da sua lista."
+
+#: templates/decks/_theme_groups.html
+#, python-format
+msgid "by turn %(by_turn)s"
+msgstr "até o turno %(by_turn)s"
+
+#: templates/decks/detail.html
+msgid "Click a chip to show its cards; Ctrl- or ⌘-click to add more."
+msgstr ""
+"Clique em um chip para ver as cartas dele; Ctrl- ou ⌘-clique para adicionar "
+"mais."
+
+#: templates/decks/detail.html
+msgid "Role"
+msgstr "Função"
+
+#: templates/decks/detail.html
+msgid "Theme role"
+msgstr "Função de tema"
+
+#: templates/decks/_card_grid.html
+msgid "No card of the deck has it."
+msgstr "Nenhuma carta do deck tem isso."
+
+#: templates/decks/_card_explorer.html
+msgid "later"
+msgstr "depois"
+
+#: templates/decks/_card_explorer.html
+msgid "Not seen by turn 8 in any shuffle."
+msgstr "Não vista até o turno 8 em nenhum embaralhamento."
+
+#: templates/decks/_card_explorer.html
+msgid "Chance to have seen a card of the chosen chips, turns 1 to 8"
+msgstr "Chance de ter visto uma carta dos chips escolhidos, turnos 1 a 8"
+
+#: templates/decks/_card_explorer.html
+msgid "Turn of the first card seen"
+msgstr "Turno da primeira carta vista"
+
+#: templates/decks/_card_explorer.html
+msgid ""
+"Choose a chip: a curve shows by which turn you have seen one of its cards."
+msgstr ""
+"Escolha um chip: uma curva mostra até qual turno você viu uma das cartas "
+"dele."
+
+#: templates/decks/_card_explorer.html
+msgid "Count a hit when you have seen"
+msgstr "Conta como acerto quando você viu"
+
+#: templates/decks/_card_explorer.html
+msgid "one of each chip"
+msgstr "uma de cada chip"
+
+#: templates/decks/_card_explorer.html
+msgid "one of any chip"
+msgstr "uma de qualquer chip"
+
+#: templates/decks/_card_explorer.html
+msgid "with tutors"
+msgstr "com tutores"
+
+#: templates/decks/_card_explorer.html
+msgid ""
+"10,000 shuffles in your browser: seven cards, one draw a turn from turn 2, "
+"no mulligan. With tutors, a tutor you see finds a missing card the same "
+"turn, mana aside; a card that wears a chosen chip counts as itself, not as a"
+" tutor."
+msgstr ""
+"10.000 embaralhamentos no seu navegador: sete cartas, uma compra por turno a"
+" partir do turno 2, sem mulligan. Com tutores, um tutor visto encontra uma "
+"carta que falta no mesmo turno, sem contar a mana; uma carta com um chip "
+"escolhido conta como ela mesma, não como tutor."
+
+#: templates/decks/_card_explorer.html
+msgid "By turn {turn}: {share}"
+msgstr "Até o turno {turn}: {share}"
+
+#: templates/decks/_card_explorer.html
+msgid "with tutors {share}"
+msgstr "com tutores {share}"
+
+#: templates/decks/_card_explorer.html
+msgid ""
+"First seen on average on turn {mean} ± {sd}, in the {share} of games that "
+"see one by turn 8."
+msgstr ""
+"Vista pela primeira vez em média no turno {mean} ± {sd}, nos {share} de "
+"partidas que veem uma até o turno 8."
+
+#: templates/decks/_opening_hand.html
+msgid "Your opening hand"
+msgstr "Sua mão inicial"
+
+#: templates/decks/_opening_hand.html
+#, python-format
+msgid ""
+"of your hands of seven hold 2 to 4 lands, with %(lands)s land in the deck."
+msgid_plural ""
+"of your hands of seven hold 2 to 4 lands, with %(lands)s lands in the deck."
+msgstr[0] ""
+"das suas mãos de sete cartas têm de 2 a 4 terrenos, com %(lands)s terreno no"
+" deck."
+msgstr[1] ""
+"das suas mãos de sete cartas têm de 2 a 4 terrenos, com %(lands)s terrenos "
+"no deck."
+
+#: templates/decks/_opening_hand.html
+msgid "Chance of each number of lands in a hand of seven"
+msgstr "Chance de cada número de terrenos em uma mão de sete cartas"
+
+#: templates/decks/_opening_hand.html
+#, python-format
+msgid "%(lands)s land: %(share)s"
+msgid_plural "%(lands)s lands: %(share)s"
+msgstr[0] "%(lands)s terreno: %(share)s"
+msgstr[1] "%(lands)s terrenos: %(share)s"
+
+#: templates/decks/_opening_hand.html
+msgid "Lands in a hand of seven, before any mulligan."
+msgstr "Terrenos em uma mão de sete cartas, antes de qualquer mulligan."
+
+#: templates/decks/_opening_hand.html
+msgid "Keep or mulligan? Judge ten hands from this deck"
+msgstr "Manter ou mulligan? Julgue dez mãos deste deck"

@@ -499,9 +499,9 @@ class DeckSummary(models.Model):
     Written by Mistral while a run plays, kept, and shown again until the deck
     changes: `fingerprint` is the cards, their counts, the commander and the
     annotations in the scope the engine merges (`simulations.summary.
-    fingerprint`). A new prompt alone does not rewrite anything - that would
-    charge people for our change - which is why `prompt_version` is recorded
-    and not compared.
+    fingerprint`). A new prompt rewrites a text on the deck's next run
+    (deck page v2, PR B: version 6 had the commander drawn), and that
+    rewrite is on us: `summary.ours_to_pay` keeps it off the allowance.
 
     `charged` is whether a run was taken from the owner's monthly allowance
     for it, so a failure gives back exactly what was taken, once.

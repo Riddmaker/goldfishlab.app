@@ -56,7 +56,15 @@ from decks.models import (
 )
 from decks.resolve import RUNG_LABELS, RUNG_ORDER, RUNG_UNRESOLVED
 from decks.themes import deck_reading, save_mark
-from simulations import blindspots, deck_cards, report, review, strategies, summary
+from simulations import (
+    blindspots,
+    deck_cards,
+    report,
+    review,
+    strategies,
+    summary,
+    theme_odds,
+)
 from simulations.engine import adapter
 from simulations.forms import RunForm
 from simulations.models import SimulationRun
@@ -150,6 +158,7 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         grid = deck_cards.cards(readings, questions, printings)
         filters = deck_cards.Filters.from_request(self.request.GET)
         type_bars, category_bars = deck_cards.bars(grid)
+        shown = deck_cards.shown(grid, filters)
         art_pending = printing_art.is_pending(deck)
         return {
             "deck": deck,
@@ -159,9 +168,7 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
             "art_poll": self.request.GET.get("art") == "1",
             "commander_art": commander_art(deck, art_pending),
             # The grid's filters, so a refetch shows what was being shown.
-            "grid_query": urlencode({key: value for key, value in (
-                ("type", filters.kind), ("cat", filters.category), ("q", filters.query))
-                if value}),
+            "grid_query": urlencode(filters.query_items()),
             # The cards the engine could not read on its own: the same queue the
             # red marker counts the open ones of (P20 F4, E1.35).
             "unread_cards": sum(1 for question in questions if question.unread),
@@ -169,7 +176,12 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
                                and not question.answered and not question.to_check),
             # Corrections the reading moved under (card model phase 2).
             "check_cards": sum(1 for question in questions if question.to_check),
-            "grid": deck_cards.shown(grid, filters),
+            "grid": shown,
+            # Two or more chips: the shown cards under each (deck page v2, PR F).
+            "grid_groups": deck_cards.groups(shown, filters) if len(filters.chosen) > 1 else [],
+            "theme_chips": deck_cards.theme_chips(grid),
+            # The library the card explorer's curve shuffles in the browser.
+            "explorer_cards": deck_cards.explorer_cards(grid),
             "grid_total": len(grid),
             "filters": filters,
             "type_bars": type_bars,
@@ -224,13 +236,19 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         if user.deck_summaries:
             context["written"] = summary.state(user, deck)
         written = context.get("written") or {}
-        context["strategies"] = strategies.block(readings, written.get("content"))
+        # Deck page v2, PR D: what could go, by the summary's own rule.
+        context["strategies"] = strategies.block(
+            readings, written.get("content"),
+            summary.cut_candidates(readings, reading, summary.combos_of(deck)))
         context["runs"] = runs = list(deck.runs.all()[:5])
         context.update(self.last_run_context(deck, runs))
         # PR 5: by which turn each engine runs, from the last finished run;
         # PR 6: how it plays, from the deck's summary.
         context["engine_rows"] = engine_watch.engine_rows(
             reading, context["last_run"], summary.engine_notes(user, deck))
+        # Deck page v2, PR E: each theme piece by piece, and its chance by turn 4.
+        context["theme_groups"] = theme_odds.groups(reading.themes, readings)
+        context["by_turn"] = theme_odds.BY_TURN
         # The bracket tile: the Game Changers' floor beside the last run's speed,
         # which the report's bracket section used to say alone.
         last_run = context["last_run"]
@@ -239,6 +257,9 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         # it" counts them, and the turn the commander is out in half the games.
         context["curve_counts"] = [bar for bar in context["category_bars"]
                                    if bar.value in ("ramp", "draw")]
+        # Deck page v2, PR G (D4): under the curve, lands in the opening hand,
+        # exact and before any run, with the way to the mulligan quiz.
+        context["opening_hand"] = report.opening_hand(analysis.total_cards, analysis.land_count)
         context["commander_out"] = (report.commander_out(last_run)
                                     if last_run and last_run.result else None)
         # Sessions, not games: a playtest is one game played by hand and is

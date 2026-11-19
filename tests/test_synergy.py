@@ -176,7 +176,7 @@ def test_an_engine_is_one_card_per_piece_in_the_rules_order():
     assert engine.theme == "aristocrats" and engine.level == STRONG
     assert engine.cards == ("Outlet 0", "Payoff 0", "Fodder 0")
     assert engine.sentence == ("Outlet 0 sacrifices, Payoff 0 pays off each death, "
-                               "Fodder 0 brings more bodies.")
+                               "Fodder 0 gives you bodies to sacrifice.")
     assert engine.repeating == ("Outlet 0",) and engine.missing == ()
 
 
@@ -286,12 +286,13 @@ def test_the_section_holds_combos_engines_and_pairs(client_in, deck, monkeypatch
 
     section = body[body.index('id="combos"'):body.index('id="cards"')]
     for words in ("Combos & engines", 'id="combo-panel"', "Engines", "Synergies",
-                  "Viscera Seer + Blood Artist", "Aristocrats · strong",
-                  "Viscera Seer sacrifices, Blood Artist pays off each death.",
-                  "Works again and again: Blood Artist.", "25 more pairs",
-                  "7 weaker pairs of the same kinds are not listed.",
-                  "Rule 1.0 × rarity 0.50 × 0.80 × fill 0.90 = 0.36."):
+                  'class="card-tile"', "Aristocrats", "strong",
+                  "Viscera Seer sacrifices", "Blood Artist pays off each death",
+                  'class="card-tile-again"', "25 more pairs",
+                  "7 weaker pairs of the same kinds are not listed."):
         assert words in section, words
+    # Deck page v2, PR E: shown, not described - no sentence, no score.
+    assert "Advanced" not in section and "Rule 1.0" not in section
 
 
 def test_an_engine_a_piece_short_is_dashed_and_says_so(client_in, deck, monkeypatch):

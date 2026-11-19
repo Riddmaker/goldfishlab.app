@@ -14,9 +14,13 @@ from pathlib import Path
 import pytest
 from django.template import Context, Template
 
+from cards.themes import THEMES, TYPAL
+from core import symbols
 from core.templatetags import icons
 from scripts.build_styleguide import SYMBOLS
-from simulations.deck_cards import ICON_ROLES, Bar
+from simulation.cards import CARD_TYPES
+from simulations.deck_cards import Bar
+from simulations.report import SEEN_MECHANIC_ROLES, SEEN_ROLES, SEEN_STRATEGY_ROLES
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATES = ROOT / "templates"
@@ -64,20 +68,33 @@ def test_every_name_a_template_uses_is_drawn():
     assert used <= icons.NAMES, used - icons.NAMES
 
 
-def test_the_category_bars_only_name_drawn_symbols():
-    assert ICON_ROLES <= icons.NAMES
+def test_every_role_theme_and_type_has_a_drawn_symbol():
+    """Deck page v2, PR C: one vocabulary, each word with its drawing."""
+    roles = {key for key, _ in SEEN_ROLES + SEEN_STRATEGY_ROLES + SEEN_MECHANIC_ROLES}
+    assert roles == set(symbols.ROLE)
+    assert {theme.key for theme in THEMES} | {TYPAL} == set(symbols.THEME)
+    assert set(CARD_TYPES) == set(symbols.TYPE)
+    drawn = set(symbols.ROLE.values()) | set(symbols.THEME.values()) | set(symbols.TYPE.values())
+    assert drawn <= icons.NAMES, drawn - icons.NAMES
 
 
 @pytest.mark.parametrize(("param", "value", "expected"), [
     ("cat", "ramp", "ramp"),
-    ("cat", "removal", "removal"),
-    ("cat", "wipe", ""),
+    ("cat", "wipe", "wipe"),
+    ("type", "creature", "creature"),
     ("type", "draw", ""),
+    ("cat", "nope", ""),
 ])
-def test_a_bar_has_a_symbol_only_for_its_drawn_categories(param, value, expected):
+def test_a_bar_has_the_symbol_of_its_role_or_type(param, value, expected):
     bar = Bar(key="k", label="L", count=1, param=param, value=value, width=1.0,
               band=None, band_label="")
     assert bar.icon == expected
+
+
+def test_no_name_is_no_symbol_and_no_warning(caplog):
+    with caplog.at_level(logging.WARNING):
+        assert _render('{% icon "" %}') == ""
+    assert not caplog.records
 
 
 def test_the_styleguide_shows_every_symbol_once():

@@ -64,10 +64,45 @@ SYMBOLS = [
     ("ramp", "Ramp", "Mana that grows. The sprout springs up."),
     ("draw", "Card draw", "One card more."),
     ("removal", "Removal", "An answer. The dagger strikes."),
-    ("new-hand", "New hand", "Shuffle and draw seven. Turns round."),
+    ("new-hand", "New hand", "Shuffle and draw seven. Turns round. Also: Keep or mulligan?"),
+    ("tutor", "Hand tutor", "A card under a lens: which plan a hand has. The lens lifts."),
     ("legal", "Legal", "A seal for the six checks. It stamps."),
     ("unusual", "Unusual move", "Free mode marks what the rules would not allow."),
     ("fish-says", "The fish says", "A fun line in the ticker, never an event."),
+    # Deck page v2, PR C: what a card does (its roles), what a deck is built
+    # around (its themes) and the card types. A theme that is one role at
+    # heart shares that role's drawing (Theft is Steal, Reanimator Reanimate).
+    ("wipe", "Board wipe", "Three cards, one stroke through them all."),
+    ("counterspell", "Counterspell", "A card, and the sign that stops it. It turns."),
+    ("protection", "Protection", "A shield with a tick. It lifts."),
+    ("recursion", "Recursion", "A card comes back up, an arrow round it."),
+    ("sac-outlet", "Sacrifice outlet", "An altar with a drop of blood on it."),
+    ("reanimate", "Reanimate", "Up out of the grave. The arrow rises."),
+    ("drain", "Drain", "A drop of blood, and where it goes."),
+    ("steal", "Theft", "A hook, and what it took."),
+    ("discard", "Discard", "A card tipped out of the hand."),
+    ("cost-reducer", "Cost reducer", "A coin, and the price going down."),
+    ("tax", "Tax", "A coin, and the price going up - for them."),
+    ("evasion", "Evasion", "A wing: over the blockers."),
+    ("lifegain", "Lifegain", "A heart with a plus."),
+    ("land-search", "Land search", "A land under a lens."),
+    ("treasure", "Treasure", "A gem: mana for later."),
+    ("tokens", "Tokens", "Three counters, one more on top."),
+    ("death-trigger", "Death trigger", "A skull: something happens when one dies."),
+    ("aristocrats", "Aristocrats", "A top hat, and a drop of blood beside it."),
+    ("graveyard", "Graveyard", "A gravestone."),
+    ("spellslinger", "Spellslinger", "An open spellbook, a spark above it."),
+    ("counters", "+1/+1 counters", "A counter with its plus."),
+    ("landfall", "Landfall", "A land, and the arrow that lands on it."),
+    ("voltron", "Voltron", "A golden shield with a sword on it."),
+    ("creature", "Creature", "Claw marks."),
+    ("planeswalker", "Planeswalker", "A walker's spark in its frame."),
+    ("artifact", "Artifact", "A nut of steel. It turns."),
+    ("enchantment", "Enchantment", "A four-pointed star."),
+    ("instant", "Instant", "A bolt."),
+    ("sorcery", "Sorcery", "A flame."),
+    ("land", "Land", "A hill under the sun."),
+    ("battle", "Battle", "A banner."),
     # The ticker's fun lines (PR 16): one drawing each, on its own dark ground.
     ("fun-base", "All your base are belong to us.",
      "The overlord: a steel skull. The jaw talks, the eye sweeps, the antenna blinks - always."),
@@ -911,12 +946,37 @@ sits folded under &ldquo;Advanced&rdquo;. No theme is said in a sentence, never 
 <h2>Engines and synergies: &ldquo;Combos &amp; engines&rdquo; (Themen-Doc, Paket 1)</h2>
 <div class="surface">
   <div style="border-left:2px solid var(--parch-600);padding-left:1rem">
-    <p style="font-family:var(--serif);font-size:1.125rem;margin:0">Viscera Seer +
-      Blood Artist + Bitterblossom</p>
-    <p style="font-size:.875rem;color:var(--ink-700);margin:0">Aristocrats &middot; strong</p>
-    <p style="font-size:.875rem;margin:.25rem 0 0">Viscera Seer sacrifices, Blood Artist pays
-      off each death, Bitterblossom brings more bodies.</p>
-    <p style="font-size:.875rem;margin:.25rem 0 0">Get Bitterblossom out first, then the
+    <div style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:flex-start">
+<figure style="width:6.5rem;margin:0"><span style="display:flex;align-items:flex-end;
+aspect-ratio:488/680;padding:.35rem;border-radius:.33rem;
+background:linear-gradient(var(--parch-300),var(--parch-600));
+box-shadow:0 .125rem .5rem rgb(0 0 0/.3);font-family:var(--serif);
+font-size:.8rem">Viscera Seer</span><figcaption style="margin-top:.375rem;font-size:.75rem;
+line-height:1.3">Viscera Seer sacrifices</figcaption></figure>
+<span style="margin-top:5.1rem;font-family:var(--serif);font-size:1.5rem;
+color:var(--ink-700)">+</span>
+<figure style="width:6.5rem;margin:0"><span style="display:flex;align-items:flex-end;
+aspect-ratio:488/680;padding:.35rem;border-radius:.33rem;
+background:linear-gradient(var(--parch-300),var(--parch-600));
+box-shadow:0 .125rem .5rem rgb(0 0 0/.3);font-family:var(--serif);
+font-size:.8rem">Blood Artist</span><figcaption style="margin-top:.375rem;font-size:.75rem;
+line-height:1.3">Blood Artist pays off each death <b
+ style="color:var(--verd-700)">↻</b></figcaption></figure>
+<span style="margin-top:5.1rem;font-family:var(--serif);font-size:1.5rem;
+color:var(--ink-700)">+</span>
+<figure style="width:6.5rem;margin:0"><span style="display:flex;align-items:flex-end;
+aspect-ratio:488/680;padding:.35rem;border-radius:.33rem;
+background:linear-gradient(var(--parch-300),var(--parch-600));
+box-shadow:0 .125rem .5rem rgb(0 0 0/.3);font-family:var(--serif);
+font-size:.8rem">Bitterblossom</span><figcaption style="margin-top:.375rem;font-size:.75rem;
+line-height:1.3">Bitterblossom gives you bodies to sacrifice</figcaption></figure>
+<span style="margin-top:5.1rem;font-family:var(--serif);font-size:1.5rem;
+color:var(--ink-700)">=</span>
+<span style="margin-top:5.1rem;font-family:var(--serif);
+font-size:1.125rem">Aristocrats<br><span style="font-size:.875rem;
+color:var(--ink-700)">strong</span></span>
+</div>
+    <p style="font-size:.875rem;margin:.5rem 0 0">Get Bitterblossom out first, then the
       Seer; keep Blood Artist back until a board wipe is unlikely.
       <span style="color:var(--ink-700)">Written by Mistral AI. It can be wrong.</span></p>
     <p style="font-size:.875rem;margin:.25rem 0 0">Running by turn 6 in <strong>41%</strong>
@@ -930,10 +990,12 @@ sits folded under &ldquo;Advanced&rdquo;. No theme is said in a sentence, never 
       <strong>Sacrifices what it took</strong></p>
   </div>
 </div>
-<p class="rule">An engine is a row with a rule at its left, as a combo is: its cards, its theme
-and level as words, one sentence of what each card does. A piece short, the rule is dashed and
-the row names what is missing; the dash only repeats the words. Pairs show the five strongest
-open and the rest in one fold, each with its numbers under &ldquo;Advanced&rdquo;. Under a
+<p class="rule">Cards are shown, not described (deck page v2, PR E): an engine, a combo, a pair
+is its cards' pictures in a row, [card] + [card] = result, with what each card does under it; on
+hover or focus a card grows where it sits until it can be read. &#8635; marks a card that works
+again and again. A piece short, the rule is dashed and the row names what is missing; the dash
+only repeats the words. Pairs show the five strongest open and the rest in one fold; no
+&ldquo;Advanced&rdquo;. Under a
 complete engine, by which turn it runs in the last run (PR 5), the share in bold; not measured
 yet, the line says the next run will. How an engine plays (PR 6) comes from the deck summary:
 Mistral's sentence under the rules' one, followed by &ldquo;Written by Mistral AI. It can be

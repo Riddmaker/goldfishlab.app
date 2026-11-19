@@ -1,0 +1,48 @@
+{% comment %}
+  The card explorer (deck page v2, PR F, decision D3): by which turn you have
+  seen a card of the chosen chips, as a curve for turns 1 to 8.
+
+  The server sends the library alone - each card's copies and the chips it
+  wears (`deck_cards.explorer_cards`, as JSON that is never run) - and
+  static/js/card-explorer.js shuffles it 10,000 times in the browser, so a
+  click on a chip needs no request. The script writes text with textContent
+  only. Without it this block stays hidden: the chips still filter the grid.
+
+  The words the script needs come from here, translated, as data attributes.
+{% endcomment %}
+{% load i18n %}
+<div class="mt-5" data-card-explorer hidden
+     data-t-turn="{% translate "Turn" %}"
+     data-t-later="{% translate "later" %}"
+     data-t-by="{% translate "By turn {turn}: {share}" %}"
+     data-t-by-tutors="{% translate "with tutors {share}" %}"
+     data-t-first="{% translate "First seen on average on turn {mean} ± {sd}, in the {share} of games that see one by turn 8." %}"
+     data-t-none="{% translate "Not seen by turn 8 in any shuffle." %}"
+     data-t-chart="{% translate "Chance to have seen a card of the chosen chips, turns 1 to 8" %}"
+     data-t-spread="{% translate "Turn of the first card seen" %}">
+  <p class="text-sm text-ink-700" data-explorer-empty>{% translate "Choose a chip: a curve shows by which turn you have seen one of its cards." %}</p>
+  <div data-explorer-body hidden>
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-900">
+      <fieldset class="seen-chips" data-explorer-modes>
+        <legend class="sr-only">{% translate "Count a hit when you have seen" %}</legend>
+        <input type="radio" name="explorer-mode" value="each" id="explorer-each" class="seen-toggle" checked>
+        <label for="explorer-each" class="seen-chip">{% translate "one of each chip" %}</label>
+        <input type="radio" name="explorer-mode" value="any" id="explorer-any" class="seen-toggle">
+        <label for="explorer-any" class="seen-chip">{% translate "one of any chip" %}</label>
+      </fieldset>
+      <label class="inline-flex items-center gap-2" data-explorer-tutor-switch>
+        <input type="checkbox" data-explorer-tutors>
+        <span class="seen-swatch explorer-swatch-tutors" aria-hidden="true"></span>{% translate "with tutors" %} <span class="tabular text-ink-700" data-explorer-tutor-count></span>
+      </label>
+    </div>
+    <div class="seen-chart">
+      <svg viewBox="0 0 320 160" class="seen-svg explorer-svg" role="group" data-explorer-chart></svg>
+      <p class="mt-2 text-sm text-ink-900" data-explorer-detail aria-live="polite"></p>
+      <svg viewBox="0 0 320 60" class="explorer-spread" role="img" data-explorer-spread></svg>
+    </div>
+    <p class="mt-2 text-xs text-ink-700">
+      {% translate "10,000 shuffles in your browser: seven cards, one draw a turn from turn 2, no mulligan. With tutors, a tutor you see finds a missing card the same turn, mana aside; a card that wears a chosen chip counts as itself, not as a tutor." %}
+    </p>
+  </div>
+</div>
+{{ explorer_cards|json_script:"explorer-cards" }}

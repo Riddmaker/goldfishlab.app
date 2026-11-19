@@ -30,6 +30,7 @@ from accounts import mail_samples
 from cards.models import OracleCard
 from changelog import services as changelog_services
 from decks import services as deck_services
+from news import services as news_services
 from playtest import services as playtest_services
 from sharing import services as sharing_services
 from simulations import summary, tasks
@@ -142,6 +143,8 @@ def pages(client, owner, deck, finished_run, marked, settings):  # noqa: F811
         "shared, owner": shared.get_absolute_url(),
         "changelog": reverse("changelog"),
         "unsubscribe": changelog_services.unsubscribe_path(owner),
+        "news": reverse("news"),
+        "news unsubscribe": news_services.LIST.unsubscribe_path(owner),
     }
     rendered = {}
     for name, url in urls.items():

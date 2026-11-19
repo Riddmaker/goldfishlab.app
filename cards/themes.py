@@ -151,7 +151,7 @@ THEMES: tuple[Theme, ...] = (
            _p("fodder", gettext_noop("Makes bodies to sacrifice"), 6,
               tags=("repeatable-token-generator", "death-trigger-self", "recursion-self"),
               mechanics=("tokens",),
-              does=gettext_noop("%(card)s brings more bodies"))),
+              does=gettext_noop("%(card)s gives you bodies to sacrifice"))),
           rules=(("outlet", "payoff", 1.0), ("fodder", "payoff", 0.7))),
     Theme("tokens", gettext_noop("Tokens"),
           gettext_noop("Fills the table with creature tokens and makes them count."),
@@ -353,6 +353,9 @@ class Part:
     count: int
     need: int
     cards: tuple[str, ...]
+    #: The role the piece is, when one of our mechanics names it
+    #: ("sac_outlet"): its symbol on the deck page (deck page v2, PR C).
+    role: str = ""
 
 
 @dataclass(frozen=True)
@@ -392,14 +395,15 @@ def _fill(parts: list[Part]) -> float:
     return (2 * shares[0] + sum(shares[1:])) / (len(shares) + 1)
 
 
-def _part(key: str, label: str, need: int, cards: list[ThemeCard]) -> Part:
+def _part(key: str, label: str, need: int, cards: list[ThemeCard], role: str = "") -> Part:
     return Part(key, label, sum(card.weight for card in cards), need,
-                tuple(sorted({card.name for card in cards})))
+                tuple(sorted({card.name for card in cards})), role)
 
 
 def _theme(theme: Theme, cards: list[ThemeCard]) -> Found | None:
     parts = [_part(piece.key, piece.label, piece.need,
-                   [card for card in cards if card.weight and piece.holds(card)])
+                   [card for card in cards if card.weight and piece.holds(card)],
+                   min(piece.mechanics, default=""))
              for piece in theme.pieces]
     if parts[0].count < CORE_MIN:
         return None

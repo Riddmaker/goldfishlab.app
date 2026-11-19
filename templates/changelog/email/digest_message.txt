@@ -7,4 +7,5 @@
   {{ site_url }}{% url 'changelog' %}#{{ entry.slug }}
 {% endfor %}
 {% translate "You get this mail because you asked for it. Unsubscribe with one click:" %}
-{{ unsubscribe_url }}{% endblock content %}
+{{ unsubscribe_url }}
+{% translate "All your mail settings:" %} {{ site_url }}{% url 'billing:plans' %}#settings{% endblock content %}

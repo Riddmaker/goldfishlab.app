@@ -313,3 +313,12 @@ def test_marks_cost_one_query_and_a_missing_card_one_more(client_in, deck):  # n
     with CaptureQueriesContext(connection) as queries:
         deck_reading(deck)
     assert len(queries) == 4
+
+
+def test_the_view_reads_the_real_reading():
+    """Regression: a test's stub must never become the view's own
+    `deck_reading` (tests/conftest.py, `_views_loaded_before_any_patch`)."""
+    import decks.themes
+    import decks.views
+
+    assert decks.views.deck_reading is decks.themes.deck_reading

@@ -135,6 +135,55 @@ def hypergeometric(successes_drawn: int, population: int, successes: int,
     )
 
 
+
+#: The lands an opening hand of seven usually keeps on (deck page v2, PR G).
+KEEPABLE_LANDS = range(2, 5)
+
+
+@dataclass(frozen=True)
+class HandLands:
+    """One column of "Your opening hand": the chance of exactly `lands`."""
+
+    lands: int
+    share: float
+    keepable: bool
+
+    @property
+    def label(self) -> str:
+        return percent(self.share)
+
+
+@dataclass(frozen=True)
+class OpeningHand:
+    """Lands in a seven-card hand, exact, before any run (deck page v2, PR G)."""
+
+    columns: list[HandLands]
+    keepable: float
+    likeliest: int
+
+    @property
+    def keepable_label(self) -> str:
+        return percent(self.keepable)
+
+    @property
+    def tallest(self) -> float:
+        return max(column.share for column in self.columns) or 1.0
+
+
+def opening_hand(library_size: int, lands_total: int) -> OpeningHand | None:
+    """The hypergeometric chance of 0 to 7 lands in an opening hand of seven
+    from the deck as it is, and of the 2 to 4 a hand usually keeps on. None
+    for a deck too small to deal one."""
+    if library_size < HAND_SIZE:
+        return None
+    columns = [HandLands(lands, hypergeometric(lands, library_size, lands_total, HAND_SIZE),
+                         lands in KEEPABLE_LANDS)
+               for lands in range(HAND_SIZE + 1)]
+    return OpeningHand(
+        columns=columns,
+        keepable=sum(column.share for column in columns if column.keepable),
+        likeliest=max(columns, key=lambda column: column.share).lands)
+
 def mulligans(result: dict) -> list[Row]:
     """How often the opening hand was thrown back."""
     counts = result["mulligans"]

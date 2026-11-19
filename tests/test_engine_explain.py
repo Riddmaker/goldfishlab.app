@@ -88,7 +88,7 @@ def test_an_engine_reading_that_fails_leaves_the_engines_out(deck, monkeypatch):
 def test_the_prompt_asks_how_each_engine_plays():
     text = summary.messages({"engines": OFFERED}, "de")[0]["content"]
 
-    assert summary.PROMPT_VERSION == 6
+    assert summary.PROMPT_VERSION >= 6
     assert '"engines"' in text and "what stops the engine" in text
     assert "theme name" in text, "theme names stay English, as the facts give them"
 
@@ -152,7 +152,7 @@ def test_the_task_keeps_the_explanation(key, deck, shown, monkeypatch):  # noqa:
 
     row.refresh_from_db()
     assert len(calls) == 1, "no extra call for the engines"
-    assert row.prompt_version == 6
+    assert row.prompt_version == summary.PROMPT_VERSION
     assert row.content["engines"] == [{"theme": "aristocrats",
                                        "cards": ["Blood Artist", "Viscera Seer"],
                                        "how": "Keep Blood Artist back."}]

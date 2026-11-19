@@ -131,6 +131,8 @@ class PrivacyView(TemplateView):
     # so no new consent either.
     # 2026-11-08: the answers in Keep or mulligan? (Paket 5, PR 25) - stored
     # only for whoever plays it, so no new consent either (owner, E4).
+    # Also 2026-11-08: the weekly news mail (PR 22), opt-in like the
+    # changelog's - no new consent.
     extra_context = {"updated": date(2026, 11, 8)}
 
 

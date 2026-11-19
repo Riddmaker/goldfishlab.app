@@ -269,10 +269,12 @@ class SummaryWriteView(DeckScopedView):
         except QuotaExceeded as exc:
             return billing_views.upgrade_prompt(request, exc)
         with transaction.atomic():
+            ours = summary.ours_to_pay(deck)
             budget_day = summary.claim(user, deck)
             if budget_day:
-                quotas.consume(user, UsageRecord.Metric.RUNS_STARTED)
-                summary.begin(deck, charged=True, budget_day=budget_day)
+                if not ours:
+                    quotas.consume(user, UsageRecord.Metric.RUNS_STARTED)
+                summary.begin(deck, charged=not ours, budget_day=budget_day)
         return redirect(back)
 
 

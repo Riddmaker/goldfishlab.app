@@ -127,6 +127,34 @@
             </dd>
           </div>
         {% endif %}
+        {% if changelog_mail_on %}
+          <div id="news-mail" data-news-mail-switch>
+            <dt class="font-display text-base text-ink-900">{% translate "The news by mail" %}</dt>
+            <dd class="mt-1">
+              {% url 'billing:plans' as plans_url %}
+              {% if user.news_mail %}
+                <form method="post" action="{% url 'news_unsubscribe_account' %}" class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{{ plans_url }}#settings">
+                  <span class="text-ink-900">
+                    {% blocktranslate trimmed %}<strong>On:</strong> one mail a week, when there is news.{% endblocktranslate %}
+                  </span>
+                  <button type="submit" class="text-ink-900 underline">{% translate "Unsubscribe" %}</button>
+                </form>
+              {% else %}
+                <form method="post" action="{% url 'news_subscribe' %}" class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{{ plans_url }}#settings">
+                  <span class="text-ink-900">
+                    {% url 'news' as news_url %}
+                    {% blocktranslate trimmed %}<strong>Off.</strong> The week's Commander news, once a week: <a href="{{ news_url }}" class="underline">Commander news</a>.{% endblocktranslate %}
+                  </span>
+                  <button type="submit" class="text-ink-900 underline">{% translate "Subscribe by email" %}</button>
+                </form>
+              {% endif %}
+            </dd>
+          </div>
+        {% endif %}
         {% if summaries_available %}
           {% comment %}
             The deck summaries' switch (phase 10 H, T6.5, Themen-Doc): here

@@ -176,13 +176,45 @@ where something toggles, it is a real `<input>` and CSS (`:checked`, `:has()`), 
   for strong, solid for medium, dashed for hinted. Open, it takes the whole row: the sentence,
   each piece as "8, wants 6" with its cards, and the number folded under "Advanced". No theme
   is a sentence, never a guess.
+- **Cards are shown, not described** (deck page v2, PR E, `{% card_tile %}`,
+  `decks/_card_tile.html`): wherever cards work together - a combo, an engine, a synergy -
+  the page shows their pictures in a row, `[card] + [card] = result`, each card 6.5rem wide
+  with what it does in one to four lines of 0.75rem under it. The picture is the printing the
+  deck's file named, else the catalogue's; a card without one is its name in a parchment frame.
+  With a pointer, or focused by the keyboard, a card grows where it sits (2.2×, the first of a
+  row to the right) until its text can be read; under reduced motion it changes size without
+  easing. Phones keep the pictures, never a zoom. A suggested card or one that could go is a
+  small art crop beside its name instead (`decks/_card_peek.html`, PR D), the whole card
+  rising above the row on hover.
 - **Engines and synergies** (`decks/_engines.html`, `decks/_pair.html`, Themen-Doc Paket 1,
-  PR 3): under the combos in one section, "Combos & engines". An engine is a row with a
-  parchment-600 rule at its left, as a combo is: its cards joined by "+", its theme and level
-  as words, and one sentence of what each card does. An engine a piece short gets a dashed
-  ink-700 rule and says "2 of 3 pieces. Still missing:" with the piece in bold; the dash only
-  repeats the words. Pairs show the five strongest open, the next ones in one fold, each with
-  its three numbers under "Advanced". No engine is a sentence, never a guess.
+  PR 3; shown since PR E): under the combos in one section, "Combos & engines". An engine is a
+  row with a parchment-600 rule at its left, as a combo is: its cards shown, "=" and its theme
+  with symbol and level. ↻ in verdigris marks a card that works again and again. An engine a
+  piece short gets a dashed ink-700 rule and says "2 of 3 pieces. Still missing:" with the
+  piece in bold; the dash only repeats the words. Pairs show the five strongest open, the next
+  ones in one fold; their score orders them and is not shown. No "Advanced" folds. No engine is
+  a sentence, never a guess. A combo's steps (Commander Spellbook's, English) fold under "How
+  it works"; its result stays in sight.
+- **Themes, piece by piece** (`decks/_theme_groups.html`, PR E): under the engines, each theme
+  with its symbol and the chance, in a large tabular number, that a card of every piece has
+  been seen by turn 4 - worked out exactly from the list (`simulations.theme_odds`). Each piece
+  is its role's symbol, its label and its cards as 3.5rem pictures that grow 4× on hover.
+- **The card explorer** (`decks/_card_explorer.html`, `static/js/card-explorer.js`, PR F): the
+  grid's chips are switches in three rows, card type, role and theme role (only the theme roles
+  the deck has). With a mouse a plain click chooses a chip alone and Ctrl/⌘-click adds it, said
+  once above the chips; on a phone and with the keyboard every chip stays a switch. Two chips or
+  more group the grid under each, a card under every chip it wears. The curve under the chips
+  answers by which turn a card of them has been seen, turns 1 to 8, in the report charts' look:
+  "one of each chip" or "one of any chip", and "with tutors" as a dashed verdigris second line.
+  A turn under the pointer or the keyboard says its share in one sentence, and the bars under
+  the chart show on which turn the first card came, with mean ± SD. The browser shuffles the list
+  the server sent 10,000 times with a fixed seed: the same chips always draw the same curve.
+  Without scripting the curve is not there; the chips still filter.
+- **Your opening hand** (`decks/_opening_hand.html`, PR G, D4): under the mana curve, the curve's
+  own columns, lower, for 0 to 7 lands in a hand of seven: the exact hypergeometric chance from
+  the deck as it is, no run needed (`report.opening_hand`). The 2 to 4 a hand keeps on are marked
+  twice, a blood-red bar and a rule under the number, and their sum leads in one sentence. One
+  link goes to "Keep or mulligan?", where the deck's own hands are judged.
 - **Lock-in** (`decks/_mark.html`, `decks/_gone.html`, PR 4): only the owner's word is stored,
   by the cards. A suggestion has two small square buttons, a padlock and a cross, named in full
   for screen readers ("Lock this engine: it stays, whatever the list becomes"). A locked entry

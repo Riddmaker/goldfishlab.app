@@ -601,6 +601,12 @@ body {
   color: var(--color-parchment-100);
 }
 
+.limits-light strong {
+  /* The words inside a translated sentence keep their class; on parchment
+   * they take the ink instead (deck page v2, PR A). */
+  color: var(--color-ink-950);
+}
+
 .dropzone {
   position: relative;
   border: 2px dashed var(--color-parchment-600);
@@ -639,7 +645,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
-  padding: 2.5rem 1rem;
+  padding: 1.25rem 1rem;
   pointer-events: none;
 }
 
@@ -871,6 +877,244 @@ body {
 }
 .summary-sign-minus {
   color: var(--color-blood-700);
+}
+
+/* Cards shown, not described (deck page v2, PR E; DESIGN.md "Cards are
+ * shown"): a combo, an engine or a pair is a row of pictures -
+ * [card] + [card] = result - with what each card does under it. With a
+ * pointer, or the keyboard, a card grows where it sits until its text can
+ * be read; the first of a row grows to the right, so it stays on the page. */
+.card-line {
+  --tile: 6.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.card-line-sm {
+  --tile: 3.5rem;
+  gap: 0.375rem;
+}
+.card-line-gone {
+  opacity: 0.6;
+  filter: grayscale(1);
+}
+.card-tile {
+  position: relative;
+  width: var(--tile);
+  margin: 0;
+  outline-offset: 2px;
+}
+.card-tile-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 488 / 680;
+  border-radius: calc(var(--tile) * 0.05);
+  box-shadow: 0 0.125rem 0.5rem rgb(0 0 0 / 0.3);
+  transform-origin: 50% 30%;
+}
+.card-tile-text {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border: 1px solid var(--color-parchment-400);
+  font-size: 0.75rem;
+  overflow: hidden;
+}
+.card-tile-effect {
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--color-ink-800);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+}
+.card-tile-again {
+  color: var(--color-verdigris-700);
+  font-weight: 700;
+}
+.card-op {
+  align-self: flex-start;
+  margin-top: calc(var(--tile) * 0.7 - 1rem);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--color-ink-700);
+}
+.card-result {
+  align-self: flex-start;
+  display: inline-flex;
+  gap: 0.375rem;
+  align-items: flex-start;
+  max-width: 14rem;
+  margin-top: calc(var(--tile) * 0.7 - 1rem);
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  line-height: 1.25;
+  color: var(--color-ink-900);
+}
+.card-line > .card-tile:first-child .card-tile-img {
+  transform-origin: 0% 30%;
+}
+.card-tile:hover,
+.card-tile:focus-visible {
+  z-index: 30;
+}
+.card-tile:focus-visible .card-tile-img {
+  transform: scale(2.2);
+}
+.card-line-sm .card-tile:focus-visible .card-tile-img {
+  transform: scale(4);
+}
+@media (hover: hover) {
+  .card-tile:hover .card-tile-img {
+    transform: scale(2.2);
+  }
+  .card-line-sm .card-tile:hover .card-tile-img {
+    transform: scale(4);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card-tile-img {
+    transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+/* The card explorer (deck page v2, PR F). A chip of the grid's filters is
+ * chosen or not - never struck through like a chart's line switch. The hint
+ * about Ctrl/Cmd-click shows only where there is a mouse to hold it with. */
+.seen-toggle.explorer-chip + .seen-chip {
+  text-decoration: none;
+}
+.explorer-pointer-hint {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .explorer-pointer-hint {
+    display: block;
+  }
+}
+.explorer-hit {
+  fill: transparent;
+}
+.explorer-column {
+  outline: none;
+  cursor: crosshair;
+}
+.explorer-column.is-shown .explorer-hit,
+.explorer-column:focus-visible .explorer-hit {
+  fill: var(--color-parchment-300);
+  fill-opacity: 0.5;
+}
+.explorer-column:focus-visible .explorer-hit {
+  stroke: var(--color-blood-700);
+  stroke-width: 1;
+}
+.explorer-dot {
+  fill: var(--color-blood-600);
+}
+.explorer-svg .seen-line,
+.explorer-dot {
+  pointer-events: none;
+}
+.explorer-line-tutors {
+  stroke-dasharray: 6 4;
+}
+.explorer-swatch-tutors {
+  border-top: 3px dashed var(--color-verdigris-500);
+}
+.explorer-spread {
+  display: block;
+  width: 100%;
+  max-width: 40rem;
+  height: auto;
+  margin-top: 0.5rem;
+  overflow: visible;
+}
+.explorer-bar {
+  fill: var(--color-parchment-500);
+}
+.explorer-bar.is-shown {
+  fill: var(--color-blood-600);
+}
+
+/* With a mouse, a card of the grid grows where it sits until it can be read
+ * (DESIGN.md, "Cards are shown, not described"). */
+@media (hover: hover) {
+  .card-grid-item:hover img {
+    transform: scale(1.6);
+    position: relative;
+    z-index: 30;
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.4);
+  }
+}
+.card-grid-item:focus-visible img {
+  transform: scale(1.6);
+  position: relative;
+  z-index: 30;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .card-grid-item img {
+    transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+/* A card shown, not described (deck page v2, PR D): its art beside the
+ * name; with a pointer the whole card rises above the row, big enough to
+ * read. Without a pointer the big picture is not shown, so a phone never
+ * loads it. */
+.card-peek {
+  position: relative;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.card-peek-art {
+  flex: none;
+  width: 4.5rem;
+  height: 3.3rem;
+  object-fit: cover;
+  border-radius: 0.375rem;
+  box-shadow: 0 0.125rem 0.375rem rgb(0 0 0 / 0.25);
+}
+.card-peek-none {
+  display: block;
+  background: var(--color-parchment-400);
+  opacity: 0.4;
+}
+.card-peek-full {
+  display: none;
+}
+@media (hover: hover) {
+  .card-peek-full {
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 0.5rem);
+    z-index: 30;
+    width: 15rem;
+    aspect-ratio: 488 / 680;
+    border-radius: 0.6rem;
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(0.5rem) scale(0.96);
+    transform-origin: 1rem 100%;
+  }
+  .card-peek:hover .card-peek-full,
+  .card-peek:focus-within .card-peek-full {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .card-peek-full {
+    transition: opacity 180ms ease-out, transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
 }
 
 /* A line that explains itself (phase 10 T5.2). Each line has an invisible,
@@ -1433,6 +1677,24 @@ body {
   margin: 0;
 }
 
+/* "Your opening hand" (deck page v2, PR G): the curve's columns, lower, for 0
+ * to 7 lands in a hand of seven. The 2 to 4 a hand keeps on are marked twice:
+ * a darker red bar and a rule under their number, never by colour alone. */
+.deck-hand-track {
+  height: 3rem;
+}
+
+.deck-hand-keep .deck-curve-bar {
+  background-color: var(--color-blood-700);
+}
+
+.deck-hand-keep > :last-child {
+  align-self: stretch;
+  text-align: center;
+  font-weight: 700;
+  border-top: 2px solid var(--color-blood-700);
+}
+
 /* "Built around" (Themen-Doc, Paket 1, PR 2): a theme is a chip that opens.
  * The level is the word on the chip; the border repeats it - filled for
  * strong, solid for medium, dashed for hinted - and never says it alone.
@@ -1872,13 +2134,6 @@ body {
   margin-left: calc(-1 * min(5.25rem, 2.5rem + max(0, var(--n) - 8) * 0.4rem));
 }
 
-/* How far this card's slot sits from the middle of the fan: one step is the
- * slot's width less the overlap above. The raised card moves by it. */
-.hand-slot {
-  --step: calc(var(--slot) - min(5.25rem, 2.5rem + max(0, var(--n) - 8) * 0.4rem));
-  --to-middle: calc(((var(--n) - 1) / 2 - var(--i)) * var(--step));
-}
-
 /* Resting on a card straightens it and lifts it to the top; the picture
  * grows to a size its rules text can be read at (the user asked for that). */
 .hand-slot:hover,
@@ -1912,14 +2167,40 @@ span.hand-card {
   transition: transform 150ms ease-out;
 }
 
-/* With a pointer the raised card also moves to the middle of the fan, so a
- * card at either end is read whole and in the same place. Only the picture
- * moves: the slot stays under the pointer, so the hover holds, and a click
- * anywhere on the slot or the picture still plays the card. */
+/* With a pointer the raised card grows where it sits and rises out of the
+ * fan (deck page v2, PR A: moving it to the middle made the hand jump).
+ * The cards at either end grow inwards, so they stay on screen. Only the
+ * picture moves: the slot stays under the pointer, so the hover holds, and
+ * a click anywhere on the slot or the picture still plays the card. Sliding
+ * along the hand grows one card after the other and lets the last one sink
+ * back, both eased; without motion the size simply changes. */
 @media (hover: hover) {
+  .hand-slot:first-child .hand-card-img {
+    transform-origin: 0% 100%;
+  }
+
+  .hand-slot:last-child .hand-card-img {
+    transform-origin: 100% 100%;
+  }
+
   .hand-slot:hover .hand-card-img,
   .hand-slot:focus-within .hand-card-img {
-    transform: translateX(var(--to-middle)) scale(1.8);
+    transform: translateY(-1.5rem) scale(1.8);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .hand-slot,
+  .hand-card-img {
+    transition-duration: 220ms;
+    transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hand-slot,
+  .hand-card-img {
+    transition: none;
   }
 }
 
@@ -1996,13 +2277,6 @@ span.hand-card {
   .hand-slot:focus-within .hand-card-action {
     bottom: auto;
     top: calc(100% + 0.25rem);
-    translate: calc(-50% + var(--to-middle)) 0;
-  }
-
-  /* The X field follows the raised card to the middle. */
-  .hand-slot:hover .hand-card-x,
-  .hand-slot:focus-within .hand-card-x {
-    translate: calc(-50% + var(--to-middle)) 0;
   }
 }
 

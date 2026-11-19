@@ -1,0 +1,19 @@
+{% comment %}
+  A card shown, not described (deck page v2, PR D): its art beside the name,
+  and with a pointer the whole card, big enough to read, while the row is
+  hovered or focused. Phones keep the art and the link to Scryfall; the big
+  picture is never loaded there.
+  Takes: name, url, art, image; `text` is what follows the name.
+{% endcomment %}
+<span class="card-peek">
+  {% if art %}
+    <img class="card-peek-art" src="{{ art }}" alt="" loading="lazy" decoding="async">
+  {% else %}
+    <span class="card-peek-art card-peek-none" aria-hidden="true"></span>
+  {% endif %}
+  {% if image %}<img class="card-peek-full" src="{{ image }}" alt="" loading="lazy" decoding="async">{% endif %}
+  <span class="min-w-0">
+    {% if url %}<a href="{{ url }}" rel="noopener noreferrer" target="_blank" class="underline">{{ name }}</a>{% else %}{{ name }}{% endif %}
+    {% if text %}<span class="block text-sm text-ink-700"{% if lang %} lang="{{ lang }}"{% endif %}>{{ text }}</span>{% endif %}
+  </span>
+</span>

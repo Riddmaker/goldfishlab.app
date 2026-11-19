@@ -10,7 +10,7 @@ in the Themen-Doc; every recommendation accepted by the owner on 2026-11-06.
 |---|---|---|
 | 20 | Search Console review: a weekly GitHub Action writes the report as an issue, in the private ops repository | **Done** (main); owner steps open |
 | 21 | Hand tutor: "Which plan does this hand have?", rules only, three steps | **Done** (main, PR #88) |
-| 22 | Weekly news: the page, the AI label, a Claude routine that opens the PR | Planned |
+| 22 | Weekly news: the page, the AI label, a Claude routine that opens the PR | **Built** (dev); sources and routine wait for the owner |
 | 23 | Archidekt link import (after Archidekt agrees) and text-export guides; importer check in Celery Beat | Guides and check **done** (main, PR #88); link import waits for Archidekt |
 | 24 | Pricing page: yearly plans first; a founder price only if the owner asks for it | **Done** (main, PR #88) |
 | 25 | "Keep or mulligan?" for advanced players; every decision stored from day one | **Built** (dev) |
@@ -331,3 +331,116 @@ Calls made on the way (PR 25):
   cannot be judged and does not count.
 - A judged hand reads its stored result, so a cleared cache never asks the worker again.
 
+## How PR 22 works
+
+Owner's decisions (2026-11-08):
+
+- **N1, languages:** all seven, written by the routine.
+- **N2, publishing:** the routine opens a PR into dev, and the week goes live with the next main PR.
+- **N3, the page:** like the changelog page, plus a mail subscription. It can be stopped on "Your
+  plan" and in every mail, and both mails link to all mail settings.
+- **N4, reading:** open the articles and avoid fake news by naming key facts.
+
+**Files and checks:**
+
+- **One file per week,** `news/issues/<YYYY>-W<ww>.json`. Each item has:
+  - a headline and a summary per language;
+  - 2-5 `facts`;
+  - 1-3 links (source, URL, original title).
+- **`news/rules.py`** is plain Python and holds the rules. `python -m news.check` runs them (CI
+  and the routine). With `--week` and `--sources` it also checks each fact against the text the
+  item was written from, and finds any run of 8 words copied from it, in every language.
+- **`tests/test_news.py`** loads the repository's own weeks, so CI refuses a broken file.
+
+**The site:**
+
+- **`news/issues.py`** reads the weeks once per process. A week waits for its `published` day.
+- **`/news/` and `/news/feed/`** are built like the changelog's.
+  - The label is at the top (AI, checked, editor named in the legal notice, takedown address).
+  - Links carry `rel="nofollow noopener noreferrer"`.
+  - The page is in `PUBLIC_PAGES` (sitemap) and in the footer.
+- **The legal notice** names the operator as editorially responsible.
+- **The privacy paragraph** names the second optional mail, and the export has the two new fields.
+
+**The mail:**
+
+- **`core/mailing.py`** now holds the subscription rules for both lists (`MailList`).
+  - `changelog.services` keeps its old names as aliases. The changelog's salt is unchanged, so old
+    mail links still work.
+  - The changelog's three switch views take a list, so the news views are subclasses.
+- **New account fields:** `news_mail`, `news_mail_since`, `news_mailed` (migration accounts 0009).
+- **`news.digest` runs daily at 09:30.** It sends the newest week once while it is at most 7 days
+  old, from the changelog's sender.
+
+**The routine:** `news/ROUTINE.md` is its whole instruction. The routine's own prompt only points to
+it, so every change to how the news is written is reviewed in a PR.
+
+### Sources: what the terms allow (2026-11-08)
+
+`docs/research/paket5/news-sources.html` and `news-sources-more.html`:
+
+| Source | Finding | Verdict |
+|---|---|---|
+| EDHREC | terms: personal, noncommercial use only, no automated requests | out (ask by mail) |
+| Commander's Herald | same terms as EDHREC | out (ask by mail) |
+| Star City Games | terms forbid any scraper or robot | out |
+| MTGGoldfish | robots.txt blocks AI agents, `ai-train=no`; terms: personal use | out |
+| Card Kingdom blog | terms (read in a browser, 2026-11-09): personal, noncommercial use; robots only for search engines | out |
+| Wargamer | terms exempt "use of the RSS feed(s) with the content supplied via those feeds", with a link | **in, feed only** |
+| Hipsters of the Coast | robots.txt allows it; no terms found | owner reads terms |
+| Draftsim, Dicebreaker, Cardmarket, MTG Arena Zone | terms or robots.txt forbid it | out |
+
+So `SOURCES` starts with Wargamer alone, `articles=False`: the routine writes from what the feed
+supplies, and the facts are checked against that text. A source is added, and `articles` switched
+on, only once its terms allow it.
+
+### Finding topics (2026-11-09)
+
+More allowed sources were not found (`news-sources-new.html`: podcast feeds carry strategy, not
+news; MTGRocks, Valnet, Kotaku and Dexerto forbid it), so the routine now finds topics with its own
+web search, a fixed list of queries over the last seven days (step 3 of `news/ROUTINE.md`). A
+result only points at a story: the routine never opens it and never writes from it. A story becomes
+an item only when a source covers it; otherwise the pull request lists it under *Found, no allowed
+source*, so the owner sees what the sources miss and whom to ask. `news.check` still wants every
+fact in the saved text of a source, so a result's words cannot reach the page.
+
+Ruled out (`news-discovery.html`, `news-reddit.html`): querying Google itself (its terms forbid
+automated queries), Google News RSS (personal use), the Custom Search and Bing APIs (closed),
+Reddit's RSS and API (RSS ends 2026-11-13, the API in March 2027, commercial use only under a
+contract) and the Reddit archives (no terms). The YouTube Data API allows commercial use and is the
+next step if search is not enough; it needs a key.
+
+### Calls made
+
+- **No separate news sender:** the news uses `CHANGELOG_FROM_EMAIL` and its login. A second address
+  would need its own SMTP login (YAGNI).
+- **Fail loudly:** an invalid week file makes the page fail rather than being skipped silently. CI
+  refuses such a file before it can be merged.
+- **Japanese:** gets its own summary length, 25-240 characters, because it is far denser than the
+  other languages.
+- **No sample week in the repository:** the first real week comes from the routine. The browser test
+  used a temporary file, deleted afterwards.
+
+
+## Forge gaps: the reader grows by construct, not by card (2026-11-19)
+
+Pin `18800697dc` reported 328 cards that read less. All of them had one cause: Forge split the
+boost-less `Pump` into `TargetOnly`, `Bookkeeping` and `Nothing`. Three entries in `VERBS` fixed
+all 328. Looking at cards one by one would have hidden that, so the process now works by
+construct.
+
+- **The pin report groups the causes.** `Comparison.causes` counts, for the cards that read
+  less, each construct newly left open; `report` lists the ten largest under "Why they read
+  less". A rename shows as one line with a large count. Taking a pin over: if a cause is a
+  rename, map it in `VERBS` (or the table it belongs to) with a test, run `forge_check` again,
+  and commit pin and reader together.
+- **`manage.py forge_gaps [--top N]` ranks what is left open** over the Commander-legal cards
+  with a stored script: every unmodeled construct and unread clause, ranked by the decks its
+  cards are in (`forge_import.rank_gaps`), then by the number of cards. It reads the local
+  database; the precons there make the deck counts meaningful without production data.
+- **One construct per pull request**, from the top of that list: teach it to the reader in
+  `cards/forge_import.py`, add a test, run `forge_gaps` again and note the share read in full
+  in `docs/SEQUENCE-SUPPORT-KPI.html`. Constructs that cannot matter to a goldfish (Planechase,
+  Un-sets, draft-only cards) stay open on purpose.
+- Tests: `tests/test_forge_check.py` (the grouped causes, no line without them),
+  `tests/test_forge_import.py` (the ranking, the counting, the command, the three new names).

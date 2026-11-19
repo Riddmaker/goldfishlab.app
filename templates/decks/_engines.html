@@ -3,11 +3,13 @@
   "Combos & engines". Read from the deck's themes by `cards.synergy`, on
   every page load, free for everyone: no button, no run.
 
-  An engine names its cards, its theme and level (the word, as on the
-  chips), and one sentence made of what each card does. An engine a piece
+  An engine shows its cards - `[card] + [card] = theme` (deck page v2, PR E,
+  `{% card_tile %}`) - with what each does under its picture, and its theme
+  and level (the word, as on the chips); ↻ marks the cards that work again
+  and again. An engine a piece
   short says what is missing, with a dashed rule instead of a solid one.
-  The pairs show the strongest few open and the next ones folded, each with
-  its three numbers under "Advanced".
+  The pairs show the strongest few open and the next ones folded, shown the
+  same way.
 
   The owner can lock or dismiss each one (PR 4, `decks/_mark.html`): a
   locked one comes first and stays, a dismissed one waits in a fold at the
@@ -25,7 +27,7 @@
 
   Takes: reading (decks.themes.Reading), engine_rows (engine, running, note), deck.
 {% endcomment %}
-{% load i18n icons %}
+{% load i18n icons cards_shown %}
 <div id="engines" class="mt-8">
   <h3 class="icon-host flex items-center gap-2 font-display text-xl text-ink-900">{% icon "engine" %}{% translate "Engines" %}</h3>
   <p class="mt-1 text-sm text-ink-700">
@@ -33,17 +35,23 @@
     {% include "core/_why.html" with anchor="engines" %}
   </p>
   {% if engine_rows %}
+    <p class="mt-1 text-sm text-ink-700">{% blocktranslate %}↻ works again and again; an engine needs at least one such card.{% endblocktranslate %}</p>
     <ul class="mt-3 space-y-4">
       {% for engine, running, note in engine_rows %}
         <li class="border-l-2 pl-4 {% if engine.missing %}border-dashed border-ink-700{% else %}border-parchment-600{% endif %}"
             data-entry="{{ engine.key }}"{% if engine.state %} data-state="{{ engine.state }}"{% endif %}>
           <div class="flex flex-wrap items-start justify-between gap-2">
-            <p class="font-display text-lg {% if engine.gone %}text-ink-700{% else %}text-ink-900{% endif %}">{{ engine.cards|join:" + " }}</p>
+            <div class="card-line{% if engine.gone %} card-line-gone{% endif %}">
+              {% for name, effect, again in engine.said %}
+                {% card_tile name effect again %}
+                {% if not forloop.last %}<span class="card-op" aria-hidden="true">+</span>{% endif %}
+              {% endfor %}
+              <span class="card-op" aria-hidden="true">=</span>
+              <span class="card-result icon-host">{% icon engine.theme|theme_symbol %}<span>{% translate engine.label %}{% if engine.level %}<span class="block text-sm text-ink-700">{% include "decks/_level.html" with level=engine.level %}</span>{% endif %}</span></span>
+            </div>
             {% include "decks/_mark.html" with item=engine %}
           </div>
-          <p class="text-sm text-ink-700">{% translate engine.label %}{% if engine.level %} · {% include "decks/_level.html" with level=engine.level %}{% endif %}</p>
           {% include "decks/_gone.html" with item=engine %}
-          <p class="mt-1 text-sm {% if engine.gone %}text-ink-700{% else %}text-ink-900{% endif %}">{{ engine.sentence }}</p>
           {% if note %}
             <p class="mt-1 max-w-3xl text-sm text-ink-900" data-explained="{{ engine.theme }}">
               <span lang="{{ note.language }}">{{ note.how }}</span>
@@ -66,12 +74,6 @@
               {% endblocktranslate %}
               <strong>{% for label in engine.missing %}{% translate label %}{% if not forloop.last %}, {% endif %}{% endfor %}</strong>
             </p>
-          {% endif %}
-          {% if engine.repeating %}
-            <details class="mt-1 text-sm text-ink-700">
-              <summary class="cursor-pointer">{% translate "Advanced" %}</summary>
-              <p class="mt-1">{% blocktranslate with cards=engine.repeating|join:", " %}Works again and again: {{ cards }}. An engine needs at least one such card; its level is its theme's.{% endblocktranslate %}</p>
-            </details>
           {% endif %}
         </li>
       {% endfor %}

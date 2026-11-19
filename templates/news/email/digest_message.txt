@@ -1,0 +1,15 @@
+{% extends "account/email/base_message.txt" %}
+{% load i18n %}
+{% block content %}{% blocktranslate trimmed with number=issue.number %}The Commander news of week {{ number }}:{% endblocktranslate %}
+{% for item in issue.items %}
+* {{ item.headline }}
+  {{ item.summary }}
+{% for link in item.links %}  {{ link.source }}: {{ link.url }}
+{% endfor %}{% endfor %}
+{{ site_url }}{% url 'news' %}#{{ issue.anchor }}
+
+{% translate "Summarised with AI from the linked articles, checked by our editor before it was sent." %}
+
+{% translate "You get this mail because you asked for it. Unsubscribe with one click:" %}
+{{ unsubscribe_url }}
+{% translate "All your mail settings:" %} {{ site_url }}{% url 'billing:plans' %}#settings{% endblock content %}

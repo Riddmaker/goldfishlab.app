@@ -31,6 +31,7 @@ from decks import services as deck_services
 from decks.models import Deck
 from simulations import budget, mistral, services, summary, tasks
 from simulations.models import DeckSummary, SimulationRun, SummaryDay
+from tests.support import routed_queue
 from tests.test_deck_summary_written import (  # noqa: F401 - shared fixtures
     ARCHIDEKT_CSV,
     _answer,
@@ -250,11 +251,23 @@ def test_a_summary_has_its_own_queue_and_a_worker_for_it():
 
     from django.conf import settings as django_settings
 
-    assert tasks.write_summary.queue == tasks.SUMMARY_QUEUE == "summaries"
+    assert routed_queue(tasks.write_summary.name) == tasks.SUMMARY_QUEUE == "summaries"
     root = Path(django_settings.BASE_DIR)
     for name in ("start.sh", "docker-compose.yml"):
         text = (root / name).read_text(encoding="utf-8")
         assert "--queues=summaries" in text and "--pool=threads" in text, name
+
+
+def test_no_task_names_its_own_queue():
+    """Celery 5.7 deprecates `queue=` on a task and 6.0 ignores it: a task that
+    still set it would quietly move to the default queue. Routes live in
+    `CELERY_TASK_ROUTES` only."""
+    from goldfishlab.celery import app
+
+    app.loader.import_default_modules()
+    own = sorted(name for name, task in app.tasks.items()
+                 if not name.startswith("celery.") and "queue" in type(task).__dict__)
+    assert own == []
 
 
 def test_a_summary_whose_worker_died_is_closed_once(key, owner, deck, no_runs, queued):

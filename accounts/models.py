@@ -79,6 +79,12 @@ class User(AbstractUser):
     changelog_mail = models.BooleanField(default=False)
     changelog_mail_since = models.DateTimeField(null=True, blank=True)
     changelog_mailed = models.DateField(null=True, blank=True)
+    #: The weekly news by mail (PR 22), the same way: off unless asked for,
+    #: `news_mail_since` the consent, `news_mailed` the day of the issue
+    #: last sent (`news.tasks`).
+    news_mail = models.BooleanField(default=False)
+    news_mail_since = models.DateTimeField(null=True, blank=True)
+    news_mailed = models.DateField(null=True, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

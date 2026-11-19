@@ -21,17 +21,23 @@ the grid works as an ordinary GET form, and htmx only saves the reload. The
 search runs in Python over cards already loaded, so a query is never SQL; an
 unknown type or category is ignored rather than refused, because a stale
 bookmark is not an attack.
+
+Since deck page v2, PR F a chip can be chosen together with others
+(`?cat=ramp&cat=draw`): the grid shows every card that wears any chosen chip,
+grouped under each (`groups`), and the card explorer draws by which turn one
+of them is seen (static/js/card-explorer.js, from `explorer_cards`).
 """
 
 from dataclasses import dataclass
 
 from django.utils.translation import gettext
 
+from core import symbols
 from decks.analysis import KARSTEN_MAX, KARSTEN_MIN
 from simulation.cards import CARD_TYPES
 from simulations import gaps as gaps_module
 from simulations.engine.adapter import Reading
-from simulations.report import CARD_TYPE_NAMES, SEEN_ROLES
+from simulations.report import CARD_TYPE_NAMES, SEEN_MECHANIC_ROLES, SEEN_ROLES, SEEN_STRATEGY_ROLES
 
 #: The longest search the grid reads. A card's name and text are rarely longer
 #: than this and nothing useful searches for more.
@@ -39,6 +45,11 @@ QUERY_MAX = 100
 
 #: What the page calls each printed type, in English (translated where shown).
 TYPE_LABELS = tuple((kind, CARD_TYPE_NAMES[kind]) for kind in CARD_TYPES)
+#: The roles a theme is built from (sacrifice outlet, treasure, ...): chips of
+#: their own, shown when the deck has a card of one.
+THEME_ROLES = SEEN_STRATEGY_ROLES + SEEN_MECHANIC_ROLES
+#: Every category a chip can stand for.
+CATEGORY_LABELS = dict(SEEN_ROLES + THEME_ROLES)
 
 #: A common template for a 100-card Commander deck, shown as a faint band
 #: behind the bar and labelled as such - never as a verdict. From the Command
@@ -101,10 +112,10 @@ class GridCard:
         return [gap.text for gap in self.reading.gaps
                 if gap.field in gaps_module.ASSUMPTION_FIELDS]
 
-    def matches(self, *, kind: str, category: str, query: str) -> bool:
-        if kind and kind not in self.types:
-            return False
-        if category and category not in self.categories:
+    def matches(self, *, kinds=(), categories=(), query: str = "") -> bool:
+        """Any chosen chip (a card shows under each it wears), and the search."""
+        if (kinds or categories) and not (self.types & set(kinds)
+                                          or self.categories & set(categories)):
             return False
         if query:
             card = self.reading.oracle_card
@@ -117,29 +128,39 @@ class GridCard:
 class Filters:
     """What the grid is showing, cleaned."""
 
-    kind: str = ""
-    category: str = ""
+    kinds: tuple[str, ...] = ()
+    categories: tuple[str, ...] = ()
     query: str = ""
 
     @classmethod
     def from_request(cls, params) -> "Filters":
-        kind = params.get("type", "")
-        category = params.get("cat", "")
+        """Known chips only, each once, in the page's order."""
+        kinds = set(params.getlist("type"))
+        categories = set(params.getlist("cat"))
         return cls(
-            kind=kind if kind in dict(TYPE_LABELS) else "",
-            category=category if category in dict(SEEN_ROLES) else "",
+            kinds=tuple(kind for kind, _ in TYPE_LABELS if kind in kinds),
+            categories=tuple(key for key in CATEGORY_LABELS if key in categories),
             query=" ".join(params.get("q", "").split())[:QUERY_MAX],
         )
 
     @property
     def active(self) -> bool:
-        return bool(self.kind or self.category or self.query)
+        return bool(self.kinds or self.categories or self.query)
+
+    @property
+    def chosen(self) -> tuple[str, ...]:
+        """The chosen chips as the page names them: "type:creature", "role:ramp"."""
+        return (tuple(_key("type", kind) for kind in self.kinds)
+                + tuple(_key("cat", key) for key in self.categories))
+
+    def query_items(self) -> list[tuple[str, str]]:
+        """The filters as query parameters, for a link back to them."""
+        return ([("type", kind) for kind in self.kinds]
+                + [("cat", key) for key in self.categories]
+                + ([("q", self.query)] if self.query else []))
 
 
 #: The categories with a symbol of their own (core/icons/), Paket 4, PR 15.
-ICON_ROLES = frozenset({"ramp", "draw", "removal"})
-
-
 @dataclass(frozen=True)
 class Bar:
     """One row of the category bars, in percent of the page's shared scale."""
@@ -159,8 +180,9 @@ class Bar:
 
     @property
     def icon(self) -> str:
-        """The symbol beside the label, or "" (DESIGN.md, SYMBOLS; Paket 4)."""
-        return self.value if self.param == "cat" and self.value in ICON_ROLES else ""
+        """The symbol beside the label, or "" (DESIGN.md, SYMBOLS): every role
+        and every type has one since deck page v2, PR C (`core.symbols`)."""
+        return symbols.for_role(self.value) if self.param == "cat" else symbols.for_type(self.value)
 
 
 def cards(readings, questions, printings: dict | None = None) -> list[GridCard]:
@@ -187,8 +209,54 @@ def cards(readings, questions, printings: dict | None = None) -> list[GridCard]:
 
 def shown(grid: list[GridCard], filters: Filters) -> list[GridCard]:
     return [card for card in grid
-            if card.matches(kind=filters.kind, category=filters.category,
+            if card.matches(kinds=filters.kinds, categories=filters.categories,
                             query=filters.query)]
+
+
+@dataclass(frozen=True)
+class Group:
+    """The cards of one chosen chip, as the grid shows them."""
+
+    key: str
+    label: str
+    icon: str
+    cards: list
+
+    @property
+    def count(self) -> int:
+        return sum(card.quantity for card in self.cards)
+
+
+def groups(shown_cards: list[GridCard], filters: Filters) -> list[Group]:
+    """The shown cards under each chosen chip, in the chips' order; a card
+    under every chip it wears. Empty while no chip is chosen."""
+    made = [Group(key=_key("type", kind), label=gettext(dict(TYPE_LABELS)[kind]),
+                  icon=symbols.for_type(kind),
+                  cards=[card for card in shown_cards if kind in card.types])
+            for kind in filters.kinds]
+    made += [Group(key=_key("cat", key), label=gettext(CATEGORY_LABELS[key]),
+                   icon=symbols.for_role(key),
+                   cards=[card for card in shown_cards if key in card.categories])
+             for key in filters.categories]
+    return made
+
+
+def theme_chips(grid: list[GridCard]) -> list[tuple[str, str, str]]:
+    """(value, label, icon) of each theme role a card of the deck has."""
+    worn = {category for card in grid for category in card.categories}
+    return [(key, gettext(label), symbols.for_role(key))
+            for key, label in THEME_ROLES if key in worn]
+
+
+def explorer_cards(grid: list[GridCard]) -> list[dict]:
+    """The library for the card explorer's curve, as the page's JSON gives
+    it: each card's copies and the chips it wears, nothing else. The
+    commander is not in the grid, so it is not in the library either."""
+    return [{"n": card.name, "q": card.quantity,
+             "k": sorted([_key("type", kind) for kind in card.types]
+                         + [_key("cat", key) for key in card.categories
+                            if key in CATEGORY_LABELS])}
+            for card in grid]
 
 
 def bars(grid: list[GridCard]) -> tuple[list[Bar], list[Bar]]:
@@ -248,5 +316,6 @@ def _bar(param: str, value: str, label: str, count: int, scale: int,
                slots=slots)
 
 
-__all__ = ["Bar", "Filters", "GridCard", "QUERY_MAX", "TEMPLATE", "TYPE_LABELS",
-           "bars", "cards", "shown", "unranked"]
+__all__ = ["Bar", "CATEGORY_LABELS", "Filters", "GridCard", "Group", "QUERY_MAX", "TEMPLATE",
+           "THEME_ROLES", "TYPE_LABELS", "bars", "cards", "explorer_cards", "groups", "shown",
+           "theme_chips", "unranked"]

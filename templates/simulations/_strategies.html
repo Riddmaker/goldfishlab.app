@@ -1,10 +1,14 @@
-{% load i18n %}
+{% load i18n icons %}
 {% comment %}
   "Your strategies, and what would feed them" (phase 11 E, Z5.3, K16, F14),
   on the deck page under the deck summary (Paket 2, PR 7): the deck's
   strategies, the calculated chance of one of each by turn four, and cards
   that would feed them. The combos and engines a run measured stay on its
   report (simulations/_measured.html).
+
+  "What could go" (deck page v2, PR D) lists the cards `simulations.cuts`
+  names, each with Mistral's reason when the summary wrote one, else the
+  rule's own. Every card is shown with its art (decks/_card_peek.html).
 
   The picks are Mistral's when it made some (`strategies.picked`), each with
   its reason, checked against the lists we offered before they were stored.
@@ -16,7 +20,7 @@
   gives Mistral's reasons their `lang` (phase 12 G). The "Was this helpful?"
   question for the summary and the picks closes the block.
 {% endcomment %}
-{% if strategies.shown %}
+{% if strategies.shown or strategies.cuts %}
 <section id="strategies" class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">{% translate "Your strategies, and what would feed them" %}</h2>
   <p class="mt-2 max-w-3xl text-sm text-ink-700">
@@ -26,8 +30,8 @@
   <div class="mt-4 grid gap-6 md:grid-cols-2">
     {% for item in strategies.shown %}
       <div>
-        <h3 class="summary-title summary-title-feel">
-          {{ item.strategy.name }}
+        <h3 class="summary-title summary-title-feel icon-host inline-flex flex-wrap items-center gap-x-1.5">
+          {% icon item.strategy.key|role_symbol %}{{ item.strategy.name }}
           <span class="text-sm text-ink-700">{% blocktranslate count cards=item.strategy.count %}{{ cards }} card in your deck{% plural %}{{ cards }} cards in your deck{% endblocktranslate %}</span>
         </h3>
         <p class="tabular text-sm text-ink-700">
@@ -37,12 +41,9 @@
           <p class="mt-1 text-ink-900"{% if written.language %} lang="{{ written.language }}"{% endif %}>{{ item.why }}</p>
         {% endif %}
         {% if item.cards %}
-          <ul class="mt-2 text-ink-900">
+          <ul class="mt-3 space-y-3 text-ink-900">
             {% for card in item.cards %}
-              <li class="summary-point">
-                <span class="summary-sign summary-sign-plus" aria-hidden="true">+</span>
-                {% if card.url %}<a href="{{ card.url }}" rel="noopener noreferrer" target="_blank" class="underline">{{ card.name }}</a>{% else %}{{ card.name }}{% endif %}{% if card.reason %}<span class="text-ink-700"{% if written.language %} lang="{{ written.language }}"{% endif %}> - {{ card.reason }}</span>{% endif %}
-              </li>
+              <li>{% include "decks/_card_peek.html" with name=card.name url=card.url art=card.art image=card.image text=card.reason lang=written.language %}</li>
             {% endfor %}
           </ul>
         {% else %}
@@ -51,9 +52,23 @@
       </div>
     {% endfor %}
   </div>
+  {% if strategies.cuts %}
+    <div class="mt-6 border-t border-parchment-400 pt-4">
+      <h3 class="summary-title summary-title-feel">{% translate "What could go" %}</h3>
+      <p class="max-w-3xl text-sm text-ink-700">{% translate "To make room: the cards a rule finds the easiest to cut - no role, no part in a theme or a combo, or one too many of a role. The most expensive first." %}</p>
+      <ul class="mt-3 grid gap-3 md:grid-cols-2 text-ink-900" data-cuts>
+        {% for cut in strategies.cuts %}
+          <li>{% if cut.reason %}{% include "decks/_card_peek.html" with name=cut.name url=cut.url art=cut.art image=cut.image text=cut.reason lang=written.language %}{% else %}{% include "decks/_card_peek.html" with name=cut.name url=cut.url art=cut.art image=cut.image text=cut.rule %}{% endif %}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
   <div class="mt-5 text-sm text-ink-700">
     {% if strategies.picked %}
       <p>{% translate "Picked by Mistral AI from cards that fit your colours. It can be wrong." %}</p>
+    {% endif %}
+    {% if strategies.cuts and written.configured %}
+      <p class="mt-1">{% translate "A rule picks the cards that could go; Mistral AI only says why. You know your deck better." %}</p>
     {% endif %}
     <p class="mt-1">{% translate "The odds are calculated from your list: a hand of 7, one draw a turn, no mulligan." %}</p>
   </div>

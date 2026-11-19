@@ -30,6 +30,12 @@
           refunds, data requests and anything else. It is not a sales address.
         {% endblocktranslate %}
       </p>
+      <p class="mt-4 text-sm text-ink-700" id="news">
+        {% url 'news' as news_url %}
+        {% blocktranslate trimmed %}
+          The same person is editorially responsible for the <a href="{{ news_url }}" class="underline hover:text-ink-900">Commander news</a>: its summaries are drafted with AI from the linked articles and checked by them before anything is published. To have an item corrected or taken out, write to the address above.
+        {% endblocktranslate %}
+      </p>
     </div>
 
     <h2 class="mt-10 font-display text-2xl text-parchment-100">{% translate "The rest of it" %}</h2>

@@ -916,7 +916,7 @@ sits folded under &ldquo;Advanced&rdquo;. No theme is said in a sentence, never 
       Blood Artist + Bitterblossom</p>
     <p style="font-size:.875rem;color:var(--ink-700);margin:0">Aristocrats &middot; strong</p>
     <p style="font-size:.875rem;margin:.25rem 0 0">Viscera Seer sacrifices, Blood Artist pays
-      off each death, Bitterblossom brings more bodies.</p>
+      off each death, Bitterblossom gives you bodies to sacrifice.</p>
     <p style="font-size:.875rem;margin:.25rem 0 0">Get Bitterblossom out first, then the
       Seer; keep Blood Artist back until a board wipe is unlikely.
       <span style="color:var(--ink-700)">Written by Mistral AI. It can be wrong.</span></p>

@@ -16667,3 +16667,8 @@ msgstr ""
 " pessoa antes de ser publicada. Acompanhe pelo feed ou receba por e-mail uma"
 " vez por semana: liga na página ou em \"Seu plano\" e desliga com um clique "
 "em cada e-mail."
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s gives you bodies to sacrifice"
+msgstr "%(card)s dá a você corpos para sacrificar"

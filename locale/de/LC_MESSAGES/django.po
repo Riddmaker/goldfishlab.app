@@ -16845,3 +16845,8 @@ msgstr ""
 "einem Menschen geprüft, bevor sie erscheint. Folge ihr per Feed oder bekomm "
 "sie einmal pro Woche per Mail – einschalten auf der Seite oder auf „Dein "
 "Abo“, und mit einem Klick in jeder Mail wieder aus."
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s gives you bodies to sacrifice"
+msgstr "%(card)s liefert dir Körper zum Opfern"

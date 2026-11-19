@@ -88,7 +88,13 @@ def missing(readings) -> list[str]:
 #: changes from the deck's own numbers; six shorter candidates a strategy.
 #: 5 = phase 12 G: written in the starter's language, names kept in English.
 #: 6 = Themen-Doc PR 6: "engines", how each engine of the deck page plays.
-PROMPT_VERSION = 6
+#: 7 = deck page v2, PR B: the commander lives in the command zone. Every
+#: text the owner read had it drawn, tutored or in a hand (2026-11-19).
+PROMPT_VERSION = 7
+
+#: Where a commander is, said in the facts beside each one (deck page v2, PR B).
+COMMAND_ZONE = ("starts every game in the command zone and is cast from there; "
+                "never in the library or a hand")
 
 #: Room for the JSON answer. Each part is "not longer than a paragraph"
 #: (T6.1); this is generous and still bounds the cost of a runaway answer.
@@ -123,6 +129,11 @@ SYSTEM_PROMPT = (
     "strategies a short list of catalogue cards that would feed it. Use only these "
     "facts and your knowledge of the named cards. Every card in \"cards\" is "
     "already in the deck; the candidates are not. "
+    "The commander is not in \"cards\": it starts every game in the command zone and "
+    "is cast from there, for 2 more each time it was cast from there before, and goes "
+    "back there instead of dying or being exiled. It is never in the library or in a "
+    "hand, so never write that the deck draws it, finds it, tutors or searches for it, "
+    "mills or discards it, or that a hand holds it. "
     "Never invent numbers; quote only numbers that are in the facts. Judge counts "
     "against this deck's own size (cards_in_library) and the land band given for "
     "it, not against a fixed 99. If combos_in_deck is null, nobody has looked the "
@@ -272,7 +283,8 @@ def facts(deck, readings) -> dict:
     facts = {
         "commander": (
             {"name": commander.front_name, "type": commander.type_line,
-             "mana_cost": commander.mana_cost, "text": commander.oracle_text}
+             "mana_cost": commander.mana_cost, "text": commander.oracle_text,
+             "zone": COMMAND_ZONE}
             if commander else None
         ),
         "colour_identity": "".join(analysis.color_identity) or "colourless",
@@ -324,7 +336,7 @@ def facts(deck, readings) -> dict:
         second = leading[1]
         facts["second_commander"] = {"name": second.front_name, "type": second.type_line,
                                      "mana_cost": second.mana_cost,
-                                     "text": second.oracle_text}
+                                     "text": second.oracle_text, "zone": COMMAND_ZONE}
     return facts
 
 
@@ -568,7 +580,7 @@ def due(owner, deck, print_: str | None = None) -> bool:
 
     Not when Mistral is not configured or the owner switched summaries off;
     not while one is being written; not when the stored one is about this
-    exact deck. A guest only ever gets one. Not when today's budget is spent
+    exact deck with this prompt. A guest only ever gets one. Not when today's budget is spent
     (P1): then nobody is charged for one.
     """
     from simulations.models import DeckSummary
@@ -580,10 +592,24 @@ def due(owner, deck, print_: str | None = None) -> bool:
         return False
     if owner.is_guest and guest_has_had_one(owner):
         return False
+    # An older prompt's text is rewritten on the next run, not all at once
+    # (deck page v2, PR B): version 6 had the commander drawn and tutored.
     if (stored is not None and stored.status != DeckSummary.Status.FAILED
+            and stored.prompt_version >= PROMPT_VERSION
             and stored.fingerprint == (print_ or fingerprint(deck))):
         return False
     return budget.available(owner.is_guest)
+
+
+def ours_to_pay(deck, print_: str | None = None) -> bool:
+    """Is the stored text current but for our prompt? Then rewriting it is on
+    us, not on the owner's allowance (deck page v2, PR B; DeckSummary)."""
+    from simulations.models import DeckSummary
+
+    stored = _stored(deck)
+    return (stored is not None and stored.status == DeckSummary.Status.DONE
+            and stored.prompt_version < PROMPT_VERSION
+            and stored.fingerprint == (print_ or fingerprint(deck)))
 
 
 def claim(owner, deck):
@@ -788,6 +814,7 @@ def engine_notes(user, deck) -> dict:
             for row in (stored.content or {}).get("engines") or []}
 
 
-__all__ = ["BY_TURN", "PROMPT_VERSION", "SEEN_BY_TURN", "WRITE_IN", "at_least_one", "begin",
-           "claim", "due", "engine_notes", "facts", "feedback_for", "fingerprint",
-           "give_feedback", "language", "messages", "missing", "parse", "state", "write_in"]
+__all__ = ["BY_TURN", "COMMAND_ZONE", "PROMPT_VERSION", "SEEN_BY_TURN", "WRITE_IN",
+           "at_least_one", "begin", "claim", "due", "engine_notes", "facts", "feedback_for",
+           "fingerprint", "give_feedback", "language", "messages", "missing", "ours_to_pay",
+           "parse", "state", "write_in"]

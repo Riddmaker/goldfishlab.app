@@ -94,7 +94,9 @@ def start_run(*, owner, deck, games: int, turns: int, on_the_play: bool = True,
     from simulations import summary
 
     write_summary = summary.due(owner, deck)
-    charge_summary = write_summary and not owner.is_guest
+    # A rewrite for our new prompt alone is on us (deck page v2, PR B).
+    charge_summary = (write_summary and not owner.is_guest
+                      and not summary.ours_to_pay(deck))
     summary_skipped = False
     if charge_summary:
         both = quotas.check(owner, UsageRecord.Metric.RUNS_STARTED, amount=2,

@@ -176,7 +176,7 @@ def test_an_engine_is_one_card_per_piece_in_the_rules_order():
     assert engine.theme == "aristocrats" and engine.level == STRONG
     assert engine.cards == ("Outlet 0", "Payoff 0", "Fodder 0")
     assert engine.sentence == ("Outlet 0 sacrifices, Payoff 0 pays off each death, "
-                               "Fodder 0 brings more bodies.")
+                               "Fodder 0 gives you bodies to sacrifice.")
     assert engine.repeating == ("Outlet 0",) and engine.missing == ()
 
 

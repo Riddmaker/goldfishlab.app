@@ -14761,3 +14761,8 @@ msgid ""
 " the page or on Your plan, and off again with one click in every mail."
 msgstr ""
 "新しいページ「統率者戦ニュース」では、統率者戦プレイヤー向けに今週のニュースをお届けします。1件ずつ数文で、お使いの言語で、元記事へのリンク付きです。AIで要約し、公開前に人が確認しています。フィードで購読するか、週に1回メールで受け取れます。ページまたは「あなたのプラン」でオンにでき、各メールのワンクリックでオフにできます。"
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s gives you bodies to sacrifice"
+msgstr "%(card)sは生け贄に捧げる体を用意します"

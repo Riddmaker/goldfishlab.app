@@ -16773,3 +16773,8 @@ msgstr ""
 " una persona prima della pubblicazione. Seguila via feed o ricevila via mail"
 " una volta a settimana: si attiva sulla pagina o su «Il tuo piano» e si "
 "disattiva con un clic in ogni mail."
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s gives you bodies to sacrifice"
+msgstr "%(card)s ti dà corpi da sacrificare"

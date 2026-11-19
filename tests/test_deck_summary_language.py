@@ -65,7 +65,9 @@ def test_switching_languages_does_not_rewrite_or_charge(key, owner, deck, no_run
     with translation.override("de"):
         _start(owner, deck)
     row = DeckSummary.objects.get(deck=deck)
-    DeckSummary.objects.filter(pk=row.pk).update(status=DeckSummary.Status.DONE)
+    # As the task leaves it: done, with the prompt it was written with.
+    DeckSummary.objects.filter(pk=row.pk).update(status=DeckSummary.Status.DONE,
+                                                 prompt_version=summary.PROMPT_VERSION)
 
     with translation.override("fr"):
         assert not summary.due(owner, deck)

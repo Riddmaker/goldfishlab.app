@@ -306,13 +306,39 @@ def test_a_new_deck_costs_two_and_queues_its_summary(key, owner, deck, no_runs, 
 def test_an_unchanged_deck_reuses_its_summary_for_free(key, owner, deck, no_runs, queued,
                                                        django_capture_on_commit_callbacks):
     DeckSummary.objects.create(deck=deck, fingerprint=summary.fingerprint(deck),
-                               status=DeckSummary.Status.DONE, content=GOOD)
+                               status=DeckSummary.Status.DONE, content=GOOD,
+                               prompt_version=summary.PROMPT_VERSION)
 
     with django_capture_on_commit_callbacks(execute=True):
         _start(owner, deck)
 
     assert used(owner, RUNS) == 1
     assert queued == []
+
+
+def test_an_older_prompts_text_is_rewritten_on_the_next_run_on_us(
+        key, owner, deck, no_runs, queued, django_capture_on_commit_callbacks):
+    """Deck page v2, PR B: version 6 had the commander drawn and tutored."""
+    DeckSummary.objects.create(deck=deck, fingerprint=summary.fingerprint(deck),
+                               status=DeckSummary.Status.DONE, content=GOOD,
+                               prompt_version=summary.PROMPT_VERSION - 1)
+
+    with django_capture_on_commit_callbacks(execute=True):
+        _start(owner, deck)
+
+    assert used(owner, RUNS) == 1, "our new prompt is not the owner's cost"
+    assert len(queued) == 1
+    assert DeckSummary.objects.get(deck=deck).charged is False
+
+
+def test_the_commander_lives_in_the_command_zone_in_prompt_and_facts(owner, deck):
+    facts = summary.facts(deck, adapter.readings(deck))
+    prompt = summary.messages(facts)[0]["content"]
+
+    assert facts["commander"]["zone"] == summary.COMMAND_ZONE
+    assert "command zone" in prompt
+    assert "never write that the deck draws it" in prompt
+    assert facts["commander"]["name"] not in {card["name"] for card in facts["cards"]}
 
 
 def test_a_changed_deck_gets_a_new_one(key, owner, deck, no_runs, queued,

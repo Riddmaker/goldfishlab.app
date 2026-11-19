@@ -17006,3 +17006,8 @@ msgstr ""
 "et vérifiée par une personne avant publication. Suivez-la par flux, ou "
 "recevez-la par e-mail une fois par semaine : à activer sur la page ou sur « "
 "Votre formule », et à désactiver d'un clic dans chaque e-mail."
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s gives you bodies to sacrifice"
+msgstr "%(card)s vous fournit des corps à sacrifier"

@@ -151,7 +151,7 @@ THEMES: tuple[Theme, ...] = (
            _p("fodder", gettext_noop("Makes bodies to sacrifice"), 6,
               tags=("repeatable-token-generator", "death-trigger-self", "recursion-self"),
               mechanics=("tokens",),
-              does=gettext_noop("%(card)s brings more bodies"))),
+              does=gettext_noop("%(card)s gives you bodies to sacrifice"))),
           rules=(("outlet", "payoff", 1.0), ("fodder", "payoff", 0.7))),
     Theme("tokens", gettext_noop("Tokens"),
           gettext_noop("Fills the table with creature tokens and makes them count."),

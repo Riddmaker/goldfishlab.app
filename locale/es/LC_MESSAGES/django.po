@@ -16934,3 +16934,8 @@ msgstr ""
 "revisa antes de publicarla. Síguela por feed o recíbela por correo una vez a"
 " la semana: se activa en la página o en «Tu plan» y se desactiva con un clic"
 " en cada correo."
+
+#: cards/themes.py
+#, python-format
+msgid "%(card)s gives you bodies to sacrifice"
+msgstr "%(card)s te da cuerpos para sacrificar"

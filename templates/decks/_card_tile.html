@@ -1,0 +1,14 @@
+{% load i18n %}{% comment %}
+  One card, shown (core/templatetags/cards_shown.py). Focusable, so the
+  keyboard can grow it as the pointer does.
+{% endcomment %}
+<figure class="card-tile{% if size %} card-tile-{{ size }}{% endif %}" tabindex="0">
+  {% if image %}
+    <img class="card-tile-img" src="{{ image }}" alt="{{ name }}" width="488" height="680" loading="lazy" decoding="async">
+  {% else %}
+    <span class="card-tile-img card-tile-text">{{ name }}</span>
+  {% endif %}
+  {% if effect or repeats %}
+    <figcaption class="card-tile-effect">{{ effect }}{% if repeats %} <span class="card-tile-again" title="{% translate 'Works again and again' %}">↻</span>{% endif %}</figcaption>
+  {% endif %}
+</figure>

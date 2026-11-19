@@ -1,0 +1,34 @@
+{% load i18n l10n icons cards_shown %}{% comment %}
+  Each theme, piece by piece, and the chance it stands by turn four (deck
+  page v2, PR E): a card of every piece seen, worked out exactly from the
+  list (`simulations.theme_odds`). Under the engines, outside the part htmx
+  swaps after a lock or a dismiss: the themes do not change with a mark.
+  Takes: theme_groups ((cards.themes.Found, percent) pairs), by_turn, deck.
+{% endcomment %}
+{% if theme_groups %}
+<div id="theme-groups" class="mt-8">
+  <h3 class="font-display text-xl text-ink-900">{% translate "Your themes, piece by piece" %}</h3>
+  <p class="mt-1 max-w-3xl text-sm text-ink-700">{% blocktranslate %}How likely you have seen a card of every piece by turn {{ by_turn }}: a hand of 7, one draw a turn, no mulligan, calculated from your list.{% endblocktranslate %}</p>
+  <div class="mt-4 space-y-6">
+    {% for found, chance in theme_groups %}
+      <section class="border-l-2 border-parchment-600 pl-4" data-theme-group="{{ found.theme }}">
+        <h4 class="icon-host flex flex-wrap items-baseline gap-x-2 font-display text-lg text-ink-900">
+          {% icon found.theme|theme_symbol %}<span>{% translate found.label %}{% if found.subject %} ({{ found.subject }}){% endif %}</span>
+          <span class="tabular text-2xl" data-chance>{{ chance|floatformat:0 }}%</span>
+          <span class="text-sm text-ink-700">{% blocktranslate %}by turn {{ by_turn }}{% endblocktranslate %}</span>
+        </h4>
+        <div class="mt-2 space-y-3">
+          {% for part in found.parts %}
+            <div>
+              <p class="icon-host flex items-center gap-1.5 text-sm text-ink-900">{% icon part.role|role_symbol %}{% translate part.label %}</p>
+              <div class="card-line card-line-sm mt-1">
+                {% for name in part.cards %}{% card_tile name size="sm" %}{% empty %}<span class="text-sm text-ink-700">{% translate "No card yet." %}</span>{% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}

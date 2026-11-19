@@ -7569,7 +7569,7 @@ msgstr ""
 
 #: templates/datapages/lands.html
 msgid "How many lands in Commander?"
-msgstr "Quante terre in Commander?"
+msgstr "Quante terre servono in un mazzo Commander?"
 
 #: templates/datapages/lands.html
 #, python-format

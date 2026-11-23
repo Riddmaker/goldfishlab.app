@@ -1,10 +1,10 @@
 # Production dependencies - pinned (verified on PyPI 2026-09-17)
 Django==5.2.19
-psycopg[binary]==3.3.8
+psycopg[binary]==3.3.9
 gunicorn==26.2.0
 whitenoise==6.12.0
 django-environ==0.14.0
-django-allauth==65.21.1
+django-allauth==65.22.1
 celery==5.7.0
 redis==8.1.0
 django-celery-results==2.6.0
@@ -16,4 +16,4 @@ django-csp==4.0
 django-ratelimit==4.1.0
 # Error reporting. Inert unless SENTRY_DSN is set, which it is not in
 # development, in CI or in the test suite.
-sentry-sdk==2.74.0
+sentry-sdk==2.75.0

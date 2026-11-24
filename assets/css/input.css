@@ -84,7 +84,7 @@
   --color-verdigris-800: #1a3d30;
   --color-verdigris-900: #132c23;
 
-  /* Water - the fill of a symbol only (DESIGN.md, SYMBOLS; Paket 4, PR 15):
+  /* Water - the fill of a symbol only (docs/DESIGN.html, SYMBOLS; Paket 4, PR 15):
      the water in the flask, the wave, a card. 500 is the step for parchment. */
   --color-water-300: #9cc4dc;
   --color-water-500: #5f93b5;
@@ -453,7 +453,7 @@ body {
 
 /* Application forms.
  *
- * The same control styling `STYLEGUIDE.html` shows under "Form fields", made
+ * The same control styling `docs/STYLEGUIDE.html` shows under "Form fields", made
  * available to the forms this application renders itself rather than only to
  * the allauth ones above. It exists because a Django text or number input with
  * no styling is not merely plain, it is **invisible**: no border, and a white
@@ -879,7 +879,7 @@ body {
   color: var(--color-blood-700);
 }
 
-/* Cards shown, not described (deck page v2, PR E; DESIGN.md "Cards are
+/* Cards shown, not described (deck page v2, PR E; docs/DESIGN.html "Cards are
  * shown"): a combo, an engine or a pair is a row of pictures -
  * [card] + [card] = result - with what each card does under it. With a
  * pointer, or the keyboard, a card grows where it sits until its text can
@@ -1043,7 +1043,7 @@ body {
 }
 
 /* With a mouse, a card of the grid grows where it sits until it can be read
- * (DESIGN.md, "Cards are shown, not described"). */
+ * (docs/DESIGN.html, "Cards are shown, not described"). */
 @media (hover: hover) {
   .card-grid-item:hover img {
     transform: scale(1.6);
@@ -3040,9 +3040,9 @@ button.home-flask {
   }
 }
 
-/* icons:start - the symbols (DESIGN.md, SYMBOLS; Paket 4, PR 15), set with
+/* icons:start - the symbols (docs/DESIGN.html, SYMBOLS; Paket 4, PR 15), set with
  * the icon template tag from core/icons/*.svg. scripts/build_styleguide.py copies this
- * block into STYLEGUIDE.html, so it holds nothing but the symbols.
+ * block into docs/STYLEGUIDE.html, so it holds nothing but the symbols.
  * The line is the text's colour, the fills come from four families; on
  * parchment they step darker. Each symbol moves once while its host - the
  * button, tile or heading row it belongs to - is hovered or has keyboard

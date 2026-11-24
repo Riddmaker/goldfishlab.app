@@ -674,8 +674,8 @@ repository next (a person or an agent) reads only what is true.
 2. **Tests.** Tests of removed behaviour go; duplicate fixtures merge; every batch's new code
    has its tests. The fast suite took 6.5 minutes on 2026-09-28 - the 20 slowest
    (`--durations=20`) get a look.
-3. **Docs (HABIT 5).** README (features, fresh screenshots, no collection), `DESIGN.md` and a
-   regenerated `STYLEGUIDE.html` (new components: drop zone, card fan, markers, charts), the
+3. **Docs (HABIT 5).** README (features, fresh screenshots, no collection), `docs/DESIGN.html` and a
+   regenerated `docs/STYLEGUIDE.html` (new components: drop zone, card fan, markers, charts), the
    methodology page reading as one text after H, `docs/phases/README.md`, RESUME's traps
    consolidated (obsolete ones marked), GO-LIVE (collection and printings mentions),
    `.env.example`, `CLAUDE.md` if a convention changed, the project memory.
@@ -778,9 +778,9 @@ Suggested commits (one PR, ~4 commits). Start state: dev = origin/dev = `6985a81
 * **I.4 Docs, review, screenshots.**
   * README (no printing section, the features as they are now), `docs/phases/README.md` (phase
     9 row is stale since C), GO-LIVE (step 7's printings note and the "prices show -" row),
-    `.env.example`, RESUME traps (obsolete ones marked), the project memory; `DESIGN.md` gets
+    `.env.example`, RESUME traps (obsolete ones marked), the project memory; `docs/DESIGN.html` gets
     the phase-9 components (drop zone, card fan, status marker, usage bar, charts, "Why?") and
-    `scripts/build_styleguide.py` regenerates `STYLEGUIDE.html` with them.
+    `scripts/build_styleguide.py` regenerates `docs/STYLEGUIDE.html` with them.
   * Privacy policy: "Last updated 30 September 2026".
   * Review pass over the phase-9 diff: security (guest endpoints, paste import, review flow:
     owner filters, rate limits, CSP without a new exception), accessibility (alt text, the hand
@@ -821,8 +821,8 @@ Suggested commits (one PR, ~4 commits). Start state: dev = origin/dev = `6985a81
   **`goldfishlab/settings/test.py`** (dev + MD5 hasher) in pyproject and in `checks.yml`'s env
   (pytest-django prefers the env var). Fast suite **7:18 -> 3:38**.
 * **I.4** README (phase 9 summary, no printing section, the card page instead of the card list,
-  the test settings), `docs/phases/README.md` (phase 9 complete), `DESIGN.md` "Pictures,
-  markers and charts", `STYLEGUIDE.html` regenerated with a marker/bar/"Why?" section, privacy
+  the test settings), `docs/phases/README.md` (phase 9 complete), `docs/DESIGN.html` "Pictures,
+  markers and charts", `docs/STYLEGUIDE.html` regenerated with a marker/bar/"Why?" section, privacy
   "Last updated 30 September 2026", GO-LIVE and RESUME traps 58-61 (local).
   Review pass: owner filters on every lookup, rate limits on every writing entry point
   (the mapping POST imports an upload that was already limited), the CSP unchanged since the

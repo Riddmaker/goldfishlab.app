@@ -5,7 +5,7 @@ builder reads the very same files. Inline rather than an `<img>` or a sprite's
 `<use>`: CSS has to reach the parts - the sand, the fan, the seal - to colour
 and move them, and it cannot reach into either of those.
 
-Info symbols only (DESIGN.md, SYMBOLS): decorative, hidden from screen readers,
+Info symbols only (docs/DESIGN.html, SYMBOLS): decorative, hidden from screen readers,
 always beside the word that says the same. The functional icons - the pencil,
 the bin, the padlock - keep their own templates and their own look.
 

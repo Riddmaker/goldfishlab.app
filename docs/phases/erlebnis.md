@@ -33,12 +33,12 @@ canvas. The fish's click moves leave the header for the big flask on the home pa
 - Motion: the block between `icons:start` and `icons:end` in `assets/css/input.css`. A symbol
   moves while its `.icon-host` (button, tile, heading, bar row) is hovered or has keyboard focus,
   inside `prefers-reduced-motion: no-preference` only. The styleguide builder copies that block
-  and reads the same drawings, so STYLEGUIDE.html shows exactly what the site does.
+  and reads the same drawings, so docs/STYLEGUIDE.html shows exactly what the site does.
 - Where: Simulate and Draw a hand (deck page), the Bracket and legality tiles, ramp and draw
   beside the curve, ramp, draw and removal in "What is in it" (`Bar.icon`), Combos & engines
   (deck page and report), Engines, Stress test, Speed, the import heading. New user, The fish
   says, New hand and Unusual move are drawn now and used in PR 16 and PR 18.
-- Info symbols and functional icons stay apart (DESIGN.md, SYMBOLS): the pencil, the bin and the
+- Info symbols and functional icons stay apart (docs/DESIGN.html, SYMBOLS): the pencil, the bin and the
   padlock keep their own one-colour look.
 - `tests/test_icons.py`: every drawing renders, every name a template uses is drawn, the
   styleguide lists them all, every class has a rule, no drawing carries a hex, every move waits

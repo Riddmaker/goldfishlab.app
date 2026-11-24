@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goldfish Lab Design</title>
+<style>
+@font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 700;
+  src: url("../static/fonts/eb-garamond-var-normal-latin.woff2") format("woff2"); }
+:root { --bg: #f7f1e3; --fg: #1c1a17; --muted: #5b544a; --rule: #d8ccb2; --accent: #8a1c1c;
+  --code: #efe6d0; color-scheme: light dark; }
+@media (prefers-color-scheme: dark) { :root { --bg: #141210; --fg: #ece3cf; --muted: #b3a88f;
+  --rule: #3a342c; --accent: #e07a6a; --code: #221e1a; } }
+body { background: var(--bg); color: var(--fg); margin: 0; font: 17px/1.6 "EB Garamond", Georgia, serif; }
+main { max-width: 52rem; margin: 0 auto; padding: 2rem 1rem 4rem; }
+h1 { font-size: 1.55rem; letter-spacing: .04em; border-top: 1px solid var(--rule);
+  padding-top: 1.5rem; margin-top: 2.5rem; color: var(--accent); }
+h1:first-of-type { border: 0; margin-top: 0; font-size: 2rem; }
+h2 { font-size: 1.25rem; margin-top: 2rem; } h3 { font-size: 1.05rem; }
+code, pre { font: .85em/1.45 ui-monospace, Menlo, Consolas, monospace; background: var(--code);
+  border-radius: 3px; } code { padding: .05em .3em; } pre { padding: .8rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; font-size: .95em; display: block; overflow-x: auto; }
+th, td { border-bottom: 1px solid var(--rule); padding: .35rem .6rem; text-align: left; vertical-align: top; }
+hr { display: none; } a { color: var(--accent); }
+nav.toc { font-size: .95em; color: var(--muted); border: 1px solid var(--rule); padding: .5rem 1rem; }
+nav.toc ul { margin: .2rem 0; padding-left: 1.1rem; }
+.note { color: var(--muted); font-size: .9em; }
+@media print { body { background: #fff !important; color: #000; } nav.toc { display: none; } }
+</style>
+</head>
+<body>
+<main>
+<p class="note">Normative design rules (HABIT 5). Decisions flow one way:
+<code>docs/DESIGN.html</code> &rarr; <code>docs/STYLEGUIDE.html</code> &rarr;
+<code>assets/css/input.css</code> &rarr; <code>tests/test_design_tokens.py</code>.
+Edit this file directly; it was converted from the former <code>DESIGN.md</code> on 2026-11-24.</p>
+<nav class="toc"><div class="toc">
+<ul>
+<li><a href="#design-ui-goldfish-lab">DESIGN &amp; UI (GOLDFISH LAB)</a></li>
+<li><a href="#accessibility-a-hard-floor-not-a-goal">ACCESSIBILITY — A HARD FLOOR, NOT A GOAL</a></li>
+<li><a href="#mobile-first">MOBILE-FIRST</a></li>
+<li><a href="#typography">TYPOGRAPHY</a></li>
+<li><a href="#colour-semantics">COLOUR SEMANTICS</a></li>
+<li><a href="#density">DENSITY</a></li>
+<li><a href="#the-mark-and-the-upload-phase-9-a">THE MARK AND THE UPLOAD (PHASE 9 A)</a></li>
+<li><a href="#the-mails-phase-9-a2">THE MAILS (PHASE 9 A2)</a></li>
+<li><a href="#pictures-markers-and-charts-phase-9-c2-h">PICTURES, MARKERS AND CHARTS (PHASE 9 C2-H)</a></li>
+<li><a href="#the-run-page-phase-10">THE RUN PAGE (PHASE 10)</a></li>
+<li><a href="#symbols-paket-4-pr-15">SYMBOLS (PAKET 4, PR 15)</a></li>
+<li><a href="#styleguide-visual-reference">STYLEGUIDE (VISUAL REFERENCE)</a></li>
+<li><a href="#sync-rule-habit-5">SYNC RULE (HABIT 5)</a></li>
+</ul>
+</div>
+</nav>
+<h1 id="design-ui-goldfish-lab">DESIGN &amp; UI (GOLDFISH LAB)</h1>
+<p>The product is a <strong>measurement instrument dressed as an old grimoire.</strong> Two things have to be
+true at once: it must feel like the Magic cards it simulates — pre-2003 dark fantasy, a tan
+scroll textbox on near-black leather — and it must read like a tool whose numbers you would
+trust. The tension between those is the design.</p>
+<p><strong>The failure mode to avoid is the dashboard rainbow.</strong> Six accent colours, gradient cards, a
+donut chart per metric. That is what every competitor looks like, and it signals "we generated
+this" precisely when the one thing being sold is rigour.</p>
+<p><strong>The second failure mode is theme over function.</strong> Parchment textures behind a table of
+percentages, a serif so decorative the digits misalign. The atmosphere carries the chrome —
+header, panels, buttons, empty states. <strong>Data itself is set plainly.</strong></p>
+<hr />
+<h1 id="accessibility-a-hard-floor-not-a-goal">ACCESSIBILITY — A HARD FLOOR, NOT A GOAL</h1>
+<p>WCAG 2.1 AA is the minimum, and it is enforced by test, not by intention:
+<code>tests/test_design_tokens.py</code> parses <code>assets/css/input.css</code> and fails CI if any declared role
+pairing drops below 4.5:1. <strong>19 pairings are currently covered and all pass.</strong></p>
+<ul>
+<li><strong>Colour is never the only carrier of meaning.</strong> A card marked "not modelled" gets the word,
+  not just a hue. This matters more here than in most products: the honesty layer (Phase 4) exists
+  to tell users what the engine could not simulate, and a colour-blind user must get that warning
+  too.</li>
+<li>Every focusable element has a visible focus ring — 2px, <code>blood-700</code>, with offset.</li>
+<li>Full keyboard operability. The manual playtest table is the hard case and is server-driven
+  precisely so it stays reachable without a mouse.</li>
+<li>A dark ground with low-chroma warm tones is exactly where contrast quietly fails. Never adjust
+  a token without re-running the test.</li>
+</ul>
+<h1 id="mobile-first">MOBILE-FIRST</h1>
+<p>Every layout is designed at phone width first, then widened. 16px side gutters, no horizontal
+page scroll, ever.</p>
+<p>The <strong>playtest card table</strong> is the one genuinely hard case: a board state does not fold into a
+390px column. Its rule is explicit — on phone, zones stack vertically and scroll <em>within</em> their
+own row; the board never forces the page sideways.</p>
+<hr />
+<h1 id="typography">TYPOGRAPHY</h1>
+<p>One serif carries almost everything, because the old-frame look is a serif look.</p>
+<ul>
+<li><strong><code>--font-display</code> / <code>--font-body</code>: EB Garamond</strong> (SIL Open Font License), a Garamond revival —
+  the closest widely-available match to the type on a pre-2003 Magic card. <strong>Self-hosted</strong> from
+  <code>static/fonts/</code>; the browser never contacts Google, which keeps visitor IPs out of a third
+  party's logs and lets the dev container work offline. One variable woff2 per style covers
+  400–700. <code>latin-ext</code> is split out by <code>unicode-range</code> so its 114 KB only loads when an accented
+  glyph actually appears — which for this product means card names like <em>Lim-Dûl the Necromancer</em>.
+  Georgia is the fallback during load.</li>
+<li><strong><code>--font-mono</code>: system monospace stack.</strong> Seeds, card counts, hex values, file paths — anything
+  the user might copy or compare character by character.</li>
+</ul>
+<p><strong>Numbers are a first-class case.</strong> A simulation report is a wall of percentages, and
+proportional digits make columns ragged and hard to scan down. <code>font-variant-numeric:
+tabular-nums</code> applies to all table cells and to anything marked <code>.tabular</code>. Percentages are
+right-aligned; labels are left-aligned.</p>
+<p><strong>Measure.</strong> Prose caps at ~70 characters (<code>max-w-3xl</code>). Tables may run full width.</p>
+<hr />
+<h1 id="colour-semantics">COLOUR SEMANTICS</h1>
+<p>Five families, each strictly bound to a meaning. The stock Tailwind palette is disabled
+(<code>--color-*: initial</code>) so no colour can enter by accident.</p>
+<table>
+<thead>
+<tr>
+<th>Family</th>
+<th>Anchor</th>
+<th>Means</th>
+<th>Never used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ink</strong></td>
+<td><code>#12100d</code> @950</td>
+<td>The page ground, and all body text on parchment. Warm near-black, never pure black.</td>
+<td>Accent or state</td>
+</tr>
+<tr>
+<td><strong>parchment</strong></td>
+<td><code>#f5ecd7</code> @100</td>
+<td>Surfaces — cards, report panels, the playtest table. Also light text on the dark ground.</td>
+<td>Success or danger</td>
+</tr>
+<tr>
+<td><strong>blood</strong></td>
+<td><code>#c43d33</code> @500</td>
+<td>Primary action, danger, destructive confirmation, "needs review".</td>
+<td>Body text, large fills</td>
+</tr>
+<tr>
+<td><strong>verdigris</strong></td>
+<td>—</td>
+<td>Success, and "successfully modelled" states. Aged copper, not a bright UI green.</td>
+<td>Decoration</td>
+</tr>
+<tr>
+<td><strong>water</strong></td>
+<td><code>#9cc4dc</code> @300</td>
+<td>The fill of a symbol: water in the flask, the wave, a card. Two steps only (Paket 4, PR 15).</td>
+<td>Text, surfaces, state</td>
+</tr>
+</tbody>
+</table>
+<p>Rules that follow from this:</p>
+<ul>
+<li><strong><code>blood</code> is an accent, never a surface.</strong> A full-width red banner reads as an error page.</li>
+<li><strong>Success and danger must never be distinguishable by hue alone</strong> — see accessibility above.</li>
+<li><strong>Symbols may use gold, water, blood and verdigris as fills</strong> (see SYMBOLS). There a colour is
+  decoration that brings the page to life, not a state; the word beside the symbol carries the
+  meaning.</li>
+<li><strong>No colour outside these five.</strong> A new meaning gets a new <em>step</em> in an existing family, or a
+  new family added to <code>docs/DESIGN.html</code> first — never an inline hex.</li>
+<li>Texture is CSS gradients only. No image assets for paper or leather: nothing extra to download,
+  and it scales to any viewport.</li>
+</ul>
+<hr />
+<h1 id="density">DENSITY</h1>
+<p>This is a data product for someone reading probabilities, not a marketing page.</p>
+<ul>
+<li>Report tables are compact: tight row height, a hairline rule between rows, no zebra striping
+  (it fights the parchment texture).</li>
+<li>Panels get generous padding; the <em>content inside them</em> does not.</li>
+<li>One idea per panel. A report is several panels, not one long scroll.</li>
+</ul>
+<hr />
+<h1 id="the-mark-and-the-upload-phase-9-a">THE MARK AND THE UPLOAD (PHASE 9 A)</h1>
+<ul>
+<li><strong>The mark</strong> is <code>static/img/favicon.svg</code>: a goldfish in a flask, drawn only in tokens - ink-950
+  tile, parchment-100 flask, blood-700 liquid, parchment-300 fish. It is the tab icon and sits
+  beside the wordmark in the header. SVG only: every current browser takes an SVG tab icon, and
+  the repository's push path is text-only. A PNG <code>apple-touch-icon</code> is the one thing missing.</li>
+<li><strong>The mark, inline</strong> (<code>core/_logo.html</code>, <code>.logo-*</code>, phase 10 E): the same shapes with a class
+  on each part and the colours as tokens, so it can move; a test keeps it equal to the favicon.
+  With <code>logo-animated</code> the fish swims a circle in the flask (5 s, turning round through a scaleX)
+  and two bubbles rise (2.6 s). It swims only while a run plays.</li>
+<li><strong>The fish at home</strong> (<code>static/js/fish.js</code>, phase 10 F; Paket 4, PR 17): the header mark is the
+  still image on every page, the home page too. The fish lives in the big flask above the home
+  page's heading (136 px, 96 px on a phone), which the script makes a button, "Poke the
+  goldfish"; without it the flask is a picture. Two seconds after the page loads it jumps out
+  once to say hello. Idle, it makes one move under 2 s now and then - first after 20-30 s
+  without input, then every 25-60 s, at most six a visit: a glance (head turn, eye wide) about
+  60 %, a turn round about 30 %, a jump out of the flask about 10 %, never two jumps running,
+  always the glance first. A mouse coming over it makes it jump. A poke (click, Enter, Space)
+  tilts the flask, sloshes the water and the fish glances; three pokes within 1.5 s and it
+  jumps. The bubbles rise only while a move plays, so nothing moves on its own for long.
+  Reduced motion: no hello, no idle moves, no hover jump, and a poke only widens the eye.</li>
+<li><strong>Where a file goes, the whole area is the target.</strong> A dashed parchment-600 box, blood-700 on
+  hover and while a file is dragged over it, solid once a file is chosen, with the file's name in
+  it. The real <code>&lt;input type="file"&gt;</code> covers the box invisibly, so clicking and dropping are the
+  browser's own and work without JavaScript.</li>
+<li><strong>Tabs</strong> are radio buttons and CSS: the chosen tab is a parchment-100 face joined to its
+  panel.</li>
+</ul>
+<hr />
+<h1 id="the-mails-phase-9-a2">THE MAILS (PHASE 9 A2)</h1>
+<p>Every account mail is a pair under <code>templates/account/email/</code>: plain text, and HTML on one frame
+(<code>base_message.html</code>). A mail client is not a browser, so the frame keeps to what survives one:</p>
+<ul>
+<li><strong>Inline styles and tables only</strong> - clients drop <code>&lt;style&gt;</code> and external CSS. The tokens are
+  written out as hex: parchment-50 card on ink-100, an ink-950 band with "Goldfish Lab" in
+  parchment-100 as the wordmark (text, never an image - clients block remote images), ink-800
+  body text, blood-700 button with white text.</li>
+<li><strong>One button per mail, and its address written out under it</strong> for clients that strip
+  buttons. Codes stand alone in a large monospace box.</li>
+<li><strong>Light only.</strong> <code>color-scheme: light only</code> for the clients that honour it; the rest may
+  invert, and dark text on a light card stays legible when they do.</li>
+<li><strong>Words:</strong> what happened and what to do, in one or two sentences, and what to do if it was not
+  you. No "user x@y", no bracketed domain in the subject. <code>manage.py preview_mails</code> writes them
+  all to files for a look.</li>
+<li><strong>The changelog mail (C7)</strong> wears the same frame (<code>templates/changelog/email/</code>) but has no
+  button: a list of entries, each title linking its anchor on /changelog/, and at the foot, in
+  small type, why it came and "Unsubscribe with one click". The subject names the month.</li>
+</ul>
+<hr />
+<h1 id="pictures-markers-and-charts-phase-9-c2-h">PICTURES, MARKERS AND CHARTS (PHASE 9 C2-H)</h1>
+<p>The rule behind all of them: <strong>a number that can be a picture is a picture, and no picture says
+anything by colour alone</strong> - a word or a count always stands beside it. All server-rendered;
+where something toggles, it is a real <code>&lt;input&gt;</code> and CSS (<code>:checked</code>, <code>:has()</code>), never a script.</p>
+<ul>
+<li><strong>The status marker</strong> (<code>decks/_status.html</code>, <code>.deck-status-open</code> / <code>-ready</code>): blood-700 "! 3
+  cards need you" (a link into the card review) or green "✓ Ready". On the deck list, the deck
+  page and the card page.</li>
+<li><strong>The deck fan</strong> (<code>decks/_fan.html</code>, <code>.deck-fan*</code>): on "Your decks", left of the name, the
+  commander small with the deck's three most expensive spells fanned out to the right behind it,
+  each turned a little further about its bottom edge; a hover spreads them a little more (not
+  under <code>prefers-reduced-motion</code>). No commander: the slot stays, dashed and empty, the fan
+  behind it all the same. Scryfall's small pictures, lazily; hidden from screen readers, since
+  the name beside it is the link and says the same.</li>
+<li><strong>Theme chips</strong> (<code>decks/_themes.html</code>, <code>.deck-theme*</code>, Themen-Doc Paket 1): "Built around"
+  at the top of "What is in it". A theme is a chip that opens, a <code>&lt;details&gt;</code> with no script. The
+  level is always the word on the chip; the border only repeats it - thick and parchment-200
+  for strong, solid for medium, dashed for hinted. Open, it takes the whole row: the sentence,
+  each piece as "8, wants 6" with its cards, and the number folded under "Advanced". No theme
+  is a sentence, never a guess.</li>
+<li><strong>Cards are shown, not described</strong> (deck page v2, PR E, <code>{% card_tile %}</code>,
+  <code>decks/_card_tile.html</code>): wherever cards work together - a combo, an engine, a synergy -
+  the page shows their pictures in a row, <code>[card] + [card] = result</code>, each card 6.5rem wide
+  with what it does in one to four lines of 0.75rem under it. The picture is the printing the
+  deck's file named, else the catalogue's; a card without one is its name in a parchment frame.
+  With a pointer, or focused by the keyboard, a card grows where it sits (2.2×, the first of a
+  row to the right) until its text can be read; under reduced motion it changes size without
+  easing. Phones keep the pictures, never a zoom. A suggested card or one that could go is a
+  small art crop beside its name instead (<code>decks/_card_peek.html</code>, PR D), the whole card
+  rising above the row on hover.</li>
+<li><strong>Engines and synergies</strong> (<code>decks/_engines.html</code>, <code>decks/_pair.html</code>, Themen-Doc Paket 1,
+  PR 3; shown since PR E): under the combos in one section, "Combos &amp; engines". An engine is a
+  row with a parchment-600 rule at its left, as a combo is: its cards shown, "=" and its theme
+  with symbol and level. ↻ in verdigris marks a card that works again and again. An engine a
+  piece short gets a dashed ink-700 rule and says "2 of 3 pieces. Still missing:" with the
+  piece in bold; the dash only repeats the words. Pairs show the five strongest open, the next
+  ones in one fold; their score orders them and is not shown. No "Advanced" folds. No engine is
+  a sentence, never a guess. A combo's steps (Commander Spellbook's, English) fold under "How
+  it works"; its result stays in sight.</li>
+<li><strong>Themes, piece by piece</strong> (<code>decks/_theme_groups.html</code>, PR E): under the engines, each theme
+  with its symbol and the chance, in a large tabular number, that a card of every piece has
+  been seen by turn 4 - worked out exactly from the list (<code>simulations.theme_odds</code>). Each piece
+  is its role's symbol, its label and its cards as 3.5rem pictures that grow 4× on hover.</li>
+<li><strong>The card explorer</strong> (<code>decks/_card_explorer.html</code>, <code>static/js/card-explorer.js</code>, PR F): the
+  grid's chips are switches in three rows, card type, role and theme role (only the theme roles
+  the deck has). With a mouse a plain click chooses a chip alone and Ctrl/⌘-click adds it, said
+  once above the chips; on a phone and with the keyboard every chip stays a switch. Two chips or
+  more group the grid under each, a card under every chip it wears. The curve under the chips
+  answers by which turn a card of them has been seen, turns 1 to 8, in the report charts' look:
+  "one of each chip" or "one of any chip", and "with tutors" as a dashed verdigris second line.
+  A turn under the pointer or the keyboard says its share in one sentence, and the bars under
+  the chart show on which turn the first card came, with mean ± SD. The browser shuffles the list
+  the server sent 10,000 times with a fixed seed: the same chips always draw the same curve.
+  Without scripting the curve is not there; the chips still filter.</li>
+<li><strong>Your opening hand</strong> (<code>decks/_opening_hand.html</code>, PR G, D4): under the mana curve, the curve's
+  own columns, lower, for 0 to 7 lands in a hand of seven: the exact hypergeometric chance from
+  the deck as it is, no run needed (<code>report.opening_hand</code>). The 2 to 4 a hand keeps on are marked
+  twice, a blood-red bar and a rule under the number, and their sum leads in one sentence. One
+  link goes to "Keep or mulligan?", where the deck's own hands are judged.</li>
+<li><strong>Lock-in</strong> (<code>decks/_mark.html</code>, <code>decks/_gone.html</code>, PR 4): only the owner's word is stored,
+  by the cards. A suggestion has two small square buttons, a padlock and a cross, named in full
+  for screen readers ("Lock this engine: it stays, whatever the list becomes"). A locked entry
+  says "Locked" beside the padlock, comes first and stays even when the rules stop finding it.
+  A dismissed one moves to a fold at the end ("1 dismissed") with "Bring back". An entry whose
+  card left the deck turns ink-700 and says "Resting, a card is missing: …". The dashed rule
+  keeps one meaning, a piece short; locking never changes the rule.</li>
+<li><strong>Engine timing</strong> (<code>decks/_engines.html</code>, <code>simulations/_engines.html</code>, PR 5): under each
+  complete engine, one sentence from the last finished run, "Running by turn 6 in <strong>41%</strong> of
+  games, in your last run.", the share in bold as everywhere a run gives a number. A complete
+  engine the run did not measure says the next simulation will, in ink-700; an engine a piece
+  short or resting says nothing, since it cannot run. The report lists the same as one line per
+  engine after the combos. "Running" is a plan, not the named cards: any card of each role out.</li>
+<li><strong>Engine explanation</strong> (<code>decks/_engines.html</code>, PR 6): one or two sentences from the deck
+  summary on how the engine plays, under the rules' sentence, in the summary's language
+  (<code>lang</code>), followed by "Written by Mistral AI. It can be wrong." in ink-700, the way every AI
+  text on the site owns up to it. Only for the engine with the same theme and cards it was
+  written about, and only with summaries switched on. The rules find the engine; AI only
+  explains it.</li>
+<li><strong>The card grid</strong> (<code>decks/_card_grid.html</code>, <code>.card-grid*</code>): card pictures, three across on a
+  phone; the same marker words on a card ("! needs you", "✓ answered"), "×2" for a quantity.
+  Filter chips reuse the chart chips. Every picture has its card name as <code>alt</code> and loads lazily.</li>
+<li><strong>Bars</strong> (<code>decks/_bar.html</code>, <code>.deck-bar-*</code>, the usage bars on the plans page): an ink-800 fill
+  in a parchment frame with the count as text beside it; blood-700 only when a limit is full.
+  A common template shows as a faint band behind the bar, labelled "a common template, not a
+  rule". A progress-type bar carries <code>role="progressbar"</code> with its values.</li>
+<li><strong>Line charts</strong> (<code>simulations/_line_chart.html</code>, <code>.seen-*</code>): inline SVG, eight line colours, the
+  last four dashed so a colour-blind reader can still tell them apart; checkbox chips hide a
+  line. The numbers sit under a "The numbers" fold. Since phase 10 a line explains itself:
+  pointing at it or its chip (or focusing or tapping it) fades the others to 0.2 and puts its
+  sentence in the info line under the chart; a count line shows a neutral ink band of ±1
+  spread; a share line's sentence names its typical turn (the dot with a dashed guide went
+  in phase 11 - it said the same thing as the sentence).</li>
+<li><strong>The playtest board</strong> (<code>playtest/_board.html</code>, <code>.playtest-*</code>, <code>.hand-*</code>, <code>.pip-*</code>): the hand
+  as a fan of card buttons that straighten and grow under the pointer or keyboard focus (a
+  straight sideways row up to 48rem); mana as round pips in the colour pie with the letter
+  inside; <code>prefers-reduced-motion</code> drops the transitions.</li>
+<li><strong>Free and Strict</strong> (Paket 4, PR 18): a deal from the deck page is <strong>free</strong> - nothing paid,
+  nothing blocked - and the switch on the board deals the same hand strict. Free never refuses
+  a move; it <strong>says</strong> what the rules would not allow, as an "Unusual move" line in the journal
+  (the <code>unusual</code> symbol, a dashed rule above and below, the words first: never colour alone),
+  and a turn it only guessed carries "(guessed)". Each free move button shows its key (<code>kbd</code>,
+  <code>.playtest-kbd</code>): D, N, T, Ctrl Z.</li>
+<li><strong>The table</strong> (Paket 4, PR 19, design "Board A"): the game is played on <strong>felt</strong>, what
+  happened is written on <strong>parchment</strong>. The table (<code>.playtest-felt</code>) is dark ink, lit from
+  above, with a gold edge; the hand lies as a fan along its bottom edge. The journal
+  (<code>.journal-page</code>) is a page of the book beside it, below it on a phone, and the newest line
+  is inked in (opacity only, off under reduced motion). <strong>Free and strict look the same</strong>:
+  strict adds only what its rules need - the phases with Next phase, the floating mana,
+  Mulligan and Keep - and writes the engine's log into the same page. The main move of the
+  moment is blood (Draw, Next phase, Keep), the second one parchment (New hand, Mulligan),
+  the rest a frame on the dark page (<code>.board-btn</code>), each at least 48 px high. A tapped
+  permanent lies on its side and says "(tapped)" to a screen reader.</li>
+<li><strong>"More"</strong> (<code>core/_why.html</code>, Paket 3 PR 10; "Why?" until then): the one small link beside a
+  section, sending its explanation to a methodology anchor. <code>dark=True</code> on dark grounds. The
+  sentence before it says <strong>why the section matters</strong> first, then what it measures: "How soon
+  your deck gets going: the share of games ...". The page has to be understood without the
+  link - reading on is an offer, never a must. A question ("Why?") made readers feel they had
+  to answer it before going on; "More" (DE "Mehr dazu") does not.</li>
+<li><strong>"In short" next to the precons</strong> (<code>simulations/_report.html</code> <code>#glance</code>, <code>.peer-*</code>, Paket 3
+  PR 11): a bare "81% of games" says little; where the deck stands among the precons, each
+  played the same way, says a lot. Each of the three numbers is a row: its name, the value,
+  a strip with every precon as a faint ink tick (where many stand it darkens) and the deck as
+  one tall verdigris mark, then the words - "Ahead of 34 of 40 precons. The precons' middle:
+  76%." The strip is hidden from screen readers, the sentence says it. Fewer than five
+  precons and the block is gone; a precon's own page leaves the precon out. The "±"
+  sentences moved to Advanced ("How exact the numbers are").</li>
+<li><strong>The stress test as two cards</strong> (<code>simulations/_report.html</code> <code>#stress</code>, Paket 3 PR 12): a
+  table of with/without rows made the reader do the comparing. Each blow is a card, side by
+  side from 640 px: its title, one big number - how fast the deck comes back (the share of
+  games the commander was back by the last turn; the mana on the last turn after the wipe) - the
+  words under it, one sentence more and the assumption small at the bottom. The rows are folded
+  under "The numbers". A blow the run could not play says why, without a number.</li>
+<li><strong>Compared with your last run</strong> (<code>simulations/_compare.html</code> <code>#compare</code>, Paket 3 PR 13): in
+  place of the "Compare two versions" fake door. The precon table's three numbers of the deck's
+  run before, then this run's ("80% → 85%"), each with one word: <strong>better</strong> (verdigris),
+  <strong>worse</strong> (blood), or "about the same" (ink) when the difference is within what chance makes
+  it at 95% - the word carries the meaning, never the colour alone. One line says whether the
+  deck changed in between (runs keep a fingerprint, not the list). A deck's first run invites to
+  change a card and run again; a guest gets no invitation.</li>
+<li><strong>Show your friends</strong> (<code>simulations/_share.html</code>): the share panel invites, then says what
+  becomes public before anything does. Three small stars twinkle at the button's corners three
+  times after load and rest (aria-hidden, none under <code>prefers-reduced-motion</code>). "Share…" opens
+  the device's share sheet and only appears where the browser has one (Web Share API).</li>
+<li><strong>Resources</strong> (<code>core/resources.html</code>, data in <code>core/resources.py</code>): a short list, not a link
+  farm. Each entry is its name as a display-font link with "↗", then one sentence of ours on why
+  it is there; a video adds channel, year and length. Titles stay in English (<code>lang="en"</code>), the
+  sentences are translated. Every link opens in a new tab with <code>rel="noopener noreferrer"</code>;
+  nothing is embedded, so the page loads nothing from YouTube.</li>
+</ul>
+<hr />
+<h1 id="the-run-page-phase-10">THE RUN PAGE (PHASE 10)</h1>
+<p>The order follows what a person can do first: keep the deck (a guest), answer the cards the
+engine could not read, then the pictures, and the depth folded at the bottom.</p>
+<ul>
+<li><strong>"Keep this deck"</strong> (<code>simulations/_keep_deck.html</code>, <code>.keep-card*</code>), for guests only: a Magic
+  card made of tokens - an ink-950 border, a parchment frame, a name bar and a type line on
+  parchment-100, the commander's art (Scryfall's art crop) or the flask, a parchment-50 text box
+  with italic ink-700 flavour, and a blood-700 button. At most 18rem wide.</li>
+<li><strong>"Cards that need your attention"</strong> (<code>simulations/_attention.html</code>): the status marker in its
+  three states ("! 3 cards need you", "✓ All answered" with "Run the deck again", "✓ Nothing needs
+  you"), and under it the coverage line with "See what it could not read".</li>
+<li><strong>While a run plays</strong> (<code>simulations/_progress.html</code>, <code>_waiting.html</code>,
+  <code>static/js/run-progress.js</code>): the moving logo beside the bar, one italic ink-700 loading line
+  under it that fades (600 ms) to another every 3-5 s, and a bar that glides (900 ms) on a
+  curve that slows towards 95% (under 10% while the run waits in the queue) and never shows less
+  than the real share or 100 before the end. Beside the heading "Playing your deck" the line
+  "2,000 games" ("2,000 games, waiting for a free table" while queued); the exact counts once it
+  is over. Under <code>prefers-reduced-motion</code>: a still logo, one line, no glide.</li>
+<li><strong>"Deck summary"</strong> (<code>simulations/_summary.html</code>, <code>.summary-*</code>) and <strong>"Your strategies"</strong>
+  (<code>simulations/_strategies.html</code>) are the deck's, not one run's: they stand on the deck page
+  right under the four tiles (Paket 2, PR 7), before the numbers. A deck with no run yet shows
+  the block anyway, with one ink-700 line "Run a simulation to fill this." (a link to the
+  Simulate button) - the empty block advertises what fills it and sells nothing else. The
+  report keeps what its run measured, "Combos &amp; engines" (<code>simulations/_measured.html</code>), whose
+  first line links to the summary on the deck page; and it does not wait for Mistral: the
+  report shows as soon as the games are done. Each part's title has its colour: parchment-700 for what the deck is (feel,
+  mechanisms), verdigris-700 for strengths, blood-700 for weaknesses, ink-700 for the closing
+  tactics - and each point under strengths and weaknesses starts with <strong>+</strong> or <strong>−</strong>, so the
+  colour is never the only sign. The mechanisms are chips that are not switches: a parchment-50
+  frame with rounded corners (a long one wraps on a phone), ink-900 words "Removal · 9 cards ·
+  drawn by turn 4 in 78% of games", and the swatch of the same category's line in "What you
+  drew" in front. A mechanism the run does not count has no swatch. The written parts (phase 10
+  H) are plain ink-900 text under their titles; a strength or weakness has its sign hanging in
+  front in its colour (<code>.summary-point</code>, <code>.summary-sign-*</code>), so a wrapped line lines up with the
+  words. While Mistral writes, one italic ink-700 line "Writing your deck summary…". Under the
+  text, small ink-700: "Written by Mistral AI. It can be wrong. Its numbers are calculated from
+  your list, not measured in a run.",
+  then the "Write a summary" offer when there is one. "Were the summary and the picks
+  helpful?" stands once, at the end of "Your strategies" (one Mistral call writes both). There
+  is no "Hide summaries" on a report: the switch is an account setting, under Settings on
+  "Your plan" (<code>.switch</code>: a real button with <code>role="switch"</code>, dark track when on, the knob
+  slides without motion under <code>prefers-reduced-motion</code>), with one sentence on why it exists.</li>
+<li><strong>Deck page order</strong> (<code>decks/detail.html</code>, Paket 2): the head (commander, buttons, bin), the
+  four tiles, the deck summary and "Your strategies", the mana curve beside "What is in it",
+  "Combos &amp; engines", the cards, then folded at the bottom "What the engine cannot model" and
+  "Earlier runs and games". Words before numbers, the deck a person already knows (its cards)
+  last. A fold stays only where it hides something long that every deck says alike or a form.</li>
+<li><strong>Mana curve</strong> (<code>decks/detail.html</code>, <code>.deck-curve*</code>, Paket 2 PR 8): eight small ink columns
+  on one scale, the count above and the mana value below, each column a sentence for a screen
+  reader. Beside it three numbers: ramp and card draw as "What is in it" counts them (with the
+  template), and "Commander out by turn N" in half the games of the last run (link to the
+  report's milestones), or "simulate to see". The average mana value stays a tile.</li>
+<li><strong>Deck list values</strong> (<code>decks/list.html</code>, <code>data-deck-values</code>, Paket 2 PR 9): under each deck's
+  name one quiet row of three: the colour identity as <code>.pip</code>s in WUBRG order (colourless: C), each
+  named for a screen reader; "Bracket N+" exactly as the deck page's tile says it (one include,
+  <code>decks/_bracket_number.html</code>); "simulated <date>" linking to the last finished run, or "not
+  simulated yet". The row never costs a query per deck.</li>
+<li><strong>"Advanced"</strong> (<code>simulations/_advanced.html</code>, <code>.report-advanced*</code>): a closed <code>&lt;details&gt;</code> on the
+  dark page; the summary is a display heading with the fold's contents named beside it and a
+  turning ▸ (no turn under <code>prefers-reduced-motion</code>). Inside: the mana table, the blind spots,
+  the engine version and seed.</li>
+<li><strong>"The numbers"</strong> under a chart: one sentence says what the rows are, each group has its unit
+  as a row heading, a count reads "3.2 ± 1.1", and the table scrolls sideways inside its fold on
+  a phone - the page never does.</li>
+</ul>
+<hr />
+<h1 id="symbols-paket-4-pr-15">SYMBOLS (PAKET 4, PR 15)</h1>
+<p>The page stays quiet; the symbols bring the life. Sixteen of our own drawings, and ten for the
+ticker's fun lines (<code>core/icons/*.svg</code>,
+set with <code>{% icon "speed" %}</code> from <code>core/templatetags/icons.py</code>), designed on the
+Erlebnis canvas and approved there.</p>
+<ul>
+<li><strong>Two kinds, never confused.</strong> <em>Info symbols</em> say what a thing is: in colour, always beside
+  their word, never a target of their own, no pointer cursor. <em>Functional icons</em> say what a
+  click does: one colour (the text's), drawn as today, sitting in something that clearly is a
+  button or link. The pencil (rename), the bin (delete) and the padlock (lock-in) are
+  functional and keep their own look. An info symbol inside a button (Simulate, Draw a hand)
+  is part of that button's label; the button is what is clickable.</li>
+<li><strong>One line, one or two fills.</strong> The line in the colour of the text (<code>currentColor</code>), round
+  ends; the fill from gold (<code>parchment-300</code>), water (<code>water-300</code>), blood (<code>blood-400</code>) or
+  verdigris (<code>verdigris-300</code>). On parchment the fills step darker (<code>parchment-500</code>,
+  <code>water-500</code>, <code>blood-500</code>, <code>verdigris-400</code>) so they hold on the light ground.</li>
+<li><strong>One size of ink.</strong> Every drawing sits in about 22 of the 32 units of its box, so none
+  shouts (the old hourglass, the flask) and none whispers (the hand, the rings, the seal).</li>
+<li><strong>Two sizes.</strong> Beside text the symbol is 1.25em with a 2.2 line; large (<code>size="lg"</code>, 2.5rem,
+  1.8 line) only where a card or a tile leads with it.</li>
+<li><strong>Each moves once.</strong> On hover or keyboard focus of its host (<code>.icon-host</code>: the button, tile or
+  heading row it belongs to) each symbol plays one short move, under a second: the sand turns,
+  the fan opens, the seal stamps, the sprout grows. Nothing moves under reduced motion; on a
+  phone there is no hover, so nothing moves there either - by design.</li>
+<li><strong>Sparingly.</strong> A symbol only where its word already stands: the Simulate and Draw a hand
+  buttons, the Bracket and legality tiles, ramp, draw and removal in "What is in it", the
+  headings Combos &amp; engines, Engines, Stress test and Speed, the import heading. Never in body
+  text, never in a table.</li>
+<li><strong>Hidden from screen readers</strong> (<code>aria-hidden</code>); the word says it.</li>
+</ul>
+<h2 id="the-ticker-pr-16">The ticker (PR 16)</h2>
+<ul>
+<li><strong>A band of its own</strong> on the home page, "What others did recently": ink-900 ground, a
+  parchment-800 rule above and below. Eight lines at a time from a loop of the last forty
+  events; every five seconds a line comes in at the top and one goes at the bottom. The lower
+  lines step back in colour (parchment-100, -200, ink-300, ink-400; never under 5:1).</li>
+<li><strong>Each line its symbol</strong>: simulation, hand, import, new user. A line that arrives fades in and
+  its symbol moves once (<code>.icon-now</code>, the same move as on hover).</li>
+<li><strong>Fun lines, never an event.</strong> At most every eighth line - after seven events, so a quiet site
+  has none. Own ground (ink-800), parchment-600 rules, italic parchment-300, its own drawing
+  (<code>fun-*</code>), and "The fish says:" for screen readers. Pop culture stays English (<code>lang="en"</code>
+  in another language); our own lines are translated. The overlord talks as long as he is there.</li>
+<li><strong>It holds still when asked.</strong> Pause stops the loop, the poll and the overlord (WCAG 2.2.2); a
+  pointer on the band or the focus in it holds the loop. Under reduced motion nothing loops or
+  moves: the newest eight, replaced every 30 s. Without script, the same.</li>
+</ul>
+<h2 id="the-home-page-pr-17-home-b-the-tank">The home page (PR 17, Home B: the tank)</h2>
+<ul>
+<li><strong>Centred, one way in.</strong> The big flask with the fish, the heading, "Drop your Commander list
+  in the tank", and the importer on parchment right below - the form is the way in. A soft
+  ink-800 glow from the header's rule, fading out before any edge. A stranger reads "No account
+  needed" and the formats in one line (the three steps stand on the trial page); a member gets
+  "Your decks", a guest "Back to your deck" and no form.</li>
+<li><strong>Then what others do</strong>, the ticker band (above), <strong>then what you get</strong>: two parchment tiles,
+  Simulate and Draw a hand, each a large symbol, one sentence and a real page of a guest trial.
+  They are information, not links - no pointer, no underline; the symbol moves on hover.</li>
+<li><strong>The numbers are true.</strong> "Thousands of games", not ten thousand: a trial plays 2,000.</li>
+</ul>
+<hr />
+<h1 id="styleguide-visual-reference">STYLEGUIDE (VISUAL REFERENCE)</h1>
+<p>The binding, rendered implementation of this document is <strong><code>docs/STYLEGUIDE.html</code></strong>:
+wordmark and header, the full palette with hex values <em>and the measured AA ratio of every role
+pairing</em>, type specimen, buttons and form fields in every state, panel patterns, the data
+patterns the product actually needs (probability table, per-turn milestone row, coverage
+callout), and a Do/Don't list.</p>
+<p>It is a <strong>standalone file</strong> — no Django, no build step. Open it in a browser.</p>
+<p><strong>A PDF export is deliberately NOT versioned.</strong> Print CSS is included in the HTML, so one can be
+produced at any time via browser print or
+<code>msedge --headless --print-to-pdf=styleguide.pdf docs/STYLEGUIDE.html</code>. The print stylesheet inverts
+to a light ground; printing the dark theme would waste an ink cartridge and read badly.</p>
+<p>There is also a live <code>/styleguide/</code> page in the Django app. That one is a <strong>development tool</strong> — it
+dumps tokens straight out of <code>input.css</code> so a token edit is visible on reload. It is not the spec.</p>
+<hr />
+<h1 id="sync-rule-habit-5">SYNC RULE (HABIT 5)</h1>
+<p>Design decisions flow in exactly one direction:</p>
+<pre><code>docs/DESIGN.html  -&gt;  docs/STYLEGUIDE.html  -&gt;  assets/css/input.css  -&gt;  tests/test_design_tokens.py
+</code></pre>
+<p>Change the rule here first, bring the styleguide in line, then move the tokens, then extend the
+contrast test if a new role pairing was declared. <strong>Never edit a token first and document it
+afterwards</strong> — that is how a design system turns into a pile of hex values nobody can justify.</p>
+</main>
+</body>
+</html>

@@ -10,12 +10,12 @@
 @font-face {
   font-family: "EB Garamond"; font-style: normal; font-weight: 400 700;
   font-display: swap;
-  src: url("static/fonts/eb-garamond-var-normal-latin.woff2") format("woff2");
+  src: url("../static/fonts/eb-garamond-var-normal-latin.woff2") format("woff2");
 }
 @font-face {
   font-family: "EB Garamond"; font-style: italic; font-weight: 400 700;
   font-display: swap;
-  src: url("static/fonts/eb-garamond-var-italic-latin.woff2") format("woff2");
+  src: url("../static/fonts/eb-garamond-var-italic-latin.woff2") format("woff2");
 }
 :root {
   --ink-950: #12100d; --ink-900: #1c1a15;
@@ -230,9 +230,9 @@ ul.dodont li { margin-bottom: .4rem; font-size: .93rem; }
 .tk-band li .icon { width: 1.6em; height: 1.6em; }
 .tk-band li.tk-fun { margin: .125rem -.75rem; padding: .45rem .75rem; background: var(--ink-800);
   border-block: 1px solid var(--parch-600); color: var(--parch-300); font-style: italic; }
-/* icons:start - the symbols (DESIGN.md, SYMBOLS; Paket 4, PR 15), set with
+/* icons:start - the symbols (docs/DESIGN.html, SYMBOLS; Paket 4, PR 15), set with
  * the icon template tag from core/icons/*.svg. scripts/build_styleguide.py copies this
- * block into STYLEGUIDE.html, so it holds nothing but the symbols.
+ * block into docs/STYLEGUIDE.html, so it holds nothing but the symbols.
  * The line is the text's colour, the fills come from four families; on
  * parchment they step darker. Each symbol moves once while its host - the
  * button, tile or heading row it belongs to - is hovered or has keyboard
@@ -507,7 +507,7 @@ ul.dodont li { margin-bottom: .4rem; font-size: .93rem; }
 
 <h1>Goldfish Lab &mdash; Styleguide</h1>
 <p class="lede">The binding visual reference. Normative rules live in
-<code>DESIGN.md</code>; this document renders them.</p>
+<code>docs/DESIGN.html</code>; this document renders them.</p>
 <p class="meta">Generated from <code>assets/css/input.css</code> by
 <code>scripts/build_styleguide.py</code> &mdash; do not edit by hand.
 43 colour tokens, 19 enforced role pairings,
@@ -841,7 +841,7 @@ differentiator, not a disclaimer to be tucked away.</p>
 sentence that says why the section matters (never a &ldquo;Why?&rdquo; to answer). Each says it
 in words as well: the marker is a sentence, the bar has its count beside it, and blood-700 fills
 a bar only when the limit is reached. The card grid, the line charts and the playtest hand are
-described in <code>DESIGN.md</code> (&ldquo;Pictures, markers and charts&rdquo;) and live at
+described in <code>docs/DESIGN.html</code> (&ldquo;Pictures, markers and charts&rdquo;) and live at
 their templates; this file shows the tokens they are built from.</p>
 
 <h2>&ldquo;In short&rdquo;: next to the precons (Paket 3)</h2>
@@ -1291,7 +1291,7 @@ dashed rule keeps its one meaning, a piece short; locking never changes the rule
 </div>
 
 <h2>Sync rule</h2>
-<p><code>DESIGN.md</code> &rarr; <code>STYLEGUIDE.html</code> &rarr;
+<p><code>docs/DESIGN.html</code> &rarr; <code>docs/STYLEGUIDE.html</code> &rarr;
 <code>assets/css/input.css</code> &rarr; <code>tests/test_design_tokens.py</code></p>
 <p class="rule">Change the rule first, regenerate this file, then move the tokens, then extend
 the contrast test. Never edit a token first and document it afterwards.</p>

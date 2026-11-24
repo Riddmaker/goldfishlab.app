@@ -1,7 +1,7 @@
 """Phase 0b acceptance: the design documents exist and are in sync.
 
-DESIGN.md declares the rules, STYLEGUIDE.html renders them, input.css holds
-the tokens. The sync rule says decisions flow DESIGN.md -> STYLEGUIDE.html ->
+docs/DESIGN.html declares the rules, docs/STYLEGUIDE.html renders them, input.css holds
+the tokens. The sync rule says decisions flow docs/DESIGN.html -> docs/STYLEGUIDE.html ->
 input.css. A rule is only worth writing down if something checks it, so these
 tests make a stale or contradictory styleguide fail CI.
 """
@@ -14,8 +14,8 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
-DESIGN = ROOT / "DESIGN.md"
-STYLEGUIDE = ROOT / "STYLEGUIDE.html"
+DESIGN = ROOT / "docs" / "DESIGN.html"
+STYLEGUIDE = ROOT / "docs" / "STYLEGUIDE.html"
 INPUT_CSS = ROOT / "assets" / "css" / "input.css"
 BUILDER = ROOT / "scripts" / "build_styleguide.py"
 FONT_DIR = ROOT / "static" / "fonts"
@@ -23,7 +23,7 @@ FONT_DIR = ROOT / "static" / "fonts"
 FAMILIES = ["ink", "parchment", "blood", "verdigris", "water"]
 
 
-def test_design_md_exists():
+def test_design_doc_exists():
     assert DESIGN.is_file()
 
 
@@ -32,8 +32,8 @@ def test_styleguide_exists():
 
 
 @pytest.mark.parametrize("family", FAMILIES)
-def test_every_family_is_documented_in_design_md(family):
-    """A colour family that exists in CSS but not in DESIGN.md is undocumented."""
+def test_every_family_is_documented_in_design_doc(family):
+    """A colour family that exists in CSS but not in docs/DESIGN.html is undocumented."""
     assert family in DESIGN.read_text(encoding="utf-8")
 
 
@@ -68,7 +68,7 @@ def test_styleguide_is_not_stale():
     assert result.returncode == 0, result.stderr
     after = STYLEGUIDE.read_text(encoding="utf-8")
     assert before == after, (
-        "STYLEGUIDE.html is out of date. Run: python scripts/build_styleguide.py"
+        "docs/STYLEGUIDE.html is out of date. Run: python scripts/build_styleguide.py"
     )
 
 
@@ -97,7 +97,7 @@ def test_pdf_is_not_committed():
 
 
 def test_font_is_self_hosted():
-    """DESIGN.md claims a self-hosted face. Claims get checked."""
+    """docs/DESIGN.html claims a self-hosted face. Claims get checked."""
     files = sorted(FONT_DIR.glob("*.woff2"))
     assert files, "no woff2 files in static/fonts"
     css = INPUT_CSS.read_text(encoding="utf-8")

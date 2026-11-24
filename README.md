@@ -579,18 +579,18 @@ layout.
 ### Design system
 
 ```bash
-.venv/Scripts/python scripts/build_styleguide.py   # regenerate STYLEGUIDE.html
+.venv/Scripts/python scripts/build_styleguide.py   # regenerate docs/STYLEGUIDE.html
 ```
 
-`STYLEGUIDE.html` is **generated** from `assets/css/input.css` and from the role pairings in
+`docs/STYLEGUIDE.html` is **generated** from `assets/css/input.css` and from the role pairings in
 `tests/test_design_tokens.py`, so it cannot misreport a hex value or a contrast ratio. A test
-fails if it goes stale. Rules live in `DESIGN.md`, and decisions flow one way:
-`DESIGN.md` → `STYLEGUIDE.html` → `input.css` → contrast test.
+fails if it goes stale. Rules live in `docs/DESIGN.html`, and decisions flow one way:
+`docs/DESIGN.html` → `docs/STYLEGUIDE.html` → `input.css` → contrast test.
 
 A PDF is produced on demand and **never committed**:
 
 ```bash
-msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
+msedge --headless --print-to-pdf=styleguide.pdf docs/STYLEGUIDE.html
 ```
 
 ## Architecture
@@ -610,8 +610,8 @@ msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
 | `guests/` | Trying it without an account: a temporary guest user per browser, its limits and fence, saving (claiming) and hourly expiry |
 | `datapages/` | The data pages: Commander precons from MTGJSON, simulated by the site's own (system) account, the table and a page per precon, `manage.py precons` and the weekly refresh |
 | `metrics/` | Daily usage counts with no user attached, the staff stats page at `/admin/stats/` and `manage.py stats`, and the "Compare two versions" fake door |
-| `DESIGN.md` | **Normative design rules** |
-| `STYLEGUIDE.html` | Binding rendered reference, standalone, print CSS included |
+| `docs/DESIGN.html` | **Normative design rules** |
+| `docs/STYLEGUIDE.html` | Binding rendered reference, standalone, print CSS included |
 | `assets/css/input.css` | **Design-token source of truth** |
 | `tests/` | Engine tests (vendored, byte-identical) + Django tests |
 

@@ -78,3 +78,10 @@ htmlcov/
 # AI context files (HABIT 5): local, not in the repo. The KPI file holds the
 # Search Console numbers, which the public repository must not show.
 /docs/SEQUENCE-SUPPORT-KPI.html
+/docs/VISION-MARKET-USP-MONETISATION.html
+/docs/ARCHITECTURE-SECURITY.html
+# Google service-account keys (Search Console): secrets, never in the repo.
+/goldfishlab-seo-*.json
+*-service-account*.json
+# Claude Code skills of the owner's working template (like CLAUDE.md).
+/.claude/skills/

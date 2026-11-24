@@ -1,7 +1,7 @@
 # Phase 0b — Design system documentation
 
 **Duration:** ~2 days
-**Ships:** `DESIGN.md` + `STYLEGUIDE.html` at the repository root.
+**Ships:** `DESIGN.md` + `STYLEGUIDE.html` at the repository root (moved to `docs/DESIGN.html` and `docs/STYLEGUIDE.html` on 2026-11-24).
 
 **Why this comes before feature UI:** Phase 0 produced working *tokens*, but no written design
 language. Without one, every later phase re-decides typography, spacing and button hierarchy from
@@ -16,19 +16,19 @@ Two artifacts with distinct jobs, plus one rule:
 
 | File | Role |
 |---|---|
-| `DESIGN.md` | **Normative prose.** The rules, and the reasoning behind them. Short. |
-| `STYLEGUIDE.html` | **Binding rendered reference.** Every rule with a live example beside it. |
+| `docs/DESIGN.html` | **Normative prose.** The rules, and the reasoning behind them. Short. |
+| `docs/STYLEGUIDE.html` | **Binding rendered reference.** Every rule with a live example beside it. |
 | `/styleguide/` (Django) | Live token dump, read straight from `input.css`. A dev tool, not the spec. |
 
 **PDF is generated on demand and never committed** — browser print, or
-`msedge --print-to-pdf`. Print CSS lives inside `STYLEGUIDE.html` so the output is usable.
+`msedge --print-to-pdf`. Print CSS lives inside `docs/STYLEGUIDE.html` so the output is usable.
 
-**Sync rule (HABIT 5):** a design decision changes `DESIGN.md` **first**, then `STYLEGUIDE.html`
+**Sync rule (HABIT 5):** a design decision changes `docs/DESIGN.html` **first**, then `docs/STYLEGUIDE.html`
 is brought in line, then the tokens in `assets/css/input.css`. Never the other way round.
 
 ---
 
-## Contents of `DESIGN.md`
+## Contents of `docs/DESIGN.html`
 
 1. **Grounding** — what the product should feel like, and what it must not feel like.
    Old-school dark fantasy: a pre-2003 Magic card's tan scroll textbox on near-black leather.
@@ -44,7 +44,7 @@ is brought in line, then the tokens in `assets/css/input.css`. Never the other w
 6. **Density** — this is a data product. Numbers need tabular figures and restrained spacing;
    prose needs measure limits.
 
-## Contents of `STYLEGUIDE.html`
+## Contents of `docs/STYLEGUIDE.html`
 
 Each section is a normative rule plus a rendered example:
 
@@ -72,9 +72,9 @@ columns ragged. Needs `font-variant-numeric: tabular-nums` on numeric contexts.
 ## Verification
 
 - `tests/test_design_tokens.py` still green; extend it if new role pairings are declared.
-- A new test asserting `DESIGN.md` and `STYLEGUIDE.html` both exist and that every colour family
-  named in `DESIGN.md` is present in `input.css` — cheap protection for the sync rule.
-- `STYLEGUIDE.html` prints to a sane PDF (check page breaks, and that dark backgrounds do not
+- A new test asserting `docs/DESIGN.html` and `docs/STYLEGUIDE.html` both exist and that every colour family
+  named in `docs/DESIGN.html` is present in `input.css` — cheap protection for the sync rule.
+- `docs/STYLEGUIDE.html` prints to a sane PDF (check page breaks, and that dark backgrounds do not
   waste a whole ink cartridge — print CSS should invert to a light ground).
 - Playwright screenshots at 1440px and 390px, plus the printed PDF, reviewed by eye.
 

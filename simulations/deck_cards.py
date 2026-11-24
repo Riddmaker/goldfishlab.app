@@ -180,7 +180,7 @@ class Bar:
 
     @property
     def icon(self) -> str:
-        """The symbol beside the label, or "" (DESIGN.md, SYMBOLS): every role
+        """The symbol beside the label, or "" (docs/DESIGN.html, SYMBOLS): every role
         and every type has one since deck page v2, PR C (`core.symbols`)."""
         return symbols.for_role(self.value) if self.param == "cat" else symbols.for_type(self.value)
 

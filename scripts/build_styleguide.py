@@ -1,4 +1,4 @@
-"""Generate STYLEGUIDE.html from the design tokens.
+"""Generate docs/STYLEGUIDE.html from the design tokens.
 
 Usage:  python scripts/build_styleguide.py
 
@@ -12,7 +12,7 @@ The output is standalone - no Django, no build step, no external request. Open
 it in a browser. Print CSS is included; a PDF is produced on demand and never
 committed:
 
-    msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
+    msedge --headless --print-to-pdf=styleguide.pdf docs/STYLEGUIDE.html
 """
 
 import re
@@ -29,7 +29,7 @@ from tests.test_design_tokens import (  # noqa: E402
 )
 
 INPUT_CSS = ROOT / "assets" / "css" / "input.css"
-OUTPUT = ROOT / "STYLEGUIDE.html"
+OUTPUT = ROOT / "docs" / "STYLEGUIDE.html"
 
 FAMILY_MEANING = {
     "ink": ("The page ground, and all body text on parchment.",
@@ -49,7 +49,7 @@ FAMILY_ORDER = ["ink", "parchment", "blood", "verdigris", "water"]
 
 ICONS_DIR = ROOT / "core" / "icons"
 #: Every symbol in core/icons/, in the order shown, with what it stands for
-#: and how it moves (DESIGN.md, SYMBOLS). tests/test_icons.py holds this list
+#: and how it moves (docs/DESIGN.html, SYMBOLS). tests/test_icons.py holds this list
 #: and the folder together.
 SYMBOLS = [
     ("simulation", "Simulation", "A run. The flask with water; bubbles rise."),
@@ -268,12 +268,12 @@ def build() -> str:
 @font-face {{
   font-family: "EB Garamond"; font-style: normal; font-weight: 400 700;
   font-display: swap;
-  src: url("static/fonts/eb-garamond-var-normal-latin.woff2") format("woff2");
+  src: url("../static/fonts/eb-garamond-var-normal-latin.woff2") format("woff2");
 }}
 @font-face {{
   font-family: "EB Garamond"; font-style: italic; font-weight: 400 700;
   font-display: swap;
-  src: url("static/fonts/eb-garamond-var-italic-latin.woff2") format("woff2");
+  src: url("../static/fonts/eb-garamond-var-italic-latin.woff2") format("woff2");
 }}
 :root {{
   --ink-950: {scales["ink"][950]}; --ink-900: {scales["ink"][900]};
@@ -496,7 +496,7 @@ ul.dodont li {{ margin-bottom: .4rem; font-size: .93rem; }}
 
 <h1>Goldfish Lab &mdash; Styleguide</h1>
 <p class="lede">The binding visual reference. Normative rules live in
-<code>DESIGN.md</code>; this document renders them.</p>
+<code>docs/DESIGN.html</code>; this document renders them.</p>
 <p class="meta">Generated from <code>assets/css/input.css</code> by
 <code>scripts/build_styleguide.py</code> &mdash; do not edit by hand.
 {token_count} colour tokens, {len(ROLE_PAIRINGS)} enforced role pairings,
@@ -650,7 +650,7 @@ differentiator, not a disclaimer to be tucked away.</p>
 sentence that says why the section matters (never a &ldquo;Why?&rdquo; to answer). Each says it
 in words as well: the marker is a sentence, the bar has its count beside it, and blood-700 fills
 a bar only when the limit is reached. The card grid, the line charts and the playtest hand are
-described in <code>DESIGN.md</code> (&ldquo;Pictures, markers and charts&rdquo;) and live at
+described in <code>docs/DESIGN.html</code> (&ldquo;Pictures, markers and charts&rdquo;) and live at
 their templates; this file shows the tokens they are built from.</p>
 
 <h2>&ldquo;In short&rdquo;: next to the precons (Paket 3)</h2>
@@ -1052,7 +1052,7 @@ dashed rule keeps its one meaning, a piece short; locking never changes the rule
 </div>
 
 <h2>Sync rule</h2>
-<p><code>DESIGN.md</code> &rarr; <code>STYLEGUIDE.html</code> &rarr;
+<p><code>docs/DESIGN.html</code> &rarr; <code>docs/STYLEGUIDE.html</code> &rarr;
 <code>assets/css/input.css</code> &rarr; <code>tests/test_design_tokens.py</code></p>
 <p class="rule">Change the rule first, regenerate this file, then move the tokens, then extend
 the contrast test. Never edit a token first and document it afterwards.</p>

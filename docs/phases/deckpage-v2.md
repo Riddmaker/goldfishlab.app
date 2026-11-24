@@ -73,7 +73,7 @@ Status: **FREIGEGEBEN 2026-11-19** (alles, D1–D4 nach Empfehlung). Fortschritt
    Grund, und der Commander ist nie ein Kandidat.
 
 ### PR E: Combos, Engines und Synergien visuell
-1. **Neue Darstellungsregel** (kommt in DESIGN.md und in den Styleguide): Karten werden gezeigt
+1. **Neue Darstellungsregel** (kommt in docs/DESIGN.html und in den Styleguide): Karten werden gezeigt
    statt beschrieben. Eine Combo sieht so aus: `[Karte] + [Karte] = Ergebnis`. Unter jeder Karte
    steht ihr entscheidender Effekt in einer Zeile. Gezeigt wird die Version, die im Deck ist
    (`decks/printing_art`), sonst die Standardversion. Beim Hover springt die Karte nach vorne und
@@ -136,7 +136,7 @@ mit der Summe 2–4 und ein Link zum Quiz. Tests in `tests/test_opening_hand.py`
 - **HABIT 4:** Ich verwende `{% icon %}` und `core/icons/` wieder, ebenso die Themen-Pieces, die
   Chancen-Rechnung aus `strategies`/`report`, `printing_art`, `charts.py` und das bestehende
   Playtest-CSS. Es kommt keine neue Bibliothek dazu.
-- **HABIT 5:** DESIGN.md (Regel «Karten zeigen statt beschreiben», Begriffe), STYLEGUIDE.html (alle
+- **HABIT 5:** docs/DESIGN.html (Regel «Karten zeigen statt beschreiben», Begriffe), docs/STYLEGUIDE.html (alle
   neuen Symbole und die Combo-Darstellung), diese Datei als Bauplan, README nur falls nötig, die
   KPI-Datei (Quiz-Aufrufe über die Startbox).
 - **HABIT 7:** Jeder PR bekommt Unit-Tests (Prompt-Regel und Prüfung, Kandidatenliste, Begriffe,

@@ -65,6 +65,29 @@ def portal_session(**params):
     return stripe.billing_portal.Session.create(**params)
 
 
+def mode() -> str:
+    """"live", "test" or "unknown", read off the key's prefix; never the key."""
+    key = getattr(settings, "STRIPE_SECRET_KEY", "")
+    for prefix, name in (("sk_live_", "live"), ("rk_live_", "live"),
+                         ("sk_test_", "test"), ("rk_test_", "test")):
+        if key.startswith(prefix):
+            return name
+    return "unknown"
+
+
+def price(price_id: str) -> dict:
+    """One price with its product, as a plain dict (for `billing.readiness`)."""
+    configure()
+    return stripe.Price.retrieve(price_id, expand=["product"]).to_dict()
+
+
+def webhook_endpoints() -> list[dict]:
+    """Every webhook endpoint of the account, as plain dicts."""
+    configure()
+    return [endpoint.to_dict() for endpoint in stripe.WebhookEndpoint.list(limit=100)
+            .auto_paging_iter()]
+
+
 def construct_event(payload: bytes, signature: str | None) -> dict:
     """Verify a webhook's signature and return the event as a plain dict.
 

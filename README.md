@@ -310,6 +310,16 @@ URL.
 stripe listen --forward-to localhost:8000/billing/webhook/
 ```
 
+Before taking the first real payment, check the setup against Stripe, read-only:
+
+```bash
+# One line per finding (OK / WARN / FAIL): the key's mode (never the key), each paid
+# plan's prices (amount, interval, currency options, tax code on the product) and the
+# webhook endpoint for SITE_URL with the six events billing/services.py handles.
+# Exits non-zero when anything would make a payment go wrong.
+python manage.py stripe_check
+```
+
 ## The account mails
 
 ```bash

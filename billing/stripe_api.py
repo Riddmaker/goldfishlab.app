@@ -78,7 +78,7 @@ def mode() -> str:
 def price(price_id: str) -> dict:
     """One price with its product, as a plain dict (for `billing.readiness`)."""
     configure()
-    return stripe.Price.retrieve(price_id, expand=["product"]).to_dict()
+    return stripe.Price.retrieve(price_id, expand=["product", "currency_options"]).to_dict()
 
 
 def webhook_endpoints() -> list[dict]:

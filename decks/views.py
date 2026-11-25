@@ -558,7 +558,8 @@ class ImportMappingView(LoginRequiredMixin, View):
 
     def get_pending(self) -> PendingImport:
         return get_object_or_404(
-            PendingImport, pk=self.kwargs["pk"], owner=self.request.user
+            PendingImport, pk=self.kwargs["pk"], owner=self.request.user,
+            kind=PendingImport.Kind.DECK,
         )
 
     def get(self, request, pk):

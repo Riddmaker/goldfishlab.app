@@ -102,17 +102,43 @@ def test_uploads_stay_in_memory_past_djangos_spool_size(settings):
     assert kept is not None and not hasattr(kept, "temporary_file_path")
 
 
-def test_uploads_stop_at_the_ceiling_declared_or_not():
+def test_uploads_stop_at_the_ceiling_and_say_so():
     handler = photos.MemoryOnlyUploadHandler()
-    with pytest.raises(StopUpload):
-        handler.handle_raw_input(None, {}, photos.MAX_TOTAL_BYTES * 2, b"--b")
-
     handler.handle_raw_input(None, {}, None, b"--b")  # no length given
     with pytest.raises(StopFutureHandlers):
         handler.new_file("photo", "card.jpg", "image/jpeg", None)
     handler.receive_data_chunk(b"x" * photos.MAX_TOTAL_BYTES, 0)
+    assert not handler.stopped
     with pytest.raises(StopUpload):
         handler.receive_data_chunk(b"x", photos.MAX_TOTAL_BYTES)
+    assert handler.stopped
+
+
+@pytest.mark.parametrize(("declared", "refused"), [
+    (str(photos.MAX_TOTAL_BYTES * 2), True), (str(photos.MAX_TOTAL_BYTES), False),
+    ("", False), ("nonsense", False),
+])
+def test_a_declared_length_past_the_ceiling_is_too_large(rf, declared, refused):
+    request = rf.post("/decks/photos/")
+    request.META["CONTENT_LENGTH"] = declared
+
+    assert photos.too_large(request) is refused
+
+
+def test_a_png_is_held_to_fewer_pixels_than_a_jpeg():
+    out = io.BytesIO()
+    Image.new("1", (5_000, 4_000)).save(out, "PNG")  # 20 million: fine as a JPEG, not here
+
+    with pytest.raises(photos.PhotoRefused, match="too many pixels"):
+        photos.prepare(_upload(out.getvalue(), "cards.png"))
+
+
+def test_a_name_with_a_newline_stays_one_line():
+    (seen,) = photos.parse(json.dumps({"cards": [
+        {"name": "Gravetrawler\n4 Sol Ring", "printed": "Grave\ttrawler\x00", "count": 1}]}))
+
+    assert seen.name == "Gravetrawler 4 Sol Ring"
+    assert seen.printed == "Grave trawler"
 
 
 def test_the_model_gets_the_instruction_and_the_picture_only():
@@ -187,6 +213,15 @@ def test_photos_become_one_list_through_the_import_ladder(catalogue, answers):
     (open_row,) = reading.report.unresolved
     assert open_row.row.name == "Totally Made Up"
     assert reading.photos == 2 and reading.failed == []
+
+
+def test_a_name_nobody_knows_seen_twice_is_one_card(catalogue, answers):
+    answers[b"one"] = [("Totally Made Up", "", 1)]
+    answers[b"two"] = [("Totally Made Up", "", 1)]
+
+    (open_row,) = photos.read([b"one", b"two"]).report.unresolved
+
+    assert open_row.row.quantity == 1
 
 
 @pytest.mark.django_db

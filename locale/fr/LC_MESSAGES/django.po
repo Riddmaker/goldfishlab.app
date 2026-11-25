@@ -18455,3 +18455,10 @@ msgstr "Goldfisher votre propre deck"
 
 msgid "Play again"
 msgstr "Rejouer"
+
+msgid ""
+"The photos are larger than 30 MB together. Send fewer at a time, or smaller "
+"ones."
+msgstr ""
+"Les photos dépassent 30 Mo au total. Envoyez-en moins à la fois, ou de plus "
+"petites."

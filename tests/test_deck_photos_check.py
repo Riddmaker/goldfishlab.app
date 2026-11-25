@@ -154,12 +154,87 @@ def test_the_month_spent_is_refused_before_the_photos_are_read(signed_in, owner,
 
 
 def test_three_runs_a_day(signed_in, reads, pinned_window):
-    reads["give"] = mistral.MistralError("down")  # refunded, so only the day limit counts
+    reads["give"] = _reading()  # the model answered, nothing found: refunded, but a run
     url = reverse("decks:photos")
 
     codes = [signed_in.post(url, {"photos": [_photo()]}).status_code for _ in range(4)]
 
-    assert codes == [503, 503, 503, 429]
+    assert codes == [422, 422, 422, 429]
+    assert reads["photos"] == 1
+
+
+def test_a_model_that_is_down_costs_no_run_of_the_day(signed_in, reads, pinned_window):
+    reads["give"] = mistral.MistralError("down")
+    url = reverse("decks:photos")
+
+    codes = [signed_in.post(url, {"photos": [_photo()]}).status_code for _ in range(4)]
+
+    assert codes == [503, 503, 503, 503]
+
+
+def test_a_refused_photo_costs_no_run_of_the_day(signed_in, reads, pinned_window):
+    url = reverse("decks:photos")
+    bad = SimpleUploadedFile("x.jpg", b"not a picture", content_type="image/jpeg")
+
+    codes = [signed_in.post(url, {"photos": [bad]}).status_code for _ in range(4)]
+
+    assert codes == [400] * 4 and "photos" not in reads
+
+
+def test_more_than_the_ceiling_is_said_not_crashed(signed_in, monkeypatch, reads):
+    monkeypatch.setattr(photos, "MAX_TOTAL_BYTES", 2_000)
+    big = [_photo(f"{n}.jpg", size=(400, 400)) for n in range(3)]
+
+    response = signed_in.post(reverse("decks:photos"), {"photos": big, "consent": "yes"})
+
+    assert response.status_code == 413 and "photos" not in reads
+    assert "30 MB" in response.content.decode()
+
+
+def test_a_declared_length_past_the_ceiling_is_said_before_reading(signed_in, monkeypatch,
+                                                                    reads):
+    monkeypatch.setattr(photos, "too_large", lambda request: True)
+
+    response = signed_in.post(reverse("decks:photos"), {"photos": [_photo()]})
+
+    assert response.status_code == 413 and "photos" not in reads
+
+
+def test_no_run_is_spent_on_a_deck_that_could_not_be_kept(signed_in, owner, reads,
+                                                           monkeypatch):
+    real = quotas.check
+
+    def check(user, metric, *args, **kwargs):
+        if metric == quotas.DECKS_OWNED:
+            metric, kwargs["amount"] = UsageRecord.Metric.IMPORTS, 10_000
+        return real(user, metric, *args, **kwargs)
+    monkeypatch.setattr(quotas, "check", check)
+
+    response = signed_in.post(reverse("decks:photos"), {"photos": [_photo()]})
+
+    assert response.status_code == 402 and "photos" not in reads
+    assert quotas.check(owner, METRIC, raise_on_fail=False).used == 0
+
+
+def test_a_failure_after_the_reading_gives_the_run_back(signed_in, owner, reads, monkeypatch):
+    reads["give"] = _reading(("Blood Artist", "Blood Artist", 1))
+
+    def broken(*args):
+        raise RuntimeError("database gone")
+    monkeypatch.setattr(photos, "hold", broken)
+
+    with pytest.raises(RuntimeError):
+        signed_in.post(reverse("decks:photos"), {"photos": [_photo()]})
+    assert quotas.check(owner, METRIC, raise_on_fail=False).used == 0
+
+
+def test_a_photo_reading_is_not_a_file_to_map(signed_in, owner):
+    pending = PendingImport.objects.create(owner=owner, kind=PendingImport.Kind.PHOTOS,
+                                           text="{}", parser="photos")
+
+    response = signed_in.get(reverse("decks:map", args=[pending.pk]))
+
+    assert response.status_code == 404
 
 
 def test_the_upload_is_held_in_memory_however_large(signed_in, settings, monkeypatch, reads):

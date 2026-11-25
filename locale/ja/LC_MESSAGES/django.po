@@ -16050,3 +16050,8 @@ msgstr "自分のデッキを一人回しする"
 
 msgid "Play again"
 msgstr "もう一度遊ぶ"
+
+msgid ""
+"The photos are larger than 30 MB together. Send fewer at a time, or smaller "
+"ones."
+msgstr "写真の合計が30MBを超えています。一度に送る枚数を減らすか、小さい写真にしてください。"

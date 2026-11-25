@@ -165,3 +165,21 @@ def test_the_mode_is_read_off_the_prefix(settings, key, mode):
     settings.STRIPE_SECRET_KEY = key
 
     assert stripe_api.mode() == mode
+
+
+def test_the_price_is_asked_for_with_its_currency_options(settings, monkeypatch):
+    """Stripe leaves `currency_options` out unless it is expanded."""
+    import stripe as library
+
+    settings.STRIPE_SECRET_KEY = KEY
+    asked = {}
+
+    class Price:
+        @staticmethod
+        def retrieve(price_id, **params):
+            asked.update(params, id=price_id)
+            return library.StripeObject.construct_from({"id": price_id}, KEY)
+    monkeypatch.setattr(library, "Price", Price)
+
+    assert stripe_api.price("price_1") == {"id": "price_1"}
+    assert set(asked["expand"]) == {"product", "currency_options"}

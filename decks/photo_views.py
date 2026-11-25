@@ -19,7 +19,9 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext, gettext_noop, ngettext
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django_ratelimit.core import get_usage
 from django_ratelimit.decorators import ratelimit
+from django_ratelimit.exceptions import Ratelimited
 
 from billing import quotas
 from billing.models import UsageRecord
@@ -32,7 +34,10 @@ from simulations import mistral
 
 #: Runs a day per account, beside the month's allowance: ten photos are ten
 #: model calls, and a slip of the finger should not spend a month in an hour.
+#: Counted only for a run the model answered: a refused photo, a full month
+#: or the model being down costs the person nothing, not even a try.
 RUNS_PER_DAY = "3/d"
+RUNS_GROUP = "decks.photos.upload"
 #: Cards a search finds, and the most a list may add by hand.
 SEARCH_RESULTS = 12
 MAX_ADDED = 40
@@ -44,10 +49,21 @@ NOTHING_FOUND = gettext_noop("No card title could be read on these photos. Nothi
                              "the light, and try again.")
 
 NO_CONSENT = gettext_noop("Tick the box first: the photos are only sent once you agree.")
+TOO_LARGE = gettext_noop("The photos are larger than 30 MB together. Send fewer at a time, "
+                         "or smaller ones.")
 
 
 def _metric():
     return UsageRecord.Metric.PHOTO_IMPORTS
+
+
+def _runs_today(request, *, count: bool) -> bool:
+    """Is the day's limit reached? With `count`, this run is added first."""
+    usage = get_usage(request, group=RUNS_GROUP, key="user", rate=RUNS_PER_DAY,
+                      increment=count)
+    if usage is None:
+        return False
+    return usage["should_limit"] if count else usage["count"] >= usage["limit"]
 
 
 class PhotoUploadView(LoginRequiredMixin, View):
@@ -70,13 +86,16 @@ class PhotoUploadView(LoginRequiredMixin, View):
     def get(self, request):
         return self.page(request)
 
-    @method_decorator(ratelimit(key="user", rate=RUNS_PER_DAY, method="POST"))
     def post(self, request):
+        if photos.too_large(request):
+            return self.page(request, gettext(TOO_LARGE), status=413)
         request.upload_handlers = [photos.MemoryOnlyUploadHandler(request)]
         return csrf_protect(self.upload)(request)
 
     def upload(self, request):
         files = request.FILES.getlist("photos")
+        if request.upload_handlers[0].stopped:
+            return self.page(request, gettext(TOO_LARGE), status=413)
         if not files:
             return self.page(request, gettext("Choose at least one photo."), status=400)
         if len(files) > photos.MAX_PHOTOS:
@@ -87,11 +106,17 @@ class PhotoUploadView(LoginRequiredMixin, View):
         asked = request.user.photos_consent_since is None
         if asked and request.POST.get("consent") != "yes":
             return self.page(request, gettext(NO_CONSENT), status=400)
-        # Call site 7, before any work on the photos.
+        # Call site 7, before any work on the photos; and the two the deck
+        # will need when it is saved, so no run is spent on a deck that
+        # cannot be kept.
         try:
             quotas.check(request.user, _metric())
+            quotas.check(request.user, UsageRecord.Metric.IMPORTS)
+            quotas.check(request.user, quotas.DECKS_OWNED)
         except QuotaExceeded as exc:
             return upgrade_prompt(request, exc)
+        if _runs_today(request, count=False):
+            raise Ratelimited
         jpegs = []
         for number, upload in enumerate(files, start=1):
             try:
@@ -108,10 +133,19 @@ class PhotoUploadView(LoginRequiredMixin, View):
         except mistral.MistralError:
             quotas.refund(request.user, _metric())
             return self.page(request, gettext(NOT_READ), status=503)
+        except Exception:
+            quotas.refund(request.user, _metric())
+            raise
+        _runs_today(request, count=True)
         if not reading.found_any:
             quotas.refund(request.user, _metric())
             return self.page(request, gettext(NOTHING_FOUND), status=422)
-        return redirect(photos.hold(request.user, reading).get_absolute_url())
+        try:
+            held = photos.hold(request.user, reading)
+        except Exception:
+            quotas.refund(request.user, _metric())
+            raise
+        return redirect(held.get_absolute_url())
 
     def page(self, request, error="", status=200):
         decision = quotas.check(request.user, _metric(), raise_on_fail=False)

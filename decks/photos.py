@@ -57,6 +57,10 @@ MAX_TOTAL_BYTES = 30 * 1024 * 1024
 #: Pillow's own bomb warning starts at about 89 million; a phone takes 12 to
 #: 50 million. More than this is not a photo of cards.
 MAX_PIXELS = 60_000_000
+#: A PNG or WebP is decoded at full size (only a JPEG shrinks while it
+#: decodes), at four bytes a pixel: 16 million is 64 MB at the peak, which a
+#: web worker can carry; 60 million would not be.
+MAX_PIXELS_DECODED_WHOLE = 16_000_000
 FORMATS = frozenset({"JPEG", "PNG", "WEBP"})
 #: The long edge sent to the model. On synthetic photos (2026-11-25) Small
 #: read every title of nine cards in a grid at this size.
@@ -87,22 +91,36 @@ class MemoryOnlyUploadHandler(MemoryFileUploadHandler):
     Django's in-memory handler takes a file only below
     `FILE_UPLOAD_MAX_MEMORY_SIZE` and leaves the rest to the temporary-file
     handler; installed alone, this one takes every file and stops the whole
-    request once `MAX_TOTAL_BYTES` have come in.
+    request once `MAX_TOTAL_BYTES` have come in, saying so in `stopped`: Django
+    then hands over only the files that were complete, and the view must not
+    read those as if they were all.
+
+    A declared length past the ceiling is the view's to refuse (`too_large`),
+    before the body is touched: raised from `handle_raw_input`, the stop is
+    not caught by Django's parser, and the person would see a 500.
     """
+
+    stopped = False
 
     def handle_raw_input(self, input_data, META, content_length, boundary, encoding=None):
         self.received = 0
         self.activated = True
-        # A declared length past the ceiling is refused before a byte is
-        # read; an absent one is counted chunk by chunk below.
-        if content_length and content_length > MAX_TOTAL_BYTES + 64 * 1024:
-            raise StopUpload(connection_reset=True)
 
     def receive_data_chunk(self, raw_data, start):
         self.received += len(raw_data)
         if self.received > MAX_TOTAL_BYTES:
+            self.stopped = True
             raise StopUpload(connection_reset=True)
         return super().receive_data_chunk(raw_data, start)
+
+
+def too_large(request) -> bool:
+    """Does the request declare more than an upload may carry?"""
+    try:
+        declared = int(request.META.get("CONTENT_LENGTH") or 0)
+    except ValueError:
+        return False
+    return declared > MAX_TOTAL_BYTES + 64 * 1024
 
 
 def prepare(upload) -> bytes:
@@ -119,18 +137,25 @@ def prepare(upload) -> bytes:
             if image.format not in FORMATS:
                 raise PhotoRefused(_("Only JPEG, PNG and WebP photos can be read."))
             width, height = image.size
-            if width * height > MAX_PIXELS:
+            ceiling = MAX_PIXELS if image.format == "JPEG" else MAX_PIXELS_DECODED_WHOLE
+            if width * height > ceiling:
                 raise PhotoRefused(_("This photo has too many pixels to be a photo of cards."))
             # A JPEG decodes straight at a fraction of its size: a 12
-            # megapixel photo never takes its full 36 MB in memory.
+            # megapixel photo never takes its full 36 MB in memory. Shrunk
+            # in place before it is turned or converted, so no full-size copy
+            # is ever made; the box is square, so turning after is the same.
             image.draft("RGB", (EDGE, EDGE))
+            image.thumbnail((EDGE, EDGE))
             picture = ImageOps.exif_transpose(image).convert("RGB")
     except (UnidentifiedImageError, OSError, SyntaxError, Image.DecompressionBombError):
         raise PhotoRefused(_("This file is not a photo that can be read.")) from None
-    picture.thumbnail((EDGE, EDGE))
     out = io.BytesIO()
     picture.save(out, "JPEG", quality=JPEG_QUALITY)
     return out.getvalue()
+
+
+def _one_line(text: str) -> str:
+    return " ".join("".join(ch if ch.isprintable() else " " for ch in text).split())
 
 
 def messages(jpeg: bytes) -> list[dict]:
@@ -163,11 +188,13 @@ def parse(content: str) -> list[Seen]:
     for item in cards[:CARDS_MAX]:
         if not isinstance(item, dict) or not isinstance(item.get("name"), str):
             continue
-        name = item["name"].strip()[:NAME_MAX]
+        # One line, no control characters: the name ends up as a line of
+        # the deck list, and a newline in it would add cards nobody saw.
+        name = _one_line(item["name"])[:NAME_MAX]
         if not name:
             continue
         printed = item.get("printed")
-        printed = printed.strip()[:NAME_MAX] if isinstance(printed, str) else ""
+        printed = _one_line(printed)[:NAME_MAX] if isinstance(printed, str) else ""
         count = item.get("count")
         count = min(max(count, 1), COUNT_MAX) if isinstance(count, int) else 1
         seen.append(Seen(name, printed, count))
@@ -269,8 +296,10 @@ def _merge(report: resolve.ResolutionReport) -> resolve.ResolutionReport:
             merged[key].row.quantity += resolution.row.quantity
         else:
             merged[key] = resolution
+    # A card seen on two photos is one card; so is a name nobody could
+    # resolve, which is far likelier a singleton than a basic land.
     for resolution in merged.values():
-        if resolution.card is not None and not unlimited(resolution.card):
+        if resolution.card is None or not unlimited(resolution.card):
             resolution.row.quantity = 1
     return resolve.ResolutionReport(list(merged.values()))
 

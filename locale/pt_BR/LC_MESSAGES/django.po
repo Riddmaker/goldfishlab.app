@@ -18095,3 +18095,8 @@ msgstr "Faça goldfish com o seu deck"
 
 msgid "Play again"
 msgstr "Jogar de novo"
+
+msgid ""
+"The photos are larger than 30 MB together. Send fewer at a time, or smaller "
+"ones."
+msgstr "As fotos passam de 30 MB juntas. Envie menos de cada vez, ou menores."

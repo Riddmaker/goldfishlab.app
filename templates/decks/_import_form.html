@@ -2,6 +2,8 @@
   The upload form, shared by the importer, the guest trial and the home page
   (phase 9 G). `action` is where it posts (default: this page), `submit_label`
   the button's word. Needs `form`, an ImportForm, and js/import.js in the page.
+  `compact` (the home page, B-12): a low drop zone, one line of hint and
+  "More" beside the button, so the ticker below shows without scrolling.
 
   After a refused upload (P20 F6b, E1.40, E1.74): the field with the first
   error takes the focus (`ImportForm.focus`, `autofocus`), is `aria-invalid`
@@ -17,7 +19,7 @@
   which is what the form reads - not whichever box happens to be filled.
 {% endcomment %}
 {% load i18n %}
-<form method="post"{% if action %} action="{{ action }}"{% endif %} enctype="multipart/form-data" class="import-form">
+<form method="post"{% if action %} action="{{ action }}"{% endif %} enctype="multipart/form-data" class="import-form{% if compact %} import-compact{% endif %}">
   {% csrf_token %}
   {% if form.non_field_errors %}
     <ul class="errorlist" role="alert">
@@ -71,6 +73,9 @@
         <p class="dropzone-name" data-dropzone-name></p>
       </div>
     </div>
+    {% if compact %}
+      <p id="dropzone-hint" class="mt-2 text-sm text-ink-700">{% translate "Your export from Archidekt, Moxfield, ManaBox & co. – file or text." %}</p>
+    {% else %}
     <p id="dropzone-hint" class="mt-2 text-sm text-ink-700">
       {% blocktranslate trimmed %}
         Only the card names are needed. Quantities, set codes and collector numbers work too
@@ -78,6 +83,7 @@
       {% endblocktranslate %}
       {% translate "Card names in English - only basic lands also work in other languages." %}
     </p>
+    {% endif %}
   </div>
   <div class="import-panel-paste form-field">
     <label for="{{ form.text.id_for_label }}" class="sr-only">{{ form.text.label }}</label>
@@ -100,6 +106,7 @@
     export goes into the fields above. Deck page v2, PR A: one "More" holds
     the guides and the name and format, so the box ends sooner.
   {% endcomment %}
+  <div class="import-foot">
   <details class="mt-4 text-ink-900" data-export-guides
            {% if form.name.errors or form.format.errors %}open{% endif %}>
     <summary class="cursor-pointer text-sm text-ink-700">{% translate "More" %}</summary>
@@ -133,4 +140,5 @@
           class="mt-4 border border-blood-800 bg-blood-700 px-6 py-2.5 font-display text-lg text-parchment-100 hover:bg-blood-800">
     {{ submit_label }}
   </button>
+  </div>
 </form>

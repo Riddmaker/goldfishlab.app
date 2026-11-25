@@ -670,6 +670,44 @@ body {
   display: none;
 }
 
+/* The home page's importer (B-12): the drop zone one row high, "More" and
+ * the button side by side, so "What others did recently" shows on a laptop
+ * screen without scrolling. The import page keeps the full box. */
+.import-compact .dropzone-face {
+  flex-flow: row wrap;
+  justify-content: center;
+  column-gap: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.import-compact .dropzone-face svg {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 0;
+}
+
+.import-compact .dropzone-title {
+  font-size: 1.25rem;
+}
+
+.import-compact .dropzone-name {
+  flex-basis: 100%;
+  margin-top: 0;
+}
+
+.import-compact .import-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  column-gap: 1rem;
+}
+
+.import-compact .import-foot details {
+  flex: 1 1 12rem;
+  margin-top: 1.9rem;
+}
+
 /* Draw statistics (Phase 9 E): the "What you drew" charts on a run's report.
  *
  * Switched with no JavaScript, in the same way as the import tabs above: each
@@ -2801,6 +2839,19 @@ button.home-flask {
   .logo-home {
     width: 8.5rem;
     height: 8.5rem;
+  }
+}
+
+/* A short laptop screen (B-12): the flask steps down, so the ticker under
+ * the importer still shows without scrolling. */
+@media (min-width: 640px) and (max-height: 840px) {
+  .logo-home {
+    width: 5.5rem;
+    height: 5.5rem;
+  }
+
+  .home-hero {
+    gap: 0.875rem;
   }
 }
 

@@ -219,7 +219,7 @@ class Fun:
         return "en" if self.pop and not (get_language() or "en").startswith("en") else ""
 
 
-#: The ten fun lines, each with its drawing core/icons/fun-<name>.svg.
+#: The fourteen fun lines, each with its drawing core/icons/fun-<name>.svg.
 FUN_LINES = (
     Fun("base", "All your base are belong to us.", pop=True),
     Fun("hello", "Hello, World!", pop=True),
@@ -231,6 +231,10 @@ FUN_LINES = (
     Fun("shuffle", gettext_noop("Shuffling very carefully. Again.")),
     Fun("tapped", gettext_noop("Tapped out. Emotionally and literally.")),
     Fun("variance", gettext_noop("Thousands of turns, zero opponents, still lost to variance.")),
+    Fun("cake", "The cake is a lie.", pop=True),
+    Fun("restart", "Have you tried turning it off and on again?", pop=True),
+    Fun("sol-ring", gettext_noop("Sol Ring, turn one. Of course.")),
+    Fun("topdeck", gettext_noop("Top-decked a land. Again.")),
 )
 
 

@@ -270,7 +270,7 @@ def test_every_line_has_a_drawn_symbol():
     assert set(ticker.ICONS) == kinds
     assert set(ticker.ICONS.values()) <= icons.NAMES
     assert {line.icon for line in ticker.FUN_LINES} <= icons.NAMES
-    assert len(ticker.FUN_LINES) == 10
+    assert len(ticker.FUN_LINES) == 14
 
 
 def test_a_fun_line_belongs_to_nobody():

@@ -43,10 +43,10 @@
       <div id="import" class="surface-parchment mt-2 w-full p-4 sm:p-5 text-left shadow-xl shadow-ink-950/50" data-home-import>
         {% if user.is_authenticated %}
           {% url 'decks:import' as import_url %}
-          {% include "decks/_import_form.html" with action=import_url submit_label=_("Import") %}
+          {% include "decks/_import_form.html" with action=import_url submit_label=_("Import") compact=True %}
         {% else %}
           {% url 'guests:try' as try_url %}
-          {% include "decks/_import_form.html" with action=try_url submit_label=_("Simulate it") %}
+          {% include "decks/_import_form.html" with action=try_url submit_label=_("Simulate it") compact=True %}
         {% endif %}
       </div>
       {% if user.is_authenticated %}
@@ -54,7 +54,7 @@
            class="text-parchment-200 underline hover:text-parchment-50">{% translate "Your decks" %}</a>
       {% else %}
         <p class="text-ink-300">
-          {% translate "No account needed. Archidekt, Moxfield, ManaBox and plain text all work." %}
+          {% translate "No account needed." %}
           <a href="{% url 'account_signup' %}"
              class="whitespace-nowrap text-parchment-200 underline hover:text-parchment-50">{% translate "Create a free account" %}</a>
         </p>
@@ -66,7 +66,7 @@
     eight lines at a time from a loop of the last forty. "Pause" shows only
     with its script, since without it nothing moves.
   {% endcomment %}
-  <section data-ticker class="ticker-band mt-10" aria-labelledby="ticker-title">
+  <section data-ticker class="ticker-band mt-6" aria-labelledby="ticker-title">
     <div class="flex items-baseline justify-between gap-4">
       <h2 id="ticker-title" class="font-display text-xl text-ink-300">{% translate "What others did recently" %}</h2>
       <button type="button"

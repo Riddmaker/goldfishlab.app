@@ -17332,3 +17332,19 @@ msgstr "Cochez au moins une carte à retirer ou à ajouter."
 #: decks/forms.py
 msgid "Too many changes for one version."
 msgstr "Trop de changements pour une version."
+
+#: templates/decks/_import_form.html
+msgid "Your export from Archidekt, Moxfield, ManaBox & co. – file or text."
+msgstr "Votre export d'Archidekt, Moxfield, ManaBox & co. – fichier ou texte."
+
+#: templates/core/home.html
+msgid "No account needed."
+msgstr "Aucun compte nécessaire."
+
+#: core/ticker.py
+msgid "Sol Ring, turn one. Of course."
+msgstr "Sol Ring au tour un. Évidemment."
+
+#: core/ticker.py
+msgid "Top-decked a land. Again."
+msgstr "Encore un terrain en haut de la pioche."

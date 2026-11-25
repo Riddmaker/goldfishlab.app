@@ -116,6 +116,10 @@ SYMBOLS = [
     ("fun-tapped", "Tapped out. Emotionally and literally.", "A tapped card, asleep."),
     ("fun-variance", "Thousands of turns, zero opponents, still lost to variance.",
      "The die rolls."),
+    ("fun-cake", "The cake is a lie.", "A cake, and the flame flickers."),
+    ("fun-restart", "Have you tried turning it off and on again?", "The power sign pulses."),
+    ("fun-sol-ring", "Sol Ring, turn one. Of course.", "A ring, and a star twinkles."),
+    ("fun-topdeck", "Top-decked a land. Again.", "The top card lifts: a land."),
 ]
 
 DO = [

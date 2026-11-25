@@ -2,8 +2,9 @@
 
 In order down the page: the big flask with the fish (tests/test_fish.py),
 the heading, the importer on parchment, the ticker band (tests/test_ticker.py),
-two tiles of what you get and the links. The tiles are information, not
-links - the way in is the form - and each carries its symbol.
+two tiles of what you get and the links. The importer is compact (B-12).
+The tiles are information, not links - the way in is the form - and each
+carries its symbol.
 """
 
 import re
@@ -107,3 +108,28 @@ def test_the_tank_in_german(client, settings):
     assert "Poke the goldfish" not in body
     assert "in the tank" not in body
     assert "thousands of games: lands" not in body
+
+
+HINT = "Your export from Archidekt, Moxfield, ManaBox & co. – file or text."
+
+
+def test_the_home_importer_is_compact_with_one_line_of_hint(client):
+    """B-12: a low box, so the ticker shows without scrolling on a laptop."""
+    body = _home(client)
+    form = body[body.index("data-home-import"):body.index("</form>")]
+
+    assert "import-compact" in form
+    assert HINT in form
+    assert "Only the card names are needed" not in form
+    assert form.index("data-export-guides") < form.index('type="submit"')
+    assert "import-foot" in form
+
+
+def test_the_import_page_keeps_the_full_box(client, django_user_model):
+    member = django_user_model.objects.create_user(email="i@example.com", password="pw-x-1234")
+    client.force_login(member)
+    body = client.get(reverse("decks:import")).content.decode()
+
+    assert "import-compact" not in body
+    assert HINT not in body
+    assert "Only the card names are needed" in body

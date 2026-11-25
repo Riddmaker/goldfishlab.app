@@ -15932,3 +15932,121 @@ msgstr ""
 "に<strong>そのカードと、組み合わせられる最大8枚のカードのルール文</strong>を送信し、あなたに関する情報は送りません。写真からデッキを読み取るときは、あなたが同意した後にのみ、<strong>縮小し、カメラが書き込む情報（撮影場所や機器など）を取り除いた各写真</strong>を"
 " Mistral "
 "に送信してカード名を読み取ります。写真は一切保存しません。カードだけを撮影してください。写真に写った人物や書類も一緒に送信されてしまいます。上記と同じ条件が適用されます。"
+
+msgid "A deck box with a goldfish sticker"
+msgstr "金魚のステッカーが貼られたデッキケース"
+
+msgid "A pack of sleeves"
+msgstr "スリーブ1パック"
+
+msgid "The shop floor"
+msgstr "店内"
+
+msgid "The door"
+msgstr "ドア"
+
+msgid "Outside it is dark already. Inside, table three is waiting."
+msgstr "外はもう暗くなっています。店内では3番テーブルが待っています。"
+
+msgid ""
+"The street, and the evening coming. You came in for a reason: Friday "
+"Commander starts at seven, and your deck is not ready."
+msgstr "通りには夕暮れが迫っています。ここに来たのには理由があります。金曜の統率者戦は7時から。なのに、あなたのデッキはまだ準備ができていません。"
+
+msgid "The wall of boosters"
+msgstr "ブースターの棚"
+
+msgid ""
+"Boosters up to the ceiling, every set of the last years. Not tonight: you "
+"came for sleeves."
+msgstr "天井までブースターが積まれています。ここ数年のセットが全部そろっています。でも今夜は違います。スリーブを買いに来たのです。"
+
+msgid "The notice board"
+msgstr "掲示板"
+
+msgid ""
+"“Friday Commander, 7 pm. Bring a deck, bring snacks, bring a friend.” Below "
+"it, someone looking for a fourth player since March."
+msgstr ""
+"「金曜統率者戦、19時から。デッキとお菓子と友達を連れてきてください。」その下には、3月からずっと4人目のプレイヤーを探している貼り紙があります。"
+
+msgid "The glass case of singles"
+msgstr "シングルカードのショーケース"
+
+msgid ""
+"Singles under glass, sorted by colour. Your deck needs nothing from here "
+"tonight, which is a first."
+msgstr "ガラスの下に、色ごとに並んだシングルカード。今夜はあなたのデッキに必要なものがここにありません。初めてのことです。"
+
+msgid "The shopkeeper at the counter"
+msgstr "カウンターの店主"
+
+msgid ""
+"“That's Sam's deck box! He has been looking for it all week. Here - the last"
+" pack of sleeves, from the back. On the house.”"
+msgstr "「それはサムのデッキケースです！一週間ずっと探していたんです。どうぞ、奥にあった最後のスリーブです。お代は結構です。」"
+
+msgid "“Table three is free. Have a good game.”"
+msgstr "「3番テーブルが空いています。楽しんでくださいね。」"
+
+msgid ""
+"“Evening! Sleeves? The shelf is empty, sorry. I might have a pack in the "
+"back… Oh, and if you see a deck box lying about at the tables: someone is "
+"missing one.”"
+msgstr ""
+"「いらっしゃいませ！スリーブですか？棚は空っぽで、すみません。奥にひとつ残っているかも…。あ、テーブルのあたりでデッキケースを見かけたら教えてください。なくした人がいるんです。」"
+
+msgid "The play tables"
+msgstr "プレイテーブル"
+
+msgid ""
+"You sit down at table three, sleeve the deck and shuffle. It plays well - as"
+" far as anyone can tell before playing it."
+msgstr "3番テーブルに座り、デッキにスリーブをつけてシャッフルします。よく回りそうです。実際に遊ぶ前にわかる範囲では、ですが。"
+
+msgid ""
+"Under a chair: a deck box with a goldfish sticker on it. You pick it up."
+msgstr "椅子の下に、金魚のステッカーが貼られたデッキケースがあります。拾い上げました。"
+
+msgid "Table three. Your deck, sleeved, shuffled."
+msgstr "3番テーブル。スリーブをつけてシャッフルしたあなたのデッキがあります。"
+
+msgid ""
+"The tables fill up at seven. Table three is free, but not with a deck in "
+"bare cards."
+msgstr "7時になるとテーブルは埋まります。3番テーブルは空いていますが、スリーブなしのデッキでは座れません。"
+
+msgid "A door has opened behind the flask. Go in?"
+msgstr "フラスコの後ろに扉が開きました。入ってみますか？"
+
+msgid "A small game in a card shop, an evening before Friday Commander."
+msgstr "金曜統率者戦の前の夕方、カードショップでの小さなゲームです。"
+
+msgid "A card shop, made up. Friday, a quarter to seven."
+msgstr "架空のカードショップ。金曜日、6時45分。"
+
+msgid "The shop needs JavaScript to be played."
+msgstr "このゲームを遊ぶには JavaScript が必要です。"
+
+msgid ""
+"You step in from the street. It smells of cardboard and coffee. Look around:"
+" everything here can be looked at or used."
+msgstr "通りから店に入ります。段ボールとコーヒーの匂いがします。見回してみてください。ここにあるものは何でも調べたり使ったりできます。"
+
+msgid "Look at"
+msgstr "調べる"
+
+msgid "You carry"
+msgstr "持ち物"
+
+msgid "Your deck, in bare cards."
+msgstr "スリーブなしのデッキ。"
+
+msgid "The end - for tonight."
+msgstr "今夜はここまで。"
+
+msgid "Goldfish your own deck"
+msgstr "自分のデッキを一人回しする"
+
+msgid "Play again"
+msgstr "もう一度遊ぶ"

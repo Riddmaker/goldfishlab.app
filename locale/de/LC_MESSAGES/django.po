@@ -18152,3 +18152,141 @@ msgstr ""
 "und Gerät)</strong>, um die Kartentitel zu lesen. Wir bewahren kein Foto "
 "auf. Fotografiere nur Karten: Eine Person oder ein Papier im Bild würde "
 "mitgeschickt. Es gelten dieselben Bedingungen wie oben."
+
+msgid "A deck box with a goldfish sticker"
+msgstr "Eine Deckbox mit einem Goldfisch-Sticker"
+
+msgid "A pack of sleeves"
+msgstr "Eine Packung Hüllen"
+
+msgid "The shop floor"
+msgstr "Der Laden"
+
+msgid "The door"
+msgstr "Die Tür"
+
+msgid "Outside it is dark already. Inside, table three is waiting."
+msgstr "Draussen ist es schon dunkel. Drinnen wartet Tisch drei."
+
+msgid ""
+"The street, and the evening coming. You came in for a reason: Friday "
+"Commander starts at seven, and your deck is not ready."
+msgstr ""
+"Die Strasse, und der Abend kommt. Du bist aus einem Grund hier: Um sieben "
+"beginnt Friday Commander, und dein Deck ist nicht bereit."
+
+msgid "The wall of boosters"
+msgstr "Die Wand mit den Boostern"
+
+msgid ""
+"Boosters up to the ceiling, every set of the last years. Not tonight: you "
+"came for sleeves."
+msgstr ""
+"Booster bis unter die Decke, jedes Set der letzten Jahre. Heute nicht: Du "
+"bist wegen Hüllen hier."
+
+msgid "The notice board"
+msgstr "Das Anschlagbrett"
+
+msgid ""
+"“Friday Commander, 7 pm. Bring a deck, bring snacks, bring a friend.” Below "
+"it, someone looking for a fourth player since March."
+msgstr ""
+"«Friday Commander, 19 Uhr. Bring ein Deck mit, Snacks und einen Freund.» "
+"Darunter sucht jemand seit März einen vierten Spieler."
+
+msgid "The glass case of singles"
+msgstr "Die Vitrine mit den Einzelkarten"
+
+msgid ""
+"Singles under glass, sorted by colour. Your deck needs nothing from here "
+"tonight, which is a first."
+msgstr ""
+"Einzelkarten unter Glas, nach Farben sortiert. Dein Deck braucht heute "
+"nichts von hier, das ist eine Premiere."
+
+msgid "The shopkeeper at the counter"
+msgstr "Die Ladenbesitzerin an der Theke"
+
+msgid ""
+"“That's Sam's deck box! He has been looking for it all week. Here - the last"
+" pack of sleeves, from the back. On the house.”"
+msgstr ""
+"«Das ist Sams Deckbox! Er sucht sie schon die ganze Woche. Hier – die letzte"
+" Packung Hüllen, aus dem Lager. Geht aufs Haus.»"
+
+msgid "“Table three is free. Have a good game.”"
+msgstr "«Tisch drei ist frei. Gutes Spiel!»"
+
+msgid ""
+"“Evening! Sleeves? The shelf is empty, sorry. I might have a pack in the "
+"back… Oh, and if you see a deck box lying about at the tables: someone is "
+"missing one.”"
+msgstr ""
+"«Guten Abend! Hüllen? Das Regal ist leer, tut mir leid. Vielleicht habe ich "
+"hinten noch eine Packung … Ach, und falls du bei den Tischen eine Deckbox "
+"herumliegen siehst: Jemand vermisst eine.»"
+
+msgid "The play tables"
+msgstr "Die Spieltische"
+
+msgid ""
+"You sit down at table three, sleeve the deck and shuffle. It plays well - as"
+" far as anyone can tell before playing it."
+msgstr ""
+"Du setzt dich an Tisch drei, steckst das Deck in Hüllen und mischst. Es "
+"spielt sich gut – soweit man das vor dem Spielen sagen kann."
+
+msgid ""
+"Under a chair: a deck box with a goldfish sticker on it. You pick it up."
+msgstr ""
+"Unter einem Stuhl: eine Deckbox mit einem Goldfisch-Sticker. Du hebst sie "
+"auf."
+
+msgid "Table three. Your deck, sleeved, shuffled."
+msgstr "Tisch drei. Dein Deck, in Hüllen, gemischt."
+
+msgid ""
+"The tables fill up at seven. Table three is free, but not with a deck in "
+"bare cards."
+msgstr ""
+"Um sieben füllen sich die Tische. Tisch drei ist frei, aber nicht für ein "
+"Deck ohne Hüllen."
+
+msgid "A door has opened behind the flask. Go in?"
+msgstr "Hinter dem Kolben hat sich eine Tür geöffnet. Hineingehen?"
+
+msgid "A small game in a card shop, an evening before Friday Commander."
+msgstr ""
+"Ein kleines Spiel in einem Kartenladen, an einem Abend vor Friday Commander."
+
+msgid "A card shop, made up. Friday, a quarter to seven."
+msgstr "Ein Kartenladen, erfunden. Freitag, Viertel vor sieben."
+
+msgid "The shop needs JavaScript to be played."
+msgstr "Für den Laden braucht es JavaScript."
+
+msgid ""
+"You step in from the street. It smells of cardboard and coffee. Look around:"
+" everything here can be looked at or used."
+msgstr ""
+"Du kommst von der Strasse herein. Es riecht nach Karton und Kaffee. Schau "
+"dich um: Alles hier lässt sich anschauen oder benutzen."
+
+msgid "Look at"
+msgstr "Anschauen"
+
+msgid "You carry"
+msgstr "Du trägst"
+
+msgid "Your deck, in bare cards."
+msgstr "Dein Deck, ohne Hüllen."
+
+msgid "The end - for tonight."
+msgstr "Ende – für heute Abend."
+
+msgid "Goldfish your own deck"
+msgstr "Dein eigenes Deck goldfischen"
+
+msgid "Play again"
+msgstr "Nochmals spielen"

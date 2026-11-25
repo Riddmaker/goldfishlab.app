@@ -3263,6 +3263,68 @@ button.home-flask {
   cursor: pointer;
 }
 
+/* The door to the card shop (B-16), shown by fish.js after the third triple
+ * poke: a line, not a banner; the find is the point. */
+.home-shop-door {
+  margin-top: -0.75rem;
+  font-size: 0.9375rem;
+  color: var(--color-parchment-200);
+}
+
+/* The card shop (B-16, static/js/shop.js). The picture is 320 x 180 pixel
+ * art, scaled without smoothing; spots and props are placed in percent of it,
+ * so they stay on their things at every width. */
+.shop-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--color-ink-700);
+  background: var(--color-ink-900);
+}
+
+.shop-picture {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.shop-stage .shop-picture {
+  height: 100%;
+}
+
+.shop-prop {
+  position: absolute;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.shop-hotspot {
+  position: absolute;
+  border: 1px dashed transparent;
+  background: none;
+  cursor: pointer;
+}
+
+.shop-hotspot:hover {
+  border-color: var(--color-parchment-100);
+}
+
+.shop-spot {
+  border: 1px solid var(--color-ink-800);
+  padding: 0.25rem 0.625rem;
+  color: var(--color-ink-900);
+  background: var(--color-parchment-50);
+}
+
+.shop-spot:hover {
+  background: var(--color-parchment-200);
+}
+
+.shop-spot:focus-visible {
+  outline: 2px solid var(--color-blood-700);
+  outline-offset: 1px;
+}
+
 .home-tile {
   display: flex;
   flex-direction: column;

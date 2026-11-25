@@ -88,6 +88,7 @@ const out = cases.map(([kind, rolls, arg]) => {
   let i = 0;
   const random = () => rolls[i++ % rolls.length];
   if (kind === "poke") return fish.poke(rolls, arg);
+  if (kind === "door") return fish.doorOpens(arg);
   return kind === "wait" ? fish.nextWait(random, arg) : fish.nextMove(random, arg);
 });
 console.log(JSON.stringify({out, max: fish.MAX_IDLE_MOVES, triple: fish.TRIPLE_MS}));
@@ -159,3 +160,17 @@ def test_a_slow_poke_starts_the_count_again():
     assert answers[0] == {"pokes": [700, 1500], "triple": False}
     assert answers[1] == {"pokes": [2300], "triple": False}
     assert _run([])["triple"] == 1500
+
+
+def test_the_third_triple_poke_opens_the_shop_door_once():
+    answers = _run([["door", [], n] for n in (1, 2, 3, 4)])["out"]
+
+    assert answers == [False, False, True, False]
+
+
+def test_the_door_is_on_the_home_page_hidden_until_found(client, db):
+    body = client.get(reverse("home")).content.decode()
+
+    assert "data-shop-door" in body
+    assert body.split("data-shop-door", 1)[1].split(">", 1)[0].strip().endswith("hidden")
+    assert reverse("shop") in body

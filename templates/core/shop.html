@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static i18n %}
+{% block title %}{{ shop_name }} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "A small game in a card shop, an evening before Friday Commander." %}{% endblock %}
+{% block head %}
+  <script src="{% static 'js/shop.js' %}" defer></script>
+{% endblock %}
+{% block content %}
+  {% comment %}
+    B-16 (core.views.ShopView, core/shop.py, static/js/shop.js). The game is
+    the script's; without it the shop front and a sentence. The spots are
+    listed as buttons under the picture for the keyboard and screen readers;
+    the ones over the picture are for the mouse and the finger.
+  {% endcomment %}
+  <div class="max-w-4xl" data-shop>
+    <h1 class="font-display text-3xl text-parchment-100">{{ shop_name }}</h1>
+    <p class="mt-2 text-parchment-200">{% translate "A card shop, made up. Friday, a quarter to seven." %}</p>
+
+    <div class="mt-6" data-shop-nojs>
+      <img src="{% static 'img/shop/floor.svg' %}" alt="{% translate "The shop floor" %}" class="shop-picture" width="320" height="180">
+      <p class="mt-3 text-parchment-200">{% translate "The shop needs JavaScript to be played." %}</p>
+    </div>
+
+    <div class="mt-6" data-shop-game hidden>
+      <div class="shop-stage" data-shop-stage>
+        <img src="{% static 'img/shop/floor.svg' %}" alt="" class="shop-picture" width="320" height="180">
+      </div>
+      <div class="surface-parchment mt-4 p-5">
+        <p class="min-h-[3lh] text-ink-900" data-shop-line aria-live="polite"
+           data-intro="{% translate "You step in from the street. It smells of cardboard and coffee. Look around: everything here can be looked at or used." %}">
+          {% translate "You step in from the street. It smells of cardboard and coffee. Look around: everything here can be looked at or used." %}
+        </p>
+        <div class="mt-4 grid gap-4 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div>
+            <h2 class="font-display text-lg text-ink-900">{% translate "Look at" %}</h2>
+            <ul class="mt-2 flex flex-wrap gap-2" data-shop-spots></ul>
+          </div>
+          <div>
+            <h2 class="font-display text-lg text-ink-900">{% translate "You carry" %}</h2>
+            <ul class="mt-2 list-disc pl-5 text-ink-900" data-shop-items></ul>
+            <p class="mt-2 text-sm text-ink-700" data-shop-nothing>{% translate "Your deck, in bare cards." %}</p>
+          </div>
+        </div>
+        <div class="mt-5 border-t border-parchment-300 pt-4" data-shop-end hidden>
+          <p class="font-display text-lg text-ink-900">{% translate "The end - for tonight." %}</p>
+          <p class="mt-3 flex flex-wrap items-center gap-4">
+            <a href="{% url 'home' %}"
+               class="border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">{% translate "Goldfish your own deck" %}</a>
+            <button type="button" class="text-ink-900 underline" data-shop-again>{% translate "Play again" %}</button>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  {{ game|json_script:"shop-game" }}
+{% endblock %}

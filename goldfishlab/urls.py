@@ -21,6 +21,7 @@ from core.views import (
     PrivacyView,
     ResourcesView,
     RobotsView,
+    ShopView,
     StyleguideView,
     TermsView,
     TickerView,
@@ -104,6 +105,8 @@ urlpatterns += i18n_patterns(
     path("about/methodology/", MethodologyView.as_view(), name="methodology"),
     # Videos and sites worth knowing (Themen-Doc): links only, nothing embedded.
     path("about/resources/", ResourcesView.as_view(), name="resources"),
+    # B-16: the card shop, an Easter egg behind the goldfish on the home page.
+    path("shop/", ShopView.as_view(), name="shop"),
     # P11: every Commander precon, simulated - the pages a search finds.
     path("data/", include("datapages.urls")),
     # Outside /billing/, which is the account's own page and closed to guests.

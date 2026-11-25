@@ -35,6 +35,7 @@
   const MOVE_MS = 1800; // longer than every move in input.css (all under 2 s)
   const TRIPLE_MS = 1500;
   const HELLO_MS = 2000;
+  const DOOR_TRIPLES = 3;
   const INPUT = ["pointermove", "pointerdown", "scroll", "keydown", "touchstart", "wheel"];
 
   // Milliseconds until the next idle move.
@@ -60,8 +61,14 @@
     return counting.length >= 3 ? { pokes: [], triple: true } : { pokes: counting, triple: false };
   }
 
+  // The card shop (B-16) behind the flask: the third triple poke of a visit
+  // opens its door, once.
+  function doorOpens(triples) {
+    return triples === DOOR_TRIPLES;
+  }
+
   if (typeof module === "object" && module.exports) {
-    module.exports = { nextWait, nextMove, poke, MAX_IDLE_MOVES, TRIPLE_MS };
+    module.exports = { nextWait, nextMove, poke, doorOpens, MAX_IDLE_MOVES, TRIPLE_MS, DOOR_TRIPLES };
   }
   if (typeof document === "undefined") return;
 
@@ -85,6 +92,12 @@
     let idleMoves = 0;
     let previous;
     let pokes = [];
+    let triples = 0;
+
+    function openDoor() {
+      const door = document.querySelector("[data-shop-door]");
+      if (door) door.hidden = false;
+    }
 
     function play(...moves) {
       window.clearTimeout(playing);
@@ -114,12 +127,16 @@
     }
 
     flask.addEventListener("click", () => {
+      const result = poke(pokes, performance.now());
+      pokes = result.pokes;
+      if (result.triple) {
+        triples += 1;
+        if (doorOpens(triples)) openDoor();
+      }
       if (still.matches) {
         play("gaze");
         return;
       }
-      const result = poke(pokes, performance.now());
-      pokes = result.pokes;
       if (result.triple) play("jump");
       else play("tilt", "gaze");
     });

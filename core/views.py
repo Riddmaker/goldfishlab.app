@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
 
-from core import seo, ticker
+from core import seo, shop, ticker
 from core.tokens import color_families
 from decks.analysis import KARSTEN_MAX, KARSTEN_MIN
 from decks.forms import ImportForm
@@ -171,6 +171,17 @@ class PrivacyView(TemplateView):
     # (B-14) - the photos only with their own consent, asked on the upload,
     # so no new consent for the policy either.
     extra_context = {"updated": date(2026, 11, 25)}
+
+
+class ShopView(TemplateView):
+    """The card shop (B-16): a small point-and-click game, played in the
+    browser (static/js/shop.js) from the rooms in `core.shop`. Nothing is
+    sent back; what is carried lives in the tab's sessionStorage."""
+
+    template_name = "core/shop.html"
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs, game=shop.game(), shop_name=shop.SHOP_NAME)
 
 
 class ResourcesView(TemplateView):

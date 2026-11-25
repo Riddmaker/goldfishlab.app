@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n static icons cards_shown %}
+{% load i18n static icons cards_shown looks %}
 {% block title %}{% blocktranslate with name=deck.name %}Deck in hand: {{ name }}{% endblocktranslate %} — Goldfish Lab{% endblock %}
 {% block description %}{% translate "Your deck on the table: shuffle it, cut it, look at the top cards." %}{% endblock %}
 {% block head %}
@@ -51,7 +51,7 @@
   </div>
   <p class="sr-only" aria-live="polite" data-in-hand-said></p>
 
-  <section class="in-hand-table mt-6" aria-label="{% translate "The table" %}" data-in-hand>
+  <section class="in-hand-table mt-6" aria-label="{% translate "The table" %}" style="{% look_style deck %}" data-in-hand>
     {% if deck.commanders %}
       <div class="in-hand-zone">
         <h2 class="in-hand-label">{% translate "Command zone" %}</h2>

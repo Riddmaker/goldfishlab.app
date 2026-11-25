@@ -22,7 +22,7 @@
   while a request is in flight is dropped (a double click, phase 12 J30). The
   server locks the session as well, for the forms sent without JavaScript.
 {% endcomment %}
-{% load i18n l10n icons %}
+{% load i18n l10n icons looks %}
 <div id="board" class="space-y-4" hx-sync="this:drop">
 
   {% if board_messages %}
@@ -222,7 +222,7 @@
 
   <div class="board-layout">
     {# --- the table: commander, battlefield, stacks, and the hand at its edge --- #}
-    <section class="playtest-felt" aria-label="{% translate "Table" %}">
+    <section class="playtest-felt" aria-label="{% translate "Table" %}" style="{% look_style deck %}">
       <div class="playtest-table">
         <div class="playtest-side">
           {% for zone in commanders %}

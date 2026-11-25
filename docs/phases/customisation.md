@@ -35,7 +35,8 @@ Lockdown (ARCHITECTURE-SECURITY §8):
 |---|---|---|
 | 1 | Storage, model and upload pipeline: app `looks`, model `Look` (images, inner sleeve and seam with their colours), Pillow (new dependency): type from the content, re-encoded to WebP, EXIF gone, byte and pixel limits; the owner-only view; delete with the row and the account; in the data export | done |
 | 2 | The «Customisation» page: button with a new icon on the deck page, upload or pick a template (CSS only), colour suggestions, picker and hex/RGBA input, preview (sleeve in front, mat behind) | done |
-| 3 | Everywhere: free play, deck in hand, deck page, for the owner only (shared reports show the default); quotas per tier; one look per deck | open |
+| 3 | On the tables: free play and deck in hand wear the owner's look (nobody else sees it); a lost file falls back to the template | done |
+| 4 | Several looks: quotas per tier (free 1, paid 10), one look per deck (`Deck.look`), choosing it on the Customisation page | open, UI to agree with the owner |
 
 Not in: showing a look to others (needs moderation and a report path); custom card fronts; sponsored
 templates (B-20).
@@ -85,3 +86,17 @@ Per PR: ruff, djlint, full suite, browser check, translations, push to dev.
 - Browser (`land_light`, desktop + phone + without JS): 19 checks PASS, among them a JPEG mat and a
   PNG sleeve uploaded through the form and served back as WebP, an SVG-as-PNG refused at its field,
   `red; background:url(x)` refused, no sideways scroll at 390 px, reset back to the standard.
+
+## PR 3, findings
+
+- `{% look_style deck %}` (`looks/templatetags/looks.py`): the look's CSS variables for the deck's
+  owner, an empty string for anyone else or signed out. On `.playtest-felt` (free and strict play,
+  also after each htmx move) and on `.in-hand-table`.
+- CSS: the felt and the in-hand table take `--mat` (with the old gradient as fallback) and
+  `--mat-seam` as a dashed outline; the library (`.card-back`, `.in-hand-stack`, `.in-hand-pile`)
+  takes `--sleeve` and `--sleeve-inner` as an inset rim. Without a look nothing changes.
+- `looks/css.py` checks the file is really on the share; a lost file or a bad row falls back to the
+  standard template without a word (no backup of the share, by decision).
+- Deck page: no table there, so nothing to wear; the Customisation button is the way in.
+- Browser (`land_light`): 11 checks PASS, own mat, seam and sleeve on both tables, still there after
+  a move, standard before a look exists, no page errors.

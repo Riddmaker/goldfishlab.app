@@ -1949,8 +1949,10 @@ body {
   padding: 1rem 1.125rem 0;
   border: 1px solid var(--color-parchment-800);
   border-radius: 4px;
-  background-color: var(--color-ink-900);
-  background-image: radial-gradient(ellipse at 50% 40%, var(--color-ink-800) 0%, var(--color-ink-900) 70%);
+  /* A look (B-10) sets --mat and --mat-seam on this element. */
+  background: var(--mat, radial-gradient(ellipse at 50% 40%, var(--color-ink-800) 0%, var(--color-ink-900) 70%)), var(--color-ink-900);
+  outline: 2px dashed var(--mat-seam, transparent);
+  outline-offset: -0.5rem;
   box-shadow: inset 0 0 60px rgb(0 0 0 / 60%);
   color: var(--color-parchment-100);
 }
@@ -2166,10 +2168,11 @@ body {
   aspect-ratio: 488 / 680;
   border: 2px solid var(--color-parchment-600);
   border-radius: 0.25rem;
-  background: repeating-linear-gradient(45deg, var(--color-parchment-800) 0 6px, var(--color-parchment-900) 6px 12px);
-  box-shadow: 2px 2px 0 var(--color-parchment-900), 4px 4px 0 var(--color-ink-950);
+  background: var(--sleeve, repeating-linear-gradient(45deg, var(--color-parchment-800) 0 6px, var(--color-parchment-900) 6px 12px));
+  box-shadow: inset 0 0 0 0.2rem var(--sleeve-inner, transparent), 2px 2px 0 var(--color-parchment-900), 4px 4px 0 var(--color-ink-950);
   color: var(--color-parchment-100);
   font-size: 1.25rem;
+  text-shadow: 0 0 0.25rem var(--color-ink-950);
 }
 
 /* The deck in your hand (B-11). The table is a mat and the library a stack
@@ -2187,7 +2190,9 @@ body {
   padding: 1.5rem;
   border: 1px solid var(--color-parchment-800);
   border-radius: 0.75rem;
-  background: var(--mat);
+  background: var(--mat), var(--color-ink-950);
+  outline: 2px dashed var(--mat-seam, transparent);
+  outline-offset: -0.6rem;
 }
 
 .in-hand-zone { min-width: 0; }
@@ -2218,6 +2223,7 @@ body {
   transform: translateY(var(--lift, 0)) rotateX(var(--tilt, 28deg)) rotateZ(-6deg) rotateY(var(--turn, 0deg));
   /* The edges of the cards under it, five steps down to the table. */
   box-shadow:
+    inset 0 0 0 0.3rem var(--sleeve-inner, transparent),
     0 calc(var(--thick) * 0.2) 0 var(--color-parchment-200),
     0 calc(var(--thick) * 0.4) 0 var(--color-parchment-400),
     0 calc(var(--thick) * 0.6) 0 var(--color-parchment-200),
@@ -2281,7 +2287,7 @@ body {
   color: var(--color-parchment-100);
   font-size: 0.875rem;
   text-shadow: 0 0 0.25rem var(--color-ink-950);
-  box-shadow: 0 var(--thick) 0 var(--color-parchment-300);
+  box-shadow: inset 0 0 0 0.15rem var(--sleeve-inner, transparent), 0 var(--thick) 0 var(--color-parchment-300);
 }
 .in-hand-picked {
   display: flex;

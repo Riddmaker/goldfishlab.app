@@ -100,6 +100,7 @@ def export(user) -> dict:
             "changelog_mail_since": user.changelog_mail_since,
             "news_mail": user.news_mail,
             "news_mail_since": user.news_mail_since,
+            "photos_consent_since": user.photos_consent_since,
         },
         "exported_at": _now(),
         # Named in the file itself, because a person who opens an export and

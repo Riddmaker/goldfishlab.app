@@ -118,6 +118,11 @@
               <td class="py-2 align-top">{% translate "Until you change them, go back to the standard look, or delete the account" %}</td>
             </tr>
             <tr class="border-b border-ink-200">
+              <td class="py-2 pr-4 align-top">{% translate "Photos of your cards, to read a deck from them; when you agreed to send them" %}</td>
+              <td class="py-2 pr-4 align-top">{% translate "To read the card titles on them (your consent, Art. 6(1)(a), asked once before the first photos go)" %}</td>
+              <td class="py-2 align-top">{% translate "The photos are never kept: made small, read and dropped in the same request. The card names read wait 7 days for you to check them. When you agreed: until you delete the account" %}</td>
+            </tr>
+            <tr class="border-b border-ink-200">
               <td class="py-2 pr-4 align-top">{% translate "Simulation runs and their results" %}</td>
               <td class="py-2 pr-4 align-top">{% translate "So a result is still there when you come back to it (contract)" %}</td>
               <td class="py-2 align-top">{% translate "Until you delete the deck or the account" %}</td>
@@ -335,7 +340,7 @@
             not your IP address.
           {% endblocktranslate %}
         </li>
-        <li>
+        <li id="mistral">
           •
           {% blocktranslate trimmed %}
             <strong>Mistral AI</strong> (Mistral AI SAS, Paris, France) - writes
@@ -351,6 +356,20 @@
             summaries off under Settings on "Your plan", and then nothing is
             sent.
             <a href="https://legal.mistral.ai/terms" class="underline hover:text-ink-700" rel="noopener">Mistral's terms</a>.
+          {% endblocktranslate %}
+        </li>
+        <li>
+          •
+          {% blocktranslate trimmed %}
+            <strong>Mistral AI</strong>, also - when you press "Ask the AI" about a
+            card, our server sends Mistral <strong>the rules text of that card and
+            of at most eight cards it could work with</strong>, and nothing about
+            you. When you read a deck from photos, and only after you agree to it,
+            our server sends Mistral <strong>each photo, made small and stripped of
+            what a camera writes into it (such as the place and the device)</strong>,
+            to read the card titles. We keep no photo. Photograph only cards: a
+            person or a paper in the picture would be sent too. The same terms
+            apply as above.
           {% endblocktranslate %}
         </li>
         {% if source_code_url %}

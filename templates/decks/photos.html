@@ -64,6 +64,17 @@
               dropped: they are never stored. Photograph only cards - no people, no papers.
             {% endblocktranslate %}
           </p>
+          {% if ask_consent %}
+            <label class="mt-4 flex items-baseline gap-2 text-ink-900" data-photos-consent>
+              <input type="checkbox" name="consent" value="yes" required>
+              <span>
+                {% blocktranslate trimmed %}
+                  I agree that my photos are sent to Mistral AI in the EU to read the card titles.
+                {% endblocktranslate %}
+                <a href="{% url 'privacy' %}#mistral" class="underline">{% translate "Privacy policy" %}</a>
+              </span>
+            </label>
+          {% endif %}
           <div class="mt-6 flex flex-wrap items-center gap-4">
             <button type="submit" class="border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800" data-photo-submit
                     data-busy="{% translate "Reading the photos…" %}">{% translate "Read the photos" %}</button>

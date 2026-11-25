@@ -20,6 +20,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
+from django.utils import timezone
 from PIL import Image
 
 from billing import quotas
@@ -37,7 +38,9 @@ METRIC = UsageRecord.Metric.PHOTO_IMPORTS
 
 @pytest.fixture
 def owner(catalogue):
-    return get_user_model().objects.create_user(email="photos@example.com", password=PASSWORD)
+    """An account that has agreed to send photos; `test_consent_*` start without."""
+    return get_user_model().objects.create_user(
+        email="photos@example.com", password=PASSWORD, photos_consent_since=timezone.now())
 
 
 @pytest.fixture
@@ -340,3 +343,59 @@ def test_the_refusal_says_what_ran_out():
 
     assert refusal(exc) == "You have read 5 of 5 decks from photos this month."
     assert refusal(guest) == "Reading a deck from photos needs an account."
+
+
+# --- PR 3: consent --------------------------------------------------------------
+
+
+@pytest.fixture
+def unasked(owner):
+    owner.photos_consent_since = None
+    owner.save(update_fields=["photos_consent_since"])
+    return owner
+
+
+def test_consent_is_asked_until_given(signed_in, unasked):
+    page = signed_in.get(reverse("decks:photos")).content.decode()
+    assert "data-photos-consent" in page
+    assert 'name="consent"' in page and "required" in page
+
+
+def test_consent_missing_sends_nothing_and_counts_nothing(signed_in, unasked, reads):
+    reads["give"] = _reading(("Sol Ring", "", 1))
+    response = signed_in.post(reverse("decks:photos"), {"photos": [_photo()]})
+    assert response.status_code == 400
+    assert "Tick the box first" in response.content.decode()
+    assert "photos" not in reads  # the model was never asked
+    assert quotas.used(unasked, METRIC) == 0
+    unasked.refresh_from_db()
+    assert unasked.photos_consent_since is None
+
+
+def test_consent_given_is_kept_and_not_asked_again(signed_in, unasked, reads):
+    reads["give"] = _reading(("Sol Ring", "", 1))
+    response = signed_in.post(reverse("decks:photos"), {"photos": [_photo()], "consent": "yes"})
+    assert response.status_code == 302
+    unasked.refresh_from_db()
+    assert unasked.photos_consent_since is not None
+    assert "data-photos-consent" not in signed_in.get(reverse("decks:photos")).content.decode()
+
+
+def test_consent_is_not_kept_for_a_photo_refused(signed_in, unasked, reads):
+    bad = SimpleUploadedFile("notes.jpg", b"not a picture", content_type="image/jpeg")
+    response = signed_in.post(reverse("decks:photos"), {"photos": [bad], "consent": "yes"})
+    assert response.status_code == 400
+    unasked.refresh_from_db()
+    assert unasked.photos_consent_since is None
+
+
+def test_consent_is_in_the_data_export(signed_in, owner):
+    from accounts.privacy import export
+    assert export(owner)["account"]["photos_consent_since"] == owner.photos_consent_since
+
+
+def test_privacy_policy_names_photos_and_the_card_ai(client):
+    page = client.get(reverse("privacy")).content.decode()
+    assert 'id="mistral"' in page
+    assert "Ask the AI" in page and "read a deck from photos" in page
+    assert "Photos of your cards" in page

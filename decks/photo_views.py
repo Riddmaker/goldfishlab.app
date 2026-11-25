@@ -14,6 +14,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext, gettext_noop, ngettext
 from django.views import View
@@ -41,6 +42,8 @@ NOT_READ = gettext_noop("The photos could not be read just now. Nothing was coun
 NOTHING_FOUND = gettext_noop("No card title could be read on these photos. Nothing was "
                              "counted. Lay the cards side by side with their titles in "
                              "the light, and try again.")
+
+NO_CONSENT = gettext_noop("Tick the box first: the photos are only sent once you agree.")
 
 
 def _metric():
@@ -80,6 +83,10 @@ class PhotoUploadView(LoginRequiredMixin, View):
             return self.page(request, ngettext(
                 "At most %(count)s photo at a time.", "At most %(count)s photos at a time.",
                 photos.MAX_PHOTOS) % {"count": photos.MAX_PHOTOS}, status=400)
+        # Asked once per account, before anything is counted or sent.
+        asked = request.user.photos_consent_since is None
+        if asked and request.POST.get("consent") != "yes":
+            return self.page(request, gettext(NO_CONSENT), status=400)
         # Call site 7, before any work on the photos.
         try:
             quotas.check(request.user, _metric())
@@ -92,6 +99,9 @@ class PhotoUploadView(LoginRequiredMixin, View):
             except photos.PhotoRefused as exc:
                 return self.page(request, gettext("Photo %(number)s: %(reason)s") % {
                     "number": number, "reason": exc}, status=400)
+        if asked:
+            request.user.photos_consent_since = timezone.now()
+            request.user.save(update_fields=["photos_consent_since"])
         quotas.consume(request.user, _metric())
         try:
             reading = photos.read(jpegs)
@@ -110,6 +120,7 @@ class PhotoUploadView(LoginRequiredMixin, View):
         return render(request, self.template_name, {
             "error": error, "decision": decision, "blocked": blocked,
             "max_photos": photos.MAX_PHOTOS,
+            "ask_consent": request.user.photos_consent_since is None,
         }, status=status)
 
 

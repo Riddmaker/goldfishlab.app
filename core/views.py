@@ -167,7 +167,10 @@ class PrivacyView(TemplateView):
     # only for whoever plays it, so no new consent either (owner, E4).
     # Also 2026-11-08: the weekly news mail (PR 22), opt-in like the
     # changelog's - no new consent.
-    extra_context = {"updated": date(2026, 11, 8)}
+    # 2026-11-25: "Ask the AI" about a card (B-22) and a deck from photos
+    # (B-14) - the photos only with their own consent, asked on the upload,
+    # so no new consent for the policy either.
+    extra_context = {"updated": date(2026, 11, 25)}
 
 
 class ResourcesView(TemplateView):

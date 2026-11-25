@@ -85,6 +85,11 @@ class User(AbstractUser):
     news_mail = models.BooleanField(default=False)
     news_mail_since = models.DateTimeField(null=True, blank=True)
     news_mailed = models.DateField(null=True, blank=True)
+    #: When this person agreed that photos of their cards go to Mistral AI to
+    #: be read (B-14): asked once, on the first upload, and kept as the
+    #: consent we must be able to show (Art. 7(1) GDPR). Blank: not asked yet,
+    #: and no photo is sent.
+    photos_consent_since = models.DateTimeField(null=True, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

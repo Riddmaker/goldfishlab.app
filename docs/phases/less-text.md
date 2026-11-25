@@ -43,7 +43,7 @@ Ziel: **unter 300 sichtbare Wörter** nach einem Lauf; ein Test hält eine Oberg
 | PR | Inhalt | Stand |
 |---|---|---|
 | 1 | Kopf, Kacheln, Strategien: drei Erklärzeilen weg, Nicht-Commander-Hinweis ein Satz, Strategien Zahl zuerst und Erklärungen hinter «More» | erledigt |
-| 2 | Kurve, Inhalt, Combos und Engines, Karten, Versionen; Wortbudget-Test für die ganze Seite | offen |
+| 2 | Kurve, Inhalt, Combos und Engines, Karten, Versionen; Wortbudget-Test für die ganze Seite | erledigt |
 
 Nicht drin: der Bericht (Simulation), die Startseite, neue Grafiken; nichts wird gelöscht, was nur
 dort steht: jede Erklärung, die von der Deckseite geht, steht danach auf der Methodik-Seite.
@@ -62,3 +62,23 @@ Pro PR: ruff, djlint, Vollsuite, Browser-Check (`inventory.js`), Übersetzungen,
   Mistral-Hinweise bleiben (KI-Kennzeichnung).
 - Streichkandidat: «Ramp 14 / ~10» statt «Ramp: 14, the template has 10» (`simulations/cuts.py`),
   wie die Zahlen neben der Kurve; die Methodik erklärt die drei Teile.
+
+## PR 2, Befunde
+
+- Sichtbare Wörter nach einem Lauf, gleich gezählt wie vorher: 438 → **317** (Ausgang 552). Die Zahl
+  enthält noch die Screenreader-Sätze der Kurve und der Strategien (rund 120 Wörter), die man nicht
+  sieht; was das Auge liest, liegt deutlich unter 300.
+- Kurve: «Spells by mana value.» weg; der Link unter der Starthand heisst nur noch «Keep or mulligan?».
+- Inhalt: «A theme is a plan…» weg (Methodik #drew erklärt Themen); kein Thema: «No known theme;
+  plenty of good decks have none.» Die Legende heisst «template» + «More» (#drew). Statt des Satzes
+  über Kategorien steht die Zahl: «27 cards without a role».
+- Engines: Erklärung nur noch als «More» neben der Überschrift; Legende «↻ works again and again.»;
+  ohne Thema «No engine: we found no theme.». «Your themes, piece by piece»: die Erklärung der Prozent
+  steht neu in der Methodik unter #engines, auf der Seite nur «More».
+- Karten: die Methode des Explorers in einem `<details>` «How it is counted».
+- Versionen: ohne Version nur «More» (#versions); der Satz steht dort schon.
+- Combos: «Look this deck up in Commander Spellbook's curated list of combos.» bleibt (ein Satz, nennt
+  die Quelle).
+- Test `tests/test_less_text.py`: Wortbudget 200 für Sätze (Absätze und Listenpunkte mit 5+ Wörtern,
+  ohne Falten und Screenreader-Text); heute 185 für das Beispieldeck ohne Lauf.
+- Nebenbei: Französisch siezt (`test_i18n_long_pages`), ein neuer Satz hatte «ta liste».

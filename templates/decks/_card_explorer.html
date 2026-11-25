@@ -40,9 +40,10 @@
       <p class="mt-2 text-sm text-ink-900" data-explorer-detail aria-live="polite"></p>
       <svg viewBox="0 0 320 60" class="explorer-spread" role="img" data-explorer-spread></svg>
     </div>
-    <p class="mt-2 text-xs text-ink-700">
-      {% translate "10,000 shuffles in your browser: seven cards, one draw a turn from turn 2, no mulligan. With tutors, a tutor you see finds a missing card the same turn, mana aside; a card that wears a chosen chip counts as itself, not as a tutor." %}
-    </p>
+    <details class="mt-2 text-xs text-ink-700">
+      <summary class="cursor-pointer">{% translate "How it is counted" %}</summary>
+      <p class="mt-1">{% translate "10,000 shuffles in your browser: seven cards, one draw a turn from turn 2, no mulligan. With tutors, a tutor you see finds a missing card the same turn, mana aside; a card that wears a chosen chip counts as itself, not as a tutor." %}</p>
+    </details>
   </div>
 </div>
 {{ explorer_cards|json_script:"explorer-cards" }}

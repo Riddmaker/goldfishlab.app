@@ -15,7 +15,7 @@
 {% load i18n l10n icons %}
 <div class="mt-3">
   <h3 class="font-display text-lg text-ink-900">{% translate "Built around" %}</h3>
-  <p class="text-sm text-ink-700">{% translate "A theme is a plan made of roles - what each card does. Open one to see its roles and cards." %}</p>
+  {# B-15: what a theme is lives on the methodology (#drew). #}
   {% if themes %}
     <div class="deck-themes mt-2">
       {% for found in themes %}
@@ -49,6 +49,6 @@
       {% endfor %}
     </div>
   {% else %}
-    <p class="mt-1 text-sm text-ink-700">{% translate "No theme we know of. Plenty of good decks have no single plan." %}</p>
+    <p class="mt-1 text-sm text-ink-700">{% translate "No known theme; plenty of good decks have none." %}</p>
   {% endif %}
 </div>

@@ -29,13 +29,11 @@
 {% endcomment %}
 {% load i18n icons cards_shown %}
 <div id="engines" class="mt-8">
-  <h3 class="icon-host flex items-center gap-2 font-display text-xl text-ink-900">{% icon "engine" %}{% translate "Engines" %}</h3>
-  <p class="mt-1 text-sm text-ink-700">
-    {% translate "Cards that together make value again and again, read from what the deck is built around." %}
-    {% include "core/_why.html" with anchor="engines" %}
-  </p>
+  {# B-15: what an engine is lives on the methodology, behind More. #}
+  <h3 class="icon-host flex items-baseline gap-2 font-display text-xl text-ink-900">{% icon "engine" %}{% translate "Engines" %}
+    <span class="font-body">{% include "core/_why.html" with anchor="engines" %}</span></h3>
   {% if engine_rows %}
-    <p class="mt-1 text-sm text-ink-700">{% blocktranslate %}↻ works again and again; an engine needs at least one such card.{% endblocktranslate %}</p>
+    <p class="mt-1 text-sm text-ink-700">{% translate "↻ works again and again." %}</p>
     <ul class="mt-3 space-y-4">
       {% for engine, running, note in engine_rows %}
         <li class="border-l-2 pl-4 {% if engine.missing %}border-dashed border-ink-700{% else %}border-parchment-600{% endif %}"
@@ -83,7 +81,7 @@
   {% elif reading.themes %}
     <p class="mt-3 text-sm text-ink-700">{% translate "No engine yet: none of this deck's themes has a card that works again and again." %}</p>
   {% else %}
-    <p class="mt-3 text-sm text-ink-700">{% translate "No engine: engines come from what a deck is built around, and we found no theme." %}</p>
+    <p class="mt-3 text-sm text-ink-700">{% translate "No engine: we found no theme." %}</p>
   {% endif %}
 
   {% if reading.pairs %}

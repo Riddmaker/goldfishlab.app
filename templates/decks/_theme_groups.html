@@ -7,8 +7,9 @@
 {% endcomment %}
 {% if theme_groups %}
 <div id="theme-groups" class="mt-8">
-  <h3 class="font-display text-xl text-ink-900">{% translate "Your themes, piece by piece" %}</h3>
-  <p class="mt-1 max-w-3xl text-sm text-ink-700">{% blocktranslate %}How likely you have seen a card of every piece by turn {{ by_turn }}: a hand of 7, one draw a turn, no mulligan, calculated from your list.{% endblocktranslate %}</p>
+  {# B-15: how the percentage is worked out lives on the methodology (#engines). #}
+  <h3 class="flex flex-wrap items-baseline gap-2 font-display text-xl text-ink-900">{% translate "Your themes, piece by piece" %}
+    <span class="font-body">{% include "core/_why.html" with anchor="engines" %}</span></h3>
   <div class="mt-4 space-y-6">
     {% for found, chance in theme_groups %}
       <section class="border-l-2 border-parchment-600 pl-4" data-theme-group="{{ found.theme }}">

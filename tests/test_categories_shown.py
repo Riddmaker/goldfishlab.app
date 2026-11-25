@@ -179,10 +179,10 @@ def test_the_deck_page_says_main_and_what_has_none(client, owner, deck):
     client.force_login(owner)
     page = client.get(reverse("decks:detail", args=[deck.pk])).content.decode()
     assert " main</span>" in page
-    assert "in its main role." in page
+    assert "data-unranked" in page, "B-15: the count of cards without a role, number first"
     DerivedProfile.objects.update(categories_version=0)
     page = client.get(reverse("decks:detail", args=[deck.pk])).content.decode()
-    assert "in its main role." not in page
+    assert "data-unranked" not in page
 
 
 # --- the strategies ------------------------------------------------------------------------

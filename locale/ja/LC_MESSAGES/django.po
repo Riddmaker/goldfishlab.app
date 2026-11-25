@@ -15249,3 +15249,37 @@ msgstr "抜けそうな各カードの横に: その役割、デッキ内の枚�
 #, python-format
 msgid "%(role)s %(count)s / ~%(high)s"
 msgstr "%(role)s %(count)s / ~%(high)s"
+
+#: templates/decks/detail.html
+msgid "template"
+msgstr "テンプレート"
+
+#: templates/decks/detail.html
+msgid "card without a role"
+msgid_plural "cards without a role"
+msgstr[0] "役割のないカード"
+
+#: templates/decks/_themes.html
+msgid "No known theme; plenty of good decks have none."
+msgstr "既知のテーマはありません。良いデッキの多くにもテーマはありません。"
+
+#: templates/decks/_engines.html
+msgid "No engine: we found no theme."
+msgstr "エンジンなし: テーマが見つかりませんでした。"
+
+#: templates/decks/_card_explorer.html
+msgid "How it is counted"
+msgstr "数え方"
+
+#: templates/decks/_engines.html
+msgid "↻ works again and again."
+msgstr "↻ 何度も働く。"
+
+#: templates/core/methodology.html
+msgid ""
+"Under the engines, each theme piece by piece: the percentage is how likely "
+"you have seen a card of every piece by turn four - a hand of 7, one draw a "
+"turn, no mulligan, calculated from your list."
+msgstr ""
+"エンジンの下に、各テーマをパーツごとに表示: "
+"割合は4ターン目までに各パーツのカードを1枚以上見ている確率です。手札7枚、毎ターン1枚ドロー、マリガンなし、あなたのリストから計算。"

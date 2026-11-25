@@ -17478,3 +17478,40 @@ msgstr ""
 #, python-format
 msgid "%(role)s %(count)s / ~%(high)s"
 msgstr "%(role)s %(count)s / ~%(high)s"
+
+#: templates/decks/detail.html
+msgid "template"
+msgstr "plantilla"
+
+#: templates/decks/detail.html
+msgid "card without a role"
+msgid_plural "cards without a role"
+msgstr[0] "carta sin función"
+msgstr[1] "cartas sin función"
+msgstr[2] "cartas sin función"
+
+#: templates/decks/_themes.html
+msgid "No known theme; plenty of good decks have none."
+msgstr "Ningún tema conocido; muchos buenos mazos no tienen ninguno."
+
+#: templates/decks/_engines.html
+msgid "No engine: we found no theme."
+msgstr "Ningún motor: no encontramos ningún tema."
+
+#: templates/decks/_card_explorer.html
+msgid "How it is counted"
+msgstr "Cómo se cuenta"
+
+#: templates/decks/_engines.html
+msgid "↻ works again and again."
+msgstr "↻ funciona una y otra vez."
+
+#: templates/core/methodology.html
+msgid ""
+"Under the engines, each theme piece by piece: the percentage is how likely "
+"you have seen a card of every piece by turn four - a hand of 7, one draw a "
+"turn, no mulligan, calculated from your list."
+msgstr ""
+"Bajo los motores, cada tema pieza por pieza: el porcentaje es la "
+"probabilidad de haber visto una carta de cada pieza en el turno cuatro - una"
+" mano de 7, un robo por turno, sin mulligan, calculado a partir de tu lista."

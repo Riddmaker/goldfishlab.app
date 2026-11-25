@@ -16,7 +16,7 @@
        class="border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">{% translate "New version" %}</a>
   </div>
   {% if not versions %}
-    <p class="mt-2 max-w-3xl text-sm text-ink-700">{% translate "Take cards out, put cards in: the list before stays as version 1, with its runs." %}</p>
+    <p class="mt-2 text-sm text-ink-700">{% include "core/_why.html" with anchor="versions" %}</p>
   {% else %}
   <ol class="mt-4 space-y-4 border-l-2 border-ink-300 pl-4" data-version-timeline>
     {% for step in versions %}

@@ -306,7 +306,7 @@ def test_an_engine_a_piece_short_is_dashed_and_says_so(client_in, deck, monkeypa
 
 
 @pytest.mark.parametrize(("themes_found", "words"), [
-    ([], "we found no theme"),
+    ([], "No engine: we found no theme."),
     ([_theme()], "has a card that works again and again"),
 ])
 def test_no_engine_is_said(client_in, deck, monkeypatch, themes_found, words):

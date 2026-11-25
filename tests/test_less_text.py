@@ -55,3 +55,41 @@ def test_a_card_that_could_go_names_its_role_and_numbers_only():
                    counted=(("ramp", 14),))
 
     assert cut.rule == f"Ramp 14 / ~{cuts.BAND_HIGH['ramp']}"
+
+
+# --- the whole page: a word budget -----------------------------------------------
+
+#: 185 words on 2026-11-25 for the sample deck without a run (552 after a run before B-15).
+SENTENCE_BUDGET = 200
+
+
+def _sentence_words(body: str) -> int:
+    """Words in the page's visible sentences: paragraphs and list items of five
+    words or more, outside folds and screen-reader text, as a reader sees them."""
+    main = body[body.index("<main"):body.index("</main>")]
+    main = re.sub(r"<(script|details)\b.*?</\1>", " ", main, flags=re.S)
+    main = re.sub(r'<span class="sr-only">.*?</span>', " ", main, flags=re.S)
+    total = 0
+    for block in re.findall(r"<(?:p|li)\b[^>]*>(.*?)</(?:p|li)>", main, re.S):
+        words = re.sub(r"<[^>]+>", " ", block).split()
+        if len(words) >= 5:
+            total += len(words)
+    return total
+
+
+def test_the_deck_page_keeps_to_its_word_budget(client_in, deck):  # noqa: F811
+    words = _sentence_words(_page(client_in, deck))
+
+    assert 0 < words <= SENTENCE_BUDGET, words
+
+
+def test_what_left_the_page_is_said_shorter_or_behind_more(client_in, deck):  # noqa: F811
+    body = _page(client_in, deck)
+
+    for gone in ("Spells by mana value.", "Click a row to see its cards.",
+                 "counts in every category it fits", "theme is a plan made of roles",
+                 "make value again and again, read from"):
+        assert gone not in body, gone
+    for anchor in ("drew", "engines"):
+        assert f'href="{reverse("methodology")}#{anchor}"' in body, anchor
+    assert re.search(r"<details[^>]*>\s*<summary[^>]*>How it is counted</summary>", body)

@@ -353,7 +353,7 @@ def test_no_theme_is_said_not_guessed(client_in, deck, monkeypatch):
 
     body = client_in.get(deck.get_absolute_url()).content.decode()
 
-    assert "No theme we know of" in body
+    assert "No known theme" in body
     assert "deck-theme-chip" not in body
 
 

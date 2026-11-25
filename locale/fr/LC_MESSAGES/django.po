@@ -17709,3 +17709,56 @@ msgstr ""
 "Nous réenregistrons chaque image en WebP ; ce qu’un appareil photo écrit "
 "dans une photo, comme le lieu et l’appareil, n’est pas conservé. Vos images "
 "sont supprimées avec votre apparence ou votre compte."
+
+msgid "For all decks"
+msgstr "Pour tous les decks"
+
+msgid "Only for this deck"
+msgstr "Uniquement pour ce deck"
+
+msgid "Which decks wear it"
+msgstr "Quels decks l’affichent"
+
+msgid "Every deck of yours wears it."
+msgstr "Tous vos decks l’affichent."
+
+msgid "A look per deck: Koi and Kraken"
+msgstr "Une apparence par deck : Koi et Kraken"
+
+msgid "Back to the look of all decks"
+msgstr "Revenir à l’apparence de tous les decks"
+
+msgid "This deck wears the look of all decks again."
+msgstr "Ce deck reprend l’apparence de tous les decks."
+
+#, python-format
+msgid ""
+"Your plan keeps %(limit)s look. Let another deck wear the look of all decks "
+"first."
+msgid_plural ""
+"Your plan keeps %(limit)s looks. Let another deck wear the look of all decks"
+" first."
+msgstr[0] ""
+"Votre formule conserve %(limit)s apparence. Remettez d’abord un autre deck "
+"sur l’apparence de tous les decks."
+msgstr[1] ""
+"Votre formule conserve %(limit)s apparences. Remettez d’abord un autre deck "
+"sur l’apparence de tous les decks."
+
+msgid "Looks for mat and sleeves:"
+msgstr "Apparences du tapis et des protège-cartes :"
+
+#, python-format
+msgid "%(looks)s, one per deck"
+msgstr "%(looks)s, une par deck"
+
+msgid "1, for every deck"
+msgstr "1, pour tous les decks"
+
+msgid ""
+"You change the look from a deck's page. On the free plan the change is for "
+"every deck; Koi and Kraken can keep it to that deck, up to ten looks in all."
+msgstr ""
+"Vous modifiez l’apparence depuis la page d’un deck. Avec la formule "
+"gratuite, la modification vaut pour tous les decks ; Koi et Kraken peuvent "
+"la limiter à ce deck, jusqu’à dix apparences en tout."

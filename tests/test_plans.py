@@ -12,6 +12,10 @@ from billing import services, stripe_api
 from billing.models import Plan
 from simulations.forms import RunForm
 
+#: Plan.features keys that something reads: only these may be on sale.
+#: looks: B-10, looks.services.limit_for.
+BUILT_FEATURES = {"looks"}
+
 pytestmark = pytest.mark.django_db
 
 User = get_user_model()
@@ -50,7 +54,12 @@ def test_the_three_plans(slug, name, month, year, turns):
     assert (plan.name, plan.price_chf_cents, plan.max_turns) == (name, month, turns)
     assert all(plan.annual_cents(c) == year for c in ("chf", "eur", "usd"))
     assert all(plan.price_cents(c) == month for c in ("chf", "eur", "usd"))
-    assert plan.features == {}, "a plan must not seem to sell what was never built"
+    assert set(plan.features) <= BUILT_FEATURES, "a plan must not seem to sell what was never built"
+
+
+def test_paid_plans_keep_a_look_per_deck():
+    assert {Plan.objects.get(slug=s).features.get("looks") for s in ("koi", "kraken")} == {10}
+    assert "looks" not in Plan.objects.get(slug="free").features
 
 
 def test_no_plan_carries_a_wizards_trademark():

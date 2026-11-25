@@ -59,6 +59,10 @@
           <strong>{% if plan.max_decks %}{{ plan.max_decks }}{% else %}{% translate "no limit" %}{% endif %}</strong>
         </li>
         <li class="tabular">
+          {% translate "Looks for mat and sleeves:" %}
+          <strong>{% if plan.features.looks %}{% blocktranslate with looks=plan.features.looks %}{{ looks }}, one per deck{% endblocktranslate %}{% else %}{% translate "1, for every deck" %}{% endif %}</strong>
+        </li>
+        <li class="tabular">
           {% translate "Deck lists imported a month:" %}
           <strong>{% if plan.max_imports_per_month %}{{ plan.max_imports_per_month }}{% else %}{% translate "no limit" %}{% endif %}</strong>
         </li>

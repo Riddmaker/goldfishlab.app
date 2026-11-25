@@ -17360,3 +17360,56 @@ msgstr ""
 "Salvamos cada imagem de novo como WebP; o que uma câmera grava numa foto, "
 "como o local e o aparelho, não é mantido. Suas imagens são excluídas junto "
 "com seu visual ou sua conta."
+
+msgid "For all decks"
+msgstr "Para todos os decks"
+
+msgid "Only for this deck"
+msgstr "Só para este deck"
+
+msgid "Which decks wear it"
+msgstr "Quais decks o usam"
+
+msgid "Every deck of yours wears it."
+msgstr "Todos os seus decks o usam."
+
+msgid "A look per deck: Koi and Kraken"
+msgstr "Um visual por deck: Koi e Kraken"
+
+msgid "Back to the look of all decks"
+msgstr "Voltar ao visual de todos os decks"
+
+msgid "This deck wears the look of all decks again."
+msgstr "Este deck voltou a usar o visual de todos os decks."
+
+#, python-format
+msgid ""
+"Your plan keeps %(limit)s look. Let another deck wear the look of all decks "
+"first."
+msgid_plural ""
+"Your plan keeps %(limit)s looks. Let another deck wear the look of all decks"
+" first."
+msgstr[0] ""
+"Seu plano guarda %(limit)s visual. Primeiro volte outro deck ao visual de "
+"todos os decks."
+msgstr[1] ""
+"Seu plano guarda %(limit)s visuais. Primeiro volte outro deck ao visual de "
+"todos os decks."
+
+msgid "Looks for mat and sleeves:"
+msgstr "Visuais de tapete e sleeves:"
+
+#, python-format
+msgid "%(looks)s, one per deck"
+msgstr "%(looks)s, um por deck"
+
+msgid "1, for every deck"
+msgstr "1, para todos os decks"
+
+msgid ""
+"You change the look from a deck's page. On the free plan the change is for "
+"every deck; Koi and Kraken can keep it to that deck, up to ten looks in all."
+msgstr ""
+"Você muda o visual na página de um deck. No plano gratuito a mudança vale "
+"para todos os decks; Koi e Kraken podem limitá-la a esse deck, até dez "
+"visuais no total."

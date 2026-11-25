@@ -15404,3 +15404,50 @@ msgid ""
 msgstr ""
 "画像は WebP "
 "として保存し直します。撮影場所や機種など、カメラが写真に書き込む情報は残りません。画像は見た目またはアカウントの削除とともに削除されます。"
+
+msgid "For all decks"
+msgstr "すべてのデッキに"
+
+msgid "Only for this deck"
+msgstr "このデッキだけに"
+
+msgid "Which decks wear it"
+msgstr "適用するデッキ"
+
+msgid "Every deck of yours wears it."
+msgstr "すべてのデッキに適用されます。"
+
+msgid "A look per deck: Koi and Kraken"
+msgstr "デッキごとの見た目：Koi と Kraken"
+
+msgid "Back to the look of all decks"
+msgstr "全デッキ共通の見た目に戻す"
+
+msgid "This deck wears the look of all decks again."
+msgstr "このデッキは再び全デッキ共通の見た目になりました。"
+
+#, python-format
+msgid ""
+"Your plan keeps %(limit)s look. Let another deck wear the look of all decks "
+"first."
+msgid_plural ""
+"Your plan keeps %(limit)s looks. Let another deck wear the look of all decks"
+" first."
+msgstr[0] "プランで保存できる見た目は %(limit)s 個までです。先に別のデッキを全デッキ共通の見た目に戻してください。"
+
+msgid "Looks for mat and sleeves:"
+msgstr "プレイマットとスリーブの見た目："
+
+#, python-format
+msgid "%(looks)s, one per deck"
+msgstr "%(looks)s 個（デッキごとに1つ）"
+
+msgid "1, for every deck"
+msgstr "1 個（全デッキ共通）"
+
+msgid ""
+"You change the look from a deck's page. On the free plan the change is for "
+"every deck; Koi and Kraken can keep it to that deck, up to ten looks in all."
+msgstr ""
+"見た目はデッキのページから変更します。無料プランでは変更がすべてのデッキに適用されます。Koi と Kraken ではそのデッキだけに適用でき、合計 "
+"10 個まで保存できます。"

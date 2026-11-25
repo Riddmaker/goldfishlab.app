@@ -17470,3 +17470,56 @@ msgstr ""
 "Salviamo ogni immagine di nuovo come WebP; ciò che una fotocamera scrive in "
 "una foto, come il luogo e il dispositivo, non viene conservato. Le tue "
 "immagini vengono eliminate con il tuo aspetto o con il tuo account."
+
+msgid "For all decks"
+msgstr "Per tutti i mazzi"
+
+msgid "Only for this deck"
+msgstr "Solo per questo mazzo"
+
+msgid "Which decks wear it"
+msgstr "Quali mazzi lo usano"
+
+msgid "Every deck of yours wears it."
+msgstr "Tutti i tuoi mazzi lo usano."
+
+msgid "A look per deck: Koi and Kraken"
+msgstr "Un aspetto per mazzo: Koi e Kraken"
+
+msgid "Back to the look of all decks"
+msgstr "Torna all’aspetto di tutti i mazzi"
+
+msgid "This deck wears the look of all decks again."
+msgstr "Questo mazzo usa di nuovo l’aspetto di tutti i mazzi."
+
+#, python-format
+msgid ""
+"Your plan keeps %(limit)s look. Let another deck wear the look of all decks "
+"first."
+msgid_plural ""
+"Your plan keeps %(limit)s looks. Let another deck wear the look of all decks"
+" first."
+msgstr[0] ""
+"Il tuo piano conserva %(limit)s aspetto. Riporta prima un altro mazzo "
+"all’aspetto di tutti i mazzi."
+msgstr[1] ""
+"Il tuo piano conserva %(limit)s aspetti. Riporta prima un altro mazzo "
+"all’aspetto di tutti i mazzi."
+
+msgid "Looks for mat and sleeves:"
+msgstr "Aspetti per tappetino e bustine:"
+
+#, python-format
+msgid "%(looks)s, one per deck"
+msgstr "%(looks)s, uno per mazzo"
+
+msgid "1, for every deck"
+msgstr "1, per tutti i mazzi"
+
+msgid ""
+"You change the look from a deck's page. On the free plan the change is for "
+"every deck; Koi and Kraken can keep it to that deck, up to ten looks in all."
+msgstr ""
+"Cambi l’aspetto dalla pagina di un mazzo. Con il piano gratuito la modifica "
+"vale per tutti i mazzi; Koi e Kraken possono limitarla a quel mazzo, fino a "
+"dieci aspetti in tutto."

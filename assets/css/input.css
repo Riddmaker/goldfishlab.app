@@ -2358,7 +2358,8 @@ body {
   padding: 1rem;
   border: 1px solid var(--color-ink-700);
 }
-.look-set:first-of-type { margin-top: 0; }
+.look-scope { display: flex; flex-wrap: wrap; gap: 0 1.5rem; }
+.look-scope .look-option { margin-top: 0; }
 .look-swatches {
   display: flex;
   flex-wrap: wrap;

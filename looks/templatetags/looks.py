@@ -1,4 +1,4 @@
-"""`{% look_style deck %}`: the owner's look as CSS variables for a table (B-10).
+"""`{% look_style deck %}`: the look a deck wears, as CSS variables for a table (B-10).
 
 For the deck's owner only: anyone else, or a signed-out visitor, gets the
 standard look (an empty string), so a look is never shown to others.
@@ -17,4 +17,4 @@ def look_style(context, deck) -> str:
     user = getattr(request, "user", None)
     if user is None or not user.is_authenticated or deck is None or deck.owner_id != user.pk:
         return ""
-    return css.style(services.default_look(user))
+    return css.style(services.look_for(user, deck))

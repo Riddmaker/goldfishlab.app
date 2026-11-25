@@ -25,7 +25,7 @@ Lockdown (ARCHITECTURE-SECURITY §8):
 | Upload | 5 MB, 25 megapixels, PNG, JPEG or WebP (read from the content) |
 | Stored mat | WebP, at most 1920 px on the long side |
 | Stored sleeve | WebP, 744 × 1039 (the card's 63 × 88 mm) |
-| Looks (mat + sleeve + options) | free 1 per account; paid 10, at most one per deck |
+| Looks (mat + sleeve + options) | free 1 for every deck; Koi and Kraken 10 in all (the look of all decks counts), at most one per deck |
 | Backup of the share | none for now: images can be uploaded again, a missing file falls back to the default |
 | Share size | the smallest step |
 
@@ -36,7 +36,7 @@ Lockdown (ARCHITECTURE-SECURITY §8):
 | 1 | Storage, model and upload pipeline: app `looks`, model `Look` (images, inner sleeve and seam with their colours), Pillow (new dependency): type from the content, re-encoded to WebP, EXIF gone, byte and pixel limits; the owner-only view; delete with the row and the account; in the data export | done |
 | 2 | The «Customisation» page: button with a new icon on the deck page, upload or pick a template (CSS only), colour suggestions, picker and hex/RGBA input, preview (sleeve in front, mat behind) | done |
 | 3 | On the tables: free play and deck in hand wear the owner's look (nobody else sees it); a lost file falls back to the template | done |
-| 4 | Several looks: quotas per tier (free 1, paid 10), one look per deck (`Deck.look`), choosing it on the Customisation page | open, UI to agree with the owner |
+| 4 | A look per deck: the page is the deck's own (no central place); free: a change is for every deck; Koi/Kraken: «for all decks» or «only for this deck», up to 10 looks | done |
 
 Not in: showing a look to others (needs moderation and a report path); custom card fronts; sponsored
 templates (B-20).
@@ -100,3 +100,20 @@ Per PR: ruff, djlint, full suite, browser check, translations, push to dev.
 - Deck page: no table there, so nothing to wear; the Customisation button is the way in.
 - Browser (`land_light`): 11 checks PASS, own mat, seam and sleeve on both tables, still there after
   a move, standard before a look exists, no page errors.
+
+## PR 4, findings
+
+- Owner, 2026-11-25: «es sollte kein zentrales customisation geben … pro Deck gibts den knopf … bei
+  free usern ist das halt einfach für alle … pay user … können auf andere decks umstellen … es ändert
+  nur lokal». So the page stays the deck's (its name under the title); there is no list of looks.
+- Model: `Look.deck` (one-to-one, cascade); a look is the account's (`is_default`) or a deck's,
+  never both (check constraint). `services.look_for(user, deck)`: the deck's own while the plan
+  allows more than one look, else the account's.
+- Limit in `Plan.features["looks"]` (billing migration 0011: Koi and Kraken 10; free and guest
+  without the key = 1). A limit on what you keep, not metered: no sixth `quotas.check()` site.
+  `tests/test_plans.py` now lists the features that are built (`looks`).
+- Saving «for all decks» from a deck with its own look drops that look (the deck follows all again).
+  «Back to the look of all decks» on such a deck; «Back to the standard» otherwise.
+- Downgrade: a deck's own look stays stored but unseen; it is worn again with a paid plan.
+- Pricing lists «Looks for mat and sleeves: 1, for every deck / 10, one per deck».
+- Browser (`land_light`, free then Koi, second deck): 12 checks PASS.

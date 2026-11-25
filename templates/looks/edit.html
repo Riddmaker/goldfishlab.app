@@ -15,7 +15,7 @@
   {% endcomment %}
   <p class="text-sm"><a href="{{ deck.get_absolute_url }}" class="text-parchment-200 underline">{% blocktranslate with name=deck.name %}Back to {{ name }}{% endblocktranslate %}</a></p>
   <h1 class="mt-3 flex items-center gap-2 font-display text-3xl text-parchment-100 icon-host">{% icon "sleeve" %}{% translate "Customisation" %}</h1>
-  <p class="mt-1 text-parchment-200">{% translate "Only you see it." %} {% include "core/_why.html" with anchor="customisation" dark=True %}</p>
+  <p class="mt-1 text-parchment-200">{{ deck.name }} · {% translate "Only you see it." %} {% include "core/_why.html" with anchor="customisation" dark=True %}</p>
 
   <div class="look-layout mt-6">
     <div class="look-preview" style="{{ preview_style }}" data-look-preview aria-hidden="true">
@@ -26,6 +26,20 @@
     <form method="post" enctype="multipart/form-data" data-look-form>
       {% csrf_token %}
       {% if form.errors %}<p class="errorlist" role="alert">{% translate "Please check the marked fields." %}</p>{% endif %}
+
+      {% if per_deck %}
+        <fieldset class="look-scope">
+          <legend class="sr-only">{% translate "Which decks wear it" %}</legend>
+          {% for value, label in form.scope.field.choices %}
+            <label class="look-option">
+              <input type="radio" name="scope" value="{{ value }}"{% if form.scope.value == value %} checked{% endif %}>{{ label }}
+            </label>
+          {% endfor %}
+          {% for error in form.scope.errors %}<p class="errorlist" role="alert">{{ error }}</p>{% endfor %}
+        </fieldset>
+      {% else %}
+        <p class="text-sm text-parchment-200">{% translate "Every deck of yours wears it." %} <a href="{% url 'pricing' %}" class="underline">{% translate "A look per deck: Koi and Kraken" %}</a></p>
+      {% endif %}
 
       <fieldset class="look-set">
         <legend class="font-display text-xl text-parchment-100">{% translate "Mat" %}</legend>
@@ -78,7 +92,7 @@
       <div class="mt-6 flex flex-wrap gap-3">
         <button type="submit" class="border border-blood-800 bg-blood-700 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-blood-800">{% translate "Save" %}</button>
         {% if look %}
-          <button type="submit" name="reset" value="1" formnovalidate class="board-btn">{% translate "Back to the standard" %}</button>
+          <button type="submit" name="reset" value="1" formnovalidate class="board-btn">{% if look.deck_id %}{% translate "Back to the look of all decks" %}{% else %}{% translate "Back to the standard" %}{% endif %}</button>
         {% endif %}
       </div>
     </form>

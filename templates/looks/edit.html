@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load i18n static icons %}
+{% block title %}{% translate "Customisation" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "Your own mat and sleeves." %}{% endblock %}
+{% block head %}
+  <script src="{% static 'js/look-preview.js' %}" defer></script>
+{% endblock %}
+{% block content %}
+  {% comment %}
+    Customisation (B-10, looks.views.LookView). One look per account: a mat
+    and a sleeve, each a preset (CSS, looks.presets) or an image of your own,
+    plus an inner sleeve and a seam with their colours. The preview is the
+    look's CSS variables (looks.css.style); static/js/look-preview.js updates
+    them while you choose. Without it the preview shows the saved look.
+  {% endcomment %}
+  <p class="text-sm"><a href="{{ deck.get_absolute_url }}" class="text-parchment-200 underline">{% blocktranslate with name=deck.name %}Back to {{ name }}{% endblocktranslate %}</a></p>
+  <h1 class="mt-3 flex items-center gap-2 font-display text-3xl text-parchment-100 icon-host">{% icon "sleeve" %}{% translate "Customisation" %}</h1>
+  <p class="mt-1 text-parchment-200">{% translate "Only you see it." %} {% include "core/_why.html" with anchor="customisation" dark=True %}</p>
+
+  <div class="look-layout mt-6">
+    <div class="look-preview" style="{{ preview_style }}" data-look-preview aria-hidden="true">
+      <div class="look-preview-mat"></div>
+      <div class="look-preview-sleeve"></div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" data-look-form>
+      {% csrf_token %}
+      {% if form.errors %}<p class="errorlist" role="alert">{% translate "Please check the marked fields." %}</p>{% endif %}
+
+      <fieldset class="look-set">
+        <legend class="font-display text-xl text-parchment-100">{% translate "Mat" %}</legend>
+        <div class="look-swatches">
+          {% for slug, label, css in mats %}
+            <label class="look-swatch">
+              <input type="radio" name="mat" value="{{ slug }}" data-css="{{ css }}"{% if form.mat.value == slug %} checked{% endif %}>
+              <span class="look-swatch-mat" style="--swatch: {{ css }}"></span>{{ label }}
+            </label>
+          {% endfor %}
+          <label class="look-swatch">
+            <input type="radio" name="mat" value="own" data-css="{{ own_mat }}"{% if form.mat.value == "own" %} checked{% endif %}>
+            <span class="look-swatch-mat look-swatch-own" style="--swatch: {{ own_mat|default:'none' }}"></span>{% translate "Your own image" %}
+          </label>
+        </div>
+        <label class="mt-3 block text-sm text-parchment-200">{% blocktranslate %}Upload a mat (PNG, JPEG or WebP, up to {{ max_mb }} MB){% endblocktranslate %}
+          <input type="file" name="mat_file" accept="image/png,image/jpeg,image/webp" class="look-file" data-look-file="mat">
+        </label>
+        {% for error in form.mat_file.errors %}<p class="errorlist" role="alert">{{ error }}</p>{% endfor %}
+        <label class="look-option">
+          <input type="checkbox" name="seam" data-look-flag="seam"{% if form.seam.value %} checked{% endif %}>{% translate "Seam" %}
+        </label>
+        {% include "looks/_colour.html" with name="seam_colour" field=form.seam_colour label=_("Seam colour") %}
+      </fieldset>
+
+      <fieldset class="look-set">
+        <legend class="font-display text-xl text-parchment-100">{% translate "Sleeves" %}</legend>
+        <div class="look-swatches">
+          {% for slug, label, css in sleeves %}
+            <label class="look-swatch">
+              <input type="radio" name="sleeve" value="{{ slug }}" data-css="{{ css }}"{% if form.sleeve.value == slug %} checked{% endif %}>
+              <span class="look-swatch-sleeve" style="--swatch: {{ css }}"></span>{{ label }}
+            </label>
+          {% endfor %}
+          <label class="look-swatch">
+            <input type="radio" name="sleeve" value="own" data-css="{{ own_sleeve }}"{% if form.sleeve.value == "own" %} checked{% endif %}>
+            <span class="look-swatch-sleeve look-swatch-own" style="--swatch: {{ own_sleeve|default:'none' }}"></span>{% translate "Your own image" %}
+          </label>
+        </div>
+        <label class="mt-3 block text-sm text-parchment-200">{% blocktranslate %}Upload a sleeve (PNG, JPEG or WebP, up to {{ max_mb }} MB){% endblocktranslate %}
+          <input type="file" name="sleeve_file" accept="image/png,image/jpeg,image/webp" class="look-file" data-look-file="sleeve">
+        </label>
+        {% for error in form.sleeve_file.errors %}<p class="errorlist" role="alert">{{ error }}</p>{% endfor %}
+        <label class="look-option">
+          <input type="checkbox" name="inner_sleeve" data-look-flag="inner"{% if form.inner_sleeve.value %} checked{% endif %}>{% translate "Inner sleeve" %}
+        </label>
+        {% include "looks/_colour.html" with name="inner_colour" field=form.inner_colour label=_("Inner sleeve colour") %}
+      </fieldset>
+
+      <div class="mt-6 flex flex-wrap gap-3">
+        <button type="submit" class="border border-blood-800 bg-blood-700 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-blood-800">{% translate "Save" %}</button>
+        {% if look %}
+          <button type="submit" name="reset" value="1" formnovalidate class="board-btn">{% translate "Back to the standard" %}</button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+{% endblock %}

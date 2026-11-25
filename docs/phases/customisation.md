@@ -34,7 +34,7 @@ Lockdown (ARCHITECTURE-SECURITY §8):
 | PR | Content | State |
 |---|---|---|
 | 1 | Storage, model and upload pipeline: app `looks`, model `Look` (images, inner sleeve and seam with their colours), Pillow (new dependency): type from the content, re-encoded to WebP, EXIF gone, byte and pixel limits; the owner-only view; delete with the row and the account; in the data export | done |
-| 2 | The «Customisation» page: button with a new icon on the deck page, upload or pick a template (CSS only), colour suggestions, picker and hex/RGBA input, preview (sleeve in front, mat behind) | open |
+| 2 | The «Customisation» page: button with a new icon on the deck page, upload or pick a template (CSS only), colour suggestions, picker and hex/RGBA input, preview (sleeve in front, mat behind) | done |
 | 3 | Everywhere: free play, deck in hand, deck page, for the owner only (shared reports show the default); quotas per tier; one look per deck | open |
 
 Not in: showing a look to others (needs moderation and a report path); custom card fronts; sponsored
@@ -63,3 +63,25 @@ Per PR: ruff, djlint, full suite, browser check, translations, push to dev.
 - Browser (`land_light`): 12 checks PASS, among them a JPEG with EXIF in, a 744 × 1039 WebP out,
   three traversal URLs 404, signed out to sign-in, the file 0640 in the share; deleting the test
   account emptied the folder.
+
+## PR 2, findings
+
+- `/decks/<uuid>/look/` (`LookView`, owner of the deck only, 30 POST/h): mat and sleeve each a
+  template (`looks/presets.py`: 5 mats, 6 sleeves, pure CSS) or «Your own image»; seam on the mat and
+  inner sleeve on the sleeve, each with a colour (text field for hex/rgba, picker and seven
+  suggestions with JavaScript). Choosing a file selects «own»; «own» without an image asks for one.
+- The look is four CSS variables (`looks/css.py`): `--mat`, `--sleeve`, `--sleeve-inner` (inset rim),
+  `--mat-seam` (dashed outline). Only our values go in: preset CSS, our image URL, `#rrggbbaa`; a
+  stored value that does not match falls back to `transparent`.
+- Preview: the mat tilted behind, a sleeve in front; `static/js/look-preview.js` updates it while
+  you choose. A file not yet saved is not previewed: `img-src` does not allow `blob:`, and loosening
+  the CSP for a preview is not worth it.
+- Saving is one transaction: both uploads are processed first; a refused image shows at its field
+  and nothing is stored. «Back to the standard» deletes the look and its files.
+- Privacy policy: a new row in the retention table (images, purpose, until changed/reset/account
+  deleted). `CONSENT_VERSION` not bumped: a new optional feature that only the user fills, no new
+  recipient (my call, owner can overrule). Methodology: `#customisation`.
+- New symbol `sleeve` (card above its sleeve, the card lifts), in the styleguide.
+- Browser (`land_light`, desktop + phone + without JS): 19 checks PASS, among them a JPEG mat and a
+  PNG sleeve uploaded through the form and served back as WebP, an SVG-as-PNG refused at its field,
+  `red; background:url(x)` refused, no sideways scroll at 390 px, reset back to the standard.

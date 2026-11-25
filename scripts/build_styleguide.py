@@ -68,6 +68,7 @@ SYMBOLS = [
     ("tutor", "Hand tutor", "A card under a lens: which plan a hand has. The lens lifts."),
     ("version", "Versions", "Two lists, one behind the other; the newer lifts."),
     ("deck", "Deck in hand", "A library, seen at an angle. The top card lifts."),
+    ("sleeve", "Customisation", "A card above its sleeve. The card lifts out."),
     ("legal", "Legal", "A seal for the six checks. It stamps."),
     ("unusual", "Unusual move", "Free mode marks what the rules would not allow."),
     ("fish-says", "The fish says", "A fun line in the ticker, never an event."),

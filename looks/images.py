@@ -39,7 +39,12 @@ PATH = re.compile(r"[0-9a-f]{32}/[0-9a-f]{32}\.webp")
 
 
 class ImageRefused(ValueError):
-    """An upload that is not stored; the message is for the person."""
+    """An upload that is not stored; the message is for the person, `kind`
+    says which of the two it was."""
+
+    def __init__(self, message, kind: str = ""):
+        super().__init__(message)
+        self.kind = kind
 
 
 def base() -> Path:
@@ -70,6 +75,14 @@ def process(upload, kind: str) -> bytes:
     """The upload as clean WebP bytes, or ImageRefused."""
     if kind not in KINDS:
         raise ValueError(kind)
+    try:
+        return _process(upload, kind)
+    except ImageRefused as refused:
+        refused.kind = kind
+        raise
+
+
+def _process(upload, kind: str) -> bytes:
     data = _read(upload)
     try:
         with warnings.catch_warnings():

@@ -21,6 +21,9 @@ class Look(models.Model):
     name = models.CharField(max_length=60, blank=True)
     #: The account's look: it shows wherever a deck has none of its own.
     is_default = models.BooleanField(default=False)
+    #: A preset from `looks.presets`, or "own" for the uploaded image.
+    mat_preset = models.CharField(max_length=16, blank=True)
+    sleeve_preset = models.CharField(max_length=16, blank=True)
     #: Paths on the share, `<look hex>/<uuid4 hex>.webp`; blank: the standard.
     mat_image = models.CharField(max_length=80, blank=True)
     sleeve_image = models.CharField(max_length=80, blank=True)

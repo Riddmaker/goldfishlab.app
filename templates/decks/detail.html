@@ -113,6 +113,10 @@
              class="icon-host inline-flex items-center gap-2 border border-parchment-100 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-ink-800">
             {% icon "deck" %}{% translate "Deck in hand" %}
           </a>
+          <a href="{% url 'decks:look' deck.id %}" data-look-link
+             class="icon-host inline-flex items-center gap-2 border border-parchment-100 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-ink-800">
+            {% icon "sleeve" %}{% translate "Customisation" %}
+          </a>
         </div>
 
         {% if running_run or last_run %}

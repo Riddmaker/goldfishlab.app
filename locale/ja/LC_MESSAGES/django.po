@@ -15299,3 +15299,108 @@ msgstr "画像が 2,500 万画素を超えています。"
 #: looks/images.py
 msgid "Upload a PNG, JPEG or WebP image."
 msgstr "PNG、JPEG、WebP のいずれかの画像をアップロードしてください。"
+
+msgid "Customisation"
+msgstr "カスタマイズ"
+
+msgid "Your own mat and sleeves."
+msgstr "自分だけのプレイマットとスリーブ。"
+
+msgid "Only you see it."
+msgstr "見えるのはあなただけです。"
+
+msgid "Please check the marked fields."
+msgstr "印の付いた項目を確認してください。"
+
+msgid "Mat"
+msgstr "プレイマット"
+
+msgid "Sleeves"
+msgstr "スリーブ"
+
+msgid "Your own image"
+msgstr "自分の画像"
+
+#, python-format
+msgid "Upload a mat (PNG, JPEG or WebP, up to %(max_mb)s MB)"
+msgstr "プレイマットをアップロード（PNG・JPEG・WebP、%(max_mb)s MB まで）"
+
+#, python-format
+msgid "Upload a sleeve (PNG, JPEG or WebP, up to %(max_mb)s MB)"
+msgstr "スリーブをアップロード（PNG・JPEG・WebP、%(max_mb)s MB まで）"
+
+msgid "Seam"
+msgstr "縁取りステッチ"
+
+msgid "Seam colour"
+msgstr "ステッチの色"
+
+msgid "Inner sleeve"
+msgstr "インナースリーブ"
+
+msgid "Inner sleeve colour"
+msgstr "インナースリーブの色"
+
+msgid "Back to the standard"
+msgstr "標準に戻す"
+
+msgid "Back to the standard look."
+msgstr "標準の見た目に戻しました。"
+
+msgid "Your look is saved."
+msgstr "見た目を保存しました。"
+
+msgid "Choose a colour."
+msgstr "色を選んでください。"
+
+msgid "Choose an image to upload."
+msgstr "アップロードする画像を選んでください。"
+
+msgid "Ink"
+msgstr "インク"
+
+msgid "Felt"
+msgstr "フェルト"
+
+msgid "Blood"
+msgstr "ブラッド"
+
+msgid "Water"
+msgstr "ウォーター"
+
+msgid "Parchment"
+msgstr "羊皮紙"
+
+msgid "Verdigris"
+msgstr "緑青"
+
+msgid "Gold"
+msgstr "ゴールド"
+
+msgid ""
+"Images you upload for your mat and sleeves, stored anew without what a "
+"camera writes into a photo (such as the place and the device)"
+msgstr "プレイマットとスリーブ用にアップロードした画像。カメラが写真に書き込む情報（撮影場所や機種など）を除いて保存し直します"
+
+msgid "To show your deck in your own look, to you only (contract)"
+msgstr "あなたのデッキをあなた自身の見た目で、あなたにだけ表示するため（契約）"
+
+msgid ""
+"Until you change them, go back to the standard look, or delete the account"
+msgstr "変更するか、標準の見た目に戻すか、アカウントを削除するまで"
+
+msgid ""
+"Your own mat and sleeves: pick a template or upload an image (PNG, JPEG or "
+"WebP, up to 5 MB). Add an inner sleeve or a seam in a colour of your choice."
+" Only you see your look; a shared report shows the standard one."
+msgstr ""
+"自分だけのプレイマットとスリーブ：テンプレートを選ぶか、画像をアップロードします（PNG・JPEG・WebP、5 MB "
+"まで）。好きな色のインナースリーブや縁取りステッチも付けられます。見た目はあなたにしか見えず、共有したレポートには標準の見た目が表示されます。"
+
+msgid ""
+"We store an image anew as WebP; what a camera writes into a photo, such as "
+"the place and the device, is not kept. Your images are deleted with your "
+"look or your account."
+msgstr ""
+"画像は WebP "
+"として保存し直します。撮影場所や機種など、カメラが写真に書き込む情報は残りません。画像は見た目またはアカウントの削除とともに削除されます。"

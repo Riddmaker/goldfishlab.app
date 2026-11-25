@@ -3,10 +3,13 @@
 from django.urls import path
 
 from decks import views
+from looks.views import LookView
 
 app_name = "decks"
 
 urlpatterns = [
+    # B-10: the account's mat and sleeves, reached from (and shown on) a deck.
+    path("<uuid:pk>/look/", LookView.as_view(), name="look"),
     path("", views.DeckListView.as_view(), name="list"),
     path("import/", views.DeckImportView.as_view(), name="import"),
     path("imports/<uuid:pk>/", views.ImportReviewView.as_view(), name="review"),

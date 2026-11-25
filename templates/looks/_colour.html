@@ -1,0 +1,21 @@
+{% load i18n %}
+{% comment %}
+  One colour of a look: the text field is what is sent (#rrggbb or rgba()),
+  and works without JavaScript. look-preview.js shows the picker and the
+  suggestions beside it and keeps the three in step.
+{% endcomment %}
+<div class="look-colour" data-look-colour="{{ name }}">
+  <label class="block text-sm text-parchment-200">{{ label }}
+    <input type="text" name="{{ name }}" value="{{ field.value|default:'' }}" maxlength="40" spellcheck="false"
+           placeholder="{{ swatches.0 }}" class="mt-1 block w-44 border border-parchment-600 bg-ink-900 px-2 py-2 text-parchment-100"
+           {% if field.errors %}aria-invalid="true"{% endif %}>
+  </label>
+  <input type="color" aria-label="{{ label }}" class="look-picker" data-look-picker hidden>
+  <span class="look-suggestions" data-look-suggestions hidden>
+    {% for swatch in swatches %}
+      <button type="button" class="look-suggestion" style="--swatch: {{ swatch }}" data-colour="{{ swatch }}"
+              aria-label="{{ swatch }}"></button>
+    {% endfor %}
+  </span>
+  {% for error in field.errors %}<p class="errorlist" role="alert">{{ error }}</p>{% endfor %}
+</div>

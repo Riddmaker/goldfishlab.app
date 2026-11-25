@@ -17594,3 +17594,118 @@ msgstr "L’image dépasse 25 mégapixels."
 #: looks/images.py
 msgid "Upload a PNG, JPEG or WebP image."
 msgstr "Envoyez une image PNG, JPEG ou WebP."
+
+msgid "Customisation"
+msgstr "Personnalisation"
+
+msgid "Your own mat and sleeves."
+msgstr "Votre propre tapis et vos propres protège-cartes."
+
+msgid "Only you see it."
+msgstr "Vous seul le voyez."
+
+msgid "Please check the marked fields."
+msgstr "Veuillez vérifier les champs signalés."
+
+msgid "Mat"
+msgstr "Tapis"
+
+msgid "Sleeves"
+msgstr "Protège-cartes"
+
+msgid "Your own image"
+msgstr "Votre propre image"
+
+#, python-format
+msgid "Upload a mat (PNG, JPEG or WebP, up to %(max_mb)s MB)"
+msgstr "Téléverser un tapis (PNG, JPEG ou WebP, jusqu’à %(max_mb)s Mo)"
+
+#, python-format
+msgid "Upload a sleeve (PNG, JPEG or WebP, up to %(max_mb)s MB)"
+msgstr ""
+"Téléverser un protège-carte (PNG, JPEG ou WebP, jusqu’à %(max_mb)s Mo)"
+
+msgid "Seam"
+msgstr "Couture"
+
+msgid "Seam colour"
+msgstr "Couleur de la couture"
+
+msgid "Inner sleeve"
+msgstr "Sous-protège-carte"
+
+msgid "Inner sleeve colour"
+msgstr "Couleur du sous-protège-carte"
+
+msgid "Back to the standard"
+msgstr "Revenir au standard"
+
+msgid "Back to the standard look."
+msgstr "Retour à l’apparence standard."
+
+msgid "Your look is saved."
+msgstr "Votre apparence est enregistrée."
+
+msgid "Choose a colour."
+msgstr "Choisissez une couleur."
+
+msgid "Choose an image to upload."
+msgstr "Choisissez une image à téléverser."
+
+msgid "Ink"
+msgstr "Encre"
+
+msgid "Felt"
+msgstr "Feutre"
+
+msgid "Blood"
+msgstr "Sang"
+
+msgid "Water"
+msgstr "Eau"
+
+msgid "Parchment"
+msgstr "Parchemin"
+
+msgid "Verdigris"
+msgstr "Vert-de-gris"
+
+msgid "Gold"
+msgstr "Or"
+
+msgid ""
+"Images you upload for your mat and sleeves, stored anew without what a "
+"camera writes into a photo (such as the place and the device)"
+msgstr ""
+"Les images que vous téléversez pour votre tapis et vos protège-cartes, "
+"réenregistrées sans ce qu’un appareil photo écrit dans une photo (comme le "
+"lieu et l’appareil)"
+
+msgid "To show your deck in your own look, to you only (contract)"
+msgstr ""
+"Pour afficher votre deck dans votre propre apparence, à vous seul (contrat)"
+
+msgid ""
+"Until you change them, go back to the standard look, or delete the account"
+msgstr ""
+"Jusqu’à ce que vous les changiez, reveniez à l’apparence standard ou "
+"supprimiez le compte"
+
+msgid ""
+"Your own mat and sleeves: pick a template or upload an image (PNG, JPEG or "
+"WebP, up to 5 MB). Add an inner sleeve or a seam in a colour of your choice."
+" Only you see your look; a shared report shows the standard one."
+msgstr ""
+"Votre propre tapis et vos propres protège-cartes : choisissez un modèle ou "
+"téléversez une image (PNG, JPEG ou WebP, jusqu’à 5 Mo). Ajoutez un sous-"
+"protège-carte ou une couture dans la couleur de votre choix. Vous seul voyez"
+" votre apparence ; un rapport partagé montre l’apparence standard."
+
+msgid ""
+"We store an image anew as WebP; what a camera writes into a photo, such as "
+"the place and the device, is not kept. Your images are deleted with your "
+"look or your account."
+msgstr ""
+"Nous réenregistrons chaque image en WebP ; ce qu’un appareil photo écrit "
+"dans une photo, comme le lieu et l’appareil, n’est pas conservé. Vos images "
+"sont supprimées avec votre apparence ou votre compte."

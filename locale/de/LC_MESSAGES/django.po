@@ -17433,3 +17433,114 @@ msgstr "Das Bild hat mehr als 25 Megapixel."
 #: looks/images.py
 msgid "Upload a PNG, JPEG or WebP image."
 msgstr "Lade ein Bild als PNG, JPEG oder WebP hoch."
+
+msgid "Customisation"
+msgstr "Gestaltung"
+
+msgid "Your own mat and sleeves."
+msgstr "Deine eigene Matte und deine eigenen Hüllen."
+
+msgid "Only you see it."
+msgstr "Nur du siehst es."
+
+msgid "Please check the marked fields."
+msgstr "Bitte prüfe die markierten Felder."
+
+msgid "Mat"
+msgstr "Matte"
+
+msgid "Sleeves"
+msgstr "Hüllen"
+
+msgid "Your own image"
+msgstr "Eigenes Bild"
+
+#, python-format
+msgid "Upload a mat (PNG, JPEG or WebP, up to %(max_mb)s MB)"
+msgstr "Matte hochladen (PNG, JPEG oder WebP, bis %(max_mb)s MB)"
+
+#, python-format
+msgid "Upload a sleeve (PNG, JPEG or WebP, up to %(max_mb)s MB)"
+msgstr "Hülle hochladen (PNG, JPEG oder WebP, bis %(max_mb)s MB)"
+
+msgid "Seam"
+msgstr "Naht"
+
+msgid "Seam colour"
+msgstr "Farbe der Naht"
+
+msgid "Inner sleeve"
+msgstr "Innenhülle"
+
+msgid "Inner sleeve colour"
+msgstr "Farbe der Innenhülle"
+
+msgid "Back to the standard"
+msgstr "Zurück zum Standard"
+
+msgid "Back to the standard look."
+msgstr "Zurück zum Standard-Look."
+
+msgid "Your look is saved."
+msgstr "Dein Look ist gespeichert."
+
+msgid "Choose a colour."
+msgstr "Wähle eine Farbe."
+
+msgid "Choose an image to upload."
+msgstr "Wähle ein Bild zum Hochladen."
+
+msgid "Ink"
+msgstr "Tinte"
+
+msgid "Felt"
+msgstr "Filz"
+
+msgid "Blood"
+msgstr "Blut"
+
+msgid "Water"
+msgstr "Wasser"
+
+msgid "Parchment"
+msgstr "Pergament"
+
+msgid "Verdigris"
+msgstr "Grünspan"
+
+msgid "Gold"
+msgstr "Gold"
+
+msgid ""
+"Images you upload for your mat and sleeves, stored anew without what a "
+"camera writes into a photo (such as the place and the device)"
+msgstr ""
+"Bilder, die du für deine Matte und deine Hüllen hochlädst, neu gespeichert "
+"ohne das, was eine Kamera in ein Foto schreibt (etwa Ort und Gerät)"
+
+msgid "To show your deck in your own look, to you only (contract)"
+msgstr "Um dein Deck in deinem eigenen Look zu zeigen, nur dir (Vertrag)"
+
+msgid ""
+"Until you change them, go back to the standard look, or delete the account"
+msgstr ""
+"Bis du sie änderst, zum Standard-Look zurückkehrst oder das Konto löschst"
+
+msgid ""
+"Your own mat and sleeves: pick a template or upload an image (PNG, JPEG or "
+"WebP, up to 5 MB). Add an inner sleeve or a seam in a colour of your choice."
+" Only you see your look; a shared report shows the standard one."
+msgstr ""
+"Deine eigene Matte und deine eigenen Hüllen: Wähle eine Vorlage oder lade "
+"ein Bild hoch (PNG, JPEG oder WebP, bis 5 MB). Füge eine Innenhülle oder "
+"eine Naht in einer Farbe deiner Wahl hinzu. Nur du siehst deinen Look; ein "
+"geteilter Bericht zeigt den Standard."
+
+msgid ""
+"We store an image anew as WebP; what a camera writes into a photo, such as "
+"the place and the device, is not kept. Your images are deleted with your "
+"look or your account."
+msgstr ""
+"Wir speichern ein Bild neu als WebP; was eine Kamera in ein Foto schreibt, "
+"etwa Ort und Gerät, bleibt nicht erhalten. Deine Bilder werden mit deinem "
+"Look oder deinem Konto gelöscht."

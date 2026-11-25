@@ -17099,3 +17099,50 @@ msgstr "Spunta almeno una carta da togliere o da aggiungere."
 #: decks/forms.py
 msgid "Too many changes for one version."
 msgstr "Troppe modifiche per una versione."
+
+#: templates/decks/_import_form.html
+msgid "Your export from Archidekt, Moxfield, ManaBox & co. – file or text."
+msgstr "Il tuo export da Archidekt, Moxfield, ManaBox & co. – file o testo."
+
+#: templates/core/home.html
+msgid "No account needed."
+msgstr "Nessun account necessario."
+
+#: core/ticker.py
+msgid "Sol Ring, turn one. Of course."
+msgstr "Sol Ring al turno uno. Ovviamente."
+
+#: core/ticker.py
+msgid "Top-decked a land. Again."
+msgstr "Pescato una terra. Di nuovo."
+
+#: templates/core/home.html
+msgid "On every deck page"
+msgstr "In ogni pagina del mazzo"
+
+#: core/views.py
+msgid "Ten hands from your deck: keep or send back, then see the odds."
+msgstr ""
+"Dieci mani dal tuo mazzo: tieni o rimanda indietro, poi guarda le "
+"probabilità."
+
+#: core/views.py
+msgid "Strategies"
+msgstr "Strategie"
+
+#: core/views.py
+msgid "The combos in your deck, and how often they come together."
+msgstr "Le combo nel tuo mazzo, e quanto spesso si completano."
+
+#: core/views.py
+msgid "What your deck is built around, and the cards that would feed it."
+msgstr ""
+"Attorno a cosa è costruito il tuo mazzo, e le carte che lo alimenterebbero."
+
+#: core/views.py
+msgid "How fast the deck is, against the Commander Brackets."
+msgstr "Quanto è veloce il mazzo, rispetto ai Commander Brackets."
+
+#: templates/decks/_card_tile.html
+msgid "Not in your deck"
+msgstr "Non nel tuo mazzo"

@@ -15061,3 +15061,47 @@ msgstr "抜くカードか入れるカードを少なくとも1枚選んでく�
 #: decks/forms.py
 msgid "Too many changes for one version."
 msgstr "1つのバージョンには変更が多すぎます。"
+
+#: templates/decks/_import_form.html
+msgid "Your export from Archidekt, Moxfield, ManaBox & co. – file or text."
+msgstr "Archidekt、Moxfield、ManaBox などからのエクスポート – ファイルでもテキストでも。"
+
+#: templates/core/home.html
+msgid "No account needed."
+msgstr "アカウントは不要です。"
+
+#: core/ticker.py
+msgid "Sol Ring, turn one. Of course."
+msgstr "1ターン目に Sol Ring。もちろんです。"
+
+#: core/ticker.py
+msgid "Top-decked a land. Again."
+msgstr "また土地を引きました。またです。"
+
+#: templates/core/home.html
+msgid "On every deck page"
+msgstr "すべてのデッキページに"
+
+#: core/views.py
+msgid "Ten hands from your deck: keep or send back, then see the odds."
+msgstr "デッキから10の手札。キープかマリガンかを選び、確率を確かめましょう。"
+
+#: core/views.py
+msgid "Strategies"
+msgstr "戦略"
+
+#: core/views.py
+msgid "The combos in your deck, and how often they come together."
+msgstr "デッキ内のコンボと、それが揃う頻度。"
+
+#: core/views.py
+msgid "What your deck is built around, and the cards that would feed it."
+msgstr "デッキが何を軸に組まれているか、そしてそれを支えるカード。"
+
+#: core/views.py
+msgid "How fast the deck is, against the Commander Brackets."
+msgstr "Commander Brackets に照らした、デッキの速さ。"
+
+#: templates/decks/_card_tile.html
+msgid "Not in your deck"
+msgstr "デッキにありません"

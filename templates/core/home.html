@@ -43,10 +43,10 @@
       <div id="import" class="surface-parchment mt-2 w-full p-4 sm:p-5 text-left shadow-xl shadow-ink-950/50" data-home-import>
         {% if user.is_authenticated %}
           {% url 'decks:import' as import_url %}
-          {% include "decks/_import_form.html" with action=import_url submit_label=_("Import") %}
+          {% include "decks/_import_form.html" with action=import_url submit_label=_("Import") compact=True %}
         {% else %}
           {% url 'guests:try' as try_url %}
-          {% include "decks/_import_form.html" with action=try_url submit_label=_("Simulate it") %}
+          {% include "decks/_import_form.html" with action=try_url submit_label=_("Simulate it") compact=True %}
         {% endif %}
       </div>
       {% if user.is_authenticated %}
@@ -54,7 +54,7 @@
            class="text-parchment-200 underline hover:text-parchment-50">{% translate "Your decks" %}</a>
       {% else %}
         <p class="text-ink-300">
-          {% translate "No account needed. Archidekt, Moxfield, ManaBox and plain text all work." %}
+          {% translate "No account needed." %}
           <a href="{% url 'account_signup' %}"
              class="whitespace-nowrap text-parchment-200 underline hover:text-parchment-50">{% translate "Create a free account" %}</a>
         </p>
@@ -66,7 +66,7 @@
     eight lines at a time from a loop of the last forty. "Pause" shows only
     with its script, since without it nothing moves.
   {% endcomment %}
-  <section data-ticker class="ticker-band mt-10" aria-labelledby="ticker-title">
+  <section data-ticker class="ticker-band mt-6" aria-labelledby="ticker-title">
     <div class="flex items-baseline justify-between gap-4">
       <h2 id="ticker-title" class="font-display text-xl text-ink-300">{% translate "What others did recently" %}</h2>
       <button type="button"
@@ -83,10 +83,11 @@
   {% comment %}
     What you get (Paket 4, PR 17): two tiles on parchment, a symbol, one
     sentence and a real page of a guest trial (phase 9 G), captured from the
-    local stack as WebP, 720 x 540, by `scripts/home_pictures.py`. Not links:
-    the way in is the form above; the symbol moves on hover like every other.
-    Both tiles are as tall as the taller one, the picture at the foot (deck
-    page v2, PR A); the method, precon and resources links live in the footer.
+    local stack as WebP, 720 x 540, by `scripts/home_pictures.py`. Both tiles
+    are as tall as the taller one, the picture at the foot (deck page v2,
+    PR A). Under them one small tile for every other thing a deck page does
+    (B-13, `core.views.FEATURES`). Each tile's one link says how it works, on
+    the methodology page; the way in stays the form above.
   {% endcomment %}
   <div class="mt-10 grid items-stretch gap-6 md:grid-cols-2">
     <section class="home-tile surface-parchment icon-host" aria-labelledby="tile-simulate">
@@ -98,6 +99,7 @@
            height="540"
            loading="lazy"
            class="mt-auto w-full border border-parchment-600">
+      <a href="{% url 'methodology' %}#report" class="text-ink-900 underline">{% translate "How it works" %}</a>
     </section>
     <section class="home-tile surface-parchment icon-host" aria-labelledby="tile-hand">
       <h2 id="tile-hand" class="flex items-center gap-3 font-display text-2xl text-ink-950">{% icon "hand" size="lg" %}{% translate "Draw a hand" %}</h2>
@@ -108,6 +110,19 @@
            height="540"
            loading="lazy"
            class="mt-auto w-full border border-parchment-600">
+      <a href="{% url 'methodology' %}#opening" class="text-ink-900 underline">{% translate "How it works" %}</a>
     </section>
   </div>
+  <section class="mt-10" aria-labelledby="features-title">
+    <h2 id="features-title" class="font-display text-2xl text-parchment-100">{% translate "On every deck page" %}</h2>
+    <ul class="mt-4 grid items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3" data-features>
+      {% for feature in features %}
+        <li class="home-tile surface-parchment icon-host" data-feature="{{ feature.anchor }}">
+          <h3 class="flex items-center gap-3 font-display text-xl text-ink-950">{% icon feature.icon size="lg" %}{{ feature.title }}</h3>
+          <p class="text-ink-700">{{ feature.line }}</p>
+          <a href="{% url 'methodology' %}#{{ feature.anchor }}" class="mt-auto text-ink-900 underline">{% translate "How it works" %}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
 {% endblock %}

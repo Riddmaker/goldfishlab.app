@@ -31,9 +31,15 @@ def image_for(deck, name: str, fallback: str = "") -> str:
 
 
 @register.inclusion_tag("decks/_card_tile.html", takes_context=True)
-def card_tile(context, name, effect="", repeats=False, size="", fallback=""):
+def card_tile(context, name, effect="", repeats=False, size="", fallback="", missing=False):
     """One card's picture with `effect` under it; `size="sm"` for a row of
     many (the theme groups). `fallback` is a picture for a card the deck
-    does not hold."""
+    does not hold; `missing` marks it as the one a combo still needs (B-06)."""
     return {"name": name, "effect": effect, "repeats": repeats, "size": size,
-            "image": image_for(context.get("deck"), name, fallback)}
+            "missing": missing, "image": image_for(context.get("deck"), name, fallback)}
+
+
+@register.filter
+def is_missing(name: str, missing) -> bool:
+    """`card.name|is_missing:entry.missing`: the card a one-away combo lacks."""
+    return name in (missing or ())

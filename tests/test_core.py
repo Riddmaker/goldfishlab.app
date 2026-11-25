@@ -20,14 +20,14 @@ def test_home_renders(client):
 
 def test_step_one_is_not_only_for_archidekt(client):
     """Phase 10 T1.3: any deck site's export, or a list copied by hand. The
-    steps stand on the trial page; the home page says it in one line (PR 17)."""
+    steps stand on the trial page; the home page says it in one line (PR 17; B-12)."""
     body = client.get(reverse("guests:try")).content.decode()
 
     assert "Export or copy your list" in body
     assert "Archidekt, Moxfield, ManaBox" in body
     assert "Export from Archidekt" not in body
     home = client.get(reverse("home")).content.decode()
-    assert "Archidekt, Moxfield, ManaBox and plain text" in home
+    assert "Your export from Archidekt, Moxfield, ManaBox & co." in home
 
 
 def test_home_carries_the_fan_content_disclaimer(client):

@@ -17,9 +17,13 @@ The first version is made lazily from the list as it is, the first time a
 second one is made: a deck nobody versions never gets a row.
 """
 
+from dataclasses import dataclass
+
 from django.db import transaction
 from django.db.models import Max
 
+from cards.models import OracleCard
+from core.l10n import percent
 from decks.models import Deck, DeckCard, DeckVersion
 
 
@@ -175,3 +179,71 @@ def diff(older: DeckVersion | None, newer: DeckVersion) -> dict[str, int]:
     return {oracle_id: after.get(oracle_id, 0) - before.get(oracle_id, 0)
             for oracle_id in sorted(before.keys() | after.keys())
             if after.get(oracle_id, 0) != before.get(oracle_id, 0)}
+
+
+@dataclass(frozen=True)
+class Step:
+    """One version on the deck page's timeline (PR 3), newest first."""
+
+    version: DeckVersion
+    current: bool
+    #: Cards in and out against the version before it (the one still kept).
+    added: list[tuple[str, int]]
+    removed: list[tuple[str, int]]
+    #: This list's runs, newest first; the first finished one is `last`.
+    runs: list
+    last: object | None
+    #: "81%": games of `last` with four lands on turn 4 (`simulations.numbers`).
+    on_curve: str | None = None
+
+
+def timeline(deck: Deck) -> tuple[list[Step], list]:
+    """The deck's versions with their runs, and the runs of no kept version.
+
+    A run belongs to a version by its list (`list_print`); a run of a removed
+    version, or of a list from before the versions, is "an old list". A run
+    from before `list_print` existed belongs nowhere and is left out here:
+    "Earlier runs" still lists it.
+    """
+    from simulations import numbers
+    from simulations.models import SimulationRun
+
+    kept = list(deck.versions.all())
+    if not kept:
+        return [], []
+    runs = list(deck.runs.exclude(list_print="").defer("result").order_by("-created_at")[:200])
+    by_print: dict[str, list] = {}
+    for run in runs:
+        by_print.setdefault(run.list_print, []).append(run)
+    prints = {version.list_print for version in kept}
+    old = [run for run in runs if run.list_print not in prints]
+
+    changes = [diff(before, version)
+               for before, version in zip([None, *kept[:-1]], kept, strict=True)]
+    names = dict(OracleCard.objects.filter(
+        pk__in={oracle_id for change in changes for oracle_id in change})
+        .values_list("pk", "front_name"))
+    named = {str(pk): name for pk, name in names.items()}
+
+    steps = []
+    for index, (version, change) in enumerate(zip(kept, changes, strict=True)):
+        mine = by_print.get(version.list_print, [])
+        done = next((run for run in mine if run.status == SimulationRun.Status.DONE), None)
+        on_curve = None
+        if done is not None:
+            done = SimulationRun.objects.get(pk=done.pk)
+            share = numbers.of(done).on_curve if done.result else None
+            on_curve = percent(share) if share is not None else None
+        first_one = index == 0
+        steps.append(Step(
+            version=version,
+            current=version.pk == deck.current_version_id,
+            added=[] if first_one else sorted(
+                (named.get(oracle_id, "?"), n) for oracle_id, n in change.items() if n > 0),
+            removed=[] if first_one else sorted(
+                (named.get(oracle_id, "?"), -n) for oracle_id, n in change.items() if n < 0),
+            runs=mine,
+            last=done,
+            on_curve=on_curve,
+        ))
+    return steps[::-1], old

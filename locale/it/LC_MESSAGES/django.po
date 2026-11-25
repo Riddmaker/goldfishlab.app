@@ -16964,3 +16964,57 @@ msgstr "Terre in una mano da sette carte, prima di ogni mulligan."
 #: templates/decks/_opening_hand.html
 msgid "Keep or mulligan? Judge ten hands from this deck"
 msgstr "Tenere o mulligan? Giudica dieci mani di questo mazzo"
+
+#: templates/decks/_versions.html
+msgid "Versions"
+msgstr "Versioni"
+
+#: templates/decks/_versions.html
+msgid "current"
+msgstr "attuale"
+
+#: templates/decks/_versions.html
+msgid "import"
+msgstr "importazione"
+
+#: templates/decks/_versions.html
+msgid "Changes against the version before"
+msgstr "Modifiche rispetto alla versione precedente"
+
+#: templates/decks/_versions.html
+#, python-format
+msgid "%(share)s four lands on turn 4"
+msgstr "%(share)s quattro terre al turno 4"
+
+#: templates/decks/_versions.html
+#, python-format
+msgid "%(count)s run"
+msgid_plural "%(count)s runs"
+msgstr[0] "%(count)s simulazione"
+msgstr[1] "%(count)s simulazioni"
+
+#: templates/decks/_versions.html
+msgid "No run yet."
+msgstr "Ancora nessuna simulazione."
+
+#: templates/decks/_versions.html
+#, python-format
+msgid "Choose v%(number)s"
+msgstr "Scegli v%(number)s"
+
+#: templates/decks/_versions.html
+#, python-format
+msgid "Remove v%(number)s"
+msgstr "Rimuovi v%(number)s"
+
+#: templates/decks/_versions.html
+msgid "Its runs stay."
+msgstr "Le sue simulazioni restano."
+
+#: templates/decks/_versions.html
+msgid "Runs of an old list"
+msgstr "Simulazioni di una vecchia lista"
+
+#: decks/views.py
+msgid "A deck keeps at least one version."
+msgstr "Un mazzo tiene almeno una versione."

@@ -1,0 +1,95 @@
+{% load humanize i18n %}
+{% comment %}
+  The versions of the list, newest first (B-01, package "Workshop", PR 3).
+  Each leads with its number, then what changed against the version before
+  it, then what its last run said - number before sentence (DESIGN). A run
+  belongs to a version by its list (`decks.versions.timeline`); runs of a
+  removed version stay, under "Runs of an old list".
+
+  Takes: versions (Step list), old_runs, deck.
+{% endcomment %}
+<section id="versions" class="surface-parchment mt-6 p-6" aria-labelledby="versions-heading">
+  <h2 id="versions-heading" class="font-display text-xl text-ink-900">{% translate "Versions" %}</h2>
+  <ol class="mt-4 space-y-4 border-l-2 border-ink-300 pl-4" data-version-timeline>
+    {% for step in versions %}
+      <li class="version-step{% if step.current %} version-current{% endif %}"
+          data-version="{{ step.version.number }}">
+        <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <span class="tabular font-display text-2xl text-ink-900">v{{ step.version.number }}</span>
+          <span class="text-sm text-ink-700">{{ step.version.created_at|date:"SHORT_DATETIME_FORMAT" }}</span>
+          {% if step.current %}
+            <span class="border border-blood-700 px-2 text-sm text-blood-700">{% translate "current" %}</span>
+          {% endif %}
+          {% if step.version.origin == "import" %}
+            <span class="text-sm text-ink-700">{% translate "import" %}</span>
+          {% endif %}
+        </div>
+        {% if step.version.comment %}<p class="mt-1 text-ink-900">{{ step.version.comment }}</p>{% endif %}
+        {% if step.added or step.removed %}
+          <ul class="tabular mt-1 flex flex-wrap gap-x-4 text-sm" aria-label="{% translate "Changes against the version before" %}">
+            {% for name, count in step.added %}
+              <li class="text-verdigris-800">+{{ count }} {{ name }}</li>
+            {% endfor %}
+            {% for name, count in step.removed %}
+              <li class="text-blood-700">−{{ count }} {{ name }}</li>
+            {% endfor %}
+          </ul>
+        {% elif forloop.last %}
+          <p class="tabular mt-1 text-sm text-ink-700">
+            {% blocktranslate count count=step.version.card_count %}{{ count }} card{% plural %}{{ count }} cards{% endblocktranslate %}
+          </p>
+        {% endif %}
+        <p class="tabular mt-1 text-sm text-ink-700">
+          {% if step.on_curve %}
+            <a href="{{ step.last.get_absolute_url }}" class="text-ink-900 underline">
+              {% blocktranslate trimmed with share=step.on_curve %}
+                {{ share }} four lands on turn 4
+              {% endblocktranslate %}
+            </a>
+            ·
+            {% blocktranslate count count=step.runs|length %}{{ count }} run{% plural %}{{ count }} runs{% endblocktranslate %}
+          {% elif step.runs %}
+            {% blocktranslate count count=step.runs|length %}{{ count }} run{% plural %}{{ count }} runs{% endblocktranslate %}
+          {% else %}
+            {% translate "No run yet." %}
+          {% endif %}
+        </p>
+        {% if not step.current %}
+          <div class="mt-2 flex flex-wrap items-center gap-3">
+            <form method="post" action="{% url 'decks:version-choose' deck.pk step.version.number %}">
+              {% csrf_token %}
+              <button type="submit" class="border border-ink-800 px-3 py-1 text-sm text-ink-900 hover:bg-parchment-50">
+                {% blocktranslate with number=step.version.number %}Choose v{{ number }}{% endblocktranslate %}
+              </button>
+            </form>
+            <details class="text-sm">
+              <summary class="cursor-pointer text-blood-700 underline">{% translate "Remove" %}</summary>
+              <form method="post" action="{% url 'decks:version-remove' deck.pk step.version.number %}" class="mt-2">
+                {% csrf_token %}
+                <button type="submit" class="border border-blood-800 bg-blood-700 px-3 py-1 text-parchment-100 hover:bg-blood-800">
+                  {% blocktranslate with number=step.version.number %}Remove v{{ number }}{% endblocktranslate %}
+                </button>
+                <span class="ml-2 text-ink-700">{% translate "Its runs stay." %}</span>
+              </form>
+            </details>
+          </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+  {% if old_runs %}
+    <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "Runs of an old list" %}</h3>
+    <ul class="mt-2 space-y-1 text-sm" data-old-runs>
+      {% for run in old_runs|slice:":5" %}
+        <li>
+          <a href="{{ run.get_absolute_url }}" class="text-ink-900 underline">{{ run.created_at|date:"SHORT_DATETIME_FORMAT" }}</a>
+          <span class="tabular text-ink-700">·
+            {% blocktranslate trimmed with games=run.games_total|intcomma turns=run.turns %}
+              {{ games }} games, {{ turns }} turns
+            {% endblocktranslate %}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</section>

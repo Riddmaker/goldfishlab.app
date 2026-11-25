@@ -4,12 +4,17 @@ A version is a snapshot; the deck's own rows always hold the version it is in.
 """
 import pytest
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 
 from accounts import privacy
 from cards.models import OracleCard
 from decks import services, versions
 from decks.models import DeckVersion
+from simulations import services as sim_services
+from simulations import tasks
+from simulations.models import SimulationRun
 from simulations.summary import list_fingerprint
+from tests.test_i18n import FakeRedis
 
 User = get_user_model()
 
@@ -160,3 +165,112 @@ def test_versions_are_in_the_export(deck, owner):
     exported = privacy.export(owner)
 
     assert len(exported["deck_versions"]) == 2
+
+
+# --- PR 3: the timeline on the deck page ---------------------------------------
+
+
+def run_of(deck, owner, **fields):
+    return SimulationRun.objects.create(
+        owner=owner, deck=deck, games_total=40, turns=4, seed=7,
+        list_print=list_fingerprint(deck), **fields)
+
+
+def test_the_timeline_is_newest_first_with_what_each_version_changed(deck):
+    versions.make(deck, {card("Sol Ring"): -1, card("Island"): +2}, "fewer rocks")
+
+    steps, old = versions.timeline(deck)
+
+    assert [step.version.number for step in steps] == [2, 1]
+    assert steps[0].current and not steps[1].current
+    assert steps[0].added == [("Island", 2)] and steps[0].removed == [("Sol Ring", 1)]
+    assert steps[1].added == steps[1].removed == []
+    assert old == []
+
+
+def test_a_run_belongs_to_the_version_of_its_list(deck, owner):
+    first_run = run_of(deck, owner)
+    versions.make(deck, {card("Swamp"): -1})
+    second_run = run_of(deck, owner)
+
+    two, one = versions.timeline(deck)[0]
+
+    assert two.runs == [second_run] and one.runs == [first_run]
+
+
+def test_a_removed_versions_runs_stay_as_an_old_list(deck, owner):
+    versions.make(deck, {card("Swamp"): -1})
+    run = run_of(deck, owner)
+    versions.make(deck, {card("Swamp"): -1})
+    versions.remove(deck.versions.get(number=2))
+
+    steps, old = versions.timeline(deck)
+
+    assert [step.version.number for step in steps] == [3, 1]
+    assert old == [run]
+    assert SimulationRun.objects.filter(pk=run.pk).exists()
+
+
+def test_the_last_finished_run_says_its_share_on_curve(deck, owner, monkeypatch):
+    monkeypatch.setattr(sim_services, "_redis", FakeRedis)
+    versions.make(deck, {card("Swamp"): +20})
+    run = run_of(deck, owner)
+    chunks = [tasks.simulate_chunk(str(run.pk), index, 20) for index in range(2)]
+    tasks.finalize_run(chunks, str(run.pk))
+
+    newest = versions.timeline(deck)[0][0]
+
+    assert newest.last == run
+    assert newest.on_curve and newest.on_curve.endswith("%")
+
+
+def test_the_deck_page_shows_the_timeline_only_once_there_are_versions(client, deck, owner):
+    client.force_login(owner)
+    assert b"data-version-timeline" not in client.get(deck.get_absolute_url()).content
+
+    versions.make(deck, {card("Swamp"): -1}, "one swamp less")
+    page = client.get(deck.get_absolute_url()).content.decode()
+
+    assert "data-version-timeline" in page and "one swamp less" in page
+    assert reverse("decks:version-choose", args=[deck.pk, 1]) in page
+    assert reverse("decks:version-choose", args=[deck.pk, 2]) not in page  # the current one
+
+
+def test_choose_and_remove_from_the_page(client, deck, owner):
+    client.force_login(owner)
+    versions.make(deck, {card("Swamp"): -1})
+
+    client.post(reverse("decks:version-choose", args=[deck.pk, 1]))
+    deck.refresh_from_db()
+    assert deck.current_version.number == 1
+
+    client.post(reverse("decks:version-remove", args=[deck.pk, 2]))
+    assert list(deck.versions.values_list("number", flat=True)) == [1]
+
+    response = client.post(reverse("decks:version-remove", args=[deck.pk, 1]), follow=True)
+    assert deck.versions.count() == 1
+    assert "at least one version" in response.content.decode()
+
+
+def test_somebody_elses_versions_are_out_of_reach(client, deck):
+    versions.make(deck, {card("Swamp"): -1})
+    stranger = User.objects.create_user(email="other@example.com", password="pw-for-test-only")
+    client.force_login(stranger)
+
+    assert client.post(reverse("decks:version-choose", args=[deck.pk, 1])).status_code == 404
+    assert client.post(reverse("decks:version-remove", args=[deck.pk, 1])).status_code == 404
+    assert deck.versions.count() == 2
+
+
+def test_the_timeline_speaks_german(deck):
+    from django.template.loader import render_to_string
+    from django.utils import translation
+
+    versions.make(deck, {card("Swamp"): -1})
+    steps, old = versions.timeline(deck)
+    with translation.override("de"):
+        html = render_to_string("decks/_versions.html",
+                                {"versions": steps, "old_runs": old, "deck": deck})
+
+    assert "Versionen" in html and "aktuell" in html and "v1 wählen" in html
+    assert "Noch kein Lauf." in html

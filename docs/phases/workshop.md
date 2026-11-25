@@ -17,7 +17,7 @@ Freigegeben vom Owner am 2026-11-24 mit allen Empfehlungen.
 |---|---|---|
 | 1 | B-09 Hand: feste Trefferfläche pro Karte (Streifen), Bild statt Slot bewegt sich, Hand an der Matte, Hilfetext darunter, Schweben in Ruhe, Lang-Drücken am Handy (`static/js/hand-press.js`, auch Tutor und Quiz) | erledigt (88c9f86) |
 | 2 | Modell `DeckVersion`: Schnappschuss der Liste + Kommentar; V1 lazy beim ersten Bearbeiten; Auswahl schreibt `DeckCard` über die Logik aus `decks/services.py:451`; Diffs berechnet, nicht gespeichert (`decks/versions.py`) | erledigt |
-| 3 | Zeitstrahl der Versionen auf der Deckseite, Läufe je Version | offen |
+| 3 | Zeitstrahl der Versionen auf der Deckseite (`templates/decks/_versions.html`): neueste oben, +/- je Karte gegen die Version davor, Läufe je Version über `list_print` mit «vier Länder in Zug 4» des letzten Laufs, Wählen und Entfernen; Läufe entfernter Versionen unter «Läufe einer alten Liste» | erledigt |
 | 4 | Delta-Maske (Cuts/Adds annehmen) und Kartensuche | offen |
 
 Pro PR: ruff, djlint, Vollsuite, Browser-Check; Architektur-Doc nachführen bei PR 2.

@@ -14929,3 +14929,56 @@ msgstr "マリガン前の7枚の手札に入る土地。"
 #: templates/decks/_opening_hand.html
 msgid "Keep or mulligan? Judge ten hands from this deck"
 msgstr "キープかマリガンか？このデッキの10個の手札を判定"
+
+#: templates/decks/_versions.html
+msgid "Versions"
+msgstr "バージョン"
+
+#: templates/decks/_versions.html
+msgid "current"
+msgstr "現在"
+
+#: templates/decks/_versions.html
+msgid "import"
+msgstr "インポート"
+
+#: templates/decks/_versions.html
+msgid "Changes against the version before"
+msgstr "前のバージョンからの変更"
+
+#: templates/decks/_versions.html
+#, python-format
+msgid "%(share)s four lands on turn 4"
+msgstr "%(share)s 4ターン目に土地4枚"
+
+#: templates/decks/_versions.html
+#, python-format
+msgid "%(count)s run"
+msgid_plural "%(count)s runs"
+msgstr[0] "%(count)s 回の実行"
+
+#: templates/decks/_versions.html
+msgid "No run yet."
+msgstr "まだ実行はありません。"
+
+#: templates/decks/_versions.html
+#, python-format
+msgid "Choose v%(number)s"
+msgstr "v%(number)s を選ぶ"
+
+#: templates/decks/_versions.html
+#, python-format
+msgid "Remove v%(number)s"
+msgstr "v%(number)s を削除"
+
+#: templates/decks/_versions.html
+msgid "Its runs stay."
+msgstr "実行結果は残ります。"
+
+#: templates/decks/_versions.html
+msgid "Runs of an old list"
+msgstr "古いリストの実行"
+
+#: decks/views.py
+msgid "A deck keeps at least one version."
+msgstr "デッキには少なくとも1つのバージョンが残ります。"

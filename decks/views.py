@@ -29,7 +29,15 @@ from combos import services as combo_services
 from combos.models import DeckCombo
 from core.l10n import percent
 from decks import analysis as deck_analysis
-from decks import command_zone, engine_watch, mulligan, printing_art, services, tutor
+from decks import (
+    command_zone,
+    engine_watch,
+    mulligan,
+    printing_art,
+    services,
+    tutor,
+    versions,
+)
 from decks.forms import (
     DELETE_WORDS,
     ColumnMappingForm,
@@ -48,6 +56,7 @@ from decks.models import (
     DeckCard,
     DeckImport,
     DeckMark,
+    DeckVersion,
     PendingImport,
     art_missing,
     first_image,
@@ -240,6 +249,8 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
         context["strategies"] = strategies.block(
             readings, written.get("content"),
             summary.cut_candidates(readings, reading, summary.combos_of(deck)))
+        # B-01, PR 3: the versions, newest first, each with its runs.
+        context["versions"], context["old_runs"] = versions.timeline(deck)
         context["runs"] = runs = list(deck.runs.all()[:5])
         context.update(self.last_run_context(deck, runs))
         # PR 5: by which turn each engine runs, from the last finished run;
@@ -696,6 +707,31 @@ class PrintingArtRetryView(DeckDetailView):
         if request.headers.get("HX-Request"):
             return self.grid_response()
         return redirect(f"{self.object.get_absolute_url()}#cards")
+
+
+@method_decorator(ratelimit(key="user", rate="30/m", method="POST"), name="post")
+class VersionChooseView(LoginRequiredMixin, View):
+    """Be in another version of the list (B-01, PR 3): the timeline's "Choose"."""
+
+    def post(self, request, pk, number):
+        deck = get_object_or_404(Deck, pk=pk, owner=request.user)
+        version = get_object_or_404(DeckVersion, deck=deck, number=number)
+        versions.choose(deck, version)
+        return redirect(f"{deck.get_absolute_url()}#versions")
+
+
+@method_decorator(ratelimit(key="user", rate="30/m", method="POST"), name="post")
+class VersionRemoveView(LoginRequiredMixin, View):
+    """Remove one version; its runs stay as "an old list" (B-01, PR 3)."""
+
+    def post(self, request, pk, number):
+        deck = get_object_or_404(Deck, pk=pk, owner=request.user)
+        version = get_object_or_404(DeckVersion, deck=deck, number=number)
+        try:
+            versions.remove(version)
+        except versions.VersionError:
+            messages.error(request, gettext("A deck keeps at least one version."))
+        return redirect(f"{deck.get_absolute_url()}#versions")
 
 
 @method_decorator(ratelimit(key="user", rate="30/m", method="POST"), name="post")

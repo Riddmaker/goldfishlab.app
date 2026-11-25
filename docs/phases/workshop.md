@@ -18,7 +18,7 @@ Freigegeben vom Owner am 2026-11-24 mit allen Empfehlungen.
 | 1 | B-09 Hand: feste Trefferfläche pro Karte (Streifen), Bild statt Slot bewegt sich, Hand an der Matte, Hilfetext darunter, Schweben in Ruhe, Lang-Drücken am Handy (`static/js/hand-press.js`, auch Tutor und Quiz) | erledigt (88c9f86) |
 | 2 | Modell `DeckVersion`: Schnappschuss der Liste + Kommentar; V1 lazy beim ersten Bearbeiten; Auswahl schreibt `DeckCard` über die Logik aus `decks/services.py:451`; Diffs berechnet, nicht gespeichert (`decks/versions.py`) | erledigt |
 | 3 | Zeitstrahl der Versionen auf der Deckseite (`templates/decks/_versions.html`): neueste oben, +/- je Karte gegen die Version davor, Läufe je Version über `list_print` mit «vier Länder in Zug 4» des letzten Laufs, Wählen und Entfernen; Läufe entfernter Versionen unter «Läufe einer alten Liste» | erledigt |
-| 4 | Delta-Maske (Cuts/Adds annehmen) und Kartensuche | offen |
+| 4 | Seite «Neue Version» (`templates/decks/version_new.html`): Cuts der Regel und Strategie-Picks zum Anhaken, Kartensuche im Deck (raus) und im Katalog in den Deckfarben (rein), Kommentar; ein einziges Formular, Suche behält die Haken ohne JavaScript. Dazu Gruppen-Delta (Kartenart, Rolle) im Zeitstrahl | erledigt |
 
 Pro PR: ruff, djlint, Vollsuite, Browser-Check; Architektur-Doc nachführen bei PR 2.
 
@@ -28,3 +28,11 @@ Pro PR: ruff, djlint, Vollsuite, Browser-Check; Architektur-Doc nachführen bei 
 - Ein gehobener Slot lag mit voller Breite obenauf: ab 9 Karten übersprang die Maus nach rechts Karten.
 - Gedrehte Trefferstreifen lassen unten Lücken: Streifen 1.5rem breiter und 1rem tiefer.
 - Browser-Checks: echtes Brett (7 Karten, drei Höhen, beide Richtungen, Handy lang/kurz), synthetisch 7/10/15 Karten.
+
+## PR 2–4, Befunde
+
+- Kommandeur von Hand gewählt: korrigiert die aktuelle Version, statt eine neue zu machen.
+- Re-Import eines Decks mit Versionen legt eine Version «Import» an; ohne Versionen bleibt alles wie bisher.
+- Testdeck lokal ohne Cut-Vorschläge (Regel findet keine): Cut-Liste per Unit-Test abgesichert.
+- Deutsch ist lokal nicht eingeschaltet (`LANGUAGES_ON`): Übersetzung per Render-Test geprüft.
+- Offen für später: Vorher/Nachher-Zahlen (Länder, Kurve) direkt in der Maske; Menge > 1 pro Karte (heute je Haken eine Kopie).

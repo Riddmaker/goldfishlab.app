@@ -14982,3 +14982,82 @@ msgstr "古いリストの実行"
 #: decks/views.py
 msgid "A deck keeps at least one version."
 msgstr "デッキには少なくとも1つのバージョンが残ります。"
+
+#: templates/decks/version_new.html
+#, python-format
+msgid "New version of %(name)s"
+msgstr "%(name)s の新しいバージョン"
+
+#: templates/decks/version_new.html
+msgid "Take cards out, put cards in, and keep the list before as it was."
+msgstr "カードを抜いて入れても、前のリストはそのまま残ります。"
+
+#: templates/decks/version_new.html
+msgid "Your changes"
+msgstr "変更内容"
+
+#: templates/decks/version_new.html
+msgid "Tick cards below, or search for one."
+msgstr "下のカードにチェックを入れるか、カードを検索してください。"
+
+#: templates/decks/version_new.html
+msgid "Find a card"
+msgstr "カードを探す"
+
+#: templates/decks/version_new.html
+msgid "Card name"
+msgstr "カード名"
+
+#: templates/decks/version_new.html
+msgid "In your deck"
+msgstr "デッキ内"
+
+#: templates/decks/version_new.html
+msgid "Fits your colours"
+msgstr "デッキの色に合うカード"
+
+#: templates/decks/version_new.html
+msgid "No card by that name in your colours."
+msgstr "その名前のカードはデッキの色にありません。"
+
+#: templates/decks/version_new.html
+msgid "Suggestions"
+msgstr "提案"
+
+#: templates/decks/version_new.html
+msgid "What would feed your strategies"
+msgstr "戦略を後押しするカード"
+
+#: templates/decks/version_new.html
+msgid "Why this version? (optional)"
+msgstr "このバージョンの理由（任意）"
+
+#: templates/decks/version_new.html
+msgid "lost to the turn-4 combo"
+msgstr "4ターン目のコンボに負けた"
+
+#: templates/decks/version_new.html
+msgid "Save as a new version"
+msgstr "新しいバージョンとして保存"
+
+#: templates/decks/version_new.html
+msgid "The version you are in stays as it was."
+msgstr "今のバージョンはそのまま残ります。"
+
+#: templates/decks/_versions.html
+msgid "New version"
+msgstr "新しいバージョン"
+
+#: templates/decks/_versions.html
+msgid ""
+"Take cards out, put cards in: the list before stays as version 1, with its "
+"runs."
+msgstr "カードを抜いて入れても、前のリストは実行結果ごとバージョン1として残ります。"
+
+#: decks/views.py
+msgid "Tick at least one card to take out or put in."
+msgstr "抜くカードか入れるカードを少なくとも1枚選んでください。"
+
+#: decks/forms.py
+msgid "Too many changes for one version."
+msgstr "1つのバージョンには変更が多すぎます。"

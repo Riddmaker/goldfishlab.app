@@ -6,6 +6,7 @@ source, so a missing filter is a missing row rather than someone else's deck.
 """
 
 import secrets
+from collections import Counter
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -24,6 +25,7 @@ from django_ratelimit.decorators import ratelimit
 from billing import quotas
 from billing.quotas import QuotaExceeded
 from billing.views import upgrade_prompt
+from cards.models import OracleCard
 from cards.names import front_face
 from combos import services as combo_services
 from combos.models import DeckCombo
@@ -48,6 +50,7 @@ from decks.forms import (
     MarkForm,
     MulliganDecisionForm,
     MulliganForm,
+    NewVersionForm,
     TutorForm,
 )
 from decks.importers import columns, tabular
@@ -707,6 +710,104 @@ class PrintingArtRetryView(DeckDetailView):
         if request.headers.get("HX-Request"):
             return self.grid_response()
         return redirect(f"{self.object.get_absolute_url()}#cards")
+
+
+#: Search results per list on "New version": the deck's own, the catalogue's.
+SEARCH_IN_DECK = 10
+SEARCH_CATALOGUE = 12
+
+
+def version_suggestions(user, deck, readings) -> tuple[list, list]:
+    """The cards the deck page already suggests, as `(card, why)` rows: what
+    could go (`simulations.cuts`) and what would feed a strategy (the
+    summary's picks, else the most played) - the same block, the same rule."""
+    written = (summary.state(user, deck) or {}) if user.deck_summaries else {}
+    block = strategies.block(
+        readings, written.get("content"),
+        summary.cut_candidates(readings, deck_reading(deck), summary.combos_of(deck)))
+    in_deck = {reading.oracle_card.front_name: reading.oracle_card for reading in readings}
+    cuts = [(in_deck[cut.name], cut.reason or cut.rule)
+            for cut in block["cuts"] if cut.name in in_deck]
+    names = {pick.name: (item.strategy.name, pick.reason)
+             for item in block["shown"] for pick in item.cards}
+    found = {card.front_name: card for card in OracleCard.objects.filter(front_name__in=names)}
+    adds = [(found[name], f"{label}: {reason}" if reason else label)
+            for name, (label, reason) in names.items() if name in found]
+    return cuts, adds
+
+
+def version_search(deck, readings, query: str) -> tuple[list, list]:
+    """Cards named like `query`: the deck's own, to take out, and the
+    catalogue's in its colours and legal in Commander, to put in."""
+    if len(query) < 2:
+        return [], []
+    own = {reading.oracle_card.pk for reading in readings}
+    mine = list(OracleCard.objects.filter(pk__in=deck.entries.values("oracle_card"),
+                                          front_name__icontains=query)
+                .order_by("front_name")[:SEARCH_IN_DECK])
+    catalogue = list(
+        OracleCard.objects.filter(front_name__icontains=query,
+                                  color_identity__contained_by=sorted(
+                                      strategies.identity(readings)),
+                                  legalities__commander="legal")
+        .exclude(pk__in=own - {card.pk for card in mine})
+        .order_by(F("edhrec_rank").asc(nulls_last=True), "front_name")[:SEARCH_CATALOGUE])
+    return mine, catalogue
+
+
+@method_decorator(ratelimit(key="user", rate="30/m", method="POST"), name="post")
+class VersionNewView(OwnedDecksMixin, DetailView):
+    """"New version" (B-01, PR 4): take cards out, put cards in, say why.
+
+    The page's suggestions are the deck page's own; anything else is found
+    with the search. Nothing is saved until "Save as a new version": the
+    version the deck is in stays as it was (`decks.versions.make`).
+    """
+
+    template_name = "decks/version_new.html"
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return self.render_to_response(self.page(NewVersionForm(), [], []))
+
+    def post(self, request, *args, **kwargs):
+        self.object = deck = self.get_object()
+        form = NewVersionForm(request.POST)
+        if not form.is_valid():
+            return self.render_to_response(self.page(form, [], []), status=400)
+        data = form.cleaned_data
+        in_deck = {str(pk) for pk in deck.entries.values_list("oracle_card_id", flat=True)}
+        cut = [pk for pk in data["cut"] if pk in in_deck]
+        add = [str(pk) for pk in OracleCard.objects.filter(pk__in=data["add"])
+               .values_list("pk", flat=True)]
+        if data["action"] == NewVersionForm.SAVE:
+            changes = Counter({pk: 1 for pk in add})
+            changes.subtract({pk: 1 for pk in cut})
+            try:
+                versions.make(deck, dict(changes), data["comment"])
+            except versions.VersionError:
+                form.add_error(None, gettext("Tick at least one card to take out or put in."))
+            else:
+                return redirect(f"{deck.get_absolute_url()}#versions")
+        return self.render_to_response(self.page(form, cut, add, data.get("q", "")))
+
+    def page(self, form, cut: list[str], add: list[str], query: str = "") -> dict:
+        deck = self.object
+        readings = adapter.readings(deck)
+        cuts, adds = version_suggestions(self.request.user, deck, readings)
+        mine, catalogue = version_search(deck, readings, query)
+        chosen = {card.pk: card for card in OracleCard.objects.filter(pk__in=cut + add)}
+        taken = set(cut) | set(add)
+        return self.get_context_data(
+            form=form,
+            chosen_cut=[chosen[pk] for pk in chosen if str(pk) in cut],
+            chosen_add=[chosen[pk] for pk in chosen if str(pk) in add],
+            cuts=[(card, why) for card, why in cuts if str(card.pk) not in taken],
+            adds=[(card, why) for card, why in adds if str(card.pk) not in taken],
+            found_mine=[card for card in mine if str(card.pk) not in taken],
+            found_catalogue=[card for card in catalogue if str(card.pk) not in taken],
+            query=query,
+        )
 
 
 @method_decorator(ratelimit(key="user", rate="30/m", method="POST"), name="post")

@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% blocktranslate with name=deck.name %}New version of {{ name }}{% endblocktranslate %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "Take cards out, put cards in, and keep the list before as it was." %}{% endblock %}
+{% block content %}
+  {% comment %}
+    "New version" (B-01, package "Workshop", PR 4; views.VersionNewView).
+    One form: the search posts everything too, so what was ticked stays ticked
+    without a script (DESIGN: script adds, never carries). Ticked cards move
+    to the top under "Your changes"; the lists below leave them out.
+  {% endcomment %}
+  <h1 class="font-display text-3xl text-parchment-100">{% blocktranslate with name=deck.name %}New version of {{ name }}{% endblocktranslate %}</h1>
+  <form method="post" class="mt-6 max-w-4xl space-y-6" data-new-version>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <ul role="alert" class="border-l-2 border-blood-600 pl-3 text-parchment-100">
+        {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+    <section class="surface-parchment p-6" aria-labelledby="changes-heading">
+      <h2 id="changes-heading" class="font-display text-xl text-ink-900">
+        <span class="tabular">
+          <span class="text-verdigris-800">+{{ chosen_add|length }}</span>
+          <span class="text-blood-700">−{{ chosen_cut|length }}</span>
+        </span>
+        {% translate "Your changes" %}
+      </h2>
+      {% if chosen_add or chosen_cut %}
+        <ul class="mt-3 grid gap-x-6 gap-y-1 sm:grid-cols-2" data-chosen>
+          {% for card in chosen_add %}
+            <li>
+              <label class="flex items-baseline gap-2 text-verdigris-800">
+                <input type="checkbox" name="add" value="{{ card.pk }}" checked>
+                +1 {{ card.front_name }}
+              </label>
+            </li>
+          {% endfor %}
+          {% for card in chosen_cut %}
+            <li>
+              <label class="flex items-baseline gap-2 text-blood-700">
+                <input type="checkbox" name="cut" value="{{ card.pk }}" checked>
+                −1 {{ card.front_name }}
+              </label>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="mt-2 text-sm text-ink-700">{% translate "Tick cards below, or search for one." %}</p>
+      {% endif %}
+    </section>
+
+    <section class="surface-parchment p-6" aria-labelledby="search-heading">
+      <h2 id="search-heading" class="font-display text-xl text-ink-900">{% translate "Find a card" %}</h2>
+      <div class="mt-3 flex flex-wrap items-end gap-3">
+        <div class="form-field min-w-[14rem] flex-1">
+          <label for="version-q" class="sr-only">{% translate "Card name" %}</label>
+          <input type="text" enterkeyhint="search" id="version-q" name="q" value="{{ query }}" maxlength="80"
+                 placeholder="{% translate "Card name" %}" autocomplete="off">
+        </div>
+        <button type="submit" name="action" value="search"
+                class="border border-ink-800 px-4 py-2 text-ink-900 hover:bg-parchment-50">
+          {% translate "Search" %}
+        </button>
+      </div>
+      {% if query %}
+        {% if found_mine or found_catalogue %}
+          <div class="mt-4 grid gap-6 md:grid-cols-2">
+            {% if found_mine %}
+              <div>
+                <h3 class="font-display text-lg text-ink-900">{% translate "In your deck" %}</h3>
+                <ul class="mt-2 space-y-1" data-found-mine>
+                  {% for card in found_mine %}
+                    <li>
+                      <label class="flex items-baseline gap-2 text-ink-900">
+                        <input type="checkbox" name="cut" value="{{ card.pk }}">
+                        <span class="text-blood-700">−1</span> {{ card.front_name }}
+                      </label>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+            {% if found_catalogue %}
+              <div>
+                <h3 class="font-display text-lg text-ink-900">{% translate "Fits your colours" %}</h3>
+                <ul class="mt-2 space-y-1" data-found-catalogue>
+                  {% for card in found_catalogue %}
+                    <li>
+                      <label class="flex items-baseline gap-2 text-ink-900">
+                        <input type="checkbox" name="add" value="{{ card.pk }}">
+                        <span class="text-verdigris-800">+1</span> {{ card.front_name }}
+                        <span class="text-sm text-ink-700">{{ card.type_line }}</span>
+                      </label>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+          </div>
+        {% else %}
+          <p class="mt-3 text-sm text-ink-700">{% translate "No card by that name in your colours." %}</p>
+        {% endif %}
+      {% endif %}
+    </section>
+
+    {% if cuts or adds %}
+      <section class="surface-parchment grid gap-6 p-6 md:grid-cols-2" aria-label="{% translate "Suggestions" %}">
+        {% if cuts %}
+          <div>
+            <h2 class="font-display text-xl text-ink-900">{% translate "What could go" %}</h2>
+            <ul class="mt-3 space-y-2" data-suggested-cuts>
+              {% for card, why in cuts %}
+                <li>
+                  <label class="flex items-baseline gap-2 text-ink-900">
+                    <input type="checkbox" name="cut" value="{{ card.pk }}">
+                    <span><span class="text-blood-700">−1</span> {{ card.front_name }}
+                      <span class="block text-sm text-ink-700">{{ why }}</span></span>
+                  </label>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+        {% if adds %}
+          <div>
+            <h2 class="font-display text-xl text-ink-900">{% translate "What would feed your strategies" %}</h2>
+            <ul class="mt-3 space-y-2" data-suggested-adds>
+              {% for card, why in adds %}
+                <li>
+                  <label class="flex items-baseline gap-2 text-ink-900">
+                    <input type="checkbox" name="add" value="{{ card.pk }}">
+                    <span><span class="text-verdigris-800">+1</span> {{ card.front_name }}
+                      <span class="block text-sm text-ink-700">{{ why }}</span></span>
+                  </label>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </section>
+    {% endif %}
+
+    <section class="surface-parchment p-6">
+      <div class="form-field">
+        <label for="version-comment" class="block font-display text-ink-900">{% translate "Why this version? (optional)" %}</label>
+        <input type="text" id="version-comment" name="comment" maxlength="200" class="mt-2"
+               value="{{ form.comment.value|default_if_none:'' }}" autocomplete="off"
+               placeholder="{% translate "lost to the turn-4 combo" %}">
+      </div>
+      <div class="mt-6 flex flex-wrap items-center gap-4">
+        <button type="submit" name="action" value="save"
+                class="border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
+          {% translate "Save as a new version" %}
+        </button>
+        <a href="{{ deck.get_absolute_url }}#versions" class="text-ink-900 underline">{% translate "Cancel" %}</a>
+      </div>
+      <p class="mt-3 text-sm text-ink-700">{% translate "The version you are in stays as it was." %}</p>
+    </section>
+  </form>
+{% endblock %}

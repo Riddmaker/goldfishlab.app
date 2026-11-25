@@ -5,6 +5,8 @@ validation here is the security boundary: size before decode, decode before
 parse, parse before anything touches the database.
 """
 
+import uuid
+
 from django import forms
 from django.forms.boundfield import BoundField
 from django.utils.translation import gettext
@@ -389,3 +391,36 @@ class MulliganDecisionForm(forms.Form):
     sure = forms.TypedChoiceField(choices=[("", ""), (1, 1), (2, 2), (3, 3)], coerce=int,
                                   required=False, empty_value=None)
     shown = forms.CharField(max_length=300)
+
+
+class NewVersionForm(forms.Form):
+    """"New version" (B-01, PR 4): cards out, cards in, a note, and a search.
+
+    One form for all of it, so a search keeps what was ticked before it
+    without any script: "Search" posts everything and the page comes back
+    with the ticks and the results. The ids are only ever looked up - a cut
+    among the deck's own cards, an add in the catalogue (`decks.views`).
+    """
+
+    SEARCH, SAVE = "search", "save"
+    #: More changes than this in one version is not editing a deck.
+    MOST = 60
+
+    action = forms.ChoiceField(choices=[(SEARCH, SEARCH), (SAVE, SAVE)])
+    q = forms.CharField(max_length=80, required=False, strip=True)
+    comment = forms.CharField(max_length=200, required=False, strip=True)
+
+    def _ids(self, name: str) -> list[str]:
+        values = self.data.getlist(name) if hasattr(self.data, "getlist") else []
+        if len(values) > self.MOST:
+            raise forms.ValidationError(gettext("Too many changes for one version."))
+        try:
+            return list(dict.fromkeys(str(uuid.UUID(value)) for value in values))
+        except ValueError as error:
+            raise forms.ValidationError("not a card") from error
+
+    def clean(self):
+        data = super().clean()
+        data["add"] = self._ids("add")
+        data["cut"] = self._ids("cut")
+        return data

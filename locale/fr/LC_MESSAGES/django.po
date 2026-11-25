@@ -17250,3 +17250,85 @@ msgstr "Simulations d'une ancienne liste"
 #: decks/views.py
 msgid "A deck keeps at least one version."
 msgstr "Un deck garde au moins une version."
+
+#: templates/decks/version_new.html
+#, python-format
+msgid "New version of %(name)s"
+msgstr "Nouvelle version de %(name)s"
+
+#: templates/decks/version_new.html
+msgid "Take cards out, put cards in, and keep the list before as it was."
+msgstr ""
+"Retirez des cartes, ajoutez-en, et la liste d'avant reste telle quelle."
+
+#: templates/decks/version_new.html
+msgid "Your changes"
+msgstr "Vos changements"
+
+#: templates/decks/version_new.html
+msgid "Tick cards below, or search for one."
+msgstr "Cochez des cartes ci-dessous ou cherchez-en une."
+
+#: templates/decks/version_new.html
+msgid "Find a card"
+msgstr "Trouver une carte"
+
+#: templates/decks/version_new.html
+msgid "Card name"
+msgstr "Nom de la carte"
+
+#: templates/decks/version_new.html
+msgid "In your deck"
+msgstr "Dans votre deck"
+
+#: templates/decks/version_new.html
+msgid "Fits your colours"
+msgstr "Dans vos couleurs"
+
+#: templates/decks/version_new.html
+msgid "No card by that name in your colours."
+msgstr "Aucune carte de ce nom dans vos couleurs."
+
+#: templates/decks/version_new.html
+msgid "Suggestions"
+msgstr "Suggestions"
+
+#: templates/decks/version_new.html
+msgid "What would feed your strategies"
+msgstr "Ce qui nourrirait vos stratégies"
+
+#: templates/decks/version_new.html
+msgid "Why this version? (optional)"
+msgstr "Pourquoi cette version ? (facultatif)"
+
+#: templates/decks/version_new.html
+msgid "lost to the turn-4 combo"
+msgstr "perdu contre le combo du tour 4"
+
+#: templates/decks/version_new.html
+msgid "Save as a new version"
+msgstr "Enregistrer comme nouvelle version"
+
+#: templates/decks/version_new.html
+msgid "The version you are in stays as it was."
+msgstr "La version actuelle reste telle quelle."
+
+#: templates/decks/_versions.html
+msgid "New version"
+msgstr "Nouvelle version"
+
+#: templates/decks/_versions.html
+msgid ""
+"Take cards out, put cards in: the list before stays as version 1, with its "
+"runs."
+msgstr ""
+"Retirez des cartes, ajoutez-en : la liste d'avant reste la version 1, avec "
+"ses simulations."
+
+#: decks/views.py
+msgid "Tick at least one card to take out or put in."
+msgstr "Cochez au moins une carte à retirer ou à ajouter."
+
+#: decks/forms.py
+msgid "Too many changes for one version."
+msgstr "Trop de changements pour une version."

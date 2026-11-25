@@ -6,10 +6,18 @@
   belongs to a version by its list (`decks.versions.timeline`); runs of a
   removed version stay, under "Runs of an old list".
 
-  Takes: versions (Step list), old_runs, deck.
+  Takes: versions (Step list), old_runs, deck. Shown with no versions too:
+  "New version" (PR 4) starts there.
 {% endcomment %}
 <section id="versions" class="surface-parchment mt-6 p-6" aria-labelledby="versions-heading">
-  <h2 id="versions-heading" class="font-display text-xl text-ink-900">{% translate "Versions" %}</h2>
+  <div class="flex flex-wrap items-center gap-4">
+    <h2 id="versions-heading" class="font-display text-xl text-ink-900">{% translate "Versions" %}</h2>
+    <a href="{% url 'decks:version-new' deck.pk %}" data-new-version-link
+       class="border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">{% translate "New version" %}</a>
+  </div>
+  {% if not versions %}
+    <p class="mt-2 max-w-3xl text-sm text-ink-700">{% translate "Take cards out, put cards in: the list before stays as version 1, with its runs." %}</p>
+  {% else %}
   <ol class="mt-4 space-y-4 border-l-2 border-ink-300 pl-4" data-version-timeline>
     {% for step in versions %}
       <li class="version-step{% if step.current %} version-current{% endif %}"
@@ -34,6 +42,11 @@
               <li class="text-blood-700">−{{ count }} {{ name }}</li>
             {% endfor %}
           </ul>
+          {% if step.groups %}
+            <p class="tabular mt-1 text-sm text-ink-700" data-version-groups>
+              {% for label, count in step.groups %}{{ label }} {% if count > 0 %}+{{ count }}{% else %}−{{ count|cut:"-" }}{% endif %}{% if not forloop.last %} · {% endif %}{% endfor %}
+            </p>
+          {% endif %}
         {% elif forloop.last %}
           <p class="tabular mt-1 text-sm text-ink-700">
             {% blocktranslate count count=step.version.card_count %}{{ count }} card{% plural %}{{ count }} cards{% endblocktranslate %}
@@ -77,6 +90,7 @@
       </li>
     {% endfor %}
   </ol>
+  {% endif %}
   {% if old_runs %}
     <h3 class="font-display mt-6 text-lg text-ink-900">{% translate "Runs of an old list" %}</h3>
     <ul class="mt-2 space-y-1 text-sm" data-old-runs>

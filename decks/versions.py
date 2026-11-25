@@ -17,10 +17,12 @@ The first version is made lazily from the list as it is, the first time a
 second one is made: a deck nobody versions never gets a row.
 """
 
+from collections import Counter
 from dataclasses import dataclass
 
 from django.db import transaction
 from django.db.models import Max
+from django.utils.translation import gettext
 
 from cards.models import OracleCard
 from core.l10n import percent
@@ -190,6 +192,8 @@ class Step:
     #: Cards in and out against the version before it (the one still kept).
     added: list[tuple[str, int]]
     removed: list[tuple[str, int]]
+    #: The same changes by group - kind of card, then role: `[("Land", +1), ...]`.
+    groups: list[tuple[str, int]]
     #: This list's runs, newest first; the first finished one is `last`.
     runs: list
     last: object | None
@@ -220,10 +224,11 @@ def timeline(deck: Deck) -> tuple[list[Step], list]:
 
     changes = [diff(before, version)
                for before, version in zip([None, *kept[:-1]], kept, strict=True)]
-    names = dict(OracleCard.objects.filter(
-        pk__in={oracle_id for change in changes for oracle_id in change})
-        .values_list("pk", "front_name"))
-    named = {str(pk): name for pk, name in names.items()}
+    rows = OracleCard.objects.filter(
+        pk__in={oracle_id for change in changes for oracle_id in change}).values_list(
+        "pk", "front_name", "profile__kind", "profile__primary_role")
+    named = {str(pk): name for pk, name, _kind, _role in rows}
+    kinds = {str(pk): (kind, role) for pk, _name, kind, role in rows}
 
     steps = []
     for index, (version, change) in enumerate(zip(kept, changes, strict=True)):
@@ -242,8 +247,28 @@ def timeline(deck: Deck) -> tuple[list[Step], list]:
                 (named.get(oracle_id, "?"), n) for oracle_id, n in change.items() if n > 0),
             removed=[] if first_one else sorted(
                 (named.get(oracle_id, "?"), -n) for oracle_id, n in change.items() if n < 0),
+            groups=[] if first_one else _groups(change, kinds),
             runs=mine,
             last=done,
             on_curve=on_curve,
         ))
     return steps[::-1], old
+
+
+def _groups(change: dict[str, int], kinds: dict) -> list[tuple[str, int]]:
+    """`change` summed by kind of card, then by role, the ones that moved."""
+    from cards.models import DerivedProfile
+    from simulations.report import SEEN_ROLES
+
+    kind_labels = dict(DerivedProfile.Kind.choices)
+    role_labels = dict(SEEN_ROLES)
+    by_kind: Counter = Counter()
+    by_role: Counter = Counter()
+    for oracle_id, n in change.items():
+        kind, role = kinds.get(oracle_id, ("", ""))
+        if kind in kind_labels:
+            by_kind[kind] += n
+        if role in role_labels:
+            by_role[role] += n
+    return ([(str(kind_labels[kind]), n) for kind, n in by_kind.items() if n]
+            + [(gettext(role_labels[role]), n) for role, n in by_role.items() if n])

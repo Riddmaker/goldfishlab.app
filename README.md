@@ -128,6 +128,15 @@ summary, "Was this summary helpful?" keeps the answer, an optional comment and a
 case (`SummaryFeedback`); `python manage.py summary_feedback` writes the cases to
 `.data/summary_feedback.jsonl`, unhelpful first, with nobody named.
 
+**Deck versions (Workshop, 2026-11-25)**: "New version" on the deck page takes cards out and
+puts cards in - ticked from the page's own cuts and strategy picks, or found with a card search -
+and keeps the list before as it was (`decks/versions.py`, `DeckVersion`). The deck's own rows
+always hold the version it is in, so the engine, runs and hand need no change; a run belongs to a
+version by its `list_print`. The timeline on the deck page shows each version's changes by card
+and by group, its runs, and lets the owner choose or remove one; a removed version's runs stay as
+"runs of an old list". Version 1 is made from the list on the first new version; a re-import of
+a versioned deck becomes a version of its own.
+
 **Data pages (P11)**: every Commander precon since 2025, simulated the same way (10,000 games, 6
 turns, the multiplayer draw rule) and public in every language: a sortable table at
 `/data/commander-precons/` and one page per precon with its full report, both in the sitemap.

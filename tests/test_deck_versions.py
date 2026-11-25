@@ -185,6 +185,7 @@ def test_the_timeline_is_newest_first_with_what_each_version_changed(deck):
     assert steps[0].current and not steps[1].current
     assert steps[0].added == [("Island", 2)] and steps[0].removed == [("Sol Ring", 1)]
     assert steps[1].added == steps[1].removed == []
+    assert ("Land", 2) in steps[0].groups and ("Mana rock", -1) in steps[0].groups
     assert old == []
 
 
@@ -226,7 +227,9 @@ def test_the_last_finished_run_says_its_share_on_curve(deck, owner, monkeypatch)
 
 def test_the_deck_page_shows_the_timeline_only_once_there_are_versions(client, deck, owner):
     client.force_login(owner)
-    assert b"data-version-timeline" not in client.get(deck.get_absolute_url()).content
+    before = client.get(deck.get_absolute_url()).content.decode()
+    assert "data-version-timeline" not in before
+    assert reverse("decks:version-new", args=[deck.pk]) in before
 
     versions.make(deck, {card("Swamp"): -1}, "one swamp less")
     page = client.get(deck.get_absolute_url()).content.decode()
@@ -274,3 +277,92 @@ def test_the_timeline_speaks_german(deck):
 
     assert "Versionen" in html and "aktuell" in html and "v1 wählen" in html
     assert "Noch kein Lauf." in html
+
+
+# --- PR 4: "New version" --------------------------------------------------------
+
+
+def new_url(deck):
+    return reverse("decks:version-new", args=[deck.pk])
+
+
+def test_new_version_saves_ticked_cuts_and_adds_with_a_comment(client, deck, owner):
+    client.force_login(owner)
+    assert client.get(new_url(deck)).status_code == 200
+
+    response = client.post(new_url(deck), {
+        "action": "save", "cut": [card("Sol Ring")], "add": [card("Necropotence")],
+        "comment": "lost to the turn-4 combo"})
+
+    assert response.status_code == 302 and response.url.endswith("#versions")
+    two = deck.versions.get(number=2)
+    assert two.comment == "lost to the turn-4 combo"
+    assert versions.diff(deck.versions.get(number=1), two) == {
+        card("Sol Ring"): -1, card("Necropotence"): +1}
+
+
+def test_a_search_keeps_the_ticks_and_finds_both_ways(client, deck, owner):
+    client.force_login(owner)
+
+    page = client.post(new_url(deck), {
+        "action": "search", "q": "rit", "add": [card("Necropotence")]}).content.decode()
+
+    assert not deck.versions.exists()  # a search saves nothing
+    chosen = page[page.index("data-chosen"):page.index("search-heading")]
+    assert f'name="add" value="{card("Necropotence")}" checked' in chosen
+    mine = page[page.index("data-found-mine"):]
+    assert "Dark Ritual" in mine.split("</ul>")[0]
+
+
+def test_the_catalogue_search_stays_in_the_decks_colours(client, deck, owner):
+    client.force_login(owner)
+
+    page = client.post(new_url(deck), {"action": "search", "q": "counterspell"}).content.decode()
+
+    assert "Counterspell" not in page  # blue, and the deck is black
+
+
+def test_saving_with_nothing_ticked_says_so(client, deck, owner):
+    client.force_login(owner)
+
+    page = client.post(new_url(deck), {"action": "save"}).content.decode()
+
+    assert "Tick at least one card" in page
+    assert not deck.versions.exists()
+
+
+def test_a_cut_of_a_card_not_in_the_deck_is_ignored(client, deck, owner):
+    client.force_login(owner)
+
+    client.post(new_url(deck), {"action": "save", "cut": [card("Counterspell")]})
+
+    assert not deck.versions.exists()
+
+
+def test_new_version_refuses_junk_and_strangers(client, deck, owner):
+    client.force_login(owner)
+    assert client.post(new_url(deck), {"action": "save", "add": ["not-a-uuid"]}).status_code == 400
+    assert client.post(new_url(deck), {"action": "drop"}).status_code == 400
+    many = [str(OracleCard.objects.first().pk)] * (61)
+    assert client.post(new_url(deck), {"action": "save", "add": many}).status_code == 400
+
+    stranger = User.objects.create_user(email="new@example.com", password="pw-for-test-only")
+    client.force_login(stranger)
+    assert client.get(new_url(deck)).status_code == 404
+    assert client.post(new_url(deck), {"action": "save",
+                                       "add": [card("Necropotence")]}).status_code == 404
+    assert not deck.versions.exists()
+
+
+def test_the_rules_cuts_are_offered_to_tick(client, deck, owner, monkeypatch):
+    from simulations import cuts, summary
+
+    monkeypatch.setattr(summary, "cut_candidates",
+                        lambda *args: [cuts.Cut(name="Sol Ring", mana_value=1, kind=cuts.NONE)])
+    client.force_login(owner)
+
+    page = client.get(new_url(deck)).content.decode()
+
+    offered = page[page.index("data-suggested-cuts"):].split("</ul>")[0]
+    assert f'name="cut" value="{card("Sol Ring")}"' in offered
+    assert "No role and no part in a theme." in offered

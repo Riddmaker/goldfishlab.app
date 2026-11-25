@@ -15283,3 +15283,19 @@ msgid ""
 msgstr ""
 "エンジンの下に、各テーマをパーツごとに表示: "
 "割合は4ターン目までに各パーツのカードを1枚以上見ている確率です。手札7枚、毎ターン1枚ドロー、マリガンなし、あなたのリストから計算。"
+
+#: looks/colours.py
+msgid "Enter a colour as #rrggbb or rgba(r, g, b, a)."
+msgstr "色は #rrggbb または rgba(r, g, b, a) で入力してください。"
+
+#: looks/images.py
+msgid "The image is larger than 5 MB."
+msgstr "画像が 5 MB を超えています。"
+
+#: looks/images.py
+msgid "The image has more than 25 megapixels."
+msgstr "画像が 2,500 万画素を超えています。"
+
+#: looks/images.py
+msgid "Upload a PNG, JPEG or WebP image."
+msgstr "PNG、JPEG、WebP のいずれかの画像をアップロードしてください。"

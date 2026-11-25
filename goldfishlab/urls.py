@@ -44,6 +44,7 @@ admin.site.login = ratelimit(key="ip", rate="10/m", method="POST", block=True)(
 urlpatterns = [
     path("ticker/", TickerView.as_view(), name="ticker"),
     path("decks/", include("decks.urls")),
+    path("looks/", include("looks.urls")),
     path("", include("simulations.urls")),
     path("", include("playtest.urls")),
     # P4: /runs/<id>/share/ for the owner; /r/<token>/ is below.

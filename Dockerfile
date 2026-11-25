@@ -50,7 +50,11 @@ RUN DJANGO_SETTINGS_MODULE=goldfishlab.settings.prod \
     REDIS_URL=redis://build:6379/0 \
     python manage.py collectstatic --noinput
 
-RUN useradd --create-home appuser && chown -R appuser:appuser /app
+# /data/custom-images: people's mats and sleeves (B-10). Production mounts the
+# Shared Storage node over it, the local stack a named volume; both start from
+# this folder, so appuser owns it and nobody else may read it.
+RUN useradd --create-home appuser && chown -R appuser:appuser /app \
+    && install -d -m 0750 -o appuser -g appuser /data/custom-images
 USER appuser
 
 # 8080, NOT 8000: the port the Cloudflare Tunnel's route points at

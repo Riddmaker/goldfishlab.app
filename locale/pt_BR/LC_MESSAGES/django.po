@@ -17234,3 +17234,19 @@ msgstr ""
 "Abaixo dos motores, cada tema peça por peça: a porcentagem é a chance de ter"
 " visto um card de cada peça até o turno quatro - uma mão de 7, uma compra "
 "por turno, sem mulligan, calculada a partir da sua lista."
+
+#: looks/colours.py
+msgid "Enter a colour as #rrggbb or rgba(r, g, b, a)."
+msgstr "Informe uma cor como #rrggbb ou rgba(r, g, b, a)."
+
+#: looks/images.py
+msgid "The image is larger than 5 MB."
+msgstr "A imagem tem mais de 5 MB."
+
+#: looks/images.py
+msgid "The image has more than 25 megapixels."
+msgstr "A imagem tem mais de 25 megapixels."
+
+#: looks/images.py
+msgid "Upload a PNG, JPEG or WebP image."
+msgstr "Envie uma imagem PNG, JPEG ou WebP."

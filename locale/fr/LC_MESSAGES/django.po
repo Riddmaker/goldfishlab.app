@@ -17578,3 +17578,19 @@ msgstr ""
 "Sous les moteurs, chaque thème pièce par pièce : le pourcentage indique la "
 "probabilité d'avoir vu une carte de chaque pièce au tour quatre - une main "
 "de 7, une pioche par tour, sans mulligan, calculé à partir de votre liste."
+
+#: looks/colours.py
+msgid "Enter a colour as #rrggbb or rgba(r, g, b, a)."
+msgstr "Saisissez une couleur au format #rrggbb ou rgba(r, g, b, a)."
+
+#: looks/images.py
+msgid "The image is larger than 5 MB."
+msgstr "L’image dépasse 5 Mo."
+
+#: looks/images.py
+msgid "The image has more than 25 megapixels."
+msgstr "L’image dépasse 25 mégapixels."
+
+#: looks/images.py
+msgid "Upload a PNG, JPEG or WebP image."
+msgstr "Envoyez une image PNG, JPEG ou WebP."

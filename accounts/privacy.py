@@ -44,6 +44,7 @@ EXPORTED = [
     ("shared_reports", "sharing.SharedReport", "run__owner"),
     ("playtest_sessions", "playtest.PlaytestSession", "owner"),
     ("playtest_actions", "playtest.PlaytestAction", "session__owner"),
+    ("looks", "looks.Look", "owner"),
     ("subscription", "billing.Subscription", "user"),
     ("usage", "billing.UsageRecord", "user"),
 ]

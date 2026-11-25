@@ -17343,3 +17343,19 @@ msgstr ""
 "Sotto i motori, ogni tema pezzo per pezzo: la percentuale è la probabilità "
 "di aver visto una carta di ogni pezzo entro il turno quattro - una mano di "
 "7, una pescata a turno, nessun mulligan, calcolata dalla tua lista."
+
+#: looks/colours.py
+msgid "Enter a colour as #rrggbb or rgba(r, g, b, a)."
+msgstr "Inserisci un colore come #rrggbb o rgba(r, g, b, a)."
+
+#: looks/images.py
+msgid "The image is larger than 5 MB."
+msgstr "L’immagine supera i 5 MB."
+
+#: looks/images.py
+msgid "The image has more than 25 megapixels."
+msgstr "L’immagine supera i 25 megapixel."
+
+#: looks/images.py
+msgid "Upload a PNG, JPEG or WebP image."
+msgstr "Carica un’immagine PNG, JPEG o WebP."

@@ -17417,3 +17417,19 @@ msgstr ""
 "wahrscheinlich du bis Zug vier von jedem Stück eine Karte gesehen hast - "
 "eine Hand mit 7 Karten, eine Karte pro Zug, kein Mulligan, aus deiner Liste "
 "berechnet."
+
+#: looks/colours.py
+msgid "Enter a colour as #rrggbb or rgba(r, g, b, a)."
+msgstr "Gib eine Farbe als #rrggbb oder rgba(r, g, b, a) ein."
+
+#: looks/images.py
+msgid "The image is larger than 5 MB."
+msgstr "Das Bild ist grösser als 5 MB."
+
+#: looks/images.py
+msgid "The image has more than 25 megapixels."
+msgstr "Das Bild hat mehr als 25 Megapixel."
+
+#: looks/images.py
+msgid "Upload a PNG, JPEG or WebP image."
+msgstr "Lade ein Bild als PNG, JPEG oder WebP hoch."

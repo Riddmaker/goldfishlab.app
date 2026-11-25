@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "sharing",
     "metrics",
     "datapages",
+    "looks",
     "changelog",
     "news",
 ]
@@ -137,6 +138,15 @@ DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 # the application is also simply their stated condition of use.
 SCRYFALL_USER_AGENT = env(
     "SCRYFALL_USER_AGENT", default="GoldfishLab/0.1 (+https://goldfishlab.app)"
+)
+
+# --- Looks (B-10) ------------------------------------------------------------
+# People's mats and sleeves. In production a Shared Storage node mounted
+# into the web node (infra/custom-images.jps); locally a gitignored folder.
+# Never under static/ and never served by URL: looks.views.image hands a file
+# to its owner.
+CUSTOM_IMAGES_DIR = Path(
+    env("CUSTOM_IMAGES_DIR", default=str(BASE_DIR / ".data" / "custom-images"))
 )
 
 # --- MTGJSON (P11) ----------------------------------------------------------

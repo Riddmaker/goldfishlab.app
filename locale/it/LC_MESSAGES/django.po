@@ -17276,3 +17276,34 @@ msgid ""
 msgstr ""
 "Il mescolamento è casuale e nulla viene salvato. Senza JavaScript "
 "l’indirizzo conserva l’ordine, quindi lo stesso link mostra le stesse carte."
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s card, no commander: the numbers hold under the Commander rules."
+msgid_plural ""
+"%(count)s cards, no commander: the numbers hold under the Commander rules."
+msgstr[0] ""
+"%(count)s carta, nessun comandante: i numeri valgono secondo le regole "
+"Commander."
+msgstr[1] ""
+"%(count)s carte, nessun comandante: i numeri valgono secondo le regole "
+"Commander."
+
+#: templates/simulations/_strategies.html
+#, python-format
+msgid "by turn %(turn)s, +%(extra)s cards"
+msgstr "entro il turno %(turn)s, +%(extra)s carte"
+
+#: templates/core/methodology.html
+msgid ""
+"Beside each card that could go: its role, how many the deck has, and how "
+"many the template has."
+msgstr ""
+"Accanto a ogni carta che potrebbe uscire: il suo ruolo, quante ne ha il "
+"mazzo e quante ne prevede il modello."
+
+#: simulations/cuts.py
+#, python-format
+msgid "%(role)s %(count)s / ~%(high)s"
+msgstr "%(role)s %(count)s / ~%(high)s"

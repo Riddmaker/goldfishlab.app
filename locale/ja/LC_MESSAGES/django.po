@@ -15225,3 +15225,27 @@ msgid ""
 "The shuffle is random and nothing is stored. Without JavaScript the address "
 "holds the order, so the same link shows the same cards."
 msgstr "シャッフルはランダムで、何も保存されません。JavaScriptなしではアドレスが順番を保つので、同じリンクは同じカードを表示します。"
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s card, no commander: the numbers hold under the Commander rules."
+msgid_plural ""
+"%(count)s cards, no commander: the numbers hold under the Commander rules."
+msgstr[0] "%(count)s枚、統率者なし: 数値は統率者戦のルールに基づきます。"
+
+#: templates/simulations/_strategies.html
+#, python-format
+msgid "by turn %(turn)s, +%(extra)s cards"
+msgstr "%(turn)sターン目まで、+%(extra)s枚"
+
+#: templates/core/methodology.html
+msgid ""
+"Beside each card that could go: its role, how many the deck has, and how "
+"many the template has."
+msgstr "抜けそうな各カードの横に: その役割、デッキ内の枚数、テンプレートの枚数。"
+
+#: simulations/cuts.py
+#, python-format
+msgid "%(role)s %(count)s / ~%(high)s"
+msgstr "%(role)s %(count)s / ~%(high)s"

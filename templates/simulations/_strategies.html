@@ -23,9 +23,10 @@
 {% if strategies.shown or strategies.cuts %}
 <section id="strategies" class="surface-parchment mt-6 p-6">
   <h2 class="font-display text-2xl text-ink-900">{% translate "Your strategies, and what would feed them" %}</h2>
+  {# B-15: which cards and how the odds are counted moved to the methodology, behind More. #}
   <p class="mt-2 max-w-3xl text-sm text-ink-700">
-    {% translate "Cards that fit your colours, are legal in Commander and are not in your deck yet." %}
     {% if not strategies.picked %}{% translate "The most played first." %}{% endif %}
+    {% include "core/_why.html" with anchor="strategies" %}
   </p>
   <div class="mt-4 grid gap-6 md:grid-cols-2">
     {% for item in strategies.shown %}
@@ -34,8 +35,10 @@
           {% icon item.strategy.key|role_symbol %}{{ item.strategy.name }}
           <span class="text-sm text-ink-700">{% blocktranslate count cards=item.strategy.count %}{{ cards }} card in your deck{% plural %}{{ cards }} cards in your deck{% endblocktranslate %}</span>
         </h3>
-        <p class="tabular text-sm text-ink-700">
-          {% blocktranslate with turn=strategies.by_turn now=item.strategy.now_label more=item.strategy.more_label extra=strategies.more %}At least one by turn {{ turn }}: {{ now }} now, {{ more }} with {{ extra }} more.{% endblocktranslate %}
+        <p class="tabular text-sm text-ink-700" data-odds>
+          <span class="sr-only">{% blocktranslate with turn=strategies.by_turn now=item.strategy.now_label more=item.strategy.more_label extra=strategies.more %}At least one by turn {{ turn }}: {{ now }} now, {{ more }} with {{ extra }} more.{% endblocktranslate %}</span>
+          <span aria-hidden="true"><span class="font-display text-xl text-ink-900">{{ item.strategy.now_label }} → {{ item.strategy.more_label }}</span>
+            {% blocktranslate with turn=strategies.by_turn extra=strategies.more %}by turn {{ turn }}, +{{ extra }} cards{% endblocktranslate %}</span>
         </p>
         {% if item.why %}
           <p class="mt-1 text-ink-900"{% if written.language %} lang="{{ written.language }}"{% endif %}>{{ item.why }}</p>
@@ -55,7 +58,6 @@
   {% if strategies.cuts %}
     <div class="mt-6 border-t border-parchment-400 pt-4">
       <h3 class="summary-title summary-title-feel">{% translate "What could go" %}</h3>
-      <p class="max-w-3xl text-sm text-ink-700">{% translate "To make room: the cards a rule finds the easiest to cut - no role, no part in a theme or a combo, or one too many of a role. The most expensive first." %}</p>
       <ul class="mt-3 grid gap-3 md:grid-cols-2 text-ink-900" data-cuts>
         {% for cut in strategies.cuts %}
           <li>{% if cut.reason %}{% include "decks/_card_peek.html" with name=cut.name url=cut.url art=cut.art image=cut.image text=cut.reason lang=written.language %}{% else %}{% include "decks/_card_peek.html" with name=cut.name url=cut.url art=cut.art image=cut.image text=cut.rule %}{% endif %}</li>
@@ -70,7 +72,6 @@
     {% if strategies.cuts and written.configured %}
       <p class="mt-1">{% translate "A rule picks the cards that could go; Mistral AI only says why. You know your deck better." %}</p>
     {% endif %}
-    <p class="mt-1">{% translate "The odds are calculated from your list: a hand of 7, one draw a turn, no mulligan." %}</p>
   </div>
   {% if written.configured %}
     <div class="mt-5 border-t border-parchment-400 pt-3 text-sm text-ink-700">

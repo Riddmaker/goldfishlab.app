@@ -17169,3 +17169,32 @@ msgid ""
 msgstr ""
 "O embaralhamento é aleatório e nada é salvo. Sem JavaScript o endereço "
 "guarda a ordem, então o mesmo link mostra os mesmos cards."
+
+#: templates/decks/detail.html
+#, python-format
+msgid ""
+"%(count)s card, no commander: the numbers hold under the Commander rules."
+msgid_plural ""
+"%(count)s cards, no commander: the numbers hold under the Commander rules."
+msgstr[0] ""
+"%(count)s card, sem comandante: os números valem pelas regras de Commander."
+msgstr[1] ""
+"%(count)s cards, sem comandante: os números valem pelas regras de Commander."
+
+#: templates/simulations/_strategies.html
+#, python-format
+msgid "by turn %(turn)s, +%(extra)s cards"
+msgstr "até o turno %(turn)s, +%(extra)s cards"
+
+#: templates/core/methodology.html
+msgid ""
+"Beside each card that could go: its role, how many the deck has, and how "
+"many the template has."
+msgstr ""
+"Ao lado de cada card que poderia sair: sua função, quantos o deck tem e "
+"quantos o modelo prevê."
+
+#: simulations/cuts.py
+#, python-format
+msgid "%(role)s %(count)s / ~%(high)s"
+msgstr "%(role)s %(count)s / ~%(high)s"

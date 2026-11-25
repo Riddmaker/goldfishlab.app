@@ -251,7 +251,7 @@ def test_a_deck_without_commander_and_100_cards_says_whose_rules(owner, signed_i
 
     body = signed_in.get(deck.get_absolute_url()).content.decode()
     assert "! Not a Commander deck" in body
-    assert "This deck has 2 cards and no commander" in body
+    assert "2 cards, no commander: the numbers hold under the Commander rules." in body
     assert "Simulate without a commander" in body
 
     chainer = OracleCard.objects.get(front_name="Chainer, Dementia Master")

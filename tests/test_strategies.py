@@ -19,6 +19,7 @@ from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 
 from cards.models import OracleCard
 from decks import services as deck_services
@@ -331,7 +332,7 @@ def test_the_block_shows_without_mistral_and_with_summaries_off(client, owner, f
     first = strategies.found(readings)[0]
     assert f"At least one by turn 4: {first.now_label} now, {first.more_label} with 2 more." \
         in block
-    assert "calculated from your list" in block
+    assert f'href="{reverse("methodology")}#strategies"' in block, "how: behind More"
 
 
 def test_mistral_picks_show_with_their_reasons_escaped(client, owner, deck, finished,

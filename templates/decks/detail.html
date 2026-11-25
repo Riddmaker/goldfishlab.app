@@ -34,14 +34,14 @@
       </div>
       {% if last_import %}{% include "decks/_left_out.html" with record=last_import %}{% endif %}
       {% if not deck.is_commander_deck %}
-        <p class="mt-2 border-l-2 border-blood-600 pl-3 text-sm text-parchment-200">
+        {# B-15: the number first, one sentence; the command zone is explained under More. #}
+        <p class="mt-2 border-l-2 border-blood-600 pl-3 text-sm text-parchment-200" data-not-commander>
           {% blocktranslate trimmed count count=deck.total_with_commander %}
-            Goldfish Lab plays by the Commander rules - 40 life, a command zone, 100 cards. This
-            deck has {{ count }} card and no commander, so its numbers hold only under those rules.
+            {{ count }} card, no commander: the numbers hold under the Commander rules.
           {% plural %}
-            Goldfish Lab plays by the Commander rules - 40 life, a command zone, 100 cards. This
-            deck has {{ count }} cards and no commander, so its numbers hold only under those rules.
+            {{ count }} cards, no commander: the numbers hold under the Commander rules.
           {% endblocktranslate %}
+          {% include "core/_why.html" with anchor="commander" dark=True %}
         </p>
       {% endif %}
       {% url 'decks:set-commander' deck.id as commander_url %}
@@ -80,7 +80,8 @@
         the first button: somebody coming back pressed "Simulate" because the
         link to it under the buttons was easy to miss. The hand tutor and the
         mulligan quiz are buttons of their own beside them (deck page v2, PR A):
-        as links under the row the owner missed them too.
+        as links under the row the owner missed them too. B-15: no line under
+        the buttons explains them any more; icon and word carry each one.
       {% endcomment %}
       <form id="simulate" method="post" action="{% url 'simulations:create' deck.id %}" class="mt-5">
         {% csrf_token %}
@@ -113,11 +114,7 @@
             {% icon "deck" %}{% translate "Deck in hand" %}
           </a>
         </div>
-        <p class="mt-3 max-w-3xl text-sm text-parchment-200">
-          <span class="block">{% translate "Hand tutor" %} – {% translate "which plan does a hand from this deck have?" %}</span>
-          <span class="block">{% translate "Keep or mulligan?" %} – {% translate "ten hands from this deck, your call against a thousand games." %}</span>
-          <span class="block">{% translate "Deck in hand" %} – {% translate "shuffle it, cut it, look at the top cards." %}</span>
-        </p>
+
         {% if running_run or last_run %}
           {% include "decks/_last_run.html" %}
         {% endif %}

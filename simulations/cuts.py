@@ -59,7 +59,7 @@ class Cut:
         if self.kind == NONE:
             return gettext("No role and no part in a theme.")
         return "; ".join(
-            gettext("%(role)s: %(count)s, the template has %(high)s")
+            gettext("%(role)s %(count)s / ~%(high)s")
             % {"role": gettext(LABELS[role]), "count": count, "high": BAND_HIGH[role]}
             for role, count in self.counted
         )

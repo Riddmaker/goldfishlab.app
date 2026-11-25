@@ -6,7 +6,7 @@ Reads `sc-domain:goldfishlab.app` through the plain REST API with a read-only
 service account and writes DIR/report.md (the issue body), DIR/report.json and
 DIR/title.txt ("Search Console review 2026-W45", the ISO week of the run). A
 few fixed rules pick out what a session should look at; nothing here decides
-or changes anything. `.github/workflows/seo-review.yml` runs it every Monday
+or changes anything. `.github/workflows/seo-review.yml` runs it every Friday
 from the private ops repository, so the numbers never reach the public one.
 
 The key is the JSON of the service account in the environment variable

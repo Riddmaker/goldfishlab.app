@@ -17740,3 +17740,19 @@ msgstr "Chiudi"
 #, python-format
 msgid "More about %(name)s"
 msgstr "Di più su %(name)s"
+
+#: decks/photos.py
+msgid "A photo may be at most 10 MB."
+msgstr "Una foto può essere al massimo di 10 MB."
+
+#: decks/photos.py
+msgid "Only JPEG, PNG and WebP photos can be read."
+msgstr "Si possono leggere solo foto JPEG, PNG e WebP."
+
+#: decks/photos.py
+msgid "This photo has too many pixels to be a photo of cards."
+msgstr "Questa foto ha troppi pixel per essere una foto di carte."
+
+#: decks/photos.py
+msgid "This file is not a photo that can be read."
+msgstr "Questo file non è una foto leggibile."

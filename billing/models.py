@@ -64,6 +64,10 @@ class Plan(models.Model):
     #: for". Each is a Mistral call; a cached answer costs nothing and counts
     #: nothing (`simulations.card_ai`).
     max_card_insights_per_month = models.PositiveIntegerField(null=True, blank=True)
+    #: B-14: decks read from photos a month. A run is up to ten Mistral calls
+    #: with an image each; one that read nothing is given back
+    #: (`decks.photos`).
+    max_photo_imports_per_month = models.PositiveIntegerField(null=True, blank=True)
 
     # Boolean feature gates, so a new paid feature needs no migration.
     features = models.JSONField(default=dict, blank=True)
@@ -211,6 +215,7 @@ class UsageRecord(models.Model):
         #: where a new upload cannot delete it with the deck.
         SUMMARIES_WRITTEN = "summaries_written", "Summaries written"
         CARD_INSIGHTS = "card_insights", "Card insights written"
+        PHOTO_IMPORTS = "photo_imports", "Decks read from photos"
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="usage"

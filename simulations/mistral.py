@@ -21,6 +21,13 @@ parse; what it says is checked by `simulations.summary.parse`, never trusted.
 **The key is never logged, printed or put in an exception.** An error says what
 went wrong with the request, not what was in its headers.
 
+Every call goes to `settings.MISTRAL_BASE_URL`, the EU endpoint
+(`api.eu.mistral.ai`, B-14): there the requests are processed in EU/EFTA data
+centres, which the privacy notice can then say for photos and deck texts
+alike. It costs 10 % more on amounts of cents. A message's `content` may also
+be a list of parts, text and `image_url` with a `data:` URL (Mistral's vision
+guide, checked 2026-11-25); `decks.photos` sends photos that way.
+
 Why `urllib` and not Mistral's SDK: one verb, no new dependency in a 128 MiB
 container, and the same shape as the Spellbook client beside it.
 """
@@ -33,7 +40,10 @@ from dataclasses import dataclass
 
 from django.conf import settings
 
-ENDPOINT = "https://api.mistral.ai/v1/chat/completions"
+
+def _url(path: str) -> str:
+    return settings.MISTRAL_BASE_URL.rstrip("/") + path
+
 
 #: One attempt's socket timeout. The call runs in a Celery task, not a web
 #: request, so it may take longer than Spellbook's. Two attempts and the
@@ -106,8 +116,8 @@ def complete(messages: list[dict], *, max_tokens: int, temperature: float = 0.3,
     }).encode("utf-8")
 
     for attempt in (1, 2):
-        request = urllib.request.Request(  # noqa: S310 - a fixed https URL
-            ENDPOINT,
+        request = urllib.request.Request(  # noqa: S310 - https from settings
+            _url("/v1/chat/completions"),
             data=body,
             method="POST",
             headers={
@@ -158,9 +168,6 @@ def _text(content) -> str:
     return ""
 
 
-MODELS_ENDPOINT = "https://api.mistral.ai/v1/models"
-
-
 def available_models() -> set[str]:
     """Every model id and alias the key may use (`GET /v1/models`: a list
     object whose ``data`` entries carry ``id`` and ``aliases``), so a
@@ -171,8 +178,8 @@ def available_models() -> set[str]:
     """
     if not is_configured():
         raise MistralError("Mistral is not configured")
-    request = urllib.request.Request(  # noqa: S310 - a fixed https URL
-        MODELS_ENDPOINT, method="GET",
+    request = urllib.request.Request(  # noqa: S310 - https from settings
+        _url("/v1/models"), method="GET",
         headers={"Accept": "application/json",
                  "Authorization": f"Bearer {settings.MISTRAL_API_KEY}"})
     try:

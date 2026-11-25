@@ -1,6 +1,6 @@
 """Quota enforcement.
 
-There are exactly SIX call sites for `check()` in the finished application:
+There are exactly SEVEN call sites for `check()` in the finished application:
 
   1. simulation enqueue   (Phase 3; since phase 10 H it also asks for
                            amount=2 when the deck's summary is due with it)
@@ -10,6 +10,8 @@ There are exactly SIX call sites for `check()` in the finished application:
   5. "Write a summary"    (phase 10 H: one deck summary, one run)
   6. "Ask the AI" on a card (B-22: `simulations.card_ai`, one Mistral call;
                            a cached answer is neither checked nor counted)
+  7. "Read the photos"    (B-14: `decks.photos`, one run of up to ten photos;
+                           a run that read no card is refunded)
 
 `simulations.summary.state` also asks, with `raise_on_fail=False`, only to word
 the button - it decides nothing. So does `guests.views.TryView`, only to keep a
@@ -140,6 +142,7 @@ _LIMIT_FIELDS = {
     DECKS_OWNED: "max_decks",
     UsageRecord.Metric.IMPORTS: "max_imports_per_month",
     UsageRecord.Metric.CARD_INSIGHTS: "max_card_insights_per_month",
+    UsageRecord.Metric.PHOTO_IMPORTS: "max_photo_imports_per_month",
 }
 
 

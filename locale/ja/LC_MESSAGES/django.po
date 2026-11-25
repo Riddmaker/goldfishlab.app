@@ -15654,3 +15654,19 @@ msgstr "閉じる"
 #, python-format
 msgid "More about %(name)s"
 msgstr "%(name)s についてもっと"
+
+#: decks/photos.py
+msgid "A photo may be at most 10 MB."
+msgstr "写真は1枚10 MBまでです。"
+
+#: decks/photos.py
+msgid "Only JPEG, PNG and WebP photos can be read."
+msgstr "読み取れるのはJPEG、PNG、WebPの写真だけです。"
+
+#: decks/photos.py
+msgid "This photo has too many pixels to be a photo of cards."
+msgstr "この写真はカードの写真としては画素数が多すぎます。"
+
+#: decks/photos.py
+msgid "This file is not a photo that can be read."
+msgstr "このファイルは読み取れる写真ではありません。"

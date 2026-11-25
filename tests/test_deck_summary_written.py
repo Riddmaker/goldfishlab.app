@@ -121,7 +121,7 @@ def test_the_client_sends_json_mode_and_reads_the_answer(key, monkeypatch):
     monkeypatch.setattr(mistral.urllib.request, "urlopen", urlopen)
     completion = mistral.complete([{"role": "user", "content": "hi"}], max_tokens=50)
 
-    assert seen["url"] == "https://api.mistral.ai/v1/chat/completions"
+    assert seen["url"] == "https://api.eu.mistral.ai/v1/chat/completions"
     assert seen["body"]["response_format"] == {"type": "json_object"}
     assert seen["body"]["max_tokens"] == 50
     assert seen["auth"] == "Bearer test-key-not-real"

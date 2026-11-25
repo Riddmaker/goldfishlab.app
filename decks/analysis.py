@@ -204,7 +204,7 @@ def _check_legality(deck, entries, analysis: DeckAnalysis) -> list[Verdict]:
     offenders = [
         entry.oracle_card.name
         for entry in entries
-        if entry.quantity > 1 and not _unlimited(entry.oracle_card)
+        if entry.quantity > 1 and not unlimited(entry.oracle_card)
     ]
     exempt = gettext("Basic lands and cards that say otherwise are exempt.")
     verdicts.append(
@@ -322,7 +322,7 @@ def _listed(names: list[str], shown: int = 5) -> str:
     return gettext("%(cards)s and more") % {"cards": listed} if len(names) > shown else listed
 
 
-def _unlimited(card) -> bool:
+def unlimited(card) -> bool:
     """Cards allowed in any number: basics, and the handful that say so."""
     if card.type_line.startswith("Basic Land"):
         return True
@@ -339,4 +339,5 @@ __all__ = [
     "analyse",
     "bracket_floor",
     "game_changers",
+    "unlimited",
 ]

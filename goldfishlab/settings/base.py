@@ -197,6 +197,10 @@ MISTRAL_REASONING_EFFORT = env("MISTRAL_REASONING_EFFORT", default="none")
 # B-22: the AI line of "More about this card" runs while a person waits, so a
 # small, quick model (simulations.card_ai).
 MISTRAL_INSIGHT_MODEL = env("MISTRAL_INSIGHT_MODEL", default="mistral-small-latest")
+# B-14: every Mistral call goes to the EU endpoint (processed in EU/EFTA, +10 %),
+# and a deck from photos is read by a model that takes images.
+MISTRAL_BASE_URL = env("MISTRAL_BASE_URL", default="https://api.eu.mistral.ai")
+MISTRAL_PHOTO_MODEL = env("MISTRAL_PHOTO_MODEL", default="mistral-small-latest")
 # Load protection (P1): at most this many summaries are started a day,
 # Europe/Zurich, and guests take at most GUEST_SUMMARIES_PER_DAY of them, so
 # a crowd of visitors never spends the members' share. A day's ceiling is the

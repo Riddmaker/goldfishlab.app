@@ -1,0 +1,272 @@
+"""A deck from photos (B-14): read the card titles on a few photos.
+
+The way a photo goes, and the only way:
+
+1. **Upload, in memory only.** `MemoryOnlyUploadHandler` keeps the files in
+   RAM and stops the request past `MAX_TOTAL_BYTES`; Django's own handlers
+   would write anything over 2.5 MB to a temporary file. The page shrinks the
+   photos in the browser first, so this is the ceiling for a page without
+   scripting, not the usual size.
+2. **Checked and redrawn.** Pillow, not the file name, decides the type
+   (`FORMATS`); a picture with more than `MAX_PIXELS` is refused before it is
+   decoded (a decompression bomb). It is turned upright, shrunk to `EDGE`
+   pixels and written anew as a JPEG: no EXIF, no GPS, nothing of the
+   original file but its pixels.
+3. **Read by Mistral**, one call per photo, side by side, on the EU endpoint
+   (`simulations.mistral`). The model names the cards; it is never believed:
+   every name goes through the import's own ladder (`decks.resolve`), so a name
+   that is not a card stays an open row with suggestions.
+4. **Dropped.** Nothing keeps a photo: not the database, not a cache, not a
+   log. An error names the photo by its number, never its content.
+
+A Commander deck has one of each card but basic lands (and the few cards that
+say a deck may have any number), so a card seen twice - in a fan, or on two
+photos - is counted once.
+"""
+
+import base64
+import io
+import json
+import logging
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
+
+from django.conf import settings
+from django.core.files.uploadhandler import MemoryFileUploadHandler, StopUpload
+from django.utils.translation import gettext_lazy as _
+from PIL import Image, ImageOps, UnidentifiedImageError
+
+from decks import resolve
+from decks.analysis import unlimited
+from decks.importers.base import ParsedRow
+from simulations import mistral
+
+logger = logging.getLogger(__name__)
+
+#: Photos per run, and what a run may upload in all.
+MAX_PHOTOS = 10
+MAX_PHOTO_BYTES = 10 * 1024 * 1024
+MAX_TOTAL_BYTES = 30 * 1024 * 1024
+#: Pillow's own bomb warning starts at about 89 million; a phone takes 12 to
+#: 50 million. More than this is not a photo of cards.
+MAX_PIXELS = 60_000_000
+FORMATS = frozenset({"JPEG", "PNG", "WEBP"})
+#: The long edge sent to the model. On synthetic photos (2026-11-25) Small
+#: read every title of nine cards in a grid at this size.
+EDGE = 1600
+JPEG_QUALITY = 85
+
+#: What one answer may carry: no photo shows more cards than this, and no card
+#: name is longer.
+CARDS_MAX = 120
+NAME_MAX = 100
+COUNT_MAX = 99
+
+PROMPT = (
+    "The photo shows Magic: The Gathering cards. List every card whose title you can read. "
+    "For a card printed in another language, give its English Oracle name. Count copies of the "
+    "same card. Leave out any card whose title you cannot read; never guess. Answer only JSON: "
+    '{"cards": [{"name": "English name", "printed": "title as printed", "count": 1}]}'
+)
+
+
+class PhotoRefused(ValueError):
+    """A photo this page does not take; the message is said to the person."""
+
+
+class MemoryOnlyUploadHandler(MemoryFileUploadHandler):
+    """Django's in-memory handler without its size threshold, and with a ceiling.
+
+    Django's in-memory handler takes a file only below
+    `FILE_UPLOAD_MAX_MEMORY_SIZE` and leaves the rest to the temporary-file
+    handler; installed alone, this one takes every file and stops the whole
+    request once `MAX_TOTAL_BYTES` have come in.
+    """
+
+    def handle_raw_input(self, input_data, META, content_length, boundary, encoding=None):
+        self.received = 0
+        self.activated = True
+        # A declared length past the ceiling is refused before a byte is
+        # read; an absent one is counted chunk by chunk below.
+        if content_length and content_length > MAX_TOTAL_BYTES + 64 * 1024:
+            raise StopUpload(connection_reset=True)
+
+    def receive_data_chunk(self, raw_data, start):
+        self.received += len(raw_data)
+        if self.received > MAX_TOTAL_BYTES:
+            raise StopUpload(connection_reset=True)
+        return super().receive_data_chunk(raw_data, start)
+
+
+def prepare(upload) -> bytes:
+    """One upload, checked and redrawn: a small JPEG with nothing but pixels.
+
+    Raises:
+        PhotoRefused: too large, not a picture, or not one of `FORMATS`.
+    """
+    if upload.size > MAX_PHOTO_BYTES:
+        raise PhotoRefused(_("A photo may be at most 10 MB."))
+    try:
+        upload.seek(0)
+        with Image.open(upload) as image:
+            if image.format not in FORMATS:
+                raise PhotoRefused(_("Only JPEG, PNG and WebP photos can be read."))
+            width, height = image.size
+            if width * height > MAX_PIXELS:
+                raise PhotoRefused(_("This photo has too many pixels to be a photo of cards."))
+            # A JPEG decodes straight at a fraction of its size: a 12
+            # megapixel photo never takes its full 36 MB in memory.
+            image.draft("RGB", (EDGE, EDGE))
+            picture = ImageOps.exif_transpose(image).convert("RGB")
+    except (UnidentifiedImageError, OSError, SyntaxError, Image.DecompressionBombError):
+        raise PhotoRefused(_("This file is not a photo that can be read.")) from None
+    picture.thumbnail((EDGE, EDGE))
+    out = io.BytesIO()
+    picture.save(out, "JPEG", quality=JPEG_QUALITY)
+    return out.getvalue()
+
+
+def messages(jpeg: bytes) -> list[dict]:
+    """The chat for one photo: the instruction and the picture, nothing else."""
+    data_url = "data:image/jpeg;base64," + base64.b64encode(jpeg).decode("ascii")
+    return [{"role": "user", "content": [
+        {"type": "text", "text": PROMPT},
+        {"type": "image_url", "image_url": data_url},
+    ]}]
+
+
+@dataclass(frozen=True)
+class Seen:
+    """One card the model named on one photo."""
+
+    name: str
+    printed: str
+    count: int
+
+
+def parse(content: str) -> list[Seen]:
+    """The model's answer as cards; anything not shaped as asked is left out."""
+    try:
+        cards = json.loads(content).get("cards")
+    except (ValueError, AttributeError):
+        return []
+    if not isinstance(cards, list):
+        return []
+    seen = []
+    for item in cards[:CARDS_MAX]:
+        if not isinstance(item, dict) or not isinstance(item.get("name"), str):
+            continue
+        name = item["name"].strip()[:NAME_MAX]
+        if not name:
+            continue
+        printed = item.get("printed")
+        printed = printed.strip()[:NAME_MAX] if isinstance(printed, str) else ""
+        count = item.get("count")
+        count = min(max(count, 1), COUNT_MAX) if isinstance(count, int) else 1
+        seen.append(Seen(name, printed, count))
+    return seen
+
+
+def model() -> str:
+    return getattr(settings, "MISTRAL_PHOTO_MODEL", "") or "mistral-small-latest"
+
+
+def ask(jpeg: bytes) -> list[Seen]:
+    """One photo read by the model.
+
+    Raises:
+        mistral.MistralError: not reached, or no answer in time.
+    """
+    completion = mistral.complete(messages(jpeg), max_tokens=3000, temperature=0,
+                                  model_name=model(), effort="",
+                                  timeout=mistral.QUICK_TIMEOUT_SECONDS, retry=False)
+    return parse(completion.content)
+
+
+@dataclass
+class Reading:
+    """What the photos gave: the cards as the import resolves them, and how
+    many photos could not be read."""
+
+    report: resolve.ResolutionReport
+    photos: int
+    failed: list[int]
+
+    @property
+    def found_any(self) -> bool:
+        return bool(self.report.resolutions)
+
+
+def read(jpegs: list[bytes]) -> Reading:
+    """Every photo read side by side, then resolved and merged into one list.
+
+    A photo that could not be read is named by its number in `failed`; only
+    when none could does this raise, so a run with one bad photo still gives
+    the cards of the others.
+
+    Raises:
+        mistral.MistralError: no photo could be read.
+    """
+    results: list[list[Seen] | None] = [None] * len(jpegs)
+    failed = []
+    # One thread per photo, so the slowest photo, not their sum, is the wait:
+    # each call ends within `QUICK_TIMEOUT_SECONDS`, well inside a request.
+    with ThreadPoolExecutor(max_workers=max(1, len(jpegs))) as pool:
+        futures = [pool.submit(ask, jpeg) for jpeg in jpegs]
+        for number, future in enumerate(futures, start=1):
+            try:
+                results[number - 1] = future.result()
+            except mistral.MistralError as exc:
+                logger.warning("photo %d of %d not read: %s", number, len(jpegs), exc)
+                failed.append(number)
+    if jpegs and len(failed) == len(jpegs):
+        raise mistral.MistralError("no photo could be read")
+    seen = [item for result in results if result for item in result]
+    return Reading(report=_resolve(seen), photos=len(jpegs), failed=failed)
+
+
+def _resolve(seen: list[Seen]) -> resolve.ResolutionReport:
+    """The names through the import's ladder, the printed title as a second
+    try, then one row per card."""
+    rows = [ParsedRow(line_number=i, name=item.name, quantity=item.count,
+                      extra={"printed": item.printed})
+            for i, item in enumerate(seen, start=1)]
+    report = resolve.resolve(rows)
+    retry = [r for r in report.unresolved if r.row.extra.get("printed")
+             and r.row.extra["printed"].casefold() != r.row.name.casefold()]
+    if retry:
+        second = resolve.resolve([ParsedRow(line_number=r.row.line_number,
+                                            name=r.row.extra["printed"],
+                                            quantity=r.row.quantity)
+                                  for r in retry])
+        by_line = {r.row.line_number: r for r in second.resolved}
+        report = resolve.ResolutionReport([
+            _keep_name(by_line.get(r.row.line_number), r) for r in report.resolutions])
+    return _merge(report)
+
+
+def _keep_name(found: resolve.Resolution | None, original: resolve.Resolution):
+    if found is None:
+        return original
+    found.row = original.row
+    return found
+
+
+def _merge(report: resolve.ResolutionReport) -> resolve.ResolutionReport:
+    """One row per card (or per unknown name), counted as a deck counts it."""
+    merged: dict[str, resolve.Resolution] = {}
+    for resolution in report.resolutions:
+        key = (str(resolution.card.pk) if resolution.card
+               else "?" + resolution.row.name.casefold())
+        if key in merged:
+            merged[key].row.quantity += resolution.row.quantity
+        else:
+            merged[key] = resolution
+    for resolution in merged.values():
+        if resolution.card is not None and not unlimited(resolution.card):
+            resolution.row.quantity = 1
+    return resolve.ResolutionReport(list(merged.values()))
+
+
+__all__ = ["MAX_PHOTOS", "MemoryOnlyUploadHandler", "PhotoRefused", "Reading", "Seen",
+           "messages", "parse", "prepare", "read"]

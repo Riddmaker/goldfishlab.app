@@ -42,6 +42,11 @@ urlpatterns = [
         name="insight",
     ),
     path(
+        "decks/<uuid:pk>/tune/<uuid:oracle_id>/insight/ai/",
+        views.CardAIView.as_view(),
+        name="card_ai",
+    ),
+    path(
         "decks/<uuid:pk>/tune/<uuid:oracle_id>/primitive/<slug:key>/",
         views.PrimitiveView.as_view(),
         name="primitive",

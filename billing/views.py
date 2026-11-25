@@ -133,6 +133,8 @@ def _usage_rows(user) -> list[dict]:
         # The third limit a plan has, and the one Lauf 1 met without having
         # seen it anywhere (P20 F3, E1.21).
         (UsageRecord.Metric.IMPORTS, gettext("Deck lists imported"), gettext("this month")),
+        # Asking the AI about a card (B-22); a kept answer is not counted.
+        (UsageRecord.Metric.CARD_INSIGHTS, gettext("Card insights"), gettext("this month")),
     ):
         decision = quotas.check(user, metric, amount=0, raise_on_fail=False)
         # The bar's width; capped, because a plan changed mid-month can leave
@@ -296,5 +298,11 @@ def refusal(exc: quotas.QuotaExceeded) -> str:
     if exc.metric == UsageRecord.Metric.IMPORTS:
         return ngettext("You have imported %(used)s of %(limit)s deck list this month.",
                         "You have imported %(used)s of %(limit)s deck lists this month.",
+                        exc.limit) % numbers
+    if exc.metric == UsageRecord.Metric.CARD_INSIGHTS:
+        if not exc.limit:
+            return gettext("Asking the AI about a card needs an account.")
+        return ngettext("You have asked the AI about %(used)s of %(limit)s card this month.",
+                        "You have asked the AI about %(used)s of %(limit)s cards this month.",
                         exc.limit) % numbers
     return gettext("Your plan's limit is reached.")

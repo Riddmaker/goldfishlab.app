@@ -25,7 +25,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.utils.translation import gettext, gettext_noop
+from django.utils.translation import get_language, gettext, gettext_noop
 from django.views.generic import DetailView, View
 from django_ratelimit.decorators import ratelimit
 
@@ -563,7 +563,8 @@ class CardAnnotateView(DeckScopedView):
             "step": None,
             "insight_button": wants_insight(card),
             # Without JavaScript the button is a link back here (B-22).
-            "insight": insight_context(deck, card) if insight and wants_insight(card) else None,
+            "insight": insight_context(deck, card, self.request.user)
+            if insight and wants_insight(card) else None,
             **self._blocks(deck, card, entry, scope, editing, primitive_form, item, variant),
         }
         if card.pk in ids:
@@ -590,22 +591,37 @@ class CardAnnotateView(DeckScopedView):
         return value if value in {DECK_SCOPE, USER_SCOPE} else DECK_SCOPE
 
 
-def insight_context(deck: Deck, card: OracleCard, *, fetch: bool = True) -> dict:
-    """More about this card (B-22): what it is strong with in this deck, and
-    its combos. `fetch` asks Commander Spellbook when the card's answer has
-    gone stale - only on the button, never while the card page renders."""
+def insight_context(deck: Deck, card: OracleCard, user, *, fetch: bool = True) -> dict:
+    """More about this card (B-22): what it is strong with in this deck, its
+    combos, and what the AI wrote or may write. `fetch` asks Commander
+    Spellbook when the card's answer has gone stale - only on the button,
+    never while the card page renders."""
     from combos import services as combo_services
     from decks import insight
     from decks.themes import deck_reading, theme_cards
 
     cards = theme_cards(deck)
-    return {
-        "deck": deck,
-        "card": card,
-        "strong": insight.strong_with(deck_reading(deck, cards), card.name),
-        "card_combos": combo_services.card_combos(
-            card, [one.oracle_id for one in cards], fetch=fetch),
-    }
+    strong = insight.strong_with(deck_reading(deck, cards), card.name)
+    combos = combo_services.card_combos(card, [one.oracle_id for one in cards], fetch=fetch)
+    return {"deck": deck, "card": card, "strong": strong, "card_combos": combos,
+            **ai_context(user, card, strong)}
+
+
+def ai_context(user, card: OracleCard, strong) -> dict:
+    """The AI part of the insight: its answer when one is kept, else whether
+    this person may ask (`quotas.check` without raising only words the
+    button; the POST decides). Nothing at all without a Mistral key."""
+    from simulations import card_ai, mistral
+
+    if not mistral.is_configured():
+        return {"ai_on": False}
+    found = card_ai.cached(card, card_ai.candidates(strong), get_language())
+    metric = UsageRecord.Metric.CARD_INSIGHTS
+    decision = quotas.check(user, metric, raise_on_fail=False)
+    refusal = "" if found or decision.allowed else billing_views.refusal(QuotaExceeded(
+        "", metric=metric, limit=decision.limit, used=decision.used))
+    return {"ai_on": True, "ai": found, "ai_decision": decision, "ai_refusal": refusal,
+            "ai_guest": getattr(user, "is_guest", False)}
 
 
 def wants_insight(card: OracleCard) -> bool:
@@ -628,7 +644,54 @@ class CardInsightView(DeckScopedView):
         card = self.get_card(deck, oracle_id)
         if not wants_insight(card):
             raise Http404
-        return render(request, "simulations/_insight.html", insight_context(deck, card))
+        return render(request, "simulations/_insight.html",
+                      insight_context(deck, card, request.user))
+
+
+AI_FAILED = gettext_noop("The AI could not be reached. Nothing was counted; try again in a moment.")
+
+
+@method_decorator(ratelimit(key="user", rate="10/m", method="POST"), name="post")
+class CardAIView(DeckScopedView):
+    """Ask the AI what else a card is good for (B-22, PR 2).
+
+    Quota call site 6: checked and debited before the Mistral call and
+    refunded when it fails, as `billing.quotas` asks. A kept answer for the
+    same card, partners and language is served without either.
+    """
+
+    def post(self, request, pk, oracle_id):
+        from simulations import card_ai, mistral
+
+        deck = self.get_deck(request, pk)
+        card = self.get_card(deck, oracle_id)
+        if not wants_insight(card) or not mistral.is_configured():
+            raise Http404
+        context = insight_context(deck, card, request.user, fetch=False)
+        if context["ai"] is None:
+            metric = UsageRecord.Metric.CARD_INSIGHTS
+            try:
+                quotas.check(request.user, metric)
+            except QuotaExceeded as exc:
+                # 200, not 402: htmx swaps no 4xx answer, and this one is a
+                # sentence for the page, not an error.
+                context["ai_refusal"] = billing_views.refusal(exc)
+            else:
+                quotas.consume(request.user, metric)
+                try:
+                    context["ai"] = card_ai.write(card, card_ai.candidates(context["strong"]),
+                                                 get_language(), context["card_combos"].shown)
+                except mistral.MistralError:
+                    quotas.refund(request.user, metric)
+                    context["ai_failed"] = True
+        if not request.headers.get("HX-Request"):
+            # Without JavaScript: back to the card page, the answer in place,
+            # a failure said at the top (the refusal is read again there).
+            if context.get("ai_failed"):
+                messages.error(request, gettext(AI_FAILED))
+            url = reverse("simulations:annotate", args=[deck.id, card.pk])
+            return redirect(f"{url}?insight=1#card-ai")
+        return render(request, "simulations/_card_ai.html", context)
 
 
 def _item_index(item) -> int | None:

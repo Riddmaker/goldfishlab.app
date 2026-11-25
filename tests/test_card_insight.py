@@ -26,6 +26,7 @@ from combos import services, spellbook
 from combos.models import CardComboLookup
 from decks import insight
 from decks import services as deck_services
+from tests.support import Calls
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 PASSWORD = "pw-for-test-only"
@@ -139,21 +140,15 @@ def records():
 @pytest.fixture
 def asked(monkeypatch, records):
     """Count the calls to Commander Spellbook and answer from the fixture."""
-    calls = _Calls()
+    calls = Calls()
 
     def fake(name, **kwargs):
         calls.append(name)
-        if calls.answer is not None:
-            raise calls.answer
+        if calls.failure is not None:
+            raise calls.failure
         return [r for r in records if name in {c.name for c in r.cards}]
     monkeypatch.setattr(spellbook, "combos_of_card", fake)
     return calls
-
-
-class _Calls(list):
-    """The names asked for; set `answer` to an error to make Spellbook fail."""
-
-    answer = None
 
 
 def _card(name):
@@ -199,7 +194,7 @@ def test_a_failure_keeps_the_older_answer_and_waits_before_asking_again(deck, as
     CardComboLookup.objects.filter(oracle_card=card).update(
         fetched_at=timezone.now() - timedelta(days=30),
         attempted_at=timezone.now() - timedelta(hours=1))
-    asked.answer = spellbook.SpellbookError("down")
+    asked.failure = spellbook.SpellbookError("down")
 
     later = services.card_combos(card, _held(deck))
     services.card_combos(card, _held(deck))

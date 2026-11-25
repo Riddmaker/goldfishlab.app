@@ -493,6 +493,33 @@ class SimulationRun(models.Model):
         return max(0, self.coverage_total - self.coverage_unreadable)
 
 
+class CardInsight(models.Model):
+    """What else one card is good for, as the AI wrote it (B-22, PR 2).
+
+    Kept per card, the partners it was shown and the language: the same card
+    among the same cards reads the same to everybody, so a second asker gets
+    it from here and pays nothing (`simulations.card_ai`). `items` is what
+    survived the checks, never the raw answer.
+    """
+
+    oracle_card = models.ForeignKey(OracleCard, on_delete=models.CASCADE,
+                                    related_name="ai_insights")
+    #: sha256 of the candidate names the AI was shown, sorted.
+    partners_hash = models.CharField(max_length=64)
+    language = models.CharField(max_length=10)
+    #: [{"partner": name or "", "text": str, "checked": bool}, ...]
+    items = models.JSONField(default=list)
+    model = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(
+            fields=["oracle_card", "partners_hash", "language"], name="one_insight_per_key")]
+
+    def __str__(self) -> str:
+        return f"{self.oracle_card_id} ({self.language})"
+
+
 class DeckSummary(models.Model):
     """The written part of a deck's summary (phase 10 H, T6.2), one per deck.
 

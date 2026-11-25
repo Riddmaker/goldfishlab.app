@@ -17898,3 +17898,64 @@ msgstr "Commander Spellbook est injoignable. Réessaie dans quelques minutes."
 #: templates/simulations/_insight.html
 msgid "Combos: Commander Spellbook · Card data: Scryfall"
 msgstr "Combos : Commander Spellbook · Données des cartes : Scryfall"
+
+#: templates/simulations/_card_ai.html
+msgid "What else it is good for"
+msgstr "À quoi d'autre elle sert"
+
+#: templates/simulations/_card_ai.html
+msgid ""
+"Written by an AI (Mistral) from the card texts alone. An idea, not checked, "
+"unless a combo backs it."
+msgstr ""
+"Écrit par une IA (Mistral) à partir des seuls textes des cartes. Une idée, "
+"non vérifiée, sauf si un combo la confirme."
+
+#: templates/simulations/_card_ai.html
+msgid "A combo on Commander Spellbook backs it"
+msgstr "Un combo sur Commander Spellbook le confirme"
+
+#: templates/simulations/_card_ai.html
+msgid "The AI found nothing it could say from the card texts alone."
+msgstr "L'IA n'a rien trouvé à dire à partir des seuls textes des cartes."
+
+#: templates/simulations/_card_ai.html
+msgid "See the plans"
+msgstr "Voir les formules"
+
+#: templates/simulations/_card_ai.html
+msgid ""
+"The AI could not be reached. Nothing was counted; try again in a moment."
+msgstr ""
+"L'IA est injoignable. Rien n'a été décompté ; réessaie dans un instant."
+
+#: templates/simulations/_card_ai.html
+msgid "Ask the AI"
+msgstr "Demander à l'IA"
+
+#: templates/simulations/_card_ai.html
+msgid "Included in your plan."
+msgstr "Inclus dans ta formule."
+
+#: templates/simulations/_card_ai.html
+#, python-format
+msgid "%(left)s question left this month."
+msgid_plural "%(left)s questions left this month."
+msgstr[0] "Encore %(left)s question ce mois-ci."
+msgstr[1] "Encore %(left)s questions ce mois-ci."
+
+#: billing/views.py
+msgid "Asking the AI about a card needs an account."
+msgstr "Pour interroger l'IA sur une carte, il faut un compte."
+
+#: billing/views.py
+#, python-format
+msgid "You have asked the AI about %(used)s of %(limit)s card this month."
+msgid_plural ""
+"You have asked the AI about %(used)s of %(limit)s cards this month."
+msgstr[0] "Tu as interrogé l'IA sur %(used)s carte sur %(limit)s ce mois-ci."
+msgstr[1] "Tu as interrogé l'IA sur %(used)s cartes sur %(limit)s ce mois-ci."
+
+#: billing/views.py
+msgid "Card insights"
+msgstr "Questions à l'IA sur les cartes"

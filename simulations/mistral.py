@@ -43,6 +43,11 @@ ENDPOINT = "https://api.mistral.ai/v1/chat/completions"
 #: at its slowest on 21 decks (2026-10-21), hence twice that.
 TIMEOUT_SECONDS = 75
 
+#: The same for a call a person waits for in a web request (B-22, a card's
+#: insight on Mistral Small, about a second when measured 2026-11-25): it must
+#: end well inside gunicorn's 30 seconds, so it is also never retried.
+QUICK_TIMEOUT_SECONDS = 20
+
 #: One retry, on the statuses that mean "try again later", after this pause.
 RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
 RETRY_WAIT = 3.0
@@ -79,7 +84,8 @@ def reasoning_effort() -> str:
 
 
 def complete(messages: list[dict], *, max_tokens: int, temperature: float = 0.3,
-             model_name: str | None = None, effort: str | None = None) -> Completion:
+             model_name: str | None = None, effort: str | None = None,
+             timeout: float = TIMEOUT_SECONDS, retry: bool = True) -> Completion:
     """One chat completion in JSON mode.
 
     Raises:
@@ -111,16 +117,16 @@ def complete(messages: list[dict], *, max_tokens: int, temperature: float = 0.3,
             },
         )
         try:
-            with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:  # noqa: S310
+            with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310
                 raw = response.read(MAX_RESPONSE_BYTES + 1)
             break
         except urllib.error.HTTPError as exc:
-            if exc.code in RETRY_STATUSES and attempt == 1:
+            if exc.code in RETRY_STATUSES and attempt == 1 and retry:
                 time.sleep(RETRY_WAIT)
                 continue
             raise MistralError(f"Mistral answered HTTP {exc.code}") from None
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
-            if attempt == 1:
+            if attempt == 1 and retry:
                 time.sleep(RETRY_WAIT)
                 continue
             raise MistralError(f"Mistral could not be reached ({type(exc).__name__})") from None

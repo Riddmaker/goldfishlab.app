@@ -194,6 +194,9 @@ MISTRAL_API_KEY = env("MISTRAL_API_KEY", default="")
 # sends none and leaves the model's default.
 MISTRAL_MODEL = env("MISTRAL_MODEL", default="mistral-large-4-0")
 MISTRAL_REASONING_EFFORT = env("MISTRAL_REASONING_EFFORT", default="none")
+# B-22: the AI line of "More about this card" runs while a person waits, so a
+# small, quick model (simulations.card_ai).
+MISTRAL_INSIGHT_MODEL = env("MISTRAL_INSIGHT_MODEL", default="mistral-small-latest")
 # Load protection (P1): at most this many summaries are started a day,
 # Europe/Zurich, and guests take at most GUEST_SUMMARIES_PER_DAY of them, so
 # a crowd of visitors never spends the members' share. A day's ceiling is the

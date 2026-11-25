@@ -61,5 +61,7 @@
     {% endif %}
   </section>
 
+  {% if ai_on %}{% include "simulations/_card_ai.html" %}{% endif %}
+
   <p class="text-xs text-ink-700">{% translate "Combos: Commander Spellbook · Card data: Scryfall" %}</p>
 </div>

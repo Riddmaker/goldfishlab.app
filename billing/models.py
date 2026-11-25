@@ -60,6 +60,10 @@ class Plan(models.Model):
     #: catalogue, so it is real work, and it is also the first thing a person
     #: does - which is why the free allowance is several and not one.
     max_imports_per_month = models.PositiveIntegerField(null=True, blank=True)
+    #: B-22: how often a month the AI may write "what else this card is good
+    #: for". Each is a Mistral call; a cached answer costs nothing and counts
+    #: nothing (`simulations.card_ai`).
+    max_card_insights_per_month = models.PositiveIntegerField(null=True, blank=True)
 
     # Boolean feature gates, so a new paid feature needs no migration.
     features = models.JSONField(default=dict, blank=True)
@@ -206,6 +210,7 @@ class UsageRecord(models.Model):
         #: Recorded for guests only (P1): their one free summary, counted
         #: where a new upload cannot delete it with the deck.
         SUMMARIES_WRITTEN = "summaries_written", "Summaries written"
+        CARD_INSIGHTS = "card_insights", "Card insights written"
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="usage"

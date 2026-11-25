@@ -76,3 +76,13 @@ def routed_queue(task_name: str) -> str:
     from goldfishlab.celery import app
 
     return app.amqp.router.route({}, task_name)["queue"].name
+
+
+class Calls(list):
+    """What a faked outside service was asked, in order.
+
+    Set `failure` to an exception and the fake raises it instead of answering
+    (used for Commander Spellbook and Mistral, B-22).
+    """
+
+    failure: Exception | None = None

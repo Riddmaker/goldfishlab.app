@@ -1,0 +1,55 @@
+{% load i18n %}{% comment %}
+  More about this card, part 3 (B-22, PR 2): what else the card is good for,
+  as the AI wrote it from the card texts (simulations.card_ai). Marked as the
+  AI's and unchecked; a partner that shares a Commander Spellbook combo with
+  the card links that combo as its proof. The button posts (it may spend one
+  of the month's allowance), and the answer replaces this block.
+
+  Every word goes through autoescaping; nothing here is marked safe.
+  Takes: deck, card, ai (CardInsight or None), ai_decision, ai_guest,
+  ai_refusal, ai_failed.
+{% endcomment %}
+<section id="card-ai" data-card-ai>
+  <h3 class="font-display text-lg">{% translate "What else it is good for" %}</h3>
+  {% if ai %}
+    <p class="mt-1 text-xs text-ink-700">{% translate "Written by an AI (Mistral) from the card texts alone. An idea, not checked, unless a combo backs it." %}</p>
+    {% if ai.items %}
+      <ul class="mt-2 space-y-2 text-sm">
+        {% for item in ai.items %}
+          <li data-card-ai-item>
+            {% if item.partner %}<strong>{{ item.partner }}</strong>{% endif %}
+            <span class="block">{{ item.text }}</span>
+            {% if item.proof %}<a href="{{ item.proof }}" rel="noopener noreferrer" target="_blank" class="text-ink-700 underline underline-offset-4">{% translate "A combo on Commander Spellbook backs it" %}</a>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="mt-2 text-sm text-ink-700">{% translate "The AI found nothing it could say from the card texts alone." %}</p>
+    {% endif %}
+  {% elif ai_refusal %}
+    <p class="mt-2 text-sm text-blood-700" data-card-ai-refused>{{ ai_refusal }}</p>
+    {% if ai_guest %}
+      <a href="{% url 'guests:save' %}" class="mt-2 inline-block text-sm underline underline-offset-4">{% translate "Save your deck - free" %}</a>
+    {% else %}
+      <a href="{% url 'billing:plans' %}" class="mt-2 inline-block text-sm underline underline-offset-4">{% translate "See the plans" %}</a>
+    {% endif %}
+  {% else %}
+    {% if ai_failed %}
+      <p class="mt-2 text-sm text-blood-700">{% translate "The AI could not be reached. Nothing was counted; try again in a moment." %}</p>
+    {% endif %}
+    <form method="post" action="{% url 'simulations:card_ai' deck.id card.pk %}"
+          hx-post="{% url 'simulations:card_ai' deck.id card.pk %}" hx-target="#card-ai" hx-swap="outerHTML"
+          class="mt-2 flex flex-wrap items-center gap-3">
+      {% csrf_token %}
+      <button type="submit" class="border border-verdigris-800 px-4 py-2 font-display text-verdigris-800 hover:bg-parchment-300"
+              data-card-ai-button>{% translate "Ask the AI" %}</button>
+      <span class="text-xs text-ink-700">
+        {% if ai_decision.unlimited %}
+          {% translate "Included in your plan." %}
+        {% elif ai_decision.allowed %}
+          {% blocktranslate trimmed count left=ai_decision.remaining %}{{ left }} question left this month.{% plural %}{{ left }} questions left this month.{% endblocktranslate %}
+        {% endif %}
+      </span>
+    </form>
+  {% endif %}
+</section>

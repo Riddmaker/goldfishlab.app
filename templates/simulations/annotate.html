@@ -42,7 +42,7 @@
         {# More about this card (B-22): loaded on the button, never with the page. #}
         <div id="insight" class="mt-5 border-t border-parchment-300 pt-4" aria-live="polite">
           {% if insight %}
-            {% include "simulations/_insight.html" with strong=insight.strong card_combos=insight.card_combos %}
+            {% include "simulations/_insight.html" with strong=insight.strong card_combos=insight.card_combos ai_on=insight.ai_on ai=insight.ai ai_decision=insight.ai_decision ai_refusal=insight.ai_refusal ai_guest=insight.ai_guest %}
           {% else %}
             <a href="?insight=1#insight"
                hx-get="{% url 'simulations:insight' deck.id card.pk %}" hx-target="#insight" hx-swap="innerHTML"

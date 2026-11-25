@@ -15581,3 +15581,59 @@ msgstr "Commander Spellbookに接続できませんでした。数分後にも�
 #: templates/simulations/_insight.html
 msgid "Combos: Commander Spellbook · Card data: Scryfall"
 msgstr "コンボ: Commander Spellbook · カードデータ: Scryfall"
+
+#: templates/simulations/_card_ai.html
+msgid "What else it is good for"
+msgstr "ほかの使いみち"
+
+#: templates/simulations/_card_ai.html
+msgid ""
+"Written by an AI (Mistral) from the card texts alone. An idea, not checked, "
+"unless a combo backs it."
+msgstr "AI（Mistral）がカードの文章だけから書いたものです。コンボの裏付けがない限り、未確認のアイデアです。"
+
+#: templates/simulations/_card_ai.html
+msgid "A combo on Commander Spellbook backs it"
+msgstr "Commander Spellbook のコンボが裏付けています"
+
+#: templates/simulations/_card_ai.html
+msgid "The AI found nothing it could say from the card texts alone."
+msgstr "カードの文章だけでは、AI が言えることは見つかりませんでした。"
+
+#: templates/simulations/_card_ai.html
+msgid "See the plans"
+msgstr "プランを見る"
+
+#: templates/simulations/_card_ai.html
+msgid ""
+"The AI could not be reached. Nothing was counted; try again in a moment."
+msgstr "AI に接続できませんでした。回数には数えていません。少ししてからもう一度お試しください。"
+
+#: templates/simulations/_card_ai.html
+msgid "Ask the AI"
+msgstr "AI に聞く"
+
+#: templates/simulations/_card_ai.html
+msgid "Included in your plan."
+msgstr "プランに含まれています。"
+
+#: templates/simulations/_card_ai.html
+#, python-format
+msgid "%(left)s question left this month."
+msgid_plural "%(left)s questions left this month."
+msgstr[0] "今月はあと %(left)s 回質問できます。"
+
+#: billing/views.py
+msgid "Asking the AI about a card needs an account."
+msgstr "カードについて AI に聞くにはアカウントが必要です。"
+
+#: billing/views.py
+#, python-format
+msgid "You have asked the AI about %(used)s of %(limit)s card this month."
+msgid_plural ""
+"You have asked the AI about %(used)s of %(limit)s cards this month."
+msgstr[0] "今月は %(limit)s 枚中 %(used)s 枚について AI に聞きました。"
+
+#: billing/views.py
+msgid "Card insights"
+msgstr "カードについての AI への質問"

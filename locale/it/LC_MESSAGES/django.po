@@ -17723,3 +17723,20 @@ msgstr[1] "Questo mese hai chiesto all'IA di %(used)s carte su %(limit)s."
 #: billing/views.py
 msgid "Card insights"
 msgstr "Domande all'IA sulle carte"
+
+#: templates/simulations/_insight_dialog.html
+msgid "Loading…"
+msgstr "Caricamento…"
+
+#: templates/simulations/_insight_dialog.html
+msgid "This could not be loaded. Try again in a moment."
+msgstr "Non è stato possibile caricarlo. Riprova tra un momento."
+
+#: templates/simulations/_insight_dialog.html
+msgid "Close"
+msgstr "Chiudi"
+
+#: templates/playtest/_board.html
+#, python-format
+msgid "More about %(name)s"
+msgstr "Di più su %(name)s"

@@ -4,6 +4,7 @@
 {% block description %}{% translate "Your deck on the table: shuffle it, cut it, look at the top cards." %}{% endblock %}
 {% block head %}
   <script src="{% static 'js/deck-hand.js' %}" defer></script>
+  <script src="{% static 'js/card-insight.js' %}" defer></script>
 {% endblock %}
 {% block content %}
   {% comment %}
@@ -86,6 +87,8 @@
       <button type="button" class="board-btn board-btn-second" data-act="draw">{% translate "Draw" %}</button>
       <button type="button" class="board-btn board-btn-second" data-act="top">{% translate "Put back on top" %}</button>
       <button type="button" class="board-btn board-btn-second" data-act="bottom">{% translate "Put back at the bottom" %}</button>
+      {# More about this card (B-22): deck-hand.js names the picked card here. #}
+      <button type="button" class="board-btn board-btn-second" data-in-hand-info aria-haspopup="dialog" hidden>{% translate "More about this card" %}</button>
     </div>
     {% if revealed %}
       <div class="in-hand-zone in-hand-wide">
@@ -98,4 +101,5 @@
   </section>
   <p class="mt-3 text-sm text-parchment-300" data-in-hand-js-hint hidden>{% translate "Tap a card to draw it or put it back. Turn the deck to see the bottom card." %}</p>
   {{ cards|json_script:"in-hand-cards" }}
+  {% include "simulations/_insight_dialog.html" %}
 {% endblock %}

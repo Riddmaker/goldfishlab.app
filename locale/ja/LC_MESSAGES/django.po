@@ -15637,3 +15637,20 @@ msgstr[0] "今月は %(limit)s 枚中 %(used)s 枚について AI に聞きま�
 #: billing/views.py
 msgid "Card insights"
 msgstr "カードについての AI への質問"
+
+#: templates/simulations/_insight_dialog.html
+msgid "Loading…"
+msgstr "読み込み中…"
+
+#: templates/simulations/_insight_dialog.html
+msgid "This could not be loaded. Try again in a moment."
+msgstr "読み込めませんでした。少ししてからもう一度お試しください。"
+
+#: templates/simulations/_insight_dialog.html
+msgid "Close"
+msgstr "閉じる"
+
+#: templates/playtest/_board.html
+#, python-format
+msgid "More about %(name)s"
+msgstr "%(name)s についてもっと"

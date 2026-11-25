@@ -276,7 +276,12 @@ where something toggles, it is a real <code>&lt;input&gt;</code> and CSS (<code>
   AI" button with the month's remaining count beside it, says on top that an AI wrote it from the
   card texts and that it is an idea, not checked, and links a Commander Spellbook combo only where
   one really backs a partner. A refusal is a sentence with the way on (plans, or saving a guest
-  deck), never an error page.</li>
+  deck), never an error page. Where a card is shown big while playing, the same answer opens in a
+  dialog (<code>simulations/_insight_dialog.html</code>): a small italic ⓘ in the bottom-left
+  corner of a card in hand (on the raised card with a mouse, always on touch), beside the card's
+  button and never in it, so a click on the card still plays it; in "Deck in hand" a "More about
+  this card" button beside Put back. Without JavaScript there is no ⓘ: a button that does nothing
+  is worse than none.</li>
 <li><strong>What holds the deck together</strong> (<code>decks/_graph.html</code>, <code>decks/graph.py</code>,
   B-02, pillar 3): the first thing in "Combos &amp; engines", the whole deck as one picture. Every
   card is a dot, every pair, engine step and combo a line; the line's kind is its dash and weight,

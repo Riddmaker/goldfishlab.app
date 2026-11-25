@@ -7,6 +7,7 @@
 {% block head %}
   <script src="{% static 'js/playtest-keys.js' %}" defer></script>
   <script src="{% static 'js/hand-press.js' %}" defer></script>
+  <script src="{% static 'js/card-insight.js' %}" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -35,4 +36,6 @@
   <div class="mt-6">
     {% include "playtest/_board.html" %}
   </div>
+  {# Outside the board: htmx swaps the board, the dialog stays. #}
+  {% include "simulations/_insight_dialog.html" %}
 {% endblock %}

@@ -84,6 +84,8 @@
     if (!data || !js) return;
     const text = js.dataset;
     const cards = JSON.parse(data.textContent).map((card, id) => ({ ...card, id }));
+    const urlData = document.getElementById("card-insight-urls");
+    const insightUrls = urlData ? JSON.parse(urlData.textContent) : {};
 
     const library = table.querySelector(".in-hand-library");
     const stack = table.querySelector(".in-hand-stack");
@@ -185,6 +187,12 @@
       if (state.picked) {
         pickedName.textContent = state.picked.name;
         picked.querySelector('[data-act="draw"]').hidden = where(state.picked) === "hand";
+        // More about this card (B-22): static/js/card-insight.js opens it.
+        const info = picked.querySelector("[data-in-hand-info]");
+        if (info) {
+          info.dataset.insightFor = state.picked.name;
+          info.hidden = !(state.picked.name in insightUrls);
+        }
       }
     }
 
@@ -309,6 +317,8 @@
     });
 
     page.addEventListener("keydown", (event) => {
+      // Escape in the card's dialog closes the dialog, not the picked card.
+      if (event.target.closest && event.target.closest("dialog")) return;
       const figure = event.target.closest && event.target.closest("figure[data-card]");
       if (figure && (event.key === "Enter" || event.key === " ")) {
         event.preventDefault();

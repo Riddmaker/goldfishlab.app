@@ -286,10 +286,14 @@ def board_context(session: PlaytestSession, game) -> dict:
     keywords = card_keywords(session)
     legal = actions.legal_actions(game)
 
+    from simulations.views import insight_urls
+
     return {
         "session": session,
         "deck": session.deck,
         "game": game,
+        # The ⓘ on a card in hand (B-22): only the deck's owner plays it.
+        "insight_urls": insight_urls(session.deck),
         "hand": _tiles(
             game.hand, images, keywords,
             castable={a.index for a in legal if isinstance(a, actions.CastSpell)},

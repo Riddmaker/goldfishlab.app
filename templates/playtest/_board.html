@@ -413,6 +413,12 @@
                   {% endif %}
                 </form>
               {% endif %}
+              {% if tile.card.name in insight_urls %}
+                {# More about this card (B-22): beside the card's button, never in it. #}
+                <button type="button" class="hand-info" data-insight-for="{{ tile.card.name }}"
+                        aria-label="{% blocktranslate with name=tile.card.name %}More about {{ name }}{% endblocktranslate %}"
+                        aria-haspopup="dialog">i</button>
+              {% endif %}
             </li>
           {% empty %}
             <li class="text-parchment-200">{% translate "Nothing in hand." %}</li>

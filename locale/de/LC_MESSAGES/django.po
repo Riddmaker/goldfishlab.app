@@ -17801,3 +17801,20 @@ msgstr[1] ""
 #: billing/views.py
 msgid "Card insights"
 msgstr "KI-Fragen zu Karten"
+
+#: templates/simulations/_insight_dialog.html
+msgid "Loading…"
+msgstr "Wird geladen…"
+
+#: templates/simulations/_insight_dialog.html
+msgid "This could not be loaded. Try again in a moment."
+msgstr "Das liess sich nicht laden. Versuch es gleich nochmals."
+
+#: templates/simulations/_insight_dialog.html
+msgid "Close"
+msgstr "Schliessen"
+
+#: templates/playtest/_board.html
+#, python-format
+msgid "More about %(name)s"
+msgstr "Mehr zu %(name)s"

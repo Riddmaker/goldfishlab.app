@@ -942,11 +942,14 @@ class DeckInHandView(OwnedDecksMixin, View):
         if seed is None:
             query = urlencode({"seed": secrets.randbelow(2**62), "cut": cut})
             return redirect(f"{reverse('decks:hand', args=[deck.pk])}?{query}")
+        from simulations.views import insight_urls
+
         order = in_hand.shuffled(in_hand.library(deck), seed)
         return render(request, "decks/in_hand.html", {
             "deck": deck, "seed": seed, "cut": cut, "cut_max": in_hand.CUT_MAX,
             "revealed": order[:cut], "left": len(order) - min(cut, len(order)),
             "total": len(order), "cards": in_hand.shown(deck, order),
+            "insight_urls": insight_urls(deck),
         })
 
 

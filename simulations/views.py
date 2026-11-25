@@ -629,6 +629,16 @@ def wants_insight(card: OracleCard) -> bool:
     return "Basic" not in card.type_line
 
 
+def insight_urls(deck: Deck) -> dict[str, str]:
+    """Card name -> its "More about this card" fragment, for the ⓘ on a card
+    shown big in a playtest or in "Deck in hand" (B-22, PR 3). Keyed by the
+    front name, the name both of them show; basic lands are left out.
+    """
+    cards = [entry.oracle_card for entry in deck.entries.select_related("oracle_card")]
+    return {card.front_name: reverse("simulations:insight", args=[deck.id, card.pk])
+            for card in [*cards, *deck.commanders] if wants_insight(card)}
+
+
 @method_decorator(ratelimit(key="user", rate="30/m", method="GET"), name="get")
 class CardInsightView(DeckScopedView):
     """The "More about this card" fragment, loaded by its button (htmx).

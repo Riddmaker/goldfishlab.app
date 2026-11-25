@@ -1,0 +1,20 @@
+{% load i18n %}{% comment %}
+  "More about this card" in a dialog (B-22, PR 3), for a card shown big in a
+  playtest or in "Deck in hand". static/js/card-insight.js opens it from any
+  [data-insight-for] button, looks the card's fragment up in
+  #card-insight-urls (simulations.views.insight_urls) and loads it here with
+  htmx, so its "Ask the AI" button works in place. Without JavaScript there is
+  no ⓘ: the card page has the same answer.
+{% endcomment %}
+<dialog class="insight-dialog surface-parchment" data-insight-dialog
+        aria-labelledby="insight-dialog-title"
+        data-loading="{% translate "Loading…" %}" data-failed="{% translate "This could not be loaded. Try again in a moment." %}">
+  <div class="flex items-baseline gap-3">
+    <h2 id="insight-dialog-title" class="font-display text-2xl text-ink-900" data-insight-title></h2>
+    <form method="dialog" class="ml-auto">
+      <button type="submit" class="text-sm text-ink-900 underline underline-offset-4" data-insight-close>{% translate "Close" %}</button>
+    </form>
+  </div>
+  <div class="mt-3 text-ink-900" data-insight-body aria-live="polite"></div>
+</dialog>
+{{ insight_urls|json_script:"card-insight-urls" }}

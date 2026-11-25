@@ -25,6 +25,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 
 from django.db import transaction
+from django.db.models import Count, F, Q
 from django.utils import timezone
 from django.utils.translation import gettext, ngettext
 
@@ -59,6 +60,30 @@ class Refusal:
     """
 
     reason: str
+
+
+def known_in(oracle_ids) -> list[dict]:
+    """Combos of our catalogue whose every named card is among `oracle_ids`.
+
+    Spellbook's answers for other decks, kept in `Combo`: a deck nobody has
+    looked up still has its combos known when one of them was found before.
+    No request goes out. A combo needs two named cards at least (one named
+    card beside "any sacrifice outlet" says too little), and a card the
+    catalogue does not hold keeps its combo out. In `combos_of`'s shape.
+    """
+    oracle_ids = list(oracle_ids)
+    if not oracle_ids:
+        return []
+    held = Q(cards__oracle_card_id__in=oracle_ids)
+    found = (
+        Combo.objects.filter(pk__in=ComboCard.objects.filter(oracle_card_id__in=oracle_ids)
+                             .values("combo"))
+        .annotate(named=Count("cards"), here=Count("cards", filter=held))
+        .filter(named=F("here"), named__gte=2)
+        .prefetch_related("cards")
+    )
+    return [{"cards": [card.name for card in combo.cards.all()],
+             "produces": list(combo.produces)[:3]} for combo in found]
 
 
 def fingerprint(deck) -> str:

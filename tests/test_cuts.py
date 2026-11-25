@@ -177,3 +177,51 @@ def test_the_deck_page_lists_what_the_rule_names(client, catalogue):
     positions = [listed.index(escape(cut.name)) for cut in expected]
     assert positions == sorted(positions)
     assert 'class="card-peek-full"' in listed
+
+
+def _combo(spellbook_id, *oracles, missing=""):
+    from combos.models import Combo, ComboCard
+
+    combo = Combo.objects.create(spellbook_id=spellbook_id)
+    for oracle in oracles:
+        ComboCard.objects.create(combo=combo, oracle_card=oracle, name=oracle.name)
+    if missing:
+        ComboCard.objects.create(combo=combo, name=missing)
+    return combo
+
+
+@pytest.mark.django_db
+def test_a_combo_piece_is_never_cut_even_without_a_lookup(catalogue):
+    """B-05: a combo found for another deck keeps its cards in this one too."""
+    owner = get_user_model().objects.create_user(email="combo-cuts@example.com",
+                                                 password="pw-test-1234")
+    deck = deck_services.import_deck(owner=owner, raw=ARCHIDEKT_CSV.read_bytes(),
+                                     name="deck", filename="sample.csv").deck
+    readings = adapter.readings(deck)
+    reading = deck_reading(deck)
+    assert summary.combos_of(deck) is None, "nobody looked this deck up"
+    before = summary.cut_candidates(readings, reading, None)
+    assert before, "the sample deck has a card that could go"
+    by_name = {entry.oracle_card.front_name: entry.oracle_card for entry in readings}
+    cut = by_name[before[0].name]
+    partner = next(entry.oracle_card for entry in readings
+                   if entry.oracle_card != cut and not entry.card.is_land)
+    _combo("1-2", cut, partner)
+
+    assert cut.front_name not in _names(summary.cut_candidates(readings, reading, None))
+
+
+@pytest.mark.django_db
+def test_only_a_combo_with_two_named_cards_all_in_the_deck_counts(catalogue):
+    from cards.models import OracleCard
+    from combos.services import known_in
+
+    first, second, third = OracleCard.objects.order_by("name")[:3]
+    _combo("1-2", first, second)
+    _combo("3-4", third, missing="Card Not In This Deck")
+    _combo("5", third)
+
+    found = known_in([first.pk, second.pk, third.pk])
+
+    assert [sorted(combo["cards"]) for combo in found] == [sorted([first.name, second.name])]
+    assert known_in([first.pk]) == [] and known_in([]) == []

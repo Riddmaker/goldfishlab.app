@@ -56,6 +56,17 @@ SVar:TrigDraw:DB$ Draw | Defined$ You | NumCards$ 1
     assert trigger.effects == (b.Effect("draw", (("n", 1), ("who", "you"))),)
 
 
+def test_a_trigger_on_an_opponent_losing_life_names_the_player():
+    """B-05: Exquisite Blood's trigger was outside the vocabulary."""
+    trigger = only(blocks_of("""Name:Test Life Drinker
+Types:Enchantment
+T:Mode$ LifeLost | ValidPlayer$ Opponent | TriggerZones$ Battlefield | Execute$ TrigGain
+SVar:TrigGain:DB$ GainLife | Defined$ You | LifeAmount$ 2
+"""), b.TRIGGERED)
+    assert trigger.event == b.Event("life_lost", who="opponent")
+    assert [effect.verb for effect in trigger.effects] == ["gain_life"]
+
+
 def test_treasure_counted_from_the_board_keeps_the_count():
     trigger = only(blocks_of("""Name:Test Pirate
 Types:Creature Goblin

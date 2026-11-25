@@ -396,6 +396,11 @@ def ability_labels(ability: b.Ability, kind: str, *, swap: bool = False) -> list
             found.append(Label("death_trigger", defining=False))
         if event.name == "life_gained":
             found.append(Label("lifegain", defining=False))
+        if event.name == "life_lost" and event.who == "opponent" and any(
+                effect.verb == "gain_life" for effect in ability.effects):
+            # The other half of a drain: what an opponent loses, you gain
+            # (Exquisite Blood). Not every trigger on it: Mindcrank mills.
+            found.append(Label("drain_payoff", defining=False))
         if event.who == "opponent" and any(effect.arg("unless") for effect in ability.effects):
             found.append(Label("tax", defining=False))
     has_main = any(_main(effect) for effect in ability.effects)

@@ -36,7 +36,8 @@ from simulation.rules.selector import Selector
 
 #: Raised with every change to how a script is translated, so the next run
 #: translates every script again although the pin did not move.
-TRANSLATION = 10
+#: 11: "whenever an opponent loses life" (``LifeLost``; Exquisite Blood).
+TRANSLATION = 11
 
 #: More scripts than this share failing to translate stops the run, and the
 #: blocks of the last good run stay.
@@ -95,7 +96,8 @@ EVENTS = {
     "ChangesZoneAll": "zone_change_all", "CounterAddedOnce": "counter_added",
     "Cycled": "cycled", "DamageDealtOnce": "damage", "DamageDone": "damage",
     "DamageDoneOnce": "damage", "Discarded": "discarded", "Drawn": "draws",
-    "LandPlayed": "land_played", "LifeGained": "life_gained", "Phase": "phase",
+    "LandPlayed": "land_played", "LifeGained": "life_gained", "LifeLost": "life_lost",
+    "Phase": "phase",
     "Sacrificed": "sacrificed", "SpellCast": "cast", "Taps": "taps",
     "TapsForMana": "tapped_for_mana", "TurnFaceUp": "turned_face_up",
 }
@@ -521,6 +523,9 @@ def _event(ability: forge.Ability) -> b.Event:
     if mode == "Phase":
         name = PHASES.get(params.get("Phase", ""), _snake(params.get("Phase", "phase")))
         return b.Event(name, who=_whose(params.get("ValidPlayer", "")) or "each")
+    if mode == "LifeLost":
+        # The player who loses it, not a card: "whenever an opponent loses life".
+        return b.Event(EVENTS[mode], who=_whose(params.get("ValidPlayer", "")))
     if mode in ("SpellCast", "AbilityCast"):
         # "When you cast this spell" (Hydroid Krasis) names the card, not a player.
         if _whose(valid) == "self":

@@ -388,12 +388,20 @@ def _engines(reading, deck=None) -> list[dict]:
 def cut_candidates(readings, reading, combos) -> list:
     """The rule's cut candidates (`simulations.cuts`); none without themes,
     because a card of a theme must never be one. The deck page asks the same,
-    so the reasons written for the facts' list find their cards."""
+    so the reasons written for the facts' list find their cards.
+
+    A combo piece is kept whether or not the deck was looked up: beside
+    `combos` (the lookup's, `None` without one) every combo our catalogue
+    already knows complete in the deck (`combos.services.known_in`).
+    """
+    from combos.services import known_in
     from simulations import cuts
 
     if reading is None:
         return []
-    return cuts.candidates(readings, cuts.protected(reading.themes, reading.engines, combos))
+    known = known_in(entry.oracle_card.pk for entry in readings)
+    return cuts.candidates(readings, cuts.protected(reading.themes, reading.engines,
+                                                    (combos or []) + known))
 
 
 #: At most this many combos go into the prompt, the most popular first.

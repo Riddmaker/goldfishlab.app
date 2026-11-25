@@ -15,7 +15,8 @@ A card is a candidate when it plays no part in the deck's plan:
 
 Never a candidate: the commander (it is not in the library), a land (the
 land tile judges those), a card of a theme or an engine, and a card of a combo
-Commander Spellbook found complete in the deck. The most expensive come
+Commander Spellbook found complete in the deck - for this deck, or for
+another one with the same cards (`summary.cut_candidates`). The most expensive come
 first: a slot at six mana is worth more than one at two.
 """
 

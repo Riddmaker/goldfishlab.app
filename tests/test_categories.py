@@ -510,3 +510,33 @@ T:Mode$ SpellCast | ValidCard$ Card.Self | Execute$ TrigDraw
 SVar:TrigDraw:DB$ Draw | Defined$ You | NumCards$ 4
 """, ["draw"], kind="creature")
     assert found.tempo["triggered:0"]["rate"] == "one_shot"
+
+
+# --- B-05: the other half of a drain ---------------------------------------------
+
+LIFE_DRINKER = """Name:Test Life Drinker
+ManaCost:4 B
+Types:Enchantment
+T:Mode$ LifeLost | ValidPlayer$ Opponent | TriggerZones$ Battlefield | Execute$ TrigGain
+SVar:TrigGain:DB$ GainLife | Defined$ You | LifeAmount$ X
+SVar:X:TriggerCount$LifeAmount
+"""
+
+MIND_DRAIN = """Name:Test Mind Drain
+ManaCost:4
+Types:Artifact
+T:Mode$ LifeLost | ValidPlayer$ Opponent | TriggerZones$ Battlefield | Execute$ TrigMill
+SVar:TrigMill:DB$ Mill | Defined$ TriggeredPlayer | NumCards$ X
+SVar:X:TriggerCount$LifeAmount
+"""
+
+
+def test_gaining_what_an_opponent_loses_is_a_drain_and_lifegain():
+    """Exquisite Blood had no category at all: its trigger was unmodeled."""
+    found = derive(LIFE_DRINKER, [])
+    assert found.mechanics == ("drain_payoff", "lifegain")
+    assert found.tempo["triggered:0"]["rate"] == categories.EVENT
+
+
+def test_another_trigger_on_an_opponent_losing_life_is_no_drain():
+    assert "drain_payoff" not in derive(MIND_DRAIN, [], kind="artifact").mechanics

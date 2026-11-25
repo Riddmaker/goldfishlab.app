@@ -2111,27 +2111,55 @@ body {
  * upwards over the table. */
 .playtest-hand {
   --slot: 7rem;
-  padding: 0.25rem 0 1.5rem;
+  padding: 0 0 0.5rem;
   overflow-x: clip;
 }
 
 .hand-fan {
   display: flex;
   justify-content: center;
-  padding-top: 1rem;
+  padding-top: 0.25rem;
 }
 
+/* The slot never moves on its own: it is where the pointer finds the card.
+ * Everything a raised card does (straighten, lift, grow) happens to the
+ * picture inside it, so the target cannot slide out from under the pointer
+ * and the hand does not flicker (B-09). */
 .hand-slot {
+  --tilt: calc((var(--i) - (var(--n) - 1) / 2) * min(3deg, 24deg / var(--n)));
+  --overlap: min(5.25rem, 2.5rem + max(0, var(--n) - 8) * 0.4rem);
   position: relative;
   flex: none;
   width: var(--slot);
-  transform: rotate(calc((var(--i) - (var(--n) - 1) / 2) * min(3deg, 24deg / var(--n))));
+  transform: rotate(var(--tilt));
   transform-origin: 50% 250%;
-  transition: transform 150ms ease-out;
 }
 
 .hand-slot + .hand-slot {
-  margin-left: calc(-1 * min(5.25rem, 2.5rem + max(0, var(--n) - 8) * 0.4rem));
+  margin-left: calc(-1 * var(--overlap));
+}
+
+/* Only the strip of a card the next one leaves visible answers the pointer,
+ * so sliding along the hand raises one card after the other. The strips
+ * reach a little under their neighbour and below the card: turned, they
+ * would leave thin gaps near the bottom, and the raised card, lying on top, keeps the pointer
+ * that much longer instead of letting go. The slot itself must not answer:
+ * raised, its whole width would lie on top and skip the next cards. */
+.hand-slot,
+.hand-card {
+  pointer-events: none;
+}
+
+.hand-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto -1rem 0;
+  width: calc(100% - var(--overlap) + 1.5rem);
+  pointer-events: auto;
+}
+
+.hand-slot:last-child .hand-card::before {
+  width: 100%;
 }
 
 /* Resting on a card straightens it and lifts it to the top; the picture
@@ -2139,7 +2167,35 @@ body {
 .hand-slot:hover,
 .hand-slot:focus-within {
   z-index: 20;
-  transform: rotate(0deg) translateY(-0.75rem);
+}
+
+.hand-slot:hover .hand-card-img,
+.hand-slot:focus-within .hand-card-img {
+  transform: rotate(calc(-1 * var(--tilt))) translateY(-0.75rem);
+}
+
+/* At rest the hand floats a little, so the eye finds it; it holds still
+ * while a card is raised, and under reduced motion it never moves. */
+@media (prefers-reduced-motion: no-preference) {
+  .playtest-hand .hand-fan {
+    animation: hand-idle 4s ease-in-out infinite;
+  }
+
+  .playtest-hand .hand-fan:hover,
+  .playtest-hand .hand-fan:focus-within {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes hand-idle {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -0.3rem;
+  }
 }
 
 .hand-card {
@@ -2185,12 +2241,11 @@ span.hand-card {
 
   .hand-slot:hover .hand-card-img,
   .hand-slot:focus-within .hand-card-img {
-    transform: translateY(-1.5rem) scale(1.8);
+    transform: rotate(calc(-1 * var(--tilt))) translateY(-2.25rem) scale(1.8);
   }
 }
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .hand-slot,
   .hand-card-img {
     transition-duration: 220ms;
     transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -2198,10 +2253,33 @@ span.hand-card {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hand-slot,
   .hand-card-img {
     transition: none;
   }
+}
+
+/* A finger resting on a card in hand shows it big (static/js/hand-press.js);
+ * the phone must not offer to save or drag the picture meanwhile. */
+.hand-card-img {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.hand-peek {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background-color: rgb(0 0 0 / 0.6);
+  pointer-events: none;
+}
+
+.hand-peek img {
+  width: min(85vw, 24rem);
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 2rem rgb(0 0 0 / 0.6);
 }
 
 /* Playable now: a glow, and the card sits a little higher than the rest. */
@@ -2209,7 +2287,8 @@ span.hand-card {
   box-shadow: 0 0 0 3px var(--color-verdigris-300), 0 0 1rem var(--color-verdigris-300);
 }
 
-.hand-slot:has(.hand-card-ready):not(:hover, :focus-within) {
+/* Also while raised: dropping it then would move the slot under the pointer. */
+.hand-slot:has(.hand-card-ready) {
   translate: 0 -0.5rem;
 }
 
@@ -2241,6 +2320,12 @@ span.hand-card {
   font-size: 0.875rem;
 }
 
+/* The field answers only on the raised card: a covered card's field must
+ * not catch the pointer for the card above it. */
+.hand-slot:is(:hover, :focus-within) .hand-card-x {
+  pointer-events: auto;
+}
+
 .hand-card-x input {
   width: 3rem;
   padding: 0 0.25rem;
@@ -2270,13 +2355,22 @@ span.hand-card {
   opacity: 1;
 }
 
+/* The hint sits under the hand (B-09). */
+.hand-hint {
+  margin-top: 0.5rem;
+}
+
 /* With a pointer the raised card is read, so the label moves under it
- * rather than over its rules text. */
+ * rather than over its rules text, into room kept free above the hint. */
 @media (hover: hover) {
   .hand-slot:hover .hand-card-action,
   .hand-slot:focus-within .hand-card-action {
     bottom: auto;
     top: calc(100% + 0.25rem);
+  }
+
+  .hand-hint {
+    margin-top: 2rem;
   }
 }
 
@@ -2302,9 +2396,8 @@ span.hand-card {
     margin-left: 0;
   }
 
-  .hand-slot:hover,
-  .hand-slot:focus-within {
-    transform: none;
+  .hand-card::before {
+    width: 100%;
   }
 
   /* A tapped card keeps focus; it must not stay enlarged and cut off. */

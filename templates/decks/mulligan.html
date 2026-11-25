@@ -1,7 +1,10 @@
 {% extends "base.html" %}
-{% load i18n icons %}
+{% load i18n icons static %}
 {% block title %}{% blocktranslate with name=deck.name %}Keep or mulligan: {{ name }}{% endblocktranslate %} — Goldfish Lab{% endblock %}
 {% block description %}{% translate "Seven cards from your deck: keep or mulligan? The simulation plays both a thousand times and says which was better." %}{% endblock %}
+{% block head %}
+  <script src="{% static 'js/hand-press.js' %}" defer></script>
+{% endblock %}
 {% block content %}
   {% comment %}
     Keep or mulligan? (Paket 5, PR 25; decks.mulligan, decks.views.MulliganQuizView).

@@ -17648,3 +17648,231 @@ msgstr "Esta foto tem pixels demais para ser uma foto de cartas."
 #: decks/photos.py
 msgid "This file is not a photo that can be read."
 msgstr "Este arquivo não é uma foto que possa ser lida."
+
+msgid "Decks read from photos"
+msgstr "Decks lidos de fotos"
+
+msgid "Reading a deck from photos needs an account."
+msgstr "Ler um deck de fotos exige uma conta."
+
+msgid ""
+"The photos could not be read just now. Nothing was counted; try again in a "
+"moment."
+msgstr ""
+"As fotos não puderam ser lidas agora. Nada foi contado; tente de novo daqui "
+"a pouco."
+
+msgid ""
+"No card title could be read on these photos. Nothing was counted. Lay the "
+"cards side by side with their titles in the light, and try again."
+msgstr ""
+"Nenhum título de carta pôde ser lido nestas fotos. Nada foi contado. Coloque"
+" as cartas lado a lado, com os títulos na luz, e tente de novo."
+
+msgid "Choose at least one photo."
+msgstr "Escolha pelo menos uma foto."
+
+#, python-format
+msgid "Photo %(number)s: %(reason)s"
+msgstr "Foto %(number)s: %(reason)s"
+
+msgid "Keep at least one card to save a deck."
+msgstr "Mantenha pelo menos uma carta para salvar um deck."
+
+msgid "Deck from photos"
+msgstr "Deck de fotos"
+
+msgid "No list at hand?"
+msgstr "Sem lista à mão?"
+
+msgid "Read the deck from photos of your cards"
+msgstr "Leia o deck a partir de fotos das suas cartas"
+
+msgid "A deck from photos"
+msgstr "Um deck a partir de fotos"
+
+msgid "Photograph your cards, check what was read, and save the deck."
+msgstr "Fotografe suas cartas, confira o que foi lido e salve o deck."
+
+msgid "Photos of your cards"
+msgstr "Fotos das suas cartas"
+
+msgid "Drop your photos here"
+msgstr "Solte suas fotos aqui"
+
+msgid "Reading the photos…"
+msgstr "Lendo as fotos…"
+
+msgid "Read the photos"
+msgstr "Ler as fotos"
+
+msgid "Photos that read well"
+msgstr "Fotos que leem bem"
+
+msgid ""
+"Nine to twenty cards a photo, side by side or fanned so every title shows."
+msgstr ""
+"De nove a vinte cartas por foto, lado a lado ou em leque para que cada "
+"título apareça."
+
+msgid "Good light, no glare on the titles, the phone held straight above."
+msgstr "Boa luz, sem reflexo nos títulos e o celular reto por cima."
+
+msgid ""
+"A card seen twice is counted once; basic lands are counted as often as they "
+"are seen."
+msgstr ""
+"Uma carta vista duas vezes conta uma vez; terrenos básicos contam quantas "
+"vezes aparecem."
+
+msgid "Have a list already? Import it instead."
+msgstr "Já tem uma lista? Importe-a."
+
+msgid ""
+"Lay your cards out with their titles showing and take a few photos. The "
+"titles are read, you check the list, and only then is the deck saved."
+msgstr ""
+"Disponha suas cartas com os títulos à vista e tire algumas fotos. Os títulos"
+" são lidos, você confere a lista e só então o deck é salvo."
+
+msgid "or <span class=\"underline\">click to choose them</span>"
+msgstr "ou <span class=\"underline\">clique para escolhê-las</span>"
+
+msgid ""
+"The photos are made small, sent to Mistral AI in the EU to read the titles, "
+"and then dropped: they are never stored. Photograph only cards - no people, "
+"no papers."
+msgstr ""
+"As fotos são reduzidas, enviadas à Mistral AI na UE para ler os títulos e "
+"depois descartadas: nunca são guardadas. Fotografe só cartas – nada de "
+"pessoas ou documentos."
+
+msgid "Check the cards"
+msgstr "Confira as cartas"
+
+msgid ""
+"What the photos showed, to keep, change or leave out before the deck is "
+"saved."
+msgstr ""
+"O que as fotos mostraram, para manter, trocar ou deixar de fora antes de "
+"salvar o deck."
+
+msgid "Nothing is saved until you press “Save the deck”."
+msgstr "Nada é salvo até você apertar “Salvar o deck”."
+
+msgid "Pick the card it is, or keep it as read and fix it later."
+msgstr "Escolha a carta certa, ou mantenha como foi lida e corrija depois."
+
+msgid "Keep as read, fix it later"
+msgstr "Manter como lida, corrigir depois"
+
+msgid "Not a card – leave it out"
+msgstr "Não é uma carta – deixar de fora"
+
+msgid "Untick a card to leave it out. A card read wrongly: “Not this card”."
+msgstr ""
+"Desmarque uma carta para deixá-la de fora. Carta lida errado: “Não é esta "
+"carta”."
+
+msgid "Leave it out"
+msgstr "Deixar de fora"
+
+msgid "Not among them? Leave it out and find the card below."
+msgstr "Não está entre elas? Deixe de fora e procure a carta abaixo."
+
+msgid "Not this card"
+msgstr "Não é esta carta"
+
+msgid "Find a card that is missing"
+msgstr "Procurar uma carta que falta"
+
+msgid "Tick the card, then search again or save."
+msgstr "Marque a carta e depois pesquise de novo ou salve."
+
+msgid "No card by that name."
+msgstr "Nenhuma carta com esse nome."
+
+msgid "Deck name (optional)"
+msgstr "Nome do deck (opcional)"
+
+msgid "Save the deck"
+msgstr "Salvar o deck"
+
+msgid "Start again with other photos"
+msgstr "Recomeçar com outras fotos"
+
+msgid "The commander is chosen on the deck page after saving."
+msgstr "O comandante é escolhido na página do deck depois de salvar."
+
+#, python-format
+msgid "Read as “%(name)s”"
+msgstr "Lido como “%(name)s”"
+
+#, python-format
+msgid "Read as “%(name)s”. Which card is it?"
+msgstr "Lido como “%(name)s”. Qual carta é?"
+
+#, python-format
+msgid "read as “%(name)s”"
+msgstr "lido como “%(name)s”"
+
+#, python-format
+msgid "Copies of %(name)s"
+msgstr "Cópias de %(name)s"
+
+#, python-format
+msgid "At most %(count)s photo at a time."
+msgid_plural "At most %(count)s photos at a time."
+msgstr[0] "No máximo %(count)s foto por vez."
+msgstr[1] "No máximo %(count)s fotos por vez."
+
+#, python-format
+msgid "Up to %(count)s photo, JPEG, PNG or WebP."
+msgid_plural "Up to %(count)s photos, JPEG, PNG or WebP."
+msgstr[0] "Até %(count)s foto, JPEG, PNG ou WebP."
+msgstr[1] "Até %(count)s fotos, JPEG, PNG ou WebP."
+
+#, python-format
+msgid "You can read %(left)s more deck from photos this month."
+msgid_plural "You can read %(left)s more decks from photos this month."
+msgstr[0] "Este mês você ainda pode ler %(left)s deck de fotos."
+msgstr[1] "Este mês você ainda pode ler %(left)s decks de fotos."
+
+#, python-format
+msgid "Read from %(count)s photo."
+msgid_plural "Read from %(count)s photos."
+msgstr[0] "Lido de %(count)s foto."
+msgstr[1] "Lido de %(count)s fotos."
+
+#, python-format
+msgid ""
+"Photo %(numbers)s could not be read. If cards are missing, find them below "
+"or take that photo again."
+msgid_plural ""
+"Photos %(numbers)s could not be read. If cards are missing, find them below "
+"or take those photos again."
+msgstr[0] ""
+"A foto %(numbers)s não pôde ser lida. Se faltarem cartas, procure-as abaixo "
+"ou tire a foto de novo."
+msgstr[1] ""
+"As fotos %(numbers)s não puderam ser lidas. Se faltarem cartas, procure-as "
+"abaixo ou tire essas fotos de novo."
+
+#, python-format
+msgid "%(count)s title not found"
+msgid_plural "%(count)s titles not found"
+msgstr[0] "%(count)s título não encontrado"
+msgstr[1] "%(count)s títulos não encontrados"
+
+#, python-format
+msgid "%(count)s card to save"
+msgid_plural "%(count)s cards to save"
+msgstr[0] "%(count)s carta para salvar"
+msgstr[1] "%(count)s cartas para salvar"
+
+#, python-format
+msgid "You have read %(used)s of %(limit)s deck from photos this month."
+msgid_plural ""
+"You have read %(used)s of %(limit)s decks from photos this month."
+msgstr[0] "Este mês você leu %(used)s de %(limit)s deck de fotos."
+msgstr[1] "Este mês você leu %(used)s de %(limit)s decks de fotos."

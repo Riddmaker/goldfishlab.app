@@ -69,5 +69,5 @@ def test_each_limited_counter_gets_a_bar(client):
 
     # Free limits decks, runs and imports (P20 F3) and the AI's card
     # insights (B-22), so each has a bar here.
-    assert body.count('role="progressbar"') == 4
+    assert body.count('role="progressbar"') == 5
     assert "Card insights" in body

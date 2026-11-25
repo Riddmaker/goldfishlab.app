@@ -2,7 +2,7 @@
 
 from django.urls import path
 
-from decks import views
+from decks import photo_views, views
 from looks.views import LookView
 
 app_name = "decks"
@@ -21,6 +21,9 @@ urlpatterns = [
         views.ImportPreviewView.as_view(),
         name="map-preview",
     ),
+    # B-14: a deck from photos of the cards.
+    path("photos/", photo_views.PhotoUploadView.as_view(), name="photos"),
+    path("photos/<uuid:pk>/", photo_views.PhotoCheckView.as_view(), name="photos-check"),
     path("<uuid:pk>/", views.DeckDetailView.as_view(), name="detail"),
     path("<uuid:pk>/commander/", views.SetCommanderView.as_view(), name="set-commander"),
     path("<uuid:pk>/printing-art/", views.PrintingArtRetryView.as_view(),

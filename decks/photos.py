@@ -18,6 +18,10 @@ The way a photo goes, and the only way:
    that is not a card stays an open row with suggestions.
 4. **Dropped.** Nothing keeps a photo: not the database, not a cache, not a
    log. An error names the photo by its number, never its content.
+5. **Checked by the person** (PR 2): what was read waits as a
+   `PendingImport` of kind "photos" - card names and ids, no picture - until
+   the person has corrected it, then goes through the ordinary import as a
+   text list (`deck_text`), so a deck from photos is made like any other.
 
 A Commander deck has one of each card but basic lands (and the few cards that
 say a deck may have any number), so a card seen twice - in a fan, or on two
@@ -33,12 +37,15 @@ from dataclasses import dataclass
 
 from django.conf import settings
 from django.core.files.uploadhandler import MemoryFileUploadHandler, StopUpload
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from PIL import Image, ImageOps, UnidentifiedImageError
 
+from cards.models import OracleCard
 from decks import resolve
 from decks.analysis import unlimited
 from decks.importers.base import ParsedRow
+from decks.models import PendingImport
 from simulations import mistral
 
 logger = logging.getLogger(__name__)
@@ -268,5 +275,136 @@ def _merge(report: resolve.ResolutionReport) -> resolve.ResolutionReport:
     return resolve.ResolutionReport(list(merged.values()))
 
 
-__all__ = ["MAX_PHOTOS", "MemoryOnlyUploadHandler", "PhotoRefused", "Reading", "Seen",
-           "messages", "parse", "prepare", "read"]
+# --- PR 2: what was read, waiting to be checked -------------------------------
+
+#: How many other cards "Not this card" offers for one row.
+NEIGHBOURS = 6
+#: A row's choice that keeps the name as read: the import lists it as not
+#: found, with its suggestions, rather than drop it.
+KEEP_AS_READ = "?"
+
+
+def hold(owner, reading: Reading) -> PendingImport:
+    """What the photos showed, parked for the person to check; one per person,
+    a second run replaces the first (`decks.services.hold`)."""
+    rows = [{
+        "name": r.row.name,
+        "printed": r.row.extra.get("printed", ""),
+        "quantity": r.row.quantity,
+        "card": str(r.card.pk) if r.card else None,
+        "suggestions": r.suggestions,
+    } for r in reading.report.resolutions]
+    PendingImport.objects.filter(owner=owner, kind=PendingImport.Kind.PHOTOS).delete()
+    return PendingImport.objects.create(
+        owner=owner, kind=PendingImport.Kind.PHOTOS, parser="photos",
+        text=json.dumps({"photos": reading.photos, "failed": reading.failed, "rows": rows}))
+
+
+@dataclass
+class Row:
+    """One line of the check list: what was read, and what the person chose."""
+
+    index: int
+    name: str
+    printed: str
+    card: OracleCard | None
+    suggestions: list[OracleCard]
+    #: A card's id, `KEEP_AS_READ`, or "" to leave the row out.
+    chosen: str = ""
+    quantity: int = 1
+    #: "Not this card" was pressed: other cards are offered.
+    opened: bool = False
+    neighbours: list[OracleCard] | None = None
+
+    @property
+    def found(self) -> bool:
+        return self.card is not None
+
+    @property
+    def options(self) -> list[tuple[str, OracleCard, bool]]:
+        """`(value, card, chosen)` for each card this row may be: the card
+        found, the suggestions, and after "Not this card" its neighbours."""
+        cards = [self.card] if self.card else []
+        seen, out = set(), []
+        for card in [*cards, *self.suggestions, *(self.neighbours or [])]:
+            if card.pk not in seen:
+                seen.add(card.pk)
+                out.append((str(card.pk), card, self.chosen == str(card.pk)))
+        return out
+
+    @property
+    def keeps_card(self) -> bool:
+        return bool(self.card) and self.chosen == str(self.card.pk)
+
+    @property
+    def kept_as_read(self) -> bool:
+        return self.chosen == KEEP_AS_READ
+
+    @property
+    def read_differently(self) -> bool:
+        """The card found is not the name as read: the person should see what was read."""
+        return bool(self.card and self.card.name.casefold() != self.name.casefold()
+                    and self.card.front_name.casefold() != self.name.casefold())
+
+
+@dataclass
+class Held:
+    photos: int
+    failed: list[int]
+    rows: list[Row]
+
+
+def load(pending: PendingImport) -> Held:
+    """The parked reading, its cards fetched in one query."""
+    data = json.loads(pending.text)
+    names = {name for row in data["rows"] for name in row["suggestions"]}
+    ids = {row["card"] for row in data["rows"] if row["card"]}
+    cards = OracleCard.objects.filter(Q(pk__in=ids) | Q(name__in=names))
+    by_id = {str(card.pk): card for card in cards}
+    by_name = {card.name: card for card in cards}
+    rows = []
+    for index, row in enumerate(data["rows"]):
+        card = by_id.get(row["card"] or "")
+        rows.append(Row(
+            index=index, name=row["name"], printed=row["printed"], card=card,
+            suggestions=[by_name[name] for name in row["suggestions"] if name in by_name],
+            chosen=str(card.pk) if card else KEEP_AS_READ, quantity=row["quantity"]))
+    # The rows to look at first: what was not found, then what was read
+    # differently from the card found, then the rest by name.
+    rows.sort(key=lambda row: (row.found, not row.read_differently,
+                               (row.card.name if row.card else row.name).casefold()))
+    return Held(photos=data["photos"], failed=data["failed"], rows=rows)
+
+
+def neighbours(row: Row) -> list[OracleCard]:
+    """Other cards a row may have meant: near the name as read and as
+    printed, the card found left out."""
+    names = []
+    for name in (row.name, row.printed):
+        for found in resolve.suggest(name, limit=NEIGHBOURS) if name else []:
+            if found not in names:
+                names.append(found)
+    cards = {card.name: card for card in OracleCard.objects.filter(name__in=names)}
+    found = [cards[name] for name in names if name in cards and cards[name] != row.card]
+    return found[:NEIGHBOURS]
+
+
+def deck_text(rows: list[Row], added: list[OracleCard]) -> str:
+    """The checked list as the text importer reads it, one card per line."""
+    by_id = {str(card.pk): card for row in rows
+             for card in [row.card, *row.suggestions, *(row.neighbours or [])] if card}
+    lines = []
+    for row in rows:
+        if row.chosen == KEEP_AS_READ:
+            lines.append(f"{row.quantity} {row.name}")
+        elif row.chosen:
+            card = by_id.get(row.chosen) or OracleCard.objects.filter(pk=row.chosen).first()
+            if card is not None:
+                lines.append(f"{row.quantity} {card.name}")
+    lines += [f"1 {card.name}" for card in added]
+    return "\n".join(lines)
+
+
+__all__ = ["KEEP_AS_READ", "MAX_PHOTOS", "MemoryOnlyUploadHandler", "PhotoRefused", "Reading",
+           "Row", "Seen", "deck_text", "hold", "load", "messages", "neighbours", "parse",
+           "prepare", "read"]

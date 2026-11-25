@@ -67,6 +67,10 @@ SUGGESTION_LIMIT = 5
 #: How many names sharing a row's beginning are ranked for it. Far more than
 #: any real beginning has once it is half the name; a cap for a short one.
 SUGGESTION_POOL = 500
+#: And how many share only its first four letters, or its end: a misread
+#: rather than a cut, so a smaller pool (B-14). Every row ranks at most
+#: 800 names, which is milliseconds.
+SUGGESTION_SIDE_POOL = 150
 
 #: The basic lands, as printed in the site's other languages (P20 F6c, E1.48).
 #: Only these: every other card is read in English, and the review page says
@@ -185,7 +189,7 @@ def resolve(rows: list[ParsedRow]) -> ResolutionReport:
                 row=row,
                 rung=RUNG_UNRESOLVED,
                 reason=_reason(row),
-                suggestions=_suggest(row.name) if suggested <= SUGGESTION_ROWS else [],
+                suggestions=suggest(row.name) if suggested <= SUGGESTION_ROWS else [],
             )
         )
 
@@ -276,26 +280,32 @@ def _reason(row: ParsedRow) -> str:
     return gettext_noop("no card with this name in the catalogue")
 
 
-def _suggest(name: str) -> list[str]:
+def suggest(name: str, limit: int = SUGGESTION_LIMIT) -> list[str]:
     """Near misses for the review screen, the nearest first.
 
-    The names that begin as the row does - which catches the realistic
-    failure modes, a truncated name, a missing subtitle, a typo near the end -
-    ranked by how alike they are (P20 F6c, E1.84). The first five
-    alphabetically were offered before: "big scor" got "Big Apple, 3 a.m."
-    and not "Big Score". Fuzzy matching over all 35,000 names would want a
-    trigram index, not a Python loop.
+    Three small pools, ranked together by how alike they are (P20 F6c,
+    E1.84): the names that begin as the row does (half of it: a truncated
+    name, a missing subtitle, a typo near the end), the names that share its
+    first four letters (a misread in the middle: a photo's "Gravetrawler" is
+    "Gravecrawler", B-14), and the names that end as it does (a misread at the
+    start). Fuzzy matching over all 35,000 names would want a trigram index,
+    which the managed database is not known to offer.
     """
     folded = normalise(name)
     if len(folded) < 3:
         return []
 
     head = folded[: max(4, len(folded) // 2)]
-    candidates = (
-        OracleCard.objects.filter(search_name__startswith=head)
-        .order_by("name")
-        .values_list("name", "search_name")[:SUGGESTION_POOL]
-    )
+    pools = [(Q(search_name__startswith=head), SUGGESTION_POOL),
+             (Q(search_name__startswith=folded[:4]), SUGGESTION_SIDE_POOL)]
+    if len(folded) >= 8:
+        pools.append((Q(search_name__endswith=folded[-5:]), SUGGESTION_SIDE_POOL))
+    candidates = {
+        found
+        for pool, size in pools
+        for found in OracleCard.objects.filter(pool).order_by("name")
+        .values_list("name", "search_name")[:size]
+    }
     ranked = sorted(candidates, key=lambda candidate: (
         -SequenceMatcher(None, folded, candidate[1]).ratio(), candidate[0]))
-    return [name for name, _ in ranked[:SUGGESTION_LIMIT]]
+    return [name for name, _ in ranked[:limit]]

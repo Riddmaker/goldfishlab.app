@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "Check the cards" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "What the photos showed, to keep, change or leave out before the deck is saved." %}{% endblock %}
+{% block content %}
+  {% comment %}
+    B-14, PR 2 (decks.photo_views.PhotoCheckView). One form: the search and
+    "Not this card" post everything, so what was chosen stays chosen without
+    a script. Rows not found come first, then cards read differently.
+  {% endcomment %}
+  <h1 class="font-display text-3xl text-parchment-100">{% translate "Check the cards" %}</h1>
+  <p class="mt-2 max-w-2xl text-parchment-200" data-photos-summary>
+    {% blocktranslate trimmed count count=held.photos %}
+      Read from {{ count }} photo.
+    {% plural %}
+      Read from {{ count }} photos.
+    {% endblocktranslate %}
+    {% translate "Nothing is saved until you press “Save the deck”." %}
+  </p>
+  {% if held.failed %}
+    <p role="status" class="mt-3 max-w-2xl border-l-2 border-blood-600 pl-3 text-parchment-100" data-photos-failed>
+      {% blocktranslate trimmed count count=held.failed|length with numbers=held.failed|join:", " %}
+        Photo {{ numbers }} could not be read. If cards are missing, find them below or take that photo again.
+      {% plural %}
+        Photos {{ numbers }} could not be read. If cards are missing, find them below or take those photos again.
+      {% endblocktranslate %}
+    </p>
+  {% endif %}
+
+  <form method="post" class="mt-6 max-w-4xl space-y-6" data-photos-check>
+    {% csrf_token %}
+    {# Enter in the search field presses the first button: this one, not a row's "Not this card". #}
+    <button type="submit" name="action" value="search" class="sr-only" tabindex="-1" aria-hidden="true">{% translate "Search" %}</button>
+    {% if open_rows %}
+      <section class="surface-parchment p-6" aria-labelledby="open-heading">
+        <h2 id="open-heading" class="font-display text-xl text-ink-900">
+          {% blocktranslate trimmed count count=open_rows|length %}
+            {{ count }} title not found
+          {% plural %}
+            {{ count }} titles not found
+          {% endblocktranslate %}
+        </h2>
+        <p class="mt-1 text-sm text-ink-700">{% translate "Pick the card it is, or keep it as read and fix it later." %}</p>
+        <ul class="mt-4 space-y-4">
+          {% for row in open_rows %}
+            <li class="border-t border-parchment-300 pt-3" data-row="{{ row.index }}">
+              <fieldset>
+                <legend class="break-words font-display text-ink-900">
+                  {% blocktranslate trimmed with name=row.name %}Read as “{{ name }}”{% endblocktranslate %}
+                  {% if row.printed and row.printed != row.name %}<span class="text-sm text-ink-700">({{ row.printed }})</span>{% endif %}
+                </legend>
+                <div class="mt-2 grid gap-1 sm:grid-cols-2">
+                  {% for value, card, chosen in row.options %}
+                    <label class="flex items-baseline gap-2 text-ink-900">
+                      <input type="radio" name="card-{{ row.index }}" value="{{ value }}" {% if chosen %}checked{% endif %}>
+                      {{ card.name }}
+                    </label>
+                  {% endfor %}
+                  <label class="flex items-baseline gap-2 text-ink-900">
+                    <input type="radio" name="card-{{ row.index }}" value="{{ keep_as_read }}" {% if row.kept_as_read %}checked{% endif %}>
+                    {% translate "Keep as read, fix it later" %}
+                  </label>
+                  <label class="flex items-baseline gap-2 text-ink-700">
+                    <input type="radio" name="card-{{ row.index }}" value="" {% if not row.chosen %}checked{% endif %}>
+                    {% translate "Not a card – leave it out" %}
+                  </label>
+                </div>
+              </fieldset>
+              <input type="hidden" name="qty-{{ row.index }}" value="{{ row.quantity }}">
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+
+    <section class="surface-parchment p-6" aria-labelledby="found-heading">
+      <h2 id="found-heading" class="font-display text-xl text-ink-900">
+        {% blocktranslate trimmed count count=kept %}
+          {{ count }} card to save
+        {% plural %}
+          {{ count }} cards to save
+        {% endblocktranslate %}
+      </h2>
+      <p class="mt-1 text-sm text-ink-700">{% translate "Untick a card to leave it out. A card read wrongly: “Not this card”." %}</p>
+      <ul class="mt-4 divide-y divide-parchment-300">
+        {% for row in held.rows %}
+          {% if row.found %}
+            <li class="py-2" data-row="{{ row.index }}">
+              {% if row.opened %}
+                <input type="hidden" name="open" value="{{ row.index }}">
+                <fieldset>
+                  <legend class="break-words text-ink-900">
+                    {% blocktranslate trimmed with name=row.name %}Read as “{{ name }}”. Which card is it?{% endblocktranslate %}
+                  </legend>
+                  <div class="mt-2 grid gap-1 sm:grid-cols-2" data-neighbours>
+                    {% for value, card, chosen in row.options %}
+                      <label class="flex items-baseline gap-2 text-ink-900">
+                        <input type="radio" name="card-{{ row.index }}" value="{{ value }}" {% if chosen %}checked{% endif %}>
+                        {{ card.name }}
+                      </label>
+                    {% endfor %}
+                    <label class="flex items-baseline gap-2 text-ink-700">
+                      <input type="radio" name="card-{{ row.index }}" value="" {% if not row.chosen %}checked{% endif %}>
+                      {% translate "Leave it out" %}
+                    </label>
+                  </div>
+                  <p class="mt-1 text-sm text-ink-700">{% translate "Not among them? Leave it out and find the card below." %}</p>
+                </fieldset>
+                <input type="hidden" name="qty-{{ row.index }}" value="{{ row.quantity }}">
+              {% else %}
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <label class="flex min-w-0 flex-1 items-baseline gap-2 text-ink-900">
+                    <input type="checkbox" name="card-{{ row.index }}" value="{{ row.card.pk }}" {% if row.keeps_card %}checked{% endif %}>
+                    <span class="min-w-0 break-words">{{ row.card.name }}
+                      {% if row.read_differently %}<span class="block text-sm text-ink-700">{% blocktranslate trimmed with name=row.name %}read as “{{ name }}”{% endblocktranslate %}</span>{% endif %}
+                    </span>
+                  </label>
+                  <label class="form-field flex w-28 items-center gap-1 text-sm text-ink-700">
+                    <span class="sr-only">{% blocktranslate with name=row.card.name %}Copies of {{ name }}{% endblocktranslate %}</span>
+                    <span aria-hidden="true">×</span>
+                    <input type="number" name="qty-{{ row.index }}" value="{{ row.quantity }}" min="1" max="99" inputmode="numeric" class="tabular">
+                  </label>
+                  <button type="submit" name="action" value="wrong-{{ row.index }}"
+                          class="text-sm text-ink-900 underline" data-wrong>
+                    {% translate "Not this card" %}
+                  </button>
+                </div>
+              {% endif %}
+            </li>
+          {% endif %}
+        {% endfor %}
+        {% for card in added %}
+          <li class="py-2">
+            <label class="flex items-baseline gap-2 text-verdigris-800">
+              <input type="checkbox" name="add" value="{{ card.pk }}" checked>
+              +1 {{ card.name }}
+            </label>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="surface-parchment p-6" aria-labelledby="search-heading">
+      <h2 id="search-heading" class="font-display text-xl text-ink-900">{% translate "Find a card that is missing" %}</h2>
+      <div class="mt-3 flex flex-wrap items-end gap-3">
+        <div class="form-field min-w-[14rem] flex-1">
+          <label for="photos-q" class="sr-only">{% translate "Card name" %}</label>
+          <input type="text" enterkeyhint="search" id="photos-q" name="q" value="{{ query }}" maxlength="80"
+                 placeholder="{% translate "Card name" %}" autocomplete="off">
+        </div>
+        <button type="submit" name="action" value="search"
+                class="border border-ink-800 px-4 py-2 text-ink-900 hover:bg-parchment-50">
+          {% translate "Search" %}
+        </button>
+      </div>
+      {% if query %}
+        {% if found %}
+          <ul class="mt-4 grid gap-x-6 gap-y-1 sm:grid-cols-2" data-found>
+            {% for card in found %}
+              <li>
+                <label class="flex items-baseline gap-2 text-ink-900">
+                  <input type="checkbox" name="add" value="{{ card.pk }}">
+                  <span><span class="text-verdigris-800">+1</span> {{ card.name }}
+                    <span class="block text-sm text-ink-700">{{ card.type_line }}</span></span>
+                </label>
+              </li>
+            {% endfor %}
+          </ul>
+          <p class="mt-2 text-sm text-ink-700">{% translate "Tick the card, then search again or save." %}</p>
+        {% else %}
+          <p class="mt-3 text-sm text-ink-700">{% translate "No card by that name." %}</p>
+        {% endif %}
+      {% endif %}
+    </section>
+
+    <section class="surface-parchment p-6">
+      <div class="form-field">
+        <label for="photos-name" class="block font-display text-ink-900">{% translate "Deck name (optional)" %}</label>
+        <input type="text" id="photos-name" name="name" maxlength="120" class="mt-2" value="{{ name }}" autocomplete="off">
+      </div>
+      <div class="mt-6 flex flex-wrap items-center gap-4">
+        <button type="submit" name="action" value="save"
+                class="border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800">
+          {% translate "Save the deck" %}
+        </button>
+        <a href="{% url 'decks:photos' %}" class="text-ink-900 underline">{% translate "Start again with other photos" %}</a>
+      </div>
+      <p class="mt-3 text-sm text-ink-700">{% translate "The commander is chosen on the deck page after saving." %}</p>
+    </section>
+  </form>
+{% endblock %}

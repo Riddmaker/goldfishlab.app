@@ -79,7 +79,7 @@ def test_the_nearest_name_is_suggested_first(db, typed, meant, others):
     for name in [*others, meant]:
         _card(name)
 
-    suggestions = resolve._suggest(typed)
+    suggestions = resolve.suggest(typed)
 
     assert suggestions[0] == meant
     assert len(suggestions) == resolve.SUGGESTION_LIMIT

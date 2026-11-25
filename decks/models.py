@@ -547,11 +547,12 @@ class PendingImport(models.Model):
     on its way to becoming deck rows a few seconds later.
     """
 
-    #: One kind since the collection went (phase 9 B). The column and the
-    #: constraint stay: dropping them buys nothing, and a second kind of
-    #: upload would need them back.
+    #: A file waiting for its columns, or what photos showed waiting to be
+    #: checked (B-14): the card names the model read, as JSON in `text`, and
+    #: never the photos, which are gone by then (`decks.photos`).
     class Kind(models.TextChoices):
         DECK = "deck", "Deck"
+        PHOTOS = "photos", "Photos"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(
@@ -581,6 +582,8 @@ class PendingImport(models.Model):
         return f"{self.filename or 'upload'} awaiting column mapping"
 
     def get_absolute_url(self) -> str:
+        if self.kind == self.Kind.PHOTOS:
+            return reverse("decks:photos-check", args=[self.id])
         return reverse("decks:map", args=[self.id])
 
 

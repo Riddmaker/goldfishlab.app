@@ -135,6 +135,9 @@ def _usage_rows(user) -> list[dict]:
         (UsageRecord.Metric.IMPORTS, gettext("Deck lists imported"), gettext("this month")),
         # Asking the AI about a card (B-22); a kept answer is not counted.
         (UsageRecord.Metric.CARD_INSIGHTS, gettext("Card insights"), gettext("this month")),
+        # Reading a deck from photos (B-14); a run that read nothing is not counted.
+        (UsageRecord.Metric.PHOTO_IMPORTS, gettext("Decks read from photos"),
+         gettext("this month")),
     ):
         decision = quotas.check(user, metric, amount=0, raise_on_fail=False)
         # The bar's width; capped, because a plan changed mid-month can leave
@@ -304,5 +307,11 @@ def refusal(exc: quotas.QuotaExceeded) -> str:
             return gettext("Asking the AI about a card needs an account.")
         return ngettext("You have asked the AI about %(used)s of %(limit)s card this month.",
                         "You have asked the AI about %(used)s of %(limit)s cards this month.",
+                        exc.limit) % numbers
+    if exc.metric == UsageRecord.Metric.PHOTO_IMPORTS:
+        if not exc.limit:
+            return gettext("Reading a deck from photos needs an account.")
+        return ngettext("You have read %(used)s of %(limit)s deck from photos this month.",
+                        "You have read %(used)s of %(limit)s decks from photos this month.",
                         exc.limit) % numbers
     return gettext("Your plan's limit is reached.")

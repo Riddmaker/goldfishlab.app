@@ -15670,3 +15670,204 @@ msgstr "この写真はカードの写真としては画素数が多すぎます
 #: decks/photos.py
 msgid "This file is not a photo that can be read."
 msgstr "このファイルは読み取れる写真ではありません。"
+
+msgid "Decks read from photos"
+msgstr "写真から読み取ったデッキ"
+
+msgid "Reading a deck from photos needs an account."
+msgstr "写真からデッキを読み取るにはアカウントが必要です。"
+
+msgid ""
+"The photos could not be read just now. Nothing was counted; try again in a "
+"moment."
+msgstr "今は写真を読み取れませんでした。何もカウントされていません。少ししてからもう一度お試しください。"
+
+msgid ""
+"No card title could be read on these photos. Nothing was counted. Lay the "
+"cards side by side with their titles in the light, and try again."
+msgstr "これらの写真からはカード名を読み取れませんでした。何もカウントされていません。カード名が明るく見えるように並べて、もう一度お試しください。"
+
+msgid "Choose at least one photo."
+msgstr "写真を1枚以上選んでください。"
+
+#, python-format
+msgid "Photo %(number)s: %(reason)s"
+msgstr "写真%(number)s：%(reason)s"
+
+msgid "Keep at least one card to save a deck."
+msgstr "デッキを保存するには、カードを1枚以上残してください。"
+
+msgid "Deck from photos"
+msgstr "写真からのデッキ"
+
+msgid "No list at hand?"
+msgstr "リストが手元にありませんか？"
+
+msgid "Read the deck from photos of your cards"
+msgstr "カードの写真からデッキを読み取る"
+
+msgid "A deck from photos"
+msgstr "写真からデッキを作る"
+
+msgid "Photograph your cards, check what was read, and save the deck."
+msgstr "カードを撮影し、読み取られた内容を確認して、デッキを保存します。"
+
+msgid "Photos of your cards"
+msgstr "カードの写真"
+
+msgid "Drop your photos here"
+msgstr "ここに写真をドロップ"
+
+msgid "Reading the photos…"
+msgstr "写真を読み取っています…"
+
+msgid "Read the photos"
+msgstr "写真を読み取る"
+
+msgid "Photos that read well"
+msgstr "読み取りやすい写真"
+
+msgid ""
+"Nine to twenty cards a photo, side by side or fanned so every title shows."
+msgstr "1枚の写真に9〜20枚。すべてのカード名が見えるように並べるか扇状に広げてください。"
+
+msgid "Good light, no glare on the titles, the phone held straight above."
+msgstr "明るい場所で、カード名に反射がないように、スマートフォンを真上から構えてください。"
+
+msgid ""
+"A card seen twice is counted once; basic lands are counted as often as they "
+"are seen."
+msgstr "2回写ったカードは1枚として数えます。基本土地は写った数だけ数えます。"
+
+msgid "Have a list already? Import it instead."
+msgstr "リストがありますか？それならインポートしてください。"
+
+msgid ""
+"Lay your cards out with their titles showing and take a few photos. The "
+"titles are read, you check the list, and only then is the deck saved."
+msgstr "カード名が見えるように並べて数枚撮影してください。カード名を読み取り、あなたがリストを確認してから、デッキが保存されます。"
+
+msgid "or <span class=\"underline\">click to choose them</span>"
+msgstr "または<span class=\"underline\">クリックして選択</span>"
+
+msgid ""
+"The photos are made small, sent to Mistral AI in the EU to read the titles, "
+"and then dropped: they are never stored. Photograph only cards - no people, "
+"no papers."
+msgstr ""
+"写真は縮小され、カード名を読み取るためにEU内のMistral "
+"AIへ送られ、その後破棄されます。保存されることはありません。撮影するのはカードだけにしてください。人物や書類は写さないでください。"
+
+msgid "Check the cards"
+msgstr "カードを確認"
+
+msgid ""
+"What the photos showed, to keep, change or leave out before the deck is "
+"saved."
+msgstr "写真に写っていたもの。デッキを保存する前に、残す・変える・外すを選びます。"
+
+msgid "Nothing is saved until you press “Save the deck”."
+msgstr "「デッキを保存」を押すまで何も保存されません。"
+
+msgid "Pick the card it is, or keep it as read and fix it later."
+msgstr "正しいカードを選ぶか、読み取ったまま残して後で直してください。"
+
+msgid "Keep as read, fix it later"
+msgstr "読み取ったまま残し、後で直す"
+
+msgid "Not a card – leave it out"
+msgstr "カードではない – 外す"
+
+msgid "Untick a card to leave it out. A card read wrongly: “Not this card”."
+msgstr "外すカードはチェックを外してください。読み間違いは「このカードではない」。"
+
+msgid "Leave it out"
+msgstr "外す"
+
+msgid "Not among them? Leave it out and find the card below."
+msgstr "候補にありませんか？外して、下でカードを探してください。"
+
+msgid "Not this card"
+msgstr "このカードではない"
+
+msgid "Find a card that is missing"
+msgstr "足りないカードを探す"
+
+msgid "Tick the card, then search again or save."
+msgstr "カードにチェックを入れて、もう一度検索するか保存してください。"
+
+msgid "No card by that name."
+msgstr "その名前のカードはありません。"
+
+msgid "Deck name (optional)"
+msgstr "デッキ名（任意）"
+
+msgid "Save the deck"
+msgstr "デッキを保存"
+
+msgid "Start again with other photos"
+msgstr "別の写真でやり直す"
+
+msgid "The commander is chosen on the deck page after saving."
+msgstr "統率者は保存後にデッキページで選びます。"
+
+#, python-format
+msgid "Read as “%(name)s”"
+msgstr "「%(name)s」と読み取り"
+
+#, python-format
+msgid "Read as “%(name)s”. Which card is it?"
+msgstr "「%(name)s」と読み取りました。どのカードですか？"
+
+#, python-format
+msgid "read as “%(name)s”"
+msgstr "「%(name)s」と読み取り"
+
+#, python-format
+msgid "Copies of %(name)s"
+msgstr "%(name)sの枚数"
+
+#, python-format
+msgid "At most %(count)s photo at a time."
+msgid_plural "At most %(count)s photos at a time."
+msgstr[0] "一度に%(count)s枚まで。"
+
+#, python-format
+msgid "Up to %(count)s photo, JPEG, PNG or WebP."
+msgid_plural "Up to %(count)s photos, JPEG, PNG or WebP."
+msgstr[0] "最大%(count)s枚、JPEG・PNG・WebP。"
+
+#, python-format
+msgid "You can read %(left)s more deck from photos this month."
+msgid_plural "You can read %(left)s more decks from photos this month."
+msgstr[0] "今月はあと%(left)s個のデッキを写真から読み取れます。"
+
+#, python-format
+msgid "Read from %(count)s photo."
+msgid_plural "Read from %(count)s photos."
+msgstr[0] "%(count)s枚の写真から読み取りました。"
+
+#, python-format
+msgid ""
+"Photo %(numbers)s could not be read. If cards are missing, find them below "
+"or take that photo again."
+msgid_plural ""
+"Photos %(numbers)s could not be read. If cards are missing, find them below "
+"or take those photos again."
+msgstr[0] "写真%(numbers)sを読み取れませんでした。足りないカードがあれば、下で探すか撮り直してください。"
+
+#, python-format
+msgid "%(count)s title not found"
+msgid_plural "%(count)s titles not found"
+msgstr[0] "見つからなかったカード名：%(count)s件"
+
+#, python-format
+msgid "%(count)s card to save"
+msgid_plural "%(count)s cards to save"
+msgstr[0] "保存するカード：%(count)s枚"
+
+#, python-format
+msgid "You have read %(used)s of %(limit)s deck from photos this month."
+msgid_plural ""
+"You have read %(used)s of %(limit)s decks from photos this month."
+msgstr[0] "今月は写真からデッキを%(limit)s個中%(used)s個読み取りました。"

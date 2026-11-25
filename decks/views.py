@@ -530,6 +530,15 @@ class DeckImportView(LoginRequiredMixin, ImportFlowMixin, FormView):
     it runs into allauth's own signup limit, which is keyed on the address.
     """
 
+    def get_context_data(self, **kwargs):
+        from simulations import mistral
+
+        context = super().get_context_data(**kwargs)
+        # B-14: the way to a deck from photos, where it can be read at all.
+        context["photos_on"] = (mistral.is_configured()
+                                and not getattr(self.request.user, "is_guest", False))
+        return context
+
 
 class ImportMappingView(LoginRequiredMixin, View):
     """Confirm which column of an upload means which thing, then import it.

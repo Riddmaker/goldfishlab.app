@@ -19,6 +19,14 @@
       {% include "decks/_import_form.html" with submit_label=_("Import") %}
     </div>
     <div class="space-y-6 text-parchment-200">
+      {% if photos_on %}
+        <div data-photos-link>
+          <h2 class="font-display text-xl text-parchment-100">{% translate "No list at hand?" %}</h2>
+          <p class="mt-2 text-sm">
+            <a href="{% url 'decks:photos' %}" class="underline">{% translate "Read the deck from photos of your cards" %}</a>
+          </p>
+        </div>
+      {% endif %}
       <div>
         <h2 class="font-display text-xl text-parchment-100">{% translate "This is enough" %}</h2>
         {# The header words the importer reads in any language, and card names stay English (Q6). #}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static i18n icons %}
+{% block title %}{% if error %}{% translate "Error:" %} {% endif %}{% translate "A deck from photos" %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "Photograph your cards, check what was read, and save the deck." %}{% endblock %}
+{% block head %}
+  <script src="{% static 'js/photo-upload.js' %}" defer></script>
+{% endblock %}
+{% block content %}
+  {% comment %}
+    B-14, PR 2 (decks.photo_views.PhotoUploadView). The script shrinks the
+    photos before they are sent; without it the server takes them as they are,
+    up to its ceiling (decks.photos).
+  {% endcomment %}
+  <h1 class="icon-host flex items-center gap-3 font-display text-3xl text-parchment-100">{% icon "import" %}{% translate "A deck from photos" %}</h1>
+  <p class="mt-2 max-w-2xl text-parchment-200">
+    {% blocktranslate trimmed %}
+      Lay your cards out with their titles showing and take a few photos. The titles are read,
+      you check the list, and only then is the deck saved.
+    {% endblocktranslate %}
+  </p>
+  <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    <div class="surface-parchment p-6">
+      {% if blocked %}
+        <p role="alert" class="border-l-2 border-blood-600 pl-3 text-ink-900" data-photos-blocked>{{ blocked }}</p>
+      {% else %}
+        <form method="post" enctype="multipart/form-data" data-photo-form>
+          {% csrf_token %}
+          {% if error %}
+            <p id="photos-error" role="alert" class="mb-4 border-l-2 border-blood-600 pl-3 text-ink-900" data-photos-error>{{ error }}</p>
+          {% endif %}
+          <div class="dropzone" data-dropzone>
+            <label for="photos-input" class="sr-only">{% translate "Photos of your cards" %}</label>
+            <input type="file" name="photos" id="photos-input" class="dropzone-input" multiple required
+                   accept="image/jpeg,image/png,image/webp"
+                   data-max-photos="{{ max_photos }}"
+                   aria-describedby="photos-hint{% if error %} photos-error{% endif %}">
+            <div class="dropzone-face" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.5-2h6l1.5 2h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z" />
+                <circle cx="12" cy="13" r="3.5" />
+              </svg>
+              <p class="dropzone-title">{% translate "Drop your photos here" %}</p>
+              <p>{% blocktranslate trimmed %}or <span class="underline">click to choose them</span>{% endblocktranslate %}</p>
+              <p class="dropzone-name" data-dropzone-name></p>
+            </div>
+          </div>
+          <p id="photos-hint" class="mt-2 text-sm text-ink-700">
+            {% blocktranslate trimmed count count=max_photos %}
+              Up to {{ count }} photo, JPEG, PNG or WebP.
+            {% plural %}
+              Up to {{ count }} photos, JPEG, PNG or WebP.
+            {% endblocktranslate %}
+            {% if not decision.unlimited %}
+              {% blocktranslate trimmed count left=decision.remaining %}
+                You can read {{ left }} more deck from photos this month.
+              {% plural %}
+                You can read {{ left }} more decks from photos this month.
+              {% endblocktranslate %}
+            {% endif %}
+          </p>
+          <p class="mt-3 text-sm text-ink-700" data-photos-privacy>
+            {% blocktranslate trimmed %}
+              The photos are made small, sent to Mistral AI in the EU to read the titles, and then
+              dropped: they are never stored. Photograph only cards - no people, no papers.
+            {% endblocktranslate %}
+          </p>
+          <div class="mt-6 flex flex-wrap items-center gap-4">
+            <button type="submit" class="border border-blood-800 bg-blood-700 px-4 py-2 font-display text-parchment-100 hover:bg-blood-800" data-photo-submit
+                    data-busy="{% translate "Reading the photos…" %}">{% translate "Read the photos" %}</button>
+            <span class="text-sm text-ink-700" data-photo-status role="status"
+                  data-too-many="{% blocktranslate trimmed count count=max_photos %}At most {{ count }} photo at a time.{% plural %}At most {{ count }} photos at a time.{% endblocktranslate %}"></span>
+          </div>
+        </form>
+      {% endif %}
+    </div>
+    <div class="space-y-6 text-parchment-200">
+      <div>
+        <h2 class="font-display text-xl text-parchment-100">{% translate "Photos that read well" %}</h2>
+        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm">
+          <li>{% translate "Nine to twenty cards a photo, side by side or fanned so every title shows." %}</li>
+          <li>{% translate "Good light, no glare on the titles, the phone held straight above." %}</li>
+          <li>{% translate "A card seen twice is counted once; basic lands are counted as often as they are seen." %}</li>
+        </ul>
+      </div>
+      <p class="text-sm">
+        <a href="{% url 'decks:import' %}" class="underline">{% translate "Have a list already? Import it instead." %}</a>
+      </p>
+    </div>
+  </div>
+{% endblock %}

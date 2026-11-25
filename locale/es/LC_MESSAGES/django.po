@@ -17698,3 +17698,11 @@ msgstr ""
 "Cambias el aspecto desde la página de un mazo. En el plan gratuito el cambio"
 " vale para todos los mazos; Koi y Kraken pueden limitarlo a ese mazo, hasta "
 "diez aspectos en total."
+
+#: templates/core/home.html
+msgid "Know your deck like you played it since childhood."
+msgstr "Conoce tu mazo como si lo jugaras desde la infancia."
+
+#: templates/core/home.html
+msgid "A childhood of games, in one evening."
+msgstr "Una infancia de partidas, en una sola noche."

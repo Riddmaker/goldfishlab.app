@@ -15451,3 +15451,11 @@ msgid ""
 msgstr ""
 "見た目はデッキのページから変更します。無料プランでは変更がすべてのデッキに適用されます。Koi と Kraken ではそのデッキだけに適用でき、合計 "
 "10 個まで保存できます。"
+
+#: templates/core/home.html
+msgid "Know your deck like you played it since childhood."
+msgstr "子どもの頃から使ってきたように、デッキを知り尽くそう。"
+
+#: templates/core/home.html
+msgid "A childhood of games, in one evening."
+msgstr "子ども時代ぶんの対戦を、ひと晩で。"

@@ -1,8 +1,8 @@
 # Goldfish Lab
 
-**It actually plays your deck.**
+**Know your deck like you played it since childhood.**
 
-Most Magic deck tools look at your list and guess. Goldfish Lab shuffles it, keeps or mulligans a
+It actually plays your deck: most Magic deck tools look at your list and guess. Goldfish Lab shuffles it, keeps or mulligans a
 real opening hand, plays land drops, casts spells in a sensible order and does it again thousands
 of times — then reports what actually happened.
 

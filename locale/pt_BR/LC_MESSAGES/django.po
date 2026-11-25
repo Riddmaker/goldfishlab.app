@@ -17413,3 +17413,11 @@ msgstr ""
 "Você muda o visual na página de um deck. No plano gratuito a mudança vale "
 "para todos os decks; Koi e Kraken podem limitá-la a esse deck, até dez "
 "visuais no total."
+
+#: templates/core/home.html
+msgid "Know your deck like you played it since childhood."
+msgstr "Conheça seu deck como se jogasse com ele desde criança."
+
+#: templates/core/home.html
+msgid "A childhood of games, in one evening."
+msgstr "Uma infância de partidas, em uma só noite."

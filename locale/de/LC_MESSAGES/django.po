@@ -17597,3 +17597,11 @@ msgstr ""
 "Du änderst den Look auf der Seite eines Decks. Im Gratis-Abo gilt die "
 "Änderung für alle Decks; Koi und Kraken können sie auf dieses Deck "
 "beschränken, bis zu zehn Looks insgesamt."
+
+#: templates/core/home.html
+msgid "Know your deck like you played it since childhood."
+msgstr "Kenne dein Deck, als hättest du es seit deiner Kindheit gespielt."
+
+#: templates/core/home.html
+msgid "A childhood of games, in one evening."
+msgstr "Eine Kindheit voller Partien, an einem Abend."

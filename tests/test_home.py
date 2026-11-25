@@ -54,12 +54,13 @@ def test_one_more_holds_the_export_guides_and_the_options(client):
     assert 'name="name"' in more and 'name="format"' in more
 
 
-def test_the_tank_line_says_thousands_not_ten_thousand(client):
+def test_the_line_under_the_promise_is_the_shortcut_and_claims_no_number(client):
     body = _home(client)
 
-    assert ("Drop your Commander list in the tank. "
-            "It plays thousands of games while you watch.") in body
+    # B-23: the heading is the north star, the line under it the shortcut (DESIGN).
+    assert "A childhood of games, in one evening." in body
     assert "ten thousand" not in body
+    assert "10,000" not in body
 
 
 def test_two_big_tiles_each_with_its_symbol_picture_and_how_it_works(client):

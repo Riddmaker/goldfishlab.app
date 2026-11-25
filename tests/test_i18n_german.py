@@ -64,7 +64,7 @@ def test_the_main_pages_in_german(client, owner, deck, finished_run, german):  #
         assert '<html lang="de">' in body, url
         assert _polite(body) == [], url
     home = client.get(reverse("home"), follow=True).content.decode()
-    assert "Kenne dein Deck vor dem Spieleabend." in home
+    assert "Kenne dein Deck, als hättest du es seit deiner Kindheit gespielt." in home
 
 
 def test_allauths_pages_say_du(client, german):

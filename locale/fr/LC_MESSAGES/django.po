@@ -17762,3 +17762,11 @@ msgstr ""
 "Vous modifiez l’apparence depuis la page d’un deck. Avec la formule "
 "gratuite, la modification vaut pour tous les decks ; Koi et Kraken peuvent "
 "la limiter à ce deck, jusqu’à dix apparences en tout."
+
+#: templates/core/home.html
+msgid "Know your deck like you played it since childhood."
+msgstr "Connaissez votre deck comme si vous y jouiez depuis l’enfance."
+
+#: templates/core/home.html
+msgid "A childhood of games, in one evening."
+msgstr "Une enfance de parties, en une seule soirée."

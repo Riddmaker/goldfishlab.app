@@ -15,7 +15,7 @@ def test_home_renders(client):
     response = client.get(reverse("home"))
     assert response.status_code == 200
     assert b"it actually plays your deck" in response.content
-    assert b"Know your deck before game night." in response.content
+    assert b"Know your deck like you played it since childhood." in response.content
 
 
 def test_step_one_is_not_only_for_archidekt(client):

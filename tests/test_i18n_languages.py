@@ -117,7 +117,7 @@ def test_the_main_pages(client, owner, deck, finished_run, lang):  # noqa: F811
         body = client.get(url, follow=True).content.decode()
         assert f'<html lang="{lang}">' in body, url
         assert _wrong_tone(lang, body) == [], url
-    heading = _catalogue(lang).find("Know your deck before game night.").msgstr
+    heading = _catalogue(lang).find("Know your deck like you played it since childhood.").msgstr
     assert escape(heading) in client.get(reverse("home"), follow=True).content.decode()
 
 

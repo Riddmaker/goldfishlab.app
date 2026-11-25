@@ -221,6 +221,25 @@ class ComboLookup(models.Model):
         return self.status == self.Status.OK
 
 
+class CardComboLookup(models.Model):
+    """When one card's combos were last asked for (B-22, "More about this card").
+
+    The combos themselves go where every lookup leaves them, into `Combo`; this
+    row only says how old that answer is for this card, so the page can date
+    it and the service knows when to ask again (`combos.services.MAX_AGE_CARD`).
+    """
+
+    oracle_card = models.OneToOneField(OracleCard, on_delete=models.CASCADE,
+                                       related_name="combo_lookup")
+    fetched_at = models.DateTimeField(null=True, blank=True)
+    attempted_at = models.DateTimeField(auto_now=True)
+    failed = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        when = f"{self.fetched_at:%Y-%m-%d}" if self.fetched_at else "never"
+        return f"combos of {self.oracle_card_id} at {when}"
+
+
 class DeckCombo(models.Model):
     """One combo, and how this deck stands in relation to it."""
 

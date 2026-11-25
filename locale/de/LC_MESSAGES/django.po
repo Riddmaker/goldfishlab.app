@@ -17675,3 +17675,65 @@ msgstr "Dasselbe als Liste"
 #: templates/decks/_graph.html
 msgid "No line yet"
 msgstr "Noch keine Linie"
+
+#: templates/simulations/annotate.html
+msgid "More about this card"
+msgstr "Mehr zu dieser Karte"
+
+#: templates/simulations/_insight.html
+msgid "Strong with"
+msgstr "Stark mit"
+
+#: templates/simulations/_insight.html
+#, python-format
+msgid "%(count)s in your deck:"
+msgstr "%(count)s in deinem Deck:"
+
+#: templates/simulations/_insight.html
+msgid "None in your deck yet."
+msgstr "Noch keine in deinem Deck."
+
+#: templates/simulations/_insight.html
+msgid ""
+"None of the deck's themes needs this card yet, so it has no partner here."
+msgstr ""
+"Noch braucht keines der Themen des Decks diese Karte, darum hat sie hier "
+"keinen Partner."
+
+#: templates/simulations/_insight.html
+msgid "all in your deck"
+msgstr "alles in deinem Deck"
+
+#: templates/simulations/_insight.html
+msgid "Missing:"
+msgstr "Es fehlt:"
+
+#: templates/simulations/_insight.html
+msgid "Also needs:"
+msgstr "Braucht auch:"
+
+#: templates/simulations/_insight.html
+msgid "More combos with this card on Commander Spellbook"
+msgstr "Mehr Combos mit dieser Karte auf Commander Spellbook"
+
+#: templates/simulations/_insight.html
+msgid "Commander Spellbook knows no combo with this card."
+msgstr "Commander Spellbook kennt keine Combo mit dieser Karte."
+
+#: templates/simulations/_insight.html
+#, python-format
+msgid ""
+"Commander Spellbook could not be reached; this is its answer from %(date)s."
+msgstr ""
+"Commander Spellbook war nicht erreichbar; das ist seine Antwort vom "
+"%(date)s."
+
+#: templates/simulations/_insight.html
+msgid "Commander Spellbook could not be reached. Try again in a few minutes."
+msgstr ""
+"Commander Spellbook war nicht erreichbar. Versuch es in ein paar Minuten "
+"wieder."
+
+#: templates/simulations/_insight.html
+msgid "Combos: Commander Spellbook · Card data: Scryfall"
+msgstr "Combos: Commander Spellbook · Kartendaten: Scryfall"

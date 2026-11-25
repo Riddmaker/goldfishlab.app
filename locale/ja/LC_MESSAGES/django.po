@@ -15525,3 +15525,59 @@ msgstr "同じ内容をリストで"
 #: templates/decks/_graph.html
 msgid "No line yet"
 msgstr "まだ線なし"
+
+#: templates/simulations/annotate.html
+msgid "More about this card"
+msgstr "このカードについてもっと"
+
+#: templates/simulations/_insight.html
+msgid "Strong with"
+msgstr "相性が良いもの"
+
+#: templates/simulations/_insight.html
+#, python-format
+msgid "%(count)s in your deck:"
+msgstr "デッキに%(count)s枚:"
+
+#: templates/simulations/_insight.html
+msgid "None in your deck yet."
+msgstr "まだデッキにありません。"
+
+#: templates/simulations/_insight.html
+msgid ""
+"None of the deck's themes needs this card yet, so it has no partner here."
+msgstr "デッキのどのテーマもまだこのカードを必要としていないので、ここに相棒はいません。"
+
+#: templates/simulations/_insight.html
+msgid "all in your deck"
+msgstr "すべてデッキにあり"
+
+#: templates/simulations/_insight.html
+msgid "Missing:"
+msgstr "不足:"
+
+#: templates/simulations/_insight.html
+msgid "Also needs:"
+msgstr "ほかに必要:"
+
+#: templates/simulations/_insight.html
+msgid "More combos with this card on Commander Spellbook"
+msgstr "Commander Spellbookでこのカードのコンボをもっと見る"
+
+#: templates/simulations/_insight.html
+msgid "Commander Spellbook knows no combo with this card."
+msgstr "Commander Spellbookにはこのカードのコンボがありません。"
+
+#: templates/simulations/_insight.html
+#, python-format
+msgid ""
+"Commander Spellbook could not be reached; this is its answer from %(date)s."
+msgstr "Commander Spellbookに接続できませんでした。これは%(date)s時点の回答です。"
+
+#: templates/simulations/_insight.html
+msgid "Commander Spellbook could not be reached. Try again in a few minutes."
+msgstr "Commander Spellbookに接続できませんでした。数分後にもう一度お試しください。"
+
+#: templates/simulations/_insight.html
+msgid "Combos: Commander Spellbook · Card data: Scryfall"
+msgstr "コンボ: Commander Spellbook · カードデータ: Scryfall"

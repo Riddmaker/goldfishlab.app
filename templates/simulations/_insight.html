@@ -1,0 +1,65 @@
+{% load i18n %}{% comment %}
+  More about this card (B-22): what the card is strong with in this deck,
+  and the combos it is part of. Loaded by the button on the card page
+  (simulations/annotate.html), or shown in place with ?insight=1 when there is
+  no JavaScript. Built from the deck page's own reading (decks/insight.py)
+  and Commander Spellbook (combos.services.card_combos); nothing is guessed.
+
+  Every name goes through autoescaping; nothing here is marked safe.
+  Takes: deck, card, strong (decks.insight.StrongWith), card_combos
+  (combos.services.CardCombos).
+{% endcomment %}
+<div class="space-y-5 text-ink-900" data-insight>
+  <section>
+    <h3 class="font-display text-lg">{% translate "Strong with" %}</h3>
+    {% if strong %}
+      {% if strong.worked %}
+        <ul class="mt-2 space-y-2 text-sm">
+          {% for partner in strong.worked %}
+            <li data-insight-partner><strong>{{ partner.name }}</strong><span class="block text-ink-700">{{ partner.why }}</span></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+      {% if strong.kinds %}
+        <ul class="mt-2 space-y-2 text-sm">
+          {% for kind in strong.kinds %}
+            <li data-insight-kind>
+              <strong>{% translate kind.label %}</strong>
+              <span class="text-ink-700">({% translate kind.theme %}{% if kind.subject %} {{ kind.subject }}{% endif %})</span>
+              <span class="block text-ink-700">{% if kind.count %}{% blocktranslate with count=kind.count %}{{ count }} in your deck:{% endblocktranslate %} {{ kind.cards|join:", " }}{% if kind.more %} …{% endif %}{% else %}{% translate "None in your deck yet." %}{% endif %}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% else %}
+      <p class="mt-2 text-sm text-ink-700">{% translate "None of the deck's themes needs this card yet, so it has no partner here." %}</p>
+    {% endif %}
+  </section>
+
+  <section>
+    <h3 class="font-display text-lg">{% translate "Combos" %}</h3>
+    {% if card_combos.shown %}
+      <ul class="mt-2 space-y-3 text-sm">
+        {% for combo in card_combos.shown %}
+          <li data-insight-combo>
+            <a href="{{ combo.url }}" rel="noopener noreferrer" target="_blank" class="underline underline-offset-4">{{ combo.cards|join:" + " }}</a>
+            {% if combo.in_deck %}<span class="deck-status deck-status-ready ml-1">✓ {% translate "all in your deck" %}</span>{% endif %}
+            {% if combo.produces %}<span class="block text-ink-700" lang="en">{{ combo.produces|join:" · " }}</span>{% endif %}
+            {% if combo.missing %}<span class="block text-ink-700">{% translate "Missing:" %} {{ combo.missing|join:", " }}</span>{% endif %}
+            {% if combo.needs %}<span class="block text-ink-700">{% translate "Also needs:" %} <span lang="en">{{ combo.needs|join:", " }}</span></span>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+      {% if card_combos.total > card_combos.shown|length %}
+        <p class="mt-2 text-sm"><a href="{{ card_combos.url }}" rel="noopener noreferrer" target="_blank" class="underline underline-offset-4">{% translate "More combos with this card on Commander Spellbook" %}</a></p>
+      {% endif %}
+    {% elif not card_combos.failed %}
+      <p class="mt-2 text-sm text-ink-700">{% translate "Commander Spellbook knows no combo with this card." %}</p>
+    {% endif %}
+    {% if card_combos.failed %}
+      <p class="mt-2 text-sm text-blood-700">{% if card_combos.fetched_at %}{% blocktranslate trimmed with date=card_combos.fetched_at|date:"SHORT_DATE_FORMAT" %}Commander Spellbook could not be reached; this is its answer from {{ date }}.{% endblocktranslate %}{% else %}{% translate "Commander Spellbook could not be reached. Try again in a few minutes." %}{% endif %}</p>
+    {% endif %}
+  </section>
+
+  <p class="text-xs text-ink-700">{% translate "Combos: Commander Spellbook · Card data: Scryfall" %}</p>
+</div>

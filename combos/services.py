@@ -2,8 +2,9 @@
 
 The whole of the network policy is here and in `spellbook.py`: **nothing
 fetches during a page render.** A deck page reads whatever was cached, says how
-old it is, and offers a button. That button is the only thing in the
-application that can cause an outbound request to Commander Spellbook.
+old it is, and offers a button. That button, and the card page's "More about
+this card" (B-22, `card_combos`), are the only things in the application that
+can cause an outbound request to Commander Spellbook.
 
 Two rules that follow from it, both deliberate:
 
@@ -21,6 +22,7 @@ person, which is the right axis for a cost that is somebody else's bandwidth.
 """
 
 import hashlib
+import urllib.parse
 from dataclasses import dataclass
 from datetime import timedelta
 
@@ -32,6 +34,7 @@ from django.utils.translation import gettext, ngettext
 from cards.models import OracleCard
 from combos import spellbook
 from combos.models import (
+    CardComboLookup,
     Combo,
     ComboCard,
     ComboLookup,
@@ -455,4 +458,114 @@ def _measurements_for(deck) -> tuple:
         latest.run,
         {row.combo_id: row for row in rows},
         measure.plan_for(latest.run).refusals,
+    )
+
+
+# --- one card's combos (B-22, "More about this card") ----------------------------
+
+#: How long one card's combos stay believable. A week, shorter than a deck's
+#: fortnight: one card is one small request, and its list is what is shown.
+MAX_AGE_CARD = timedelta(days=7)
+
+#: How many of one card's combos the page shows; the link goes to the rest.
+CARD_COMBOS_SHOWN = 5
+
+SPELLBOOK_COMBO_URL = "https://commanderspellbook.com/combo/{id}/"
+SPELLBOOK_CARD_URL = "https://commanderspellbook.com/search/?q={query}"
+
+
+@dataclass(frozen=True)
+class CardCombo:
+    """One combo a card is part of, seen from one deck."""
+
+    spellbook_id: str
+    cards: tuple[str, ...]
+    produces: tuple[str, ...]
+    #: The named cards this deck has not got.
+    missing: tuple[str, ...]
+    #: What it also needs that no single card is ("a creature with persist").
+    needs: tuple[str, ...]
+    popularity: int
+
+    @property
+    def in_deck(self) -> bool:
+        """Every named card is in the deck. A template may still be open."""
+        return not self.missing
+
+    @property
+    def url(self) -> str:
+        return SPELLBOOK_COMBO_URL.format(id=self.spellbook_id)
+
+
+@dataclass(frozen=True)
+class CardCombos:
+    """What the page says about one card's combos, silence included."""
+
+    shown: tuple[CardCombo, ...] = ()
+    #: How many this application knows. Spellbook may know more (it is asked
+    #: for `spellbook.CARD_COMBOS_MAX`), so the page links rather than counts.
+    total: int = 0
+    fetched_at: object = None
+    #: The last attempt to ask failed; `shown` is the older answer, if any.
+    failed: bool = False
+    url: str = ""
+
+
+def card_combos(card: OracleCard, held, *, fetch: bool = True) -> CardCombos:
+    """The combos `card` is part of, those this deck holds first.
+
+    `held` are the oracle ids of the deck's cards. Asks Commander Spellbook
+    when the card's last answer is older than `MAX_AGE_CARD` and `fetch` is
+    set - only ever on a click (`simulations.views.CardInsightView`), never
+    while a page renders. A failure keeps the older answer, dated.
+    """
+    lookup = CardComboLookup.objects.filter(oracle_card=card).first()
+    now = timezone.now()
+    due = lookup is None or lookup.fetched_at is None or now - lookup.fetched_at > MAX_AGE_CARD
+    resting = lookup is not None and now - lookup.attempted_at < COOLDOWN
+    if fetch and due and not resting:
+        lookup = _ask_about(card, lookup)
+
+    held = {str(oracle_id) for oracle_id in held} | {str(card.pk)}
+    found = (Combo.objects.filter(cards__oracle_card=card, legal_commander=True)
+             .prefetch_related("cards", "templates").distinct())
+    every = sorted((_seen_from(combo, held) for combo in found),
+                   key=lambda one: (len(one.missing), -one.popularity, one.spellbook_id))
+    query = urllib.parse.quote(f'card="{card.name}"')
+    return CardCombos(
+        shown=tuple(every[:CARD_COMBOS_SHOWN]),
+        total=len(every),
+        fetched_at=lookup.fetched_at if lookup else None,
+        failed=bool(lookup and lookup.failed),
+        url=SPELLBOOK_CARD_URL.format(query=query),
+    )
+
+
+def _ask_about(card: OracleCard, lookup: CardComboLookup | None) -> CardComboLookup:
+    lookup = lookup or CardComboLookup(oracle_card=card)
+    try:
+        records = spellbook.combos_of_card(card.name)
+    except spellbook.SpellbookError:
+        lookup.failed = True
+        lookup.save()
+        return lookup
+    with transaction.atomic():
+        for record in records:
+            if record.spellbook_id:
+                _upsert(record)
+        lookup.fetched_at = timezone.now()
+        lookup.failed = False
+        lookup.save()
+    return lookup
+
+
+def _seen_from(combo: Combo, held: set[str]) -> CardCombo:
+    named = list(combo.cards.all())
+    return CardCombo(
+        spellbook_id=combo.spellbook_id,
+        cards=tuple(one.name for one in named),
+        produces=tuple(combo.produces[:3]),
+        missing=tuple(one.name for one in named if str(one.oracle_card_id) not in held),
+        needs=tuple(template.name for template in combo.templates.all()),
+        popularity=combo.popularity,
     )

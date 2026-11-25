@@ -52,6 +52,13 @@ from dataclasses import dataclass, field
 from django.conf import settings
 
 ENDPOINT = "https://backend.commanderspellbook.com/find-my-combos/"
+#: The combos one card is part of (B-22, "More about this card"). A GET; the
+#: search syntax is Spellbook's own (`card="Name"` is an exact match).
+VARIANTS = "https://backend.commanderspellbook.com/variants/"
+
+#: How many of one card's combos are asked for, the most played first. Blood
+#: Artist is in hundreds; the page shows a handful and links to the rest.
+CARD_COMBOS_MAX = 20
 
 #: Documented ceiling is roughly 80 requests a minute, which is one every
 #: 0.75 s. We take a full second, the same way the Scryfall client takes the
@@ -213,17 +220,28 @@ def _retry_after(headers) -> float:
 
 def _post(payload: dict, *, timeout: int = ATTEMPT_TIMEOUT) -> dict:
     """A rate-limited, retrying POST with a deadline. Returns the decoded body."""
-    scheme = urllib.parse.urlparse(ENDPOINT).scheme
+    return _request(ENDPOINT, json.dumps(payload).encode(), timeout=timeout)
+
+
+def _get(url: str, params: dict, *, timeout: int = ATTEMPT_TIMEOUT) -> dict:
+    """The same as `_post`, for a GET with a query string."""
+    return _request(f"{url}?{urllib.parse.urlencode(params)}", None, timeout=timeout)
+
+
+def _request(url: str, body: bytes | None, *, timeout: int) -> dict:
+    """A rate-limited, retrying request with a deadline: a POST with a body,
+    else a GET. Returns the decoded body."""
+    scheme = urllib.parse.urlparse(url).scheme
     if scheme not in ALLOWED_SCHEMES:
         raise SpellbookError(f"refusing to open URL with scheme {scheme!r}")
 
-    body = json.dumps(payload).encode()
     headers = {
         "User-Agent": _user_agent(),
         "Accept": "application/json",
         "Accept-Encoding": "gzip",
-        "Content-Type": "application/json",
     }
+    if body is not None:
+        headers["Content-Type"] = "application/json"
 
     deadline = time.monotonic() + DEADLINE_SECONDS
     last_error: Exception | None = None
@@ -233,7 +251,7 @@ def _post(payload: dict, *, timeout: int = ATTEMPT_TIMEOUT) -> dict:
         if remaining <= 1:
             break
         # The scheme check above restricts this to https, which is what S310 asks.
-        request = urllib.request.Request(ENDPOINT, data=body, headers=headers)  # noqa: S310
+        request = urllib.request.Request(url, data=body, headers=headers)  # noqa: S310
         try:
             with urllib.request.urlopen(  # noqa: S310
                 request, timeout=min(timeout, remaining)
@@ -280,6 +298,25 @@ def find_my_combos(main, commanders=(), *, timeout: int = ATTEMPT_TIMEOUT) -> Re
         "main": [{"card": name, "quantity": 1} for name in main],
     }
     return parse(_post(payload, timeout=timeout))
+
+
+def combos_of_card(name: str, *, timeout: int = ATTEMPT_TIMEOUT) -> list[ComboRecord]:
+    """The combos one card is part of, the most played first, legal in
+    Commander. `name` is the whole name, both faces of a double-faced card
+    (`OracleCard.name`): Spellbook's exact match finds "Bloodline Keeper //
+    Lord of Lineage" and not "Bloodline Keeper" (tried 2026-11-25).
+
+    A double quote would end Spellbook's quoted search term early; no card
+    name has one, so it is dropped rather than escaped.
+    """
+    name = name.replace('"', "").strip()
+    if not name:
+        return []
+    payload = _get(VARIANTS, {"q": f'card="{name}" legal:commander',
+                              "ordering": "-popularity", "limit": CARD_COMBOS_MAX},
+                   timeout=timeout)
+    return [_record(variant) for variant in payload.get("results") or []
+            if isinstance(variant, dict)]
 
 
 def parse(payload: dict) -> Results:

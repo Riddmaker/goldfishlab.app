@@ -38,6 +38,19 @@
              class="text-ink-700 underline">{% translate "See it on Scryfall" %}</a>
         </p>
       {% endif %}
+      {% if insight_button %}
+        {# More about this card (B-22): loaded on the button, never with the page. #}
+        <div id="insight" class="mt-5 border-t border-parchment-300 pt-4" aria-live="polite">
+          {% if insight %}
+            {% include "simulations/_insight.html" with strong=insight.strong card_combos=insight.card_combos %}
+          {% else %}
+            <a href="?insight=1#insight"
+               hx-get="{% url 'simulations:insight' deck.id card.pk %}" hx-target="#insight" hx-swap="innerHTML"
+               class="inline-block border border-verdigris-800 px-4 py-2 font-display text-verdigris-800 hover:bg-parchment-300"
+               data-insight-button>{% translate "More about this card" %}</a>
+          {% endif %}
+        </div>
+      {% endif %}
     </section>
     <section class="surface-parchment p-6">
       <h2 class="font-display text-2xl text-ink-900">{% translate "What does this card do?" %}</h2>

@@ -37,6 +37,11 @@ urlpatterns = [
         name="annotate",
     ),
     path(
+        "decks/<uuid:pk>/tune/<uuid:oracle_id>/insight/",
+        views.CardInsightView.as_view(),
+        name="insight",
+    ),
+    path(
         "decks/<uuid:pk>/tune/<uuid:oracle_id>/primitive/<slug:key>/",
         views.PrimitiveView.as_view(),
         name="primitive",

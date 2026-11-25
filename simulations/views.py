@@ -420,6 +420,7 @@ class CardAnnotateView(DeckScopedView):
             editing=request.GET.get("edit", ""),
             item=request.GET.get("item", ""),
             variant=request.GET.get("variant", ""),
+            insight=request.GET.get("insight") == "1",
         ))
 
     def post(self, request, pk, oracle_id):
@@ -537,7 +538,7 @@ class CardAnnotateView(DeckScopedView):
                 "primitive_more": more}
 
     def _context(self, deck, card, *, form, annotation, scope, editing="",
-                 primitive_form=None, item="", variant="") -> dict:
+                 primitive_form=None, item="", variant="", insight=False) -> dict:
         entries = provenance.for_deck(deck)
         entry = next(entry for entry in entries if entry.oracle_card.pk == card.pk)
         questions = review.queue(deck, [each.reading for each in entries])
@@ -560,6 +561,9 @@ class CardAnnotateView(DeckScopedView):
             "annotation": annotation,
             "scope": scope,
             "step": None,
+            "insight_button": wants_insight(card),
+            # Without JavaScript the button is a link back here (B-22).
+            "insight": insight_context(deck, card) if insight and wants_insight(card) else None,
             **self._blocks(deck, card, entry, scope, editing, primitive_form, item, variant),
         }
         if card.pk in ids:
@@ -584,6 +588,47 @@ class CardAnnotateView(DeckScopedView):
         possible default, so an unrecognised value falls back to this deck.
         """
         return value if value in {DECK_SCOPE, USER_SCOPE} else DECK_SCOPE
+
+
+def insight_context(deck: Deck, card: OracleCard, *, fetch: bool = True) -> dict:
+    """More about this card (B-22): what it is strong with in this deck, and
+    its combos. `fetch` asks Commander Spellbook when the card's answer has
+    gone stale - only on the button, never while the card page renders."""
+    from combos import services as combo_services
+    from decks import insight
+    from decks.themes import deck_reading, theme_cards
+
+    cards = theme_cards(deck)
+    return {
+        "deck": deck,
+        "card": card,
+        "strong": insight.strong_with(deck_reading(deck, cards), card.name),
+        "card_combos": combo_services.card_combos(
+            card, [one.oracle_id for one in cards], fetch=fetch),
+    }
+
+
+def wants_insight(card: OracleCard) -> bool:
+    """A basic land is strong with nothing in particular: no button."""
+    return "Basic" not in card.type_line
+
+
+@method_decorator(ratelimit(key="user", rate="30/m", method="GET"), name="get")
+class CardInsightView(DeckScopedView):
+    """The "More about this card" fragment, loaded by its button (htmx).
+
+    A GET, because it changes nothing of the deck: it may fill the combo
+    cache from Commander Spellbook, rate-limited per person and per card
+    (`combos.services.COOLDOWN`). Without JavaScript the button is a link to
+    the card page with `?insight=1`, which shows the same fragment in place.
+    """
+
+    def get(self, request, pk, oracle_id):
+        deck = self.get_deck(request, pk)
+        card = self.get_card(deck, oracle_id)
+        if not wants_insight(card):
+            raise Http404
+        return render(request, "simulations/_insight.html", insight_context(deck, card))
 
 
 def _item_index(item) -> int | None:

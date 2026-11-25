@@ -10,7 +10,7 @@ Gestartet am 2026-11-25 (Owner: «du machst parallel dann das nächste paket»).
 |---|---|---|
 | 1 | B-05 Exquisite Blood bekommt eine Rolle, Combo-Teile werden nie als Streichkandidat vorgeschlagen (auch ohne Spellbook-Abfrage) | erledigt |
 | 2 | B-11 Grundgerüst ohne JavaScript: eigene Seite `decks/<id>/hand/` mit Knopf oben auf der Deckseite. Der Stapel in 2.5D (CSS `perspective`, gestaffelte Kanten), vom Server mit einem Seed gemischt. GET-Formulare: «Shuffle» (neuer Seed), «Cut» (die obersten n Karten offen hinlegen). Rückseite und Matte über CSS-Variablen (`--sleeve`, `--mat`), damit B-10 sie später setzen kann | erledigt |
-| 3 | B-11 in der Hand, mit `static/js/deck-hand.js`: aufheben und drehen, n Karten abheben und ansehen, wieder einmischen, in Häufchen mischen (n Häufchen austeilen, wieder stapeln), eine Karte antippen (hervorgehoben, «Draw» in die Hand oder «Put back» oben/unten), «Rebuild» (neu ordnen). Tastatur und `prefers-reduced-motion`. Die reinen Funktionen (Mischen, Häufchen, Abheben) unter Node getestet wie `hand-press.js` | offen |
+| 3 | B-11 in der Hand, mit `static/js/deck-hand.js`: aufheben und drehen, n Karten abheben und ansehen, wieder einmischen, in Häufchen mischen (n Häufchen austeilen, wieder stapeln), eine Karte antippen (hervorgehoben, «Draw» in die Hand oder «Put back» oben/unten), «Rebuild» (neu ordnen). Tastatur und `prefers-reduced-motion`. Die reinen Funktionen (Mischen, Häufchen, Abheben) unter Node getestet wie `hand-press.js` | erledigt |
 
 Nicht drin: echtes 3D (WebGL), eine frei drehbare Kamera, Spielregeln (dafür gibt es das freie Spiel), eigene Matte und Sleeves (B-10, offene Fragen zu Speicher und Kosten).
 
@@ -53,3 +53,20 @@ Pro PR: ruff, djlint, Vollsuite, Browser-Check (`check.sh`), push auf dev; main 
   `tests/conftest.py` hält die Uhr der Rate-Limits pro Test an (gilt auch für test_security, test_guests).
 - Browser (`five_colour`, Desktop und Handy, ohne JavaScript): Knopf, Umleitung auf Seed, Abheben 5,
   gleicher Seed gleiche Karten, Zurücklegen, neues Mischen, kein seitliches Scrollen, keine Fehler.
+
+## PR 3, Befunde
+
+- `static/js/deck-hand.js` übernimmt die Reihenfolge des Servers (`#in-hand-cards`, `json_script`
+  mit Name und Bild, `in_hand.shown`); «Cut» mit JavaScript zeigt also dieselben Karten wie ohne.
+  Danach lebt alles im Browser, nichts geht an den Server, Neuladen beginnt von vorn.
+- Zonen: Offen, Deine Hand, Häufchen. Eine angetippte Karte (Klick, Enter, Leertaste) bietet
+  «Draw», «Put back on top», «Put back at the bottom»; Escape lässt los.
+- Das Deck ist ein Schieberegler (`role="slider"`): Pfeiltasten drehen um 30°, Ziehen dreht mit,
+  Antippen hebt es auf. Über 90° gedreht zeigt es die unterste Karte (gespiegelt zurück, lesbar).
+- Häufchen: eine Karte nach der anderen auf 2..10 Häufchen, jede oben drauf, wie am Tisch; «Stack
+  the piles» legt Häufchen 1 auf 2 usw. «Rebuild» holt alle Karten zurück, nach Namen geordnet.
+- Bewegung (250 ms) nur unter `prefers-reduced-motion: no-preference`.
+- Startseite: neue Kachel «Deck in hand» (Symbol `deck`), Abschnitt `#in-hand` auf «How this works».
+- Browser (`five_colour`, Desktop und Handy, mit JavaScript): 24 Prüfungen PASS, u. a. Abheben ohne
+  neue Adresse, Ziehen, unten zurücklegen und per Tastatur umdrehen (die Karte liegt unten),
+  7 Häufchen mit allen Karten, Rebuild, Bewegung nur ohne reduce, kein seitliches Scrollen.

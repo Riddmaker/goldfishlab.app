@@ -2215,7 +2215,7 @@ body {
   border: 2px solid var(--sleeve-edge);
   border-radius: 0.4rem;
   background: var(--sleeve);
-  transform: rotateX(28deg) rotateZ(-6deg);
+  transform: translateY(var(--lift, 0)) rotateX(var(--tilt, 28deg)) rotateZ(-6deg) rotateY(var(--turn, 0deg));
   /* The edges of the cards under it, five steps down to the table. */
   box-shadow:
     0 calc(var(--thick) * 0.2) 0 var(--color-parchment-200),
@@ -2235,6 +2235,73 @@ body {
 }
 
 .in-hand-revealed { list-style: none; }
+
+/* With deck-hand.js: the deck turns (a drag, the arrow keys), and lifted it
+ * leaves the table. Turned past the side it shows its bottom card, mirrored
+ * back so it reads. The motion is only there for those who want it. */
+.in-hand-live .in-hand-stack {
+  cursor: grab;
+  touch-action: pan-y;
+}
+.in-hand-lifted {
+  --lift: -1.25rem;
+  --tilt: 10deg;
+}
+.in-hand-bottom {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.3rem;
+  transform: scaleX(-1);
+}
+.in-hand-turned .in-hand-count:empty { display: none; }
+.in-hand-turned .in-hand-count {
+  position: relative;
+  transform: scaleX(-1);
+  font-size: 0.75rem;
+}
+.in-hand-piles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  list-style: none;
+}
+.in-hand-pile {
+  --thick: calc(min(var(--left), 30) * 0.06rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  aspect-ratio: 488 / 680;
+  margin-bottom: var(--thick);
+  border: 1px solid var(--sleeve-edge);
+  border-radius: 0.25rem;
+  background: var(--sleeve);
+  color: var(--color-parchment-100);
+  font-size: 0.875rem;
+  text-shadow: 0 0 0.25rem var(--color-ink-950);
+  box-shadow: 0 var(--thick) 0 var(--color-parchment-300);
+}
+.in-hand-picked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.in-hand-picked[hidden] { display: none; }
+.in-hand-is-picked .card-tile-img {
+  outline: 3px solid var(--color-water-300);
+  outline-offset: 2px;
+  transform: translateY(-0.5rem);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .in-hand-stack,
+  .in-hand-is-picked .card-tile-img {
+    transition: transform 250ms ease;
+  }
+  .in-hand-dragging { transition: none; }
+}
 
 /* The hand: a fan. Each card turns by how far it sits from the middle, about
  * a point far below the hand, which bends the row into an arc without a

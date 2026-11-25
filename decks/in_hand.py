@@ -9,6 +9,8 @@ not agree: nothing is stored.
 
 import random
 
+from core.templatetags.cards_shown import image_for
+
 #: The most cards the page turns face up at once.
 CUT_MAX = 15
 
@@ -30,3 +32,10 @@ def shuffled(names: list[str], seed: int) -> list[str]:
     order = list(names)
     random.Random(seed).shuffle(order)  # noqa: S311 - a shuffle to look at, no secret
     return order
+
+
+def shown(deck, order: list[str]) -> list[dict]:
+    """`order` with each card's picture, for the browser to hold
+    (`json_script`): `{"name": ..., "image": ...}`, the image "" when the
+    catalogue has none."""
+    return [{"name": name, "image": image_for(deck, name)} for name in order]

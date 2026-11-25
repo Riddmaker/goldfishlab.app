@@ -39,6 +39,8 @@ FEATURES = (
     Feature("new-hand", _("Keep or mulligan?"),
             _("Ten hands from your deck: keep or send back, then see the odds."), "mulligan"),
     Feature("tutor", _("Hand tutor"), _("Which plan does this hand have?"), "tutor"),
+    Feature("deck", _("Deck in hand"),
+            _("Shuffle, cut, deal piles and draw: your deck as on a table."), "in-hand"),
     Feature("combo", _("Combos"),
             _("The combos in your deck, and how often they come together."), "combos"),
     Feature("engine", _("Strategies"),

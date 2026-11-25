@@ -17423,3 +17423,91 @@ msgid "The top card"
 msgid_plural "The top %(count)s cards"
 msgstr[0] "La carte du dessus"
 msgstr[1] "Les %(count)s cartes du dessus"
+
+#: templates/decks/in_hand.html
+#, python-format
+msgid "Cards in the library: %s"
+msgstr "Cartes dans la bibliothèque : %s"
+
+#: templates/decks/in_hand.html
+msgid "The deck: arrow keys or a drag turn it, a tap picks it up"
+msgstr ""
+"Le deck : les flèches ou un glissement le tournent, un toucher le soulève"
+
+#: templates/decks/in_hand.html
+msgid "Shuffle them in"
+msgstr "Les remélanger"
+
+#: templates/decks/in_hand.html
+msgid "Piles"
+msgstr "Piles"
+
+#: templates/decks/in_hand.html
+msgid "Deal piles"
+msgstr "Distribuer en piles"
+
+#: templates/decks/in_hand.html
+msgid "Stack the piles"
+msgstr "Empiler les piles"
+
+#: templates/decks/in_hand.html
+msgid "Pick up"
+msgstr "Prendre en main"
+
+#: templates/decks/in_hand.html
+msgid "Turn over"
+msgstr "Retourner"
+
+#: templates/decks/in_hand.html
+msgid "Rebuild"
+msgstr "Remettre en ordre"
+
+#: templates/decks/in_hand.html
+msgid "Face up"
+msgstr "Face visible"
+
+#: templates/decks/in_hand.html
+msgid "Your hand"
+msgstr "Votre main"
+
+#: templates/decks/in_hand.html
+msgid "Put back on top"
+msgstr "Remettre au-dessus"
+
+#: templates/decks/in_hand.html
+msgid "Put back at the bottom"
+msgstr "Remettre en dessous"
+
+#: templates/decks/in_hand.html
+msgid ""
+"Tap a card to draw it or put it back. Turn the deck to see the bottom card."
+msgstr ""
+"Touchez une carte pour la piocher ou la remettre. Tournez le deck pour voir "
+"la carte du dessous."
+
+#: core/views.py
+msgid "Shuffle, cut, deal piles and draw: your deck as on a table."
+msgstr ""
+"Mélanger, couper, distribuer en piles, piocher : votre deck comme sur une "
+"table."
+
+#: templates/core/methodology.html
+msgid ""
+"Your library on a table, without rules. Shuffle it, cut it and look at the "
+"top cards, deal it into piles and stack them again, draw, and put a card "
+"back on top or at the bottom. Turn the deck over to see its bottom card. "
+"Rebuild puts every card back in the order of your list."
+msgstr ""
+"Votre bibliothèque sur une table, sans règles. Mélangez-la, coupez-la et "
+"regardez les cartes du dessus, distribuez-la en piles puis empilez-les, "
+"piochez, et remettez une carte au-dessus ou en dessous. Retournez le deck "
+"pour voir sa carte du dessous. « Remettre en ordre » range toutes les cartes"
+" dans l’ordre de votre liste."
+
+#: templates/core/methodology.html
+msgid ""
+"The shuffle is random and nothing is stored. Without JavaScript the address "
+"holds the order, so the same link shows the same cards."
+msgstr ""
+"Le mélange est aléatoire et rien n’est enregistré. Sans JavaScript, "
+"l’adresse garde l’ordre : le même lien montre les mêmes cartes."

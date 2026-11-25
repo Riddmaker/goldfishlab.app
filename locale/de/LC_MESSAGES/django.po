@@ -17262,3 +17262,90 @@ msgid "The top card"
 msgid_plural "The top %(count)s cards"
 msgstr[0] "Die oberste Karte"
 msgstr[1] "Die obersten %(count)s Karten"
+
+#: templates/decks/in_hand.html
+#, python-format
+msgid "Cards in the library: %s"
+msgstr "Karten in der Bibliothek: %s"
+
+#: templates/decks/in_hand.html
+msgid "The deck: arrow keys or a drag turn it, a tap picks it up"
+msgstr "Das Deck: Pfeiltasten oder Ziehen drehen es, Antippen hebt es auf"
+
+#: templates/decks/in_hand.html
+msgid "Shuffle them in"
+msgstr "Wieder einmischen"
+
+#: templates/decks/in_hand.html
+msgid "Piles"
+msgstr "Häufchen"
+
+#: templates/decks/in_hand.html
+msgid "Deal piles"
+msgstr "In Häufchen austeilen"
+
+#: templates/decks/in_hand.html
+msgid "Stack the piles"
+msgstr "Häufchen stapeln"
+
+#: templates/decks/in_hand.html
+msgid "Pick up"
+msgstr "Aufheben"
+
+#: templates/decks/in_hand.html
+msgid "Turn over"
+msgstr "Umdrehen"
+
+#: templates/decks/in_hand.html
+msgid "Rebuild"
+msgstr "Neu ordnen"
+
+#: templates/decks/in_hand.html
+msgid "Face up"
+msgstr "Offen"
+
+#: templates/decks/in_hand.html
+msgid "Your hand"
+msgstr "Deine Hand"
+
+#: templates/decks/in_hand.html
+msgid "Put back on top"
+msgstr "Oben zurücklegen"
+
+#: templates/decks/in_hand.html
+msgid "Put back at the bottom"
+msgstr "Unten zurücklegen"
+
+#: templates/decks/in_hand.html
+msgid ""
+"Tap a card to draw it or put it back. Turn the deck to see the bottom card."
+msgstr ""
+"Tippe eine Karte an, um sie zu ziehen oder zurückzulegen. Dreh das Deck, um "
+"die unterste Karte zu sehen."
+
+#: core/views.py
+msgid "Shuffle, cut, deal piles and draw: your deck as on a table."
+msgstr ""
+"Mischen, abheben, in Häufchen austeilen, ziehen: dein Deck wie am Tisch."
+
+#: templates/core/methodology.html
+msgid ""
+"Your library on a table, without rules. Shuffle it, cut it and look at the "
+"top cards, deal it into piles and stack them again, draw, and put a card "
+"back on top or at the bottom. Turn the deck over to see its bottom card. "
+"Rebuild puts every card back in the order of your list."
+msgstr ""
+"Deine Bibliothek auf einem Tisch, ohne Regeln. Misch sie, heb ab und sieh "
+"dir die obersten Karten an, teile sie in Häufchen aus und staple sie wieder,"
+" ziehe, und lege eine Karte oben oder unten zurück. Dreh das Deck um, um die"
+" unterste Karte zu sehen. «Neu ordnen» legt alle Karten wieder in die "
+"Reihenfolge deiner Liste."
+
+#: templates/core/methodology.html
+msgid ""
+"The shuffle is random and nothing is stored. Without JavaScript the address "
+"holds the order, so the same link shows the same cards."
+msgstr ""
+"Das Mischen ist zufällig, und nichts wird gespeichert. Ohne JavaScript hält "
+"die Adresse die Reihenfolge fest, darum zeigt derselbe Link dieselben "
+"Karten."

@@ -17359,3 +17359,88 @@ msgid_plural "The top %(count)s cards"
 msgstr[0] "La carta de arriba"
 msgstr[1] "Las %(count)s cartas de arriba"
 msgstr[2] "Las %(count)s cartas de arriba"
+
+#: templates/decks/in_hand.html
+#, python-format
+msgid "Cards in the library: %s"
+msgstr "Cartas en la biblioteca: %s"
+
+#: templates/decks/in_hand.html
+msgid "The deck: arrow keys or a drag turn it, a tap picks it up"
+msgstr "El mazo: las flechas o arrastrar lo giran, un toque lo levanta"
+
+#: templates/decks/in_hand.html
+msgid "Shuffle them in"
+msgstr "Barajarlas de nuevo"
+
+#: templates/decks/in_hand.html
+msgid "Piles"
+msgstr "Montones"
+
+#: templates/decks/in_hand.html
+msgid "Deal piles"
+msgstr "Repartir en montones"
+
+#: templates/decks/in_hand.html
+msgid "Stack the piles"
+msgstr "Apilar los montones"
+
+#: templates/decks/in_hand.html
+msgid "Pick up"
+msgstr "Levantar"
+
+#: templates/decks/in_hand.html
+msgid "Turn over"
+msgstr "Dar la vuelta"
+
+#: templates/decks/in_hand.html
+msgid "Rebuild"
+msgstr "Reordenar"
+
+#: templates/decks/in_hand.html
+msgid "Face up"
+msgstr "Boca arriba"
+
+#: templates/decks/in_hand.html
+msgid "Your hand"
+msgstr "Tu mano"
+
+#: templates/decks/in_hand.html
+msgid "Put back on top"
+msgstr "Devolver arriba"
+
+#: templates/decks/in_hand.html
+msgid "Put back at the bottom"
+msgstr "Devolver abajo"
+
+#: templates/decks/in_hand.html
+msgid ""
+"Tap a card to draw it or put it back. Turn the deck to see the bottom card."
+msgstr ""
+"Toca una carta para robarla o devolverla. Gira el mazo para ver la carta de "
+"abajo."
+
+#: core/views.py
+msgid "Shuffle, cut, deal piles and draw: your deck as on a table."
+msgstr ""
+"Barajar, cortar, repartir en montones y robar: tu mazo como en una mesa."
+
+#: templates/core/methodology.html
+msgid ""
+"Your library on a table, without rules. Shuffle it, cut it and look at the "
+"top cards, deal it into piles and stack them again, draw, and put a card "
+"back on top or at the bottom. Turn the deck over to see its bottom card. "
+"Rebuild puts every card back in the order of your list."
+msgstr ""
+"Tu biblioteca sobre una mesa, sin reglas. Barájala, córtala y mira las "
+"cartas de arriba, repártela en montones y vuelve a apilarlos, roba, y "
+"devuelve una carta arriba o abajo. Da la vuelta al mazo para ver su carta de"
+" abajo. «Reordenar» vuelve a poner todas las cartas en el orden de tu lista."
+
+#: templates/core/methodology.html
+msgid ""
+"The shuffle is random and nothing is stored. Without JavaScript the address "
+"holds the order, so the same link shows the same cards."
+msgstr ""
+"El barajado es aleatorio y no se guarda nada. Sin JavaScript la dirección "
+"guarda el orden, así que el mismo enlace muestra las mismas cartas."

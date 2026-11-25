@@ -942,7 +942,7 @@ class DeckInHandView(OwnedDecksMixin, View):
         return render(request, "decks/in_hand.html", {
             "deck": deck, "seed": seed, "cut": cut, "cut_max": in_hand.CUT_MAX,
             "revealed": order[:cut], "left": len(order) - min(cut, len(order)),
-            "total": len(order),
+            "total": len(order), "cards": in_hand.shown(deck, order),
         })
 
 

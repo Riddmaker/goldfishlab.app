@@ -546,7 +546,7 @@
     </div>
 
     {% comment %}
-      Three deck-page functions the home page's tiles link to (B-13). Each
+      Four deck-page functions the home page's tiles link to (B-13, B-11). Each
       says what the page itself says, in the page's own words.
     {% endcomment %}
     <h2 id="tutor" class="mt-12 font-display text-2xl text-parchment-100">{% translate "Hand tutor" %}</h2>
@@ -556,6 +556,16 @@
           Seven cards from your deck. The tutor plays this hand a few hundred times and tells you what it plays, from your deck's themes and engines. Show me explains it; the two guessing steps let you read the hand first. A guess counts for nothing and is not stored.
         {% endblocktranslate %}
       </p>
+    </div>
+
+    <h2 id="in-hand" class="mt-12 font-display text-2xl text-parchment-100">{% translate "Deck in hand" %}</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">
+        {% blocktranslate trimmed %}
+          Your library on a table, without rules. Shuffle it, cut it and look at the top cards, deal it into piles and stack them again, draw, and put a card back on top or at the bottom. Turn the deck over to see its bottom card. Rebuild puts every card back in the order of your list.
+        {% endblocktranslate %}
+      </p>
+      <p class="mt-4 text-ink-900">{% translate "The shuffle is random and nothing is stored. Without JavaScript the address holds the order, so the same link shows the same cards." %}</p>
     </div>
 
     <h2 id="strategies" class="mt-12 font-display text-2xl text-parchment-100">{% translate "Your strategies, and what would feed them" %}</h2>

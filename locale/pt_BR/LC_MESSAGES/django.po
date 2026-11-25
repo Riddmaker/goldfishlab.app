@@ -17084,3 +17084,88 @@ msgid "The top card"
 msgid_plural "The top %(count)s cards"
 msgstr[0] "A carta do topo"
 msgstr[1] "As %(count)s cartas do topo"
+
+#: templates/decks/in_hand.html
+#, python-format
+msgid "Cards in the library: %s"
+msgstr "Cards no grimório: %s"
+
+#: templates/decks/in_hand.html
+msgid "The deck: arrow keys or a drag turn it, a tap picks it up"
+msgstr "O deck: as setas ou arrastar o giram, um toque o levanta"
+
+#: templates/decks/in_hand.html
+msgid "Shuffle them in"
+msgstr "Embaralhá-los de volta"
+
+#: templates/decks/in_hand.html
+msgid "Piles"
+msgstr "Pilhas"
+
+#: templates/decks/in_hand.html
+msgid "Deal piles"
+msgstr "Distribuir em pilhas"
+
+#: templates/decks/in_hand.html
+msgid "Stack the piles"
+msgstr "Empilhar as pilhas"
+
+#: templates/decks/in_hand.html
+msgid "Pick up"
+msgstr "Pegar"
+
+#: templates/decks/in_hand.html
+msgid "Turn over"
+msgstr "Virar"
+
+#: templates/decks/in_hand.html
+msgid "Rebuild"
+msgstr "Reordenar"
+
+#: templates/decks/in_hand.html
+msgid "Face up"
+msgstr "Viradas para cima"
+
+#: templates/decks/in_hand.html
+msgid "Your hand"
+msgstr "Sua mão"
+
+#: templates/decks/in_hand.html
+msgid "Put back on top"
+msgstr "Devolver no topo"
+
+#: templates/decks/in_hand.html
+msgid "Put back at the bottom"
+msgstr "Devolver no fundo"
+
+#: templates/decks/in_hand.html
+msgid ""
+"Tap a card to draw it or put it back. Turn the deck to see the bottom card."
+msgstr ""
+"Toque num card para comprá-lo ou devolvê-lo. Gire o deck para ver o card do "
+"fundo."
+
+#: core/views.py
+msgid "Shuffle, cut, deal piles and draw: your deck as on a table."
+msgstr ""
+"Embaralhar, cortar, distribuir em pilhas e comprar: seu deck como numa mesa."
+
+#: templates/core/methodology.html
+msgid ""
+"Your library on a table, without rules. Shuffle it, cut it and look at the "
+"top cards, deal it into piles and stack them again, draw, and put a card "
+"back on top or at the bottom. Turn the deck over to see its bottom card. "
+"Rebuild puts every card back in the order of your list."
+msgstr ""
+"Seu grimório numa mesa, sem regras. Embaralhe, corte e veja os cards do "
+"topo, distribua em pilhas e empilhe de novo, compre, e devolva um card no "
+"topo ou no fundo. Vire o deck para ver o card do fundo. «Reordenar» devolve "
+"todos os cards à ordem da sua lista."
+
+#: templates/core/methodology.html
+msgid ""
+"The shuffle is random and nothing is stored. Without JavaScript the address "
+"holds the order, so the same link shows the same cards."
+msgstr ""
+"O embaralhamento é aleatório e nada é salvo. Sem JavaScript o endereço "
+"guarda a ordem, então o mesmo link mostra os mesmos cards."

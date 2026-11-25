@@ -17190,3 +17190,89 @@ msgid "The top card"
 msgid_plural "The top %(count)s cards"
 msgstr[0] "La prima carta"
 msgstr[1] "Le prime %(count)s carte"
+
+#: templates/decks/in_hand.html
+#, python-format
+msgid "Cards in the library: %s"
+msgstr "Carte nel grimorio: %s"
+
+#: templates/decks/in_hand.html
+msgid "The deck: arrow keys or a drag turn it, a tap picks it up"
+msgstr "Il mazzo: le frecce o un trascinamento lo girano, un tocco lo solleva"
+
+#: templates/decks/in_hand.html
+msgid "Shuffle them in"
+msgstr "Rimescolarle"
+
+#: templates/decks/in_hand.html
+msgid "Piles"
+msgstr "Pile"
+
+#: templates/decks/in_hand.html
+msgid "Deal piles"
+msgstr "Distribuisci in pile"
+
+#: templates/decks/in_hand.html
+msgid "Stack the piles"
+msgstr "Impila le pile"
+
+#: templates/decks/in_hand.html
+msgid "Pick up"
+msgstr "Prendi in mano"
+
+#: templates/decks/in_hand.html
+msgid "Turn over"
+msgstr "Gira"
+
+#: templates/decks/in_hand.html
+msgid "Rebuild"
+msgstr "Riordina"
+
+#: templates/decks/in_hand.html
+msgid "Face up"
+msgstr "Scoperte"
+
+#: templates/decks/in_hand.html
+msgid "Your hand"
+msgstr "La tua mano"
+
+#: templates/decks/in_hand.html
+msgid "Put back on top"
+msgstr "Rimetti in cima"
+
+#: templates/decks/in_hand.html
+msgid "Put back at the bottom"
+msgstr "Rimetti in fondo"
+
+#: templates/decks/in_hand.html
+msgid ""
+"Tap a card to draw it or put it back. Turn the deck to see the bottom card."
+msgstr ""
+"Tocca una carta per pescarla o rimetterla. Gira il mazzo per vedere la carta"
+" in fondo."
+
+#: core/views.py
+msgid "Shuffle, cut, deal piles and draw: your deck as on a table."
+msgstr ""
+"Mescola, taglia, distribuisci in pile, pesca: il tuo mazzo come su un "
+"tavolo."
+
+#: templates/core/methodology.html
+msgid ""
+"Your library on a table, without rules. Shuffle it, cut it and look at the "
+"top cards, deal it into piles and stack them again, draw, and put a card "
+"back on top or at the bottom. Turn the deck over to see its bottom card. "
+"Rebuild puts every card back in the order of your list."
+msgstr ""
+"Il tuo grimorio su un tavolo, senza regole. Mescolalo, taglialo e guarda le "
+"carte in cima, distribuiscilo in pile e impilale di nuovo, pesca, e rimetti "
+"una carta in cima o in fondo. Gira il mazzo per vedere la carta in fondo. "
+"«Riordina» rimette ogni carta nell’ordine della tua lista."
+
+#: templates/core/methodology.html
+msgid ""
+"The shuffle is random and nothing is stored. Without JavaScript the address "
+"holds the order, so the same link shows the same cards."
+msgstr ""
+"Il mescolamento è casuale e nulla viene salvato. Senza JavaScript "
+"l’indirizzo conserva l’ordine, quindi lo stesso link mostra le stesse carte."

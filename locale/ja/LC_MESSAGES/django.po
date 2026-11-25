@@ -15148,3 +15148,80 @@ msgstr "テーブル"
 msgid "The top card"
 msgid_plural "The top %(count)s cards"
 msgstr[0] "上から%(count)s枚"
+
+#: templates/decks/in_hand.html
+#, python-format
+msgid "Cards in the library: %s"
+msgstr "ライブラリーのカード: %s"
+
+#: templates/decks/in_hand.html
+msgid "The deck: arrow keys or a drag turn it, a tap picks it up"
+msgstr "デッキ: 矢印キーかドラッグで回転、タップで持ち上げ"
+
+#: templates/decks/in_hand.html
+msgid "Shuffle them in"
+msgstr "混ぜて戻す"
+
+#: templates/decks/in_hand.html
+msgid "Piles"
+msgstr "山"
+
+#: templates/decks/in_hand.html
+msgid "Deal piles"
+msgstr "山に配る"
+
+#: templates/decks/in_hand.html
+msgid "Stack the piles"
+msgstr "山を重ねる"
+
+#: templates/decks/in_hand.html
+msgid "Pick up"
+msgstr "持ち上げる"
+
+#: templates/decks/in_hand.html
+msgid "Turn over"
+msgstr "裏返す"
+
+#: templates/decks/in_hand.html
+msgid "Rebuild"
+msgstr "並べ直す"
+
+#: templates/decks/in_hand.html
+msgid "Face up"
+msgstr "表向き"
+
+#: templates/decks/in_hand.html
+msgid "Your hand"
+msgstr "手札"
+
+#: templates/decks/in_hand.html
+msgid "Put back on top"
+msgstr "一番上に戻す"
+
+#: templates/decks/in_hand.html
+msgid "Put back at the bottom"
+msgstr "一番下に戻す"
+
+#: templates/decks/in_hand.html
+msgid ""
+"Tap a card to draw it or put it back. Turn the deck to see the bottom card."
+msgstr "カードをタップして引くか戻します。デッキを回すと一番下のカードが見えます。"
+
+#: core/views.py
+msgid "Shuffle, cut, deal piles and draw: your deck as on a table."
+msgstr "シャッフル、カット、山に配る、引く: テーブルの上のようにデッキを扱えます。"
+
+#: templates/core/methodology.html
+msgid ""
+"Your library on a table, without rules. Shuffle it, cut it and look at the "
+"top cards, deal it into piles and stack them again, draw, and put a card "
+"back on top or at the bottom. Turn the deck over to see its bottom card. "
+"Rebuild puts every card back in the order of your list."
+msgstr ""
+"ルールなしで、テーブルの上のライブラリー。シャッフルし、カットして上のカードを見て、山に配ってまた重ね、引いて、カードを一番上か一番下に戻せます。デッキを裏返すと一番下のカードが見えます。「並べ直す」はすべてのカードをリストの順に戻します。"
+
+#: templates/core/methodology.html
+msgid ""
+"The shuffle is random and nothing is stored. Without JavaScript the address "
+"holds the order, so the same link shows the same cards."
+msgstr "シャッフルはランダムで、何も保存されません。JavaScriptなしではアドレスが順番を保つので、同じリンクは同じカードを表示します。"

@@ -17217,3 +17217,48 @@ msgstr "Wie schnell das Deck ist, gemessen an den Commander Brackets."
 #: templates/decks/_card_tile.html
 msgid "Not in your deck"
 msgstr "Nicht in deinem Deck"
+
+#: templates/decks/in_hand.html
+#, python-format
+msgid "Deck in hand: %(name)s"
+msgstr "Deck in der Hand: %(name)s"
+
+#: templates/decks/in_hand.html templates/decks/detail.html
+msgid "Deck in hand"
+msgstr "Deck in der Hand"
+
+#: templates/decks/in_hand.html
+msgid "Your deck on the table: shuffle it, cut it, look at the top cards."
+msgstr ""
+"Dein Deck auf dem Tisch: mischen, abheben, die obersten Karten ansehen."
+
+#: templates/decks/detail.html
+msgid "shuffle it, cut it, look at the top cards."
+msgstr "mischen, abheben, die obersten Karten ansehen."
+
+#: templates/decks/in_hand.html
+msgid "Shuffle"
+msgstr "Mischen"
+
+#: templates/decks/in_hand.html
+msgid "Cut"
+msgstr "Abheben"
+
+#: templates/decks/in_hand.html
+msgid "Cards from the top"
+msgstr "Karten von oben"
+
+#: templates/decks/in_hand.html
+msgid "Put them back"
+msgstr "Zurücklegen"
+
+#: templates/decks/in_hand.html
+msgid "The table"
+msgstr "Der Tisch"
+
+#: templates/decks/in_hand.html
+#, python-format
+msgid "The top card"
+msgid_plural "The top %(count)s cards"
+msgstr[0] "Die oberste Karte"
+msgstr[1] "Die obersten %(count)s Karten"

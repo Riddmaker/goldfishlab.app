@@ -25,6 +25,7 @@ urlpatterns = [
     path("<uuid:pk>/marks/", views.DeckMarkView.as_view(), name="mark"),
     path("<uuid:pk>/tutor/", views.HandTutorView.as_view(), name="tutor"),
     path("<uuid:pk>/mulligan/", views.MulliganQuizView.as_view(), name="mulligan"),
+    path("<uuid:pk>/hand/", views.DeckInHandView.as_view(), name="hand"),
     path("<uuid:pk>/versions/new/", views.VersionNewView.as_view(), name="version-new"),
     path("<uuid:pk>/versions/<int:number>/choose/", views.VersionChooseView.as_view(),
          name="version-choose"),

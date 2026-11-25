@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load i18n icons cards_shown %}
+{% block title %}{% blocktranslate with name=deck.name %}Deck in hand: {{ name }}{% endblocktranslate %} — Goldfish Lab{% endblock %}
+{% block description %}{% translate "Your deck on the table: shuffle it, cut it, look at the top cards." %}{% endblock %}
+{% block content %}
+  {% comment %}
+    The deck in your hand (B-11; decks.in_hand, decks.views.DeckInHandView).
+    Without JavaScript the server shuffles from the seed in the address, and
+    "Cut" turns the top cards face up. The table's mat and the cards' sleeve
+    are CSS variables (--mat, --sleeve), so a custom one (B-10) only sets them.
+  {% endcomment %}
+  <p class="text-sm"><a href="{{ deck.get_absolute_url }}" class="text-parchment-200 underline">{% blocktranslate with name=deck.name %}Back to {{ name }}{% endblocktranslate %}</a></p>
+  <h1 class="mt-3 font-display text-3xl text-parchment-100">{% translate "Deck in hand" %}</h1>
+  <p class="mt-1 max-w-3xl text-parchment-200">{% translate "Your deck on the table: shuffle it, cut it, look at the top cards." %}</p>
+
+  <div class="mt-6 flex flex-wrap items-end gap-3">
+    <a href="?cut=0" class="board-btn board-btn-second icon-host" data-in-hand-shuffle>{% icon "new-hand" %}{% translate "Shuffle" %}</a>
+    <form method="get" class="flex items-end gap-2" data-in-hand-cut>
+      <input type="hidden" name="seed" value="{{ seed|stringformat:'d' }}">
+      <label class="text-sm text-parchment-200">{% translate "Cards from the top" %}
+        <input type="number" name="cut" min="1" max="{{ cut_max }}" value="{% if cut %}{{ cut }}{% else %}3{% endif %}"
+               class="mt-1 block w-20 border border-parchment-600 bg-ink-900 px-2 py-2 text-parchment-100">
+      </label>
+      <button type="submit" class="board-btn board-btn-second">{% translate "Cut" %}</button>
+    </form>
+    {% if cut %}
+      <a href="?seed={{ seed|stringformat:'d' }}&amp;cut=0" class="board-btn board-btn-second" data-in-hand-back>{% translate "Put them back" %}</a>
+    {% endif %}
+  </div>
+
+  <section class="in-hand-table mt-6" aria-label="{% translate "The table" %}" data-in-hand>
+    {% if deck.commanders %}
+      <div class="in-hand-zone">
+        <h2 class="in-hand-label">{% translate "Command zone" %}</h2>
+        <div class="card-line">
+          {% for commander in deck.commanders %}{% card_tile commander.front_name fallback=commander.image_uri %}{% endfor %}
+        </div>
+      </div>
+    {% endif %}
+    <div class="in-hand-zone">
+      <h2 class="in-hand-label">{% translate "Library" %}</h2>
+      <div class="in-hand-library" style="--left: {{ left }}">
+        <div class="in-hand-stack" role="img"
+             aria-label="{% blocktranslate count count=left %}{{ count }} card in the library{% plural %}{{ count }} cards in the library{% endblocktranslate %}">
+          <span class="in-hand-count" aria-hidden="true">{{ left }}</span>
+        </div>
+      </div>
+    </div>
+    {% if revealed %}
+      <div class="in-hand-zone in-hand-wide">
+        <h2 class="in-hand-label">{% blocktranslate count count=revealed|length %}The top card{% plural %}The top {{ count }} cards{% endblocktranslate %}</h2>
+        <ol class="card-line in-hand-revealed" data-in-hand-revealed>
+          {% for name in revealed %}<li>{% card_tile name %}</li>{% endfor %}
+        </ol>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

@@ -57,6 +57,17 @@ def _isolate_cache():
 
 
 @pytest.fixture(autouse=True)
+def _rate_limit_window_holds_still(monkeypatch):
+    """One rate-limit window for the whole test.
+
+    django-ratelimit counts in fixed windows (a minute for "6/m"). Posts that
+    crossed a window's end started a new count, and a test expecting its 429
+    got a 302 under xdist load (test_combos, 2026-11-25).
+    """
+    monkeypatch.setattr("django_ratelimit.core.time.time", lambda: 1_800_000_000.0)
+
+
+@pytest.fixture(autouse=True)
 def _english_between_tests():
     """Start every test in the default language. A request leaves its language
     active in the thread, and since P10 `reverse()` of a public page depends on

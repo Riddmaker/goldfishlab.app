@@ -17146,3 +17146,47 @@ msgstr "Quanto è veloce il mazzo, rispetto ai Commander Brackets."
 #: templates/decks/_card_tile.html
 msgid "Not in your deck"
 msgstr "Non nel tuo mazzo"
+
+#: templates/decks/in_hand.html
+#, python-format
+msgid "Deck in hand: %(name)s"
+msgstr "Mazzo in mano: %(name)s"
+
+#: templates/decks/in_hand.html templates/decks/detail.html
+msgid "Deck in hand"
+msgstr "Mazzo in mano"
+
+#: templates/decks/in_hand.html
+msgid "Your deck on the table: shuffle it, cut it, look at the top cards."
+msgstr "Il tuo mazzo sul tavolo: mescolalo, taglialo, guarda le prime carte."
+
+#: templates/decks/detail.html
+msgid "shuffle it, cut it, look at the top cards."
+msgstr "mescolalo, taglialo, guarda le prime carte."
+
+#: templates/decks/in_hand.html
+msgid "Shuffle"
+msgstr "Mescola"
+
+#: templates/decks/in_hand.html
+msgid "Cut"
+msgstr "Taglia"
+
+#: templates/decks/in_hand.html
+msgid "Cards from the top"
+msgstr "Carte dall'alto"
+
+#: templates/decks/in_hand.html
+msgid "Put them back"
+msgstr "Rimettile a posto"
+
+#: templates/decks/in_hand.html
+msgid "The table"
+msgstr "Il tavolo"
+
+#: templates/decks/in_hand.html
+#, python-format
+msgid "The top card"
+msgid_plural "The top %(count)s cards"
+msgstr[0] "La prima carta"
+msgstr[1] "Le prime %(count)s carte"

@@ -2172,6 +2172,70 @@ body {
   font-size: 1.25rem;
 }
 
+/* The deck in your hand (B-11). The table is a mat and the library a stack
+ * of sleeves, seen from above at an angle: 2.5D, CSS only. Both looks are
+ * variables, so a custom mat or sleeve (B-10) sets one and changes nothing
+ * else. The stack is as thick as the cards left in it. */
+.in-hand-table {
+  --mat: radial-gradient(ellipse at 50% 40%, var(--color-ink-800), var(--color-ink-950) 75%);
+  --sleeve: repeating-linear-gradient(45deg, var(--color-parchment-800) 0 6px, var(--color-parchment-900) 6px 12px);
+  --sleeve-edge: var(--color-parchment-300);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 2rem 3rem;
+  padding: 1.5rem;
+  border: 1px solid var(--color-parchment-800);
+  border-radius: 0.75rem;
+  background: var(--mat);
+}
+
+.in-hand-zone { min-width: 0; }
+.in-hand-wide { flex-basis: 100%; }
+
+.in-hand-label {
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-parchment-200);
+}
+
+.in-hand-library {
+  --thick: calc(min(var(--left), 99) * 0.045rem);
+  padding: 0.5rem 1.5rem calc(var(--thick) + 1rem) 0.5rem;
+  perspective: 50rem;
+}
+
+.in-hand-stack {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 8rem;
+  aspect-ratio: 488 / 680;
+  border: 2px solid var(--sleeve-edge);
+  border-radius: 0.4rem;
+  background: var(--sleeve);
+  transform: rotateX(28deg) rotateZ(-6deg);
+  /* The edges of the cards under it, five steps down to the table. */
+  box-shadow:
+    0 calc(var(--thick) * 0.2) 0 var(--color-parchment-200),
+    0 calc(var(--thick) * 0.4) 0 var(--color-parchment-400),
+    0 calc(var(--thick) * 0.6) 0 var(--color-parchment-200),
+    0 calc(var(--thick) * 0.8) 0 var(--color-parchment-400),
+    0 var(--thick) 0 var(--color-parchment-300),
+    0 calc(var(--thick) + 0.5rem) 0.75rem var(--color-ink-950);
+}
+
+.in-hand-count {
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  background: var(--color-ink-950);
+  color: var(--color-parchment-100);
+  font-size: 1.25rem;
+}
+
+.in-hand-revealed { list-style: none; }
+
 /* The hand: a fan. Each card turns by how far it sits from the middle, about
  * a point far below the hand, which bends the row into an arc without a
  * second transform. The more cards, the more they overlap and the less each

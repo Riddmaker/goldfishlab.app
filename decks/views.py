@@ -34,6 +34,7 @@ from decks import analysis as deck_analysis
 from decks import (
     command_zone,
     engine_watch,
+    in_hand,
     mulligan,
     printing_art,
     services,
@@ -47,6 +48,7 @@ from decks.forms import (
     DeckNameForm,
     DeleteDeckForm,
     ImportForm,
+    InHandForm,
     MarkForm,
     MulliganDecisionForm,
     MulliganForm,
@@ -916,6 +918,32 @@ class HandTutorView(OwnedDecksMixin, View):
         template = ("decks/_tutor_result.html" if request.headers.get("HX-Request")
                     else "decks/tutor.html")
         return render(request, template, context)
+
+
+class DeckInHandView(OwnedDecksMixin, View):
+    """The deck in your hand (B-11, `decks.in_hand`).
+
+    One address per order: `?seed=<n>&cut=<0..15>`; without a seed the deck
+    is shuffled anew. `cut` turns the top cards face up. Nothing is stored:
+    with JavaScript the browser takes over the cards (static/js/deck-hand.js).
+    """
+
+    def get(self, request, pk):
+        deck = get_object_or_404(self.get_queryset().select_related("commander", "partner"),
+                                 pk=pk)
+        form = InHandForm(request.GET)
+        if not form.is_valid():
+            return HttpResponseBadRequest()
+        seed, cut = form.cleaned_data["seed"], form.cleaned_data["cut"]
+        if seed is None:
+            query = urlencode({"seed": secrets.randbelow(2**62), "cut": cut})
+            return redirect(f"{reverse('decks:hand', args=[deck.pk])}?{query}")
+        order = in_hand.shuffled(in_hand.library(deck), seed)
+        return render(request, "decks/in_hand.html", {
+            "deck": deck, "seed": seed, "cut": cut, "cut_max": in_hand.CUT_MAX,
+            "revealed": order[:cut], "left": len(order) - min(cut, len(order)),
+            "total": len(order),
+        })
 
 
 #: The tutor's steps: the plan shown, guessed with help, guessed alone.

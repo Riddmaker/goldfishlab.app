@@ -13,7 +13,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from cards import commanders
-from decks import command_zone, importers, mulligan
+from decks import command_zone, importers, in_hand, mulligan
 from decks.importers import columns
 from decks.services import MAX_UPLOAD_BYTES
 
@@ -368,6 +368,17 @@ class TutorForm(forms.Form):
     step = forms.TypedChoiceField(choices=[(SHOW, SHOW), (HELP, HELP), (ALONE, ALONE)],
                                   coerce=int, required=False, empty_value=SHOW)
     guess = forms.CharField(max_length=40, required=False)
+
+
+class InHandForm(forms.Form):
+    """The address of the deck in your hand (B-11): which shuffle, and how
+    many cards from the top lie face up."""
+
+    seed = forms.IntegerField(min_value=0, max_value=2**62, required=False)
+    cut = forms.IntegerField(min_value=0, max_value=in_hand.CUT_MAX, required=False)
+
+    def clean_cut(self):
+        return self.cleaned_data["cut"] or 0
 
 
 class MulliganForm(forms.Form):

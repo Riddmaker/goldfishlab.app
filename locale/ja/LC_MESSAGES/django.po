@@ -15105,3 +15105,46 @@ msgstr "Commander Brackets に照らした、デッキの速さ。"
 #: templates/decks/_card_tile.html
 msgid "Not in your deck"
 msgstr "デッキにありません"
+
+#: templates/decks/in_hand.html
+#, python-format
+msgid "Deck in hand: %(name)s"
+msgstr "手に取ったデッキ: %(name)s"
+
+#: templates/decks/in_hand.html templates/decks/detail.html
+msgid "Deck in hand"
+msgstr "手に取ったデッキ"
+
+#: templates/decks/in_hand.html
+msgid "Your deck on the table: shuffle it, cut it, look at the top cards."
+msgstr "テーブルの上のデッキ：シャッフルして、カットして、上のカードを見る。"
+
+#: templates/decks/detail.html
+msgid "shuffle it, cut it, look at the top cards."
+msgstr "シャッフルして、カットして、上のカードを見る。"
+
+#: templates/decks/in_hand.html
+msgid "Shuffle"
+msgstr "シャッフル"
+
+#: templates/decks/in_hand.html
+msgid "Cut"
+msgstr "カット"
+
+#: templates/decks/in_hand.html
+msgid "Cards from the top"
+msgstr "上からの枚数"
+
+#: templates/decks/in_hand.html
+msgid "Put them back"
+msgstr "戻す"
+
+#: templates/decks/in_hand.html
+msgid "The table"
+msgstr "テーブル"
+
+#: templates/decks/in_hand.html
+#, python-format
+msgid "The top card"
+msgid_plural "The top %(count)s cards"
+msgstr[0] "上から%(count)s枚"

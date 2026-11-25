@@ -108,10 +108,15 @@
              class="icon-host inline-flex items-center gap-2 border border-parchment-100 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-ink-800">
             {% icon "new-hand" %}{% translate "Keep or mulligan?" %}
           </a>
+          <a href="{% url 'decks:hand' deck.id %}" data-in-hand-link
+             class="icon-host inline-flex items-center gap-2 border border-parchment-100 px-6 py-3 font-display text-xl text-parchment-100 hover:bg-ink-800">
+            {% icon "deck" %}{% translate "Deck in hand" %}
+          </a>
         </div>
         <p class="mt-3 max-w-3xl text-sm text-parchment-200">
           <span class="block">{% translate "Hand tutor" %} – {% translate "which plan does a hand from this deck have?" %}</span>
           <span class="block">{% translate "Keep or mulligan?" %} – {% translate "ten hands from this deck, your call against a thousand games." %}</span>
+          <span class="block">{% translate "Deck in hand" %} – {% translate "shuffle it, cut it, look at the top cards." %}</span>
         </p>
         {% if running_run or last_run %}
           {% include "decks/_last_run.html" %}

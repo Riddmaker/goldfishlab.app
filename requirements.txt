@@ -8,7 +8,7 @@ django-allauth==65.21.1
 celery==5.7.0
 redis==8.1.0
 django-celery-results==2.6.0
-stripe==16.1.0
+stripe==17.0.0
 # Content-Security-Policy. Django ships no CSP support of its own, and the
 # policy this application needs is not the trivial one - see base.py.
 django-csp==4.0

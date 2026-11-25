@@ -385,23 +385,30 @@ def _engines(reading, deck=None) -> list[dict]:
                  "what_each_does": engine.sentence} for engine in engines]
 
 
-def cut_candidates(readings, reading, combos) -> list:
+def every_combo(readings, combos) -> list[dict]:
+    """The lookup's combos (`combos`, `None` without one) and every combo our
+    catalogue already knows complete in the deck (`combos.services.known_in`),
+    so a deck that was never looked up still shows the ones we know."""
+    from combos.services import known_in
+
+    return (combos or []) + known_in(entry.oracle_card.pk for entry in readings)
+
+
+def cut_candidates(readings, reading, combos, *, complete: bool = False) -> list:
     """The rule's cut candidates (`simulations.cuts`); none without themes,
     because a card of a theme must never be one. The deck page asks the same,
     so the reasons written for the facts' list find their cards.
 
-    A combo piece is kept whether or not the deck was looked up: beside
-    `combos` (the lookup's, `None` without one) every combo our catalogue
-    already knows complete in the deck (`combos.services.known_in`).
+    A combo piece is kept whether or not the deck was looked up: `combos` are
+    the lookup's, to which `every_combo` adds the catalogue's, unless the
+    caller did that already (`complete`).
     """
-    from combos.services import known_in
     from simulations import cuts
 
     if reading is None:
         return []
-    known = known_in(entry.oracle_card.pk for entry in readings)
-    return cuts.candidates(readings, cuts.protected(reading.themes, reading.engines,
-                                                    (combos or []) + known))
+    combos = combos if complete else every_combo(readings, combos)
+    return cuts.candidates(readings, cuts.protected(reading.themes, reading.engines, combos))
 
 
 #: At most this many combos go into the prompt, the most popular first.
@@ -885,6 +892,6 @@ def engine_notes(user, deck) -> dict:
 
 __all__ = ["BY_TURN", "COMMAND_ZONE", "PROMPT_VERSION", "SEEN_BY_TURN", "WRITE_IN",
            "at_least_one", "begin", "claim", "combos_of", "cut_candidates", "due",
-           "engine_notes", "facts", "feedback_for",
+           "engine_notes", "every_combo", "facts", "feedback_for",
            "fingerprint", "give_feedback", "language", "messages", "missing", "ours_to_pay",
            "parse", "state", "write_in"]

@@ -1008,6 +1008,50 @@ yet, the line says the next run will. How an engine plays (PR 6) comes from the 
 Mistral's sentence under the rules' one, followed by &ldquo;Written by Mistral AI. It can be
 wrong.&rdquo; in ink-700, only while the engine still has the cards it was written about.</p>
 
+<h2>What holds the deck together: the network picture (B-02)</h2>
+<div class="surface">
+  <svg viewBox="0 0 320 220" style="display:block;width:100%;max-width:26rem;margin:auto"
+       aria-label="A small network: a commander in the middle, a combo, an engine, a pair,
+       a loner, a cut candidate and two lands">
+    <g fill="none" stroke-linecap="round">
+      <path d="M160 110L160 40" stroke="var(--blood-600)" stroke-width="3"/>
+      <path d="M160 40Q190 80 225 62" stroke="var(--parch-800)" stroke-width="1.6"
+            stroke-dasharray="6 4"/>
+      <path d="M225 62Q200 100 235 150" stroke="var(--ink-700)" stroke-width="1.2"
+            opacity=".6"/>
+    </g>
+    <g stroke="var(--parch-100)" stroke-width="1.5">
+      <circle cx="160" cy="110" r="15" fill="var(--blood-700)"/>
+      <circle cx="160" cy="40" r="7.2" fill="var(--ink-800)"/>
+      <circle cx="225" cy="62" r="8.8" fill="var(--ink-800)"/>
+      <circle cx="235" cy="150" r="5.6" fill="var(--ink-800)"/>
+      <circle cx="80" cy="70" r="4" fill="var(--parch-100)" stroke="var(--ink-700)"
+              stroke-dasharray="2 2"/>
+      <circle cx="70" cy="140" r="4" fill="var(--parch-100)" stroke="var(--blood-600)"
+              stroke-width="2.5"/>
+      <circle cx="125" cy="190" r="4" fill="var(--parch-600)"/>
+      <circle cx="195" cy="190" r="4" fill="var(--parch-600)"/>
+    </g>
+    <g font-size="11" fill="var(--ink-900)">
+      <text x="160" y="140" text-anchor="middle">Commander</text>
+      <text x="240" y="58">hub</text>
+      <text x="160" y="212" text-anchor="middle" fill="var(--ink-700)">Lands &middot; 36</text>
+    </g>
+  </svg>
+  <p style="font-size:.875rem;margin:.5rem 0 0">
+    <span style="border-bottom:1.2px solid var(--ink-700)">pair</span> &middot;
+    <span style="border-bottom:1.6px dashed var(--parch-800)">engine</span> &middot;
+    <span style="border-bottom:3px solid var(--blood-600)">combo</span> &middot;
+    dotted ring: no line yet &middot; red ring: could go</p>
+</div>
+<p class="rule">The whole deck as one picture, first in &ldquo;Combos &amp; engines&rdquo;: a dot
+per card, a line per pair, engine step or combo. A line's kind is its dash and weight, never its
+colour alone. A dot grows with its lines up to a cap; the commander sits in the middle; each
+group is a sector named with its copies, lands always in and never loners. Loners are hollow and
+dotted, a cut candidate gets a blood-600 ring and the caption links to &ldquo;What could
+go&rdquo;. Fixed layout, drawn on the server, readable without JavaScript; hover, tap or the
+arrow keys light a card and its neighbours.</p>
+
 <h2>Lock-in: locked, dismissed, resting (Themen-Doc, Paket 1, PR 4)</h2>
 <div class="surface">
   <div style="border-left:2px solid var(--parch-600);padding-left:1rem">

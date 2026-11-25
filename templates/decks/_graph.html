@@ -1,0 +1,70 @@
+{% load i18n l10n %}{% comment %}
+  What holds the deck together (B-02, pillar 3): every card a dot, every
+  pair, engine step and combo a line, laid out by `decks.graph` - the
+  commander in the middle, each group a sector, the cards with lines inside,
+  the loners and most lands outside. Drawn here, so it shows without
+  JavaScript; static/js/deck-graph.js only lights a card and its neighbours
+  (hover, tap, or the arrow keys once a card has focus).
+
+  Lines differ by their dash, not by colour alone (docs/DESIGN.html). The list
+  under the picture says the same in words, for a screen reader and for
+  somebody who prefers reading.
+
+  Every name goes through autoescaping; nothing here is marked safe.
+  Takes: graph (decks.graph.Graph or None).
+{% endcomment %}
+{% if graph %}
+<figure id="graph" class="mt-6" data-graph>
+  <h3 class="font-display text-xl text-ink-900">{% translate "What holds the deck together" %}</h3>
+  <p class="mt-1 max-w-2xl text-sm text-ink-700">{% translate "Each dot is a card, each line two cards that work together. The bigger the dot, the more it joins." %}</p>
+  {% localize off %}
+  <svg class="deck-graph-svg mt-3" viewBox="0 0 {{ graph.width }} {{ graph.height }}" role="group"
+       aria-label="{% translate "Your deck as a network of cards" %}" data-graph-svg>
+    <g>
+      {% for edge in graph.edges %}<path class="graph-edge graph-edge-{{ edge.kind }}" d="{{ edge.path }}" data-a="{{ edge.a.key }}" data-b="{{ edge.b.key }}"/>{% endfor %}
+    </g>
+    <g aria-hidden="true">
+      {% for group in graph.groups %}<text class="graph-group" x="{{ group.x|floatformat:1 }}" y="{{ group.y|floatformat:1 }}" text-anchor="{{ group.anchor }}">{{ group.label }} · {{ group.copies }}</text>{% endfor %}
+    </g>
+    <g>
+      {% for node in graph.nodes %}
+        <g class="graph-node graph-node-{{ node.kind }}{% if node.cut %} graph-node-cut{% endif %}" data-node="{{ node.key }}" data-near="{{ node.near_keys }}"
+           role="img" aria-label="{% blocktranslate trimmed with name=node.caption count lines=node.lines %}{{ name }}: joined to {{ lines }} card{% plural %}{{ name }}: joined to {{ lines }} cards{% endblocktranslate %}">
+          <title>{{ node.caption }}</title>
+          <circle cx="{{ node.x|floatformat:1 }}" cy="{{ node.y|floatformat:1 }}" r="{{ node.r|floatformat:1 }}"/>
+          <text class="graph-label{% if not node.named %} graph-label-quiet{% endif %}" x="{{ node.label_x|floatformat:1 }}" y="{{ node.label_y|floatformat:1 }}" text-anchor="{{ node.anchor }}">{{ node.caption }}</text>
+        </g>
+      {% endfor %}
+    </g>
+  </svg>
+  {% endlocalize %}
+  <figcaption class="mt-3 text-sm text-ink-700">
+    <ul class="graph-legend flex flex-wrap gap-x-5 gap-y-1">
+      <li><svg viewBox="0 0 28 8" aria-hidden="true"><path class="graph-edge graph-edge-pair" d="M2 4H26"/></svg>{% translate "pair" %}</li>
+      <li><svg viewBox="0 0 28 8" aria-hidden="true"><path class="graph-edge graph-edge-engine" d="M2 4H26"/></svg>{% translate "engine" %}</li>
+      <li><svg viewBox="0 0 28 8" aria-hidden="true"><path class="graph-edge graph-edge-combo" d="M2 4H26"/></svg>{% translate "combo" %}</li>
+      <li class="graph-node-loner"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4"/></svg>{% translate "no line yet" %}</li>
+      <li class="graph-node-cut"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4"/></svg>{% translate "could go" %}</li>
+    </ul>
+    {% if graph.cuts %}
+      <p class="mt-2" data-graph-cuts>{% blocktranslate trimmed count count=graph.cuts|length %}
+        {{ count }} loner is a cut candidate:
+      {% plural %}
+        {{ count }} loners are cut candidates:
+      {% endblocktranslate %} <a class="underline underline-offset-4" href="#strategies">{% translate "What could go" %}</a></p>
+    {% endif %}
+  </figcaption>
+  <details class="mt-3 text-sm text-ink-900">
+    <summary class="cursor-pointer text-ink-700">{% translate "The same as a list" %}</summary>
+    <ul class="mt-2 space-y-1" data-graph-list>
+      {% for node in graph.hubs %}
+        <li><strong>{{ node.caption }}</strong> ({{ node.lines }}): {% for other in node.near %}{{ other.shown }}{% if not forloop.last %}, {% endif %}{% endfor %}</li>
+      {% endfor %}
+      {% if graph.loners %}
+        <li><strong>{% translate "No line yet" %}</strong>: {% for node in graph.loners %}{{ node.caption }}{% if not forloop.last %}, {% endif %}{% endfor %}</li>
+      {% endif %}
+      {% if graph.lands %}<li><strong>{% blocktranslate trimmed count count=graph.land_count %}{{ count }} land{% plural %}{{ count }} lands{% endblocktranslate %}</strong>: {% for node in graph.lands %}{{ node.caption }}{% if not forloop.last %}, {% endif %}{% endfor %}</li>{% endif %}
+    </ul>
+  </details>
+</figure>
+{% endif %}

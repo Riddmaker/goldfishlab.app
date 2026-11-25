@@ -6,6 +6,7 @@
   <script src="{% static 'js/commander.js' %}" defer></script>
   <script src="{% static 'js/deck-name.js' %}" defer></script>
   <script src="{% static 'js/card-explorer.js' %}" defer></script>
+  <script src="{% static 'js/deck-graph.js' %}" defer></script>
 {% endblock %}
 {% block content %}
   {% comment %}
@@ -324,6 +325,7 @@
   {% endcomment %}
   <section id="combos" class="surface-parchment mt-8 p-6">
     <h2 class="icon-host flex items-center gap-2 font-display text-2xl text-ink-900">{% icon "combo" %}{% translate "Combos & engines" %}</h2>
+    {% include "decks/_graph.html" %}
     {% include "combos/_panel.html" %}
     {% include "decks/_engines.html" %}
     {% include "decks/_theme_groups.html" %}

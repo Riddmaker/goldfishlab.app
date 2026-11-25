@@ -17706,3 +17706,75 @@ msgstr "Conoce tu mazo como si lo jugaras desde la infancia."
 #: templates/core/home.html
 msgid "A childhood of games, in one evening."
 msgstr "Una infancia de partidas, en una sola noche."
+
+#: decks/graph.py
+msgid "Combo pieces"
+msgstr "Piezas de combo"
+
+#: decks/graph.py
+msgid "Engines and pairs"
+msgstr "Motores y parejas"
+
+#: decks/graph.py
+msgid "Other"
+msgstr "Otras"
+
+#: templates/decks/_graph.html
+msgid "What holds the deck together"
+msgstr "Lo que mantiene unido el mazo"
+
+#: templates/decks/_graph.html
+msgid ""
+"Each dot is a card, each line two cards that work together. The bigger the "
+"dot, the more it joins."
+msgstr ""
+"Cada punto es una carta, cada línea dos cartas que funcionan juntas. Cuanto "
+"más grande el punto, más conecta."
+
+#: templates/decks/_graph.html
+msgid "Your deck as a network of cards"
+msgstr "Tu mazo como una red de cartas"
+
+#: templates/decks/_graph.html
+#, python-format
+msgid "%(name)s: joined to %(lines)s card"
+msgid_plural "%(name)s: joined to %(lines)s cards"
+msgstr[0] "%(name)s: unida a %(lines)s carta"
+msgstr[1] "%(name)s: unida a %(lines)s cartas"
+msgstr[2] "%(name)s: unida a %(lines)s cartas"
+
+#: templates/decks/_graph.html
+msgid "pair"
+msgstr "pareja"
+
+#: templates/decks/_graph.html
+msgid "engine"
+msgstr "motor"
+
+#: templates/decks/_graph.html
+msgid "combo"
+msgstr "combo"
+
+#: templates/decks/_graph.html
+msgid "no line yet"
+msgstr "aún sin línea"
+
+#: templates/decks/_graph.html
+msgid "could go"
+msgstr "podría salir"
+
+#: templates/decks/_graph.html
+#, python-format
+msgid "%(count)s loner is a cut candidate:"
+msgid_plural "%(count)s loners are cut candidates:"
+msgstr[0] "%(count)s carta aislada podría salir:"
+msgstr[1] "%(count)s cartas aisladas podrían salir:"
+msgstr[2] "%(count)s cartas aisladas podrían salir:"
+
+#: templates/decks/_graph.html
+msgid "The same as a list"
+msgstr "Lo mismo como lista"
+
+#: templates/decks/_graph.html
+msgid "No line yet"
+msgstr "Aún sin línea"

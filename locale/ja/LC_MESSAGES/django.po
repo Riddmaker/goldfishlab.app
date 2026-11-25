@@ -15459,3 +15459,69 @@ msgstr "子どもの頃から使ってきたように、デッキを知り尽く
 #: templates/core/home.html
 msgid "A childhood of games, in one evening."
 msgstr "子ども時代ぶんの対戦を、ひと晩で。"
+
+#: decks/graph.py
+msgid "Combo pieces"
+msgstr "コンボパーツ"
+
+#: decks/graph.py
+msgid "Engines and pairs"
+msgstr "エンジンとペア"
+
+#: decks/graph.py
+msgid "Other"
+msgstr "その他"
+
+#: templates/decks/_graph.html
+msgid "What holds the deck together"
+msgstr "デッキをつなぎとめているもの"
+
+#: templates/decks/_graph.html
+msgid ""
+"Each dot is a card, each line two cards that work together. The bigger the "
+"dot, the more it joins."
+msgstr "点はカード、線は一緒に働く2枚のカードです。点が大きいほど、多くのカードとつながっています。"
+
+#: templates/decks/_graph.html
+msgid "Your deck as a network of cards"
+msgstr "カードのネットワークとして見たデッキ"
+
+#: templates/decks/_graph.html
+#, python-format
+msgid "%(name)s: joined to %(lines)s card"
+msgid_plural "%(name)s: joined to %(lines)s cards"
+msgstr[0] "%(name)s：%(lines)s枚のカードとつながっています"
+
+#: templates/decks/_graph.html
+msgid "pair"
+msgstr "ペア"
+
+#: templates/decks/_graph.html
+msgid "engine"
+msgstr "エンジン"
+
+#: templates/decks/_graph.html
+msgid "combo"
+msgstr "コンボ"
+
+#: templates/decks/_graph.html
+msgid "no line yet"
+msgstr "まだ線なし"
+
+#: templates/decks/_graph.html
+msgid "could go"
+msgstr "抜いてもよい"
+
+#: templates/decks/_graph.html
+#, python-format
+msgid "%(count)s loner is a cut candidate:"
+msgid_plural "%(count)s loners are cut candidates:"
+msgstr[0] "孤立したカード%(count)s枚が抜く候補です："
+
+#: templates/decks/_graph.html
+msgid "The same as a list"
+msgstr "同じ内容をリストで"
+
+#: templates/decks/_graph.html
+msgid "No line yet"
+msgstr "まだ線なし"

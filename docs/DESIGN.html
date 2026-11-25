@@ -264,6 +264,21 @@ where something toggles, it is a real <code>&lt;input&gt;</code> and CSS (<code>
   "Not in your deck" under it instead of its effect. A suggested card or one that could go is a
   small art crop beside its name instead (<code>decks/_card_peek.html</code>, PR D), the whole card
   rising above the row on hover.</li>
+<li><strong>What holds the deck together</strong> (<code>decks/_graph.html</code>, <code>decks/graph.py</code>,
+  B-02, pillar 3): the first thing in "Combos &amp; engines", the whole deck as one picture. Every
+  card is a dot, every pair, engine step and combo a line; the line's kind is its dash and weight,
+  never its colour alone: a pair a thin ink line, an engine dashed parchment-800, a combo thick
+  blood-600. A dot grows with its lines up to a cap, so the hubs stand out. The commander sits in
+  the middle in blood-700; each group (combo pieces, engines and pairs, the roles, other, lands) is
+  a sector of the circle named with its copies ("Lands · 36"); the cards with lines on the inner
+  ring, those without on the outer one. A loner is a hollow, dotted dot; one the cut rule names
+  gets a blood-600 ring and the caption links to "What could go". Lands are always in, as their
+  own group in parchment-500 and never as loners: the mana stays in sight. The layout is fixed,
+  never simulated, so the same deck draws the same picture. Only the commander and the biggest
+  hubs are named; hovering, tapping or the arrow keys light a card and its neighbours and fade the
+  rest (static/js/deck-graph.js, no fade with reduced motion). The picture is drawn on the server
+  and works without JavaScript; "The same as a list" says it in words. No picture when no two
+  cards are joined.</li>
 <li><strong>Engines and synergies</strong> (<code>decks/_engines.html</code>, <code>decks/_pair.html</code>, Themen-Doc Paket 1,
   PR 3; shown since PR E): under the combos in one section, "Combos &amp; engines". An engine is a
   row with a parchment-600 rule at its left, as a combo is: its cards shown, "=" and its theme

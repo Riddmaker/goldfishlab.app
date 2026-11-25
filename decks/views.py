@@ -34,6 +34,7 @@ from decks import analysis as deck_analysis
 from decks import (
     command_zone,
     engine_watch,
+    graph,
     in_hand,
     mulligan,
     printing_art,
@@ -251,9 +252,12 @@ class DeckDetailView(OwnedDecksMixin, DetailView):
             context["written"] = summary.state(user, deck)
         written = context.get("written") or {}
         # Deck page v2, PR D: what could go, by the summary's own rule.
-        context["strategies"] = strategies.block(
-            readings, written.get("content"),
-            summary.cut_candidates(readings, reading, summary.combos_of(deck)))
+        # B-02: the combos once, for the cut rule and the picture alike.
+        combos = summary.every_combo(readings, summary.combos_of(deck))
+        cuts = summary.cut_candidates(readings, reading, combos, complete=True)
+        context["strategies"] = strategies.block(readings, written.get("content"), cuts)
+        # B-02: what holds the deck together, as one picture.
+        context["graph"] = graph.from_page(readings, reading, combos, cuts)
         # B-01, PR 3: the versions, newest first, each with its runs.
         context["versions"], context["old_runs"] = versions.timeline(deck)
         context["runs"] = runs = list(deck.runs.all()[:5])

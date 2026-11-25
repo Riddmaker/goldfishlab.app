@@ -1,12 +1,14 @@
 """Core views: landing page, styleguide and health check."""
 
 import logging
+from dataclasses import dataclass
 from datetime import date
 
 from django.conf import settings
 from django.db import connection
 from django.http import Http404, JsonResponse
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
 
 from core import seo, ticker
@@ -20,6 +22,35 @@ from simulations.provenance import SOURCES
 logger = logging.getLogger(__name__)
 
 
+@dataclass(frozen=True)
+class Feature:
+    """One tile on the home page (B-13): what a deck page does, in a line."""
+
+    icon: str
+    title: str
+    line: str
+    #: Where "How this works" explains it (an id on the methodology page).
+    anchor: str
+
+
+#: Everything a deck page does beyond the two big tiles, in its order there.
+#: A new deck-page function gets its tile here once it is live.
+FEATURES = (
+    Feature("new-hand", _("Keep or mulligan?"),
+            _("Ten hands from your deck: keep or send back, then see the odds."), "mulligan"),
+    Feature("tutor", _("Hand tutor"), _("Which plan does this hand have?"), "tutor"),
+    Feature("combo", _("Combos"),
+            _("The combos in your deck, and how often they come together."), "combos"),
+    Feature("engine", _("Strategies"),
+            _("What your deck is built around, and the cards that would feed it."), "strategies"),
+    Feature("bracket", _("Bracket"),
+            _("How fast the deck is, against the Commander Brackets."), "report-brackets"),
+    Feature("version", _("Versions"),
+            _("Take cards out, put cards in: the list before stays as version 1, with its runs."),
+            "versions"),
+)
+
+
 class HomeView(TemplateView):
     """Landing page."""
 
@@ -29,7 +60,8 @@ class HomeView(TemplateView):
         # The import form near the top, for everyone but a guest (see home.html).
         return {**super().get_context_data(**kwargs),
                 "ticker": ticker.lines_for(self.request.user),
-                "form": ImportForm()}
+                "form": ImportForm(),
+                "features": FEATURES}
 
 
 class TickerView(HomeView):

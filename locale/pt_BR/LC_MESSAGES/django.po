@@ -17011,3 +17011,28 @@ msgstr "Sol Ring no turno um. É claro."
 #: core/ticker.py
 msgid "Top-decked a land. Again."
 msgstr "Comprei um terreno. De novo."
+
+#: templates/core/home.html
+msgid "On every deck page"
+msgstr "Em toda página de deck"
+
+#: core/views.py
+msgid "Ten hands from your deck: keep or send back, then see the odds."
+msgstr "Dez mãos do seu deck: mantenha ou devolva, depois veja as chances."
+
+#: core/views.py
+msgid "Strategies"
+msgstr "Estratégias"
+
+#: core/views.py
+msgid "The combos in your deck, and how often they come together."
+msgstr "Os combos do seu deck, e com que frequência eles se formam."
+
+#: core/views.py
+msgid "What your deck is built around, and the cards that would feed it."
+msgstr ""
+"Em torno do que seu deck é construído, e as cartas que o alimentariam."
+
+#: core/views.py
+msgid "How fast the deck is, against the Commander Brackets."
+msgstr "Quão rápido o deck é, em relação aos Commander Brackets."

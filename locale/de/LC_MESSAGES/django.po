@@ -17188,3 +17188,28 @@ msgstr "Sol Ring in Zug eins. Natürlich."
 #: core/ticker.py
 msgid "Top-decked a land. Again."
 msgstr "Ein Land gezogen. Schon wieder."
+
+#: templates/core/home.html
+msgid "On every deck page"
+msgstr "Auf jeder Deckseite"
+
+#: core/views.py
+msgid "Ten hands from your deck: keep or send back, then see the odds."
+msgstr ""
+"Zehn Hände aus deinem Deck: behalten oder zurück, dann die Chancen sehen."
+
+#: core/views.py
+msgid "Strategies"
+msgstr "Strategien"
+
+#: core/views.py
+msgid "The combos in your deck, and how often they come together."
+msgstr "Die Combos in deinem Deck, und wie oft sie zusammenkommen."
+
+#: core/views.py
+msgid "What your deck is built around, and the cards that would feed it."
+msgstr "Worum dein Deck gebaut ist, und welche Karten das füttern würden."
+
+#: core/views.py
+msgid "How fast the deck is, against the Commander Brackets."
+msgstr "Wie schnell das Deck ist, gemessen an den Commander Brackets."

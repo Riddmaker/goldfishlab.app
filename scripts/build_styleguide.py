@@ -66,6 +66,7 @@ SYMBOLS = [
     ("removal", "Removal", "An answer. The dagger strikes."),
     ("new-hand", "New hand", "Shuffle and draw seven. Turns round. Also: Keep or mulligan?"),
     ("tutor", "Hand tutor", "A card under a lens: which plan a hand has. The lens lifts."),
+    ("version", "Versions", "Two lists, one behind the other; the newer lifts."),
     ("legal", "Legal", "A seal for the six checks. It stamps."),
     ("unusual", "Unusual move", "Free mode marks what the rules would not allow."),
     ("fish-says", "The fish says", "A fun line in the ticker, never an event."),

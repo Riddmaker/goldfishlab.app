@@ -17283,3 +17283,30 @@ msgstr "Sol Ring en el turno uno. Cómo no."
 #: core/ticker.py
 msgid "Top-decked a land. Again."
 msgstr "Robé una tierra. Otra vez."
+
+#: templates/core/home.html
+msgid "On every deck page"
+msgstr "En cada página de mazo"
+
+#: core/views.py
+msgid "Ten hands from your deck: keep or send back, then see the odds."
+msgstr ""
+"Diez manos de tu mazo: quédatela o devuélvela, y luego mira las "
+"probabilidades."
+
+#: core/views.py
+msgid "Strategies"
+msgstr "Estrategias"
+
+#: core/views.py
+msgid "The combos in your deck, and how often they come together."
+msgstr "Los combos de tu mazo, y con qué frecuencia se juntan."
+
+#: core/views.py
+msgid "What your deck is built around, and the cards that would feed it."
+msgstr ""
+"En torno a qué está construido tu mazo, y las cartas que lo alimentarían."
+
+#: core/views.py
+msgid "How fast the deck is, against the Commander Brackets."
+msgstr "Qué tan rápido es el mazo, frente a los Commander Brackets."

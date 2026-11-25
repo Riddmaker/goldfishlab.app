@@ -545,6 +545,30 @@
       </p>
     </div>
 
+    {% comment %}
+      Three deck-page functions the home page's tiles link to (B-13). Each
+      says what the page itself says, in the page's own words.
+    {% endcomment %}
+    <h2 id="tutor" class="mt-12 font-display text-2xl text-parchment-100">{% translate "Hand tutor" %}</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">
+        {% blocktranslate trimmed %}
+          Seven cards from your deck. The tutor plays this hand a few hundred times and tells you what it plays, from your deck's themes and engines. Show me explains it; the two guessing steps let you read the hand first. A guess counts for nothing and is not stored.
+        {% endblocktranslate %}
+      </p>
+    </div>
+
+    <h2 id="strategies" class="mt-12 font-display text-2xl text-parchment-100">{% translate "Your strategies, and what would feed them" %}</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">{% translate "Cards that fit your colours, are legal in Commander and are not in your deck yet." %}</p>
+      <p class="mt-4 text-ink-900">{% translate "To make room: the cards a rule finds the easiest to cut - no role, no part in a theme or a combo, or one too many of a role. The most expensive first." %}</p>
+    </div>
+
+    <h2 id="versions" class="mt-12 font-display text-2xl text-parchment-100">{% translate "Versions" %}</h2>
+    <div class="mt-4 surface-parchment p-6">
+      <p class="text-ink-900">{% translate "Take cards out, put cards in: the list before stays as version 1, with its runs." %}</p>
+    </div>
+
     <h2 id="games" class="mt-12 font-display text-2xl text-parchment-100">{% translate "How many games is enough" %}</h2>
     <div class="mt-4 surface-parchment p-6">
       <p class="text-ink-900">

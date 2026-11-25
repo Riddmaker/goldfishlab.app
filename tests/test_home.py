@@ -2,9 +2,9 @@
 
 In order down the page: the big flask with the fish (tests/test_fish.py),
 the heading, the importer on parchment, the ticker band (tests/test_ticker.py),
-two tiles of what you get and the links. The importer is compact (B-12).
-The tiles are information, not links - the way in is the form - and each
-carries its symbol.
+two tiles of what you get, one small tile per other deck-page function
+(B-13) and the links. The importer is compact (B-12). Each tile carries its
+symbol and one link, to how it works; the way in is the form.
 """
 
 import re
@@ -12,6 +12,7 @@ import re
 import pytest
 from django.urls import reverse
 
+from core.views import FEATURES
 from tests.test_guests import upload
 from tests.test_i18n import GERMAN
 
@@ -61,16 +62,37 @@ def test_the_tank_line_says_thousands_not_ten_thousand(client):
     assert "ten thousand" not in body
 
 
-def test_two_tiles_each_with_its_symbol_and_picture_and_no_link(client):
+def test_two_big_tiles_each_with_its_symbol_picture_and_how_it_works(client):
     tiles = _tiles(_home(client))
 
     assert len(tiles) == 2
-    for tile, picture in zip(tiles, ("home-report.webp", "home-hand.webp"), strict=True):
+    for tile, picture, anchor in zip(tiles, ("home-report.webp", "home-hand.webp"),
+                                     ("#report", "#opening"), strict=True):
         assert '<svg class="icon' in tile
         assert picture in tile
         assert 'alt="' in tile
-        assert "<a " not in tile, "a tile is information; the form is the way in"
+        assert re.findall(r'<a href="([^"]+)"', tile) == [reverse("methodology") + anchor]
     assert "Simulate" in tiles[0] and "Draw a hand" in tiles[1]
+
+
+def test_one_small_tile_for_every_other_deck_page_function(client):
+    """B-13: symbol, one sentence and how it works, versions included."""
+    body = _home(client)
+    tiles = re.findall(r'<li class="home-tile.*?</li>', body, re.S)
+
+    assert len(tiles) == len(FEATURES)
+    assert any("Versions" in tile for tile in tiles)
+    for tile, feature in zip(tiles, FEATURES, strict=True):
+        assert '<svg class="icon' in tile
+        assert str(feature.line) in tile.replace("&#x27;", "'")
+        assert f'href="{reverse("methodology")}#{feature.anchor}"' in tile
+
+
+def test_every_tile_lands_on_a_section_of_how_this_works(client):
+    page = client.get(reverse("methodology")).content.decode()
+
+    for anchor in [f.anchor for f in FEATURES] + ["report", "opening"]:
+        assert f'id="{anchor}"' in page, anchor
 
 
 def test_a_stranger_reads_no_account_is_needed(client):

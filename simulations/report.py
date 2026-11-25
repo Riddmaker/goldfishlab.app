@@ -369,7 +369,7 @@ MILESTONE_INFO = {
 #: (phase 11 K14 - the sentence said the same thing).
 TYPICAL_SHARE = 50.0
 
-#: The line chart has eight colours (DESIGN.md, "Line charts"). A deck that
+#: The line chart has eight colours (docs/DESIGN.html, "Line charts"). A deck that
 #: reaches all nine milestones shows the eight most frequent as lines; every
 #: one stays in the table under the chart (phase 10 T5.8).
 MAX_LINES = 8

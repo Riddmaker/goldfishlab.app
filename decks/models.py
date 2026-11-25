@@ -66,6 +66,11 @@ class Deck(models.Model):
     #: then. Written with `QuerySet.update`, never `save()`: a count is not an
     #: edit, and `updated_at` orders the deck list.
     open_questions = models.PositiveSmallIntegerField(null=True, blank=True)
+    #: The version the deck is in (B-01, `decks.versions`): its list is the one
+    #: in `entries`. `None` until somebody makes a second version.
+    current_version = models.ForeignKey(
+        "DeckVersion", on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -143,9 +148,10 @@ class DeckMark(models.Model):
 
     Only what the owner says is stored: a suggestion is read from the list
     on every visit (`decks.themes.deck_reading`), so a new reading adds new
-    suggestions and never deletes a row. Decks have no versions, so a row
-    hangs on its cards, by oracle id: a card that leaves the deck makes the
-    entry rest ("Card missing"), and the entry is back when the card is.
+    suggestions and never deletes a row. A row hangs on its cards, by
+    oracle id, not on a version (`DeckVersion`), so it follows every
+    version: a card that leaves the deck makes the entry rest ("Card
+    missing"), and the entry is back when the card is.
     Each card's piece is kept too, so the entry can say what each card does
     when the deck no longer shows it by itself (`cards.synergy.rebuild`).
     """
@@ -178,6 +184,58 @@ class DeckMark(models.Model):
 
     def __str__(self) -> str:
         return f"{self.key} ({self.state})"
+
+
+class DeckVersion(models.Model):
+    """One version of a deck's list, made by pressing "New version" (B-01).
+
+    A whole snapshot rather than a change against the version before: a
+    version in the middle can be removed, and the changes either side of it
+    are then simply the difference of its neighbours (`decks.versions.diff`).
+    Choosing a version writes its list back into `DeckCard`, so the engine,
+    the runs and the hand need not know versions exist. A run belongs to a
+    version through `list_print` (`SimulationRun.list_print`), not a foreign
+    key: removing a version leaves its runs, which then speak of an old list.
+    """
+
+    class Origin(models.TextChoices):
+        #: The list as it was before the first new version.
+        FIRST = "first", "First"
+        NEW = "new", "New version"
+        #: A re-import of a deck that had versions: nothing is lost.
+        IMPORT = "import", "Import"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    deck = models.ForeignKey(Deck, on_delete=models.CASCADE, related_name="versions")
+    #: 1, 2, 3 ... per deck; never reused, so "version 3" stays version 3
+    #: when version 2 is removed.
+    number = models.PositiveIntegerField()
+    origin = models.CharField(max_length=8, choices=Origin.choices, default=Origin.NEW)
+    #: The owner's note: "lost to the turn-4 combo".
+    comment = models.CharField(max_length=200, blank=True)
+    commander = models.ForeignKey(OracleCard, on_delete=models.PROTECT, null=True, blank=True,
+                                  related_name="+")
+    partner = models.ForeignKey(OracleCard, on_delete=models.PROTECT, null=True, blank=True,
+                                related_name="+")
+    commander_printings = models.JSONField(default=dict, blank=True)
+    #: `[{"id": oracle id, "n": quantity, "printings": [...]}, ...]`, sorted by id.
+    cards = models.JSONField(default=list)
+    #: `simulations.summary.list_fingerprint` of this list.
+    list_print = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["number"]
+        constraints = [
+            models.UniqueConstraint(fields=["deck", "number"], name="one_number_per_deck_version")
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.deck_id} v{self.number}"
+
+    @property
+    def card_count(self) -> int:
+        return sum(card["n"] for card in self.cards)
 
 
 class DeckCard(models.Model):

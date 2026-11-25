@@ -128,6 +128,15 @@ summary, "Was this summary helpful?" keeps the answer, an optional comment and a
 case (`SummaryFeedback`); `python manage.py summary_feedback` writes the cases to
 `.data/summary_feedback.jsonl`, unhelpful first, with nobody named.
 
+**Deck versions (Workshop, 2026-11-25)**: "New version" on the deck page takes cards out and
+puts cards in - ticked from the page's own cuts and strategy picks, or found with a card search -
+and keeps the list before as it was (`decks/versions.py`, `DeckVersion`). The deck's own rows
+always hold the version it is in, so the engine, runs and hand need no change; a run belongs to a
+version by its `list_print`. The timeline on the deck page shows each version's changes by card
+and by group, its runs, and lets the owner choose or remove one; a removed version's runs stay as
+"runs of an old list". Version 1 is made from the list on the first new version; a re-import of
+a versioned deck becomes a version of its own.
+
 **Data pages (P11)**: every Commander precon since 2025, simulated the same way (10,000 games, 6
 turns, the multiplayer draw rule) and public in every language: a sortable table at
 `/data/commander-precons/` and one page per precon with its full report, both in the sitemap.
@@ -579,18 +588,18 @@ layout.
 ### Design system
 
 ```bash
-.venv/Scripts/python scripts/build_styleguide.py   # regenerate STYLEGUIDE.html
+.venv/Scripts/python scripts/build_styleguide.py   # regenerate docs/STYLEGUIDE.html
 ```
 
-`STYLEGUIDE.html` is **generated** from `assets/css/input.css` and from the role pairings in
+`docs/STYLEGUIDE.html` is **generated** from `assets/css/input.css` and from the role pairings in
 `tests/test_design_tokens.py`, so it cannot misreport a hex value or a contrast ratio. A test
-fails if it goes stale. Rules live in `DESIGN.md`, and decisions flow one way:
-`DESIGN.md` → `STYLEGUIDE.html` → `input.css` → contrast test.
+fails if it goes stale. Rules live in `docs/DESIGN.html`, and decisions flow one way:
+`docs/DESIGN.html` → `docs/STYLEGUIDE.html` → `input.css` → contrast test.
 
 A PDF is produced on demand and **never committed**:
 
 ```bash
-msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
+msedge --headless --print-to-pdf=styleguide.pdf docs/STYLEGUIDE.html
 ```
 
 ## Architecture
@@ -610,8 +619,8 @@ msedge --headless --print-to-pdf=styleguide.pdf STYLEGUIDE.html
 | `guests/` | Trying it without an account: a temporary guest user per browser, its limits and fence, saving (claiming) and hourly expiry |
 | `datapages/` | The data pages: Commander precons from MTGJSON, simulated by the site's own (system) account, the table and a page per precon, `manage.py precons` and the weekly refresh |
 | `metrics/` | Daily usage counts with no user attached, the staff stats page at `/admin/stats/` and `manage.py stats`, and the "Compare two versions" fake door |
-| `DESIGN.md` | **Normative design rules** |
-| `STYLEGUIDE.html` | Binding rendered reference, standalone, print CSS included |
+| `docs/DESIGN.html` | **Normative design rules** |
+| `docs/STYLEGUIDE.html` | Binding rendered reference, standalone, print CSS included |
 | `assets/css/input.css` | **Design-token source of truth** |
 | `tests/` | Engine tests (vendored, byte-identical) + Django tests |
 

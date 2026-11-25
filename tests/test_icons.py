@@ -1,4 +1,4 @@
-"""Our symbols (DESIGN.md, SYMBOLS; Themen-Doc, Paket 4, PR 15).
+"""Our symbols (docs/DESIGN.html, SYMBOLS; Themen-Doc, Paket 4, PR 15).
 
 `{% icon %}` sets a drawing from core/icons/ inline. These hold the folder, the
 tag, the templates that use it, the stylesheet and the styleguide together, so

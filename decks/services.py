@@ -32,7 +32,7 @@ from django.utils.translation import gettext, gettext_noop
 from billing import quotas
 from billing.models import UsageRecord
 from core.l10n import number
-from decks import command_zone, importers, printing_art, resolve
+from decks import command_zone, importers, printing_art, resolve, versions
 from decks.models import Deck, DeckCard, DeckImport, PendingImport, UnresolvedRow
 
 #: Uploads above this are refused before anything is decoded. The reference
@@ -364,6 +364,8 @@ def import_deck(
     recount_later(Deck.objects.filter(pk=deck.pk))
     deck.open_questions = None
     _count_unread_later(deck)
+    if not creating:
+        versions.after_import(deck)
 
     return ImportOutcome(deck=deck, record=record, report=report)
 
@@ -583,6 +585,7 @@ def set_commander(deck: Deck, card, partner=None) -> None:
     deck.open_questions = None
     deck.save(update_fields=["commander", "partner", "commander_printings", "open_questions",
                              "updated_at"])
+    versions.after_commander_change(deck)
 
 
 # --- the mapping round trip -------------------------------------------------

@@ -1,7 +1,10 @@
 {% extends "base.html" %}
-{% load i18n icons %}
+{% load i18n icons static %}
 {% block title %}{% blocktranslate with name=deck.name %}Hand tutor: {{ name }}{% endblocktranslate %} — Goldfish Lab{% endblock %}
 {% block description %}{% translate "Which plan does this hand have? Seven cards from your deck, played a few hundred times." %}{% endblock %}
+{% block head %}
+  <script src="{% static 'js/hand-press.js' %}" defer></script>
+{% endblock %}
 {% block content %}
   {% comment %}
     The hand tutor (Paket 5, PR 21; decks.tutor, decks.views.HandTutorView).

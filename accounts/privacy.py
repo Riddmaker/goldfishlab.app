@@ -32,6 +32,7 @@ from django.utils.translation import gettext
 EXPORTED = [
     ("decks", "decks.Deck", "owner"),
     ("deck_cards", "decks.DeckCard", "deck__owner"),
+    ("deck_versions", "decks.DeckVersion", "deck__owner"),
     ("deck_imports", "decks.DeckImport", "owner"),
     ("unresolved_rows", "decks.UnresolvedRow", "deck_import__owner"),
     ("pending_imports", "decks.PendingImport", "owner"),

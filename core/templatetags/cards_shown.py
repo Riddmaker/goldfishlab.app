@@ -1,6 +1,6 @@
 """`{% card_tile name %}`: a card shown, not described (deck page v2, PR E).
 
-DESIGN.md, "Cards are shown": a combo, an engine or a synergy is its cards'
+docs/DESIGN.html, "Cards are shown": a combo, an engine or a synergy is its cards'
 pictures in a row - `[card] + [card] = result` - with what each card does in
 a line under it. The picture is the printing the deck's file named
 (`Deck.card_images`, `decks.printing_art`), else the catalogue's; with a

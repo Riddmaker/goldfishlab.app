@@ -137,7 +137,7 @@ Three things, which is why this pass is not optional:
 
 1. **Every text and number input was invisible.** No border and a white background on a
    parchment surface: the annotation editor showed a label, a sentence of help text, and then
-   nothing at all where the box should be. `STYLEGUIDE.html` had specified the control styling
+   nothing at all where the box should be. `docs/STYLEGUIDE.html` had specified the control styling
    since Phase 0b; the CSS had only ever implemented it under `.auth-form`.
 2. **The tune page was 106,000 pixels tall on a phone** — a full eight-row provenance table for
    each of 183 cards. Correct, tested, unusable. It is one row per card now, with the detail one

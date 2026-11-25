@@ -368,12 +368,8 @@
         </div>
       </div>
 
-      {# --- the hand: a fan of real cards along the table's edge; the card is the button --- #}
+      {# --- the hand: a fan of real cards right at the table's edge, the hint under it; the card is the button --- #}
       <div class="playtest-hand" role="group" aria-label="{% translate "Hand" %}">
-        <p class="mb-2 text-sm text-parchment-200">
-          {% blocktranslate trimmed with count=hand|length %}Hand <span class="tabular">{{ count }}</span>{% endblocktranslate %}
-          {% if journal %}· {% translate "click a card to put it on the table. Nothing is paid, and nothing happens on its own." %}{% elif not deciding %}· {% translate "click a card to play it. A glowing card is one the mana can pay for; nothing is blocked." %}{% endif %}
-        </p>
         <ul class="hand-fan">
           {% for tile in hand %}
             <li class="hand-slot" style="--i: {{ forloop.counter0|unlocalize }}; --n: {{ hand|length|unlocalize }};">
@@ -422,6 +418,10 @@
             <li class="text-parchment-200">{% translate "Nothing in hand." %}</li>
           {% endfor %}
         </ul>
+        <p class="hand-hint text-sm text-parchment-200">
+          {% blocktranslate trimmed with count=hand|length %}Hand <span class="tabular">{{ count }}</span>{% endblocktranslate %}
+          {% if journal %}· {% translate "click a card to put it on the table. Nothing is paid, and nothing happens on its own." %}{% elif not deciding %}· {% translate "click a card to play it. A glowing card is one the mana can pay for; nothing is blocked." %}{% endif %}
+        </p>
       </div>
     </section>
 

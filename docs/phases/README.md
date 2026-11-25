@@ -63,5 +63,5 @@ actually learned in the phases before them.
 6. **No step-wise go-live.** Every phase up to and including 7 runs on `docker compose` locally.
    The GitHub repository, the GHCR package and the Jelastic environment are created **once**, in
    Phase 8. Deployment artifacts are kept current throughout, but never executed early.
-7. **Design decisions flow one way:** `DESIGN.md` -> `STYLEGUIDE.html` -> `assets/css/input.css`.
+7. **Design decisions flow one way:** `docs/DESIGN.html` -> `docs/STYLEGUIDE.html` -> `assets/css/input.css`.
    Never edit a token first and document it afterwards.

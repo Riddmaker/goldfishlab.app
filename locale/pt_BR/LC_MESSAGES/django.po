@@ -17036,3 +17036,7 @@ msgstr ""
 #: core/views.py
 msgid "How fast the deck is, against the Commander Brackets."
 msgstr "Quão rápido o deck é, em relação aos Commander Brackets."
+
+#: templates/decks/_card_tile.html
+msgid "Not in your deck"
+msgstr "Não está no seu deck"

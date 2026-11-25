@@ -1,14 +1,17 @@
 {% load i18n %}{% comment %}
   One card, shown (core/templatetags/cards_shown.py). Focusable, so the
-  keyboard can grow it as the pointer does.
+  keyboard can grow it as the pointer does. `missing`: the card a combo
+  still needs (B-06), dashed, and said under it.
 {% endcomment %}
-<figure class="card-tile{% if size %} card-tile-{{ size }}{% endif %}" tabindex="0">
+<figure class="card-tile{% if size %} card-tile-{{ size }}{% endif %}{% if missing %} card-tile-missing{% endif %}" tabindex="0">
   {% if image %}
     <img class="card-tile-img" src="{{ image }}" alt="{{ name }}" width="488" height="680" loading="lazy" decoding="async">
   {% else %}
     <span class="card-tile-img card-tile-text">{{ name }}</span>
   {% endif %}
-  {% if effect or repeats %}
+  {% if missing %}
+    <figcaption class="card-tile-effect card-tile-need">{% translate "Not in your deck" %}</figcaption>
+  {% elif effect or repeats %}
     <figcaption class="card-tile-effect">{{ effect }}{% if repeats %} <span class="card-tile-again" title="{% translate 'Works again and again' %}">↻</span>{% endif %}</figcaption>
   {% endif %}
 </figure>

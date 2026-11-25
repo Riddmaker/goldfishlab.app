@@ -21,6 +21,7 @@ What it covers, on purpose:
 """
 
 import json
+import re
 from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
@@ -414,6 +415,26 @@ def test_the_panel_names_the_template_a_combo_still_needs(client, owner, deck, a
     body = client.get(deck.get_absolute_url()).content.decode()
 
     assert "persist creature" in body.lower()
+
+
+def test_a_combo_one_card_away_is_shown_as_cards_with_the_missing_one_marked(
+        client, owner, deck, answered):
+    """B-06: like the deck's own combos, `[card] + [card] = result`, and the
+    card the deck lacks dashed with "Not in your deck" under it."""
+    client.force_login(owner)
+    client.post(reverse("combos:refresh", args=[deck.id]))
+    entry = services.panel_for(deck).one_away[0]
+
+    body = client.get(deck.get_absolute_url()).content.decode()
+    rows = body[body.index("one card away"):]
+    row = rows[:rows.index("</li>")]
+
+    assert 'class="card-line' in row
+    assert row.count('<figure class="card-tile') == entry.combo.cards.count()
+    marked = re.findall(r'card-tile-missing.*?alt="([^"]+)"'
+                        r'|card-tile-missing.*?card-tile-text">([^<]+)<', row, re.S)
+    assert sorted(a or b for a, b in marked) == sorted(entry.missing)
+    assert "Not in your deck" in row
 
 
 # --- a slow or unhappy Spellbook must not take the web workers with it --------

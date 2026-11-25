@@ -79,7 +79,7 @@
     <p class="mt-1 text-sm text-ink-700">
       {% translate "In your colours, most-played first." %}
     </p>
-    <ul class="mt-3 space-y-3">
+    <ul class="mt-3 space-y-4">
       {% for entry in combos.one_away_top %}
         {% include "combos/_one_away.html" %}
       {% endfor %}
@@ -96,7 +96,7 @@
         </summary>
         <ul class="mt-3 space-y-3">
           {% for entry in combos.one_away_rest %}
-            {% include "combos/_one_away.html" %}
+            {% include "combos/_one_away.html" with small=True %}
           {% endfor %}
         </ul>
       </details>

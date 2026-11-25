@@ -2,15 +2,21 @@
   One "you have all but one card of this" row. Extracted because the list is
   rendered twice - the most-played few inline, the rest behind a `<details>` -
   and two copies of it would be two places for the missing card to be named
-  differently.
+  differently. `small`: the folded rest, in small pictures.
 {% endcomment %}
-{% load i18n %}
-<li class="text-sm text-ink-900">
-  {% for card in entry.combo.cards.all %}{{ card.name }}{% if not forloop.last %} + {% endif %}{% endfor %}
-  {% if entry.missing %}
-    — {% translate "you do not have" %}
-    <strong>{% for name in entry.missing %}{{ name }}{% if not forloop.last %}, {% endif %}{% endfor %}</strong>
-  {% endif %}
+{% load i18n cards_shown %}
+<li class="border-l-2 border-parchment-600 pl-4 text-sm text-ink-900">
+  {# B-06: shown like the deck's own combos, the card it lacks marked. #}
+  <div class="card-line{% if small %} card-line-sm{% endif %}">
+    {% for card in entry.combo.cards.all %}
+      {% card_tile card.name fallback=card.oracle_card.image_uri missing=card.name|is_missing:entry.missing %}
+      {% if not forloop.last %}<span class="card-op" aria-hidden="true">+</span>{% endif %}
+    {% endfor %}
+    {% if entry.combo.produces %}
+      <span class="card-op" aria-hidden="true">=</span>
+      <span class="card-result"><span lang="en">{% for feature in entry.combo.produces %}{{ feature }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</span></span>
+    {% endif %}
+  </div>
   {% for template in entry.combo.templates.all %}
     {# A category, not a card. A combo whose template is unmet is one this #}
     {# deck does not have, however many named cards it holds.              #}

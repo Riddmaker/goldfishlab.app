@@ -15101,3 +15101,7 @@ msgstr "デッキが何を軸に組まれているか、そしてそれを支え
 #: core/views.py
 msgid "How fast the deck is, against the Commander Brackets."
 msgstr "Commander Brackets に照らした、デッキの速さ。"
+
+#: templates/decks/_card_tile.html
+msgid "Not in your deck"
+msgstr "デッキにありません"

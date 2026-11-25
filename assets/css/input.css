@@ -971,6 +971,19 @@ body {
   line-clamp: 4;
   overflow: hidden;
 }
+/* The card a one-away combo still needs (B-06): dashed and pale, its
+ * name under it, so the row says at a glance which one to get. */
+.card-tile-missing .card-tile-img {
+  outline: 2px dashed var(--color-blood-700);
+  outline-offset: 2px;
+  opacity: 0.55;
+}
+
+.card-tile-need {
+  color: var(--color-blood-700);
+  font-weight: 600;
+}
+
 .card-tile-again {
   color: var(--color-verdigris-700);
   font-weight: 700;
@@ -997,6 +1010,24 @@ body {
 }
 .card-line > .card-tile:first-child .card-tile-img {
   transform-origin: 0% 30%;
+}
+/* On a phone three cards and their signs fit one line, and the result is a
+ * line of its own under them instead of a lone "=" and a gap (B-06). */
+@media (max-width: 40rem) {
+  .card-line {
+    --tile: 4.75rem;
+  }
+  .card-line-sm {
+    --tile: 3rem;
+  }
+  .card-op:has(+ .card-result) {
+    display: none;
+  }
+  .card-result {
+    flex-basis: 100%;
+    max-width: none;
+    margin-top: 0;
+  }
 }
 .card-tile:hover,
 .card-tile:focus-visible {

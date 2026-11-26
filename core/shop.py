@@ -48,7 +48,7 @@ def rooms() -> dict:
                     {"if": {"flag": "seated"},
                      "say": _("Outside it is dark already. Inside, table three is waiting.")},
                     {"say": _("The street, and the evening coming. You came in for a reason: "
-                              "Friday Commander starts at seven, and your deck is not ready.")},
+                              "Wednesday Commander starts at seven, and your deck is not ready.")},
                 ]},
                 {"id": "boosters", "name": _("The wall of boosters"),
                  "x": 62, "y": 8, "w": 112, "h": 70, "steps": [
@@ -57,7 +57,7 @@ def rooms() -> dict:
                 ]},
                 {"id": "board", "name": _("The notice board"),
                  "x": 184, "y": 18, "w": 40, "h": 34, "steps": [
-                    {"say": _("“Friday Commander, 7 pm. Bring a deck, bring snacks, "
+                    {"say": _("“Wednesday Commander, 7 pm. Bring a deck, bring snacks, "
                               "bring a friend.” Below it, someone looking for a fourth "
                               "player since March.")},
                 ]},

@@ -24,7 +24,7 @@ follows the card as filed (Ready), and the calls below are mine until the owner 
 
 ## Story (draft, short)
 
-You come in on a Friday to get a deck ready for the evening. Three things are missing: sleeves, one
+You come in on a Wednesday to get a deck ready for the evening. Three things are missing: sleeves, one
 card and a place at a table. The shopkeeper (a made-up person) helps if you help first. Three small
 puzzles, one per thing; at the end you sit down, shuffle, and the shopkeeper says it plays well, as
 far as one can tell. That is the only link to Goldfish Lab: «Goldfish it» opens the import.

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static i18n %}
 {% block title %}{{ shop_name }} — Goldfish Lab{% endblock %}
-{% block description %}{% translate "A small game in a card shop, an evening before Friday Commander." %}{% endblock %}
+{% block description %}{% translate "A small game in a card shop, an evening before Wednesday Commander." %}{% endblock %}
 {% block head %}
   <script src="{% static 'js/shop.js' %}" defer></script>
 {% endblock %}
@@ -14,7 +14,7 @@
   {% endcomment %}
   <div class="max-w-4xl" data-shop>
     <h1 class="font-display text-3xl text-parchment-100">{{ shop_name }}</h1>
-    <p class="mt-2 text-parchment-200">{% translate "A card shop, made up. Friday, a quarter to seven." %}</p>
+    <p class="mt-2 text-parchment-200">{% translate "A card shop, made up. Wednesday, a quarter to seven." %}</p>
 
     <div class="mt-6" data-shop-nojs>
       <img src="{% static 'img/shop/floor.svg' %}" alt="{% translate "The shop floor" %}" class="shop-picture" width="320" height="180">

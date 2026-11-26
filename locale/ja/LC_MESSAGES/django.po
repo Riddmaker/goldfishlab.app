@@ -15949,9 +15949,9 @@ msgid "Outside it is dark already. Inside, table three is waiting."
 msgstr "外はもう暗くなっています。店内では3番テーブルが待っています。"
 
 msgid ""
-"The street, and the evening coming. You came in for a reason: Friday "
+"The street, and the evening coming. You came in for a reason: Wednesday "
 "Commander starts at seven, and your deck is not ready."
-msgstr "通りには夕暮れが迫っています。ここに来たのには理由があります。金曜の統率者戦は7時から。なのに、あなたのデッキはまだ準備ができていません。"
+msgstr "通りには夕暮れが迫っています。ここに来たのには理由があります。水曜の統率者戦は7時から。なのに、あなたのデッキはまだ準備ができていません。"
 
 msgid "The wall of boosters"
 msgstr "ブースターの棚"
@@ -15965,10 +15965,10 @@ msgid "The notice board"
 msgstr "掲示板"
 
 msgid ""
-"“Friday Commander, 7 pm. Bring a deck, bring snacks, bring a friend.” Below "
-"it, someone looking for a fourth player since March."
+"“Wednesday Commander, 7 pm. Bring a deck, bring snacks, bring a friend.” "
+"Below it, someone looking for a fourth player since March."
 msgstr ""
-"「金曜統率者戦、19時から。デッキとお菓子と友達を連れてきてください。」その下には、3月からずっと4人目のプレイヤーを探している貼り紙があります。"
+"「水曜統率者戦、19時から。デッキとお菓子と友達を連れてきてください。」その下には、3月からずっと4人目のプレイヤーを探している貼り紙があります。"
 
 msgid "The glass case of singles"
 msgstr "シングルカードのショーケース"
@@ -16019,11 +16019,11 @@ msgstr "7時になるとテーブルは埋まります。3番テーブルは空�
 msgid "A door has opened behind the flask. Go in?"
 msgstr "フラスコの後ろに扉が開きました。入ってみますか？"
 
-msgid "A small game in a card shop, an evening before Friday Commander."
-msgstr "金曜統率者戦の前の夕方、カードショップでの小さなゲームです。"
+msgid "A small game in a card shop, an evening before Wednesday Commander."
+msgstr "水曜統率者戦の前の夕方、カードショップでの小さなゲームです。"
 
-msgid "A card shop, made up. Friday, a quarter to seven."
-msgstr "架空のカードショップ。金曜日、6時45分。"
+msgid "A card shop, made up. Wednesday, a quarter to seven."
+msgstr "架空のカードショップ。水曜日、6時45分。"
 
 msgid "The shop needs JavaScript to be played."
 msgstr "このゲームを遊ぶには JavaScript が必要です。"
